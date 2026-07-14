@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+/* Scan the shared @aptis/ui package source so its Tailwind classes
+   (Badge / StatCard / ProgressBar / Dropdown colours, etc.) are generated in
+   this app's stylesheet — Tailwind v4 does not scan workspace packages by
+   default, which otherwise drops any class used only inside @aptis/ui. */
+@source "../../../packages/ui/src";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+  /* This portal is light-only; force light UA rendering (inputs, date picker,
+     scrollbars) so it looks correct even when the OS is in dark mode. */
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}

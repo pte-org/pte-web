@@ -1,0 +1,13 @@
+{
+  "name": "@aptis/config",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./eslint": "./eslint.config.mjs",
+    "./tsconfig": "./tsconfig.base.json"
+  },
+  "dependencies": {
+    "eslint": "^9",
+    "eslint-config-next": "16.2.9"
+  }
+}

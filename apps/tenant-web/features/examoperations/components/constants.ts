@@ -1,0 +1,25 @@
+export const ROSTER_TEXT = {
+  HEADING: "Import Learners",
+  DROP_PROMPT: "Drag a .xlsx file here or click to choose a file",
+  FILE_INPUT_LABEL: "Roster file (.xlsx)",
+  CHECK: "Review File",
+  CHECKING: "Reviewing",
+  REVIEW_HEADING: "Import Review",
+  REVIEW_FILE: "File",
+  REVIEW_ROWS: "Accounts to create",
+  REVIEW_COLUMNS: "Columns kept",
+  REVIEW_SAMPLE: "Sample rows",
+  REVIEW_NOTE: "Usernames and passwords will be generated after confirmation.",
+  REPORT_EMPTY: "No errors found. All rows are valid.",
+  COL_ROW: "Row",
+  COL_REASON: "Reason",
+  DOWNLOAD: "Create Accounts and Download File",
+  DOWNLOADING: "Downloading file",
+  PREVIEW_ERROR_TITLE: "Unable to review roster",
+  DOWNLOAD_ERROR_TITLE: "Unable to download login information file",
+  UNKNOWN_ERROR: "An unknown error occurred.",
+  ASSIGN_LABEL: "Assigned Exam",
+  ASSIGN_PLACEHOLDER: "-- Select an exam --",
+} as const;
+
+export const ACCEPTED_FILE_TYPE = ".xlsx";
