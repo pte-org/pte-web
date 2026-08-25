@@ -9,11 +9,28 @@ import {
   MailIcon,
   SsoButtons,
   useSessionManager,
+  type SessionRole,
 } from "@aptis/ui";
+import { decodeAccessTokenClaims } from "@aptis/api-client";
 import { useLoginHost } from "../api";
 import { AUTH_ROUTES, AUTH_TEXT } from "../constants";
 import { getLoginErrorMessage } from "../loginError";
 import { AuthBrandPanel } from "./_AuthBrandPanel";
+
+const SESSION_ROLES: readonly SessionRole[] = [
+  "PLATFORM_ADMIN",
+  "PLATFORM_AUTHOR",
+  "HOST_ADMIN",
+  "HOST_AUTHOR",
+  "PROCTOR",
+  "STUDENT",
+];
+
+function toSessionRoles(rawRoles: string[]): SessionRole[] {
+  return rawRoles.filter((role): role is SessionRole =>
+    (SESSION_ROLES as readonly string[]).includes(role),
+  );
+}
 
 const FIELD_WRAP_CLASS =
   "flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 focus-within:border-blue-500";
@@ -43,14 +60,22 @@ export const LoginView = (): ReactElement => {
       { email: email.trim(), password },
       {
         onSuccess: (data) => {
+          const claims = decodeAccessTokenClaims(data.accessToken);
+          const roles = claims ? toSessionRoles(claims.roles) : [];
+          if (!claims || roles.length === 0) {
+            // Decode failure and "decoded but no recognized role" must fail
+            // the same way — an empty-roles session would still pass
+            // isAuthenticated while every hasRole() check silently returns
+            // false forever, instead of a clear error.
+            setErrorMessage(AUTH_TEXT.GENERIC_ERROR);
+            return;
+          }
           saveSession({
             accessToken: data.accessToken,
             refreshToken: data.refreshToken,
-            role: data.role,
-            userType: data.userType,
-            tenantId: data.tenantId,
-            mustChangePassword: data.mustChangePassword,
-            expiresAt: Date.now() + data.expiresIn * 1000,
+            roles,
+            tenantId: claims.tenantId,
+            expiresAt: claims.expiresAt || Date.now() + data.expiresInSeconds * 1000,
           });
           router.replace(AUTH_ROUTES.hostDashboard);
         },
