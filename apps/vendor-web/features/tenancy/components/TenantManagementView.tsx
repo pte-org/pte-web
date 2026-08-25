@@ -1,20 +1,17 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { PageHeader } from "@aptis/ui";
+import { ApiError } from "@aptis/api-client";
+import { Alert, PageHeader } from "@aptis/ui";
 import { CREATE_TENANT_CONFLICT_TEXT, TENANCY_TEXT } from "../constants";
 import { filterTenants } from "../utils/filterTenants";
 import {
   useCreateTenant,
+  useReactivateTenant,
   useSuspendTenant,
   useTenants,
 } from "../api";
-import type {
-  CreateTenantInput,
-  Tenant,
-  TenantCreationResult,
-  TenantFilter,
-} from "../types";
+import type { CreateTenantInput, Tenant, TenantFilter } from "../types";
 import { TenantFilters } from "./_TenantFilters";
 import { TenantTable } from "./_TenantTable";
 import { TenantEmptyState } from "./_TenantEmptyState";
@@ -23,13 +20,12 @@ import { CreateTenantModal } from "./CreateTenantModal";
 import { TenantCreatedModal } from "./TenantCreatedModal";
 
 const INITIAL_FILTER: TenantFilter = { query: "", status: "all" };
-const SERVER_CONFLICT_MESSAGE = "Resource conflict";
 
 function mutationErrorMessage(error: unknown): string | undefined {
-  if (!(error instanceof Error)) return undefined;
-  return error.message === SERVER_CONFLICT_MESSAGE
-    ? CREATE_TENANT_CONFLICT_TEXT.CONFLICT
-    : error.message;
+  if (error instanceof ApiError && error.kind === "conflict") {
+    return CREATE_TENANT_CONFLICT_TEXT.CONFLICT;
+  }
+  return error instanceof Error ? error.message : undefined;
 }
 
 function normalizeComparable(value: string): string {
@@ -40,21 +36,10 @@ function validateCreateConflict(
   input: CreateTenantInput,
   tenants: Tenant[],
 ): string | undefined {
-  const slug = normalizeComparable(input.slug);
-  const contactEmail = normalizeComparable(input.contactEmail);
+  const name = normalizeComparable(input.name);
 
-  if (tenants.some((tenant) => normalizeComparable(tenant.slug) === slug)) {
-    return CREATE_TENANT_CONFLICT_TEXT.DUPLICATE_SLUG;
-  }
-
-  if (
-    tenants.some(
-      (tenant) =>
-        tenant.contactEmail !== null &&
-        normalizeComparable(tenant.contactEmail) === contactEmail,
-    )
-  ) {
-    return CREATE_TENANT_CONFLICT_TEXT.DUPLICATE_EMAIL;
+  if (tenants.some((tenant) => normalizeComparable(tenant.name) === name)) {
+    return CREATE_TENANT_CONFLICT_TEXT.DUPLICATE_NAME;
   }
 
   return undefined;
@@ -63,20 +48,31 @@ function validateCreateConflict(
 export const TenantManagementView = (): ReactElement => {
   const { data: tenants } = useTenants();
   const suspend = useSuspendTenant();
+  const reactivate = useReactivateTenant();
   const create = useCreateTenant();
 
   const [filter, setFilter] = useState<TenantFilter>(INITIAL_FILTER);
   const [suspendTarget, setSuspendTarget] = useState<Tenant | null>(null);
   const [createOpen, setCreateOpen] = useState(false);
   const [createError, setCreateError] = useState<string | undefined>();
-  const [createResult, setCreateResult] =
-    useState<TenantCreationResult | null>(null);
+  const [createdTenant, setCreatedTenant] = useState<Tenant | null>(null);
+  const [lifecycleError, setLifecycleError] = useState<string | undefined>();
 
   const visibleTenants = filterTenants(tenants ?? [], filter);
 
   const confirmSuspend = (tenant: Tenant): void => {
-    suspend.mutate(tenant.id);
+    setLifecycleError(undefined);
+    suspend.mutate(tenant.id, {
+      onError: (error) => setLifecycleError(mutationErrorMessage(error)),
+    });
     setSuspendTarget(null);
+  };
+
+  const confirmReactivate = (tenant: Tenant): void => {
+    setLifecycleError(undefined);
+    reactivate.mutate(tenant.id, {
+      onError: (error) => setLifecycleError(mutationErrorMessage(error)),
+    });
   };
 
   const confirmCreate = (input: CreateTenantInput): void => {
@@ -88,10 +84,10 @@ export const TenantManagementView = (): ReactElement => {
     }
 
     create.mutate(input, {
-      onSuccess: (result) => {
+      onSuccess: (tenant) => {
         setCreateOpen(false);
         setCreateError(undefined);
-        setCreateResult(result);
+        setCreatedTenant(tenant);
       },
     });
   };
@@ -113,10 +109,13 @@ export const TenantManagementView = (): ReactElement => {
 
       <TenantFilters filter={filter} onChange={setFilter} />
 
+      {lifecycleError && <Alert tone="error">{lifecycleError}</Alert>}
+
       {visibleTenants.length > 0 ? (
         <TenantTable
           tenants={visibleTenants}
           onSuspend={setSuspendTarget}
+          onReactivate={confirmReactivate}
         />
       ) : (
         <TenantEmptyState onAdd={() => setCreateOpen(true)} />
@@ -143,8 +142,8 @@ export const TenantManagementView = (): ReactElement => {
       />
 
       <TenantCreatedModal
-        result={createResult}
-        onClose={() => setCreateResult(null)}
+        tenant={createdTenant}
+        onClose={() => setCreatedTenant(null)}
       />
     </div>
   );
