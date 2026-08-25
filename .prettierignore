@@ -1,0 +1,22 @@
+# dependencies
+node_modules
+
+# next.js
+.next/
+out/
+
+# turborepo
+.turbo
+
+# production
+/build
+/coverage
+
+# generated
+*.tsbuildinfo
+next-env.d.ts
+pnpm-lock.yaml
+
+# misc
+.DS_Store
+.claude
