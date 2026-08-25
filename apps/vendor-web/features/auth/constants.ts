@@ -1,7 +1,18 @@
+import type { SessionRole } from "@aptis/ui";
+
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 
 export const VENDOR_ROLES = ["admin", "host"] as const;
+
+/**
+ * Real backend roles allowed into `/admin/*` vs `/host` respectively —
+ * shared between `DashboardChrome`'s per-call-site `allowedRoles` and
+ * `LoginView.tsx`'s post-login redirect decision, so the two can never
+ * silently disagree about which roles belong on which side.
+ */
+export const ADMIN_ROLES: SessionRole[] = ["PLATFORM_ADMIN"];
+export const HOST_ROLES: SessionRole[] = ["HOST_ADMIN", "HOST_AUTHOR"];
 
 export const AUTH_ROUTES = {
   login: "/login",

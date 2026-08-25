@@ -9,12 +9,29 @@ import {
   MailIcon,
   SsoButtons,
   useSessionManager,
+  type SessionRole,
 } from "@aptis/ui";
+import { decodeAccessTokenClaims } from "@aptis/api-client";
 import { useLoginAdmin, useLoginHost } from "../api";
-import { AUTH_ROUTES, AUTH_TEXT } from "../constants";
+import { AUTH_ROUTES, AUTH_TEXT, HOST_ROLES } from "../constants";
 import type { VendorRole } from "../types";
 import { getLoginErrorMessage } from "../loginError";
 import { AuthBrandPanel } from "./_AuthBrandPanel";
+
+const SESSION_ROLES: readonly SessionRole[] = [
+  "PLATFORM_ADMIN",
+  "PLATFORM_AUTHOR",
+  "HOST_ADMIN",
+  "HOST_AUTHOR",
+  "PROCTOR",
+  "STUDENT",
+];
+
+function toSessionRoles(rawRoles: string[]): SessionRole[] {
+  return rawRoles.filter((role): role is SessionRole =>
+    (SESSION_ROLES as readonly string[]).includes(role),
+  );
+}
 
 function resolveRole(raw: string | null): VendorRole {
   return raw === "host" ? "host" : "admin";
@@ -56,16 +73,27 @@ export const LoginView = (): ReactElement => {
       { email: email.trim(), password },
       {
         onSuccess: (data) => {
+          const claims = decodeAccessTokenClaims(data.accessToken);
+          const roles = claims ? toSessionRoles(claims.roles) : [];
+          if (!claims || roles.length === 0) {
+            // Decode failure and "decoded but no recognized role" must fail
+            // the same way — an empty-roles session would still pass
+            // isAuthenticated (a non-empty accessToken) while every
+            // hasRole() check silently returns false forever, landing the
+            // user on a dashboard they can't do anything on instead of a
+            // clear error.
+            setErrorMessage(AUTH_TEXT.GENERIC_ERROR);
+            return;
+          }
           saveSession({
             accessToken: data.accessToken,
             refreshToken: data.refreshToken,
-            role: data.role,
-            userType: data.userType,
-            tenantId: data.tenantId,
-            mustChangePassword: data.mustChangePassword,
-            expiresAt: Date.now() + data.expiresIn * 1000,
+            roles,
+            tenantId: claims.tenantId,
+            expiresAt: claims.expiresAt || Date.now() + data.expiresInSeconds * 1000,
           });
-          router.replace(data.role === "HOST" ? AUTH_ROUTES.hostDashboard : dashboard);
+          const isHostRole = roles.some((role) => HOST_ROLES.includes(role));
+          router.replace(isHostRole ? AUTH_ROUTES.hostDashboard : dashboard);
         },
         onError: (error) => setErrorMessage(getLoginErrorMessage(error)),
       },

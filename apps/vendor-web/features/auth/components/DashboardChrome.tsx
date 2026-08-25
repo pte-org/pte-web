@@ -12,6 +12,7 @@ import {
   Skeleton,
   cn,
   useTokenManager,
+  type SessionRole,
 } from "@aptis/ui";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
@@ -26,6 +27,15 @@ export interface NavItem {
 interface DashboardChromeProps {
   navItems: NavItem[];
   children: ReactNode;
+  /**
+   * Required, not defaulted — `DashboardChrome` is the shared shell for
+   * BOTH `/admin/*` (platform-admin-only) and `/host` (host-admin-only)
+   * pages. A default here previously locked every caller to the same role
+   * set, silently breaking whichever route didn't match it (QUAL-001,
+   * Phase 1 quality gate) — making every call site say explicitly who's
+   * allowed catches that class of bug at compile time instead.
+   */
+  allowedRoles: SessionRole[];
 }
 
 const BRAND_NAME = "APTIS LMS";
@@ -140,7 +150,7 @@ const ChromeContent = ({
 );
 
 export const DashboardChrome = (props: DashboardChromeProps): ReactElement => (
-  <RequireAuth>
+  <RequireAuth allowedRoles={props.allowedRoles}>
     <ChromeContent {...props} />
   </RequireAuth>
 );
