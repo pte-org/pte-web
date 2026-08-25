@@ -1,4 +1,4 @@
-import type { BadgeVariant } from "@aptis/ui";
+import type { BadgeVariant } from "@pte/ui";
 import type { GrantQuotaInput, LicenseStatus } from "./types";
 
 export const LICENSING_TEXT = {

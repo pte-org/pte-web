@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert } from "@aptis/ui";
+import { Alert } from "@pte/ui";
 import { TENANT_DETAIL_TEXT } from "../constants";
 import { validateBranding, type BrandingErrors } from "../utils/validateBranding";
 import type { BrandingInput, Tenant } from "../types";

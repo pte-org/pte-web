@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Modal } from "@aptis/ui";
+import { Alert, Modal } from "@pte/ui";
 import { PLAN_SELECT_OPTIONS } from "../../tenancy/constants";
 import { TenantFormField, fieldInputClass } from "../../tenancy/components/_TenantFormField";
 import { EMPTY_GRANT_QUOTA, GRANT_QUOTA_ERRORS, GRANT_QUOTA_TEXT } from "../constants";

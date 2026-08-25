@@ -7,7 +7,7 @@ import {
   type GrantQuotaRequest,
   type QuotaTransactionResponse,
   type TenantResponse,
-} from "@aptis/api-client";
+} from "@pte/api-client";
 import {
   useMutation,
   useQuery,

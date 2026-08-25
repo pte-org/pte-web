@@ -5,7 +5,7 @@ import {
   DocumentIcon,
   StatCard,
   UsersIcon,
-} from "@aptis/ui";
+} from "@pte/ui";
 import { LICENSING_TEXT } from "../constants";
 import type { LicenseStats } from "../types";
 

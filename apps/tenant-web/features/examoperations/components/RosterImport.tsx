@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Button } from "@aptis/ui";
+import { Alert, Button } from "@pte/ui";
 import { RosterDropzone } from "./_RosterDropzone";
 import { ROSTER_TEXT } from "./constants";
 import { useConfirmRosterImport, useParseRosterImport, type ImportReviewResult } from "../api";

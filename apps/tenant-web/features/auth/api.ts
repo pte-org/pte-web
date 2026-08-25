@@ -12,7 +12,7 @@ import {
   type CurrentUser,
   type HostLoginRequest,
   type JwtTokenResponse,
-} from "@aptis/api-client";
+} from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
 
 export function useLoginHost(): UseMutationResult<

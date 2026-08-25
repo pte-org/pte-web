@@ -13,7 +13,7 @@ import {
   cn,
   useTokenManager,
   type SessionRole,
-} from "@aptis/ui";
+} from "@pte/ui";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
 import { AUTH_ROUTES } from "../constants";
@@ -38,10 +38,10 @@ interface DashboardChromeProps {
   allowedRoles: SessionRole[];
 }
 
-const BRAND_NAME = "APTIS LMS";
+const BRAND_NAME = "PTE LMS";
 const BRAND_SUBTITLE = "Admin System";
 const DISCLAIMER =
-  "APTIS mock exam platform. Not affiliated with the British Council.";
+  "PTE mock exam platform. Not affiliated with Pearson.";
 
 const HEADER_TEXT = {
   LANGUAGE: "Language",

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { ApiError } from "@aptis/api-client";
-import { PageHeader } from "@aptis/ui";
+import { ApiError } from "@pte/api-client";
+import { PageHeader } from "@pte/ui";
 import { GRANT_QUOTA_TEXT, LICENSING_TEXT } from "../constants";
 import { licenseStats, useGrantQuota, useLicenses } from "../api";
 import type { GrantQuotaInput, License } from "../types";

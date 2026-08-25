@@ -1,6 +1,6 @@
 # Features
 
-One folder per feature, named after the matching `aptis-api` bounded context
+One folder per feature, named after the matching `pte-api` bounded context
 (`iam`, `tenancy`, `questionbank`, `examoperations`, `examdelivery`, `scoring`)
 or a frontend-only concern (e.g. `auth`).
 
@@ -11,6 +11,6 @@ all contexts up front. Mirror the structure of `auth/`:
 features/<name>/
   components/
   hooks/
-  api.ts      # calls via TanStack Query, types from @aptis/api-client
+  api.ts      # calls via TanStack Query, types from @pte/api-client
   types.ts
 ```

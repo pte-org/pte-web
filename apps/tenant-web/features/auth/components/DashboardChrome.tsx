@@ -12,7 +12,7 @@ import {
   Skeleton,
   cn,
   useTokenManager,
-} from "@aptis/ui";
+} from "@pte/ui";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
 import { AUTH_ROUTES } from "../constants";
@@ -28,10 +28,10 @@ interface DashboardChromeProps {
   children: ReactNode;
 }
 
-const BRAND_NAME = "APTIS LMS";
+const BRAND_NAME = "PTE LMS";
 const BRAND_SUBTITLE = "School Portal";
 const DISCLAIMER =
-  "APTIS mock exam platform. Not affiliated with the British Council.";
+  "PTE mock exam platform. Not affiliated with Pearson.";
 
 const HEADER_TEXT = {
   LANGUAGE: "Language",

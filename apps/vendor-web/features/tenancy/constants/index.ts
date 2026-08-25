@@ -1,4 +1,4 @@
-import type { BadgeVariant } from "@aptis/ui";
+import type { BadgeVariant } from "@pte/ui";
 import type {
   CreateOrganizationInput,
   CreateTenantInput,

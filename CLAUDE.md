@@ -1,13 +1,13 @@
 @AGENTS.md
 @docs/CODING_STANDARDS_WEB.md
 
-# aptis-web — AI Code Generation Rules
+# pte-web — AI Code Generation Rules
 
 ## Monorepo Structure (Turborepo)
 
 Apps: `apps/tenant-web/` (learner portal), `apps/vendor-web/` (admin portal)
 
-Shared packages: `packages/ui/` (`@aptis/ui`), `packages/api-client/` (`@aptis/api-client`), `packages/config/` (`@aptis/config`)
+Shared packages: `packages/ui/` (`@pte/ui`), `packages/api-client/` (`@pte/api-client`), `packages/config/` (`@pte/config`)
 
 Feature structure per app: `src/features/{name}/{components,hooks,api.ts,constants.ts,types.ts}`
 
@@ -18,7 +18,7 @@ Feature structure per app: `src/features/{name}/{components,hooks,api.ts,constan
 3. **No `any` type** — use `unknown` with type narrowing, or define an interface
 4. **File ≤ 300 lines, component function ≤ 150 lines** — extract sub-components
 5. **All API calls via TanStack Query** — in `features/*/api.ts` using `useQuery`/`useMutation` (no bare `fetch()` in components)
-6. **Shared components → `@aptis/ui`** — if a component is used in 2+ features or 2+ apps, extract to packages/ui
+6. **Shared components → `@pte/ui`** — if a component is used in 2+ features or 2+ apps, extract to packages/ui
 7. **Dynamic routes have `loading.tsx` and `error.tsx`** — required for every `[param]` route segment
 8. **Never `// @ts-ignore`** — fix the type instead; `// @ts-expect-error` allowed only with a comment explaining why
 9. **Secrets** — `NEXT_PUBLIC_*` only for non-sensitive public config; private keys/tokens stay server-side in `.env.local`

@@ -2,8 +2,8 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { ApiError } from "@aptis/api-client";
-import { Alert, Badge, LoadingState, PageHeader } from "@aptis/ui";
+import { ApiError } from "@pte/api-client";
+import { Alert, Badge, LoadingState, PageHeader } from "@pte/ui";
 import {
   CREATE_TENANT_CONFLICT_TEXT,
   TENANT_DETAIL_TEXT,

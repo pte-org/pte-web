@@ -3,20 +3,20 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   sessionStorage,
-  type AptisSession,
+  type PteSession,
   type SessionRole,
 } from "./sessionStorage";
 
 export interface SessionManager {
-  session: AptisSession | null;
+  session: PteSession | null;
   isReady: boolean;
-  saveSession: (session: AptisSession) => void;
+  saveSession: (session: PteSession) => void;
   clearSession: () => void;
   hasRole: (role: SessionRole | SessionRole[]) => boolean;
 }
 
 export function useSessionManager(): SessionManager {
-  const [session, setSession] = useState<AptisSession | null>(null);
+  const [session, setSession] = useState<PteSession | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
@@ -24,7 +24,7 @@ export function useSessionManager(): SessionManager {
     setIsReady(true);
   }, []);
 
-  const saveSession = useCallback((next: AptisSession) => {
+  const saveSession = useCallback((next: PteSession) => {
     sessionStorage.save(next);
     setSession(next);
   }, []);

@@ -1,11 +1,11 @@
-# aptis-web
+# pte-web
 
-Frontend monorepo for Aptis LMS — pnpm workspaces + Turborepo. Two independent
+Frontend monorepo for PTE LMS — pnpm workspaces + Turborepo. Two independent
 Next.js apps (Tenant Portal, Vendor Portal) sharing UI, config, and API-client
-packages. Calls the `aptis-api` (Spring Boot) backend; does not talk to a
+packages. Calls the `pte-api` (Spring Boot) backend; does not talk to a
 database directly.
 
-> Web only. The exam-taking client (`aptis-app`, Flutter) is a separate repo —
+> Web only. The exam-taking client (`pte-app`, Flutter) is a separate repo —
 > not part of this workspace.
 
 ## Getting Started
@@ -22,14 +22,14 @@ pnpm build                        # build all apps/packages
 ## Directory Structure
 
 ```
-aptis-web/
+pte-web/
 ├── apps/
 │   ├── tenant-web/        # Tenant Portal — Admin/Teacher/Student-facing app
 │   └── vendor-web/        # Vendor Portal — superadmin-facing app (cross-tenant)
 ├── packages/
 │   ├── ui/                 # Shared React components, no business logic
 │   ├── config/             # Shared eslint + tsconfig, consumed via package exports
-│   └── api-client/         # Hand-written types + request functions for aptis-api
+│   └── api-client/         # Hand-written types + request functions for pte-api
 ├── pnpm-workspace.yaml      # Workspace package globs + build-script allowlist
 ├── turbo.json               # Task pipeline (dev/build/lint/test) across packages
 └── package.json              # Root scripts only (turbo dev/build/lint); no app code here
@@ -55,13 +55,13 @@ apps/<app>/
 │   └── auth/              # Example feature folder (only one scaffolded so far)
 │       ├── components/   # Feature-local UI components
 │       ├── hooks/         # Feature-local hooks (state, side effects)
-│       ├── api.ts          # Calls aptis-api via @aptis/api-client, wrapped in TanStack Query
+│       ├── api.ts          # Calls pte-api via @pte/api-client, wrapped in TanStack Query
 │       └── types.ts        # Feature-local types not worth sharing via api-client
 ├── public/                  # Static assets (favicon, svgs)
-├── next.config.ts            # transpilePackages: ["@aptis/ui", "@aptis/api-client"]
+├── next.config.ts            # transpilePackages: ["@pte/ui", "@pte/api-client"]
 ├── tsconfig.json               # extends ../../packages/config/tsconfig.base.json
 ├── postcss.config.mjs           # Tailwind v4 PostCSS plugin only (no content array — CSS-first config)
-├── eslint.config.mjs             # Re-exports @aptis/config/eslint
+├── eslint.config.mjs             # Re-exports @pte/config/eslint
 └── package.json                   # App name, deps; workspace deps via "workspace:*"
 ```
 
@@ -70,7 +70,7 @@ from the matching `features/<name>/` folder; they don't contain business logic
 themselves. Auth gating (redirect when no session) is a future `middleware.ts`
 concern, not something the route-group name implies on its own.
 
-Feature folders are named after the matching `aptis-api` (Spring Boot) bounded
+Feature folders are named after the matching `pte-api` (Spring Boot) bounded
 context — `iam`, `tenancy`, `question-bank`, `exam-operations`, `exam-delivery`,
 `scoring` — or a frontend-only concern like `auth`. Create a folder only when
 real work on that feature starts; don't pre-scaffold every context up front.
@@ -80,7 +80,7 @@ real work on that feature starts; don't pre-scaffold every context up front.
 ```
 packages/ui/
 ├── src/
-│   ├── index.ts            # Barrel export — apps import from "@aptis/ui"
+│   ├── index.ts            # Barrel export — apps import from "@pte/ui"
 │   └── components/          # Shared, presentational-only React components
 └── package.json
 ```
@@ -94,8 +94,8 @@ v4 is CSS-first (configured per-app in `globals.css`), not via a shared
 
 ```
 packages/config/
-├── eslint.config.mjs        # Shared flat ESLint config — re-exported as "@aptis/config/eslint"
-├── tsconfig.base.json        # Shared compiler options — extended as "@aptis/config/tsconfig"
+├── eslint.config.mjs        # Shared flat ESLint config — re-exported as "@pte/config/eslint"
+├── tsconfig.base.json        # Shared compiler options — extended as "@pte/config/tsconfig"
 └── package.json
 ```
 
@@ -107,9 +107,9 @@ re-exports/extends these — apps can still override locally if one ever needs t
 ```
 packages/api-client/
 ├── src/
-│   ├── index.ts             # Barrel export — apps import from "@aptis/api-client"
-│   ├── types/                # Hand-written types mirroring aptis-api DTOs
-│   └── requests/               # Thin wrapper functions around fetch, one per aptis-api endpoint
+│   ├── index.ts             # Barrel export — apps import from "@pte/api-client"
+│   ├── types/                # Hand-written types mirroring pte-api DTOs
+│   └── requests/               # Thin wrapper functions around fetch, one per pte-api endpoint
 └── package.json
 ```
 
@@ -125,7 +125,7 @@ files (inside each app) build on top of these with TanStack Query hooks.
 - **Styling:** Tailwind CSS v4 (CSS-first config, no `tailwind.config.ts`)
 - **Monorepo tooling:** pnpm workspaces + Turborepo
 - **Server state:** TanStack Query (planned — not yet installed)
-- **Backend:** `aptis-api` (Spring Boot, separate repo) over REST
+- **Backend:** `pte-api` (Spring Boot, separate repo) over REST
 
-See `aptis-doc/projects/aptis-mvp/team/techlead/` for the full architecture
+See `pte-doc/projects/aptis-mvp/team/techlead/` for the full architecture
 decision record (ADR-005, ADR-006) behind this structure.

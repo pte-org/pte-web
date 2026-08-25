@@ -1,4 +1,4 @@
-import { ApiError } from "@aptis/api-client";
+import { ApiError } from "@pte/api-client";
 import { AUTH_TEXT } from "./constants";
 
 /**

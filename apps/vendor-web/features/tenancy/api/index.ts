@@ -16,7 +16,7 @@ import {
   type OrganizationResponse,
   type TenantResponse,
   type UpdateBrandingRequest,
-} from "@aptis/api-client";
+} from "@pte/api-client";
 import {
   useMutation,
   useQuery,

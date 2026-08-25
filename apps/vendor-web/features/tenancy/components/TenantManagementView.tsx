@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { ApiError } from "@aptis/api-client";
-import { Alert, PageHeader } from "@aptis/ui";
+import { ApiError } from "@pte/api-client";
+import { Alert, PageHeader } from "@pte/ui";
 import { CREATE_TENANT_CONFLICT_TEXT, TENANCY_TEXT } from "../constants";
 import { filterTenants } from "../utils/filterTenants";
 import {

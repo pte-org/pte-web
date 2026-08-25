@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { PageHeader } from "@aptis/ui";
+import { PageHeader } from "@pte/ui";
 import { QUESTIONBANK_TEXT } from "../constants";
 import { filterQuestions } from "../filterQuestions";
 import { useQuestionStats, useQuestions } from "../api";

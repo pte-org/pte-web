@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@aptis/ui", "@aptis/api-client"],
+  transpilePackages: ["@pte/ui", "@pte/api-client"],
   turbopack: {
     root: "../../",
   },

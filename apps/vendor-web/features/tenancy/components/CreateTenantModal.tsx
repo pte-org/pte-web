@@ -6,7 +6,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
-import { Alert, BuildingIcon, Modal } from "@aptis/ui";
+import { Alert, BuildingIcon, Modal } from "@pte/ui";
 import { CREATE_TENANT_TEXT, EMPTY_CREATE_TENANT } from "../constants";
 import { validateCreateTenant } from "../utils/validateCreateTenant";
 import type { CreateTenantErrors, CreateTenantInput } from "../types";

@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Button, useTokenManager } from "@aptis/ui";
+import { Button, useTokenManager } from "@pte/ui";
 import { AUTH_ROUTES } from "../constants";
 
 const LOGOUT_LABEL = "Log out";

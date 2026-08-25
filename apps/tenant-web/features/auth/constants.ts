@@ -7,7 +7,7 @@ export const AUTH_ROUTES = {
 } as const;
 
 export const AUTH_TEXT = {
-  BRAND: "Aptis Hub",
+  BRAND: "PTE Hub",
   WELCOME_TITLE: "Welcome Back",
   WELCOME_SUBTITLE:
     "Sign in to manage learners and exams for your organization.",

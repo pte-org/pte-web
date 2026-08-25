@@ -1,4 +1,4 @@
-import type { SessionRole } from "@aptis/ui";
+import type { SessionRole } from "@pte/ui";
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
@@ -21,7 +21,7 @@ export const AUTH_ROUTES = {
 } as const;
 
 export const AUTH_TEXT = {
-  BRAND: "Aptis Hub",
+  BRAND: "PTE Hub",
   WELCOME_TITLE: "Welcome Back",
   WELCOME_SUBTITLE: "Please enter your institutional credentials to continue.",
   PANEL_HEADING: "Ready to Manage?",

@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { Skeleton } from "@aptis/ui";
+import { Skeleton } from "@pte/ui";
 
 export default function Loading(): ReactElement {
   return (

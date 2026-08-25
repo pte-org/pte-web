@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import Link from "next/link";
-import { Badge, Dropdown } from "@aptis/ui";
+import { Badge, Dropdown } from "@pte/ui";
 import {
   ORGANIZATION_TYPE_OPTIONS,
   TENANCY_TEXT,

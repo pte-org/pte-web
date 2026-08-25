@@ -9,7 +9,7 @@ export interface RefreshedTokens {
 }
 
 export interface ApiClientOptions {
-  /** Absolute origin of aptis-api, e.g. `https://api.aptis.vn` (no trailing slash). */
+  /** Absolute origin of pte-api, e.g. `https://api.pte.vn` (no trailing slash). */
   baseUrl: string;
   /** Returns the current access token for Bearer injection, or null when signed out. */
   getToken?: TokenGetter;

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { Badge, Dropdown } from "@aptis/ui";
+import { Badge, Dropdown } from "@pte/ui";
 import {
   FACILITY_TYPE_LABELS,
   ORGANIZATION_STATUS_LABELS,

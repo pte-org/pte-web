@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { Badge, Dropdown } from "@aptis/ui";
+import { Badge, Dropdown } from "@pte/ui";
 import { TENANT_PLAN_LABELS } from "../../tenancy/constants";
 import {
   LICENSE_STATUS_LABELS,

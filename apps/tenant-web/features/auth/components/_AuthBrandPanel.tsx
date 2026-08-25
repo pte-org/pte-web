@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { Mascot } from "@aptis/ui";
+import { Mascot } from "@pte/ui";
 import { AUTH_TEXT } from "../constants";
 
 export const AuthBrandPanel = (): ReactElement => (

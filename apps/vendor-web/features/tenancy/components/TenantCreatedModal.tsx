@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { CheckCircleIcon, Modal } from "@aptis/ui";
+import { CheckCircleIcon, Modal } from "@pte/ui";
 import { ORGANIZATION_TYPE_OPTIONS, TENANT_CREATED_TEXT, TENANT_PLAN_LABELS } from "../constants";
 import type { Tenant } from "../types";
 

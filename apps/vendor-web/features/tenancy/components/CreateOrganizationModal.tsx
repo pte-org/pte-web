@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Modal } from "@aptis/ui";
+import { Alert, Modal } from "@pte/ui";
 import {
   CREATE_ORGANIZATION_TEXT,
   EMPTY_CREATE_ORGANIZATION,

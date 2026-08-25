@@ -10,8 +10,8 @@ import {
   SsoButtons,
   useSessionManager,
   type SessionRole,
-} from "@aptis/ui";
-import { decodeAccessTokenClaims } from "@aptis/api-client";
+} from "@pte/ui";
+import { decodeAccessTokenClaims } from "@pte/api-client";
 import { useLoginAdmin, useLoginHost } from "../api";
 import { AUTH_ROUTES, AUTH_TEXT, HOST_ROLES } from "../constants";
 import type { VendorRole } from "../types";

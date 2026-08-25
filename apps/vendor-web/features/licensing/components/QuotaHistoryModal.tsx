@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import type { QuotaTransactionResponse } from "@aptis/api-client";
-import { Modal } from "@aptis/ui";
+import type { QuotaTransactionResponse } from "@pte/api-client";
+import { Modal } from "@pte/ui";
 import {
   QUOTA_ACTION_TYPE_FILTER_OPTIONS,
   QUOTA_ACTION_TYPE_LABELS,

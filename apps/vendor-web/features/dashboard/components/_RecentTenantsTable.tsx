@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { Avatar, Badge, Dropdown } from "@aptis/ui";
+import { Avatar, Badge, Dropdown } from "@pte/ui";
 import {
   TENANT_PLAN_LABELS,
   TENANT_STATUS_LABELS,

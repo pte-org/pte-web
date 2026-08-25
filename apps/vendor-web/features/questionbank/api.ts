@@ -4,7 +4,7 @@ import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import {
   listQuestions,
   type QuestionResponse,
-} from "@aptis/api-client";
+} from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
 import type {
   Question,

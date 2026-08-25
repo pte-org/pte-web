@@ -17,10 +17,10 @@ importers:
 
   apps/tenant-web:
     dependencies:
-      '@aptis/api-client':
+      '@pte/api-client':
         specifier: workspace:*
         version: link:../../packages/api-client
-      '@aptis/ui':
+      '@pte/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@tanstack/react-query':
@@ -39,7 +39,7 @@ importers:
         specifier: ^0.18.5
         version: 0.18.5
     devDependencies:
-      '@aptis/config':
+      '@pte/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@tailwindcss/postcss':
@@ -69,10 +69,10 @@ importers:
 
   apps/vendor-web:
     dependencies:
-      '@aptis/api-client':
+      '@pte/api-client':
         specifier: workspace:*
         version: link:../../packages/api-client
-      '@aptis/ui':
+      '@pte/ui':
         specifier: workspace:*
         version: link:../../packages/ui
       '@tanstack/react-query':
@@ -88,7 +88,7 @@ importers:
         specifier: 19.2.4
         version: 19.2.4(react@19.2.4)
     devDependencies:
-      '@aptis/config':
+      '@pte/config':
         specifier: workspace:*
         version: link:../../packages/config
       '@tailwindcss/postcss':
@@ -133,7 +133,7 @@ importers:
 
   packages/ui:
     dependencies:
-      '@aptis/api-client':
+      '@pte/api-client':
         specifier: workspace:*
         version: link:../api-client
     devDependencies:

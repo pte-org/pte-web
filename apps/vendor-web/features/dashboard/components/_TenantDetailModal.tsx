@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { Badge, Button, Modal } from "@aptis/ui";
+import { Badge, Button, Modal } from "@pte/ui";
 import {
   TENANT_LOCATION_OPTIONS,
   TENANT_PLAN_LABELS,

@@ -1,5 +1,5 @@
 import * as XLSX from "xlsx";
-import type { PrepareImportRequest } from "@aptis/api-client";
+import type { PrepareImportRequest } from "@pte/api-client";
 
 const MAX_SHEETS_TO_SCAN = 20;
 

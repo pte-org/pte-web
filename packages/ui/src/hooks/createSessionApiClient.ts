@@ -1,4 +1,4 @@
-import { createApiClient, type ApiClient, type RefreshedTokens } from "@aptis/api-client";
+import { createApiClient, type ApiClient, type RefreshedTokens } from "@pte/api-client";
 import { sessionStorage } from "./sessionStorage";
 
 /**
@@ -33,7 +33,7 @@ export function createSessionApiClient(baseUrl: string): ApiClient {
  * constructed by `createSessionApiClient` above, which doesn't exist yet
  * at that point — and would recurse back into its own 401 handling anyway)
  * hitting iam's real `/auth/refresh` endpoint directly. Mirrors
- * `@aptis/api-client`'s `requests/auth/refreshAuth` request shape but
+ * `@pte/api-client`'s `requests/auth/refreshAuth` request shape but
  * stays independent of it to avoid a circular import between that module
  * and `client.ts`.
  */
