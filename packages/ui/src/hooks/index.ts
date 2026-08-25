@@ -5,3 +5,4 @@ export { sessionStorage } from "./sessionStorage";
 export type { AptisSession, SessionRole } from "./sessionStorage";
 export { useSessionManager } from "./useSessionManager";
 export type { SessionManager } from "./useSessionManager";
+export { createSessionApiClient } from "./createSessionApiClient";

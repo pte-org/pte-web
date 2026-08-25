@@ -37,9 +37,8 @@ export function useSessionManager(): SessionManager {
   const hasRole = useCallback(
     (role: SessionRole | SessionRole[]) => {
       if (!session) return false;
-      return Array.isArray(role)
-        ? role.includes(session.role)
-        : session.role === role;
+      const wanted = Array.isArray(role) ? role : [role];
+      return session.roles.some((sessionRole) => wanted.includes(sessionRole));
     },
     [session],
   );

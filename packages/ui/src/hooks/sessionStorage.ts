@@ -1,12 +1,24 @@
-export type SessionRole = "ADMIN" | "HOST" | "STUDENT";
+/**
+ * Matches iam's real platform-wide role taxonomy exactly
+ * (`services/iam/.../domain/enums/Role.java`) — this is what actually lands
+ * in the JWT `roles` claim (`AccessTokenIssuer.java`), decoded client-side
+ * via `decodeAccessTokenClaims` from `@aptis/api-client`.
+ */
+export type SessionRole =
+  | "PLATFORM_ADMIN"
+  | "PLATFORM_AUTHOR"
+  | "HOST_ADMIN"
+  | "HOST_AUTHOR"
+  | "PROCTOR"
+  | "STUDENT";
 
 export interface AptisSession {
   accessToken: string;
   refreshToken?: string;
-  role: SessionRole;
-  userType?: string;
-  tenantId?: number | null;
-  mustChangePassword?: boolean;
+  /** A user's full JWT `roles` claim — may hold more than one role. */
+  roles: SessionRole[];
+  /** From the JWT `tenant_id` claim (UUID string) — null for platform roles. */
+  tenantId?: string | null;
   expiresAt?: number;
 }
 
@@ -23,11 +35,18 @@ function parseSession(value: string | null): AptisSession | null {
   if (!value) return null;
   try {
     const parsed = JSON.parse(value) as Partial<AptisSession>;
-    if (!parsed.accessToken || !parsed.role) return null;
+    if (!parsed.accessToken || !Array.isArray(parsed.roles) || parsed.roles.length === 0) {
+      return null;
+    }
     return parsed as AptisSession;
   } catch {
     return null;
   }
+}
+
+function matchesRole(session: AptisSession, role: SessionRole | SessionRole[]): boolean {
+  const wanted = Array.isArray(role) ? role : [role];
+  return session.roles.some((sessionRole) => wanted.includes(sessionRole));
 }
 
 export const sessionStorage = {
@@ -52,8 +71,6 @@ export const sessionStorage = {
   hasRole(role: SessionRole | SessionRole[]): boolean {
     const session = this.retrieve();
     if (!session) return false;
-    return Array.isArray(role)
-      ? role.includes(session.role)
-      : session.role === role;
+    return matchesRole(session, role);
   },
 };
