@@ -7,3 +7,5 @@ export * from "./host";
 export * from "./asset";
 export * from "./question";
 export * from "./tenant";
+export * from "./organization";
+export * from "./quota";
