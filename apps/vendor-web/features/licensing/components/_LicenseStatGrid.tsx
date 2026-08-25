@@ -3,8 +3,8 @@ import {
   AlertTriangleIcon,
   CheckCircleIcon,
   DocumentIcon,
-  LicenseIcon,
   StatCard,
+  UsersIcon,
 } from "@aptis/ui";
 import { LICENSING_TEXT } from "../constants";
 import type { LicenseStats } from "../types";
@@ -28,15 +28,15 @@ export const LicenseStatGrid = ({
       icon={<CheckCircleIcon />}
     />
     <StatCard
-      label={LICENSING_TEXT.STAT_EXPIRING}
-      value={stats?.expiring ?? "—"}
+      label={LICENSING_TEXT.STAT_SUSPENDED}
+      value={stats?.suspended ?? "—"}
       icon={<AlertTriangleIcon />}
       highlight
     />
     <StatCard
-      label={LICENSING_TEXT.STAT_EXPIRED}
-      value={stats?.expired ?? "—"}
-      icon={<LicenseIcon />}
+      label={LICENSING_TEXT.STAT_TOTAL_SEATS}
+      value={stats?.totalSeats ?? "—"}
+      icon={<UsersIcon />}
     />
   </div>
 );

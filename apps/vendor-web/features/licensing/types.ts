@@ -1,21 +1,29 @@
 import type { TenantPlan } from "../tenancy/types";
 
-export type LicenseStatus = "active" | "expiring" | "expired";
+/** Matches admin's real `TenantStatus` — no contract-date fields exist to derive expiring/expired from. */
+export type LicenseStatus = "active" | "suspended";
 
+/** A tenant's current package allocation, viewed through the Licensing lens. */
 export interface License {
-  id: string;
+  tenantId: string;
   tenantName: string;
   plan: TenantPlan;
   status: LicenseStatus;
-  seatsUsed: number;
   seatsTotal: number;
-  issuedAt: string;
-  expiresAt: string;
 }
 
 export interface LicenseStats {
   total: string;
   active: string;
-  expiring: string;
-  expired: string;
+  suspended: string;
+  totalSeats: string;
 }
+
+/** Raw form values for granting quota — mirrors admin's real `GrantQuotaRequest`. */
+export interface GrantQuotaInput {
+  packageName: TenantPlan | "";
+  amount: string;
+  note: string;
+}
+
+export type GrantQuotaErrors = Partial<Record<keyof GrantQuotaInput, string>>;
