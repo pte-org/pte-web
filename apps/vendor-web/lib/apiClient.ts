@@ -1,14 +1,11 @@
-import { createApiClient } from "@aptis/api-client";
-import { sessionStorage } from "@aptis/ui";
+import { createSessionApiClient } from "@aptis/ui";
 import { API_BASE_URL } from "@/features/auth/constants";
 
 /**
- * App-wide API client. `getToken`/`onUnauthorized` are closures evaluated per
- * request, so importing this module on the server is safe (no storage access
- * happens until a request runs on the client).
+ * App-wide API client — session wiring (token/refresh-token getters, 401
+ * handling) lives in `@aptis/ui`'s `createSessionApiClient` so it isn't
+ * duplicated between this app and `tenant-web`. Safe to import on the
+ * server: no storage access happens until a request actually runs on the
+ * client.
  */
-export const apiClient = createApiClient({
-  baseUrl: API_BASE_URL,
-  getToken: () => sessionStorage.getAccessToken(),
-  onUnauthorized: () => sessionStorage.clear(),
-});
+export const apiClient = createSessionApiClient(API_BASE_URL);
