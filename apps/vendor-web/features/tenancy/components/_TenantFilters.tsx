@@ -56,11 +56,5 @@ export const TenantFilters = ({
         </option>
       ))}
     </select>
-    <input
-      type="text"
-      readOnly
-      placeholder={TENANCY_TEXT.DATE_PLACEHOLDER}
-      className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 outline-none"
-    />
   </div>
 );
