@@ -1,13 +1,25 @@
 import type { BadgeVariant } from "@pte/ui";
 import type {
+  CreateLoginAccountInput,
   CreateOrganizationInput,
   CreateTenantInput,
   FacilityType,
+  LoginAccountStatus,
   OrganizationStatus,
+  ResetPasswordInput,
   TenantPlan,
   TenantStatus,
   TenantStatusFilter,
 } from "../types";
+
+// react-query cache-key roots — one per entity, kept out of api/index.ts so
+// no call site ever inlines the label as a raw string (avoids typo-driven
+// cache-key drift and namespace collisions like QUAL-001 caught earlier).
+export const TENANTS_QUERY_KEY = ["tenants"] as const;
+export const SYSTEM_HEALTH_QUERY_KEY = ["systemHealth"] as const;
+export const TENANT_QUERY_KEY = ["tenant"] as const;
+export const ORGANIZATIONS_QUERY_KEY = ["organizations"] as const;
+export const LOGIN_ACCOUNT_QUERY_KEY = ["loginAccount"] as const;
 
 export const TENANCY_TEXT = {
   TITLE: "Tenants",
@@ -228,4 +240,66 @@ export const EMPTY_CREATE_ORGANIZATION: CreateOrganizationInput = {
   name: "",
   address: "",
   facilityType: "",
+};
+
+export const LOGIN_ACCOUNT_TEXT = {
+  TITLE: "Login Account",
+  SUBTITLE: "The Host's own login for this tenant.",
+  EMPTY_TITLE: "No login account yet",
+  EMPTY_TEXT: "Create the Host's first login so they can sign in.",
+  CREATE_LOGIN: "Create Login",
+  RESET_PASSWORD: "Reset Password",
+  RESET_SUCCESS:
+    "Password reset. Relay it to the Host directly — it won't be shown again.",
+} as const;
+
+export const LOGIN_ACCOUNT_STATUS_LABELS: Record<LoginAccountStatus, string> = {
+  active: "Active",
+  suspended: "Suspended",
+};
+
+export const LOGIN_ACCOUNT_STATUS_VARIANT: Record<LoginAccountStatus, BadgeVariant> = {
+  active: "success",
+  suspended: "neutral",
+};
+
+export const CREATE_LOGIN_ACCOUNT_TEXT = {
+  TITLE: "Create Login",
+  EMAIL_LABEL: "Email",
+  EMAIL_PLACEHOLDER: "host@example.com",
+  FULL_NAME_LABEL: "Full Name",
+  FULL_NAME_PLACEHOLDER: "Enter the Host's name...",
+  PASSWORD_LABEL: "Initial Password",
+  PASSWORD_HELPER: "At least 8 characters. Relay it to the Host directly.",
+  CANCEL: "Cancel",
+  SUBMIT: "Create Login",
+  CONFLICT: "This email is already in use. Please use another email.",
+} as const;
+
+export const CREATE_LOGIN_ACCOUNT_ERRORS = {
+  REQUIRED: "This field is required.",
+  EMAIL_INVALID: "Enter a valid email address.",
+  PASSWORD_TOO_SHORT: "Enter at least 8 characters.",
+} as const;
+
+export const EMPTY_CREATE_LOGIN_ACCOUNT: CreateLoginAccountInput = {
+  email: "",
+  fullName: "",
+  password: "",
+};
+
+export const RESET_PASSWORD_TEXT = {
+  TITLE: "Reset Password",
+  PASSWORD_LABEL: "New Password",
+  PASSWORD_HELPER: "At least 8 characters. Relay it to the Host directly.",
+  CANCEL: "Cancel",
+  SUBMIT: "Reset Password",
+} as const;
+
+export const RESET_PASSWORD_ERRORS = {
+  PASSWORD_TOO_SHORT: "Enter at least 8 characters.",
+} as const;
+
+export const EMPTY_RESET_PASSWORD: ResetPasswordInput = {
+  newPassword: "",
 };
