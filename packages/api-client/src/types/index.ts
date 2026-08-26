@@ -3,10 +3,11 @@
 // hand-written types.
 export * from "./auth";
 export * from "./account";
-export * from "./host";
 export * from "./asset";
 export * from "./question";
 export * from "./tenant";
 export * from "./organization";
 export * from "./quota";
 export * from "./user";
+export * from "./scheduling";
+export * from "./authoring";
