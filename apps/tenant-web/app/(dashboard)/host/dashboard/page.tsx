@@ -1,4 +1,5 @@
 import { DashboardChrome, type NavItem } from "@/features/auth/components";
+import { HOST_ROLES } from "@/features/auth/constants";
 import { LearnersOverview } from "@/features/examoperations/components";
 
 const HOST_NAV: NavItem[] = [
@@ -11,7 +12,7 @@ const HOST_DASHBOARD_TEXT =
 
 export default function HostDashboardPage() {
   return (
-    <DashboardChrome navItems={HOST_NAV}>
+    <DashboardChrome navItems={HOST_NAV} allowedRoles={HOST_ROLES}>
       <div className="flex flex-col gap-6">
         <p className="text-gray-600">{HOST_DASHBOARD_TEXT}</p>
         <LearnersOverview />

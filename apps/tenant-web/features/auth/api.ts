@@ -14,6 +14,7 @@ import {
   type JwtTokenResponse,
 } from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
+import { CURRENT_USER_QUERY_KEY } from "./constants";
 
 export function useLoginHost(): UseMutationResult<
   JwtTokenResponse,
@@ -27,7 +28,7 @@ export function useLoginHost(): UseMutationResult<
 
 export function useCurrentUser(): UseQueryResult<CurrentUser> {
   return useQuery({
-    queryKey: ["currentUser"],
+    queryKey: CURRENT_USER_QUERY_KEY,
     queryFn: () => getCurrentUser(apiClient),
     retry: false,
   });
