@@ -91,3 +91,29 @@ export interface BrandingInput {
   logoUrl: string;
   primaryColor: string;
 }
+
+export type LoginAccountStatus = "active" | "suspended";
+
+/** The Host's HOST_ADMIN login account for a Tenant — matches iam's `UserResponse`. */
+export interface LoginAccount {
+  id: string;
+  email: string;
+  fullName: string;
+  status: LoginAccountStatus;
+}
+
+export interface CreateLoginAccountInput {
+  email: string;
+  fullName: string;
+  password: string;
+}
+
+export type CreateLoginAccountErrors = Partial<
+  Record<keyof CreateLoginAccountInput, string>
+>;
+
+export interface ResetPasswordInput {
+  newPassword: string;
+}
+
+export type ResetPasswordErrors = Partial<Record<keyof ResetPasswordInput, string>>;
