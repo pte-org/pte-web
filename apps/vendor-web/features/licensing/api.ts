@@ -16,7 +16,9 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
+import { LICENSES_QUERY_KEY, QUOTA_HISTORY_QUERY_KEY } from "./constants";
 import type { GrantQuotaInput, License, LicenseStats } from "./types";
+import { TENANT_QUERY_KEY, TENANTS_QUERY_KEY } from "../tenancy/constants";
 import type { TenantPlan } from "../tenancy/types";
 
 function normalizePlan(packageName: string): TenantPlan {
@@ -46,7 +48,7 @@ export function licenseStats(licenses: License[]): LicenseStats {
 
 export function useLicenses(): UseQueryResult<License[]> {
   return useQuery({
-    queryKey: ["licenses"],
+    queryKey: LICENSES_QUERY_KEY,
     queryFn: async () => {
       const tenants = await listTenants(apiClient);
       return tenants.map(tenantResponseToLicense);
@@ -69,17 +71,17 @@ export function useGrantQuota(
       return grantQuota(apiClient, tenantPublicId, payload);
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["licenses"] });
-      void queryClient.invalidateQueries({ queryKey: ["tenants"] });
-      void queryClient.invalidateQueries({ queryKey: ["tenant", tenantPublicId] });
-      void queryClient.invalidateQueries({ queryKey: ["quotaHistory", tenantPublicId] });
+      void queryClient.invalidateQueries({ queryKey: LICENSES_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: TENANTS_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: [...TENANT_QUERY_KEY, tenantPublicId] });
+      void queryClient.invalidateQueries({ queryKey: [...QUOTA_HISTORY_QUERY_KEY, tenantPublicId] });
     },
   });
 }
 
 export function useQuotaHistory(tenantPublicId: string): UseQueryResult<QuotaTransactionResponse[]> {
   return useQuery({
-    queryKey: ["quotaHistory", tenantPublicId],
+    queryKey: [...QUOTA_HISTORY_QUERY_KEY, tenantPublicId],
     queryFn: () => listQuotaHistory(apiClient, tenantPublicId),
     enabled: tenantPublicId.length > 0,
   });

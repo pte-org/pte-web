@@ -12,6 +12,7 @@ import {
   Skeleton,
   cn,
   useTokenManager,
+  type SessionRole,
 } from "@pte/ui";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
@@ -26,6 +27,13 @@ export interface NavItem {
 interface DashboardChromeProps {
   navItems: NavItem[];
   children: ReactNode;
+  /**
+   * Required, not defaulted — mirrors vendor-web's DashboardChrome. A
+   * default here would silently gate every route to the same role set
+   * instead of forcing each call site to say explicitly who's allowed
+   * (the class of bug vendor-web's Phase 1 quality gate caught, QUAL-001).
+   */
+  allowedRoles: SessionRole[];
 }
 
 const BRAND_NAME = "PTE LMS";
@@ -135,7 +143,7 @@ const ChromeContent = ({
 );
 
 export const DashboardChrome = (props: DashboardChromeProps): ReactElement => (
-  <RequireAuth>
+  <RequireAuth allowedRoles={props.allowedRoles}>
     <ChromeContent {...props} />
   </RequireAuth>
 );

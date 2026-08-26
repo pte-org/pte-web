@@ -1,5 +1,7 @@
 import type { SessionRole } from "@pte/ui";
 
+export const CURRENT_USER_QUERY_KEY = ["currentUser"] as const;
+
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 
