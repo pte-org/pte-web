@@ -1,9 +1,36 @@
-export interface RosterValidationRow {
-  row: number;
+export interface RosterRow {
+  email: string;
+  fullName: string;
+  studentCode?: string;
+  className?: string;
+  phone?: string;
+  dateOfBirth?: string;
+}
+
+export interface RosterFileResult {
+  fileName: string;
+  rows: RosterRow[];
+}
+
+export interface CreatedAccount {
+  publicId: string;
+  email: string;
+  fullName: string;
+  generatedPassword: string;
+}
+
+export interface SkippedRow {
+  rowIndex: number;
+  email: string;
   reason: string;
 }
 
-export interface ExamOption {
-  id: string;
-  name: string;
+export type ImportStep = "idle" | "created" | "enrolled";
+
+/** Persisted to sessionStorage between step 1 (bulk-create) and step 2
+ * (bulk-enroll) so an interrupted import never strands generated passwords —
+ * see plan.md's accepted-then-mitigated risk on the two-step orchestration. */
+export interface PendingImport {
+  sessionPublicId: string;
+  created: CreatedAccount[];
 }
