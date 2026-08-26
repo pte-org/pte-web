@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { Badge, Dropdown } from "@aptis/ui";
+import { Badge, Dropdown } from "@pte/ui";
 import {
   QUESTIONBANK_TEXT,
   QUESTION_DIFFICULTY_VARIANT,

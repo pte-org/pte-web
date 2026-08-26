@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { Badge, Dropdown } from "@aptis/ui";
+import { Badge, Dropdown } from "@pte/ui";
 import { TENANT_PLAN_LABELS } from "../../tenancy/constants";
 import {
   LICENSE_STATUS_LABELS,
@@ -11,13 +11,19 @@ import type { License } from "../types";
 
 interface LicenseTableProps {
   licenses: License[];
+  onGrant: (license: License) => void;
+  onViewHistory: (license: License) => void;
 }
 
 const HEADER_CLASS =
   "px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
 const CELL_CLASS = "px-5 py-4 text-sm text-gray-700 align-middle";
 
-export const LicenseTable = ({ licenses }: LicenseTableProps): ReactElement => (
+export const LicenseTable = ({
+  licenses,
+  onGrant,
+  onViewHistory,
+}: LicenseTableProps): ReactElement => (
   <div className="overflow-visible rounded-lg border border-gray-200 bg-white shadow-md shadow-slate-200/70">
     <table className="w-full border-collapse">
       <thead className="bg-slate-50">
@@ -26,14 +32,12 @@ export const LicenseTable = ({ licenses }: LicenseTableProps): ReactElement => (
           <th className={HEADER_CLASS}>{LICENSE_TABLE_HEADERS.PLAN}</th>
           <th className={HEADER_CLASS}>{LICENSE_TABLE_HEADERS.STATUS}</th>
           <th className={HEADER_CLASS}>{LICENSE_TABLE_HEADERS.SEATS}</th>
-          <th className={HEADER_CLASS}>{LICENSE_TABLE_HEADERS.ISSUED}</th>
-          <th className={HEADER_CLASS}>{LICENSE_TABLE_HEADERS.EXPIRES}</th>
           <th className={HEADER_CLASS}>{LICENSE_TABLE_HEADERS.ACTIONS}</th>
         </tr>
       </thead>
       <tbody>
         {licenses.map((license) => (
-          <tr key={license.id} className="border-t border-gray-100 hover:bg-slate-50/70">
+          <tr key={license.tenantId} className="border-t border-gray-100 hover:bg-slate-50/70">
             <td className={`${CELL_CLASS} font-medium text-gray-900`}>
               {license.tenantName}
             </td>
@@ -43,17 +47,17 @@ export const LicenseTable = ({ licenses }: LicenseTableProps): ReactElement => (
                 {LICENSE_STATUS_LABELS[license.status]}
               </Badge>
             </td>
-            <td className={`${CELL_CLASS} text-gray-500`}>
-              {license.seatsUsed} / {license.seatsTotal}
-            </td>
-            <td className={`${CELL_CLASS} text-gray-500`}>{license.issuedAt}</td>
-            <td className={CELL_CLASS}>{license.expiresAt}</td>
+            <td className={`${CELL_CLASS} text-gray-500`}>{license.seatsTotal}</td>
             <td className={CELL_CLASS}>
               <Dropdown
                 items={[
                   {
                     label: LICENSING_TEXT.ACTION_RENEW,
-                    onSelect: () => undefined,
+                    onSelect: () => onGrant(license),
+                  },
+                  {
+                    label: LICENSING_TEXT.ACTION_HISTORY,
+                    onSelect: () => onViewHistory(license),
                   },
                   {
                     label: LICENSING_TEXT.ACTION_EXPORT_PDF,

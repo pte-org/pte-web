@@ -2,12 +2,34 @@ import { ApiError, type ApiErrorKind } from "./apiError";
 
 export type TokenGetter = () => string | null;
 
+export interface RefreshedTokens {
+  accessToken: string;
+  refreshToken: string;
+  expiresInSeconds: number;
+}
+
 export interface ApiClientOptions {
-  /** Absolute origin of aptis-api, e.g. `https://api.aptis.vn` (no trailing slash). */
+  /** Absolute origin of pte-api, e.g. `https://api.pte.vn` (no trailing slash). */
   baseUrl: string;
   /** Returns the current access token for Bearer injection, or null when signed out. */
   getToken?: TokenGetter;
-  /** Called whenever the server responds 401 so the app can clear its session. */
+  /** Returns the current refresh token, or null when signed out / none stored. */
+  getRefreshToken?: TokenGetter;
+  /**
+   * Exchanges a refresh token for a new access/refresh token pair. Injected
+   * (rather than this package calling its own `/auth/refresh` request)
+   * so `client.ts` never depends on `requests/auth` — that module already
+   * depends on `ApiClient` (a type-only import today, but a value import
+   * here would be circular).
+   */
+  refreshAccessToken?: (refreshToken: string) => Promise<RefreshedTokens>;
+  /** Called after a successful refresh so the app can persist the new tokens (e.g. sessionStorage). */
+  onTokenRefreshed?: (tokens: RefreshedTokens) => void;
+  /**
+   * Called when a 401 could not be resolved by a refresh — either no
+   * refresh is configured/available, or the refresh itself failed. The app
+   * should clear its session here.
+   */
   onUnauthorized?: () => void;
   /** Injectable fetch implementation; defaults to the global fetch. */
   fetchFn?: typeof fetch;
@@ -128,7 +150,39 @@ function filenameFromDisposition(disposition: string | null): string | undefined
 }
 
 export function createApiClient(options: ApiClientOptions): ApiClient {
-  const { baseUrl, getToken, onUnauthorized, fetchFn = fetch } = options;
+  const {
+    baseUrl,
+    getToken,
+    getRefreshToken,
+    refreshAccessToken,
+    onTokenRefreshed,
+    onUnauthorized,
+    fetchFn = fetch,
+  } = options;
+
+  // Dedups concurrent 401s into a single in-flight refresh — e.g. several
+  // widgets each mid-request when the access token expires must not each
+  // fire their own `/auth/refresh` call.
+  let refreshingPromise: Promise<boolean> | null = null;
+
+  async function tryRefresh(): Promise<boolean> {
+    if (!refreshAccessToken) return false;
+    const refreshToken = getRefreshToken?.() ?? null;
+    if (!refreshToken) return false;
+
+    if (!refreshingPromise) {
+      refreshingPromise = refreshAccessToken(refreshToken)
+        .then((tokens) => {
+          onTokenRefreshed?.(tokens);
+          return true;
+        })
+        .catch(() => false)
+        .finally(() => {
+          refreshingPromise = null;
+        });
+    }
+    return refreshingPromise;
+  }
 
   function buildHeaders(customHeaders?: HeadersInit, hasJsonBody = false): Headers {
     const headers = new Headers(customHeaders);
@@ -158,6 +212,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
   async function request<T>(
     path: string,
     requestOptions: RequestOptions = {},
+    isRetry = false,
   ): Promise<T> {
     const { body, headers: customHeaders, ...rest } = requestOptions;
     const response = await send(path, {
@@ -166,6 +221,9 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
 
+    if (response.status === 401 && !isRetry && (await tryRefresh())) {
+      return request<T>(path, requestOptions, true);
+    }
     await assertOk(response);
     return unwrapResponse<T>(await parseJsonSafely(response));
   }
@@ -174,6 +232,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     path: string,
     formData: FormData,
     requestOptions: RequestInit = {},
+    isRetry = false,
   ): Promise<T> {
     const { headers: customHeaders, ...rest } = requestOptions;
     const response = await send(path, {
@@ -183,6 +242,9 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
       body: formData,
     });
 
+    if (response.status === 401 && !isRetry && (await tryRefresh())) {
+      return upload<T>(path, formData, requestOptions, true);
+    }
     await assertOk(response);
     return unwrapResponse<T>(await parseJsonSafely(response));
   }
@@ -190,6 +252,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
   async function download(
     path: string,
     requestOptions: RequestOptions = {},
+    isRetry = false,
   ): Promise<DownloadResponse> {
     const { body, headers: customHeaders, ...rest } = requestOptions;
     const response = await send(path, {
@@ -198,6 +261,9 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
 
+    if (response.status === 401 && !isRetry && (await tryRefresh())) {
+      return download(path, requestOptions, true);
+    }
     await assertOk(response);
     return {
       blob: await response.blob(),

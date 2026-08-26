@@ -1,4 +1,5 @@
 import { DashboardChrome, type NavItem } from "@/features/auth/components";
+import { HOST_ROLES } from "@/features/auth/constants";
 import { RosterImport } from "@/features/examoperations/components";
 
 const HOST_NAV: NavItem[] = [
@@ -8,7 +9,7 @@ const HOST_NAV: NavItem[] = [
 
 export default function RosterPage() {
   return (
-    <DashboardChrome navItems={HOST_NAV}>
+    <DashboardChrome navItems={HOST_NAV} allowedRoles={HOST_ROLES}>
       <RosterImport />
     </DashboardChrome>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { Button } from "@aptis/ui";
+import { Button } from "@pte/ui";
 
 const TEXT = {
   TITLE: "Something went wrong",

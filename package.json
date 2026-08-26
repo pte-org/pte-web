@@ -1,14 +1,17 @@
 {
-  "name": "aptis-web",
+  "name": "pte-web",
   "version": "0.1.0",
   "private": true,
   "packageManager": "pnpm@11.8.0",
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
-    "lint": "turbo lint"
+    "lint": "turbo lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
+    "prettier": "^3",
     "turbo": "^2"
   }
 }

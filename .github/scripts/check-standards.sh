@@ -4,7 +4,7 @@
 
 WARN=0
 
-echo "=== aptis-web Coding Standards Check ==="
+echo "=== pte-web Coding Standards Check ==="
 echo ""
 
 # Check hardcoded strings in JSX/TSX (outside constants files)

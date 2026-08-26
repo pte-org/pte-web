@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { Button } from "@aptis/ui";
+import { Button } from "@pte/ui";
 import { ROSTER_TEXT } from "./constants";
 import type { ExamOption } from "../types";
 

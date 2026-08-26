@@ -7,7 +7,7 @@ import {
   PaginationControls,
   StatusBadge,
   type DataTableColumn,
-} from "@aptis/ui";
+} from "@pte/ui";
 import {
   useHostStudents,
   type HostStudentResponse,

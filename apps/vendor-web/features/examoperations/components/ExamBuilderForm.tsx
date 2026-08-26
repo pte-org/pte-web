@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Button, Input } from "@aptis/ui";
+import { Alert, Button, Input } from "@pte/ui";
 
 const TEXT = {
   HEADING: "Create Exam",

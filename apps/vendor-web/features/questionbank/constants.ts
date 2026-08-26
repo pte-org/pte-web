@@ -1,4 +1,4 @@
-import type { BadgeVariant } from "@aptis/ui";
+import type { BadgeVariant } from "@pte/ui";
 import type {
   QuestionDifficulty,
   QuestionDifficultyFilter,
@@ -8,9 +8,12 @@ import type {
   QuestionStatusFilter,
 } from "./types";
 
+export const QUESTIONS_QUERY_KEY = ["questions"] as const;
+export const QUESTION_STATS_QUERY_KEY = ["questionStats"] as const;
+
 export const QUESTIONBANK_TEXT = {
   TITLE: "Question Bank",
-  SUBTITLE: "Manage and update the Aptis question database.",
+  SUBTITLE: "Manage and update the PTE question database.",
   ADD: "Add question",
   SEARCH_PLACEHOLDER: "Enter a code or question content...",
   STAT_TOTAL: "Total questions",

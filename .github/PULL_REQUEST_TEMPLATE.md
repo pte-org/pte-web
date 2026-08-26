@@ -41,7 +41,7 @@ Các bước để verify PR này hoạt động đúng.
 - [ ] Không có string hardcode trong JSX (kiểm tra `features/{feature}/constants.ts`)
 - [ ] Không có file nào > 300 dòng, component function > 150 dòng
 
-## Code Review Checklist — aptis-web (Next.js / TypeScript)
+## Code Review Checklist — pte-web (Next.js / TypeScript)
 
 - [ ] Không hardcode string trong JSX (`❌ <p>Exam not found</p>` → `✅ <p>{EXAM_MESSAGES.NOT_FOUND}</p>`)
 - [ ] File < 300 dòng tổng, component function < 150 dòng (extract sub-component nếu hơn)
@@ -49,7 +49,7 @@ Các bước để verify PR này hoạt động đúng.
 - [ ] Không inline style (`❌ style={{ color: 'blue' }}` → `✅ className="text-blue-600"`)
 - [ ] Không dùng `any` type (dùng `unknown` với narrowing hoặc define interface)
 - [ ] Props interface đã được define cho mọi component
-- [ ] Component dùng ở 2+ feature đã được extract vào `@aptis/ui` (không copy-paste)
+- [ ] Component dùng ở 2+ feature đã được extract vào `@pte/ui` (không copy-paste)
 - [ ] Route động có `loading.tsx` và `error.tsx`
 - [ ] Không disable ESLint rule mà không có comment giải thích lý do
 - [ ] Không `// @ts-ignore` (fix type thay vì suppress)

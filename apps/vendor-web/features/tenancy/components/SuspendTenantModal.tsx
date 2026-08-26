@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Modal } from "@aptis/ui";
+import { Modal } from "@pte/ui";
 import { SUSPEND_MODAL_TEXT } from "../constants";
 import type { Tenant } from "../types";
 

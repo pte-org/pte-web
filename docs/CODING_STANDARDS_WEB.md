@@ -1,4 +1,4 @@
-# Tiêu chuẩn Coding — Aptis Web (Next.js 16 / TypeScript)
+# Tiêu chuẩn Coding — PTE Web (Next.js 16 / TypeScript)
 
 **Cập nhật:** 2026-06-24  
 **Đối tượng:** Toàn bộ dev team, Frontend specialists, AI coding assistants  
@@ -26,7 +26,7 @@
 
 ## Nguyên tắc cơ bản
 
-Aptis web tuân thủ các nguyên tắc vượt ra ngoài SOLID:
+PTE web tuân thủ các nguyên tắc vượt ra ngoài SOLID:
 
 | Nguyên tắc | Định nghĩa | Áp dụng |
 |---|---|---|
@@ -276,28 +276,28 @@ features/exam/
 
 Turborepo monorepo có 3 shared packages:
 
-#### `@aptis/ui` — Generic UI Components
+#### `@pte/ui` — Generic UI Components
 - **Khi sử dụng**: Component dùng ở 2+ features/apps
 - **Nội dung**: Button, Modal, Card, Input, Badge, Skeleton, Dialog
-- **KHÔNG**: Feature-specific logic (exam logic không vào @aptis/ui)
+- **KHÔNG**: Feature-specific logic (exam logic không vào @pte/ui)
 
 ```typescript
-// ✓ Extract vào @aptis/ui khi component dùng ở 2+ features
+// ✓ Extract vào @pte/ui khi component dùng ở 2+ features
 packages/ui/src/components/Button.tsx
 packages/ui/src/components/Modal.tsx
 packages/ui/src/components/Card.tsx
 
-// ✗ KHÔNG extract exam-specific component vào @aptis/ui
-// ExamDeliveryPanel.tsx ở features/exam, không move vào @aptis/ui
+// ✗ KHÔNG extract exam-specific component vào @pte/ui
+// ExamDeliveryPanel.tsx ở features/exam, không move vào @pte/ui
 ```
 
-#### `@aptis/api-client` — API Types & Fetch Helpers
+#### `@pte/api-client` — API Types & Fetch Helpers
 - **Khi sử dụng**: API types, request definitions, error handling
 - **Nội dung**: Generated types từ OpenAPI, fetch wrappers, API config
-- **KHÔNG**: Feature-specific hooks (useExamList ở features/exam, không @aptis/api-client)
+- **KHÔNG**: Feature-specific hooks (useExamList ở features/exam, không @pte/api-client)
 
 ```typescript
-// ✓ @aptis/api-client
+// ✓ @pte/api-client
 packages/api-client/src/types/exam.ts (API response types)
 packages/api-client/src/client.ts (fetch wrapper)
 
@@ -305,7 +305,7 @@ packages/api-client/src/client.ts (fetch wrapper)
 packages/api-client/src/hooks/useExamList.ts // feature-specific
 ```
 
-#### `@aptis/config` — ESLint & TypeScript Configuration
+#### `@pte/config` — ESLint & TypeScript Configuration
 - **Khi sử dụng**: Base configuration base, không override `strict: false`
 - **Nội dung**: eslint.config.mjs, tsconfig.json base, prettier config
 
@@ -317,7 +317,7 @@ packages/config/tsconfig.json
 // ✗ SAI
 // Trong tsconfig.app.json, KHÔNG override:
 {
-  "extends": "@aptis/config/tsconfig",
+  "extends": "@pte/config/tsconfig",
   "compilerOptions": {
     "strict": false // ✗ KHÔNG được override
   }
@@ -330,15 +330,15 @@ packages/config/tsconfig.json
 
 ```
 Is component used in 2+ features?
-├─ YES → Move to @aptis/ui (tạo index.ts export)
+├─ YES → Move to @pte/ui (tạo index.ts export)
 └─ NO → Keep in features/{feature}
 
 Is it feature-specific logic (exam, student, etc.)?
 ├─ YES → Keep in features/{feature}
-└─ NO → Consider @aptis/ui
+└─ NO → Consider @pte/ui
 
 Is it API client code or types?
-├─ YES → Move to @aptis/api-client
+├─ YES → Move to @pte/api-client
 └─ NO → Keep in features
 ```
 
@@ -935,7 +935,7 @@ const ExamTimer = ({ startTime }: { startTime: Date }) => {
 
 ## TypeScript Strict Mode
 
-Aptis web chạy `strict: true` (từ `@aptis/config`). Không override.
+PTE web chạy `strict: true` (từ `@pte/config`). Không override.
 
 ### No `any` Type
 
@@ -1253,7 +1253,7 @@ export function ExamPage({ examId }: { examId: string }) {
 
 ### User-facing Strings vào Constants
 
-Mọi string hiển thị cho user → `features/{feature}/constants.ts` hoặc `@aptis/ui/constants.ts`.
+Mọi string hiển thị cho user → `features/{feature}/constants.ts` hoặc `@pte/ui/constants.ts`.
 
 KHÔNG hardcode string trong JSX.
 
@@ -1625,7 +1625,7 @@ export const API_KEY = 'sk-abc123def456';
 **✓ Đúng:**
 ```typescript
 // ✓ Safe: public config
-export const NEXT_PUBLIC_API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.aptis.vn';
+export const NEXT_PUBLIC_API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://api.pte.vn';
 export const NEXT_PUBLIC_APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0';
 export const NEXT_PUBLIC_FEATURE_ANALYTICS_ENABLED = process.env.NEXT_PUBLIC_FEATURE_ANALYTICS_ENABLED === 'true';
 
@@ -1881,7 +1881,7 @@ const exam = (examData as ExamData).exam.id;
 - **Tailwind CSS v4:** https://tailwindcss.com/docs
 - **TanStack Query v5:** https://tanstack.com/query
 - **React 19 Server Components:** https://react.dev/reference/rsc/server-components
-- **@aptis/config:** Xem `packages/config/` cho base ESLint + tsconfig
+- **@pte/config:** Xem `packages/config/` cho base ESLint + tsconfig
 
 ---
 

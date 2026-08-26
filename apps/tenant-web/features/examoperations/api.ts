@@ -9,7 +9,7 @@ import {
   type PageMeta,
   type PagedResult,
   type ParseFileResponse,
-} from "@aptis/api-client";
+} from "@pte/api-client";
 import {
   useMutation,
   useQuery,

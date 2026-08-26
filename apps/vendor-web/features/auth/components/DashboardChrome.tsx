@@ -12,7 +12,8 @@ import {
   Skeleton,
   cn,
   useTokenManager,
-} from "@aptis/ui";
+  type SessionRole,
+} from "@pte/ui";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
 import { AUTH_ROUTES } from "../constants";
@@ -26,12 +27,21 @@ export interface NavItem {
 interface DashboardChromeProps {
   navItems: NavItem[];
   children: ReactNode;
+  /**
+   * Required, not defaulted — `DashboardChrome` is the shared shell for
+   * BOTH `/admin/*` (platform-admin-only) and `/host` (host-admin-only)
+   * pages. A default here previously locked every caller to the same role
+   * set, silently breaking whichever route didn't match it (QUAL-001,
+   * Phase 1 quality gate) — making every call site say explicitly who's
+   * allowed catches that class of bug at compile time instead.
+   */
+  allowedRoles: SessionRole[];
 }
 
-const BRAND_NAME = "APTIS LMS";
+const BRAND_NAME = "PTE LMS";
 const BRAND_SUBTITLE = "Admin System";
 const DISCLAIMER =
-  "APTIS mock exam platform. Not affiliated with the British Council.";
+  "PTE mock exam platform. Not affiliated with Pearson.";
 
 const HEADER_TEXT = {
   LANGUAGE: "Language",
@@ -113,8 +123,8 @@ const HeaderActions = (): ReactElement => {
         <Skeleton className="h-8 w-8 rounded-full" />
       ) : (
         <Dropdown
-          label={user?.name ?? HEADER_TEXT.ACCOUNT}
-          trigger={<Avatar name={user?.name} />}
+          label={user?.fullName ?? HEADER_TEXT.ACCOUNT}
+          trigger={<Avatar name={user?.fullName} />}
           items={[{ label: HEADER_TEXT.LOGOUT, onSelect: logout }]}
         />
       )}
@@ -140,7 +150,7 @@ const ChromeContent = ({
 );
 
 export const DashboardChrome = (props: DashboardChromeProps): ReactElement => (
-  <RequireAuth>
+  <RequireAuth allowedRoles={props.allowedRoles}>
     <ChromeContent {...props} />
   </RequireAuth>
 );

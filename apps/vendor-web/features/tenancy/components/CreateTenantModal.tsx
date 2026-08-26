@@ -6,12 +6,11 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
-import { Alert, BuildingIcon, Modal, UsersIcon } from "@aptis/ui";
+import { Alert, BuildingIcon, Modal } from "@pte/ui";
 import { CREATE_TENANT_TEXT, EMPTY_CREATE_TENANT } from "../constants";
 import { validateCreateTenant } from "../utils/validateCreateTenant";
 import type { CreateTenantErrors, CreateTenantInput } from "../types";
 import { TenantGeneralFields } from "./_TenantGeneralFields";
-import { TenantContactFields } from "./_TenantContactFields";
 
 interface CreateTenantModalProps {
   open: boolean;
@@ -100,15 +99,6 @@ export const CreateTenantModal = ({
         <section>
           <SectionHeading icon={<BuildingIcon />} text={T.SECTION_GENERAL} />
           <TenantGeneralFields
-            form={form}
-            errors={errors}
-            onChange={handleChange}
-          />
-        </section>
-        <hr className="border-gray-100" />
-        <section>
-          <SectionHeading icon={<UsersIcon />} text={T.SECTION_CONTACT} />
-          <TenantContactFields
             form={form}
             errors={errors}
             onChange={handleChange}

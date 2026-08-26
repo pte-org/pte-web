@@ -1,19 +1,34 @@
-import type { BadgeVariant, ProgressTone } from "@aptis/ui";
+import type { BadgeVariant } from "@pte/ui";
 import type {
+  CreateLoginAccountInput,
+  CreateOrganizationInput,
   CreateTenantInput,
+  FacilityType,
+  LoginAccountStatus,
+  OrganizationStatus,
+  ResetPasswordInput,
   TenantPlan,
   TenantStatus,
   TenantStatusFilter,
 } from "../types";
+
+// react-query cache-key roots — one per entity, kept out of api/index.ts so
+// no call site ever inlines the label as a raw string (avoids typo-driven
+// cache-key drift and namespace collisions like QUAL-001 caught earlier).
+export const TENANTS_QUERY_KEY = ["tenants"] as const;
+export const SYSTEM_HEALTH_QUERY_KEY = ["systemHealth"] as const;
+export const TENANT_QUERY_KEY = ["tenant"] as const;
+export const ORGANIZATIONS_QUERY_KEY = ["organizations"] as const;
+export const LOGIN_ACCOUNT_QUERY_KEY = ["loginAccount"] as const;
 
 export const TENANCY_TEXT = {
   TITLE: "Tenants",
   SUBTITLE: "Manage organizations that use the platform.",
   ADD_TENANT: "Add Tenant",
   SEARCH_PLACEHOLDER: "Search by name or slug",
-  DATE_PLACEHOLDER: "Select date range",
-  SEATS_ARIA: "Seats used",
+  ACTION_VIEW_DETAILS: "View details",
   ACTION_SUSPEND: "Suspend",
+  ACTION_REACTIVATE: "Reactivate",
   EMPTY_TITLE: "No tenants yet",
   EMPTY_TEXT:
     "Start by adding the first partner or school to set up a managed learning environment.",
@@ -21,11 +36,10 @@ export const TENANCY_TEXT = {
 
 export const TENANT_TABLE_HEADERS = {
   NAME: "Tenant Name",
-  SLUG: "Slug",
+  TYPE: "Organization Type",
+  PLAN: "Plan",
+  STUDENT_LIMIT: "Student Limit",
   STATUS: "Status",
-  SEATS: "Seats (used/total)",
-  EXPIRES: "Expires On",
-  LAST_ACTIVE: "Last Active",
   ACTIONS: "Actions",
 } as const;
 
@@ -86,67 +100,44 @@ export const SUSPEND_MODAL_TEXT = {
 export const CREATE_TENANT_TEXT = {
   TITLE: "Add Tenant",
   SECTION_GENERAL: "General Information",
-  SECTION_CONTACT: "Primary Contact (First Admin)",
   NAME_LABEL: "Tenant Name",
   NAME_PLACEHOLDER: "Enter school or organization name...",
-  SLUG_LABEL: "Slug (System Identifier)",
-  SLUG_PREFIX: "aptis.vn/",
-  SLUG_PLACEHOLDER: "organization-name",
-  SLUG_HELPER:
-    "Use lowercase letters, numbers, and hyphens only.",
+  ORG_TYPE_LABEL: "Organization Type",
+  ORG_TYPE_PLACEHOLDER: "Select a type",
   PLAN_LABEL: "Plan",
   PLAN_PLACEHOLDER: "Select a plan",
-  MAX_USERS_LABEL: "Maximum users",
-  MAX_USERS_PLACEHOLDER: "e.g. 500",
-  MAX_USERS_HELPER: "Leave blank to use the selected plan limit.",
-  EXPIRES_LABEL: "Expiration Date",
-  CONTACT_NAME_LABEL: "Full Name",
-  CONTACT_NAME_PLACEHOLDER: "Alex Nguyen",
-  CONTACT_PHONE_LABEL: "Phone Number",
-  CONTACT_PHONE_PLACEHOLDER: "09xx xxx xxx",
-  CONTACT_EMAIL_LABEL: "Admin Email",
-  CONTACT_EMAIL_PLACEHOLDER: "admin@organization.com",
-  CONTACT_EMAIL_HELPER: "The tenant admin account will be created from this email.",
+  STUDENT_LIMIT_LABEL: "Student Limit",
+  STUDENT_LIMIT_PLACEHOLDER: "e.g. 500",
   CANCEL: "Cancel",
   SUBMIT: "Create Tenant",
 } as const;
 
+export const ORGANIZATION_TYPE_OPTIONS: { value: string; label: string }[] = [
+  { value: "SCHOOL", label: "School" },
+  { value: "UNIVERSITY", label: "University" },
+  { value: "TRAINING_CENTER", label: "Training Center" },
+  { value: "CORPORATE", label: "Corporate" },
+];
+
 export const TENANT_CREATED_TEXT = {
   TITLE: "Tenant Created Successfully",
-  SUBTITLE:
-    "The new tenant has been initialized and is ready to use. Please save the login information below.",
+  SUBTITLE: "The new tenant has been added to the platform.",
   NAME_LABEL: "Tenant Name",
-  ACTIVATION_LABEL: "Activation Code",
-  LOGIN_URL_LABEL: "Login URL",
-  NOTICE:
-    "This login information is shown only once. The tenant administrator must use the activation code to set a password on first login.",
+  ORG_TYPE_LABEL: "Organization Type",
+  PLAN_LABEL: "Plan",
+  STUDENT_LIMIT_LABEL: "Student Limit",
   CLOSE: "Close",
-  COPY_ALL: "Copy all information",
-  COPY_ARIA: "Copy",
-} as const;
-
-export const CREATE_TENANT_LOCATION_TEXT = {
-  LABEL: "Province/City",
-  PLACEHOLDER: "Select a location",
-} as const;
-
-export const TENANT_LOGIN_CREDENTIAL_TEXT = {
-  EMAIL_LABEL: "Login Email",
-  PASSWORD_LABEL: "Temporary Password",
 } as const;
 
 export const CREATE_TENANT_ERRORS = {
   REQUIRED: "This field is required.",
-  SLUG_INVALID: "Use lowercase letters, numbers, and hyphens only.",
-  EMAIL_INVALID: "Please enter a valid email address.",
+  STUDENT_LIMIT_INVALID: "Enter a whole number of at least 1.",
 } as const;
 
 export const CREATE_TENANT_CONFLICT_TEXT = {
-  DUPLICATE_SLUG: "This tenant code already exists. Please use another slug.",
-  DUPLICATE_EMAIL:
-    "This admin email is already used by another tenant. Please use another email.",
+  DUPLICATE_NAME: "This tenant name already exists. Please use another name.",
   CONFLICT:
-    "The tenant slug, admin email, or contract code already exists. Please check the information and try again.",
+    "The tenant name already exists. Please check the information and try again.",
 } as const;
 
 export const PLAN_SELECT_OPTIONS: { value: TenantPlan; label: string }[] = [
@@ -172,30 +163,144 @@ export const TENANT_LOCATION_OPTIONS: TenantLocationOption[] = [
   { value: "can-tho", label: "Can Tho", x: 90, y: 310 },
 ];
 
-/** Default seat cap per plan when "max users" is left blank. */
-export const DEFAULT_SEATS_BY_PLAN: Record<TenantPlan, number> = {
-  starter: 500,
-  professional: 1000,
-  enterprise: 5000,
-};
-
 export const EMPTY_CREATE_TENANT: CreateTenantInput = {
   name: "",
-  slug: "",
+  organizationType: "",
   plan: "",
-  location: "",
-  maxUsers: "",
-  expiresAt: "",
-  contactName: "",
-  contactPhone: "",
-  contactEmail: "",
+  studentLimit: "",
 };
 
-/** Seat-usage colour thresholds: amber >=80% used, red when full. */
-export const SEAT_WARN_RATIO = 0.8;
+export const TENANT_DETAIL_TEXT = {
+  BACK_TO_TENANTS: "Back to Tenants",
+  BRANDING_TITLE: "White-Label Branding",
+  BRANDING_SUBTITLE: "Shown to this tenant's users across the platform.",
+  LOGO_URL_LABEL: "Logo URL",
+  LOGO_URL_PLACEHOLDER: "https://example.com/logo.png",
+  LOGO_URL_HELPER:
+    "Paste a link to an already-hosted image. File upload isn't available yet.",
+  PRIMARY_COLOR_LABEL: "Primary Color",
+  PRIMARY_COLOR_PLACEHOLDER: "#1A2B3C",
+  PRIMARY_COLOR_INVALID: "Enter a 6-digit hex color like #1A2B3C.",
+  SAVE_BRANDING: "Save Branding",
+  BRANDING_SAVED: "Branding saved.",
+  ORGANIZATIONS_TITLE: "Organizations",
+  ORGANIZATIONS_SUBTITLE: "Branches and facilities under this tenant.",
+  ADD_ORGANIZATION: "Add Organization",
+  EMPTY_ORGANIZATIONS_TITLE: "No organizations yet",
+  EMPTY_ORGANIZATIONS_TEXT:
+    "Add the first branch or facility for this tenant.",
+} as const;
 
-export const seatTone = (used: number, total: number): ProgressTone => {
-  if (total <= 0 || used >= total) return "danger";
-  if (used / total >= SEAT_WARN_RATIO) return "warning";
-  return "success";
+export const ORGANIZATION_TABLE_HEADERS = {
+  NAME: "Name",
+  FACILITY_TYPE: "Facility Type",
+  ADDRESS: "Address",
+  STATUS: "Status",
+  ACTIONS: "Actions",
+} as const;
+
+export const FACILITY_TYPE_LABELS: Record<FacilityType, string> = {
+  MAIN: "Main Campus",
+  BRANCH: "Branch",
+  TEST_CENTER: "Test Center",
+};
+
+export const FACILITY_TYPE_OPTIONS: { value: FacilityType; label: string }[] = [
+  { value: "MAIN", label: FACILITY_TYPE_LABELS.MAIN },
+  { value: "BRANCH", label: FACILITY_TYPE_LABELS.BRANCH },
+  { value: "TEST_CENTER", label: FACILITY_TYPE_LABELS.TEST_CENTER },
+];
+
+export const ORGANIZATION_STATUS_LABELS: Record<OrganizationStatus, string> = {
+  active: "Active",
+  suspended: "Suspended",
+};
+
+export const ORGANIZATION_STATUS_VARIANT: Record<OrganizationStatus, BadgeVariant> = {
+  active: "success",
+  suspended: "neutral",
+};
+
+export const CREATE_ORGANIZATION_TEXT = {
+  TITLE: "Add Organization",
+  NAME_LABEL: "Name",
+  NAME_PLACEHOLDER: "Enter branch or facility name...",
+  ADDRESS_LABEL: "Address",
+  ADDRESS_PLACEHOLDER: "Optional",
+  FACILITY_TYPE_LABEL: "Facility Type",
+  FACILITY_TYPE_PLACEHOLDER: "Select a type",
+  CANCEL: "Cancel",
+  SUBMIT: "Add Organization",
+} as const;
+
+export const CREATE_ORGANIZATION_ERRORS = {
+  REQUIRED: "This field is required.",
+} as const;
+
+export const EMPTY_CREATE_ORGANIZATION: CreateOrganizationInput = {
+  name: "",
+  address: "",
+  facilityType: "",
+};
+
+export const LOGIN_ACCOUNT_TEXT = {
+  TITLE: "Login Account",
+  SUBTITLE: "The Host's own login for this tenant.",
+  EMPTY_TITLE: "No login account yet",
+  EMPTY_TEXT: "Create the Host's first login so they can sign in.",
+  CREATE_LOGIN: "Create Login",
+  RESET_PASSWORD: "Reset Password",
+  RESET_SUCCESS:
+    "Password reset. Relay it to the Host directly — it won't be shown again.",
+} as const;
+
+export const LOGIN_ACCOUNT_STATUS_LABELS: Record<LoginAccountStatus, string> = {
+  active: "Active",
+  suspended: "Suspended",
+};
+
+export const LOGIN_ACCOUNT_STATUS_VARIANT: Record<LoginAccountStatus, BadgeVariant> = {
+  active: "success",
+  suspended: "neutral",
+};
+
+export const CREATE_LOGIN_ACCOUNT_TEXT = {
+  TITLE: "Create Login",
+  EMAIL_LABEL: "Email",
+  EMAIL_PLACEHOLDER: "host@example.com",
+  FULL_NAME_LABEL: "Full Name",
+  FULL_NAME_PLACEHOLDER: "Enter the Host's name...",
+  PASSWORD_LABEL: "Initial Password",
+  PASSWORD_HELPER: "At least 8 characters. Relay it to the Host directly.",
+  CANCEL: "Cancel",
+  SUBMIT: "Create Login",
+  CONFLICT: "This email is already in use. Please use another email.",
+} as const;
+
+export const CREATE_LOGIN_ACCOUNT_ERRORS = {
+  REQUIRED: "This field is required.",
+  EMAIL_INVALID: "Enter a valid email address.",
+  PASSWORD_TOO_SHORT: "Enter at least 8 characters.",
+} as const;
+
+export const EMPTY_CREATE_LOGIN_ACCOUNT: CreateLoginAccountInput = {
+  email: "",
+  fullName: "",
+  password: "",
+};
+
+export const RESET_PASSWORD_TEXT = {
+  TITLE: "Reset Password",
+  PASSWORD_LABEL: "New Password",
+  PASSWORD_HELPER: "At least 8 characters. Relay it to the Host directly.",
+  CANCEL: "Cancel",
+  SUBMIT: "Reset Password",
+} as const;
+
+export const RESET_PASSWORD_ERRORS = {
+  PASSWORD_TOO_SHORT: "Enter at least 8 characters.",
+} as const;
+
+export const EMPTY_RESET_PASSWORD: ResetPasswordInput = {
+  newPassword: "",
 };

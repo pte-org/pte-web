@@ -7,8 +7,8 @@ import type {
 } from "../../types/question";
 
 export const QUESTION_ENDPOINTS = {
-  questions: "/api/v1/questions",
-  byId: (id: string) => `/api/v1/questions/${id}`,
+  questions: "/api/authoring/questions",
+  byId: (id: string) => `/api/authoring/questions/${id}`,
 } as const;
 
 function toQueryString(filters: QuestionFilters = {}): string {

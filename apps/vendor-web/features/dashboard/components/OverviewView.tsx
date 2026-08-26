@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { ReactElement } from "react";
 import Link from "next/link";
-import { PageHeader } from "@aptis/ui";
+import { PageHeader } from "@pte/ui";
 import { DASHBOARD_TEXT } from "../constants";
 import { useTenants } from "../../tenancy/api";
 import type { Tenant } from "../../tenancy/types";

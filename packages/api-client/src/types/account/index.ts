@@ -1,11 +1,9 @@
-import type { Role } from "../auth";
-
+/** Mirrors iam's `UserResponse` — the shape `GET /api/iam/auth/me` returns. */
 export interface CurrentUser {
-  id: number | string;
-  name: string;
-  credential: string;
-  role: Role;
-  userType: string;
-  tenantId: number | null;
-  mustChangePassword: boolean;
+  publicId: string;
+  email: string;
+  fullName: string;
+  tenantId: string | null;
+  status: string;
+  roles: string[];
 }
