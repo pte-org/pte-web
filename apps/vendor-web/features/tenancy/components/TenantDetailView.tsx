@@ -221,7 +221,7 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
       </section>
 
       <CreateOrganizationModal
-        key={createOpen ? "open" : "closed"}
+        key={createOpen ? "createOrganization-open" : "createOrganization-closed"}
         open={createOpen}
         onClose={() => {
           createOrganization.reset();
@@ -233,7 +233,7 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
       />
 
       <CreateLoginAccountModal
-        key={createLoginOpen ? "open" : "closed"}
+        key={createLoginOpen ? "createLoginAccount-open" : "createLoginAccount-closed"}
         open={createLoginOpen}
         onClose={() => {
           createLoginAccount.reset();
@@ -245,7 +245,7 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
       />
 
       <ResetPasswordModal
-        key={resetPasswordOpen ? "open" : "closed"}
+        key={resetPasswordOpen ? "resetPassword-open" : "resetPassword-closed"}
         open={resetPasswordOpen}
         onClose={() => {
           resetPassword.reset();

@@ -26,6 +26,7 @@ export const TENANCY_TEXT = {
   SUBTITLE: "Manage organizations that use the platform.",
   ADD_TENANT: "Add Tenant",
   SEARCH_PLACEHOLDER: "Search by name or slug",
+  ACTION_VIEW_DETAILS: "View details",
   ACTION_SUSPEND: "Suspend",
   ACTION_REACTIVATE: "Reactivate",
   EMPTY_TITLE: "No tenants yet",

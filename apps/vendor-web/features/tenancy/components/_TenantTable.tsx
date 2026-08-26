@@ -1,8 +1,8 @@
 "use client";
 
 import type { ReactElement } from "react";
-import Link from "next/link";
-import { Badge, Dropdown } from "@pte/ui";
+import { useRouter } from "next/navigation";
+import { Badge, BanIcon, CheckCircleIcon, Dropdown, EyeIcon } from "@pte/ui";
 import {
   ORGANIZATION_TYPE_OPTIONS,
   TENANCY_TEXT,
@@ -12,6 +12,10 @@ import {
   TENANT_TABLE_HEADERS,
 } from "../constants";
 import type { Tenant } from "../types";
+
+const ViewDetailsIcon = ({ className }: { className?: string }): ReactElement => (
+  <EyeIcon className={className} />
+);
 
 interface TenantTableProps {
   tenants: Tenant[];
@@ -37,13 +41,12 @@ const TenantRow = ({
   onReactivate: (tenant: Tenant) => void;
 }): ReactElement => {
   const isSuspended = tenant.status === "suspended";
+  const router = useRouter();
 
   return (
     <tr className="border-t border-gray-100 hover:bg-slate-50/70">
       <td className={`${CELL_CLASS} font-medium text-gray-900`}>
-        <Link href={`/admin/tenants/${tenant.id}`} className="hover:underline">
-          {tenant.name}
-        </Link>
+        {tenant.name}
       </td>
       <td className={`${CELL_CLASS} text-gray-500`}>
         {organizationTypeLabel(tenant.organizationType)}
@@ -58,13 +61,20 @@ const TenantRow = ({
       <td className={CELL_CLASS}>
         <Dropdown
           items={[
+            {
+              label: TENANCY_TEXT.ACTION_VIEW_DETAILS,
+              icon: ViewDetailsIcon,
+              onSelect: () => router.push(`/admin/tenants/${tenant.id}`),
+            },
             isSuspended
               ? {
                   label: TENANCY_TEXT.ACTION_REACTIVATE,
+                  icon: CheckCircleIcon,
                   onSelect: () => onReactivate(tenant),
                 }
               : {
                   label: TENANCY_TEXT.ACTION_SUSPEND,
+                  icon: BanIcon,
                   danger: true,
                   onSelect: () => onSuspend(tenant),
                 },
