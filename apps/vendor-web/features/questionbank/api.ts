@@ -6,6 +6,7 @@ import {
   type QuestionResponse,
 } from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
+import { QUESTION_STATS_QUERY_KEY, QUESTIONS_QUERY_KEY } from "./constants";
 import type {
   Question,
   QuestionDifficulty,
@@ -13,8 +14,6 @@ import type {
   QuestionStats,
   QuestionStatus,
 } from "./types";
-
-const QUESTIONS_QUERY_KEY = ["questions"] as const;
 
 const SKILL_MAP: Partial<Record<QuestionResponse["skill"], QuestionSkill>> = {
   LISTENING: "listening",
@@ -79,7 +78,7 @@ export function useQuestions(): UseQueryResult<Question[]> {
 
 export function useQuestionStats(): UseQueryResult<QuestionStats> {
   return useQuery({
-    queryKey: ["questionStats"],
+    queryKey: QUESTION_STATS_QUERY_KEY,
     queryFn: async () => buildStats(await fetchQuestions()),
   });
 }

@@ -8,6 +8,9 @@ import type {
   QuestionStatusFilter,
 } from "./types";
 
+export const QUESTIONS_QUERY_KEY = ["questions"] as const;
+export const QUESTION_STATS_QUERY_KEY = ["questionStats"] as const;
+
 export const QUESTIONBANK_TEXT = {
   TITLE: "Question Bank",
   SUBTITLE: "Manage and update the PTE question database.",

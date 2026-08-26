@@ -1,6 +1,9 @@
 import type { BadgeVariant } from "@pte/ui";
 import type { GrantQuotaInput, LicenseStatus } from "./types";
 
+export const LICENSES_QUERY_KEY = ["licenses"] as const;
+export const QUOTA_HISTORY_QUERY_KEY = ["quotaHistory"] as const;
+
 export const LICENSING_TEXT = {
   TITLE: "Licenses",
   SUBTITLE: "Track and renew organization licenses.",
