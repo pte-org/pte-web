@@ -6,3 +6,4 @@ export * from "./host";
 export * from "./tenant";
 export * from "./organization";
 export * from "./quota";
+export * from "./user";

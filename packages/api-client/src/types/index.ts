@@ -9,3 +9,4 @@ export * from "./question";
 export * from "./tenant";
 export * from "./organization";
 export * from "./quota";
+export * from "./user";
