@@ -123,8 +123,8 @@ const HeaderActions = (): ReactElement => {
         <Skeleton className="h-8 w-8 rounded-full" />
       ) : (
         <Dropdown
-          label={user?.name ?? HEADER_TEXT.ACCOUNT}
-          trigger={<Avatar name={user?.name} />}
+          label={user?.fullName ?? HEADER_TEXT.ACCOUNT}
+          trigger={<Avatar name={user?.fullName} />}
           items={[{ label: HEADER_TEXT.LOGOUT, onSelect: logout }]}
         />
       )}
