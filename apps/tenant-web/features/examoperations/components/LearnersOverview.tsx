@@ -3,7 +3,11 @@
 import { useState, type ReactElement } from "react";
 import type { UserResponse } from "@pte/api-client";
 import { Alert, DataTable, Dropdown, LockIcon, type DataTableColumn } from "@pte/ui";
-import { LEARNERS_OVERVIEW_TEXT } from "./constants";
+import {
+  LEARNERS_OVERVIEW_TEXT,
+  STUDENT_ROW_ACTIONS_TEXT,
+  STUDENT_TABLE_HEADERS,
+} from "./constants";
 import { useResetStudentPassword, useTenantStudents } from "../api";
 import { errorMessage } from "../errorMessage";
 import { ResetStudentPasswordModal } from "./ResetStudentPasswordModal";
@@ -18,13 +22,13 @@ export const LearnersOverview = (): ReactElement => {
   const columns: DataTableColumn<UserResponse>[] = [
     {
       key: "fullName",
-      header: "Full name",
+      header: STUDENT_TABLE_HEADERS.FULL_NAME,
       cell: (student) => <span className="font-medium text-gray-900">{student.fullName}</span>,
     },
-    { key: "email", header: "Email", cell: (student) => student.email },
-    { key: "studentCode", header: "Student code", cell: (student) => student.studentCode ?? "-" },
-    { key: "className", header: "Class", cell: (student) => student.className ?? "-" },
-    { key: "phone", header: "Phone", cell: (student) => student.phone ?? "-" },
+    { key: "email", header: STUDENT_TABLE_HEADERS.EMAIL, cell: (student) => student.email },
+    { key: "studentCode", header: STUDENT_TABLE_HEADERS.STUDENT_CODE, cell: (student) => student.studentCode ?? "-" },
+    { key: "className", header: STUDENT_TABLE_HEADERS.CLASS_NAME, cell: (student) => student.className ?? "-" },
+    { key: "phone", header: STUDENT_TABLE_HEADERS.PHONE, cell: (student) => student.phone ?? "-" },
   ];
 
   return (
@@ -36,7 +40,7 @@ export const LearnersOverview = (): ReactElement => {
 
       {studentsQuery.error && (
         <Alert tone="error" title={T.UNABLE_TO_LOAD}>
-          {errorMessage(studentsQuery.error) ?? "Please try again."}
+          {errorMessage(studentsQuery.error) ?? T.UNABLE_TO_LOAD_FALLBACK}
         </Alert>
       )}
 
@@ -51,7 +55,7 @@ export const LearnersOverview = (): ReactElement => {
           <Dropdown
             items={[
               {
-                label: "Reset Password",
+                label: STUDENT_ROW_ACTIONS_TEXT.RESET_PASSWORD,
                 icon: LockIcon,
                 onSelect: () => setResetTarget(student),
               },

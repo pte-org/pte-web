@@ -39,6 +39,46 @@ export const LEARNERS_OVERVIEW_TEXT = {
   TITLE: "Learners",
   SUBTITLE: "All student accounts in your organization.",
   UNABLE_TO_LOAD: "Unable to load learners",
+  UNABLE_TO_LOAD_FALLBACK: "Please try again.",
   EMPTY_TITLE: "No learners yet",
   EMPTY_TEXT: "Students created via roster import or added individually will appear here.",
+} as const;
+
+export const STUDENT_TABLE_HEADERS = {
+  FULL_NAME: "Full name",
+  EMAIL: "Email",
+  STUDENT_CODE: "Student code",
+  CLASS_NAME: "Class",
+  PHONE: "Phone",
+} as const;
+
+export const STUDENT_ROW_ACTIONS_TEXT = {
+  RESET_PASSWORD: "Reset Password",
+  REMOVE_FROM_EXAM: "Remove from Exam",
+} as const;
+
+export const STUDENT_ROSTER_TABLE_TEXT = {
+  EMPTY_TITLE: "No students enrolled yet",
+} as const;
+
+export const SKIPPED_ROWS_REPORT_TEXT = {
+  HEADING: "{count} row(s) skipped",
+  ROW_HEADER: "Row",
+  EMAIL_HEADER: "Email",
+  REASON_HEADER: "Reason",
+} as const;
+
+export const ROSTER_REVIEW_TABLE_HEADERS = {
+  EMAIL: "Email",
+  FULL_NAME: "Full Name",
+  CLASS_NAME: "Class",
+} as const;
+
+export const RESET_STUDENT_PASSWORD_TEXT = {
+  TITLE: "Reset Password",
+  CANCEL: "Cancel",
+  SUBMIT: "Reset Password",
+  SUBMITTING: "Resetting...",
+  NEW_PASSWORD_LABEL: "New password",
+  MIN_LENGTH_ERROR: "Password must be at least {minLength} characters.",
 } as const;

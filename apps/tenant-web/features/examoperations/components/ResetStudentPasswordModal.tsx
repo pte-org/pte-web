@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Modal, PasswordInput } from "@pte/ui";
+import { RESET_STUDENT_PASSWORD_TEXT } from "./constants";
 
 interface ResetStudentPasswordModalProps {
   open: boolean;
@@ -12,6 +13,7 @@ interface ResetStudentPasswordModalProps {
 }
 
 const MIN_LENGTH = 8;
+const T = RESET_STUDENT_PASSWORD_TEXT;
 
 export const ResetStudentPasswordModal = ({
   open,
@@ -26,7 +28,7 @@ export const ResetStudentPasswordModal = ({
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     if (password.length < MIN_LENGTH) {
-      setValidationError(`Password must be at least ${MIN_LENGTH} characters.`);
+      setValidationError(T.MIN_LENGTH_ERROR.replace("{minLength}", String(MIN_LENGTH)));
       return;
     }
     setValidationError(undefined);
@@ -37,7 +39,7 @@ export const ResetStudentPasswordModal = ({
     <Modal
       open={open}
       onClose={onClose}
-      title="Reset Password"
+      title={T.TITLE}
       footer={
         <>
           <button
@@ -45,7 +47,7 @@ export const ResetStudentPasswordModal = ({
             onClick={onClose}
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            Cancel
+            {T.CANCEL}
           </button>
           <button
             type="submit"
@@ -53,7 +55,7 @@ export const ResetStudentPasswordModal = ({
             disabled={isSubmitting}
             className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? "Resetting..." : "Reset Password"}
+            {isSubmitting ? T.SUBMITTING : T.SUBMIT}
           </button>
         </>
       }
@@ -65,7 +67,7 @@ export const ResetStudentPasswordModal = ({
       )}
       <form id="reset-student-password-form" onSubmit={handleSubmit} noValidate>
         <PasswordInput
-          label="New password"
+          label={T.NEW_PASSWORD_LABEL}
           value={password}
           error={validationError}
           onChange={(event) => setPassword(event.target.value)}

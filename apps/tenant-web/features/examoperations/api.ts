@@ -97,10 +97,14 @@ export function useEnrollRosterAccounts(
         studentPublicIds: created.map((account) => account.publicId),
       });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       clearPendingImport(sessionPublicId);
+      // Await the students refetch before invalidating the roster: useSessionRoster
+      // joins against students.data by closure, so if the roster refetch fires first
+      // it would join against the still-stale (pre-enroll) student list and silently
+      // drop the just-enrolled students until some unrelated refetch happens to catch up.
+      await queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: [...ENROLLMENTS_QUERY_KEY, sessionPublicId] });
-      void queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
     },
   });
 }
