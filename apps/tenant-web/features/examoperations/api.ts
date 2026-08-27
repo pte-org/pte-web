@@ -202,12 +202,25 @@ export interface RosterEntry {
  */
 export function useSessionRoster(sessionPublicId: string): UseQueryResult<RosterEntry[]> {
   const students = useTenantStudents();
+  const queryClient = useQueryClient();
 
   return useQuery({
     queryKey: [...ENROLLMENTS_QUERY_KEY, sessionPublicId],
     queryFn: async () => {
       const enrollments = await listEnrollments(apiClient, sessionPublicId);
-      const byId = new Map((students.data ?? []).map((student) => [student.publicId, student]));
+      // Read the raw tenant-users cache directly instead of closing over
+      // `students.data` (a per-render snapshot): this queryFn can run before
+      // a re-render has picked up a just-refetched students list (the
+      // await-ordering fix in useEnrollRosterAccounts only guarantees the
+      // *cache* is fresh by then, not that this component has re-rendered
+      // with it yet), which would otherwise silently drop just-enrolled
+      // students from the join.
+      const allUsers = queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? students.data ?? [];
+      const byId = new Map(
+        allUsers
+          .filter((user) => user.roles.includes(STUDENT_ROLE))
+          .map((student) => [student.publicId, student]),
+      );
       return enrollments.flatMap((enrollment) => {
         const student = byId.get(enrollment.studentPublicId);
         return student ? [{ enrollmentPublicId: enrollment.publicId, student }] : [];

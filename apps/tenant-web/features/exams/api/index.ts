@@ -173,12 +173,25 @@ export function useTenantProctors(): UseQueryResult<UserResponse[]> {
  */
 export function useProctorAssignments(sessionPublicId: string): UseQueryResult<ProctorAssignmentEntry[]> {
   const proctors = useTenantProctors();
+  const queryClient = useQueryClient();
 
   return useQuery({
     queryKey: [...PROCTOR_ASSIGNMENTS_QUERY_KEY, sessionPublicId],
     queryFn: async () => {
       const assignments = await listProctorAssignments(apiClient, sessionPublicId);
-      const byId = new Map((proctors.data ?? []).map((proctor) => [proctor.publicId, proctor]));
+      // Read the raw tenant-users cache directly instead of closing over
+      // `proctors.data` (a per-render snapshot) — same race as
+      // examoperations' useSessionRoster: this queryFn can run before a
+      // re-render has picked up a just-refetched proctors list (e.g. right
+      // after AssignProctorModal creates a new proctor then assigns it),
+      // which would otherwise silently drop the just-created proctor from
+      // the join.
+      const allUsers = queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? proctors.data ?? [];
+      const byId = new Map(
+        allUsers
+          .filter((user) => user.roles.includes(PROCTOR_ROLE))
+          .map((proctor) => [proctor.publicId, proctor]),
+      );
       return assignments.flatMap((assignment) => {
         const proctor = byId.get(assignment.proctorPublicId);
         return proctor ? [{ assignmentPublicId: assignment.publicId, proctor }] : [];
@@ -236,8 +249,13 @@ export function useCreateProctorAccount(): UseMutationResult<UserResponse, unkno
         roles: [PROCTOR_ROLE],
         tenantId: null,
       }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
+    // Awaited (not fire-and-forget): AssignProctorModal chains this mutation
+    // straight into useAssignProctor's .mutate() in its own onSuccess, which
+    // TanStack Query only calls after this hook-level onSuccess settles — so
+    // awaiting here guarantees the tenant-users cache already has the
+    // just-created proctor before useProctorAssignments' join can run.
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
     },
   });
 }
