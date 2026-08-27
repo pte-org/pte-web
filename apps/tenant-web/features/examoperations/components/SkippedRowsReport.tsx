@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 import type { SkippedRow } from "../types";
+import { SKIPPED_ROWS_REPORT_TEXT } from "./constants";
 
 interface SkippedRowsReportProps {
   rows: SkippedRow[];
@@ -11,14 +12,14 @@ export const SkippedRowsReport = ({ rows }: SkippedRowsReportProps): ReactElemen
   return (
     <div className="flex flex-col gap-2">
       <h4 className="text-sm font-medium text-gray-700">
-        {rows.length} row(s) skipped
+        {SKIPPED_ROWS_REPORT_TEXT.HEADING.replace("{count}", String(rows.length))}
       </h4>
       <table className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-gray-200 text-left text-gray-500">
-            <th className="py-2 pr-4">Row</th>
-            <th className="py-2 pr-4">Email</th>
-            <th className="py-2">Reason</th>
+            <th className="py-2 pr-4">{SKIPPED_ROWS_REPORT_TEXT.ROW_HEADER}</th>
+            <th className="py-2 pr-4">{SKIPPED_ROWS_REPORT_TEXT.EMAIL_HEADER}</th>
+            <th className="py-2">{SKIPPED_ROWS_REPORT_TEXT.REASON_HEADER}</th>
           </tr>
         </thead>
         <tbody>

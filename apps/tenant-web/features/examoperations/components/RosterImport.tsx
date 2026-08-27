@@ -5,7 +5,7 @@ import { Alert, Button } from "@pte/ui";
 import { RosterDropzone } from "./_RosterDropzone";
 import { SkippedRowsReport } from "./SkippedRowsReport";
 import { PendingImportBanner } from "./PendingImportBanner";
-import { ROSTER_TEXT } from "./constants";
+import { ROSTER_REVIEW_TABLE_HEADERS, ROSTER_TEXT } from "./constants";
 import {
   clearPendingImport,
   loadPendingImport,
@@ -115,9 +115,9 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
             <table className="w-full min-w-max border-collapse text-sm">
               <thead>
                 <tr className="border-b border-gray-200 text-left text-gray-500">
-                  <th className="py-2 pr-4 font-medium">Email</th>
-                  <th className="py-2 pr-4 font-medium">Full Name</th>
-                  <th className="py-2 font-medium">Class</th>
+                  <th className="py-2 pr-4 font-medium">{ROSTER_REVIEW_TABLE_HEADERS.EMAIL}</th>
+                  <th className="py-2 pr-4 font-medium">{ROSTER_REVIEW_TABLE_HEADERS.FULL_NAME}</th>
+                  <th className="py-2 font-medium">{ROSTER_REVIEW_TABLE_HEADERS.CLASS_NAME}</th>
                 </tr>
               </thead>
               <tbody>

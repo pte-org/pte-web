@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { Alert, DataTable, type DataTableColumn } from "@pte/ui";
-import { PROCTOR_SECTION_TEXT } from "../constants";
+import { PROCTOR_SECTION_TEXT, PROCTOR_TABLE_HEADERS } from "../constants";
 import { useProctorAssignments, useUnassignProctor } from "../api";
 import type { ProctorAssignmentEntry } from "../types";
 import { AssignProctorModal } from "./AssignProctorModal";
@@ -27,17 +27,17 @@ export const ProctorAssignmentSection = ({ sessionPublicId }: ProctorAssignmentS
   const columns: DataTableColumn<ProctorAssignmentEntry>[] = [
     {
       key: "fullName",
-      header: "Full name",
+      header: PROCTOR_TABLE_HEADERS.FULL_NAME,
       cell: (entry) => <span className="font-medium text-gray-900">{entry.proctor.fullName}</span>,
     },
-    { key: "email", header: "Email", cell: (entry) => entry.proctor.email },
+    { key: "email", header: PROCTOR_TABLE_HEADERS.EMAIL, cell: (entry) => entry.proctor.email },
   ];
 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <span className="text-sm text-gray-500">
-          {(assignments ?? []).length} proctor(s) assigned
+          {T.ASSIGNED_COUNT.replace("{count}", String((assignments ?? []).length))}
         </span>
         <button
           type="button"

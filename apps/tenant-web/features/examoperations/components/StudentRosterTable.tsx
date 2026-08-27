@@ -5,6 +5,11 @@ import { Alert, DataTable, Dropdown, LockIcon, XIcon, type DataTableColumn } fro
 import { useResetStudentPassword, useSessionRoster, useUnenroll, type RosterEntry } from "../api";
 import { errorMessage } from "../errorMessage";
 import { ResetStudentPasswordModal } from "./ResetStudentPasswordModal";
+import {
+  STUDENT_ROSTER_TABLE_TEXT,
+  STUDENT_ROW_ACTIONS_TEXT,
+  STUDENT_TABLE_HEADERS,
+} from "./constants";
 
 interface StudentRosterTableProps {
   sessionPublicId: string;
@@ -19,12 +24,12 @@ export const StudentRosterTable = ({ sessionPublicId }: StudentRosterTableProps)
   const columns: DataTableColumn<RosterEntry>[] = [
     {
       key: "fullName",
-      header: "Full name",
+      header: STUDENT_TABLE_HEADERS.FULL_NAME,
       cell: (entry) => <span className="font-medium text-gray-900">{entry.student.fullName}</span>,
     },
-    { key: "email", header: "Email", cell: (entry) => entry.student.email },
-    { key: "studentCode", header: "Student code", cell: (entry) => entry.student.studentCode ?? "-" },
-    { key: "className", header: "Class", cell: (entry) => entry.student.className ?? "-" },
+    { key: "email", header: STUDENT_TABLE_HEADERS.EMAIL, cell: (entry) => entry.student.email },
+    { key: "studentCode", header: STUDENT_TABLE_HEADERS.STUDENT_CODE, cell: (entry) => entry.student.studentCode ?? "-" },
+    { key: "className", header: STUDENT_TABLE_HEADERS.CLASS_NAME, cell: (entry) => entry.student.className ?? "-" },
   ];
 
   const unenrollErrorMessage = errorMessage(unenrollMutation.error);
@@ -37,17 +42,17 @@ export const StudentRosterTable = ({ sessionPublicId }: StudentRosterTableProps)
         rows={roster ?? []}
         getRowKey={(entry) => entry.enrollmentPublicId}
         isLoading={isLoading}
-        emptyTitle="No students enrolled yet"
+        emptyTitle={STUDENT_ROSTER_TABLE_TEXT.EMPTY_TITLE}
         rowActions={(entry) => (
           <Dropdown
             items={[
               {
-                label: "Reset Password",
+                label: STUDENT_ROW_ACTIONS_TEXT.RESET_PASSWORD,
                 icon: LockIcon,
                 onSelect: () => setResetTarget(entry),
               },
               {
-                label: "Remove from Exam",
+                label: STUDENT_ROW_ACTIONS_TEXT.REMOVE_FROM_EXAM,
                 icon: XIcon,
                 danger: true,
                 onSelect: () => unenrollMutation.mutate(entry.enrollmentPublicId),

@@ -77,6 +77,12 @@ export const PROCTOR_SECTION_TEXT = {
   ADD_PROCTOR: "Add Proctor",
   EMPTY_TITLE: "No proctors assigned yet",
   UNASSIGN: "Remove from Exam",
+  ASSIGNED_COUNT: "{count} proctor(s) assigned",
+} as const;
+
+export const PROCTOR_TABLE_HEADERS = {
+  FULL_NAME: "Full name",
+  EMAIL: "Email",
 } as const;
 
 export const ASSIGN_PROCTOR_TEXT = {
