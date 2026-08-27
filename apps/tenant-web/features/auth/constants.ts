@@ -7,11 +7,9 @@ export const API_BASE_URL =
 
 /**
  * Real backend roles allowed into `/host/*` — mirrors vendor-web's
- * `HOST_ROLES` (see that file's comment): a HOST_ADMIN caller can already
- * provision HOST_AUTHOR users via iam's `POST /users`
- * (`UserProvisioningHelper.HOST_ASSIGNABLE_ROLES`), so excluding
- * HOST_AUTHOR here would lock out an account the backend already lets
- * exist — not a "not yet supported" gap.
+ * `HOST_ROLES`. HOST_ADMIN can already provision HOST_AUTHOR via iam's
+ * `POST /users`, so excluding it here would lock out an account the
+ * backend already allows, not a "not yet supported" gap.
  */
 export const HOST_ROLES: SessionRole[] = ["HOST_ADMIN", "HOST_AUTHOR"];
 

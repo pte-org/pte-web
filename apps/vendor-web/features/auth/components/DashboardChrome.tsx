@@ -30,10 +30,8 @@ interface DashboardChromeProps {
   /**
    * Required, not defaulted — `DashboardChrome` is the shared shell for
    * BOTH `/admin/*` (platform-admin-only) and `/host` (host-admin-only)
-   * pages. A default here previously locked every caller to the same role
-   * set, silently breaking whichever route didn't match it (QUAL-001,
-   * Phase 1 quality gate) — making every call site say explicitly who's
-   * allowed catches that class of bug at compile time instead.
+   * pages. A default would silently lock every caller to the same role
+   * set instead of forcing each call site to say explicitly who's allowed.
    */
   allowedRoles: SessionRole[];
 }

@@ -6,11 +6,7 @@ import { ProtectedRoute, useSessionManager, type SessionRole } from "@pte/ui";
 import { AUTH_ROUTES } from "../constants";
 import { AuthLoading } from "./AuthLoading";
 
-/**
- * App-side auth gate: waits for the token to hydrate (isReady) before deciding,
- * then delegates the authenticated/redirect logic to the headless
- * ProtectedRoute from @pte/ui, wiring the redirect to Next's router.
- */
+/** Waits for token hydration before deciding — delegates authorized/redirect logic to `@pte/ui`'s ProtectedRoute, wired to Next's router. */
 export const RequireAuth = ({
   children,
   allowedRoles,
