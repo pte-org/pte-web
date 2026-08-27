@@ -1,14 +1,56 @@
 import * as XLSX from "xlsx";
-import type { PrepareImportRequest } from "@pte/api-client";
+import type { RosterFileResult, RosterRow } from "./types";
 
 const MAX_SHEETS_TO_SCAN = 20;
+const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB — a roster of a few thousand rows fits well under this
 
-export async function parseAndCleanRosterFile(
-  file: File,
-): Promise<PrepareImportRequest> {
+const HEADER_ALIASES: Record<string, keyof RosterRow> = {
+  email: "email",
+  fullname: "fullName",
+  name: "fullName",
+  studentcode: "studentCode",
+  code: "studentCode",
+  class: "className",
+  classname: "className",
+  phone: "phone",
+  phonenumber: "phone",
+  dob: "dateOfBirth",
+  dateofbirth: "dateOfBirth",
+  birthdate: "dateOfBirth",
+};
+
+function normalizeHeader(header: string): string {
+  return header.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+}
+
+function formatIsoDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * `raw: true` (below) + `cellDates: true` (on the workbook read) so a
+ * genuine Excel date cell comes through as a JS `Date`, formatted here to
+ * ISO `yyyy-MM-dd` — otherwise SheetJS formats it as a locale display string
+ * (e.g. "1/15/08"), which the backend's `LocalDate` parser misreads (MM/DD
+ * vs DD/MM). Text/number cells pass through unaffected.
+ */
+function toCellText(value: unknown): string {
+  if (value === null || value === undefined) return "";
+  if (value instanceof Date) return formatIsoDate(value);
+  return String(value).trim();
+}
+
+export async function parseRosterFile(file: File): Promise<RosterFileResult> {
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    throw new Error(`Import file is too large (max ${MAX_FILE_SIZE_BYTES / (1024 * 1024)}MB)`);
+  }
+
   const workbook = XLSX.read(await file.arrayBuffer(), {
     type: "array",
-    cellDates: false,
+    cellDates: true,
   });
 
   for (const sheetName of workbook.SheetNames.slice(0, MAX_SHEETS_TO_SCAN)) {
@@ -19,56 +61,36 @@ export async function parseAndCleanRosterFile(
       header: 1,
       blankrows: false,
       defval: "",
-      raw: false,
+      raw: true,
     });
-    const cleaned = cleanRows(file.name, rawRows);
-    if (cleaned.rows.length > 0) return cleaned;
+    const rows = extractRosterRows(rawRows);
+    if (rows.length > 0) return { fileName: file.name, rows };
   }
 
-  throw new Error("Import file must contain a header row and at least one data row");
+  throw new Error(
+    "Import file must contain a header row (Email, Full Name, Student Code, Class, Phone, Date of Birth) and at least one data row",
+  );
 }
 
-function cleanRows(fileName: string, rawRows: unknown[][]): PrepareImportRequest {
-  if (rawRows.length < 2) {
-    return { fileName, columnHeaders: [], rows: [] };
-  }
+function extractRosterRows(rawRows: unknown[][]): RosterRow[] {
+  if (rawRows.length < 2) return [];
 
   const rawHeaders = rawRows[0] ?? [];
-  const keptColumns = rawHeaders
-    .map((header, index) => ({
-      header: toCellText(header),
-      index,
-    }))
-    .filter((column) => column.header.length > 0);
-  const columnHeaders = dedupeHeaders(keptColumns.map((column) => column.header));
+  const fieldByColumn = rawHeaders.map((header) => HEADER_ALIASES[normalizeHeader(toCellText(header))]);
 
-  if (columnHeaders.length === 0) {
-    return { fileName, columnHeaders: [], rows: [] };
+  if (!fieldByColumn.includes("email") || !fieldByColumn.includes("fullName")) {
+    throw new Error("Import file must have both an Email column and a Full Name column");
   }
 
-  const rows = rawRows.slice(1).flatMap((rawRow) => {
-    const row = keptColumns.reduce<Record<string, string>>((values, column, index) => {
-      values[columnHeaders[index] ?? column.header] = toCellText(rawRow[column.index]);
-      return values;
-    }, {});
+  return rawRows.slice(1).flatMap((rawRow) => {
+    const row: Partial<RosterRow> = {};
+    fieldByColumn.forEach((field, index) => {
+      if (!field) return;
+      const value = toCellText(rawRow[index]);
+      if (value) row[field] = value;
+    });
 
-    const hasValue = Object.values(row).some((value) => value.length > 0);
-    return hasValue ? [row] : [];
-  });
-
-  return { fileName, columnHeaders, rows };
-}
-
-function toCellText(value: unknown): string {
-  if (value === null || value === undefined) return "";
-  return String(value).trim();
-}
-
-function dedupeHeaders(headers: string[]): string[] {
-  const counts = new Map<string, number>();
-  return headers.map((header) => {
-    const count = counts.get(header) ?? 0;
-    counts.set(header, count + 1);
-    return count === 0 ? header : `${header}_${count + 1}`;
+    if (!row.email && !row.fullName) return [];
+    return [{ email: row.email ?? "", fullName: row.fullName ?? "", ...row }];
   });
 }

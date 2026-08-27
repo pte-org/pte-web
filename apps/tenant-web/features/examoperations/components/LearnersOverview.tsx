@@ -1,132 +1,82 @@
 "use client";
 
-import { useMemo, useState, type ReactElement } from "react";
+import { useState, type ReactElement } from "react";
+import type { UserResponse } from "@pte/api-client";
+import { Alert, DataTable, Dropdown, LockIcon, type DataTableColumn } from "@pte/ui";
 import {
-  Alert,
-  DataTable,
-  PaginationControls,
-  StatusBadge,
-  type DataTableColumn,
-} from "@pte/ui";
-import {
-  useHostStudents,
-  type HostStudentResponse,
-  type PageMeta,
-} from "../api";
+  LEARNERS_OVERVIEW_TEXT,
+  STUDENT_ROW_ACTIONS_TEXT,
+  STUDENT_TABLE_HEADERS,
+} from "./constants";
+import { useResetStudentPassword, useTenantStudents } from "../api";
+import { errorMessage } from "../errorMessage";
+import { ResetStudentPasswordModal } from "./ResetStudentPasswordModal";
 
-const PAGE_SIZE = 20;
-const EMPTY_TEXT = "-";
-
-function display(value?: string | null): string {
-  return value?.trim() ? value : EMPTY_TEXT;
-}
-
-function formatDate(value?: string | null): string {
-  if (!value) return EMPTY_TEXT;
-  return value.slice(0, 10);
-}
-
-function statusVariant(status: HostStudentResponse["status"]): "success" | "neutral" {
-  return status === "ACTIVE" ? "success" : "neutral";
-}
+const T = LEARNERS_OVERVIEW_TEXT;
 
 export const LearnersOverview = (): ReactElement => {
-  const [page, setPage] = useState(0);
-  const studentsQuery = useHostStudents(page, PAGE_SIZE);
+  const studentsQuery = useTenantStudents();
+  const [resetTarget, setResetTarget] = useState<UserResponse | null>(null);
+  const resetPassword = useResetStudentPassword(resetTarget?.publicId ?? "");
 
-  const columns = useMemo<DataTableColumn<HostStudentResponse>[]>(
-    () => [
-      {
-        key: "username",
-        header: "Username",
-        cell: (student) => (
-          <span className="font-medium text-gray-900">{student.username}</span>
-        ),
-      },
-      {
-        key: "fullName",
-        header: "Full name",
-        cell: (student) => display(student.fullName),
-      },
-      {
-        key: "studentCode",
-        header: "Student code",
-        cell: (student) => display(student.studentCode),
-      },
-      {
-        key: "className",
-        header: "Class",
-        cell: (student) => display(student.className),
-      },
-      {
-        key: "phone",
-        header: "Phone",
-        cell: (student) => display(student.phone),
-      },
-      {
-        key: "createdAt",
-        header: "Created",
-        cell: (student) => formatDate(student.createdAt),
-      },
-      {
-        key: "status",
-        header: "Status",
-        cell: (student) => (
-          <StatusBadge
-            label={student.status}
-            variant={statusVariant(student.status)}
-          />
-        ),
-      },
-    ],
-    [],
-  );
-
-  const pageMeta = studentsQuery.data?.meta as PageMeta | undefined;
-  const rows = studentsQuery.data?.data ?? [];
+  const columns: DataTableColumn<UserResponse>[] = [
+    {
+      key: "fullName",
+      header: STUDENT_TABLE_HEADERS.FULL_NAME,
+      cell: (student) => <span className="font-medium text-gray-900">{student.fullName}</span>,
+    },
+    { key: "email", header: STUDENT_TABLE_HEADERS.EMAIL, cell: (student) => student.email },
+    { key: "studentCode", header: STUDENT_TABLE_HEADERS.STUDENT_CODE, cell: (student) => student.studentCode ?? "-" },
+    { key: "className", header: STUDENT_TABLE_HEADERS.CLASS_NAME, cell: (student) => student.className ?? "-" },
+    { key: "phone", header: STUDENT_TABLE_HEADERS.PHONE, cell: (student) => student.phone ?? "-" },
+  ];
 
   return (
     <section className="flex flex-col gap-5">
       <div className="flex flex-col gap-1">
-        <h2 className="text-xl font-semibold text-gray-900">Learners</h2>
-        <p className="text-sm text-gray-600">
-          Manage learners imported for your organization.
-        </p>
+        <h2 className="text-xl font-semibold text-gray-900">{T.TITLE}</h2>
+        <p className="text-sm text-gray-600">{T.SUBTITLE}</p>
       </div>
 
       {studentsQuery.error && (
-        <Alert tone="error" title="Unable to load learners">
-          {studentsQuery.error instanceof Error
-            ? studentsQuery.error.message
-            : "Please try again."}
+        <Alert tone="error" title={T.UNABLE_TO_LOAD}>
+          {errorMessage(studentsQuery.error) ?? T.UNABLE_TO_LOAD_FALLBACK}
         </Alert>
       )}
 
-      <div className="flex items-center justify-between text-sm text-gray-600">
-        <span>
-          Total learners: {pageMeta?.totalElements.toLocaleString() ?? 0}
-        </span>
-        <span>
-          Page {page + 1} of {Math.max(pageMeta?.totalPages ?? 1, 1)}
-        </span>
-      </div>
-
       <DataTable
         columns={columns}
-        rows={rows}
-        getRowKey={(student) => student.id}
+        rows={studentsQuery.data ?? []}
+        getRowKey={(student) => student.publicId}
         isLoading={studentsQuery.isLoading}
-        emptyTitle="No learners yet"
-        emptyDescription="Imported learners will appear here after confirmation."
+        emptyTitle={T.EMPTY_TITLE}
+        emptyDescription={T.EMPTY_TEXT}
+        rowActions={(student) => (
+          <Dropdown
+            items={[
+              {
+                label: STUDENT_ROW_ACTIONS_TEXT.RESET_PASSWORD,
+                icon: LockIcon,
+                onSelect: () => setResetTarget(student),
+              },
+            ]}
+          />
+        )}
       />
 
-      {pageMeta && pageMeta.totalPages > 1 && (
-        <PaginationControls
-          meta={pageMeta}
-          onPageChange={setPage}
-          disabled={studentsQuery.isFetching}
-        />
-      )}
+      <ResetStudentPasswordModal
+        key={resetTarget ? `reset-${resetTarget.publicId}` : "reset-closed"}
+        open={resetTarget !== null}
+        onClose={() => {
+          resetPassword.reset();
+          setResetTarget(null);
+        }}
+        onSubmit={(newPassword) =>
+          resetPassword.mutate(newPassword, { onSuccess: () => setResetTarget(null) })
+        }
+        error={errorMessage(resetPassword.error)}
+        isSubmitting={resetPassword.isPending}
+      />
     </section>
   );
 };

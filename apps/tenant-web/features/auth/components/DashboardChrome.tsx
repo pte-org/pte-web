@@ -30,8 +30,7 @@ interface DashboardChromeProps {
   /**
    * Required, not defaulted — mirrors vendor-web's DashboardChrome. A
    * default here would silently gate every route to the same role set
-   * instead of forcing each call site to say explicitly who's allowed
-   * (the class of bug vendor-web's Phase 1 quality gate caught, QUAL-001).
+   * instead of forcing each call site to say explicitly who's allowed.
    */
   allowedRoles: SessionRole[];
 }

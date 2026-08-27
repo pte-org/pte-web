@@ -1,11 +1,7 @@
-import { DashboardChrome, type NavItem } from "@/features/auth/components";
+import { DashboardChrome } from "@/features/auth/components";
 import { HOST_ROLES } from "@/features/auth/constants";
 import { LearnersOverview } from "@/features/examoperations/components";
-
-const HOST_NAV: NavItem[] = [
-  { label: "Overview", href: "/host/dashboard" },
-  { label: "Import Learners", href: "/host/roster" },
-];
+import { HOST_NAV } from "@/lib/navigation";
 
 const HOST_DASHBOARD_TEXT =
   "Manage learners, import rosters, and assign exams for your organization.";

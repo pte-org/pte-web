@@ -1,11 +1,7 @@
 import { ApiError } from "@pte/api-client";
 import { AUTH_TEXT } from "./constants";
 
-/**
- * Map a thrown error to a user-facing login message. On login, both 401 and 400
- * mean "bad credentials" — collapse them to one generic message so the UI never
- * reveals whether an account exists (US-006 generic invalid-login message).
- */
+/** On login, 401 and 400 both mean "bad credentials" — collapse to one generic message so the UI never reveals whether an account exists. */
 export function getLoginErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
     if (error.kind === "unauthorized" || error.kind === "validation") {

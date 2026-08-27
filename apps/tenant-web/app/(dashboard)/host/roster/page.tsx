@@ -1,16 +1,6 @@
-import { DashboardChrome, type NavItem } from "@/features/auth/components";
-import { HOST_ROLES } from "@/features/auth/constants";
-import { RosterImport } from "@/features/examoperations/components";
+import { redirect } from "next/navigation";
 
-const HOST_NAV: NavItem[] = [
-  { label: "Overview", href: "/host/dashboard" },
-  { label: "Import Learners", href: "/host/roster" },
-];
-
+/** Roster import now lives on each session's detail page (needs to know which exam). Kept as a legacy redirect for old bookmarks/links. */
 export default function RosterPage() {
-  return (
-    <DashboardChrome navItems={HOST_NAV} allowedRoles={HOST_ROLES}>
-      <RosterImport />
-    </DashboardChrome>
-  );
+  redirect("/host/exams");
 }

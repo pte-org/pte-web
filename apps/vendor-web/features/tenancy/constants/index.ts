@@ -14,7 +14,7 @@ import type {
 
 // react-query cache-key roots — one per entity, kept out of api/index.ts so
 // no call site ever inlines the label as a raw string (avoids typo-driven
-// cache-key drift and namespace collisions like QUAL-001 caught earlier).
+// cache-key drift and namespace collisions).
 export const TENANTS_QUERY_KEY = ["tenants"] as const;
 export const SYSTEM_HEALTH_QUERY_KEY = ["systemHealth"] as const;
 export const TENANT_QUERY_KEY = ["tenant"] as const;

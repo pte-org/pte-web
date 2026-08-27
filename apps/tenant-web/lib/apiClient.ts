@@ -2,10 +2,9 @@ import { createSessionApiClient } from "@pte/ui";
 import { API_BASE_URL } from "@/features/auth/constants";
 
 /**
- * App-wide API client — session wiring (token/refresh-token getters, 401
- * handling) lives in `@pte/ui`'s `createSessionApiClient` so it isn't
- * duplicated between this app and `vendor-web`. Safe to import on the
- * server: no storage access happens until a request actually runs on the
- * client.
+ * Session wiring (token/refresh-token getters, 401 handling) lives in
+ * `@pte/ui`'s `createSessionApiClient` so it isn't duplicated with
+ * `vendor-web`. Safe to import on the server — no storage access until a
+ * request actually runs client-side.
  */
 export const apiClient = createSessionApiClient(API_BASE_URL);
