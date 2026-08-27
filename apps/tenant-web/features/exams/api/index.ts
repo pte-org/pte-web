@@ -92,17 +92,10 @@ export function useBlueprints(): UseQueryResult<Blueprint[]> {
 /**
  * Publishes the chosen blueprint to a fresh snapshot, then creates the
  * session with that snapshot's publicId — one guided action from the
- * caller's perspective. Does not support re-using an already-published
- * blueprint's snapshot (no `GET /snapshots` list exists to look one up) —
- * documented limitation, see plan.md Research Summary item 5.
- *
- * No compensating action if `createSession` fails after `publishBlueprint`
- * already succeeded (quality-gate QUAL-002, accepted as-is): the new
- * snapshot stays published, unattached to any session. A same-blueprint
- * retry re-publishes again rather than reusing it (same root limitation as
- * above), so a failed create-after-publish followed by retries accumulates
- * unused snapshot rows — low-cost (no data corruption, no security impact,
- * just extra rows), not silently unconsidered.
+ * caller's perspective. No `GET /snapshots` list exists, so an already-
+ * published blueprint's snapshot can't be reused; a retry after a
+ * publish-succeeded-but-create-failed run re-publishes again, accumulating
+ * unattached snapshot rows (accepted — no data/security impact, just extra rows).
  */
 export function useCreateSession(): UseMutationResult<
   ExamSession,
@@ -151,11 +144,9 @@ export function useCloseSession(publicId: string): UseMutationResult<ExamSession
 }
 
 /**
- * All PROCTOR accounts in the caller's tenant (`GET /users`). Same
- * `queryKey`/`queryFn` as examoperations' `useTenantStudents` — a
- * genuinely shared cache entry, split via `select` (quality-gate
- * QUAL-101 fix — see that hook's doc comment for why `select`, not a
- * second differing `queryFn` under the same key, is required here).
+ * All PROCTOR accounts in the caller's tenant. Shares `queryKey`+`queryFn`
+ * with examoperations' `useTenantStudents` — one cache entry, split via
+ * `select` (see that hook's doc comment for why).
  */
 export function useTenantProctors(): UseQueryResult<UserResponse[]> {
   return useQuery({
@@ -179,13 +170,8 @@ export function useProctorAssignments(sessionPublicId: string): UseQueryResult<P
     queryKey: [...PROCTOR_ASSIGNMENTS_QUERY_KEY, sessionPublicId],
     queryFn: async () => {
       const assignments = await listProctorAssignments(apiClient, sessionPublicId);
-      // Read the raw tenant-users cache directly instead of closing over
-      // `proctors.data` (a per-render snapshot) — same race as
-      // examoperations' useSessionRoster: this queryFn can run before a
-      // re-render has picked up a just-refetched proctors list (e.g. right
-      // after AssignProctorModal creates a new proctor then assigns it),
-      // which would otherwise silently drop the just-created proctor from
-      // the join.
+      // Read the cache directly rather than closing over `proctors.data` (a
+      // per-render snapshot) — same race as examoperations' useSessionRoster.
       const allUsers = queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? proctors.data ?? [];
       const byId = new Map(
         allUsers
@@ -230,12 +216,9 @@ export function useUnassignProctor(sessionPublicId: string): UseMutationResult<v
 }
 
 /**
- * Create a brand-new Proctor account (tenant-wide identity — not yet
- * assigned to anything). Uses single `POST /users` with a Host-supplied
- * password (mirrors vendor-web's `useCreateLoginAccount` precedent:
- * "admin sets a password directly" — unlike Phase 4's Excel-import path,
- * this is a one-at-a-time form, so there's no auto-generation need and no
- * `PasswordGenerator` format to duplicate).
+ * Create a brand-new Proctor account (not yet assigned to anything). Uses a
+ * Host-supplied password, mirroring vendor-web's `useCreateLoginAccount` —
+ * a one-at-a-time form has no need for the bulk-import password generator.
  */
 export function useCreateProctorAccount(): UseMutationResult<UserResponse, unknown, CreateProctorInput> {
   const queryClient = useQueryClient();
@@ -249,11 +232,9 @@ export function useCreateProctorAccount(): UseMutationResult<UserResponse, unkno
         roles: [PROCTOR_ROLE],
         tenantId: null,
       }),
-    // Awaited (not fire-and-forget): AssignProctorModal chains this mutation
-    // straight into useAssignProctor's .mutate() in its own onSuccess, which
-    // TanStack Query only calls after this hook-level onSuccess settles — so
-    // awaiting here guarantees the tenant-users cache already has the
-    // just-created proctor before useProctorAssignments' join can run.
+    // Awaited so AssignProctorModal's chained useAssignProctor call (fired
+    // from this mutation's onSuccess) sees the just-created proctor already
+    // in the tenant-users cache.
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
     },

@@ -32,9 +32,9 @@ const EMPTY_INPUT: AddStudentInput = {
 
 export const AddStudentForm = ({ sessionPublicId }: AddStudentFormProps): ReactElement => {
   const [form, setForm] = useState<AddStudentInput>(EMPTY_INPUT);
-  // Lazy init reads sessionStorage during render — same SSR-safety note as
-  // RosterImport.tsx (this component is also only ever rendered client-side,
-  // gated behind SessionDetailView's session-loading state).
+  // Lazy init reads sessionStorage during render — safe only because this
+  // component is gated behind SessionDetailView's session-loading state,
+  // so it's never rendered during SSR/hydration.
   const [pending, setPending] = useState<CreatedAccount[] | null>(() => loadPendingImport(sessionPublicId));
   const createStudent = useCreateStudent();
   const enrollAccounts = useEnrollRosterAccounts(sessionPublicId);
@@ -46,8 +46,7 @@ export const AddStudentForm = ({ sessionPublicId }: AddStudentFormProps): ReactE
     event.preventDefault();
     createStudent.mutate(form, {
       onSuccess: (account) => {
-        // Persist before enrolling — an enroll failure must never lose the
-        // one-time-only generated password (quality-gate QUAL-001).
+        // Persist before enrolling — an enroll failure must never lose the one-time generated password.
         savePendingImport(sessionPublicId, [account]);
         setPending([account]);
         setForm(EMPTY_INPUT);

@@ -31,16 +31,12 @@ function pendingImportKey(sessionPublicId: string): string {
   return `${PENDING_IMPORT_KEY_PREFIX}${sessionPublicId}`;
 }
 
-/** Persists step 1's (bulk-create) result until step 2 (bulk-enroll)
- * confirms — so an abandoned tab/browser crash/failed enroll never strands
- * a generated, unrecoverable password. Best-effort: sessionStorage can
- * throw (private browsing, storage disabled) — the download still works
- * this session either way, it just won't survive a reload. */
+/** Persists step 1's result until step 2 confirms, so a crash/failed enroll never strands a generated password. Best-effort — sessionStorage may throw (private browsing). */
 export function savePendingImport(sessionPublicId: string, created: CreatedAccount[]): void {
   try {
     sessionStorage.setItem(pendingImportKey(sessionPublicId), JSON.stringify(created));
   } catch {
-    // ignore — best-effort persistence only
+    // best-effort — ignore
   }
 }
 
@@ -57,7 +53,7 @@ export function clearPendingImport(sessionPublicId: string): void {
   try {
     sessionStorage.removeItem(pendingImportKey(sessionPublicId));
   } catch {
-    // ignore
+    // best-effort — ignore
   }
 }
 
@@ -99,10 +95,9 @@ export function useEnrollRosterAccounts(
     },
     onSuccess: async () => {
       clearPendingImport(sessionPublicId);
-      // Await the students refetch before invalidating the roster: useSessionRoster
-      // joins against students.data by closure, so if the roster refetch fires first
-      // it would join against the still-stale (pre-enroll) student list and silently
-      // drop the just-enrolled students until some unrelated refetch happens to catch up.
+      // Must resolve before the roster invalidation below — useSessionRoster
+      // joins against this cache, so a stale read here would drop the
+      // just-enrolled students from the roster.
       await queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: [...ENROLLMENTS_QUERY_KEY, sessionPublicId] });
     },
@@ -119,27 +114,12 @@ export interface AddStudentInput {
 }
 
 /**
- * "Add individually" — deliberately calls `bulkCreateUsers` with a single
- * row rather than the plain single `POST /users` the plan originally
- * sketched: single-create requires the CALLER to supply a password (it was
- * designed for the "admin sets a password directly" UX used elsewhere,
- * e.g. vendor-web's login-account creation), which would mean either the
- * Host typing in a password for a student they're creating, or duplicating
- * Decision #6's `XXXX-XXXX` readable-password format in TypeScript. Reusing
- * the bulk endpoint (already built in Phase 0, its own
- * `PasswordGenerator.generateReadable()` already the single source of
- * truth for that format) avoids both — no new backend endpoint either way.
- *
- * Deliberately create-only, NOT create-then-enroll in one mutation
- * (quality-gate QUAL-001 fix): the original version awaited `enrollStudent`
- * inside the same try as the create call, so an enroll failure discarded
- * `created` — including its write/return-once `generatedPassword` — with no
- * recovery path, the exact risk the bulk-Excel path was already built to
- * avoid. The caller (`AddStudentForm`) now persists the created account via
- * `savePendingImport` immediately, then enrolls with the existing
- * `useEnrollRosterAccounts` (a single-element array is a valid "batch"),
- * getting the same recovery banner/retry/download guarantees the bulk path
- * has, instead of a second, weaker reimplementation of that safety net.
+ * "Add individually" reuses `bulkCreateUsers` with a single row instead of
+ * a plain `POST /users`, so the server-generated `XXXX-XXXX` password format
+ * doesn't need duplicating client-side. Deliberately create-only — the
+ * caller enrolls separately via `useEnrollRosterAccounts` (a single-element
+ * array is a valid "batch"), so an enroll failure can't strand the
+ * write-once `generatedPassword` with no recovery path.
  */
 export function useCreateStudent(): UseMutationResult<CreatedAccount, unknown, AddStudentInput> {
   return useMutation({
@@ -168,18 +148,10 @@ export function useCreateStudent(): UseMutationResult<CreatedAccount, unknown, A
 }
 
 /**
- * All STUDENT accounts in the caller's tenant (`GET /users`,
- * caller-tenant-scoped). Same `queryKey`/`queryFn` as `useTenantProctors`
- * (`features/exams/api`) — genuinely the same underlying request, one
- * shared cache entry — with the STUDENT-vs-PROCTOR split applied via
- * `select`, not via the query itself. Fixed a real bug (quality-gate
- * QUAL-101): both hooks previously shared one `queryKey` with two
- * DIFFERENT `queryFn` bodies (one filtering to STUDENT, one to PROCTOR),
- * and since `StudentRosterTable`/`ProctorAssignmentSection` genuinely
- * co-mount on the same session detail page, whichever query resolved
- * first silently populated the shared cache entry for BOTH observers —
- * `select` is the correct react-query mechanism for "same data, different
- * per-observer view," not a second `queryFn` under the same key.
+ * All STUDENT accounts in the caller's tenant. Shares `queryKey`+`queryFn`
+ * with `useTenantProctors` (`features/exams/api`) — one cache entry, split
+ * via `select`, not two different `queryFn`s under the same key (which would
+ * let whichever resolves first silently populate the cache for both).
  */
 export function useTenantStudents(): UseQueryResult<UserResponse[]> {
   return useQuery({
@@ -208,13 +180,9 @@ export function useSessionRoster(sessionPublicId: string): UseQueryResult<Roster
     queryKey: [...ENROLLMENTS_QUERY_KEY, sessionPublicId],
     queryFn: async () => {
       const enrollments = await listEnrollments(apiClient, sessionPublicId);
-      // Read the raw tenant-users cache directly instead of closing over
-      // `students.data` (a per-render snapshot): this queryFn can run before
-      // a re-render has picked up a just-refetched students list (the
-      // await-ordering fix in useEnrollRosterAccounts only guarantees the
-      // *cache* is fresh by then, not that this component has re-rendered
-      // with it yet), which would otherwise silently drop just-enrolled
-      // students from the join.
+      // Read the cache directly rather than closing over `students.data` (a
+      // per-render snapshot) — this can run before a re-render has picked up
+      // a just-refetched list, silently dropping just-enrolled students.
       const allUsers = queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? students.data ?? [];
       const byId = new Map(
         allUsers

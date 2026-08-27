@@ -53,7 +53,7 @@ export const AssignProctorModal = ({
 
   // Switching tabs abandons whichever attempt was in progress on the other
   // one — clear its error/pending state so it can't be misread as the new
-  // tab's own result (quality-gate QUAL-102).
+  // tab's own result.
   const handleTabChange = (next: "existing" | "new"): void => {
     assignProctor.reset();
     createProctor.reset();
@@ -77,12 +77,10 @@ export const AssignProctorModal = ({
       onSuccess: (proctor) => {
         assignProctor.mutate(proctor.publicId, {
           onSuccess: onClose,
-          // The account now exists even though assigning it failed — a
-          // plain retry would resubmit the same email and hit an
-          // already-exists conflict instead of the real problem
-          // (quality-gate QUAL-103). Route the Host to "pick existing",
-          // pre-selected on the account that was just created, so
-          // resubmitting assigns it instead of re-attempting creation.
+          // The account now exists even though assigning it failed — a plain
+          // retry would resubmit the same email and hit an already-exists
+          // conflict. Route to "pick existing", pre-selected on the account
+          // that was just created, so resubmitting assigns it instead.
           onError: () => {
             setTab("existing");
             setSelectedProctorId(proctor.publicId);

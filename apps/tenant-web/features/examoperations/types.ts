@@ -27,9 +27,7 @@ export interface SkippedRow {
 
 export type ImportStep = "idle" | "created" | "enrolled";
 
-/** Persisted to sessionStorage between step 1 (bulk-create) and step 2
- * (bulk-enroll) so an interrupted import never strands generated passwords —
- * see plan.md's accepted-then-mitigated risk on the two-step orchestration. */
+/** Persisted to sessionStorage between the create and enroll steps, so an interrupted import never strands a generated password. */
 export interface PendingImport {
   sessionPublicId: string;
   created: CreatedAccount[];

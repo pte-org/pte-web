@@ -32,15 +32,10 @@ function formatIsoDate(date: Date): string {
 
 /**
  * `raw: true` (below) + `cellDates: true` (on the workbook read) so a
- * genuine Excel date cell (dateOfBirth's expected column) comes through as
- * a JS `Date`, formatted here to ISO `yyyy-MM-dd`. Fixed a real bug
- * (quality-gate QUAL-003): the original `raw: false` mode formatted date
- * cells as a locale display string (e.g. "1/15/08"), which the backend's
- * `LocalDate` parser would reject or, worse, misinterpret (MM/DD vs
- * DD/MM). A manually-typed text date (already ISO) or any other text/number
- * field passes through unaffected — `raw: true` only changes how
- * already-typed date/number cells are handed back, not how string cells
- * are read.
+ * genuine Excel date cell comes through as a JS `Date`, formatted here to
+ * ISO `yyyy-MM-dd` — otherwise SheetJS formats it as a locale display string
+ * (e.g. "1/15/08"), which the backend's `LocalDate` parser misreads (MM/DD
+ * vs DD/MM). Text/number cells pass through unaffected.
  */
 function toCellText(value: unknown): string {
   if (value === null || value === undefined) return "";
