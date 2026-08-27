@@ -191,3 +191,10 @@ export const TrashIcon = ({ className }: IconProps): ReactElement => (
     <path d="M10 11v6M14 11v6" />
   </svg>
 );
+
+export const ShieldIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...base} className={className}>
+    <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" />
+    <path d="m9 12 2 2 4-4" />
+  </svg>
+);

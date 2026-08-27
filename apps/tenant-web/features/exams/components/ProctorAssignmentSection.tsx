@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, DataTable, Select, TrashIcon, type DataTableColumn } from "@pte/ui";
+import { Alert, DataTable, ShieldIcon, TrashIcon, UsersIcon, cn, type DataTableColumn } from "@pte/ui";
 import type { ProctorRole } from "@pte/api-client";
 import {
   PROCTOR_ROLE_DESCRIPTIONS,
@@ -18,6 +18,19 @@ interface ProctorAssignmentSectionProps {
 }
 
 const T = PROCTOR_SECTION_TEXT;
+
+const ROLE_ACCENT: Record<ProctorRole, { icon: typeof ShieldIcon; select: string; iconBg: string }> = {
+  LEAD_PROCTOR: {
+    icon: ShieldIcon,
+    select: "border-blue-200 bg-blue-50 text-blue-700 focus:ring-blue-500",
+    iconBg: "bg-blue-100 text-blue-600",
+  },
+  ASSISTANT_PROCTOR: {
+    icon: UsersIcon,
+    select: "border-gray-200 bg-white text-gray-700 focus:ring-blue-500",
+    iconBg: "bg-slate-200 text-slate-600",
+  },
+};
 
 function errorMessage(error: unknown): string | undefined {
   return error instanceof Error ? error.message : undefined;
@@ -43,15 +56,23 @@ export const ProctorAssignmentSection = ({ sessionPublicId }: ProctorAssignmentS
       key: "role",
       header: PROCTOR_TABLE_HEADERS.ROLE,
       cell: (entry) => (
-        <Select
+        <select
           value={entry.role}
           title={PROCTOR_ROLE_DESCRIPTIONS[entry.role]}
           onChange={(event) =>
             updateRole.mutate({ assignmentPublicId: entry.assignmentPublicId, role: event.target.value as ProctorRole })
           }
-          options={PROCTOR_ROLE_OPTIONS}
-          className="py-1 text-sm"
-        />
+          className={cn(
+            "w-40 cursor-pointer rounded-md border px-2.5 py-1.5 text-sm font-medium outline-none transition-colors focus:ring-2",
+            ROLE_ACCENT[entry.role].select,
+          )}
+        >
+          {PROCTOR_ROLE_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       ),
     },
   ];
@@ -87,21 +108,33 @@ export const ProctorAssignmentSection = ({ sessionPublicId }: ProctorAssignmentS
             onClick={() => unassign.mutate(entry.assignmentPublicId)}
             title={T.UNASSIGN}
             aria-label={T.UNASSIGN}
-            className="text-red-600 hover:text-red-700"
+            className="rounded-full p-1.5 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
           >
             <TrashIcon className="h-4 w-4" />
           </button>
         )}
       />
 
-      <dl className="grid gap-2 rounded-lg bg-slate-50 p-3 text-sm sm:grid-cols-2">
-        {PROCTOR_ROLE_OPTIONS.map((option) => (
-          <div key={option.value}>
-            <dt className="font-medium text-gray-900">{option.label}</dt>
-            <dd className="text-gray-500">{PROCTOR_ROLE_DESCRIPTIONS[option.value]}</dd>
-          </div>
-        ))}
-      </dl>
+      <div className="rounded-lg border border-gray-200 bg-white p-4">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">{T.ROLES_LEGEND_TITLE}</p>
+        <dl className="grid gap-4 sm:grid-cols-2">
+          {PROCTOR_ROLE_OPTIONS.map((option) => {
+            const accent = ROLE_ACCENT[option.value];
+            const Icon = accent.icon;
+            return (
+              <div key={option.value} className="flex gap-3">
+                <span className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-full", accent.iconBg)}>
+                  <Icon className="h-4 w-4" />
+                </span>
+                <div>
+                  <dt className="text-sm font-semibold text-gray-900">{option.label}</dt>
+                  <dd className="text-sm text-gray-500">{PROCTOR_ROLE_DESCRIPTIONS[option.value]}</dd>
+                </div>
+              </div>
+            );
+          })}
+        </dl>
+      </div>
 
       <AssignProctorModal
         key={addOpen ? "assignProctor-open" : "assignProctor-closed"}

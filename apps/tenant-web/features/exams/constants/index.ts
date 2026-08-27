@@ -80,6 +80,7 @@ export const PROCTOR_SECTION_TEXT = {
   EMPTY_TITLE: "No proctors assigned yet",
   UNASSIGN: "Remove from Exam",
   ASSIGNED_COUNT: "{count} proctor(s) assigned",
+  ROLES_LEGEND_TITLE: "About proctor roles",
 } as const;
 
 export const PROCTOR_TABLE_HEADERS = {
