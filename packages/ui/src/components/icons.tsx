@@ -182,3 +182,12 @@ export const BanIcon = ({ className }: IconProps): ReactElement => (
     <path d="m5.5 5.5 13 13" />
   </svg>
 );
+
+export const TrashIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...base} className={className}>
+    <path d="M4 7h16" />
+    <path d="M9 7V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v3" />
+    <path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" />
+    <path d="M10 11v6M14 11v6" />
+  </svg>
+);

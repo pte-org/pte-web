@@ -83,6 +83,7 @@ export const PROCTOR_SECTION_TEXT = {
 export const PROCTOR_TABLE_HEADERS = {
   FULL_NAME: "Full name",
   EMAIL: "Email",
+  ACTIONS: "Action",
 } as const;
 
 export const ASSIGN_PROCTOR_TEXT = {

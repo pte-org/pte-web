@@ -18,6 +18,7 @@ interface DataTableProps<TRow> {
   emptyTitle?: string;
   emptyDescription?: string;
   rowActions?: (row: TRow) => ReactNode;
+  rowActionsHeader?: ReactNode;
 }
 
 export function DataTable<TRow>({
@@ -28,6 +29,7 @@ export function DataTable<TRow>({
   emptyTitle = "No data",
   emptyDescription,
   rowActions,
+  rowActionsHeader,
 }: DataTableProps<TRow>): ReactElement {
   if (isLoading) return <LoadingState rows={4} />;
 
@@ -50,7 +52,11 @@ export function DataTable<TRow>({
                   {column.header}
                 </th>
               ))}
-              {rowActions && <th scope="col" className="w-12 px-5 py-3.5" />}
+              {rowActions && (
+                <th scope="col" className="w-12 px-5 py-3.5 text-right">
+                  {rowActionsHeader}
+                </th>
+              )}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 bg-white text-gray-700">

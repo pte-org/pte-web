@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, DataTable, type DataTableColumn } from "@pte/ui";
+import { Alert, DataTable, TrashIcon, type DataTableColumn } from "@pte/ui";
 import { PROCTOR_SECTION_TEXT, PROCTOR_TABLE_HEADERS } from "../constants";
 import { useProctorAssignments, useUnassignProctor } from "../api";
 import type { ProctorAssignmentEntry } from "../types";
@@ -56,13 +56,16 @@ export const ProctorAssignmentSection = ({ sessionPublicId }: ProctorAssignmentS
         getRowKey={(entry) => entry.assignmentPublicId}
         isLoading={isLoading}
         emptyTitle={T.EMPTY_TITLE}
+        rowActionsHeader={PROCTOR_TABLE_HEADERS.ACTIONS}
         rowActions={(entry) => (
           <button
             type="button"
             onClick={() => unassign.mutate(entry.assignmentPublicId)}
-            className="text-sm font-medium text-red-600 hover:underline"
+            title={T.UNASSIGN}
+            aria-label={T.UNASSIGN}
+            className="text-red-600 hover:text-red-700"
           >
-            {T.UNASSIGN}
+            <TrashIcon className="h-4 w-4" />
           </button>
         )}
       />
