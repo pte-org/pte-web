@@ -2,7 +2,14 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Input, Modal, PasswordInput, Select, cn } from "@pte/ui";
-import { ASSIGN_PROCTOR_TEXT, EMPTY_CREATE_PROCTOR } from "../constants";
+import type { ProctorRole } from "@pte/api-client";
+import {
+  ASSIGN_PROCTOR_TEXT,
+  DEFAULT_PROCTOR_ROLE,
+  EMPTY_CREATE_PROCTOR,
+  PROCTOR_ROLE_DESCRIPTIONS,
+  PROCTOR_ROLE_OPTIONS,
+} from "../constants";
 import { validateCreateProctor } from "../utils/validateCreateProctor";
 import { useAssignProctor, useCreateProctorAccount, useTenantProctors } from "../api";
 import type { CreateProctorErrors, CreateProctorInput } from "../types";
@@ -35,6 +42,7 @@ export const AssignProctorModal = ({
 }: AssignProctorModalProps): ReactElement => {
   const [tab, setTab] = useState<"existing" | "new">("existing");
   const [selectedProctorId, setSelectedProctorId] = useState("");
+  const [role, setRole] = useState<ProctorRole>(DEFAULT_PROCTOR_ROLE);
   const [form, setForm] = useState<CreateProctorInput>(EMPTY_CREATE_PROCTOR);
   const [errors, setErrors] = useState<CreateProctorErrors>({});
 
@@ -65,7 +73,7 @@ export const AssignProctorModal = ({
 
     if (tab === "existing") {
       if (!selectedProctorId) return;
-      assignProctor.mutate(selectedProctorId, { onSuccess: onClose });
+      assignProctor.mutate({ proctorPublicId: selectedProctorId, role }, { onSuccess: onClose });
       return;
     }
 
@@ -75,17 +83,20 @@ export const AssignProctorModal = ({
 
     createProctor.mutate(form, {
       onSuccess: (proctor) => {
-        assignProctor.mutate(proctor.publicId, {
-          onSuccess: onClose,
-          // The account now exists even though assigning it failed — a plain
-          // retry would resubmit the same email and hit an already-exists
-          // conflict. Route to "pick existing", pre-selected on the account
-          // that was just created, so resubmitting assigns it instead.
-          onError: () => {
-            setTab("existing");
-            setSelectedProctorId(proctor.publicId);
+        assignProctor.mutate(
+          { proctorPublicId: proctor.publicId, role },
+          {
+            onSuccess: onClose,
+            // The account now exists even though assigning it failed — a plain
+            // retry would resubmit the same email and hit an already-exists
+            // conflict. Route to "pick existing", pre-selected on the account
+            // that was just created, so resubmitting assigns it instead.
+            onError: () => {
+              setTab("existing");
+              setSelectedProctorId(proctor.publicId);
+            },
           },
-        });
+        );
       },
     });
   };
@@ -172,6 +183,14 @@ export const AssignProctorModal = ({
             />
           </>
         )}
+
+        <Select
+          label={T.ROLE_LABEL}
+          value={role}
+          helperText={PROCTOR_ROLE_DESCRIPTIONS[role]}
+          onChange={(event) => setRole(event.target.value as ProctorRole)}
+          options={PROCTOR_ROLE_OPTIONS}
+        />
       </form>
     </Modal>
   );

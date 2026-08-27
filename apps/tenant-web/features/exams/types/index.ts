@@ -1,4 +1,4 @@
-import type { SessionStatus, UserResponse } from "@pte/api-client";
+import type { ProctorRole, SessionStatus, UserResponse } from "@pte/api-client";
 
 export interface ExamSession {
   id: string;
@@ -31,6 +31,7 @@ export interface CreateSessionErrors {
 export interface ProctorAssignmentEntry {
   assignmentPublicId: string;
   proctor: UserResponse;
+  role: ProctorRole;
 }
 
 export interface CreateProctorInput {

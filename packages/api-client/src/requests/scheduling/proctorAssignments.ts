@@ -1,5 +1,9 @@
 import type { ApiClient } from "../../client/client";
-import type { AssignProctorRequest, ProctorAssignmentResponse } from "../../types/scheduling";
+import type {
+  AssignProctorRequest,
+  ProctorAssignmentResponse,
+  UpdateProctorRoleRequest,
+} from "../../types/scheduling";
 
 export const PROCTOR_ASSIGNMENT_ENDPOINTS = {
   assignments: (sessionPublicId: string) => `/api/scheduling/sessions/${sessionPublicId}/proctors`,
@@ -23,6 +27,18 @@ export function listProctorAssignments(
   sessionPublicId: string,
 ): Promise<ProctorAssignmentResponse[]> {
   return client.request<ProctorAssignmentResponse[]>(PROCTOR_ASSIGNMENT_ENDPOINTS.assignments(sessionPublicId));
+}
+
+export function updateProctorRole(
+  client: ApiClient,
+  sessionPublicId: string,
+  assignmentPublicId: string,
+  payload: UpdateProctorRoleRequest,
+): Promise<ProctorAssignmentResponse> {
+  return client.request<ProctorAssignmentResponse>(
+    PROCTOR_ASSIGNMENT_ENDPOINTS.assignment(sessionPublicId, assignmentPublicId),
+    { method: "PATCH", body: payload },
+  );
 }
 
 export function unassignProctor(

@@ -1,9 +1,15 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, DataTable, TrashIcon, type DataTableColumn } from "@pte/ui";
-import { PROCTOR_SECTION_TEXT, PROCTOR_TABLE_HEADERS } from "../constants";
-import { useProctorAssignments, useUnassignProctor } from "../api";
+import { Alert, DataTable, Select, TrashIcon, type DataTableColumn } from "@pte/ui";
+import type { ProctorRole } from "@pte/api-client";
+import {
+  PROCTOR_ROLE_DESCRIPTIONS,
+  PROCTOR_ROLE_OPTIONS,
+  PROCTOR_SECTION_TEXT,
+  PROCTOR_TABLE_HEADERS,
+} from "../constants";
+import { useProctorAssignments, useUnassignProctor, useUpdateProctorRole } from "../api";
 import type { ProctorAssignmentEntry } from "../types";
 import { AssignProctorModal } from "./AssignProctorModal";
 
@@ -20,9 +26,11 @@ function errorMessage(error: unknown): string | undefined {
 export const ProctorAssignmentSection = ({ sessionPublicId }: ProctorAssignmentSectionProps): ReactElement => {
   const { data: assignments, isLoading } = useProctorAssignments(sessionPublicId);
   const unassign = useUnassignProctor(sessionPublicId);
+  const updateRole = useUpdateProctorRole(sessionPublicId);
   const [addOpen, setAddOpen] = useState(false);
 
   const unassignError = errorMessage(unassign.error);
+  const updateRoleError = errorMessage(updateRole.error);
 
   const columns: DataTableColumn<ProctorAssignmentEntry>[] = [
     {
@@ -31,6 +39,21 @@ export const ProctorAssignmentSection = ({ sessionPublicId }: ProctorAssignmentS
       cell: (entry) => <span className="font-medium text-gray-900">{entry.proctor.fullName}</span>,
     },
     { key: "email", header: PROCTOR_TABLE_HEADERS.EMAIL, cell: (entry) => entry.proctor.email },
+    {
+      key: "role",
+      header: PROCTOR_TABLE_HEADERS.ROLE,
+      cell: (entry) => (
+        <Select
+          value={entry.role}
+          title={PROCTOR_ROLE_DESCRIPTIONS[entry.role]}
+          onChange={(event) =>
+            updateRole.mutate({ assignmentPublicId: entry.assignmentPublicId, role: event.target.value as ProctorRole })
+          }
+          options={PROCTOR_ROLE_OPTIONS}
+          className="py-1 text-sm"
+        />
+      ),
+    },
   ];
 
   return (
@@ -49,6 +72,7 @@ export const ProctorAssignmentSection = ({ sessionPublicId }: ProctorAssignmentS
       </div>
 
       {unassignError && <Alert tone="error">{unassignError}</Alert>}
+      {updateRoleError && <Alert tone="error">{updateRoleError}</Alert>}
 
       <DataTable
         columns={columns}
@@ -69,6 +93,15 @@ export const ProctorAssignmentSection = ({ sessionPublicId }: ProctorAssignmentS
           </button>
         )}
       />
+
+      <dl className="grid gap-2 rounded-lg bg-slate-50 p-3 text-sm sm:grid-cols-2">
+        {PROCTOR_ROLE_OPTIONS.map((option) => (
+          <div key={option.value}>
+            <dt className="font-medium text-gray-900">{option.label}</dt>
+            <dd className="text-gray-500">{PROCTOR_ROLE_DESCRIPTIONS[option.value]}</dd>
+          </div>
+        ))}
+      </dl>
 
       <AssignProctorModal
         key={addOpen ? "assignProctor-open" : "assignProctor-closed"}
