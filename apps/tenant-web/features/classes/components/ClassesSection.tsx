@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
+import Link from "next/link";
 import { Alert, Badge, DataTable, type DataTableColumn } from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
@@ -104,7 +105,18 @@ export const ClassesSection = ({
   const createErrorMessage = errorMessage(create.error);
 
   const columns: DataTableColumn<ClassResponse>[] = [
-    { key: "name", header: CLASS_TABLE_HEADERS.NAME, cell: (studentClass) => studentClass.name },
+    {
+      key: "name",
+      header: CLASS_TABLE_HEADERS.NAME,
+      cell: (studentClass) => (
+        <Link
+          href={`/host/programs/${programPublicId}/classes/${studentClass.publicId}?organizationPublicId=${organizationPublicId}`}
+          className="font-medium text-blue-700 hover:underline"
+        >
+          {studentClass.name}
+        </Link>
+      ),
+    },
     {
       key: "status",
       header: CLASS_TABLE_HEADERS.STATUS,
