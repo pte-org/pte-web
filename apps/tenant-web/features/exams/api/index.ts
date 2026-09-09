@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import {
   assignProctor,
+  bulkEnroll,
   closeSession,
   createSession,
   createUser,
@@ -15,6 +17,7 @@ import {
   unassignProctor,
   updateProctorRole,
   type BlueprintResponse,
+  type BulkEnrollResponse,
   type ProctorRole,
   type SessionResponse,
   type UserResponse,
@@ -29,6 +32,7 @@ import {
 import { apiClient } from "@/lib/apiClient";
 import {
   BLUEPRINTS_QUERY_KEY,
+  ENROLLMENTS_QUERY_KEY,
   PROCTOR_ASSIGNMENTS_QUERY_KEY,
   SESSION_QUERY_KEY,
   SESSIONS_QUERY_KEY,
@@ -36,6 +40,7 @@ import {
 } from "../constants";
 import type {
   Blueprint,
+  BulkCreateSessionForProgramInput,
   CreateProctorInput,
   CreateSessionInput,
   ExamSession,
@@ -266,4 +271,82 @@ export function useCreateProctorAccount(): UseMutationResult<UserResponse, unkno
       await queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
     },
   });
+}
+
+interface BulkEnrollStudentsInput {
+  sessionPublicId: string;
+  studentPublicIds: string[];
+}
+
+/**
+ * Enrolls a resolved list of students into a session. Unlike `useUnenroll`/
+ * `useSessionRoster`, the target session isn't known at hook-instantiation
+ * time here — Phase 10's whole-Program flow only learns the session's
+ * publicId once `useCreateSession` resolves — so `sessionPublicId` travels
+ * with each `mutate()` call instead of being bound as a hook argument.
+ */
+export function useBulkEnrollStudents(): UseMutationResult<BulkEnrollResponse, unknown, BulkEnrollStudentsInput> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ sessionPublicId, studentPublicIds }) =>
+      bulkEnroll(apiClient, sessionPublicId, { studentPublicIds }),
+    onSuccess: (_response, { sessionPublicId }) => {
+      void queryClient.invalidateQueries({ queryKey: [...ENROLLMENTS_QUERY_KEY, sessionPublicId] });
+    },
+  });
+}
+
+/**
+ * Orchestrates Phase 10's whole-Program exam creation: create the session,
+ * then bulk-enroll the already-resolved roster into it — two distinct
+ * `useMutation`s (not one combined mutation) so a Host can see and retry
+ * each step's pending/error state separately, mirroring the 2-step
+ * create-then-enroll UX already established in `examoperations`'
+ * `RosterImport.tsx`. Unlike that flow there's no credential/password at
+ * risk if step 2 fails (roster resolution is read-only, per this phase's
+ * Design Constraints) — `createdSession` alone is enough to power a safe
+ * retry that never creates a second session.
+ */
+export function useBulkCreateSessionForProgram(): {
+  createSession: UseMutationResult<ExamSession, unknown, CreateSessionInput>;
+  bulkEnrollStudents: UseMutationResult<BulkEnrollResponse, unknown, BulkEnrollStudentsInput>;
+  createdSession: ExamSession | null;
+  run: (input: BulkCreateSessionForProgramInput) => void;
+  retryEnroll: (studentPublicIds: string[]) => void;
+  reset: () => void;
+} {
+  const createSessionMutation = useCreateSession();
+  const bulkEnrollStudentsMutation = useBulkEnrollStudents();
+  const [createdSession, setCreatedSession] = useState<ExamSession | null>(null);
+
+  const run = (input: BulkCreateSessionForProgramInput): void => {
+    const { studentPublicIds, ...sessionInput } = input;
+    createSessionMutation.mutate(sessionInput, {
+      onSuccess: (session) => {
+        setCreatedSession(session);
+        bulkEnrollStudentsMutation.mutate({ sessionPublicId: session.id, studentPublicIds });
+      },
+    });
+  };
+
+  const retryEnroll = (studentPublicIds: string[]): void => {
+    if (!createdSession) return;
+    bulkEnrollStudentsMutation.mutate({ sessionPublicId: createdSession.id, studentPublicIds });
+  };
+
+  const reset = (): void => {
+    createSessionMutation.reset();
+    bulkEnrollStudentsMutation.reset();
+    setCreatedSession(null);
+  };
+
+  return {
+    createSession: createSessionMutation,
+    bulkEnrollStudents: bulkEnrollStudentsMutation,
+    createdSession,
+    run,
+    retryEnroll,
+    reset,
+  };
 }

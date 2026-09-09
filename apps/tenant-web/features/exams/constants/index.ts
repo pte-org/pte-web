@@ -136,3 +136,21 @@ export const CREATE_PROCTOR_ERRORS = {
 } as const;
 
 export const EMPTY_CREATE_PROCTOR = { email: "", fullName: "", password: "" } as const;
+
+export const CREATE_SESSION_FOR_PROGRAM_TEXT = {
+  TITLE: (label: string) => `Create Exam for ${label}`,
+  ROSTER_HEADING: "Roster",
+  ROSTER_COUNT: (count: number) => `${count} student(s) will be enrolled`,
+  ROSTER_LOADING: "Loading roster...",
+  EMPTY_ROSTER_WARNING: "This Program has no students assigned yet — nothing to enroll.",
+  INACTIVE_PROGRAM_WARNING: "This Program is not currently active. You can still create a make-up exam for it.",
+  CANCEL: "Cancel",
+  SUBMIT: "Create & Enroll",
+  SUBMITTING: "Creating session...",
+  ENROLLING: "Enrolling students...",
+  ENROLL_FAILED_TITLE: "Session created, but enrolling students failed",
+  RETRY_ENROLL: "Retry Enrolling",
+  SUCCESS_TITLE: (count: number) => `${count} student(s) enrolled`,
+  VIEW_SESSION: "View Exam",
+  DONE: "Done",
+} as const;
