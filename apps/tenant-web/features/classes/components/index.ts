@@ -3,3 +3,5 @@ export { CreateClassModal } from "./CreateClassModal";
 export { ClassDetailView } from "./ClassDetailView";
 export { ImportOrAssignModal } from "./ImportOrAssignModal";
 export { TransferStudentModal } from "./TransferStudentModal";
+export { LecturerAssignmentSection } from "./LecturerAssignmentSection";
+export { AssignLecturerModal } from "./AssignLecturerModal";

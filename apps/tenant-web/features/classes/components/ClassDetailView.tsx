@@ -5,10 +5,11 @@ import Link from "next/link";
 import { Alert, Badge, LoadingState, PageHeader } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
-import { CLASS_ROSTER_TEXT, CLASS_STATUS_LABELS, CLASS_STATUS_VARIANT } from "../constants";
+import { CLASS_ROSTER_TEXT, CLASS_STATUS_LABELS, CLASS_STATUS_VARIANT, LECTURER_SECTION_TEXT } from "../constants";
 import { useClasses } from "../api";
 import { ClassRosterTable } from "./ClassRosterTable";
 import { ImportOrAssignModal } from "./ImportOrAssignModal";
+import { LecturerAssignmentSection } from "./LecturerAssignmentSection";
 
 interface ClassDetailViewProps {
   organizationPublicId: string;
@@ -105,6 +106,15 @@ const ClassDetailContent = ({
         classPublicId={classPublicId}
         classLabel={classLabel}
       />
+
+      <section className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5">
+        <h3 className="text-sm font-semibold text-gray-900">{LECTURER_SECTION_TEXT.title}</h3>
+        <LecturerAssignmentSection
+          organizationPublicId={organizationPublicId}
+          programPublicId={programPublicId}
+          classPublicId={classPublicId}
+        />
+      </section>
 
       <ImportOrAssignModal
         open={importOpen}
