@@ -1,17 +1,18 @@
+"use client";
+
+import { useParams } from "next/navigation";
 import { DashboardChrome } from "@/features/auth/components";
 import { HOST_ROLES } from "@/features/auth/constants";
 import { SessionDetailView } from "@/features/exams/components";
-import { HOST_NAV } from "@/lib/navigation";
+import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
+import { buildHostNav } from "@/lib/navigation";
 
-interface SessionDetailPageProps {
-  params: Promise<{ publicId: string }>;
-}
-
-export default async function SessionDetailPage({ params }: SessionDetailPageProps) {
-  const { publicId } = await params;
+export default function SessionDetailPage() {
+  const { publicId } = useParams<{ publicId: string }>();
+  const labels = useOrgLabels();
 
   return (
-    <DashboardChrome navItems={HOST_NAV} allowedRoles={HOST_ROLES}>
+    <DashboardChrome navItems={buildHostNav(labels)} allowedRoles={HOST_ROLES}>
       <SessionDetailView sessionPublicId={publicId} />
     </DashboardChrome>
   );
