@@ -25,6 +25,14 @@ export interface NavItem {
 }
 
 interface DashboardChromeProps {
+  /**
+   * A resolved array, not a function/thunk — Next.js's Server/Client
+   * Component boundary cannot pass a function prop from a Server Component
+   * page down into this (`"use client"`) component (`Functions cannot be
+   * passed directly to Client Components`), so any page whose nav depends
+   * on `useOrgLabels()` must itself be a Client Component that resolves
+   * `buildHostNav(labels)` before rendering `DashboardChrome`.
+   */
   navItems: NavItem[];
   children: ReactNode;
   /**
