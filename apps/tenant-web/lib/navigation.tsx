@@ -7,5 +7,6 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
     { label: "Overview", href: "/host/dashboard" },
     { label: "Exams", href: "/host/exams" },
     { label: labels.program, href: "/host/programs" },
+    { label: "Students", href: "/host/students" },
   ];
 }

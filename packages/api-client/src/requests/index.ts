@@ -10,3 +10,7 @@ export * from "./scheduling/sessions";
 export * from "./scheduling/enrollments";
 export * from "./scheduling/proctorAssignments";
 export * from "./authoring/blueprints";
+export * from "./admin/organizations";
+export * from "./admin/programs";
+export * from "./admin/classes";
+export * from "./admin/classMemberships";
