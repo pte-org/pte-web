@@ -15,3 +15,5 @@ export * from "./admin/organizations";
 export * from "./admin/programs";
 export * from "./admin/classes";
 export * from "./admin/classMemberships";
+export * from "./admin/lecturerAssignments";
+export * from "./admin/coordinatorAssignments";
