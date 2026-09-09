@@ -37,6 +37,7 @@ export const StudentSearchView = (): ReactElement => {
       <p className="text-gray-600">{STUDENT_SEARCH_TEXT.subtitle}</p>
 
       <Input
+        aria-label={STUDENT_SEARCH_TEXT.placeholder}
         placeholder={STUDENT_SEARCH_TEXT.placeholder}
         value={input}
         onChange={(event) => setInput(event.target.value)}

@@ -32,7 +32,7 @@ export const PROGRAM_TABLE_HEADERS = {
 export const CREATE_PROGRAM_TEXT = {
   title: (label: string) => `Create ${label}`,
   nameLabel: (label: string) => `${label} name`,
-  namePlaceholder: "e.g. Khối 12",
+  namePlaceholder: (label: string) => `e.g. ${label} 12`,
   descriptionLabel: "Description",
   startDateLabel: "Start date",
   endDateLabel: "End date",
@@ -60,4 +60,5 @@ export const PROGRAM_DETAIL_TEXT = {
   archive: "Archive",
   missingOrganization: "Missing organization context — go back to the list and open this from there.",
   backToList: (label: string) => `Back to ${label}s`,
+  loadFailed: "Couldn't load this — it may have been archived or you may not have access.",
 } as const;

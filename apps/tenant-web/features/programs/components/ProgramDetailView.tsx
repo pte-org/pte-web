@@ -56,8 +56,19 @@ const ProgramDetailContent = ({
   classLabel,
 }: ProgramDetailContentProps): ReactElement => {
   const T = PROGRAM_DETAIL_TEXT;
-  const { data: program, isLoading } = useProgram(organizationPublicId, programPublicId);
+  const { data: program, isLoading, isError, error } = useProgram(organizationPublicId, programPublicId);
   const statusMutations = useProgramStatusMutations(organizationPublicId, programPublicId);
+
+  if (isError) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Alert tone="error">{errorMessage(error, T.loadFailed)}</Alert>
+        <Link href="/host/programs" className="text-sm text-blue-700 hover:underline">
+          {T.backToList(programLabel)}
+        </Link>
+      </div>
+    );
+  }
 
   if (isLoading || !program) {
     return <LoadingState rows={4} />;

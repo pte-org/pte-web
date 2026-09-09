@@ -72,7 +72,7 @@ export const CreateProgramModal = ({
       <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <Input
           label={T.nameLabel(programLabel)}
-          placeholder={T.namePlaceholder}
+          placeholder={T.namePlaceholder(programLabel)}
           value={form.name}
           error={errors.name}
           onChange={(event) => handleChange("name", event.target.value)}
