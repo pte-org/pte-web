@@ -45,3 +45,7 @@ export interface CreateProctorErrors {
   fullName?: string;
   password?: string;
 }
+
+export interface BulkCreateSessionForProgramInput extends CreateSessionInput {
+  studentPublicIds: string[];
+}

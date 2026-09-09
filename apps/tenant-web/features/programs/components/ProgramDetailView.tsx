@@ -1,9 +1,10 @@
 "use client";
 
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { Alert, Badge, LoadingState, PageHeader } from "@pte/ui";
 import { ClassesSection } from "@/features/classes/components";
+import { CreateSessionForProgramModal } from "@/features/exams/components";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import {
@@ -64,6 +65,7 @@ const ProgramDetailContent = ({
   const T = PROGRAM_DETAIL_TEXT;
   const { data: program, isLoading, isError, error } = useProgram(organizationPublicId, programPublicId);
   const statusMutations = useProgramStatusMutations(organizationPublicId, programPublicId);
+  const [createExamOpen, setCreateExamOpen] = useState(false);
 
   if (isError) {
     return (
@@ -133,6 +135,13 @@ const ProgramDetailContent = ({
             >
               {T.archive}
             </button>
+            <button
+              type="button"
+              onClick={() => setCreateExamOpen(true)}
+              className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              {T.createExam} {programLabel}
+            </button>
           </div>
         }
       />
@@ -152,6 +161,14 @@ const ProgramDetailContent = ({
         <h3 className="text-sm font-semibold text-gray-900">{COORDINATOR_SECTION_TEXT.title}</h3>
         <CoordinatorAssignmentSection organizationPublicId={organizationPublicId} programPublicId={programPublicId} />
       </section>
+
+      <CreateSessionForProgramModal
+        key={createExamOpen ? "createExamForProgram-open" : "createExamForProgram-closed"}
+        open={createExamOpen}
+        onClose={() => setCreateExamOpen(false)}
+        program={program}
+        programLabel={programLabel}
+      />
     </div>
   );
 };

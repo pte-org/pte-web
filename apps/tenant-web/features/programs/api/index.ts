@@ -8,6 +8,7 @@ import {
   createUser,
   deactivateProgram,
   getProgram,
+  listClassMemberships,
   listCoordinatorAssignments,
   listMyOrganizations,
   listPrograms,
@@ -30,13 +31,15 @@ import {
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import { TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
+import { useTenantStudents } from "@/features/examoperations/api";
+import { CLASS_MEMBERSHIPS_QUERY_KEY } from "@/features/studentSearch/constants";
 import {
   COORDINATOR_ASSIGNMENTS_QUERY_KEY,
   MY_ORGANIZATIONS_QUERY_KEY,
   PROGRAM_QUERY_KEY,
   PROGRAMS_QUERY_KEY,
 } from "../constants";
-import type { CoordinatorAssignmentEntry, CreateCoordinatorInput } from "../types";
+import type { CoordinatorAssignmentEntry, CreateCoordinatorInput, ProgramRosterEntry } from "../types";
 
 const COORDINATOR_ROLE = "PROGRAM_COORDINATOR";
 
@@ -231,5 +234,37 @@ export function useCreateCoordinatorAccount(): UseMutationResult<UserResponse, u
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
     },
+  });
+}
+
+/**
+ * A whole Program's roster (every currently-assigned student across all its
+ * Classes) — backs Phase 10's bulk-create-exam-session flow. Reuses the
+ * same `GET /class-memberships?programPublicId=` request module as
+ * `features/classes`' `useClassRoster` (Phase 8) and `features/studentSearch`
+ * (Phase 7) rather than adding a new endpoint, and deliberately shares
+ * `useClassRoster`'s exact query key (`[...CLASS_MEMBERSHIPS_QUERY_KEY,
+ * programPublicId]`, with no class-level `select` filter on top) so both
+ * hooks read the same cached fetch for the same Program instead of issuing
+ * a duplicate request.
+ */
+export function useProgramRoster(programPublicId: string): UseQueryResult<ProgramRosterEntry[]> {
+  const students = useTenantStudents();
+  const queryClient = useQueryClient();
+
+  return useQuery({
+    queryKey: [...CLASS_MEMBERSHIPS_QUERY_KEY, programPublicId],
+    queryFn: async () => {
+      const memberships = await listClassMemberships(apiClient, programPublicId);
+      // Read the cache directly rather than closing over `students.data` (a
+      // per-render snapshot) — same race avoidance as useClassRoster.
+      const allUsers = queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? students.data ?? [];
+      const byId = new Map(allUsers.map((student) => [student.publicId, student]));
+      return memberships.flatMap((membership) => {
+        const student = byId.get(membership.studentPublicId);
+        return student ? [{ membership, student }] : [];
+      });
+    },
+    enabled: programPublicId.length > 0 && students.data !== undefined,
   });
 }
