@@ -15,6 +15,8 @@ export interface SessionResponse {
   closesAt: string;
   status: SessionStatus;
   composition: CompositionItemResponse[];
+  /** Null = unlimited. */
+  capacity: number | null;
 }
 
 /** Matches scheduling's real `CreateSessionRequest` record exactly. */
@@ -23,6 +25,8 @@ export interface CreateSessionRequest {
   snapshotPublicId: string;
   opensAt: string;
   closesAt: string;
+  /** Null/omitted = unlimited. */
+  capacity?: number | null;
 }
 
 /** Matches scheduling's real `EnrollmentResponse` record exactly. */
