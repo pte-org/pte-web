@@ -1,4 +1,4 @@
-import type { UserResponse } from "@pte/api-client";
+import type { ClassMembershipResponse, UserResponse } from "@pte/api-client";
 
 export interface CreateProgramInput {
   name: string;
@@ -26,4 +26,9 @@ export interface CreateCoordinatorErrors {
   email?: string;
   fullName?: string;
   password?: string;
+}
+
+export interface ProgramRosterEntry {
+  membership: ClassMembershipResponse;
+  student: UserResponse;
 }
