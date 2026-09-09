@@ -110,6 +110,48 @@ export const PENDING_CLASS_ASSIGNMENT_TEXT = {
   dismiss: "Dismiss (I'll assign these separately)",
 } as const;
 
+export const LECTURER_ASSIGNMENTS_QUERY_KEY = ["lecturerAssignments"] as const;
+
+export const LECTURER_SECTION_TEXT = {
+  title: "Lecturers",
+  addButton: "+ Add Lecturer",
+  emptyTitle: "No lecturers assigned yet",
+  assignedCount: (count: number) => `${count} lecturer(s) assigned`,
+  unassign: "Remove from Class",
+} as const;
+
+export const LECTURER_TABLE_HEADERS = {
+  FULL_NAME: "Full name",
+  EMAIL: "Email",
+  ACTIONS: "Action",
+} as const;
+
+export const ASSIGN_LECTURER_TEXT = {
+  title: "Add Lecturer to Class",
+  tabExisting: "Pick Existing",
+  tabNew: "Create New",
+  existingLabel: "Lecturer",
+  existingPlaceholder: "Select a lecturer",
+  noExisting: "No existing lecturers in your organization yet — create one below.",
+  emailLabel: "Email",
+  emailPlaceholder: "lecturer@school.edu.vn",
+  fullNameLabel: "Full name",
+  passwordLabel: "Password",
+  passwordHelper: "At least 8 characters. Share this with the lecturer directly.",
+  cancel: "Cancel",
+  submit: "Add to Class",
+  submitting: "Adding...",
+} as const;
+
+export const CREATE_LECTURER_ERRORS = {
+  emailRequired: "Email is required.",
+  emailInvalid: "Enter a valid email address.",
+  fullNameRequired: "Full name is required.",
+  passwordTooShort: "Password must be at least 8 characters.",
+} as const;
+
+export const EMPTY_CREATE_LECTURER = { email: "", fullName: "", password: "" } as const;
+
 export const TRANSFER_STUDENT_TEXT = {
   title: (label: string) => `Transfer from ${label}`,
   targetLabel: "Target Class",
