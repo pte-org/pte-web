@@ -12,9 +12,11 @@ import type { StudentSearchResult } from "../types";
  * other half of this feature's client-side join against
  * `useTenantStudents()`. Shares no cache key with `features/classes`' or
  * `features/programs`' per-Program calls (those use `?programPublicId=`);
- * this hook always calls the unfiltered variant.
+ * this hook always calls the unfiltered variant. Exported — also reused by
+ * `features/classes`' `ImportOrAssignModal` to compute which tenant
+ * students are not currently in any Class.
  */
-function useClassMemberships(): UseQueryResult<ClassMembershipResponse[]> {
+export function useClassMemberships(): UseQueryResult<ClassMembershipResponse[]> {
   return useQuery({
     queryKey: CLASS_MEMBERSHIPS_QUERY_KEY,
     queryFn: () => listClassMemberships(apiClient),

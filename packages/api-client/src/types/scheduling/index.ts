@@ -63,3 +63,17 @@ export interface AssignProctorRequest {
 export interface UpdateProctorRoleRequest {
   role: ProctorRole;
 }
+
+/**
+ * Matches scheduling's real `StudentEnrollmentResponse` record exactly —
+ * backs `admin`'s (FE's) pending-exam-request transfer warning. `opensAt`/
+ * `closesAt` are ISO instants (backend `Instant`, serialized as strings).
+ */
+export interface StudentEnrollmentResponse {
+  enrollmentPublicId: string;
+  sessionPublicId: string;
+  sessionName: string;
+  status: SessionStatus;
+  opensAt: string;
+  closesAt: string;
+}

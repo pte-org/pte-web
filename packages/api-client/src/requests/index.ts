@@ -9,6 +9,7 @@ export * from "./user";
 export * from "./scheduling/sessions";
 export * from "./scheduling/enrollments";
 export * from "./scheduling/proctorAssignments";
+export * from "./scheduling/studentEnrollments";
 export * from "./authoring/blueprints";
 export * from "./admin/organizations";
 export * from "./admin/programs";
