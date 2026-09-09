@@ -11,9 +11,11 @@ import {
   CLASS_STATUS_VARIANT,
   CLASS_TABLE_HEADERS,
   CLASSES_SECTION_TEXT,
+  MERGE_CLASSES_SELECTION_TEXT,
 } from "../constants";
 import { useClasses, useClassStatusMutations, useCreateClass } from "../api";
 import { CreateClassModal } from "./CreateClassModal";
+import { MergeClassesModal } from "./MergeClassesModal";
 
 interface ClassesSectionProps {
   organizationPublicId: string;
@@ -97,12 +99,22 @@ export const ClassesSection = ({
   const { data: classes, isLoading } = useClasses(organizationPublicId, programPublicId);
   const create = useCreateClass(organizationPublicId, programPublicId);
   const [createOpen, setCreateOpen] = useState(false);
+  const [mergeMode, setMergeMode] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState<Set<string | number>>(new Set());
+  const [mergeModalOpen, setMergeModalOpen] = useState(false);
 
   const confirmCreate = (name: string): void => {
     create.mutate({ name }, { onSuccess: () => setCreateOpen(false) });
   };
 
   const createErrorMessage = errorMessage(create.error);
+
+  const selectedClasses = (classes ?? []).filter((studentClass) => selectedKeys.has(studentClass.publicId));
+
+  const exitMergeMode = (): void => {
+    setMergeMode(false);
+    setSelectedKeys(new Set());
+  };
 
   const columns: DataTableColumn<ClassResponse>[] = [
     {
@@ -145,16 +157,48 @@ export const ClassesSection = ({
         <p className="text-sm text-gray-500">
           {CLASSES_SECTION_TEXT.countLabel(classes?.length ?? 0, classLabel)}
         </p>
-        <button
-          type="button"
-          onClick={() => setCreateOpen(true)}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-          {CLASSES_SECTION_TEXT.addButton(classLabel)}
-        </button>
+        <div className="flex items-center gap-2">
+          {!mergeMode && (classes?.length ?? 0) >= 2 && (
+            <button
+              type="button"
+              onClick={() => setMergeMode(true)}
+              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              {MERGE_CLASSES_SELECTION_TEXT.startButton(classLabel)}
+            </button>
+          )}
+          {!mergeMode && (
+            <button
+              type="button"
+              onClick={() => setCreateOpen(true)}
+              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            >
+              {CLASSES_SECTION_TEXT.addButton(classLabel)}
+            </button>
+          )}
+        </div>
       </div>
 
       {createErrorMessage && !createOpen && <Alert tone="error">{createErrorMessage}</Alert>}
+
+      {mergeMode && (
+        <div className="flex items-center justify-between rounded-md border border-blue-200 bg-blue-50 px-4 py-2">
+          <span className="text-sm text-blue-800">{MERGE_CLASSES_SELECTION_TEXT.selectedCount(selectedKeys.size)}</span>
+          <div className="flex items-center gap-3">
+            <button type="button" onClick={exitMergeMode} className="text-sm text-gray-600 hover:underline">
+              {MERGE_CLASSES_SELECTION_TEXT.cancelSelection}
+            </button>
+            <button
+              type="button"
+              disabled={selectedKeys.size < 2}
+              onClick={() => setMergeModalOpen(true)}
+              className="rounded-md bg-blue-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {MERGE_CLASSES_SELECTION_TEXT.confirmButton}
+            </button>
+          </div>
+        </div>
+      )}
 
       <DataTable
         columns={columns}
@@ -163,6 +207,10 @@ export const ClassesSection = ({
         isLoading={isLoading}
         emptyTitle={CLASSES_SECTION_TEXT.emptyTitle(classLabel)}
         emptyDescription={CLASSES_SECTION_TEXT.emptyText(classLabel)}
+        selectable={mergeMode}
+        selectedKeys={selectedKeys}
+        onSelectionChange={setSelectedKeys}
+        selectRowLabel={(studentClass) => studentClass.name}
       />
 
       <CreateClassModal
@@ -176,6 +224,20 @@ export const ClassesSection = ({
         error={createErrorMessage}
         isSubmitting={create.isPending}
         classLabel={classLabel}
+      />
+
+      <MergeClassesModal
+        key={mergeModalOpen ? "mergeClasses-open" : "mergeClasses-closed"}
+        open={mergeModalOpen}
+        onClose={() => setMergeModalOpen(false)}
+        organizationPublicId={organizationPublicId}
+        programPublicId={programPublicId}
+        selectedClasses={selectedClasses}
+        classLabel={classLabel}
+        onMerged={() => {
+          setMergeModalOpen(false);
+          exitMergeMode();
+        }}
       />
     </div>
   );

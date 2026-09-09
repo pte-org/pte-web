@@ -6,6 +6,10 @@ import type {
   ClassMembershipResponse,
   ClassResponse,
   CreateClassRequest,
+  MergeClassesRequest,
+  MergeClassesResponse,
+  SplitClassRequest,
+  SplitClassResponse,
   TransferStudentRequest,
   UpdateClassRequest,
 } from "../../types/admin/studentClass";
@@ -34,6 +38,10 @@ export const CLASS_ENDPOINTS = {
     `${basePath(organizationPublicId, programPublicId)}/${classPublicId}/students/${membershipPublicId}`,
   transfer: (organizationPublicId: string, programPublicId: string, classPublicId: string, membershipPublicId: string) =>
     `${basePath(organizationPublicId, programPublicId)}/${classPublicId}/students/${membershipPublicId}/transfer`,
+  merge: (organizationPublicId: string, programPublicId: string, targetClassPublicId: string) =>
+    `${basePath(organizationPublicId, programPublicId)}/${targetClassPublicId}/merge`,
+  split: (organizationPublicId: string, programPublicId: string, sourceClassPublicId: string) =>
+    `${basePath(organizationPublicId, programPublicId)}/${sourceClassPublicId}/split`,
 } as const;
 
 export function listClasses(
@@ -162,6 +170,32 @@ export function transferStudent(
 ): Promise<ClassMembershipResponse> {
   return client.request<ClassMembershipResponse>(
     CLASS_ENDPOINTS.transfer(organizationPublicId, programPublicId, classPublicId, membershipPublicId),
+    { method: "POST", body: payload },
+  );
+}
+
+export function mergeClasses(
+  client: ApiClient,
+  organizationPublicId: string,
+  programPublicId: string,
+  targetClassPublicId: string,
+  payload: MergeClassesRequest,
+): Promise<MergeClassesResponse> {
+  return client.request<MergeClassesResponse>(
+    CLASS_ENDPOINTS.merge(organizationPublicId, programPublicId, targetClassPublicId),
+    { method: "POST", body: payload },
+  );
+}
+
+export function splitClass(
+  client: ApiClient,
+  organizationPublicId: string,
+  programPublicId: string,
+  sourceClassPublicId: string,
+  payload: SplitClassRequest,
+): Promise<SplitClassResponse> {
+  return client.request<SplitClassResponse>(
+    CLASS_ENDPOINTS.split(organizationPublicId, programPublicId, sourceClassPublicId),
     { method: "POST", body: payload },
   );
 }

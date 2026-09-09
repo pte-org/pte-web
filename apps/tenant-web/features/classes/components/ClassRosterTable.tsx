@@ -3,9 +3,15 @@
 import { useState, type ReactElement } from "react";
 import { Alert, DataTable, type DataTableColumn } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
-import { CLASS_ROSTER_ROW_ACTIONS_TEXT, CLASS_ROSTER_TABLE_HEADERS, CLASS_ROSTER_TEXT } from "../constants";
+import {
+  CLASS_ROSTER_ROW_ACTIONS_TEXT,
+  CLASS_ROSTER_TABLE_HEADERS,
+  CLASS_ROSTER_TEXT,
+  SPLIT_CLASS_SELECTION_TEXT,
+} from "../constants";
 import { useClassRoster, useUnassignStudent, type ClassRosterEntry } from "../api";
 import { TransferStudentModal } from "./TransferStudentModal";
+import { SplitClassModal } from "./SplitClassModal";
 
 interface ClassRosterTableProps {
   organizationPublicId: string;
@@ -75,10 +81,22 @@ export const ClassRosterTable = ({
   classLabel,
 }: ClassRosterTableProps): ReactElement => {
   const { data: roster, isLoading, isError, error } = useClassRoster(programPublicId, classPublicId);
+  const [splitMode, setSplitMode] = useState(false);
+  const [selectedKeys, setSelectedKeys] = useState<Set<string | number>>(new Set());
+  const [splitModalOpen, setSplitModalOpen] = useState(false);
 
   if (isError) {
     return <Alert tone="error">{errorMessage(error, CLASS_ROSTER_TEXT.loadFailed)}</Alert>;
   }
+
+  const selectedStudentPublicIds = (roster ?? [])
+    .filter((entry) => selectedKeys.has(entry.membership.publicId))
+    .map((entry) => entry.student.publicId);
+
+  const exitSplitMode = (): void => {
+    setSplitMode(false);
+    setSelectedKeys(new Set());
+  };
 
   const columns: DataTableColumn<ClassRosterEntry>[] = [
     { key: "name", header: CLASS_ROSTER_TABLE_HEADERS.FULL_NAME, cell: (entry) => entry.student.fullName },
@@ -100,13 +118,65 @@ export const ClassRosterTable = ({
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      rows={roster ?? []}
-      getRowKey={(entry) => entry.membership.publicId}
-      isLoading={isLoading}
-      emptyTitle={CLASS_ROSTER_TEXT.emptyTitle}
-      emptyDescription={CLASS_ROSTER_TEXT.emptyText}
-    />
+    <div className="flex flex-col gap-3">
+      <div className="flex items-center justify-end">
+        {!splitMode && (roster ?? []).length > 0 && (
+          <button
+            type="button"
+            onClick={() => setSplitMode(true)}
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            {SPLIT_CLASS_SELECTION_TEXT.startButton}
+          </button>
+        )}
+      </div>
+
+      {splitMode && (
+        <div className="flex items-center justify-between rounded-md border border-blue-200 bg-blue-50 px-4 py-2">
+          <span className="text-sm text-blue-800">{SPLIT_CLASS_SELECTION_TEXT.selectedCount(selectedKeys.size)}</span>
+          <div className="flex items-center gap-3">
+            <button type="button" onClick={exitSplitMode} className="text-sm text-gray-600 hover:underline">
+              {SPLIT_CLASS_SELECTION_TEXT.cancelSelection}
+            </button>
+            <button
+              type="button"
+              disabled={selectedKeys.size < 1}
+              onClick={() => setSplitModalOpen(true)}
+              className="rounded-md bg-blue-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {SPLIT_CLASS_SELECTION_TEXT.confirmButton}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <DataTable
+        columns={columns}
+        rows={roster ?? []}
+        getRowKey={(entry) => entry.membership.publicId}
+        isLoading={isLoading}
+        emptyTitle={CLASS_ROSTER_TEXT.emptyTitle}
+        emptyDescription={CLASS_ROSTER_TEXT.emptyText}
+        selectable={splitMode}
+        selectedKeys={selectedKeys}
+        onSelectionChange={setSelectedKeys}
+        selectRowLabel={(entry) => entry.student.fullName}
+      />
+
+      <SplitClassModal
+        key={splitModalOpen ? "splitClass-open" : "splitClass-closed"}
+        open={splitModalOpen}
+        onClose={() => setSplitModalOpen(false)}
+        organizationPublicId={organizationPublicId}
+        programPublicId={programPublicId}
+        sourceClassPublicId={classPublicId}
+        selectedStudentPublicIds={selectedStudentPublicIds}
+        classLabel={classLabel}
+        onSplit={() => {
+          setSplitModalOpen(false);
+          exitSplitMode();
+        }}
+      />
+    </div>
   );
 };

@@ -18,6 +18,8 @@ import {
   listPrograms,
   listStudentEnrollments,
   listUsers,
+  mergeClasses,
+  splitClass,
   suspendClass,
   transferStudent,
   unassignLecturer,
@@ -27,6 +29,9 @@ import {
   type ClassMembershipResponse,
   type ClassResponse,
   type CreateClassRequest,
+  type MergeClassesResponse,
+  type SplitClassRequest,
+  type SplitClassResponse,
   type StudentEnrollmentResponse,
   type TransferStudentRequest,
   type UserResponse,
@@ -418,6 +423,49 @@ export function useCreateLecturerAccount(): UseMutationResult<UserResponse, unkn
     // in the tenant-users cache.
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
+    },
+  });
+}
+
+/**
+ * Moves every student from each source Class into `targetClassPublicId`.
+ * Does NOT archive the source Class(es) — confirmed with the user during
+ * Phase 12 design as the intended behavior (merge only moves membership
+ * rows; the Host archives a now-empty source Class separately if wanted).
+ * Invalidates both this Program's Classes list (roster counts elsewhere in
+ * the UI may depend on it) and the shared class-memberships cache (every
+ * moved student's `classPublicId` changed).
+ */
+export function useMergeClasses(
+  organizationPublicId: string,
+  programPublicId: string,
+  targetClassPublicId: string,
+): UseMutationResult<MergeClassesResponse, unknown, string[]> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (sourceClassPublicIds) =>
+      mergeClasses(apiClient, organizationPublicId, programPublicId, targetClassPublicId, { sourceClassPublicIds }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: [...CLASSES_QUERY_KEY, programPublicId] });
+      invalidateClassMemberships(queryClient);
+    },
+  });
+}
+
+/** Creates a new Class under the same Program as `sourceClassPublicId`, then moves the given student subset into it. */
+export function useSplitClass(
+  organizationPublicId: string,
+  programPublicId: string,
+  sourceClassPublicId: string,
+): UseMutationResult<SplitClassResponse, unknown, SplitClassRequest> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload) => splitClass(apiClient, organizationPublicId, programPublicId, sourceClassPublicId, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: [...CLASSES_QUERY_KEY, programPublicId] });
+      invalidateClassMemberships(queryClient);
     },
   });
 }

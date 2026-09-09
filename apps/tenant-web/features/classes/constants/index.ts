@@ -163,3 +163,46 @@ export const TRANSFER_STUDENT_TEXT = {
   pendingEnrollmentText:
     "Transferring will not change or cancel these — the Host may want to review them separately:",
 } as const;
+
+export const MERGE_CLASSES_SELECTION_TEXT = {
+  startButton: (label: string) => `Merge ${label}s`,
+  cancelSelection: "Cancel",
+  selectedCount: (count: number) => `${count} selected`,
+  confirmButton: "Merge Selected",
+  needAtLeastTwo: "Select at least 2 to merge.",
+} as const;
+
+export const MERGE_CLASSES_TEXT = {
+  title: (label: string) => `Merge ${label}s`,
+  destinationLabel: (label: string) => `Merge into which ${label.toLowerCase()}?`,
+  sourcesLabel: (label: string) => `The rest will be merged into it and their students moved. The source ${label.toLowerCase()}(s) themselves are not archived — archive them separately afterward if you want.`,
+  cancel: "Cancel",
+  submit: "Merge",
+  submitting: "Merging...",
+  successTitle: (count: number) => `${count} student(s) moved.`,
+  done: "Done",
+} as const;
+
+export const SPLIT_CLASS_SELECTION_TEXT = {
+  startButton: "Split Class",
+  cancelSelection: "Cancel",
+  selectedCount: (count: number) => `${count} selected`,
+  confirmButton: "Split Selected",
+  needAtLeastOne: "Select at least 1 student to move into the new Class.",
+} as const;
+
+export const SPLIT_CLASS_TEXT = {
+  title: (label: string) => `Split ${label}`,
+  newClassNameLabel: (label: string) => `New ${label} name`,
+  newClassNamePlaceholder: "e.g. 12A2",
+  movingCount: (count: number) => `${count} student(s) will move to the new Class.`,
+  cancel: "Cancel",
+  submit: "Split",
+  submitting: "Splitting...",
+  successTitle: (count: number, className: string) => `${count} student(s) moved to "${className}".`,
+  done: "Done",
+} as const;
+
+export const SPLIT_CLASS_ERRORS = {
+  newClassNameRequired: (label: string) => `New ${label.toLowerCase()} name is required.`,
+} as const;

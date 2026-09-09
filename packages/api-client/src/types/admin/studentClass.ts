@@ -54,3 +54,27 @@ export interface ClassMembershipResponse {
   programName: string;
   studentPublicId: string;
 }
+
+/** Matches admin's real `MergeClassesRequest` record exactly. */
+export interface MergeClassesRequest {
+  sourceClassPublicIds: string[];
+}
+
+/** Matches admin's real `MergeClassesResponse` record exactly. */
+export interface MergeClassesResponse {
+  targetClassPublicId: string;
+  sourceClassPublicIds: string[];
+  movedStudentPublicIds: string[];
+}
+
+/** Matches admin's real `SplitClassRequest` record exactly. */
+export interface SplitClassRequest {
+  newClassName: string;
+  studentPublicIds: string[];
+}
+
+/** Matches admin's real `SplitClassResponse` record exactly. */
+export interface SplitClassResponse {
+  newClass: ClassResponse;
+  movedStudentPublicIds: string[];
+}
