@@ -6,4 +6,5 @@ export interface CurrentUser {
   tenantId: string | null;
   status: string;
   roles: string[];
+  organizationType: string | null;
 }

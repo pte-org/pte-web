@@ -10,7 +10,9 @@ export type SessionRole =
   | "HOST_ADMIN"
   | "HOST_AUTHOR"
   | "PROCTOR"
-  | "STUDENT";
+  | "STUDENT"
+  | "LECTURER"
+  | "PROGRAM_COORDINATOR";
 
 export interface PteSession {
   accessToken: string;
