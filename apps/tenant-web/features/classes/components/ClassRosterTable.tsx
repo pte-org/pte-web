@@ -10,6 +10,7 @@ import {
   SPLIT_CLASS_SELECTION_TEXT,
 } from "../constants";
 import { useClassRoster, useUnassignStudent, type ClassRosterEntry } from "../api";
+import { exportClassRosterToExcel } from "../exportClassRoster";
 import { TransferStudentModal } from "./TransferStudentModal";
 import { SplitClassModal } from "./SplitClassModal";
 
@@ -119,7 +120,16 @@ export const ClassRosterTable = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-end">
+      <div className="flex items-center justify-end gap-3">
+        {(roster ?? []).length > 0 && (
+          <button
+            type="button"
+            onClick={() => exportClassRosterToExcel(roster ?? [], `${classLabel}-roster`)}
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            {CLASS_ROSTER_TEXT.exportButton}
+          </button>
+        )}
         {!splitMode && (roster ?? []).length > 0 && (
           <button
             type="button"

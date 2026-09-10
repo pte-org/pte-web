@@ -49,6 +49,7 @@ export const CREATE_CLASS_ERRORS = {
 export const CLASS_ROSTER_TEXT = {
   back: (label: string) => `Back to ${label}`,
   addButton: "Import / Assign Students",
+  exportButton: "Export to Excel",
   emptyTitle: "No students assigned yet",
   emptyText: "Import a roster or assign an existing student to get started.",
   loadFailed: "Couldn't load this — it may have been archived or you may not have access.",

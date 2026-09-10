@@ -8,6 +8,7 @@ import {
   createUser,
   deactivateProgram,
   getProgram,
+  getProgramDashboard,
   listClassMemberships,
   listCoordinatorAssignments,
   listMyOrganizations,
@@ -18,6 +19,7 @@ import {
   updateProgram,
   type CreateProgramRequest,
   type OrganizationResponse,
+  type ProgramDashboardResponse,
   type ProgramResponse,
   type UpdateProgramRequest,
   type UserResponse,
@@ -234,6 +236,26 @@ export function useCreateCoordinatorAccount(): UseMutationResult<UserResponse, u
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
     },
+  });
+}
+
+/**
+ * Class/student counts for this Program — one grouped backend query (see
+ * `ProgramService.getDashboard`). Keyed under `CLASS_MEMBERSHIPS_QUERY_KEY`
+ * (not a dedicated key) so it's covered for free by every existing
+ * membership-mutating hook's `invalidateClassMemberships(queryClient)` call
+ * (assign/bulkAssign/unassign/transfer/merge/split) — see
+ * `useCreateClass`/`useClassStatusMutations` in `features/classes/api` for
+ * the matching addition covering Class create/archive/status changes too.
+ */
+export function useProgramDashboard(
+  organizationPublicId: string,
+  programPublicId: string,
+): UseQueryResult<ProgramDashboardResponse> {
+  return useQuery({
+    queryKey: [...CLASS_MEMBERSHIPS_QUERY_KEY, programPublicId, "dashboard"],
+    queryFn: () => getProgramDashboard(apiClient, organizationPublicId, programPublicId),
+    enabled: organizationPublicId.length > 0 && programPublicId.length > 0,
   });
 }
 
