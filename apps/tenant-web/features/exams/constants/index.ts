@@ -136,3 +136,42 @@ export const CREATE_PROCTOR_ERRORS = {
 } as const;
 
 export const EMPTY_CREATE_PROCTOR = { email: "", fullName: "", password: "" } as const;
+
+export const CREATE_SESSION_FOR_PROGRAM_TEXT = {
+  TITLE: (label: string) => `Create Exam for ${label}`,
+  ROSTER_HEADING: "Roster",
+  ROSTER_COUNT: (count: number) => `${count} student(s) will be enrolled`,
+  ROSTER_LOADING: "Loading roster...",
+  EMPTY_ROSTER_WARNING: "This Program has no students assigned yet — nothing to enroll.",
+  INACTIVE_PROGRAM_WARNING: "This Program is not currently active. You can still create a make-up exam for it.",
+  STUDENTS_PER_SESSION_LABEL: "Students per session (optional)",
+  STUDENTS_PER_SESSION_PLACEHOLDER: "Leave blank for one session",
+  STUDENTS_PER_SESSION_HELPER:
+    "If the roster is larger than this, it's split across multiple sessions, each capped at this many students.",
+  BATCH_PREVIEW: (count: number) => `Will create ${count} session(s).`,
+  LEAD_TIME_WARNING:
+    "Multiple sessions will be created one after another. Pick an opens-at time with a few extra minutes of lead time so later sessions don't fail their own open-time check.",
+  CANCEL: "Cancel",
+  SUBMIT: "Create & Enroll",
+  RUNNING: "Creating & enrolling...",
+  DONE: "Done",
+  BATCH_LABEL: (index: number, total: number) => `Session ${index} of ${total}`,
+  BATCH_STATUS: {
+    pending: "Pending",
+    creatingSession: "Creating session...",
+    enrolling: "Enrolling students...",
+    success: "Enrolled",
+    sessionError: "Failed to create session",
+    enrollError: "Session created, but enrolling failed",
+  },
+  RETRY_BATCH: "Retry",
+  VIEW_SESSION: "View",
+  ALL_DONE_TITLE: (studentCount: number, sessionCount: number) =>
+    sessionCount > 1
+      ? `${studentCount} student(s) enrolled across ${sessionCount} sessions`
+      : `${studentCount} student(s) enrolled`,
+} as const;
+
+export const CREATE_SESSION_FOR_PROGRAM_ERRORS = {
+  STUDENTS_PER_SESSION_INVALID: "Must be a whole number greater than 0.",
+} as const;

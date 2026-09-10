@@ -22,9 +22,19 @@ export interface NavItem {
   label: string;
   href: string;
   icon?: ReactNode;
+  /** If set, only rendered for a caller whose roles include at least one of these — see `buildHostNav`'s "Audit Log" entry. */
+  requiredRoles?: SessionRole[];
 }
 
 interface DashboardChromeProps {
+  /**
+   * A resolved array, not a function/thunk — Next.js's Server/Client
+   * Component boundary cannot pass a function prop from a Server Component
+   * page down into this (`"use client"`) component (`Functions cannot be
+   * passed directly to Client Components`), so any page whose nav depends
+   * on `useOrgLabels()` must itself be a Client Component that resolves
+   * `buildHostNav(labels)` before rendering `DashboardChrome`.
+   */
   navItems: NavItem[];
   children: ReactNode;
   /**
@@ -61,9 +71,13 @@ const SidebarBrand = (): ReactElement => (
 
 const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
   const pathname = usePathname();
+  const { data: user } = useCurrentUser();
+  const visibleItems = navItems.filter(
+    (item) => !item.requiredRoles || item.requiredRoles.some((role) => user?.roles.includes(role)),
+  );
   return (
     <>
-      {navItems.map((item) => (
+      {visibleItems.map((item) => (
         <Link
           key={item.href}
           href={item.href}

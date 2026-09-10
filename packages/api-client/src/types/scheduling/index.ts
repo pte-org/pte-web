@@ -15,6 +15,8 @@ export interface SessionResponse {
   closesAt: string;
   status: SessionStatus;
   composition: CompositionItemResponse[];
+  /** Null = unlimited. */
+  capacity: number | null;
 }
 
 /** Matches scheduling's real `CreateSessionRequest` record exactly. */
@@ -23,6 +25,8 @@ export interface CreateSessionRequest {
   snapshotPublicId: string;
   opensAt: string;
   closesAt: string;
+  /** Null/omitted = unlimited. */
+  capacity?: number | null;
 }
 
 /** Matches scheduling's real `EnrollmentResponse` record exactly. */
@@ -62,4 +66,18 @@ export interface AssignProctorRequest {
 /** Matches scheduling's real `UpdateProctorRoleRequest` record exactly. */
 export interface UpdateProctorRoleRequest {
   role: ProctorRole;
+}
+
+/**
+ * Matches scheduling's real `StudentEnrollmentResponse` record exactly —
+ * backs `admin`'s (FE's) pending-exam-request transfer warning. `opensAt`/
+ * `closesAt` are ISO instants (backend `Instant`, serialized as strings).
+ */
+export interface StudentEnrollmentResponse {
+  enrollmentPublicId: string;
+  sessionPublicId: string;
+  sessionName: string;
+  status: SessionStatus;
+  opensAt: string;
+  closesAt: string;
 }
