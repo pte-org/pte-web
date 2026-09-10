@@ -27,3 +27,18 @@ export interface UpdateProgramRequest {
   startDate?: string | null;
   endDate?: string | null;
 }
+
+/** Matches admin's real `ClassStudentCountResponse` record exactly. */
+export interface ClassStudentCountResponse {
+  classPublicId: string;
+  className: string;
+  studentCount: number;
+}
+
+/** Matches admin's real `ProgramDashboardResponse` record exactly. */
+export interface ProgramDashboardResponse {
+  programPublicId: string;
+  classCount: number;
+  studentCount: number;
+  classes: ClassStudentCountResponse[];
+}
