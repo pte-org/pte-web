@@ -9,12 +9,14 @@ import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import {
   COORDINATOR_SECTION_TEXT,
+  PROGRAM_DASHBOARD_TEXT,
   PROGRAM_DETAIL_TEXT,
   PROGRAM_STATUS_LABELS,
   PROGRAM_STATUS_VARIANT,
 } from "../constants";
 import { useProgram, useProgramStatusMutations } from "../api";
 import { CoordinatorAssignmentSection } from "./CoordinatorAssignmentSection";
+import { ProgramDashboard } from "./ProgramDashboard";
 
 interface ProgramDetailViewProps {
   organizationPublicId: string;
@@ -147,6 +149,15 @@ const ProgramDetailContent = ({
       />
 
       {lifecycleError && <Alert tone="error">{lifecycleError}</Alert>}
+
+      <section className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5">
+        <h3 className="text-sm font-semibold text-gray-900">{PROGRAM_DASHBOARD_TEXT.title}</h3>
+        <ProgramDashboard
+          organizationPublicId={organizationPublicId}
+          programPublicId={programPublicId}
+          classLabel={classLabel}
+        />
+      </section>
 
       <section className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5">
         <h3 className="text-sm font-semibold text-gray-900">{classLabel}</h3>

@@ -105,3 +105,16 @@ export const CREATE_COORDINATOR_ERRORS = {
 } as const;
 
 export const EMPTY_CREATE_COORDINATOR = { email: "", fullName: "", password: "" } as const;
+
+export const PROGRAM_DASHBOARD_TEXT = {
+  title: "Overview",
+  classCount: (label: string) => `${label}s`,
+  studentCount: "Students",
+  loadFailed: "Couldn't load the overview.",
+  tableHeading: (label: string) => `Students per ${label.toLowerCase()}`,
+} as const;
+
+export const PROGRAM_DASHBOARD_TABLE_HEADERS = {
+  NAME: "Name",
+  STUDENTS: "Students",
+} as const;
