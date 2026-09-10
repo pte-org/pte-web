@@ -11,6 +11,7 @@ export * from "./scheduling/enrollments";
 export * from "./scheduling/proctorAssignments";
 export * from "./scheduling/studentEnrollments";
 export * from "./authoring/blueprints";
+export * from "./scoring/answers";
 export * from "./admin/organizations";
 export * from "./admin/programs";
 export * from "./admin/classes";

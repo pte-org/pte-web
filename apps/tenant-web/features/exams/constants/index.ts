@@ -8,6 +8,8 @@ export const BLUEPRINTS_QUERY_KEY = ["blueprints"] as const;
 export const ENROLLMENTS_QUERY_KEY = ["enrollments"] as const;
 export const PROCTOR_ASSIGNMENTS_QUERY_KEY = ["proctorAssignments"] as const;
 export const TENANT_USERS_QUERY_KEY = ["tenantUsers"] as const;
+export const ANSWERS_QUERY_KEY = ["answers"] as const;
+export const ANSWER_QUERY_KEY = ["answer"] as const;
 
 export const EXAMS_TEXT = {
   TITLE: "Exams",
@@ -73,6 +75,58 @@ export const SESSION_DETAIL_TEXT = {
   CLOSE_EXAM: "Close Exam",
   STUDENTS_SECTION: "Students",
   PROCTORS_SECTION: "Proctors",
+  ANSWERS_SECTION: "Submitted Answers",
+} as const;
+
+export const ANSWERS_SECTION_TEXT = {
+  EMPTY_TITLE: "No answers submitted yet",
+  STATUS_FILTER_LABEL: "Status",
+  STATUS_FILTER_ALL: "All statuses",
+  VIEW: "View",
+} as const;
+
+export const ANSWER_TABLE_HEADERS = {
+  TASK_TYPE: "Task Type",
+  STATUS: "Status",
+  AI_SCORE: "AI Score",
+  TEACHER_SCORE: "Teacher Score",
+  SUBMITTED_AT: "Submitted",
+  ACTIONS: "Action",
+} as const;
+
+export const ANSWER_STATUS_LABELS: Record<string, string> = {
+  PENDING: "Pending",
+  AI_SCORING: "AI Scoring",
+  SCORING_FAILED: "Scoring Failed",
+  SCORED: "Scored",
+};
+
+export const ANSWER_STATUS_VARIANT: Record<string, "info" | "success" | "neutral" | "danger"> = {
+  PENDING: "neutral",
+  AI_SCORING: "info",
+  SCORING_FAILED: "danger",
+  SCORED: "success",
+};
+
+export const ANSWER_DETAIL_TEXT = {
+  TITLE: "Submitted Answer",
+  TASK_TYPE_LABEL: "Task type",
+  STATUS_LABEL: "Status",
+  AI_SCORE_LABEL: "AI score",
+  NOT_SCORED: "Not scored yet",
+  OPTIONS_TITLE: "Options",
+  SELECTED_BADGE: "Selected",
+  CORRECT_BADGE: "Correct",
+  AUDIO_UNAVAILABLE: "Audio recording is not available right now.",
+  UNRECOGNIZED_NOTICE:
+    "This answer's format could not be decoded automatically. Showing the raw submitted value below.",
+  TEACHER_SCORE_TITLE: "Teacher Score",
+  TEACHER_SCORE_HELPER: "Recorded independently of the AI score, 0-100. Does not affect the official result.",
+  TEACHER_SCORE_LABEL: "Score (0-100)",
+  SUBMIT: "Save Score",
+  SUBMITTING: "Saving...",
+  SAVED: "Score saved.",
+  CLOSE: "Close",
 } as const;
 
 export const PROCTOR_SECTION_TEXT = {

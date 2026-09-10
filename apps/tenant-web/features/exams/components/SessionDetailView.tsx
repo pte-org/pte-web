@@ -15,6 +15,7 @@ import {
   SESSION_STATUS_VARIANT,
 } from "../constants";
 import { useCloseSession, useOpenSession, useSession } from "../api";
+import { AnswersSection } from "./AnswersSection";
 import { ProctorAssignmentSection } from "./ProctorAssignmentSection";
 
 interface SessionDetailViewProps {
@@ -97,6 +98,11 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
       <section className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-5">
         <h3 className="text-sm font-semibold text-gray-900">{T.PROCTORS_SECTION}</h3>
         <ProctorAssignmentSection sessionPublicId={sessionPublicId} />
+      </section>
+
+      <section className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-5">
+        <h3 className="text-sm font-semibold text-gray-900">{T.ANSWERS_SECTION}</h3>
+        <AnswersSection sessionPublicId={sessionPublicId} />
       </section>
     </div>
   );

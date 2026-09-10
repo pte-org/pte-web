@@ -7,15 +7,20 @@ import {
   closeSession,
   createSession,
   createUser,
+  getAnswer,
   getSession,
+  listAnswers,
   listBlueprints,
   listProctorAssignments,
   listSessions,
   listUsers,
   openSession,
   publishBlueprint,
+  submitTeacherScore,
   unassignProctor,
   updateProctorRole,
+  type AnswerListResponse,
+  type AnswerReviewDetailResponse,
   type BlueprintResponse,
   type BulkEnrollResponse,
   type ProctorRole,
@@ -31,6 +36,8 @@ import {
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import {
+  ANSWER_QUERY_KEY,
+  ANSWERS_QUERY_KEY,
   BLUEPRINTS_QUERY_KEY,
   ENROLLMENTS_QUERY_KEY,
   PROCTOR_ASSIGNMENTS_QUERY_KEY,
@@ -255,6 +262,58 @@ export function useUpdateProctorRole(
  * Host-supplied password, mirroring vendor-web's `useCreateLoginAccount` —
  * a one-at-a-time form has no need for the bulk-import password generator.
  */
+/**
+ * A session's submitted answers, tenant-scoped server-side (host never
+ * passes tenantId — see scoring's ScoringReviewService doc comment).
+ * `statusFilter` empty string means "all statuses".
+ */
+export function useAnswers(
+  sessionPublicId: string,
+  statusFilter: string,
+  page: number,
+): UseQueryResult<AnswerListResponse> {
+  return useQuery({
+    queryKey: [...ANSWERS_QUERY_KEY, sessionPublicId, statusFilter, page],
+    queryFn: () =>
+      listAnswers(apiClient, {
+        sessionPublicId,
+        status: statusFilter || undefined,
+        page,
+      }),
+    enabled: sessionPublicId.length > 0,
+  });
+}
+
+/** Full decoded content (+ presigned audio URL when applicable) for one answer, fetched only when a detail modal is open. */
+export function useAnswer(answerPublicId: string | null): UseQueryResult<AnswerReviewDetailResponse> {
+  return useQuery({
+    queryKey: [...ANSWER_QUERY_KEY, answerPublicId],
+    queryFn: () => getAnswer(apiClient, answerPublicId as string),
+    enabled: !!answerPublicId,
+  });
+}
+
+/**
+ * Records a host's own independent score — parallel to the AI's `rawScore`,
+ * never gated by answer status, never affects attempt completion (see
+ * scoring's ScoringReviewService.submitTeacherScore doc comment).
+ */
+export function useSubmitTeacherScore(
+  answerPublicId: string,
+): UseMutationResult<void, unknown, number> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (score) => {
+      await submitTeacherScore(apiClient, answerPublicId, { score });
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: [...ANSWER_QUERY_KEY, answerPublicId] });
+      void queryClient.invalidateQueries({ queryKey: ANSWERS_QUERY_KEY });
+    },
+  });
+}
+
 export function useCreateProctorAccount(): UseMutationResult<UserResponse, unknown, CreateProctorInput> {
   const queryClient = useQueryClient();
 

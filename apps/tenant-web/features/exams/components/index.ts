@@ -4,4 +4,6 @@ export { SessionTable } from "./SessionTable";
 export { CreateSessionModal } from "./CreateSessionModal";
 export { ProctorAssignmentSection } from "./ProctorAssignmentSection";
 export { AssignProctorModal } from "./AssignProctorModal";
+export { AnswersSection } from "./AnswersSection";
+export { AnswerDetailModal } from "./AnswerDetailModal";
 export { CreateSessionForProgramModal } from "./CreateSessionForProgramModal";

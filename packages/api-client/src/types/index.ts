@@ -11,4 +11,5 @@ export * from "./quota";
 export * from "./user";
 export * from "./scheduling";
 export * from "./authoring";
+export * from "./scoring";
 export * from "./admin";
