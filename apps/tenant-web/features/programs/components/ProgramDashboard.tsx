@@ -17,7 +17,7 @@ export const ProgramDashboard = ({
   organizationPublicId,
   programPublicId,
   classLabel,
-}: ProgramDashboardProps): ReactElement | null => {
+}: ProgramDashboardProps): ReactElement => {
   const { data: dashboard, isLoading, isError, error } = useProgramDashboard(organizationPublicId, programPublicId);
 
   if (isError) {
