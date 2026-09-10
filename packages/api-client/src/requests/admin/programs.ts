@@ -1,5 +1,10 @@
 import type { ApiClient } from "../../client/client";
-import type { CreateProgramRequest, ProgramResponse, UpdateProgramRequest } from "../../types/admin/program";
+import type {
+  CreateProgramRequest,
+  ProgramDashboardResponse,
+  ProgramResponse,
+  UpdateProgramRequest,
+} from "../../types/admin/program";
 
 export const PROGRAM_ENDPOINTS = {
   programs: (organizationPublicId: string) => `/api/admin/organizations/${organizationPublicId}/programs`,
@@ -13,6 +18,8 @@ export const PROGRAM_ENDPOINTS = {
     `/api/admin/organizations/${organizationPublicId}/programs/${publicId}/suspend`,
   archive: (organizationPublicId: string, publicId: string) =>
     `/api/admin/organizations/${organizationPublicId}/programs/${publicId}/archive`,
+  dashboard: (organizationPublicId: string, publicId: string) =>
+    `/api/admin/organizations/${organizationPublicId}/programs/${publicId}/dashboard`,
 } as const;
 
 export function listPrograms(client: ApiClient, organizationPublicId: string): Promise<ProgramResponse[]> {
@@ -88,4 +95,12 @@ export function archiveProgram(
   return client.request<ProgramResponse>(PROGRAM_ENDPOINTS.archive(organizationPublicId, publicId), {
     method: "POST",
   });
+}
+
+export function getProgramDashboard(
+  client: ApiClient,
+  organizationPublicId: string,
+  publicId: string,
+): Promise<ProgramDashboardResponse> {
+  return client.request<ProgramDashboardResponse>(PROGRAM_ENDPOINTS.dashboard(organizationPublicId, publicId));
 }
