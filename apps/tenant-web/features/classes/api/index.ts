@@ -71,6 +71,9 @@ export function useCreateClass(
     mutationFn: (payload) => createClass(apiClient, organizationPublicId, programPublicId, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: [...CLASSES_QUERY_KEY, programPublicId] });
+      // Also covers the Program dashboard's class count (keyed under CLASS_MEMBERSHIPS_QUERY_KEY —
+      // see useProgramDashboard) since creating a Class doesn't touch any membership row itself.
+      invalidateClassMemberships(queryClient);
     },
   });
 }
@@ -91,6 +94,9 @@ export function useClassStatusMutations(
 
   const onSuccess = (): void => {
     void queryClient.invalidateQueries({ queryKey: [...CLASSES_QUERY_KEY, programPublicId] });
+    // Also covers the Program dashboard's class count (see useProgramDashboard) — archive/
+    // activate/suspend/deactivate all change which Classes count toward it.
+    invalidateClassMemberships(queryClient);
   };
 
   const activate = useMutation({

@@ -22,6 +22,8 @@ export interface NavItem {
   label: string;
   href: string;
   icon?: ReactNode;
+  /** If set, only rendered for a caller whose roles include at least one of these — see `buildHostNav`'s "Audit Log" entry. */
+  requiredRoles?: SessionRole[];
 }
 
 interface DashboardChromeProps {
@@ -69,9 +71,13 @@ const SidebarBrand = (): ReactElement => (
 
 const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
   const pathname = usePathname();
+  const { data: user } = useCurrentUser();
+  const visibleItems = navItems.filter(
+    (item) => !item.requiredRoles || item.requiredRoles.some((role) => user?.roles.includes(role)),
+  );
   return (
     <>
-      {navItems.map((item) => (
+      {visibleItems.map((item) => (
         <Link
           key={item.href}
           href={item.href}
