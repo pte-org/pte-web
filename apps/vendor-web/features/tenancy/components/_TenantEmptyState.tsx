@@ -18,23 +18,27 @@ const EmptyIllustration = (): ReactElement => (
 
 interface TenantEmptyStateProps {
   onAdd?: () => void;
+  title?: string;
+  text?: string;
+  addLabel?: string;
 }
 
 export const TenantEmptyState = ({
   onAdd,
+  title = TENANCY_TEXT.EMPTY_TITLE,
+  text = TENANCY_TEXT.EMPTY_TEXT,
+  addLabel = TENANCY_TEXT.ADD_TENANT,
 }: TenantEmptyStateProps): ReactElement => (
   <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-gray-200 bg-white px-6 py-16 text-center">
     <EmptyIllustration />
-    <h3 className="text-lg font-semibold text-gray-900">
-      {TENANCY_TEXT.EMPTY_TITLE}
-    </h3>
-    <p className="max-w-md text-sm text-gray-500">{TENANCY_TEXT.EMPTY_TEXT}</p>
+    <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+    <p className="max-w-md text-sm text-gray-500">{text}</p>
     <button
       type="button"
       onClick={onAdd}
       className="mt-2 rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800"
     >
-      + {TENANCY_TEXT.ADD_TENANT}
+      + {addLabel}
     </button>
   </div>
 );

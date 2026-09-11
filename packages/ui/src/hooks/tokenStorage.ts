@@ -1,5 +1,5 @@
-const TOKEN_KEY = "aptis.accessToken";
-const SESSION_KEY = "aptis.session";
+const TOKEN_KEY = "pte.accessToken";
+const SESSION_KEY = "pte.session";
 
 function isBrowser(): boolean {
   return (

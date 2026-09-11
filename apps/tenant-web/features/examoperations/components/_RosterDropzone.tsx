@@ -6,7 +6,7 @@ import {
   type DragEvent,
   type ReactElement,
 } from "react";
-import { cn } from "@aptis/ui";
+import { cn } from "@pte/ui";
 import { ACCEPTED_FILE_TYPE, ROSTER_TEXT } from "./constants";
 
 interface RosterDropzoneProps {

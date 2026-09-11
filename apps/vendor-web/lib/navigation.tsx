@@ -3,7 +3,7 @@ import {
   ClipboardIcon,
   GridIcon,
   LicenseIcon,
-} from "@aptis/ui";
+} from "@pte/ui";
 import type { NavItem } from "@/features/auth/components";
 
 export const ADMIN_NAV: NavItem[] = [

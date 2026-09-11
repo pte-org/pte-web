@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
-/* Scan the shared @aptis/ui package source so its Tailwind classes
+/* Scan the shared @pte/ui package source so its Tailwind classes
    (Badge / StatCard / ProgressBar / Dropdown colours, etc.) are generated in
    this app's stylesheet — Tailwind v4 does not scan workspace packages by
-   default, which otherwise drops any class used only inside @aptis/ui. */
+   default, which otherwise drops any class used only inside @pte/ui. */
 @source "../../../packages/ui/src";
 
 :root {

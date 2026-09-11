@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aptis Vendor Portal",
-  description: "Vendor administration portal for the Aptis mock exam platform",
+  title: "PTE Vendor Portal",
+  description: "Vendor administration portal for the PTE mock exam platform",
 };
 
 export default function RootLayout({

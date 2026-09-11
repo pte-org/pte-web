@@ -1,5 +1,5 @@
 import type { ReactElement, ReactNode } from "react";
-import { cn } from "@aptis/ui";
+import { cn } from "@pte/ui";
 
 /** Shared input styling for the create-tenant form controls. */
 export const fieldInputClass = (error?: string): string =>

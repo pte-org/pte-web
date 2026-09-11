@@ -1,3 +1,3 @@
-import sharedConfig from "@aptis/config/eslint";
+import sharedConfig from "@pte/config/eslint";
 
 export default sharedConfig;

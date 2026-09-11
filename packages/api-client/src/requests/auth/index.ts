@@ -11,10 +11,18 @@ import type {
 } from "../../types/auth";
 
 export const AUTH_ENDPOINTS = {
-  login: "/api/v1/auth/login",
-  refresh: "/api/v1/auth/refresh",
-  logout: "/api/v1/auth/logout",
-  changePassword: "/api/v1/auth/change-password",
+  login: "/api/iam/auth/login",
+  refresh: "/api/iam/auth/refresh",
+  logout: "/api/iam/auth/logout",
+  /**
+   * No backend controller anywhere in `pte-api` exposes this — `iam`'s
+   * `AuthController` only has `/login`, `/refresh`, `/logout` (verified via
+   * repo-wide grep for `change-password`/`ChangePassword`). Deliberately
+   * left as a plausible-but-fictitious path rather than removed, matching
+   * `types/account/index.ts`'s `CurrentUser` treatment — unused anywhere
+   * in these apps today (confirmed via grep), not wired to anything real.
+   */
+  changePassword: "/api/iam/auth/change-password",
 } as const;
 
 export function login(
@@ -32,7 +40,7 @@ export function loginAdmin(
   payload: AdminLoginRequest,
 ): Promise<AuthResponse> {
   return login(client, {
-    credential: payload.email,
+    email: payload.email,
     password: payload.password,
   });
 }
@@ -42,17 +50,25 @@ export function loginHost(
   payload: HostLoginRequest,
 ): Promise<AuthResponse> {
   return login(client, {
-    credential: payload.email,
+    email: payload.email,
     password: payload.password,
   });
 }
 
+/**
+ * Unused by any app in this monorepo today (confirmed via grep) — kept for
+ * API-surface completeness. iam's real `LoginRequest` has no `username`
+ * field, only `email`; mapping `payload.username` onto `email` is the best
+ * available correspondence, not a verified contract (there is no consumer
+ * to test it against). Revisit if/when a student-facing web login is
+ * actually built here.
+ */
 export function loginStudent(
   client: ApiClient,
   payload: StudentLoginRequest,
 ): Promise<AuthResponse> {
   return login(client, {
-    credential: payload.username,
+    email: payload.username,
     password: payload.password,
   });
 }

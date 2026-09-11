@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { StatCard } from "@aptis/ui";
+import { StatCard } from "@pte/ui";
 import { DASHBOARD_TEXT } from "../constants";
 import type { AdminStats } from "../types";
 

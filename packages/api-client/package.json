@@ -1,5 +1,5 @@
 {
-  "name": "@aptis/api-client",
+  "name": "@pte/api-client",
   "version": "0.0.0",
   "private": true,
   "main": "./src/index.ts",

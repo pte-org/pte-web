@@ -1,7 +1,8 @@
-export type Role = "ADMIN" | "HOST" | "STUDENT";
-
+/** Matches iam's real `LoginRequest` record exactly (`{email, password}` —
+ * `services/iam/.../dto/request/LoginRequest.java`). There is no
+ * `credential`/generic-identifier field on the backend. */
 export interface LoginRequest {
-  credential: string;
+  email: string;
   password: string;
 }
 
@@ -20,15 +21,19 @@ export interface StudentLoginRequest {
   password: string;
 }
 
+/**
+ * Matches iam's real `TokenResponse` record exactly
+ * (`services/iam/.../dto/response/TokenResponse.java`) — no `role`/
+ * `tenantId`/`userType`/`mustChangePassword` fields exist on this response;
+ * those claims live inside `accessToken` itself (`roles`, `tenant_id`) and
+ * must be read via `decodeAccessTokenClaims` after login, not off this
+ * object.
+ */
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   tokenType: string;
-  expiresIn: number;
-  role: Role;
-  userType: string;
-  tenantId: number | null;
-  mustChangePassword: boolean;
+  expiresInSeconds: number;
 }
 
 export type JwtTokenResponse = AuthResponse;

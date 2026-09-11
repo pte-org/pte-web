@@ -1,5 +1,17 @@
+import type { SessionRole } from "@pte/ui";
+
+export const CURRENT_USER_QUERY_KEY = ["currentUser"] as const;
+
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+
+/**
+ * Real backend roles allowed into `/host/*` — mirrors vendor-web's
+ * `HOST_ROLES`. HOST_ADMIN can already provision HOST_AUTHOR via iam's
+ * `POST /users`, so excluding it here would lock out an account the
+ * backend already allows, not a "not yet supported" gap.
+ */
+export const HOST_ROLES: SessionRole[] = ["HOST_ADMIN", "HOST_AUTHOR"];
 
 export const AUTH_ROUTES = {
   login: "/login",
@@ -7,7 +19,7 @@ export const AUTH_ROUTES = {
 } as const;
 
 export const AUTH_TEXT = {
-  BRAND: "Aptis Hub",
+  BRAND: "PTE Hub",
   WELCOME_TITLE: "Welcome Back",
   WELCOME_SUBTITLE:
     "Sign in to manage learners and exams for your organization.",

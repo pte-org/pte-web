@@ -5,7 +5,7 @@ import {
   DocumentIcon,
   HeadphoneIcon,
   StatCard,
-} from "@aptis/ui";
+} from "@pte/ui";
 import { QUESTIONBANK_TEXT } from "../constants";
 import type { QuestionStats } from "../types";
 

@@ -1,13 +1,27 @@
 "use client";
 
 import {
-  ApiError,
-  createHost,
+  createOrganization,
+  createUser,
+  getTenant,
+  listOrganizations,
   listTenants,
-  type CreateHostRequest,
-  type HostResponse,
+  listUsersByTenant,
+  onboardTenant,
+  reactivateOrganization,
+  reactivateTenant,
+  resetPassword as resetPasswordRequest,
+  suspendOrganization,
+  suspendTenant,
+  updateTenantBranding,
+  type CreateOrganizationRequest,
+  type CreateUserRequest,
+  type OnboardTenantRequest,
+  type OrganizationResponse,
   type TenantResponse,
-} from "@aptis/api-client";
+  type UpdateBrandingRequest,
+  type UserResponse,
+} from "@pte/api-client";
 import {
   useMutation,
   useQuery,
@@ -16,12 +30,23 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
-import { DEFAULT_SEATS_BY_PLAN } from "../constants";
+import {
+  LOGIN_ACCOUNT_QUERY_KEY,
+  ORGANIZATIONS_QUERY_KEY,
+  SYSTEM_HEALTH_QUERY_KEY,
+  TENANT_QUERY_KEY,
+  TENANTS_QUERY_KEY,
+} from "../constants";
 import type {
+  BrandingInput,
+  CreateLoginAccountInput,
+  CreateOrganizationInput,
   CreateTenantInput,
+  LoginAccount,
+  Organization,
+  ResetPasswordInput,
   SystemHealth,
   Tenant,
-  TenantCreationResult,
 } from "../types";
 
 const EMPTY_SYSTEM_HEALTH: SystemHealth = {
@@ -31,18 +56,14 @@ const EMPTY_SYSTEM_HEALTH: SystemHealth = {
   operational: true,
 };
 
-const unavailableTenantApi = (): ApiError =>
-  new ApiError(
-    "server",
-    501,
-    "Tenant management API is not available.",
-    { code: "NOT_IMPLEMENTED" },
-  );
-
-function formatDisplayDate(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("en-GB").format(date);
+function slugifyTenantName(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function normalizePlan(plan: string | null): Tenant["plan"] {
@@ -50,116 +71,82 @@ function normalizePlan(plan: string | null): Tenant["plan"] {
   return "starter";
 }
 
-function slugifyTenantName(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
-
-function resolveTenantStatus(response: TenantResponse): Tenant["status"] {
-  if (response.status === "LOCKED") return "suspended";
-  if (response.status === "INACTIVE") return "expired";
-  if (!response.contractEndDate) return "active";
-
-  const endDate = new Date(`${response.contractEndDate}T00:00:00`);
-  if (Number.isNaN(endDate.getTime())) return "active";
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  if (endDate < today) return "expired";
-
-  const daysUntilExpiry = Math.ceil(
-    (endDate.getTime() - today.getTime()) / 86_400_000,
-  );
-
-  return daysUntilExpiry <= 30 ? "expiring" : "active";
-}
-
+/**
+ * Maps the real `TenantResponse` to the display `Tenant` model. Only
+ * `id`/`name`/`organizationType`/`status`/`plan`/`seatsTotal` are backed by
+ * real data — see the `Tenant` type doc comment for why the rest are
+ * placeholders.
+ */
 function tenantResponseToTenant(response: TenantResponse): Tenant {
   return {
-    id: String(response.id),
+    id: response.publicId,
     name: response.name,
-    slug:
-      response.contractCode?.trim().toLowerCase() ||
-      slugifyTenantName(response.name) ||
-      String(response.id),
-    contactEmail: response.representativeEmail,
-    status: resolveTenantStatus(response),
+    slug: slugifyTenantName(response.name) || response.publicId,
+    organizationType: response.organizationType,
+    contactEmail: null,
+    status: response.status === "SUSPENDED" ? "suspended" : "active",
     seatsUsed: 0,
-    seatsTotal: response.studentLimit ?? 0,
+    seatsTotal: response.studentLimit,
     plan: normalizePlan(response.packageName),
-    location: response.address,
-    activatedAt: response.contractStartDate
-      ? formatDisplayDate(response.contractStartDate)
-      : "-",
-    expiresAt: response.contractEndDate
-      ? formatDisplayDate(response.contractEndDate)
-      : "-",
+    location: null,
+    activatedAt: "-",
+    expiresAt: "-",
     lastActiveLabel: "-",
+    logoUrl: response.logoUrl,
+    primaryColor: response.primaryColor,
   };
 }
 
-function tenantInputToHostRequest(input: CreateTenantInput): CreateHostRequest {
-  const plan = input.plan || "starter";
-  const studentLimit = input.maxUsers.trim()
-    ? Number(input.maxUsers)
-    : DEFAULT_SEATS_BY_PLAN[plan];
-
+function organizationResponseToOrganization(response: OrganizationResponse): Organization {
   return {
-    code: input.slug.trim().toUpperCase(),
-    name: input.contactName.trim(),
-    organizationName: input.name.trim(),
-    organizationType: "SCHOOL",
-    address: input.location,
-    representativeName: input.contactName.trim(),
-    contactEmail: input.contactEmail.trim(),
-    representativePhone: input.contactPhone.trim(),
-    contractCode: input.slug.trim().toUpperCase(),
-    packageName: plan,
-    studentLimit,
-    contractStartDate: new Date().toISOString().slice(0, 10),
-    contractEndDate: input.expiresAt,
+    id: response.publicId,
+    name: response.name,
+    address: response.address,
+    facilityType: response.facilityType,
+    status: response.status === "SUSPENDED" ? "suspended" : "active",
   };
 }
 
-function hostResponseToTenantResult(response: HostResponse): TenantCreationResult {
-  const plan = normalizePlan(response.packageName ?? null);
-
-  const tenant: Tenant = {
-    id: String(response.organizationId),
-    name: response.organizationName,
-    slug: response.code.toLowerCase(),
-    contactEmail: response.contactEmail,
-    status: "active",
-    seatsUsed: 0,
-    seatsTotal: response.studentLimit ?? DEFAULT_SEATS_BY_PLAN[plan],
-    plan,
-    location: response.address,
-    activatedAt: response.contractStartDate
-      ? formatDisplayDate(response.contractStartDate)
-      : "-",
-    expiresAt: response.contractEndDate
-      ? formatDisplayDate(response.contractEndDate)
-      : "-",
-    lastActiveLabel: "Just created",
-  };
-
+function userResponseToLoginAccount(response: UserResponse): LoginAccount {
   return {
-    tenant,
-    loginEmail: response.contactEmail,
-    activationCode: response.initialPassword,
-    loginUrl: "http://localhost:3001",
+    id: response.publicId,
+    email: response.email,
+    fullName: response.fullName,
+    status: response.status === "SUSPENDED" ? "suspended" : "active",
   };
+}
+
+function organizationInputToRequest(input: CreateOrganizationInput): CreateOrganizationRequest {
+  return {
+    name: input.name.trim(),
+    address: input.address.trim() || null,
+    facilityType: input.facilityType || "BRANCH",
+  };
+}
+
+function tenantInputToOnboardRequest(
+  input: CreateTenantInput,
+): OnboardTenantRequest {
+  return {
+    name: input.name.trim(),
+    organizationType: input.organizationType,
+    packageName: input.plan || "starter",
+    studentLimit: Number(input.studentLimit),
+  };
+}
+
+function replaceTenantInCache(
+  queryClient: ReturnType<typeof useQueryClient>,
+  updated: Tenant,
+): void {
+  queryClient.setQueryData<Tenant[]>(TENANTS_QUERY_KEY, (previous = []) =>
+    previous.map((tenant) => (tenant.id === updated.id ? updated : tenant)),
+  );
 }
 
 export function useTenants(): UseQueryResult<Tenant[]> {
   return useQuery({
-    queryKey: ["tenants"],
+    queryKey: TENANTS_QUERY_KEY,
     queryFn: async () => {
       const tenants = await listTenants(apiClient);
       return tenants.map(tenantResponseToTenant);
@@ -169,23 +156,13 @@ export function useTenants(): UseQueryResult<Tenant[]> {
 
 export function useSystemHealth(): UseQueryResult<SystemHealth> {
   return useQuery({
-    queryKey: ["systemHealth"],
+    queryKey: SYSTEM_HEALTH_QUERY_KEY,
     queryFn: () => Promise.resolve(EMPTY_SYSTEM_HEALTH),
   });
 }
 
-export function useCreateHost(): UseMutationResult<
-  HostResponse,
-  unknown,
-  CreateHostRequest
-> {
-  return useMutation({
-    mutationFn: (payload: CreateHostRequest) => createHost(apiClient, payload),
-  });
-}
-
 export function useCreateTenant(): UseMutationResult<
-  TenantCreationResult,
+  Tenant,
   unknown,
   CreateTenantInput
 > {
@@ -193,21 +170,204 @@ export function useCreateTenant(): UseMutationResult<
 
   return useMutation({
     mutationFn: async (input) => {
-      const response = await createHost(apiClient, tenantInputToHostRequest(input));
-      return hostResponseToTenantResult(response);
+      const response = await onboardTenant(
+        apiClient,
+        tenantInputToOnboardRequest(input),
+      );
+      return tenantResponseToTenant(response);
     },
-    onSuccess: (result) => {
-      queryClient.setQueryData<Tenant[]>(["tenants"], (previous = []) => [
-        result.tenant,
-        ...previous.filter((tenant) => tenant.id !== result.tenant.id),
+    onSuccess: (tenant) => {
+      queryClient.setQueryData<Tenant[]>(TENANTS_QUERY_KEY, (previous = []) => [
+        tenant,
+        ...previous.filter((existing) => existing.id !== tenant.id),
       ]);
-      void queryClient.invalidateQueries({ queryKey: ["tenants"] });
+      void queryClient.invalidateQueries({ queryKey: TENANTS_QUERY_KEY });
     },
   });
 }
 
-export function useSuspendTenant(): UseMutationResult<string, unknown, string> {
+export function useSuspendTenant(): UseMutationResult<Tenant, unknown, string> {
+  const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: () => Promise.reject(unavailableTenantApi()),
+    mutationFn: async (publicId: string) => {
+      const response = await suspendTenant(apiClient, publicId);
+      return tenantResponseToTenant(response);
+    },
+    onSuccess: (tenant) => {
+      replaceTenantInCache(queryClient, tenant);
+      void queryClient.invalidateQueries({ queryKey: TENANTS_QUERY_KEY });
+    },
+  });
+}
+
+export function useReactivateTenant(): UseMutationResult<
+  Tenant,
+  unknown,
+  string
+> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (publicId: string) => {
+      const response = await reactivateTenant(apiClient, publicId);
+      return tenantResponseToTenant(response);
+    },
+    onSuccess: (tenant) => {
+      replaceTenantInCache(queryClient, tenant);
+      void queryClient.invalidateQueries({ queryKey: TENANTS_QUERY_KEY });
+    },
+  });
+}
+
+export function useTenant(publicId: string): UseQueryResult<Tenant> {
+  return useQuery({
+    queryKey: [...TENANT_QUERY_KEY, publicId],
+    queryFn: async () => tenantResponseToTenant(await getTenant(apiClient, publicId)),
+    enabled: publicId.length > 0,
+  });
+}
+
+export function useUpdateBranding(
+  publicId: string,
+): UseMutationResult<Tenant, unknown, BrandingInput> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: BrandingInput) => {
+      const payload: UpdateBrandingRequest = {
+        logoUrl: input.logoUrl.trim() || null,
+        primaryColor: input.primaryColor.trim() || null,
+      };
+      const response = await updateTenantBranding(apiClient, publicId, payload);
+      return tenantResponseToTenant(response);
+    },
+    onSuccess: (tenant) => {
+      queryClient.setQueryData([...TENANT_QUERY_KEY, publicId], tenant);
+      replaceTenantInCache(queryClient, tenant);
+    },
+  });
+}
+
+export function useOrganizations(tenantPublicId: string): UseQueryResult<Organization[]> {
+  return useQuery({
+    queryKey: [...ORGANIZATIONS_QUERY_KEY, tenantPublicId],
+    queryFn: async () => {
+      const organizations = await listOrganizations(apiClient, tenantPublicId);
+      return organizations.map(organizationResponseToOrganization);
+    },
+    enabled: tenantPublicId.length > 0,
+  });
+}
+
+function replaceOrganizationInCache(
+  queryClient: ReturnType<typeof useQueryClient>,
+  tenantPublicId: string,
+  updated: Organization,
+): void {
+  queryClient.setQueryData<Organization[]>([...ORGANIZATIONS_QUERY_KEY, tenantPublicId], (previous = []) =>
+    previous.map((organization) => (organization.id === updated.id ? updated : organization)),
+  );
+}
+
+export function useCreateOrganization(
+  tenantPublicId: string,
+): UseMutationResult<Organization, unknown, CreateOrganizationInput> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input) => {
+      const response = await createOrganization(
+        apiClient,
+        tenantPublicId,
+        organizationInputToRequest(input),
+      );
+      return organizationResponseToOrganization(response);
+    },
+    onSuccess: (organization) => {
+      queryClient.setQueryData<Organization[]>([...ORGANIZATIONS_QUERY_KEY, tenantPublicId], (previous = []) => [
+        ...previous,
+        organization,
+      ]);
+      void queryClient.invalidateQueries({ queryKey: [...ORGANIZATIONS_QUERY_KEY, tenantPublicId] });
+    },
+  });
+}
+
+export function useSuspendOrganization(
+  tenantPublicId: string,
+): UseMutationResult<Organization, unknown, string> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (organizationPublicId: string) => {
+      const response = await suspendOrganization(apiClient, tenantPublicId, organizationPublicId);
+      return organizationResponseToOrganization(response);
+    },
+    onSuccess: (organization) => replaceOrganizationInCache(queryClient, tenantPublicId, organization),
+  });
+}
+
+export function useReactivateOrganization(
+  tenantPublicId: string,
+): UseMutationResult<Organization, unknown, string> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (organizationPublicId: string) => {
+      const response = await reactivateOrganization(apiClient, tenantPublicId, organizationPublicId);
+      return organizationResponseToOrganization(response);
+    },
+    onSuccess: (organization) => replaceOrganizationInCache(queryClient, tenantPublicId, organization),
+  });
+}
+
+export function useLoginAccount(tenantPublicId: string): UseQueryResult<LoginAccount | null> {
+  return useQuery({
+    queryKey: [...LOGIN_ACCOUNT_QUERY_KEY, tenantPublicId],
+    queryFn: async () => {
+      const users = await listUsersByTenant(apiClient, tenantPublicId);
+      return users.length > 0 ? userResponseToLoginAccount(users[0]) : null;
+    },
+    enabled: tenantPublicId.length > 0,
+  });
+}
+
+export function useCreateLoginAccount(
+  tenantPublicId: string,
+): UseMutationResult<LoginAccount, unknown, CreateLoginAccountInput> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input) => {
+      const payload: CreateUserRequest = {
+        email: input.email.trim(),
+        fullName: input.fullName.trim(),
+        password: input.password,
+        roles: ["HOST_ADMIN"],
+        tenantId: tenantPublicId,
+      };
+      const response = await createUser(apiClient, payload);
+      return userResponseToLoginAccount(response);
+    },
+    onSuccess: (account) => {
+      queryClient.setQueryData([...LOGIN_ACCOUNT_QUERY_KEY, tenantPublicId], account);
+      void queryClient.invalidateQueries({ queryKey: [...LOGIN_ACCOUNT_QUERY_KEY, tenantPublicId] });
+    },
+  });
+}
+
+export function useResetPassword(userPublicId: string): UseMutationResult<
+  LoginAccount,
+  unknown,
+  ResetPasswordInput
+> {
+  return useMutation({
+    mutationFn: async (input) => {
+      const response = await resetPasswordRequest(apiClient, userPublicId, {
+        newPassword: input.newPassword,
+      });
+      return userResponseToLoginAccount(response);
+    },
   });
 }

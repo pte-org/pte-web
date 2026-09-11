@@ -1,9 +1,8 @@
 import type { ReactElement } from "react";
 import {
   CREATE_TENANT_TEXT,
-  CREATE_TENANT_LOCATION_TEXT,
+  ORGANIZATION_TYPE_OPTIONS,
   PLAN_SELECT_OPTIONS,
-  TENANT_LOCATION_OPTIONS,
 } from "../constants";
 import type { CreateTenantErrors, CreateTenantInput } from "../types";
 import { TenantFormField, fieldInputClass } from "./_TenantFormField";
@@ -34,25 +33,26 @@ export const TenantGeneralFields = ({
     </TenantFormField>
 
     <TenantFormField
-      label={T.SLUG_LABEL}
-      htmlFor="tenant-slug"
+      label={T.ORG_TYPE_LABEL}
+      htmlFor="tenant-org-type"
       required
-      helper={T.SLUG_HELPER}
-      error={errors.slug}
+      error={errors.organizationType}
     >
-      <div className="flex items-stretch">
-        <span className="inline-flex items-center rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 px-3 text-sm text-gray-500">
-          {T.SLUG_PREFIX}
-        </span>
-        <input
-          id="tenant-slug"
-          type="text"
-          value={form.slug}
-          onChange={(event) => onChange("slug", event.target.value)}
-          placeholder={T.SLUG_PLACEHOLDER}
-          className={`${fieldInputClass(errors.slug)} rounded-l-none`}
-        />
-      </div>
+      <select
+        id="tenant-org-type"
+        value={form.organizationType}
+        onChange={(event) => onChange("organizationType", event.target.value)}
+        className={fieldInputClass(errors.organizationType)}
+      >
+        <option value="" disabled>
+          {T.ORG_TYPE_PLACEHOLDER}
+        </option>
+        {ORGANIZATION_TYPE_OPTIONS.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
     </TenantFormField>
 
     <TenantFormField label={T.PLAN_LABEL} htmlFor="tenant-plan" required error={errors.plan}>
@@ -74,56 +74,19 @@ export const TenantGeneralFields = ({
     </TenantFormField>
 
     <TenantFormField
-      label={CREATE_TENANT_LOCATION_TEXT.LABEL}
-      htmlFor="tenant-location"
+      label={T.STUDENT_LIMIT_LABEL}
+      htmlFor="tenant-student-limit"
       required
-      error={errors.location}
-    >
-      <select
-        id="tenant-location"
-        value={form.location}
-        onChange={(event) => onChange("location", event.target.value)}
-        className={fieldInputClass(errors.location)}
-      >
-        <option value="" disabled>
-          {CREATE_TENANT_LOCATION_TEXT.PLACEHOLDER}
-        </option>
-        {TENANT_LOCATION_OPTIONS.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </TenantFormField>
-
-    <TenantFormField
-      label={T.MAX_USERS_LABEL}
-      htmlFor="tenant-max-users"
-      helper={T.MAX_USERS_HELPER}
+      error={errors.studentLimit}
     >
       <input
-        id="tenant-max-users"
+        id="tenant-student-limit"
         type="number"
-        min="0"
-        value={form.maxUsers}
-        onChange={(event) => onChange("maxUsers", event.target.value)}
-        placeholder={T.MAX_USERS_PLACEHOLDER}
-        className={fieldInputClass()}
-      />
-    </TenantFormField>
-
-    <TenantFormField
-      label={T.EXPIRES_LABEL}
-      htmlFor="tenant-expires"
-      required
-      error={errors.expiresAt}
-    >
-      <input
-        id="tenant-expires"
-        type="date"
-        value={form.expiresAt}
-        onChange={(event) => onChange("expiresAt", event.target.value)}
-        className={fieldInputClass(errors.expiresAt)}
+        min="1"
+        value={form.studentLimit}
+        onChange={(event) => onChange("studentLimit", event.target.value)}
+        placeholder={T.STUDENT_LIMIT_PLACEHOLDER}
+        className={fieldInputClass(errors.studentLimit)}
       />
     </TenantFormField>
   </div>

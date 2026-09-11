@@ -12,7 +12,8 @@ import {
   Skeleton,
   cn,
   useTokenManager,
-} from "@aptis/ui";
+  type SessionRole,
+} from "@pte/ui";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
 import { AUTH_ROUTES } from "../constants";
@@ -21,17 +22,33 @@ export interface NavItem {
   label: string;
   href: string;
   icon?: ReactNode;
+  /** If set, only rendered for a caller whose roles include at least one of these — see `buildHostNav`'s "Audit Log" entry. */
+  requiredRoles?: SessionRole[];
 }
 
 interface DashboardChromeProps {
+  /**
+   * A resolved array, not a function/thunk — Next.js's Server/Client
+   * Component boundary cannot pass a function prop from a Server Component
+   * page down into this (`"use client"`) component (`Functions cannot be
+   * passed directly to Client Components`), so any page whose nav depends
+   * on `useOrgLabels()` must itself be a Client Component that resolves
+   * `buildHostNav(labels)` before rendering `DashboardChrome`.
+   */
   navItems: NavItem[];
   children: ReactNode;
+  /**
+   * Required, not defaulted — mirrors vendor-web's DashboardChrome. A
+   * default here would silently gate every route to the same role set
+   * instead of forcing each call site to say explicitly who's allowed.
+   */
+  allowedRoles: SessionRole[];
 }
 
-const BRAND_NAME = "APTIS LMS";
+const BRAND_NAME = "PTE LMS";
 const BRAND_SUBTITLE = "School Portal";
 const DISCLAIMER =
-  "APTIS mock exam platform. Not affiliated with the British Council.";
+  "PTE mock exam platform. Not affiliated with Pearson.";
 
 const HEADER_TEXT = {
   LANGUAGE: "Language",
@@ -54,9 +71,13 @@ const SidebarBrand = (): ReactElement => (
 
 const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
   const pathname = usePathname();
+  const { data: user } = useCurrentUser();
+  const visibleItems = navItems.filter(
+    (item) => !item.requiredRoles || item.requiredRoles.some((role) => user?.roles.includes(role)),
+  );
   return (
     <>
-      {navItems.map((item) => (
+      {visibleItems.map((item) => (
         <Link
           key={item.href}
           href={item.href}
@@ -108,8 +129,8 @@ const HeaderActions = (): ReactElement => {
         <Skeleton className="h-8 w-8 rounded-full" />
       ) : (
         <Dropdown
-          label={user?.name ?? HEADER_TEXT.ACCOUNT}
-          trigger={<Avatar name={user?.name} />}
+          label={user?.fullName ?? HEADER_TEXT.ACCOUNT}
+          trigger={<Avatar name={user?.fullName} />}
           items={[{ label: HEADER_TEXT.LOGOUT, onSelect: logout }]}
         />
       )}
@@ -135,7 +156,7 @@ const ChromeContent = ({
 );
 
 export const DashboardChrome = (props: DashboardChromeProps): ReactElement => (
-  <RequireAuth>
+  <RequireAuth allowedRoles={props.allowedRoles}>
     <ChromeContent {...props} />
   </RequireAuth>
 );

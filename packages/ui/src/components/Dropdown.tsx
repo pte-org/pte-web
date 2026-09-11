@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactElement, type ReactNode } from "react";
+import { useState, type ComponentType, type ReactElement, type ReactNode } from "react";
 import { cn } from "../utils/cn";
 import { DotsVerticalIcon } from "./icons";
 
@@ -8,6 +8,7 @@ export interface DropdownItem {
   label: string;
   onSelect: () => void;
   danger?: boolean;
+  icon?: ComponentType<{ className?: string }>;
 }
 
 interface DropdownProps {
@@ -61,23 +62,27 @@ export const Dropdown = ({
               align === "right" ? "right-0" : "left-0",
             )}
           >
-            {items.map((item) => (
-              <button
-                key={item.label}
-                type="button"
-                role="menuitem"
-                onClick={() => {
-                  item.onSelect();
-                  setOpen(false);
-                }}
-                className={cn(
-                  "block w-full px-4 py-2 text-left text-sm hover:bg-gray-50",
-                  item.danger ? "text-red-600" : "text-gray-700",
-                )}
-              >
-                {item.label}
-              </button>
-            ))}
+            {items.map((item) => {
+              const Icon = item.icon;
+              return (
+                <button
+                  key={item.label}
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    item.onSelect();
+                    setOpen(false);
+                  }}
+                  className={cn(
+                    "flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-50",
+                    item.danger ? "text-red-600" : "text-gray-700",
+                  )}
+                >
+                  {Icon ? <Icon className="h-4 w-4 shrink-0" /> : null}
+                  {item.label}
+                </button>
+              );
+            })}
           </div>
         </>
       )}

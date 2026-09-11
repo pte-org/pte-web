@@ -5,7 +5,7 @@ interface MascotProps {
 }
 
 /**
- * Aptis brand mascot: a friendly headphone-wearing study robot.
+ * PTE brand mascot: a friendly headphone-wearing study robot.
  *
  * Colours are literal SVG fills rather than Tailwind tokens because this is
  * artwork, not themeable UI — same rationale as the SSO brand marks. Swap this
@@ -16,16 +16,16 @@ export const Mascot = ({ className }: MascotProps): ReactElement => (
     viewBox="0 0 200 200"
     className={className}
     role="img"
-    aria-label="Aptis mascot"
+    aria-label="PTE mascot"
     xmlns="http://www.w3.org/2000/svg"
   >
-    <title>Aptis mascot</title>
+    <title>PTE mascot</title>
     <defs>
-      <linearGradient id="aptisMascotBody" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="pteMascotBody" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stopColor="#6BA8FF" />
         <stop offset="1" stopColor="#3B7DED" />
       </linearGradient>
-      <linearGradient id="aptisMascotGlow" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="pteMascotGlow" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stopColor="#8FE3FF" />
         <stop offset="1" stopColor="#39C6FF" />
       </linearGradient>
@@ -51,7 +51,7 @@ export const Mascot = ({ className }: MascotProps): ReactElement => (
       width="108"
       height="120"
       rx="52"
-      fill="url(#aptisMascotBody)"
+      fill="url(#pteMascotBody)"
     />
 
     {/* Arms */}
@@ -101,7 +101,7 @@ export const Mascot = ({ className }: MascotProps): ReactElement => (
       width="30"
       height="27"
       rx="8"
-      fill="url(#aptisMascotGlow)"
+      fill="url(#pteMascotGlow)"
     />
     <text
       x="100"
