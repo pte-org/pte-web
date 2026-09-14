@@ -16,17 +16,22 @@ export function createOrganization(
   tenantPublicId: string,
   payload: CreateOrganizationRequest,
 ): Promise<OrganizationResponse> {
-  return client.request<OrganizationResponse>(ORGANIZATION_ENDPOINTS.organizations(tenantPublicId), {
-    method: "POST",
-    body: payload,
-  });
+  return client.request<OrganizationResponse>(
+    ORGANIZATION_ENDPOINTS.organizations(tenantPublicId),
+    {
+      method: "POST",
+      body: payload,
+    },
+  );
 }
 
 export function listOrganizations(
   client: ApiClient,
   tenantPublicId: string,
 ): Promise<OrganizationResponse[]> {
-  return client.request<OrganizationResponse[]>(ORGANIZATION_ENDPOINTS.organizations(tenantPublicId));
+  return client.request<OrganizationResponse[]>(
+    ORGANIZATION_ENDPOINTS.organizations(tenantPublicId),
+  );
 }
 
 export function suspendOrganization(
@@ -34,9 +39,12 @@ export function suspendOrganization(
   tenantPublicId: string,
   publicId: string,
 ): Promise<OrganizationResponse> {
-  return client.request<OrganizationResponse>(ORGANIZATION_ENDPOINTS.suspend(tenantPublicId, publicId), {
-    method: "POST",
-  });
+  return client.request<OrganizationResponse>(
+    ORGANIZATION_ENDPOINTS.suspend(tenantPublicId, publicId),
+    {
+      method: "POST",
+    },
+  );
 }
 
 export function reactivateOrganization(
@@ -44,7 +52,10 @@ export function reactivateOrganization(
   tenantPublicId: string,
   publicId: string,
 ): Promise<OrganizationResponse> {
-  return client.request<OrganizationResponse>(ORGANIZATION_ENDPOINTS.reactivate(tenantPublicId, publicId), {
-    method: "POST",
-  });
+  return client.request<OrganizationResponse>(
+    ORGANIZATION_ENDPOINTS.reactivate(tenantPublicId, publicId),
+    {
+      method: "POST",
+    },
+  );
 }

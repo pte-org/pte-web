@@ -59,9 +59,7 @@ export interface CreateTenantInput {
 }
 
 /** Per-field validation messages; a field is absent when it is valid. */
-export type CreateTenantErrors = Partial<
-  Record<keyof CreateTenantInput, string>
->;
+export type CreateTenantErrors = Partial<Record<keyof CreateTenantInput, string>>;
 
 export type FacilityType = "MAIN" | "BRANCH" | "TEST_CENTER";
 
@@ -82,9 +80,7 @@ export interface CreateOrganizationInput {
   facilityType: FacilityType | "";
 }
 
-export type CreateOrganizationErrors = Partial<
-  Record<keyof CreateOrganizationInput, string>
->;
+export type CreateOrganizationErrors = Partial<Record<keyof CreateOrganizationInput, string>>;
 
 /** Raw form values for the branding editor — empty string means "unset". */
 export interface BrandingInput {
@@ -108,9 +104,7 @@ export interface CreateLoginAccountInput {
   password: string;
 }
 
-export type CreateLoginAccountErrors = Partial<
-  Record<keyof CreateLoginAccountInput, string>
->;
+export type CreateLoginAccountErrors = Partial<Record<keyof CreateLoginAccountInput, string>>;
 
 export interface ResetPasswordInput {
   newPassword: string;

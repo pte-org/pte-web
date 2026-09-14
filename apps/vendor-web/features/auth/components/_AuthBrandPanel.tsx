@@ -1,13 +1,17 @@
 import type { ReactElement } from "react";
-import { Mascot } from "@pte/ui";
+import { GradCapIcon } from "@pte/ui";
 import { AUTH_TEXT } from "../constants";
 
 export const AuthBrandPanel = (): ReactElement => (
-  <div className="hidden flex-col items-center justify-center gap-4 bg-indigo-100/70 p-10 text-center md:flex">
-    <Mascot className="h-44 w-44 drop-shadow-sm" />
-    <h2 className="text-2xl font-bold text-indigo-900">
-      {AUTH_TEXT.PANEL_HEADING}
-    </h2>
-    <p className="max-w-xs text-sm text-indigo-700">{AUTH_TEXT.PANEL_TEXT}</p>
+  <div className="relative hidden overflow-hidden flex-col items-center justify-center gap-6 bg-blue-50 p-10 text-center md:flex">
+    <div className="relative h-48 w-48" aria-hidden="true">
+      <div className="absolute left-4 top-8 h-32 w-32 rotate-12 rounded-3xl bg-blue-100" />
+      <div className="absolute bottom-5 right-2 h-24 w-24 -rotate-12 rounded-2xl bg-sky-100" />
+      <div className="absolute inset-8 grid place-items-center rounded-2xl bg-white shadow-card">
+        <GradCapIcon className="h-16 w-16 text-blue-700" />
+      </div>
+    </div>
+    <h2 className="text-2xl font-semibold text-blue-900">{AUTH_TEXT.PANEL_HEADING}</h2>
+    <p className="max-w-xs text-sm leading-6 text-blue-700">{AUTH_TEXT.PANEL_TEXT}</p>
   </div>
 );

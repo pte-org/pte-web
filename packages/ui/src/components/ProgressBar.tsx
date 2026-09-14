@@ -16,12 +16,9 @@ interface ProgressBarProps {
 // needed (which would violate the no-inline-style rule). Colours are applied to
 // the value pseudo-elements for both WebKit and Firefox.
 const TONE_CLASS: Record<ProgressTone, string> = {
-  success:
-    "[&::-webkit-progress-value]:bg-green-500 [&::-moz-progress-bar]:bg-green-500",
-  warning:
-    "[&::-webkit-progress-value]:bg-amber-500 [&::-moz-progress-bar]:bg-amber-500",
-  danger:
-    "[&::-webkit-progress-value]:bg-red-500 [&::-moz-progress-bar]:bg-red-500",
+  success: "[&::-webkit-progress-value]:bg-green-500 [&::-moz-progress-bar]:bg-green-500",
+  warning: "[&::-webkit-progress-value]:bg-amber-500 [&::-moz-progress-bar]:bg-amber-500",
+  danger: "[&::-webkit-progress-value]:bg-red-500 [&::-moz-progress-bar]:bg-red-500",
 };
 
 export const ProgressBar = ({

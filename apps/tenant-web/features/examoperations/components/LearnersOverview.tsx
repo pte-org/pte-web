@@ -26,8 +26,16 @@ export const LearnersOverview = (): ReactElement => {
       cell: (student) => <span className="font-medium text-gray-900">{student.fullName}</span>,
     },
     { key: "email", header: STUDENT_TABLE_HEADERS.EMAIL, cell: (student) => student.email },
-    { key: "studentCode", header: STUDENT_TABLE_HEADERS.STUDENT_CODE, cell: (student) => student.studentCode ?? "-" },
-    { key: "className", header: STUDENT_TABLE_HEADERS.CLASS_NAME, cell: (student) => student.className ?? "-" },
+    {
+      key: "studentCode",
+      header: STUDENT_TABLE_HEADERS.STUDENT_CODE,
+      cell: (student) => student.studentCode ?? "-",
+    },
+    {
+      key: "className",
+      header: STUDENT_TABLE_HEADERS.CLASS_NAME,
+      cell: (student) => student.className ?? "-",
+    },
     { key: "phone", header: STUDENT_TABLE_HEADERS.PHONE, cell: (student) => student.phone ?? "-" },
   ];
 

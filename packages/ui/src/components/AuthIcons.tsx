@@ -35,10 +35,7 @@ export const GradCapIcon = ({ className }: IconProps): ReactElement => (
   </svg>
 );
 
-export const EyeIcon = ({
-  className,
-  closed,
-}: IconProps & { closed?: boolean }): ReactElement =>
+export const EyeIcon = ({ className, closed }: IconProps & { closed?: boolean }): ReactElement =>
   closed ? (
     <svg {...baseProps} className={className}>
       <path d="M9.9 4.2A9.6 9.6 0 0 1 12 4c5 0 9 4.5 10 8a13 13 0 0 1-2 3.3M6.3 6.3C3.9 7.8 2.3 10.1 2 12c1 3.5 5 8 10 8a9.6 9.6 0 0 0 4.3-1M3 3l18 18" />

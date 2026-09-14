@@ -17,5 +17,7 @@ export function listClassMemberships(
   programPublicId?: string,
 ): Promise<ClassMembershipResponse[]> {
   const query = programPublicId ? `?programPublicId=${encodeURIComponent(programPublicId)}` : "";
-  return client.request<ClassMembershipResponse[]>(`${CLASS_MEMBERSHIP_ENDPOINTS.classMemberships}${query}`);
+  return client.request<ClassMembershipResponse[]>(
+    `${CLASS_MEMBERSHIP_ENDPOINTS.classMemberships}${query}`,
+  );
 }

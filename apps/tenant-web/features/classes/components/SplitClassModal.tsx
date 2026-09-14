@@ -89,7 +89,7 @@ export const SplitClassModal = ({
             type="submit"
             form="split-class-form"
             disabled={split.isPending}
-            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {split.isPending ? T.submitting : T.submit}
           </button>

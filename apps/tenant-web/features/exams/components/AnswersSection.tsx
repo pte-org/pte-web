@@ -52,10 +52,16 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
       key: "status",
       header: ANSWER_TABLE_HEADERS.STATUS,
       cell: (row) => (
-        <Badge variant={ANSWER_STATUS_VARIANT[row.status]}>{ANSWER_STATUS_LABELS[row.status]}</Badge>
+        <Badge variant={ANSWER_STATUS_VARIANT[row.status]}>
+          {ANSWER_STATUS_LABELS[row.status]}
+        </Badge>
       ),
     },
-    { key: "rawScore", header: ANSWER_TABLE_HEADERS.AI_SCORE, cell: (row) => formatScore(row.rawScore) },
+    {
+      key: "rawScore",
+      header: ANSWER_TABLE_HEADERS.AI_SCORE,
+      cell: (row) => formatScore(row.rawScore),
+    },
     {
       key: "teacherScore",
       header: ANSWER_TABLE_HEADERS.TEACHER_SCORE,

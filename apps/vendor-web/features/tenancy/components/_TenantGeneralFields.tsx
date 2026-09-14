@@ -1,9 +1,5 @@
 import type { ReactElement } from "react";
-import {
-  CREATE_TENANT_TEXT,
-  ORGANIZATION_TYPE_OPTIONS,
-  PLAN_SELECT_OPTIONS,
-} from "../constants";
+import { CREATE_TENANT_TEXT, ORGANIZATION_TYPE_OPTIONS, PLAN_SELECT_OPTIONS } from "../constants";
 import type { CreateTenantErrors, CreateTenantInput } from "../types";
 import { TenantFormField, fieldInputClass } from "./_TenantFormField";
 

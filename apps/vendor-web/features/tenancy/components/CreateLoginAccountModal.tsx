@@ -28,10 +28,8 @@ export const CreateLoginAccountModal = ({
   const [form, setForm] = useState<CreateLoginAccountInput>(EMPTY_CREATE_LOGIN_ACCOUNT);
   const [errors, setErrors] = useState<CreateLoginAccountErrors>({});
 
-  const handleChange = (
-    field: keyof CreateLoginAccountInput,
-    value: string,
-  ): void => setForm((previous) => ({ ...previous, [field]: value }));
+  const handleChange = (field: keyof CreateLoginAccountInput, value: string): void =>
+    setForm((previous) => ({ ...previous, [field]: value }));
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -58,7 +56,7 @@ export const CreateLoginAccountModal = ({
             type="submit"
             form={FORM_ID}
             disabled={isSubmitting}
-            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? "Creating..." : T.SUBMIT}
           </button>
@@ -82,7 +80,12 @@ export const CreateLoginAccountModal = ({
           />
         </TenantFormField>
 
-        <TenantFormField label={T.FULL_NAME_LABEL} htmlFor="login-full-name" required error={errors.fullName}>
+        <TenantFormField
+          label={T.FULL_NAME_LABEL}
+          htmlFor="login-full-name"
+          required
+          error={errors.fullName}
+        >
           <input
             id="login-full-name"
             type="text"

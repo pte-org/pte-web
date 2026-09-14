@@ -10,10 +10,7 @@ export function listBlueprints(client: ApiClient): Promise<BlueprintResponse[]> 
   return client.request<BlueprintResponse[]>(BLUEPRINT_ENDPOINTS.blueprints);
 }
 
-export function publishBlueprint(
-  client: ApiClient,
-  publicId: string,
-): Promise<SnapshotResponse> {
+export function publishBlueprint(client: ApiClient, publicId: string): Promise<SnapshotResponse> {
   return client.request<SnapshotResponse>(BLUEPRINT_ENDPOINTS.publish(publicId), {
     method: "POST",
   });

@@ -20,20 +20,17 @@ interface QuestionFiltersProps {
 }
 
 const SELECT_CLASS =
-  "rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none focus:border-blue-500";
+  "rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none shadow-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100";
 
-export const QuestionFilters = ({
-  filter,
-  onChange,
-}: QuestionFiltersProps): ReactElement => (
-  <div className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-md shadow-slate-200/70 lg:flex-row">
+export const QuestionFilters = ({ filter, onChange }: QuestionFiltersProps): ReactElement => (
+  <div className="flex flex-col gap-3 rounded-lg bg-white p-4 shadow-card lg:flex-row">
     <input
       type="search"
       aria-label={QUESTIONBANK_TEXT.SEARCH_PLACEHOLDER}
       placeholder={QUESTIONBANK_TEXT.SEARCH_PLACEHOLDER}
       value={filter.query}
       onChange={(event) => onChange({ ...filter, query: event.target.value })}
-      className="flex-1 rounded-md border border-gray-200 bg-slate-50 px-3 py-2 text-sm outline-none focus:border-blue-500"
+      className="flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none shadow-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
     />
     <select
       aria-label={SKILL_FILTER_OPTIONS[0].label}

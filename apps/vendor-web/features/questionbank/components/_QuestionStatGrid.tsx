@@ -1,11 +1,5 @@
 import type { ReactElement } from "react";
-import {
-  BookOpenIcon,
-  ClipboardIcon,
-  DocumentIcon,
-  HeadphoneIcon,
-  StatCard,
-} from "@pte/ui";
+import { BookOpenIcon, ClipboardIcon, DocumentIcon, HeadphoneIcon, StatCard } from "@pte/ui";
 import { QUESTIONBANK_TEXT } from "../constants";
 import type { QuestionStats } from "../types";
 
@@ -13,9 +7,7 @@ interface QuestionStatGridProps {
   stats?: QuestionStats;
 }
 
-export const QuestionStatGrid = ({
-  stats,
-}: QuestionStatGridProps): ReactElement => (
+export const QuestionStatGrid = ({ stats }: QuestionStatGridProps): ReactElement => (
   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <StatCard
       label={QUESTIONBANK_TEXT.STAT_TOTAL}

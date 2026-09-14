@@ -22,13 +22,21 @@ export const StudentSearchView = (): ReactElement => {
 
   const columns: DataTableColumn<StudentSearchResult>[] = [
     { key: "name", header: STUDENT_SEARCH_TABLE_HEADERS.NAME, cell: (row) => row.student.fullName },
-    { key: "phone", header: STUDENT_SEARCH_TABLE_HEADERS.PHONE, cell: (row) => row.student.phone ?? "—" },
+    {
+      key: "phone",
+      header: STUDENT_SEARCH_TABLE_HEADERS.PHONE,
+      cell: (row) => row.student.phone ?? "—",
+    },
     {
       key: "class",
       header: STUDENT_SEARCH_TABLE_HEADERS.CLASS,
       cell: (row) => row.className ?? STUDENT_SEARCH_TEXT.unassigned,
     },
-    { key: "program", header: STUDENT_SEARCH_TABLE_HEADERS.PROGRAM, cell: (row) => row.programName ?? "—" },
+    {
+      key: "program",
+      header: STUDENT_SEARCH_TABLE_HEADERS.PROGRAM,
+      cell: (row) => row.programName ?? "—",
+    },
   ];
 
   return (

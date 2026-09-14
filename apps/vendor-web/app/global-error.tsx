@@ -23,7 +23,7 @@ export default function GlobalError({ reset }: GlobalErrorProps): ReactElement {
           <button
             type="button"
             onClick={reset}
-            className="rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+            className="rounded-md bg-action px-4 py-2 text-white hover:bg-action-hover"
           >
             {TEXT.RELOAD}
           </button>

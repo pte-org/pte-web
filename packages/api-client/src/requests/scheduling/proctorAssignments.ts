@@ -16,17 +16,22 @@ export function assignProctor(
   sessionPublicId: string,
   payload: AssignProctorRequest,
 ): Promise<ProctorAssignmentResponse> {
-  return client.request<ProctorAssignmentResponse>(PROCTOR_ASSIGNMENT_ENDPOINTS.assignments(sessionPublicId), {
-    method: "POST",
-    body: payload,
-  });
+  return client.request<ProctorAssignmentResponse>(
+    PROCTOR_ASSIGNMENT_ENDPOINTS.assignments(sessionPublicId),
+    {
+      method: "POST",
+      body: payload,
+    },
+  );
 }
 
 export function listProctorAssignments(
   client: ApiClient,
   sessionPublicId: string,
 ): Promise<ProctorAssignmentResponse[]> {
-  return client.request<ProctorAssignmentResponse[]>(PROCTOR_ASSIGNMENT_ENDPOINTS.assignments(sessionPublicId));
+  return client.request<ProctorAssignmentResponse[]>(
+    PROCTOR_ASSIGNMENT_ENDPOINTS.assignments(sessionPublicId),
+  );
 }
 
 export function updateProctorRole(
@@ -46,7 +51,10 @@ export function unassignProctor(
   sessionPublicId: string,
   assignmentPublicId: string,
 ): Promise<void> {
-  return client.request<void>(PROCTOR_ASSIGNMENT_ENDPOINTS.assignment(sessionPublicId, assignmentPublicId), {
-    method: "DELETE",
-  });
+  return client.request<void>(
+    PROCTOR_ASSIGNMENT_ENDPOINTS.assignment(sessionPublicId, assignmentPublicId),
+    {
+      method: "DELETE",
+    },
+  );
 }

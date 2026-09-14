@@ -67,7 +67,7 @@ export const GrantQuotaModal = ({
             type="submit"
             form={FORM_ID}
             disabled={isSubmitting}
-            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? "Granting..." : T.SUBMIT}
           </button>
@@ -80,7 +80,12 @@ export const GrantQuotaModal = ({
         </div>
       )}
       <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-        <TenantFormField label={T.PACKAGE_LABEL} htmlFor="grant-package" required error={errors.packageName}>
+        <TenantFormField
+          label={T.PACKAGE_LABEL}
+          htmlFor="grant-package"
+          required
+          error={errors.packageName}
+        >
           <select
             id="grant-package"
             value={form.packageName}
@@ -115,7 +120,9 @@ export const GrantQuotaModal = ({
             type="number"
             min="1"
             value={form.amount}
-            onChange={(event) => setForm((previous) => ({ ...previous, amount: event.target.value }))}
+            onChange={(event) =>
+              setForm((previous) => ({ ...previous, amount: event.target.value }))
+            }
             placeholder={T.AMOUNT_PLACEHOLDER}
             className={fieldInputClass(errors.amount)}
           />

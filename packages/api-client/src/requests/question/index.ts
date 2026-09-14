@@ -29,10 +29,7 @@ export function listQuestions(
   );
 }
 
-export function getQuestion(
-  client: ApiClient,
-  id: string,
-): Promise<QuestionResponse> {
+export function getQuestion(client: ApiClient, id: string): Promise<QuestionResponse> {
   return client.request<QuestionResponse>(QUESTION_ENDPOINTS.byId(id));
 }
 

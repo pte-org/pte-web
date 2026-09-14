@@ -1,20 +1,9 @@
 import type { AssetResponse } from "../asset";
 
-export type Skill =
-  | "GRAMMAR"
-  | "VOCABULARY"
-  | "LISTENING"
-  | "READING"
-  | "WRITING"
-  | "SPEAKING";
+export type Skill = "GRAMMAR" | "VOCABULARY" | "LISTENING" | "READING" | "WRITING" | "SPEAKING";
 
 export type QuestionType =
-  | "MULTIPLE_CHOICE"
-  | "FILL_IN_BLANK"
-  | "MATCHING"
-  | "DRAG_DROP"
-  | "TEXT_INPUT"
-  | "AUDIO_RECORD";
+  "MULTIPLE_CHOICE" | "FILL_IN_BLANK" | "MATCHING" | "DRAG_DROP" | "TEXT_INPUT" | "AUDIO_RECORD";
 
 export type DifficultyLevel = "A1" | "A2" | "B1" | "B2" | "C1";
 export type QuestionStatus = "DRAFT" | "ACTIVE" | "ARCHIVED";

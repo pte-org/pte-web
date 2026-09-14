@@ -28,7 +28,10 @@ export const SessionTable = ({ sessions, isLoading }: SessionTableProps): ReactE
       key: "name",
       header: EXAM_TABLE_HEADERS.NAME,
       cell: (session) => (
-        <Link href={`/host/exams/${session.id}`} className="font-medium text-blue-700 hover:underline">
+        <Link
+          href={`/host/exams/${session.id}`}
+          className="font-medium text-blue-700 hover:underline"
+        >
           {session.name}
         </Link>
       ),

@@ -51,10 +51,7 @@ export const QUESTION_STATUS_VARIANT: Record<QuestionStatus, BadgeVariant> = {
   draft: "warning",
 };
 
-export const QUESTION_DIFFICULTY_VARIANT: Record<
-  QuestionDifficulty,
-  BadgeVariant
-> = {
+export const QUESTION_DIFFICULTY_VARIANT: Record<QuestionDifficulty, BadgeVariant> = {
   A1: "info",
   A2: "info",
   B1: "info",

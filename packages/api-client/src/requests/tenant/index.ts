@@ -1,5 +1,9 @@
 import type { ApiClient } from "../../client/client";
-import type { OnboardTenantRequest, TenantResponse, UpdateBrandingRequest } from "../../types/tenant";
+import type {
+  OnboardTenantRequest,
+  TenantResponse,
+  UpdateBrandingRequest,
+} from "../../types/tenant";
 
 export const TENANT_ENDPOINTS = {
   tenants: "/api/admin/tenants",
@@ -23,26 +27,17 @@ export function listTenants(client: ApiClient): Promise<TenantResponse[]> {
   return client.request<TenantResponse[]>(TENANT_ENDPOINTS.tenants);
 }
 
-export function getTenant(
-  client: ApiClient,
-  publicId: string,
-): Promise<TenantResponse> {
+export function getTenant(client: ApiClient, publicId: string): Promise<TenantResponse> {
   return client.request<TenantResponse>(TENANT_ENDPOINTS.tenant(publicId));
 }
 
-export function suspendTenant(
-  client: ApiClient,
-  publicId: string,
-): Promise<TenantResponse> {
+export function suspendTenant(client: ApiClient, publicId: string): Promise<TenantResponse> {
   return client.request<TenantResponse>(TENANT_ENDPOINTS.suspend(publicId), {
     method: "POST",
   });
 }
 
-export function reactivateTenant(
-  client: ApiClient,
-  publicId: string,
-): Promise<TenantResponse> {
+export function reactivateTenant(client: ApiClient, publicId: string): Promise<TenantResponse> {
   return client.request<TenantResponse>(TENANT_ENDPOINTS.reactivate(publicId), {
     method: "POST",
   });

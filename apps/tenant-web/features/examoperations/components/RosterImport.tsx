@@ -30,7 +30,9 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
   // Lazy init reads sessionStorage during render — safe only because this
   // component is gated behind SessionDetailView's session-loading state,
   // so it's never rendered during SSR/hydration.
-  const [pending, setPending] = useState<CreatedAccount[] | null>(() => loadPendingImport(sessionPublicId));
+  const [pending, setPending] = useState<CreatedAccount[] | null>(() =>
+    loadPendingImport(sessionPublicId),
+  );
 
   const createAccounts = useCreateRosterAccounts(sessionPublicId);
   const enrollAccounts = useEnrollRosterAccounts(sessionPublicId);
@@ -130,7 +132,9 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
               </tbody>
             </table>
           </div>
-          {!!createAccounts.error && <Alert tone="error">{errorMessage(createAccounts.error)}</Alert>}
+          {!!createAccounts.error && (
+            <Alert tone="error">{errorMessage(createAccounts.error)}</Alert>
+          )}
           <Button
             type="button"
             onClick={handleCreateAccounts}

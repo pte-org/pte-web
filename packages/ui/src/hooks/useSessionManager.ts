@@ -1,11 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import {
-  sessionStorage,
-  type PteSession,
-  type SessionRole,
-} from "./sessionStorage";
+import { sessionStorage, type PteSession, type SessionRole } from "./sessionStorage";
 
 export interface SessionManager {
   session: PteSession | null;

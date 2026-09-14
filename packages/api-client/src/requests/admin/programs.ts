@@ -7,7 +7,8 @@ import type {
 } from "../../types/admin/program";
 
 export const PROGRAM_ENDPOINTS = {
-  programs: (organizationPublicId: string) => `/api/admin/organizations/${organizationPublicId}/programs`,
+  programs: (organizationPublicId: string) =>
+    `/api/admin/organizations/${organizationPublicId}/programs`,
   program: (organizationPublicId: string, publicId: string) =>
     `/api/admin/organizations/${organizationPublicId}/programs/${publicId}`,
   activate: (organizationPublicId: string, publicId: string) =>
@@ -22,7 +23,10 @@ export const PROGRAM_ENDPOINTS = {
     `/api/admin/organizations/${organizationPublicId}/programs/${publicId}/dashboard`,
 } as const;
 
-export function listPrograms(client: ApiClient, organizationPublicId: string): Promise<ProgramResponse[]> {
+export function listPrograms(
+  client: ApiClient,
+  organizationPublicId: string,
+): Promise<ProgramResponse[]> {
   return client.request<ProgramResponse[]>(PROGRAM_ENDPOINTS.programs(organizationPublicId));
 }
 
@@ -51,10 +55,13 @@ export function updateProgram(
   publicId: string,
   payload: UpdateProgramRequest,
 ): Promise<ProgramResponse> {
-  return client.request<ProgramResponse>(PROGRAM_ENDPOINTS.program(organizationPublicId, publicId), {
-    method: "PUT",
-    body: payload,
-  });
+  return client.request<ProgramResponse>(
+    PROGRAM_ENDPOINTS.program(organizationPublicId, publicId),
+    {
+      method: "PUT",
+      body: payload,
+    },
+  );
 }
 
 export function activateProgram(
@@ -62,9 +69,12 @@ export function activateProgram(
   organizationPublicId: string,
   publicId: string,
 ): Promise<ProgramResponse> {
-  return client.request<ProgramResponse>(PROGRAM_ENDPOINTS.activate(organizationPublicId, publicId), {
-    method: "POST",
-  });
+  return client.request<ProgramResponse>(
+    PROGRAM_ENDPOINTS.activate(organizationPublicId, publicId),
+    {
+      method: "POST",
+    },
+  );
 }
 
 export function deactivateProgram(
@@ -72,9 +82,12 @@ export function deactivateProgram(
   organizationPublicId: string,
   publicId: string,
 ): Promise<ProgramResponse> {
-  return client.request<ProgramResponse>(PROGRAM_ENDPOINTS.deactivate(organizationPublicId, publicId), {
-    method: "POST",
-  });
+  return client.request<ProgramResponse>(
+    PROGRAM_ENDPOINTS.deactivate(organizationPublicId, publicId),
+    {
+      method: "POST",
+    },
+  );
 }
 
 export function suspendProgram(
@@ -82,9 +95,12 @@ export function suspendProgram(
   organizationPublicId: string,
   publicId: string,
 ): Promise<ProgramResponse> {
-  return client.request<ProgramResponse>(PROGRAM_ENDPOINTS.suspend(organizationPublicId, publicId), {
-    method: "POST",
-  });
+  return client.request<ProgramResponse>(
+    PROGRAM_ENDPOINTS.suspend(organizationPublicId, publicId),
+    {
+      method: "POST",
+    },
+  );
 }
 
 export function archiveProgram(
@@ -92,9 +108,12 @@ export function archiveProgram(
   organizationPublicId: string,
   publicId: string,
 ): Promise<ProgramResponse> {
-  return client.request<ProgramResponse>(PROGRAM_ENDPOINTS.archive(organizationPublicId, publicId), {
-    method: "POST",
-  });
+  return client.request<ProgramResponse>(
+    PROGRAM_ENDPOINTS.archive(organizationPublicId, publicId),
+    {
+      method: "POST",
+    },
+  );
 }
 
 export function getProgramDashboard(
@@ -102,5 +121,7 @@ export function getProgramDashboard(
   organizationPublicId: string,
   publicId: string,
 ): Promise<ProgramDashboardResponse> {
-  return client.request<ProgramDashboardResponse>(PROGRAM_ENDPOINTS.dashboard(organizationPublicId, publicId));
+  return client.request<ProgramDashboardResponse>(
+    PROGRAM_ENDPOINTS.dashboard(organizationPublicId, publicId),
+  );
 }

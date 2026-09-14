@@ -17,6 +17,9 @@ export function listMyOrganizations(client: ApiClient): Promise<OrganizationResp
   return client.request<OrganizationResponse[]>(HOST_ORGANIZATION_ENDPOINTS.organizations);
 }
 
-export function getMyOrganization(client: ApiClient, publicId: string): Promise<OrganizationResponse> {
+export function getMyOrganization(
+  client: ApiClient,
+  publicId: string,
+): Promise<OrganizationResponse> {
   return client.request<OrganizationResponse>(HOST_ORGANIZATION_ENDPOINTS.organization(publicId));
 }

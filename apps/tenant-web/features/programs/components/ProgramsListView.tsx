@@ -65,7 +65,9 @@ export const ProgramsListView = (): ReactElement => {
       key: "status",
       header: PROGRAM_TABLE_HEADERS.STATUS,
       cell: (program) => (
-        <Badge variant={PROGRAM_STATUS_VARIANT[program.status]}>{PROGRAM_STATUS_LABELS[program.status]}</Badge>
+        <Badge variant={PROGRAM_STATUS_VARIANT[program.status]}>
+          {PROGRAM_STATUS_LABELS[program.status]}
+        </Badge>
       ),
     },
     {
@@ -84,7 +86,7 @@ export const ProgramsListView = (): ReactElement => {
             type="button"
             onClick={() => setCreateOpen(true)}
             disabled={!organizationPublicId}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {PROGRAMS_TEXT.addButton(labels.program)}
           </button>

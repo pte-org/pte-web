@@ -36,7 +36,8 @@ export const TransferStudentModal = ({
 }: TransferStudentModalProps): ReactElement => {
   const [targetClassPublicId, setTargetClassPublicId] = useState("");
   const { data: classes, isLoading: classesLoading } = useAllTenantClasses();
-  const { data: enrollments, isLoading: enrollmentsLoading } = useStudentEnrollments(studentPublicId);
+  const { data: enrollments, isLoading: enrollmentsLoading } =
+    useStudentEnrollments(studentPublicId);
   const transfer = useTransferStudent(organizationPublicId, programPublicId, classPublicId);
 
   const targetOptions = (classes ?? [])
@@ -74,7 +75,7 @@ export const TransferStudentModal = ({
             type="submit"
             form={FORM_ID}
             disabled={!targetClassPublicId || transfer.isPending}
-            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {transfer.isPending ? T.submitting : T.submit}
           </button>

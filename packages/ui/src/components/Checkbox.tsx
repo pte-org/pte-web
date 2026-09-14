@@ -29,9 +29,7 @@ export const Checkbox = ({
       />
       <span>{label}</span>
     </label>
-    {helperText && !error && (
-      <span className="pl-6 text-sm text-gray-500">{helperText}</span>
-    )}
+    {helperText && !error && <span className="pl-6 text-sm text-gray-500">{helperText}</span>}
     {error && <span className="pl-6 text-sm text-red-600">{error}</span>}
   </div>
 );

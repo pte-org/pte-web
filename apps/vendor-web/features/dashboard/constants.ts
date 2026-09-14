@@ -40,9 +40,7 @@ export const DASHBOARD_TENANT_DETAIL_TEXT = {
 } as const;
 
 export const recentCountLabel = (shown: number, total: number): string =>
-  shown === 0
-    ? `Showing 0 of ${total} tenants`
-    : `Showing 1-${shown} of ${total} tenants`;
+  shown === 0 ? `Showing 0 of ${total} tenants` : `Showing 1-${shown} of ${total} tenants`;
 
 export const RECENT_TABLE_HEADERS = {
   NAME: "Tenant Name",
