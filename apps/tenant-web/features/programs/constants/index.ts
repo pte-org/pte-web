@@ -16,7 +16,7 @@ export const PROGRAM_STATUS_VARIANT = {
 
 export const PROGRAMS_TEXT = {
   subtitle: (label: string) => `Manage your organization's ${label.toLowerCase()}.`,
-  addButton: (label: string) => `+ Create ${label}`,
+  addButton: "Create Program",
   emptyTitle: (label: string) => `No ${label} yet`,
   emptyText: (label: string) => `Create your first ${label.toLowerCase()} to start adding classes.`,
   organizationLabel: "Organization",
@@ -30,14 +30,14 @@ export const PROGRAM_TABLE_HEADERS = {
 } as const;
 
 export const CREATE_PROGRAM_TEXT = {
-  title: (label: string) => `Create ${label}`,
+  title: "Create Program",
   nameLabel: (label: string) => `${label} name`,
   namePlaceholder: (label: string) => `e.g. ${label} 12`,
   descriptionLabel: "Description",
   startDateLabel: "Start date",
   endDateLabel: "End date",
   cancel: "Cancel",
-  submit: (label: string) => `Create ${label}`,
+  submit: "Create Program",
   submitting: "Creating...",
 } as const;
 

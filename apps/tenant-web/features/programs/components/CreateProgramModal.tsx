@@ -43,7 +43,7 @@ export const CreateProgramModal = ({
     <Modal
       open={open}
       onClose={onClose}
-      title={T.title(programLabel)}
+      title={T.title}
       footer={
         <>
           <button
@@ -59,7 +59,7 @@ export const CreateProgramModal = ({
             disabled={isSubmitting}
             className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? T.submitting : T.submit(programLabel)}
+            {isSubmitting ? T.submitting : T.submit}
           </button>
         </>
       }

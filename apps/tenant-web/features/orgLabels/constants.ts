@@ -3,8 +3,8 @@
  * `UNIVERSITY`, `TRAINING_CENTER`, `CORPORATE` — see vendor-web's
  * `ORGANIZATION_TYPE_OPTIONS`), but the label spec only defines a binary
  * split. Bucket mapping confirmed with the user: SCHOOL/UNIVERSITY ->
- * SCHOOL_FAMILY (Khối), TRAINING_CENTER/CORPORATE -> CENTER_FAMILY (Khóa),
- * with CENTER_FAMILY as the default bucket for `null`/any unmapped value.
+ * SCHOOL_FAMILY, TRAINING_CENTER/CORPORATE -> CENTER_FAMILY, with
+ * CENTER_FAMILY as the default bucket for `null`/any unmapped value.
  */
 export type OrgTypeFamily = "SCHOOL_FAMILY" | "CENTER_FAMILY";
 
@@ -23,8 +23,8 @@ export interface OrgLabelSet {
 }
 
 export const ORG_LABEL_DICTIONARY: Record<OrgTypeFamily, OrgLabelSet> = {
-  SCHOOL_FAMILY: { program: "Khối", class: "Lớp" },
-  CENTER_FAMILY: { program: "Khóa", class: "Lớp" },
+  SCHOOL_FAMILY: { program: "Program", class: "Class" },
+  CENTER_FAMILY: { program: "Program", class: "Class" },
 };
 
 export interface OrgLabels extends OrgLabelSet {

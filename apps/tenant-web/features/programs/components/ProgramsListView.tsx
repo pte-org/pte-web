@@ -88,7 +88,7 @@ export const ProgramsListView = (): ReactElement => {
             disabled={!organizationPublicId}
             className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {PROGRAMS_TEXT.addButton(labels.program)}
+            {PROGRAMS_TEXT.addButton}
           </button>
         }
       />

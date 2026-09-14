@@ -1,6 +1,14 @@
 "use client";
 
-import { useState, type ComponentType, type ReactElement, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import { cn } from "../utils/cn";
 import { DotsVerticalIcon } from "./icons";
 
@@ -29,15 +37,64 @@ export const Dropdown = ({
   align = "right",
 }: DropdownProps): ReactElement => {
   const [open, setOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+
+    const updateMenuPosition = (): void => {
+      const trigger = triggerRef.current;
+      const menu = menuRef.current;
+      if (!trigger || !menu) return;
+
+      const triggerRect = trigger.getBoundingClientRect();
+      const menuRect = menu.getBoundingClientRect();
+      const gap = 4;
+      const viewportPadding = 8;
+      const opensAbove =
+        triggerRect.bottom + gap + menuRect.height > window.innerHeight &&
+        triggerRect.top - gap - menuRect.height >= viewportPadding;
+      const top = opensAbove ? triggerRect.top - gap - menuRect.height : triggerRect.bottom + gap;
+      const preferredLeft =
+        align === "right" ? triggerRect.right - menuRect.width : triggerRect.left;
+      const maxLeft = Math.max(
+        viewportPadding,
+        window.innerWidth - menuRect.width - viewportPadding,
+      );
+
+      setMenuPosition({
+        top: Math.max(
+          viewportPadding,
+          Math.min(top, window.innerHeight - menuRect.height - viewportPadding),
+        ),
+        left: Math.max(viewportPadding, Math.min(preferredLeft, maxLeft)),
+      });
+    };
+
+    updateMenuPosition();
+    window.addEventListener("resize", updateMenuPosition);
+    window.addEventListener("scroll", updateMenuPosition, true);
+
+    return () => {
+      window.removeEventListener("resize", updateMenuPosition);
+      window.removeEventListener("scroll", updateMenuPosition, true);
+    };
+  }, [align, open]);
 
   return (
     <div className="relative inline-block text-left">
       <button
+        ref={triggerRef}
         type="button"
         aria-label={label}
         aria-haspopup="menu"
         aria-expanded={open}
-        onClick={() => setOpen((value) => !value)}
+        onClick={() => {
+          setMenuPosition(null);
+          setOpen((value) => !value);
+        }}
         className={cn(
           "grid h-10 w-10 place-items-center rounded-md text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-700",
           triggerClassName,
@@ -46,46 +103,52 @@ export const Dropdown = ({
         {trigger ?? <DotsVerticalIcon className="h-5 w-5" />}
       </button>
 
-      {open && (
-        <>
-          <button
-            type="button"
-            aria-hidden="true"
-            tabIndex={-1}
-            onClick={() => setOpen(false)}
-            className="fixed inset-0 z-10 cursor-default"
-          />
-          <div
-            role="menu"
-            className={cn(
-              "absolute z-20 mt-1 min-w-44 rounded-md bg-white py-1 shadow-card",
-              align === "right" ? "right-0" : "left-0",
-            )}
-          >
-            {items.map((item) => {
-              const Icon = item.icon;
-              return (
-                <button
-                  key={item.label}
-                  type="button"
-                  role="menuitem"
-                  onClick={() => {
-                    item.onSelect();
-                    setOpen(false);
-                  }}
-                  className={cn(
-                    "flex min-h-10 w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors hover:bg-blue-50",
-                    item.danger ? "text-red-600" : "text-gray-700",
-                  )}
-                >
-                  {Icon ? <Icon className="h-4 w-4 shrink-0" /> : null}
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
-        </>
-      )}
+      {open &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <>
+            <button
+              type="button"
+              aria-hidden="true"
+              tabIndex={-1}
+              onClick={() => setOpen(false)}
+              className="fixed inset-0 z-10 cursor-default"
+            />
+            <div
+              ref={menuRef}
+              role="menu"
+              className="fixed z-20 min-w-44 max-w-[calc(100vw-1rem)] rounded-md bg-white py-1 shadow-card"
+              style={{
+                top: menuPosition?.top ?? 0,
+                left: menuPosition?.left ?? 0,
+                visibility: menuPosition ? "visible" : "hidden",
+              }}
+            >
+              {items.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <button
+                    key={item.label}
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      item.onSelect();
+                      setOpen(false);
+                    }}
+                    className={cn(
+                      "flex min-h-10 w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors hover:bg-blue-50",
+                      item.danger ? "text-red-600" : "text-gray-700",
+                    )}
+                  >
+                    {Icon ? <Icon className="h-4 w-4 shrink-0" /> : null}
+                    {item.label}
+                  </button>
+                );
+              })}
+            </div>
+          </>,
+          document.body,
+        )}
     </div>
   );
 };
