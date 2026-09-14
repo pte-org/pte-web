@@ -32,10 +32,8 @@ export const CreateOrganizationModal = ({
   const [form, setForm] = useState<CreateOrganizationInput>(EMPTY_CREATE_ORGANIZATION);
   const [errors, setErrors] = useState<CreateOrganizationErrors>({});
 
-  const handleChange = (
-    field: keyof CreateOrganizationInput,
-    value: string,
-  ): void => setForm((previous) => ({ ...previous, [field]: value }));
+  const handleChange = (field: keyof CreateOrganizationInput, value: string): void =>
+    setForm((previous) => ({ ...previous, [field]: value }));
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -62,7 +60,7 @@ export const CreateOrganizationModal = ({
             type="submit"
             form={FORM_ID}
             disabled={isSubmitting}
-            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? "Adding..." : T.SUBMIT}
           </button>
@@ -86,7 +84,12 @@ export const CreateOrganizationModal = ({
           />
         </TenantFormField>
 
-        <TenantFormField label={T.FACILITY_TYPE_LABEL} htmlFor="org-facility-type" required error={errors.facilityType}>
+        <TenantFormField
+          label={T.FACILITY_TYPE_LABEL}
+          htmlFor="org-facility-type"
+          required
+          error={errors.facilityType}
+        >
           <select
             id="org-facility-type"
             value={form.facilityType}

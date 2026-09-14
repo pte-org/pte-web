@@ -14,26 +14,16 @@ interface TenantCreatedModalProps {
 const T = TENANT_CREATED_TEXT;
 
 const organizationTypeLabel = (value: string): string =>
-  ORGANIZATION_TYPE_OPTIONS.find((option) => option.value === value)?.label ??
-  value;
+  ORGANIZATION_TYPE_OPTIONS.find((option) => option.value === value)?.label ?? value;
 
-const DetailRow = ({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}): ReactElement => (
+const DetailRow = ({ label, value }: { label: string; value: string }): ReactElement => (
   <div className="flex items-center justify-between border-t border-gray-100 py-2 first:border-t-0">
     <span className="text-sm text-gray-500">{label}</span>
     <span className="text-sm font-semibold text-gray-900">{value}</span>
   </div>
 );
 
-export const TenantCreatedModal = ({
-  tenant,
-  onClose,
-}: TenantCreatedModalProps): ReactElement => (
+export const TenantCreatedModal = ({ tenant, onClose }: TenantCreatedModalProps): ReactElement => (
   <Modal
     open={tenant !== null}
     onClose={onClose}
@@ -42,7 +32,7 @@ export const TenantCreatedModal = ({
       <button
         type="button"
         onClick={onClose}
-        className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800"
+        className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover"
       >
         {T.CLOSE}
       </button>
@@ -65,10 +55,7 @@ export const TenantCreatedModal = ({
             value={organizationTypeLabel(tenant.organizationType)}
           />
           <DetailRow label={T.PLAN_LABEL} value={TENANT_PLAN_LABELS[tenant.plan]} />
-          <DetailRow
-            label={T.STUDENT_LIMIT_LABEL}
-            value={String(tenant.seatsTotal)}
-          />
+          <DetailRow label={T.STUDENT_LIMIT_LABEL} value={String(tenant.seatsTotal)} />
         </div>
       </div>
     )}

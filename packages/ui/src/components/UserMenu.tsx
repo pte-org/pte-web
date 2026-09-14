@@ -9,12 +9,7 @@ interface UserMenuProps {
   avatar?: ReactNode;
 }
 
-export const UserMenu = ({
-  name,
-  email,
-  items,
-  avatar,
-}: UserMenuProps): ReactElement => (
+export const UserMenu = ({ name, email, items, avatar }: UserMenuProps): ReactElement => (
   <Dropdown
     items={items}
     triggerClassName="h-auto w-auto rounded-md px-2 py-1"

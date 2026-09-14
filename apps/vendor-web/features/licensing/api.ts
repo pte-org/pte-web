@@ -74,12 +74,16 @@ export function useGrantQuota(
       void queryClient.invalidateQueries({ queryKey: LICENSES_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: TENANTS_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: [...TENANT_QUERY_KEY, tenantPublicId] });
-      void queryClient.invalidateQueries({ queryKey: [...QUOTA_HISTORY_QUERY_KEY, tenantPublicId] });
+      void queryClient.invalidateQueries({
+        queryKey: [...QUOTA_HISTORY_QUERY_KEY, tenantPublicId],
+      });
     },
   });
 }
 
-export function useQuotaHistory(tenantPublicId: string): UseQueryResult<QuotaTransactionResponse[]> {
+export function useQuotaHistory(
+  tenantPublicId: string,
+): UseQueryResult<QuotaTransactionResponse[]> {
   return useQuery({
     queryKey: [...QUOTA_HISTORY_QUERY_KEY, tenantPublicId],
     queryFn: () => listQuotaHistory(apiClient, tenantPublicId),

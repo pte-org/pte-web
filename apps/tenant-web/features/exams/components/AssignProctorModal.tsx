@@ -51,7 +51,9 @@ export const AssignProctorModal = ({
   const createProctor = useCreateProctorAccount();
 
   const assignedSet = new Set(assignedProctorPublicIds);
-  const availableProctors = (proctors ?? []).filter((proctor) => !assignedSet.has(proctor.publicId));
+  const availableProctors = (proctors ?? []).filter(
+    (proctor) => !assignedSet.has(proctor.publicId),
+  );
 
   const isSubmitting = assignProctor.isPending || createProctor.isPending;
   const submitError = errorMessage(assignProctor.error) ?? errorMessage(createProctor.error);
@@ -119,7 +121,7 @@ export const AssignProctorModal = ({
             type="submit"
             form="assign-proctor-form"
             disabled={isSubmitting || (tab === "existing" && !selectedProctorId)}
-            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? T.SUBMITTING : T.SUBMIT}
           </button>
@@ -133,15 +135,28 @@ export const AssignProctorModal = ({
       )}
 
       <div className="mb-4 flex gap-2 rounded-lg bg-gray-50 p-1">
-        <button type="button" className={TAB_CLASS(tab === "existing")} onClick={() => handleTabChange("existing")}>
+        <button
+          type="button"
+          className={TAB_CLASS(tab === "existing")}
+          onClick={() => handleTabChange("existing")}
+        >
           {T.TAB_EXISTING}
         </button>
-        <button type="button" className={TAB_CLASS(tab === "new")} onClick={() => handleTabChange("new")}>
+        <button
+          type="button"
+          className={TAB_CLASS(tab === "new")}
+          onClick={() => handleTabChange("new")}
+        >
           {T.TAB_NEW}
         </button>
       </div>
 
-      <form id="assign-proctor-form" onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+      <form
+        id="assign-proctor-form"
+        onSubmit={handleSubmit}
+        noValidate
+        className="flex flex-col gap-4"
+      >
         {tab === "existing" ? (
           availableProctors.length === 0 && !proctorsLoading ? (
             <p className="text-sm text-gray-500">{T.NO_EXISTING}</p>

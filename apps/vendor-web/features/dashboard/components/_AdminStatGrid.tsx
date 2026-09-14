@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { StatCard } from "@pte/ui";
+import { AlertTriangleIcon, BuildingIcon, StatCard, UsersIcon } from "@pte/ui";
 import { DASHBOARD_TEXT } from "../constants";
 import type { AdminStats } from "../types";
 
@@ -11,15 +11,15 @@ function formatProgress(value: number | undefined): string | undefined {
   return value === undefined ? undefined : `${Math.round(value)}%`;
 }
 
-export const AdminStatGrid = ({
-  stats,
-}: AdminStatGridProps): ReactElement => (
+export const AdminStatGrid = ({ stats }: AdminStatGridProps): ReactElement => (
   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
     <StatCard
       label={DASHBOARD_TEXT.STAT_TOTAL}
       value={stats?.totalTenants ?? "-"}
       trend={formatProgress(stats?.totalTenantsProgress)}
       progress={stats?.totalTenantsProgress}
+      icon={<BuildingIcon />}
+      accent="blue"
     />
     <StatCard
       label={DASHBOARD_TEXT.STAT_LEARNERS}
@@ -27,6 +27,8 @@ export const AdminStatGrid = ({
       trend={formatProgress(stats?.activeLearnersProgress)}
       progress={stats?.activeLearnersProgress}
       trendPositive={false}
+      icon={<UsersIcon />}
+      accent="sky"
     />
     <StatCard
       label={DASHBOARD_TEXT.STAT_EXPIRING}
@@ -35,6 +37,8 @@ export const AdminStatGrid = ({
       trend={formatProgress(stats?.expiringSoonProgress)}
       progress={stats?.expiringSoonProgress}
       highlight
+      icon={<AlertTriangleIcon />}
+      accent="cream"
     />
   </div>
 );

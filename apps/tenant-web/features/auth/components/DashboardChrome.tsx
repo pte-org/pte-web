@@ -22,6 +22,7 @@ export interface NavItem {
   label: string;
   href: string;
   icon?: ReactNode;
+  section?: string;
   /** If set, only rendered for a caller whose roles include at least one of these — see `buildHostNav`'s "Audit Log" entry. */
   requiredRoles?: SessionRole[];
 }
@@ -47,8 +48,7 @@ interface DashboardChromeProps {
 
 const BRAND_NAME = "PTE LMS";
 const BRAND_SUBTITLE = "School Portal";
-const DISCLAIMER =
-  "PTE mock exam platform. Not affiliated with Pearson.";
+const DISCLAIMER = "PTE mock exam platform. Not affiliated with Pearson.";
 
 const HEADER_TEXT = {
   LANGUAGE: "Language",
@@ -59,12 +59,12 @@ const HEADER_TEXT = {
 
 const SidebarBrand = (): ReactElement => (
   <div className="flex items-center gap-2">
-    <span className="grid h-9 w-9 place-items-center rounded-lg bg-blue-700 text-sm font-bold text-white">
-      A
+    <span className="grid h-10 w-10 place-items-center rounded-md bg-blue-600 text-sm font-semibold text-white shadow-sm shadow-blue-600/25">
+      P
     </span>
     <div className="leading-tight">
-      <p className="text-sm font-bold text-gray-900">{BRAND_NAME}</p>
-      <p className="text-xs text-gray-400">{BRAND_SUBTITLE}</p>
+      <p className="text-sm font-semibold text-gray-900">{BRAND_NAME}</p>
+      <p className="text-xs text-gray-500">{BRAND_SUBTITLE}</p>
     </div>
   </div>
 );
@@ -77,22 +77,26 @@ const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
   );
   return (
     <>
-      {visibleItems.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className={cn(
-            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm",
-            pathname?.startsWith(item.href)
-              ? "bg-indigo-50 font-medium text-blue-700"
-              : "text-gray-600 hover:bg-gray-100",
+      {visibleItems.map((item, index) => (
+        <div key={item.href} className="flex flex-col gap-1">
+          {(index === 0 || item.section !== visibleItems[index - 1]?.section) && item.section && (
+            <span className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400 first:pt-1">
+              {item.section}
+            </span>
           )}
-        >
-          {item.icon && (
-            <span className="[&>svg]:h-5 [&>svg]:w-5">{item.icon}</span>
-          )}
-          {item.label}
-        </Link>
+          <Link
+            href={item.href}
+            className={cn(
+              "flex min-h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors",
+              pathname?.startsWith(item.href)
+                ? "bg-action font-medium text-white shadow-[0px_4px_10px_rgba(11,95,174,0.25)]"
+                : "text-gray-600 hover:bg-blue-50 hover:text-blue-700",
+            )}
+          >
+            {item.icon && <span className="[&>svg]:h-5 [&>svg]:w-5">{item.icon}</span>}
+            {item.label}
+          </Link>
+        </div>
       ))}
     </>
   );
@@ -113,14 +117,14 @@ const HeaderActions = (): ReactElement => {
       <button
         type="button"
         aria-label={HEADER_TEXT.LANGUAGE}
-        className="text-gray-400 hover:text-gray-600"
+        className="grid h-10 w-10 place-items-center rounded-md text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-700"
       >
         <GlobeIcon className="h-5 w-5" />
       </button>
       <button
         type="button"
         aria-label={HEADER_TEXT.NOTIFICATIONS}
-        className="relative text-gray-400 hover:text-gray-600"
+        className="relative grid h-10 w-10 place-items-center rounded-md text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-700"
       >
         <BellIcon className="h-5 w-5" />
         <span className="absolute right-0 top-0 h-2 w-2 rounded-full bg-red-500" />
@@ -138,16 +142,11 @@ const HeaderActions = (): ReactElement => {
   );
 };
 
-const ChromeContent = ({
-  navItems,
-  children,
-}: DashboardChromeProps): ReactElement => (
+const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactElement => (
   <DashboardShell
     brand={<SidebarBrand />}
     sidebar={<SidebarNav navItems={navItems} />}
-    headerBrand={
-      <span className="text-lg font-bold text-blue-700">{BRAND_NAME}</span>
-    }
+    headerBrand={<span className="text-lg font-bold text-blue-700">{BRAND_NAME}</span>}
     headerActions={<HeaderActions />}
     footer={DISCLAIMER}
   >

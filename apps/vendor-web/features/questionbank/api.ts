@@ -1,10 +1,7 @@
 "use client";
 
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
-import {
-  listQuestions,
-  type QuestionResponse,
-} from "@pte/api-client";
+import { listQuestions, type QuestionResponse } from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
 import { QUESTION_STATS_QUERY_KEY, QUESTIONS_QUERY_KEY } from "./constants";
 import type {

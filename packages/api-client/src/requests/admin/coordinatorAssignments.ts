@@ -1,5 +1,8 @@
 import type { ApiClient } from "../../client/client";
-import type { AssignCoordinatorRequest, ProgramCoordinatorAssignmentResponse } from "../../types/admin/assignment";
+import type {
+  AssignCoordinatorRequest,
+  ProgramCoordinatorAssignmentResponse,
+} from "../../types/admin/assignment";
 
 function basePath(organizationPublicId: string, programPublicId: string): string {
   return `/api/admin/organizations/${organizationPublicId}/programs/${programPublicId}/coordinators`;
@@ -7,8 +10,11 @@ function basePath(organizationPublicId: string, programPublicId: string): string
 
 export const COORDINATOR_ASSIGNMENT_ENDPOINTS = {
   coordinators: basePath,
-  coordinator: (organizationPublicId: string, programPublicId: string, assignmentPublicId: string) =>
-    `${basePath(organizationPublicId, programPublicId)}/${assignmentPublicId}`,
+  coordinator: (
+    organizationPublicId: string,
+    programPublicId: string,
+    assignmentPublicId: string,
+  ) => `${basePath(organizationPublicId, programPublicId)}/${assignmentPublicId}`,
 } as const;
 
 export function listCoordinatorAssignments(
@@ -40,7 +46,11 @@ export function unassignCoordinator(
   assignmentPublicId: string,
 ): Promise<void> {
   return client.request<void>(
-    COORDINATOR_ASSIGNMENT_ENDPOINTS.coordinator(organizationPublicId, programPublicId, assignmentPublicId),
+    COORDINATOR_ASSIGNMENT_ENDPOINTS.coordinator(
+      organizationPublicId,
+      programPublicId,
+      assignmentPublicId,
+    ),
     { method: "DELETE" },
   );
 }

@@ -47,7 +47,9 @@ export const AssignLecturerModal = ({
   const createLecturer = useCreateLecturerAccount();
 
   const assignedSet = new Set(assignedLecturerPublicIds);
-  const availableLecturers = (lecturers ?? []).filter((lecturer) => !assignedSet.has(lecturer.publicId));
+  const availableLecturers = (lecturers ?? []).filter(
+    (lecturer) => !assignedSet.has(lecturer.publicId),
+  );
 
   const isSubmitting = assignLecturer.isPending || createLecturer.isPending;
   const submitError = errorMessage(assignLecturer.error) ?? errorMessage(createLecturer.error);
@@ -109,7 +111,7 @@ export const AssignLecturerModal = ({
             type="submit"
             form="assign-lecturer-form"
             disabled={isSubmitting || (tab === "existing" && !selectedLecturerId)}
-            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? T.submitting : T.submit}
           </button>
@@ -123,15 +125,28 @@ export const AssignLecturerModal = ({
       )}
 
       <div className="mb-4 flex gap-2 rounded-lg bg-gray-50 p-1">
-        <button type="button" className={TAB_CLASS(tab === "existing")} onClick={() => handleTabChange("existing")}>
+        <button
+          type="button"
+          className={TAB_CLASS(tab === "existing")}
+          onClick={() => handleTabChange("existing")}
+        >
           {T.tabExisting}
         </button>
-        <button type="button" className={TAB_CLASS(tab === "new")} onClick={() => handleTabChange("new")}>
+        <button
+          type="button"
+          className={TAB_CLASS(tab === "new")}
+          onClick={() => handleTabChange("new")}
+        >
           {T.tabNew}
         </button>
       </div>
 
-      <form id="assign-lecturer-form" onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+      <form
+        id="assign-lecturer-form"
+        onSubmit={handleSubmit}
+        noValidate
+        className="flex flex-col gap-4"
+      >
         {tab === "existing" ? (
           availableLecturers.length === 0 && !lecturersLoading ? (
             <p className="text-sm text-gray-500">{T.noExisting}</p>

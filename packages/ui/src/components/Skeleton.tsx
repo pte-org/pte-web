@@ -6,8 +6,5 @@ interface SkeletonProps {
 }
 
 export const Skeleton = ({ className }: SkeletonProps): ReactElement => (
-  <div
-    aria-hidden="true"
-    className={cn("animate-pulse rounded bg-gray-200", className)}
-  />
+  <div aria-hidden="true" className={cn("animate-pulse rounded bg-slate-200", className)} />
 );

@@ -32,7 +32,7 @@ export const QuestionBankView = (): ReactElement => {
         actions={
           <button
             type="button"
-            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800"
+            className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover"
           >
             + {QUESTIONBANK_TEXT.ADD}
           </button>

@@ -62,7 +62,9 @@ export const BrandingEditor = ({
             id="branding-logo-url"
             type="text"
             value={form.logoUrl}
-            onChange={(event) => setForm((previous) => ({ ...previous, logoUrl: event.target.value }))}
+            onChange={(event) =>
+              setForm((previous) => ({ ...previous, logoUrl: event.target.value }))
+            }
             placeholder={T.LOGO_URL_PLACEHOLDER}
             className={fieldInputClass()}
           />
@@ -77,7 +79,9 @@ export const BrandingEditor = ({
             id="branding-primary-color"
             type="text"
             value={form.primaryColor}
-            onChange={(event) => setForm((previous) => ({ ...previous, primaryColor: event.target.value }))}
+            onChange={(event) =>
+              setForm((previous) => ({ ...previous, primaryColor: event.target.value }))
+            }
             placeholder={T.PRIMARY_COLOR_PLACEHOLDER}
             className={fieldInputClass(errors.primaryColor)}
           />
@@ -88,7 +92,7 @@ export const BrandingEditor = ({
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? "Saving..." : T.SAVE_BRANDING}
           </button>

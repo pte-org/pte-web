@@ -22,26 +22,17 @@ export function listSessions(client: ApiClient): Promise<SessionResponse[]> {
   return client.request<SessionResponse[]>(SESSION_ENDPOINTS.sessions);
 }
 
-export function getSession(
-  client: ApiClient,
-  publicId: string,
-): Promise<SessionResponse> {
+export function getSession(client: ApiClient, publicId: string): Promise<SessionResponse> {
   return client.request<SessionResponse>(SESSION_ENDPOINTS.session(publicId));
 }
 
-export function openSession(
-  client: ApiClient,
-  publicId: string,
-): Promise<SessionResponse> {
+export function openSession(client: ApiClient, publicId: string): Promise<SessionResponse> {
   return client.request<SessionResponse>(SESSION_ENDPOINTS.open(publicId), {
     method: "POST",
   });
 }
 
-export function closeSession(
-  client: ApiClient,
-  publicId: string,
-): Promise<SessionResponse> {
+export function closeSession(client: ApiClient, publicId: string): Promise<SessionResponse> {
   return client.request<SessionResponse>(SESSION_ENDPOINTS.close(publicId), {
     method: "POST",
   });

@@ -22,7 +22,10 @@ export const CoordinatorAssignmentSection = ({
   organizationPublicId,
   programPublicId,
 }: CoordinatorAssignmentSectionProps): ReactElement => {
-  const { data: assignments, isLoading } = useCoordinatorAssignments(organizationPublicId, programPublicId);
+  const { data: assignments, isLoading } = useCoordinatorAssignments(
+    organizationPublicId,
+    programPublicId,
+  );
   const unassign = useUnassignCoordinator(organizationPublicId, programPublicId);
   const [addOpen, setAddOpen] = useState(false);
 
@@ -32,9 +35,15 @@ export const CoordinatorAssignmentSection = ({
     {
       key: "fullName",
       header: COORDINATOR_TABLE_HEADERS.FULL_NAME,
-      cell: (entry) => <span className="font-medium text-gray-900">{entry.coordinator.fullName}</span>,
+      cell: (entry) => (
+        <span className="font-medium text-gray-900">{entry.coordinator.fullName}</span>
+      ),
     },
-    { key: "email", header: COORDINATOR_TABLE_HEADERS.EMAIL, cell: (entry) => entry.coordinator.email },
+    {
+      key: "email",
+      header: COORDINATOR_TABLE_HEADERS.EMAIL,
+      cell: (entry) => entry.coordinator.email,
+    },
   ];
 
   return (
@@ -44,7 +53,7 @@ export const CoordinatorAssignmentSection = ({
         <button
           type="button"
           onClick={() => setAddOpen(true)}
-          className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700"
+          className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover"
         >
           {T.addButton}
         </button>
@@ -78,7 +87,9 @@ export const CoordinatorAssignmentSection = ({
         onClose={() => setAddOpen(false)}
         organizationPublicId={organizationPublicId}
         programPublicId={programPublicId}
-        assignedCoordinatorPublicIds={(assignments ?? []).map((entry) => entry.coordinator.publicId)}
+        assignedCoordinatorPublicIds={(assignments ?? []).map(
+          (entry) => entry.coordinator.publicId,
+        )}
       />
     </div>
   );

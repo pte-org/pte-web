@@ -2,8 +2,7 @@ import { DashboardChrome } from "@/features/auth/components";
 import { HOST_ROLES } from "@/features/auth/constants";
 import { HOST_NAV } from "@/lib/navigation";
 
-const HOST_DASHBOARD_TEXT =
-  "Host workspace: manage learners and exams for your organization.";
+const HOST_DASHBOARD_TEXT = "Host workspace: manage learners and exams for your organization.";
 
 export default function HostDashboardPage() {
   return (

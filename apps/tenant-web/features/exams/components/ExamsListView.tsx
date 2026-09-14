@@ -36,7 +36,7 @@ export const ExamsListView = (): ReactElement => {
           <button
             type="button"
             onClick={() => setCreateOpen(true)}
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200 hover:bg-blue-700"
+            className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover"
           >
             + {EXAMS_TEXT.ADD_EXAM}
           </button>

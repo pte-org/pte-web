@@ -6,8 +6,7 @@ import { Alert, Button, Input } from "@pte/ui";
 const TEXT = {
   HEADING: "Create Exam",
   NAME_LABEL: "Exam Name",
-  QUESTIONS_HINT:
-    "Questions will appear here when the question bank is ready.",
+  QUESTIONS_HINT: "Questions will appear here when the question bank is ready.",
   SUBMIT: "Save Exam",
   API_UNAVAILABLE: "Exam composition API is not wired on this screen yet.",
 } as const;

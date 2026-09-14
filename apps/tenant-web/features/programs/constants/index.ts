@@ -58,7 +58,8 @@ export const PROGRAM_DETAIL_TEXT = {
   deactivate: "Deactivate",
   suspend: "Suspend",
   archive: "Archive",
-  missingOrganization: "Missing organization context — go back to the list and open this from there.",
+  missingOrganization:
+    "Missing organization context — go back to the list and open this from there.",
   backToList: (label: string) => `Back to ${label}s`,
   loadFailed: "Couldn't load this — it may have been archived or you may not have access.",
   createExam: "Create Exam for this",

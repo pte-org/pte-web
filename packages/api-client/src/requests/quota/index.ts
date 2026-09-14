@@ -2,7 +2,8 @@ import type { ApiClient } from "../../client/client";
 import type { GrantQuotaRequest, QuotaTransactionResponse } from "../../types/quota";
 
 export const QUOTA_ENDPOINTS = {
-  transactions: (tenantPublicId: string) => `/api/admin/tenants/${tenantPublicId}/quota-transactions`,
+  transactions: (tenantPublicId: string) =>
+    `/api/admin/tenants/${tenantPublicId}/quota-transactions`,
 } as const;
 
 export function grantQuota(

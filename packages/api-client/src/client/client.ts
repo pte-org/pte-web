@@ -113,12 +113,7 @@ async function parseJsonSafely(response: Response): Promise<unknown> {
 }
 
 function isEnvelope<T>(body: unknown): body is ApiResponseEnvelope<T> {
-  return (
-    typeof body === "object" &&
-    body !== null &&
-    "success" in body &&
-    "data" in body
-  );
+  return typeof body === "object" && body !== null && "success" in body && "data" in body;
 }
 
 function unwrapResponse<T>(body: unknown): T {

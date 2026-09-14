@@ -81,7 +81,12 @@ export const ClassRosterTable = ({
   classPublicId,
   classLabel,
 }: ClassRosterTableProps): ReactElement => {
-  const { data: roster, isLoading, isError, error } = useClassRoster(programPublicId, classPublicId);
+  const {
+    data: roster,
+    isLoading,
+    isError,
+    error,
+  } = useClassRoster(programPublicId, classPublicId);
   const [splitMode, setSplitMode] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState<Set<string | number>>(new Set());
   const [splitModalOpen, setSplitModalOpen] = useState(false);
@@ -100,9 +105,21 @@ export const ClassRosterTable = ({
   };
 
   const columns: DataTableColumn<ClassRosterEntry>[] = [
-    { key: "name", header: CLASS_ROSTER_TABLE_HEADERS.FULL_NAME, cell: (entry) => entry.student.fullName },
-    { key: "email", header: CLASS_ROSTER_TABLE_HEADERS.EMAIL, cell: (entry) => entry.student.email },
-    { key: "phone", header: CLASS_ROSTER_TABLE_HEADERS.PHONE, cell: (entry) => entry.student.phone ?? "—" },
+    {
+      key: "name",
+      header: CLASS_ROSTER_TABLE_HEADERS.FULL_NAME,
+      cell: (entry) => entry.student.fullName,
+    },
+    {
+      key: "email",
+      header: CLASS_ROSTER_TABLE_HEADERS.EMAIL,
+      cell: (entry) => entry.student.email,
+    },
+    {
+      key: "phone",
+      header: CLASS_ROSTER_TABLE_HEADERS.PHONE,
+      cell: (entry) => entry.student.phone ?? "—",
+    },
     {
       key: "actions",
       header: CLASS_ROSTER_TABLE_HEADERS.ACTIONS,
@@ -143,16 +160,22 @@ export const ClassRosterTable = ({
 
       {splitMode && (
         <div className="flex items-center justify-between rounded-md border border-blue-200 bg-blue-50 px-4 py-2">
-          <span className="text-sm text-blue-800">{SPLIT_CLASS_SELECTION_TEXT.selectedCount(selectedKeys.size)}</span>
+          <span className="text-sm text-blue-800">
+            {SPLIT_CLASS_SELECTION_TEXT.selectedCount(selectedKeys.size)}
+          </span>
           <div className="flex items-center gap-3">
-            <button type="button" onClick={exitSplitMode} className="text-sm text-gray-600 hover:underline">
+            <button
+              type="button"
+              onClick={exitSplitMode}
+              className="text-sm text-gray-600 hover:underline"
+            >
               {SPLIT_CLASS_SELECTION_TEXT.cancelSelection}
             </button>
             <button
               type="button"
               disabled={selectedKeys.size < 1}
               onClick={() => setSplitModalOpen(true)}
-              className="rounded-md bg-blue-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
               {SPLIT_CLASS_SELECTION_TEXT.confirmButton}
             </button>

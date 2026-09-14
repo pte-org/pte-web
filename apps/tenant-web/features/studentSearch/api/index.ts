@@ -1,6 +1,10 @@
 "use client";
 
-import { listClassMemberships, type ClassMembershipResponse, type UserResponse } from "@pte/api-client";
+import {
+  listClassMemberships,
+  type ClassMembershipResponse,
+  type UserResponse,
+} from "@pte/api-client";
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import { useTenantStudents } from "@/features/examoperations/api";
@@ -27,7 +31,8 @@ function matchesQuery(user: UserResponse, query: string): boolean {
   const needle = query.trim().toLowerCase();
   if (!needle) return false;
   return (
-    user.fullName.toLowerCase().includes(needle) || (user.phone ?? "").toLowerCase().includes(needle)
+    user.fullName.toLowerCase().includes(needle) ||
+    (user.phone ?? "").toLowerCase().includes(needle)
   );
 }
 

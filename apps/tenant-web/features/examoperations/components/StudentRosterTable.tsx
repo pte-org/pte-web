@@ -28,8 +28,16 @@ export const StudentRosterTable = ({ sessionPublicId }: StudentRosterTableProps)
       cell: (entry) => <span className="font-medium text-gray-900">{entry.student.fullName}</span>,
     },
     { key: "email", header: STUDENT_TABLE_HEADERS.EMAIL, cell: (entry) => entry.student.email },
-    { key: "studentCode", header: STUDENT_TABLE_HEADERS.STUDENT_CODE, cell: (entry) => entry.student.studentCode ?? "-" },
-    { key: "className", header: STUDENT_TABLE_HEADERS.CLASS_NAME, cell: (entry) => entry.student.className ?? "-" },
+    {
+      key: "studentCode",
+      header: STUDENT_TABLE_HEADERS.STUDENT_CODE,
+      cell: (entry) => entry.student.studentCode ?? "-",
+    },
+    {
+      key: "className",
+      header: STUDENT_TABLE_HEADERS.CLASS_NAME,
+      cell: (entry) => entry.student.className ?? "-",
+    },
   ];
 
   const unenrollErrorMessage = errorMessage(unenrollMutation.error);

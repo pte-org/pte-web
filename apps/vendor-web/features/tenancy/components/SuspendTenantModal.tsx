@@ -51,15 +51,10 @@ export const SuspendTenantModal = ({
     >
       <p className="text-sm text-gray-600">{SUSPEND_MODAL_TEXT.WARNING}</p>
       <div className="mt-4 rounded-lg bg-gray-50 p-3">
-        <p className="text-sm text-gray-600">
-          {SUSPEND_MODAL_TEXT.CONFIRM_PROMPT}
-        </p>
+        <p className="text-sm text-gray-600">{SUSPEND_MODAL_TEXT.CONFIRM_PROMPT}</p>
         <p className="mt-1 font-semibold text-gray-900">{tenant?.name}</p>
       </div>
-      <label
-        htmlFor="suspend-tenant-name"
-        className="mt-4 block text-sm font-medium text-gray-700"
-      >
+      <label htmlFor="suspend-tenant-name" className="mt-4 block text-sm font-medium text-gray-700">
         {SUSPEND_MODAL_TEXT.INPUT_LABEL}
       </label>
       <input

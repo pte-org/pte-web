@@ -32,7 +32,12 @@ export const PendingClassAssignmentBanner = ({
         <Button type="button" variant="secondary" onClick={() => downloadCredentials(accounts)}>
           {T.redownload}
         </Button>
-        <Button type="button" onClick={onRetryAssign} isLoading={isAssigning} loadingText={T.retryAssign}>
+        <Button
+          type="button"
+          onClick={onRetryAssign}
+          isLoading={isAssigning}
+          loadingText={T.retryAssign}
+        >
           {T.retryAssign}
         </Button>
         <button

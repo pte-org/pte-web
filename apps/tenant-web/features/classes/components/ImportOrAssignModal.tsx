@@ -142,10 +142,18 @@ export const ImportOrAssignModal = ({
       )}
 
       <div className="mb-4 flex gap-2 rounded-lg bg-gray-50 p-1">
-        <button type="button" className={TAB_CLASS(tab === "existing")} onClick={() => setTab("existing")}>
+        <button
+          type="button"
+          className={TAB_CLASS(tab === "existing")}
+          onClick={() => setTab("existing")}
+        >
           {T.tabExisting}
         </button>
-        <button type="button" className={TAB_CLASS(tab === "import")} onClick={() => setTab("import")}>
+        <button
+          type="button"
+          className={TAB_CLASS(tab === "import")}
+          onClick={() => setTab("import")}
+        >
           {T.tabImport}
         </button>
         <button type="button" className={TAB_CLASS(tab === "add")} onClick={() => setTab("add")}>
@@ -206,7 +214,9 @@ const ExistingStudentTab = ({
 
   const loading = studentsLoading || membershipsLoading;
   const assignedIds = new Set((memberships ?? []).map((membership) => membership.studentPublicId));
-  const unassignedStudents = (students ?? []).filter((student) => !assignedIds.has(student.publicId));
+  const unassignedStudents = (students ?? []).filter(
+    (student) => !assignedIds.has(student.publicId),
+  );
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -216,7 +226,9 @@ const ExistingStudentTab = ({
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-      {!!assignStudent.error && <Alert tone="error">{assignErrorMessage(assignStudent.error)}</Alert>}
+      {!!assignStudent.error && (
+        <Alert tone="error">{assignErrorMessage(assignStudent.error)}</Alert>
+      )}
 
       {unassignedStudents.length === 0 && !loading ? (
         <p className="text-sm text-gray-500">{T.noExisting}</p>
@@ -273,7 +285,10 @@ const ImportExcelTab = ({
   const [file, setFile] = useState<File | null>(null);
   const [rows, setRows] = useState<RosterRow[] | null>(null);
   const [parseError, setParseError] = useState<string | undefined>();
-  const [lastResult, setLastResult] = useState<{ created: CreatedAccount[]; skipped: SkippedRow[] } | null>(null);
+  const [lastResult, setLastResult] = useState<{
+    created: CreatedAccount[];
+    skipped: SkippedRow[];
+  } | null>(null);
 
   const createAccounts = useCreateRosterAccountsForClass();
   const bulkAssign = useBulkAssignStudents(organizationPublicId, programPublicId, classPublicId);
@@ -337,7 +352,9 @@ const ImportExcelTab = ({
           <p className="text-sm text-gray-700">
             {T.reviewRows}: {rows.length}
           </p>
-          {!!createAccounts.error && <Alert tone="error">{errorMessage(createAccounts.error)}</Alert>}
+          {!!createAccounts.error && (
+            <Alert tone="error">{errorMessage(createAccounts.error)}</Alert>
+          )}
           <div>
             <Button
               type="button"
@@ -353,10 +370,16 @@ const ImportExcelTab = ({
 
       {lastResult && (
         <div className="flex flex-col gap-4">
-          <Alert tone="success">{T.accountsCreated.replace("{count}", String(lastResult.created.length))}</Alert>
+          <Alert tone="success">
+            {T.accountsCreated.replace("{count}", String(lastResult.created.length))}
+          </Alert>
           <SkippedRowsReport rows={lastResult.skipped} />
           <div>
-            <Button type="button" variant="secondary" onClick={() => downloadCredentials(lastResult.created)}>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => downloadCredentials(lastResult.created)}
+            >
               {T.download}
             </Button>
           </div>
@@ -435,7 +458,9 @@ const AddIndividuallyTab = ({
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3">
       <h4 className="text-sm font-semibold text-gray-900">{T.addIndividuallyHeading}</h4>
       {!!createStudent.error && <Alert tone="error">{errorMessage(createStudent.error)}</Alert>}
-      {!!assignStudent.error && <Alert tone="error">{assignErrorMessage(assignStudent.error)}</Alert>}
+      {!!assignStudent.error && (
+        <Alert tone="error">{assignErrorMessage(assignStudent.error)}</Alert>
+      )}
       <div className="grid gap-3 sm:grid-cols-2">
         <Input
           label={T.emailLabel}

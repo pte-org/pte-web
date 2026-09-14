@@ -121,7 +121,8 @@ export const ANSWER_DETAIL_TEXT = {
   UNRECOGNIZED_NOTICE:
     "This answer's format could not be decoded automatically. Showing the raw submitted value below.",
   TEACHER_SCORE_TITLE: "Teacher Score",
-  TEACHER_SCORE_HELPER: "Recorded independently of the AI score, 0-100. Does not affect the official result.",
+  TEACHER_SCORE_HELPER:
+    "Recorded independently of the AI score, 0-100. Does not affect the official result.",
   TEACHER_SCORE_LABEL: "Score (0-100)",
   SUBMIT: "Save Score",
   SUBMITTING: "Saving...",
@@ -197,7 +198,8 @@ export const CREATE_SESSION_FOR_PROGRAM_TEXT = {
   ROSTER_COUNT: (count: number) => `${count} student(s) will be enrolled`,
   ROSTER_LOADING: "Loading roster...",
   EMPTY_ROSTER_WARNING: "This Program has no students assigned yet — nothing to enroll.",
-  INACTIVE_PROGRAM_WARNING: "This Program is not currently active. You can still create a make-up exam for it.",
+  INACTIVE_PROGRAM_WARNING:
+    "This Program is not currently active. You can still create a make-up exam for it.",
   STUDENTS_PER_SESSION_LABEL: "Students per session (optional)",
   STUDENTS_PER_SESSION_PLACEHOLDER: "Leave blank for one session",
   STUDENTS_PER_SESSION_HELPER:

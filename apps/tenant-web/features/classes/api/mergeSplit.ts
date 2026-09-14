@@ -30,7 +30,9 @@ export function useMergeClasses(
 
   return useMutation({
     mutationFn: (sourceClassPublicIds) =>
-      mergeClasses(apiClient, organizationPublicId, programPublicId, targetClassPublicId, { sourceClassPublicIds }),
+      mergeClasses(apiClient, organizationPublicId, programPublicId, targetClassPublicId, {
+        sourceClassPublicIds,
+      }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: [...CLASSES_QUERY_KEY, programPublicId] });
       invalidateClassMemberships(queryClient);
@@ -47,7 +49,8 @@ export function useSplitClass(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload) => splitClass(apiClient, organizationPublicId, programPublicId, sourceClassPublicId, payload),
+    mutationFn: (payload) =>
+      splitClass(apiClient, organizationPublicId, programPublicId, sourceClassPublicId, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: [...CLASSES_QUERY_KEY, programPublicId] });
       invalidateClassMemberships(queryClient);
