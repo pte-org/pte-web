@@ -1,6 +1,11 @@
 "use client";
 
-import { listAuditLogs, listUsers, type AuditLogResponse, type UserResponse } from "@pte/api-client";
+import {
+  listAuditLogs,
+  listUsers,
+  type AuditLogResponse,
+  type UserResponse,
+} from "@pte/api-client";
 import { useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import { TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
@@ -38,7 +43,8 @@ export function useAuditLogs(aggregateType?: string): UseQueryResult<AuditLogEnt
     queryKey: [...AUDIT_LOGS_QUERY_KEY, aggregateType ?? "ALL"],
     queryFn: async () => {
       const logs = await listAuditLogs(apiClient, aggregateType);
-      const allUsers = queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? users.data ?? [];
+      const allUsers =
+        queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? users.data ?? [];
       const byId = new Map(allUsers.map((user) => [user.publicId, user]));
       return logs.map((log) => ({ log, actorName: byId.get(log.actorUserId)?.fullName ?? null }));
     },

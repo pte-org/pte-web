@@ -20,7 +20,10 @@ const HEADER_ALIASES: Record<string, keyof RosterRow> = {
 };
 
 function normalizeHeader(header: string): string {
-  return header.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+  return header
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
 }
 
 function formatIsoDate(date: Date): string {
@@ -76,7 +79,9 @@ function extractRosterRows(rawRows: unknown[][]): RosterRow[] {
   if (rawRows.length < 2) return [];
 
   const rawHeaders = rawRows[0] ?? [];
-  const fieldByColumn = rawHeaders.map((header) => HEADER_ALIASES[normalizeHeader(toCellText(header))]);
+  const fieldByColumn = rawHeaders.map(
+    (header) => HEADER_ALIASES[normalizeHeader(toCellText(header))],
+  );
 
   if (!fieldByColumn.includes("email") || !fieldByColumn.includes("fullName")) {
     throw new Error("Import file must have both an Email column and a Full Name column");

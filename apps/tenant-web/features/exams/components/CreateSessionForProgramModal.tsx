@@ -40,12 +40,20 @@ function batchRowTone(status: SessionBatchState["status"]): "info" | "success" |
   return "info";
 }
 
-const BatchRow = ({ batch, onRetry }: { batch: SessionBatchState; onRetry: () => void }): ReactElement => {
+const BatchRow = ({
+  batch,
+  onRetry,
+}: {
+  batch: SessionBatchState;
+  onRetry: () => void;
+}): ReactElement => {
   const failed = batch.status === "sessionError" || batch.status === "enrollError";
   return (
     <div className="flex items-center justify-between gap-3 rounded-md border border-gray-200 px-3 py-2">
       <div className="flex flex-col">
-        <span className="text-sm font-medium text-gray-900">{T.BATCH_LABEL(batch.index + 1, batch.total)}</span>
+        <span className="text-sm font-medium text-gray-900">
+          {T.BATCH_LABEL(batch.index + 1, batch.total)}
+        </span>
         <span
           className={
             batchRowTone(batch.status) === "success"
@@ -56,13 +64,17 @@ const BatchRow = ({ batch, onRetry }: { batch: SessionBatchState; onRetry: () =>
           }
         >
           {T.BATCH_STATUS[batch.status]}
-          {batch.status === "success" && ` (${batch.enrolled.length}/${batch.studentPublicIds.length})`}
+          {batch.status === "success" &&
+            ` (${batch.enrolled.length}/${batch.studentPublicIds.length})`}
         </span>
         {failed && <span className="text-xs text-red-600">{errorMessage(batch.error)}</span>}
       </div>
       <div className="flex items-center gap-2">
         {batch.status === "success" && batch.session && (
-          <Link href={`/host/exams/${batch.session.id}`} className="text-sm text-blue-700 hover:underline">
+          <Link
+            href={`/host/exams/${batch.session.id}`}
+            className="text-sm text-blue-700 hover:underline"
+          >
             {T.VIEW_SESSION}
           </Link>
         )}
@@ -115,7 +127,8 @@ export const CreateSessionForProgramModal = ({
     if (!canSubmit) return;
     const nextErrors: FormErrors = validateCreateSession(form);
     if (studentsPerSession.trim() && parsePositiveInt(studentsPerSession) === undefined) {
-      nextErrors.studentsPerSession = CREATE_SESSION_FOR_PROGRAM_ERRORS.STUDENTS_PER_SESSION_INVALID;
+      nextErrors.studentsPerSession =
+        CREATE_SESSION_FOR_PROGRAM_ERRORS.STUDENTS_PER_SESSION_INVALID;
     }
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
@@ -145,7 +158,7 @@ export const CreateSessionForProgramModal = ({
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800"
+            className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover"
           >
             {isRunning ? T.CANCEL : T.DONE}
           </button>
@@ -162,7 +175,7 @@ export const CreateSessionForProgramModal = ({
               type="submit"
               form="create-session-for-program-form"
               disabled={!canSubmit}
-              className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
               {T.SUBMIT}
             </button>
@@ -172,7 +185,9 @@ export const CreateSessionForProgramModal = ({
     >
       {hasStarted ? (
         <div className="flex flex-col gap-4">
-          {allSucceeded && <Alert tone="success">{T.ALL_DONE_TITLE(totalEnrolled, batches.length)}</Alert>}
+          {allSucceeded && (
+            <Alert tone="success">{T.ALL_DONE_TITLE(totalEnrolled, batches.length)}</Alert>
+          )}
           <div className="flex flex-col gap-2">
             {batches.map((batch) => (
               <BatchRow key={batch.index} batch={batch} onRetry={() => retryBatch(batch.index)} />
@@ -197,10 +212,16 @@ export const CreateSessionForProgramModal = ({
             </div>
           ) : (
             <p className="mb-4 text-sm text-gray-600">
-              {T.ROSTER_HEADING}: {rosterLoading ? T.ROSTER_LOADING : T.ROSTER_COUNT(studentPublicIds.length)}
+              {T.ROSTER_HEADING}:{" "}
+              {rosterLoading ? T.ROSTER_LOADING : T.ROSTER_COUNT(studentPublicIds.length)}
             </p>
           )}
-          <form id="create-session-for-program-form" onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+          <form
+            id="create-session-for-program-form"
+            onSubmit={handleSubmit}
+            noValidate
+            className="flex flex-col gap-4"
+          >
             <Input
               label={CREATE_SESSION_TEXT.NAME_LABEL}
               placeholder={CREATE_SESSION_TEXT.NAME_PLACEHOLDER}
@@ -244,15 +265,11 @@ export const CreateSessionForProgramModal = ({
             {!rosterIsEmpty && parsePositiveInt(studentsPerSession) !== undefined && (
               <p className="text-sm text-gray-600">{T.BATCH_PREVIEW(previewBatchCount)}</p>
             )}
-            {previewBatchCount > 1 && (
-              <Alert tone="warning">{T.LEAD_TIME_WARNING}</Alert>
-            )}
+            {previewBatchCount > 1 && <Alert tone="warning">{T.LEAD_TIME_WARNING}</Alert>}
           </form>
         </>
       )}
-      {isRunning && (
-        <p className="mt-4 text-sm text-gray-500">{T.RUNNING}</p>
-      )}
+      {isRunning && <p className="mt-4 text-sm text-gray-500">{T.RUNNING}</p>}
     </Modal>
   );
 };

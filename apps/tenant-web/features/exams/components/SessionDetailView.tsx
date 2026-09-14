@@ -9,11 +9,7 @@ import {
   StudentRosterTable,
 } from "@/features/examoperations/components";
 import { errorMessage as mutationErrorMessage } from "@/features/examoperations/errorMessage";
-import {
-  SESSION_DETAIL_TEXT,
-  SESSION_STATUS_LABELS,
-  SESSION_STATUS_VARIANT,
-} from "../constants";
+import { SESSION_DETAIL_TEXT, SESSION_STATUS_LABELS, SESSION_STATUS_VARIANT } from "../constants";
 import { useCloseSession, useOpenSession, useSession } from "../api";
 import { AnswersSection } from "./AnswersSection";
 import { ProctorAssignmentSection } from "./ProctorAssignmentSection";
@@ -59,7 +55,7 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
                 type="button"
                 onClick={() => open.mutate()}
                 disabled={open.isPending}
-                className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {T.OPEN_EXAM}
               </button>

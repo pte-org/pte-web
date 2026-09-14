@@ -124,9 +124,7 @@ function organizationInputToRequest(input: CreateOrganizationInput): CreateOrgan
   };
 }
 
-function tenantInputToOnboardRequest(
-  input: CreateTenantInput,
-): OnboardTenantRequest {
+function tenantInputToOnboardRequest(input: CreateTenantInput): OnboardTenantRequest {
   return {
     name: input.name.trim(),
     organizationType: input.organizationType,
@@ -161,19 +159,12 @@ export function useSystemHealth(): UseQueryResult<SystemHealth> {
   });
 }
 
-export function useCreateTenant(): UseMutationResult<
-  Tenant,
-  unknown,
-  CreateTenantInput
-> {
+export function useCreateTenant(): UseMutationResult<Tenant, unknown, CreateTenantInput> {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (input) => {
-      const response = await onboardTenant(
-        apiClient,
-        tenantInputToOnboardRequest(input),
-      );
+      const response = await onboardTenant(apiClient, tenantInputToOnboardRequest(input));
       return tenantResponseToTenant(response);
     },
     onSuccess: (tenant) => {
@@ -201,11 +192,7 @@ export function useSuspendTenant(): UseMutationResult<Tenant, unknown, string> {
   });
 }
 
-export function useReactivateTenant(): UseMutationResult<
-  Tenant,
-  unknown,
-  string
-> {
+export function useReactivateTenant(): UseMutationResult<Tenant, unknown, string> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -265,8 +252,10 @@ function replaceOrganizationInCache(
   tenantPublicId: string,
   updated: Organization,
 ): void {
-  queryClient.setQueryData<Organization[]>([...ORGANIZATIONS_QUERY_KEY, tenantPublicId], (previous = []) =>
-    previous.map((organization) => (organization.id === updated.id ? updated : organization)),
+  queryClient.setQueryData<Organization[]>(
+    [...ORGANIZATIONS_QUERY_KEY, tenantPublicId],
+    (previous = []) =>
+      previous.map((organization) => (organization.id === updated.id ? updated : organization)),
   );
 }
 
@@ -285,11 +274,13 @@ export function useCreateOrganization(
       return organizationResponseToOrganization(response);
     },
     onSuccess: (organization) => {
-      queryClient.setQueryData<Organization[]>([...ORGANIZATIONS_QUERY_KEY, tenantPublicId], (previous = []) => [
-        ...previous,
-        organization,
-      ]);
-      void queryClient.invalidateQueries({ queryKey: [...ORGANIZATIONS_QUERY_KEY, tenantPublicId] });
+      queryClient.setQueryData<Organization[]>(
+        [...ORGANIZATIONS_QUERY_KEY, tenantPublicId],
+        (previous = []) => [...previous, organization],
+      );
+      void queryClient.invalidateQueries({
+        queryKey: [...ORGANIZATIONS_QUERY_KEY, tenantPublicId],
+      });
     },
   });
 }
@@ -304,7 +295,8 @@ export function useSuspendOrganization(
       const response = await suspendOrganization(apiClient, tenantPublicId, organizationPublicId);
       return organizationResponseToOrganization(response);
     },
-    onSuccess: (organization) => replaceOrganizationInCache(queryClient, tenantPublicId, organization),
+    onSuccess: (organization) =>
+      replaceOrganizationInCache(queryClient, tenantPublicId, organization),
   });
 }
 
@@ -315,10 +307,15 @@ export function useReactivateOrganization(
 
   return useMutation({
     mutationFn: async (organizationPublicId: string) => {
-      const response = await reactivateOrganization(apiClient, tenantPublicId, organizationPublicId);
+      const response = await reactivateOrganization(
+        apiClient,
+        tenantPublicId,
+        organizationPublicId,
+      );
       return organizationResponseToOrganization(response);
     },
-    onSuccess: (organization) => replaceOrganizationInCache(queryClient, tenantPublicId, organization),
+    onSuccess: (organization) =>
+      replaceOrganizationInCache(queryClient, tenantPublicId, organization),
   });
 }
 
@@ -352,16 +349,16 @@ export function useCreateLoginAccount(
     },
     onSuccess: (account) => {
       queryClient.setQueryData([...LOGIN_ACCOUNT_QUERY_KEY, tenantPublicId], account);
-      void queryClient.invalidateQueries({ queryKey: [...LOGIN_ACCOUNT_QUERY_KEY, tenantPublicId] });
+      void queryClient.invalidateQueries({
+        queryKey: [...LOGIN_ACCOUNT_QUERY_KEY, tenantPublicId],
+      });
     },
   });
 }
 
-export function useResetPassword(userPublicId: string): UseMutationResult<
-  LoginAccount,
-  unknown,
-  ResetPasswordInput
-> {
+export function useResetPassword(
+  userPublicId: string,
+): UseMutationResult<LoginAccount, unknown, ResetPasswordInput> {
   return useMutation({
     mutationFn: async (input) => {
       const response = await resetPasswordRequest(apiClient, userPublicId, {

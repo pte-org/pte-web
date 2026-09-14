@@ -39,7 +39,7 @@ export const Dropdown = ({
         aria-expanded={open}
         onClick={() => setOpen((value) => !value)}
         className={cn(
-          "grid h-8 w-8 place-items-center rounded-full text-gray-500 hover:bg-gray-100",
+          "grid h-10 w-10 place-items-center rounded-md text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-700",
           triggerClassName,
         )}
       >
@@ -58,7 +58,7 @@ export const Dropdown = ({
           <div
             role="menu"
             className={cn(
-              "absolute z-20 mt-1 min-w-44 rounded-lg border border-gray-200 bg-white py-1 shadow-lg",
+              "absolute z-20 mt-1 min-w-44 rounded-md bg-white py-1 shadow-card",
               align === "right" ? "right-0" : "left-0",
             )}
           >
@@ -74,7 +74,7 @@ export const Dropdown = ({
                     setOpen(false);
                   }}
                   className={cn(
-                    "flex w-full items-center gap-2 px-4 py-2 text-left text-sm hover:bg-gray-50",
+                    "flex min-h-10 w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors hover:bg-blue-50",
                     item.danger ? "text-red-600" : "text-gray-700",
                   )}
                 >

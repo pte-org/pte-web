@@ -24,7 +24,11 @@ export const LecturerAssignmentSection = ({
   programPublicId,
   classPublicId,
 }: LecturerAssignmentSectionProps): ReactElement => {
-  const { data: assignments, isLoading } = useLecturerAssignments(organizationPublicId, programPublicId, classPublicId);
+  const { data: assignments, isLoading } = useLecturerAssignments(
+    organizationPublicId,
+    programPublicId,
+    classPublicId,
+  );
   const unassign = useUnassignLecturer(organizationPublicId, programPublicId, classPublicId);
   const [addOpen, setAddOpen] = useState(false);
 
@@ -46,7 +50,7 @@ export const LecturerAssignmentSection = ({
         <button
           type="button"
           onClick={() => setAddOpen(true)}
-          className="rounded-md bg-blue-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-700"
+          className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover"
         >
           {T.addButton}
         </button>

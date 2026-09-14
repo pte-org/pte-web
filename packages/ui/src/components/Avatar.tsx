@@ -6,8 +6,7 @@ interface AvatarProps {
   className?: string;
 }
 
-const initialOf = (name?: string): string =>
-  name?.trim()?.charAt(0).toUpperCase() ?? "•";
+const initialOf = (name?: string): string => name?.trim()?.charAt(0).toUpperCase() ?? "•";
 
 export const Avatar = ({ name, className }: AvatarProps): ReactElement => (
   <span

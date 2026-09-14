@@ -18,7 +18,12 @@ export const ProgramDashboard = ({
   programPublicId,
   classLabel,
 }: ProgramDashboardProps): ReactElement => {
-  const { data: dashboard, isLoading, isError, error } = useProgramDashboard(organizationPublicId, programPublicId);
+  const {
+    data: dashboard,
+    isLoading,
+    isError,
+    error,
+  } = useProgramDashboard(organizationPublicId, programPublicId);
 
   if (isError) {
     return <Alert tone="error">{errorMessage(error, PROGRAM_DASHBOARD_TEXT.loadFailed)}</Alert>;
@@ -30,7 +35,11 @@ export const ProgramDashboard = ({
 
   const columns: DataTableColumn<ProgramDashboardResponse["classes"][number]>[] = [
     { key: "name", header: PROGRAM_DASHBOARD_TABLE_HEADERS.NAME, cell: (row) => row.className },
-    { key: "students", header: PROGRAM_DASHBOARD_TABLE_HEADERS.STUDENTS, cell: (row) => row.studentCount },
+    {
+      key: "students",
+      header: PROGRAM_DASHBOARD_TABLE_HEADERS.STUDENTS,
+      cell: (row) => row.studentCount,
+    },
   ];
 
   return (
@@ -48,8 +57,14 @@ export const ProgramDashboard = ({
 
       {dashboard.classes.length > 0 && (
         <div className="flex flex-col gap-2">
-          <h4 className="text-sm font-semibold text-gray-900">{PROGRAM_DASHBOARD_TEXT.tableHeading(classLabel)}</h4>
-          <DataTable columns={columns} rows={dashboard.classes} getRowKey={(row) => row.classPublicId} />
+          <h4 className="text-sm font-semibold text-gray-900">
+            {PROGRAM_DASHBOARD_TEXT.tableHeading(classLabel)}
+          </h4>
+          <DataTable
+            columns={columns}
+            rows={dashboard.classes}
+            getRowKey={(row) => row.classPublicId}
+          />
         </div>
       )}
     </div>

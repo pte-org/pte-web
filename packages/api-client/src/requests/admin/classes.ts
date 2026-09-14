@@ -34,9 +34,19 @@ export const CLASS_ENDPOINTS = {
     `${basePath(organizationPublicId, programPublicId)}/${classPublicId}/students`,
   studentsBulk: (organizationPublicId: string, programPublicId: string, classPublicId: string) =>
     `${basePath(organizationPublicId, programPublicId)}/${classPublicId}/students/bulk`,
-  student: (organizationPublicId: string, programPublicId: string, classPublicId: string, membershipPublicId: string) =>
+  student: (
+    organizationPublicId: string,
+    programPublicId: string,
+    classPublicId: string,
+    membershipPublicId: string,
+  ) =>
     `${basePath(organizationPublicId, programPublicId)}/${classPublicId}/students/${membershipPublicId}`,
-  transfer: (organizationPublicId: string, programPublicId: string, classPublicId: string, membershipPublicId: string) =>
+  transfer: (
+    organizationPublicId: string,
+    programPublicId: string,
+    classPublicId: string,
+    membershipPublicId: string,
+  ) =>
     `${basePath(organizationPublicId, programPublicId)}/${classPublicId}/students/${membershipPublicId}/transfer`,
   merge: (organizationPublicId: string, programPublicId: string, targetClassPublicId: string) =>
     `${basePath(organizationPublicId, programPublicId)}/${targetClassPublicId}/merge`,
@@ -49,7 +59,9 @@ export function listClasses(
   organizationPublicId: string,
   programPublicId: string,
 ): Promise<ClassResponse[]> {
-  return client.request<ClassResponse[]>(CLASS_ENDPOINTS.classes(organizationPublicId, programPublicId));
+  return client.request<ClassResponse[]>(
+    CLASS_ENDPOINTS.classes(organizationPublicId, programPublicId),
+  );
 }
 
 export function createClass(
@@ -58,10 +70,13 @@ export function createClass(
   programPublicId: string,
   payload: CreateClassRequest,
 ): Promise<ClassResponse> {
-  return client.request<ClassResponse>(CLASS_ENDPOINTS.classes(organizationPublicId, programPublicId), {
-    method: "POST",
-    body: payload,
-  });
+  return client.request<ClassResponse>(
+    CLASS_ENDPOINTS.classes(organizationPublicId, programPublicId),
+    {
+      method: "POST",
+      body: payload,
+    },
+  );
 }
 
 export function updateClass(
@@ -71,10 +86,13 @@ export function updateClass(
   publicId: string,
   payload: UpdateClassRequest,
 ): Promise<ClassResponse> {
-  return client.request<ClassResponse>(CLASS_ENDPOINTS.class(organizationPublicId, programPublicId, publicId), {
-    method: "PUT",
-    body: payload,
-  });
+  return client.request<ClassResponse>(
+    CLASS_ENDPOINTS.class(organizationPublicId, programPublicId, publicId),
+    {
+      method: "PUT",
+      body: payload,
+    },
+  );
 }
 
 export function activateClass(
@@ -83,9 +101,12 @@ export function activateClass(
   programPublicId: string,
   publicId: string,
 ): Promise<ClassResponse> {
-  return client.request<ClassResponse>(CLASS_ENDPOINTS.activate(organizationPublicId, programPublicId, publicId), {
-    method: "POST",
-  });
+  return client.request<ClassResponse>(
+    CLASS_ENDPOINTS.activate(organizationPublicId, programPublicId, publicId),
+    {
+      method: "POST",
+    },
+  );
 }
 
 export function deactivateClass(
@@ -94,9 +115,12 @@ export function deactivateClass(
   programPublicId: string,
   publicId: string,
 ): Promise<ClassResponse> {
-  return client.request<ClassResponse>(CLASS_ENDPOINTS.deactivate(organizationPublicId, programPublicId, publicId), {
-    method: "POST",
-  });
+  return client.request<ClassResponse>(
+    CLASS_ENDPOINTS.deactivate(organizationPublicId, programPublicId, publicId),
+    {
+      method: "POST",
+    },
+  );
 }
 
 export function suspendClass(
@@ -105,9 +129,12 @@ export function suspendClass(
   programPublicId: string,
   publicId: string,
 ): Promise<ClassResponse> {
-  return client.request<ClassResponse>(CLASS_ENDPOINTS.suspend(organizationPublicId, programPublicId, publicId), {
-    method: "POST",
-  });
+  return client.request<ClassResponse>(
+    CLASS_ENDPOINTS.suspend(organizationPublicId, programPublicId, publicId),
+    {
+      method: "POST",
+    },
+  );
 }
 
 export function archiveClass(
@@ -116,9 +143,12 @@ export function archiveClass(
   programPublicId: string,
   publicId: string,
 ): Promise<ClassResponse> {
-  return client.request<ClassResponse>(CLASS_ENDPOINTS.archive(organizationPublicId, programPublicId, publicId), {
-    method: "POST",
-  });
+  return client.request<ClassResponse>(
+    CLASS_ENDPOINTS.archive(organizationPublicId, programPublicId, publicId),
+    {
+      method: "POST",
+    },
+  );
 }
 
 export function assignStudent(
@@ -155,7 +185,12 @@ export function unassignStudent(
   membershipPublicId: string,
 ): Promise<void> {
   return client.request<void>(
-    CLASS_ENDPOINTS.student(organizationPublicId, programPublicId, classPublicId, membershipPublicId),
+    CLASS_ENDPOINTS.student(
+      organizationPublicId,
+      programPublicId,
+      classPublicId,
+      membershipPublicId,
+    ),
     { method: "DELETE" },
   );
 }
@@ -169,7 +204,12 @@ export function transferStudent(
   payload: TransferStudentRequest,
 ): Promise<ClassMembershipResponse> {
   return client.request<ClassMembershipResponse>(
-    CLASS_ENDPOINTS.transfer(organizationPublicId, programPublicId, classPublicId, membershipPublicId),
+    CLASS_ENDPOINTS.transfer(
+      organizationPublicId,
+      programPublicId,
+      classPublicId,
+      membershipPublicId,
+    ),
     { method: "POST", body: payload },
   );
 }

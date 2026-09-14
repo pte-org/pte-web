@@ -13,10 +13,7 @@ interface SidebarNavProps {
   renderLink: (item: SidebarNavItem, className: string) => ReactNode;
 }
 
-export const SidebarNav = ({
-  items,
-  renderLink,
-}: SidebarNavProps): ReactElement => (
+export const SidebarNav = ({ items, renderLink }: SidebarNavProps): ReactElement => (
   <div className="flex flex-col gap-1">
     {items.map((item) =>
       renderLink(

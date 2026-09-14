@@ -10,10 +10,7 @@ interface BreadcrumbsProps {
   renderLink?: (item: BreadcrumbItem) => ReactNode;
 }
 
-export const Breadcrumbs = ({
-  items,
-  renderLink,
-}: BreadcrumbsProps): ReactElement => (
+export const Breadcrumbs = ({ items, renderLink }: BreadcrumbsProps): ReactElement => (
   <nav aria-label="Breadcrumb" className="text-sm text-gray-500">
     <ol className="flex flex-wrap items-center gap-2">
       {items.map((item, index) => {
@@ -24,9 +21,7 @@ export const Breadcrumbs = ({
             {item.href && !isLast && renderLink ? (
               renderLink(item)
             ) : (
-              <span className={isLast ? "font-medium text-gray-900" : undefined}>
-                {item.label}
-              </span>
+              <span className={isLast ? "font-medium text-gray-900" : undefined}>{item.label}</span>
             )}
           </li>
         );

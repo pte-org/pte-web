@@ -1,11 +1,5 @@
 export type ApiErrorKind =
-  | "validation"
-  | "unauthorized"
-  | "forbidden"
-  | "conflict"
-  | "network"
-  | "server"
-  | "unknown";
+  "validation" | "unauthorized" | "forbidden" | "conflict" | "network" | "server" | "unknown";
 
 /**
  * Typed error thrown by the API client so callers can branch on `kind`
@@ -18,12 +12,7 @@ export class ApiError extends Error {
   readonly status: number;
   readonly details?: unknown;
 
-  constructor(
-    kind: ApiErrorKind,
-    status: number,
-    message: string,
-    details?: unknown,
-  ) {
+  constructor(kind: ApiErrorKind, status: number, message: string, details?: unknown) {
     super(message);
     this.name = "ApiError";
     this.kind = kind;

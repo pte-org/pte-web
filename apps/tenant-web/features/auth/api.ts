@@ -16,11 +16,7 @@ import {
 import { apiClient } from "@/lib/apiClient";
 import { CURRENT_USER_QUERY_KEY } from "./constants";
 
-export function useLoginHost(): UseMutationResult<
-  JwtTokenResponse,
-  unknown,
-  HostLoginRequest
-> {
+export function useLoginHost(): UseMutationResult<JwtTokenResponse, unknown, HostLoginRequest> {
   return useMutation({
     mutationFn: (payload: HostLoginRequest) => loginHost(apiClient, payload),
   });

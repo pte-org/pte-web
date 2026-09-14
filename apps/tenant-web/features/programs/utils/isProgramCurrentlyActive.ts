@@ -8,7 +8,10 @@ import type { ProgramResponse } from "@pte/api-client";
  * objects, so there's no timezone-driven off-by-one against the backend's
  * `LocalDate` (which carries no time-of-day at all).
  */
-export function isProgramCurrentlyActive(program: ProgramResponse, today: string = new Date().toISOString().slice(0, 10)): boolean {
+export function isProgramCurrentlyActive(
+  program: ProgramResponse,
+  today: string = new Date().toISOString().slice(0, 10),
+): boolean {
   const afterStart = !program.startDate || today >= program.startDate;
   const beforeEnd = !program.endDate || today <= program.endDate;
   return afterStart && beforeEnd;

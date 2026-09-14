@@ -2,7 +2,8 @@ import type { ApiClient } from "../../client/client";
 import type { StudentEnrollmentResponse } from "../../types/scheduling";
 
 export const STUDENT_ENROLLMENT_ENDPOINTS = {
-  enrollments: (studentPublicId: string) => `/api/scheduling/students/${studentPublicId}/enrollments`,
+  enrollments: (studentPublicId: string) =>
+    `/api/scheduling/students/${studentPublicId}/enrollments`,
 } as const;
 
 /**

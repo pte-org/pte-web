@@ -34,7 +34,10 @@ export function listAnswers(
   );
 }
 
-export function getAnswer(client: ApiClient, publicId: string): Promise<AnswerReviewDetailResponse> {
+export function getAnswer(
+  client: ApiClient,
+  publicId: string,
+): Promise<AnswerReviewDetailResponse> {
   return client.request<AnswerReviewDetailResponse>(SCORING_ANSWER_ENDPOINTS.answer(publicId));
 }
 

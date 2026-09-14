@@ -34,14 +34,21 @@ const ClassRowActions = ({
   programPublicId,
   studentClass,
 }: ClassRowActionsProps): ReactElement => {
-  const mutations = useClassStatusMutations(organizationPublicId, programPublicId, studentClass.publicId);
+  const mutations = useClassStatusMutations(
+    organizationPublicId,
+    programPublicId,
+    studentClass.publicId,
+  );
   const pending =
     mutations.activate.isPending ||
     mutations.deactivate.isPending ||
     mutations.suspend.isPending ||
     mutations.archive.isPending;
   const rowError = errorMessage(
-    mutations.activate.error ?? mutations.deactivate.error ?? mutations.suspend.error ?? mutations.archive.error,
+    mutations.activate.error ??
+      mutations.deactivate.error ??
+      mutations.suspend.error ??
+      mutations.archive.error,
   );
 
   return (
@@ -109,7 +116,9 @@ export const ClassesSection = ({
 
   const createErrorMessage = errorMessage(create.error);
 
-  const selectedClasses = (classes ?? []).filter((studentClass) => selectedKeys.has(studentClass.publicId));
+  const selectedClasses = (classes ?? []).filter((studentClass) =>
+    selectedKeys.has(studentClass.publicId),
+  );
 
   const exitMergeMode = (): void => {
     setMergeMode(false);
@@ -183,16 +192,22 @@ export const ClassesSection = ({
 
       {mergeMode && (
         <div className="flex items-center justify-between rounded-md border border-blue-200 bg-blue-50 px-4 py-2">
-          <span className="text-sm text-blue-800">{MERGE_CLASSES_SELECTION_TEXT.selectedCount(selectedKeys.size)}</span>
+          <span className="text-sm text-blue-800">
+            {MERGE_CLASSES_SELECTION_TEXT.selectedCount(selectedKeys.size)}
+          </span>
           <div className="flex items-center gap-3">
-            <button type="button" onClick={exitMergeMode} className="text-sm text-gray-600 hover:underline">
+            <button
+              type="button"
+              onClick={exitMergeMode}
+              className="text-sm text-gray-600 hover:underline"
+            >
               {MERGE_CLASSES_SELECTION_TEXT.cancelSelection}
             </button>
             <button
               type="button"
               disabled={selectedKeys.size < 2}
               onClick={() => setMergeModalOpen(true)}
-              className="rounded-md bg-blue-700 px-3 py-1.5 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
               {MERGE_CLASSES_SELECTION_TEXT.confirmButton}
             </button>

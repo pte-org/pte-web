@@ -57,7 +57,8 @@ export function DataTable<TRow>({
   }
 
   const selection = selectedKeys ?? new Set<string | number>();
-  const allSelected = selectable && rows.length > 0 && rows.every((row) => selection.has(getRowKey(row)));
+  const allSelected =
+    selectable && rows.length > 0 && rows.every((row) => selection.has(getRowKey(row)));
 
   const toggleRow = (key: string | number): void => {
     if (!onSelectionChange) return;
@@ -73,10 +74,10 @@ export function DataTable<TRow>({
   };
 
   return (
-    <div className="overflow-visible rounded-lg border border-gray-200 bg-white shadow-md shadow-slate-200/70">
+    <div className="overflow-visible rounded-lg bg-white shadow-card">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-slate-50 text-left text-xs font-semibold uppercase text-slate-500">
+          <thead className="sticky top-0 z-10 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
             <tr>
               {selectable && (
                 <th scope="col" className="w-10 px-5 py-3.5">
@@ -90,11 +91,7 @@ export function DataTable<TRow>({
                 </th>
               )}
               {columns.map((column) => (
-                <th
-                  key={column.key}
-                  scope="col"
-                  className={cn("px-5 py-3.5", column.className)}
-                >
+                <th key={column.key} scope="col" className={cn("px-5 py-3.5", column.className)}>
                   {column.header}
                 </th>
               ))}
@@ -105,11 +102,11 @@ export function DataTable<TRow>({
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 bg-white text-gray-700">
+          <tbody className="divide-y divide-gray-200 bg-white text-gray-700">
             {rows.map((row) => {
               const key = getRowKey(row);
               return (
-                <tr key={key} className="hover:bg-slate-50/70">
+                <tr key={key} className="transition-colors hover:bg-slate-50">
                   {selectable && (
                     <td className="px-5 py-4">
                       <input
@@ -126,9 +123,7 @@ export function DataTable<TRow>({
                       {column.cell(row)}
                     </td>
                   ))}
-                  {rowActions && (
-                    <td className="px-5 py-4 text-right">{rowActions(row)}</td>
-                  )}
+                  {rowActions && <td className="px-5 py-4 text-right">{rowActions(row)}</td>}
                 </tr>
               );
             })}

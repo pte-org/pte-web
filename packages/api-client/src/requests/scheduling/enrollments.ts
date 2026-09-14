@@ -1,8 +1,13 @@
 import type { ApiClient } from "../../client/client";
-import type { BulkEnrollRequest, BulkEnrollResponse, EnrollmentResponse } from "../../types/scheduling";
+import type {
+  BulkEnrollRequest,
+  BulkEnrollResponse,
+  EnrollmentResponse,
+} from "../../types/scheduling";
 
 export const ENROLLMENT_ENDPOINTS = {
-  enrollments: (sessionPublicId: string) => `/api/scheduling/sessions/${sessionPublicId}/enrollments`,
+  enrollments: (sessionPublicId: string) =>
+    `/api/scheduling/sessions/${sessionPublicId}/enrollments`,
   bulk: (sessionPublicId: string) => `/api/scheduling/sessions/${sessionPublicId}/enrollments/bulk`,
   enrollment: (sessionPublicId: string, enrollmentPublicId: string) =>
     `/api/scheduling/sessions/${sessionPublicId}/enrollments/${enrollmentPublicId}`,
@@ -42,7 +47,10 @@ export function unenroll(
   sessionPublicId: string,
   enrollmentPublicId: string,
 ): Promise<void> {
-  return client.request<void>(ENROLLMENT_ENDPOINTS.enrollment(sessionPublicId, enrollmentPublicId), {
-    method: "DELETE",
-  });
+  return client.request<void>(
+    ENROLLMENT_ENDPOINTS.enrollment(sessionPublicId, enrollmentPublicId),
+    {
+      method: "DELETE",
+    },
+  );
 }

@@ -2,10 +2,7 @@ const TOKEN_KEY = "pte.accessToken";
 const SESSION_KEY = "pte.session";
 
 function isBrowser(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    typeof window.localStorage !== "undefined"
-  );
+  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
 }
 
 /**

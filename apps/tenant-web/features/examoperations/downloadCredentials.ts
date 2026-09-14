@@ -1,7 +1,10 @@
 import * as XLSX from "xlsx";
 import type { CreatedAccount } from "./types";
 
-export function downloadCredentials(accounts: CreatedAccount[], fileName = "student-credentials.xlsx"): void {
+export function downloadCredentials(
+  accounts: CreatedAccount[],
+  fileName = "student-credentials.xlsx",
+): void {
   const sheet = XLSX.utils.json_to_sheet(
     accounts.map((account) => ({
       Email: account.email,

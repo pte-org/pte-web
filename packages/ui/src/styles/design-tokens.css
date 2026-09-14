@@ -1,0 +1,159 @@
+:root {
+  --surface-page: #f2f6fa;
+  --surface-card: #ffffff;
+  --surface-subtle: #eaeff4;
+  --ink-primary: #2a3547;
+  --ink-secondary: #5a6a85;
+  --ink-muted: #7c8fac;
+  --divider: #e5eaef;
+  --control-border: #7c8fac;
+  --brand-soft: #5d87ff;
+  --brand: #4169e8;
+  --brand-hover: #3359d2;
+  --brand-deep: #2f52c4;
+  --brand-tint: #ecf2ff;
+  --brand-ink: #3359d2;
+  --action: #0b5fae;
+  --action-hover: #095394;
+  --action-active: #08467c;
+  --action-tint: #e8f2f9;
+  --action-tint-hover: #d9eaf5;
+  --sky-tint: #e8f7ff;
+  --sky-action: #0e729f;
+  --mint-tint: #e6fffa;
+  --mint-action: #088068;
+  --cream-tint: #fef5e5;
+  --cream-action: #9c6400;
+  --blush-tint: #fdede8;
+  --blush-action: #be452b;
+  /* Stitch data/state colors retained for later semantic adoption. */
+  --chart-blue: #2a78d6;
+  --chart-orange: #eb6834;
+  --skeleton-base: #eef2f6;
+  --surface-row-hover: #f8fafc;
+  --card-shadow:
+    rgba(145, 158, 171, 0.3) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px;
+  --sidebar-shadow:
+    rgba(145, 158, 171, 0.2) 0px 0px 2px 0px, rgba(145, 158, 171, 0.08) 0px 12px 24px -4px;
+  --background: var(--surface-page);
+  --foreground: var(--ink-primary);
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-plus-jakarta);
+  --font-mono: var(--font-geist-mono);
+  --shadow-card: var(--card-shadow);
+  --shadow-sidebar: var(--sidebar-shadow);
+
+  /* Keep existing feature classes on the shared Academic Swiss palette. */
+  --color-blue-50: var(--brand-tint);
+  --color-blue-100: #dce6ff;
+  --color-blue-200: #c4d5ff;
+  --color-blue-500: var(--brand-soft);
+  --color-blue-600: var(--brand);
+  --color-blue-700: var(--brand-ink);
+  --color-blue-800: var(--brand-hover);
+  --color-blue-900: var(--brand-deep);
+  --color-blue-950: #24439f;
+  --color-indigo-50: var(--brand-tint);
+  --color-indigo-100: var(--brand-tint);
+  --color-indigo-700: var(--brand-ink);
+  --color-indigo-900: var(--brand-deep);
+  --color-action: var(--action);
+  --color-action-hover: var(--action-hover);
+  --color-action-active: var(--action-active);
+  --color-action-tint: var(--action-tint);
+  --color-action-tint-hover: var(--action-tint-hover);
+  --color-sky-50: var(--sky-tint);
+  --color-sky-100: #d5f1ff;
+  --color-sky-500: var(--sky-action);
+  --color-sky-600: var(--sky-action);
+  --color-sky-700: var(--sky-action);
+  --color-slate-50: #f6f9fc;
+  --color-slate-100: var(--surface-page);
+  --color-slate-200: var(--surface-subtle);
+  --color-slate-300: #dfe5ef;
+  --color-slate-400: var(--ink-muted);
+  --color-slate-500: var(--ink-secondary);
+  --color-slate-600: var(--ink-secondary);
+  --color-slate-650: var(--ink-primary);
+  --color-slate-700: var(--ink-primary);
+  --color-slate-800: var(--ink-primary);
+  --color-slate-850: #202a3a;
+  --color-gray-50: #f6f9fc;
+  --color-gray-100: var(--surface-page);
+  --color-gray-200: var(--divider);
+  --color-gray-300: var(--control-border);
+  --color-gray-400: var(--ink-muted);
+  --color-gray-500: var(--ink-secondary);
+  --color-gray-600: var(--ink-secondary);
+  --color-gray-700: var(--ink-primary);
+  --color-gray-800: var(--ink-primary);
+  --color-gray-900: var(--ink-primary);
+  --color-green-50: var(--mint-tint);
+  --color-green-100: var(--mint-tint);
+  --color-green-500: var(--mint-action);
+  --color-green-600: var(--mint-action);
+  --color-green-700: var(--mint-action);
+  --color-emerald-500: var(--mint-action);
+  --color-amber-50: var(--cream-tint);
+  --color-amber-100: var(--cream-tint);
+  --color-amber-500: var(--cream-action);
+  --color-amber-600: var(--cream-action);
+  --color-amber-700: var(--cream-action);
+  --color-yellow-50: var(--cream-tint);
+  --color-yellow-100: var(--cream-tint);
+  --color-yellow-500: var(--cream-action);
+  --color-yellow-700: var(--cream-action);
+  --color-red-50: var(--blush-tint);
+  --color-red-100: var(--blush-tint);
+  --color-red-200: #f3c7bb;
+  --color-red-500: var(--blush-action);
+  --color-red-600: var(--blush-action);
+  --color-red-700: var(--blush-action);
+  --color-rose-500: var(--blush-action);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-plus-jakarta), Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.43;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+.tabular-nums,
+.font-mono {
+  font-variant-numeric: tabular-nums;
+}

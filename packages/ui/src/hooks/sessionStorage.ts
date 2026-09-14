@@ -27,10 +27,7 @@ export interface PteSession {
 const SESSION_KEY = "pte.session";
 
 function isBrowser(): boolean {
-  return (
-    typeof window !== "undefined" &&
-    typeof window.localStorage !== "undefined"
-  );
+  return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
 }
 
 function parseSession(value: string | null): PteSession | null {

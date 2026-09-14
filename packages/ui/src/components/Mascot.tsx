@@ -45,14 +45,7 @@ export const Mascot = ({ className }: MascotProps): ReactElement => (
     <ellipse cx="118" cy="177" rx="13" ry="9" fill="#2F6BD6" />
 
     {/* Body */}
-    <rect
-      x="46"
-      y="56"
-      width="108"
-      height="120"
-      rx="52"
-      fill="url(#pteMascotBody)"
-    />
+    <rect x="46" y="56" width="108" height="120" rx="52" fill="url(#pteMascotBody)" />
 
     {/* Arms */}
     <ellipse cx="47" cy="122" rx="12" ry="21" fill="#4C8BF0" />
@@ -95,14 +88,7 @@ export const Mascot = ({ className }: MascotProps): ReactElement => (
     <rect x="146" y="86" width="23" height="36" rx="11" fill="#3A4A63" />
 
     {/* Glowing "E" badge on the belly */}
-    <rect
-      x="85"
-      y="142"
-      width="30"
-      height="27"
-      rx="8"
-      fill="url(#pteMascotGlow)"
-    />
+    <rect x="85" y="142" width="30" height="27" rx="8" fill="url(#pteMascotGlow)" />
     <text
       x="100"
       y="162"

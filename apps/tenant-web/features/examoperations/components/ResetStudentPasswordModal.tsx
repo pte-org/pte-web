@@ -53,7 +53,7 @@ export const ResetStudentPasswordModal = ({
             type="submit"
             form="reset-student-password-form"
             disabled={isSubmitting}
-            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSubmitting ? T.SUBMITTING : T.SUBMIT}
           </button>

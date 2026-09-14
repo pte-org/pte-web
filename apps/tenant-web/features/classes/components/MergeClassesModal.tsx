@@ -30,10 +30,14 @@ export const MergeClassesModal = ({
   classLabel,
   onMerged,
 }: MergeClassesModalProps): ReactElement => {
-  const [targetClassPublicId, setTargetClassPublicId] = useState(selectedClasses[0]?.publicId ?? "");
+  const [targetClassPublicId, setTargetClassPublicId] = useState(
+    selectedClasses[0]?.publicId ?? "",
+  );
   const merge = useMergeClasses(organizationPublicId, programPublicId, targetClassPublicId);
 
-  const sourceClasses = selectedClasses.filter((studentClass) => studentClass.publicId !== targetClassPublicId);
+  const sourceClasses = selectedClasses.filter(
+    (studentClass) => studentClass.publicId !== targetClassPublicId,
+  );
   const submitError = errorMessage(merge.error);
 
   const handleClose = (): void => {
@@ -79,7 +83,7 @@ export const MergeClassesModal = ({
             type="button"
             onClick={handleSubmit}
             disabled={merge.isPending || sourceClasses.length === 0}
-            className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {merge.isPending ? T.submitting : T.submit}
           </button>
@@ -92,9 +96,14 @@ export const MergeClassesModal = ({
         </div>
       )}
       <fieldset className="flex flex-col gap-2">
-        <legend className="mb-1 text-sm font-medium text-gray-700">{T.destinationLabel(classLabel)}</legend>
+        <legend className="mb-1 text-sm font-medium text-gray-700">
+          {T.destinationLabel(classLabel)}
+        </legend>
         {selectedClasses.map((studentClass) => (
-          <label key={studentClass.publicId} className="flex items-center gap-2 text-sm text-gray-700">
+          <label
+            key={studentClass.publicId}
+            className="flex items-center gap-2 text-sm text-gray-700"
+          >
             <input
               type="radio"
               name="merge-target"

@@ -14,10 +14,12 @@ export const CLASS_STATUS_VARIANT = {
 } as const;
 
 export const CLASSES_SECTION_TEXT = {
-  countLabel: (count: number, label: string) => `${count} ${label.toLowerCase()}${count === 1 ? "" : "s"}`,
+  countLabel: (count: number, label: string) =>
+    `${count} ${label.toLowerCase()}${count === 1 ? "" : "s"}`,
   addButton: (label: string) => `+ Create ${label}`,
   emptyTitle: (label: string) => `No ${label} yet`,
-  emptyText: (label: string) => `Create your first ${label.toLowerCase()} to start assigning students.`,
+  emptyText: (label: string) =>
+    `Create your first ${label.toLowerCase()} to start assigning students.`,
 } as const;
 
 export const CLASS_TABLE_HEADERS = {
@@ -53,7 +55,8 @@ export const CLASS_ROSTER_TEXT = {
   emptyTitle: "No students assigned yet",
   emptyText: "Import a roster or assign an existing student to get started.",
   loadFailed: "Couldn't load this — it may have been archived or you may not have access.",
-  missingContext: "Missing organization/program context — go back to the list and open this from there.",
+  missingContext:
+    "Missing organization/program context — go back to the list and open this from there.",
 } as const;
 
 export const CLASS_ROSTER_TABLE_HEADERS = {
@@ -176,7 +179,8 @@ export const MERGE_CLASSES_SELECTION_TEXT = {
 export const MERGE_CLASSES_TEXT = {
   title: (label: string) => `Merge ${label}s`,
   destinationLabel: (label: string) => `Merge into which ${label.toLowerCase()}?`,
-  sourcesLabel: (label: string) => `The rest will be merged into it and their students moved. The source ${label.toLowerCase()}(s) themselves are not archived — archive them separately afterward if you want.`,
+  sourcesLabel: (label: string) =>
+    `The rest will be merged into it and their students moved. The source ${label.toLowerCase()}(s) themselves are not archived — archive them separately afterward if you want.`,
   cancel: "Cancel",
   submit: "Merge",
   submitting: "Merging...",
@@ -200,7 +204,8 @@ export const SPLIT_CLASS_TEXT = {
   cancel: "Cancel",
   submit: "Split",
   submitting: "Splitting...",
-  successTitle: (count: number, className: string) => `${count} student(s) moved to "${className}".`,
+  successTitle: (count: number, className: string) =>
+    `${count} student(s) moved to "${className}".`,
   done: "Done",
 } as const;
 

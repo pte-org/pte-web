@@ -6,12 +6,19 @@ import {
   type BulkCreateUsersResponse,
   type StudentEnrollmentResponse,
 } from "@pte/api-client";
-import { useMutation, useQuery, type UseMutationResult, type UseQueryResult } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  type UseMutationResult,
+  type UseQueryResult,
+} from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import type { RosterRow } from "@/features/examoperations/types";
 
 /** Backs the Transfer flow's pending-exam-request warning (Phase 3's new `scheduling` endpoint) — read-only, never blocks the transfer. */
-export function useStudentEnrollments(studentPublicId: string): UseQueryResult<StudentEnrollmentResponse[]> {
+export function useStudentEnrollments(
+  studentPublicId: string,
+): UseQueryResult<StudentEnrollmentResponse[]> {
   return useQuery({
     queryKey: ["studentEnrollments", studentPublicId],
     queryFn: () => listStudentEnrollments(apiClient, studentPublicId),

@@ -5,11 +5,7 @@ import {
   TENANT_STATUS_LABELS,
   TENANT_STATUS_VARIANT,
 } from "../../tenancy/constants";
-import {
-  DASHBOARD_TEXT,
-  RECENT_TABLE_HEADERS,
-  recentCountLabel,
-} from "../constants";
+import { DASHBOARD_TEXT, RECENT_TABLE_HEADERS, recentCountLabel } from "../constants";
 import type { Tenant } from "../../tenancy/types";
 
 interface RecentTenantsTableProps {
@@ -27,11 +23,9 @@ export const RecentTenantsTable = ({
   total,
   onViewTenant,
 }: RecentTenantsTableProps): ReactElement => (
-  <div className="overflow-visible rounded-lg border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:shadow-md">
-    <div className="flex items-center justify-between px-5 py-4 border-b border-slate-50">
-      <h2 className="text-base font-semibold text-gray-900">
-        {DASHBOARD_TEXT.RECENT_TITLE}
-      </h2>
+  <div className="overflow-visible rounded-lg bg-white shadow-card transition-[box-shadow] duration-150 hover:shadow-lg">
+    <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
+      <h2 className="text-base font-semibold text-gray-900">{DASHBOARD_TEXT.RECENT_TITLE}</h2>
       <button
         type="button"
         className="text-sm font-medium text-blue-700 hover:underline transition-colors"
@@ -39,46 +33,51 @@ export const RecentTenantsTable = ({
         {DASHBOARD_TEXT.VIEW_ALL}
       </button>
     </div>
-    <table className="w-full border-collapse">
-      <thead className="bg-slate-50">
-        <tr>
-          <th className={HEADER_CLASS}>{RECENT_TABLE_HEADERS.NAME}</th>
-          <th className={HEADER_CLASS}>{RECENT_TABLE_HEADERS.PLAN}</th>
-          <th className={HEADER_CLASS}>{RECENT_TABLE_HEADERS.ACTIVATED}</th>
-          <th className={HEADER_CLASS}>{RECENT_TABLE_HEADERS.STATUS}</th>
-          <th className={HEADER_CLASS} aria-label={RECENT_TABLE_HEADERS.ACTIONS} />
-        </tr>
-      </thead>
-      <tbody>
-        {tenants.map((tenant) => (
-          <tr key={tenant.id} className="border-t border-gray-100 hover:bg-slate-50/70 transition-colors">
-            <td className={`${CELL_CLASS} font-medium text-gray-900`}>
-              <div className="flex items-center gap-3">
-                <Avatar name={tenant.name} />
-                {tenant.name}
-              </div>
-            </td>
-            <td className={CELL_CLASS}>{TENANT_PLAN_LABELS[tenant.plan]}</td>
-            <td className={CELL_CLASS}>{tenant.activatedAt}</td>
-            <td className={CELL_CLASS}>
-              <Badge variant={TENANT_STATUS_VARIANT[tenant.status]}>
-                {TENANT_STATUS_LABELS[tenant.status]}
-              </Badge>
-            </td>
-            <td className={CELL_CLASS}>
-              <Dropdown
-                items={[
-                  {
-                    label: DASHBOARD_TEXT.ROW_DETAIL,
-                    onSelect: () => onViewTenant(tenant),
-                  },
-                ]}
-              />
-            </td>
+    <div className="overflow-x-auto">
+      <table className="min-w-[680px] w-full border-collapse">
+        <thead className="bg-slate-50">
+          <tr>
+            <th className={HEADER_CLASS}>{RECENT_TABLE_HEADERS.NAME}</th>
+            <th className={HEADER_CLASS}>{RECENT_TABLE_HEADERS.PLAN}</th>
+            <th className={HEADER_CLASS}>{RECENT_TABLE_HEADERS.ACTIVATED}</th>
+            <th className={HEADER_CLASS}>{RECENT_TABLE_HEADERS.STATUS}</th>
+            <th className={HEADER_CLASS} aria-label={RECENT_TABLE_HEADERS.ACTIONS} />
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {tenants.map((tenant) => (
+            <tr
+              key={tenant.id}
+              className="border-t border-gray-100 hover:bg-slate-50/70 transition-colors"
+            >
+              <td className={`${CELL_CLASS} font-medium text-gray-900`}>
+                <div className="flex items-center gap-3">
+                  <Avatar name={tenant.name} />
+                  {tenant.name}
+                </div>
+              </td>
+              <td className={CELL_CLASS}>{TENANT_PLAN_LABELS[tenant.plan]}</td>
+              <td className={CELL_CLASS}>{tenant.activatedAt}</td>
+              <td className={CELL_CLASS}>
+                <Badge variant={TENANT_STATUS_VARIANT[tenant.status]}>
+                  {TENANT_STATUS_LABELS[tenant.status]}
+                </Badge>
+              </td>
+              <td className={CELL_CLASS}>
+                <Dropdown
+                  items={[
+                    {
+                      label: DASHBOARD_TEXT.ROW_DETAIL,
+                      onSelect: () => onViewTenant(tenant),
+                    },
+                  ]}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
     <div className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500">
       {recentCountLabel(tenants.length, total)}
     </div>

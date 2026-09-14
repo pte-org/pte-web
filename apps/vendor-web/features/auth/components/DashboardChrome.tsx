@@ -22,6 +22,7 @@ export interface NavItem {
   label: string;
   href: string;
   icon?: ReactNode;
+  section?: string;
 }
 
 interface DashboardChromeProps {
@@ -38,8 +39,7 @@ interface DashboardChromeProps {
 
 const BRAND_NAME = "PTE LMS";
 const BRAND_SUBTITLE = "Admin System";
-const DISCLAIMER =
-  "PTE mock exam platform. Not affiliated with Pearson.";
+const DISCLAIMER = "PTE mock exam platform. Not affiliated with Pearson.";
 
 const HEADER_TEXT = {
   LANGUAGE: "Language",
@@ -50,41 +50,43 @@ const HEADER_TEXT = {
 
 const SidebarBrand = (): ReactElement => (
   <div className="flex items-center gap-2">
-    <span className="grid h-10 w-10 place-items-center rounded-lg bg-blue-600 text-sm font-bold text-white shadow-lg shadow-blue-950/30">
-      A
+    <span className="grid h-10 w-10 place-items-center rounded-md bg-blue-600 text-sm font-semibold text-white shadow-sm shadow-blue-600/25">
+      P
     </span>
     <div className="leading-tight">
-      <p className="text-sm font-semibold text-white">{BRAND_NAME}</p>
-      <p className="text-xs text-slate-400">{BRAND_SUBTITLE}</p>
+      <p className="text-sm font-semibold text-slate-900">{BRAND_NAME}</p>
+      <p className="text-xs text-slate-500">{BRAND_SUBTITLE}</p>
     </div>
   </div>
 );
 
 const isActive = (pathname: string | null, href: string): boolean =>
-  href === "/admin"
-    ? pathname === "/admin"
-    : Boolean(pathname?.startsWith(href));
+  href === "/admin" ? pathname === "/admin" : Boolean(pathname?.startsWith(href));
 
 const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
   const pathname = usePathname();
   return (
     <>
-      {navItems.map((item) => (
-        <Link
-          key={item.href}
-          href={item.href}
-          className={cn(
-            "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-all duration-200",
-            isActive(pathname, item.href)
-              ? "bg-gradient-to-r from-blue-500 to-indigo-600 font-semibold text-white shadow-md shadow-blue-500/20"
-              : "text-slate-400 hover:bg-slate-850 hover:text-slate-200",
+      {navItems.map((item, index) => (
+        <div key={item.href} className="flex flex-col gap-1">
+          {(index === 0 || item.section !== navItems[index - 1]?.section) && item.section && (
+            <span className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400 first:pt-1">
+              {item.section}
+            </span>
           )}
-        >
-          {item.icon && (
-            <span className="[&>svg]:h-5 [&>svg]:w-5 transition-transform duration-200">{item.icon}</span>
-          )}
-          <span>{item.label}</span>
-        </Link>
+          <Link
+            href={item.href}
+            className={cn(
+              "flex min-h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors",
+              isActive(pathname, item.href)
+                ? "bg-action font-medium text-white shadow-[0px_4px_10px_rgba(11,95,174,0.25)]"
+                : "text-slate-600 hover:bg-blue-50 hover:text-blue-700",
+            )}
+          >
+            {item.icon && <span className="[&>svg]:h-5 [&>svg]:w-5">{item.icon}</span>}
+            <span>{item.label}</span>
+          </Link>
+        </div>
       ))}
     </>
   );
@@ -105,14 +107,14 @@ const HeaderActions = (): ReactElement => {
       <button
         type="button"
         aria-label={HEADER_TEXT.LANGUAGE}
-        className="text-slate-400 hover:text-slate-650 transition-colors"
+        className="grid h-10 w-10 place-items-center rounded-md text-slate-500 transition-colors hover:bg-blue-50 hover:text-blue-700"
       >
         <GlobeIcon className="h-5 w-5" />
       </button>
       <button
         type="button"
         aria-label={HEADER_TEXT.NOTIFICATIONS}
-        className="relative text-slate-400 hover:text-slate-650 transition-colors"
+        className="relative grid h-10 w-10 place-items-center rounded-md text-slate-500 transition-colors hover:bg-blue-50 hover:text-blue-700"
       >
         <BellIcon className="h-5 w-5" />
         <span className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white" />
@@ -130,16 +132,11 @@ const HeaderActions = (): ReactElement => {
   );
 };
 
-const ChromeContent = ({
-  navItems,
-  children,
-}: DashboardChromeProps): ReactElement => (
+const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactElement => (
   <DashboardShell
     brand={<SidebarBrand />}
     sidebar={<SidebarNav navItems={navItems} />}
-    headerBrand={
-      <span className="text-lg font-semibold text-blue-700">{BRAND_NAME}</span>
-    }
+    headerBrand={<span className="text-lg font-semibold text-blue-700">{BRAND_NAME}</span>}
     headerActions={<HeaderActions />}
     footer={DISCLAIMER}
   >

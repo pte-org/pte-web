@@ -6,16 +6,12 @@ interface PageHeaderProps {
   actions?: ReactNode;
 }
 
-export const PageHeader = ({
-  title,
-  subtitle,
-  actions,
-}: PageHeaderProps): ReactElement => (
+export const PageHeader = ({ title, subtitle, actions }: PageHeaderProps): ReactElement => (
   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
     <div>
-      <h2 className="text-2xl font-semibold text-slate-900">{title}</h2>
-      {subtitle && <p className="mt-1 text-sm text-gray-500">{subtitle}</p>}
+      <h1 className="text-[21px] font-semibold leading-tight text-slate-900">{title}</h1>
+      {subtitle && <p className="mt-1 text-sm leading-5 text-gray-600">{subtitle}</p>}
     </div>
-    {actions && <div className="flex items-center gap-2">{actions}</div>}
+    {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
   </div>
 );

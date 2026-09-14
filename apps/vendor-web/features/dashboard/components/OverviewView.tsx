@@ -21,13 +21,8 @@ export const OverviewView = (): ReactElement => {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const tenants = allTenants ?? [];
   const recentTenants = tenants.slice(0, RECENT_TENANT_LIMIT);
-  const activeLearners = tenants.reduce(
-    (total, tenant) => total + tenant.seatsUsed,
-    0,
-  );
-  const expiringSoon = tenants.filter(
-    (tenant) => tenant.status === "expiring",
-  ).length;
+  const activeLearners = tenants.reduce((total, tenant) => total + tenant.seatsUsed, 0);
+  const expiringSoon = tenants.filter((tenant) => tenant.status === "expiring").length;
   const activeTenantsCount = tenants.filter((tenant) => tenant.status === "active").length;
   const totalSeats = tenants.reduce((total, tenant) => total + tenant.seatsTotal, 0);
 
@@ -50,7 +45,7 @@ export const OverviewView = (): ReactElement => {
         actions={
           <Link
             href="/admin/tenants"
-            className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-blue-200 hover:bg-blue-700"
+            className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover"
           >
             + {DASHBOARD_TEXT.ADD_TENANT}
           </Link>
@@ -64,10 +59,7 @@ export const OverviewView = (): ReactElement => {
         total={tenants.length}
         onViewTenant={setSelectedTenant}
       />
-      <TenantDetailModal
-        tenant={selectedTenant}
-        onClose={() => setSelectedTenant(null)}
-      />
+      <TenantDetailModal tenant={selectedTenant} onClose={() => setSelectedTenant(null)} />
     </div>
   );
 };
