@@ -1,14 +1,25 @@
 import type { ApiClient } from "../../client/client";
-import type { AssignLecturerRequest, LecturerAssignmentResponse } from "../../types/admin/assignment";
+import type {
+  AssignLecturerRequest,
+  LecturerAssignmentResponse,
+} from "../../types/admin/assignment";
 
-function basePath(organizationPublicId: string, programPublicId: string, classPublicId: string): string {
+function basePath(
+  organizationPublicId: string,
+  programPublicId: string,
+  classPublicId: string,
+): string {
   return `/api/admin/organizations/${organizationPublicId}/programs/${programPublicId}/classes/${classPublicId}/lecturers`;
 }
 
 export const LECTURER_ASSIGNMENT_ENDPOINTS = {
   lecturers: basePath,
-  lecturer: (organizationPublicId: string, programPublicId: string, classPublicId: string, assignmentPublicId: string) =>
-    `${basePath(organizationPublicId, programPublicId, classPublicId)}/${assignmentPublicId}`,
+  lecturer: (
+    organizationPublicId: string,
+    programPublicId: string,
+    classPublicId: string,
+    assignmentPublicId: string,
+  ) => `${basePath(organizationPublicId, programPublicId, classPublicId)}/${assignmentPublicId}`,
 } as const;
 
 export function listLecturerAssignments(
@@ -43,7 +54,12 @@ export function unassignLecturer(
   assignmentPublicId: string,
 ): Promise<void> {
   return client.request<void>(
-    LECTURER_ASSIGNMENT_ENDPOINTS.lecturer(organizationPublicId, programPublicId, classPublicId, assignmentPublicId),
+    LECTURER_ASSIGNMENT_ENDPOINTS.lecturer(
+      organizationPublicId,
+      programPublicId,
+      classPublicId,
+      assignmentPublicId,
+    ),
     { method: "DELETE" },
   );
 }

@@ -41,7 +41,10 @@ export * from "./lecturerAssignments";
 export * from "./mergeSplit";
 export * from "./rosterImport";
 
-export function useClasses(organizationPublicId: string, programPublicId: string): UseQueryResult<ClassResponse[]> {
+export function useClasses(
+  organizationPublicId: string,
+  programPublicId: string,
+): UseQueryResult<ClassResponse[]> {
   return useQuery({
     queryKey: [...CLASSES_QUERY_KEY, programPublicId],
     queryFn: () => listClasses(apiClient, organizationPublicId, programPublicId),
@@ -88,11 +91,13 @@ export function useClassStatusMutations(
   };
 
   const activate = useMutation({
-    mutationFn: () => activateClass(apiClient, organizationPublicId, programPublicId, classPublicId),
+    mutationFn: () =>
+      activateClass(apiClient, organizationPublicId, programPublicId, classPublicId),
     onSuccess,
   });
   const deactivate = useMutation({
-    mutationFn: () => deactivateClass(apiClient, organizationPublicId, programPublicId, classPublicId),
+    mutationFn: () =>
+      deactivateClass(apiClient, organizationPublicId, programPublicId, classPublicId),
     onSuccess,
   });
   const suspend = useMutation({
@@ -121,7 +126,10 @@ export interface ClassRosterEntry {
  * Class client-side, since that's the shared data source every consumer of
  * this endpoint reuses rather than adding a narrower variant.
  */
-export function useClassRoster(programPublicId: string, classPublicId: string): UseQueryResult<ClassRosterEntry[]> {
+export function useClassRoster(
+  programPublicId: string,
+  classPublicId: string,
+): UseQueryResult<ClassRosterEntry[]> {
   const students = useTenantStudents();
   const queryClient = useQueryClient();
 
@@ -131,7 +139,8 @@ export function useClassRoster(programPublicId: string, classPublicId: string): 
       const memberships = await listClassMemberships(apiClient, programPublicId);
       // Read the cache directly rather than closing over `students.data` (a
       // per-render snapshot) — same race avoidance as useSessionRoster.
-      const allUsers = queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? students.data ?? [];
+      const allUsers =
+        queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? students.data ?? [];
       const byId = new Map(allUsers.map((student) => [student.publicId, student]));
       return memberships.flatMap((membership) => {
         const student = byId.get(membership.studentPublicId);
@@ -139,7 +148,8 @@ export function useClassRoster(programPublicId: string, classPublicId: string): 
       });
     },
     enabled: programPublicId.length > 0 && students.data !== undefined,
-    select: (entries) => entries.filter((entry) => entry.membership.classPublicId === classPublicId),
+    select: (entries) =>
+      entries.filter((entry) => entry.membership.classPublicId === classPublicId),
   });
 }
 
@@ -169,14 +179,21 @@ export function useAllTenantClasses(): UseQueryResult<TenantClassOption[]> {
       const programsByOrganization = await Promise.all(
         organizations.map(async (organization) => {
           const programs = await listPrograms(apiClient, organization.publicId);
-          return programs.map((program) => ({ ...program, organizationPublicId: organization.publicId }));
+          return programs.map((program) => ({
+            ...program,
+            organizationPublicId: organization.publicId,
+          }));
         }),
       );
       const programs = programsByOrganization.flat();
 
       const classesByProgram = await Promise.all(
         programs.map(async (program) => {
-          const classes = await listClasses(apiClient, program.organizationPublicId, program.publicId);
+          const classes = await listClasses(
+            apiClient,
+            program.organizationPublicId,
+            program.publicId,
+          );
           return classes.map((studentClass): TenantClassOption => ({
             organizationPublicId: program.organizationPublicId,
             programPublicId: program.publicId,
@@ -199,7 +216,8 @@ export function useAssignStudent(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload) => assignStudent(apiClient, organizationPublicId, programPublicId, classPublicId, payload),
+    mutationFn: (payload) =>
+      assignStudent(apiClient, organizationPublicId, programPublicId, classPublicId, payload),
     onSuccess: () => invalidateClassMemberships(queryClient),
   });
 }
@@ -213,7 +231,9 @@ export function useBulkAssignStudents(
 
   return useMutation({
     mutationFn: (studentPublicIds) =>
-      bulkAssignStudents(apiClient, organizationPublicId, programPublicId, classPublicId, { studentPublicIds }),
+      bulkAssignStudents(apiClient, organizationPublicId, programPublicId, classPublicId, {
+        studentPublicIds,
+      }),
     onSuccess: () => invalidateClassMemberships(queryClient),
   });
 }
@@ -227,7 +247,13 @@ export function useUnassignStudent(
 
   return useMutation({
     mutationFn: (membershipPublicId) =>
-      unassignStudent(apiClient, organizationPublicId, programPublicId, classPublicId, membershipPublicId),
+      unassignStudent(
+        apiClient,
+        organizationPublicId,
+        programPublicId,
+        classPublicId,
+        membershipPublicId,
+      ),
     onSuccess: () => invalidateClassMemberships(queryClient),
   });
 }

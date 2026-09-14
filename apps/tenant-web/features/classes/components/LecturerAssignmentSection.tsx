@@ -24,7 +24,11 @@ export const LecturerAssignmentSection = ({
   programPublicId,
   classPublicId,
 }: LecturerAssignmentSectionProps): ReactElement => {
-  const { data: assignments, isLoading } = useLecturerAssignments(organizationPublicId, programPublicId, classPublicId);
+  const { data: assignments, isLoading } = useLecturerAssignments(
+    organizationPublicId,
+    programPublicId,
+    classPublicId,
+  );
   const unassign = useUnassignLecturer(organizationPublicId, programPublicId, classPublicId);
   const [addOpen, setAddOpen] = useState(false);
 

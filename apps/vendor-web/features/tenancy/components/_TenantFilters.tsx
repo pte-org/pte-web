@@ -23,10 +23,7 @@ const SearchIcon = (): ReactElement => (
   </svg>
 );
 
-export const TenantFilters = ({
-  filter,
-  onChange,
-}: TenantFiltersProps): ReactElement => (
+export const TenantFilters = ({ filter, onChange }: TenantFiltersProps): ReactElement => (
   <div className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-md shadow-slate-200/70 md:flex-row">
     <div className="flex flex-1 items-center gap-2 rounded-md border border-gray-200 bg-slate-50 px-3">
       <SearchIcon />

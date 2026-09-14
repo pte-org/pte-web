@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useState,
-  type ChangeEvent,
-  type DragEvent,
-  type ReactElement,
-} from "react";
+import { useState, type ChangeEvent, type DragEvent, type ReactElement } from "react";
 import { cn } from "@pte/ui";
 import { ACCEPTED_FILE_TYPE, ROSTER_TEXT } from "./constants";
 
@@ -14,10 +9,7 @@ interface RosterDropzoneProps {
   onFileSelected: (file: File) => void;
 }
 
-export const RosterDropzone = ({
-  fileName,
-  onFileSelected,
-}: RosterDropzoneProps): ReactElement => {
+export const RosterDropzone = ({ fileName, onFileSelected }: RosterDropzoneProps): ReactElement => {
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFiles = (files: FileList | null): void => {
@@ -45,17 +37,13 @@ export const RosterDropzone = ({
       )}
     >
       <span className="text-gray-600">{ROSTER_TEXT.DROP_PROMPT}</span>
-      {fileName && (
-        <span className="font-medium text-gray-900">{fileName}</span>
-      )}
+      {fileName && <span className="font-medium text-gray-900">{fileName}</span>}
       <input
         type="file"
         accept={ACCEPTED_FILE_TYPE}
         aria-label={ROSTER_TEXT.FILE_INPUT_LABEL}
         className="hidden"
-        onChange={(event: ChangeEvent<HTMLInputElement>) =>
-          handleFiles(event.target.files)
-        }
+        onChange={(event: ChangeEvent<HTMLInputElement>) => handleFiles(event.target.files)}
       />
     </label>
   );

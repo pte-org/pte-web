@@ -24,17 +24,10 @@ const Metric = ({
   </div>
 );
 
-export const SystemHealthPanel = ({
-  health,
-}: SystemHealthPanelProps): ReactElement => (
+export const SystemHealthPanel = ({ health }: SystemHealthPanelProps): ReactElement => (
   <aside className="flex flex-col gap-3">
-    <h2 className="text-sm font-semibold text-gray-700">
-      {SYSTEM_HEALTH_TEXT.TITLE}
-    </h2>
-    <Metric
-      label={SYSTEM_HEALTH_TEXT.API_ERROR_RATE}
-      value={health?.apiErrorRate ?? "—"}
-    />
+    <h2 className="text-sm font-semibold text-gray-700">{SYSTEM_HEALTH_TEXT.TITLE}</h2>
+    <Metric label={SYSTEM_HEALTH_TEXT.API_ERROR_RATE} value={health?.apiErrorRate ?? "—"} />
     <Metric
       label={SYSTEM_HEALTH_TEXT.AI_QUEUE}
       value={String(health?.aiQueueDepth ?? "—")}
@@ -47,9 +40,7 @@ export const SystemHealthPanel = ({
     />
     <div className="rounded-xl bg-blue-700 p-4 text-white">
       <p className="text-sm font-semibold">{SYSTEM_HEALTH_TEXT.SERVER_STATUS}</p>
-      <p className="mt-1 text-xs text-blue-100">
-        {SYSTEM_HEALTH_TEXT.OPERATIONAL}
-      </p>
+      <p className="mt-1 text-xs text-blue-100">{SYSTEM_HEALTH_TEXT.OPERATIONAL}</p>
       <button
         type="button"
         className="mt-3 rounded-md bg-white/15 px-3 py-1.5 text-xs font-medium hover:bg-white/25"

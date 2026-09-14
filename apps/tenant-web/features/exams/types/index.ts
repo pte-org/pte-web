@@ -62,12 +62,7 @@ export interface BulkCreateSessionsForProgramInput extends Omit<CreateSessionInp
 }
 
 export type SessionBatchStatus =
-  | "pending"
-  | "creatingSession"
-  | "enrolling"
-  | "success"
-  | "sessionError"
-  | "enrollError";
+  "pending" | "creatingSession" | "enrolling" | "success" | "sessionError" | "enrollError";
 
 export interface SessionBatchState {
   index: number;

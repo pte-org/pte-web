@@ -25,30 +25,21 @@ export const AUTH_ENDPOINTS = {
   changePassword: "/api/iam/auth/change-password",
 } as const;
 
-export function login(
-  client: ApiClient,
-  payload: LoginRequest,
-): Promise<AuthResponse> {
+export function login(client: ApiClient, payload: LoginRequest): Promise<AuthResponse> {
   return client.request<AuthResponse>(AUTH_ENDPOINTS.login, {
     method: "POST",
     body: payload,
   });
 }
 
-export function loginAdmin(
-  client: ApiClient,
-  payload: AdminLoginRequest,
-): Promise<AuthResponse> {
+export function loginAdmin(client: ApiClient, payload: AdminLoginRequest): Promise<AuthResponse> {
   return login(client, {
     email: payload.email,
     password: payload.password,
   });
 }
 
-export function loginHost(
-  client: ApiClient,
-  payload: HostLoginRequest,
-): Promise<AuthResponse> {
+export function loginHost(client: ApiClient, payload: HostLoginRequest): Promise<AuthResponse> {
   return login(client, {
     email: payload.email,
     password: payload.password,
@@ -83,20 +74,14 @@ export function refreshAuth(
   });
 }
 
-export function logout(
-  client: ApiClient,
-  payload: LogoutRequest,
-): Promise<void> {
+export function logout(client: ApiClient, payload: LogoutRequest): Promise<void> {
   return client.request<void>(AUTH_ENDPOINTS.logout, {
     method: "POST",
     body: payload,
   });
 }
 
-export function changePassword(
-  client: ApiClient,
-  payload: ChangePasswordRequest,
-): Promise<void> {
+export function changePassword(client: ApiClient, payload: ChangePasswordRequest): Promise<void> {
   return client.request<void>(AUTH_ENDPOINTS.changePassword, {
     method: "POST",
     body: payload,

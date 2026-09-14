@@ -5,8 +5,7 @@ import type { InputHTMLAttributes, ReactNode } from "react";
 import { EyeIcon } from "./AuthIcons";
 import { Input } from "./Input";
 
-interface PasswordInputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
+interface PasswordInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "type"> {
   label?: string;
   error?: string;
   helperText?: string;
@@ -16,10 +15,7 @@ interface PasswordInputProps
 const SHOW_PASSWORD_LABEL = "Show password";
 const HIDE_PASSWORD_LABEL = "Hide password";
 
-export const PasswordInput = ({
-  leftIcon,
-  ...props
-}: PasswordInputProps): ReactElement => {
+export const PasswordInput = ({ leftIcon, ...props }: PasswordInputProps): ReactElement => {
   const [visible, setVisible] = useState(false);
 
   return (

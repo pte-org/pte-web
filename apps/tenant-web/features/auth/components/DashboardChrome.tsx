@@ -47,8 +47,7 @@ interface DashboardChromeProps {
 
 const BRAND_NAME = "PTE LMS";
 const BRAND_SUBTITLE = "School Portal";
-const DISCLAIMER =
-  "PTE mock exam platform. Not affiliated with Pearson.";
+const DISCLAIMER = "PTE mock exam platform. Not affiliated with Pearson.";
 
 const HEADER_TEXT = {
   LANGUAGE: "Language",
@@ -88,9 +87,7 @@ const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
               : "text-gray-600 hover:bg-gray-100",
           )}
         >
-          {item.icon && (
-            <span className="[&>svg]:h-5 [&>svg]:w-5">{item.icon}</span>
-          )}
+          {item.icon && <span className="[&>svg]:h-5 [&>svg]:w-5">{item.icon}</span>}
           {item.label}
         </Link>
       ))}
@@ -138,16 +135,11 @@ const HeaderActions = (): ReactElement => {
   );
 };
 
-const ChromeContent = ({
-  navItems,
-  children,
-}: DashboardChromeProps): ReactElement => (
+const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactElement => (
   <DashboardShell
     brand={<SidebarBrand />}
     sidebar={<SidebarNav navItems={navItems} />}
-    headerBrand={
-      <span className="text-lg font-bold text-blue-700">{BRAND_NAME}</span>
-    }
+    headerBrand={<span className="text-lg font-bold text-blue-700">{BRAND_NAME}</span>}
     headerActions={<HeaderActions />}
     footer={DISCLAIMER}
   >

@@ -38,8 +38,7 @@ interface DashboardChromeProps {
 
 const BRAND_NAME = "PTE LMS";
 const BRAND_SUBTITLE = "Admin System";
-const DISCLAIMER =
-  "PTE mock exam platform. Not affiliated with Pearson.";
+const DISCLAIMER = "PTE mock exam platform. Not affiliated with Pearson.";
 
 const HEADER_TEXT = {
   LANGUAGE: "Language",
@@ -61,9 +60,7 @@ const SidebarBrand = (): ReactElement => (
 );
 
 const isActive = (pathname: string | null, href: string): boolean =>
-  href === "/admin"
-    ? pathname === "/admin"
-    : Boolean(pathname?.startsWith(href));
+  href === "/admin" ? pathname === "/admin" : Boolean(pathname?.startsWith(href));
 
 const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
   const pathname = usePathname();
@@ -81,7 +78,9 @@ const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
           )}
         >
           {item.icon && (
-            <span className="[&>svg]:h-5 [&>svg]:w-5 transition-transform duration-200">{item.icon}</span>
+            <span className="[&>svg]:h-5 [&>svg]:w-5 transition-transform duration-200">
+              {item.icon}
+            </span>
           )}
           <span>{item.label}</span>
         </Link>
@@ -130,16 +129,11 @@ const HeaderActions = (): ReactElement => {
   );
 };
 
-const ChromeContent = ({
-  navItems,
-  children,
-}: DashboardChromeProps): ReactElement => (
+const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactElement => (
   <DashboardShell
     brand={<SidebarBrand />}
     sidebar={<SidebarNav navItems={navItems} />}
-    headerBrand={
-      <span className="text-lg font-semibold text-blue-700">{BRAND_NAME}</span>
-    }
+    headerBrand={<span className="text-lg font-semibold text-blue-700">{BRAND_NAME}</span>}
     headerActions={<HeaderActions />}
     footer={DISCLAIMER}
   >

@@ -1,12 +1,7 @@
 import type { ReactElement, ReactNode } from "react";
 import { cn } from "../utils/cn";
 
-export type BadgeVariant =
-  | "success"
-  | "warning"
-  | "danger"
-  | "info"
-  | "neutral";
+export type BadgeVariant = "success" | "warning" | "danger" | "info" | "neutral";
 
 interface BadgeProps {
   variant?: BadgeVariant;
@@ -22,11 +17,7 @@ const VARIANT_CLASS: Record<BadgeVariant, string> = {
   neutral: "bg-gray-100 text-gray-600",
 };
 
-export const Badge = ({
-  variant = "neutral",
-  children,
-  className,
-}: BadgeProps): ReactElement => (
+export const Badge = ({ variant = "neutral", children, className }: BadgeProps): ReactElement => (
   <span
     className={cn(
       "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",

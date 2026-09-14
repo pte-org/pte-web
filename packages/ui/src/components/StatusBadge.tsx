@@ -6,7 +6,6 @@ interface StatusBadgeProps {
   variant?: BadgeVariant;
 }
 
-export const StatusBadge = ({
-  label,
-  variant = "neutral",
-}: StatusBadgeProps): ReactElement => <Badge variant={variant}>{label}</Badge>;
+export const StatusBadge = ({ label, variant = "neutral" }: StatusBadgeProps): ReactElement => (
+  <Badge variant={variant}>{label}</Badge>
+);

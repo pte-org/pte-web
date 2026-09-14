@@ -19,12 +19,8 @@ export const SystemNoticeBanner = (): ReactElement => (
   <div className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 p-4">
     <InfoIcon />
     <div>
-      <p className="text-sm font-semibold text-blue-900">
-        {DASHBOARD_TEXT.NOTICE_TITLE}
-      </p>
-      <p className="mt-0.5 text-sm text-blue-700">
-        {DASHBOARD_TEXT.NOTICE_TEXT}
-      </p>
+      <p className="text-sm font-semibold text-blue-900">{DASHBOARD_TEXT.NOTICE_TITLE}</p>
+      <p className="mt-0.5 text-sm text-blue-700">{DASHBOARD_TEXT.NOTICE_TEXT}</p>
     </div>
   </div>
 );

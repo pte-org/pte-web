@@ -22,10 +22,7 @@ interface QuestionFiltersProps {
 const SELECT_CLASS =
   "rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none focus:border-blue-500";
 
-export const QuestionFilters = ({
-  filter,
-  onChange,
-}: QuestionFiltersProps): ReactElement => (
+export const QuestionFilters = ({ filter, onChange }: QuestionFiltersProps): ReactElement => (
   <div className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-md shadow-slate-200/70 lg:flex-row">
     <input
       type="search"

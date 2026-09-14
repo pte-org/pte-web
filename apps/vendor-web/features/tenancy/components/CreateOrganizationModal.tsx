@@ -32,10 +32,8 @@ export const CreateOrganizationModal = ({
   const [form, setForm] = useState<CreateOrganizationInput>(EMPTY_CREATE_ORGANIZATION);
   const [errors, setErrors] = useState<CreateOrganizationErrors>({});
 
-  const handleChange = (
-    field: keyof CreateOrganizationInput,
-    value: string,
-  ): void => setForm((previous) => ({ ...previous, [field]: value }));
+  const handleChange = (field: keyof CreateOrganizationInput, value: string): void =>
+    setForm((previous) => ({ ...previous, [field]: value }));
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -86,7 +84,12 @@ export const CreateOrganizationModal = ({
           />
         </TenantFormField>
 
-        <TenantFormField label={T.FACILITY_TYPE_LABEL} htmlFor="org-facility-type" required error={errors.facilityType}>
+        <TenantFormField
+          label={T.FACILITY_TYPE_LABEL}
+          htmlFor="org-facility-type"
+          required
+          error={errors.facilityType}
+        >
           <select
             id="org-facility-type"
             value={form.facilityType}

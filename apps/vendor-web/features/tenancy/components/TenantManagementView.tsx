@@ -5,12 +5,7 @@ import { ApiError } from "@pte/api-client";
 import { Alert, PageHeader } from "@pte/ui";
 import { CREATE_TENANT_CONFLICT_TEXT, TENANCY_TEXT } from "../constants";
 import { filterTenants } from "../utils/filterTenants";
-import {
-  useCreateTenant,
-  useReactivateTenant,
-  useSuspendTenant,
-  useTenants,
-} from "../api";
+import { useCreateTenant, useReactivateTenant, useSuspendTenant, useTenants } from "../api";
 import type { CreateTenantInput, Tenant, TenantFilter } from "../types";
 import { TenantFilters } from "./_TenantFilters";
 import { TenantTable } from "./_TenantTable";
@@ -32,10 +27,7 @@ function normalizeComparable(value: string): string {
   return value.trim().toLowerCase();
 }
 
-function validateCreateConflict(
-  input: CreateTenantInput,
-  tenants: Tenant[],
-): string | undefined {
+function validateCreateConflict(input: CreateTenantInput, tenants: Tenant[]): string | undefined {
   const name = normalizeComparable(input.name);
 
   if (tenants.some((tenant) => normalizeComparable(tenant.name) === name)) {
@@ -141,10 +133,7 @@ export const TenantManagementView = (): ReactElement => {
         isSubmitting={create.isPending}
       />
 
-      <TenantCreatedModal
-        tenant={createdTenant}
-        onClose={() => setCreatedTenant(null)}
-      />
+      <TenantCreatedModal tenant={createdTenant} onClose={() => setCreatedTenant(null)} />
     </div>
   );
 };

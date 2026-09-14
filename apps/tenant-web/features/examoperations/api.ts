@@ -18,10 +18,7 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
-import {
-  ENROLLMENTS_QUERY_KEY,
-  TENANT_USERS_QUERY_KEY,
-} from "@/features/exams/constants";
+import { ENROLLMENTS_QUERY_KEY, TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
 import type { CreatedAccount, RosterRow } from "./types";
 
 const PENDING_IMPORT_KEY_PREFIX = "pte.pendingImport.";
@@ -183,7 +180,8 @@ export function useSessionRoster(sessionPublicId: string): UseQueryResult<Roster
       // Read the cache directly rather than closing over `students.data` (a
       // per-render snapshot) — this can run before a re-render has picked up
       // a just-refetched list, silently dropping just-enrolled students.
-      const allUsers = queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? students.data ?? [];
+      const allUsers =
+        queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? students.data ?? [];
       const byId = new Map(
         allUsers
           .filter((user) => user.roles.includes(STUDENT_ROLE))
@@ -202,8 +200,7 @@ export function useResetStudentPassword(
   studentPublicId: string,
 ): UseMutationResult<UserResponse, unknown, string> {
   return useMutation({
-    mutationFn: (newPassword) =>
-      resetPasswordRequest(apiClient, studentPublicId, { newPassword }),
+    mutationFn: (newPassword) => resetPasswordRequest(apiClient, studentPublicId, { newPassword }),
   });
 }
 

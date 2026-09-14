@@ -21,8 +21,7 @@ export const Input = ({
   required,
   ...props
 }: InputProps): ReactElement => {
-  const controlId =
-    id ?? props.name?.toString() ?? label?.toLowerCase().replace(/\s+/g, "-");
+  const controlId = id ?? props.name?.toString() ?? label?.toLowerCase().replace(/\s+/g, "-");
 
   return (
     <FormField

@@ -1,9 +1,4 @@
-import {
-  BuildingIcon,
-  ClipboardIcon,
-  GridIcon,
-  LicenseIcon,
-} from "@pte/ui";
+import { BuildingIcon, ClipboardIcon, GridIcon, LicenseIcon } from "@pte/ui";
 import type { NavItem } from "@/features/auth/components";
 
 export const ADMIN_NAV: NavItem[] = [
@@ -17,6 +12,4 @@ export const ADMIN_NAV: NavItem[] = [
   { label: "Licenses", href: "/admin/licenses", icon: <LicenseIcon /> },
 ];
 
-export const HOST_NAV: NavItem[] = [
-  { label: "Overview", href: "/host", icon: <GridIcon /> },
-];
+export const HOST_NAV: NavItem[] = [{ label: "Overview", href: "/host", icon: <GridIcon /> }];

@@ -36,7 +36,8 @@ export const TransferStudentModal = ({
 }: TransferStudentModalProps): ReactElement => {
   const [targetClassPublicId, setTargetClassPublicId] = useState("");
   const { data: classes, isLoading: classesLoading } = useAllTenantClasses();
-  const { data: enrollments, isLoading: enrollmentsLoading } = useStudentEnrollments(studentPublicId);
+  const { data: enrollments, isLoading: enrollmentsLoading } =
+    useStudentEnrollments(studentPublicId);
   const transfer = useTransferStudent(organizationPublicId, programPublicId, classPublicId);
 
   const targetOptions = (classes ?? [])

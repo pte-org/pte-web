@@ -9,11 +9,7 @@ import {
   StudentRosterTable,
 } from "@/features/examoperations/components";
 import { errorMessage as mutationErrorMessage } from "@/features/examoperations/errorMessage";
-import {
-  SESSION_DETAIL_TEXT,
-  SESSION_STATUS_LABELS,
-  SESSION_STATUS_VARIANT,
-} from "../constants";
+import { SESSION_DETAIL_TEXT, SESSION_STATUS_LABELS, SESSION_STATUS_VARIANT } from "../constants";
 import { useCloseSession, useOpenSession, useSession } from "../api";
 import { AnswersSection } from "./AnswersSection";
 import { ProctorAssignmentSection } from "./ProctorAssignmentSection";

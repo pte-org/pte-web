@@ -8,7 +8,13 @@ import {
   unassignLecturer,
   type UserResponse,
 } from "@pte/api-client";
-import { useMutation, useQuery, useQueryClient, type UseMutationResult, type UseQueryResult } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseMutationResult,
+  type UseQueryResult,
+} from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import { TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
 import { LECTURER_ASSIGNMENTS_QUERY_KEY } from "../constants";
@@ -46,10 +52,18 @@ export function useLecturerAssignments(
   return useQuery({
     queryKey: [...LECTURER_ASSIGNMENTS_QUERY_KEY, classPublicId],
     queryFn: async () => {
-      const assignments = await listLecturerAssignments(apiClient, organizationPublicId, programPublicId, classPublicId);
-      const allUsers = queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? lecturers.data ?? [];
+      const assignments = await listLecturerAssignments(
+        apiClient,
+        organizationPublicId,
+        programPublicId,
+        classPublicId,
+      );
+      const allUsers =
+        queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? lecturers.data ?? [];
       const byId = new Map(
-        allUsers.filter((user) => user.roles.includes(LECTURER_ROLE)).map((lecturer) => [lecturer.publicId, lecturer]),
+        allUsers
+          .filter((user) => user.roles.includes(LECTURER_ROLE))
+          .map((lecturer) => [lecturer.publicId, lecturer]),
       );
       return assignments.flatMap((assignment) => {
         const lecturer = byId.get(assignment.assigneePublicId);
@@ -68,7 +82,9 @@ function invalidateLecturerAssignments(
   queryClient: ReturnType<typeof useQueryClient>,
   classPublicId: string,
 ): void {
-  void queryClient.invalidateQueries({ queryKey: [...LECTURER_ASSIGNMENTS_QUERY_KEY, classPublicId] });
+  void queryClient.invalidateQueries({
+    queryKey: [...LECTURER_ASSIGNMENTS_QUERY_KEY, classPublicId],
+  });
 }
 
 /** Assign an already-existing Lecturer (picked by publicId) to this Class. */
@@ -81,7 +97,9 @@ export function useAssignLecturer(
 
   return useMutation({
     mutationFn: async (assigneePublicId) => {
-      await assignLecturer(apiClient, organizationPublicId, programPublicId, classPublicId, { assigneePublicId });
+      await assignLecturer(apiClient, organizationPublicId, programPublicId, classPublicId, {
+        assigneePublicId,
+      });
     },
     onSuccess: () => invalidateLecturerAssignments(queryClient, classPublicId),
   });
@@ -96,7 +114,13 @@ export function useUnassignLecturer(
 
   return useMutation({
     mutationFn: (assignmentPublicId) =>
-      unassignLecturer(apiClient, organizationPublicId, programPublicId, classPublicId, assignmentPublicId),
+      unassignLecturer(
+        apiClient,
+        organizationPublicId,
+        programPublicId,
+        classPublicId,
+        assignmentPublicId,
+      ),
     onSuccess: () => invalidateLecturerAssignments(queryClient, classPublicId),
   });
 }
@@ -105,7 +129,11 @@ export function useUnassignLecturer(
  * Create a brand-new Lecturer account (not yet assigned to anything). Uses
  * a Host-supplied password, mirroring exams' `useCreateProctorAccount`.
  */
-export function useCreateLecturerAccount(): UseMutationResult<UserResponse, unknown, CreateLecturerInput> {
+export function useCreateLecturerAccount(): UseMutationResult<
+  UserResponse,
+  unknown,
+  CreateLecturerInput
+> {
   const queryClient = useQueryClient();
 
   return useMutation({

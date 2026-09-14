@@ -17,12 +17,7 @@ const TONE_CLASS: Record<AlertTone, string> = {
   error: "border-red-200 bg-red-50 text-red-800",
 };
 
-export const Alert = ({
-  tone = "info",
-  title,
-  children,
-  className,
-}: AlertProps): ReactElement => (
+export const Alert = ({ tone = "info", title, children, className }: AlertProps): ReactElement => (
   <div className={cn("rounded-md border px-4 py-3", TONE_CLASS[tone], className)}>
     {title && <h3 className="text-sm font-semibold">{title}</h3>}
     <div className={cn("text-sm", title && "mt-1")}>{children}</div>

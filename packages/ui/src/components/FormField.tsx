@@ -32,9 +32,7 @@ export const FormField = ({
       </label>
     )}
     {children}
-    {helperText && !error && (
-      <span className="text-sm text-gray-500">{helperText}</span>
-    )}
+    {helperText && !error && <span className="text-sm text-gray-500">{helperText}</span>}
     {error && <span className="text-sm text-red-600">{error}</span>}
   </div>
 );

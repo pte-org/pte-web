@@ -62,7 +62,9 @@ export const BrandingEditor = ({
             id="branding-logo-url"
             type="text"
             value={form.logoUrl}
-            onChange={(event) => setForm((previous) => ({ ...previous, logoUrl: event.target.value }))}
+            onChange={(event) =>
+              setForm((previous) => ({ ...previous, logoUrl: event.target.value }))
+            }
             placeholder={T.LOGO_URL_PLACEHOLDER}
             className={fieldInputClass()}
           />
@@ -77,7 +79,9 @@ export const BrandingEditor = ({
             id="branding-primary-color"
             type="text"
             value={form.primaryColor}
-            onChange={(event) => setForm((previous) => ({ ...previous, primaryColor: event.target.value }))}
+            onChange={(event) =>
+              setForm((previous) => ({ ...previous, primaryColor: event.target.value }))
+            }
             placeholder={T.PRIMARY_COLOR_PLACEHOLDER}
             className={fieldInputClass(errors.primaryColor)}
           />

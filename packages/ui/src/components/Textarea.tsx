@@ -17,13 +17,7 @@ export const Textarea = ({
   required,
   ...props
 }: TextareaProps): ReactElement => (
-  <FormField
-    id={id}
-    label={label}
-    error={error}
-    helperText={helperText}
-    required={required}
-  >
+  <FormField id={id} label={label} error={error} helperText={helperText} required={required}>
     <textarea
       id={id}
       required={required}

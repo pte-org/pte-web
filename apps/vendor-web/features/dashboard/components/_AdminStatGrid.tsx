@@ -11,9 +11,7 @@ function formatProgress(value: number | undefined): string | undefined {
   return value === undefined ? undefined : `${Math.round(value)}%`;
 }
 
-export const AdminStatGrid = ({
-  stats,
-}: AdminStatGridProps): ReactElement => (
+export const AdminStatGrid = ({ stats }: AdminStatGridProps): ReactElement => (
   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
     <StatCard
       label={DASHBOARD_TEXT.STAT_TOTAL}

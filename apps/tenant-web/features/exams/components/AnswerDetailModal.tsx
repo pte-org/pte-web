@@ -3,11 +3,7 @@
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Badge, LoadingState, Modal, NumberInput, cn } from "@pte/ui";
 import type { AnswerOptionView } from "@pte/api-client";
-import {
-  ANSWER_DETAIL_TEXT,
-  ANSWER_STATUS_LABELS,
-  ANSWER_STATUS_VARIANT,
-} from "../constants";
+import { ANSWER_DETAIL_TEXT, ANSWER_STATUS_LABELS, ANSWER_STATUS_VARIANT } from "../constants";
 import { useAnswer, useSubmitTeacherScore } from "../api";
 
 interface AnswerDetailModalProps {
@@ -38,7 +34,10 @@ function OptionRow({ option }: { option: AnswerOptionView }): ReactElement {
   );
 }
 
-export const AnswerDetailModal = ({ answerPublicId, onClose }: AnswerDetailModalProps): ReactElement => {
+export const AnswerDetailModal = ({
+  answerPublicId,
+  onClose,
+}: AnswerDetailModalProps): ReactElement => {
   const { data: answer, isLoading } = useAnswer(answerPublicId);
   const submitScore = useSubmitTeacherScore(answerPublicId ?? "");
   const [scoreInput, setScoreInput] = useState("");
@@ -110,7 +109,10 @@ export const AnswerDetailModal = ({ answerPublicId, onClose }: AnswerDetailModal
             )}
           </div>
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-3 border-t border-gray-100 pt-4">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-3 border-t border-gray-100 pt-4"
+          >
             <div>
               <h3 className="text-sm font-semibold text-gray-900">{T.TEACHER_SCORE_TITLE}</h3>
               <p className="text-xs text-gray-500">{T.TEACHER_SCORE_HELPER}</p>
@@ -124,7 +126,9 @@ export const AnswerDetailModal = ({ answerPublicId, onClose }: AnswerDetailModal
                   min={0}
                   max={100}
                   value={scoreInput}
-                  placeholder={answer.teacherScore === null ? undefined : String(answer.teacherScore)}
+                  placeholder={
+                    answer.teacherScore === null ? undefined : String(answer.teacherScore)
+                  }
                   onChange={(event) => setScoreInput(event.target.value)}
                 />
               </div>

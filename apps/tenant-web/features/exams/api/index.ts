@@ -113,11 +113,7 @@ export function useBlueprints(): UseQueryResult<Blueprint[]> {
  * publish-succeeded-but-create-failed run re-publishes again, accumulating
  * unattached snapshot rows (accepted — no data/security impact, just extra rows).
  */
-export function useCreateSession(): UseMutationResult<
-  ExamSession,
-  unknown,
-  CreateSessionInput
-> {
+export function useCreateSession(): UseMutationResult<ExamSession, unknown, CreateSessionInput> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -179,7 +175,9 @@ export function useTenantProctors(): UseQueryResult<UserResponse[]> {
  * `proctorPublicId` — same join-here-not-in-scheduling reasoning as
  * Phase 1's Design Constraints for `EnrollmentResponse`).
  */
-export function useProctorAssignments(sessionPublicId: string): UseQueryResult<ProctorAssignmentEntry[]> {
+export function useProctorAssignments(
+  sessionPublicId: string,
+): UseQueryResult<ProctorAssignmentEntry[]> {
   const proctors = useTenantProctors();
   const queryClient = useQueryClient();
 
@@ -189,7 +187,8 @@ export function useProctorAssignments(sessionPublicId: string): UseQueryResult<P
       const assignments = await listProctorAssignments(apiClient, sessionPublicId);
       // Read the cache directly rather than closing over `proctors.data` (a
       // per-render snapshot) — same race as examoperations' useSessionRoster.
-      const allUsers = queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? proctors.data ?? [];
+      const allUsers =
+        queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? proctors.data ?? [];
       const byId = new Map(
         allUsers
           .filter((user) => user.roles.includes(PROCTOR_ROLE))
@@ -197,7 +196,9 @@ export function useProctorAssignments(sessionPublicId: string): UseQueryResult<P
       );
       return assignments.flatMap((assignment) => {
         const proctor = byId.get(assignment.proctorPublicId);
-        return proctor ? [{ assignmentPublicId: assignment.publicId, proctor, role: assignment.role }] : [];
+        return proctor
+          ? [{ assignmentPublicId: assignment.publicId, proctor, role: assignment.role }]
+          : [];
       });
     },
     enabled: sessionPublicId.length > 0 && proctors.data !== undefined,
@@ -208,7 +209,9 @@ function invalidateProctorAssignments(
   queryClient: ReturnType<typeof useQueryClient>,
   sessionPublicId: string,
 ): void {
-  void queryClient.invalidateQueries({ queryKey: [...PROCTOR_ASSIGNMENTS_QUERY_KEY, sessionPublicId] });
+  void queryClient.invalidateQueries({
+    queryKey: [...PROCTOR_ASSIGNMENTS_QUERY_KEY, sessionPublicId],
+  });
 }
 
 interface AssignProctorInput {
@@ -230,11 +233,14 @@ export function useAssignProctor(
   });
 }
 
-export function useUnassignProctor(sessionPublicId: string): UseMutationResult<void, unknown, string> {
+export function useUnassignProctor(
+  sessionPublicId: string,
+): UseMutationResult<void, unknown, string> {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (assignmentPublicId) => unassignProctor(apiClient, sessionPublicId, assignmentPublicId),
+    mutationFn: (assignmentPublicId) =>
+      unassignProctor(apiClient, sessionPublicId, assignmentPublicId),
     onSuccess: () => invalidateProctorAssignments(queryClient, sessionPublicId),
   });
 }
@@ -285,7 +291,9 @@ export function useAnswers(
 }
 
 /** Full decoded content (+ presigned audio URL when applicable) for one answer, fetched only when a detail modal is open. */
-export function useAnswer(answerPublicId: string | null): UseQueryResult<AnswerReviewDetailResponse> {
+export function useAnswer(
+  answerPublicId: string | null,
+): UseQueryResult<AnswerReviewDetailResponse> {
   return useQuery({
     queryKey: [...ANSWER_QUERY_KEY, answerPublicId],
     queryFn: () => getAnswer(apiClient, answerPublicId as string),
@@ -314,7 +322,11 @@ export function useSubmitTeacherScore(
   });
 }
 
-export function useCreateProctorAccount(): UseMutationResult<UserResponse, unknown, CreateProctorInput> {
+export function useCreateProctorAccount(): UseMutationResult<
+  UserResponse,
+  unknown,
+  CreateProctorInput
+> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -347,7 +359,11 @@ interface BulkEnrollStudentsInput {
  * publicId once `useCreateSession` resolves — so `sessionPublicId` travels
  * with each `mutate()` call instead of being bound as a hook argument.
  */
-export function useBulkEnrollStudents(): UseMutationResult<BulkEnrollResponse, unknown, BulkEnrollStudentsInput> {
+export function useBulkEnrollStudents(): UseMutationResult<
+  BulkEnrollResponse,
+  unknown,
+  BulkEnrollStudentsInput
+> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -451,10 +467,18 @@ export function useBulkCreateSessionForProgram(): {
   const bulkEnrollStudentsMutation = useBulkEnrollStudents();
   const [batches, setBatches] = useState<SessionBatchState[]>([]);
   const [isRunning, setIsRunning] = useState(false);
-  const sessionFieldsRef = useRef<RunSessionFields>({ name: "", blueprintPublicId: "", opensAt: "", closesAt: "" });
+  const sessionFieldsRef = useRef<RunSessionFields>({
+    name: "",
+    blueprintPublicId: "",
+    opensAt: "",
+    closesAt: "",
+  });
   const cancelledRef = useRef(false);
 
-  const runBatch = async (index: number, current: SessionBatchState[]): Promise<SessionBatchState[]> => {
+  const runBatch = async (
+    index: number,
+    current: SessionBatchState[],
+  ): Promise<SessionBatchState[]> => {
     let working = current;
     const patch = (update: Partial<SessionBatchState>): void => {
       working = working.map((batch, i) => (i === index ? { ...batch, ...update } : batch));

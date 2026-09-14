@@ -28,8 +28,7 @@ const HEADER_CLASS =
 const CELL_CLASS = "px-5 py-4 text-sm text-gray-700 align-middle";
 
 const organizationTypeLabel = (value: string): string =>
-  ORGANIZATION_TYPE_OPTIONS.find((option) => option.value === value)?.label ??
-  value;
+  ORGANIZATION_TYPE_OPTIONS.find((option) => option.value === value)?.label ?? value;
 
 const TenantRow = ({
   tenant,
@@ -45,9 +44,7 @@ const TenantRow = ({
 
   return (
     <tr className="border-t border-gray-100 hover:bg-slate-50/70">
-      <td className={`${CELL_CLASS} font-medium text-gray-900`}>
-        {tenant.name}
-      </td>
+      <td className={`${CELL_CLASS} font-medium text-gray-900`}>{tenant.name}</td>
       <td className={`${CELL_CLASS} text-gray-500`}>
         {organizationTypeLabel(tenant.organizationType)}
       </td>

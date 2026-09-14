@@ -65,7 +65,9 @@ export const ProgramsListView = (): ReactElement => {
       key: "status",
       header: PROGRAM_TABLE_HEADERS.STATUS,
       cell: (program) => (
-        <Badge variant={PROGRAM_STATUS_VARIANT[program.status]}>{PROGRAM_STATUS_LABELS[program.status]}</Badge>
+        <Badge variant={PROGRAM_STATUS_VARIANT[program.status]}>
+          {PROGRAM_STATUS_LABELS[program.status]}
+        </Badge>
       ),
     },
     {

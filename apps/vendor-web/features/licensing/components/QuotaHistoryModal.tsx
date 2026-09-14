@@ -87,7 +87,9 @@ export const QuotaHistoryModal = ({
             <tbody>
               {visible.map((transaction: QuotaTransactionResponse) => (
                 <tr key={transaction.publicId} className="border-t border-gray-100">
-                  <td className={`${CELL_CLASS} text-gray-500`}>{formatDate(transaction.createdAt)}</td>
+                  <td className={`${CELL_CLASS} text-gray-500`}>
+                    {formatDate(transaction.createdAt)}
+                  </td>
                   <td className={CELL_CLASS}>{QUOTA_ACTION_TYPE_LABELS[transaction.actionType]}</td>
                   <td className={CELL_CLASS}>{transaction.packageName}</td>
                   <td className={`${CELL_CLASS} font-medium text-gray-900`}>

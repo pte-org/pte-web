@@ -27,9 +27,7 @@ export const QuestionEditorForm = (): ReactElement => {
   const addOption = (): void => setOptions((prev) => [...prev, ""]);
 
   const removeOption = (index: number): void =>
-    setOptions((prev) =>
-      prev.length > MIN_OPTIONS ? prev.filter((_, i) => i !== index) : prev,
-    );
+    setOptions((prev) => (prev.length > MIN_OPTIONS ? prev.filter((_, i) => i !== index) : prev));
 
   return (
     <form className="flex max-w-2xl flex-col gap-4">
@@ -41,9 +39,7 @@ export const QuestionEditorForm = (): ReactElement => {
         onChange={(event) => setQuestionText(event.target.value)}
       />
       <fieldset className="flex flex-col gap-3">
-        <legend className="text-sm font-medium text-gray-700">
-          {TEXT.OPTION_LABEL}
-        </legend>
+        <legend className="text-sm font-medium text-gray-700">{TEXT.OPTION_LABEL}</legend>
         {options.map((option, index) => (
           <div key={index} className="flex items-center gap-2">
             <input
@@ -71,12 +67,7 @@ export const QuestionEditorForm = (): ReactElement => {
             </Button>
           </div>
         ))}
-        <Button
-          type="button"
-          variant="secondary"
-          size="sm"
-          onClick={addOption}
-        >
+        <Button type="button" variant="secondary" size="sm" onClick={addOption}>
           {TEXT.ADD_OPTION}
         </Button>
       </fieldset>

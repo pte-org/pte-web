@@ -23,13 +23,9 @@ function getLocationCounts(tenants: Tenant[]): Map<string, number> {
   }, new Map<string, number>());
 }
 
-export const VietnamTenantMap = ({
-  tenants,
-}: VietnamTenantMapProps): ReactElement => {
+export const VietnamTenantMap = ({ tenants }: VietnamTenantMapProps): ReactElement => {
   const counts = getLocationCounts(tenants);
-  const activeLocations = TENANT_LOCATION_OPTIONS.filter((location) =>
-    counts.has(location.value),
-  );
+  const activeLocations = TENANT_LOCATION_OPTIONS.filter((location) => counts.has(location.value));
   const mappedTenantCount = activeLocations.reduce(
     (total, location) => total + (counts.get(location.value) ?? 0),
     0,
@@ -39,20 +35,14 @@ export const VietnamTenantMap = ({
     <section className="rounded-lg border border-slate-100 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-base font-semibold text-gray-900">
-            {DASHBOARD_MAP_TEXT.TITLE}
-          </h2>
-          <p className="mt-1 text-sm text-gray-500">
-            {DASHBOARD_MAP_TEXT.SUBTITLE}
-          </p>
+          <h2 className="text-base font-semibold text-gray-900">{DASHBOARD_MAP_TEXT.TITLE}</h2>
+          <p className="mt-1 text-sm text-gray-500">{DASHBOARD_MAP_TEXT.SUBTITLE}</p>
         </div>
         <div className="rounded-md bg-blue-50 px-3 py-2 text-right">
           <p className="text-xs font-medium uppercase tracking-wide text-blue-600">
             {DASHBOARD_MAP_TEXT.MAPPED_LABEL}
           </p>
-          <p className="text-xl font-semibold text-gray-900">
-            {mappedTenantCount}
-          </p>
+          <p className="text-xl font-semibold text-gray-900">{mappedTenantCount}</p>
         </div>
       </div>
 
@@ -64,24 +54,13 @@ export const VietnamTenantMap = ({
             aria-label={DASHBOARD_MAP_TEXT.ARIA_LABEL}
             className="h-[320px] w-full max-w-[220px]"
           >
-            <path
-              d={VIETNAM_PATH}
-              fill="#dbeafe"
-              stroke="#93c5fd"
-              strokeWidth="2"
-            />
+            <path d={VIETNAM_PATH} fill="#dbeafe" stroke="#93c5fd" strokeWidth="2" />
             {activeLocations.map((location) => {
               const count = counts.get(location.value) ?? 0;
 
               return (
                 <g key={location.value}>
-                  <circle
-                    cx={location.x}
-                    cy={location.y}
-                    r="9"
-                    fill="#2563eb"
-                    fillOpacity="0.16"
-                  />
+                  <circle cx={location.x} cy={location.y} r="9" fill="#2563eb" fillOpacity="0.16" />
                   <circle
                     cx={location.x}
                     cy={location.y}

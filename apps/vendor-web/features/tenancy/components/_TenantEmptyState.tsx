@@ -2,12 +2,7 @@ import type { ReactElement } from "react";
 import { TENANCY_TEXT } from "../constants";
 
 const EmptyIllustration = (): ReactElement => (
-  <svg
-    viewBox="0 0 120 120"
-    className="h-32 w-32"
-    fill="none"
-    aria-hidden="true"
-  >
+  <svg viewBox="0 0 120 120" className="h-32 w-32" fill="none" aria-hidden="true">
     <rect x="20" y="46" width="80" height="54" rx="8" fill="#E0E7FF" />
     <rect x="20" y="46" width="80" height="16" rx="8" fill="#C7D2FE" />
     <rect x="40" y="30" width="40" height="30" rx="6" fill="#F1F5F9" />

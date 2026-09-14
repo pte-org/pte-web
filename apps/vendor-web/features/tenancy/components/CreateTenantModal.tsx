@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useState,
-  type FormEvent,
-  type ReactElement,
-  type ReactNode,
-} from "react";
+import { useState, type FormEvent, type ReactElement, type ReactNode } from "react";
 import { Alert, BuildingIcon, Modal } from "@pte/ui";
 import { CREATE_TENANT_TEXT, EMPTY_CREATE_TENANT } from "../constants";
 import { validateCreateTenant } from "../utils/validateCreateTenant";
@@ -24,13 +19,7 @@ interface CreateTenantModalProps {
 const T = CREATE_TENANT_TEXT;
 const FORM_ID = "create-tenant-form";
 
-const SectionHeading = ({
-  icon,
-  text,
-}: {
-  icon: ReactNode;
-  text: string;
-}): ReactElement => (
+const SectionHeading = ({ icon, text }: { icon: ReactNode; text: string }): ReactElement => (
   <div className="mb-4 flex items-center gap-2 text-blue-700">
     <span className="[&>svg]:h-5 [&>svg]:w-5">{icon}</span>
     <h3 className="text-sm font-semibold text-gray-900">{text}</h3>
@@ -47,10 +36,8 @@ export const CreateTenantModal = ({
   const [form, setForm] = useState<CreateTenantInput>(EMPTY_CREATE_TENANT);
   const [errors, setErrors] = useState<CreateTenantErrors>({});
 
-  const handleChange = (
-    field: keyof CreateTenantInput,
-    value: string,
-  ): void => setForm((previous) => ({ ...previous, [field]: value }));
+  const handleChange = (field: keyof CreateTenantInput, value: string): void =>
+    setForm((previous) => ({ ...previous, [field]: value }));
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -90,19 +77,10 @@ export const CreateTenantModal = ({
           <Alert tone="error">{error}</Alert>
         </div>
       )}
-      <form
-        id={FORM_ID}
-        onSubmit={handleSubmit}
-        noValidate
-        className="flex flex-col gap-6"
-      >
+      <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-6">
         <section>
           <SectionHeading icon={<BuildingIcon />} text={T.SECTION_GENERAL} />
-          <TenantGeneralFields
-            form={form}
-            errors={errors}
-            onChange={handleChange}
-          />
+          <TenantGeneralFields form={form} errors={errors} onChange={handleChange} />
         </section>
       </form>
     </Modal>

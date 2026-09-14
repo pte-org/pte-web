@@ -35,7 +35,9 @@ export const AddStudentForm = ({ sessionPublicId }: AddStudentFormProps): ReactE
   // Lazy init reads sessionStorage during render — safe only because this
   // component is gated behind SessionDetailView's session-loading state,
   // so it's never rendered during SSR/hydration.
-  const [pending, setPending] = useState<CreatedAccount[] | null>(() => loadPendingImport(sessionPublicId));
+  const [pending, setPending] = useState<CreatedAccount[] | null>(() =>
+    loadPendingImport(sessionPublicId),
+  );
   const createStudent = useCreateStudent();
   const enrollAccounts = useEnrollRosterAccounts(sessionPublicId);
 
@@ -65,7 +67,9 @@ export const AddStudentForm = ({ sessionPublicId }: AddStudentFormProps): ReactE
       {pending && pending.length > 0 && (
         <PendingImportBanner
           accounts={pending}
-          onRetryEnroll={() => enrollAccounts.mutate(pending, { onSuccess: () => setPending(null) })}
+          onRetryEnroll={() =>
+            enrollAccounts.mutate(pending, { onSuccess: () => setPending(null) })
+          }
           onDismiss={handleDismiss}
           isEnrolling={enrollAccounts.isPending}
           enrollError={enrollAccounts.error}

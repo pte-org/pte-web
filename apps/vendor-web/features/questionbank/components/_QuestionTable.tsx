@@ -18,9 +18,7 @@ const HEADER_CLASS =
   "px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
 const CELL_CLASS = "px-5 py-4 text-sm text-gray-700 align-middle";
 
-export const QuestionTable = ({
-  questions,
-}: QuestionTableProps): ReactElement => (
+export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement => (
   <div className="overflow-visible rounded-lg border border-gray-200 bg-white shadow-md shadow-slate-200/70">
     <table className="w-full border-collapse">
       <thead className="bg-slate-50">
@@ -37,9 +35,7 @@ export const QuestionTable = ({
       <tbody>
         {questions.map((question) => (
           <tr key={question.id} className="border-t border-gray-100 hover:bg-slate-50/70">
-            <td className={`${CELL_CLASS} font-mono text-xs text-gray-900`}>
-              {question.id}
-            </td>
+            <td className={`${CELL_CLASS} font-mono text-xs text-gray-900`}>{question.id}</td>
             <td className={CELL_CLASS}>{QUESTION_SKILL_LABELS[question.skill]}</td>
             <td className={`${CELL_CLASS} max-w-xs`}>
               <span className="line-clamp-1">{question.content}</span>
@@ -49,9 +45,7 @@ export const QuestionTable = ({
                 {question.difficulty}
               </Badge>
             </td>
-            <td className={`${CELL_CLASS} text-gray-500`}>
-              {question.createdAt}
-            </td>
+            <td className={`${CELL_CLASS} text-gray-500`}>{question.createdAt}</td>
             <td className={CELL_CLASS}>
               <Badge variant={QUESTION_STATUS_VARIANT[question.status]}>
                 {QUESTION_STATUS_LABELS[question.status]}

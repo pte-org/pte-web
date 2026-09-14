@@ -35,8 +35,7 @@ function toSessionRoles(rawRoles: string[]): SessionRole[] {
 const FIELD_WRAP_CLASS =
   "flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 focus-within:border-blue-500";
 const INPUT_CLASS = "w-full bg-transparent py-2.5 text-sm outline-none";
-const LABEL_CLASS =
-  "text-xs font-semibold uppercase tracking-wide text-gray-500";
+const LABEL_CLASS = "text-xs font-semibold uppercase tracking-wide text-gray-500";
 
 export const LoginView = (): ReactElement => {
   const router = useRouter();
@@ -94,12 +93,8 @@ export const LoginView = (): ReactElement => {
             <span className="text-lg font-bold">{AUTH_TEXT.BRAND}</span>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              {AUTH_TEXT.WELCOME_TITLE}
-            </h1>
-            <p className="mt-1 text-sm text-gray-500">
-              {AUTH_TEXT.WELCOME_SUBTITLE}
-            </p>
+            <h1 className="text-2xl font-bold text-gray-900">{AUTH_TEXT.WELCOME_TITLE}</h1>
+            <p className="mt-1 text-sm text-gray-500">{AUTH_TEXT.WELCOME_SUBTITLE}</p>
           </div>
 
           {errorMessage && (
@@ -135,10 +130,7 @@ export const LoginView = (): ReactElement => {
                 <label htmlFor="password" className={LABEL_CLASS}>
                   {AUTH_TEXT.PASSWORD_LABEL}
                 </label>
-                <a
-                  href="#"
-                  className="text-xs font-semibold text-blue-700 hover:underline"
-                >
+                <a href="#" className="text-xs font-semibold text-blue-700 hover:underline">
                   {AUTH_TEXT.FORGOT}
                 </a>
               </div>
@@ -155,11 +147,7 @@ export const LoginView = (): ReactElement => {
                 <button
                   type="button"
                   onClick={() => setShowPassword((value) => !value)}
-                  aria-label={
-                    showPassword
-                      ? AUTH_TEXT.HIDE_PASSWORD
-                      : AUTH_TEXT.SHOW_PASSWORD
-                  }
+                  aria-label={showPassword ? AUTH_TEXT.HIDE_PASSWORD : AUTH_TEXT.SHOW_PASSWORD}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <EyeIcon closed={showPassword} className="h-4 w-4" />
@@ -172,9 +160,7 @@ export const LoginView = (): ReactElement => {
               disabled={mutation.isPending}
               className="rounded-lg bg-blue-900 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-950 disabled:opacity-60"
             >
-              {mutation.isPending
-                ? AUTH_TEXT.LOGGING_IN
-                : AUTH_TEXT.LOGIN_BUTTON}
+              {mutation.isPending ? AUTH_TEXT.LOGGING_IN : AUTH_TEXT.LOGIN_BUTTON}
             </button>
           </form>
 
@@ -184,11 +170,7 @@ export const LoginView = (): ReactElement => {
             <span className="h-px flex-1 bg-gray-200" />
           </div>
 
-          <SsoButtons
-            googleLabel={AUTH_TEXT.SSO_GOOGLE}
-            microsoftLabel={AUTH_TEXT.SSO_MICROSOFT}
-          />
-
+          <SsoButtons googleLabel={AUTH_TEXT.SSO_GOOGLE} microsoftLabel={AUTH_TEXT.SSO_MICROSOFT} />
         </div>
       </div>
     </main>

@@ -80,7 +80,12 @@ export const GrantQuotaModal = ({
         </div>
       )}
       <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-        <TenantFormField label={T.PACKAGE_LABEL} htmlFor="grant-package" required error={errors.packageName}>
+        <TenantFormField
+          label={T.PACKAGE_LABEL}
+          htmlFor="grant-package"
+          required
+          error={errors.packageName}
+        >
           <select
             id="grant-package"
             value={form.packageName}
@@ -115,7 +120,9 @@ export const GrantQuotaModal = ({
             type="number"
             min="1"
             value={form.amount}
-            onChange={(event) => setForm((previous) => ({ ...previous, amount: event.target.value }))}
+            onChange={(event) =>
+              setForm((previous) => ({ ...previous, amount: event.target.value }))
+            }
             placeholder={T.AMOUNT_PLACEHOLDER}
             className={fieldInputClass(errors.amount)}
           />

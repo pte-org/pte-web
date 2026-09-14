@@ -5,7 +5,12 @@ import Link from "next/link";
 import { Alert, Badge, LoadingState, PageHeader } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
-import { CLASS_ROSTER_TEXT, CLASS_STATUS_LABELS, CLASS_STATUS_VARIANT, LECTURER_SECTION_TEXT } from "../constants";
+import {
+  CLASS_ROSTER_TEXT,
+  CLASS_STATUS_LABELS,
+  CLASS_STATUS_VARIANT,
+  LECTURER_SECTION_TEXT,
+} from "../constants";
 import { useClasses } from "../api";
 import { ClassRosterTable } from "./ClassRosterTable";
 import { ImportOrAssignModal } from "./ImportOrAssignModal";
@@ -65,7 +70,12 @@ const ClassDetailContent = ({
   // Classes aren't individually fetchable by id alone in this API surface
   // (`GET .../classes` is list-only) — find this Class in its Program's
   // list, same shared-data-source discipline as the roster table.
-  const { data: classes, isLoading, isError, error } = useClasses(organizationPublicId, programPublicId);
+  const {
+    data: classes,
+    isLoading,
+    isError,
+    error,
+  } = useClasses(organizationPublicId, programPublicId);
   const studentClass = classes?.find((candidate) => candidate.publicId === classPublicId);
 
   if (isError) {
@@ -78,7 +88,10 @@ const ClassDetailContent = ({
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href={`/host/programs/${programPublicId}?organizationPublicId=${organizationPublicId}`} className="text-sm text-blue-700 hover:underline">
+      <Link
+        href={`/host/programs/${programPublicId}?organizationPublicId=${organizationPublicId}`}
+        className="text-sm text-blue-700 hover:underline"
+      >
         {CLASS_ROSTER_TEXT.back(programLabel)}
       </Link>
 

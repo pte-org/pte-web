@@ -41,7 +41,11 @@ import {
   PROGRAM_QUERY_KEY,
   PROGRAMS_QUERY_KEY,
 } from "../constants";
-import type { CoordinatorAssignmentEntry, CreateCoordinatorInput, ProgramRosterEntry } from "../types";
+import type {
+  CoordinatorAssignmentEntry,
+  CreateCoordinatorInput,
+  ProgramRosterEntry,
+} from "../types";
 
 const COORDINATOR_ROLE = "PROGRAM_COORDINATOR";
 
@@ -61,7 +65,10 @@ export function usePrograms(organizationPublicId: string): UseQueryResult<Progra
   });
 }
 
-export function useProgram(organizationPublicId: string, publicId: string): UseQueryResult<ProgramResponse> {
+export function useProgram(
+  organizationPublicId: string,
+  publicId: string,
+): UseQueryResult<ProgramResponse> {
   return useQuery({
     queryKey: [...PROGRAM_QUERY_KEY, publicId],
     queryFn: () => getProgram(apiClient, organizationPublicId, publicId),
@@ -77,7 +84,9 @@ export function useCreateProgram(
   return useMutation({
     mutationFn: (payload) => createProgram(apiClient, organizationPublicId, payload),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: [...PROGRAMS_QUERY_KEY, organizationPublicId] });
+      void queryClient.invalidateQueries({
+        queryKey: [...PROGRAMS_QUERY_KEY, organizationPublicId],
+      });
     },
   });
 }
@@ -92,7 +101,9 @@ export function useUpdateProgram(
     mutationFn: (payload) => updateProgram(apiClient, organizationPublicId, publicId, payload),
     onSuccess: (program) => {
       queryClient.setQueryData([...PROGRAM_QUERY_KEY, publicId], program);
-      void queryClient.invalidateQueries({ queryKey: [...PROGRAMS_QUERY_KEY, organizationPublicId] });
+      void queryClient.invalidateQueries({
+        queryKey: [...PROGRAMS_QUERY_KEY, organizationPublicId],
+      });
     },
   });
 }
@@ -164,8 +175,13 @@ export function useCoordinatorAssignments(
   return useQuery({
     queryKey: [...COORDINATOR_ASSIGNMENTS_QUERY_KEY, programPublicId],
     queryFn: async () => {
-      const assignments = await listCoordinatorAssignments(apiClient, organizationPublicId, programPublicId);
-      const allUsers = queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? coordinators.data ?? [];
+      const assignments = await listCoordinatorAssignments(
+        apiClient,
+        organizationPublicId,
+        programPublicId,
+      );
+      const allUsers =
+        queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? coordinators.data ?? [];
       const byId = new Map(
         allUsers
           .filter((user) => user.roles.includes(COORDINATOR_ROLE))
@@ -176,7 +192,10 @@ export function useCoordinatorAssignments(
         return coordinator ? [{ assignmentPublicId: assignment.publicId, coordinator }] : [];
       });
     },
-    enabled: organizationPublicId.length > 0 && programPublicId.length > 0 && coordinators.data !== undefined,
+    enabled:
+      organizationPublicId.length > 0 &&
+      programPublicId.length > 0 &&
+      coordinators.data !== undefined,
   });
 }
 
@@ -184,7 +203,9 @@ function invalidateCoordinatorAssignments(
   queryClient: ReturnType<typeof useQueryClient>,
   programPublicId: string,
 ): void {
-  void queryClient.invalidateQueries({ queryKey: [...COORDINATOR_ASSIGNMENTS_QUERY_KEY, programPublicId] });
+  void queryClient.invalidateQueries({
+    queryKey: [...COORDINATOR_ASSIGNMENTS_QUERY_KEY, programPublicId],
+  });
 }
 
 /** Assign an already-existing Coordinator (picked by publicId) to this Program. */
@@ -196,7 +217,9 @@ export function useAssignCoordinator(
 
   return useMutation({
     mutationFn: async (assigneePublicId) => {
-      await assignCoordinator(apiClient, organizationPublicId, programPublicId, { assigneePublicId });
+      await assignCoordinator(apiClient, organizationPublicId, programPublicId, {
+        assigneePublicId,
+      });
     },
     onSuccess: () => invalidateCoordinatorAssignments(queryClient, programPublicId),
   });
@@ -209,7 +232,8 @@ export function useUnassignCoordinator(
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (assignmentPublicId) => unassignCoordinator(apiClient, organizationPublicId, programPublicId, assignmentPublicId),
+    mutationFn: (assignmentPublicId) =>
+      unassignCoordinator(apiClient, organizationPublicId, programPublicId, assignmentPublicId),
     onSuccess: () => invalidateCoordinatorAssignments(queryClient, programPublicId),
   });
 }
@@ -218,7 +242,11 @@ export function useUnassignCoordinator(
  * Create a brand-new Coordinator account (not yet assigned to anything).
  * Uses a Host-supplied password, mirroring exams' `useCreateProctorAccount`.
  */
-export function useCreateCoordinatorAccount(): UseMutationResult<UserResponse, unknown, CreateCoordinatorInput> {
+export function useCreateCoordinatorAccount(): UseMutationResult<
+  UserResponse,
+  unknown,
+  CreateCoordinatorInput
+> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -280,7 +308,8 @@ export function useProgramRoster(programPublicId: string): UseQueryResult<Progra
       const memberships = await listClassMemberships(apiClient, programPublicId);
       // Read the cache directly rather than closing over `students.data` (a
       // per-render snapshot) — same race avoidance as useClassRoster.
-      const allUsers = queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? students.data ?? [];
+      const allUsers =
+        queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? students.data ?? [];
       const byId = new Map(allUsers.map((student) => [student.publicId, student]));
       return memberships.flatMap((membership) => {
         const student = byId.get(membership.studentPublicId);

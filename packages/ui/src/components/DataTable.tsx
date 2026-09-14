@@ -57,7 +57,8 @@ export function DataTable<TRow>({
   }
 
   const selection = selectedKeys ?? new Set<string | number>();
-  const allSelected = selectable && rows.length > 0 && rows.every((row) => selection.has(getRowKey(row)));
+  const allSelected =
+    selectable && rows.length > 0 && rows.every((row) => selection.has(getRowKey(row)));
 
   const toggleRow = (key: string | number): void => {
     if (!onSelectionChange) return;
@@ -90,11 +91,7 @@ export function DataTable<TRow>({
                 </th>
               )}
               {columns.map((column) => (
-                <th
-                  key={column.key}
-                  scope="col"
-                  className={cn("px-5 py-3.5", column.className)}
-                >
+                <th key={column.key} scope="col" className={cn("px-5 py-3.5", column.className)}>
                   {column.header}
                 </th>
               ))}
@@ -126,9 +123,7 @@ export function DataTable<TRow>({
                       {column.cell(row)}
                     </td>
                   ))}
-                  {rowActions && (
-                    <td className="px-5 py-4 text-right">{rowActions(row)}</td>
-                  )}
+                  {rowActions && <td className="px-5 py-4 text-right">{rowActions(row)}</td>}
                 </tr>
               );
             })}

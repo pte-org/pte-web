@@ -136,8 +136,7 @@ export const CREATE_TENANT_ERRORS = {
 
 export const CREATE_TENANT_CONFLICT_TEXT = {
   DUPLICATE_NAME: "This tenant name already exists. Please use another name.",
-  CONFLICT:
-    "The tenant name already exists. Please check the information and try again.",
+  CONFLICT: "The tenant name already exists. Please check the information and try again.",
 } as const;
 
 export const PLAN_SELECT_OPTIONS: { value: TenantPlan; label: string }[] = [
@@ -176,8 +175,7 @@ export const TENANT_DETAIL_TEXT = {
   BRANDING_SUBTITLE: "Shown to this tenant's users across the platform.",
   LOGO_URL_LABEL: "Logo URL",
   LOGO_URL_PLACEHOLDER: "https://example.com/logo.png",
-  LOGO_URL_HELPER:
-    "Paste a link to an already-hosted image. File upload isn't available yet.",
+  LOGO_URL_HELPER: "Paste a link to an already-hosted image. File upload isn't available yet.",
   PRIMARY_COLOR_LABEL: "Primary Color",
   PRIMARY_COLOR_PLACEHOLDER: "#1A2B3C",
   PRIMARY_COLOR_INVALID: "Enter a 6-digit hex color like #1A2B3C.",
@@ -187,8 +185,7 @@ export const TENANT_DETAIL_TEXT = {
   ORGANIZATIONS_SUBTITLE: "Branches and facilities under this tenant.",
   ADD_ORGANIZATION: "Add Organization",
   EMPTY_ORGANIZATIONS_TITLE: "No organizations yet",
-  EMPTY_ORGANIZATIONS_TEXT:
-    "Add the first branch or facility for this tenant.",
+  EMPTY_ORGANIZATIONS_TEXT: "Add the first branch or facility for this tenant.",
 } as const;
 
 export const ORGANIZATION_TABLE_HEADERS = {
@@ -250,8 +247,7 @@ export const LOGIN_ACCOUNT_TEXT = {
   EMPTY_TEXT: "Create the Host's first login so they can sign in.",
   CREATE_LOGIN: "Create Login",
   RESET_PASSWORD: "Reset Password",
-  RESET_SUCCESS:
-    "Password reset. Relay it to the Host directly — it won't be shown again.",
+  RESET_SUCCESS: "Password reset. Relay it to the Host directly — it won't be shown again.",
 } as const;
 
 export const LOGIN_ACCOUNT_STATUS_LABELS: Record<LoginAccountStatus, string> = {

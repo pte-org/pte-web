@@ -26,8 +26,7 @@ export const StatCard = ({
   highlight = false,
   progress,
 }: StatCardProps): ReactElement => {
-  const progressValue =
-    progress === undefined ? undefined : Math.min(Math.max(progress, 0), 100);
+  const progressValue = progress === undefined ? undefined : Math.min(Math.max(progress, 0), 100);
   const progressTone = highlight
     ? "[&::-webkit-progress-value]:bg-amber-500 [&::-moz-progress-bar]:bg-amber-500"
     : trendPositive
@@ -47,9 +46,7 @@ export const StatCard = ({
           <span
             className={cn(
               "grid h-10 w-10 shrink-0 place-items-center rounded-lg [&>svg]:h-5 [&>svg]:w-5",
-              highlight
-                ? "bg-amber-100 text-amber-600"
-                : "bg-sky-50 text-blue-600",
+              highlight ? "bg-amber-100 text-amber-600" : "bg-sky-50 text-blue-600",
             )}
           >
             {icon}
@@ -72,9 +69,7 @@ export const StatCard = ({
           <span className="text-2xl font-semibold text-slate-800">{value}</span>
         </div>
 
-        {trend && (
-          <span className="text-sm font-normal text-slate-400">{trend}</span>
-        )}
+        {trend && <span className="text-sm font-normal text-slate-400">{trend}</span>}
       </div>
 
       {progressValue !== undefined && (
@@ -91,9 +86,7 @@ export const StatCard = ({
         </div>
       )}
 
-      {footnote && (
-        <p className="mt-3 text-xs font-normal text-slate-400">{footnote}</p>
-      )}
+      {footnote && <p className="mt-3 text-xs font-normal text-slate-400">{footnote}</p>}
     </div>
   );
 };

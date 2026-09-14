@@ -65,7 +65,12 @@ const ProgramDetailContent = ({
   classLabel,
 }: ProgramDetailContentProps): ReactElement => {
   const T = PROGRAM_DETAIL_TEXT;
-  const { data: program, isLoading, isError, error } = useProgram(organizationPublicId, programPublicId);
+  const {
+    data: program,
+    isLoading,
+    isError,
+    error,
+  } = useProgram(organizationPublicId, programPublicId);
   const statusMutations = useProgramStatusMutations(organizationPublicId, programPublicId);
   const [createExamOpen, setCreateExamOpen] = useState(false);
 
@@ -170,7 +175,10 @@ const ProgramDetailContent = ({
 
       <section className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5">
         <h3 className="text-sm font-semibold text-gray-900">{COORDINATOR_SECTION_TEXT.title}</h3>
-        <CoordinatorAssignmentSection organizationPublicId={organizationPublicId} programPublicId={programPublicId} />
+        <CoordinatorAssignmentSection
+          organizationPublicId={organizationPublicId}
+          programPublicId={programPublicId}
+        />
       </section>
 
       <CreateSessionForProgramModal

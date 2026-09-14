@@ -27,13 +27,7 @@ export const Select = ({
   required,
   ...props
 }: SelectProps): ReactElement => (
-  <FormField
-    id={id}
-    label={label}
-    error={error}
-    helperText={helperText}
-    required={required}
-  >
+  <FormField id={id} label={label} error={error} helperText={helperText} required={required}>
     <select
       id={id}
       required={required}
@@ -47,11 +41,7 @@ export const Select = ({
     >
       {placeholder && <option value="">{placeholder}</option>}
       {options.map((option) => (
-        <option
-          key={option.value}
-          value={option.value}
-          disabled={option.disabled}
-        >
+        <option key={option.value} value={option.value} disabled={option.disabled}>
           {option.label}
         </option>
       ))}

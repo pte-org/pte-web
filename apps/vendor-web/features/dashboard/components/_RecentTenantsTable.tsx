@@ -5,11 +5,7 @@ import {
   TENANT_STATUS_LABELS,
   TENANT_STATUS_VARIANT,
 } from "../../tenancy/constants";
-import {
-  DASHBOARD_TEXT,
-  RECENT_TABLE_HEADERS,
-  recentCountLabel,
-} from "../constants";
+import { DASHBOARD_TEXT, RECENT_TABLE_HEADERS, recentCountLabel } from "../constants";
 import type { Tenant } from "../../tenancy/types";
 
 interface RecentTenantsTableProps {
@@ -29,9 +25,7 @@ export const RecentTenantsTable = ({
 }: RecentTenantsTableProps): ReactElement => (
   <div className="overflow-visible rounded-lg border border-slate-100 bg-white shadow-sm transition-all duration-300 hover:shadow-md">
     <div className="flex items-center justify-between px-5 py-4 border-b border-slate-50">
-      <h2 className="text-base font-semibold text-gray-900">
-        {DASHBOARD_TEXT.RECENT_TITLE}
-      </h2>
+      <h2 className="text-base font-semibold text-gray-900">{DASHBOARD_TEXT.RECENT_TITLE}</h2>
       <button
         type="button"
         className="text-sm font-medium text-blue-700 hover:underline transition-colors"
@@ -51,7 +45,10 @@ export const RecentTenantsTable = ({
       </thead>
       <tbody>
         {tenants.map((tenant) => (
-          <tr key={tenant.id} className="border-t border-gray-100 hover:bg-slate-50/70 transition-colors">
+          <tr
+            key={tenant.id}
+            className="border-t border-gray-100 hover:bg-slate-50/70 transition-colors"
+          >
             <td className={`${CELL_CLASS} font-medium text-gray-900`}>
               <div className="flex items-center gap-3">
                 <Avatar name={tenant.name} />

@@ -31,7 +31,12 @@ export const PendingImportBanner = ({
         <Button type="button" variant="secondary" onClick={() => downloadCredentials(accounts)}>
           {T.REDOWNLOAD}
         </Button>
-        <Button type="button" onClick={onRetryEnroll} isLoading={isEnrolling} loadingText={T.ENROLLING}>
+        <Button
+          type="button"
+          onClick={onRetryEnroll}
+          isLoading={isEnrolling}
+          loadingText={T.ENROLLING}
+        >
           {T.RETRY_ENROLL}
         </Button>
         <button

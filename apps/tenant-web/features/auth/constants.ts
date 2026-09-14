@@ -2,8 +2,7 @@ import type { SessionRole } from "@pte/ui";
 
 export const CURRENT_USER_QUERY_KEY = ["currentUser"] as const;
 
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 
 /**
  * Real backend roles allowed into `/host/*` — mirrors vendor-web's
@@ -21,11 +20,9 @@ export const AUTH_ROUTES = {
 export const AUTH_TEXT = {
   BRAND: "PTE Hub",
   WELCOME_TITLE: "Welcome Back",
-  WELCOME_SUBTITLE:
-    "Sign in to manage learners and exams for your organization.",
+  WELCOME_SUBTITLE: "Sign in to manage learners and exams for your organization.",
   PANEL_HEADING: "Ready to manage?",
-  PANEL_TEXT:
-    "Sign in to import learners, assign exams, and monitor results.",
+  PANEL_TEXT: "Sign in to import learners, assign exams, and monitor results.",
   EMAIL_LABEL: "Email address",
   EMAIL_PLACEHOLDER: "host@school.edu.vn",
   PASSWORD_LABEL: "Password",

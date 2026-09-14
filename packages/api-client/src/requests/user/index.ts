@@ -43,7 +43,10 @@ export function listUsers(client: ApiClient): Promise<UserResponse[]> {
 }
 
 /** Platform-admin-only — see `listUsers` above for the Host-facing equivalent. */
-export function listUsersByTenant(client: ApiClient, tenantPublicId: string): Promise<UserResponse[]> {
+export function listUsersByTenant(
+  client: ApiClient,
+  tenantPublicId: string,
+): Promise<UserResponse[]> {
   return client.request<UserResponse[]>(USER_ENDPOINTS.byTenant(tenantPublicId));
 }
 

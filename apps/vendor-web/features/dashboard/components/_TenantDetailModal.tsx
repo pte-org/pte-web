@@ -32,17 +32,12 @@ const getLocationLabel = (location: string | null): string => {
 
 const DetailItem = ({ label, value }: DetailItemProps): ReactElement => (
   <div className={DETAIL_ITEM_CLASS}>
-    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-      {label}
-    </p>
+    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
     <div className="mt-2 text-sm font-semibold text-slate-900">{value}</div>
   </div>
 );
 
-export const TenantDetailModal = ({
-  tenant,
-  onClose,
-}: TenantDetailModalProps): ReactElement => (
+export const TenantDetailModal = ({ tenant, onClose }: TenantDetailModalProps): ReactElement => (
   <Modal
     open={tenant !== null}
     onClose={onClose}
@@ -56,14 +51,8 @@ export const TenantDetailModal = ({
   >
     {tenant && (
       <div className={DETAIL_GRID_CLASS}>
-        <DetailItem
-          label={DASHBOARD_TENANT_DETAIL_TEXT.NAME}
-          value={tenant.name}
-        />
-        <DetailItem
-          label={DASHBOARD_TENANT_DETAIL_TEXT.SLUG}
-          value={tenant.slug}
-        />
+        <DetailItem label={DASHBOARD_TENANT_DETAIL_TEXT.NAME} value={tenant.name} />
+        <DetailItem label={DASHBOARD_TENANT_DETAIL_TEXT.SLUG} value={tenant.slug} />
         <DetailItem
           label={DASHBOARD_TENANT_DETAIL_TEXT.LOGIN_EMAIL}
           value={getDisplayValue(tenant.contactEmail)}
@@ -84,14 +73,8 @@ export const TenantDetailModal = ({
           label={DASHBOARD_TENANT_DETAIL_TEXT.SEATS}
           value={`${tenant.seatsUsed} / ${tenant.seatsTotal}`}
         />
-        <DetailItem
-          label={DASHBOARD_TENANT_DETAIL_TEXT.ACTIVATED}
-          value={tenant.activatedAt}
-        />
-        <DetailItem
-          label={DASHBOARD_TENANT_DETAIL_TEXT.EXPIRES}
-          value={tenant.expiresAt}
-        />
+        <DetailItem label={DASHBOARD_TENANT_DETAIL_TEXT.ACTIVATED} value={tenant.activatedAt} />
+        <DetailItem label={DASHBOARD_TENANT_DETAIL_TEXT.EXPIRES} value={tenant.expiresAt} />
         <DetailItem
           label={DASHBOARD_TENANT_DETAIL_TEXT.LOCATION}
           value={getLocationLabel(tenant.location)}

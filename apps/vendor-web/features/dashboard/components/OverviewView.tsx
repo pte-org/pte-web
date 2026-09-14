@@ -21,13 +21,8 @@ export const OverviewView = (): ReactElement => {
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
   const tenants = allTenants ?? [];
   const recentTenants = tenants.slice(0, RECENT_TENANT_LIMIT);
-  const activeLearners = tenants.reduce(
-    (total, tenant) => total + tenant.seatsUsed,
-    0,
-  );
-  const expiringSoon = tenants.filter(
-    (tenant) => tenant.status === "expiring",
-  ).length;
+  const activeLearners = tenants.reduce((total, tenant) => total + tenant.seatsUsed, 0);
+  const expiringSoon = tenants.filter((tenant) => tenant.status === "expiring").length;
   const activeTenantsCount = tenants.filter((tenant) => tenant.status === "active").length;
   const totalSeats = tenants.reduce((total, tenant) => total + tenant.seatsTotal, 0);
 
@@ -64,10 +59,7 @@ export const OverviewView = (): ReactElement => {
         total={tenants.length}
         onViewTenant={setSelectedTenant}
       />
-      <TenantDetailModal
-        tenant={selectedTenant}
-        onClose={() => setSelectedTenant(null)}
-      />
+      <TenantDetailModal tenant={selectedTenant} onClose={() => setSelectedTenant(null)} />
     </div>
   );
 };
