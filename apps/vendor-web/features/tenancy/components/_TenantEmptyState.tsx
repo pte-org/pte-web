@@ -24,7 +24,7 @@ export const TenantEmptyState = ({
   text = TENANCY_TEXT.EMPTY_TEXT,
   addLabel = TENANCY_TEXT.ADD_TENANT,
 }: TenantEmptyStateProps): ReactElement => (
-  <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-gray-200 bg-white px-6 py-16 text-center">
+  <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-gray-200 bg-white px-6 py-16 text-center shadow-card">
     <EmptyIllustration />
     <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
     <p className="max-w-md text-sm text-gray-500">{text}</p>

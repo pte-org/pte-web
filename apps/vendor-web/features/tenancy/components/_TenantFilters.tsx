@@ -24,8 +24,8 @@ const SearchIcon = (): ReactElement => (
 );
 
 export const TenantFilters = ({ filter, onChange }: TenantFiltersProps): ReactElement => (
-  <div className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-md shadow-slate-200/70 md:flex-row">
-    <div className="flex flex-1 items-center gap-2 rounded-md border border-gray-200 bg-slate-50 px-3">
+  <div className="flex flex-col gap-3 rounded-lg bg-white p-4 shadow-card md:flex-row">
+    <div className="flex flex-1 items-center gap-2 rounded-md border border-gray-300 bg-white px-3 shadow-sm focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-100">
       <SearchIcon />
       <input
         type="search"
@@ -45,7 +45,7 @@ export const TenantFilters = ({ filter, onChange }: TenantFiltersProps): ReactEl
           status: event.target.value as TenantStatusFilter,
         })
       }
-      className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-700 outline-none focus:border-blue-500"
+      className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none shadow-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
     >
       {STATUS_FILTER_OPTIONS.map((option) => (
         <option key={option.value} value={option.value}>

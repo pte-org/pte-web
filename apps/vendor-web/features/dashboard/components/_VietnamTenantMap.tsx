@@ -32,7 +32,7 @@ export const VietnamTenantMap = ({ tenants }: VietnamTenantMapProps): ReactEleme
   );
 
   return (
-    <section className="rounded-lg border border-slate-100 bg-white p-5 shadow-sm transition-all duration-300 hover:shadow-md">
+    <section className="rounded-lg bg-white p-5 shadow-card transition-[box-shadow] duration-150 hover:shadow-lg">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-base font-semibold text-gray-900">{DASHBOARD_MAP_TEXT.TITLE}</h2>
@@ -54,19 +54,24 @@ export const VietnamTenantMap = ({ tenants }: VietnamTenantMapProps): ReactEleme
             aria-label={DASHBOARD_MAP_TEXT.ARIA_LABEL}
             className="h-[320px] w-full max-w-[220px]"
           >
-            <path d={VIETNAM_PATH} fill="#dbeafe" stroke="#93c5fd" strokeWidth="2" />
+            <path d={VIETNAM_PATH} className="fill-blue-100 stroke-blue-300" strokeWidth="2" />
             {activeLocations.map((location) => {
               const count = counts.get(location.value) ?? 0;
 
               return (
                 <g key={location.value}>
-                  <circle cx={location.x} cy={location.y} r="9" fill="#2563eb" fillOpacity="0.16" />
+                  <circle
+                    cx={location.x}
+                    cy={location.y}
+                    r="9"
+                    className="fill-blue-600"
+                    fillOpacity="0.16"
+                  />
                   <circle
                     cx={location.x}
                     cy={location.y}
                     r="4.5"
-                    fill="#2563eb"
-                    stroke="#ffffff"
+                    className="fill-blue-600 stroke-white"
                     strokeWidth="2"
                   >
                     <title>
@@ -84,7 +89,7 @@ export const VietnamTenantMap = ({ tenants }: VietnamTenantMapProps): ReactEleme
             activeLocations.map((location) => (
               <div
                 key={location.value}
-                className="flex items-center justify-between rounded-lg border border-gray-100 px-3 py-2"
+                className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"
               >
                 <span className="flex items-center gap-2 text-sm font-medium text-gray-700">
                   <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />
@@ -96,7 +101,7 @@ export const VietnamTenantMap = ({ tenants }: VietnamTenantMapProps): ReactEleme
               </div>
             ))
           ) : (
-            <div className="rounded-lg border border-dashed border-gray-200 p-4 text-sm text-gray-500">
+            <div className="rounded-lg bg-slate-50 p-4 text-sm text-gray-500">
               {DASHBOARD_MAP_TEXT.EMPTY}
             </div>
           )}

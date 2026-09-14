@@ -49,14 +49,14 @@ export const Modal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
         role="dialog"
         aria-modal="true"
         className={cn(
-          "max-h-[90vh] w-full overflow-hidden rounded-xl bg-white shadow-xl",
+          "max-h-[90vh] w-full overflow-hidden rounded-lg bg-white shadow-card",
           SIZE_CLASS[size],
         )}
         onClick={(event) => event.stopPropagation()}

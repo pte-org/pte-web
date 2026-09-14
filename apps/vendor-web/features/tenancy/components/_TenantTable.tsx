@@ -87,28 +87,30 @@ export const TenantTable = ({
   onSuspend,
   onReactivate,
 }: TenantTableProps): ReactElement => (
-  <div className="overflow-visible rounded-lg border border-gray-200 bg-white shadow-md shadow-slate-200/70">
-    <table className="w-full border-collapse">
-      <thead className="bg-slate-50">
-        <tr>
-          <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.NAME}</th>
-          <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.TYPE}</th>
-          <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.PLAN}</th>
-          <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.STUDENT_LIMIT}</th>
-          <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.STATUS}</th>
-          <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.ACTIONS}</th>
-        </tr>
-      </thead>
-      <tbody>
-        {tenants.map((tenant) => (
-          <TenantRow
-            key={tenant.id}
-            tenant={tenant}
-            onSuspend={onSuspend}
-            onReactivate={onReactivate}
-          />
-        ))}
-      </tbody>
-    </table>
+  <div className="overflow-hidden rounded-lg bg-white shadow-card">
+    <div className="overflow-x-auto">
+      <table className="min-w-[760px] w-full border-collapse">
+        <thead className="bg-slate-50">
+          <tr>
+            <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.NAME}</th>
+            <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.TYPE}</th>
+            <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.PLAN}</th>
+            <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.STUDENT_LIMIT}</th>
+            <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.STATUS}</th>
+            <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.ACTIONS}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tenants.map((tenant) => (
+            <TenantRow
+              key={tenant.id}
+              tenant={tenant}
+              onSuspend={onSuspend}
+              onReactivate={onReactivate}
+            />
+          ))}
+        </tbody>
+      </table>
+    </div>
   </div>
 );

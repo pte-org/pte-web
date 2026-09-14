@@ -10,17 +10,17 @@ interface BadgeProps {
 }
 
 const VARIANT_CLASS: Record<BadgeVariant, string> = {
-  success: "bg-green-100 text-green-700",
-  warning: "bg-amber-100 text-amber-700",
-  danger: "bg-red-100 text-red-700",
-  info: "bg-blue-100 text-blue-700",
+  success: "bg-green-50 text-green-700",
+  warning: "bg-amber-50 text-amber-700",
+  danger: "bg-red-50 text-red-700",
+  info: "bg-sky-50 text-sky-700",
   neutral: "bg-gray-100 text-gray-600",
 };
 
 export const Badge = ({ variant = "neutral", children, className }: BadgeProps): ReactElement => (
   <span
     className={cn(
-      "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium",
+      "before:h-1.5 before:w-1.5 before:shrink-0 before:rounded-full before:bg-current inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
       VARIANT_CLASS[variant],
       className,
     )}

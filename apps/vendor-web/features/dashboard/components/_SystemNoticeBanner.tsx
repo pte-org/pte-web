@@ -16,7 +16,7 @@ const InfoIcon = (): ReactElement => (
 );
 
 export const SystemNoticeBanner = (): ReactElement => (
-  <div className="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 p-4">
+  <div className="flex items-start gap-3 rounded-lg bg-sky-50 p-4 shadow-card">
     <InfoIcon />
     <div>
       <p className="text-sm font-semibold text-blue-900">{DASHBOARD_TEXT.NOTICE_TITLE}</p>

@@ -22,7 +22,7 @@ export const FormField = ({
 }: FormFieldProps): ReactElement => (
   <div className={cn("flex flex-col gap-1", className)}>
     {label && (
-      <label htmlFor={id} className="text-sm font-medium text-gray-700">
+      <label htmlFor={id} className="text-xs font-semibold uppercase tracking-wide text-gray-600">
         {label}
         {required && (
           <span aria-hidden="true" className="ml-1 text-red-600">
@@ -32,7 +32,7 @@ export const FormField = ({
       </label>
     )}
     {children}
-    {helperText && !error && <span className="text-sm text-gray-500">{helperText}</span>}
-    {error && <span className="text-sm text-red-600">{error}</span>}
+    {helperText && !error && <span className="text-xs text-gray-500">{helperText}</span>}
+    {error && <span className="text-xs text-red-600">{error}</span>}
   </div>
 );

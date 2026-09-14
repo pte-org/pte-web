@@ -1,5 +1,6 @@
 import type { NavItem } from "@/features/auth/components";
 import type { OrgLabels } from "@/features/orgLabels/constants";
+import { BookOpenIcon, DocumentIcon, GridIcon, UsersIcon } from "@pte/ui";
 
 /**
  * Non-label entries stay static; the Program entry's label is org-type-driven.
@@ -12,10 +13,16 @@ import type { OrgLabels } from "@/features/orgLabels/constants";
  */
 export function buildHostNav(labels: OrgLabels): NavItem[] {
   return [
-    { label: "Overview", href: "/host/dashboard" },
-    { label: "Exams", href: "/host/exams" },
-    { label: labels.program, href: "/host/programs" },
-    { label: "Students", href: "/host/students" },
-    { label: "Audit Log", href: "/host/audit-log", requiredRoles: ["HOST_ADMIN"] },
+    { label: "Overview", href: "/host/dashboard", icon: <GridIcon />, section: "Home" },
+    { label: "Exams", href: "/host/exams", icon: <BookOpenIcon />, section: "Delivery" },
+    { label: labels.program, href: "/host/programs", icon: <BookOpenIcon />, section: "Learners" },
+    { label: "Students", href: "/host/students", icon: <UsersIcon />, section: "Learners" },
+    {
+      label: "Audit Log",
+      href: "/host/audit-log",
+      icon: <DocumentIcon />,
+      section: "Data",
+      requiredRoles: ["HOST_ADMIN"],
+    },
   ];
 }

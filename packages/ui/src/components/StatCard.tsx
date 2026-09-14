@@ -14,7 +14,17 @@ interface StatCardProps {
   highlight?: boolean;
   /** Percentage of progress for the progress bar (0 to 100). */
   progress?: number;
+  /** Semantic pastel wash used by the design system for the icon tile. */
+  accent?: "blue" | "sky" | "mint" | "cream" | "blush";
 }
+
+const ACCENT_CLASSES: Record<NonNullable<StatCardProps["accent"]>, string> = {
+  blue: "bg-blue-50 text-blue-700",
+  sky: "bg-sky-50 text-sky-700",
+  mint: "bg-green-50 text-green-700",
+  cream: "bg-amber-50 text-amber-700",
+  blush: "bg-red-50 text-red-700",
+};
 
 export const StatCard = ({
   label,
@@ -25,6 +35,7 @@ export const StatCard = ({
   footnote,
   highlight = false,
   progress,
+  accent,
 }: StatCardProps): ReactElement => {
   const progressValue = progress === undefined ? undefined : Math.min(Math.max(progress, 0), 100);
   const progressTone = highlight
@@ -36,8 +47,7 @@ export const StatCard = ({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-lg border border-slate-100 bg-white p-6 shadow-sm transition-all duration-300 hover:shadow-md",
-        highlight && "border-amber-100",
+        "relative overflow-hidden rounded-lg bg-white p-5 shadow-card transition-[box-shadow] duration-150 hover:shadow-lg",
       )}
     >
       <div className="flex items-start justify-between gap-3">
@@ -46,7 +56,7 @@ export const StatCard = ({
           <span
             className={cn(
               "grid h-10 w-10 shrink-0 place-items-center rounded-lg [&>svg]:h-5 [&>svg]:w-5",
-              highlight ? "bg-amber-100 text-amber-600" : "bg-sky-50 text-blue-600",
+              ACCENT_CLASSES[accent ?? (highlight ? "cream" : "blue")],
             )}
           >
             {icon}
@@ -66,7 +76,7 @@ export const StatCard = ({
               {trendPositive ? "+" : "-"}
             </span>
           )}
-          <span className="text-2xl font-semibold text-slate-800">{value}</span>
+          <span className="text-2xl font-semibold tabular-nums text-slate-800">{value}</span>
         </div>
 
         {trend && <span className="text-sm font-normal text-slate-400">{trend}</span>}

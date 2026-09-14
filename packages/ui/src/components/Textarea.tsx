@@ -22,7 +22,7 @@ export const Textarea = ({
       id={id}
       required={required}
       className={cn(
-        "min-h-24 rounded-md border bg-white px-3 py-2 text-base text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500",
+        "min-h-24 rounded-md border bg-white px-3 py-2.5 text-sm text-gray-900 outline-none transition-colors placeholder:text-gray-400 focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20",
         error ? "border-red-500" : "border-gray-300",
         className,
       )}

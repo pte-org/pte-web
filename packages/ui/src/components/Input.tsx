@@ -33,7 +33,7 @@ export const Input = ({
     >
       <div
         className={cn(
-          "flex items-center gap-2 rounded-md border bg-white px-3 transition-colors focus-within:ring-2 focus-within:ring-blue-500",
+          "flex items-center gap-2 rounded-md border bg-white px-3 transition-colors focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-600/20",
           error ? "border-red-500" : "border-gray-300",
         )}
       >
@@ -42,7 +42,7 @@ export const Input = ({
           id={controlId}
           required={required}
           className={cn(
-            "min-w-0 flex-1 bg-transparent py-2 text-base text-gray-900 outline-none placeholder:text-gray-400",
+            "min-w-0 flex-1 bg-transparent py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400",
             className,
           )}
           aria-invalid={error ? true : undefined}

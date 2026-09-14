@@ -16,8 +16,8 @@ export const AuthLayout = ({
   children,
 }: AuthLayoutProps): ReactElement => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
+      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-card">
         {brand && <div className="mb-6 flex justify-center">{brand}</div>}
         <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
         {subtitle && <p className="mt-1 text-sm text-gray-500">{subtitle}</p>}

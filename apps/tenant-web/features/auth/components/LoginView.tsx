@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   EyeIcon,
@@ -33,7 +34,7 @@ function toSessionRoles(rawRoles: string[]): SessionRole[] {
 }
 
 const FIELD_WRAP_CLASS =
-  "flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-3 focus-within:border-blue-500";
+  "flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 shadow-sm focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-100";
 const INPUT_CLASS = "w-full bg-transparent py-2.5 text-sm outline-none";
 const LABEL_CLASS = "text-xs font-semibold uppercase tracking-wide text-gray-500";
 
@@ -84,8 +85,8 @@ export const LoginView = (): ReactElement => {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-100 p-4">
-      <div className="grid w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-xl md:grid-cols-2">
+    <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
+      <div className="grid w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-card md:grid-cols-2">
         <AuthBrandPanel />
         <div className="flex flex-col justify-center gap-6 p-8 md:p-10">
           <div className="flex items-center gap-2 text-blue-800">
@@ -98,10 +99,7 @@ export const LoginView = (): ReactElement => {
           </div>
 
           {errorMessage && (
-            <div
-              role="alert"
-              className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
-            >
+            <div role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
               {errorMessage}
             </div>
           )}
@@ -130,9 +128,9 @@ export const LoginView = (): ReactElement => {
                 <label htmlFor="password" className={LABEL_CLASS}>
                   {AUTH_TEXT.PASSWORD_LABEL}
                 </label>
-                <a href="#" className="text-xs font-semibold text-blue-700 hover:underline">
+                <Link href="#" className="text-xs font-medium text-blue-700 hover:underline">
                   {AUTH_TEXT.FORGOT}
-                </a>
+                </Link>
               </div>
               <div className={FIELD_WRAP_CLASS}>
                 <LockIcon className="h-4 w-4 text-gray-400" />
@@ -158,7 +156,7 @@ export const LoginView = (): ReactElement => {
             <button
               type="submit"
               disabled={mutation.isPending}
-              className="rounded-lg bg-blue-900 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-950 disabled:opacity-60"
+              className="rounded-md bg-blue-700 py-2.5 text-sm font-medium text-white shadow-sm shadow-blue-200 transition-colors hover:bg-blue-800 disabled:opacity-60"
             >
               {mutation.isPending ? AUTH_TEXT.LOGGING_IN : AUTH_TEXT.LOGIN_BUTTON}
             </button>
