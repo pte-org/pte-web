@@ -1,13 +1,23 @@
 "use client";
 
 import {
+  bulkCreateUsers,
   listClassMemberships,
   type ClassMembershipResponse,
+  type BulkCreateUsersResponse,
   type UserResponse,
 } from "@pte/api-client";
-import { useQuery, type UseQueryResult } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseMutationResult,
+  type UseQueryResult,
+} from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import { useTenantStudents } from "@/features/examoperations/api";
+import { TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
+import type { RosterRow } from "@/features/examoperations/types";
 import { CLASS_MEMBERSHIPS_QUERY_KEY } from "../constants";
 import type { StudentSearchResult } from "../types";
 
@@ -24,6 +34,33 @@ export function useClassMemberships(): UseQueryResult<ClassMembershipResponse[]>
   return useQuery({
     queryKey: CLASS_MEMBERSHIPS_QUERY_KEY,
     queryFn: () => listClassMemberships(apiClient),
+  });
+}
+
+/** Creates student accounts in the current Host's tenant without enrolling them anywhere. */
+export function useCreateTenantStudents(): UseMutationResult<
+  BulkCreateUsersResponse,
+  unknown,
+  RosterRow[]
+> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (rows) =>
+      bulkCreateUsers(apiClient, {
+        rows: rows.map((row) => ({
+          email: row.email,
+          fullName: row.fullName,
+          studentCode: row.studentCode ?? null,
+          className: row.className ?? null,
+          phone: row.phone ?? null,
+          dateOfBirth: row.dateOfBirth ?? null,
+        })),
+        tenantId: null,
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
+    },
   });
 }
 

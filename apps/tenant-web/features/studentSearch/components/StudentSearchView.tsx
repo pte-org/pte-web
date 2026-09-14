@@ -1,16 +1,22 @@
 "use client";
 
 import { useEffect, useState, type ReactElement } from "react";
-import { DataTable, Input, PageHeader, type DataTableColumn } from "@pte/ui";
-import { STUDENT_SEARCH_TABLE_HEADERS, STUDENT_SEARCH_TEXT } from "../constants";
+import { Button, DataTable, Input, PageHeader, type DataTableColumn } from "@pte/ui";
+import {
+  STUDENT_SEARCH_ACTIONS_TEXT,
+  STUDENT_SEARCH_TABLE_HEADERS,
+  STUDENT_SEARCH_TEXT,
+} from "../constants";
 import { useTenantStudentSearch } from "../api";
 import type { StudentSearchResult } from "../types";
+import { ManageStudentsModal } from "./ManageStudentsModal";
 
 const DEBOUNCE_MS = 250;
 
 export const StudentSearchView = (): ReactElement => {
   const [input, setInput] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [manageMode, setManageMode] = useState<"add" | "import" | null>(null);
 
   useEffect(() => {
     const timeout = setTimeout(() => setDebouncedQuery(input), DEBOUNCE_MS);
@@ -41,8 +47,18 @@ export const StudentSearchView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={STUDENT_SEARCH_TEXT.title} />
-      <p className="text-gray-600">{STUDENT_SEARCH_TEXT.subtitle}</p>
+      <PageHeader
+        title={STUDENT_SEARCH_TEXT.title}
+        subtitle={STUDENT_SEARCH_TEXT.subtitle}
+        actions={
+          <>
+            <Button variant="secondary" onClick={() => setManageMode("import")}>
+              {STUDENT_SEARCH_ACTIONS_TEXT.import}
+            </Button>
+            <Button onClick={() => setManageMode("add")}>{STUDENT_SEARCH_ACTIONS_TEXT.add}</Button>
+          </>
+        }
+      />
 
       <Input
         aria-label={STUDENT_SEARCH_TEXT.placeholder}
@@ -60,6 +76,10 @@ export const StudentSearchView = (): ReactElement => {
           emptyTitle={STUDENT_SEARCH_TEXT.emptyTitle}
           emptyDescription={STUDENT_SEARCH_TEXT.emptyText}
         />
+      )}
+
+      {manageMode && (
+        <ManageStudentsModal open initialMode={manageMode} onClose={() => setManageMode(null)} />
       )}
     </div>
   );
