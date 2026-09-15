@@ -30,7 +30,7 @@ export const QuestionFilters = ({ filter, onChange }: QuestionFiltersProps): Rea
       placeholder={QUESTIONBANK_TEXT.SEARCH_PLACEHOLDER}
       value={filter.query}
       onChange={(event) => onChange({ ...filter, query: event.target.value })}
-      className="flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none shadow-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+      className="flex-1 appearance-none rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none shadow-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
     />
     <select
       aria-label={SKILL_FILTER_OPTIONS[0].label}

@@ -33,7 +33,7 @@ export const TenantFilters = ({ filter, onChange }: TenantFiltersProps): ReactEl
         placeholder={TENANCY_TEXT.SEARCH_PLACEHOLDER}
         value={filter.query}
         onChange={(event) => onChange({ ...filter, query: event.target.value })}
-        className="w-full bg-transparent py-2 text-sm outline-none"
+        className="w-full appearance-none bg-transparent py-2 text-sm outline-none"
       />
     </div>
     <select
