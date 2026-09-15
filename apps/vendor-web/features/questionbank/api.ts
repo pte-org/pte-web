@@ -4,42 +4,37 @@ import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { listQuestions, type QuestionResponse } from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
 import { QUESTION_STATS_QUERY_KEY, QUESTIONS_QUERY_KEY } from "./constants";
-import type {
-  Question,
-  QuestionDifficulty,
-  QuestionSkill,
-  QuestionStats,
-  QuestionStatus,
-} from "./types";
+import type { Question, QuestionSkill, QuestionStats, QuestionStatus } from "./types";
 
-const SKILL_MAP: Partial<Record<QuestionResponse["skill"], QuestionSkill>> = {
+const SKILL_MAP: Partial<Record<string, QuestionSkill>> = {
   LISTENING: "listening",
   READING: "reading",
   WRITING: "writing",
   SPEAKING: "speaking",
 };
 
-function mapDifficulty(value: QuestionResponse["difficultyLevel"]): QuestionDifficulty {
-  return value === "C1" ? "C" : value;
-}
-
 function mapStatus(value: QuestionResponse["status"]): QuestionStatus {
   return value === "DRAFT" ? "draft" : "in_use";
 }
 
-function formatDate(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("en-GB").format(date);
-}
-
+/**
+ * `QuestionResponse` has no `content`/single string field — `title` is the
+ * one human-readable label the backend always sets; `promptText` is null
+ * for options-only task types (e.g. RE_ORDER_PARAGRAPHS), so it's a fallback,
+ * not the primary source.
+ */
 function mapQuestion(response: QuestionResponse): Question {
   return {
-    id: response.id,
-    skill: SKILL_MAP[response.skill] ?? "reading",
-    content: response.content,
-    difficulty: mapDifficulty(response.difficultyLevel),
-    createdAt: formatDate(response.createdAt),
+    id: response.publicId,
+    skill: SKILL_MAP[response.section] ?? "reading",
+    content: response.title || response.promptText || "—",
+    // The real backend has no difficulty concept at all yet (no field on
+    // Question/QuestionResponse) — null rather than a made-up default so the
+    // UI can show "—" honestly instead of implying data that doesn't exist.
+    difficulty: null,
+    // No createdAt on QuestionResponse today either (BaseEntity has it, but
+    // the DTO doesn't expose it) — same "—" treatment as difficulty.
+    createdAt: null,
     status: mapStatus(response.status),
   };
 }
@@ -62,8 +57,8 @@ function buildStats(questions: Question[]): QuestionStats {
 }
 
 async function fetchQuestions(): Promise<Question[]> {
-  const result = await listQuestions(apiClient, { size: 100 });
-  return result.data.map(mapQuestion);
+  const result = await listQuestions(apiClient);
+  return result.map(mapQuestion);
 }
 
 export function useQuestions(): UseQueryResult<Question[]> {

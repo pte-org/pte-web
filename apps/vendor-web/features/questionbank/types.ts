@@ -8,8 +8,10 @@ export interface Question {
   id: string;
   skill: QuestionSkill;
   content: string;
-  difficulty: QuestionDifficulty;
-  createdAt: string;
+  /** null until the backend actually has a difficulty concept — see api.ts's mapQuestion. */
+  difficulty: QuestionDifficulty | null;
+  /** null until QuestionResponse exposes createdAt — see api.ts's mapQuestion. */
+  createdAt: string | null;
   status: QuestionStatus;
 }
 
