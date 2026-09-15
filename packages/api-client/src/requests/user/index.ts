@@ -11,6 +11,8 @@ export const USER_ENDPOINTS = {
   users: "/api/iam/users",
   bulk: "/api/iam/users/bulk",
   byTenant: (tenantPublicId: string) => `/api/iam/users/by-tenant/${tenantPublicId}`,
+  suspend: (publicId: string) => `/api/iam/users/${publicId}/suspend`,
+  reactivate: (publicId: string) => `/api/iam/users/${publicId}/reactivate`,
   resetPassword: (publicId: string) => `/api/iam/users/${publicId}/reset-password`,
 } as const;
 
@@ -59,4 +61,12 @@ export function resetPassword(
     method: "POST",
     body: payload,
   });
+}
+
+export function suspendUser(client: ApiClient, publicId: string): Promise<UserResponse> {
+  return client.request<UserResponse>(USER_ENDPOINTS.suspend(publicId), { method: "POST" });
+}
+
+export function reactivateUser(client: ApiClient, publicId: string): Promise<UserResponse> {
+  return client.request<UserResponse>(USER_ENDPOINTS.reactivate(publicId), { method: "POST" });
 }
