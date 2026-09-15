@@ -42,11 +42,15 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
                 <span className="line-clamp-1">{question.content}</span>
               </td>
               <td className={CELL_CLASS}>
-                <Badge variant={QUESTION_DIFFICULTY_VARIANT[question.difficulty]}>
-                  {question.difficulty}
-                </Badge>
+                {question.difficulty ? (
+                  <Badge variant={QUESTION_DIFFICULTY_VARIANT[question.difficulty]}>
+                    {question.difficulty}
+                  </Badge>
+                ) : (
+                  <span className="text-gray-400">—</span>
+                )}
               </td>
-              <td className={`${CELL_CLASS} text-gray-500`}>{question.createdAt}</td>
+              <td className={`${CELL_CLASS} text-gray-500`}>{question.createdAt ?? "—"}</td>
               <td className={CELL_CLASS}>
                 <Badge variant={QUESTION_STATUS_VARIANT[question.status]}>
                   {QUESTION_STATUS_LABELS[question.status]}
