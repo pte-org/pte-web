@@ -1,32 +1,19 @@
-import type { ApiClient, PagedResult } from "../../client/client";
-import type {
-  CreateQuestionRequest,
-  QuestionFilters,
-  QuestionResponse,
-  UpdateQuestionRequest,
-} from "../../types/question";
+import type { ApiClient } from "../../client/client";
+import type { CreateQuestionRequest, QuestionResponse, UpdateQuestionRequest } from "../../types/question";
 
 export const QUESTION_ENDPOINTS = {
   questions: "/api/authoring/questions",
   byId: (id: string) => `/api/authoring/questions/${id}`,
 } as const;
 
-function toQueryString(filters: QuestionFilters = {}): string {
-  const params = new URLSearchParams();
-  Object.entries(filters).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) params.set(key, String(value));
-  });
-  const query = params.toString();
-  return query ? `?${query}` : "";
-}
-
-export function listQuestions(
-  client: ApiClient,
-  filters?: QuestionFilters,
-): Promise<PagedResult<QuestionResponse>> {
-  return client.request<PagedResult<QuestionResponse>>(
-    `${QUESTION_ENDPOINTS.questions}${toQueryString(filters)}`,
-  );
+/**
+ * `QuestionController.list` (`services/authoring`) returns a plain
+ * `List<QuestionResponse>` with no pagination and takes no query params —
+ * unlike most other list endpoints in this repo, there is no `PagedResult`
+ * envelope here to unwrap.
+ */
+export function listQuestions(client: ApiClient): Promise<QuestionResponse[]> {
+  return client.request<QuestionResponse[]>(QUESTION_ENDPOINTS.questions);
 }
 
 export function getQuestion(client: ApiClient, id: string): Promise<QuestionResponse> {
