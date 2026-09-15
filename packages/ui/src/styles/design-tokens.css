@@ -117,43 +117,54 @@
   --color-rose-500: var(--blush-action);
 }
 
-* {
-  box-sizing: border-box;
-}
+/*
+ * Layered (not plain global CSS) so a component's own Tailwind utilities
+ * (e.g. `outline-none` on a custom `focus-within`-styled field) can still
+ * override this baseline — per CSS Cascade Layers, unlayered rules always
+ * beat layered ones regardless of specificity, and Tailwind v4 puts every
+ * utility class inside `@layer utilities`. Leaving this reset unlayered
+ * previously made the `:focus-visible` outline below un-overridable,
+ * double-drawing on top of every custom-styled input/select/textarea.
+ */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
 
-html {
-  min-width: 320px;
-}
+  html {
+    min-width: 320px;
+  }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-plus-jakarta), Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  line-height: 1.43;
-}
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-plus-jakarta), Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.43;
+  }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
 
-button {
-  cursor: pointer;
-}
+  button {
+    cursor: pointer;
+  }
 
-button:disabled {
-  cursor: not-allowed;
-}
+  button:disabled {
+    cursor: not-allowed;
+  }
 
-:focus-visible {
-  outline: 2px solid var(--brand);
-  outline-offset: 2px;
-}
+  :focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 2px;
+  }
 
-.tabular-nums,
-.font-mono {
-  font-variant-numeric: tabular-nums;
+  .tabular-nums,
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
 }
