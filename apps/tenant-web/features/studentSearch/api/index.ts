@@ -3,11 +3,18 @@
 import {
   bulkCreateUsers,
   listClassMemberships,
-  type ClassMembershipResponse,
+  listStudentRoster,
+  reactivateUser,
+  suspendUser,
   type BulkCreateUsersResponse,
+  type ClassMembershipResponse,
+  type PagedResult,
+  type StudentRosterQuery,
+  type StudentRosterRow,
   type UserResponse,
 } from "@pte/api-client";
 import {
+  keepPreviousData,
   useMutation,
   useQuery,
   useQueryClient,
@@ -15,20 +22,13 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
-import { useTenantStudents } from "@/features/examoperations/api";
 import { TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
 import type { RosterRow } from "@/features/examoperations/types";
-import { CLASS_MEMBERSHIPS_QUERY_KEY } from "../constants";
-import type { StudentSearchResult } from "../types";
+import { CLASS_MEMBERSHIPS_QUERY_KEY, STUDENT_ROSTER_QUERY_KEY } from "../constants";
 
 /**
- * Tenant-wide roster (Phase 3's `GET /class-memberships`, unfiltered) — the
- * other half of this feature's client-side join against
- * `useTenantStudents()`. Shares no cache key with `features/classes`' or
- * `features/programs`' per-Program calls (those use `?programPublicId=`);
- * this hook always calls the unfiltered variant. Exported — also reused by
- * `features/classes`' `ImportOrAssignModal` to compute which tenant
- * students are not currently in any Class.
+ * Kept for the Classes ImportOrAssignModal. The Students page uses the
+ * server-side roster query below and never downloads this whole list.
  */
 export function useClassMemberships(): UseQueryResult<ClassMembershipResponse[]> {
   return useQuery({
@@ -60,54 +60,52 @@ export function useCreateTenantStudents(): UseMutationResult<
       }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: STUDENT_ROSTER_QUERY_KEY });
     },
   });
 }
 
-function matchesQuery(user: UserResponse, query: string): boolean {
-  const needle = query.trim().toLowerCase();
-  if (!needle) return false;
-  return (
-    user.fullName.toLowerCase().includes(needle) ||
-    (user.phone ?? "").toLowerCase().includes(needle)
-  );
+/** Server-side roster query; every input is part of the cache identity. */
+export function useStudentRoster(
+  query: StudentRosterQuery,
+  enabled = true,
+): UseQueryResult<PagedResult<StudentRosterRow>> {
+  return useQuery({
+    queryKey: [
+      ...STUDENT_ROSTER_QUERY_KEY,
+      query.search ?? "",
+      query.page,
+      query.size,
+      query.programPublicId ?? "",
+      query.classPublicId ?? "",
+      query.assignmentStatus ?? "ALL",
+      query.sort ?? "CREATED_AT",
+      query.direction ?? "DESC",
+    ],
+    queryFn: () => listStudentRoster(apiClient, query),
+    placeholderData: keepPreviousData,
+    enabled,
+  });
 }
 
-interface StudentSearchState {
-  results: StudentSearchResult[];
-  isLoading: boolean;
+export function useSuspendStudent(): UseMutationResult<UserResponse, unknown, string> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (publicId) => suspendUser(apiClient, publicId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: STUDENT_ROSTER_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
+    },
+  });
 }
 
-/**
- * Joins iam's `GET /users` (tenant-scoped) against admin's
- * `GET /class-memberships` (also tenant-scoped) entirely client-side —
- * both lists are already fetched/cached as a whole, so this is a plain
- * in-memory filter+join, not a per-keystroke network call. `query` is
- * expected to already be debounced by the caller.
- */
-export function useTenantStudentSearch(query: string): StudentSearchState {
-  const students = useTenantStudents();
-  const memberships = useClassMemberships();
-
-  const isLoading = students.isLoading || memberships.isLoading;
-  if (isLoading || !students.data) {
-    return { results: [], isLoading };
-  }
-
-  const membershipByStudent = new Map(
-    (memberships.data ?? []).map((membership) => [membership.studentPublicId, membership]),
-  );
-
-  const results: StudentSearchResult[] = students.data
-    .filter((student) => matchesQuery(student, query))
-    .map((student) => {
-      const membership = membershipByStudent.get(student.publicId);
-      return {
-        student,
-        className: membership?.className ?? null,
-        programName: membership?.programName ?? null,
-      };
-    });
-
-  return { results, isLoading: false };
+export function useReactivateStudent(): UseMutationResult<UserResponse, unknown, string> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (publicId) => reactivateUser(apiClient, publicId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: STUDENT_ROSTER_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
+    },
+  });
 }

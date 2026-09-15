@@ -19,3 +19,4 @@ export * from "./admin/classMemberships";
 export * from "./admin/lecturerAssignments";
 export * from "./admin/coordinatorAssignments";
 export * from "./admin/auditLogs";
+export * from "./admin/studentRoster";
