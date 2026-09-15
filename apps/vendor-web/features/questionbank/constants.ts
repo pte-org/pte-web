@@ -19,6 +19,8 @@ export const QUESTIONBANK_TEXT = {
   STAT_TOTAL: "Total questions",
   STAT_LISTENING: "Listening",
   STAT_READING: "Reading",
+  STAT_WRITING: "Writing",
+  STAT_SPEAKING: "Speaking",
   STAT_DRAFT: "Draft",
   ROW_EDIT: "Edit",
   ROW_DELETE: "Delete",

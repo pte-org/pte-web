@@ -103,6 +103,22 @@ export const HeadphoneIcon = ({ className }: IconProps): ReactElement => (
   </svg>
 );
 
+export const MicIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...base} className={className}>
+    <rect x="9" y="2" width="6" height="11" rx="3" />
+    <path d="M5 10a7 7 0 0 0 14 0" />
+    <path d="M12 17v4" />
+    <path d="M8 21h8" />
+  </svg>
+);
+
+export const PencilIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...base} className={className}>
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+  </svg>
+);
+
 export const CheckCircleIcon = ({ className }: IconProps): ReactElement => (
   <svg {...base} className={className}>
     <circle cx="12" cy="12" r="9" />

@@ -40,17 +40,21 @@ function mapQuestion(response: QuestionResponse): Question {
 }
 
 function buildStats(questions: Question[]): QuestionStats {
-  const listening = questions.filter((question) => question.skill === "listening");
-  const reading = questions.filter((question) => question.skill === "reading");
+  const countBySkill = (skill: Question["skill"]): number =>
+    questions.filter((question) => question.skill === skill).length;
   const draft = questions.filter((question) => question.status === "draft");
 
   return {
     total: String(questions.length),
     totalTrend: "",
-    listening: String(listening.length),
+    listening: String(countBySkill("listening")),
     listeningNote: "",
-    reading: String(reading.length),
+    reading: String(countBySkill("reading")),
     readingNote: "",
+    writing: String(countBySkill("writing")),
+    writingNote: "",
+    speaking: String(countBySkill("speaking")),
+    speakingNote: "",
     draft: String(draft.length),
     draftNote: "",
   };
