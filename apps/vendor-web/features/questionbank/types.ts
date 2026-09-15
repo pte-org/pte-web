@@ -22,6 +22,10 @@ export interface QuestionStats {
   listeningNote: string;
   reading: string;
   readingNote: string;
+  writing: string;
+  writingNote: string;
+  speaking: string;
+  speakingNote: string;
   draft: string;
   draftNote: string;
 }
