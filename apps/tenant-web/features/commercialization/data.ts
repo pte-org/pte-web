@@ -1,0 +1,66 @@
+export const TENANT_PLANS = [
+  {
+    id: "exam-starter",
+    name: "Exam Starter",
+    family: "Exam package",
+    price: "$49",
+    term: "30 days",
+    capacity: "500 students / exam",
+    description: "For a focused exam cycle.",
+    tone: "border-slate-200",
+  },
+  {
+    id: "exam-growth",
+    name: "Exam Growth",
+    family: "Exam package",
+    price: "$129",
+    term: "90 days",
+    capacity: "2,000 students / exam",
+    description: "For multiple exam sessions.",
+    tone: "border-blue-200 ring-1 ring-blue-100",
+  },
+  {
+    id: "capacity-500",
+    name: "Capacity +500",
+    family: "Student capacity",
+    price: "$39",
+    term: "Permanent add-on",
+    capacity: "+500 students",
+    description: "Extend your tenant capacity.",
+    tone: "border-emerald-200",
+  },
+  {
+    id: "capacity-1000",
+    name: "Capacity +1,000",
+    family: "Student capacity",
+    price: "$69",
+    term: "Permanent add-on",
+    capacity: "+1,000 students",
+    description: "For growing organizations.",
+    tone: "border-emerald-200",
+  },
+] as const;
+
+export const DEMO_ORDERS = [
+  {
+    id: "ORD-2026-0018",
+    plan: "Exam Growth",
+    amount: "$129",
+    date: "Sep 16, 2026",
+    status: "PAID",
+  },
+  {
+    id: "ORD-2026-0011",
+    plan: "Capacity +500",
+    amount: "$39",
+    date: "Aug 28, 2026",
+    status: "PAID",
+  },
+  {
+    id: "ORD-2026-0007",
+    plan: "Exam Starter",
+    amount: "$49",
+    date: "Aug 04, 2026",
+    status: "EXPIRED",
+  },
+] as const;

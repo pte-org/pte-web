@@ -14,6 +14,8 @@ export const HOST_ROLES: SessionRole[] = ["HOST_ADMIN", "HOST_AUTHOR"];
 
 export const AUTH_ROUTES = {
   login: "/login",
+  register: "/register",
+  applicationStatus: "/application-status",
   hostDashboard: "/host/dashboard",
 } as const;
 
