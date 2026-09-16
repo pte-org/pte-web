@@ -71,7 +71,7 @@ export const PublicShell = ({ children }: PublicShellProps): ReactElement => (
 
         <div className="mt-10 flex flex-col gap-2 border-t border-slate-200 pt-5 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <span>&copy; 2026 PTE LMS</span>
-=        </div>
+        </div>
       </div>
     </footer>
   </div>

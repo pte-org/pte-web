@@ -114,10 +114,10 @@ export const RegisterOrganizationView = (): ReactElement => {
             </div>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link
-                href="/"
+                href={AUTH_ROUTES.applicationStatus}
                 className="inline-flex h-10 items-center justify-center rounded-md border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
-                Back to home
+                View application status
               </Link>
               <Link
                 href={AUTH_ROUTES.login}
