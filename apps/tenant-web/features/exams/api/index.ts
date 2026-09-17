@@ -1,28 +1,25 @@
 "use client";
 
-import { useRef, useState } from "react";
 import {
+  assignClass,
   assignProctor,
-  bulkEnroll,
   closeSession,
   createSession,
   createUser,
   getAnswer,
   getSession,
   listAnswers,
-  listBlueprints,
+  listAssignedClasses,
   listProctorAssignments,
   listSessions,
   listUsers,
   openSession,
-  publishBlueprint,
   submitTeacherScore,
+  unassignClass,
   unassignProctor,
   updateProctorRole,
   type AnswerListResponse,
   type AnswerReviewDetailResponse,
-  type BlueprintResponse,
-  type BulkEnrollResponse,
   type ProctorRole,
   type SessionResponse,
   type UserResponse,
@@ -35,10 +32,11 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
+import { useAllTenantClasses } from "@/features/classes/api";
 import {
   ANSWER_QUERY_KEY,
   ANSWERS_QUERY_KEY,
-  BLUEPRINTS_QUERY_KEY,
+  ASSIGNED_CLASSES_QUERY_KEY,
   ENROLLMENTS_QUERY_KEY,
   PROCTOR_ASSIGNMENTS_QUERY_KEY,
   SESSION_QUERY_KEY,
@@ -46,13 +44,11 @@ import {
   TENANT_USERS_QUERY_KEY,
 } from "../constants";
 import type {
-  Blueprint,
-  BulkCreateSessionsForProgramInput,
+  AssignedClass,
   CreateProctorInput,
   CreateSessionInput,
   ExamSession,
   ProctorAssignmentEntry,
-  SessionBatchState,
 } from "../types";
 
 const PROCTOR_ROLE = "PROCTOR";
@@ -67,10 +63,6 @@ function sessionResponseToExamSession(response: SessionResponse): ExamSession {
     status: response.status,
     capacity: response.capacity,
   };
-}
-
-function blueprintResponseToBlueprint(response: BlueprintResponse): Blueprint {
-  return { id: response.publicId, name: response.name };
 }
 
 function replaceSessionInCache(
@@ -98,30 +90,19 @@ export function useSession(publicId: string): UseQueryResult<ExamSession> {
   });
 }
 
-export function useBlueprints(): UseQueryResult<Blueprint[]> {
-  return useQuery({
-    queryKey: BLUEPRINTS_QUERY_KEY,
-    queryFn: async () => (await listBlueprints(apiClient)).map(blueprintResponseToBlueprint),
-  });
-}
-
 /**
- * Publishes the chosen blueprint to a fresh snapshot, then creates the
- * session with that snapshot's publicId — one guided action from the
- * caller's perspective. No `GET /snapshots` list exists, so an already-
- * published blueprint's snapshot can't be reused; a retry after a
- * publish-succeeded-but-create-failed run re-publishes again, accumulating
- * unattached snapshot rows (accepted — no data/security impact, just extra rows).
+ * Creates the exam directly from the chosen skills — the backend randomly
+ * generates the question set and publishes it in one all-or-nothing
+ * transaction (Plan B). No blueprint/snapshot step on this side anymore.
  */
 export function useCreateSession(): UseMutationResult<ExamSession, unknown, CreateSessionInput> {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (input) => {
-      const snapshot = await publishBlueprint(apiClient, input.blueprintPublicId);
       const response = await createSession(apiClient, {
         name: input.name.trim(),
-        snapshotPublicId: snapshot.publicId,
+        skills: input.skills,
         opensAt: new Date(input.opensAt).toISOString(),
         closesAt: new Date(input.closesAt).toISOString(),
         capacity: input.capacity ?? null,
@@ -347,222 +328,56 @@ export function useCreateProctorAccount(): UseMutationResult<
   });
 }
 
-interface BulkEnrollStudentsInput {
-  sessionPublicId: string;
-  studentPublicIds: string[];
+/**
+ * A session's assigned Classes, joined client-side against the tenant's own
+ * Class list (`SessionClassAssignmentResponse` only carries `classPublicId`
+ * — same join-here-not-in-scheduling shape as `useProctorAssignments` above).
+ */
+export function useAssignedClasses(sessionPublicId: string): UseQueryResult<AssignedClass[]> {
+  const tenantClasses = useAllTenantClasses();
+
+  return useQuery({
+    queryKey: [...ASSIGNED_CLASSES_QUERY_KEY, sessionPublicId],
+    queryFn: async () => {
+      const assignments = await listAssignedClasses(apiClient, sessionPublicId);
+      const byId = new Map((tenantClasses.data ?? []).map((option) => [option.classPublicId, option]));
+      return assignments.flatMap((assignment) => {
+        const option = byId.get(assignment.classPublicId);
+        return option
+          ? [{ classPublicId: option.classPublicId, className: option.className, programName: option.programName }]
+          : [];
+      });
+    },
+    enabled: sessionPublicId.length > 0 && tenantClasses.data !== undefined,
+  });
 }
 
-/**
- * Enrolls a resolved list of students into a session. Unlike `useUnenroll`/
- * `useSessionRoster`, the target session isn't known at hook-instantiation
- * time here — Phase 10's whole-Program flow only learns the session's
- * publicId once `useCreateSession` resolves — so `sessionPublicId` travels
- * with each `mutate()` call instead of being bound as a hook argument.
- */
-export function useBulkEnrollStudents(): UseMutationResult<
-  BulkEnrollResponse,
-  unknown,
-  BulkEnrollStudentsInput
-> {
+function invalidateClassAssignments(
+  queryClient: ReturnType<typeof useQueryClient>,
+  sessionPublicId: string,
+): void {
+  void queryClient.invalidateQueries({ queryKey: [...ASSIGNED_CLASSES_QUERY_KEY, sessionPublicId] });
+  void queryClient.invalidateQueries({ queryKey: [...ENROLLMENTS_QUERY_KEY, sessionPublicId] });
+}
+
+/** Assigns a Class — enrolls every current member into this session (backend Phase 4). */
+export function useAssignClass(sessionPublicId: string): UseMutationResult<void, unknown, string> {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ sessionPublicId, studentPublicIds }) =>
-      bulkEnroll(apiClient, sessionPublicId, { studentPublicIds }),
-    onSuccess: (_response, { sessionPublicId }) => {
-      void queryClient.invalidateQueries({ queryKey: [...ENROLLMENTS_QUERY_KEY, sessionPublicId] });
+    mutationFn: async (classPublicId: string) => {
+      await assignClass(apiClient, sessionPublicId, { classPublicId });
     },
+    onSuccess: () => invalidateClassAssignments(queryClient, sessionPublicId),
   });
 }
 
-/**
- * Splits a roster into `ceil(N / studentsPerSession)` contiguous,
- * non-overlapping chunks — standard array chunking, so "every student
- * appears in exactly one batch" holds by construction, not by a runtime
- * check. Omitted/non-positive `studentsPerSession` (Phase 10's original
- * call shape) yields exactly one batch containing the whole roster.
- */
-function splitIntoBatches(studentPublicIds: string[], studentsPerSession?: number): string[][] {
-  if (!studentsPerSession || studentsPerSession <= 0) {
-    return [studentPublicIds];
-  }
-  const batches: string[][] = [];
-  for (let i = 0; i < studentPublicIds.length; i += studentsPerSession) {
-    batches.push(studentPublicIds.slice(i, i + studentsPerSession));
-  }
-  return batches;
-}
+/** Unassigns a Class — removes the enrollments of that Class's current members only. */
+export function useUnassignClass(sessionPublicId: string): UseMutationResult<void, unknown, string> {
+  const queryClient = useQueryClient();
 
-/** Only suffixed when actually split — a single batch keeps Phase 10's original, unsuffixed session name. */
-function batchSessionName(baseName: string, index: number, total: number): string {
-  return total > 1 ? `${baseName} - Batch ${index + 1}` : baseName;
-}
-
-interface RunSessionFields {
-  name: string;
-  blueprintPublicId: string;
-  opensAt: string;
-  closesAt: string;
-  capacity?: number;
-}
-
-/**
- * Orchestrates Phase 10/11's whole-Program exam creation: split the
- * already-resolved roster into capacity-sized batches (one batch = Phase
- * 10's original single-session behavior), then for each batch, sequentially
- * (never parallel, per Design Constraints) create a session and bulk-enroll
- * that batch into it. Each created session's own `capacity` is set to the
- * Host-specified `studentsPerSession` ceiling — so even if this client-side
- * batch math ever has a bug and a batch ends up oversized, `bulkEnroll`'s
- * server-side capacity check (Phase 11) rejects it rather than silently
- * over-enrolling.
- *
- * Reuses `useCreateSession`/`useBulkEnrollStudents` (their `mutateAsync`)
- * for the actual network calls and cache invalidation, driving them with a
- * plain imperative loop rather than one shared `useMutation` — needed
- * because this is N sequential steps of unknown-until-runtime count, not a
- * single request/response pair. `retryBatch` resumes the sequential loop
- * from the failed batch onward (re-attempting session creation too, if that
- * was the step that failed) rather than requiring the Host to retry every
- * batch by hand.
- *
- * `cancelledRef` (quality-gate finding: closing the modal mid-run
- * previously kept creating every remaining batch silently in the
- * background, since unmounting this hook doesn't cancel its in-flight
- * `async` loop) — `reset()` sets it, and `runFrom`'s loop checks it before
- * starting each new batch, so closing stops any batch that hasn't started
- * yet. The one batch already in flight at the moment of closing still
- * completes (this repo's `apiClient` has no `AbortController` wiring to
- * cancel an in-progress request) — a deliberately-scoped, documented
- * residual limitation, not the original "every remaining batch fires"
- * problem.
- *
- * **Accepted residual risk (quality-gate finding, reverted after a worse
- * regression):** a Host-triggered `retryBatch` after a client-observed
- * session-creation failure (e.g. a dropped connection) whose request
- * actually committed server-side will create a second, orphaned session
- * for that batch rather than detecting and reusing the first. An earlier
- * version of this hook tried to guard against that by reusing any existing
- * tenant-wide session sharing the batch's exact name — but `listSessions`
- * has no Program/blueprint scoping and `ExamSession` carries none either,
- * so that lookup could just as easily match a *different*, unrelated exam
- * that happens to share a name (a realistic collision — Hosts commonly
- * reuse names like "Mid-term PTE Mock Test" every term), silently
- * enrolling this batch's students into someone else's session instead.
- * That failure mode (misdirected enrollment) is strictly worse than the
- * one being guarded against (an extra, correctly-enrolled session), so the
- * lookup was removed. Fixing this properly needs real
- * idempotency-key infrastructure (none exists anywhere in this repo today)
- * — out of this phase's scope; the narrower duplicate-session risk is
- * accepted instead.
- */
-export function useBulkCreateSessionForProgram(): {
-  batches: SessionBatchState[];
-  isRunning: boolean;
-  run: (input: BulkCreateSessionsForProgramInput) => void;
-  retryBatch: (index: number) => void;
-  reset: () => void;
-} {
-  const createSessionMutation = useCreateSession();
-  const bulkEnrollStudentsMutation = useBulkEnrollStudents();
-  const [batches, setBatches] = useState<SessionBatchState[]>([]);
-  const [isRunning, setIsRunning] = useState(false);
-  const sessionFieldsRef = useRef<RunSessionFields>({
-    name: "",
-    blueprintPublicId: "",
-    opensAt: "",
-    closesAt: "",
+  return useMutation({
+    mutationFn: (classPublicId: string) => unassignClass(apiClient, sessionPublicId, classPublicId),
+    onSuccess: () => invalidateClassAssignments(queryClient, sessionPublicId),
   });
-  const cancelledRef = useRef(false);
-
-  const runBatch = async (
-    index: number,
-    current: SessionBatchState[],
-  ): Promise<SessionBatchState[]> => {
-    let working = current;
-    const patch = (update: Partial<SessionBatchState>): void => {
-      working = working.map((batch, i) => (i === index ? { ...batch, ...update } : batch));
-      setBatches(working);
-    };
-
-    let session = working[index].session;
-    if (!session) {
-      patch({ status: "creatingSession", error: null });
-      try {
-        session = await createSessionMutation.mutateAsync({
-          name: batchSessionName(sessionFieldsRef.current.name, index, working.length),
-          blueprintPublicId: sessionFieldsRef.current.blueprintPublicId,
-          opensAt: sessionFieldsRef.current.opensAt,
-          closesAt: sessionFieldsRef.current.closesAt,
-          capacity: sessionFieldsRef.current.capacity,
-        });
-      } catch (error) {
-        patch({ status: "sessionError", error });
-        return working;
-      }
-      patch({ session, status: "enrolling" });
-    } else {
-      patch({ status: "enrolling", error: null });
-    }
-
-    try {
-      const response = await bulkEnrollStudentsMutation.mutateAsync({
-        sessionPublicId: session.id,
-        studentPublicIds: working[index].studentPublicIds,
-      });
-      patch({ status: "success", enrolled: response.enrolled });
-    } catch (error) {
-      patch({ status: "enrollError", error });
-    }
-    return working;
-  };
-
-  const runFrom = async (startIndex: number, initial: SessionBatchState[]): Promise<void> => {
-    setIsRunning(true);
-    let current = initial;
-    for (let i = startIndex; i < current.length; i += 1) {
-      if (cancelledRef.current) break;
-      current = await runBatch(i, current);
-      if (current[i].status !== "success") break;
-    }
-    setIsRunning(false);
-  };
-
-  const run = (input: BulkCreateSessionsForProgramInput): void => {
-    cancelledRef.current = false;
-    sessionFieldsRef.current = {
-      name: input.name,
-      blueprintPublicId: input.blueprintPublicId,
-      opensAt: input.opensAt,
-      closesAt: input.closesAt,
-      capacity: input.studentsPerSession,
-    };
-    const chunks = splitIntoBatches(input.studentPublicIds, input.studentsPerSession);
-    const initial: SessionBatchState[] = chunks.map((studentPublicIds, index) => ({
-      index,
-      total: chunks.length,
-      studentPublicIds,
-      session: null,
-      enrolled: [],
-      status: "pending",
-      error: null,
-    }));
-    setBatches(initial);
-    void runFrom(0, initial);
-  };
-
-  const retryBatch = (index: number): void => {
-    cancelledRef.current = false;
-    void runFrom(index, batches);
-  };
-
-  const reset = (): void => {
-    cancelledRef.current = true;
-    createSessionMutation.reset();
-    bulkEnrollStudentsMutation.reset();
-    setBatches([]);
-    setIsRunning(false);
-  };
-
-  return { batches, isRunning, run, retryBatch, reset };
 }

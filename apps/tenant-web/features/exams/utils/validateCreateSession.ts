@@ -7,8 +7,8 @@ export function validateCreateSession(input: CreateSessionInput): CreateSessionE
   if (!input.name.trim()) {
     errors.name = CREATE_SESSION_ERRORS.NAME_REQUIRED;
   }
-  if (!input.blueprintPublicId) {
-    errors.blueprintPublicId = CREATE_SESSION_ERRORS.BLUEPRINT_REQUIRED;
+  if (input.skills.length < 1 || input.skills.length > 4) {
+    errors.skills = CREATE_SESSION_ERRORS.SKILLS_REQUIRED;
   }
   if (!input.opensAt) {
     errors.opensAt = CREATE_SESSION_ERRORS.OPENS_AT_REQUIRED;

@@ -1,15 +1,16 @@
 import type { ProctorRole } from "@pte/api-client";
+import type { CreateSessionInput, ExamSkill } from "../types";
 
 // react-query cache-key roots — named constants per this repo's established
 // convention (avoids raw-string query-key drift/collisions).
 export const SESSIONS_QUERY_KEY = ["sessions"] as const;
 export const SESSION_QUERY_KEY = ["session"] as const;
-export const BLUEPRINTS_QUERY_KEY = ["blueprints"] as const;
 export const ENROLLMENTS_QUERY_KEY = ["enrollments"] as const;
 export const PROCTOR_ASSIGNMENTS_QUERY_KEY = ["proctorAssignments"] as const;
 export const TENANT_USERS_QUERY_KEY = ["tenantUsers"] as const;
 export const ANSWERS_QUERY_KEY = ["answers"] as const;
 export const ANSWER_QUERY_KEY = ["answer"] as const;
+export const ASSIGNED_CLASSES_QUERY_KEY = ["assignedClasses"] as const;
 
 export const EXAMS_TEXT = {
   TITLE: "Exams",
@@ -43,39 +44,59 @@ export const CREATE_SESSION_TEXT = {
   SECTION_CONTENT: "Exam Content",
   NAME_LABEL: "Exam name",
   NAME_PLACEHOLDER: "e.g. Mid-term PTE Mock Test",
-  BLUEPRINT_LABEL: "Question set",
-  BLUEPRINT_PLACEHOLDER: "Select a question set",
+  SKILLS_LABEL: "Skills",
+  SKILLS_HELPER:
+    "The system randomly generates the exam from the question bank for the skills you pick (1 to 4).",
   OPENS_AT_LABEL: "Opens at",
   CLOSES_AT_LABEL: "Closes at",
   CANCEL: "Cancel",
   SUBMIT: "Create Exam",
   SUBMITTING: "Creating...",
-  NO_BLUEPRINTS: "No question sets available — create one in the question bank first.",
 } as const;
+
+export const EXAM_SKILL_OPTIONS: { value: ExamSkill; label: string }[] = [
+  { value: "SPEAKING", label: "Speaking" },
+  { value: "WRITING", label: "Writing" },
+  { value: "READING", label: "Reading" },
+  { value: "LISTENING", label: "Listening" },
+];
 
 export const CREATE_SESSION_ERRORS = {
   NAME_REQUIRED: "Exam name is required.",
-  BLUEPRINT_REQUIRED: "Select a question set.",
+  SKILLS_REQUIRED: "Select at least 1 skill (up to 4).",
   OPENS_AT_REQUIRED: "Opens-at date/time is required.",
   OPENS_AT_FUTURE: "Opens-at must be in the future.",
   CLOSES_AT_REQUIRED: "Closes-at date/time is required.",
   CLOSES_AT_AFTER_OPENS: "Closes-at must be after opens-at.",
 } as const;
 
-export const EMPTY_CREATE_SESSION = {
+export const EMPTY_CREATE_SESSION: CreateSessionInput = {
   name: "",
-  blueprintPublicId: "",
+  skills: [],
   opensAt: "",
   closesAt: "",
-} as const;
+};
 
 export const SESSION_DETAIL_TEXT = {
   BACK: "Back to Exams",
   OPEN_EXAM: "Open Exam",
   CLOSE_EXAM: "Close Exam",
   STUDENTS_SECTION: "Students",
+  CLASSES_SECTION: "Assigned Classes",
   PROCTORS_SECTION: "Proctors",
   ANSWERS_SECTION: "Submitted Answers",
+} as const;
+
+export const CLASS_ASSIGNMENT_TEXT = {
+  EMPTY_TITLE: "No Classes assigned yet",
+  ASSIGN_LABEL: "Class",
+  ASSIGN_PLACEHOLDER: "Select a Class to assign",
+  ASSIGN: "Assign Class",
+  ASSIGNING: "Assigning...",
+  UNASSIGN: "Unassign",
+  ACTIONS: "Actions",
+  NOT_SCHEDULED_NOTICE:
+    "Classes can only be assigned or unassigned while this exam is Scheduled.",
 } as const;
 
 export const ANSWERS_SECTION_TEXT = {
@@ -191,43 +212,3 @@ export const CREATE_PROCTOR_ERRORS = {
 } as const;
 
 export const EMPTY_CREATE_PROCTOR = { email: "", fullName: "", password: "" } as const;
-
-export const CREATE_SESSION_FOR_PROGRAM_TEXT = {
-  TITLE: (label: string) => `Create Exam for ${label}`,
-  ROSTER_HEADING: "Roster",
-  ROSTER_COUNT: (count: number) => `${count} student(s) will be enrolled`,
-  ROSTER_LOADING: "Loading roster...",
-  EMPTY_ROSTER_WARNING: "This Program has no students assigned yet — nothing to enroll.",
-  INACTIVE_PROGRAM_WARNING:
-    "This Program is not currently active. You can still create a make-up exam for it.",
-  STUDENTS_PER_SESSION_LABEL: "Students per session (optional)",
-  STUDENTS_PER_SESSION_PLACEHOLDER: "Leave blank for one session",
-  STUDENTS_PER_SESSION_HELPER:
-    "If the roster is larger than this, it's split across multiple sessions, each capped at this many students.",
-  BATCH_PREVIEW: (count: number) => `Will create ${count} session(s).`,
-  LEAD_TIME_WARNING:
-    "Multiple sessions will be created one after another. Pick an opens-at time with a few extra minutes of lead time so later sessions don't fail their own open-time check.",
-  CANCEL: "Cancel",
-  SUBMIT: "Create & Enroll",
-  RUNNING: "Creating & enrolling...",
-  DONE: "Done",
-  BATCH_LABEL: (index: number, total: number) => `Session ${index} of ${total}`,
-  BATCH_STATUS: {
-    pending: "Pending",
-    creatingSession: "Creating session...",
-    enrolling: "Enrolling students...",
-    success: "Enrolled",
-    sessionError: "Failed to create session",
-    enrollError: "Session created, but enrolling failed",
-  },
-  RETRY_BATCH: "Retry",
-  VIEW_SESSION: "View",
-  ALL_DONE_TITLE: (studentCount: number, sessionCount: number) =>
-    sessionCount > 1
-      ? `${studentCount} student(s) enrolled across ${sessionCount} sessions`
-      : `${studentCount} student(s) enrolled`,
-} as const;
-
-export const CREATE_SESSION_FOR_PROGRAM_ERRORS = {
-  STUDENTS_PER_SESSION_INVALID: "Must be a whole number greater than 0.",
-} as const;

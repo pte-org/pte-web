@@ -11,14 +11,12 @@ export interface ExamSession {
   capacity: number | null;
 }
 
-export interface Blueprint {
-  id: string;
-  name: string;
-}
+/** The 4 PTE sections a host picks from to generate an exam (Plan B) — 1 to 4, distinct. */
+export type ExamSkill = "SPEAKING" | "WRITING" | "READING" | "LISTENING";
 
 export interface CreateSessionInput {
   name: string;
-  blueprintPublicId: string;
+  skills: ExamSkill[];
   opensAt: string;
   closesAt: string;
   /** Per-session enrollment ceiling; omitted/undefined = unlimited. */
@@ -27,9 +25,15 @@ export interface CreateSessionInput {
 
 export interface CreateSessionErrors {
   name?: string;
-  blueprintPublicId?: string;
+  skills?: string;
   opensAt?: string;
   closesAt?: string;
+}
+
+export interface AssignedClass {
+  classPublicId: string;
+  className: string;
+  programName: string;
 }
 
 export interface ProctorAssignmentEntry {
@@ -48,28 +52,4 @@ export interface CreateProctorErrors {
   email?: string;
   fullName?: string;
   password?: string;
-}
-
-/**
- * Phase 10's original single-session shape, extended by Phase 11 with an
- * optional `studentsPerSession` — omitted/0 keeps Phase 10's original
- * behavior (one session for the whole roster) exactly, since
- * `splitIntoBatches` treats that as "one batch."
- */
-export interface BulkCreateSessionsForProgramInput extends Omit<CreateSessionInput, "capacity"> {
-  studentPublicIds: string[];
-  studentsPerSession?: number;
-}
-
-export type SessionBatchStatus =
-  "pending" | "creatingSession" | "enrolling" | "success" | "sessionError" | "enrollError";
-
-export interface SessionBatchState {
-  index: number;
-  total: number;
-  studentPublicIds: string[];
-  session: ExamSession | null;
-  enrolled: string[];
-  status: SessionBatchStatus;
-  error: unknown;
 }

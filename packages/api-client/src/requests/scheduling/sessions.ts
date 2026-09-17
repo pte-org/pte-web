@@ -1,6 +1,7 @@
 import type { ApiClient } from "../../client/client";
 import type { CreateSessionRequest, SessionResponse } from "../../types/scheduling";
 
+/** `/api/scheduling` prefix required by `pte-api/deploy/api-routes.caddy` — see requests/question/index.ts's identical note. */
 export const SESSION_ENDPOINTS = {
   sessions: "/api/scheduling/sessions",
   session: (publicId: string) => `/api/scheduling/sessions/${publicId}`,
