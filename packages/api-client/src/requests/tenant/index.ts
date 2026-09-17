@@ -6,11 +6,11 @@ import type {
 } from "../../types/tenant";
 
 export const TENANT_ENDPOINTS = {
-  tenants: "/api/tenants",
-  tenant: (publicId: string) => `/api/tenants/${publicId}`,
-  suspend: (publicId: string) => `/api/tenants/${publicId}/suspend`,
-  reactivate: (publicId: string) => `/api/tenants/${publicId}/reactivate`,
-  branding: (publicId: string) => `/api/tenants/${publicId}/branding`,
+  tenants: "/api/v1/tenants",
+  tenant: (publicId: string) => `/api/v1/tenants/${publicId}`,
+  suspend: (publicId: string) => `/api/v1/tenants/${publicId}/suspend`,
+  reactivate: (publicId: string) => `/api/v1/tenants/${publicId}/reactivate`,
+  branding: (publicId: string) => `/api/v1/tenants/${publicId}/branding`,
 } as const;
 
 export function onboardTenant(

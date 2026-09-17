@@ -2,9 +2,9 @@
 
 import { useMemo, useState, type ReactElement } from "react";
 import Link from "next/link";
-import { BuildingIcon, DataTable, PageHeader, Select, StatCard, UsersIcon } from "@pte/ui";
-import { DEMO_APPLICATIONS } from "../data";
-import type { ApplicationStatus, TenantApplication } from "../types";
+import { Alert, BuildingIcon, DataTable, PageHeader, Select, StatCard, UsersIcon } from "@pte/ui";
+import { useApplicationsQuery } from "../api";
+import type { TenantApplicationResponse } from "@pte/api-client";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
 
 const STATUS_OPTIONS = [
@@ -16,38 +16,40 @@ const STATUS_OPTIONS = [
 
 export const AdminApplicationsView = (): ReactElement => {
   const [status, setStatus] = useState("ALL");
-  const applications = useMemo(
-    () =>
-      DEMO_APPLICATIONS.filter((application) => status === "ALL" || application.status === status),
-    [status],
+  const { data: applications = [], isLoading, isError } = useApplicationsQuery();
+  const visibleApplications = useMemo(
+    () => applications.filter((application) => status === "ALL" || application.status === status),
+    [applications, status],
   );
+  const pendingCount = applications.filter((item) => item.status === "PENDING").length;
+  const approvedCount = applications.filter((item) => item.status === "APPROVED").length;
 
   const columns = [
     {
       key: "organization",
       header: "Organization",
-      cell: (row: TenantApplication) => (
+      cell: (row: TenantApplicationResponse) => (
         <div>
-          <p className="font-medium text-slate-900">{row.organizationName}</p>
-          <p className="mt-1 text-xs text-slate-500">{row.reference}</p>
+          <p className="font-medium text-slate-900">{row.orgName}</p>
+          <p className="mt-1 text-xs text-slate-500">{row.requestedCode}</p>
         </div>
       ),
     },
     {
-      key: "representative",
-      header: "Representative",
-      cell: (row: TenantApplication) => (
+      key: "contact",
+      header: "Contact",
+      cell: (row: TenantApplicationResponse) => (
         <div>
-          <p>{row.representative}</p>
-          <p className="mt-1 text-xs text-slate-500">{row.email}</p>
+          <p>{row.contactEmail}</p>
+          {row.contactPhone && <p className="mt-1 text-xs text-slate-500">{row.contactPhone}</p>}
         </div>
       ),
     },
-    { key: "submitted", header: "Submitted", cell: (row: TenantApplication) => row.submittedAt },
+    { key: "type", header: "Type", cell: (row: TenantApplicationResponse) => row.orgType },
     {
       key: "status",
       header: "Status",
-      cell: (row: TenantApplication) => <CommercialStatusBadge status={row.status} />,
+      cell: (row: TenantApplicationResponse) => <CommercialStatusBadge status={row.status} />,
     },
   ];
 
@@ -67,32 +69,25 @@ export const AdminApplicationsView = (): ReactElement => {
           />
         }
       />
-
+      {isError && <Alert tone="error">Applications could not be loaded. Try again shortly.</Alert>}
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Total applications" value="24" icon={<BuildingIcon />} accent="blue" />
-        <StatCard label="Needs review" value="7" icon={<UsersIcon />} accent="cream" highlight />
-        <StatCard label="Approved this month" value="12" icon={<BuildingIcon />} accent="mint" />
+        <StatCard label="Total applications" value={String(applications.length)} icon={<BuildingIcon />} accent="blue" />
+        <StatCard label="Needs review" value={String(pendingCount)} icon={<UsersIcon />} accent="cream" highlight />
+        <StatCard label="Approved" value={String(approvedCount)} icon={<BuildingIcon />} accent="mint" />
       </div>
-
       <DataTable
         columns={columns}
-        rows={applications}
-        getRowKey={(row) => row.id}
+        rows={visibleApplications}
+        getRowKey={(row) => row.publicId}
         rowActions={(row) => (
-          <Link
-            href={`/admin/applications/${row.id}`}
-            className="text-sm font-semibold text-action hover:underline"
-          >
+          <Link href={`/admin/applications/${row.publicId}`} className="text-sm font-semibold text-action hover:underline">
             View detail
           </Link>
         )}
         rowActionsHeader=""
-        emptyTitle="No applications found"
-        emptyDescription="Try another status filter."
+        emptyTitle={isLoading ? "Loading applications..." : "No applications found"}
+        emptyDescription={isLoading ? "" : "Try another status filter."}
       />
     </div>
   );
 };
-
-export const applicationStatusLabel = (status: ApplicationStatus): string =>
-  status.charAt(0) + status.slice(1).toLowerCase();

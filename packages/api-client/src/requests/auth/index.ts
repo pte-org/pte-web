@@ -11,9 +11,9 @@ import type {
 } from "../../types/auth";
 
 export const AUTH_ENDPOINTS = {
-  login: "/api/auth/login",
-  refresh: "/api/auth/refresh",
-  logout: "/api/auth/logout",
+  login: "/api/v1/auth/login",
+  refresh: "/api/v1/auth/refresh",
+  logout: "/api/v1/auth/logout",
   /**
    * No backend controller anywhere in `pte-api` exposes this — identity's
    * `AuthController` only has `/login`, `/refresh`, `/logout` (verified via
@@ -26,7 +26,7 @@ export const AUTH_ENDPOINTS = {
    * the login response, so a real first-login password-change endpoint is
    * now genuinely needed — but it does not exist yet on the backend.
    */
-  changePassword: "/api/auth/change-password",
+  changePassword: "/api/v1/auth/change-password",
 } as const;
 
 export function login(client: ApiClient, payload: LoginRequest): Promise<AuthResponse> {

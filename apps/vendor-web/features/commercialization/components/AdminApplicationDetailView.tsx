@@ -1,9 +1,10 @@
 "use client";
 
-import { useMemo, useState, type ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { Alert, Button, DescriptionList, Input, PageHeader } from "@pte/ui";
-import { DEMO_APPLICATIONS } from "../data";
+import { ApiError, type ApproveApplicationResponse } from "@pte/api-client";
+import { useApplicationsQuery, useApproveApplication, useRejectApplication } from "../api";
 import { CommercialPanel } from "./CommercialPanel";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
 
@@ -11,20 +12,42 @@ interface AdminApplicationDetailViewProps {
   applicationId: string;
 }
 
-export const AdminApplicationDetailView = ({
-  applicationId,
-}: AdminApplicationDetailViewProps): ReactElement => {
-  const application = useMemo(
-    () => DEMO_APPLICATIONS.find((item) => item.id === applicationId) ?? DEMO_APPLICATIONS[0],
-    [applicationId],
-  );
-  const [status, setStatus] = useState(application.status);
-  const [rejectionReason, setRejectionReason] = useState(application.note ?? "");
-  const [saved, setSaved] = useState(false);
+export const AdminApplicationDetailView = ({ applicationId }: AdminApplicationDetailViewProps): ReactElement => {
+  const { data: applications = [], isLoading } = useApplicationsQuery();
+  const approve = useApproveApplication();
+  const reject = useRejectApplication();
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [credentials, setCredentials] = useState<ApproveApplicationResponse | null>(null);
+  const [copied, setCopied] = useState(false);
+  const application = applications.find((item) => item.publicId === applicationId);
+  const mutationError = approve.error ?? reject.error;
+  const errorMessage = mutationError instanceof ApiError ? mutationError.message : undefined;
 
-  const review = (nextStatus: "APPROVED" | "REJECTED"): void => {
-    setStatus(nextStatus);
-    setSaved(true);
+  if (isLoading) return <p className="text-sm text-slate-500">Loading application...</p>;
+  if (!application) {
+    return (
+      <div className="flex flex-col gap-4">
+        <Link href="/admin/applications" className="text-sm font-medium text-action hover:underline">
+          &larr; Back to applications
+        </Link>
+        <Alert tone="error">This application was not found or is no longer available.</Alert>
+      </div>
+    );
+  }
+
+  const canReview = application.status === "PENDING";
+  const review = async (nextStatus: "APPROVED" | "REJECTED"): Promise<void> => {
+    try {
+      if (nextStatus === "APPROVED") {
+        const result = await approve.mutateAsync(application.publicId);
+        setCredentials(result);
+        return;
+      }
+      if (!rejectionReason.trim()) return;
+      await reject.mutateAsync({ publicId: application.publicId, payload: { reason: rejectionReason.trim() } });
+    } catch {
+      // The mutation error is rendered from the TanStack Query mutation state.
+    }
   };
 
   return (
@@ -33,82 +56,72 @@ export const AdminApplicationDetailView = ({
         &larr; Back to applications
       </Link>
       <PageHeader
-        title={application.organizationName}
-        subtitle={`${application.reference} · Submitted ${application.submittedAt}`}
-        actions={<CommercialStatusBadge status={status} />}
+        title={application.orgName}
+        subtitle={`Requested code ${application.requestedCode}`}
+        actions={<CommercialStatusBadge status={application.status} />}
       />
-      {saved && (
-        <Alert tone="success" title="Review saved">
-          The application status is ready to sync with the approval workflow.
+      {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
+      {credentials && (
+        <Alert tone="success" title="Application approved — save these credentials now">
+          <div className="mt-2 space-y-1 font-mono text-xs">
+            <p>Username: {credentials.hostAdminUsername}</p>
+            <p>Password: {credentials.hostAdminPassword}</p>
+          </div>
+          <Button
+            className="mt-3"
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              void navigator.clipboard
+                .writeText(`Username: ${credentials.hostAdminUsername}\nPassword: ${credentials.hostAdminPassword}`)
+                .then(() => setCopied(true))
+                .catch(() => setCopied(false));
+            }}
+          >
+            {copied ? "Copied" : "Copy credentials"}
+          </Button>
+          <p className="mt-3 text-xs">This password is shown only once and will not be loaded again.</p>
         </Alert>
       )}
-
       <div className="grid gap-5 lg:grid-cols-[1.35fr_1fr]">
         <CommercialPanel title="Application details" subtitle="Submitted organization information.">
           <DescriptionList
             items={[
-              { label: "Organization type", value: application.organizationType },
-              { label: "Requested tenant code", value: application.tenantCode },
-              { label: "Representative", value: application.representative },
-              { label: "Work email", value: application.email },
-              { label: "Phone number", value: application.phone },
-              { label: "Application reference", value: application.reference },
+              { label: "Organization type", value: application.orgType },
+              { label: "Requested tenant code", value: application.requestedCode },
+              { label: "Work email", value: application.contactEmail },
+              { label: "Phone number", value: application.contactPhone ?? "—" },
+              { label: "Tax code", value: application.taxCode ?? "—" },
+              { label: "Application ID", value: application.publicId },
             ]}
           />
         </CommercialPanel>
-
-        <CommercialPanel
-          title="Review decision"
-          subtitle="Approve access or record a reason for rejection."
-        >
+        <CommercialPanel title="Review decision" subtitle="Approve access or record a reason for rejection.">
           <div className="flex flex-col gap-4">
             <div className="rounded-md bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                Current status
-              </p>
-              <div className="mt-2">
-                <CommercialStatusBadge status={status} />
-              </div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Current status</p>
+              <div className="mt-2"><CommercialStatusBadge status={application.status} /></div>
             </div>
             <Input
               id="rejection-reason"
               label="Rejection reason"
-              placeholder="Optional review note"
+              placeholder="Explain what must be corrected"
               value={rejectionReason}
               onChange={(event) => setRejectionReason(event.target.value)}
+              disabled={!canReview || reject.isPending}
+              required={canReview}
             />
             <div className="flex flex-wrap gap-2">
-              <Button size="sm" onClick={() => review("APPROVED")} disabled={status === "APPROVED"}>
-                Approve application
+              <Button size="sm" onClick={() => void review("APPROVED")} disabled={!canReview || approve.isPending}>
+                {approve.isPending ? "Approving..." : "Approve application"}
               </Button>
-              <Button
-                size="sm"
-                variant="danger"
-                onClick={() => review("REJECTED")}
-                disabled={status === "REJECTED"}
-              >
-                Reject application
+              <Button size="sm" variant="danger" onClick={() => void review("REJECTED")} disabled={!canReview || reject.isPending || !rejectionReason.trim()}>
+                {reject.isPending ? "Rejecting..." : "Reject application"}
               </Button>
             </div>
           </div>
         </CommercialPanel>
       </div>
-
-      <CommercialPanel title="Next steps" subtitle="What happens after approval.">
-        <div className="grid gap-3 sm:grid-cols-3">
-          {[
-            ["1", "Create tenant", "Reserve the tenant code and workspace."],
-            ["2", "Create host admin", "Issue the initial sign-in invitation."],
-            ["3", "Unlock plans", "The organization can purchase a plan."],
-          ].map(([step, title, text]) => (
-            <div key={step} className="rounded-md border border-slate-200 p-4">
-              <span className="text-sm font-semibold text-action">{step}</span>
-              <p className="mt-2 text-sm font-semibold text-slate-900">{title}</p>
-              <p className="mt-1 text-sm leading-5 text-slate-500">{text}</p>
-            </div>
-          ))}
-        </div>
-      </CommercialPanel>
     </div>
   );
 };

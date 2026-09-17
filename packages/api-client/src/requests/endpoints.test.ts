@@ -2,17 +2,16 @@ import { describe, expect, it } from "vitest";
 import * as requests from "./index";
 
 /**
- * Guards the flat `/api/` prefix contract that the modulith collapse
- * established (ADR-008, and plans/quang-web-billing-integration Phase 1).
+ * Guards the versioned `/api/v1/` prefix contract of the modular monolith
+ * (ADR-008, and plans/quang-web-billing-integration Phase 1).
  *
  * Two independent failure modes this catches, both of which are silent 404s
  * at runtime rather than compile errors:
  *
- *  1. A path that reintroduces a per-service segment (`/api/iam/...`,
- *     `/api/scheduling/...`). Those services stopped existing; the edge
- *     strips exactly one `/api` segment, so anything else 404s.
- *  2. A path that drops `/api` entirely. That collides with the Next.js UI
- *     routes served from the same origin — see deploy/api-routes.caddy.
+ *  1. A path that reintroduces a per-service segment (`/api/v1/iam/...`,
+ *     `/api/v1/scheduling/...`). Those services stopped existing.
+ *  2. A path that drops `/api/v1` entirely. That breaks the stable public
+ *     contract and can collide with the Next.js UI routes on the same origin.
  */
 
 /** Service names from the pre-modulith routing table — none may reappear. */
@@ -73,14 +72,14 @@ describe("api-client endpoint paths", () => {
     expect(paths.length).toBeGreaterThan(30);
   });
 
-  it.each(paths)("$name starts with the /api prefix", ({ path }) => {
-    expect(path.startsWith("/api/")).toBe(true);
+  it.each(paths)("$name starts with the /api/v1 prefix", ({ path }) => {
+    expect(path.startsWith("/api/v1/")).toBe(true);
   });
 
   it.each(paths.filter(({ path }) => !KNOWN_FICTITIOUS_PATHS.has(path)))(
     "$name carries no retired service segment",
     ({ path }) => {
-      const [, , firstSegment] = path.split("/");
+      const [, , , firstSegment] = path.split("/");
       expect(RETIRED_SERVICE_SEGMENTS).not.toContain(firstSegment);
     },
   );

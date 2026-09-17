@@ -6,9 +6,9 @@ import type {
 } from "../../types/scheduling";
 
 export const PROCTOR_ASSIGNMENT_ENDPOINTS = {
-  assignments: (sessionPublicId: string) => `/api/sessions/${sessionPublicId}/proctors`,
+  assignments: (sessionPublicId: string) => `/api/v1/sessions/${sessionPublicId}/proctors`,
   assignment: (sessionPublicId: string, assignmentPublicId: string) =>
-    `/api/sessions/${sessionPublicId}/proctors/${assignmentPublicId}`,
+    `/api/v1/sessions/${sessionPublicId}/proctors/${assignmentPublicId}`,
 } as const;
 
 export function assignProctor(

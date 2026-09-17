@@ -44,7 +44,7 @@ export function createSessionApiClient(baseUrl: string): ApiClient {
  * miss when endpoints move.
  */
 async function refreshAccessToken(baseUrl: string, refreshToken: string): Promise<RefreshedTokens> {
-  const response = await fetch(`${baseUrl}/api/auth/refresh`, {
+  const response = await fetch(`${baseUrl}/api/v1/auth/refresh`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refreshToken }),

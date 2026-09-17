@@ -9,7 +9,7 @@ function basePath(
   programPublicId: string,
   classPublicId: string,
 ): string {
-  return `/api/organizations/${organizationPublicId}/programs/${programPublicId}/classes/${classPublicId}/lecturers`;
+  return `/api/v1/organizations/${organizationPublicId}/programs/${programPublicId}/classes/${classPublicId}/lecturers`;
 }
 
 export const LECTURER_ASSIGNMENT_ENDPOINTS = {

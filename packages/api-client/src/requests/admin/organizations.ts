@@ -9,8 +9,8 @@ import type { OrganizationResponse } from "../../types/organization";
  * auth/routing, so left untouched per this phase's Design Constraints.
  */
 export const HOST_ORGANIZATION_ENDPOINTS = {
-  organizations: "/api/organizations",
-  organization: (publicId: string) => `/api/organizations/${publicId}`,
+  organizations: "/api/v1/organizations",
+  organization: (publicId: string) => `/api/v1/organizations/${publicId}`,
 } as const;
 
 export function listMyOrganizations(client: ApiClient): Promise<OrganizationResponse[]> {

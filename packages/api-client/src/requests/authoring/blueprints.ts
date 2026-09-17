@@ -2,8 +2,8 @@ import type { ApiClient } from "../../client/client";
 import type { BlueprintResponse, SnapshotResponse } from "../../types/authoring";
 
 export const BLUEPRINT_ENDPOINTS = {
-  blueprints: "/api/blueprints",
-  publish: (publicId: string) => `/api/blueprints/${publicId}/publish`,
+  blueprints: "/api/v1/blueprints",
+  publish: (publicId: string) => `/api/v1/blueprints/${publicId}/publish`,
 } as const;
 
 export function listBlueprints(client: ApiClient): Promise<BlueprintResponse[]> {

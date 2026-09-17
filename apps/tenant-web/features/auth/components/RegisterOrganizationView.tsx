@@ -2,42 +2,22 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import Link from "next/link";
-import {
-  Button,
-  Checkbox,
-  CheckCircleIcon,
-  Input,
-  LockIcon,
-  MailIcon,
-  PasswordInput,
-  Select,
-  UsersIcon,
-} from "@pte/ui";
-import { AUTH_ROUTES } from "../constants";
+import { ApiError, type SubmitApplicationRequest } from "@pte/api-client";
+import { Button, CheckCircleIcon, Input, MailIcon, Select } from "@pte/ui";
+import { AUTH_ROUTES, REGISTRATION_TEXT } from "../constants";
+import { useSubmitApplication } from "@/features/commercialization/api";
 import { PublicShell } from "@/features/public/components";
 
-type FormValues = {
-  organizationName: string;
-  organizationType: string;
-  representativeName: string;
-  email: string;
-  phone: string;
-  password: string;
-  confirmPassword: string;
-  termsAccepted: boolean;
-};
-
+type FormValues = SubmitApplicationRequest;
 type FormErrors = Partial<Record<keyof FormValues, string>>;
 
 const INITIAL_VALUES: FormValues = {
-  organizationName: "",
-  organizationType: "",
-  representativeName: "",
-  email: "",
-  phone: "",
-  password: "",
-  confirmPassword: "",
-  termsAccepted: false,
+  orgName: "",
+  orgType: "",
+  requestedCode: "",
+  contactEmail: "",
+  contactPhone: "",
+  taxCode: "",
 };
 
 const ORGANIZATION_TYPES = [
@@ -49,82 +29,66 @@ const ORGANIZATION_TYPES = [
 
 function validate(values: FormValues): FormErrors {
   const errors: FormErrors = {};
-  if (!values.organizationName.trim()) errors.organizationName = "Enter your organization name.";
-  if (!values.organizationType) errors.organizationType = "Select an organization type.";
-  if (!values.representativeName.trim()) errors.representativeName = "Enter a representative name.";
-  if (!values.email.trim()) {
-    errors.email = "Enter your email address.";
-  } else if (!/^\S+@\S+\.\S+$/.test(values.email)) {
-    errors.email = "Enter a valid email address.";
-  }
-  if (!values.phone.trim()) errors.phone = "Enter a phone number.";
-  if (values.password.length < 8) errors.password = "Use at least 8 characters.";
-  if (!values.confirmPassword) {
-    errors.confirmPassword = "Confirm your password.";
-  } else if (values.password !== values.confirmPassword) {
-    errors.confirmPassword = "Passwords do not match.";
-  }
-  if (!values.termsAccepted) errors.termsAccepted = "Accept the terms to continue.";
+  if (!values.orgName.trim()) errors.orgName = "Enter your organization name.";
+  if (!values.orgType) errors.orgType = "Select an organization type.";
+  if (!/^[a-z0-9-]{3,32}$/.test(values.requestedCode.trim())) errors.requestedCode = "Use 3–32 lowercase letters, numbers, or hyphens.";
+  if (!values.contactEmail.trim()) errors.contactEmail = "Enter your email address.";
+  else if (!/^\S+@\S+\.\S+$/.test(values.contactEmail)) errors.contactEmail = "Enter a valid email address.";
   return errors;
 }
 
 export const RegisterOrganizationView = (): ReactElement => {
   const [values, setValues] = useState<FormValues>(INITIAL_VALUES);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [submitted, setSubmitted] = useState(false);
-  const [reference, setReference] = useState("");
+  const [applicationId, setApplicationId] = useState("");
+  const [submissionError, setSubmissionError] = useState("");
+  const submit = useSubmitApplication();
 
   const updateField = <K extends keyof FormValues>(field: K, value: FormValues[K]): void => {
     setValues((current) => ({ ...current, [field]: value }));
     setErrors((current) => ({ ...current, [field]: undefined }));
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     const nextErrors = validate(values);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
-
-    setReference(`APP-${new Date().getFullYear()}-${Math.floor(100000 + Math.random() * 900000)}`);
-    setSubmitted(true);
+    setSubmissionError("");
+    try {
+      const result = await submit.mutateAsync({
+        orgName: values.orgName.trim(),
+        orgType: values.orgType,
+        requestedCode: values.requestedCode.trim(),
+        contactEmail: values.contactEmail.trim(),
+        contactPhone: values.contactPhone?.trim() || undefined,
+        taxCode: values.taxCode?.trim() || undefined,
+      });
+      setApplicationId(result.publicId);
+    } catch (error) {
+      if (error instanceof ApiError && error.message === "REQUESTED_CODE_ALREADY_USED") {
+        setErrors((current) => ({ ...current, requestedCode: REGISTRATION_TEXT.duplicateCode }));
+      } else if (error instanceof ApiError && error.status === 429) {
+        setSubmissionError(REGISTRATION_TEXT.rateLimited);
+      } else {
+        setSubmissionError(REGISTRATION_TEXT.submitFailed);
+      }
+    }
   };
 
-  if (submitted) {
+  if (applicationId) {
     return (
       <PublicShell>
         <section className="mx-auto flex max-w-3xl justify-center px-5 py-14 sm:py-20 lg:px-8">
           <div className="w-full rounded-2xl border border-slate-200 bg-white p-7 text-center shadow-card sm:p-12">
-            <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-emerald-50 text-emerald-700">
-              <CheckCircleIcon className="h-7 w-7" />
-            </span>
-            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
-              Application received
-            </p>
-            <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950">
-              Your organization is in review.
-            </h1>
-            <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-slate-600">
-              We will email you when the review is complete. Keep this reference for your records.
-            </p>
-            <div className="mx-auto mt-6 max-w-xs rounded-lg bg-slate-50 px-4 py-3">
-              <p className="text-xs uppercase tracking-wide text-slate-500">
-                Application reference
-              </p>
-              <p className="mt-1 font-mono text-sm font-semibold text-slate-900">{reference}</p>
-            </div>
+            <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-emerald-50 text-emerald-700"><CheckCircleIcon className="h-7 w-7" /></span>
+            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Application received</p>
+            <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950">Your organization is in review.</h1>
+            <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-slate-600">We will contact you when the review is complete. Keep this application ID for your records.</p>
+            <div className="mx-auto mt-6 max-w-xs rounded-lg bg-slate-50 px-4 py-3"><p className="text-xs uppercase tracking-wide text-slate-500">Application ID</p><p className="mt-1 break-all font-mono text-sm font-semibold text-slate-900">{applicationId}</p></div>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link
-                href={AUTH_ROUTES.applicationStatus}
-                className="inline-flex h-10 items-center justify-center rounded-md border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
-                View application status
-              </Link>
-              <Link
-                href={AUTH_ROUTES.login}
-                className="inline-flex h-10 items-center justify-center rounded-md bg-action px-4 text-sm font-medium text-white hover:bg-action-hover"
-              >
-                Sign in
-              </Link>
+              <Link href={AUTH_ROUTES.applicationStatus} className="inline-flex h-10 items-center justify-center rounded-md border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50">What happens next</Link>
+              <Link href={AUTH_ROUTES.login} className="inline-flex h-10 items-center justify-center rounded-md bg-action px-4 text-sm font-medium text-white hover:bg-action-hover">Sign in</Link>
             </div>
           </div>
         </section>
@@ -132,117 +96,25 @@ export const RegisterOrganizationView = (): ReactElement => {
     );
   }
 
+  const submitError = submissionError || (submit.error instanceof ApiError ? submit.error.message : undefined);
   return (
     <PublicShell>
       <section className="mx-auto max-w-4xl px-5 py-10 sm:py-14 lg:px-8 lg:py-18">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card sm:p-8">
-          <div className="border-b border-slate-100 pb-5">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h2 className="text-xl font-bold text-slate-950">Organization details</h2>
-              </div>
-            </div>
-          </div>
-
-          <form className="mt-6 space-y-5" onSubmit={handleSubmit} noValidate>
+          <div className="border-b border-slate-100 pb-5"><h2 className="text-xl font-bold text-slate-950">Organization details</h2><p className="mt-1 text-sm text-slate-500">Submit an application. Platform staff will create access after review.</p></div>
+          {submitError && <div className="mt-5 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">{submitError}</div>}
+          <form className="mt-6 space-y-5" onSubmit={(event) => void handleSubmit(event)} noValidate>
             <div className="grid gap-5 sm:grid-cols-2">
-              <Input
-                id="organizationName"
-                label="Organization name"
-                placeholder="e.g. Bright English Center"
-                value={values.organizationName}
-                onChange={(event) => updateField("organizationName", event.target.value)}
-                error={errors.organizationName}
-                required
-              />
-              <Select
-                id="organizationType"
-                label="Organization type"
-                placeholder="Select type"
-                options={ORGANIZATION_TYPES}
-                value={values.organizationType}
-                onChange={(event) => updateField("organizationType", event.target.value)}
-                error={errors.organizationType}
-                className="w-full"
-                required
-              />
-              <Input
-                id="representativeName"
-                label="Representative name"
-                placeholder="Full name"
-                value={values.representativeName}
-                onChange={(event) => updateField("representativeName", event.target.value)}
-                error={errors.representativeName}
-                leftIcon={<UsersIcon className="h-4 w-4" />}
-                required
-              />
-              <Input
-                id="phone"
-                label="Phone number"
-                type="tel"
-                placeholder="Your contact number"
-                value={values.phone}
-                onChange={(event) => updateField("phone", event.target.value)}
-                error={errors.phone}
-                required
-              />
-              <Input
-                id="email"
-                label="Work email"
-                type="email"
-                autoComplete="email"
-                placeholder="admin@organization.com"
-                value={values.email}
-                onChange={(event) => updateField("email", event.target.value)}
-                error={errors.email}
-                leftIcon={<MailIcon className="h-4 w-4" />}
-                required
-              />
-              <PasswordInput
-                id="password"
-                label="Password"
-                autoComplete="new-password"
-                placeholder="At least 8 characters"
-                value={values.password}
-                onChange={(event) => updateField("password", event.target.value)}
-                error={errors.password}
-                leftIcon={<LockIcon className="h-4 w-4" />}
-                required
-              />
-              <PasswordInput
-                id="confirmPassword"
-                label="Confirm password"
-                autoComplete="new-password"
-                placeholder="Repeat your password"
-                value={values.confirmPassword}
-                onChange={(event) => updateField("confirmPassword", event.target.value)}
-                error={errors.confirmPassword}
-                leftIcon={<LockIcon className="h-4 w-4" />}
-                required
-              />
+              <Input id="orgName" label="Organization name" placeholder="e.g. Bright English Center" value={values.orgName} onChange={(event) => updateField("orgName", event.target.value)} error={errors.orgName} required />
+              <Select id="orgType" label="Organization type" placeholder="Select type" options={ORGANIZATION_TYPES} value={values.orgType} onChange={(event) => updateField("orgType", event.target.value)} error={errors.orgType} required />
+              <Input id="requestedCode" label="Requested tenant code" helperText={REGISTRATION_TEXT.requestedCodeHint} placeholder="bright-center" value={values.requestedCode} onChange={(event) => updateField("requestedCode", event.target.value.toLowerCase())} error={errors.requestedCode} required />
+              <Input id="contactPhone" label="Phone number" type="tel" placeholder="Your contact number" value={values.contactPhone ?? ""} onChange={(event) => updateField("contactPhone", event.target.value)} />
+              <Input id="contactEmail" label="Work email" type="email" autoComplete="email" placeholder="admin@organization.com" value={values.contactEmail} onChange={(event) => updateField("contactEmail", event.target.value)} error={errors.contactEmail} leftIcon={<MailIcon className="h-4 w-4" />} required />
+              <Input id="taxCode" label="Tax code" placeholder="Optional" value={values.taxCode ?? ""} onChange={(event) => updateField("taxCode", event.target.value)} />
             </div>
-
-            <Checkbox
-              id="termsAccepted"
-              label="I agree to the Terms of Service and Privacy Policy."
-              checked={values.termsAccepted}
-              onChange={(event) => updateField("termsAccepted", event.target.checked)}
-              error={errors.termsAccepted}
-            />
-
             <div className="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-xs text-slate-500">
-                Already have an account?{" "}
-                <Link
-                  href={AUTH_ROUTES.login}
-                  className="font-semibold text-action hover:underline"
-                >
-                  Sign in
-                </Link>
-              </p>
-              <Button type="submit" size="lg" rightIcon={<span aria-hidden="true">→</span>}>
-                Submit application
-              </Button>
+              <p className="text-xs text-slate-500">Already have an account? <Link href={AUTH_ROUTES.login} className="font-semibold text-action hover:underline">Sign in</Link></p>
+              <Button type="submit" size="lg" isLoading={submit.isPending} loadingText="Submitting..." rightIcon={<span aria-hidden="true">→</span>}>Submit application</Button>
             </div>
           </form>
         </div>

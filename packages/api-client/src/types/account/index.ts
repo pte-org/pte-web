@@ -1,4 +1,4 @@
-/** Mirrors identity's `UserResponse` — the shape `GET /api/auth/me` returns. */
+/** Mirrors identity's `UserResponse` — the shape `GET /api/v1/auth/me` returns. */
 export interface CurrentUser {
   publicId: string;
   email: string;

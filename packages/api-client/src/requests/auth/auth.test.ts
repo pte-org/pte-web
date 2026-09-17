@@ -63,9 +63,9 @@ describe("auth requests", () => {
     expect(hostClient.request.mock.calls[0][0]).toBe(AUTH_ENDPOINTS.login);
   });
 
-  it("targets the flat /api/auth paths", () => {
-    expect(AUTH_ENDPOINTS.login).toBe("/api/auth/login");
-    expect(AUTH_ENDPOINTS.refresh).toBe("/api/auth/refresh");
-    expect(AUTH_ENDPOINTS.logout).toBe("/api/auth/logout");
+  it("targets the versioned /api/v1/auth paths", () => {
+    expect(AUTH_ENDPOINTS.login).toBe("/api/v1/auth/login");
+    expect(AUTH_ENDPOINTS.refresh).toBe("/api/v1/auth/refresh");
+    expect(AUTH_ENDPOINTS.logout).toBe("/api/v1/auth/logout");
   });
 });

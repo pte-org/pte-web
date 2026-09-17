@@ -47,3 +47,10 @@ export const AUTH_TEXT = {
   INVALID_CREDENTIALS: "Username or password is incorrect.",
   GENERIC_ERROR: "Login failed. Please try again.",
 } as const;
+
+export const REGISTRATION_TEXT = {
+  requestedCodeHint: "3–32 lowercase letters, numbers, or hyphens. This code cannot change after approval.",
+  duplicateCode: "This tenant code is already in use. Choose another code.",
+  rateLimited: "The system is receiving many applications. Try again in a few minutes.",
+  submitFailed: "Application could not be submitted. Try again.",
+} as const;
