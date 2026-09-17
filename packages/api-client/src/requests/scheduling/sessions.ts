@@ -1,12 +1,12 @@
 import type { ApiClient } from "../../client/client";
 import type { CreateSessionRequest, SessionResponse } from "../../types/scheduling";
 
-/** `/api/scheduling` prefix required by `pte-api/deploy/api-routes.caddy` — see requests/question/index.ts's identical note. */
+/** Matches `SessionController`'s `@RequestMapping("/api/v1/sessions")` — see requests/question/index.ts's identical note. */
 export const SESSION_ENDPOINTS = {
-  sessions: "/api/scheduling/sessions",
-  session: (publicId: string) => `/api/scheduling/sessions/${publicId}`,
-  open: (publicId: string) => `/api/scheduling/sessions/${publicId}/open`,
-  close: (publicId: string) => `/api/scheduling/sessions/${publicId}/close`,
+  sessions: "/api/v1/sessions",
+  session: (publicId: string) => `/api/v1/sessions/${publicId}`,
+  open: (publicId: string) => `/api/v1/sessions/${publicId}/open`,
+  close: (publicId: string) => `/api/v1/sessions/${publicId}/close`,
 } as const;
 
 export function createSession(

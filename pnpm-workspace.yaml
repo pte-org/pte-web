@@ -2,5 +2,8 @@ packages:
   - "apps/*"
   - "packages/*"
 allowBuilds:
+  # Vitest's bundler (packages/api-client test suite). Needs its postinstall
+  # to fetch the platform-native binary; without it vitest cannot start.
+  esbuild: true
   sharp: true
   unrs-resolver: true

@@ -15,7 +15,7 @@ import type {
 } from "../../types/admin/studentClass";
 
 function basePath(organizationPublicId: string, programPublicId: string): string {
-  return `/api/admin/organizations/${organizationPublicId}/programs/${programPublicId}/classes`;
+  return `/api/v1/organizations/${organizationPublicId}/programs/${programPublicId}/classes`;
 }
 
 export const CLASS_ENDPOINTS = {

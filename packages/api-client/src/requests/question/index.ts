@@ -2,20 +2,17 @@ import type { ApiClient } from "../../client/client";
 import type { CreateQuestionRequest, QuestionResponse, UpdateQuestionRequest } from "../../types/question";
 
 /**
- * `/api/authoring` is NOT stale — `pte-api/deploy/api-routes.caddy` strips
- * this exact prefix before forwarding to the monolith's bare `/questions`
- * mapping, and both vendor-web/tenant-web's `API_BASE_URL` default
- * (`http://localhost:8080`) and `pte-app`'s `AppConfig.gatewayBaseUrl`
- * point at that Caddy instance, not at the app directly. Every other
- * module's request file (`auth`, `scheduling`, `scoring`, ...) keeps the
- * same `/api/{module}` convention for the same reason.
+ * `pte-api`'s Nginx edge (`deploy/nginx.local.conf`) forwards `/api/v1/*`
+ * unchanged — controllers own the full `/api/v1` prefix themselves
+ * (`QuestionController` maps `/api/v1/questions`), so this file's paths
+ * must match the controller's `@RequestMapping` exactly, not a module name.
  */
 export const QUESTION_ENDPOINTS = {
-  questions: "/api/authoring/questions",
-  byId: (id: string) => `/api/authoring/questions/${id}`,
-  publish: (id: string) => `/api/authoring/questions/${id}/publish`,
-  archive: (id: string) => `/api/authoring/questions/${id}/archive`,
-  unarchive: (id: string) => `/api/authoring/questions/${id}/unarchive`,
+  questions: "/api/v1/questions",
+  byId: (id: string) => `/api/v1/questions/${id}`,
+  publish: (id: string) => `/api/v1/questions/${id}/publish`,
+  archive: (id: string) => `/api/v1/questions/${id}/archive`,
+  unarchive: (id: string) => `/api/v1/questions/${id}/unarchive`,
 } as const;
 
 /**

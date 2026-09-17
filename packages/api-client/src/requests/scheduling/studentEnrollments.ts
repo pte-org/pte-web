@@ -3,7 +3,7 @@ import type { StudentEnrollmentResponse } from "../../types/scheduling";
 
 export const STUDENT_ENROLLMENT_ENDPOINTS = {
   enrollments: (studentPublicId: string) =>
-    `/api/scheduling/students/${studentPublicId}/enrollments`,
+    `/api/v1/students/${studentPublicId}/enrollments`,
 } as const;
 
 /**

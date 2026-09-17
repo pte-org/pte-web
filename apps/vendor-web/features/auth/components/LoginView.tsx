@@ -49,7 +49,7 @@ export const LoginView = (): ReactElement => {
   const role = resolveRole(searchParams.get("role"));
   const { saveSession } = useSessionManager();
 
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
@@ -62,13 +62,13 @@ export const LoginView = (): ReactElement => {
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    if (!email.trim() || !password) {
+    if (!username.trim() || !password) {
       setErrorMessage(AUTH_TEXT.EMPTY_FIELDS);
       return;
     }
     setErrorMessage(undefined);
     mutation.mutate(
-      { email: email.trim(), password },
+      { username: username.trim(), password },
       {
         onSuccess: (data) => {
           const claims = decodeAccessTokenClaims(data.accessToken);
@@ -120,18 +120,21 @@ export const LoginView = (): ReactElement => {
 
           <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
-              <label htmlFor="email" className={LABEL_CLASS}>
-                {AUTH_TEXT.EMAIL_LABEL}
+              <label htmlFor="username" className={LABEL_CLASS}>
+                {AUTH_TEXT.USERNAME_LABEL}
               </label>
               <div className={FIELD_WRAP_CLASS}>
                 <MailIcon className="h-4 w-4 text-gray-400" />
+                {/* type="text", NOT type="email": a STUDENT's username is
+                    `{tenant.code}.{random}`, which the browser would reject
+                    as an invalid email before the request is ever sent. */}
                 <input
-                  id="email"
-                  type="email"
+                  id="username"
+                  type="text"
                   autoComplete="username"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  placeholder={AUTH_TEXT.EMAIL_PLACEHOLDER}
+                  value={username}
+                  onChange={(event) => setUsername(event.target.value)}
+                  placeholder={AUTH_TEXT.USERNAME_PLACEHOLDER}
                   className={INPUT_CLASS}
                 />
               </div>

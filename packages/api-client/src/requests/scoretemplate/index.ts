@@ -5,20 +5,18 @@ import type {
 } from "../../types/scoretemplate";
 
 /**
- * Matches `ScoreTemplateController`'s real `@RequestMapping("/score-templates")`
- * (pte-api, Phase 1) — no `/api/{service}` prefix. Several older request
- * modules in this package (`question`, `authoring/blueprints`,
- * `scoring/answers`) still carry a stale `/api/...` prefix left over from a
- * pre-monolith gateway that no longer exists; do not copy that pattern here.
+ * Matches `ScoreTemplateController`'s `@RequestMapping("/api/v1/score-templates")` —
+ * pte-api's Nginx edge forwards `/api/v1/*` unchanged, so every request
+ * module in this package must carry the controller's real full path.
  * Every endpoint is `PLATFORM_ADMIN`-only on the backend (FR-03) — hosts
  * never call these.
  */
 export const SCORE_TEMPLATE_ENDPOINTS = {
-  templates: "/score-templates",
-  template: (publicId: string) => `/score-templates/${publicId}`,
-  clone: (publicId: string) => `/score-templates/${publicId}/clone`,
-  items: (publicId: string) => `/score-templates/${publicId}/items`,
-  activate: (publicId: string) => `/score-templates/${publicId}/activate`,
+  templates: "/api/v1/score-templates",
+  template: (publicId: string) => `/api/v1/score-templates/${publicId}`,
+  clone: (publicId: string) => `/api/v1/score-templates/${publicId}/clone`,
+  items: (publicId: string) => `/api/v1/score-templates/${publicId}/items`,
+  activate: (publicId: string) => `/api/v1/score-templates/${publicId}/activate`,
 } as const;
 
 export function listScoreTemplates(client: ApiClient): Promise<ScoreTemplateResponse[]> {

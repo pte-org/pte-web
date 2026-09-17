@@ -14,3 +14,4 @@ export * from "./authoring";
 export * from "./scoring";
 export * from "./scoretemplate";
 export * from "./admin";
+export * from "./billing";
