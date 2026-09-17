@@ -24,6 +24,9 @@ export const QUESTIONBANK_TEXT = {
   STAT_DRAFT: "Draft",
   ROW_EDIT: "Edit",
   ROW_DELETE: "Delete",
+  ROW_PUBLISH: "Publish",
+  ROW_ARCHIVE: "Archive",
+  ROW_UNARCHIVE: "Unarchive",
 } as const;
 
 export const QUESTION_TABLE_HEADERS = {
@@ -44,13 +47,15 @@ export const QUESTION_SKILL_LABELS: Record<QuestionSkill, string> = {
 };
 
 export const QUESTION_STATUS_LABELS: Record<QuestionStatus, string> = {
-  in_use: "In use",
   draft: "Draft",
+  published: "Published",
+  archived: "Archived",
 };
 
 export const QUESTION_STATUS_VARIANT: Record<QuestionStatus, BadgeVariant> = {
-  in_use: "success",
   draft: "warning",
+  published: "success",
+  archived: "info",
 };
 
 export const QUESTION_DIFFICULTY_VARIANT: Record<QuestionDifficulty, BadgeVariant> = {
@@ -89,6 +94,7 @@ export const QUESTION_STATUS_FILTER_OPTIONS: {
   label: string;
 }[] = [
   { value: "all", label: "All statuses" },
-  { value: "in_use", label: "In use" },
   { value: "draft", label: "Draft" },
+  { value: "published", label: "Published" },
+  { value: "archived", label: "Archived" },
 ];

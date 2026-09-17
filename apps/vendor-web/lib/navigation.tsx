@@ -36,6 +36,12 @@ export const ADMIN_NAV: NavItem[] = [
     section: "Content",
   },
   { label: "Exam Blueprints", href: "/admin/exams", icon: <ClipboardIcon />, section: "Content" },
+  {
+    label: "Score Template",
+    href: "/admin/score-template",
+    icon: <DocumentIcon />,
+    section: "Content",
+  },
 ];
 
 export const HOST_NAV: NavItem[] = [

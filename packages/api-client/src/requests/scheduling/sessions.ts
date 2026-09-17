@@ -1,6 +1,7 @@
 import type { ApiClient } from "../../client/client";
 import type { CreateSessionRequest, SessionResponse } from "../../types/scheduling";
 
+/** Matches `SessionController`'s `@RequestMapping("/api/v1/sessions")` — see requests/question/index.ts's identical note. */
 export const SESSION_ENDPOINTS = {
   sessions: "/api/v1/sessions",
   session: (publicId: string) => `/api/v1/sessions/${publicId}`,

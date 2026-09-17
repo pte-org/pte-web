@@ -82,7 +82,6 @@ export interface QuestionResponse {
   minWordCount: number | null;
   maxWordCount: number | null;
   options: OptionResponse[];
-  skills: string[];
 }
 
 /** GET /questions takes no query params at all today — kept as an empty shape so call sites don't need an `if` for "no filters yet". */
