@@ -57,6 +57,7 @@ function sessionResponseToExamSession(response: SessionResponse): ExamSession {
   return {
     id: response.publicId,
     name: response.name,
+    subscriptionPublicId: response.subscriptionPublicId,
     snapshotPublicId: response.snapshotPublicId,
     opensAt: response.opensAt,
     closesAt: response.closesAt,
@@ -102,10 +103,11 @@ export function useCreateSession(): UseMutationResult<ExamSession, unknown, Crea
     mutationFn: async (input) => {
       const response = await createSession(apiClient, {
         name: input.name.trim(),
+        subscriptionPublicId: input.subscriptionPublicId,
         skills: input.skills,
         opensAt: new Date(input.opensAt).toISOString(),
         closesAt: new Date(input.closesAt).toISOString(),
-        capacity: input.capacity ?? null,
+        capacity: Number(input.capacity),
       });
       return sessionResponseToExamSession(response);
     },

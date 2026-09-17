@@ -3,12 +3,12 @@ import type { ProctorRole, SessionStatus, UserResponse } from "@pte/api-client";
 export interface ExamSession {
   id: string;
   name: string;
+  subscriptionPublicId: string;
   snapshotPublicId: string;
   opensAt: string;
   closesAt: string;
   status: SessionStatus;
-  /** Null = unlimited. */
-  capacity: number | null;
+  capacity: number;
 }
 
 /** The 4 PTE sections a host picks from to generate an exam (Plan B) — 1 to 4, distinct. */
@@ -16,18 +16,22 @@ export type ExamSkill = "SPEAKING" | "WRITING" | "READING" | "LISTENING";
 
 export interface CreateSessionInput {
   name: string;
+  /** Gates creation (dev-merge subscription/billing module) — must be an ACTIVE subscription. */
+  subscriptionPublicId: string;
   skills: ExamSkill[];
   opensAt: string;
   closesAt: string;
-  /** Per-session enrollment ceiling; omitted/undefined = unlimited. */
-  capacity?: number;
+  /** Raw form value — parsed to a positive integer on submit. */
+  capacity: string;
 }
 
 export interface CreateSessionErrors {
   name?: string;
+  subscriptionPublicId?: string;
   skills?: string;
   opensAt?: string;
   closesAt?: string;
+  capacity?: string;
 }
 
 export interface AssignedClass {

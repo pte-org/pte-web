@@ -1,20 +1,21 @@
-export type SessionStatus = "SCHEDULED" | "OPEN" | "CLOSED";
+export type SessionStatus = "SCHEDULED" | "OPEN" | "CLOSED" | "CANCELLED";
 
 /**
  * Matches scheduling's real `SessionResponse` record exactly (Plan B, Phase
  * 3 removed `composition` — a student now pins every item of the generated
- * snapshot, there is no host-chosen subset anymore).
+ * snapshot, there is no host-chosen subset anymore; the dev-merge subscription
+ * gate added `subscriptionPublicId` and made `capacity` mandatory).
  */
 export interface SessionResponse {
   publicId: string;
   name: string;
   tenantId: string;
+  subscriptionPublicId: string;
   snapshotPublicId: string;
   opensAt: string;
   closesAt: string;
   status: SessionStatus;
-  /** Null = unlimited. */
-  capacity: number | null;
+  capacity: number;
 }
 
 export type ExamMode = "PRACTICE" | "MOCK_TEST" | "REAL_EXAM";
@@ -22,18 +23,19 @@ export type LockdownMode = "NONE" | "STANDARD" | "STRICT";
 
 /**
  * Matches scheduling's real `CreateSessionRequest` record exactly (Plan B,
- * Phase 3) — the exam is generated from `skills` (1-4 distinct sections),
- * not a pre-published `snapshotPublicId` chosen by hand.
+ * Phase 3 generates the exam from `skills` — 1-4 distinct sections, not a
+ * pre-published `snapshotPublicId` chosen by hand; the dev-merge subscription
+ * gate requires `subscriptionPublicId` and made `capacity` mandatory).
  */
 export interface CreateSessionRequest {
   name: string;
+  subscriptionPublicId: string;
   skills: string[];
   opensAt: string;
   closesAt: string;
   examMode?: ExamMode | null;
   lockdownMode?: LockdownMode | null;
-  /** Null/omitted = unlimited. */
-  capacity?: number | null;
+  capacity: number;
 }
 
 /** Matches scheduling's real `EnrollmentResponse` record exactly. */

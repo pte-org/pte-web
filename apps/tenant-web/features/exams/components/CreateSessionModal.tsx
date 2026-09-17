@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Checkbox, Input, Modal } from "@pte/ui";
+import { Alert, Checkbox, Input, Modal, Select } from "@pte/ui";
+import { useSubscriptionsQuery, useTenantPlansQuery } from "@/features/commercialization/api";
 import { CREATE_SESSION_TEXT, EMPTY_CREATE_SESSION, EXAM_SKILL_OPTIONS } from "../constants";
 import { validateCreateSession } from "../utils/validateCreateSession";
 import type { CreateSessionErrors, CreateSessionInput, ExamSkill } from "../types";
@@ -27,8 +28,15 @@ export const CreateSessionModal = ({
   const [form, setForm] = useState<CreateSessionInput>(EMPTY_CREATE_SESSION);
   const [errors, setErrors] = useState<CreateSessionErrors>({});
 
-  const handleChange = (field: "name" | "opensAt" | "closesAt", value: string): void =>
-    setForm((previous) => ({ ...previous, [field]: value }));
+  const { data: subscriptions = [], isLoading: subscriptionsLoading } = useSubscriptionsQuery();
+  const { data: plans = [] } = useTenantPlansQuery();
+  const activeSubscriptions = subscriptions.filter((subscription) => subscription.status === "ACTIVE");
+  const planNameById = new Map(plans.map((plan) => [plan.publicId, plan.name]));
+
+  const handleChange = (
+    field: "name" | "subscriptionPublicId" | "opensAt" | "closesAt" | "capacity",
+    value: string,
+  ): void => setForm((previous) => ({ ...previous, [field]: value }));
 
   const toggleSkill = (skill: ExamSkill, checked: boolean): void =>
     setForm((previous) => ({
@@ -84,6 +92,23 @@ export const CreateSessionModal = ({
           error={errors.name}
           onChange={(event) => handleChange("name", event.target.value)}
         />
+        <Select
+          label={T.SUBSCRIPTION_LABEL}
+          placeholder={
+            !subscriptionsLoading && activeSubscriptions.length === 0
+              ? T.NO_ACTIVE_SUBSCRIPTIONS
+              : T.SUBSCRIPTION_PLACEHOLDER
+          }
+          helperText={T.SUBSCRIPTION_HELPER}
+          value={form.subscriptionPublicId}
+          error={errors.subscriptionPublicId}
+          disabled={subscriptionsLoading || activeSubscriptions.length === 0}
+          onChange={(event) => handleChange("subscriptionPublicId", event.target.value)}
+          options={activeSubscriptions.map((subscription) => ({
+            label: `${planNameById.get(subscription.planId) ?? "Plan"} — ${subscription.licenseKey}`,
+            value: subscription.publicId,
+          }))}
+        />
         <div className="flex flex-col gap-2">
           <span className="text-sm font-medium text-gray-700">{T.SKILLS_LABEL}</span>
           <div className="grid grid-cols-2 gap-2">
@@ -112,6 +137,16 @@ export const CreateSessionModal = ({
           value={form.closesAt}
           error={errors.closesAt}
           onChange={(event) => handleChange("closesAt", event.target.value)}
+        />
+        <Input
+          type="number"
+          min={1}
+          step={1}
+          label={T.CAPACITY_LABEL}
+          placeholder={T.CAPACITY_PLACEHOLDER}
+          value={form.capacity}
+          error={errors.capacity}
+          onChange={(event) => handleChange("capacity", event.target.value)}
         />
       </form>
     </Modal>

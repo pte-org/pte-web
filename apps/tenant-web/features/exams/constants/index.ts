@@ -31,12 +31,14 @@ export const SESSION_STATUS_LABELS = {
   SCHEDULED: "Scheduled",
   OPEN: "Open",
   CLOSED: "Closed",
+  CANCELLED: "Cancelled",
 } as const;
 
 export const SESSION_STATUS_VARIANT = {
   SCHEDULED: "info",
   OPEN: "success",
   CLOSED: "neutral",
+  CANCELLED: "danger",
 } as const;
 
 export const CREATE_SESSION_TEXT = {
@@ -44,11 +46,17 @@ export const CREATE_SESSION_TEXT = {
   SECTION_CONTENT: "Exam Content",
   NAME_LABEL: "Exam name",
   NAME_PLACEHOLDER: "e.g. Mid-term PTE Mock Test",
+  SUBSCRIPTION_LABEL: "Subscription",
+  SUBSCRIPTION_PLACEHOLDER: "Select an active subscription",
+  SUBSCRIPTION_HELPER: "The exam's window and capacity must fit within this subscription.",
+  NO_ACTIVE_SUBSCRIPTIONS: "No active subscription yet — redeem a license or purchase a plan first.",
   SKILLS_LABEL: "Skills",
   SKILLS_HELPER:
     "The system randomly generates the exam from the question bank for the skills you pick (1 to 4).",
   OPENS_AT_LABEL: "Opens at",
   CLOSES_AT_LABEL: "Closes at",
+  CAPACITY_LABEL: "Capacity",
+  CAPACITY_PLACEHOLDER: "e.g. 30",
   CANCEL: "Cancel",
   SUBMIT: "Create Exam",
   SUBMITTING: "Creating...",
@@ -63,18 +71,23 @@ export const EXAM_SKILL_OPTIONS: { value: ExamSkill; label: string }[] = [
 
 export const CREATE_SESSION_ERRORS = {
   NAME_REQUIRED: "Exam name is required.",
+  SUBSCRIPTION_REQUIRED: "Select a subscription.",
   SKILLS_REQUIRED: "Select at least 1 skill (up to 4).",
   OPENS_AT_REQUIRED: "Opens-at date/time is required.",
   OPENS_AT_FUTURE: "Opens-at must be in the future.",
   CLOSES_AT_REQUIRED: "Closes-at date/time is required.",
   CLOSES_AT_AFTER_OPENS: "Closes-at must be after opens-at.",
+  CAPACITY_REQUIRED: "Capacity is required.",
+  CAPACITY_POSITIVE: "Capacity must be a positive whole number.",
 } as const;
 
 export const EMPTY_CREATE_SESSION: CreateSessionInput = {
   name: "",
+  subscriptionPublicId: "",
   skills: [],
   opensAt: "",
   closesAt: "",
+  capacity: "",
 };
 
 export const SESSION_DETAIL_TEXT = {
