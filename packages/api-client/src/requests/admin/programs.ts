@@ -8,19 +8,19 @@ import type {
 
 export const PROGRAM_ENDPOINTS = {
   programs: (organizationPublicId: string) =>
-    `/api/admin/organizations/${organizationPublicId}/programs`,
+    `/api/organizations/${organizationPublicId}/programs`,
   program: (organizationPublicId: string, publicId: string) =>
-    `/api/admin/organizations/${organizationPublicId}/programs/${publicId}`,
+    `/api/organizations/${organizationPublicId}/programs/${publicId}`,
   activate: (organizationPublicId: string, publicId: string) =>
-    `/api/admin/organizations/${organizationPublicId}/programs/${publicId}/activate`,
+    `/api/organizations/${organizationPublicId}/programs/${publicId}/activate`,
   deactivate: (organizationPublicId: string, publicId: string) =>
-    `/api/admin/organizations/${organizationPublicId}/programs/${publicId}/deactivate`,
+    `/api/organizations/${organizationPublicId}/programs/${publicId}/deactivate`,
   suspend: (organizationPublicId: string, publicId: string) =>
-    `/api/admin/organizations/${organizationPublicId}/programs/${publicId}/suspend`,
+    `/api/organizations/${organizationPublicId}/programs/${publicId}/suspend`,
   archive: (organizationPublicId: string, publicId: string) =>
-    `/api/admin/organizations/${organizationPublicId}/programs/${publicId}/archive`,
+    `/api/organizations/${organizationPublicId}/programs/${publicId}/archive`,
   dashboard: (organizationPublicId: string, publicId: string) =>
-    `/api/admin/organizations/${organizationPublicId}/programs/${publicId}/dashboard`,
+    `/api/organizations/${organizationPublicId}/programs/${publicId}/dashboard`,
 } as const;
 
 export function listPrograms(

@@ -2,10 +2,10 @@ import type { ApiClient } from "../../client/client";
 import type { CreateSessionRequest, SessionResponse } from "../../types/scheduling";
 
 export const SESSION_ENDPOINTS = {
-  sessions: "/api/scheduling/sessions",
-  session: (publicId: string) => `/api/scheduling/sessions/${publicId}`,
-  open: (publicId: string) => `/api/scheduling/sessions/${publicId}/open`,
-  close: (publicId: string) => `/api/scheduling/sessions/${publicId}/close`,
+  sessions: "/api/sessions",
+  session: (publicId: string) => `/api/sessions/${publicId}`,
+  open: (publicId: string) => `/api/sessions/${publicId}/open`,
+  close: (publicId: string) => `/api/sessions/${publicId}/close`,
 } as const;
 
 export function createSession(

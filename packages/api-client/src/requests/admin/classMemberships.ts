@@ -2,7 +2,7 @@ import type { ApiClient } from "../../client/client";
 import type { ClassMembershipResponse } from "../../types/admin/studentClass";
 
 export const CLASS_MEMBERSHIP_ENDPOINTS = {
-  classMemberships: "/api/admin/class-memberships",
+  classMemberships: "/api/class-memberships",
 } as const;
 
 /**

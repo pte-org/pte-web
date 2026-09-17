@@ -7,9 +7,9 @@ import type {
 } from "../../types/scoring";
 
 export const SCORING_ANSWER_ENDPOINTS = {
-  answers: "/api/scoring/answers",
-  answer: (publicId: string) => `/api/scoring/answers/${publicId}`,
-  teacherScore: (publicId: string) => `/api/scoring/answers/${publicId}/teacher-score`,
+  answers: "/api/answers",
+  answer: (publicId: string) => `/api/answers/${publicId}`,
+  teacherScore: (publicId: string) => `/api/answers/${publicId}/teacher-score`,
 } as const;
 
 export interface ListAnswersParams {

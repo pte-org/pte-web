@@ -3,7 +3,7 @@ import type { GrantQuotaRequest, QuotaTransactionResponse } from "../../types/qu
 
 export const QUOTA_ENDPOINTS = {
   transactions: (tenantPublicId: string) =>
-    `/api/admin/tenants/${tenantPublicId}/quota-transactions`,
+    `/api/tenants/${tenantPublicId}/quota-transactions`,
 } as const;
 
 export function grantQuota(

@@ -2,8 +2,8 @@ import type { ApiClient } from "../../client/client";
 import type { CreateQuestionRequest, QuestionResponse, UpdateQuestionRequest } from "../../types/question";
 
 export const QUESTION_ENDPOINTS = {
-  questions: "/api/authoring/questions",
-  byId: (id: string) => `/api/authoring/questions/${id}`,
+  questions: "/api/questions",
+  byId: (id: string) => `/api/questions/${id}`,
 } as const;
 
 /**

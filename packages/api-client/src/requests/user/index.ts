@@ -8,12 +8,12 @@ import type {
 } from "../../types/user";
 
 export const USER_ENDPOINTS = {
-  users: "/api/iam/users",
-  bulk: "/api/iam/users/bulk",
-  byTenant: (tenantPublicId: string) => `/api/iam/users/by-tenant/${tenantPublicId}`,
-  suspend: (publicId: string) => `/api/iam/users/${publicId}/suspend`,
-  reactivate: (publicId: string) => `/api/iam/users/${publicId}/reactivate`,
-  resetPassword: (publicId: string) => `/api/iam/users/${publicId}/reset-password`,
+  users: "/api/users",
+  bulk: "/api/users/bulk",
+  byTenant: (tenantPublicId: string) => `/api/users/by-tenant/${tenantPublicId}`,
+  suspend: (publicId: string) => `/api/users/${publicId}/suspend`,
+  reactivate: (publicId: string) => `/api/users/${publicId}/reactivate`,
+  resetPassword: (publicId: string) => `/api/users/${publicId}/reset-password`,
 } as const;
 
 export function createUser(client: ApiClient, payload: CreateUserRequest): Promise<UserResponse> {

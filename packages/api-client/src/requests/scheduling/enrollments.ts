@@ -7,10 +7,10 @@ import type {
 
 export const ENROLLMENT_ENDPOINTS = {
   enrollments: (sessionPublicId: string) =>
-    `/api/scheduling/sessions/${sessionPublicId}/enrollments`,
-  bulk: (sessionPublicId: string) => `/api/scheduling/sessions/${sessionPublicId}/enrollments/bulk`,
+    `/api/sessions/${sessionPublicId}/enrollments`,
+  bulk: (sessionPublicId: string) => `/api/sessions/${sessionPublicId}/enrollments/bulk`,
   enrollment: (sessionPublicId: string, enrollmentPublicId: string) =>
-    `/api/scheduling/sessions/${sessionPublicId}/enrollments/${enrollmentPublicId}`,
+    `/api/sessions/${sessionPublicId}/enrollments/${enrollmentPublicId}`,
 } as const;
 
 export function enrollStudent(

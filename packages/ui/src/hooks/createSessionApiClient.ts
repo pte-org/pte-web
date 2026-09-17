@@ -32,13 +32,19 @@ export function createSessionApiClient(baseUrl: string): ApiClient {
  * Raw `fetch` (not routed through the `apiClient` instance being
  * constructed by `createSessionApiClient` above, which doesn't exist yet
  * at that point — and would recurse back into its own 401 handling anyway)
- * hitting iam's real `/auth/refresh` endpoint directly. Mirrors
+ * hitting identity's real `/auth/refresh` endpoint directly. Mirrors
  * `@pte/api-client`'s `requests/auth/refreshAuth` request shape but
  * stays independent of it to avoid a circular import between that module
  * and `client.ts`.
+ *
+ * <p>The path is duplicated here rather than imported from
+ * `AUTH_ENDPOINTS.refresh` for that same circular-import reason — so it
+ * must be kept in sync by hand. It silently breaks every session at the
+ * 15-minute access-token expiry, not at login, which is why it is easy to
+ * miss when endpoints move.
  */
 async function refreshAccessToken(baseUrl: string, refreshToken: string): Promise<RefreshedTokens> {
-  const response = await fetch(`${baseUrl}/api/iam/auth/refresh`, {
+  const response = await fetch(`${baseUrl}/api/auth/refresh`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refreshToken }),
