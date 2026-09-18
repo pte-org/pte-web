@@ -1,18 +1,27 @@
-/** Matches iam's real `LoginRequest` record exactly (`{email, password}` —
- * `services/iam/.../dto/request/LoginRequest.java`). There is no
- * `credential`/generic-identifier field on the backend. */
+/**
+ * Matches identity's real `LoginRequest` record exactly
+ * (`{username, password}` —
+ * `com/pte/identity/internal/dto/request/LoginRequest.java`).
+ *
+ * <p>`username` — NOT `email`. The login key moved off email in Phase 1 of
+ * the commercialization work: a STUDENT's username is
+ * `{tenant.code}.{random}` and is not an email address at all, and two
+ * tenants may now hold the same email. For every non-STUDENT role the
+ * backend sets `username = email`, so those users still type their email
+ * here — but the field name and its validation are username semantics.
+ */
 export interface LoginRequest {
-  email: string;
+  username: string;
   password: string;
 }
 
 export interface AdminLoginRequest {
-  email: string;
+  username: string;
   password: string;
 }
 
 export interface HostLoginRequest {
-  email: string;
+  username: string;
   password: string;
 }
 

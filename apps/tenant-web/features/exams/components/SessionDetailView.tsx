@@ -12,6 +12,7 @@ import { errorMessage as mutationErrorMessage } from "@/features/examoperations/
 import { SESSION_DETAIL_TEXT, SESSION_STATUS_LABELS, SESSION_STATUS_VARIANT } from "../constants";
 import { useCloseSession, useOpenSession, useSession } from "../api";
 import { AnswersSection } from "./AnswersSection";
+import { ClassAssignmentSection } from "./ClassAssignmentSection";
 import { ProctorAssignmentSection } from "./ProctorAssignmentSection";
 
 interface SessionDetailViewProps {
@@ -81,6 +82,14 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
           {formatDateTime(session.opensAt)} — {formatDateTime(session.closesAt)}
         </p>
       </div>
+
+      <section className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-5">
+        <h3 className="text-sm font-semibold text-gray-900">{T.CLASSES_SECTION}</h3>
+        <ClassAssignmentSection
+          sessionPublicId={sessionPublicId}
+          canModify={session.status === "SCHEDULED"}
+        />
+      </section>
 
       <section className="flex flex-col gap-5 rounded-lg border border-gray-200 bg-white p-5">
         <h3 className="text-sm font-semibold text-gray-900">{T.STUDENTS_SECTION}</h3>

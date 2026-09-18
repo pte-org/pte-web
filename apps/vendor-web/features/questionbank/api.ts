@@ -1,7 +1,19 @@
 "use client";
 
-import { useQuery, type UseQueryResult } from "@tanstack/react-query";
-import { listQuestions, type QuestionResponse } from "@pte/api-client";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseMutationResult,
+  type UseQueryResult,
+} from "@tanstack/react-query";
+import {
+  archiveQuestion,
+  listQuestions,
+  publishQuestion,
+  unarchiveQuestion,
+  type QuestionResponse,
+} from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
 import { QUESTION_STATS_QUERY_KEY, QUESTIONS_QUERY_KEY } from "./constants";
 import type { Question, QuestionSkill, QuestionStats, QuestionStatus } from "./types";
@@ -13,8 +25,14 @@ const SKILL_MAP: Partial<Record<string, QuestionSkill>> = {
   SPEAKING: "speaking",
 };
 
+const STATUS_MAP: Record<string, QuestionStatus> = {
+  DRAFT: "draft",
+  PUBLISHED: "published",
+  ARCHIVED: "archived",
+};
+
 function mapStatus(value: QuestionResponse["status"]): QuestionStatus {
-  return value === "DRAFT" ? "draft" : "in_use";
+  return STATUS_MAP[value] ?? "draft";
 }
 
 /**
@@ -76,5 +94,37 @@ export function useQuestionStats(): UseQueryResult<QuestionStats> {
   return useQuery({
     queryKey: QUESTION_STATS_QUERY_KEY,
     queryFn: async () => buildStats(await fetchQuestions()),
+  });
+}
+
+function useInvalidateQuestionsOnSuccess(): () => void {
+  const queryClient = useQueryClient();
+  return () => {
+    void queryClient.invalidateQueries({ queryKey: QUESTIONS_QUERY_KEY });
+    void queryClient.invalidateQueries({ queryKey: QUESTION_STATS_QUERY_KEY });
+  };
+}
+
+export function usePublishQuestion(): UseMutationResult<QuestionResponse, unknown, string> {
+  const onSuccess = useInvalidateQuestionsOnSuccess();
+  return useMutation({
+    mutationFn: (id: string) => publishQuestion(apiClient, id),
+    onSuccess,
+  });
+}
+
+export function useArchiveQuestion(): UseMutationResult<QuestionResponse, unknown, string> {
+  const onSuccess = useInvalidateQuestionsOnSuccess();
+  return useMutation({
+    mutationFn: (id: string) => archiveQuestion(apiClient, id),
+    onSuccess,
+  });
+}
+
+export function useUnarchiveQuestion(): UseMutationResult<QuestionResponse, unknown, string> {
+  const onSuccess = useInvalidateQuestionsOnSuccess();
+  return useMutation({
+    mutationFn: (id: string) => unarchiveQuestion(apiClient, id),
+    onSuccess,
   });
 }

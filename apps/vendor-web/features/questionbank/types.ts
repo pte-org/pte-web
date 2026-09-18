@@ -2,7 +2,7 @@ export type QuestionSkill = "listening" | "reading" | "writing" | "speaking";
 
 export type QuestionDifficulty = "A1" | "A2" | "B1" | "B2" | "C";
 
-export type QuestionStatus = "in_use" | "draft";
+export type QuestionStatus = "draft" | "published" | "archived";
 
 export interface Question {
   id: string;

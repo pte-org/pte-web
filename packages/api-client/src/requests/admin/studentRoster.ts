@@ -2,7 +2,7 @@ import type { ApiClient, PagedResult } from "../../client/client";
 import type { StudentRosterQuery, StudentRosterRow } from "../../types/admin/studentRoster";
 
 export const STUDENT_ROSTER_ENDPOINTS = {
-  roster: "/api/admin/student-roster",
+  roster: "/api/v1/student-roster",
 } as const;
 
 function queryString(query: StudentRosterQuery): string {

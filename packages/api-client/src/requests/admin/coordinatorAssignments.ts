@@ -5,7 +5,7 @@ import type {
 } from "../../types/admin/assignment";
 
 function basePath(organizationPublicId: string, programPublicId: string): string {
-  return `/api/admin/organizations/${organizationPublicId}/programs/${programPublicId}/coordinators`;
+  return `/api/v1/organizations/${organizationPublicId}/programs/${programPublicId}/coordinators`;
 }
 
 export const COORDINATOR_ASSIGNMENT_ENDPOINTS = {

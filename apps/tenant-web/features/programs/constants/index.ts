@@ -62,7 +62,6 @@ export const PROGRAM_DETAIL_TEXT = {
     "Missing organization context — go back to the list and open this from there.",
   backToList: (label: string) => `Back to ${label}s`,
   loadFailed: "Couldn't load this — it may have been archived or you may not have access.",
-  createExam: "Create Exam for this",
 } as const;
 
 export const COORDINATOR_ASSIGNMENTS_QUERY_KEY = ["coordinatorAssignments"] as const;

@@ -2,13 +2,13 @@ import type { ApiClient } from "../../client/client";
 import type { CreateOrganizationRequest, OrganizationResponse } from "../../types/organization";
 
 export const ORGANIZATION_ENDPOINTS = {
-  organizations: (tenantPublicId: string) => `/api/admin/tenants/${tenantPublicId}/organizations`,
+  organizations: (tenantPublicId: string) => `/api/v1/tenants/${tenantPublicId}/organizations`,
   organization: (tenantPublicId: string, publicId: string) =>
-    `/api/admin/tenants/${tenantPublicId}/organizations/${publicId}`,
+    `/api/v1/tenants/${tenantPublicId}/organizations/${publicId}`,
   suspend: (tenantPublicId: string, publicId: string) =>
-    `/api/admin/tenants/${tenantPublicId}/organizations/${publicId}/suspend`,
+    `/api/v1/tenants/${tenantPublicId}/organizations/${publicId}/suspend`,
   reactivate: (tenantPublicId: string, publicId: string) =>
-    `/api/admin/tenants/${tenantPublicId}/organizations/${publicId}/reactivate`,
+    `/api/v1/tenants/${tenantPublicId}/organizations/${publicId}/reactivate`,
 } as const;
 
 export function createOrganization(
