@@ -1,6 +1,6 @@
 /**
  * Matches identity's real `LoginRequest` record exactly
- * (`{username, password}` —
+ * (`{username, password, tenantId?}` —
  * `com/pte/identity/internal/dto/request/LoginRequest.java`).
  *
  * <p>`username` — NOT `email`. The login key moved off email in Phase 1 of
@@ -13,21 +13,37 @@
 export interface LoginRequest {
   username: string;
   password: string;
+  tenantId?: string | null;
 }
 
 export interface AdminLoginRequest {
   username: string;
   password: string;
+  tenantId?: string | null;
 }
 
 export interface HostLoginRequest {
   username: string;
   password: string;
+  tenantId?: string | null;
 }
 
 export interface StudentLoginRequest {
   username: string;
   password: string;
+  tenantId?: string | null;
+}
+
+export interface LoginOrganizationOptionsRequest {
+  username: string;
+  password: string;
+}
+
+export interface LoginOrganizationOption {
+  tenantId: string;
+  tenantCode: string;
+  organizationName: string;
+  organizationType: string;
 }
 
 /**

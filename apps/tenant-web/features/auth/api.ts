@@ -8,7 +8,10 @@ import {
 } from "@tanstack/react-query";
 import {
   getCurrentUser,
+  listLoginOrganizations,
   loginHost,
+  type LoginOrganizationOption,
+  type LoginOrganizationOptionsRequest,
   type CurrentUser,
   type HostLoginRequest,
   type JwtTokenResponse,
@@ -19,6 +22,17 @@ import { CURRENT_USER_QUERY_KEY } from "./constants";
 export function useLoginHost(): UseMutationResult<JwtTokenResponse, unknown, HostLoginRequest> {
   return useMutation({
     mutationFn: (payload: HostLoginRequest) => loginHost(apiClient, payload),
+  });
+}
+
+export function useLoginOrganizationOptions(): UseMutationResult<
+  LoginOrganizationOption[],
+  unknown,
+  LoginOrganizationOptionsRequest
+> {
+  return useMutation({
+    mutationFn: (payload: LoginOrganizationOptionsRequest) =>
+      listLoginOrganizations(apiClient, payload),
   });
 }
 

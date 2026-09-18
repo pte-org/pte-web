@@ -43,7 +43,7 @@ function validate(values: FormValues): FormErrors {
 export const RegisterOrganizationView = (): ReactElement => {
   const [values, setValues] = useState<FormValues>(INITIAL_VALUES);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [applicationId, setApplicationId] = useState("");
+  const [submitted, setSubmitted] = useState(false);
   const [submissionError, setSubmissionError] = useState("");
   const submit = useSubmitApplication();
 
@@ -59,7 +59,7 @@ export const RegisterOrganizationView = (): ReactElement => {
     if (Object.keys(nextErrors).length > 0) return;
     setSubmissionError("");
     try {
-      const result = await submit.mutateAsync({
+      await submit.mutateAsync({
         orgName: values.orgName.trim(),
         orgType: values.orgType,
         requestedCode: values.requestedCode.trim(),
@@ -67,7 +67,7 @@ export const RegisterOrganizationView = (): ReactElement => {
         contactPhone: values.contactPhone?.trim() || undefined,
         taxCode: values.taxCode.trim(),
       });
-      setApplicationId(result.publicId);
+      setSubmitted(true);
     } catch (error) {
       if (error instanceof ApiError && error.message === "REQUESTED_CODE_ALREADY_USED") {
         setErrors((current) => ({ ...current, requestedCode: REGISTRATION_TEXT.duplicateCode }));
@@ -79,7 +79,7 @@ export const RegisterOrganizationView = (): ReactElement => {
     }
   };
 
-  if (applicationId) {
+  if (submitted) {
     return (
       <PublicShell>
         <section className="mx-auto flex max-w-3xl justify-center px-5 py-14 sm:py-20 lg:px-8">
@@ -94,22 +94,9 @@ export const RegisterOrganizationView = (): ReactElement => {
               Your organization is in review.
             </h1>
             <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-slate-600">
-              We will contact you when the review is complete. Keep this application ID for your
-              records.
+              We will contact you at the email provided after the review is complete.
             </p>
-            <div className="mx-auto mt-6 max-w-xs rounded-lg bg-slate-50 px-4 py-3">
-              <p className="text-xs uppercase tracking-wide text-slate-500">Application ID</p>
-              <p className="mt-1 break-all font-mono text-sm font-semibold text-slate-900">
-                {applicationId}
-              </p>
-            </div>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <Link
-                href={AUTH_ROUTES.applicationStatus}
-                className="inline-flex h-10 items-center justify-center rounded-md border border-slate-300 px-4 text-sm font-medium text-slate-700 hover:bg-slate-50"
-              >
-                What happens next
-              </Link>
               <Link
                 href={AUTH_ROUTES.login}
                 className="inline-flex h-10 items-center justify-center rounded-md bg-action px-4 text-sm font-medium text-white hover:bg-action-hover"

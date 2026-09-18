@@ -37,7 +37,7 @@ interface DashboardChromeProps {
   allowedRoles: SessionRole[];
 }
 
-const BRAND_NAME = "PTE LMS";
+const BRAND_NAME = "PTE Prep";
 const BRAND_SUBTITLE = "Admin System";
 const DISCLAIMER = "PTE mock exam platform. Not affiliated with Pearson.";
 

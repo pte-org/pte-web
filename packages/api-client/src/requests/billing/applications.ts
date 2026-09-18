@@ -1,6 +1,5 @@
 import type { ApiClient } from "../../client/client";
 import type {
-  ApproveApplicationResponse,
   RejectApplicationRequest,
   SubmitApplicationRequest,
   TenantApplicationResponse,
@@ -15,7 +14,7 @@ export const APPLICATION_ENDPOINTS = {
 export function submitApplication(
   client: ApiClient,
   payload: SubmitApplicationRequest,
-): Promise<TenantApplicationResponse> {
+): Promise<void> {
   return client.request(APPLICATION_ENDPOINTS.applications, { method: "POST", body: payload });
 }
 
@@ -26,7 +25,7 @@ export function listApplications(client: ApiClient): Promise<TenantApplicationRe
 export function approveApplication(
   client: ApiClient,
   publicId: string,
-): Promise<ApproveApplicationResponse> {
+): Promise<void> {
   return client.request(APPLICATION_ENDPOINTS.approve(publicId), { method: "POST" });
 }
 

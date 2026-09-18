@@ -33,15 +33,6 @@ export interface RejectApplicationRequest {
   reason: string;
 }
 
-export interface ApproveApplicationResponse {
-  tenantPublicId: string;
-  tenantCode: string;
-  hostAdminPublicId: string;
-  hostAdminUsername: string;
-  /** One-time secret. Never cache, log, or place in query data. */
-  hostAdminPassword: string;
-}
-
 export interface PlanResponse {
   publicId: string;
   name: string;

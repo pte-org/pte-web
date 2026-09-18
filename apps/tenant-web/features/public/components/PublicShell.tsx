@@ -19,12 +19,12 @@ export const PublicShell = ({ children }: PublicShellProps): ReactElement => (
             <Link
               href="/"
               className="inline-flex items-center gap-2 text-blue-800"
-              aria-label="PTE LMS home"
+              aria-label="PTE Prep home"
             >
               <span className="grid h-8 w-8 place-items-center rounded-md bg-blue-600 text-white shadow-sm shadow-blue-600/25">
                 <GradCapIcon className="h-4 w-4" />
               </span>
-              <span className="text-sm font-bold tracking-tight">PTE LMS</span>
+              <span className="text-sm font-bold tracking-tight">PTE Prep</span>
             </Link>
             <p className="mt-3 max-w-xs text-sm leading-6 text-slate-500">
               Focused exam operations for modern organizations.
@@ -70,7 +70,7 @@ export const PublicShell = ({ children }: PublicShellProps): ReactElement => (
         </div>
 
         <div className="mt-10 flex flex-col gap-2 border-t border-slate-200 pt-5 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <span>&copy; 2026 PTE LMS</span>
+          <span>&copy; 2026 PTE Prep</span>
         </div>
       </div>
     </footer>

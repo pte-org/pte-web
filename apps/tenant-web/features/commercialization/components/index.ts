@@ -1,4 +1,3 @@
-export { ApplicationStatusView } from "./ApplicationStatusView";
 export { PlanCatalogView } from "./PlanCatalogView";
 export { CheckoutView } from "./CheckoutView";
 export { PaymentStatusView } from "./PaymentStatusView";
