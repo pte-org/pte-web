@@ -111,7 +111,13 @@ function userResponseToLoginAccount(response: UserResponse): LoginAccount {
     id: response.publicId,
     email: response.email,
     fullName: response.fullName,
+    tenantId: response.tenantId,
     status: response.status === "SUSPENDED" ? "suspended" : "active",
+    roles: response.roles,
+    studentCode: response.studentCode,
+    className: response.className,
+    phone: response.phone,
+    dateOfBirth: response.dateOfBirth,
   };
 }
 

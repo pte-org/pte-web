@@ -10,12 +10,6 @@ export const ADMIN_NAV: NavItem[] = [
     icon: <DocumentIcon />,
     section: "Tenants",
   },
-  {
-    label: "Licenses",
-    href: "/admin/licenses",
-    icon: <LicenseIcon />,
-    section: "Tenants",
-  },
   { label: "Plan catalog", href: "/admin/plans", icon: <LicenseIcon />, section: "Commercial" },
   {
     label: "License codes",

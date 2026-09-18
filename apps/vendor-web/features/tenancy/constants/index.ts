@@ -22,10 +22,12 @@ export const LOGIN_ACCOUNT_QUERY_KEY = ["loginAccount"] as const;
 
 export const TENANCY_TEXT = {
   TITLE: "Tenants",
-  SUBTITLE: "Manage organizations that use the platform.",
+  SUBTITLE: "Manage tenant identity, access, plans, licenses, and student capacity.",
   ADD_TENANT: "Add Tenant",
-  SEARCH_PLACEHOLDER: "Search by name, slug, or tax code",
+  SEARCH_PLACEHOLDER: "Search by tenant name, code, or tax code",
   ACTION_VIEW_DETAILS: "View details",
+  ACTION_GRANT_QUOTA: "Grant quota",
+  ACTION_VIEW_QUOTA_HISTORY: "View quota history",
   ACTION_SUSPEND: "Suspend",
   ACTION_REACTIVATE: "Reactivate",
   EMPTY_TITLE: "No tenants yet",
@@ -34,8 +36,10 @@ export const TENANCY_TEXT = {
 } as const;
 
 export const TENANT_TABLE_HEADERS = {
+  CODE: "Tenant Code",
   NAME: "Tenant Name",
   TYPE: "Organization Type",
+  TAX_CODE: "Tax Code",
   PLAN: "Plan",
   STUDENT_LIMIT: "Student Limit",
   STATUS: "Status",
@@ -68,9 +72,15 @@ export const STATUS_FILTER_OPTIONS: {
 }[] = [
   { value: "all", label: "All statuses" },
   { value: "active", label: "Active" },
-  { value: "expiring", label: "Expiring soon" },
-  { value: "expired", label: "Expired" },
   { value: "suspended", label: "Suspended" },
+];
+
+export const PLAN_FILTER_OPTIONS: { value: TenantPlan | "all"; label: string }[] = [
+  { value: "all", label: "All plans" },
+  ...Object.entries(TENANT_PLAN_LABELS).map(([value, label]) => ({
+    value: value as TenantPlan,
+    label,
+  })),
 ];
 
 export const SYSTEM_HEALTH_TEXT = {
@@ -123,6 +133,28 @@ export const ORGANIZATION_TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: "TRAINING_CENTER", label: "Training Center" },
   { value: "CORPORATE", label: "Corporate" },
 ];
+
+export const ORGANIZATION_TYPE_FILTER_OPTIONS: { value: string; label: string }[] = [
+  { value: "all", label: "All organization types" },
+  ...ORGANIZATION_TYPE_OPTIONS,
+];
+
+export const CAPACITY_FILTER_OPTIONS: {
+  value: "all" | "0-100" | "101-500" | "501+";
+  label: string;
+}[] = [
+  { value: "all", label: "All student limits" },
+  { value: "0-100", label: "Up to 100 students" },
+  { value: "101-500", label: "101–500 students" },
+  { value: "501+", label: "501+ students" },
+];
+
+export const TENANT_STATS_TEXT = {
+  TOTAL: "Total tenants",
+  ACTIVE: "Active tenants",
+  SUSPENDED: "Suspended tenants",
+  STUDENT_SEATS: "Total student seats",
+} as const;
 
 export const TENANT_CREATED_TEXT = {
   TITLE: "Tenant Created Successfully",
@@ -184,6 +216,15 @@ export const EMPTY_CREATE_TENANT: CreateTenantInput = {
 
 export const TENANT_DETAIL_TEXT = {
   BACK_TO_TENANTS: "Back to Tenants",
+  INFORMATION_TITLE: "Tenant information",
+  ID_LABEL: "Tenant ID",
+  CODE_LABEL: "Tenant code",
+  NAME_LABEL: "Tenant name",
+  ORGANIZATION_TYPE_LABEL: "Organization type",
+  TAX_CODE_LABEL: "Tax code",
+  PLAN_LABEL: "Plan",
+  STUDENT_LIMIT_LABEL: "Student limit",
+  STATUS_LABEL: "Status",
   BRANDING_TITLE: "White-Label Branding",
   BRANDING_SUBTITLE: "Shown to this tenant's users across the platform.",
   LOGO_URL_LABEL: "Logo URL",
@@ -231,6 +272,15 @@ export const LOGIN_ACCOUNT_TEXT = {
   EMPTY_TEXT: "Create the Host's first login so they can sign in.",
   CREATE_LOGIN: "Create Login",
   RESET_PASSWORD: "Reset Password",
+  EMAIL_LABEL: "Email",
+  FULL_NAME_LABEL: "Full name",
+  USER_ID_LABEL: "User ID",
+  TENANT_ID_LABEL: "Tenant ID",
+  ROLES_LABEL: "Roles",
+  STUDENT_CODE_LABEL: "Student code",
+  CLASS_NAME_LABEL: "Class name",
+  PHONE_LABEL: "Phone",
+  DATE_OF_BIRTH_LABEL: "Date of birth",
   RESET_SUCCESS: "Password reset. Relay it to the Host directly — it won't be shown again.",
 } as const;
 

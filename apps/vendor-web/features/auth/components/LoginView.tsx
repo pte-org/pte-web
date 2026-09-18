@@ -22,7 +22,7 @@ const SESSION_ROLES: readonly SessionRole[] = [
   "PLATFORM_ADMIN",
   "PLATFORM_AUTHOR",
   "HOST_ADMIN",
-  "HOST_AUTHOR",
+  "EXAMINER",
   "PROCTOR",
   "STUDENT",
 ];

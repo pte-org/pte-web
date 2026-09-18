@@ -2,12 +2,14 @@
 
 import {
   bulkCreateUsers,
+  importStudentRoster,
   listClassMemberships,
   listStudentRoster,
   reactivateUser,
   suspendUser,
   type BulkCreateUsersResponse,
   type ClassMembershipResponse,
+  type DownloadResponse,
   type PagedResult,
   type StudentRosterQuery,
   type StudentRosterRow,
@@ -37,7 +39,7 @@ export function useClassMemberships(): UseQueryResult<ClassMembershipResponse[]>
   });
 }
 
-/** Creates student accounts in the current Host's tenant without enrolling them anywhere. */
+/** Creates one student account from the add-student form. */
 export function useCreateTenantStudents(): UseMutationResult<
   BulkCreateUsersResponse,
   unknown,
@@ -58,6 +60,19 @@ export function useCreateTenantStudents(): UseMutationResult<
         })),
         tenantId: null,
       }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: STUDENT_ROSTER_QUERY_KEY });
+    },
+  });
+}
+
+/** Uploads the original roster file and receives it back with credentials appended. */
+export function useImportStudentRoster(): UseMutationResult<DownloadResponse, unknown, File> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (file) => importStudentRoster(apiClient, file),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: STUDENT_ROSTER_QUERY_KEY });

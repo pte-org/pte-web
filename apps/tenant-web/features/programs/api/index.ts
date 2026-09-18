@@ -47,7 +47,7 @@ import type {
   ProgramRosterEntry,
 } from "../types";
 
-const COORDINATOR_ROLE = "PROGRAM_COORDINATOR";
+const COORDINATOR_ROLE = "EXAMINER";
 
 /** Returns the Host's automatically provisioned Organization. */
 export function useMyOrganizations(): UseQueryResult<OrganizationResponse[]> {
@@ -147,7 +147,7 @@ export function useProgramStatusMutations(
 }
 
 /**
- * All PROGRAM_COORDINATOR accounts in the caller's tenant. Shares
+ * All EXAMINER accounts in the caller's tenant. Shares
  * `queryKey`+`queryFn` with exams' `useTenantProctors`/classes'
  * `useTenantLecturers` — one cache entry, split via `select`.
  */

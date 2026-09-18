@@ -51,11 +51,11 @@ export const TenantCreatedModal = ({ tenant, onClose }: TenantCreatedModalProps)
         <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
           <DetailRow label={T.CODE_LABEL} value={tenant.code} />
           <DetailRow label={T.NAME_LABEL} value={tenant.name} />
-          <DetailRow label={T.TAX_CODE_LABEL} value={tenant.taxCode ?? "—"} />
           <DetailRow
             label={T.ORG_TYPE_LABEL}
             value={organizationTypeLabel(tenant.organizationType)}
           />
+          <DetailRow label={T.TAX_CODE_LABEL} value={tenant.taxCode ?? "—"} />
           <DetailRow label={T.PLAN_LABEL} value={TENANT_PLAN_LABELS[tenant.plan]} />
           <DetailRow label={T.STUDENT_LIMIT_LABEL} value={String(tenant.seatsTotal)} />
         </div>
