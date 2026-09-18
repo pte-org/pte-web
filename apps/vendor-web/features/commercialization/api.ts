@@ -14,7 +14,6 @@ import {
   updatePlatformSetting,
   updatePlan,
   activatePlan,
-  type ApproveApplicationResponse,
   type IssueLicenseCodeRequest,
   type LicenseCodeResponse,
   type PlanRequest,
@@ -47,7 +46,7 @@ export function useApplicationsQuery(): UseQueryResult<TenantApplicationResponse
 }
 
 export function useApproveApplication(): UseMutationResult<
-  ApproveApplicationResponse,
+  void,
   unknown,
   string
 > {

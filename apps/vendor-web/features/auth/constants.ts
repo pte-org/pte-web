@@ -22,7 +22,7 @@ export const AUTH_ROUTES = {
 } as const;
 
 export const AUTH_TEXT = {
-  BRAND: "PTE Hub",
+  BRAND: "PTE Prep",
   WELCOME_TITLE: "Welcome Back",
   WELCOME_SUBTITLE: "Please enter your institutional credentials to continue.",
   PANEL_HEADING: "Ready to Manage?",
@@ -35,6 +35,9 @@ export const AUTH_TEXT = {
   // username semantics and must not be email-typed or email-validated.
   USERNAME_LABEL: "Username",
   USERNAME_PLACEHOLDER: "admin@institution.edu",
+  ORGANIZATION_LABEL: "Organization",
+  ORGANIZATION_PLACEHOLDER: "Select your organization",
+  ORGANIZATION_REQUIRED: "Please select your organization.",
   PASSWORD_LABEL: "Password",
   FORGOT: "Forgot password?",
   LOGIN_BUTTON: "Login",

@@ -14,12 +14,11 @@ export const HOST_ROLES: SessionRole[] = ["HOST_ADMIN"];
 export const AUTH_ROUTES = {
   login: "/login",
   register: "/register",
-  applicationStatus: "/application-status",
   hostDashboard: "/host/dashboard",
 } as const;
 
 export const AUTH_TEXT = {
-  BRAND: "PTE Hub",
+  BRAND: "PTE Prep",
   WELCOME_TITLE: "Welcome Back",
   WELCOME_SUBTITLE: "Sign in to manage learners and exams for your organization.",
   PANEL_HEADING: "Ready to manage?",
@@ -33,6 +32,9 @@ export const AUTH_TEXT = {
   USERNAME_LABEL: "Username",
   USERNAME_PLACEHOLDER: "host@school.edu.vn",
   USERNAME_HINT: "Use your email address, or the account issued by your organization.",
+  ORGANIZATION_LABEL: "Organization",
+  ORGANIZATION_PLACEHOLDER: "Select your organization",
+  ORGANIZATION_REQUIRED: "Please select your organization.",
   PASSWORD_LABEL: "Password",
   FORGOT: "Forgot password?",
   LOGIN_BUTTON: "Login",
@@ -45,7 +47,8 @@ export const AUTH_TEXT = {
 } as const;
 
 export const REGISTRATION_TEXT = {
-  requestedCodeHint: "3–32 lowercase letters, numbers, or hyphens. This code cannot change after approval.",
+  requestedCodeHint:
+    "3–32 lowercase letters, numbers, or hyphens. This code cannot change after approval.",
   duplicateCode: "This tenant code is already in use. Choose another code.",
   rateLimited: "The system is receiving many applications. Try again in a few minutes.",
   submitFailed: "Application could not be submitted. Try again.",

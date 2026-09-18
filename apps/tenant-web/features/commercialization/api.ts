@@ -16,7 +16,6 @@ import {
   type SubmitApplicationRequest,
   type SubscriptionActivationResponse,
   type SubscriptionResponse,
-  type TenantApplicationResponse,
 } from "@pte/api-client";
 import {
   useMutation,
@@ -107,7 +106,7 @@ export function useStudentImportPreview(): UseMutationResult<
 }
 
 export function useSubmitApplication(): UseMutationResult<
-  TenantApplicationResponse,
+  void,
   unknown,
   SubmitApplicationRequest
 > {

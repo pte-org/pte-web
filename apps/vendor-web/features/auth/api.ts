@@ -8,11 +8,14 @@ import {
 } from "@tanstack/react-query";
 import {
   getCurrentUser,
+  listLoginOrganizations,
   loginAdmin,
   loginHost,
   type AdminLoginRequest,
   type CurrentUser,
   type HostLoginRequest,
+  type LoginOrganizationOption,
+  type LoginOrganizationOptionsRequest,
   type JwtTokenResponse,
 } from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
@@ -27,6 +30,17 @@ export function useLoginAdmin(): UseMutationResult<JwtTokenResponse, unknown, Ad
 export function useLoginHost(): UseMutationResult<JwtTokenResponse, unknown, HostLoginRequest> {
   return useMutation({
     mutationFn: (payload: HostLoginRequest) => loginHost(apiClient, payload),
+  });
+}
+
+export function useLoginOrganizationOptions(): UseMutationResult<
+  LoginOrganizationOption[],
+  unknown,
+  LoginOrganizationOptionsRequest
+> {
+  return useMutation({
+    mutationFn: (payload: LoginOrganizationOptionsRequest) =>
+      listLoginOrganizations(apiClient, payload),
   });
 }
 

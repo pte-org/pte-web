@@ -1,6 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ApiClient } from "../../client/client";
-import { AUTH_ENDPOINTS, login, loginAdmin, loginHost, loginStudent } from "./index";
+import {
+  AUTH_ENDPOINTS,
+  listLoginOrganizations,
+  login,
+  loginAdmin,
+  loginHost,
+  loginStudent,
+} from "./index";
 
 /**
  * The login key moved from email to username in Phase 1 of the
@@ -61,6 +68,36 @@ describe("auth requests", () => {
     // endpoint, and these two wrappers must not drift apart.
     expect(adminClient.request.mock.calls[0][0]).toBe(AUTH_ENDPOINTS.login);
     expect(hostClient.request.mock.calls[0][0]).toBe(AUTH_ENDPOINTS.login);
+  });
+
+  it("sends the selected tenant when duplicate credentials are disambiguated", async () => {
+    const client = fakeClient();
+
+    await loginHost(client, {
+      username: "host@school.edu.vn",
+      password: "pw",
+      tenantId: "tenant-2",
+    });
+
+    expect(client.request.mock.calls[0][1].body).toEqual({
+      username: "host@school.edu.vn",
+      password: "pw",
+      tenantId: "tenant-2",
+    });
+  });
+
+  it("posts credentials to the organization-options endpoint", async () => {
+    const client = fakeClient();
+
+    await listLoginOrganizations(client, {
+      username: "host@school.edu.vn",
+      password: "pw",
+    });
+
+    expect(client.request).toHaveBeenCalledWith(AUTH_ENDPOINTS.loginOptions, {
+      method: "POST",
+      body: { username: "host@school.edu.vn", password: "pw" },
+    });
   });
 
   it("targets the versioned /api/v1/auth paths", () => {

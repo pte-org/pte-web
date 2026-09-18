@@ -3,7 +3,7 @@
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { Alert, Button, DescriptionList, Input, PageHeader } from "@pte/ui";
-import { ApiError, type ApproveApplicationResponse } from "@pte/api-client";
+import { ApiError } from "@pte/api-client";
 import { useApplicationsQuery, useApproveApplication, useRejectApplication } from "../api";
 import { CommercialPanel } from "./CommercialPanel";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
@@ -17,8 +17,7 @@ export const AdminApplicationDetailView = ({ applicationId }: AdminApplicationDe
   const approve = useApproveApplication();
   const reject = useRejectApplication();
   const [rejectionReason, setRejectionReason] = useState("");
-  const [credentials, setCredentials] = useState<ApproveApplicationResponse | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [approvalSent, setApprovalSent] = useState(false);
   const application = applications.find((item) => item.publicId === applicationId);
   const mutationError = approve.error ?? reject.error;
   const errorMessage = mutationError instanceof ApiError ? mutationError.message : undefined;
@@ -39,8 +38,8 @@ export const AdminApplicationDetailView = ({ applicationId }: AdminApplicationDe
   const review = async (nextStatus: "APPROVED" | "REJECTED"): Promise<void> => {
     try {
       if (nextStatus === "APPROVED") {
-        const result = await approve.mutateAsync(application.publicId);
-        setCredentials(result);
+        await approve.mutateAsync(application.publicId);
+        setApprovalSent(true);
         return;
       }
       if (!rejectionReason.trim()) return;
@@ -61,26 +60,9 @@ export const AdminApplicationDetailView = ({ applicationId }: AdminApplicationDe
         actions={<CommercialStatusBadge status={application.status} />}
       />
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
-      {credentials && (
-        <Alert tone="success" title="Application approved — save these credentials now">
-          <div className="mt-2 space-y-1 font-mono text-xs">
-            <p>Username: {credentials.hostAdminUsername}</p>
-            <p>Password: {credentials.hostAdminPassword}</p>
-          </div>
-          <Button
-            className="mt-3"
-            size="sm"
-            variant="secondary"
-            onClick={() => {
-              void navigator.clipboard
-                .writeText(`Username: ${credentials.hostAdminUsername}\nPassword: ${credentials.hostAdminPassword}`)
-                .then(() => setCopied(true))
-                .catch(() => setCopied(false));
-            }}
-          >
-            {copied ? "Copied" : "Copy credentials"}
-          </Button>
-          <p className="mt-3 text-xs">This password is shown only once and will not be loaded again.</p>
+      {approvalSent && (
+        <Alert tone="success">
+          Application approved. One-time host credentials were sent to the contact email.
         </Alert>
       )}
       <div className="grid gap-5 lg:grid-cols-[1.35fr_1fr]">
@@ -92,7 +74,6 @@ export const AdminApplicationDetailView = ({ applicationId }: AdminApplicationDe
               { label: "Work email", value: application.contactEmail },
               { label: "Phone number", value: application.contactPhone ?? "—" },
               { label: "Tax code", value: application.taxCode ?? "—" },
-              { label: "Application ID", value: application.publicId },
             ]}
           />
         </CommercialPanel>

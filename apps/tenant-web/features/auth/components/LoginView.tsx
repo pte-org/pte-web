@@ -11,8 +11,12 @@ import {
   useSessionManager,
   type SessionRole,
 } from "@pte/ui";
-import { decodeAccessTokenClaims } from "@pte/api-client";
-import { useLoginHost } from "../api";
+import {
+  decodeAccessTokenClaims,
+  type LoginOrganizationOption,
+  type JwtTokenResponse,
+} from "@pte/api-client";
+import { useLoginHost, useLoginOrganizationOptions } from "../api";
 import { AUTH_ROUTES, AUTH_TEXT } from "../constants";
 import { getLoginErrorMessage } from "../loginError";
 import { AuthBrandPanel } from "./_AuthBrandPanel";
@@ -43,44 +47,65 @@ export const LoginView = (): ReactElement => {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [organizationOptions, setOrganizationOptions] = useState<LoginOrganizationOption[]>([]);
+  const [organizationId, setOrganizationId] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string>();
 
   const mutation = useLoginHost();
+  const organizationMutation = useLoginOrganizationOptions();
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
+  const handleLoginSuccess = (data: JwtTokenResponse): void => {
+    const claims = decodeAccessTokenClaims(data.accessToken);
+    const roles = claims ? toSessionRoles(claims.roles) : [];
+    if (!claims || roles.length === 0) {
+      setErrorMessage(AUTH_TEXT.GENERIC_ERROR);
+      return;
+    }
+    saveSession({
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+      roles,
+      tenantId: claims.tenantId,
+      expiresAt: claims.expiresAt || Date.now() + data.expiresInSeconds * 1000,
+    });
+    router.replace(AUTH_ROUTES.hostDashboard);
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     if (!username.trim() || !password) {
       setErrorMessage(AUTH_TEXT.EMPTY_FIELDS);
       return;
     }
+    if (organizationOptions.length > 0 && !organizationId) {
+      setErrorMessage(AUTH_TEXT.ORGANIZATION_REQUIRED);
+      return;
+    }
     setErrorMessage(undefined);
-    mutation.mutate(
-      { username: username.trim(), password },
-      {
-        onSuccess: (data) => {
-          const claims = decodeAccessTokenClaims(data.accessToken);
-          const roles = claims ? toSessionRoles(claims.roles) : [];
-          if (!claims || roles.length === 0) {
-            // Decode failure and "decoded but no recognized role" must fail
-            // the same way — an empty-roles session would still pass
-            // isAuthenticated while every hasRole() check silently returns
-            // false forever, instead of a clear error.
-            setErrorMessage(AUTH_TEXT.GENERIC_ERROR);
-            return;
-          }
-          saveSession({
-            accessToken: data.accessToken,
-            refreshToken: data.refreshToken,
-            roles,
-            tenantId: claims.tenantId,
-            expiresAt: claims.expiresAt || Date.now() + data.expiresInSeconds * 1000,
-          });
-          router.replace(AUTH_ROUTES.hostDashboard);
-        },
-        onError: (error) => setErrorMessage(getLoginErrorMessage(error)),
-      },
-    );
+    try {
+      const trimmedUsername = username.trim();
+      let selectedOrganizationId = organizationId || undefined;
+      if (!selectedOrganizationId && organizationOptions.length === 0) {
+        const options = await organizationMutation.mutateAsync({
+          username: trimmedUsername,
+          password,
+        });
+        if (options.length > 1) {
+          setOrganizationOptions(options);
+          return;
+        }
+        selectedOrganizationId = options[0]?.tenantId;
+      }
+      const data = await mutation.mutateAsync({
+        username: trimmedUsername,
+        password,
+        ...(selectedOrganizationId ? { tenantId: selectedOrganizationId } : {}),
+      });
+      handleLoginSuccess(data);
+    } catch (error) {
+      setErrorMessage(getLoginErrorMessage(error));
+    }
   };
 
   return (
@@ -118,7 +143,11 @@ export const LoginView = (): ReactElement => {
                   type="text"
                   autoComplete="username"
                   value={username}
-                  onChange={(event) => setUsername(event.target.value)}
+                  onChange={(event) => {
+                    setUsername(event.target.value);
+                    setOrganizationOptions([]);
+                    setOrganizationId("");
+                  }}
                   placeholder={AUTH_TEXT.USERNAME_PLACEHOLDER}
                   className={INPUT_CLASS}
                 />
@@ -142,7 +171,11 @@ export const LoginView = (): ReactElement => {
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
                   value={password}
-                  onChange={(event) => setPassword(event.target.value)}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                    setOrganizationOptions([]);
+                    setOrganizationId("");
+                  }}
                   className={INPUT_CLASS}
                 />
                 <button
@@ -156,15 +189,37 @@ export const LoginView = (): ReactElement => {
               </div>
             </div>
 
+            {organizationOptions.length > 0 && (
+              <div className="flex flex-col gap-1">
+                <label htmlFor="organization" className={LABEL_CLASS}>
+                  {AUTH_TEXT.ORGANIZATION_LABEL}
+                </label>
+                <select
+                  id="organization"
+                  value={organizationId}
+                  onChange={(event) => setOrganizationId(event.target.value)}
+                  className="rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
+                >
+                  <option value="">{AUTH_TEXT.ORGANIZATION_PLACEHOLDER}</option>
+                  {organizationOptions.map((option) => (
+                    <option key={option.tenantId} value={option.tenantId}>
+                      {option.organizationName} ({option.tenantCode})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
             <button
               type="submit"
-              disabled={mutation.isPending}
+              disabled={mutation.isPending || organizationMutation.isPending}
               className="rounded-md bg-action py-2.5 text-sm font-medium text-white shadow-sm shadow-action/25 transition-colors hover:bg-action-hover disabled:opacity-60"
             >
-              {mutation.isPending ? AUTH_TEXT.LOGGING_IN : AUTH_TEXT.LOGIN_BUTTON}
+              {mutation.isPending || organizationMutation.isPending
+                ? AUTH_TEXT.LOGGING_IN
+                : AUTH_TEXT.LOGIN_BUTTON}
             </button>
           </form>
-
         </div>
       </div>
     </main>

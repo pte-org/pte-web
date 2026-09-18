@@ -1,6 +1,6 @@
 # pte-web
 
-Frontend monorepo for PTE LMS — pnpm workspaces + Turborepo. Two independent
+Frontend monorepo for PTE Prep — pnpm workspaces + Turborepo. Two independent
 Next.js apps (Tenant Portal, Vendor Portal) sharing UI, config, and API-client
 packages. Calls the `pte-api` (Spring Boot) backend; does not talk to a
 database directly.

@@ -5,6 +5,8 @@ import type {
   ChangePasswordRequest,
   HostLoginRequest,
   LoginRequest,
+  LoginOrganizationOption,
+  LoginOrganizationOptionsRequest,
   LogoutRequest,
   RefreshTokenRequest,
   StudentLoginRequest,
@@ -12,6 +14,7 @@ import type {
 
 export const AUTH_ENDPOINTS = {
   login: "/api/v1/auth/login",
+  loginOptions: "/api/v1/auth/login-options",
   refresh: "/api/v1/auth/refresh",
   logout: "/api/v1/auth/logout",
   /**
@@ -40,6 +43,7 @@ export function loginAdmin(client: ApiClient, payload: AdminLoginRequest): Promi
   return login(client, {
     username: payload.username,
     password: payload.password,
+    ...(payload.tenantId ? { tenantId: payload.tenantId } : {}),
   });
 }
 
@@ -47,6 +51,17 @@ export function loginHost(client: ApiClient, payload: HostLoginRequest): Promise
   return login(client, {
     username: payload.username,
     password: payload.password,
+    ...(payload.tenantId ? { tenantId: payload.tenantId } : {}),
+  });
+}
+
+export function listLoginOrganizations(
+  client: ApiClient,
+  payload: LoginOrganizationOptionsRequest,
+): Promise<LoginOrganizationOption[]> {
+  return client.request<LoginOrganizationOption[]>(AUTH_ENDPOINTS.loginOptions, {
+    method: "POST",
+    body: payload,
   });
 }
 
@@ -63,6 +78,7 @@ export function loginStudent(
   return login(client, {
     username: payload.username,
     password: payload.password,
+    ...(payload.tenantId ? { tenantId: payload.tenantId } : {}),
   });
 }
 
