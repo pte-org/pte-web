@@ -8,7 +8,8 @@ export function filterTenants(tenants: Tenant[], filter: TenantFilter): Tenant[]
     const matchesQuery =
       query === "" ||
       tenant.name.toLowerCase().includes(query) ||
-      tenant.slug.toLowerCase().includes(query);
+      tenant.slug.toLowerCase().includes(query) ||
+      tenant.taxCode?.toLowerCase().includes(query);
     return matchesStatus && matchesQuery;
   });
 }

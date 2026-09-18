@@ -1,6 +1,13 @@
 import type { ReactElement } from "react";
+import { useRouter } from "next/navigation";
 import { Alert, Badge, Dropdown, type DropdownItem } from "@pte/ui";
-import { useArchiveQuestion, usePublishQuestion, useUnarchiveQuestion } from "../api";
+import {
+  useApproveQuestion,
+  useArchiveQuestion,
+  useRejectQuestion,
+  useSubmitQuestionApproval,
+  useUnarchiveQuestion,
+} from "../api";
 import {
   QUESTIONBANK_TEXT,
   QUESTION_DIFFICULTY_VARIANT,
@@ -20,21 +27,37 @@ const HEADER_CLASS =
 const CELL_CLASS = "px-5 py-4 text-sm text-gray-700 align-middle";
 
 export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement => {
-  const publishMutation = usePublishQuestion();
+  const router = useRouter();
+  const submitMutation = useSubmitQuestionApproval();
+  const approveMutation = useApproveQuestion();
+  const rejectMutation = useRejectQuestion();
   const archiveMutation = useArchiveQuestion();
   const unarchiveMutation = useUnarchiveQuestion();
   const hasMutationError =
-    publishMutation.isError || archiveMutation.isError || unarchiveMutation.isError;
+    submitMutation.isError || approveMutation.isError || rejectMutation.isError || archiveMutation.isError || unarchiveMutation.isError;
 
   const buildActions = (question: Question): DropdownItem[] => {
     const actions: DropdownItem[] = [];
     if (question.status === "draft") {
       actions.push({
-        label: QUESTIONBANK_TEXT.ROW_PUBLISH,
-        onSelect: () => publishMutation.mutate(question.id),
+        label: "Submit for approval",
+        onSelect: () => submitMutation.mutate(question.id),
       });
     }
-    if (question.status === "draft" || question.status === "published") {
+    if (question.status === "pending_approval") {
+      actions.push({
+        label: "Approve",
+        onSelect: () => approveMutation.mutate(question.id),
+      });
+      actions.push({
+        label: "Reject",
+        onSelect: () => {
+          const reason = window.prompt("Reason for rejection", "Please revise this question.");
+          if (reason?.trim()) rejectMutation.mutate({ id: question.id, reason });
+        },
+      });
+    }
+    if (question.status === "draft" || question.status === "pending_approval" || question.status === "published") {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_ARCHIVE,
         onSelect: () => archiveMutation.mutate(question.id),
@@ -46,10 +69,12 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
         onSelect: () => unarchiveMutation.mutate(question.id),
       });
     }
-    actions.push(
-      { label: QUESTIONBANK_TEXT.ROW_EDIT, onSelect: () => undefined },
-      { label: QUESTIONBANK_TEXT.ROW_DELETE, danger: true, onSelect: () => undefined },
-    );
+    if (question.status === "draft" || question.status === "published") {
+      actions.push({
+        label: QUESTIONBANK_TEXT.ROW_EDIT,
+        onSelect: () => router.push(`/admin/questions/${question.id}/edit`),
+      });
+    }
     return actions;
   };
 

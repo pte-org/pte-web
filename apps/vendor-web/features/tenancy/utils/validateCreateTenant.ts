@@ -15,6 +15,7 @@ export function validateCreateTenant(input: CreateTenantInput): CreateTenantErro
   }
   if (!input.name.trim()) errors.name = CREATE_TENANT_ERRORS.REQUIRED;
   if (!input.organizationType) errors.organizationType = CREATE_TENANT_ERRORS.REQUIRED;
+  if (!input.taxCode.trim()) errors.taxCode = CREATE_TENANT_ERRORS.REQUIRED;
   if (!input.plan) errors.plan = CREATE_TENANT_ERRORS.REQUIRED;
 
   if (!input.studentLimit.trim()) {

@@ -20,6 +20,7 @@ export interface Tenant {
   name: string;
   slug: string;
   organizationType: string;
+  taxCode: string | null;
   contactEmail: string | null;
   status: TenantStatus;
   seatsUsed: number;
@@ -56,6 +57,7 @@ export interface CreateTenantInput {
   code: string;
   name: string;
   organizationType: string;
+  taxCode: string;
   plan: TenantPlan | "";
   studentLimit: string;
 }
@@ -75,14 +77,6 @@ export interface Organization {
   facilityType: FacilityType;
   status: OrganizationStatus;
 }
-
-export interface CreateOrganizationInput {
-  name: string;
-  address: string;
-  facilityType: FacilityType | "";
-}
-
-export type CreateOrganizationErrors = Partial<Record<keyof CreateOrganizationInput, string>>;
 
 /** Raw form values for the branding editor — empty string means "unset". */
 export interface BrandingInput {

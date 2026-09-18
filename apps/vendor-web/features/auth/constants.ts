@@ -12,7 +12,7 @@ export const VENDOR_ROLES = ["admin", "host"] as const;
  * `LoginView.tsx`'s post-login redirect decision, so the two can never
  * silently disagree about which roles belong on which side.
  */
-export const ADMIN_ROLES: SessionRole[] = ["PLATFORM_ADMIN"];
+export const ADMIN_ROLES: SessionRole[] = ["PLATFORM_ADMIN", "PLATFORM_AUTHOR"];
 export const HOST_ROLES: SessionRole[] = ["HOST_ADMIN", "HOST_AUTHOR"];
 
 export const AUTH_ROUTES = {

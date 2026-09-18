@@ -1,5 +1,5 @@
 import type { ApiClient } from "../../client/client";
-import type { CreateOrganizationRequest, OrganizationResponse } from "../../types/organization";
+import type { OrganizationResponse } from "../../types/organization";
 
 export const ORGANIZATION_ENDPOINTS = {
   organizations: (tenantPublicId: string) => `/api/v1/tenants/${tenantPublicId}/organizations`,
@@ -10,20 +10,6 @@ export const ORGANIZATION_ENDPOINTS = {
   reactivate: (tenantPublicId: string, publicId: string) =>
     `/api/v1/tenants/${tenantPublicId}/organizations/${publicId}/reactivate`,
 } as const;
-
-export function createOrganization(
-  client: ApiClient,
-  tenantPublicId: string,
-  payload: CreateOrganizationRequest,
-): Promise<OrganizationResponse> {
-  return client.request<OrganizationResponse>(
-    ORGANIZATION_ENDPOINTS.organizations(tenantPublicId),
-    {
-      method: "POST",
-      body: payload,
-    },
-  );
-}
 
 export function listOrganizations(
   client: ApiClient,

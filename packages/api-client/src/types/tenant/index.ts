@@ -7,6 +7,7 @@ export interface TenantResponse {
   code: string;
   name: string;
   organizationType: string;
+  taxCode: string | null;
   status: TenantStatusResponse;
   packageName: string;
   studentLimit: number;
@@ -19,6 +20,7 @@ export interface OnboardTenantRequest {
   code: string;
   name: string;
   organizationType: string;
+  taxCode: string;
   packageName: string;
   studentLimit: number;
 }

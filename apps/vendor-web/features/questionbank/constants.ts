@@ -48,12 +48,14 @@ export const QUESTION_SKILL_LABELS: Record<QuestionSkill, string> = {
 
 export const QUESTION_STATUS_LABELS: Record<QuestionStatus, string> = {
   draft: "Draft",
+  pending_approval: "Pending approval",
   published: "Published",
   archived: "Archived",
 };
 
 export const QUESTION_STATUS_VARIANT: Record<QuestionStatus, BadgeVariant> = {
   draft: "warning",
+  pending_approval: "info",
   published: "success",
   archived: "info",
 };
@@ -95,6 +97,7 @@ export const QUESTION_STATUS_FILTER_OPTIONS: {
 }[] = [
   { value: "all", label: "All statuses" },
   { value: "draft", label: "Draft" },
+  { value: "pending_approval", label: "Pending approval" },
   { value: "published", label: "Published" },
   { value: "archived", label: "Archived" },
 ];

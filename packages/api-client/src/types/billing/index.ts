@@ -26,7 +26,7 @@ export interface SubmitApplicationRequest {
   requestedCode: string;
   contactEmail: string;
   contactPhone?: string;
-  taxCode?: string;
+  taxCode: string;
 }
 
 export interface RejectApplicationRequest {

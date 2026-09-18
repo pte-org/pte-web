@@ -37,12 +37,14 @@ export type PteTaskType =
 export type QuestionVisibility = "SHARED" | "PRIVATE";
 
 /** Real enum (`services/authoring/domain/enums/QuestionStatus.java`) — not the previous fictitious DRAFT|ACTIVE|ARCHIVED. */
-export type QuestionStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
+export type QuestionStatus = "DRAFT" | "PENDING_APPROVAL" | "APPROVED" | "ARCHIVED";
 
 export interface OptionRequest {
   text: string;
   correct: boolean;
   orderIndex: number;
+  blankIndex?: number | null;
+  correctGapIndex?: number | null;
 }
 
 export interface OptionResponse extends OptionRequest {
@@ -51,7 +53,7 @@ export interface OptionResponse extends OptionRequest {
 
 export interface CreateQuestionRequest {
   pteTaskType: PteTaskType | string;
-  visibility: QuestionVisibility | string;
+  visibility?: QuestionVisibility | string;
   title: string;
   promptText?: string | null;
   audioPromptRef?: string | null;
@@ -63,8 +65,9 @@ export interface CreateQuestionRequest {
   options?: OptionRequest[];
 }
 
-/** The real backend has no PUT /questions/{id} — kept only as a type; nothing calls it (QuestionEditorForm is an explicit stub). */
-export type UpdateQuestionRequest = CreateQuestionRequest;
+export type UpdateQuestionRequest = Omit<CreateQuestionRequest, "pteTaskType" | "visibility"> & {
+  version?: number;
+};
 
 export interface QuestionResponse {
   publicId: string;
@@ -82,7 +85,17 @@ export interface QuestionResponse {
   minWordCount: number | null;
   maxWordCount: number | null;
   options: OptionResponse[];
+  revisionGroupPublicId?: string | null;
+  revisionNumber?: number;
+  supersedesPublicId?: string | null;
+  current?: boolean;
+  version?: number;
+  rejectionReason?: string | null;
 }
 
-/** GET /questions takes no query params at all today — kept as an empty shape so call sites don't need an `if` for "no filters yet". */
-export type QuestionFilters = Record<string, never>;
+export interface QuestionFilters {
+  taskType?: string;
+  section?: PteSection | string;
+  status?: QuestionStatus;
+  q?: string;
+}

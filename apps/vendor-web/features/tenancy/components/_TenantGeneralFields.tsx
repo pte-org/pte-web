@@ -70,6 +70,25 @@ export const TenantGeneralFields = ({
       </select>
     </TenantFormField>
 
+    <TenantFormField
+      label={T.TAX_CODE_LABEL}
+      htmlFor="tenant-tax-code"
+      required
+      helper={T.TAX_CODE_HELPER}
+      error={errors.taxCode}
+    >
+      <input
+        id="tenant-tax-code"
+        type="text"
+        value={form.taxCode}
+        onChange={(event) => onChange("taxCode", event.target.value)}
+        placeholder={T.TAX_CODE_PLACEHOLDER}
+        maxLength={64}
+        autoComplete="off"
+        className={fieldInputClass(errors.taxCode)}
+      />
+    </TenantFormField>
+
     <TenantFormField label={T.PLAN_LABEL} htmlFor="tenant-plan" required error={errors.plan}>
       <select
         id="tenant-plan"

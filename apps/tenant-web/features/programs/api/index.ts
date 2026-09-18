@@ -49,7 +49,7 @@ import type {
 
 const COORDINATOR_ROLE = "PROGRAM_COORDINATOR";
 
-/** A Host may have more than one branch — feeds the Organization picker. */
+/** Returns the Host's automatically provisioned Organization. */
 export function useMyOrganizations(): UseQueryResult<OrganizationResponse[]> {
   return useQuery({
     queryKey: MY_ORGANIZATIONS_QUERY_KEY,
