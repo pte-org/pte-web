@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  createOrganization,
   createUser,
   getTenant,
   listOrganizations,
@@ -14,7 +13,6 @@ import {
   suspendOrganization,
   suspendTenant,
   updateTenantBranding,
-  type CreateOrganizationRequest,
   type CreateUserRequest,
   type OnboardTenantRequest,
   type OrganizationResponse,
@@ -40,7 +38,6 @@ import {
 import type {
   BrandingInput,
   CreateLoginAccountInput,
-  CreateOrganizationInput,
   CreateTenantInput,
   LoginAccount,
   Organization,
@@ -73,16 +70,18 @@ function normalizePlan(plan: string | null): Tenant["plan"] {
 
 /**
  * Maps the real `TenantResponse` to the display `Tenant` model. Only
- * `id`/`name`/`organizationType`/`status`/`plan`/`seatsTotal` are backed by
+ * `id`/`code`/`name`/`organizationType`/`status`/`plan`/`seatsTotal` are backed by
  * real data — see the `Tenant` type doc comment for why the rest are
  * placeholders.
  */
 function tenantResponseToTenant(response: TenantResponse): Tenant {
   return {
     id: response.publicId,
+    code: response.code,
     name: response.name,
     slug: slugifyTenantName(response.name) || response.publicId,
     organizationType: response.organizationType,
+    taxCode: response.taxCode,
     contactEmail: null,
     status: response.status === "SUSPENDED" ? "suspended" : "active",
     seatsUsed: 0,
@@ -116,18 +115,12 @@ function userResponseToLoginAccount(response: UserResponse): LoginAccount {
   };
 }
 
-function organizationInputToRequest(input: CreateOrganizationInput): CreateOrganizationRequest {
-  return {
-    name: input.name.trim(),
-    address: input.address.trim() || null,
-    facilityType: input.facilityType || "BRANCH",
-  };
-}
-
 function tenantInputToOnboardRequest(input: CreateTenantInput): OnboardTenantRequest {
   return {
+    code: input.code.trim(),
     name: input.name.trim(),
     organizationType: input.organizationType,
+    taxCode: input.taxCode.trim(),
     packageName: input.plan || "starter",
     studentLimit: Number(input.studentLimit),
   };
@@ -257,32 +250,6 @@ function replaceOrganizationInCache(
     (previous = []) =>
       previous.map((organization) => (organization.id === updated.id ? updated : organization)),
   );
-}
-
-export function useCreateOrganization(
-  tenantPublicId: string,
-): UseMutationResult<Organization, unknown, CreateOrganizationInput> {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (input) => {
-      const response = await createOrganization(
-        apiClient,
-        tenantPublicId,
-        organizationInputToRequest(input),
-      );
-      return organizationResponseToOrganization(response);
-    },
-    onSuccess: (organization) => {
-      queryClient.setQueryData<Organization[]>(
-        [...ORGANIZATIONS_QUERY_KEY, tenantPublicId],
-        (previous = []) => [...previous, organization],
-      );
-      void queryClient.invalidateQueries({
-        queryKey: [...ORGANIZATIONS_QUERY_KEY, tenantPublicId],
-      });
-    },
-  });
 }
 
 export function useSuspendOrganization(

@@ -17,6 +17,25 @@ export const TenantGeneralFields = ({
   onChange,
 }: TenantGeneralFieldsProps): ReactElement => (
   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <TenantFormField
+      label={T.CODE_LABEL}
+      htmlFor="tenant-code"
+      required
+      helper={T.CODE_HELPER}
+      error={errors.code}
+    >
+      <input
+        id="tenant-code"
+        type="text"
+        value={form.code}
+        onChange={(event) => onChange("code", event.target.value.toLowerCase())}
+        placeholder={T.CODE_PLACEHOLDER}
+        maxLength={32}
+        autoComplete="off"
+        className={fieldInputClass(errors.code)}
+      />
+    </TenantFormField>
+
     <TenantFormField label={T.NAME_LABEL} htmlFor="tenant-name" required error={errors.name}>
       <input
         id="tenant-name"
@@ -49,6 +68,25 @@ export const TenantGeneralFields = ({
           </option>
         ))}
       </select>
+    </TenantFormField>
+
+    <TenantFormField
+      label={T.TAX_CODE_LABEL}
+      htmlFor="tenant-tax-code"
+      required
+      helper={T.TAX_CODE_HELPER}
+      error={errors.taxCode}
+    >
+      <input
+        id="tenant-tax-code"
+        type="text"
+        value={form.taxCode}
+        onChange={(event) => onChange("taxCode", event.target.value)}
+        placeholder={T.TAX_CODE_PLACEHOLDER}
+        maxLength={64}
+        autoComplete="off"
+        className={fieldInputClass(errors.taxCode)}
+      />
     </TenantFormField>
 
     <TenantFormField label={T.PLAN_LABEL} htmlFor="tenant-plan" required error={errors.plan}>

@@ -18,7 +18,10 @@ const INITIAL_FILTER: TenantFilter = { query: "", status: "all" };
 
 function mutationErrorMessage(error: unknown): string | undefined {
   if (error instanceof ApiError && error.kind === "conflict") {
-    return CREATE_TENANT_CONFLICT_TEXT.CONFLICT;
+    if (error.message === "TENANT_CODE_ALREADY_USED") {
+      return CREATE_TENANT_CONFLICT_TEXT.DUPLICATE_CODE;
+    }
+    return CREATE_TENANT_CONFLICT_TEXT.TENANT_CONFLICT;
   }
   return error instanceof Error ? error.message : undefined;
 }
@@ -28,8 +31,12 @@ function normalizeComparable(value: string): string {
 }
 
 function validateCreateConflict(input: CreateTenantInput, tenants: Tenant[]): string | undefined {
+  const code = normalizeComparable(input.code);
   const name = normalizeComparable(input.name);
 
+  if (tenants.some((tenant) => normalizeComparable(tenant.code) === code)) {
+    return CREATE_TENANT_CONFLICT_TEXT.DUPLICATE_CODE;
+  }
   if (tenants.some((tenant) => normalizeComparable(tenant.name) === name)) {
     return CREATE_TENANT_CONFLICT_TEXT.DUPLICATE_NAME;
   }

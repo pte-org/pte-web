@@ -47,6 +47,13 @@ export const AdminApplicationsView = (): ReactElement => {
     },
     { key: "type", header: "Type", cell: (row: TenantApplicationResponse) => row.orgType },
     {
+      key: "taxCode",
+      header: "Tax code",
+      cell: (row: TenantApplicationResponse) => (
+        <span className="font-mono text-xs">{row.taxCode ?? "—"}</span>
+      ),
+    },
+    {
       key: "status",
       header: "Status",
       cell: (row: TenantApplicationResponse) => <CommercialStatusBadge status={row.status} />,
@@ -71,16 +78,35 @@ export const AdminApplicationsView = (): ReactElement => {
       />
       {isError && <Alert tone="error">Applications could not be loaded. Try again shortly.</Alert>}
       <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label="Total applications" value={String(applications.length)} icon={<BuildingIcon />} accent="blue" />
-        <StatCard label="Needs review" value={String(pendingCount)} icon={<UsersIcon />} accent="cream" highlight />
-        <StatCard label="Approved" value={String(approvedCount)} icon={<BuildingIcon />} accent="mint" />
+        <StatCard
+          label="Total applications"
+          value={String(applications.length)}
+          icon={<BuildingIcon />}
+          accent="blue"
+        />
+        <StatCard
+          label="Needs review"
+          value={String(pendingCount)}
+          icon={<UsersIcon />}
+          accent="cream"
+          highlight
+        />
+        <StatCard
+          label="Approved"
+          value={String(approvedCount)}
+          icon={<BuildingIcon />}
+          accent="mint"
+        />
       </div>
       <DataTable
         columns={columns}
         rows={visibleApplications}
         getRowKey={(row) => row.publicId}
         rowActions={(row) => (
-          <Link href={`/admin/applications/${row.publicId}`} className="text-sm font-semibold text-action hover:underline">
+          <Link
+            href={`/admin/applications/${row.publicId}`}
+            className="text-sm font-semibold text-action hover:underline"
+          >
             View detail
           </Link>
         )}

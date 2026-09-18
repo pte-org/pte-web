@@ -2,17 +2,19 @@ export type QuestionSkill = "listening" | "reading" | "writing" | "speaking";
 
 export type QuestionDifficulty = "A1" | "A2" | "B1" | "B2" | "C";
 
-export type QuestionStatus = "draft" | "published" | "archived";
+export type QuestionStatus = "draft" | "pending_approval" | "published" | "archived";
 
 export interface Question {
   id: string;
   skill: QuestionSkill;
+  taskType: string;
   content: string;
   /** null until the backend actually has a difficulty concept — see api.ts's mapQuestion. */
   difficulty: QuestionDifficulty | null;
   /** null until QuestionResponse exposes createdAt — see api.ts's mapQuestion. */
   createdAt: string | null;
   status: QuestionStatus;
+  rejectionReason?: string | null;
 }
 
 export interface QuestionStats {

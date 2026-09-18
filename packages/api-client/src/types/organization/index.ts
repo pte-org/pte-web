@@ -13,10 +13,3 @@ export interface OrganizationResponse {
   facilityType: FacilityType;
   status: OrganizationStatusResponse;
 }
-
-/** Matches admin's real `CreateOrganizationRequest` record exactly. */
-export interface CreateOrganizationRequest {
-  name: string;
-  address: string | null;
-  facilityType: FacilityType;
-}

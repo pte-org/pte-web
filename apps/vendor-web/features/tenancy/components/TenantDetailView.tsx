@@ -17,7 +17,6 @@ import {
 } from "../constants";
 import {
   useCreateLoginAccount,
-  useCreateOrganization,
   useLoginAccount,
   useOrganizations,
   useReactivateOrganization,
@@ -29,7 +28,6 @@ import {
 import type {
   BrandingInput,
   CreateLoginAccountInput,
-  CreateOrganizationInput,
   Organization,
   ResetPasswordInput,
 } from "../types";
@@ -38,7 +36,6 @@ import { CreateLoginAccountModal } from "./CreateLoginAccountModal";
 import { OrganizationTable } from "./_OrganizationTable";
 import { ResetPasswordModal } from "./ResetPasswordModal";
 import { TenantEmptyState } from "./_TenantEmptyState";
-import { CreateOrganizationModal } from "./CreateOrganizationModal";
 
 const T = TENANT_DETAIL_TEXT;
 const L = LOGIN_ACCOUNT_TEXT;
@@ -66,13 +63,11 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
   const { data: organizations } = useOrganizations(tenantPublicId);
   const { data: loginAccount } = useLoginAccount(tenantPublicId);
   const updateBranding = useUpdateBranding(tenantPublicId);
-  const createOrganization = useCreateOrganization(tenantPublicId);
   const suspendOrganization = useSuspendOrganization(tenantPublicId);
   const reactivateOrganization = useReactivateOrganization(tenantPublicId);
   const createLoginAccount = useCreateLoginAccount(tenantPublicId);
   const resetPassword = useResetPassword(loginAccount?.id ?? "");
 
-  const [createOpen, setCreateOpen] = useState(false);
   const [brandingSaved, setBrandingSaved] = useState(false);
   const [createLoginOpen, setCreateLoginOpen] = useState(false);
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
@@ -91,12 +86,6 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
         setResetPasswordOpen(false);
         setResetSucceeded(true);
       },
-    });
-  };
-
-  const confirmCreateOrganization = (input: CreateOrganizationInput): void => {
-    createOrganization.mutate(input, {
-      onSuccess: () => setCreateOpen(false),
     });
   };
 
@@ -134,6 +123,14 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
         }
         subtitle={`${tenant.organizationType} · ${TENANT_PLAN_LABELS[tenant.plan]} · ${tenant.seatsTotal} students`}
       />
+
+      <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 shadow-card">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Tax code</p>
+        <p className="mt-1 font-mono text-sm font-semibold text-slate-900">
+          {tenant.taxCode ?? "—"}
+        </p>
+        <p className="mt-1 text-xs text-slate-500">Use this code to verify the organization.</p>
+      </div>
 
       <BrandingEditor
         key={`${tenant.logoUrl ?? ""}|${tenant.primaryColor ?? ""}`}
@@ -189,13 +186,6 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
             <h2 className="text-base font-semibold text-gray-900">{T.ORGANIZATIONS_TITLE}</h2>
             <p className="text-sm text-gray-500">{T.ORGANIZATIONS_SUBTITLE}</p>
           </div>
-          <button
-            type="button"
-            onClick={() => setCreateOpen(true)}
-            className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover"
-          >
-            + {T.ADD_ORGANIZATION}
-          </button>
         </div>
 
         {suspendOrganization.error || reactivateOrganization.error ? (
@@ -211,26 +201,9 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
             onReactivate={confirmReactivateOrganization}
           />
         ) : (
-          <TenantEmptyState
-            onAdd={() => setCreateOpen(true)}
-            title={T.EMPTY_ORGANIZATIONS_TITLE}
-            text={T.EMPTY_ORGANIZATIONS_TEXT}
-            addLabel={T.ADD_ORGANIZATION}
-          />
+          <TenantEmptyState title={T.EMPTY_ORGANIZATIONS_TITLE} text={T.EMPTY_ORGANIZATIONS_TEXT} />
         )}
       </section>
-
-      <CreateOrganizationModal
-        key={createOpen ? "createOrganization-open" : "createOrganization-closed"}
-        open={createOpen}
-        onClose={() => {
-          createOrganization.reset();
-          setCreateOpen(false);
-        }}
-        onSubmit={confirmCreateOrganization}
-        error={mutationErrorMessage(createOrganization.error)}
-        isSubmitting={createOrganization.isPending}
-      />
 
       <CreateLoginAccountModal
         key={createLoginOpen ? "createLoginAccount-open" : "createLoginAccount-closed"}

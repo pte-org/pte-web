@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@pte/ui";
 import { QUESTIONBANK_TEXT } from "../constants";
 import { filterQuestions } from "../filterQuestions";
@@ -18,6 +19,7 @@ const INITIAL_FILTER: QuestionFilter = {
 };
 
 export const QuestionBankView = (): ReactElement => {
+  const router = useRouter();
   const { data: stats } = useQuestionStats();
   const { data: questions } = useQuestions();
   const [filter, setFilter] = useState<QuestionFilter>(INITIAL_FILTER);
@@ -33,6 +35,7 @@ export const QuestionBankView = (): ReactElement => {
           <button
             type="button"
             className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover"
+            onClick={() => router.push("/admin/questions/new")}
           >
             + {QUESTIONBANK_TEXT.ADD}
           </button>

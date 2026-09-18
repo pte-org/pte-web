@@ -1,7 +1,6 @@
 import type { BadgeVariant } from "@pte/ui";
 import type {
   CreateLoginAccountInput,
-  CreateOrganizationInput,
   CreateTenantInput,
   FacilityType,
   LoginAccountStatus,
@@ -25,7 +24,7 @@ export const TENANCY_TEXT = {
   TITLE: "Tenants",
   SUBTITLE: "Manage organizations that use the platform.",
   ADD_TENANT: "Add Tenant",
-  SEARCH_PLACEHOLDER: "Search by name or slug",
+  SEARCH_PLACEHOLDER: "Search by name, slug, or tax code",
   ACTION_VIEW_DETAILS: "View details",
   ACTION_SUSPEND: "Suspend",
   ACTION_REACTIVATE: "Reactivate",
@@ -100,10 +99,16 @@ export const SUSPEND_MODAL_TEXT = {
 export const CREATE_TENANT_TEXT = {
   TITLE: "Add Tenant",
   SECTION_GENERAL: "General Information",
+  CODE_LABEL: "Tenant Code",
+  CODE_PLACEHOLDER: "e.g. fpt-university",
+  CODE_HELPER: "3–32 lowercase letters, numbers, or hyphens. This code cannot change later.",
   NAME_LABEL: "Tenant Name",
   NAME_PLACEHOLDER: "Enter school or organization name...",
   ORG_TYPE_LABEL: "Organization Type",
   ORG_TYPE_PLACEHOLDER: "Select a type",
+  TAX_CODE_LABEL: "Tax Code",
+  TAX_CODE_PLACEHOLDER: "Enter the organization's tax code",
+  TAX_CODE_HELPER: "Required for organization verification.",
   PLAN_LABEL: "Plan",
   PLAN_PLACEHOLDER: "Select a plan",
   STUDENT_LIMIT_LABEL: "Student Limit",
@@ -122,8 +127,10 @@ export const ORGANIZATION_TYPE_OPTIONS: { value: string; label: string }[] = [
 export const TENANT_CREATED_TEXT = {
   TITLE: "Tenant Created Successfully",
   SUBTITLE: "The new tenant has been added to the platform.",
+  CODE_LABEL: "Tenant Code",
   NAME_LABEL: "Tenant Name",
   ORG_TYPE_LABEL: "Organization Type",
+  TAX_CODE_LABEL: "Tax Code",
   PLAN_LABEL: "Plan",
   STUDENT_LIMIT_LABEL: "Student Limit",
   CLOSE: "Close",
@@ -131,11 +138,15 @@ export const TENANT_CREATED_TEXT = {
 
 export const CREATE_TENANT_ERRORS = {
   REQUIRED: "This field is required.",
+  CODE_INVALID: "Use 3–32 lowercase letters, numbers, or hyphens.",
   STUDENT_LIMIT_INVALID: "Enter a whole number of at least 1.",
 } as const;
 
 export const CREATE_TENANT_CONFLICT_TEXT = {
+  DUPLICATE_CODE: "This tenant code already exists. Please use another code.",
   DUPLICATE_NAME: "This tenant name already exists. Please use another name.",
+  TENANT_CONFLICT:
+    "The tenant code or name already exists. Please check the information and try again.",
   CONFLICT: "The tenant name already exists. Please check the information and try again.",
 } as const;
 
@@ -163,8 +174,10 @@ export const TENANT_LOCATION_OPTIONS: TenantLocationOption[] = [
 ];
 
 export const EMPTY_CREATE_TENANT: CreateTenantInput = {
+  code: "",
   name: "",
   organizationType: "",
+  taxCode: "",
   plan: "",
   studentLimit: "",
 };
@@ -181,11 +194,10 @@ export const TENANT_DETAIL_TEXT = {
   PRIMARY_COLOR_INVALID: "Enter a 6-digit hex color like #1A2B3C.",
   SAVE_BRANDING: "Save Branding",
   BRANDING_SAVED: "Branding saved.",
-  ORGANIZATIONS_TITLE: "Organizations",
-  ORGANIZATIONS_SUBTITLE: "Branches and facilities under this tenant.",
-  ADD_ORGANIZATION: "Add Organization",
-  EMPTY_ORGANIZATIONS_TITLE: "No organizations yet",
-  EMPTY_ORGANIZATIONS_TEXT: "Add the first branch or facility for this tenant.",
+  ORGANIZATIONS_TITLE: "Organization",
+  ORGANIZATIONS_SUBTITLE: "The organization assigned to this tenant.",
+  EMPTY_ORGANIZATIONS_TITLE: "Organization not provisioned",
+  EMPTY_ORGANIZATIONS_TEXT: "A default organization is created automatically with the tenant.",
 } as const;
 
 export const ORGANIZATION_TABLE_HEADERS = {
@@ -202,12 +214,6 @@ export const FACILITY_TYPE_LABELS: Record<FacilityType, string> = {
   TEST_CENTER: "Test Center",
 };
 
-export const FACILITY_TYPE_OPTIONS: { value: FacilityType; label: string }[] = [
-  { value: "MAIN", label: FACILITY_TYPE_LABELS.MAIN },
-  { value: "BRANCH", label: FACILITY_TYPE_LABELS.BRANCH },
-  { value: "TEST_CENTER", label: FACILITY_TYPE_LABELS.TEST_CENTER },
-];
-
 export const ORGANIZATION_STATUS_LABELS: Record<OrganizationStatus, string> = {
   active: "Active",
   suspended: "Suspended",
@@ -216,28 +222,6 @@ export const ORGANIZATION_STATUS_LABELS: Record<OrganizationStatus, string> = {
 export const ORGANIZATION_STATUS_VARIANT: Record<OrganizationStatus, BadgeVariant> = {
   active: "success",
   suspended: "neutral",
-};
-
-export const CREATE_ORGANIZATION_TEXT = {
-  TITLE: "Add Organization",
-  NAME_LABEL: "Name",
-  NAME_PLACEHOLDER: "Enter branch or facility name...",
-  ADDRESS_LABEL: "Address",
-  ADDRESS_PLACEHOLDER: "Optional",
-  FACILITY_TYPE_LABEL: "Facility Type",
-  FACILITY_TYPE_PLACEHOLDER: "Select a type",
-  CANCEL: "Cancel",
-  SUBMIT: "Add Organization",
-} as const;
-
-export const CREATE_ORGANIZATION_ERRORS = {
-  REQUIRED: "This field is required.",
-} as const;
-
-export const EMPTY_CREATE_ORGANIZATION: CreateOrganizationInput = {
-  name: "",
-  address: "",
-  facilityType: "",
 };
 
 export const LOGIN_ACCOUNT_TEXT = {

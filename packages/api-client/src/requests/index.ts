@@ -1,6 +1,7 @@
 export * from "./auth";
 export * from "./account";
 export * from "./asset";
+export * from "./media";
 export * from "./question";
 export * from "./tenant";
 export * from "./organization";
@@ -13,6 +14,7 @@ export * from "./scheduling/proctorAssignments";
 export * from "./scheduling/studentEnrollments";
 export * from "./scoring/answers";
 export * from "./scoretemplate";
+export * from "./assessment";
 export * from "./admin/organizations";
 export * from "./admin/programs";
 export * from "./admin/classes";

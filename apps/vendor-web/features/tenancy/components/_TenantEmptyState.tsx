@@ -28,12 +28,14 @@ export const TenantEmptyState = ({
     <EmptyIllustration />
     <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
     <p className="max-w-md text-sm text-gray-500">{text}</p>
-    <button
-      type="button"
-      onClick={onAdd}
-      className="mt-2 rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover"
-    >
-      + {addLabel}
-    </button>
+    {onAdd && (
+      <button
+        type="button"
+        onClick={onAdd}
+        className="mt-2 rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover"
+      >
+        + {addLabel}
+      </button>
+    )}
   </div>
 );
