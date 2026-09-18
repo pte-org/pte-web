@@ -46,7 +46,12 @@ export type TenantStatusFilter = TenantStatus | "all";
 export interface TenantFilter {
   query: string;
   status: TenantStatusFilter;
+  plan: TenantPlan | "all";
+  organizationType: string | "all";
+  capacity: TenantCapacityFilter;
 }
+
+export type TenantCapacityFilter = "all" | "0-100" | "101-500" | "501+";
 
 /**
  * Raw form values for creating a tenant — one field per real
@@ -91,7 +96,13 @@ export interface LoginAccount {
   id: string;
   email: string;
   fullName: string;
+  tenantId: string | null;
   status: LoginAccountStatus;
+  roles: string[];
+  studentCode: string | null;
+  className: string | null;
+  phone: string | null;
+  dateOfBirth: string | null;
 }
 
 export interface CreateLoginAccountInput {

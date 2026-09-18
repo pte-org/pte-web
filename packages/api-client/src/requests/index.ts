@@ -23,6 +23,7 @@ export * from "./admin/lecturerAssignments";
 export * from "./admin/coordinatorAssignments";
 export * from "./admin/auditLogs";
 export * from "./admin/studentRoster";
+export * from "./admin/studentRosterImport";
 export * from "./billing/applications";
 export * from "./billing/plans";
 export * from "./billing/subscriptions";

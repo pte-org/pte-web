@@ -1,6 +1,6 @@
 /**
- * Matches iam's real platform-wide role taxonomy exactly
- * (`services/iam/.../domain/enums/Role.java`) — this is what actually lands
+ * Matches the backend's real platform-wide role taxonomy exactly
+ * This is what actually lands
  * in the JWT `roles` claim (`AccessTokenIssuer.java`), decoded client-side
  * via `decodeAccessTokenClaims` from `@pte/api-client`.
  */
@@ -8,11 +8,9 @@ export type SessionRole =
   | "PLATFORM_ADMIN"
   | "PLATFORM_AUTHOR"
   | "HOST_ADMIN"
-  | "HOST_AUTHOR"
   | "PROCTOR"
-  | "STUDENT"
-  | "LECTURER"
-  | "PROGRAM_COORDINATOR";
+  | "EXAMINER"
+  | "STUDENT";
 
 export interface PteSession {
   accessToken: string;

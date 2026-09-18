@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Badge, BanIcon, CheckCircleIcon, Dropdown, EyeIcon } from "@pte/ui";
+import { Badge, BanIcon, CheckCircleIcon, Dropdown, EyeIcon, LicenseIcon } from "@pte/ui";
 import {
   ORGANIZATION_TYPE_OPTIONS,
   TENANCY_TEXT,
@@ -21,6 +21,8 @@ interface TenantTableProps {
   tenants: Tenant[];
   onSuspend: (tenant: Tenant) => void;
   onReactivate: (tenant: Tenant) => void;
+  onGrantQuota: (tenant: Tenant) => void;
+  onViewQuotaHistory: (tenant: Tenant) => void;
 }
 
 const HEADER_CLASS =
@@ -34,20 +36,26 @@ const TenantRow = ({
   tenant,
   onSuspend,
   onReactivate,
+  onGrantQuota,
+  onViewQuotaHistory,
 }: {
   tenant: Tenant;
   onSuspend: (tenant: Tenant) => void;
   onReactivate: (tenant: Tenant) => void;
+  onGrantQuota: (tenant: Tenant) => void;
+  onViewQuotaHistory: (tenant: Tenant) => void;
 }): ReactElement => {
   const isSuspended = tenant.status === "suspended";
   const router = useRouter();
 
   return (
     <tr className="border-t border-gray-100 hover:bg-slate-50/70">
+      <td className={`${CELL_CLASS} font-mono text-xs text-gray-500`}>{tenant.code}</td>
       <td className={`${CELL_CLASS} font-medium text-gray-900`}>{tenant.name}</td>
       <td className={`${CELL_CLASS} text-gray-500`}>
         {organizationTypeLabel(tenant.organizationType)}
       </td>
+      <td className={`${CELL_CLASS} font-mono text-xs text-gray-500`}>{tenant.taxCode ?? "-"}</td>
       <td className={CELL_CLASS}>{TENANT_PLAN_LABELS[tenant.plan]}</td>
       <td className={CELL_CLASS}>{tenant.seatsTotal}</td>
       <td className={CELL_CLASS}>
@@ -62,6 +70,16 @@ const TenantRow = ({
               label: TENANCY_TEXT.ACTION_VIEW_DETAILS,
               icon: ViewDetailsIcon,
               onSelect: () => router.push(`/admin/tenants/${tenant.id}`),
+            },
+            {
+              label: TENANCY_TEXT.ACTION_GRANT_QUOTA,
+              icon: LicenseIcon,
+              onSelect: () => onGrantQuota(tenant),
+            },
+            {
+              label: TENANCY_TEXT.ACTION_VIEW_QUOTA_HISTORY,
+              icon: LicenseIcon,
+              onSelect: () => onViewQuotaHistory(tenant),
             },
             isSuspended
               ? {
@@ -86,14 +104,18 @@ export const TenantTable = ({
   tenants,
   onSuspend,
   onReactivate,
+  onGrantQuota,
+  onViewQuotaHistory,
 }: TenantTableProps): ReactElement => (
   <div className="overflow-hidden rounded-lg bg-white shadow-card">
     <div className="overflow-x-auto">
-      <table className="min-w-[760px] w-full border-collapse">
+      <table className="min-w-[1180px] w-full border-collapse">
         <thead className="bg-slate-50">
           <tr>
+            <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.CODE}</th>
             <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.NAME}</th>
             <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.TYPE}</th>
+            <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.TAX_CODE}</th>
             <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.PLAN}</th>
             <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.STUDENT_LIMIT}</th>
             <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.STATUS}</th>
@@ -107,6 +129,8 @@ export const TenantTable = ({
               tenant={tenant}
               onSuspend={onSuspend}
               onReactivate={onReactivate}
+              onGrantQuota={onGrantQuota}
+              onViewQuotaHistory={onViewQuotaHistory}
             />
           ))}
         </tbody>

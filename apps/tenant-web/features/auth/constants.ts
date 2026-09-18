@@ -6,11 +6,10 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://loca
 
 /**
  * Real backend roles allowed into `/host/*` — mirrors vendor-web's
- * `HOST_ROLES`. HOST_ADMIN can already provision HOST_AUTHOR via iam's
- * `POST /users`, so excluding it here would lock out an account the
- * backend already allows, not a "not yet supported" gap.
+ * `HOST_ROLES`. HOST_ADMIN is the only tenant-administrator role in the
+ * canonical identity taxonomy.
  */
-export const HOST_ROLES: SessionRole[] = ["HOST_ADMIN", "HOST_AUTHOR"];
+export const HOST_ROLES: SessionRole[] = ["HOST_ADMIN"];
 
 export const AUTH_ROUTES = {
   login: "/login",

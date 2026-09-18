@@ -77,6 +77,11 @@ export interface PagedResult<T> {
 export interface ApiClient {
   request<T>(path: string, options?: RequestOptions): Promise<T>;
   upload<T>(path: string, formData: FormData, options?: RequestInit): Promise<T>;
+  uploadDownload(
+    path: string,
+    formData: FormData,
+    options?: RequestInit,
+  ): Promise<DownloadResponse>;
   download(path: string, options?: RequestOptions): Promise<DownloadResponse>;
 }
 
@@ -244,6 +249,30 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     return unwrapResponse<T>(await parseJsonSafely(response));
   }
 
+  async function uploadDownload(
+    path: string,
+    formData: FormData,
+    requestOptions: RequestInit = {},
+    isRetry = false,
+  ): Promise<DownloadResponse> {
+    const { headers: customHeaders, ...rest } = requestOptions;
+    const response = await send(path, {
+      ...rest,
+      method: rest.method ?? "POST",
+      headers: buildHeaders(customHeaders, false),
+      body: formData,
+    });
+
+    if (response.status === 401 && !isRetry && (await tryRefresh())) {
+      return uploadDownload(path, formData, requestOptions, true);
+    }
+    await assertOk(response);
+    return {
+      blob: await response.blob(),
+      filename: filenameFromDisposition(response.headers.get("Content-Disposition")),
+    };
+  }
+
   async function download(
     path: string,
     requestOptions: RequestOptions = {},
@@ -266,5 +295,5 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     };
   }
 
-  return { request, upload, download };
+  return { request, upload, uploadDownload, download };
 }

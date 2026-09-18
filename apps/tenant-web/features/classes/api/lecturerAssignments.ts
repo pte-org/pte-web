@@ -20,10 +20,10 @@ import { TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
 import { LECTURER_ASSIGNMENTS_QUERY_KEY } from "../constants";
 import type { CreateLecturerInput, LecturerAssignmentEntry } from "../types";
 
-const LECTURER_ROLE = "LECTURER";
+const LECTURER_ROLE = "EXAMINER";
 
 /**
- * All LECTURER accounts in the caller's tenant. Shares `queryKey`+`queryFn`
+ * All EXAMINER accounts in the caller's tenant. Shares `queryKey`+`queryFn`
  * with examoperations' `useTenantStudents`/exams' `useTenantProctors` — one
  * cache entry, split via `select` (see `useTenantProctors`'s doc comment
  * for why).
