@@ -46,4 +46,3 @@ export type { DropdownItem } from "./Dropdown";
 export * from "./icons";
 export { Mascot } from "./Mascot";
 export { MailIcon, LockIcon, GradCapIcon, EyeIcon } from "./AuthIcons";
-export { SsoButtons } from "./SsoButtons";

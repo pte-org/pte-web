@@ -8,7 +8,6 @@ import {
   GradCapIcon,
   LockIcon,
   MailIcon,
-  SsoButtons,
   useSessionManager,
   type SessionRole,
 } from "@pte/ui";
@@ -179,13 +178,6 @@ export const LoginView = (): ReactElement => {
             </button>
           </form>
 
-          <div className="flex items-center gap-3 text-xs font-medium text-gray-400">
-            <span className="h-px flex-1 bg-gray-200" />
-            {AUTH_TEXT.OR_CONTINUE}
-            <span className="h-px flex-1 bg-gray-200" />
-          </div>
-
-          <SsoButtons googleLabel={AUTH_TEXT.SSO_GOOGLE} microsoftLabel={AUTH_TEXT.SSO_MICROSOFT} />
         </div>
       </div>
     </main>
