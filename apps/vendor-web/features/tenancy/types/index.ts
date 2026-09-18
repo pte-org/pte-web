@@ -3,9 +3,9 @@ export type TenantStatus = "active" | "expiring" | "expired" | "suspended";
 export type TenantPlan = "starter" | "professional" | "enterprise";
 
 /**
- * Display model for the dashboard/tenancy screens. Only `id`, `name`,
+ * Display model for the dashboard/tenancy screens. Only `id`, `code`, `name`,
  * `organizationType`, `status`, `plan`, and `seatsTotal` are backed by the
- * real admin service (`TenantResponse` only has `publicId, name,
+ * real admin service (`TenantResponse` has `publicId, code, name,
  * organizationType, status, packageName, studentLimit`). `slug` is a
  * client-only display convenience derived from `name`, never round-tripped.
  * `contactEmail`, `seatsUsed`, `location`, `activatedAt`, `expiresAt`, and
@@ -16,6 +16,7 @@ export type TenantPlan = "starter" | "professional" | "enterprise";
  */
 export interface Tenant {
   id: string;
+  code: string;
   name: string;
   slug: string;
   organizationType: string;
@@ -52,6 +53,7 @@ export interface TenantFilter {
  * slug/location/contact/contract-date fields to receive them).
  */
 export interface CreateTenantInput {
+  code: string;
   name: string;
   organizationType: string;
   plan: TenantPlan | "";

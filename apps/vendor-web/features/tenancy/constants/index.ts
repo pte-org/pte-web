@@ -100,6 +100,9 @@ export const SUSPEND_MODAL_TEXT = {
 export const CREATE_TENANT_TEXT = {
   TITLE: "Add Tenant",
   SECTION_GENERAL: "General Information",
+  CODE_LABEL: "Tenant Code",
+  CODE_PLACEHOLDER: "e.g. fpt-university",
+  CODE_HELPER: "3–32 lowercase letters, numbers, or hyphens. This code cannot change later.",
   NAME_LABEL: "Tenant Name",
   NAME_PLACEHOLDER: "Enter school or organization name...",
   ORG_TYPE_LABEL: "Organization Type",
@@ -122,6 +125,7 @@ export const ORGANIZATION_TYPE_OPTIONS: { value: string; label: string }[] = [
 export const TENANT_CREATED_TEXT = {
   TITLE: "Tenant Created Successfully",
   SUBTITLE: "The new tenant has been added to the platform.",
+  CODE_LABEL: "Tenant Code",
   NAME_LABEL: "Tenant Name",
   ORG_TYPE_LABEL: "Organization Type",
   PLAN_LABEL: "Plan",
@@ -131,11 +135,15 @@ export const TENANT_CREATED_TEXT = {
 
 export const CREATE_TENANT_ERRORS = {
   REQUIRED: "This field is required.",
+  CODE_INVALID: "Use 3–32 lowercase letters, numbers, or hyphens.",
   STUDENT_LIMIT_INVALID: "Enter a whole number of at least 1.",
 } as const;
 
 export const CREATE_TENANT_CONFLICT_TEXT = {
+  DUPLICATE_CODE: "This tenant code already exists. Please use another code.",
   DUPLICATE_NAME: "This tenant name already exists. Please use another name.",
+  TENANT_CONFLICT:
+    "The tenant code or name already exists. Please check the information and try again.",
   CONFLICT: "The tenant name already exists. Please check the information and try again.",
 } as const;
 
@@ -163,6 +171,7 @@ export const TENANT_LOCATION_OPTIONS: TenantLocationOption[] = [
 ];
 
 export const EMPTY_CREATE_TENANT: CreateTenantInput = {
+  code: "",
   name: "",
   organizationType: "",
   plan: "",

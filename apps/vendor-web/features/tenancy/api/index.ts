@@ -73,13 +73,14 @@ function normalizePlan(plan: string | null): Tenant["plan"] {
 
 /**
  * Maps the real `TenantResponse` to the display `Tenant` model. Only
- * `id`/`name`/`organizationType`/`status`/`plan`/`seatsTotal` are backed by
+ * `id`/`code`/`name`/`organizationType`/`status`/`plan`/`seatsTotal` are backed by
  * real data — see the `Tenant` type doc comment for why the rest are
  * placeholders.
  */
 function tenantResponseToTenant(response: TenantResponse): Tenant {
   return {
     id: response.publicId,
+    code: response.code,
     name: response.name,
     slug: slugifyTenantName(response.name) || response.publicId,
     organizationType: response.organizationType,
@@ -126,6 +127,7 @@ function organizationInputToRequest(input: CreateOrganizationInput): CreateOrgan
 
 function tenantInputToOnboardRequest(input: CreateTenantInput): OnboardTenantRequest {
   return {
+    code: input.code.trim(),
     name: input.name.trim(),
     organizationType: input.organizationType,
     packageName: input.plan || "starter",
