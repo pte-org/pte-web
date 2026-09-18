@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent, type ReactElement } from "react";
+import { useMemo, useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, Badge, Button, Input, LoadingState, PageHeader } from "@pte/ui";
-import type { CreateBlueprintRequest, ExamSnapshotResponse } from "@pte/api-client";
+import type { CreateBlueprintRequest, ExamBlueprintResponse, ExamSnapshotResponse } from "@pte/api-client";
 import { useSessionManager } from "@pte/ui";
 import { useQuestions } from "@/features/questionbank/api";
 import type { Question } from "@/features/questionbank/types";
@@ -34,8 +34,21 @@ const SELECT_CLASS =
   "rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 outline-none shadow-sm focus:border-blue-600 focus:ring-2 focus:ring-blue-100";
 
 export const ExamBuilderForm = ({ publicId }: ExamBuilderFormProps): ReactElement => {
-  const router = useRouter();
   const { data: blueprint, isLoading: isBlueprintLoading, isError: isBlueprintError } = useBlueprint(publicId);
+
+  if (publicId && isBlueprintLoading) return <LoadingState rows={6} />;
+  if (publicId && isBlueprintError) return <Alert tone="error">Could not load the exam builder data.</Alert>;
+  if (publicId && !blueprint) return <LoadingState rows={6} />;
+
+  return <ExamBuilderFormContent key={blueprint?.publicId ?? "new"} publicId={publicId} blueprint={blueprint} />;
+};
+
+interface ExamBuilderFormContentProps extends ExamBuilderFormProps {
+  blueprint?: ExamBlueprintResponse;
+}
+
+const ExamBuilderFormContent = ({ publicId, blueprint }: ExamBuilderFormContentProps): ReactElement => {
+  const router = useRouter();
   const { data: blueprints } = useBlueprints();
   const { data: questions, isLoading: isQuestionsLoading, isError: isQuestionsError } = useQuestions();
   const { data: template, isLoading: isTemplateLoading, isError: isTemplateError } = useActiveScoreTemplate();
@@ -47,25 +60,22 @@ export const ExamBuilderForm = ({ publicId }: ExamBuilderFormProps): ReactElemen
   const { hasRole } = useSessionManager();
   const isAdmin = hasRole("PLATFORM_ADMIN");
 
-  const [name, setName] = useState("");
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [name, setName] = useState(() => blueprint?.name ?? "");
+  const [selectedIds, setSelectedIds] = useState<string[]>(() =>
+    blueprint
+      ? blueprint.items
+          .slice()
+          .sort((a, b) => a.orderIndex - b.orderIndex)
+          .map((item) => item.questionPublicId)
+      : [],
+  );
   const [search, setSearch] = useState("");
   const [sectionFilter, setSectionFilter] = useState("");
   const [taskTypeFilter, setTaskTypeFilter] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const [publishedSnapshot, setPublishedSnapshot] = useState<ExamSnapshotResponse | null>(null);
-  const [localStatus, setLocalStatus] = useState("DRAFT");
-  const [preserveOrder, setPreserveOrder] = useState(false);
-  const [hasHydrated, setHasHydrated] = useState(!publicId);
-
-  useEffect(() => {
-    if (!blueprint || hasHydrated) return;
-    setName(blueprint.name);
-    setSelectedIds(blueprint.items.slice().sort((a, b) => a.orderIndex - b.orderIndex).map((item) => item.questionPublicId));
-    setLocalStatus(blueprint.status);
-    setPreserveOrder(true);
-    setHasHydrated(true);
-  }, [blueprint, hasHydrated]);
+  const [localStatus, setLocalStatus] = useState(() => blueprint?.status ?? "DRAFT");
+  const [preserveOrder, setPreserveOrder] = useState(() => Boolean(blueprint));
 
   const taskOrder = useMemo(() => {
     const order = new Map<string, number>();
@@ -215,8 +225,8 @@ export const ExamBuilderForm = ({ publicId }: ExamBuilderFormProps): ReactElemen
       : null;
   };
 
-  if (isBlueprintLoading || isQuestionsLoading || isTemplateLoading) return <LoadingState rows={6} />;
-  if (isBlueprintError || isQuestionsError || isTemplateError) return <Alert tone="error">Could not load the exam builder data.</Alert>;
+  if (isQuestionsLoading || isTemplateLoading) return <LoadingState rows={6} />;
+  if (isQuestionsError || isTemplateError) return <Alert tone="error">Could not load the exam builder data.</Alert>;
   if (!template) return <Alert tone="error">No active PTE score template is configured.</Alert>;
 
   return (
