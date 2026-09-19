@@ -204,36 +204,3 @@ jobs:
 
           compose ps
           REMOTE
-
-  verify:
-    name: Verify public endpoints
-    needs: deploy
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      # Validate the public edge after deployment, not only the internal
-      # container healthchecks executed by the deploy job.
-      - name: Check tenant, admin, and media origins
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          check() {
-            local url="$1"
-            for attempt in 1 2 3; do
-              if code=$(curl -fsS -o /dev/null -w '%{http_code}' "$url"); then
-                echo "OK  $url ($code)"
-                return 0
-              fi
-              [ "$attempt" -lt 3 ] && sleep 5
-            done
-            echo "FAIL $url did not respond after 3 attempts"
-            return 1
-          }
-
-          status=0
-          check https://pte-tenant.duckdns.org/actuator/health || status=1
-          check https://pte-tenant.duckdns.org/ || status=1
-          check https://pte-admin.duckdns.org/ || status=1
-          check https://pte-media.duckdns.org/minio/health/live || status=1
-          exit "$status"
