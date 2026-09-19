@@ -4,9 +4,11 @@ import {
   activateScoreTemplate,
   cloneScoreTemplate,
   getScoreTemplate,
+  importScoreTemplate,
   listScoreTemplates,
   replaceScoreTemplateItems,
   type ReplaceScoreTemplateItemsRequest,
+  type ImportScoreTemplateRequest,
   type ScoreTemplateResponse,
 } from "@pte/api-client";
 import {
@@ -23,6 +25,21 @@ export function useScoreTemplates(): UseQueryResult<ScoreTemplateResponse[]> {
   return useQuery({
     queryKey: SCORE_TEMPLATES_QUERY_KEY,
     queryFn: () => listScoreTemplates(apiClient),
+  });
+}
+
+export function useImportScoreTemplate(): UseMutationResult<
+  ScoreTemplateResponse,
+  unknown,
+  ImportScoreTemplateRequest
+> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload) => importScoreTemplate(apiClient, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: SCORE_TEMPLATES_QUERY_KEY });
+    },
   });
 }
 
@@ -81,7 +98,11 @@ export function useReplaceScoreTemplateItems(): UseMutationResult<
   });
 }
 
-export function useActivateScoreTemplate(): UseMutationResult<ScoreTemplateResponse, unknown, string> {
+export function useActivateScoreTemplate(): UseMutationResult<
+  ScoreTemplateResponse,
+  unknown,
+  string
+> {
   const queryClient = useQueryClient();
 
   return useMutation({

@@ -55,3 +55,9 @@ export interface ReplaceScoreTemplateItemsRequest {
   name: string;
   items: ScoreTemplateItemRequest[];
 }
+
+export interface ImportScoreTemplateRequest {
+  code: string;
+  name: string;
+  items: ScoreTemplateItemRequest[];
+}

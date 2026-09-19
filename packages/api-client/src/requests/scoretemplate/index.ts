@@ -1,5 +1,6 @@
 import type { ApiClient } from "../../client/client";
 import type {
+  ImportScoreTemplateRequest,
   ReplaceScoreTemplateItemsRequest,
   ScoreTemplateResponse,
 } from "../../types/scoretemplate";
@@ -13,6 +14,7 @@ import type {
  */
 export const SCORE_TEMPLATE_ENDPOINTS = {
   templates: "/api/v1/score-templates",
+  importTemplate: "/api/v1/score-templates/import",
   template: (publicId: string) => `/api/v1/score-templates/${publicId}`,
   clone: (publicId: string) => `/api/v1/score-templates/${publicId}/clone`,
   items: (publicId: string) => `/api/v1/score-templates/${publicId}/items`,
@@ -23,11 +25,27 @@ export function listScoreTemplates(client: ApiClient): Promise<ScoreTemplateResp
   return client.request<ScoreTemplateResponse[]>(SCORE_TEMPLATE_ENDPOINTS.templates);
 }
 
-export function getScoreTemplate(client: ApiClient, publicId: string): Promise<ScoreTemplateResponse> {
+export function getScoreTemplate(
+  client: ApiClient,
+  publicId: string,
+): Promise<ScoreTemplateResponse> {
   return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.template(publicId));
 }
 
-export function cloneScoreTemplate(client: ApiClient, publicId: string): Promise<ScoreTemplateResponse> {
+export function importScoreTemplate(
+  client: ApiClient,
+  payload: ImportScoreTemplateRequest,
+): Promise<ScoreTemplateResponse> {
+  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.importTemplate, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export function cloneScoreTemplate(
+  client: ApiClient,
+  publicId: string,
+): Promise<ScoreTemplateResponse> {
   return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.clone(publicId), {
     method: "POST",
   });
@@ -44,7 +62,10 @@ export function replaceScoreTemplateItems(
   });
 }
 
-export function activateScoreTemplate(client: ApiClient, publicId: string): Promise<ScoreTemplateResponse> {
+export function activateScoreTemplate(
+  client: ApiClient,
+  publicId: string,
+): Promise<ScoreTemplateResponse> {
   return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.activate(publicId), {
     method: "POST",
   });

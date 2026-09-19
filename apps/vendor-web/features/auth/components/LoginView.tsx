@@ -1,16 +1,10 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  EyeIcon,
-  GradCapIcon,
-  LockIcon,
-  MailIcon,
-  useSessionManager,
-  type SessionRole,
-} from "@pte/ui";
+import { EyeIcon, LockIcon, MailIcon, useSessionManager, type SessionRole } from "@pte/ui";
 import {
   decodeAccessTokenClaims,
   type LoginOrganizationOption,
@@ -126,7 +120,13 @@ export const LoginView = (): ReactElement => {
         <AuthBrandPanel />
         <div className="flex flex-col justify-center gap-6 p-8 md:p-10">
           <div className="flex items-center gap-2 text-blue-800">
-            <GradCapIcon className="h-6 w-6" />
+            <Image
+              src="/logo.png"
+              alt="PTE Prep logo"
+              width={32}
+              height={32}
+              className="h-8 w-8 rounded-md object-contain"
+            />
             <span className="text-lg font-bold">{AUTH_TEXT.BRAND}</span>
           </div>
           <div>

@@ -3,6 +3,7 @@ export * from "./account";
 export * from "./asset";
 export * from "./media";
 export * from "./question";
+export * from "./questiontype";
 export * from "./tenant";
 export * from "./organization";
 export * from "./quota";

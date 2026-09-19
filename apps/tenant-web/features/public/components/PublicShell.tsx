@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
-import { GradCapIcon } from "@pte/ui";
 import { AUTH_ROUTES } from "@/features/auth/constants";
 import { PublicHeader } from "./PublicHeader";
 
@@ -21,9 +21,13 @@ export const PublicShell = ({ children }: PublicShellProps): ReactElement => (
               className="inline-flex items-center gap-2 text-blue-800"
               aria-label="PTE Prep home"
             >
-              <span className="grid h-8 w-8 place-items-center rounded-md bg-blue-600 text-white shadow-sm shadow-blue-600/25">
-                <GradCapIcon className="h-4 w-4" />
-              </span>
+              <Image
+                src="/logo.png"
+                alt="PTE Prep logo"
+                width={36}
+                height={36}
+                className="h-8 w-8 rounded-md object-contain"
+              />
               <span className="text-sm font-bold tracking-tight">PTE Prep</span>
             </Link>
             <p className="mt-3 max-w-xs text-sm leading-6 text-slate-500">
