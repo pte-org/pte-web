@@ -51,12 +51,12 @@ export function useCreateTenantStudents(): UseMutationResult<
     mutationFn: (rows) =>
       bulkCreateUsers(apiClient, {
         rows: rows.map((row) => ({
-          email: row.email,
-          fullName: row.fullName,
-          studentCode: row.studentCode ?? null,
-          className: row.className ?? null,
-          phone: row.phone ?? null,
-          dateOfBirth: row.dateOfBirth ?? null,
+          email: row.email || null,
+          fullName: row.fullName || null,
+          studentCode: row.studentCode || null,
+          className: row.className || null,
+          phone: row.phone || null,
+          dateOfBirth: row.dateOfBirth || null,
         })),
         tenantId: null,
       }),

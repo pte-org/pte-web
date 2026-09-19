@@ -467,13 +467,11 @@ const AddIndividuallyTab = ({
           type="email"
           value={form.email}
           onChange={(event) => handleChange("email", event.target.value)}
-          required
         />
         <Input
           label={T.fullNameLabel}
           value={form.fullName}
           onChange={(event) => handleChange("fullName", event.target.value)}
-          required
         />
         <Input
           label={T.studentCodeLabel}

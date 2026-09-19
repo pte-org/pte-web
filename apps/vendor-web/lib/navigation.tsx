@@ -29,7 +29,6 @@ export const ADMIN_NAV: NavItem[] = [
     icon: <ClipboardIcon />,
     section: "Content",
   },
-  { label: "Exam Blueprints", href: "/admin/exams", icon: <ClipboardIcon />, section: "Content" },
   {
     label: "Score Template",
     href: "/admin/score-template",

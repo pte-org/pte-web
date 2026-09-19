@@ -1,6 +1,6 @@
 export interface RosterRow {
-  email: string;
-  fullName: string;
+  email?: string;
+  fullName?: string;
   studentCode?: string;
   className?: string;
   phone?: string;
@@ -14,14 +14,15 @@ export interface RosterFileResult {
 
 export interface CreatedAccount {
   publicId: string;
-  email: string;
-  fullName: string;
+  username: string;
+  email: string | null;
+  fullName: string | null;
   generatedPassword: string;
 }
 
 export interface SkippedRow {
   rowIndex: number;
-  email: string;
+  email: string | null;
   reason: string;
 }
 

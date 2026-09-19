@@ -32,8 +32,8 @@ export interface ResetPasswordRequest {
 
 /** Matches iam's real `BulkCreateUserRow` record exactly (one Excel roster row). */
 export interface BulkCreateUserRow {
-  email: string;
-  fullName: string;
+  email?: string | null;
+  fullName?: string | null;
   studentCode?: string | null;
   className?: string | null;
   phone?: string | null;
@@ -50,13 +50,14 @@ export interface BulkCreateUsersRequest {
 export interface BulkCreateUsersResponse {
   created: {
     publicId: string;
-    email: string;
-    fullName: string;
+    username: string;
+    email: string | null;
+    fullName: string | null;
     generatedPassword: string;
   }[];
   skipped: {
     rowIndex: number;
-    email: string;
+    email: string | null;
     reason: string;
   }[];
 }

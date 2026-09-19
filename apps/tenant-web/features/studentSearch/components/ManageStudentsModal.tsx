@@ -133,13 +133,11 @@ export const ManageStudentsModal = ({
                 type="email"
                 value={form.email}
                 onChange={(event) => handleFormChange("email", event.target.value)}
-                required
               />
               <Input
                 label={MANAGE_STUDENTS_TEXT.fullNameLabel}
                 value={form.fullName}
                 onChange={(event) => handleFormChange("fullName", event.target.value)}
-                required
               />
               <Input
                 label={MANAGE_STUDENTS_TEXT.studentCodeLabel}
@@ -264,7 +262,7 @@ const CreationResult = ({ result }: CreationResultProps): ReactElement => (
             <CredentialDisplay
               key={account.publicId}
               credential={account.generatedPassword}
-              label={MANAGE_STUDENTS_TEXT.credentialLabel(account.fullName, account.email)}
+              label={MANAGE_STUDENTS_TEXT.credentialLabel(account.fullName, account.username)}
             />
           ))}
         </div>

@@ -71,7 +71,7 @@ export async function parseRosterFile(file: File): Promise<RosterFileResult> {
   }
 
   throw new Error(
-    "Import file must contain a header row (Email, Full Name, Student Code, Class, Phone, Date of Birth) and at least one data row",
+    "Import file must contain a header row and at least one data row",
   );
 }
 
@@ -83,11 +83,10 @@ function extractRosterRows(rawRows: unknown[][]): RosterRow[] {
     (header) => HEADER_ALIASES[normalizeHeader(toCellText(header))],
   );
 
-  if (!fieldByColumn.includes("email") || !fieldByColumn.includes("fullName")) {
-    throw new Error("Import file must have both an Email column and a Full Name column");
-  }
-
   return rawRows.slice(1).flatMap((rawRow) => {
+    const hasData = rawRow.some((value) => toCellText(value).length > 0);
+    if (!hasData) return [];
+
     const row: Partial<RosterRow> = {};
     fieldByColumn.forEach((field, index) => {
       if (!field) return;
@@ -95,7 +94,6 @@ function extractRosterRows(rawRows: unknown[][]): RosterRow[] {
       if (value) row[field] = value;
     });
 
-    if (!row.email && !row.fullName) return [];
-    return [{ email: row.email ?? "", fullName: row.fullName ?? "", ...row }];
+    return [row as RosterRow];
   });
 }

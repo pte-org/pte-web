@@ -63,12 +63,12 @@ export function useCreateRosterAccounts(
     mutationFn: (rows) =>
       bulkCreateUsers(apiClient, {
         rows: rows.map((row) => ({
-          email: row.email,
-          fullName: row.fullName,
-          studentCode: row.studentCode ?? null,
-          className: row.className ?? null,
-          phone: row.phone ?? null,
-          dateOfBirth: row.dateOfBirth ?? null,
+          email: row.email || null,
+          fullName: row.fullName || null,
+          studentCode: row.studentCode || null,
+          className: row.className || null,
+          phone: row.phone || null,
+          dateOfBirth: row.dateOfBirth || null,
         })),
         tenantId: null,
       }),
@@ -124,12 +124,12 @@ export function useCreateStudent(): UseMutationResult<CreatedAccount, unknown, A
       const response = await bulkCreateUsers(apiClient, {
         rows: [
           {
-            email: input.email,
-            fullName: input.fullName,
-            studentCode: input.studentCode ?? null,
-            className: input.className ?? null,
-            phone: input.phone ?? null,
-            dateOfBirth: input.dateOfBirth ?? null,
+            email: input.email || null,
+            fullName: input.fullName || null,
+            studentCode: input.studentCode || null,
+            className: input.className || null,
+            phone: input.phone || null,
+            dateOfBirth: input.dateOfBirth || null,
           },
         ],
         tenantId: null,

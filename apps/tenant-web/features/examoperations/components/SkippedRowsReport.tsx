@@ -26,7 +26,7 @@ export const SkippedRowsReport = ({ rows }: SkippedRowsReportProps): ReactElemen
           {rows.map((row) => (
             <tr key={row.rowIndex} className="border-b border-gray-100">
               <td className="py-2 pr-4 font-mono text-gray-700">{row.rowIndex + 1}</td>
-              <td className="py-2 pr-4 text-gray-700">{row.email}</td>
+              <td className="py-2 pr-4 text-gray-700">{row.email ?? "-"}</td>
               <td className="py-2 text-amber-700">{row.reason}</td>
             </tr>
           ))}

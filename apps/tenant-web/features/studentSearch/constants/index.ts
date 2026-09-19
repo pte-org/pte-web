@@ -38,9 +38,9 @@ export const MANAGE_STUDENTS_TEXT = {
   accountsCreated: (count: number) => `${count} student account(s) created.`,
   credentialsTitle: "Student login credentials",
   credentialsDescription:
-    "Use the email as the student's login account. Passwords are shown only once; save or download them now.",
-  credentialLabel: (fullName: string, email: string) =>
-    `Password for ${fullName} (account: ${email})`,
+    "Use the generated username as the student's login account. Passwords are shown only once; save or download them now.",
+  credentialLabel: (fullName: string | null, username: string) =>
+    `Password for ${fullName ?? "Student"} (account: ${username})`,
   downloadCredentials: "Download credentials",
   noAccountsCreated: "No new accounts were created.",
   close: "Close",
