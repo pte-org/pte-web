@@ -2,11 +2,15 @@
 
 import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import type { QuestionTypeResponse } from "@pte/api-client";
+import type { QuestionTypeResponse, QuestionTypeSection } from "@pte/api-client";
 import { Alert, Button, LoadingState, PageHeader } from "@pte/ui";
 import { useActivateScoreTemplate, useReplaceScoreTemplateItems, useScoreTemplate } from "../api";
 import { useQuestionTypes } from "@/features/questiontemplate/api";
-import { QUESTION_TEMPLATE_BASE_PATH, SCORE_TEMPLATE_TEXT } from "../constants";
+import {
+  QUESTION_TEMPLATE_BASE_PATH,
+  QUESTION_TEMPLATE_SECTIONS,
+  SCORE_TEMPLATE_TEXT,
+} from "../constants";
 import {
   fromDraft,
   toDraft,
@@ -65,6 +69,7 @@ const ScoreTemplateEditorForm = ({
   const [name, setName] = useState(template.name);
   const [items, setItems] = useState<ScoreTemplateItemDraft[]>(() => template.items.map(toDraft));
   const [activateTarget, setActivateTarget] = useState<ScoreTemplateResponse | null>(null);
+  const [newSection, setNewSection] = useState<QuestionTypeSection | "">("");
   const [newTypeCode, setNewTypeCode] = useState("");
 
   const handleItemChange = (
@@ -77,6 +82,20 @@ const ScoreTemplateEditorForm = ({
     );
   };
 
+  const handleItemSectionChange = (index: number, section: string): void => {
+    setItems((current) => {
+      const usedByOtherItems = new Set(
+        current.filter((_, itemIndex) => itemIndex !== index).map((item) => item.taskType),
+      );
+      const firstAvailableType = questionTypes.find(
+        (type) => type.active && type.section === section && !usedByOtherItems.has(type.code),
+      );
+      return current.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, section, taskType: firstAvailableType?.code ?? "" } : item,
+      );
+    });
+  };
+
   const handleSaveDraft = (): void => {
     replaceItemsMutation.mutate({
       publicId: template.publicId,
@@ -86,7 +105,8 @@ const ScoreTemplateEditorForm = ({
 
   const handleAddType = (): void => {
     const type = questionTypes.find((candidate) => candidate.code === newTypeCode);
-    if (!type || items.some((item) => item.taskType === type.code)) return;
+    if (!type || type.section !== newSection || items.some((item) => item.taskType === type.code))
+      return;
 
     const scoringMethod = !type.scored
       ? "UNSCORED"
@@ -114,6 +134,7 @@ const ScoreTemplateEditorForm = ({
         listeningWeight: "0",
       },
     ]);
+    setNewSection("");
     setNewTypeCode("");
   };
 
@@ -126,7 +147,10 @@ const ScoreTemplateEditorForm = ({
   };
 
   const availableTypes = questionTypes.filter(
-    (type) => !items.some((item) => item.taskType === type.code),
+    (type) =>
+      type.active &&
+      type.section === newSection &&
+      !items.some((item) => item.taskType === type.code),
   );
 
   const handleActivateConfirmed = (target: ScoreTemplateResponse): void => {
@@ -182,22 +206,40 @@ const ScoreTemplateEditorForm = ({
         <div className="flex flex-col gap-3 md:flex-row md:items-end">
           <div className="flex-1">
             <label
-              htmlFor="question-template-add-type"
+              htmlFor="question-template-add-section"
               className="block text-sm font-medium text-gray-700"
             >
-              Add an imported question type
+              Add question type
             </label>
+            <select
+              id="question-template-add-section"
+              value={newSection}
+              onChange={(event) => {
+                setNewSection(event.target.value as QuestionTypeSection | "");
+                setNewTypeCode("");
+              }}
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
+            >
+              <option value="">Select section first</option>
+              {QUESTION_TEMPLATE_SECTIONS.map((section) => (
+                <option key={section} value={section}>
+                  {section}
+                </option>
+              ))}
+            </select>
             <select
               id="question-template-add-type"
               value={newTypeCode}
               onChange={(event) => setNewTypeCode(event.target.value)}
-              disabled={availableTypes.length === 0}
+              disabled={!newSection || availableTypes.length === 0}
               className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
             >
               <option value="">
-                {availableTypes.length === 0
-                  ? SCORE_TEMPLATE_TEXT.NO_TYPES_TO_ADD
-                  : "Select a type"}
+                {!newSection
+                  ? "Select section first"
+                  : availableTypes.length === 0
+                    ? SCORE_TEMPLATE_TEXT.NO_TYPES_TO_ADD
+                    : "Select a type"}
               </option>
               {availableTypes.map((type) => (
                 <option key={type.code} value={type.code}>
@@ -209,7 +251,7 @@ const ScoreTemplateEditorForm = ({
           <Button
             variant="secondary"
             onClick={handleAddType}
-            disabled={newTypeCode.length === 0 || availableTypes.length === 0}
+            disabled={!newSection || newTypeCode.length === 0 || availableTypes.length === 0}
           >
             {SCORE_TEMPLATE_TEXT.ADD_TYPE}
           </Button>
@@ -219,7 +261,9 @@ const ScoreTemplateEditorForm = ({
       <ScoreTemplateItemTable
         editable
         items={items}
+        questionTypes={questionTypes}
         onChange={handleItemChange}
+        onSectionChange={handleItemSectionChange}
         onRemove={handleRemoveType}
       />
 

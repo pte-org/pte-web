@@ -12,14 +12,23 @@ import {
 import { cn } from "../utils/cn";
 import { DotsVerticalIcon } from "./icons";
 
-export interface DropdownItem {
+export interface DropdownActionItem {
   label: string;
   onSelect: () => void;
   danger?: boolean;
   icon?: ComponentType<{ className?: string }>;
+  disabled?: boolean;
+  hidden?: boolean;
 }
 
-interface DropdownProps {
+export interface DropdownSeparator {
+  separator: true;
+  key?: string;
+}
+
+export type DropdownItem = DropdownActionItem | DropdownSeparator;
+
+export interface DropdownProps {
   items: DropdownItem[];
   /** Accessible name for the trigger button. */
   label?: string;
@@ -124,27 +133,40 @@ export const Dropdown = ({
                 visibility: menuPosition ? "visible" : "hidden",
               }}
             >
-              {items.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <button
-                    key={item.label}
-                    type="button"
-                    role="menuitem"
-                    onClick={() => {
-                      item.onSelect();
-                      setOpen(false);
-                    }}
-                    className={cn(
-                      "flex min-h-10 w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors hover:bg-blue-50",
-                      item.danger ? "text-red-600" : "text-gray-700",
-                    )}
-                  >
-                    {Icon ? <Icon className="h-4 w-4 shrink-0" /> : null}
-                    {item.label}
-                  </button>
-                );
-              })}
+              {items
+                .filter((item) => !("hidden" in item && item.hidden))
+                .map((item, index) => {
+                  if ("separator" in item) {
+                    return (
+                      <div
+                        key={item.key ?? `separator-${index}`}
+                        role="separator"
+                        className="my-1 border-t border-gray-100"
+                      />
+                    );
+                  }
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.label}
+                      type="button"
+                      role="menuitem"
+                      disabled={item.disabled}
+                      onClick={() => {
+                        if (item.disabled) return;
+                        item.onSelect();
+                        setOpen(false);
+                      }}
+                      className={cn(
+                        "flex min-h-10 w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50",
+                        item.danger ? "text-red-600" : "text-gray-700",
+                      )}
+                    >
+                      {Icon ? <Icon className="h-4 w-4 shrink-0" /> : null}
+                      {item.label}
+                    </button>
+                  );
+                })}
             </div>
           </>,
           document.body,

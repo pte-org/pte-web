@@ -83,6 +83,12 @@ export const STUDENT_ROSTER_FILTER_TEXT = {
   suspend: "Suspend",
   reactivate: "Reactivate",
   actions: "Actions",
+  viewDetails: "View details",
+  sendEmail: "Send email",
+  sendEmailConfirmTitle: "Send temporary credentials",
+  sendEmailConfirmDescription: (fullName: string) =>
+    `Generate a new temporary password for ${fullName} and send it to the account email? The current password will stop working.`,
+  sendEmailConfirm: "Generate and send",
   loadFailed: "Unable to load students. Please try again.",
   emptyDescription: "No students match the current search and filters.",
   noPrograms: "No programs available",

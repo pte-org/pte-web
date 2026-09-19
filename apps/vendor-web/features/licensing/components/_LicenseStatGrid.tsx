@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { AlertTriangleIcon, CheckCircleIcon, DocumentIcon, StatCard, UsersIcon } from "@pte/ui";
+import { AlertTriangleIcon, CheckCircleIcon, CollapsibleSection, DocumentIcon, StatCard, UsersIcon } from "@pte/ui";
 import { LICENSING_TEXT } from "../constants";
 import type { LicenseStats } from "../types";
 
@@ -8,7 +8,11 @@ interface LicenseStatGridProps {
 }
 
 export const LicenseStatGrid = ({ stats }: LicenseStatGridProps): ReactElement => (
-  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  <CollapsibleSection
+    title="License overview"
+    subtitle="Issued licenses and student capacity at a glance."
+    contentClassName="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
+  >
     <StatCard
       label={LICENSING_TEXT.STAT_TOTAL}
       value={stats?.total ?? "—"}
@@ -30,5 +34,5 @@ export const LicenseStatGrid = ({ stats }: LicenseStatGridProps): ReactElement =
       value={stats?.totalSeats ?? "—"}
       icon={<UsersIcon />}
     />
-  </div>
+  </CollapsibleSection>
 );

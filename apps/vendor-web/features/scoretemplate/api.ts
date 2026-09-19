@@ -3,12 +3,13 @@
 import {
   activateScoreTemplate,
   cloneScoreTemplate,
+  createScoreTemplate,
+  deleteScoreTemplate,
   getScoreTemplate,
-  importScoreTemplate,
   listScoreTemplates,
   replaceScoreTemplateItems,
   type ReplaceScoreTemplateItemsRequest,
-  type ImportScoreTemplateRequest,
+  type CreateScoreTemplateRequest,
   type ScoreTemplateResponse,
 } from "@pte/api-client";
 import {
@@ -28,15 +29,15 @@ export function useScoreTemplates(): UseQueryResult<ScoreTemplateResponse[]> {
   });
 }
 
-export function useImportScoreTemplate(): UseMutationResult<
+export function useCreateScoreTemplate(): UseMutationResult<
   ScoreTemplateResponse,
   unknown,
-  ImportScoreTemplateRequest
+  CreateScoreTemplateRequest
 > {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload) => importScoreTemplate(apiClient, payload),
+    mutationFn: (payload) => createScoreTemplate(apiClient, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: SCORE_TEMPLATES_QUERY_KEY });
     },
@@ -70,6 +71,17 @@ export function useCloneScoreTemplate(): UseMutationResult<ScoreTemplateResponse
 
   return useMutation({
     mutationFn: (sourcePublicId: string) => cloneScoreTemplate(apiClient, sourcePublicId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: SCORE_TEMPLATES_QUERY_KEY });
+    },
+  });
+}
+
+export function useDeleteScoreTemplate(): UseMutationResult<void, unknown, string> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (publicId: string) => deleteScoreTemplate(apiClient, publicId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: SCORE_TEMPLATES_QUERY_KEY });
     },

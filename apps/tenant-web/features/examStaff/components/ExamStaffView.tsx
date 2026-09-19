@@ -1,13 +1,24 @@
 "use client";
 
 import { useEffect, useState, type ReactElement } from "react";
-import type { ExamStaffRoleFilter, UserListDirection, UserListSort, UserResponse, UserStatusFilter } from "@pte/api-client";
+import type {
+  ExamStaffRoleFilter,
+  UserListDirection,
+  UserListSort,
+  UserResponse,
+  UserStatusFilter,
+} from "@pte/api-client";
 import {
   Alert,
+  ActionMenu,
+  BanIcon,
   Button,
+  CheckCircleIcon,
   ConfirmDialog,
   DataTable,
+  EyeIcon,
   Input,
+  MailIcon,
   PageHeader,
   PaginationControls,
   Select,
@@ -21,12 +32,14 @@ import {
   EXAM_STAFF_SORT_OPTIONS,
   EXAM_STAFF_TEXT,
 } from "../constants";
-import {
-  useExamStaff,
-  useReactivateExamStaff,
-  useSuspendExamStaff,
-} from "../api";
+import { useExamStaff, useReactivateExamStaff, useSuspendExamStaff } from "../api";
 import { AddExamStaffModal } from "./AddExamStaffModal";
+import {
+  AccountDetailsModal,
+  GeneratedCredentialsModal,
+  useSendUserCredentials,
+} from "@/features/userManagement";
+import type { AccountDetails, GeneratedCredentials } from "@/features/userManagement";
 
 const DEFAULT_PAGE_SIZE = 20;
 const DEBOUNCE_MS = 250;
@@ -50,11 +63,18 @@ const STATUS_OPTIONS = [
 ];
 
 function sortOptionFor(value: SortOptionValue) {
-  return EXAM_STAFF_SORT_OPTIONS.find((option) => option.value === value) ?? EXAM_STAFF_SORT_OPTIONS[0];
+  return (
+    EXAM_STAFF_SORT_OPTIONS.find((option) => option.value === value) ?? EXAM_STAFF_SORT_OPTIONS[0]
+  );
 }
 
 function roleLabel(user: UserResponse): string {
-  return user.roles.filter((role) => ROLE_LABELS[role]).map((role) => ROLE_LABELS[role]).join(", ") || "—";
+  return (
+    user.roles
+      .filter((role) => ROLE_LABELS[role])
+      .map((role) => ROLE_LABELS[role])
+      .join(", ") || "—"
+  );
 }
 
 export const ExamStaffView = (): ReactElement => {
@@ -67,6 +87,9 @@ export const ExamStaffView = (): ReactElement => {
   const [sortOption, setSortOption] = useState<SortOptionValue>("CREATED_AT_DESC");
   const [addOpen, setAddOpen] = useState(false);
   const [suspendTarget, setSuspendTarget] = useState<UserResponse | null>(null);
+  const [detailsTarget, setDetailsTarget] = useState<UserResponse | null>(null);
+  const [emailTarget, setEmailTarget] = useState<UserResponse | null>(null);
+  const [credentials, setCredentials] = useState<GeneratedCredentials | null>(null);
   const [keepPreviousRows, setKeepPreviousRows] = useState(false);
 
   useEffect(() => {
@@ -90,11 +113,12 @@ export const ExamStaffView = (): ReactElement => {
   });
   const suspend = useSuspendExamStaff();
   const reactivate = useReactivateExamStaff();
+  const sendCredentials = useSendUserCredentials();
   const isNewFilterPending = staff.isPlaceholderData && !keepPreviousRows;
   const visibleResult = isNewFilterPending ? undefined : staff.data;
   const rows = visibleResult?.data ?? [];
   const queryError = errorMessage(staff.error);
-  const mutationError = errorMessage(suspend.error ?? reactivate.error);
+  const mutationError = errorMessage(suspend.error ?? reactivate.error ?? sendCredentials.error);
 
   const resetPage = (): void => {
     setPage(0);
@@ -102,13 +126,22 @@ export const ExamStaffView = (): ReactElement => {
   };
 
   const columns: DataTableColumn<UserResponse>[] = [
-    { key: "fullName", header: EXAM_STAFF_TEXT.fullName, cell: (user) => <span className="font-medium text-gray-900">{user.fullName}</span> },
+    {
+      key: "fullName",
+      header: EXAM_STAFF_TEXT.fullName,
+      cell: (user) => <span className="font-medium text-gray-900">{user.fullName}</span>,
+    },
     { key: "email", header: EXAM_STAFF_TEXT.email, cell: (user) => user.email },
     { key: "role", header: EXAM_STAFF_TEXT.role, cell: roleLabel },
     {
       key: "status",
       header: EXAM_STAFF_TEXT.status,
-      cell: (user) => <StatusBadge label={user.status === "ACTIVE" ? EXAM_STAFF_TEXT.active : EXAM_STAFF_TEXT.suspended} variant={user.status === "ACTIVE" ? "success" : "warning"} />,
+      cell: (user) => (
+        <StatusBadge
+          label={user.status === "ACTIVE" ? EXAM_STAFF_TEXT.active : EXAM_STAFF_TEXT.suspended}
+          variant={user.status === "ACTIVE" ? "success" : "warning"}
+        />
+      ),
     },
   ];
 
@@ -147,7 +180,10 @@ export const ExamStaffView = (): ReactElement => {
         />
         <Select
           label={EXAM_STAFF_TEXT.sortLabel}
-          options={EXAM_STAFF_SORT_OPTIONS.map((option) => ({ label: option.label, value: option.value }))}
+          options={EXAM_STAFF_SORT_OPTIONS.map((option) => ({
+            label: option.label,
+            value: option.value,
+          }))}
           value={sortOption}
           onChange={(event) => {
             setSortOption(event.target.value as SortOptionValue);
@@ -168,27 +204,39 @@ export const ExamStaffView = (): ReactElement => {
         emptyTitle={EXAM_STAFF_TEXT.emptyTitle}
         emptyDescription={EXAM_STAFF_TEXT.emptyDescription}
         rowActionsHeader={EXAM_STAFF_TEXT.actions}
-        rowActions={(user) =>
-          user.status === "SUSPENDED" ? (
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={reactivate.isPending || suspend.isPending}
-              onClick={() => reactivate.mutate(user.publicId)}
-            >
-              {EXAM_STAFF_TEXT.reactivate}
-            </Button>
-          ) : (
-            <Button
-              variant="danger"
-              size="sm"
-              disabled={reactivate.isPending || suspend.isPending}
-              onClick={() => setSuspendTarget(user)}
-            >
-              {EXAM_STAFF_TEXT.suspend}
-            </Button>
-          )
-        }
+        rowActions={(user) => (
+          <ActionMenu
+            label={`${EXAM_STAFF_TEXT.actions}: ${user.fullName}`}
+            items={[
+              {
+                label: EXAM_STAFF_TEXT.viewDetails,
+                icon: EyeIcon,
+                onSelect: () => setDetailsTarget(user),
+              },
+              { separator: true },
+              {
+                label: EXAM_STAFF_TEXT.sendEmail,
+                icon: MailIcon,
+                disabled: !user.email || sendCredentials.isPending,
+                onSelect: () => setEmailTarget(user),
+              },
+              user.status === "SUSPENDED"
+                ? {
+                    label: EXAM_STAFF_TEXT.reactivate,
+                    icon: CheckCircleIcon,
+                    disabled: reactivate.isPending || suspend.isPending,
+                    onSelect: () => reactivate.mutate(user.publicId),
+                  }
+                : {
+                    label: EXAM_STAFF_TEXT.suspend,
+                    icon: BanIcon,
+                    danger: true,
+                    disabled: reactivate.isPending || suspend.isPending,
+                    onSelect: () => setSuspendTarget(user),
+                  },
+            ]}
+          />
+        )}
       />
 
       {visibleResult && (
@@ -216,7 +264,9 @@ export const ExamStaffView = (): ReactElement => {
       <ConfirmDialog
         open={suspendTarget !== null}
         title={EXAM_STAFF_TEXT.confirmSuspendTitle}
-        description={suspendTarget ? EXAM_STAFF_TEXT.confirmSuspendDescription(suspendTarget.fullName) : ""}
+        description={
+          suspendTarget ? EXAM_STAFF_TEXT.confirmSuspendDescription(suspendTarget.fullName) : ""
+        }
         confirmLabel={EXAM_STAFF_TEXT.confirm}
         cancelLabel={EXAM_STAFF_TEXT.cancel}
         tone="danger"
@@ -228,6 +278,39 @@ export const ExamStaffView = (): ReactElement => {
         onClose={() => setSuspendTarget(null)}
       />
 
+      <ConfirmDialog
+        open={emailTarget !== null}
+        title={EXAM_STAFF_TEXT.sendEmailConfirmTitle}
+        description={
+          emailTarget ? EXAM_STAFF_TEXT.sendEmailConfirmDescription(emailTarget.fullName) : ""
+        }
+        confirmLabel={EXAM_STAFF_TEXT.sendEmailConfirm}
+        cancelLabel={EXAM_STAFF_TEXT.cancel}
+        isConfirming={sendCredentials.isPending}
+        onConfirm={() => {
+          if (!emailTarget) return;
+          sendCredentials.mutate(emailTarget.publicId, {
+            onSuccess: (result) => {
+              setEmailTarget(null);
+              setCredentials(result);
+            },
+          });
+        }}
+        onClose={() => setEmailTarget(null)}
+      />
+
+      <AccountDetailsModal
+        open={detailsTarget !== null}
+        account={detailsTarget ? toAccountDetails(detailsTarget) : null}
+        onClose={() => setDetailsTarget(null)}
+      />
+
+      <GeneratedCredentialsModal
+        open={credentials !== null}
+        credentials={credentials}
+        onClose={() => setCredentials(null)}
+      />
+
       <AddExamStaffModal
         key={addOpen ? "exam-staff-open" : "exam-staff-closed"}
         open={addOpen}
@@ -236,3 +319,19 @@ export const ExamStaffView = (): ReactElement => {
     </div>
   );
 };
+
+function toAccountDetails(user: UserResponse): AccountDetails {
+  return {
+    publicId: user.publicId,
+    username: user.username,
+    email: user.email,
+    fullName: user.fullName,
+    roles: user.roles,
+    status: user.status,
+    mustChangePassword: user.mustChangePassword,
+    studentCode: user.studentCode,
+    className: user.className,
+    phone: user.phone,
+    dateOfBirth: user.dateOfBirth,
+  };
+}

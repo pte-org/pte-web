@@ -1,11 +1,14 @@
 "use client";
 
 import {
-  importQuestionTypesFromScoreTemplate,
+  createQuestionType,
+  deleteQuestionType,
   listQuestionTypes,
+  listSupportedQuestionTypes,
   updateQuestionType,
+  type CreateQuestionTypeRequest,
   type QuestionTypeResponse,
-  type ImportQuestionTypesFromScoreTemplateRequest,
+  type SupportedQuestionTypeResponse,
   type UpdateQuestionTypeRequest,
 } from "@pte/api-client";
 import {
@@ -16,12 +19,20 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
-import { QUESTION_TYPES_QUERY_KEY } from "./constants";
+import { QUESTION_TYPES_QUERY_KEY, SUPPORTED_QUESTION_TYPES_QUERY_KEY } from "./constants";
 
 export function useQuestionTypes(activeOnly = true): UseQueryResult<QuestionTypeResponse[]> {
   return useQuery({
     queryKey: [...QUESTION_TYPES_QUERY_KEY, { activeOnly }],
     queryFn: () => listQuestionTypes(apiClient, { activeOnly }),
+  });
+}
+
+export function useSupportedQuestionTypes(): UseQueryResult<SupportedQuestionTypeResponse[]> {
+  return useQuery({
+    queryKey: SUPPORTED_QUESTION_TYPES_QUERY_KEY,
+    queryFn: () => listSupportedQuestionTypes(apiClient),
+    staleTime: Infinity,
   });
 }
 
@@ -45,15 +56,34 @@ export function useUpdateQuestionType(): UseMutationResult<
   });
 }
 
-export function useImportQuestionTypesFromScoreTemplate(): UseMutationResult<
-  QuestionTypeResponse[],
+interface CreateQuestionTypeInput {
+  payload: CreateQuestionTypeRequest;
+}
+
+export function useCreateQuestionType(): UseMutationResult<
+  QuestionTypeResponse,
   unknown,
-  ImportQuestionTypesFromScoreTemplateRequest
+  CreateQuestionTypeInput
 > {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload) => importQuestionTypesFromScoreTemplate(apiClient, payload),
+    mutationFn: ({ payload }) => createQuestionType(apiClient, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: QUESTION_TYPES_QUERY_KEY });
+    },
+  });
+}
+
+interface DeleteQuestionTypeInput {
+  publicId: string;
+}
+
+export function useDeleteQuestionType(): UseMutationResult<void, unknown, DeleteQuestionTypeInput> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ publicId }) => deleteQuestionType(apiClient, publicId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: QUESTION_TYPES_QUERY_KEY });
     },

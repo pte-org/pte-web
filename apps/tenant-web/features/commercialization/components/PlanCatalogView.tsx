@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import Link from "next/link";
-import { BookOpenIcon, Alert, PageHeader, StatCard, UsersIcon } from "@pte/ui";
+import { Alert, BookOpenIcon, CollapsibleSection, PageHeader, StatCard, UsersIcon } from "@pte/ui";
 import type { PlanResponse } from "@pte/api-client";
 import { useStudentQuotaQuery, useSubscriptionsQuery, useTenantPlansQuery } from "../api";
 import { BillingPanel } from "./BillingPanel";
@@ -21,11 +21,15 @@ export const PlanCatalogView = (): ReactElement => {
     <div className="flex flex-col gap-5">
       <PageHeader title="Plans & billing" subtitle="Choose exam access or extend your student capacity." />
       {isError && <Alert tone="error">Plans could not be loaded. Try again shortly.</Alert>}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <CollapsibleSection
+        title="Billing overview"
+        subtitle="Current quota, subscriptions and available plans."
+        contentClassName="grid gap-4 sm:grid-cols-3"
+      >
         <StatCard label="Student limit" value={quota ? `${quota.current} / ${quota.limit}` : "—"} footnote="Current roster usage" accent="blue" />
         <StatCard label="Active subscriptions" value={String(subscriptions.length)} footnote="Loaded from API" accent="mint" />
         <StatCard label="Available plans" value={String(activePlans.length)} footnote="Active catalog entries" accent="cream" />
-      </div>
+      </CollapsibleSection>
       <BillingPanel title="Exam packages" subtitle="Time-limited access with a student cap per exam.">
         {isLoading ? <p className="text-sm text-slate-500">Loading plans...</p> : <div className="grid gap-4 md:grid-cols-2">{examPlans.map((plan) => <PlanCard key={plan.publicId} plan={plan} icon={<BookOpenIcon />} />)}</div>}
       </BillingPanel>

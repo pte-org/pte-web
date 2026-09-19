@@ -275,12 +275,16 @@ export const LOGIN_ACCOUNT_TEXT = {
   EMAIL_LABEL: "Email",
   FULL_NAME_LABEL: "Full name",
   USER_ID_LABEL: "User ID",
+  USERNAME_LABEL: "Username",
   TENANT_ID_LABEL: "Tenant ID",
   ROLES_LABEL: "Roles",
   STUDENT_CODE_LABEL: "Student code",
   CLASS_NAME_LABEL: "Class name",
   PHONE_LABEL: "Phone",
   DATE_OF_BIRTH_LABEL: "Date of birth",
+  PASSWORD_STATE_LABEL: "First-login password change",
+  PASSWORD_STATE_REQUIRED: "Required",
+  PASSWORD_STATE_NOT_REQUIRED: "Not required",
   RESET_SUCCESS: "Password reset. Relay it to the Host directly — it won't be shown again.",
 } as const;
 

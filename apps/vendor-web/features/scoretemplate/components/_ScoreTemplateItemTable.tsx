@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 import { Button } from "@pte/ui";
+import type { QuestionTypeResponse } from "@pte/api-client";
 import { SCORE_TEMPLATE_ITEM_HEADERS, SCORE_TEMPLATE_TEXT } from "../constants";
 import type { ScoreTemplateItemDraft, ScoreTemplateItemResponse } from "../types";
 
@@ -19,7 +20,9 @@ type ReadOnlyProps = {
 type EditableProps = {
   editable: true;
   items: ScoreTemplateItemDraft[];
+  questionTypes: QuestionTypeResponse[];
   onChange: (index: number, field: keyof ScoreTemplateItemDraft, value: string) => void;
+  onSectionChange: (index: number, section: string) => void;
   onRemove: (index: number) => void;
 };
 
@@ -45,8 +48,8 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
         <thead className="bg-slate-50">
           <tr>
             <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.SEQUENCE}</th>
-            <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.TASK_TYPE}</th>
             <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.SECTION}</th>
+            <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.TASK_TYPE}</th>
             {NUMERIC_FIELDS.slice(0, 4).map(({ field, header }) => (
               <th key={field} className={HEADER_CLASS}>
                 {header}
@@ -66,15 +69,45 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
             ? props.items.map((item, index) => (
                 <tr key={`${item.taskType}-${index}`} className="border-t border-gray-100">
                   <td className={CELL_CLASS}>{item.sequence}</td>
+                  <td className={CELL_CLASS}>
+                    <select
+                      className={SELECT_CLASS}
+                      value={item.section}
+                      onChange={(event) => props.onSectionChange(index, event.target.value)}
+                    >
+                      <option value="">Select section</option>
+                      <option value="SPEAKING">SPEAKING</option>
+                      <option value="WRITING">WRITING</option>
+                      <option value="READING">READING</option>
+                      <option value="LISTENING">LISTENING</option>
+                    </select>
+                  </td>
                   <td className={`${CELL_CLASS} font-mono text-xs`}>
                     <div className="flex flex-col items-start gap-1">
-                      <span>{item.taskType}</span>
+                      <select
+                        className={SELECT_CLASS}
+                        value={item.taskType}
+                        disabled={!item.section}
+                        onChange={(event) => props.onChange(index, "taskType", event.target.value)}
+                      >
+                        <option value="">Select task type</option>
+                        {props.questionTypes
+                          .filter((type) => type.active && type.section === item.section)
+                          .map((type) => (
+                            <option key={type.code} value={type.code}>
+                              {type.code}
+                            </option>
+                          ))}
+                        {item.taskType &&
+                          !props.questionTypes.some((type) => type.code === item.taskType) && (
+                            <option value={item.taskType}>{item.taskType}</option>
+                          )}
+                      </select>
                       <Button variant="ghost" size="sm" onClick={() => props.onRemove(index)}>
                         {SCORE_TEMPLATE_TEXT.REMOVE_TYPE}
                       </Button>
                     </div>
                   </td>
-                  <td className={CELL_CLASS}>{item.section}</td>
                   {NUMERIC_FIELDS.slice(0, 4).map(({ field }) => (
                     <td key={field} className={CELL_CLASS}>
                       <input
@@ -128,8 +161,8 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                   className="border-t border-gray-100 hover:bg-slate-50/70"
                 >
                   <td className={CELL_CLASS}>{item.sequence}</td>
-                  <td className={`${CELL_CLASS} font-mono text-xs`}>{item.taskType}</td>
                   <td className={CELL_CLASS}>{item.section}</td>
+                  <td className={`${CELL_CLASS} font-mono text-xs`}>{item.taskType}</td>
                   <td className={CELL_CLASS}>{item.minCount}</td>
                   <td className={CELL_CLASS}>{item.maxCount}</td>
                   <td className={CELL_CLASS}>{item.prepSeconds}</td>

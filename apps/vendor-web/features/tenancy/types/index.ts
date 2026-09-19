@@ -94,6 +94,7 @@ export type LoginAccountStatus = "active" | "suspended";
 /** The Host's HOST_ADMIN login account for a Tenant — matches iam's `UserResponse`. */
 export interface LoginAccount {
   id: string;
+  username: string;
   email: string;
   fullName: string;
   tenantId: string | null;
@@ -103,6 +104,7 @@ export interface LoginAccount {
   className: string | null;
   phone: string | null;
   dateOfBirth: string | null;
+  mustChangePassword: boolean;
 }
 
 export interface CreateLoginAccountInput {

@@ -5,6 +5,7 @@ import type {
   CreateUserRequest,
   ExamStaffPage,
   ExamStaffQuery,
+  GeneratedCredentialsResponse,
   ResetPasswordRequest,
   UserResponse,
 } from "../../types/user";
@@ -16,6 +17,7 @@ export const USER_ENDPOINTS = {
   suspend: (publicId: string) => `/api/v1/users/${publicId}/suspend`,
   reactivate: (publicId: string) => `/api/v1/users/${publicId}/reactivate`,
   resetPassword: (publicId: string) => `/api/v1/users/${publicId}/reset-password`,
+  sendCredentialsEmail: (publicId: string) => `/api/v1/users/${publicId}/credentials/send-email`,
 } as const;
 
 export function createUser(client: ApiClient, payload: CreateUserRequest): Promise<UserResponse> {
@@ -78,6 +80,19 @@ export function resetPassword(
     method: "POST",
     body: payload,
   });
+}
+
+/** Rotates the password server-side and queues a one-time credential email. */
+export function sendCredentialsEmail(
+  client: ApiClient,
+  publicId: string,
+): Promise<GeneratedCredentialsResponse> {
+  return client.request<GeneratedCredentialsResponse>(
+    USER_ENDPOINTS.sendCredentialsEmail(publicId),
+    {
+      method: "POST",
+    },
+  );
 }
 
 export function suspendUser(client: ApiClient, publicId: string): Promise<UserResponse> {

@@ -189,6 +189,7 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
             <DescriptionList
               items={[
                 { label: L.USER_ID_LABEL, value: loginAccount.id },
+                { label: L.USERNAME_LABEL, value: loginAccount.username },
                 { label: L.EMAIL_LABEL, value: loginAccount.email },
                 { label: L.FULL_NAME_LABEL, value: loginAccount.fullName },
                 { label: L.TENANT_ID_LABEL, value: loginAccount.tenantId ?? "-" },
@@ -200,6 +201,12 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
                 { label: L.CLASS_NAME_LABEL, value: loginAccount.className ?? "-" },
                 { label: L.PHONE_LABEL, value: loginAccount.phone ?? "-" },
                 { label: L.DATE_OF_BIRTH_LABEL, value: loginAccount.dateOfBirth ?? "-" },
+                {
+                  label: L.PASSWORD_STATE_LABEL,
+                  value: loginAccount.mustChangePassword
+                    ? L.PASSWORD_STATE_REQUIRED
+                    : L.PASSWORD_STATE_NOT_REQUIRED,
+                },
                 {
                   label: T.STATUS_LABEL,
                   value: (

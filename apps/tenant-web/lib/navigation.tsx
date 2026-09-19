@@ -13,12 +13,18 @@ import { BookOpenIcon, DocumentIcon, GridIcon, HomeIcon, LicenseIcon, UsersIcon 
  */
 export function buildHostNav(labels: OrgLabels): NavItem[] {
   return [
-    { label: "Home", href: "/", icon: <HomeIcon />, section: "Home" },
-    { label: "Overview", href: "/host/dashboard", icon: <GridIcon />, section: "Home" },
-    { label: "Learners", href: "/host/students", icon: <UsersIcon />, section: "Learners" },
-    { label: labels.program, href: "/host/programs", icon: <BookOpenIcon />, section: "Learners" },
+    {
+      label: "Home",
+      href: "/",
+      icon: <HomeIcon />,
+      section: "Home",
+      clearSessionOnNavigate: true,
+    },
+    { label: "Dashboard", href: "/host/dashboard", icon: <GridIcon />, section: "Home" },
+    { label: "Learners", href: "/host/students", icon: <UsersIcon />, section: "Users" },
+    { label: "Exam Staff", href: "/host/exam-staff", icon: <UsersIcon />, section: "Users" },
+    { label: labels.program, href: "/host/programs", icon: <BookOpenIcon />, section: "Delivery" },
     { label: "Exams", href: "/host/exams", icon: <BookOpenIcon />, section: "Delivery" },
-    { label: "Exam Staff", href: "/host/exam-staff", icon: <UsersIcon />, section: "Delivery" },
     {
       label: "Plans & billing",
       href: "/host/billing",

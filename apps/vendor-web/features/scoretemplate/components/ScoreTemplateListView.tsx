@@ -1,10 +1,15 @@
 "use client";
 
-import { useState, type ChangeEvent, type ReactElement } from "react";
+import { useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Badge, Button, LoadingState, PageHeader } from "@pte/ui";
+import { Alert, Badge, Button, Input, LoadingState, Modal, PageHeader } from "@pte/ui";
 import { ApiError } from "@pte/api-client";
-import { useCloneScoreTemplate, useImportScoreTemplate, useScoreTemplates } from "../api";
+import {
+  useCloneScoreTemplate,
+  useCreateScoreTemplate,
+  useDeleteScoreTemplate,
+  useScoreTemplates,
+} from "../api";
 import {
   SCORE_TEMPLATE_LIST_HEADERS,
   SCORE_TEMPLATE_STATUS_LABELS,
@@ -13,11 +18,7 @@ import {
   QUESTION_TEMPLATE_BASE_PATH,
 } from "../constants";
 import type { ScoreTemplateResponse, ScoreTemplateStatusFilter } from "../types";
-import {
-  downloadScoreTemplateJson,
-  parseScoreTemplateExport,
-  toScoreTemplateImportRequest,
-} from "../serialization";
+import { downloadScoreTemplateJson } from "../serialization";
 
 const HEADER_CLASS =
   "px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
@@ -33,28 +34,45 @@ export const ScoreTemplateListView = (): ReactElement => {
   const router = useRouter();
   const { data: templates, isLoading, isError } = useScoreTemplates();
   const cloneMutation = useCloneScoreTemplate();
-  const importMutation = useImportScoreTemplate();
-  const [importError, setImportError] = useState<string | null>(null);
+  const createMutation = useCreateScoreTemplate();
+  const deleteMutation = useDeleteScoreTemplate();
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [createCode, setCreateCode] = useState("");
+  const [createName, setCreateName] = useState("");
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  const closeCreate = (): void => {
+    if (createMutation.isPending) return;
+    setIsCreateOpen(false);
+    setCreateError(null);
+  };
+
+  const handleCreate = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
+    event.preventDefault();
+    setCreateError(null);
+    try {
+      const draft = await createMutation.mutateAsync({
+        code: createCode.trim(),
+        name: createName.trim(),
+      });
+      closeCreate();
+      setCreateCode("");
+      setCreateName("");
+      router.push(`${QUESTION_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`);
+    } catch (error) {
+      setCreateError(error instanceof ApiError ? error.message : SCORE_TEMPLATE_TEXT.CREATE_ERROR);
+    }
+  };
+
+  const handleDelete = (template: ScoreTemplateResponse): void => {
+    if (template.status !== "DRAFT" || !window.confirm(SCORE_TEMPLATE_TEXT.DELETE_CONFIRM)) return;
+    deleteMutation.mutate(template.publicId);
+  };
 
   const handleClone = (publicId: string): void => {
     cloneMutation.mutate(publicId, {
       onSuccess: (draft) => router.push(`${QUESTION_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`),
     });
-  };
-
-  const handleImportFile = async (event: ChangeEvent<HTMLInputElement>): Promise<void> => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    setImportError(null);
-    if (!file) return;
-
-    try {
-      const document = parseScoreTemplateExport(JSON.parse(await file.text()));
-      const draft = await importMutation.mutateAsync(toScoreTemplateImportRequest(document));
-      router.push(`${QUESTION_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`);
-    } catch (error) {
-      setImportError(error instanceof ApiError ? error.message : SCORE_TEMPLATE_TEXT.IMPORT_ERROR);
-    }
   };
 
   return (
@@ -63,20 +81,18 @@ export const ScoreTemplateListView = (): ReactElement => {
         title={SCORE_TEMPLATE_TEXT.LIST_TITLE}
         subtitle={SCORE_TEMPLATE_TEXT.LIST_SUBTITLE}
         actions={
-          <label className="inline-flex cursor-pointer items-center justify-center rounded-md bg-action px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-blue-700">
-            {SCORE_TEMPLATE_TEXT.IMPORT_ACTION}
-            <input
-              type="file"
-              accept="application/json,.json"
-              className="sr-only"
-              onChange={(event) => void handleImportFile(event)}
-            />
-          </label>
+          <Button variant="secondary" onClick={() => setIsCreateOpen(true)}>
+            {SCORE_TEMPLATE_TEXT.CREATE_ACTION}
+          </Button>
         }
       />
 
       {isError && <Alert tone="error">Could not load question templates. Please refresh.</Alert>}
-      {importError && <Alert tone="error">{importError}</Alert>}
+      {createError && <Alert tone="error">{createError}</Alert>}
+      {createMutation.isError && !createError && (
+        <Alert tone="error">{SCORE_TEMPLATE_TEXT.CREATE_ERROR}</Alert>
+      )}
+      {deleteMutation.isError && <Alert tone="error">{SCORE_TEMPLATE_TEXT.DELETE_ERROR}</Alert>}
       {cloneMutation.isError && (
         <Alert tone="error">Could not clone this template. Please try again.</Alert>
       )}
@@ -147,6 +163,19 @@ export const ScoreTemplateListView = (): ReactElement => {
                               {SCORE_TEMPLATE_TEXT.CLONE_ACTION}
                             </Button>
                           )}
+                          {template.status === "DRAFT" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              isLoading={
+                                deleteMutation.isPending &&
+                                deleteMutation.variables === template.publicId
+                              }
+                              onClick={() => handleDelete(template)}
+                            >
+                              {SCORE_TEMPLATE_TEXT.DELETE_ACTION}
+                            </Button>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -157,6 +186,52 @@ export const ScoreTemplateListView = (): ReactElement => {
           </div>
         </div>
       )}
+
+      <Modal
+        open={isCreateOpen}
+        onClose={closeCreate}
+        title={SCORE_TEMPLATE_TEXT.CREATE_MODAL_TITLE}
+        footer={
+          <>
+            <Button variant="ghost" onClick={closeCreate} disabled={createMutation.isPending}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              form="create-question-template-form"
+              isLoading={createMutation.isPending}
+            >
+              {SCORE_TEMPLATE_TEXT.CREATE_ACTION}
+            </Button>
+          </>
+        }
+      >
+        <form
+          id="create-question-template-form"
+          className="space-y-4"
+          onSubmit={(event) => void handleCreate(event)}
+        >
+          <p className="text-sm text-gray-600">{SCORE_TEMPLATE_TEXT.CREATE_MODAL_SUBTITLE}</p>
+          <Input
+            id="create-question-template-code"
+            label="Code"
+            value={createCode}
+            onChange={(event) => setCreateCode(event.target.value)}
+            required
+            maxLength={64}
+          />
+          <Input
+            id="create-question-template-name"
+            label="Name"
+            value={createName}
+            onChange={(event) => setCreateName(event.target.value)}
+            required
+            maxLength={255}
+          />
+          {createError && <Alert tone="error">{createError}</Alert>}
+        </form>
+      </Modal>
     </div>
   );
 };

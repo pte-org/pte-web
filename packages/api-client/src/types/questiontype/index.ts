@@ -1,5 +1,11 @@
 export type QuestionTypeSection = "SPEAKING" | "WRITING" | "READING" | "LISTENING";
 
+export interface SupportedQuestionTypeResponse {
+  code: string;
+  section: QuestionTypeSection;
+  scored: boolean;
+}
+
 export interface QuestionTypeResponse {
   publicId: string;
   code: string;
@@ -19,6 +25,15 @@ export interface QuestionTypeResponse {
   usesOptionOrderAsCorrectPosition: boolean;
 }
 
+export interface CreateQuestionTypeRequest {
+  code: string;
+  displayName: string;
+  shortName: string;
+  section: QuestionTypeSection;
+  displayOrder: number;
+  active: boolean;
+}
+
 export interface UpdateQuestionTypeRequest {
   displayName: string;
   shortName: string;
@@ -32,12 +47,4 @@ export interface UpdateQuestionTypeRequest {
   requiresWordCount: boolean;
   requiresSingleCorrectOption: boolean;
   usesOptionOrderAsCorrectPosition: boolean;
-}
-
-export interface ImportQuestionTypesFromScoreTemplateRequest {
-  items: Array<{
-    taskType: string;
-    section: string;
-    sequence: number;
-  }>;
 }
