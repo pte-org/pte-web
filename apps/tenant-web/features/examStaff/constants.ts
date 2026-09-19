@@ -1,0 +1,70 @@
+export const EXAM_STAFF_QUERY_KEY = ["examStaff"] as const;
+
+export const EXAM_STAFF_TEXT = {
+  title: "Exam Staff",
+  subtitle: "Manage the Proctor and Examiner accounts in your organization.",
+  addButton: "Add Exam Staff",
+  searchPlaceholder: "Search by name or email",
+  roleLabel: "Role",
+  statusLabel: "Status",
+  sortLabel: "Sort by",
+  allRoles: "All roles",
+  proctor: "Proctor",
+  examiner: "Examiner",
+  allStatuses: "All statuses",
+  active: "Active",
+  suspended: "Suspended",
+  recentlyAdded: "Recently added",
+  nameAsc: "Full name: A–Z",
+  nameDesc: "Full name: Z–A",
+  emailAsc: "Email: A–Z",
+  emailDesc: "Email: Z–A",
+  pageSizeLabel: "Rows per page",
+  firstPage: "First",
+  lastPage: "Last",
+  totalItems: (count: number) => `${count} staff account(s)`,
+  emptyTitle: "No exam staff found",
+  emptyDescription: "Try a different search or filter.",
+  loadFailed: "Unable to load exam staff. Please try again.",
+  syncing: "Updating the list…",
+  email: "Email",
+  fullName: "Full name",
+  role: "Role",
+  status: "Status",
+  actions: "Actions",
+  suspend: "Suspend",
+  reactivate: "Reactivate",
+  confirmSuspendTitle: "Suspend exam staff account",
+  confirmSuspendDescription: (fullName: string) =>
+    `Suspend ${fullName}'s account? They will not be able to sign in until reactivated.`,
+  confirm: "Suspend account",
+  cancel: "Cancel",
+  addTitle: "Add Exam Staff",
+  addDescription: "Create a Proctor or Examiner account for your organization.",
+  roleRequired: "Select a role.",
+  emailRequired: "Email is required.",
+  emailInvalid: "Enter a valid email address.",
+  fullNameRequired: "Full name is required.",
+  passwordRequired: "Password is required.",
+  passwordMinLength: "Password must be at least 8 characters.",
+  passwordLabel: "Temporary password",
+  passwordHelper: "The staff member should change this password after signing in.",
+  submit: "Add account",
+  submitting: "Adding account…",
+  close: "Close",
+} as const;
+
+export const EXAM_STAFF_ROLE_OPTIONS = [
+  { label: EXAM_STAFF_TEXT.proctor, value: "PROCTOR" },
+  { label: EXAM_STAFF_TEXT.examiner, value: "EXAMINER" },
+] as const;
+
+export const EXAM_STAFF_SORT_OPTIONS = [
+  { value: "CREATED_AT_DESC", label: EXAM_STAFF_TEXT.recentlyAdded, sort: "CREATED_AT", direction: "DESC" },
+  { value: "FULL_NAME_ASC", label: EXAM_STAFF_TEXT.nameAsc, sort: "FULL_NAME", direction: "ASC" },
+  { value: "FULL_NAME_DESC", label: EXAM_STAFF_TEXT.nameDesc, sort: "FULL_NAME", direction: "DESC" },
+  { value: "EMAIL_ASC", label: EXAM_STAFF_TEXT.emailAsc, sort: "EMAIL", direction: "ASC" },
+  { value: "EMAIL_DESC", label: EXAM_STAFF_TEXT.emailDesc, sort: "EMAIL", direction: "DESC" },
+] as const;
+
+export const EXAM_STAFF_PAGE_SIZE_OPTIONS = [20, 50, 100] as const;

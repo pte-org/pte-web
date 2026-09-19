@@ -4,9 +4,10 @@ import {
   listAuditLogs,
   listUsers,
   type AuditLogResponse,
+  type PagedResult,
   type UserResponse,
 } from "@pte/api-client";
-import { useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
+import { keepPreviousData, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import { TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
 import { AUDIT_LOGS_QUERY_KEY } from "../constants";
@@ -35,19 +36,27 @@ function useAllTenantUsers(): UseQueryResult<UserResponse[]> {
  * — `AuditLogResponse` only carries `actorUserId` (same join-here-not-in-
  * admin reasoning as `useClassRoster`/`useProgramRoster`).
  */
-export function useAuditLogs(aggregateType?: string): UseQueryResult<AuditLogEntry[]> {
+export function useAuditLogs(
+  aggregateType?: string,
+  page = 0,
+  size = 20,
+): UseQueryResult<PagedResult<AuditLogEntry>> {
   const users = useAllTenantUsers();
   const queryClient = useQueryClient();
 
   return useQuery({
-    queryKey: [...AUDIT_LOGS_QUERY_KEY, aggregateType ?? "ALL"],
+    queryKey: [...AUDIT_LOGS_QUERY_KEY, aggregateType ?? "ALL", page, size],
     queryFn: async () => {
-      const logs = await listAuditLogs(apiClient, aggregateType);
+      const logs = await listAuditLogs(apiClient, aggregateType, page, size);
       const allUsers =
         queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? users.data ?? [];
       const byId = new Map(allUsers.map((user) => [user.publicId, user]));
-      return logs.map((log) => ({ log, actorName: byId.get(log.actorUserId)?.fullName ?? null }));
+      return {
+        ...logs,
+        data: logs.data.map((log) => ({ log, actorName: byId.get(log.actorUserId)?.fullName ?? null })),
+      };
     },
     enabled: users.data !== undefined,
+    placeholderData: keepPreviousData,
   });
 }

@@ -18,6 +18,7 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
     { label: "Learners", href: "/host/students", icon: <UsersIcon />, section: "Learners" },
     { label: labels.program, href: "/host/programs", icon: <BookOpenIcon />, section: "Learners" },
     { label: "Exams", href: "/host/exams", icon: <BookOpenIcon />, section: "Delivery" },
+    { label: "Exam Staff", href: "/host/exam-staff", icon: <UsersIcon />, section: "Delivery" },
     {
       label: "Plans & billing",
       href: "/host/billing",

@@ -1,31 +1,47 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import type { UserResponse } from "@pte/api-client";
-import { Alert, DataTable, Dropdown, LockIcon, type DataTableColumn } from "@pte/ui";
+import type { StudentRosterRow } from "@pte/api-client";
+import {
+  Alert,
+  DataTable,
+  Dropdown,
+  LockIcon,
+  PaginationControls,
+  type DataTableColumn,
+} from "@pte/ui";
 import {
   LEARNERS_OVERVIEW_TEXT,
   STUDENT_ROW_ACTIONS_TEXT,
   STUDENT_TABLE_HEADERS,
 } from "./constants";
-import { useResetStudentPassword, useTenantStudents } from "../api";
+import { useResetStudentPassword } from "../api";
 import { errorMessage } from "../errorMessage";
 import { ResetStudentPasswordModal } from "./ResetStudentPasswordModal";
+import { useStudentRoster } from "@/features/studentSearch/api";
 
 const T = LEARNERS_OVERVIEW_TEXT;
 
 export const LearnersOverview = (): ReactElement => {
-  const studentsQuery = useTenantStudents();
-  const [resetTarget, setResetTarget] = useState<UserResponse | null>(null);
-  const resetPassword = useResetStudentPassword(resetTarget?.publicId ?? "");
+  const [page, setPage] = useState(0);
+  const studentsQuery = useStudentRoster({
+    page,
+    size: 20,
+    search: "",
+    assignmentStatus: "ALL",
+    sort: "CREATED_AT",
+    direction: "DESC",
+  });
+  const [resetTarget, setResetTarget] = useState<StudentRosterRow | null>(null);
+  const resetPassword = useResetStudentPassword(resetTarget?.studentPublicId ?? "");
 
-  const columns: DataTableColumn<UserResponse>[] = [
+  const columns: DataTableColumn<StudentRosterRow>[] = [
     {
       key: "fullName",
       header: STUDENT_TABLE_HEADERS.FULL_NAME,
-      cell: (student) => <span className="font-medium text-gray-900">{student.fullName}</span>,
+      cell: (student) => <span className="font-medium text-gray-900">{student.fullName ?? "-"}</span>,
     },
-    { key: "email", header: STUDENT_TABLE_HEADERS.EMAIL, cell: (student) => student.email },
+    { key: "email", header: STUDENT_TABLE_HEADERS.EMAIL, cell: (student) => student.email ?? "-" },
     {
       key: "studentCode",
       header: STUDENT_TABLE_HEADERS.STUDENT_CODE,
@@ -54,8 +70,8 @@ export const LearnersOverview = (): ReactElement => {
 
       <DataTable
         columns={columns}
-        rows={studentsQuery.data ?? []}
-        getRowKey={(student) => student.publicId}
+        rows={studentsQuery.data?.data ?? []}
+        getRowKey={(student) => student.studentPublicId}
         isLoading={studentsQuery.isLoading}
         emptyTitle={T.EMPTY_TITLE}
         emptyDescription={T.EMPTY_TEXT}
@@ -72,8 +88,17 @@ export const LearnersOverview = (): ReactElement => {
         )}
       />
 
+      {studentsQuery.data && (
+        <PaginationControls
+          meta={studentsQuery.data.meta}
+          onPageChange={setPage}
+          disabled={studentsQuery.isFetching}
+          totalItemsLabel={`Showing ${studentsQuery.data.meta.totalElements} student(s)`}
+        />
+      )}
+
       <ResetStudentPasswordModal
-        key={resetTarget ? `reset-${resetTarget.publicId}` : "reset-closed"}
+        key={resetTarget ? `reset-${resetTarget.studentPublicId}` : "reset-closed"}
         open={resetTarget !== null}
         onClose={() => {
           resetPassword.reset();
