@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, DataTable, LoadingState, PageHeader, type DataTableColumn } from "@pte/ui";
+import { Alert, DataTable, LoadingState, PageHeader, PaginationControls, type DataTableColumn } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import { AUDIT_LOG_AGGREGATE_TYPES, AUDIT_LOG_TABLE_HEADERS, AUDIT_LOG_TEXT } from "../constants";
@@ -10,7 +10,9 @@ import { useAuditLogs, type AuditLogEntry } from "../api";
 export const AuditLogView = (): ReactElement => {
   const labels = useOrgLabels();
   const [aggregateType, setAggregateType] = useState<string>("");
-  const { data: entries, isLoading, isError, error } = useAuditLogs(aggregateType || undefined);
+  const [page, setPage] = useState(0);
+  const { data, isLoading, isError, error } = useAuditLogs(aggregateType || undefined, page, 20);
+  const entries = data?.data ?? [];
 
   const columns: DataTableColumn<AuditLogEntry>[] = [
     {
@@ -40,7 +42,10 @@ export const AuditLogView = (): ReactElement => {
         <select
           id="audit-log-filter"
           value={aggregateType}
-          onChange={(event) => setAggregateType(event.target.value)}
+          onChange={(event) => {
+            setAggregateType(event.target.value);
+            setPage(0);
+          }}
           className="rounded-md border border-gray-300 px-2.5 py-1.5 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-blue-200"
         >
           <option value="">{AUDIT_LOG_TEXT.filterAll}</option>
@@ -60,6 +65,15 @@ export const AuditLogView = (): ReactElement => {
           getRowKey={(entry) => entry.log.publicId}
           emptyTitle={AUDIT_LOG_TEXT.emptyTitle}
           emptyDescription={AUDIT_LOG_TEXT.emptyText}
+        />
+      )}
+
+      {data && (
+        <PaginationControls
+          meta={data.meta}
+          onPageChange={setPage}
+          disabled={isLoading}
+          totalItemsLabel={`Showing ${data.meta.totalElements} entr${data.meta.totalElements === 1 ? "y" : "ies"}`}
         />
       )}
     </div>

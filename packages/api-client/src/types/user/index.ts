@@ -1,3 +1,5 @@
+import type { PagedResult } from "../../client/client";
+
 /** Matches iam's real `UserResponse` record exactly. */
 export interface UserResponse {
   publicId: string;
@@ -11,6 +13,24 @@ export interface UserResponse {
   phone: string | null;
   dateOfBirth: string | null;
 }
+
+export type ExamStaffRole = "PROCTOR" | "EXAMINER";
+export type ExamStaffRoleFilter = "ALL" | ExamStaffRole;
+export type UserStatusFilter = "ALL" | "ACTIVE" | "SUSPENDED";
+export type UserListSort = "CREATED_AT" | "FULL_NAME" | "EMAIL";
+export type UserListDirection = "ASC" | "DESC";
+
+export interface ExamStaffQuery {
+  page: number;
+  size: number;
+  search?: string;
+  role?: ExamStaffRoleFilter;
+  status?: UserStatusFilter;
+  sort?: UserListSort;
+  direction?: UserListDirection;
+}
+
+export type ExamStaffPage = PagedResult<UserResponse>;
 
 /** Matches iam's real `CreateUserRequest` record exactly. */
 export interface CreateUserRequest {
@@ -32,8 +52,8 @@ export interface ResetPasswordRequest {
 
 /** Matches iam's real `BulkCreateUserRow` record exactly (one Excel roster row). */
 export interface BulkCreateUserRow {
-  email: string;
-  fullName: string;
+  email?: string | null;
+  fullName?: string | null;
   studentCode?: string | null;
   className?: string | null;
   phone?: string | null;
@@ -50,13 +70,14 @@ export interface BulkCreateUsersRequest {
 export interface BulkCreateUsersResponse {
   created: {
     publicId: string;
-    email: string;
-    fullName: string;
+    username: string;
+    email: string | null;
+    fullName: string | null;
     generatedPassword: string;
   }[];
   skipped: {
     rowIndex: number;
-    email: string;
+    email: string | null;
     reason: string;
   }[];
 }

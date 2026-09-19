@@ -1,4 +1,4 @@
-import type { ApiClient } from "../../client/client";
+import type { ApiClient, PagedResult } from "../../client/client";
 import type { AuditLogResponse } from "../../types/admin/auditLog";
 
 export const AUDIT_LOG_ENDPOINTS = {
@@ -9,7 +9,12 @@ export const AUDIT_LOG_ENDPOINTS = {
 export function listAuditLogs(
   client: ApiClient,
   aggregateType?: string,
-): Promise<AuditLogResponse[]> {
-  const query = aggregateType ? `?aggregateType=${encodeURIComponent(aggregateType)}` : "";
-  return client.request<AuditLogResponse[]>(`${AUDIT_LOG_ENDPOINTS.auditLogs}${query}`);
+  page = 0,
+  size = 20,
+): Promise<PagedResult<AuditLogResponse>> {
+  const params = new URLSearchParams({ page: String(page), size: String(size) });
+  if (aggregateType) params.set("aggregateType", aggregateType);
+  return client.request<PagedResult<AuditLogResponse>>(
+    `${AUDIT_LOG_ENDPOINTS.auditLogs}?${params.toString()}`,
+  );
 }

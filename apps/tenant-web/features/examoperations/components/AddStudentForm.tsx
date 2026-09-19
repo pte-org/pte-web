@@ -84,13 +84,11 @@ export const AddStudentForm = ({ sessionPublicId }: AddStudentFormProps): ReactE
             type="email"
             value={form.email}
             onChange={(event) => handleChange("email", event.target.value)}
-            required
           />
           <Input
             label={T.FULL_NAME_LABEL}
             value={form.fullName}
             onChange={(event) => handleChange("fullName", event.target.value)}
-            required
           />
           <Input
             label={T.STUDENT_CODE_LABEL}

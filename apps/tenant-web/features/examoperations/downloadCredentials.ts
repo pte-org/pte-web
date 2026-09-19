@@ -7,8 +7,9 @@ export function downloadCredentials(
 ): void {
   const sheet = XLSX.utils.json_to_sheet(
     accounts.map((account) => ({
-      Email: account.email,
-      "Full Name": account.fullName,
+      Username: account.username,
+      Email: account.email ?? "",
+      "Full Name": account.fullName ?? "",
       Password: account.generatedPassword,
     })),
   );

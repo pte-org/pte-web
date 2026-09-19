@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactElement, ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -59,15 +60,23 @@ const HEADER_TEXT = {
 
 const SidebarBrand = (): ReactElement => (
   <div className="flex items-center gap-2">
-    <span className="grid h-10 w-10 place-items-center rounded-md bg-blue-600 text-sm font-semibold text-white shadow-sm shadow-blue-600/25">
-      P
-    </span>
+    <Image
+      src="/logo.png"
+      alt={`${BRAND_NAME} logo`}
+      width={40}
+      height={40}
+      priority
+      className="h-10 w-10 rounded-md object-contain shadow-sm"
+    />
     <div className="leading-tight">
       <p className="text-sm font-semibold text-gray-900">{BRAND_NAME}</p>
       <p className="text-xs text-gray-500">{BRAND_SUBTITLE}</p>
     </div>
   </div>
 );
+
+const isActive = (pathname: string | null, href: string): boolean =>
+  href === "/" ? pathname === "/" : Boolean(pathname?.startsWith(href));
 
 const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
   const pathname = usePathname();
@@ -88,7 +97,7 @@ const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
             href={item.href}
             className={cn(
               "flex min-h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors",
-              pathname?.startsWith(item.href)
+              isActive(pathname, item.href)
                 ? "bg-action font-medium text-white shadow-[0px_4px_10px_rgba(11,95,174,0.25)]"
                 : "text-gray-600 hover:bg-blue-50 hover:text-blue-700",
             )}

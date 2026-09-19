@@ -1,6 +1,6 @@
 import type { NavItem } from "@/features/auth/components";
 import type { OrgLabels } from "@/features/orgLabels/constants";
-import { BookOpenIcon, DocumentIcon, GridIcon, LicenseIcon, UsersIcon } from "@pte/ui";
+import { BookOpenIcon, DocumentIcon, GridIcon, HomeIcon, LicenseIcon, UsersIcon } from "@pte/ui";
 
 /**
  * Non-label entries stay static; the Program entry's label is org-type-driven.
@@ -13,11 +13,19 @@ import { BookOpenIcon, DocumentIcon, GridIcon, LicenseIcon, UsersIcon } from "@p
  */
 export function buildHostNav(labels: OrgLabels): NavItem[] {
   return [
+    { label: "Home", href: "/", icon: <HomeIcon />, section: "Home" },
     { label: "Overview", href: "/host/dashboard", icon: <GridIcon />, section: "Home" },
     { label: "Learners", href: "/host/students", icon: <UsersIcon />, section: "Learners" },
     { label: labels.program, href: "/host/programs", icon: <BookOpenIcon />, section: "Learners" },
     { label: "Exams", href: "/host/exams", icon: <BookOpenIcon />, section: "Delivery" },
-    { label: "Plans & billing", href: "/host/billing", icon: <LicenseIcon />, section: "Account", requiredRoles: ["HOST_ADMIN"] },
+    { label: "Exam Staff", href: "/host/exam-staff", icon: <UsersIcon />, section: "Delivery" },
+    {
+      label: "Plans & billing",
+      href: "/host/billing",
+      icon: <LicenseIcon />,
+      section: "Account",
+      requiredRoles: ["HOST_ADMIN"],
+    },
     {
       label: "Audit Log",
       href: "/host/audit-log",

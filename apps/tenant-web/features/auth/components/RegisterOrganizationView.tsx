@@ -69,7 +69,9 @@ export const RegisterOrganizationView = (): ReactElement => {
       });
       setSubmitted(true);
     } catch (error) {
-      if (error instanceof ApiError && error.message === "REQUESTED_CODE_ALREADY_USED") {
+      if (error instanceof ApiError && error.message === "TENANT_NAME_ALREADY_USED") {
+        setErrors((current) => ({ ...current, orgName: REGISTRATION_TEXT.duplicateName }));
+      } else if (error instanceof ApiError && error.message === "REQUESTED_CODE_ALREADY_USED") {
         setErrors((current) => ({ ...current, requestedCode: REGISTRATION_TEXT.duplicateCode }));
       } else if (error instanceof ApiError && error.status === 429) {
         setSubmissionError(REGISTRATION_TEXT.rateLimited);
@@ -110,8 +112,13 @@ export const RegisterOrganizationView = (): ReactElement => {
     );
   }
 
+  const fieldConflict =
+    submit.error instanceof ApiError &&
+    (submit.error.message === "TENANT_NAME_ALREADY_USED" ||
+      submit.error.message === "REQUESTED_CODE_ALREADY_USED");
   const submitError =
-    submissionError || (submit.error instanceof ApiError ? submit.error.message : undefined);
+    submissionError ||
+    (submit.error instanceof ApiError && !fieldConflict ? submit.error.message : undefined);
   return (
     <PublicShell>
       <section className="mx-auto max-w-4xl px-5 py-10 sm:py-14 lg:px-8 lg:py-18">

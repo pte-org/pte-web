@@ -11,6 +11,7 @@ import {
   submitApplication,
   type CreateOrderRequest,
   type OrderResponse,
+  type PagedResult,
   type PlanResponse,
   type StudentQuotaResponse,
   type SubmitApplicationRequest,
@@ -46,9 +47,16 @@ export function useOrdersQuery(
 ): UseQueryResult<OrderResponse[]> {
   return useQuery({
     queryKey: ORDERS_QUERY_KEY,
-    queryFn: () => listOrders(apiClient),
+    queryFn: async () => (await listOrders(apiClient, 0, 100)).data,
     enabled,
     refetchInterval,
+  });
+}
+
+export function useOrdersPage(page: number, size: number): UseQueryResult<PagedResult<OrderResponse>> {
+  return useQuery({
+    queryKey: [...ORDERS_QUERY_KEY, page, size],
+    queryFn: () => listOrders(apiClient, page, size),
   });
 }
 

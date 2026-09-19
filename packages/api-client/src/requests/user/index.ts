@@ -1,8 +1,10 @@
-import type { ApiClient } from "../../client/client";
+import type { ApiClient, PagedResult } from "../../client/client";
 import type {
   BulkCreateUsersRequest,
   BulkCreateUsersResponse,
   CreateUserRequest,
+  ExamStaffPage,
+  ExamStaffQuery,
   ResetPasswordRequest,
   UserResponse,
 } from "../../types/user";
@@ -42,6 +44,21 @@ export function bulkCreateUsers(
  */
 export function listUsers(client: ApiClient): Promise<UserResponse[]> {
   return client.request<UserResponse[]>(USER_ENDPOINTS.users);
+}
+
+export function listExamStaff(client: ApiClient, query: ExamStaffQuery): Promise<ExamStaffPage> {
+  const params = new URLSearchParams({
+    page: String(query.page),
+    size: String(query.size),
+    role: query.role ?? "ALL",
+    status: query.status ?? "ALL",
+    sort: query.sort ?? "CREATED_AT",
+    direction: query.direction ?? "DESC",
+  });
+  if (query.search?.trim()) {
+    params.set("search", query.search.trim());
+  }
+  return client.request<PagedResult<UserResponse>>(`${USER_ENDPOINTS.users}/exam-staff?${params}`);
 }
 
 /** Platform-admin-only — see `listUsers` above for the Host-facing equivalent. */

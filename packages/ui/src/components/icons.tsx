@@ -23,6 +23,14 @@ export const GridIcon = ({ className }: IconProps): ReactElement => (
   </svg>
 );
 
+export const HomeIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...base} className={className}>
+    <path d="m3 10 9-7 9 7" />
+    <path d="M5 9v11h14V9" />
+    <path d="M9 20v-6h6v6" />
+  </svg>
+);
+
 export const BuildingIcon = ({ className }: IconProps): ReactElement => (
   <svg {...base} className={className}>
     <path d="M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16" />

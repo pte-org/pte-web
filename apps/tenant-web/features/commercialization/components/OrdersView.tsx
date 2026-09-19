@@ -1,17 +1,19 @@
 "use client";
 
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Alert, DataTable, PageHeader } from "@pte/ui";
+import { Alert, DataTable, PageHeader, PaginationControls } from "@pte/ui";
 import { type OrderResponse } from "@pte/api-client";
-import { useOrdersQuery } from "../api";
+import { useOrdersPage } from "../api";
 import { BillingPanel } from "./BillingPanel";
 import { BillingStatusBadge } from "./BillingStatusBadge";
 
 const formatDate = (value: string): string => new Date(value).toLocaleString();
 
 export const OrdersView = (): ReactElement => {
-  const { data: orders = [], isLoading, isError } = useOrdersQuery();
+  const [page, setPage] = useState(0);
+  const { data, isLoading, isError } = useOrdersPage(page, 20);
+  const orders = data?.data ?? [];
   return (
     <div className="flex flex-col gap-5">
       <PageHeader title="Order history" subtitle="Review payments and purchased packages." actions={<Link href="/host/billing" className="text-sm font-semibold text-action hover:underline">Browse plans</Link>} />
@@ -31,6 +33,14 @@ export const OrdersView = (): ReactElement => {
           rowActionsHeader=""
           emptyTitle={isLoading ? "Loading orders..." : "No orders found"}
         />
+        {data && (
+          <PaginationControls
+            meta={data.meta}
+            onPageChange={setPage}
+            disabled={isLoading}
+            totalItemsLabel={`Showing ${data.meta.totalElements} order(s)`}
+          />
+        )}
       </BillingPanel>
     </div>
   );
