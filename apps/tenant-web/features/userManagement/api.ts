@@ -1,6 +1,10 @@
 "use client";
 
-import { sendCredentialsEmail, type GeneratedCredentialsResponse } from "@pte/api-client";
+import {
+  generateStudentCredentials,
+  sendCredentialsEmail,
+  type GeneratedCredentialsResponse,
+} from "@pte/api-client";
 import { useMutation, useQueryClient, type UseMutationResult } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 
@@ -16,6 +20,23 @@ export function useSendUserCredentials(): UseMutationResult<
     mutationFn: (publicId) => sendCredentialsEmail(apiClient, publicId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["examStaff"] });
+      void queryClient.invalidateQueries({ queryKey: ["studentRoster"] });
+      void queryClient.invalidateQueries({ queryKey: ["tenantUsers"] });
+    },
+  });
+}
+
+/** Rotates a Student password for Host verification without sending email. */
+export function useGenerateStudentCredentials(): UseMutationResult<
+  GeneratedCredentialsResponse,
+  unknown,
+  string
+> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (publicId) => generateStudentCredentials(apiClient, publicId),
+    onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["studentRoster"] });
       void queryClient.invalidateQueries({ queryKey: ["tenantUsers"] });
     },

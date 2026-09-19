@@ -131,6 +131,7 @@ export const ExamStaffView = (): ReactElement => {
       header: EXAM_STAFF_TEXT.fullName,
       cell: (user) => <span className="font-medium text-gray-900">{user.fullName}</span>,
     },
+    { key: "account", header: EXAM_STAFF_TEXT.account, cell: (user) => user.username },
     { key: "email", header: EXAM_STAFF_TEXT.email, cell: (user) => user.email },
     { key: "role", header: EXAM_STAFF_TEXT.role, cell: roleLabel },
     {

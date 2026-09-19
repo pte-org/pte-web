@@ -29,6 +29,7 @@ export const EXAM_STAFF_TEXT = {
   syncing: "Updating the list…",
   email: "Email",
   fullName: "Full name",
+  account: "Account",
   role: "Role",
   status: "Status",
   actions: "Actions",

@@ -57,7 +57,7 @@ export interface ResetPasswordRequest {
 export interface GeneratedCredentialsResponse {
   publicId: string;
   username: string;
-  email: string;
+  email: string | null;
   fullName: string | null;
   temporaryPassword: string;
   emailQueued: boolean;

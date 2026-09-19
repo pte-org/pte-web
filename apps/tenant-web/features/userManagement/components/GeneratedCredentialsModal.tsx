@@ -30,8 +30,10 @@ export const GeneratedCredentialsModal = ({
     >
       <div className="flex flex-col gap-4">
         <Alert tone="success">
-          The temporary password was generated and queued to {credentials.email}. Save it now; it
-          will not be shown again.
+          {credentials.email
+            ? `The temporary password was generated and queued to ${credentials.email}. `
+            : "The temporary password was generated without email delivery. "}
+          Save it now; it will not be shown again.
         </Alert>
         <DescriptionRow label="Username" value={credentials.username} />
         <DescriptionRow label="Email" value={credentials.email} />
@@ -41,9 +43,15 @@ export const GeneratedCredentialsModal = ({
   );
 };
 
-const DescriptionRow = ({ label, value }: { label: string; value: string }): ReactElement => (
+const DescriptionRow = ({
+  label,
+  value,
+}: {
+  label: string;
+  value: string | null;
+}): ReactElement => (
   <div>
     <p className="text-xs font-semibold uppercase text-gray-500">{label}</p>
-    <p className="mt-1 text-sm text-gray-900">{value}</p>
+    <p className="mt-1 text-sm text-gray-900">{value || "—"}</p>
   </div>
 );

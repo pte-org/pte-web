@@ -18,6 +18,7 @@ export const USER_ENDPOINTS = {
   reactivate: (publicId: string) => `/api/v1/users/${publicId}/reactivate`,
   resetPassword: (publicId: string) => `/api/v1/users/${publicId}/reset-password`,
   sendCredentialsEmail: (publicId: string) => `/api/v1/users/${publicId}/credentials/send-email`,
+  generateCredentials: (publicId: string) => `/api/v1/users/${publicId}/credentials/generate`,
 } as const;
 
 export function createUser(client: ApiClient, payload: CreateUserRequest): Promise<UserResponse> {
@@ -89,6 +90,19 @@ export function sendCredentialsEmail(
 ): Promise<GeneratedCredentialsResponse> {
   return client.request<GeneratedCredentialsResponse>(
     USER_ENDPOINTS.sendCredentialsEmail(publicId),
+    {
+      method: "POST",
+    },
+  );
+}
+
+/** Rotates a Student password for Host verification without sending email. */
+export function generateStudentCredentials(
+  client: ApiClient,
+  publicId: string,
+): Promise<GeneratedCredentialsResponse> {
+  return client.request<GeneratedCredentialsResponse>(
+    USER_ENDPOINTS.generateCredentials(publicId),
     {
       method: "POST",
     },

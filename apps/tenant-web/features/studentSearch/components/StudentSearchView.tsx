@@ -17,7 +17,7 @@ import {
   DataTable,
   EyeIcon,
   Input,
-  MailIcon,
+  LockIcon,
   PageHeader,
   PaginationControls,
   Select,
@@ -43,7 +43,7 @@ import { ManageStudentsModal } from "./ManageStudentsModal";
 import {
   AccountDetailsModal,
   GeneratedCredentialsModal,
-  useSendUserCredentials,
+  useGenerateStudentCredentials,
 } from "@/features/userManagement";
 import type { AccountDetails, GeneratedCredentials } from "@/features/userManagement";
 
@@ -75,7 +75,7 @@ export const StudentSearchView = (): ReactElement => {
   const [manageMode, setManageMode] = useState<"add" | "import" | null>(null);
   const [studentToSuspend, setStudentToSuspend] = useState<StudentRosterRow | null>(null);
   const [detailsTarget, setDetailsTarget] = useState<StudentRosterRow | null>(null);
-  const [emailTarget, setEmailTarget] = useState<StudentRosterRow | null>(null);
+  const [passwordTarget, setPasswordTarget] = useState<StudentRosterRow | null>(null);
   const [credentials, setCredentials] = useState<GeneratedCredentials | null>(null);
   const [keepPreviousRows, setKeepPreviousRows] = useState(false);
 
@@ -108,7 +108,7 @@ export const StudentSearchView = (): ReactElement => {
   const roster = useStudentRoster(rosterQuery);
   const suspend = useSuspendStudent();
   const reactivate = useReactivateStudent();
-  const sendCredentials = useSendUserCredentials();
+  const generateCredentials = useGenerateStudentCredentials();
   const hasOrganizationSelector = (organizations?.length ?? 0) > 1;
   const filterGridClass = hasOrganizationSelector
     ? "grid gap-3 lg:grid-cols-3"
@@ -120,7 +120,9 @@ export const StudentSearchView = (): ReactElement => {
   const visibleResult = isNewFilterPending ? undefined : roster.data;
   const rows = visibleResult?.data ?? [];
   const queryError = errorMessage(roster.error);
-  const mutationError = errorMessage(suspend.error ?? reactivate.error ?? sendCredentials.error);
+  const mutationError = errorMessage(
+    suspend.error ?? reactivate.error ?? generateCredentials.error,
+  );
 
   const resetPage = (): void => {
     setKeepPreviousRows(false);
@@ -138,6 +140,7 @@ export const StudentSearchView = (): ReactElement => {
       header: STUDENT_SEARCH_TABLE_HEADERS.NAME,
       cell: (row) => <span className="font-medium text-gray-900">{row.fullName}</span>,
     },
+    { key: "account", header: STUDENT_SEARCH_TABLE_HEADERS.ACCOUNT, cell: (row) => row.username },
     {
       key: "code",
       header: STUDENT_SEARCH_TABLE_HEADERS.CODE,
@@ -306,10 +309,10 @@ export const StudentSearchView = (): ReactElement => {
               },
               { separator: true },
               {
-                label: STUDENT_ROSTER_FILTER_TEXT.sendEmail,
-                icon: MailIcon,
-                disabled: !row.email || sendCredentials.isPending,
-                onSelect: () => setEmailTarget(row),
+                label: STUDENT_ROSTER_FILTER_TEXT.generatePassword,
+                icon: LockIcon,
+                disabled: generateCredentials.isPending,
+                onSelect: () => setPasswordTarget(row),
               },
               row.status === "SUSPENDED"
                 ? {
@@ -371,26 +374,26 @@ export const StudentSearchView = (): ReactElement => {
       />
 
       <ConfirmDialog
-        open={emailTarget !== null}
-        title={STUDENT_ROSTER_FILTER_TEXT.sendEmailConfirmTitle}
+        open={passwordTarget !== null}
+        title={STUDENT_ROSTER_FILTER_TEXT.generatePasswordConfirmTitle}
         description={
-          emailTarget
-            ? STUDENT_ROSTER_FILTER_TEXT.sendEmailConfirmDescription(emailTarget.fullName)
+          passwordTarget
+            ? STUDENT_ROSTER_FILTER_TEXT.generatePasswordConfirmDescription(passwordTarget.fullName)
             : ""
         }
-        confirmLabel={STUDENT_ROSTER_FILTER_TEXT.sendEmailConfirm}
+        confirmLabel={STUDENT_ROSTER_FILTER_TEXT.generatePasswordConfirm}
         cancelLabel={STUDENT_ROSTER_FILTER_TEXT.cancel}
-        isConfirming={sendCredentials.isPending}
+        isConfirming={generateCredentials.isPending}
         onConfirm={() => {
-          if (!emailTarget) return;
-          sendCredentials.mutate(emailTarget.studentPublicId, {
+          if (!passwordTarget) return;
+          generateCredentials.mutate(passwordTarget.studentPublicId, {
             onSuccess: (result) => {
-              setEmailTarget(null);
+              setPasswordTarget(null);
               setCredentials(result);
             },
           });
         }}
-        onClose={() => setEmailTarget(null)}
+        onClose={() => setPasswordTarget(null)}
       />
 
       <AccountDetailsModal

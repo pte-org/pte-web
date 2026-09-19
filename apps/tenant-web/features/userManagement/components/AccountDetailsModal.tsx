@@ -25,8 +25,8 @@ export const AccountDetailsModal = ({
     <Modal open={open} onClose={onClose} title="Account details" size="lg">
       <div className="flex flex-col gap-5">
         <Alert tone="info">
-          Passwords are never shown here. Use Send email or a one-time credential result to issue a
-          fresh temporary password.
+          Existing passwords are never shown here. Use the available credential action to issue a
+          fresh temporary password; it will be shown only once.
         </Alert>
         <DescriptionList
           items={[
