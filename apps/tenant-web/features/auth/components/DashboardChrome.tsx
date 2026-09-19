@@ -24,7 +24,6 @@ export interface NavItem {
   href: string;
   icon?: ReactNode;
   section?: string;
-  clearSessionOnNavigate?: boolean;
   /** If set, only rendered for a caller whose roles include at least one of these — see `buildHostNav`'s "Audit Log" entry. */
   requiredRoles?: SessionRole[];
 }
@@ -59,32 +58,26 @@ const HEADER_TEXT = {
   LOGOUT: "Log out",
 } as const;
 
-const SidebarBrand = (): ReactElement => {
-  const { clearToken } = useTokenManager();
-
-  return (
-    <Link
-      href="/"
-      replace
-      onClick={clearToken}
-      aria-label={`${BRAND_NAME} home`}
-      className="flex items-center gap-2 rounded-md p-1 transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-    >
-      <Image
-        src="/logo.png"
-        alt={`${BRAND_NAME} logo`}
-        width={40}
-        height={40}
-        priority
-        className="h-10 w-10 rounded-md object-contain shadow-sm"
-      />
-      <div className="leading-tight">
-        <p className="text-sm font-semibold text-gray-900">{BRAND_NAME}</p>
-        <p className="text-xs text-gray-500">{BRAND_SUBTITLE}</p>
-      </div>
-    </Link>
-  );
-};
+const SidebarBrand = (): ReactElement => (
+  <Link
+    href="/"
+    aria-label={`${BRAND_NAME} home`}
+    className="flex items-center gap-2 rounded-md p-1 transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+  >
+    <Image
+      src="/logo.png"
+      alt={`${BRAND_NAME} logo`}
+      width={40}
+      height={40}
+      priority
+      className="h-10 w-10 rounded-md object-contain shadow-sm"
+    />
+    <div className="leading-tight">
+      <p className="text-sm font-semibold text-gray-900">{BRAND_NAME}</p>
+      <p className="text-xs text-gray-500">{BRAND_SUBTITLE}</p>
+    </div>
+  </Link>
+);
 
 const isActive = (pathname: string | null, href: string): boolean =>
   href === "/" ? pathname === "/" : Boolean(pathname?.startsWith(href));
@@ -92,7 +85,6 @@ const isActive = (pathname: string | null, href: string): boolean =>
 const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
   const pathname = usePathname();
   const { data: user } = useCurrentUser();
-  const { clearToken } = useTokenManager();
   const visibleItems = navItems.filter(
     (item) => !item.requiredRoles || item.requiredRoles.some((role) => user?.roles.includes(role)),
   );
@@ -107,10 +99,6 @@ const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
           )}
           <Link
             href={item.href}
-            replace={item.clearSessionOnNavigate}
-            onClick={() => {
-              if (item.clearSessionOnNavigate) clearToken();
-            }}
             className={cn(
               "flex min-h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors",
               isActive(pathname, item.href)
