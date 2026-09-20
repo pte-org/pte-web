@@ -18,6 +18,7 @@ export const ROSTER_TEXT = {
   RETRY_ENROLL: "Retry Enrolling",
   DISMISS: "Dismiss (I'll enroll these separately)",
   UNKNOWN_ERROR: "An unknown error occurred.",
+  EMPTY_VALUE: "—",
 } as const;
 
 export const ACCEPTED_FILE_TYPE = ".xlsx";
@@ -42,6 +43,8 @@ export const LEARNERS_OVERVIEW_TEXT = {
   UNABLE_TO_LOAD_FALLBACK: "Please try again.",
   EMPTY_TITLE: "No learners yet",
   EMPTY_TEXT: "Students created via roster import or added individually will appear here.",
+  EMPTY_VALUE: "—",
+  TOTAL_ITEMS: (count: number) => `Showing ${count} student(s)`,
 } as const;
 
 export const STUDENT_TABLE_HEADERS = {
@@ -59,6 +62,7 @@ export const STUDENT_ROW_ACTIONS_TEXT = {
 
 export const STUDENT_ROSTER_TABLE_TEXT = {
   EMPTY_TITLE: "No students enrolled yet",
+  EMPTY_VALUE: "—",
 } as const;
 
 export const SKIPPED_ROWS_REPORT_TEXT = {
@@ -67,6 +71,14 @@ export const SKIPPED_ROWS_REPORT_TEXT = {
   EMAIL_HEADER: "Email",
   REASON_HEADER: "Reason",
 } as const;
+
+export const SKIPPED_ROW_REASON_MESSAGES: Record<string, string> = {
+  EMAIL_ALREADY_USED: "An account with this email already exists.",
+  ROSTER_IMPORT_FAILED: "We could not create an account for this row. Please review it and try again.",
+};
+
+export const SKIPPED_ROW_UNKNOWN_REASON =
+  "This row could not be imported. Please review it and try again.";
 
 export const ROSTER_REVIEW_TABLE_HEADERS = {
   EMAIL: "Email",

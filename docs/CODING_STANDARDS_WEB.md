@@ -361,7 +361,7 @@ export default function ExamPage({ examId }: { examId: string }) {
     fetch(`/api/exams/${examId}`)
       .then(r => r.json())
       .then(data => { setExam(data); setLoading(false); })
-      .catch(err => { setError(err.message); setLoading(false); });
+      .catch(() => { setError('Unable to load exams. Please try again.'); setLoading(false); });
   }, [examId]);
 
   if (loading) return <Skeleton />;
@@ -414,10 +414,10 @@ export function ExamLoading() {
 
 // features/exam/components/ExamError.tsx
 'use client';
-export function ExamError({ error, reset }: { error: Error; reset: () => void }) {
+export function ExamError({ reset }: { error: Error; reset: () => void }) {
   return (
     <div className="p-4 text-red-600">
-      <p>{error.message}</p>
+      <p>Unable to load this exam. Please try again.</p>
       <button onClick={reset}>Retry</button>
     </div>
   );
@@ -1347,6 +1347,21 @@ export async function validateExamAccess(examId: string, attemptCount: number) {
 }
 ```
 
+### API Error Boundary
+
+The API client keeps `ApiError.message` for legacy diagnostics and exposes
+`ApiError.code` for branch logic. UI code must use
+`getUserFacingApiErrorMessage(error, fallback)` (or a feature wrapper) before
+rendering an error. Machine-shaped values such as `PLAN_ARCHIVED_NOT_EDITABLE`
+must never be shown verbatim. Known codes use the shared catalog; unknown codes,
+server failures, network failures, and raw provider exceptions use safe,
+contextual fallback copy.
+
+Keep domain-specific branches on `error.code`, not on display text. Login keeps
+the same generic copy for invalid credentials so account existence is not
+revealed. Error boundaries should show fixed recovery copy and log technical
+details only through a controlled diagnostic channel.
+
 ### Config Constants
 
 Config values (timeout, retry count, limits) → constants.
@@ -1423,11 +1438,11 @@ interface ErrorProps {
   reset: () => void;
 }
 
-export default function Error({ error, reset }: ErrorProps) {
+export default function Error({ reset }: ErrorProps) {
   return (
     <div className="p-4 text-red-600">
       <h1>Error loading exam</h1>
-      <p>{error.message}</p>
+      <p>Unable to load this exam. Please try again.</p>
       <button onClick={reset} className="mt-4 bg-blue-600 text-white px-4 py-2">
         Try again
       </button>

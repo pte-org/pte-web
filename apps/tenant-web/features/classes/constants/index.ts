@@ -57,6 +57,7 @@ export const CLASS_ROSTER_TEXT = {
   loadFailed: "Couldn't load this — it may have been archived or you may not have access.",
   missingContext:
     "Missing organization/program context — go back to the list and open this from there.",
+  emptyValue: "—",
 } as const;
 
 export const CLASS_ROSTER_TABLE_HEADERS = {

@@ -27,15 +27,18 @@ const Metric = ({
 export const SystemHealthPanel = ({ health }: SystemHealthPanelProps): ReactElement => (
   <aside className="flex flex-col gap-3">
     <h2 className="text-sm font-semibold text-gray-700">{SYSTEM_HEALTH_TEXT.TITLE}</h2>
-    <Metric label={SYSTEM_HEALTH_TEXT.API_ERROR_RATE} value={health?.apiErrorRate ?? "—"} />
+    <Metric
+      label={SYSTEM_HEALTH_TEXT.API_ERROR_RATE}
+      value={health?.apiErrorRate ?? SYSTEM_HEALTH_TEXT.EMPTY_VALUE}
+    />
     <Metric
       label={SYSTEM_HEALTH_TEXT.AI_QUEUE}
-      value={String(health?.aiQueueDepth ?? "—")}
+      value={String(health?.aiQueueDepth ?? SYSTEM_HEALTH_TEXT.EMPTY_VALUE)}
       unit={SYSTEM_HEALTH_TEXT.AI_QUEUE_UNIT}
     />
     <Metric
       label={SYSTEM_HEALTH_TEXT.DELIVERY_ERRORS}
-      value={String(health?.deliveryErrors ?? "—")}
+      value={String(health?.deliveryErrors ?? SYSTEM_HEALTH_TEXT.EMPTY_VALUE)}
       unit={SYSTEM_HEALTH_TEXT.DELIVERY_ERRORS_UNIT}
     />
     <div className="rounded-xl bg-blue-700 p-4 text-white">

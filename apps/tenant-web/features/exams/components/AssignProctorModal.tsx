@@ -3,6 +3,7 @@
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Input, Modal, PasswordInput, Select, cn } from "@pte/ui";
 import type { ProctorRole } from "@pte/api-client";
+import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
   ASSIGN_PROCTOR_TEXT,
   DEFAULT_PROCTOR_ROLE,
@@ -23,10 +24,6 @@ interface AssignProctorModalProps {
 }
 
 const T = ASSIGN_PROCTOR_TEXT;
-
-function errorMessage(error: unknown): string | undefined {
-  return error instanceof Error ? error.message : undefined;
-}
 
 const TAB_CLASS = (active: boolean): string =>
   cn(

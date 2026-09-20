@@ -45,8 +45,8 @@ export const ProgramDashboard = ({
   return (
     <div className="flex flex-col gap-4">
       <CollapsibleSection
-        title="Program overview"
-        subtitle="Classes and students at a glance."
+        title={PROGRAM_DASHBOARD_TEXT.overviewTitle}
+        subtitle={PROGRAM_DASHBOARD_TEXT.overviewSubtitle}
         contentClassName="grid grid-cols-2 gap-4 sm:grid-cols-2"
       >
         <div className="rounded-lg border border-gray-200 bg-white p-4">

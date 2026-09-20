@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Input, Modal, PasswordInput, Select, cn } from "@pte/ui";
+import { errorMessage } from "@/features/examoperations/errorMessage";
 import { ASSIGN_LECTURER_TEXT, EMPTY_CREATE_LECTURER } from "../constants";
 import { validateCreateLecturer } from "../utils/validateCreateLecturer";
 import { useAssignLecturer, useCreateLecturerAccount, useTenantLecturers } from "../api";
@@ -18,10 +19,6 @@ interface AssignLecturerModalProps {
 }
 
 const T = ASSIGN_LECTURER_TEXT;
-
-function errorMessage(error: unknown): string | undefined {
-  return error instanceof Error ? error.message : undefined;
-}
 
 const TAB_CLASS = (active: boolean): string =>
   cn(

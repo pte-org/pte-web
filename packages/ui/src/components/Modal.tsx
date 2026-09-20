@@ -15,6 +15,13 @@ interface ModalProps {
   footer?: ReactNode;
   size?: ModalSize;
   stickyFooter?: boolean;
+  /**
+   * Allows a caller to opt into closing when the backdrop is clicked.
+   *
+   * Keep this disabled by default so forms and dialogs with unsaved state are
+   * not dismissed by an accidental click outside the modal content.
+   */
+  closeOnBackdropClick?: boolean;
 }
 
 const CLOSE_LABEL = "Close";
@@ -35,6 +42,7 @@ export const Modal = ({
   footer,
   size = "md",
   stickyFooter = false,
+  closeOnBackdropClick = false,
 }: ModalProps): ReactElement | null => {
   useEffect(() => {
     if (!open) return;
@@ -50,7 +58,7 @@ export const Modal = ({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm"
-      onClick={onClose}
+      onClick={closeOnBackdropClick ? onClose : undefined}
     >
       <div
         role="dialog"

@@ -44,19 +44,22 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
     const actions: ActionMenuItem[] = [];
     if (question.status === "draft") {
       actions.push({
-        label: "Submit for approval",
+        label: QUESTIONBANK_TEXT.ROW_SUBMIT,
         onSelect: () => submitMutation.mutate(question.id),
       });
     }
     if (question.status === "pending_approval") {
       actions.push({
-        label: "Approve",
+        label: QUESTIONBANK_TEXT.ROW_APPROVE,
         onSelect: () => approveMutation.mutate(question.id),
       });
       actions.push({
         label: "Reject",
         onSelect: () => {
-          const reason = window.prompt("Reason for rejection", "Please revise this question.");
+          const reason = window.prompt(
+            QUESTIONBANK_TEXT.REJECTION_REASON_PROMPT,
+            QUESTIONBANK_TEXT.REJECTION_REASON_DEFAULT,
+          );
           if (reason?.trim()) rejectMutation.mutate({ id: question.id, reason });
         },
       });
@@ -89,7 +92,7 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
   return (
     <div className="space-y-4">
       {hasMutationError && (
-        <Alert tone="error">Could not update this question&apos;s status. Please try again.</Alert>
+        <Alert tone="error">{QUESTIONBANK_TEXT.STATUS_UPDATE_ERROR}</Alert>
       )}
       <div className="overflow-hidden rounded-lg bg-white shadow-card">
         <div className="overflow-x-auto">
@@ -122,7 +125,9 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
                       <span className="text-gray-400">—</span>
                     )}
                   </td>
-                  <td className={`${CELL_CLASS} text-gray-500`}>{question.createdAt ?? "—"}</td>
+                  <td className={`${CELL_CLASS} text-gray-500`}>
+                    {question.createdAt ?? QUESTIONBANK_TEXT.EMPTY_VALUE}
+                  </td>
                   <td className={CELL_CLASS}>
                     <Badge variant={QUESTION_STATUS_VARIANT[question.status]}>
                       {QUESTION_STATUS_LABELS[question.status]}

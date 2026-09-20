@@ -2,6 +2,7 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Input, Modal, PasswordInput, Select, cn } from "@pte/ui";
+import { errorMessage } from "@/features/examoperations/errorMessage";
 import { ASSIGN_COORDINATOR_TEXT, EMPTY_CREATE_COORDINATOR } from "../constants";
 import { validateCreateCoordinator } from "../utils/validateCreateCoordinator";
 import { useAssignCoordinator, useCreateCoordinatorAccount, useTenantCoordinators } from "../api";
@@ -17,10 +18,6 @@ interface AssignCoordinatorModalProps {
 }
 
 const T = ASSIGN_COORDINATOR_TEXT;
-
-function errorMessage(error: unknown): string | undefined {
-  return error instanceof Error ? error.message : undefined;
-}
 
 const TAB_CLASS = (active: boolean): string =>
   cn(

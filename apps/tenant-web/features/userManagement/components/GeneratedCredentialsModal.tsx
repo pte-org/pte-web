@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 import { Alert, Button, CredentialDisplay, Modal } from "@pte/ui";
 import type { GeneratedCredentials } from "../types";
+import { USER_MANAGEMENT_TEXT as T } from "../constants";
 
 interface GeneratedCredentialsModalProps {
   credentials: GeneratedCredentials | null;
@@ -21,23 +22,20 @@ export const GeneratedCredentialsModal = ({
     <Modal
       open={open}
       onClose={onClose}
-      title="Temporary credentials"
+      title={T.CREDENTIALS_TITLE}
       footer={
         <Button type="button" onClick={onClose}>
-          Done
+          {T.DONE}
         </Button>
       }
     >
       <div className="flex flex-col gap-4">
         <Alert tone="success">
-          {credentials.email
-            ? `The temporary password was generated and queued to ${credentials.email}. `
-            : "The temporary password was generated without email delivery. "}
-          Save it now; it will not be shown again.
+          {credentials.email ? T.EMAIL_DELIVERY(credentials.email) : T.NO_EMAIL_DELIVERY}
         </Alert>
-        <DescriptionRow label="Username" value={credentials.username} />
-        <DescriptionRow label="Email" value={credentials.email} />
-        <CredentialDisplay credential={credentials.temporaryPassword} label="Temporary password" />
+        <DescriptionRow label={T.USERNAME} value={credentials.username} />
+        <DescriptionRow label={T.EMAIL} value={credentials.email} />
+        <CredentialDisplay credential={credentials.temporaryPassword} label={T.TEMPORARY_PASSWORD} />
       </div>
     </Modal>
   );
@@ -52,6 +50,6 @@ const DescriptionRow = ({
 }): ReactElement => (
   <div>
     <p className="text-xs font-semibold uppercase text-gray-500">{label}</p>
-    <p className="mt-1 text-sm text-gray-900">{value || "—"}</p>
+    <p className="mt-1 text-sm text-gray-900">{value || T.EMPTY_VALUE}</p>
   </div>
 );

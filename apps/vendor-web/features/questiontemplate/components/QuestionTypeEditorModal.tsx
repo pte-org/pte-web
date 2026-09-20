@@ -3,7 +3,7 @@
 import { useState, type ReactElement } from "react";
 import { Alert, Button, Modal } from "@pte/ui";
 import {
-  ApiError,
+  getUserFacingApiErrorMessage,
   type CreateQuestionTypeRequest,
   type QuestionTypeResponse,
   type QuestionTypeSection,
@@ -72,7 +72,7 @@ const newDraft = (displayOrder: number): QuestionTypeFormDraft => ({
 });
 
 const errorMessage = (error: unknown, fallback: string): string =>
-  error instanceof ApiError ? error.message : fallback;
+  getUserFacingApiErrorMessage(error, fallback);
 
 export const QuestionTypeEditorModal = ({
   mode,

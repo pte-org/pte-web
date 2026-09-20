@@ -31,12 +31,12 @@ export const StudentRosterTable = ({ sessionPublicId }: StudentRosterTableProps)
     {
       key: "studentCode",
       header: STUDENT_TABLE_HEADERS.STUDENT_CODE,
-      cell: (entry) => entry.student.studentCode ?? "-",
+      cell: (entry) => entry.student.studentCode ?? STUDENT_ROSTER_TABLE_TEXT.EMPTY_VALUE,
     },
     {
       key: "className",
       header: STUDENT_TABLE_HEADERS.CLASS_NAME,
-      cell: (entry) => entry.student.className ?? "-",
+      cell: (entry) => entry.student.className ?? STUDENT_ROSTER_TABLE_TEXT.EMPTY_VALUE,
     },
   ];
 

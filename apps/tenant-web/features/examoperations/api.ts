@@ -19,6 +19,7 @@ import {
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import { ENROLLMENTS_QUERY_KEY, TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
+import { UserFacingError } from "./errorMessage";
 import type { CreatedAccount, RosterRow } from "./types";
 
 const PENDING_IMPORT_KEY_PREFIX = "pte.pendingImport.";
@@ -137,7 +138,9 @@ export function useCreateStudent(): UseMutationResult<CreatedAccount, unknown, A
       const [created] = response.created;
       if (!created) {
         const [skipped] = response.skipped;
-        throw new Error(skipped ? skipped.reason : "Unable to create account");
+        throw new UserFacingError(
+          skipped ? skipped.reason : "Unable to create account",
+        );
       }
       return created;
     },

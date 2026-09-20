@@ -144,10 +144,14 @@ export const StudentSearchView = (): ReactElement => {
     {
       key: "code",
       header: STUDENT_SEARCH_TABLE_HEADERS.CODE,
-      cell: (row) => row.studentCode ?? "—",
+      cell: (row) => row.studentCode ?? STUDENT_SEARCH_TEXT.emptyValue,
     },
     { key: "email", header: STUDENT_SEARCH_TABLE_HEADERS.EMAIL, cell: (row) => row.email },
-    { key: "phone", header: STUDENT_SEARCH_TABLE_HEADERS.PHONE, cell: (row) => row.phone ?? "—" },
+    {
+      key: "phone",
+      header: STUDENT_SEARCH_TABLE_HEADERS.PHONE,
+      cell: (row) => row.phone ?? STUDENT_SEARCH_TEXT.emptyValue,
+    },
     {
       key: "class",
       header: labels.class,
@@ -156,7 +160,7 @@ export const StudentSearchView = (): ReactElement => {
     {
       key: "program",
       header: labels.program,
-      cell: (row) => row.programName ?? "—",
+      cell: (row) => row.programName ?? STUDENT_SEARCH_TEXT.emptyValue,
     },
     {
       key: "status",

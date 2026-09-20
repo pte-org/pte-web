@@ -3,7 +3,7 @@ import { ADMIN_ROLES } from "@/features/auth/constants";
 import { ScoreTemplateListView } from "@/features/scoretemplate/components";
 import { ADMIN_NAV } from "@/lib/navigation";
 
-export default function QuestionTemplatePage() {
+export default function ExamTemplatePage() {
   return (
     <DashboardChrome navItems={ADMIN_NAV} allowedRoles={ADMIN_ROLES}>
       <ScoreTemplateListView />

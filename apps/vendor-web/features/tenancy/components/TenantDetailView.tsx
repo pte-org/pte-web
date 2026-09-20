@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { ApiError } from "@pte/api-client";
+import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { Alert, Badge, DescriptionList, LoadingState, PageHeader } from "@pte/ui";
 import {
   CREATE_LOGIN_ACCOUNT_TEXT,
@@ -45,17 +45,19 @@ const organizationTypeLabel = (value: string): string =>
   ORGANIZATION_TYPE_OPTIONS.find((option) => option.value === value)?.label ?? value;
 
 function mutationErrorMessage(error: unknown): string | undefined {
+  if (!error) return undefined;
   if (error instanceof ApiError && error.kind === "conflict") {
-    return CREATE_TENANT_CONFLICT_TEXT.CONFLICT;
+    return getUserFacingApiErrorMessage(error, CREATE_TENANT_CONFLICT_TEXT.CONFLICT);
   }
-  return error instanceof Error ? error.message : undefined;
+  return getUserFacingApiErrorMessage(error);
 }
 
 function loginAccountErrorMessage(error: unknown): string | undefined {
+  if (!error) return undefined;
   if (error instanceof ApiError && error.kind === "conflict") {
-    return CREATE_LOGIN_ACCOUNT_TEXT.CONFLICT;
+    return getUserFacingApiErrorMessage(error, CREATE_LOGIN_ACCOUNT_TEXT.CONFLICT);
   }
-  return error instanceof Error ? error.message : undefined;
+  return getUserFacingApiErrorMessage(error);
 }
 
 interface TenantDetailViewProps {
@@ -125,7 +127,11 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
             {TENANT_STATUS_LABELS[tenant.status]}
           </Badge>
         }
-        subtitle={`${organizationTypeLabel(tenant.organizationType)} · ${TENANT_PLAN_LABELS[tenant.plan]} · ${tenant.seatsTotal} students`}
+        subtitle={T.SUMMARY_SUBTITLE(
+          organizationTypeLabel(tenant.organizationType),
+          TENANT_PLAN_LABELS[tenant.plan],
+          tenant.seatsTotal,
+        )}
       />
 
       <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-card">
@@ -139,7 +145,7 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
               label: T.ORGANIZATION_TYPE_LABEL,
               value: organizationTypeLabel(tenant.organizationType),
             },
-            { label: T.TAX_CODE_LABEL, value: tenant.taxCode ?? "-" },
+            { label: T.TAX_CODE_LABEL, value: tenant.taxCode ?? T.EMPTY_VALUE },
             { label: T.PLAN_LABEL, value: TENANT_PLAN_LABELS[tenant.plan] },
             { label: T.STUDENT_LIMIT_LABEL, value: tenant.seatsTotal },
             {
@@ -150,8 +156,8 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
                 </Badge>
               ),
             },
-            { label: T.LOGO_URL_LABEL, value: tenant.logoUrl ?? "-" },
-            { label: T.PRIMARY_COLOR_LABEL, value: tenant.primaryColor ?? "-" },
+            { label: T.LOGO_URL_LABEL, value: tenant.logoUrl ?? T.EMPTY_VALUE },
+            { label: T.PRIMARY_COLOR_LABEL, value: tenant.primaryColor ?? T.EMPTY_VALUE },
           ]}
         />
       </section>
@@ -192,15 +198,16 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
                 { label: L.USERNAME_LABEL, value: loginAccount.username },
                 { label: L.EMAIL_LABEL, value: loginAccount.email },
                 { label: L.FULL_NAME_LABEL, value: loginAccount.fullName },
-                { label: L.TENANT_ID_LABEL, value: loginAccount.tenantId ?? "-" },
+                { label: L.TENANT_ID_LABEL, value: loginAccount.tenantId ?? L.EMPTY_VALUE },
                 {
                   label: L.ROLES_LABEL,
-                  value: loginAccount.roles.length > 0 ? loginAccount.roles.join(", ") : "-",
+                  value:
+                    loginAccount.roles.length > 0 ? loginAccount.roles.join(", ") : L.EMPTY_VALUE,
                 },
-                { label: L.STUDENT_CODE_LABEL, value: loginAccount.studentCode ?? "-" },
-                { label: L.CLASS_NAME_LABEL, value: loginAccount.className ?? "-" },
-                { label: L.PHONE_LABEL, value: loginAccount.phone ?? "-" },
-                { label: L.DATE_OF_BIRTH_LABEL, value: loginAccount.dateOfBirth ?? "-" },
+                { label: L.STUDENT_CODE_LABEL, value: loginAccount.studentCode ?? L.EMPTY_VALUE },
+                { label: L.CLASS_NAME_LABEL, value: loginAccount.className ?? L.EMPTY_VALUE },
+                { label: L.PHONE_LABEL, value: loginAccount.phone ?? L.EMPTY_VALUE },
+                { label: L.DATE_OF_BIRTH_LABEL, value: loginAccount.dateOfBirth ?? L.EMPTY_VALUE },
                 {
                   label: L.PASSWORD_STATE_LABEL,
                   value: loginAccount.mustChangePassword

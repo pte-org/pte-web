@@ -9,6 +9,7 @@ export const STUDENT_SEARCH_TEXT = {
   emptyTitle: "No students found",
   emptyText: "Try a different name or phone number.",
   unassigned: "Unassigned",
+  emptyValue: "—",
 } as const;
 
 export const STUDENT_SEARCH_ACTIONS_TEXT = {

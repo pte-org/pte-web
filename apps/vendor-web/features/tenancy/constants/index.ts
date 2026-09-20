@@ -33,6 +33,7 @@ export const TENANCY_TEXT = {
   EMPTY_TITLE: "No tenants yet",
   EMPTY_TEXT:
     "Start by adding the first partner or school to set up a managed learning environment.",
+  EMPTY_VALUE: "—",
 } as const;
 
 export const TENANT_TABLE_HEADERS = {
@@ -93,6 +94,7 @@ export const SYSTEM_HEALTH_TEXT = {
   SERVER_STATUS: "Server Status",
   OPERATIONAL: "All systems operational.",
   VIEW_LOGS: "View Logs",
+  EMPTY_VALUE: "—",
 } as const;
 
 export const SUSPEND_MODAL_TEXT = {
@@ -156,6 +158,11 @@ export const TENANT_STATS_TEXT = {
   STUDENT_SEATS: "Total student seats",
 } as const;
 
+export const TENANT_OVERVIEW_TEXT = {
+  TITLE: "Tenant overview",
+  SUBTITLE: "Tenant status and capacity at a glance.",
+} as const;
+
 export const TENANT_CREATED_TEXT = {
   TITLE: "Tenant Created Successfully",
   SUBTITLE: "The new tenant has been added to the platform.",
@@ -165,6 +172,7 @@ export const TENANT_CREATED_TEXT = {
   TAX_CODE_LABEL: "Tax Code",
   PLAN_LABEL: "Plan",
   STUDENT_LIMIT_LABEL: "Student Limit",
+  EMPTY_VALUE: "—",
   CLOSE: "Close",
 } as const;
 
@@ -216,6 +224,9 @@ export const EMPTY_CREATE_TENANT: CreateTenantInput = {
 
 export const TENANT_DETAIL_TEXT = {
   BACK_TO_TENANTS: "Back to Tenants",
+  SUMMARY_SUBTITLE: (organizationType: string, plan: string, seats: number) =>
+    `${organizationType} · ${plan} · ${seats} students`,
+  EMPTY_VALUE: "—",
   INFORMATION_TITLE: "Tenant information",
   ID_LABEL: "Tenant ID",
   CODE_LABEL: "Tenant code",
@@ -285,6 +296,7 @@ export const LOGIN_ACCOUNT_TEXT = {
   PASSWORD_STATE_LABEL: "First-login password change",
   PASSWORD_STATE_REQUIRED: "Required",
   PASSWORD_STATE_NOT_REQUIRED: "Not required",
+  EMPTY_VALUE: "—",
   RESET_SUCCESS: "Password reset. Relay it to the Host directly — it won't be shown again.",
 } as const;
 

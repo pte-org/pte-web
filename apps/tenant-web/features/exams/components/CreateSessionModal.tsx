@@ -105,7 +105,10 @@ export const CreateSessionModal = ({
           disabled={subscriptionsLoading || activeSubscriptions.length === 0}
           onChange={(event) => handleChange("subscriptionPublicId", event.target.value)}
           options={activeSubscriptions.map((subscription) => ({
-            label: `${planNameById.get(subscription.planId) ?? "Plan"} — ${subscription.licenseKey}`,
+            label: T.SUBSCRIPTION_OPTION(
+              planNameById.get(subscription.planId) ?? T.PLAN_FALLBACK,
+              subscription.licenseKey,
+            ),
             value: subscription.publicId,
           }))}
         />

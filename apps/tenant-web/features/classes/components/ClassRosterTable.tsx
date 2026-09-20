@@ -118,7 +118,7 @@ export const ClassRosterTable = ({
     {
       key: "phone",
       header: CLASS_ROSTER_TABLE_HEADERS.PHONE,
-      cell: (entry) => entry.student.phone ?? "—",
+      cell: (entry) => entry.student.phone ?? CLASS_ROSTER_TEXT.emptyValue,
     },
     {
       key: "actions",

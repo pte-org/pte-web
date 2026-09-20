@@ -17,6 +17,7 @@ export const AUDIT_LOG_TEXT = {
   emptyTitle: "No activity yet",
   emptyText: "Changes here will appear as your team works.",
   unknownActor: "Unknown",
+  totalItems: (count: number) => `Showing ${count} entr${count === 1 ? "y" : "ies"}`,
 } as const;
 
 export const AUDIT_LOG_TABLE_HEADERS = {

@@ -71,7 +71,7 @@ export const AddExamStaffModal = ({ open, onClose }: AddExamStaffModalProps): Re
       <form id="add-exam-staff-form" onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <p className="text-sm text-gray-600">{EXAM_STAFF_TEXT.addDescription}</p>
         {Boolean(create.error) && (
-          <Alert tone="error">{errorMessage(create.error) ?? "Unable to create account."}</Alert>
+          <Alert tone="error">{errorMessage(create.error) ?? EXAM_STAFF_TEXT.createFailed}</Alert>
         )}
         <Select
           label={EXAM_STAFF_TEXT.roleLabel}

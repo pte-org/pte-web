@@ -53,6 +53,7 @@ export const EXAM_STAFF_TEXT = {
   closeDetails: "Close",
   addTitle: "Add Exam Staff",
   addDescription: "Create a Proctor or Examiner account for your organization.",
+  createFailed: "Unable to create account.",
   roleRequired: "Select a role.",
   emailRequired: "Email is required.",
   emailInvalid: "Enter a valid email address.",
