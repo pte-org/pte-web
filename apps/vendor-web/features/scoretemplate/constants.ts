@@ -3,21 +3,21 @@ import type { ScoreTemplateStatusFilter } from "./types";
 
 export const SCORE_TEMPLATES_QUERY_KEY = ["scoreTemplates"] as const;
 export const SCORE_TEMPLATE_QUERY_KEY = ["scoreTemplate"] as const;
-export const QUESTION_TEMPLATE_BASE_PATH = "/admin/question-template";
-export const QUESTION_TEMPLATE_SECTIONS = ["SPEAKING", "WRITING", "READING", "LISTENING"] as const;
+export const EXAM_TEMPLATE_BASE_PATH = "/admin/exam-template";
+export const EXAM_TEMPLATE_SECTIONS = ["SPEAKING", "WRITING", "READING", "LISTENING"] as const;
 
 export const SCORE_TEMPLATE_TEXT = {
-  LIST_TITLE: "Question Templates",
+  LIST_TITLE: "Exam Templates",
   LIST_SUBTITLE:
     "Manage the PTE question distribution, timing, and scoring templates used to build exams.",
   CLONE_ACTION: "Clone to new draft",
   CREATE_ACTION: "Create template",
   DELETE_ACTION: "Delete",
-  CREATE_MODAL_TITLE: "Create question template",
+  CREATE_MODAL_TITLE: "Create exam template",
   CREATE_MODAL_SUBTITLE: "Create an empty DRAFT and add question types in the editor.",
-  CREATE_ERROR: "Could not create this question template.",
-  DELETE_ERROR: "Could not delete this question template.",
-  DELETE_CONFIRM: "Delete this DRAFT question template? This cannot be undone.",
+  CREATE_ERROR: "Could not create this exam template.",
+  DELETE_ERROR: "Could not delete this exam template.",
+  DELETE_CONFIRM: "Delete this DRAFT exam template? This cannot be undone.",
   DETAIL_BACK: "Back to list",
   VIEW_ACTION: "View",
   EDIT_ACTION: "Edit",

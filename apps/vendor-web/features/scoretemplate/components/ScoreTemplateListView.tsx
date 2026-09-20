@@ -15,7 +15,7 @@ import {
   SCORE_TEMPLATE_STATUS_LABELS,
   SCORE_TEMPLATE_STATUS_VARIANT,
   SCORE_TEMPLATE_TEXT,
-  QUESTION_TEMPLATE_BASE_PATH,
+  EXAM_TEMPLATE_BASE_PATH,
 } from "../constants";
 import type { ScoreTemplateResponse, ScoreTemplateStatusFilter } from "../types";
 import { downloadScoreTemplateJson } from "../serialization";
@@ -26,8 +26,8 @@ const CELL_CLASS = "px-5 py-4 text-sm text-gray-700 align-middle";
 
 function detailHref(template: ScoreTemplateResponse): string {
   return template.status === "DRAFT"
-    ? `${QUESTION_TEMPLATE_BASE_PATH}/${template.publicId}/edit`
-    : `${QUESTION_TEMPLATE_BASE_PATH}/${template.publicId}`;
+    ? `${EXAM_TEMPLATE_BASE_PATH}/${template.publicId}/edit`
+    : `${EXAM_TEMPLATE_BASE_PATH}/${template.publicId}`;
 }
 
 export const ScoreTemplateListView = (): ReactElement => {
@@ -58,7 +58,7 @@ export const ScoreTemplateListView = (): ReactElement => {
       closeCreate();
       setCreateCode("");
       setCreateName("");
-      router.push(`${QUESTION_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`);
+      router.push(`${EXAM_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`);
     } catch (error) {
       setCreateError(error instanceof ApiError ? error.message : SCORE_TEMPLATE_TEXT.CREATE_ERROR);
     }
@@ -71,7 +71,7 @@ export const ScoreTemplateListView = (): ReactElement => {
 
   const handleClone = (publicId: string): void => {
     cloneMutation.mutate(publicId, {
-      onSuccess: (draft) => router.push(`${QUESTION_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`),
+      onSuccess: (draft) => router.push(`${EXAM_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`),
     });
   };
 
@@ -87,7 +87,7 @@ export const ScoreTemplateListView = (): ReactElement => {
         }
       />
 
-      {isError && <Alert tone="error">Could not load question templates. Please refresh.</Alert>}
+      {isError && <Alert tone="error">Could not load exam templates. Please refresh.</Alert>}
       {createError && <Alert tone="error">{createError}</Alert>}
       {createMutation.isError && !createError && (
         <Alert tone="error">{SCORE_TEMPLATE_TEXT.CREATE_ERROR}</Alert>
@@ -199,7 +199,7 @@ export const ScoreTemplateListView = (): ReactElement => {
             <Button
               variant="primary"
               type="submit"
-              form="create-question-template-form"
+              form="create-exam-template-form"
               isLoading={createMutation.isPending}
             >
               {SCORE_TEMPLATE_TEXT.CREATE_ACTION}
@@ -208,13 +208,13 @@ export const ScoreTemplateListView = (): ReactElement => {
         }
       >
         <form
-          id="create-question-template-form"
+          id="create-exam-template-form"
           className="space-y-4"
           onSubmit={(event) => void handleCreate(event)}
         >
           <p className="text-sm text-gray-600">{SCORE_TEMPLATE_TEXT.CREATE_MODAL_SUBTITLE}</p>
           <Input
-            id="create-question-template-code"
+            id="create-exam-template-code"
             label="Code"
             value={createCode}
             onChange={(event) => setCreateCode(event.target.value)}
@@ -222,7 +222,7 @@ export const ScoreTemplateListView = (): ReactElement => {
             maxLength={64}
           />
           <Input
-            id="create-question-template-name"
+            id="create-exam-template-name"
             label="Name"
             value={createName}
             onChange={(event) => setCreateName(event.target.value)}

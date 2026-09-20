@@ -7,8 +7,8 @@ import { Alert, Button, LoadingState, PageHeader } from "@pte/ui";
 import { useActivateScoreTemplate, useReplaceScoreTemplateItems, useScoreTemplate } from "../api";
 import { useQuestionTypes } from "@/features/questiontemplate/api";
 import {
-  QUESTION_TEMPLATE_BASE_PATH,
-  QUESTION_TEMPLATE_SECTIONS,
+  EXAM_TEMPLATE_BASE_PATH,
+  EXAM_TEMPLATE_SECTIONS,
   SCORE_TEMPLATE_TEXT,
 } from "../constants";
 import {
@@ -35,7 +35,7 @@ export const ScoreTemplateEditorView = ({
     return <LoadingState rows={6} />;
   }
   if (isError || !template) {
-    return <Alert tone="error">Could not load this question template.</Alert>;
+    return <Alert tone="error">Could not load this exam template.</Alert>;
   }
   if (template.status !== "DRAFT") {
     return <Alert tone="warning">{SCORE_TEMPLATE_TEXT.NOT_DRAFT_ERROR}</Alert>;
@@ -151,7 +151,7 @@ const ScoreTemplateEditorForm = ({
           activateMutation.mutate(target.publicId, {
             onSuccess: () => {
               setActivateTarget(null);
-              router.push(`${QUESTION_TEMPLATE_BASE_PATH}/${target.publicId}`);
+              router.push(`${EXAM_TEMPLATE_BASE_PATH}/${target.publicId}`);
             },
             onError: (error) => {
               setConfirmError(error instanceof ApiError ? error.message : SCORE_TEMPLATE_TEXT.CONCURRENT_MODIFICATION_ERROR);
@@ -230,7 +230,7 @@ const ScoreTemplateEditorForm = ({
             <Button variant="primary" onClick={handleOpenActivate}>
               {SCORE_TEMPLATE_TEXT.ACTIVATE_ACTION}
             </Button>
-            <Button variant="ghost" onClick={() => router.push(QUESTION_TEMPLATE_BASE_PATH)}>
+            <Button variant="ghost" onClick={() => router.push(EXAM_TEMPLATE_BASE_PATH)}>
               {SCORE_TEMPLATE_TEXT.DETAIL_BACK}
             </Button>
           </>
@@ -256,13 +256,13 @@ const ScoreTemplateEditorForm = ({
         <div className="flex flex-col gap-3 md:flex-row md:items-end">
           <div className="flex-1">
             <label
-              htmlFor="question-template-add-section"
+              htmlFor="exam-template-add-section"
               className="block text-sm font-medium text-gray-700"
             >
               Add question type
             </label>
             <select
-              id="question-template-add-section"
+              id="exam-template-add-section"
               value={newSection}
               onChange={(event) => {
                 setNewSection(event.target.value as QuestionTypeSection | "");
@@ -271,14 +271,14 @@ const ScoreTemplateEditorForm = ({
               className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
             >
               <option value="">Select section first</option>
-              {QUESTION_TEMPLATE_SECTIONS.map((section) => (
+              {EXAM_TEMPLATE_SECTIONS.map((section) => (
                 <option key={section} value={section}>
                   {section}
                 </option>
               ))}
             </select>
             <select
-              id="question-template-add-type"
+              id="exam-template-add-type"
               value={newTypeCode}
               onChange={(event) => setNewTypeCode(event.target.value)}
               disabled={!newSection || availableTypes.length === 0}
