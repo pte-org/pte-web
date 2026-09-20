@@ -3,21 +3,21 @@ import type { ScoreTemplateStatusFilter } from "./types";
 
 export const SCORE_TEMPLATES_QUERY_KEY = ["scoreTemplates"] as const;
 export const SCORE_TEMPLATE_QUERY_KEY = ["scoreTemplate"] as const;
-export const QUESTION_TEMPLATE_BASE_PATH = "/admin/question-template";
-export const QUESTION_TEMPLATE_SECTIONS = ["SPEAKING", "WRITING", "READING", "LISTENING"] as const;
+export const EXAM_TEMPLATE_BASE_PATH = "/admin/exam-template";
+export const EXAM_TEMPLATE_SECTIONS = ["SPEAKING", "WRITING", "READING", "LISTENING"] as const;
 
 export const SCORE_TEMPLATE_TEXT = {
-  LIST_TITLE: "Question Templates",
+  LIST_TITLE: "Exam Templates",
   LIST_SUBTITLE:
     "Manage the PTE question distribution, timing, and scoring templates used to build exams.",
   CLONE_ACTION: "Clone to new draft",
   CREATE_ACTION: "Create template",
   DELETE_ACTION: "Delete",
-  CREATE_MODAL_TITLE: "Create question template",
+  CREATE_MODAL_TITLE: "Create exam template",
   CREATE_MODAL_SUBTITLE: "Create an empty DRAFT and add question types in the editor.",
-  CREATE_ERROR: "Could not create this question template.",
-  DELETE_ERROR: "Could not delete this question template.",
-  DELETE_CONFIRM: "Delete this DRAFT question template? This cannot be undone.",
+  CREATE_ERROR: "Could not create this exam template.",
+  DELETE_ERROR: "Could not delete this exam template.",
+  DELETE_CONFIRM: "Delete this DRAFT exam template? This cannot be undone.",
   DETAIL_BACK: "Back to list",
   VIEW_ACTION: "View",
   EDIT_ACTION: "Edit",
@@ -25,7 +25,7 @@ export const SCORE_TEMPLATE_TEXT = {
   ADD_TYPE: "Add question type",
   REMOVE_TYPE: "Remove",
   NO_TYPES_TO_ADD: "No active question types are available in this section.",
-  SAVE_DRAFT: "Save draft",
+  SAVE_DRAFT: "Save",
   ACTIVATE_ACTION: "Activate",
   ACTIVATE_MODAL_TITLE: "Activate this template?",
   ACTIVATE_MODAL_WARNING:
@@ -36,37 +36,7 @@ export const SCORE_TEMPLATE_TEXT = {
     "This template is no longer editable — it stopped being a DRAFT (e.g. someone else activated a newer version). Reload the list to see the current state.",
   CONCURRENT_MODIFICATION_ERROR:
     "Another admin changed this template's family at the same moment. Reload and try again.",
-  LOAD_ERROR: "Could not load question templates. Please refresh.",
-  CLONE_ERROR: "Could not clone this template. Please try again.",
-  CODE_LABEL: "Code",
-  NAME_LABEL: "Name",
-  LOAD_DETAIL_ERROR: "Could not load this question template.",
-  SELECT_SECTION: "Select section",
-  SELECT_SECTION_FIRST: "Select section first",
-  SELECT_TASK_TYPE: "Select task type",
-  FIXED: "FIXED",
-  RECOMMENDED: "RECOMMENDED",
-  AI_SPEECH: "AI_SPEECH",
-  AI_TEXT: "AI_TEXT",
-  OBJECTIVE: "OBJECTIVE",
-  UNSCORED: "UNSCORED",
-  SELECT_TYPE: "Select a type",
-  CANCEL: "Cancel",
-  DETAIL_TITLE: (code: string, version: number | string) => `${code} v${version}`,
-  DRAFT_TITLE: (code: string, version: number | string) => `${code} v${version} (DRAFT)`,
 } as const;
-
-export const SCORE_TEMPLATE_TIMING_OPTIONS = [
-  { value: "FIXED", label: SCORE_TEMPLATE_TEXT.FIXED },
-  { value: "RECOMMENDED", label: SCORE_TEMPLATE_TEXT.RECOMMENDED },
-] as const;
-
-export const SCORE_TEMPLATE_SCORING_OPTIONS = [
-  { value: "AI_SPEECH", label: SCORE_TEMPLATE_TEXT.AI_SPEECH },
-  { value: "AI_TEXT", label: SCORE_TEMPLATE_TEXT.AI_TEXT },
-  { value: "OBJECTIVE", label: SCORE_TEMPLATE_TEXT.OBJECTIVE },
-  { value: "UNSCORED", label: SCORE_TEMPLATE_TEXT.UNSCORED },
-] as const;
 
 export const SCORE_TEMPLATE_LIST_HEADERS = {
   CODE: "Code",
@@ -85,8 +55,6 @@ export const SCORE_TEMPLATE_ITEM_HEADERS = {
   MAX_COUNT: "Max",
   PREP_SECONDS: "Prep (s)",
   RESPONSE_SECONDS: "Response (s)",
-  TIMING_MODE: "Timing",
-  SCORING_METHOD: "Scoring",
   OVERALL_WEIGHT: "Overall %",
   SPEAKING_WEIGHT: "Speaking %",
   WRITING_WEIGHT: "Writing %",

@@ -37,8 +37,8 @@ export const ADMIN_NAV: NavItem[] = [
     section: T.CONTENT_SECTION,
   },
   {
-    label: T.QUESTION_TEMPLATES,
-    href: "/admin/question-template",
+    label: T.EXAM_TEMPLATES,
+    href: "/admin/exam-template",
     icon: <DocumentIcon />,
     section: T.CONTENT_SECTION,
   },

@@ -7,7 +7,7 @@ export const ADMIN_NAV_TEXT = {
   PLATFORM_SETTINGS: "Platform settings",
   QUESTION_BANK: "Question Bank",
   QUESTION_TYPES: "Question Types",
-  QUESTION_TEMPLATES: "Question Templates",
+  EXAM_TEMPLATES: "Exam Templates",
   HOME_SECTION: "Home",
   TENANTS_SECTION: "Tenants",
   COMMERCIAL_SECTION: "Commercial",

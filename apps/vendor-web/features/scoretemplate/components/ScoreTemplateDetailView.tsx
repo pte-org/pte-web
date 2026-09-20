@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Alert, Badge, Button, LoadingState, PageHeader } from "@pte/ui";
 import { useCloneScoreTemplate, useScoreTemplate } from "../api";
 import {
-  QUESTION_TEMPLATE_BASE_PATH,
+  EXAM_TEMPLATE_BASE_PATH,
   SCORE_TEMPLATE_STATUS_LABELS,
   SCORE_TEMPLATE_STATUS_VARIANT,
   SCORE_TEMPLATE_TEXT,
@@ -29,7 +29,7 @@ export const ScoreTemplateDetailView = ({
     return <LoadingState rows={6} />;
   }
   if (isError || !template) {
-    return <Alert tone="error">{SCORE_TEMPLATE_TEXT.LOAD_DETAIL_ERROR}</Alert>;
+    return <Alert tone="error">Could not load this exam template.</Alert>;
   }
 
   const status = template.status as ScoreTemplateStatusFilter;
@@ -37,7 +37,7 @@ export const ScoreTemplateDetailView = ({
   return (
     <div className="space-y-6">
       <PageHeader
-        title={SCORE_TEMPLATE_TEXT.DETAIL_TITLE(template.code, template.version)}
+        title={`${template.code} v${template.version}`}
         subtitle={template.name}
         actions={
           <>
@@ -50,13 +50,13 @@ export const ScoreTemplateDetailView = ({
               onClick={() =>
                 cloneMutation.mutate(template.publicId, {
                   onSuccess: (draft) =>
-                    router.push(`${QUESTION_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`),
+                    router.push(`${EXAM_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`),
                 })
               }
             >
               {SCORE_TEMPLATE_TEXT.CLONE_ACTION}
             </Button>
-            <Button variant="ghost" onClick={() => router.push(QUESTION_TEMPLATE_BASE_PATH)}>
+            <Button variant="ghost" onClick={() => router.push(EXAM_TEMPLATE_BASE_PATH)}>
               {SCORE_TEMPLATE_TEXT.DETAIL_BACK}
             </Button>
           </>
@@ -64,7 +64,7 @@ export const ScoreTemplateDetailView = ({
       />
 
       {cloneMutation.isError && (
-        <Alert tone="error">{SCORE_TEMPLATE_TEXT.CLONE_ERROR}</Alert>
+        <Alert tone="error">Could not clone this template. Please try again.</Alert>
       )}
 
       <ScoreTemplateItemTable editable={false} items={template.items} />
