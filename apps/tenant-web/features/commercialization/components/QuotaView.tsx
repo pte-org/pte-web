@@ -3,7 +3,7 @@
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { Alert, Button, CollapsibleSection, Input, PageHeader, ProgressBar, StatCard, UsersIcon } from "@pte/ui";
-import { ApiError } from "@pte/api-client";
+import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useStudentImportPreview, useStudentQuotaQuery } from "../api";
 import { BillingPanel } from "./BillingPanel";
 
@@ -12,7 +12,11 @@ export const QuotaView = (): ReactElement => {
   const preview = useStudentImportPreview();
   const [adding, setAdding] = useState("18");
   const usedPercentage = quota && quota.limit > 0 ? Math.min(100, Math.round((quota.current / quota.limit) * 100)) : 0;
-  const errorMessage = preview.error instanceof ApiError ? preview.error.message : preview.error ? "Quota could not be loaded or previewed." : isError ? "Quota could not be loaded or previewed." : undefined;
+  const errorMessage = preview.error
+    ? getUserFacingApiErrorMessage(preview.error, "Quota could not be loaded or previewed.")
+    : isError
+      ? "Quota could not be loaded or previewed."
+      : undefined;
   const runPreview = (): void => {
     const count = Number(adding);
     if (Number.isInteger(count) && count >= 0) void preview.mutateAsync({ adding: count });

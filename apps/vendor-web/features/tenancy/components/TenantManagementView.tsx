@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { ApiError } from "@pte/api-client";
+import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import {
   Alert,
   AlertTriangleIcon,
@@ -41,13 +41,17 @@ const INITIAL_FILTER: TenantFilter = {
 };
 
 function mutationErrorMessage(error: unknown): string | undefined {
+  if (!error) return undefined;
   if (error instanceof ApiError && error.kind === "conflict") {
-    if (error.message === "TENANT_CODE_ALREADY_USED") {
+    if (error.code === "TENANT_CODE_ALREADY_USED" || error.code === "REQUESTED_CODE_ALREADY_USED") {
       return CREATE_TENANT_CONFLICT_TEXT.DUPLICATE_CODE;
     }
-    return CREATE_TENANT_CONFLICT_TEXT.TENANT_CONFLICT;
+    if (error.code === "TENANT_NAME_ALREADY_USED") {
+      return CREATE_TENANT_CONFLICT_TEXT.DUPLICATE_NAME;
+    }
+    return getUserFacingApiErrorMessage(error, CREATE_TENANT_CONFLICT_TEXT.TENANT_CONFLICT);
   }
-  return error instanceof Error ? error.message : undefined;
+  return getUserFacingApiErrorMessage(error);
 }
 
 function normalizeComparable(value: string): string {
@@ -131,10 +135,11 @@ export const TenantManagementView = (): ReactElement => {
   };
 
   const quotaErrorMessage = (error: unknown): string | undefined => {
+    if (!error) return undefined;
     if (error instanceof ApiError && error.kind === "conflict") {
-      return GRANT_QUOTA_TEXT.CONFLICT;
+      return getUserFacingApiErrorMessage(error, GRANT_QUOTA_TEXT.CONFLICT);
     }
-    return error instanceof Error ? error.message : undefined;
+    return getUserFacingApiErrorMessage(error);
   };
 
   return (

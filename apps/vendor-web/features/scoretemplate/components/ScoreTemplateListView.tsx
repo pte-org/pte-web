@@ -3,7 +3,7 @@
 import { useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, Badge, Button, Input, LoadingState, Modal, PageHeader } from "@pte/ui";
-import { ApiError } from "@pte/api-client";
+import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import {
   useCloneScoreTemplate,
   useCreateScoreTemplate,
@@ -60,7 +60,7 @@ export const ScoreTemplateListView = (): ReactElement => {
       setCreateName("");
       router.push(`${QUESTION_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`);
     } catch (error) {
-      setCreateError(error instanceof ApiError ? error.message : SCORE_TEMPLATE_TEXT.CREATE_ERROR);
+      setCreateError(getUserFacingApiErrorMessage(error, SCORE_TEMPLATE_TEXT.CREATE_ERROR));
     }
   };
 

@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { ApiError } from "@pte/api-client";
+import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { Alert, Badge, DescriptionList, LoadingState, PageHeader } from "@pte/ui";
 import {
   CREATE_LOGIN_ACCOUNT_TEXT,
@@ -45,17 +45,19 @@ const organizationTypeLabel = (value: string): string =>
   ORGANIZATION_TYPE_OPTIONS.find((option) => option.value === value)?.label ?? value;
 
 function mutationErrorMessage(error: unknown): string | undefined {
+  if (!error) return undefined;
   if (error instanceof ApiError && error.kind === "conflict") {
-    return CREATE_TENANT_CONFLICT_TEXT.CONFLICT;
+    return getUserFacingApiErrorMessage(error, CREATE_TENANT_CONFLICT_TEXT.CONFLICT);
   }
-  return error instanceof Error ? error.message : undefined;
+  return getUserFacingApiErrorMessage(error);
 }
 
 function loginAccountErrorMessage(error: unknown): string | undefined {
+  if (!error) return undefined;
   if (error instanceof ApiError && error.kind === "conflict") {
-    return CREATE_LOGIN_ACCOUNT_TEXT.CONFLICT;
+    return getUserFacingApiErrorMessage(error, CREATE_LOGIN_ACCOUNT_TEXT.CONFLICT);
   }
-  return error instanceof Error ? error.message : undefined;
+  return getUserFacingApiErrorMessage(error);
 }
 
 interface TenantDetailViewProps {

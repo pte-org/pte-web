@@ -12,7 +12,7 @@ import {
   PageHeader,
   Select,
 } from "@pte/ui";
-import { ApiError, type LicenseCodeResponse } from "@pte/api-client";
+import { getUserFacingApiErrorMessage, type LicenseCodeResponse } from "@pte/api-client";
 import {
   useIssueLicenseCode,
   useLicenseCodesQuery,
@@ -38,14 +38,11 @@ export const LicenseCodesView = (): ReactElement => {
     (plan) => plan.type === "EXAM_PACKAGE" && plan.status === "ACTIVE",
   );
   const error = issue.error ?? revoke.error;
-  const errorMessage =
-    error instanceof ApiError
-      ? error.message
-      : error
-        ? "License codes could not be loaded or saved."
-        : isError
-          ? "License codes could not be loaded or saved."
-          : undefined;
+  const errorMessage = error
+    ? getUserFacingApiErrorMessage(error, "License codes could not be loaded or saved.")
+    : isError
+      ? "License codes could not be loaded or saved."
+      : undefined;
 
   const issueCode = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();

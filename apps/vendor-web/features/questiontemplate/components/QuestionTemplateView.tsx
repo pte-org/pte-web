@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { ApiError, type QuestionTypeResponse } from "@pte/api-client";
+import { getUserFacingApiErrorMessage, type QuestionTypeResponse } from "@pte/api-client";
 import { Alert, Badge, Button, PageHeader } from "@pte/ui";
 import { useDeleteQuestionType, useQuestionTypes, useSupportedQuestionTypes } from "../api";
 import { QUESTION_TYPE_REQUIREMENT_LABELS, QUESTION_TYPE_TEXT } from "../constants";
@@ -12,7 +12,7 @@ const HEADER_CLASS =
 const CELL_CLASS = "px-3 py-3 text-sm text-gray-700 align-middle";
 
 const errorMessage = (error: unknown, fallback: string): string =>
-  error instanceof ApiError ? error.message : fallback;
+  getUserFacingApiErrorMessage(error, fallback);
 
 export const QuestionTypeView = (): ReactElement => {
   const { data: questionTypes = [], isLoading, isError } = useQuestionTypes(false);

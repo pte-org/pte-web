@@ -1,4 +1,5 @@
 import { ApiError, type ApiErrorKind } from "./apiError";
+import { isMachineErrorCode } from "./errorMessage";
 
 export type TokenGetter = () => string | null;
 
@@ -47,10 +48,11 @@ export interface DownloadResponse {
 
 export interface ApiResponseEnvelope<T> {
   success: boolean;
-  status: number;
-  code: string;
-  message: string;
   data: T;
+  status?: number;
+  code?: string;
+  message?: string | null;
+  userMessage?: string | null;
   meta?: unknown;
   errors?: Record<string, string>;
   path?: string;
@@ -131,16 +133,31 @@ function unwrapResponse<T>(body: unknown): T {
   return body as T;
 }
 
-function extractServerMessage(body: unknown): string | undefined {
-  if (
-    typeof body === "object" &&
-    body !== null &&
-    "message" in body &&
-    typeof (body as { message: unknown }).message === "string"
-  ) {
-    return (body as { message: string }).message;
-  }
-  return undefined;
+interface ExtractedErrorDetails {
+  message?: string;
+  code?: string;
+  userMessage?: string;
+}
+
+function extractServerErrorDetails(body: unknown): ExtractedErrorDetails {
+  if (typeof body !== "object" || body === null) return {};
+
+  const candidate = body as {
+    code?: unknown;
+    message?: unknown;
+    userMessage?: unknown;
+  };
+  const message = typeof candidate.message === "string" ? candidate.message : undefined;
+  const explicitCode = typeof candidate.code === "string" && candidate.code.trim()
+    ? candidate.code
+    : undefined;
+  const code = explicitCode ?? (isMachineErrorCode(message) ? message : undefined);
+  const userMessage =
+    typeof candidate.userMessage === "string" && candidate.userMessage.trim()
+      ? candidate.userMessage
+      : undefined;
+
+  return { message, code, userMessage };
 }
 
 function filenameFromDisposition(disposition: string | null): string | undefined {
@@ -204,9 +221,13 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     if (response.ok) return;
     const errorBody = await parseJsonSafely(response);
     const kind = kindForStatus(response.status);
-    const message = extractServerMessage(errorBody) ?? DEFAULT_MESSAGE[kind];
+    const errorDetails = extractServerErrorDetails(errorBody);
+    const message = errorDetails.message ?? DEFAULT_MESSAGE[kind];
     if (response.status === 401) onUnauthorized?.();
-    throw new ApiError(kind, response.status, message, errorBody);
+    throw new ApiError(kind, response.status, message, errorBody, {
+      code: errorDetails.code,
+      userMessage: errorDetails.userMessage,
+    });
   }
 
   async function request<T>(

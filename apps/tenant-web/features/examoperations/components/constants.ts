@@ -68,6 +68,14 @@ export const SKIPPED_ROWS_REPORT_TEXT = {
   REASON_HEADER: "Reason",
 } as const;
 
+export const SKIPPED_ROW_REASON_MESSAGES: Record<string, string> = {
+  EMAIL_ALREADY_USED: "An account with this email already exists.",
+  ROSTER_IMPORT_FAILED: "We could not create an account for this row. Please review it and try again.",
+};
+
+export const SKIPPED_ROW_UNKNOWN_REASON =
+  "This row could not be imported. Please review it and try again.";
+
 export const ROSTER_REVIEW_TABLE_HEADERS = {
   EMAIL: "Email",
   FULL_NAME: "Full Name",

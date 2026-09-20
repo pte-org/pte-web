@@ -11,6 +11,7 @@ import {
   type DataTableColumn,
 } from "@pte/ui";
 import type { ProctorRole } from "@pte/api-client";
+import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
   PROCTOR_ROLE_DESCRIPTIONS,
   PROCTOR_ROLE_OPTIONS,
@@ -42,10 +43,6 @@ const ROLE_ACCENT: Record<
     iconBg: "bg-slate-200 text-slate-600",
   },
 };
-
-function errorMessage(error: unknown): string | undefined {
-  return error instanceof Error ? error.message : undefined;
-}
 
 export const ProctorAssignmentSection = ({
   sessionPublicId,

@@ -2,7 +2,11 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import Link from "next/link";
-import { ApiError, type SubmitApplicationRequest } from "@pte/api-client";
+import {
+  ApiError,
+  getUserFacingApiErrorMessage,
+  type SubmitApplicationRequest,
+} from "@pte/api-client";
 import { Button, CheckCircleIcon, Input, MailIcon, Select } from "@pte/ui";
 import { AUTH_ROUTES, REGISTRATION_TEXT } from "../constants";
 import { useSubmitApplication } from "@/features/commercialization/api";
@@ -69,9 +73,9 @@ export const RegisterOrganizationView = (): ReactElement => {
       });
       setSubmitted(true);
     } catch (error) {
-      if (error instanceof ApiError && error.message === "TENANT_NAME_ALREADY_USED") {
+      if (error instanceof ApiError && error.code === "TENANT_NAME_ALREADY_USED") {
         setErrors((current) => ({ ...current, orgName: REGISTRATION_TEXT.duplicateName }));
-      } else if (error instanceof ApiError && error.message === "REQUESTED_CODE_ALREADY_USED") {
+      } else if (error instanceof ApiError && error.code === "REQUESTED_CODE_ALREADY_USED") {
         setErrors((current) => ({ ...current, requestedCode: REGISTRATION_TEXT.duplicateCode }));
       } else if (error instanceof ApiError && error.status === 429) {
         setSubmissionError(REGISTRATION_TEXT.rateLimited);
@@ -114,11 +118,13 @@ export const RegisterOrganizationView = (): ReactElement => {
 
   const fieldConflict =
     submit.error instanceof ApiError &&
-    (submit.error.message === "TENANT_NAME_ALREADY_USED" ||
-      submit.error.message === "REQUESTED_CODE_ALREADY_USED");
+    (submit.error.code === "TENANT_NAME_ALREADY_USED" ||
+      submit.error.code === "REQUESTED_CODE_ALREADY_USED");
   const submitError =
     submissionError ||
-    (submit.error instanceof ApiError && !fieldConflict ? submit.error.message : undefined);
+    (submit.error instanceof ApiError && !fieldConflict
+      ? getUserFacingApiErrorMessage(submit.error, REGISTRATION_TEXT.submitFailed)
+      : undefined);
   return (
     <PublicShell>
       <section className="mx-auto max-w-4xl px-5 py-10 sm:py-14 lg:px-8 lg:py-18">

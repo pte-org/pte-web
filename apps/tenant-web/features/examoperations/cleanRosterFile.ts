@@ -1,4 +1,5 @@
 import * as XLSX from "xlsx";
+import { UserFacingError } from "./errorMessage";
 import type { RosterFileResult, RosterRow } from "./types";
 
 const MAX_SHEETS_TO_SCAN = 20;
@@ -48,7 +49,9 @@ function toCellText(value: unknown): string {
 
 export async function parseRosterFile(file: File): Promise<RosterFileResult> {
   if (file.size > MAX_FILE_SIZE_BYTES) {
-    throw new Error(`Import file is too large (max ${MAX_FILE_SIZE_BYTES / (1024 * 1024)}MB)`);
+    throw new UserFacingError(
+      `Import file is too large (max ${MAX_FILE_SIZE_BYTES / (1024 * 1024)}MB)`,
+    );
   }
 
   const workbook = XLSX.read(await file.arrayBuffer(), {
@@ -70,7 +73,7 @@ export async function parseRosterFile(file: File): Promise<RosterFileResult> {
     if (rows.length > 0) return { fileName: file.name, rows };
   }
 
-  throw new Error(
+  throw new UserFacingError(
     "Import file must contain a header row and at least one data row",
   );
 }

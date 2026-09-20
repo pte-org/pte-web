@@ -3,7 +3,7 @@
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { Alert, Button, DescriptionList, Input, PageHeader } from "@pte/ui";
-import { ApiError } from "@pte/api-client";
+import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useApplicationsQuery, useApproveApplication, useRejectApplication } from "../api";
 import { CommercialPanel } from "./CommercialPanel";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
@@ -20,7 +20,12 @@ export const AdminApplicationDetailView = ({ applicationId }: AdminApplicationDe
   const [approvalSent, setApprovalSent] = useState(false);
   const application = applications.find((item) => item.publicId === applicationId);
   const mutationError = approve.error ?? reject.error;
-  const errorMessage = mutationError instanceof ApiError ? mutationError.message : undefined;
+  const errorMessage = mutationError
+    ? getUserFacingApiErrorMessage(
+        mutationError,
+        "The application could not be updated. Please try again.",
+      )
+    : undefined;
 
   if (isLoading) return <p className="text-sm text-slate-500">Loading application...</p>;
   if (!application) {

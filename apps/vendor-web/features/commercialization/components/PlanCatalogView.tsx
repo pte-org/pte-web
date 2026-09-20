@@ -14,7 +14,12 @@ import {
   CheckCircleIcon,
   PencilIcon,
 } from "@pte/ui";
-import { ApiError, type PlanRequest, type PlanResponse, type PlanType } from "@pte/api-client";
+import {
+  getUserFacingApiErrorMessage,
+  type PlanRequest,
+  type PlanResponse,
+  type PlanType,
+} from "@pte/api-client";
 import {
   useActivatePlan,
   useArchivePlan,
@@ -59,16 +64,14 @@ export const PlanCatalogView = (): ReactElement => {
   );
   const activeCount = plans.filter((plan) => plan.status === "ACTIVE").length;
   const error = createPlan.error ?? updatePlan.error ?? activatePlan.error ?? archivePlan.error;
-  const errorMessage =
-    error instanceof ApiError
-      ? error.message
-      : error
-        ? "Plans could not be loaded or saved."
-        : isError
-          ? "Plans could not be loaded or saved."
-          : undefined;
+  const errorMessage = error
+    ? getUserFacingApiErrorMessage(error, "Plans could not be loaded or saved.")
+    : isError
+      ? "Plans could not be loaded or saved."
+      : undefined;
 
   const beginEdit = (plan: PlanResponse): void => {
+    if (plan.status === "ARCHIVED") return;
     setEditing(plan);
     setIsFormOpen(true);
     setForm({
@@ -313,26 +316,24 @@ export const PlanCatalogView = (): ReactElement => {
           ]}
           rows={visiblePlans}
           getRowKey={(row) => row.publicId}
-          rowActions={(row) => (
-            <ActionMenu
-              items={[
-                {
-                  label: "Edit",
-                  icon: PencilIcon,
-                  onSelect: () => beginEdit(row),
-                },
-                ...(row.status === "DRAFT" || row.status === "ACTIVE"
-                  ? [
-                      {
-                        label: row.status === "DRAFT" ? "Activate" : "Archive",
-                        icon: CheckCircleIcon,
-                        onSelect: () => void transition(row),
-                      },
-                    ]
-                  : []),
-              ]}
-            />
-          )}
+          rowActions={(row) =>
+            row.status === "ARCHIVED" ? null : (
+              <ActionMenu
+                items={[
+                  {
+                    label: "Edit",
+                    icon: PencilIcon,
+                    onSelect: () => beginEdit(row),
+                  },
+                  {
+                    label: row.status === "DRAFT" ? "Activate" : "Archive",
+                    icon: CheckCircleIcon,
+                    onSelect: () => void transition(row),
+                  },
+                ]}
+              />
+            )
+          }
           rowActionsHeader=""
           emptyTitle={isLoading ? "Loading plans..." : "No plans found"}
         />

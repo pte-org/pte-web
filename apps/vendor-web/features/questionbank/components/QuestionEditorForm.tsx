@@ -4,6 +4,7 @@ import { useState, type ChangeEvent, type FormEvent, type ReactElement } from "r
 import { Alert, Button, Input } from "@pte/ui";
 import {
   completeCloudinaryUpload,
+  getUserFacingApiErrorMessage,
   requestCloudinaryUpload,
   type CreateQuestionRequest,
   type QuestionResponse,
@@ -128,7 +129,7 @@ export const QuestionEditorForm = ({
         url: uploaded.secure_url,
       });
     } catch (uploadError) {
-      setError(uploadError instanceof Error ? uploadError.message : "Media upload failed");
+      setError(getUserFacingApiErrorMessage(uploadError, "Media upload failed. Please try again."));
     }
   };
 

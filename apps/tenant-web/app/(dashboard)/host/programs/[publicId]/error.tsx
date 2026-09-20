@@ -13,11 +13,13 @@ interface ErrorProps {
   reset: () => void;
 }
 
-export default function ProgramDetailError({ error, reset }: ErrorProps): ReactElement {
+export default function ProgramDetailError({ reset }: ErrorProps): ReactElement {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
       <h1 className="text-xl font-semibold text-gray-900">{TEXT.TITLE}</h1>
-      <p className="max-w-md text-sm text-gray-600">{error.message}</p>
+      <p className="max-w-md text-sm text-gray-600">
+        We could not load this program. Please try again.
+      </p>
       <Button onClick={reset}>{TEXT.RETRY}</Button>
     </div>
   );

@@ -1,18 +1,13 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { ApiError } from "@pte/api-client";
 import { Alert, PageHeader } from "@pte/ui";
+import { errorMessage } from "@/features/examoperations/errorMessage";
 import { EXAMS_TEXT } from "../constants";
 import { useCreateSession, useSessions } from "../api";
 import type { CreateSessionInput } from "../types";
 import { SessionTable } from "./SessionTable";
 import { CreateSessionModal } from "./CreateSessionModal";
-
-function mutationErrorMessage(error: unknown): string | undefined {
-  if (error instanceof ApiError) return error.message;
-  return error instanceof Error ? error.message : undefined;
-}
 
 export const ExamsListView = (): ReactElement => {
   const { data: sessions, isLoading } = useSessions();
@@ -26,7 +21,7 @@ export const ExamsListView = (): ReactElement => {
     });
   };
 
-  const createErrorMessage = mutationErrorMessage(create.error);
+  const createErrorMessage = errorMessage(create.error);
 
   return (
     <div className="flex flex-col gap-5">

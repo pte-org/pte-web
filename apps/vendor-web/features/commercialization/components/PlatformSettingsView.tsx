@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Button, Input, PageHeader } from "@pte/ui";
-import { ApiError, type PlatformSettingResponse } from "@pte/api-client";
+import { getUserFacingApiErrorMessage, type PlatformSettingResponse } from "@pte/api-client";
 import { usePlatformSettingsQuery, useUpdatePlatformSetting } from "../api";
 import { CommercialPanel } from "./CommercialPanel";
 
@@ -15,7 +15,11 @@ export const PlatformSettingsView = (): ReactElement => {
   const [values, setValues] = useState<Record<string, string>>({});
   const [saved, setSaved] = useState("");
 
-  const errorMessage = error instanceof ApiError ? error.message : error ? "Settings could not be loaded or saved." : isError ? "Settings could not be loaded or saved." : undefined;
+  const errorMessage = error
+    ? getUserFacingApiErrorMessage(error, "Settings could not be loaded or saved.")
+    : isError
+      ? "Settings could not be loaded or saved."
+      : undefined;
 
   const save = async (event: FormEvent<HTMLFormElement>, setting: PlatformSettingResponse): Promise<void> => {
     event.preventDefault();

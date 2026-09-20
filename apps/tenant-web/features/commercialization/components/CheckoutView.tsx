@@ -4,7 +4,7 @@ import { useMemo, type ReactElement } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Alert, Button, CheckCircleIcon, PageHeader } from "@pte/ui";
-import { ApiError } from "@pte/api-client";
+import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useCreateOrder, useOrdersQuery, useTenantPlansQuery } from "../api";
 import { BillingPanel } from "./BillingPanel";
 
@@ -16,7 +16,9 @@ export const CheckoutView = (): ReactElement => {
   const createOrder = useCreateOrder();
   const plan = useMemo(() => plans.find((item) => item.publicId === selectedPlanId && item.status === "ACTIVE"), [plans, selectedPlanId]);
   const error = createOrder.error;
-  const errorMessage = error instanceof ApiError ? error.message : error ? "The order could not be created." : undefined;
+  const errorMessage = error
+    ? getUserFacingApiErrorMessage(error, "The order could not be created.")
+    : undefined;
   const pendingOrder = plan ? orders.find((item) => item.planId === plan.publicId && item.status === "PENDING") : undefined;
 
   const startPayment = async (): Promise<void> => {

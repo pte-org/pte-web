@@ -3,7 +3,7 @@
 import { useState, type FormEvent, type ReactElement } from "react";
 import Link from "next/link";
 import { Alert, Button, Input, PageHeader } from "@pte/ui";
-import { ApiError } from "@pte/api-client";
+import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useRedeemLicense } from "../api";
 import { REDEEM_ERROR_MESSAGES } from "../constants";
 import { BillingPanel } from "./BillingPanel";
@@ -20,7 +20,8 @@ export const RedeemLicenseView = (): ReactElement => {
   const errorMessage = error instanceof ApiError
     ? error.status === 429
       ? "Too many redemption attempts. Try again in a few minutes."
-      : REDEEM_ERROR_MESSAGES[error.message] ?? error.message
+      : (error.code ? REDEEM_ERROR_MESSAGES[error.code] : undefined) ??
+        getUserFacingApiErrorMessage(error, "The license code could not be redeemed.")
     : error
       ? "The license code could not be redeemed."
       : undefined;
