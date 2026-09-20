@@ -11,7 +11,7 @@ export const SCORE_TEMPLATE_TEXT = {
   DETAIL_BACK: "Back to list",
   VIEW_ACTION: "View",
   EDIT_ACTION: "Edit",
-  SAVE_DRAFT: "Save draft",
+  SAVE_DRAFT: "Save",
   ACTIVATE_ACTION: "Activate",
   ACTIVATE_MODAL_TITLE: "Activate this template?",
   ACTIVATE_MODAL_WARNING:
@@ -39,7 +39,6 @@ export const SCORE_TEMPLATE_ITEM_HEADERS = {
   MAX_COUNT: "Max",
   PREP_SECONDS: "Prep (s)",
   RESPONSE_SECONDS: "Response (s)",
-  SCORING_METHOD: "Scoring",
   OVERALL_WEIGHT: "Overall %",
   SPEAKING_WEIGHT: "Speaking %",
   WRITING_WEIGHT: "Writing %",
