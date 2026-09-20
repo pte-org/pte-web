@@ -28,12 +28,13 @@ type EditableProps = {
 
 type ScoreTemplateItemTableProps = ReadOnlyProps | EditableProps;
 
+// overallWeight is deliberately not here — it's backend-derived (mean of the
+// 4 skill weights below), rendered as a static cell, never an editable input.
 const NUMERIC_FIELDS: { field: keyof ScoreTemplateItemDraft; header: string }[] = [
   { field: "minCount", header: SCORE_TEMPLATE_ITEM_HEADERS.MIN_COUNT },
   { field: "maxCount", header: SCORE_TEMPLATE_ITEM_HEADERS.MAX_COUNT },
   { field: "prepSeconds", header: SCORE_TEMPLATE_ITEM_HEADERS.PREP_SECONDS },
   { field: "responseSeconds", header: SCORE_TEMPLATE_ITEM_HEADERS.RESPONSE_SECONDS },
-  { field: "overallWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.OVERALL_WEIGHT },
   { field: "speakingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.SPEAKING_WEIGHT },
   { field: "writingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.WRITING_WEIGHT },
   { field: "readingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.READING_WEIGHT },
@@ -55,8 +56,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                 {header}
               </th>
             ))}
-            <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.TIMING_MODE}</th>
-            <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.SCORING_METHOD}</th>
+            <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.OVERALL_WEIGHT}</th>
             {NUMERIC_FIELDS.slice(4).map(({ field, header }) => (
               <th key={field} className={HEADER_CLASS}>
                 {header}
@@ -118,30 +118,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                       />
                     </td>
                   ))}
-                  <td className={CELL_CLASS}>
-                    <select
-                      className={SELECT_CLASS}
-                      value={item.timingMode}
-                      onChange={(event) => props.onChange(index, "timingMode", event.target.value)}
-                    >
-                      <option value="FIXED">FIXED</option>
-                      <option value="RECOMMENDED">RECOMMENDED</option>
-                    </select>
-                  </td>
-                  <td className={CELL_CLASS}>
-                    <select
-                      className={SELECT_CLASS}
-                      value={item.scoringMethod}
-                      onChange={(event) =>
-                        props.onChange(index, "scoringMethod", event.target.value)
-                      }
-                    >
-                      <option value="AI_SPEECH">AI_SPEECH</option>
-                      <option value="AI_TEXT">AI_TEXT</option>
-                      <option value="OBJECTIVE">OBJECTIVE</option>
-                      <option value="UNSCORED">UNSCORED</option>
-                    </select>
-                  </td>
+                  <td className={CELL_CLASS}>{item.overallWeight}</td>
                   {NUMERIC_FIELDS.slice(4).map(({ field }) => (
                     <td key={field} className={CELL_CLASS}>
                       <input
@@ -167,8 +144,6 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                   <td className={CELL_CLASS}>{item.maxCount}</td>
                   <td className={CELL_CLASS}>{item.prepSeconds}</td>
                   <td className={CELL_CLASS}>{item.responseSeconds}</td>
-                  <td className={CELL_CLASS}>{item.timingMode}</td>
-                  <td className={CELL_CLASS}>{item.scoringMethod}</td>
                   <td className={CELL_CLASS}>{item.overallWeight}</td>
                   <td className={CELL_CLASS}>{item.speakingWeight}</td>
                   <td className={CELL_CLASS}>{item.writingWeight}</td>

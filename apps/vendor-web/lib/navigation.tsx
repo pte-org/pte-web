@@ -36,8 +36,8 @@ export const ADMIN_NAV: NavItem[] = [
     section: "Content",
   },
   {
-    label: "Question Templates",
-    href: "/admin/question-template",
+    label: "Exam Templates",
+    href: "/admin/exam-template",
     icon: <DocumentIcon />,
     section: "Content",
   },
