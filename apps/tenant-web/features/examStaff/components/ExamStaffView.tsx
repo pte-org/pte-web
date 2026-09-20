@@ -155,12 +155,14 @@ export const ExamStaffView = (): ReactElement => {
       />
 
       <div className="grid gap-3 lg:grid-cols-4">
-        <Input
-          aria-label={EXAM_STAFF_TEXT.searchPlaceholder}
-          placeholder={EXAM_STAFF_TEXT.searchPlaceholder}
-          value={input}
-          onChange={(event) => setInput(event.target.value)}
-        />
+        <div className="lg:pt-5">
+          <Input
+            aria-label={EXAM_STAFF_TEXT.searchPlaceholder}
+            placeholder={EXAM_STAFF_TEXT.searchPlaceholder}
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
+          />
+        </div>
         <Select
           label={EXAM_STAFF_TEXT.roleLabel}
           options={ROLE_FILTER_OPTIONS}
