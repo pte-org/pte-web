@@ -1,48 +1,49 @@
 import { BuildingIcon, ClipboardIcon, DocumentIcon, GridIcon, LicenseIcon } from "@pte/ui";
 import type { NavItem } from "@/features/auth/components";
+import { ADMIN_NAV_TEXT as T } from "./navigationConstants";
 
 export const ADMIN_NAV: NavItem[] = [
-  { label: "Overview", href: "/admin", icon: <GridIcon />, section: "Home" },
-  { label: "Tenants", href: "/admin/tenants", icon: <BuildingIcon />, section: "Tenants" },
+  { label: T.OVERVIEW, href: "/admin", icon: <GridIcon />, section: T.HOME_SECTION },
+  { label: T.TENANTS, href: "/admin/tenants", icon: <BuildingIcon />, section: T.TENANTS_SECTION },
   {
-    label: "Applications",
+    label: T.APPLICATIONS,
     href: "/admin/applications",
     icon: <DocumentIcon />,
-    section: "Tenants",
+    section: T.TENANTS_SECTION,
   },
-  { label: "Plan catalog", href: "/admin/plans", icon: <LicenseIcon />, section: "Commercial" },
+  { label: T.PLAN_CATALOG, href: "/admin/plans", icon: <LicenseIcon />, section: T.COMMERCIAL_SECTION },
   {
-    label: "License codes",
+    label: T.LICENSE_CODES,
     href: "/admin/license-codes",
     icon: <LicenseIcon />,
-    section: "Commercial",
+    section: T.COMMERCIAL_SECTION,
   },
   {
-    label: "Platform settings",
+    label: T.PLATFORM_SETTINGS,
     href: "/admin/settings",
     icon: <DocumentIcon />,
-    section: "Commercial",
+    section: T.COMMERCIAL_SECTION,
   },
   {
-    label: "Question Bank",
+    label: T.QUESTION_BANK,
     href: "/admin/questions",
     icon: <ClipboardIcon />,
-    section: "Content",
+    section: T.CONTENT_SECTION,
   },
   {
-    label: "Question Types",
+    label: T.QUESTION_TYPES,
     href: "/admin/question-types",
     icon: <DocumentIcon />,
-    section: "Content",
+    section: T.CONTENT_SECTION,
   },
   {
-    label: "Question Templates",
+    label: T.QUESTION_TEMPLATES,
     href: "/admin/question-template",
     icon: <DocumentIcon />,
-    section: "Content",
+    section: T.CONTENT_SECTION,
   },
 ];
 
 export const HOST_NAV: NavItem[] = [
-  { label: "Overview", href: "/host", icon: <GridIcon />, section: "Home" },
+  { label: T.OVERVIEW, href: "/host", icon: <GridIcon />, section: T.HOME_SECTION },
 ];

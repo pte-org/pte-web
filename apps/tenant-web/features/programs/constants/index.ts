@@ -16,6 +16,7 @@ export const PROGRAM_STATUS_VARIANT = {
 
 export const PROGRAMS_TEXT = {
   subtitle: (label: string) => `Manage your organization's ${label.toLowerCase()}.`,
+  emptyDate: "…",
   addButton: "Create Program",
   emptyTitle: (label: string) => `No ${label} yet`,
   emptyText: (label: string) => `Create your first ${label.toLowerCase()} to start adding classes.`,
@@ -108,6 +109,8 @@ export const EMPTY_CREATE_COORDINATOR = { email: "", fullName: "", password: "" 
 
 export const PROGRAM_DASHBOARD_TEXT = {
   title: "Overview",
+  overviewTitle: "Program overview",
+  overviewSubtitle: "Classes and students at a glance.",
   classCount: (label: string) => `${label}s`,
   studentCount: "Students",
   loadFailed: "Couldn't load the overview.",

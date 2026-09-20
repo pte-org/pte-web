@@ -13,6 +13,7 @@ import {
 import { apiClient } from "@/lib/apiClient";
 import { useQuestionTypes } from "@/features/questiontemplate/api";
 import { useCreateQuestion, useUpdateQuestion } from "../api";
+import { QUESTION_EDITOR_ERRORS as E, QUESTION_EDITOR_TEXT as T } from "../constants";
 
 interface DraftOption {
   text: string;
@@ -99,7 +100,7 @@ export const QuestionEditorForm = ({
       body.append("folder", signed.folder);
       body.append("public_id", signed.mediaPublicId);
       const response = await fetch(signed.uploadUrl, { method: "POST", body });
-      if (!response.ok) throw new Error("Cloudinary upload failed");
+      if (!response.ok) throw new Error(E.CLOUDINARY_UPLOAD);
       const uploaded = (await response.json()) as {
         public_id: string;
         asset_id: string;
@@ -129,41 +130,40 @@ export const QuestionEditorForm = ({
         url: uploaded.secure_url,
       });
     } catch (uploadError) {
-      setError(getUserFacingApiErrorMessage(uploadError, "Media upload failed. Please try again."));
+      setError(getUserFacingApiErrorMessage(uploadError, E.MEDIA_UPLOAD));
     }
   };
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
-    if (!questionType)
-      return setError("Question type configuration is unavailable. Please refresh and try again.");
-    if (!title.trim()) return setError("Title is required.");
+    if (!questionType) return setError(E.QUESTION_TYPES_UNAVAILABLE);
+    if (!title.trim()) return setError(E.TITLE_REQUIRED);
     if (questionType.requiresPromptText && !promptText.trim())
-      return setError("Prompt text is required for this task.");
+      return setError(E.PROMPT_REQUIRED);
     if (questionType.requiresAudioPrompt && !audioPromptRef)
-      return setError("An audio prompt is required for this task.");
+      return setError(E.AUDIO_REQUIRED);
     if (questionType.requiresImagePrompt && !imagePromptRef)
-      return setError("An image prompt is required for this task.");
+      return setError(E.IMAGE_REQUIRED);
     if (questionType.requiresWordCount && (!minWordCount || !maxWordCount))
-      return setError("Minimum and maximum word counts are required for this task.");
+      return setError(E.WORD_COUNTS_REQUIRED);
     if (questionType.requiresCorrectAnswer && !hasOptions && !correctAnswerText.trim())
-      return setError("A correct answer is required for this task.");
+      return setError(E.CORRECT_ANSWER_REQUIRED);
     if (hasOptions && (options.length === 0 || options.some((option) => !option.text.trim()))) {
-      return setError("Every option must contain text.");
+      return setError(E.OPTION_TEXT_REQUIRED);
     }
     if (
       hasOptions &&
       questionType.requiresCorrectAnswer &&
       options.every((option) => !option.correct)
     ) {
-      return setError("Select at least one correct option.");
+      return setError(E.CORRECT_OPTION_REQUIRED);
     }
     if (
       questionType.requiresSingleCorrectOption &&
       options.filter((option) => option.correct).length !== 1
     ) {
-      return setError("Single-choice tasks require exactly one correct option.");
+      return setError(E.SINGLE_CORRECT_REQUIRED);
     }
     const content = {
       title: title.trim(),
@@ -196,26 +196,26 @@ export const QuestionEditorForm = ({
   return (
     <form className="flex max-w-4xl flex-col gap-4" onSubmit={submit}>
       <h2 className="text-xl font-semibold text-gray-900">
-        {question ? "Edit Question Revision" : "Create PTE Question"}
+        {question ? T.FORM_EDIT_TITLE : T.FORM_CREATE_TITLE}
       </h2>
       {error && <Alert tone="error">{error}</Alert>}
       {questionTypesError && (
-        <Alert tone="error">Could not load question types. Please refresh.</Alert>
+        <Alert tone="error">{E.LOAD_TYPES}</Alert>
       )}
       {(createMutation.isError || updateMutation.isError) && (
         <Alert tone="error">
-          Could not save the question. Check the required fields and try again.
+          {E.SAVE}
         </Alert>
       )}
       <label className="text-sm font-medium text-gray-700">
-        Task type
+        {T.TASK_TYPE}
         <select
           className={`${fieldClass} mt-1`}
           value={selectedTaskType}
           disabled={Boolean(question) || questionTypesLoading}
           onChange={(event) => setTaskType(event.target.value)}
         >
-          {!taskType && <option value="">Loading question types...</option>}
+          {!taskType && <option value="">{T.LOADING_TASK_TYPES}</option>}
           {questionTypes.map((type) => (
             <option key={type.code} value={type.code}>
               {type.displayName} ({type.shortName})
@@ -226,9 +226,9 @@ export const QuestionEditorForm = ({
           )}
         </select>
       </label>
-      <Input label="Title" value={title} onChange={(event) => setTitle(event.target.value)} />
+      <Input label={T.TITLE} value={title} onChange={(event) => setTitle(event.target.value)} />
       <label className="text-sm font-medium text-gray-700">
-        Prompt text
+        {T.PROMPT_TEXT}
         <textarea
           className={`${fieldClass} mt-1 min-h-28`}
           value={promptText}
@@ -237,7 +237,7 @@ export const QuestionEditorForm = ({
       </label>
       {questionType?.requiresAudioPrompt && (
         <label className="text-sm font-medium text-gray-700">
-          Audio prompt
+          {T.AUDIO_PROMPT}
           <input
             className="mt-1 block text-sm"
             type="file"
@@ -246,14 +246,14 @@ export const QuestionEditorForm = ({
           />
           {audioPromptRef && (
             <span className="mt-1 block text-xs text-green-700">
-              Uploaded media: {audioPromptRef}
+              {T.UPLOADED_MEDIA(audioPromptRef)}
             </span>
           )}
         </label>
       )}
       {questionType?.requiresImagePrompt && (
         <label className="text-sm font-medium text-gray-700">
-          Image prompt
+          {T.IMAGE_PROMPT}
           <input
             className="mt-1 block text-sm"
             type="file"
@@ -262,7 +262,7 @@ export const QuestionEditorForm = ({
           />
           {imagePromptRef && (
             <span className="mt-1 block text-xs text-green-700">
-              Uploaded media: {imagePromptRef}
+              {T.UPLOADED_MEDIA(imagePromptRef)}
             </span>
           )}
         </label>
@@ -272,19 +272,19 @@ export const QuestionEditorForm = ({
         <img
           className="max-h-56 rounded border object-contain"
           src={mediaPreview.url}
-          alt="Question prompt preview"
+          alt={T.PROMPT_PREVIEW_ALT}
         />
       )}
       {questionType?.requiresWordCount && (
         <div className="grid gap-4 md:grid-cols-2">
           <Input
-            label="Minimum word count"
+            label={T.MIN_WORD_COUNT}
             type="number"
             value={minWordCount}
             onChange={(event) => setMinWordCount(event.target.value)}
           />
           <Input
-            label="Maximum word count"
+            label={T.MAX_WORD_COUNT}
             type="number"
             value={maxWordCount}
             onChange={(event) => setMaxWordCount(event.target.value)}
@@ -292,31 +292,31 @@ export const QuestionEditorForm = ({
         </div>
       )}
       <Input
-        label="Reference answer"
+        label={T.REFERENCE_ANSWER}
         value={referenceAnswerText}
         onChange={(event) => setReferenceAnswerText(event.target.value)}
       />
       {(!hasOptions || questionType?.requiresCorrectAnswer) && (
         <Input
-          label="Correct answer"
+          label={T.CORRECT_ANSWER}
           value={correctAnswerText}
           onChange={(event) => setCorrectAnswerText(event.target.value)}
         />
       )}
       {hasOptions && (
         <fieldset className="flex flex-col gap-3 rounded-md border border-gray-200 p-4">
-          <legend className="px-1 text-sm font-medium text-gray-700">Options</legend>
+          <legend className="px-1 text-sm font-medium text-gray-700">{T.OPTIONS}</legend>
           {options.map((option, index) => (
             <div className="flex items-center gap-2" key={index}>
               <input
                 type="checkbox"
                 checked={option.correct}
                 onChange={(event) => updateOption(index, { correct: event.target.checked })}
-                aria-label={`Correct option ${index + 1}`}
+                aria-label={T.CORRECT_OPTION(index + 1)}
               />
               <Input
                 value={option.text}
-                placeholder={`Option ${index + 1}`}
+                placeholder={T.OPTION(index + 1)}
                 onChange={(event) => updateOption(index, { text: event.target.value })}
               />
               <Button
@@ -327,7 +327,7 @@ export const QuestionEditorForm = ({
                   setOptions((current) => current.filter((_, optionIndex) => optionIndex !== index))
                 }
               >
-                Remove
+                {T.REMOVE}
               </Button>
             </div>
           ))}
@@ -342,12 +342,12 @@ export const QuestionEditorForm = ({
               ])
             }
           >
-            Add option
+            {T.ADD_OPTION}
           </Button>
         </fieldset>
       )}
       <Button type="submit" isLoading={isPending}>
-        {question ? "Save Draft" : "Create Draft"}
+        {question ? T.SAVE_DRAFT : T.CREATE_DRAFT}
       </Button>
     </form>
   );

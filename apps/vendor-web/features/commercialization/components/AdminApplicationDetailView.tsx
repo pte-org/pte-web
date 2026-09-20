@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Alert, Button, DescriptionList, Input, PageHeader } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useApplicationsQuery, useApproveApplication, useRejectApplication } from "../api";
+import { ADMIN_APPLICATION_DETAIL_TEXT as T } from "../constants";
 import { CommercialPanel } from "./CommercialPanel";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
 
@@ -23,18 +24,18 @@ export const AdminApplicationDetailView = ({ applicationId }: AdminApplicationDe
   const errorMessage = mutationError
     ? getUserFacingApiErrorMessage(
         mutationError,
-        "The application could not be updated. Please try again.",
+        T.UPDATE_ERROR,
       )
     : undefined;
 
-  if (isLoading) return <p className="text-sm text-slate-500">Loading application...</p>;
+  if (isLoading) return <p className="text-sm text-slate-500">{T.LOADING}</p>;
   if (!application) {
     return (
       <div className="flex flex-col gap-4">
         <Link href="/admin/applications" className="text-sm font-medium text-action hover:underline">
-          &larr; Back to applications
+          {T.BACK}
         </Link>
-        <Alert tone="error">This application was not found or is no longer available.</Alert>
+        <Alert tone="error">{T.NOT_FOUND}</Alert>
       </div>
     );
   }
@@ -57,41 +58,41 @@ export const AdminApplicationDetailView = ({ applicationId }: AdminApplicationDe
   return (
     <div className="flex flex-col gap-5">
       <Link href="/admin/applications" className="text-sm font-medium text-action hover:underline">
-        &larr; Back to applications
+        {T.BACK}
       </Link>
       <PageHeader
         title={application.orgName}
-        subtitle={`Requested code ${application.requestedCode}`}
+        subtitle={T.REQUESTED_CODE(application.requestedCode)}
         actions={<CommercialStatusBadge status={application.status} />}
       />
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       {approvalSent && (
         <Alert tone="success">
-          Application approved. One-time host credentials were sent to the contact email.
+          {T.APPROVED}
         </Alert>
       )}
       <div className="grid gap-5 lg:grid-cols-[1.35fr_1fr]">
-        <CommercialPanel title="Application details" subtitle="Submitted organization information.">
+        <CommercialPanel title={T.DETAILS_TITLE} subtitle={T.DETAILS_SUBTITLE}>
           <DescriptionList
             items={[
-              { label: "Organization type", value: application.orgType },
-              { label: "Requested tenant code", value: application.requestedCode },
-              { label: "Work email", value: application.contactEmail },
-              { label: "Phone number", value: application.contactPhone ?? "—" },
-              { label: "Tax code", value: application.taxCode ?? "—" },
+              { label: T.ORGANIZATION_TYPE, value: application.orgType },
+              { label: T.REQUESTED_TENANT_CODE, value: application.requestedCode },
+              { label: T.WORK_EMAIL, value: application.contactEmail },
+              { label: T.PHONE, value: application.contactPhone ?? T.EMPTY_VALUE },
+              { label: T.TAX_CODE, value: application.taxCode ?? T.EMPTY_VALUE },
             ]}
           />
         </CommercialPanel>
-        <CommercialPanel title="Review decision" subtitle="Approve access or record a reason for rejection.">
+        <CommercialPanel title={T.REVIEW_TITLE} subtitle={T.REVIEW_SUBTITLE}>
           <div className="flex flex-col gap-4">
             <div className="rounded-md bg-slate-50 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Current status</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{T.CURRENT_STATUS}</p>
               <div className="mt-2"><CommercialStatusBadge status={application.status} /></div>
             </div>
             <Input
               id="rejection-reason"
-              label="Rejection reason"
-              placeholder="Explain what must be corrected"
+              label={T.REJECTION_REASON_LABEL}
+              placeholder={T.REJECTION_REASON_PLACEHOLDER}
               value={rejectionReason}
               onChange={(event) => setRejectionReason(event.target.value)}
               disabled={!canReview || reject.isPending}
@@ -99,10 +100,10 @@ export const AdminApplicationDetailView = ({ applicationId }: AdminApplicationDe
             />
             <div className="flex flex-wrap gap-2">
               <Button size="sm" onClick={() => void review("APPROVED")} disabled={!canReview || approve.isPending}>
-                {approve.isPending ? "Approving..." : "Approve application"}
+                {approve.isPending ? T.APPROVING : T.APPROVE}
               </Button>
               <Button size="sm" variant="danger" onClick={() => void review("REJECTED")} disabled={!canReview || reject.isPending || !rejectionReason.trim()}>
-                {reject.isPending ? "Rejecting..." : "Reject application"}
+                {reject.isPending ? T.REJECTING : T.REJECT}
               </Button>
             </div>
           </div>

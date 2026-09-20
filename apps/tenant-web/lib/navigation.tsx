@@ -1,6 +1,7 @@
 import type { NavItem } from "@/features/auth/components";
 import type { OrgLabels } from "@/features/orgLabels/constants";
 import { BookOpenIcon, DocumentIcon, GridIcon, LicenseIcon, UsersIcon } from "@pte/ui";
+import { HOST_NAV_TEXT as T } from "./navigationConstants";
 
 /**
  * Non-label entries stay static; the Program entry's label is org-type-driven.
@@ -13,23 +14,23 @@ import { BookOpenIcon, DocumentIcon, GridIcon, LicenseIcon, UsersIcon } from "@p
  */
 export function buildHostNav(labels: OrgLabels): NavItem[] {
   return [
-    { label: "Overview", href: "/host/dashboard", icon: <GridIcon />, section: "Home" },
-    { label: "Learners", href: "/host/students", icon: <UsersIcon />, section: "Users" },
-    { label: "Exam Staff", href: "/host/exam-staff", icon: <UsersIcon />, section: "Users" },
-    { label: labels.program, href: "/host/programs", icon: <BookOpenIcon />, section: "Delivery" },
-    { label: "Exams", href: "/host/exams", icon: <BookOpenIcon />, section: "Delivery" },
+    { label: T.OVERVIEW, href: "/host/dashboard", icon: <GridIcon />, section: T.HOME_SECTION },
+    { label: T.LEARNERS, href: "/host/students", icon: <UsersIcon />, section: T.USERS_SECTION },
+    { label: T.EXAM_STAFF, href: "/host/exam-staff", icon: <UsersIcon />, section: T.USERS_SECTION },
+    { label: labels.program, href: "/host/programs", icon: <BookOpenIcon />, section: T.DELIVERY_SECTION },
+    { label: T.EXAMS, href: "/host/exams", icon: <BookOpenIcon />, section: T.DELIVERY_SECTION },
     {
-      label: "Plans & billing",
+      label: T.PLANS_AND_BILLING,
       href: "/host/billing",
       icon: <LicenseIcon />,
-      section: "Account",
+      section: T.ACCOUNT_SECTION,
       requiredRoles: ["HOST_ADMIN"],
     },
     {
-      label: "Audit Log",
+      label: T.AUDIT_LOG,
       href: "/host/audit-log",
       icon: <DocumentIcon />,
-      section: "Data",
+      section: T.DATA_SECTION,
       requiredRoles: ["HOST_ADMIN"],
     },
   ];

@@ -95,7 +95,9 @@ export const QuotaHistoryModal = ({
                   <td className={`${CELL_CLASS} font-medium text-gray-900`}>
                     {formatAmount(transaction.amount)}
                   </td>
-                  <td className={`${CELL_CLASS} text-gray-500`}>{transaction.note ?? "-"}</td>
+                  <td className={`${CELL_CLASS} text-gray-500`}>
+                    {transaction.note ?? T.EMPTY_VALUE}
+                  </td>
                 </tr>
               ))}
             </tbody>

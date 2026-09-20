@@ -36,7 +36,37 @@ export const SCORE_TEMPLATE_TEXT = {
     "This template is no longer editable — it stopped being a DRAFT (e.g. someone else activated a newer version). Reload the list to see the current state.",
   CONCURRENT_MODIFICATION_ERROR:
     "Another admin changed this template's family at the same moment. Reload and try again.",
+  LOAD_ERROR: "Could not load question templates. Please refresh.",
+  CLONE_ERROR: "Could not clone this template. Please try again.",
+  CODE_LABEL: "Code",
+  NAME_LABEL: "Name",
+  LOAD_DETAIL_ERROR: "Could not load this question template.",
+  SELECT_SECTION: "Select section",
+  SELECT_SECTION_FIRST: "Select section first",
+  SELECT_TASK_TYPE: "Select task type",
+  FIXED: "FIXED",
+  RECOMMENDED: "RECOMMENDED",
+  AI_SPEECH: "AI_SPEECH",
+  AI_TEXT: "AI_TEXT",
+  OBJECTIVE: "OBJECTIVE",
+  UNSCORED: "UNSCORED",
+  SELECT_TYPE: "Select a type",
+  CANCEL: "Cancel",
+  DETAIL_TITLE: (code: string, version: number | string) => `${code} v${version}`,
+  DRAFT_TITLE: (code: string, version: number | string) => `${code} v${version} (DRAFT)`,
 } as const;
+
+export const SCORE_TEMPLATE_TIMING_OPTIONS = [
+  { value: "FIXED", label: SCORE_TEMPLATE_TEXT.FIXED },
+  { value: "RECOMMENDED", label: SCORE_TEMPLATE_TEXT.RECOMMENDED },
+] as const;
+
+export const SCORE_TEMPLATE_SCORING_OPTIONS = [
+  { value: "AI_SPEECH", label: SCORE_TEMPLATE_TEXT.AI_SPEECH },
+  { value: "AI_TEXT", label: SCORE_TEMPLATE_TEXT.AI_TEXT },
+  { value: "OBJECTIVE", label: SCORE_TEMPLATE_TEXT.OBJECTIVE },
+  { value: "UNSCORED", label: SCORE_TEMPLATE_TEXT.UNSCORED },
+] as const;
 
 export const SCORE_TEMPLATE_LIST_HEADERS = {
   CODE: "Code",

@@ -15,6 +15,7 @@ import {
 import {
   CREATE_TENANT_CONFLICT_TEXT,
   TENANCY_TEXT,
+  TENANT_OVERVIEW_TEXT,
   TENANT_STATS_TEXT,
 } from "../constants";
 import { filterTenants } from "../utils/filterTenants";
@@ -159,8 +160,8 @@ export const TenantManagementView = (): ReactElement => {
       />
 
       <CollapsibleSection
-        title="Tenant overview"
-        subtitle="Tenant status and capacity at a glance."
+        title={TENANT_OVERVIEW_TEXT.TITLE}
+        subtitle={TENANT_OVERVIEW_TEXT.SUBTITLE}
         contentClassName="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
       >
         <StatCard

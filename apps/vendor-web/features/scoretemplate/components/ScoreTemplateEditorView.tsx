@@ -35,7 +35,7 @@ export const ScoreTemplateEditorView = ({
     return <LoadingState rows={6} />;
   }
   if (isError || !template) {
-    return <Alert tone="error">Could not load this question template.</Alert>;
+    return <Alert tone="error">{SCORE_TEMPLATE_TEXT.LOAD_DETAIL_ERROR}</Alert>;
   }
   if (template.status !== "DRAFT") {
     return <Alert tone="warning">{SCORE_TEMPLATE_TEXT.NOT_DRAFT_ERROR}</Alert>;
@@ -165,7 +165,7 @@ const ScoreTemplateEditorForm = ({
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`${template.code} v${template.version} (DRAFT)`}
+        title={SCORE_TEMPLATE_TEXT.DRAFT_TITLE(template.code, template.version)}
         actions={
           <>
             <Button
@@ -191,7 +191,7 @@ const ScoreTemplateEditorForm = ({
 
       <div>
         <label htmlFor="score-template-name" className="block text-sm font-medium text-gray-700">
-          Name
+              {SCORE_TEMPLATE_TEXT.NAME_LABEL}
         </label>
         <input
           id="score-template-name"
@@ -209,7 +209,7 @@ const ScoreTemplateEditorForm = ({
               htmlFor="question-template-add-section"
               className="block text-sm font-medium text-gray-700"
             >
-              Add question type
+              {SCORE_TEMPLATE_TEXT.ADD_TYPE}
             </label>
             <select
               id="question-template-add-section"
@@ -220,7 +220,7 @@ const ScoreTemplateEditorForm = ({
               }}
               className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
             >
-              <option value="">Select section first</option>
+              <option value="">{SCORE_TEMPLATE_TEXT.SELECT_SECTION_FIRST}</option>
               {QUESTION_TEMPLATE_SECTIONS.map((section) => (
                 <option key={section} value={section}>
                   {section}
@@ -236,10 +236,10 @@ const ScoreTemplateEditorForm = ({
             >
               <option value="">
                 {!newSection
-                  ? "Select section first"
+                  ? SCORE_TEMPLATE_TEXT.SELECT_SECTION_FIRST
                   : availableTypes.length === 0
                     ? SCORE_TEMPLATE_TEXT.NO_TYPES_TO_ADD
-                    : "Select a type"}
+                    : SCORE_TEMPLATE_TEXT.SELECT_TYPE}
               </option>
               {availableTypes.map((type) => (
                 <option key={type.code} value={type.code}>

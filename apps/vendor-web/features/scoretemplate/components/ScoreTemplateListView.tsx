@@ -87,14 +87,14 @@ export const ScoreTemplateListView = (): ReactElement => {
         }
       />
 
-      {isError && <Alert tone="error">Could not load question templates. Please refresh.</Alert>}
+      {isError && <Alert tone="error">{SCORE_TEMPLATE_TEXT.LOAD_ERROR}</Alert>}
       {createError && <Alert tone="error">{createError}</Alert>}
       {createMutation.isError && !createError && (
         <Alert tone="error">{SCORE_TEMPLATE_TEXT.CREATE_ERROR}</Alert>
       )}
       {deleteMutation.isError && <Alert tone="error">{SCORE_TEMPLATE_TEXT.DELETE_ERROR}</Alert>}
       {cloneMutation.isError && (
-        <Alert tone="error">Could not clone this template. Please try again.</Alert>
+        <Alert tone="error">{SCORE_TEMPLATE_TEXT.CLONE_ERROR}</Alert>
       )}
 
       {isLoading ? (
@@ -194,7 +194,7 @@ export const ScoreTemplateListView = (): ReactElement => {
         footer={
           <>
             <Button variant="ghost" onClick={closeCreate} disabled={createMutation.isPending}>
-              Cancel
+              {SCORE_TEMPLATE_TEXT.CANCEL}
             </Button>
             <Button
               variant="primary"
@@ -215,7 +215,7 @@ export const ScoreTemplateListView = (): ReactElement => {
           <p className="text-sm text-gray-600">{SCORE_TEMPLATE_TEXT.CREATE_MODAL_SUBTITLE}</p>
           <Input
             id="create-question-template-code"
-            label="Code"
+            label={SCORE_TEMPLATE_TEXT.CODE_LABEL}
             value={createCode}
             onChange={(event) => setCreateCode(event.target.value)}
             required
@@ -223,7 +223,7 @@ export const ScoreTemplateListView = (): ReactElement => {
           />
           <Input
             id="create-question-template-name"
-            label="Name"
+            label={SCORE_TEMPLATE_TEXT.NAME_LABEL}
             value={createName}
             onChange={(event) => setCreateName(event.target.value)}
             required

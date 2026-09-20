@@ -55,7 +55,9 @@ const TenantRow = ({
       <td className={`${CELL_CLASS} text-gray-500`}>
         {organizationTypeLabel(tenant.organizationType)}
       </td>
-      <td className={`${CELL_CLASS} font-mono text-xs text-gray-500`}>{tenant.taxCode ?? "-"}</td>
+      <td className={`${CELL_CLASS} font-mono text-xs text-gray-500`}>
+        {tenant.taxCode ?? TENANCY_TEXT.EMPTY_VALUE}
+      </td>
       <td className={CELL_CLASS}>{TENANT_PLAN_LABELS[tenant.plan]}</td>
       <td className={CELL_CLASS}>{tenant.seatsTotal}</td>
       <td className={CELL_CLASS}>

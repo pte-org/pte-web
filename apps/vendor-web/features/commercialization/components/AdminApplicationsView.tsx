@@ -16,13 +16,14 @@ import {
 } from "@pte/ui";
 import { useApplicationsQuery } from "../api";
 import type { TenantApplicationResponse } from "@pte/api-client";
+import { ADMIN_APPLICATIONS_TEXT as T } from "../constants";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
 
 const STATUS_OPTIONS = [
-  { label: "All statuses", value: "ALL" },
-  { label: "Pending", value: "PENDING" },
-  { label: "Approved", value: "APPROVED" },
-  { label: "Rejected", value: "REJECTED" },
+  { label: T.ALL_STATUSES, value: "ALL" },
+  { label: T.PENDING, value: "PENDING" },
+  { label: T.APPROVED, value: "APPROVED" },
+  { label: T.REJECTED, value: "REJECTED" },
 ];
 
 export const AdminApplicationsView = (): ReactElement => {
@@ -39,7 +40,7 @@ export const AdminApplicationsView = (): ReactElement => {
   const columns = [
     {
       key: "organization",
-      header: "Organization",
+      header: T.COLUMN_ORGANIZATION,
       cell: (row: TenantApplicationResponse) => (
         <div>
           <p className="font-medium text-slate-900">{row.orgName}</p>
@@ -49,7 +50,7 @@ export const AdminApplicationsView = (): ReactElement => {
     },
     {
       key: "contact",
-      header: "Contact",
+      header: T.COLUMN_CONTACT,
       cell: (row: TenantApplicationResponse) => (
         <div>
           <p>{row.contactEmail}</p>
@@ -57,17 +58,17 @@ export const AdminApplicationsView = (): ReactElement => {
         </div>
       ),
     },
-    { key: "type", header: "Type", cell: (row: TenantApplicationResponse) => row.orgType },
+    { key: "type", header: T.COLUMN_TYPE, cell: (row: TenantApplicationResponse) => row.orgType },
     {
       key: "taxCode",
-      header: "Tax code",
+      header: T.COLUMN_TAX_CODE,
       cell: (row: TenantApplicationResponse) => (
-        <span className="font-mono text-xs">{row.taxCode ?? "—"}</span>
+        <span className="font-mono text-xs">{row.taxCode ?? T.EMPTY_VALUE}</span>
       ),
     },
     {
       key: "status",
-      header: "Status",
+      header: T.COLUMN_STATUS,
       cell: (row: TenantApplicationResponse) => <CommercialStatusBadge status={row.status} />,
     },
   ];
@@ -75,12 +76,12 @@ export const AdminApplicationsView = (): ReactElement => {
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
-        title="Tenant applications"
-        subtitle="Review organization requests before workspace access is created."
+        title={T.TITLE}
+        subtitle={T.SUBTITLE}
         actions={
           <Select
             id="application-status"
-            aria-label="Filter applications by status"
+            aria-label={T.FILTER_ARIA_LABEL}
             options={STATUS_OPTIONS}
             value={status}
             onChange={(event) => setStatus(event.target.value)}
@@ -88,27 +89,27 @@ export const AdminApplicationsView = (): ReactElement => {
           />
         }
       />
-      {isError && <Alert tone="error">Applications could not be loaded. Try again shortly.</Alert>}
+      {isError && <Alert tone="error">{T.LOAD_ERROR}</Alert>}
       <CollapsibleSection
-        title="Application overview"
-        subtitle="Tenant application status at a glance."
+        title={T.OVERVIEW_TITLE}
+        subtitle={T.OVERVIEW_SUBTITLE}
         contentClassName="grid gap-4 sm:grid-cols-3"
       >
         <StatCard
-          label="Total applications"
+          label={T.TOTAL}
           value={String(applications.length)}
           icon={<BuildingIcon />}
           accent="blue"
         />
         <StatCard
-          label="Needs review"
+          label={T.NEEDS_REVIEW}
           value={String(pendingCount)}
           icon={<UsersIcon />}
           accent="cream"
           highlight
         />
         <StatCard
-          label="Approved"
+          label={T.APPROVED_COUNT}
           value={String(approvedCount)}
           icon={<BuildingIcon />}
           accent="mint"
@@ -122,7 +123,7 @@ export const AdminApplicationsView = (): ReactElement => {
           <ActionMenu
             items={[
               {
-                label: "View details",
+                label: T.VIEW_DETAILS,
                 icon: EyeIcon,
                 onSelect: () => router.push(`/admin/applications/${row.publicId}`),
               },
@@ -130,8 +131,8 @@ export const AdminApplicationsView = (): ReactElement => {
           />
         )}
         rowActionsHeader=""
-        emptyTitle={isLoading ? "Loading applications..." : "No applications found"}
-        emptyDescription={isLoading ? "" : "Try another status filter."}
+        emptyTitle={isLoading ? T.LOADING : T.EMPTY}
+        emptyDescription={isLoading ? "" : T.FILTER_EMPTY}
       />
     </div>
   );

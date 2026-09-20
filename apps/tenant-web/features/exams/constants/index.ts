@@ -49,6 +49,8 @@ export const CREATE_SESSION_TEXT = {
   SUBSCRIPTION_LABEL: "Subscription",
   SUBSCRIPTION_PLACEHOLDER: "Select an active subscription",
   SUBSCRIPTION_HELPER: "The exam's window and capacity must fit within this subscription.",
+  PLAN_FALLBACK: "Plan",
+  SUBSCRIPTION_OPTION: (planName: string, licenseKey: string) => `${planName} — ${licenseKey}`,
   NO_ACTIVE_SUBSCRIPTIONS: "No active subscription yet — redeem a license or purchase a plan first.",
   SKILLS_LABEL: "Skills",
   SKILLS_HELPER:

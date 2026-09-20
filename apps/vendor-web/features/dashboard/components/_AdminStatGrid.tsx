@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { AlertTriangleIcon, BuildingIcon, CollapsibleSection, StatCard, UsersIcon } from "@pte/ui";
-import { DASHBOARD_TEXT } from "../constants";
+import { DASHBOARD_OVERVIEW_TEXT, DASHBOARD_TEXT } from "../constants";
 import type { AdminStats } from "../types";
 
 interface AdminStatGridProps {
@@ -13,13 +13,13 @@ function formatProgress(value: number | undefined): string | undefined {
 
 export const AdminStatGrid = ({ stats }: AdminStatGridProps): ReactElement => (
   <CollapsibleSection
-    title="Overview"
-    subtitle="Platform activity at a glance."
+    title={DASHBOARD_OVERVIEW_TEXT.TITLE}
+    subtitle={DASHBOARD_OVERVIEW_TEXT.SUBTITLE}
     contentClassName="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
   >
     <StatCard
       label={DASHBOARD_TEXT.STAT_TOTAL}
-      value={stats?.totalTenants ?? "-"}
+      value={stats?.totalTenants ?? DASHBOARD_OVERVIEW_TEXT.EMPTY_VALUE}
       trend={formatProgress(stats?.totalTenantsProgress)}
       progress={stats?.totalTenantsProgress}
       icon={<BuildingIcon />}
@@ -27,7 +27,7 @@ export const AdminStatGrid = ({ stats }: AdminStatGridProps): ReactElement => (
     />
     <StatCard
       label={DASHBOARD_TEXT.STAT_LEARNERS}
-      value={stats?.activeLearners ?? "-"}
+      value={stats?.activeLearners ?? DASHBOARD_OVERVIEW_TEXT.EMPTY_VALUE}
       trend={formatProgress(stats?.activeLearnersProgress)}
       progress={stats?.activeLearnersProgress}
       trendPositive={false}
@@ -36,7 +36,7 @@ export const AdminStatGrid = ({ stats }: AdminStatGridProps): ReactElement => (
     />
     <StatCard
       label={DASHBOARD_TEXT.STAT_EXPIRING}
-      value={stats?.expiringSoon ?? "-"}
+      value={stats?.expiringSoon ?? DASHBOARD_OVERVIEW_TEXT.EMPTY_VALUE}
       footnote={DASHBOARD_TEXT.STAT_EXPIRING_NOTE}
       trend={formatProgress(stats?.expiringSoonProgress)}
       progress={stats?.expiringSoonProgress}

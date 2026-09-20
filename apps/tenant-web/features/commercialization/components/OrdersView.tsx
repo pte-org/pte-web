@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ActionMenu, Alert, DataTable, EyeIcon, PageHeader, PaginationControls } from "@pte/ui";
 import { type OrderResponse } from "@pte/api-client";
 import { useOrdersPage } from "../api";
+import { BILLING_TEXT as T } from "../constants";
 import { BillingPanel } from "./BillingPanel";
 import { BillingStatusBadge } from "./BillingStatusBadge";
 
@@ -16,24 +17,25 @@ export const OrdersView = (): ReactElement => {
   const [page, setPage] = useState(0);
   const { data, isLoading, isError } = useOrdersPage(page, 20);
   const orders = data?.data ?? [];
+
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
-        title="Order history"
-        subtitle="Review payments and purchased packages."
+        title={T.ORDERS_TITLE}
+        subtitle={T.ORDERS_SUBTITLE}
         actions={
           <Link href="/host/billing" className="text-sm font-semibold text-action hover:underline">
-            Browse plans
+            {T.BROWSE_PLANS_ACTION}
           </Link>
         }
       />
-      {isError && <Alert tone="error">Orders could not be loaded. Try again shortly.</Alert>}
-      <BillingPanel title="Orders" subtitle="Payment status is updated from PayOS webhook events.">
+      {isError && <Alert tone="error">{T.ORDERS_LOAD_ERROR}</Alert>}
+      <BillingPanel title={T.ORDERS_PANEL_TITLE} subtitle={T.ORDERS_PANEL_SUBTITLE}>
         <DataTable
           columns={[
             {
               key: "id",
-              header: "Order",
+              header: T.ORDER_COLUMN,
               cell: (row: OrderResponse) => (
                 <span className="font-mono text-xs font-semibold text-slate-900">
                   {row.orderCode}
@@ -42,12 +44,12 @@ export const OrdersView = (): ReactElement => {
             },
             {
               key: "plan",
-              header: "Plan ID",
+              header: T.PLAN_ID_COLUMN,
               cell: (row: OrderResponse) => <span className="font-mono text-xs">{row.planId}</span>,
             },
             {
               key: "amount",
-              header: "Amount",
+              header: T.AMOUNT_COLUMN,
               cell: (row: OrderResponse) => (
                 <span className="font-semibold">
                   {Number(row.amount).toLocaleString()} {row.currency}
@@ -56,12 +58,12 @@ export const OrdersView = (): ReactElement => {
             },
             {
               key: "date",
-              header: "Date",
+              header: T.DATE_COLUMN,
               cell: (row: OrderResponse) => formatDate(row.createdAt),
             },
             {
               key: "status",
-              header: "Status",
+              header: T.STATUS_COLUMN,
               cell: (row: OrderResponse) => <BillingStatusBadge status={row.status} />,
             },
           ]}
@@ -71,7 +73,7 @@ export const OrdersView = (): ReactElement => {
             <ActionMenu
               items={[
                 {
-                  label: "View details",
+                  label: T.VIEW_DETAILS,
                   icon: EyeIcon,
                   onSelect: () =>
                     router.push(`/host/payment-status?orderId=${encodeURIComponent(row.publicId)}`),
@@ -80,14 +82,14 @@ export const OrdersView = (): ReactElement => {
             />
           )}
           rowActionsHeader=""
-          emptyTitle={isLoading ? "Loading orders..." : "No orders found"}
+          emptyTitle={isLoading ? T.LOADING_ORDERS : T.NO_ORDERS}
         />
         {data && (
           <PaginationControls
             meta={data.meta}
             onPageChange={setPage}
             disabled={isLoading}
-            totalItemsLabel={`Showing ${data.meta.totalElements} order(s)`}
+            totalItemsLabel={T.TOTAL_ORDERS(data.meta.totalElements)}
           />
         )}
       </BillingPanel>

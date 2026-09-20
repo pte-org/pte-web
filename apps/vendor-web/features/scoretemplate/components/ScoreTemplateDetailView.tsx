@@ -29,7 +29,7 @@ export const ScoreTemplateDetailView = ({
     return <LoadingState rows={6} />;
   }
   if (isError || !template) {
-    return <Alert tone="error">Could not load this question template.</Alert>;
+    return <Alert tone="error">{SCORE_TEMPLATE_TEXT.LOAD_DETAIL_ERROR}</Alert>;
   }
 
   const status = template.status as ScoreTemplateStatusFilter;
@@ -37,7 +37,7 @@ export const ScoreTemplateDetailView = ({
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`${template.code} v${template.version}`}
+        title={SCORE_TEMPLATE_TEXT.DETAIL_TITLE(template.code, template.version)}
         subtitle={template.name}
         actions={
           <>
@@ -64,7 +64,7 @@ export const ScoreTemplateDetailView = ({
       />
 
       {cloneMutation.isError && (
-        <Alert tone="error">Could not clone this template. Please try again.</Alert>
+        <Alert tone="error">{SCORE_TEMPLATE_TEXT.CLONE_ERROR}</Alert>
       )}
 
       <ScoreTemplateItemTable editable={false} items={template.items} />

@@ -7,6 +7,7 @@ import { BookOpenIcon, CheckCircleIcon, UsersIcon } from "@pte/ui";
 import { useSessionManager } from "@pte/ui";
 import { AUTH_ROUTES } from "@/features/auth/constants";
 import { useTenantPlansQuery } from "@/features/commercialization/api";
+import { PUBLIC_TEXT as T } from "../constants";
 import { PublicShell } from "./PublicShell";
 
 const money = (plan: PlanResponse): string =>
@@ -26,7 +27,7 @@ const PackageCard = ({
       <div>
         <h3 className="text-base font-semibold text-slate-950">{plan.name}</h3>
         <p className="mt-1 text-xs text-slate-500">
-          {plan.durationDays ? `${plan.durationDays} days` : "Permanent add-on"}
+          {plan.durationDays ? T.PLAN_DURATION(plan.durationDays) : T.PERMANENT_ADD_ON}
         </p>
       </div>
       <p className="text-sm font-bold text-slate-950">{money(plan)}</p>
@@ -37,12 +38,12 @@ const PackageCard = ({
       </span>
       <p className="text-sm font-semibold text-slate-900">
         {plan.type === "EXAM_PACKAGE"
-          ? `Up to ${plan.maxStudentsPerSession ?? "—"} students / exam`
-          : `+${plan.extraStudentSlots ?? "—"} students`}
+          ? T.UP_TO_STUDENTS(plan.maxStudentsPerSession ?? T.EMPTY_VALUE)
+          : T.EXTRA_STUDENTS(plan.extraStudentSlots ?? T.EMPTY_VALUE)}
       </p>
     </div>
     <p className="mt-4 text-sm text-slate-500">
-      {plan.description || "No description provided."}
+      {plan.description || T.NO_DESCRIPTION}
     </p>
     <Link
       href={
@@ -52,9 +53,9 @@ const PackageCard = ({
       }
       className="mt-5 inline-flex text-sm font-semibold text-action hover:underline"
     >
-      {isOrganizationRegistered ? "Buy now" : "Register organization"}{" "}
+      {isOrganizationRegistered ? T.BUY_NOW : T.REGISTER_ORGANIZATION}{" "}
       <span className="ml-1" aria-hidden="true">
-        &rarr;
+        {T.ARROW}
       </span>
     </Link>
   </article>
@@ -73,7 +74,7 @@ const PlanSection = ({
   iconTone: string;
   isOrganizationRegistered: boolean;
 }): ReactElement => (
-  <div className={title === "Exam packages" ? "" : "mt-12"}>
+  <div className={title === T.EXAM_PACKAGES ? "" : "mt-12"}>
     <div className="flex items-center gap-3">
       <span className={`grid h-10 w-10 place-items-center rounded-md ${iconTone}`}>
         {icon}
@@ -114,7 +115,7 @@ export const HomeView = (): ReactElement => {
               className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500"
               role="status"
             >
-              Loading available plans...
+              {T.LOADING_PLANS}
             </p>
           )}
           {isError && (
@@ -122,17 +123,17 @@ export const HomeView = (): ReactElement => {
               className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700"
               role="alert"
             >
-              Plans could not be loaded. Try again shortly.
+              {T.PLANS_LOAD_ERROR}
             </p>
           )}
           {!isLoading && !isError && activePlans.length === 0 && (
             <p className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-500">
-              No plans are currently available.
+              {T.NO_PLANS}
             </p>
           )}
           {!isLoading && !isError && examPlans.length > 0 && (
             <PlanSection
-              title="Exam packages"
+              title={T.EXAM_PACKAGES}
               plans={examPlans}
               icon={<BookOpenIcon className="h-5 w-5 text-blue-700" />}
               iconTone="bg-blue-50"
@@ -141,7 +142,7 @@ export const HomeView = (): ReactElement => {
           )}
           {!isLoading && !isError && capacityPlans.length > 0 && (
             <PlanSection
-              title="Student capacity add-ons"
+              title={T.STUDENT_CAPACITY_ADD_ONS}
               plans={capacityPlans}
               icon={<UsersIcon className="h-5 w-5 text-emerald-700" />}
               iconTone="bg-emerald-50"

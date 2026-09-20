@@ -73,7 +73,7 @@ export const AuditLogView = (): ReactElement => {
           meta={data.meta}
           onPageChange={setPage}
           disabled={isLoading}
-          totalItemsLabel={`Showing ${data.meta.totalElements} entr${data.meta.totalElements === 1 ? "y" : "ies"}`}
+          totalItemsLabel={AUDIT_LOG_TEXT.totalItems(data.meta.totalElements)}
         />
       )}
     </div>

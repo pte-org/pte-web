@@ -4,13 +4,14 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactElement } from "react";
 import { Alert, LoadingState, PageHeader } from "@pte/ui";
 import { useCreateQuestionRevision, useQuestion } from "../api";
+import { QUESTION_EDITOR_ERRORS as E, QUESTION_EDITOR_TEXT as T } from "../constants";
 import { QuestionEditorForm } from "./QuestionEditorForm";
 
 export const NewQuestionView = (): ReactElement => {
   const router = useRouter();
   return (
     <div className="space-y-5">
-      <PageHeader title="New question" subtitle="Create a draft question for Admin approval." />
+      <PageHeader title={T.NEW_TITLE} subtitle={T.NEW_SUBTITLE} />
       <QuestionEditorForm onSaved={() => router.push("/admin/questions")} />
     </div>
   );
@@ -32,15 +33,15 @@ export const EditQuestionView = ({ publicId }: { publicId: string }): ReactEleme
   }, [question, revisionMutation]);
 
   if (isLoading) return <LoadingState rows={8} />;
-  if (isError || !question) return <Alert tone="error">Could not load this question.</Alert>;
-  if (revisionMutation.isError) return <Alert tone="error">Could not create a draft revision for this question.</Alert>;
-  if (question.status === "PENDING_APPROVAL") return <Alert tone="warning">This question is waiting for admin approval and cannot be edited yet.</Alert>;
-  if (question.status === "ARCHIVED") return <Alert tone="warning">Archived questions cannot be edited.</Alert>;
+  if (isError || !question) return <Alert tone="error">{E.LOAD_QUESTION}</Alert>;
+  if (revisionMutation.isError) return <Alert tone="error">{E.CREATE_REVISION}</Alert>;
+  if (question.status === "PENDING_APPROVAL") return <Alert tone="warning">{E.PENDING_APPROVAL}</Alert>;
+  if (question.status === "ARCHIVED") return <Alert tone="warning">{E.ARCHIVED}</Alert>;
   const editableQuestion = question.status === "APPROVED" ? revisionQuestion : question;
   if (!editableQuestion || revisionMutation.isPending) return <LoadingState rows={8} />;
   return (
     <div className="space-y-5">
-      <PageHeader title="Edit question" subtitle="Save changes as a draft revision." />
+      <PageHeader title={T.EDIT_TITLE} subtitle={T.EDIT_SUBTITLE} />
       <QuestionEditorForm question={editableQuestion} onSaved={() => router.push("/admin/questions")} />
     </div>
   );

@@ -1,7 +1,13 @@
 import type { ReactElement } from "react";
 import { Button } from "@pte/ui";
 import type { QuestionTypeResponse } from "@pte/api-client";
-import { SCORE_TEMPLATE_ITEM_HEADERS, SCORE_TEMPLATE_TEXT } from "../constants";
+import {
+  QUESTION_TEMPLATE_SECTIONS,
+  SCORE_TEMPLATE_ITEM_HEADERS,
+  SCORE_TEMPLATE_SCORING_OPTIONS,
+  SCORE_TEMPLATE_TEXT,
+  SCORE_TEMPLATE_TIMING_OPTIONS,
+} from "../constants";
 import type { ScoreTemplateItemDraft, ScoreTemplateItemResponse } from "../types";
 
 const HEADER_CLASS =
@@ -75,11 +81,12 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                       value={item.section}
                       onChange={(event) => props.onSectionChange(index, event.target.value)}
                     >
-                      <option value="">Select section</option>
-                      <option value="SPEAKING">SPEAKING</option>
-                      <option value="WRITING">WRITING</option>
-                      <option value="READING">READING</option>
-                      <option value="LISTENING">LISTENING</option>
+                      <option value="">{SCORE_TEMPLATE_TEXT.SELECT_SECTION}</option>
+                      {QUESTION_TEMPLATE_SECTIONS.map((section) => (
+                        <option key={section} value={section}>
+                          {section}
+                        </option>
+                      ))}
                     </select>
                   </td>
                   <td className={`${CELL_CLASS} font-mono text-xs`}>
@@ -90,7 +97,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                         disabled={!item.section}
                         onChange={(event) => props.onChange(index, "taskType", event.target.value)}
                       >
-                        <option value="">Select task type</option>
+                        <option value="">{SCORE_TEMPLATE_TEXT.SELECT_TASK_TYPE}</option>
                         {props.questionTypes
                           .filter((type) => type.active && type.section === item.section)
                           .map((type) => (
@@ -124,8 +131,11 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                       value={item.timingMode}
                       onChange={(event) => props.onChange(index, "timingMode", event.target.value)}
                     >
-                      <option value="FIXED">FIXED</option>
-                      <option value="RECOMMENDED">RECOMMENDED</option>
+                      {SCORE_TEMPLATE_TIMING_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
                     </select>
                   </td>
                   <td className={CELL_CLASS}>
@@ -136,10 +146,11 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                         props.onChange(index, "scoringMethod", event.target.value)
                       }
                     >
-                      <option value="AI_SPEECH">AI_SPEECH</option>
-                      <option value="AI_TEXT">AI_TEXT</option>
-                      <option value="OBJECTIVE">OBJECTIVE</option>
-                      <option value="UNSCORED">UNSCORED</option>
+                      {SCORE_TEMPLATE_SCORING_OPTIONS.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
                     </select>
                   </td>
                   {NUMERIC_FIELDS.slice(4).map(({ field }) => (

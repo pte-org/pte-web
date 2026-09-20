@@ -2,11 +2,7 @@
 
 import type { ReactElement } from "react";
 import { Button } from "@pte/ui";
-
-const TEXT = {
-  TITLE: "Something went wrong",
-  RETRY: "Try again",
-} as const;
+import { ERROR_PAGE_TEXT as TEXT } from "@/lib/errorPageConstants";
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -16,10 +12,8 @@ interface ErrorProps {
 export default function DashboardError({ reset }: ErrorProps): ReactElement {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
-      <h1 className="text-xl font-semibold text-gray-900">{TEXT.TITLE}</h1>
-      <p className="max-w-md text-sm text-gray-600">
-        We could not load this page. Please try again.
-      </p>
+      <h1 className="text-xl font-semibold text-gray-900">{TEXT.PAGE_TITLE}</h1>
+      <p className="max-w-md text-sm text-gray-600">{TEXT.PAGE_DESCRIPTION}</p>
       <Button onClick={reset}>{TEXT.RETRY}</Button>
     </div>
   );

@@ -27,6 +27,7 @@ import {
   usePlansQuery,
   useUpdatePlan,
 } from "../api";
+import { PLAN_CATALOG_TEXT as T } from "../constants";
 import { CommercialPanel } from "./CommercialPanel";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
 
@@ -65,9 +66,9 @@ export const PlanCatalogView = (): ReactElement => {
   const activeCount = plans.filter((plan) => plan.status === "ACTIVE").length;
   const error = createPlan.error ?? updatePlan.error ?? activatePlan.error ?? archivePlan.error;
   const errorMessage = error
-    ? getUserFacingApiErrorMessage(error, "Plans could not be loaded or saved.")
+    ? getUserFacingApiErrorMessage(error, T.ERROR)
     : isError
-      ? "Plans could not be loaded or saved."
+      ? T.ERROR
       : undefined;
 
   const beginEdit = (plan: PlanResponse): void => {
@@ -116,10 +117,10 @@ export const PlanCatalogView = (): ReactElement => {
     };
     if (editing) {
       await updatePlan.mutateAsync({ publicId: editing.publicId, payload });
-      setMessage("Plan updated.");
+      setMessage(T.UPDATED);
     } else {
       await createPlan.mutateAsync(payload);
-      setMessage("Plan draft created.");
+      setMessage(T.CREATED);
     }
     resetForm();
   };
@@ -132,12 +133,12 @@ export const PlanCatalogView = (): ReactElement => {
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
-        title="Plan catalog"
-        subtitle="Configure packages available to approved tenants."
+        title={T.TITLE}
+        subtitle={T.SUBTITLE}
         actions={
           !isFormOpen && (
             <Button type="button" onClick={beginCreate}>
-              + Add plan
+              {T.ADD}
             </Button>
           )
         }
@@ -145,37 +146,37 @@ export const PlanCatalogView = (): ReactElement => {
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       {message && <Alert tone="success">{message}</Alert>}
       <CollapsibleSection
-        title="Plan overview"
-        subtitle="Catalog status at a glance."
+        title={T.OVERVIEW_TITLE}
+        subtitle={T.OVERVIEW_SUBTITLE}
         contentClassName="grid gap-4 sm:grid-cols-3"
       >
-        <StatCard label="Total plans" value={String(plans.length)} accent="blue" />
-        <StatCard label="Active plans" value={String(activeCount)} accent="mint" />
+        <StatCard label={T.TOTAL} value={String(plans.length)} accent="blue" />
+        <StatCard label={T.ACTIVE} value={String(activeCount)} accent="mint" />
         <StatCard
-          label="Draft plans"
+          label={T.DRAFT}
           value={String(plans.filter((plan) => plan.status === "DRAFT").length)}
           accent="cream"
         />
       </CollapsibleSection>
       {isFormOpen && (
         <CommercialPanel
-          title={editing ? "Edit plan" : "Create plan"}
-          subtitle="Only ACTIVE plans are visible to tenants."
+          title={editing ? T.EDIT_TITLE : T.CREATE_TITLE}
+          subtitle={T.FORM_SUBTITLE}
         >
           <form className="grid gap-4 md:grid-cols-2" onSubmit={(event) => void save(event)}>
             <Input
               id="plan-name"
-              label="Plan name"
+              label={T.PLAN_NAME}
               value={form.name}
               onChange={(event) => setForm({ ...form, name: event.target.value })}
               required
             />
             <Select
               id="plan-type"
-              label="Plan type"
+              label={T.PLAN_TYPE}
               options={[
-                { label: "Exam package", value: "EXAM_PACKAGE" },
-                { label: "Student capacity", value: "STUDENT_CAPACITY" },
+                { label: T.EXAM_PACKAGE, value: "EXAM_PACKAGE" },
+                { label: T.STUDENT_CAPACITY, value: "STUDENT_CAPACITY" },
               ]}
               value={formType}
               onChange={(event) => {
@@ -186,14 +187,14 @@ export const PlanCatalogView = (): ReactElement => {
             />
             <Input
               id="plan-description"
-              label="Description"
+              label={T.DESCRIPTION}
               value={form.description ?? ""}
               onChange={(event) => setForm({ ...form, description: event.target.value })}
             />
             <div className="grid gap-4 sm:grid-cols-2">
               <Input
                 id="plan-price"
-                label="Price"
+                label={T.PRICE}
                 type="number"
                 min="0"
                 step="0.01"
@@ -203,7 +204,7 @@ export const PlanCatalogView = (): ReactElement => {
               />
               <Input
                 id="plan-currency"
-                label="Currency"
+                label={T.CURRENCY}
                 maxLength={3}
                 value={form.currency}
                 onChange={(event) =>
@@ -216,7 +217,7 @@ export const PlanCatalogView = (): ReactElement => {
               <div className="grid gap-4 sm:grid-cols-2">
                 <Input
                   id="plan-duration"
-                  label="Duration (days)"
+                  label={T.DURATION}
                   type="number"
                   min="1"
                   value={form.durationDays ?? ""}
@@ -226,7 +227,7 @@ export const PlanCatalogView = (): ReactElement => {
                 />
                 <Input
                   id="plan-max-students"
-                  label="Students per session"
+                  label={T.STUDENTS_PER_SESSION}
                   type="number"
                   min="1"
                   value={form.maxStudentsPerSession ?? ""}
@@ -238,7 +239,7 @@ export const PlanCatalogView = (): ReactElement => {
             ) : (
               <Input
                 id="plan-extra-slots"
-                label="Extra student slots"
+                label={T.EXTRA_STUDENT_SLOTS}
                 type="number"
                 min="1"
                 value={form.extraStudentSlots ?? ""}
@@ -249,26 +250,26 @@ export const PlanCatalogView = (): ReactElement => {
             )}
             <div className="flex items-end gap-2">
               <Button type="submit" isLoading={createPlan.isPending || updatePlan.isPending}>
-                {editing ? "Save changes" : "Create draft"}
+                {editing ? T.SAVE_CHANGES : T.CREATE_DRAFT}
               </Button>
               <Button type="button" variant="secondary" onClick={resetForm}>
-                Cancel
+                {T.CANCEL}
               </Button>
             </div>
           </form>
         </CommercialPanel>
       )}
       <CommercialPanel
-        title="Published catalog"
-        subtitle="Separate exam access from permanent student capacity."
+        title={T.CATALOG_TITLE}
+        subtitle={T.CATALOG_SUBTITLE}
         actions={
           <Select
             id="catalog-type"
-            aria-label="Filter plans by type"
+            aria-label={T.FILTER_ARIA_LABEL}
             options={[
-              { label: "All", value: "ALL" },
-              { label: "Exam packages", value: "EXAM_PACKAGE" },
-              { label: "Capacity add-ons", value: "STUDENT_CAPACITY" },
+              { label: T.ALL, value: "ALL" },
+              { label: T.EXAM_PACKAGE, value: "EXAM_PACKAGE" },
+              { label: T.CAPACITY_ADD_ONS, value: "STUDENT_CAPACITY" },
             ]}
             value={catalogFilter}
             onChange={(event) => setCatalogFilter(event.target.value as CatalogFilter)}
@@ -279,38 +280,38 @@ export const PlanCatalogView = (): ReactElement => {
           columns={[
             {
               key: "name",
-              header: "Plan",
+              header: T.TABLE_PLAN,
               cell: (row: PlanResponse) => (
                 <div>
                   <p className="font-medium text-slate-900">{row.name}</p>
-                  <p className="mt-1 text-xs text-slate-500">{row.description || "—"}</p>
+                  <p className="mt-1 text-xs text-slate-500">{row.description || T.EMPTY_VALUE}</p>
                 </div>
               ),
             },
             {
               key: "price",
-              header: "Price",
+              header: T.TABLE_PRICE,
               cell: (row: PlanResponse) => (
                 <span className="font-semibold">{formatMoney(row)}</span>
               ),
             },
             {
               key: "term",
-              header: "Term",
+              header: T.TABLE_TERM,
               cell: (row: PlanResponse) =>
-                row.durationDays ? `${row.durationDays} days` : "Permanent",
+                row.durationDays ? T.DAYS(row.durationDays) : T.PERMANENT,
             },
             {
               key: "capacity",
-              header: "Capacity",
+              header: T.TABLE_CAPACITY,
               cell: (row: PlanResponse) =>
                 row.type === "EXAM_PACKAGE"
-                  ? `${row.maxStudentsPerSession ?? "—"} / session`
-                  : `+${row.extraStudentSlots ?? "—"} students`,
+                  ? T.SESSION_CAPACITY(row.maxStudentsPerSession ?? T.EMPTY_VALUE)
+                  : T.EXTRA_STUDENTS(row.extraStudentSlots ?? T.EMPTY_VALUE),
             },
             {
               key: "status",
-              header: "Status",
+              header: T.TABLE_STATUS,
               cell: (row: PlanResponse) => <CommercialStatusBadge status={row.status} />,
             },
           ]}
@@ -321,12 +322,12 @@ export const PlanCatalogView = (): ReactElement => {
               <ActionMenu
                 items={[
                   {
-                    label: "Edit",
+                    label: T.EDIT,
                     icon: PencilIcon,
                     onSelect: () => beginEdit(row),
                   },
                   {
-                    label: row.status === "DRAFT" ? "Activate" : "Archive",
+                    label: row.status === "DRAFT" ? T.ACTIVATE : T.ARCHIVE,
                     icon: CheckCircleIcon,
                     onSelect: () => void transition(row),
                   },
@@ -335,7 +336,7 @@ export const PlanCatalogView = (): ReactElement => {
             )
           }
           rowActionsHeader=""
-          emptyTitle={isLoading ? "Loading plans..." : "No plans found"}
+          emptyTitle={isLoading ? T.LOADING : T.EMPTY}
         />
       </CommercialPanel>
     </div>
