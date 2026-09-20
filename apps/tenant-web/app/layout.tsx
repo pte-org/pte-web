@@ -14,8 +14,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PTE Tenant Portal",
-  description: "School portal for managing PTE learners and exams",
+  title: "PTE Prep | Clearer exam operations",
+  description:
+    "Plan learners, exam access, and PTE exam days from one clear organization workspace.",
 };
 
 export default function RootLayout({
@@ -24,7 +25,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${plusJakarta.variable} ${geistMono.variable} h-full antialiased`}>
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${plusJakarta.variable} ${geistMono.variable} h-full antialiased`}
+    >
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>
       </body>
