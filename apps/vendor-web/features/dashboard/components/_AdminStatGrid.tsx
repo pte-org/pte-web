@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { AlertTriangleIcon, BuildingIcon, StatCard, UsersIcon } from "@pte/ui";
+import { AlertTriangleIcon, BuildingIcon, CollapsibleSection, StatCard, UsersIcon } from "@pte/ui";
 import { DASHBOARD_TEXT } from "../constants";
 import type { AdminStats } from "../types";
 
@@ -12,7 +12,11 @@ function formatProgress(value: number | undefined): string | undefined {
 }
 
 export const AdminStatGrid = ({ stats }: AdminStatGridProps): ReactElement => (
-  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  <CollapsibleSection
+    title="Overview"
+    subtitle="Platform activity at a glance."
+    contentClassName="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+  >
     <StatCard
       label={DASHBOARD_TEXT.STAT_TOTAL}
       value={stats?.totalTenants ?? "-"}
@@ -40,5 +44,5 @@ export const AdminStatGrid = ({ stats }: AdminStatGridProps): ReactElement => (
       icon={<AlertTriangleIcon />}
       accent="cream"
     />
-  </div>
+  </CollapsibleSection>
 );

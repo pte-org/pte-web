@@ -59,7 +59,11 @@ const HEADER_TEXT = {
 } as const;
 
 const SidebarBrand = (): ReactElement => (
-  <div className="flex items-center gap-2">
+  <Link
+    href="/"
+    aria-label={`${BRAND_NAME} home`}
+    className="flex items-center gap-2 rounded-md p-1 transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+  >
     <Image
       src="/logo.png"
       alt={`${BRAND_NAME} logo`}
@@ -72,7 +76,7 @@ const SidebarBrand = (): ReactElement => (
       <p className="text-sm font-semibold text-gray-900">{BRAND_NAME}</p>
       <p className="text-xs text-gray-500">{BRAND_SUBTITLE}</p>
     </div>
-  </div>
+  </Link>
 );
 
 const isActive = (pathname: string | null, href: string): boolean =>

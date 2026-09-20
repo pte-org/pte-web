@@ -1,8 +1,19 @@
 "use client";
 
 import { useMemo, useState, type ReactElement } from "react";
-import Link from "next/link";
-import { Alert, BuildingIcon, DataTable, PageHeader, Select, StatCard, UsersIcon } from "@pte/ui";
+import { useRouter } from "next/navigation";
+import {
+  ActionMenu,
+  Alert,
+  BuildingIcon,
+  CollapsibleSection,
+  DataTable,
+  EyeIcon,
+  PageHeader,
+  Select,
+  StatCard,
+  UsersIcon,
+} from "@pte/ui";
 import { useApplicationsQuery } from "../api";
 import type { TenantApplicationResponse } from "@pte/api-client";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
@@ -15,6 +26,7 @@ const STATUS_OPTIONS = [
 ];
 
 export const AdminApplicationsView = (): ReactElement => {
+  const router = useRouter();
   const [status, setStatus] = useState("ALL");
   const { data: applications = [], isLoading, isError } = useApplicationsQuery();
   const visibleApplications = useMemo(
@@ -77,7 +89,11 @@ export const AdminApplicationsView = (): ReactElement => {
         }
       />
       {isError && <Alert tone="error">Applications could not be loaded. Try again shortly.</Alert>}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <CollapsibleSection
+        title="Application overview"
+        subtitle="Tenant application status at a glance."
+        contentClassName="grid gap-4 sm:grid-cols-3"
+      >
         <StatCard
           label="Total applications"
           value={String(applications.length)}
@@ -97,18 +113,21 @@ export const AdminApplicationsView = (): ReactElement => {
           icon={<BuildingIcon />}
           accent="mint"
         />
-      </div>
+      </CollapsibleSection>
       <DataTable
         columns={columns}
         rows={visibleApplications}
         getRowKey={(row) => row.publicId}
         rowActions={(row) => (
-          <Link
-            href={`/admin/applications/${row.publicId}`}
-            className="text-sm font-semibold text-action hover:underline"
-          >
-            View detail
-          </Link>
+          <ActionMenu
+            items={[
+              {
+                label: "View details",
+                icon: EyeIcon,
+                onSelect: () => router.push(`/admin/applications/${row.publicId}`),
+              },
+            ]}
+          />
         )}
         rowActionsHeader=""
         emptyTitle={isLoading ? "Loading applications..." : "No applications found"}

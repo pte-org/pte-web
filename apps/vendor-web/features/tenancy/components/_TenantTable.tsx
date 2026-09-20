@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Badge, BanIcon, CheckCircleIcon, Dropdown, EyeIcon, LicenseIcon } from "@pte/ui";
+import { ActionMenu, Badge, BanIcon, CheckCircleIcon, EyeIcon, LicenseIcon } from "@pte/ui";
 import {
   ORGANIZATION_TYPE_OPTIONS,
   TENANCY_TEXT,
@@ -64,7 +64,7 @@ const TenantRow = ({
         </Badge>
       </td>
       <td className={CELL_CLASS}>
-        <Dropdown
+        <ActionMenu
           items={[
             {
               label: TENANCY_TEXT.ACTION_VIEW_DETAILS,

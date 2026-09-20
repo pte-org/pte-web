@@ -48,6 +48,7 @@ export const MANAGE_STUDENTS_TEXT = {
 
 export const STUDENT_SEARCH_TABLE_HEADERS = {
   NAME: "Full name",
+  ACCOUNT: "Account",
   CODE: "Student code",
   EMAIL: "Email",
   PHONE: "Phone",
@@ -83,6 +84,12 @@ export const STUDENT_ROSTER_FILTER_TEXT = {
   suspend: "Suspend",
   reactivate: "Reactivate",
   actions: "Actions",
+  viewDetails: "View details",
+  generatePassword: "Generate password",
+  generatePasswordConfirmTitle: "Generate Student password",
+  generatePasswordConfirmDescription: (fullName: string) =>
+    `Generate a new temporary password for ${fullName}? The current password will stop working. The new password will not be emailed and will be shown once.`,
+  generatePasswordConfirm: "Generate password",
   loadFailed: "Unable to load students. Please try again.",
   emptyDescription: "No students match the current search and filters.",
   noPrograms: "No programs available",

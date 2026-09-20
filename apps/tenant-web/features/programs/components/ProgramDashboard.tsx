@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { Alert, DataTable, LoadingState, type DataTableColumn } from "@pte/ui";
+import { Alert, CollapsibleSection, DataTable, LoadingState, type DataTableColumn } from "@pte/ui";
 import type { ProgramDashboardResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { PROGRAM_DASHBOARD_TABLE_HEADERS, PROGRAM_DASHBOARD_TEXT } from "../constants";
@@ -44,7 +44,11 @@ export const ProgramDashboard = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-2">
+      <CollapsibleSection
+        title="Program overview"
+        subtitle="Classes and students at a glance."
+        contentClassName="grid grid-cols-2 gap-4 sm:grid-cols-2"
+      >
         <div className="rounded-lg border border-gray-200 bg-white p-4">
           <p className="text-2xl font-semibold text-gray-900">{dashboard.classCount}</p>
           <p className="text-sm text-gray-500">{PROGRAM_DASHBOARD_TEXT.classCount(classLabel)}</p>
@@ -53,7 +57,7 @@ export const ProgramDashboard = ({
           <p className="text-2xl font-semibold text-gray-900">{dashboard.studentCount}</p>
           <p className="text-sm text-gray-500">{PROGRAM_DASHBOARD_TEXT.studentCount}</p>
         </div>
-      </div>
+      </CollapsibleSection>
 
       {dashboard.classes.length > 0 && (
         <div className="flex flex-col gap-2">

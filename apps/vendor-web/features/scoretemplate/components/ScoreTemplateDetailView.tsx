@@ -4,7 +4,12 @@ import type { ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, Badge, Button, LoadingState, PageHeader } from "@pte/ui";
 import { useCloneScoreTemplate, useScoreTemplate } from "../api";
-import { SCORE_TEMPLATE_STATUS_LABELS, SCORE_TEMPLATE_STATUS_VARIANT, SCORE_TEMPLATE_TEXT } from "../constants";
+import {
+  QUESTION_TEMPLATE_BASE_PATH,
+  SCORE_TEMPLATE_STATUS_LABELS,
+  SCORE_TEMPLATE_STATUS_VARIANT,
+  SCORE_TEMPLATE_TEXT,
+} from "../constants";
 import type { ScoreTemplateStatusFilter } from "../types";
 import { ScoreTemplateItemTable } from "./_ScoreTemplateItemTable";
 
@@ -13,7 +18,9 @@ interface ScoreTemplateDetailViewProps {
 }
 
 /** Read-only — shown for ACTIVE/RETIRED templates. A DRAFT is only ever reached through the editor route. */
-export const ScoreTemplateDetailView = ({ publicId }: ScoreTemplateDetailViewProps): ReactElement => {
+export const ScoreTemplateDetailView = ({
+  publicId,
+}: ScoreTemplateDetailViewProps): ReactElement => {
   const router = useRouter();
   const { data: template, isLoading, isError } = useScoreTemplate(publicId);
   const cloneMutation = useCloneScoreTemplate();
@@ -22,7 +29,7 @@ export const ScoreTemplateDetailView = ({ publicId }: ScoreTemplateDetailViewPro
     return <LoadingState rows={6} />;
   }
   if (isError || !template) {
-    return <Alert tone="error">Could not load this score template.</Alert>;
+    return <Alert tone="error">Could not load this question template.</Alert>;
   }
 
   const status = template.status as ScoreTemplateStatusFilter;
@@ -42,20 +49,23 @@ export const ScoreTemplateDetailView = ({ publicId }: ScoreTemplateDetailViewPro
               isLoading={cloneMutation.isPending}
               onClick={() =>
                 cloneMutation.mutate(template.publicId, {
-                  onSuccess: (draft) => router.push(`/admin/score-template/${draft.publicId}/edit`),
+                  onSuccess: (draft) =>
+                    router.push(`${QUESTION_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`),
                 })
               }
             >
               {SCORE_TEMPLATE_TEXT.CLONE_ACTION}
             </Button>
-            <Button variant="ghost" onClick={() => router.push("/admin/score-template")}>
+            <Button variant="ghost" onClick={() => router.push(QUESTION_TEMPLATE_BASE_PATH)}>
               {SCORE_TEMPLATE_TEXT.DETAIL_BACK}
             </Button>
           </>
         }
       />
 
-      {cloneMutation.isError && <Alert tone="error">Could not clone this template. Please try again.</Alert>}
+      {cloneMutation.isError && (
+        <Alert tone="error">Could not clone this template. Please try again.</Alert>
+      )}
 
       <ScoreTemplateItemTable editable={false} items={template.items} />
     </div>

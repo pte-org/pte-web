@@ -1,5 +1,6 @@
 import type { ApiClient } from "../../client/client";
 import type {
+  CreateScoreTemplateRequest,
   ReplaceScoreTemplateItemsRequest,
   ScoreTemplateResponse,
 } from "../../types/scoretemplate";
@@ -23,11 +24,27 @@ export function listScoreTemplates(client: ApiClient): Promise<ScoreTemplateResp
   return client.request<ScoreTemplateResponse[]>(SCORE_TEMPLATE_ENDPOINTS.templates);
 }
 
-export function getScoreTemplate(client: ApiClient, publicId: string): Promise<ScoreTemplateResponse> {
+export function createScoreTemplate(
+  client: ApiClient,
+  payload: CreateScoreTemplateRequest,
+): Promise<ScoreTemplateResponse> {
+  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.templates, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export function getScoreTemplate(
+  client: ApiClient,
+  publicId: string,
+): Promise<ScoreTemplateResponse> {
   return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.template(publicId));
 }
 
-export function cloneScoreTemplate(client: ApiClient, publicId: string): Promise<ScoreTemplateResponse> {
+export function cloneScoreTemplate(
+  client: ApiClient,
+  publicId: string,
+): Promise<ScoreTemplateResponse> {
   return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.clone(publicId), {
     method: "POST",
   });
@@ -44,7 +61,16 @@ export function replaceScoreTemplateItems(
   });
 }
 
-export function activateScoreTemplate(client: ApiClient, publicId: string): Promise<ScoreTemplateResponse> {
+export function deleteScoreTemplate(client: ApiClient, publicId: string): Promise<void> {
+  return client.request<void>(SCORE_TEMPLATE_ENDPOINTS.template(publicId), {
+    method: "DELETE",
+  });
+}
+
+export function activateScoreTemplate(
+  client: ApiClient,
+  publicId: string,
+): Promise<ScoreTemplateResponse> {
   return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.activate(publicId), {
     method: "POST",
   });
