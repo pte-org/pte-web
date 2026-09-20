@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { Badge, Dropdown } from "@pte/ui";
+import { ActionMenu, Badge } from "@pte/ui";
 import { TENANT_PLAN_LABELS } from "../../tenancy/constants";
 import {
   LICENSE_STATUS_LABELS,
@@ -48,7 +48,7 @@ export const LicenseTable = ({
               </td>
               <td className={`${CELL_CLASS} text-gray-500`}>{license.seatsTotal}</td>
               <td className={CELL_CLASS}>
-                <Dropdown
+                <ActionMenu
                   items={[
                     {
                       label: LICENSING_TEXT.ACTION_RENEW,

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { Badge, Dropdown } from "@pte/ui";
+import { ActionMenu, Badge } from "@pte/ui";
 import {
   FACILITY_TYPE_LABELS,
   ORGANIZATION_STATUS_LABELS,
@@ -52,7 +52,7 @@ export const OrganizationTable = ({
                   </Badge>
                 </td>
                 <td className={CELL_CLASS}>
-                  <Dropdown
+                  <ActionMenu
                     items={[
                       isSuspended
                         ? {

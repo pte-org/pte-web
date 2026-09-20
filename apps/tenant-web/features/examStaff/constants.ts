@@ -29,9 +29,20 @@ export const EXAM_STAFF_TEXT = {
   syncing: "Updating the list…",
   email: "Email",
   fullName: "Full name",
+  account: "Account",
   role: "Role",
   status: "Status",
   actions: "Actions",
+  viewDetails: "View details",
+  sendEmail: "Send email",
+  sendEmailDisabled: "No email address",
+  sendEmailConfirmTitle: "Send temporary credentials",
+  sendEmailConfirmDescription: (fullName: string) =>
+    `Generate a new temporary password for ${fullName} and send it to the account email? The current password will stop working.`,
+  sendEmailConfirm: "Generate and send",
+  credentialEmailFailed: "Unable to generate or send credentials.",
+  credentialsSent: "Credentials email queued.",
+  oneTimeCredentialWarning: "The temporary password is shown once. Save it before closing.",
   suspend: "Suspend",
   reactivate: "Reactivate",
   confirmSuspendTitle: "Suspend exam staff account",
@@ -39,6 +50,7 @@ export const EXAM_STAFF_TEXT = {
     `Suspend ${fullName}'s account? They will not be able to sign in until reactivated.`,
   confirm: "Suspend account",
   cancel: "Cancel",
+  closeDetails: "Close",
   addTitle: "Add Exam Staff",
   addDescription: "Create a Proctor or Examiner account for your organization.",
   roleRequired: "Select a role.",
@@ -60,9 +72,19 @@ export const EXAM_STAFF_ROLE_OPTIONS = [
 ] as const;
 
 export const EXAM_STAFF_SORT_OPTIONS = [
-  { value: "CREATED_AT_DESC", label: EXAM_STAFF_TEXT.recentlyAdded, sort: "CREATED_AT", direction: "DESC" },
+  {
+    value: "CREATED_AT_DESC",
+    label: EXAM_STAFF_TEXT.recentlyAdded,
+    sort: "CREATED_AT",
+    direction: "DESC",
+  },
   { value: "FULL_NAME_ASC", label: EXAM_STAFF_TEXT.nameAsc, sort: "FULL_NAME", direction: "ASC" },
-  { value: "FULL_NAME_DESC", label: EXAM_STAFF_TEXT.nameDesc, sort: "FULL_NAME", direction: "DESC" },
+  {
+    value: "FULL_NAME_DESC",
+    label: EXAM_STAFF_TEXT.nameDesc,
+    sort: "FULL_NAME",
+    direction: "DESC",
+  },
   { value: "EMAIL_ASC", label: EXAM_STAFF_TEXT.emailAsc, sort: "EMAIL", direction: "ASC" },
   { value: "EMAIL_DESC", label: EXAM_STAFF_TEXT.emailDesc, sort: "EMAIL", direction: "DESC" },
 ] as const;

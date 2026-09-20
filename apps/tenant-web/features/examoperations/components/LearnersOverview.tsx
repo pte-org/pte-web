@@ -5,7 +5,7 @@ import type { StudentRosterRow } from "@pte/api-client";
 import {
   Alert,
   DataTable,
-  Dropdown,
+  ActionMenu,
   LockIcon,
   PaginationControls,
   type DataTableColumn,
@@ -39,7 +39,9 @@ export const LearnersOverview = (): ReactElement => {
     {
       key: "fullName",
       header: STUDENT_TABLE_HEADERS.FULL_NAME,
-      cell: (student) => <span className="font-medium text-gray-900">{student.fullName ?? "-"}</span>,
+      cell: (student) => (
+        <span className="font-medium text-gray-900">{student.fullName ?? "-"}</span>
+      ),
     },
     { key: "email", header: STUDENT_TABLE_HEADERS.EMAIL, cell: (student) => student.email ?? "-" },
     {
@@ -76,7 +78,7 @@ export const LearnersOverview = (): ReactElement => {
         emptyTitle={T.EMPTY_TITLE}
         emptyDescription={T.EMPTY_TEXT}
         rowActions={(student) => (
-          <Dropdown
+          <ActionMenu
             items={[
               {
                 label: STUDENT_ROW_ACTIONS_TEXT.RESET_PASSWORD,

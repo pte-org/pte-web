@@ -46,15 +46,6 @@ export const PlatformSettingsView = (): ReactElement => {
           ))}
         </div>
       </CommercialPanel>
-      <CommercialPanel title="Business rules" subtitle="Rules enforced by the billing backend.">
-        <div className="grid gap-3 sm:grid-cols-3">
-          {[
-            ["Approval", "A tenant must be approved before purchasing."],
-            ["Exam package", "Each session uses the package student cap."],
-            ["Capacity add-on", "Additional student slots do not expire."],
-          ].map(([title, text]) => <div key={title} className="rounded-md bg-slate-50 p-4"><p className="text-sm font-semibold text-slate-900">{title}</p><p className="mt-1 text-sm leading-5 text-slate-500">{text}</p></div>)}
-        </div>
-      </CommercialPanel>
     </div>
   );
 };

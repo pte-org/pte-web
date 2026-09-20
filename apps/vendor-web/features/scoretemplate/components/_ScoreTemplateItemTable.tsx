@@ -1,5 +1,7 @@
 import type { ReactElement } from "react";
-import { SCORE_TEMPLATE_ITEM_HEADERS } from "../constants";
+import { Button } from "@pte/ui";
+import type { QuestionTypeResponse } from "@pte/api-client";
+import { SCORE_TEMPLATE_ITEM_HEADERS, SCORE_TEMPLATE_TEXT } from "../constants";
 import type { ScoreTemplateItemDraft, ScoreTemplateItemResponse } from "../types";
 
 const HEADER_CLASS =
@@ -7,6 +9,8 @@ const HEADER_CLASS =
 const CELL_CLASS = "px-3 py-2 text-sm text-gray-700 align-middle whitespace-nowrap";
 const INPUT_CLASS =
   "w-20 rounded border border-gray-300 px-2 py-1 text-sm outline-none focus:border-blue-500";
+const SELECT_CLASS =
+  "rounded border border-gray-300 bg-white px-2 py-1 text-sm outline-none focus:border-blue-500";
 
 type ReadOnlyProps = {
   editable: false;
@@ -16,7 +20,10 @@ type ReadOnlyProps = {
 type EditableProps = {
   editable: true;
   items: ScoreTemplateItemDraft[];
+  questionTypes: QuestionTypeResponse[];
   onChange: (index: number, field: keyof ScoreTemplateItemDraft, value: string) => void;
+  onSectionChange: (index: number, section: string) => void;
+  onRemove: (index: number) => void;
 };
 
 type ScoreTemplateItemTableProps = ReadOnlyProps | EditableProps;
@@ -41,15 +48,19 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
         <thead className="bg-slate-50">
           <tr>
             <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.SEQUENCE}</th>
-            <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.TASK_TYPE}</th>
             <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.SECTION}</th>
+            <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.TASK_TYPE}</th>
             {NUMERIC_FIELDS.slice(0, 4).map(({ field, header }) => (
-              <th key={field} className={HEADER_CLASS}>{header}</th>
+              <th key={field} className={HEADER_CLASS}>
+                {header}
+              </th>
             ))}
             <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.TIMING_MODE}</th>
             <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.SCORING_METHOD}</th>
             {NUMERIC_FIELDS.slice(4).map(({ field, header }) => (
-              <th key={field} className={HEADER_CLASS}>{header}</th>
+              <th key={field} className={HEADER_CLASS}>
+                {header}
+              </th>
             ))}
           </tr>
         </thead>
@@ -58,8 +69,45 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
             ? props.items.map((item, index) => (
                 <tr key={`${item.taskType}-${index}`} className="border-t border-gray-100">
                   <td className={CELL_CLASS}>{item.sequence}</td>
-                  <td className={`${CELL_CLASS} font-mono text-xs`}>{item.taskType}</td>
-                  <td className={CELL_CLASS}>{item.section}</td>
+                  <td className={CELL_CLASS}>
+                    <select
+                      className={SELECT_CLASS}
+                      value={item.section}
+                      onChange={(event) => props.onSectionChange(index, event.target.value)}
+                    >
+                      <option value="">Select section</option>
+                      <option value="SPEAKING">SPEAKING</option>
+                      <option value="WRITING">WRITING</option>
+                      <option value="READING">READING</option>
+                      <option value="LISTENING">LISTENING</option>
+                    </select>
+                  </td>
+                  <td className={`${CELL_CLASS} font-mono text-xs`}>
+                    <div className="flex flex-col items-start gap-1">
+                      <select
+                        className={SELECT_CLASS}
+                        value={item.taskType}
+                        disabled={!item.section}
+                        onChange={(event) => props.onChange(index, "taskType", event.target.value)}
+                      >
+                        <option value="">Select task type</option>
+                        {props.questionTypes
+                          .filter((type) => type.active && type.section === item.section)
+                          .map((type) => (
+                            <option key={type.code} value={type.code}>
+                              {type.code}
+                            </option>
+                          ))}
+                        {item.taskType &&
+                          !props.questionTypes.some((type) => type.code === item.taskType) && (
+                            <option value={item.taskType}>{item.taskType}</option>
+                          )}
+                      </select>
+                      <Button variant="ghost" size="sm" onClick={() => props.onRemove(index)}>
+                        {SCORE_TEMPLATE_TEXT.REMOVE_TYPE}
+                      </Button>
+                    </div>
+                  </td>
                   {NUMERIC_FIELDS.slice(0, 4).map(({ field }) => (
                     <td key={field} className={CELL_CLASS}>
                       <input
@@ -70,8 +118,30 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                       />
                     </td>
                   ))}
-                  <td className={CELL_CLASS}>{item.timingMode}</td>
-                  <td className={CELL_CLASS}>{item.scoringMethod}</td>
+                  <td className={CELL_CLASS}>
+                    <select
+                      className={SELECT_CLASS}
+                      value={item.timingMode}
+                      onChange={(event) => props.onChange(index, "timingMode", event.target.value)}
+                    >
+                      <option value="FIXED">FIXED</option>
+                      <option value="RECOMMENDED">RECOMMENDED</option>
+                    </select>
+                  </td>
+                  <td className={CELL_CLASS}>
+                    <select
+                      className={SELECT_CLASS}
+                      value={item.scoringMethod}
+                      onChange={(event) =>
+                        props.onChange(index, "scoringMethod", event.target.value)
+                      }
+                    >
+                      <option value="AI_SPEECH">AI_SPEECH</option>
+                      <option value="AI_TEXT">AI_TEXT</option>
+                      <option value="OBJECTIVE">OBJECTIVE</option>
+                      <option value="UNSCORED">UNSCORED</option>
+                    </select>
+                  </td>
                   {NUMERIC_FIELDS.slice(4).map(({ field }) => (
                     <td key={field} className={CELL_CLASS}>
                       <input
@@ -86,10 +156,13 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                 </tr>
               ))
             : props.items.map((item, index) => (
-                <tr key={`${item.taskType}-${index}`} className="border-t border-gray-100 hover:bg-slate-50/70">
+                <tr
+                  key={`${item.taskType}-${index}`}
+                  className="border-t border-gray-100 hover:bg-slate-50/70"
+                >
                   <td className={CELL_CLASS}>{item.sequence}</td>
-                  <td className={`${CELL_CLASS} font-mono text-xs`}>{item.taskType}</td>
                   <td className={CELL_CLASS}>{item.section}</td>
+                  <td className={`${CELL_CLASS} font-mono text-xs`}>{item.taskType}</td>
                   <td className={CELL_CLASS}>{item.minCount}</td>
                   <td className={CELL_CLASS}>{item.maxCount}</td>
                   <td className={CELL_CLASS}>{item.prepSeconds}</td>

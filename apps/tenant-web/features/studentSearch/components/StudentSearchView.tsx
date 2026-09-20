@@ -8,11 +8,16 @@ import type {
   StudentRosterSort,
 } from "@pte/api-client";
 import {
+  ActionMenu,
   Alert,
+  BanIcon,
   Button,
+  CheckCircleIcon,
   ConfirmDialog,
   DataTable,
+  EyeIcon,
   Input,
+  LockIcon,
   PageHeader,
   PaginationControls,
   Select,
@@ -35,6 +40,12 @@ import {
 } from "../constants";
 import { useReactivateStudent, useStudentRoster, useSuspendStudent } from "../api";
 import { ManageStudentsModal } from "./ManageStudentsModal";
+import {
+  AccountDetailsModal,
+  GeneratedCredentialsModal,
+  useGenerateStudentCredentials,
+} from "@/features/userManagement";
+import type { AccountDetails, GeneratedCredentials } from "@/features/userManagement";
 
 const DEBOUNCE_MS = 250;
 const DEFAULT_PAGE_SIZE = 20;
@@ -63,6 +74,9 @@ export const StudentSearchView = (): ReactElement => {
   const [sortOption, setSortOption] = useState<SortOptionValue>("CREATED_AT_DESC");
   const [manageMode, setManageMode] = useState<"add" | "import" | null>(null);
   const [studentToSuspend, setStudentToSuspend] = useState<StudentRosterRow | null>(null);
+  const [detailsTarget, setDetailsTarget] = useState<StudentRosterRow | null>(null);
+  const [passwordTarget, setPasswordTarget] = useState<StudentRosterRow | null>(null);
+  const [credentials, setCredentials] = useState<GeneratedCredentials | null>(null);
   const [keepPreviousRows, setKeepPreviousRows] = useState(false);
 
   useEffect(() => {
@@ -94,6 +108,7 @@ export const StudentSearchView = (): ReactElement => {
   const roster = useStudentRoster(rosterQuery);
   const suspend = useSuspendStudent();
   const reactivate = useReactivateStudent();
+  const generateCredentials = useGenerateStudentCredentials();
   const hasOrganizationSelector = (organizations?.length ?? 0) > 1;
   const filterGridClass = hasOrganizationSelector
     ? "grid gap-3 lg:grid-cols-3"
@@ -105,7 +120,9 @@ export const StudentSearchView = (): ReactElement => {
   const visibleResult = isNewFilterPending ? undefined : roster.data;
   const rows = visibleResult?.data ?? [];
   const queryError = errorMessage(roster.error);
-  const mutationError = errorMessage(suspend.error ?? reactivate.error);
+  const mutationError = errorMessage(
+    suspend.error ?? reactivate.error ?? generateCredentials.error,
+  );
 
   const resetPage = (): void => {
     setKeepPreviousRows(false);
@@ -123,6 +140,7 @@ export const StudentSearchView = (): ReactElement => {
       header: STUDENT_SEARCH_TABLE_HEADERS.NAME,
       cell: (row) => <span className="font-medium text-gray-900">{row.fullName}</span>,
     },
+    { key: "account", header: STUDENT_SEARCH_TABLE_HEADERS.ACCOUNT, cell: (row) => row.username },
     {
       key: "code",
       header: STUDENT_SEARCH_TABLE_HEADERS.CODE,
@@ -280,27 +298,39 @@ export const StudentSearchView = (): ReactElement => {
         emptyTitle={STUDENT_SEARCH_TEXT.emptyTitle}
         emptyDescription={STUDENT_ROSTER_FILTER_TEXT.emptyDescription}
         rowActionsHeader={STUDENT_ROSTER_FILTER_TEXT.actions}
-        rowActions={(row) =>
-          row.status === "SUSPENDED" ? (
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={reactivate.isPending || suspend.isPending}
-              onClick={() => reactivate.mutate(row.studentPublicId)}
-            >
-              {STUDENT_ROSTER_FILTER_TEXT.reactivate}
-            </Button>
-          ) : (
-            <Button
-              variant="danger"
-              size="sm"
-              disabled={reactivate.isPending || suspend.isPending}
-              onClick={() => setStudentToSuspend(row)}
-            >
-              {STUDENT_ROSTER_FILTER_TEXT.suspend}
-            </Button>
-          )
-        }
+        rowActions={(row) => (
+          <ActionMenu
+            label={`${STUDENT_ROSTER_FILTER_TEXT.actions}: ${row.fullName}`}
+            items={[
+              {
+                label: STUDENT_ROSTER_FILTER_TEXT.viewDetails,
+                icon: EyeIcon,
+                onSelect: () => setDetailsTarget(row),
+              },
+              { separator: true },
+              {
+                label: STUDENT_ROSTER_FILTER_TEXT.generatePassword,
+                icon: LockIcon,
+                disabled: generateCredentials.isPending,
+                onSelect: () => setPasswordTarget(row),
+              },
+              row.status === "SUSPENDED"
+                ? {
+                    label: STUDENT_ROSTER_FILTER_TEXT.reactivate,
+                    icon: CheckCircleIcon,
+                    disabled: reactivate.isPending || suspend.isPending,
+                    onSelect: () => reactivate.mutate(row.studentPublicId),
+                  }
+                : {
+                    label: STUDENT_ROSTER_FILTER_TEXT.suspend,
+                    icon: BanIcon,
+                    danger: true,
+                    disabled: reactivate.isPending || suspend.isPending,
+                    onSelect: () => setStudentToSuspend(row),
+                  },
+            ]}
+          />
+        )}
       />
 
       {visibleResult && (
@@ -343,9 +373,59 @@ export const StudentSearchView = (): ReactElement => {
         onClose={() => setStudentToSuspend(null)}
       />
 
+      <ConfirmDialog
+        open={passwordTarget !== null}
+        title={STUDENT_ROSTER_FILTER_TEXT.generatePasswordConfirmTitle}
+        description={
+          passwordTarget
+            ? STUDENT_ROSTER_FILTER_TEXT.generatePasswordConfirmDescription(passwordTarget.fullName)
+            : ""
+        }
+        confirmLabel={STUDENT_ROSTER_FILTER_TEXT.generatePasswordConfirm}
+        cancelLabel={STUDENT_ROSTER_FILTER_TEXT.cancel}
+        isConfirming={generateCredentials.isPending}
+        onConfirm={() => {
+          if (!passwordTarget) return;
+          generateCredentials.mutate(passwordTarget.studentPublicId, {
+            onSuccess: (result) => {
+              setPasswordTarget(null);
+              setCredentials(result);
+            },
+          });
+        }}
+        onClose={() => setPasswordTarget(null)}
+      />
+
+      <AccountDetailsModal
+        open={detailsTarget !== null}
+        account={detailsTarget ? toAccountDetails(detailsTarget) : null}
+        onClose={() => setDetailsTarget(null)}
+      />
+
+      <GeneratedCredentialsModal
+        open={credentials !== null}
+        credentials={credentials}
+        onClose={() => setCredentials(null)}
+      />
+
       {manageMode && (
         <ManageStudentsModal open initialMode={manageMode} onClose={() => setManageMode(null)} />
       )}
     </div>
   );
 };
+
+function toAccountDetails(row: StudentRosterRow): AccountDetails {
+  return {
+    publicId: row.studentPublicId,
+    username: row.username,
+    email: row.email,
+    fullName: row.fullName,
+    roles: ["STUDENT"],
+    status: row.status,
+    mustChangePassword: row.mustChangePassword,
+    studentCode: row.studentCode,
+    className: row.className,
+    phone: row.phone,
+  };
+}

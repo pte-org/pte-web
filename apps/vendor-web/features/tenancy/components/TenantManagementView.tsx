@@ -6,6 +6,7 @@ import {
   Alert,
   AlertTriangleIcon,
   CheckCircleIcon,
+  CollapsibleSection,
   DocumentIcon,
   PageHeader,
   StatCard,
@@ -152,7 +153,11 @@ export const TenantManagementView = (): ReactElement => {
         }
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <CollapsibleSection
+        title="Tenant overview"
+        subtitle="Tenant status and capacity at a glance."
+        contentClassName="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+      >
         <StatCard
           label={TENANT_STATS_TEXT.TOTAL}
           value={String(allTenants.length)}
@@ -177,7 +182,7 @@ export const TenantManagementView = (): ReactElement => {
           icon={<UsersIcon />}
           accent="sky"
         />
-      </div>
+      </CollapsibleSection>
 
       <TenantFilters filter={filter} onChange={setFilter} />
 

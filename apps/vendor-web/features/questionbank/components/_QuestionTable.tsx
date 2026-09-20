@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Badge, Dropdown, type DropdownItem } from "@pte/ui";
+import { ActionMenu, Alert, Badge, type ActionMenuItem } from "@pte/ui";
 import {
   useApproveQuestion,
   useArchiveQuestion,
@@ -34,10 +34,14 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
   const archiveMutation = useArchiveQuestion();
   const unarchiveMutation = useUnarchiveQuestion();
   const hasMutationError =
-    submitMutation.isError || approveMutation.isError || rejectMutation.isError || archiveMutation.isError || unarchiveMutation.isError;
+    submitMutation.isError ||
+    approveMutation.isError ||
+    rejectMutation.isError ||
+    archiveMutation.isError ||
+    unarchiveMutation.isError;
 
-  const buildActions = (question: Question): DropdownItem[] => {
-    const actions: DropdownItem[] = [];
+  const buildActions = (question: Question): ActionMenuItem[] => {
+    const actions: ActionMenuItem[] = [];
     if (question.status === "draft") {
       actions.push({
         label: "Submit for approval",
@@ -57,7 +61,11 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
         },
       });
     }
-    if (question.status === "draft" || question.status === "pending_approval" || question.status === "published") {
+    if (
+      question.status === "draft" ||
+      question.status === "pending_approval" ||
+      question.status === "published"
+    ) {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_ARCHIVE,
         onSelect: () => archiveMutation.mutate(question.id),
@@ -121,7 +129,7 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
                     </Badge>
                   </td>
                   <td className={CELL_CLASS}>
-                    <Dropdown items={buildActions(question)} />
+                    <ActionMenu items={buildActions(question)} />
                   </td>
                 </tr>
               ))}

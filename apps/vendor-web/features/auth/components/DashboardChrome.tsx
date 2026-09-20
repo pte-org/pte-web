@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactElement, ReactNode } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -50,9 +51,14 @@ const HEADER_TEXT = {
 
 const SidebarBrand = (): ReactElement => (
   <div className="flex items-center gap-2">
-    <span className="grid h-10 w-10 place-items-center rounded-md bg-blue-600 text-sm font-semibold text-white shadow-sm shadow-blue-600/25">
-      P
-    </span>
+    <Image
+      src="/logo.png"
+      alt={`${BRAND_NAME} logo`}
+      width={40}
+      height={40}
+      priority
+      className="h-10 w-10 rounded-md object-contain shadow-sm"
+    />
     <div className="leading-tight">
       <p className="text-sm font-semibold text-slate-900">{BRAND_NAME}</p>
       <p className="text-xs text-slate-500">{BRAND_SUBTITLE}</p>
