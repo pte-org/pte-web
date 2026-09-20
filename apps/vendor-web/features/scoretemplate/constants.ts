@@ -39,7 +39,6 @@ export const SCORE_TEMPLATE_ITEM_HEADERS = {
   MAX_COUNT: "Max",
   PREP_SECONDS: "Prep (s)",
   RESPONSE_SECONDS: "Response (s)",
-  TIMING_MODE: "Timing",
   SCORING_METHOD: "Scoring",
   OVERALL_WEIGHT: "Overall %",
   SPEAKING_WEIGHT: "Speaking %",

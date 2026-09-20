@@ -46,7 +46,6 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
             {NUMERIC_FIELDS.slice(0, 4).map(({ field, header }) => (
               <th key={field} className={HEADER_CLASS}>{header}</th>
             ))}
-            <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.TIMING_MODE}</th>
             <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.SCORING_METHOD}</th>
             {NUMERIC_FIELDS.slice(4).map(({ field, header }) => (
               <th key={field} className={HEADER_CLASS}>{header}</th>
@@ -70,7 +69,6 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                       />
                     </td>
                   ))}
-                  <td className={CELL_CLASS}>{item.timingMode}</td>
                   <td className={CELL_CLASS}>{item.scoringMethod}</td>
                   {NUMERIC_FIELDS.slice(4).map(({ field }) => (
                     <td key={field} className={CELL_CLASS}>
@@ -94,7 +92,6 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                   <td className={CELL_CLASS}>{item.maxCount}</td>
                   <td className={CELL_CLASS}>{item.prepSeconds}</td>
                   <td className={CELL_CLASS}>{item.responseSeconds}</td>
-                  <td className={CELL_CLASS}>{item.timingMode}</td>
                   <td className={CELL_CLASS}>{item.scoringMethod}</td>
                   <td className={CELL_CLASS}>{item.overallWeight}</td>
                   <td className={CELL_CLASS}>{item.speakingWeight}</td>

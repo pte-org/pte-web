@@ -4,7 +4,6 @@
 // PteTaskType/PteSection enums.
 
 export type ScoreTemplateStatus = "DRAFT" | "ACTIVE" | "RETIRED";
-export type TimingMode = "FIXED" | "RECOMMENDED";
 export type ScoringMethod = "AI_SPEECH" | "AI_TEXT" | "OBJECTIVE" | "UNSCORED";
 
 export interface ScoreTemplateItemResponse {
@@ -15,7 +14,6 @@ export interface ScoreTemplateItemResponse {
   maxCount: number;
   prepSeconds: number;
   responseSeconds: number;
-  timingMode: TimingMode | string;
   scoringMethod: ScoringMethod | string;
   overallWeight: number;
   speakingWeight: number;
@@ -42,7 +40,6 @@ export interface ScoreTemplateItemRequest {
   maxCount: number;
   prepSeconds: number;
   responseSeconds: number;
-  timingMode: TimingMode | string;
   scoringMethod: ScoringMethod | string;
   overallWeight: number;
   speakingWeight: number;
