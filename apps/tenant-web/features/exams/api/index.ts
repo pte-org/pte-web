@@ -4,9 +4,13 @@ import {
   assignClass,
   assignProctor,
   closeSession,
+  cancelExam,
+  addAudienceSource,
   createSession,
+  createExamDraft,
   createUser,
   getAnswer,
+  getActiveScoreTemplate,
   getSession,
   listAnswers,
   listAssignedClasses,
@@ -14,6 +18,9 @@ import {
   listSessions,
   listUsers,
   openSession,
+  preflightExam,
+  generateExam,
+  publishExam,
   submitTeacherScore,
   unassignClass,
   unassignProctor,
@@ -22,6 +29,7 @@ import {
   type AnswerReviewDetailResponse,
   type ProctorRole,
   type SessionResponse,
+  type ScoreTemplateResponse,
   type UserResponse,
 } from "@pte/api-client";
 import {
@@ -32,8 +40,10 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
+import { UserFacingError } from "@/features/examoperations/errorMessage";
 import { useAllTenantClasses } from "@/features/classes/api";
 import {
+  CREATE_EXAM_WIZARD_TEXT,
   ANSWER_QUERY_KEY,
   ANSWERS_QUERY_KEY,
   ASSIGNED_CLASSES_QUERY_KEY,
@@ -49,6 +59,7 @@ import type {
   CreateSessionInput,
   ExamSession,
   ProctorAssignmentEntry,
+  CreateExamWorkflowInput,
 } from "../types";
 
 const PROCTOR_ROLE = "PROCTOR";
@@ -121,6 +132,62 @@ export function useCreateSession(): UseMutationResult<ExamSession, unknown, Crea
   });
 }
 
+export function useActiveScoreTemplate(): UseQueryResult<ScoreTemplateResponse> {
+  return useQuery({
+    queryKey: ["activeScoreTemplate"],
+    queryFn: () => getActiveScoreTemplate(apiClient),
+  });
+}
+
+/** Runs the canonical draft -> audience -> preflight -> generation -> publish flow. */
+export function useCreateExamWorkflow(): UseMutationResult<
+  ExamSession,
+  unknown,
+  CreateExamWorkflowInput
+> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input) => {
+      const draft = await createExamDraft(apiClient, {
+        name: input.name.trim(),
+        templatePublicId: input.templatePublicId,
+        subscriptionPublicId: input.subscriptionPublicId,
+        opensAt: new Date(input.opensAt).toISOString(),
+        closesAt: new Date(input.closesAt).toISOString(),
+        examMode: input.examMode,
+        formMode: input.formMode,
+        reusePolicy: input.reusePolicy,
+        seriesKey: input.seriesKey.trim() || null,
+        capacity: Number(input.capacity),
+      });
+      for (const source of input.sources) {
+        await addAudienceSource(apiClient, draft.publicId, source);
+      }
+      const preflight = await preflightExam(apiClient, draft.publicId);
+      if (!preflight.ready) {
+        const details = preflight.issues
+          .map((issue) => CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_ISSUE_MESSAGES[issue])
+          .filter((message): message is string => Boolean(message));
+        throw new UserFacingError(
+          details.length > 0
+            ? `${CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_BLOCKED} ${details.join(" ")}`
+            : CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_BLOCKED,
+        );
+      }
+      await generateExam(apiClient, draft.publicId, globalThis.crypto.randomUUID());
+      return sessionResponseToExamSession(await publishExam(apiClient, draft.publicId));
+    },
+    onSuccess: (session) => {
+      queryClient.setQueryData<ExamSession[]>(SESSIONS_QUERY_KEY, (previous = []) => [
+        session,
+        ...previous.filter((existing) => existing.id !== session.id),
+      ]);
+      void queryClient.invalidateQueries({ queryKey: SESSIONS_QUERY_KEY });
+    },
+  });
+}
+
 export function useOpenSession(publicId: string): UseMutationResult<ExamSession, unknown, void> {
   const queryClient = useQueryClient();
 
@@ -135,6 +202,15 @@ export function useCloseSession(publicId: string): UseMutationResult<ExamSession
 
   return useMutation({
     mutationFn: async () => sessionResponseToExamSession(await closeSession(apiClient, publicId)),
+    onSuccess: (session) => replaceSessionInCache(queryClient, session),
+  });
+}
+
+export function useCancelSession(publicId: string): UseMutationResult<ExamSession, unknown, void> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => sessionResponseToExamSession(await cancelExam(apiClient, publicId)),
     onSuccess: (session) => replaceSessionInCache(queryClient, session),
   });
 }
@@ -342,11 +418,19 @@ export function useAssignedClasses(sessionPublicId: string): UseQueryResult<Assi
     queryKey: [...ASSIGNED_CLASSES_QUERY_KEY, sessionPublicId],
     queryFn: async () => {
       const assignments = await listAssignedClasses(apiClient, sessionPublicId);
-      const byId = new Map((tenantClasses.data ?? []).map((option) => [option.classPublicId, option]));
+      const byId = new Map(
+        (tenantClasses.data ?? []).map((option) => [option.classPublicId, option]),
+      );
       return assignments.flatMap((assignment) => {
         const option = byId.get(assignment.classPublicId);
         return option
-          ? [{ classPublicId: option.classPublicId, className: option.className, programName: option.programName }]
+          ? [
+              {
+                classPublicId: option.classPublicId,
+                className: option.className,
+                programName: option.programName,
+              },
+            ]
           : [];
       });
     },
@@ -358,7 +442,9 @@ function invalidateClassAssignments(
   queryClient: ReturnType<typeof useQueryClient>,
   sessionPublicId: string,
 ): void {
-  void queryClient.invalidateQueries({ queryKey: [...ASSIGNED_CLASSES_QUERY_KEY, sessionPublicId] });
+  void queryClient.invalidateQueries({
+    queryKey: [...ASSIGNED_CLASSES_QUERY_KEY, sessionPublicId],
+  });
   void queryClient.invalidateQueries({ queryKey: [...ENROLLMENTS_QUERY_KEY, sessionPublicId] });
 }
 
@@ -375,7 +461,9 @@ export function useAssignClass(sessionPublicId: string): UseMutationResult<void,
 }
 
 /** Unassigns a Class — removes the enrollments of that Class's current members only. */
-export function useUnassignClass(sessionPublicId: string): UseMutationResult<void, unknown, string> {
+export function useUnassignClass(
+  sessionPublicId: string,
+): UseMutationResult<void, unknown, string> {
   const queryClient = useQueryClient();
 
   return useMutation({

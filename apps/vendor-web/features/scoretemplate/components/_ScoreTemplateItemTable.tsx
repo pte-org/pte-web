@@ -75,7 +75,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                       value={item.section}
                       onChange={(event) => props.onSectionChange(index, event.target.value)}
                     >
-                      <option value="">Select section</option>
+                      <option value="">{SCORE_TEMPLATE_TEXT.ADD_SECTION_PLACEHOLDER}</option>
                       <option value="SPEAKING">SPEAKING</option>
                       <option value="WRITING">WRITING</option>
                       <option value="READING">READING</option>
@@ -90,7 +90,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                         disabled={!item.section}
                         onChange={(event) => props.onChange(index, "taskType", event.target.value)}
                       >
-                        <option value="">Select task type</option>
+                        <option value="">{SCORE_TEMPLATE_TEXT.ADD_TYPE_PLACEHOLDER}</option>
                         {props.questionTypes
                           .filter((type) => type.active && type.section === item.section)
                           .map((type) => (

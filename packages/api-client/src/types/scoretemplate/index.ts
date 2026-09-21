@@ -3,7 +3,7 @@
 // strings on the backend too — scoretemplate stays independent of itembank's
 // PteTaskType/PteSection enums.
 
-export type ScoreTemplateStatus = "DRAFT" | "ACTIVE" | "RETIRED";
+export type ScoreTemplateStatus = "DRAFT" | "PENDING_APPROVAL" | "ACTIVE" | "RETIRED";
 export type ScoringMethod = "AI_SPEECH" | "AI_TEXT" | "OBJECTIVE" | "UNSCORED";
 
 export interface ScoreTemplateItemResponse {
@@ -28,7 +28,28 @@ export interface ScoreTemplateResponse {
   version: number;
   name: string;
   status: ScoreTemplateStatus | string;
+  rejectionReason: string | null;
   items: ScoreTemplateItemResponse[];
+}
+
+export interface ScoreTemplateSlotFeasibilityResponse {
+  taskType: string;
+  section: string;
+  required: number;
+  available: number;
+  ready: boolean;
+  reason: string | null;
+}
+
+export interface ScoreTemplateFeasibilityResponse {
+  templatePublicId: string;
+  templateVersion: number;
+  ready: boolean;
+  slots: ScoreTemplateSlotFeasibilityResponse[];
+}
+
+export interface RejectScoreTemplateRequest {
+  reason: string;
 }
 
 /**

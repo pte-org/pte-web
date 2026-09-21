@@ -10,7 +10,7 @@ import {
 } from "@/features/examoperations/components";
 import { errorMessage as mutationErrorMessage } from "@/features/examoperations/errorMessage";
 import { SESSION_DETAIL_TEXT, SESSION_STATUS_LABELS, SESSION_STATUS_VARIANT } from "../constants";
-import { useCloseSession, useOpenSession, useSession } from "../api";
+import { useCancelSession, useCloseSession, useOpenSession, useSession } from "../api";
 import { AnswersSection } from "./AnswersSection";
 import { ClassAssignmentSection } from "./ClassAssignmentSection";
 import { ProctorAssignmentSection } from "./ProctorAssignmentSection";
@@ -31,12 +31,13 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
   const { data: session, isLoading } = useSession(sessionPublicId);
   const open = useOpenSession(sessionPublicId);
   const close = useCloseSession(sessionPublicId);
+  const cancel = useCancelSession(sessionPublicId);
 
   if (isLoading || !session) {
     return <LoadingState rows={4} />;
   }
 
-  const lifecycleError = mutationErrorMessage(open.error ?? close.error);
+  const lifecycleError = mutationErrorMessage(open.error ?? close.error ?? cancel.error);
 
   return (
     <div className="flex flex-col gap-5">
@@ -69,6 +70,18 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
                 className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {T.CLOSE_EXAM}
+              </button>
+            )}
+            {["DRAFT", "PREPARING", "READY", "SCHEDULED"].includes(session.status) && (
+              <button
+                type="button"
+                onClick={() => {
+                  if (window.confirm(T.CANCEL_EXAM_CONFIRM)) cancel.mutate();
+                }}
+                disabled={cancel.isPending}
+                className="rounded-md border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {T.CANCEL_EXAM}
               </button>
             )}
           </div>

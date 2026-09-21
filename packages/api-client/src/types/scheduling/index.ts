@@ -1,4 +1,7 @@
-export type SessionStatus = "SCHEDULED" | "OPEN" | "CLOSED" | "CANCELLED";
+import type { ScoreTemplateFeasibilityResponse } from "../scoretemplate";
+
+export type SessionStatus =
+  "DRAFT" | "PREPARING" | "READY" | "SCHEDULED" | "OPEN" | "CLOSED" | "CANCELLED";
 
 /**
  * Matches scheduling's real `SessionResponse` record exactly (Plan B, Phase
@@ -11,15 +14,29 @@ export interface SessionResponse {
   name: string;
   tenantId: string;
   subscriptionPublicId: string;
-  snapshotPublicId: string;
+  snapshotPublicId: string | null;
   opensAt: string;
   closesAt: string;
   status: SessionStatus;
   capacity: number;
+  templatePublicId: string | null;
+  templateVersion: number | null;
+  examMode: ExamMode | null;
+  formMode: FormMode | null;
+  reusePolicy: ReusePolicy | null;
+  seriesKey: string | null;
+  generationJobPublicId: string | null;
+  draftVersion: number;
 }
 
 export type ExamMode = "PRACTICE" | "MOCK_TEST" | "REAL_EXAM";
 export type LockdownMode = "NONE" | "STANDARD" | "STRICT";
+export type FormMode = "SHARED_FORM" | "UNIQUE_FORM_PER_STUDENT";
+export type ReusePolicy =
+  | "ALLOW"
+  | "EXCLUDE_STARTED_IN_SERIES"
+  | "EXCLUDE_ASSIGNED_IN_SERIES"
+  | "BLOCK_ON_SCHEDULE_OVERLAP";
 
 /**
  * Matches scheduling's real `CreateSessionRequest` record exactly (Plan B,
@@ -99,4 +116,93 @@ export interface StudentEnrollmentResponse {
   status: SessionStatus;
   opensAt: string;
   closesAt: string;
+}
+
+export interface CreateExamDraftRequest {
+  name: string;
+  templatePublicId: string;
+  subscriptionPublicId: string;
+  opensAt: string;
+  closesAt: string;
+  examMode?: ExamMode | null;
+  formMode?: FormMode | null;
+  reusePolicy?: ReusePolicy | null;
+  seriesKey?: string | null;
+  capacity: number;
+}
+
+export interface PatchExamDraftRequest {
+  name?: string;
+  templatePublicId?: string;
+  subscriptionPublicId?: string;
+  opensAt?: string;
+  closesAt?: string;
+  examMode?: ExamMode;
+  formMode?: FormMode;
+  reusePolicy?: ReusePolicy;
+  seriesKey?: string | null;
+  capacity?: number;
+  expectedVersion?: number;
+}
+
+export type AudienceSourceType = "STUDENT" | "CLASS" | "PROGRAM";
+
+export interface AudienceSourceRequest {
+  sourceType: AudienceSourceType;
+  sourcePublicId: string;
+}
+
+export interface AudienceSourceResponse extends AudienceSourceRequest {
+  publicId: string;
+}
+
+export type AudienceMemberStatus = "CANDIDATE" | "ELIGIBLE" | "EXCLUDED" | "ENROLLED";
+export type AudienceDecisionReason =
+  | "DUPLICATE_SOURCE"
+  | "ALREADY_ASSIGNED"
+  | "ALREADY_STARTED"
+  | "SCHEDULE_OVERLAP"
+  | "OUTSIDE_TENANT"
+  | "CAPACITY_EXCEEDED";
+
+export interface AudienceMemberResponse {
+  studentPublicId: string;
+  status: AudienceMemberStatus;
+  reason: AudienceDecisionReason | null;
+  sourceSummary: string;
+  priorSessionPublicId: string | null;
+  priorSessionName: string | null;
+  priorStatus: SessionStatus | null;
+}
+
+export interface AudiencePreviewResponse {
+  candidateCount: number;
+  duplicateCount: number;
+  eligibleCount: number;
+  excludedCount: number;
+  blockedCount: number;
+  capacity: number;
+  capacityReady: boolean;
+  members: AudienceMemberResponse[];
+}
+
+export interface ExamPreflightResponse {
+  ready: boolean;
+  template: ScoreTemplateFeasibilityResponse;
+  audience: AudiencePreviewResponse;
+  subscriptionReady: boolean;
+  windowReady: boolean;
+  overlapReady: boolean;
+  issues: string[];
+}
+
+export type GenerationJobStatus = "QUEUED" | "RUNNING" | "SUCCEEDED" | "FAILED" | "CANCELLED";
+
+export interface GenerationJobResponse {
+  publicId: string;
+  sessionPublicId: string;
+  status: GenerationJobStatus;
+  formsTotal: number;
+  formsCompleted: number;
+  algorithmVersion: string;
 }

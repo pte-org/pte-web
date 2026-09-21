@@ -1,10 +1,18 @@
-import type { ProctorRole, SessionStatus, UserResponse } from "@pte/api-client";
+import type {
+  AudienceSourceRequest,
+  ExamMode,
+  FormMode,
+  ProctorRole,
+  ReusePolicy,
+  SessionStatus,
+  UserResponse,
+} from "@pte/api-client";
 
 export interface ExamSession {
   id: string;
   name: string;
   subscriptionPublicId: string;
-  snapshotPublicId: string;
+  snapshotPublicId: string | null;
   opensAt: string;
   closesAt: string;
   status: SessionStatus;
@@ -23,6 +31,20 @@ export interface CreateSessionInput {
   closesAt: string;
   /** Raw form value — parsed to a positive integer on submit. */
   capacity: string;
+}
+
+export interface CreateExamWorkflowInput {
+  name: string;
+  templatePublicId: string;
+  subscriptionPublicId: string;
+  opensAt: string;
+  closesAt: string;
+  examMode: ExamMode;
+  formMode: FormMode;
+  reusePolicy: ReusePolicy;
+  seriesKey: string;
+  capacity: string;
+  sources: AudienceSourceRequest[];
 }
 
 export interface CreateSessionErrors {

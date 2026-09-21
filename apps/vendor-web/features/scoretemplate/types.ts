@@ -1,8 +1,12 @@
-import type { ScoreTemplateItemRequest, ScoreTemplateItemResponse, ScoreTemplateResponse } from "@pte/api-client";
+import type {
+  ScoreTemplateItemRequest,
+  ScoreTemplateItemResponse,
+  ScoreTemplateResponse,
+} from "@pte/api-client";
 
 export type { ScoreTemplateItemResponse, ScoreTemplateResponse };
 
-export type ScoreTemplateStatusFilter = "ACTIVE" | "DRAFT" | "RETIRED";
+export type ScoreTemplateStatusFilter = "ACTIVE" | "PENDING_APPROVAL" | "DRAFT" | "RETIRED";
 
 /**
  * One row of a DRAFT being edited. Numeric/weight fields stay `string`

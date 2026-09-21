@@ -3,12 +3,16 @@
 import { useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, Badge, Button, Input, LoadingState, Modal, PageHeader } from "@pte/ui";
-import { ApiError } from "@pte/api-client";
+import { getUserFacingApiErrorMessage } from "@pte/api-client";
+import { useCurrentUser } from "@/features/auth/api";
 import {
+  useApproveScoreTemplate,
   useCloneScoreTemplate,
   useCreateScoreTemplate,
   useDeleteScoreTemplate,
+  useRejectScoreTemplate,
   useScoreTemplates,
+  useSubmitScoreTemplateApproval,
 } from "../api";
 import {
   SCORE_TEMPLATE_LIST_HEADERS,
@@ -36,10 +40,19 @@ export const ScoreTemplateListView = (): ReactElement => {
   const cloneMutation = useCloneScoreTemplate();
   const createMutation = useCreateScoreTemplate();
   const deleteMutation = useDeleteScoreTemplate();
+  const submitApprovalMutation = useSubmitScoreTemplateApproval();
+  const approveMutation = useApproveScoreTemplate();
+  const rejectMutation = useRejectScoreTemplate();
+  const { data: currentUser } = useCurrentUser();
+  const isPlatformAdmin = currentUser?.roles.includes("PLATFORM_ADMIN") ?? false;
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [createCode, setCreateCode] = useState("");
   const [createName, setCreateName] = useState("");
   const [createError, setCreateError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<ScoreTemplateResponse | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const [rejectError, setRejectError] = useState<string | null>(null);
 
   const closeCreate = (): void => {
     if (createMutation.isPending) return;
@@ -60,8 +73,43 @@ export const ScoreTemplateListView = (): ReactElement => {
       setCreateName("");
       router.push(`${EXAM_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`);
     } catch (error) {
-      setCreateError(error instanceof ApiError ? error.message : SCORE_TEMPLATE_TEXT.CREATE_ERROR);
+      setCreateError(getUserFacingApiErrorMessage(error, SCORE_TEMPLATE_TEXT.CREATE_ERROR));
     }
+  };
+
+  const handleSubmitApproval = (publicId: string): void => {
+    setNotice(null);
+    submitApprovalMutation.mutate(publicId, {
+      onSuccess: () => setNotice(SCORE_TEMPLATE_TEXT.APPROVAL_SUBMITTED),
+    });
+  };
+
+  const handleApprove = (publicId: string): void => {
+    setNotice(null);
+    approveMutation.mutate(publicId, {
+      onSuccess: () => setNotice(SCORE_TEMPLATE_TEXT.APPROVAL_APPROVED),
+    });
+  };
+
+  const handleReject = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+    if (!rejectTarget) return;
+    const reason = rejectReason.trim();
+    if (!reason) {
+      setRejectError(SCORE_TEMPLATE_TEXT.REJECT_REASON_REQUIRED);
+      return;
+    }
+    setRejectError(null);
+    rejectMutation.mutate(
+      { publicId: rejectTarget.publicId, payload: { reason } },
+      {
+        onSuccess: () => {
+          setRejectTarget(null);
+          setRejectReason("");
+          setNotice(SCORE_TEMPLATE_TEXT.APPROVAL_REJECTED);
+        },
+      },
+    );
   };
 
   const handleDelete = (template: ScoreTemplateResponse): void => {
@@ -87,14 +135,47 @@ export const ScoreTemplateListView = (): ReactElement => {
         }
       />
 
-      {isError && <Alert tone="error">Could not load exam templates. Please refresh.</Alert>}
+      {notice && <Alert tone="success">{notice}</Alert>}
+      {isError && <Alert tone="error">{SCORE_TEMPLATE_TEXT.LOAD_ERROR}</Alert>}
       {createError && <Alert tone="error">{createError}</Alert>}
       {createMutation.isError && !createError && (
-        <Alert tone="error">{SCORE_TEMPLATE_TEXT.CREATE_ERROR}</Alert>
+        <Alert tone="error">
+          {getUserFacingApiErrorMessage(createMutation.error, SCORE_TEMPLATE_TEXT.CREATE_ERROR)}
+        </Alert>
       )}
-      {deleteMutation.isError && <Alert tone="error">{SCORE_TEMPLATE_TEXT.DELETE_ERROR}</Alert>}
+      {deleteMutation.isError && (
+        <Alert tone="error">
+          {getUserFacingApiErrorMessage(deleteMutation.error, SCORE_TEMPLATE_TEXT.DELETE_ERROR)}
+        </Alert>
+      )}
       {cloneMutation.isError && (
-        <Alert tone="error">Could not clone this template. Please try again.</Alert>
+        <Alert tone="error">
+          {getUserFacingApiErrorMessage(cloneMutation.error, SCORE_TEMPLATE_TEXT.CLONE_ERROR)}
+        </Alert>
+      )}
+      {submitApprovalMutation.isError && (
+        <Alert tone="error">
+          {getUserFacingApiErrorMessage(
+            submitApprovalMutation.error,
+            SCORE_TEMPLATE_TEXT.NOT_DRAFT_ERROR,
+          )}
+        </Alert>
+      )}
+      {approveMutation.isError && (
+        <Alert tone="error">
+          {getUserFacingApiErrorMessage(
+            approveMutation.error,
+            SCORE_TEMPLATE_TEXT.CONCURRENT_MODIFICATION_ERROR,
+          )}
+        </Alert>
+      )}
+      {rejectMutation.isError && (
+        <Alert tone="error">
+          {getUserFacingApiErrorMessage(
+            rejectMutation.error,
+            SCORE_TEMPLATE_TEXT.CONCURRENT_MODIFICATION_ERROR,
+          )}
+        </Alert>
       )}
 
       {isLoading ? (
@@ -165,6 +246,45 @@ export const ScoreTemplateListView = (): ReactElement => {
                           )}
                           {template.status === "DRAFT" && (
                             <Button
+                              variant="secondary"
+                              size="sm"
+                              isLoading={
+                                submitApprovalMutation.isPending &&
+                                submitApprovalMutation.variables === template.publicId
+                              }
+                              onClick={() => handleSubmitApproval(template.publicId)}
+                            >
+                              {SCORE_TEMPLATE_TEXT.SUBMIT_APPROVAL_ACTION}
+                            </Button>
+                          )}
+                          {template.status === "PENDING_APPROVAL" && isPlatformAdmin && (
+                            <>
+                              <Button
+                                variant="primary"
+                                size="sm"
+                                isLoading={
+                                  approveMutation.isPending &&
+                                  approveMutation.variables === template.publicId
+                                }
+                                onClick={() => handleApprove(template.publicId)}
+                              >
+                                {SCORE_TEMPLATE_TEXT.APPROVE_ACTION}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  setRejectTarget(template);
+                                  setRejectReason("");
+                                  setRejectError(null);
+                                }}
+                              >
+                                {SCORE_TEMPLATE_TEXT.REJECT_ACTION}
+                              </Button>
+                            </>
+                          )}
+                          {template.status === "DRAFT" && (
+                            <Button
                               variant="ghost"
                               size="sm"
                               isLoading={
@@ -194,7 +314,7 @@ export const ScoreTemplateListView = (): ReactElement => {
         footer={
           <>
             <Button variant="ghost" onClick={closeCreate} disabled={createMutation.isPending}>
-              Cancel
+              {SCORE_TEMPLATE_TEXT.CANCEL_ACTION}
             </Button>
             <Button
               variant="primary"
@@ -215,7 +335,7 @@ export const ScoreTemplateListView = (): ReactElement => {
           <p className="text-sm text-gray-600">{SCORE_TEMPLATE_TEXT.CREATE_MODAL_SUBTITLE}</p>
           <Input
             id="create-exam-template-code"
-            label="Code"
+            label={SCORE_TEMPLATE_TEXT.CODE_LABEL}
             value={createCode}
             onChange={(event) => setCreateCode(event.target.value)}
             required
@@ -223,13 +343,52 @@ export const ScoreTemplateListView = (): ReactElement => {
           />
           <Input
             id="create-exam-template-name"
-            label="Name"
+            label={SCORE_TEMPLATE_TEXT.NAME_LABEL}
             value={createName}
             onChange={(event) => setCreateName(event.target.value)}
             required
             maxLength={255}
           />
           {createError && <Alert tone="error">{createError}</Alert>}
+        </form>
+      </Modal>
+
+      <Modal
+        open={rejectTarget !== null}
+        onClose={() => {
+          if (!rejectMutation.isPending) setRejectTarget(null);
+        }}
+        title={SCORE_TEMPLATE_TEXT.REJECT_MODAL_TITLE}
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => setRejectTarget(null)}
+              disabled={rejectMutation.isPending}
+            >
+              {SCORE_TEMPLATE_TEXT.REJECT_CANCEL}
+            </Button>
+            <Button
+              variant="primary"
+              type="submit"
+              form="reject-score-template-form"
+              isLoading={rejectMutation.isPending}
+            >
+              {SCORE_TEMPLATE_TEXT.REJECT_CONFIRM}
+            </Button>
+          </>
+        }
+      >
+        <form id="reject-score-template-form" className="space-y-4" onSubmit={handleReject}>
+          <Input
+            label={SCORE_TEMPLATE_TEXT.REJECT_REASON_LABEL}
+            placeholder={SCORE_TEMPLATE_TEXT.REJECT_REASON_PLACEHOLDER}
+            value={rejectReason}
+            error={rejectError ?? undefined}
+            onChange={(event) => setRejectReason(event.target.value)}
+            maxLength={500}
+            required
+          />
         </form>
       </Modal>
     </div>

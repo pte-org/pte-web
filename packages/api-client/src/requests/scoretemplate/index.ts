@@ -3,6 +3,8 @@ import type {
   CreateScoreTemplateRequest,
   ReplaceScoreTemplateItemsRequest,
   ScoreTemplateResponse,
+  RejectScoreTemplateRequest,
+  ScoreTemplateFeasibilityResponse,
 } from "../../types/scoretemplate";
 
 /**
@@ -18,6 +20,11 @@ export const SCORE_TEMPLATE_ENDPOINTS = {
   clone: (publicId: string) => `/api/v1/score-templates/${publicId}/clone`,
   items: (publicId: string) => `/api/v1/score-templates/${publicId}/items`,
   activate: (publicId: string) => `/api/v1/score-templates/${publicId}/activate`,
+  active: "/api/v1/score-templates/active",
+  submitApproval: (publicId: string) => `/api/v1/score-templates/${publicId}/submit-approval`,
+  approve: (publicId: string) => `/api/v1/score-templates/${publicId}/approve`,
+  reject: (publicId: string) => `/api/v1/score-templates/${publicId}/reject`,
+  feasibility: (publicId: string) => `/api/v1/score-templates/${publicId}/feasibility`,
 } as const;
 
 export function listScoreTemplates(client: ApiClient): Promise<ScoreTemplateResponse[]> {
@@ -74,4 +81,46 @@ export function activateScoreTemplate(
   return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.activate(publicId), {
     method: "POST",
   });
+}
+
+export function getActiveScoreTemplate(client: ApiClient): Promise<ScoreTemplateResponse> {
+  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.active);
+}
+
+export function submitScoreTemplateApproval(
+  client: ApiClient,
+  publicId: string,
+): Promise<ScoreTemplateResponse> {
+  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.submitApproval(publicId), {
+    method: "POST",
+  });
+}
+
+export function approveScoreTemplate(
+  client: ApiClient,
+  publicId: string,
+): Promise<ScoreTemplateResponse> {
+  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.approve(publicId), {
+    method: "POST",
+  });
+}
+
+export function rejectScoreTemplate(
+  client: ApiClient,
+  publicId: string,
+  payload: RejectScoreTemplateRequest,
+): Promise<ScoreTemplateResponse> {
+  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.reject(publicId), {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export function getScoreTemplateFeasibility(
+  client: ApiClient,
+  publicId: string,
+): Promise<ScoreTemplateFeasibilityResponse> {
+  return client.request<ScoreTemplateFeasibilityResponse>(
+    SCORE_TEMPLATE_ENDPOINTS.feasibility(publicId),
+  );
 }

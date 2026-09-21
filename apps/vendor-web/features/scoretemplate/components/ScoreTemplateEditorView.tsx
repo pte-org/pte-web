@@ -2,15 +2,16 @@
 
 import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { ApiError, type QuestionTypeResponse, type QuestionTypeSection } from "@pte/api-client";
+import {
+  getUserFacingApiErrorMessage,
+  type QuestionTypeResponse,
+  type QuestionTypeSection,
+} from "@pte/api-client";
 import { Alert, Button, LoadingState, PageHeader } from "@pte/ui";
 import { useActivateScoreTemplate, useReplaceScoreTemplateItems, useScoreTemplate } from "../api";
+import { useCurrentUser } from "@/features/auth/api";
 import { useQuestionTypes } from "@/features/questiontemplate/api";
-import {
-  EXAM_TEMPLATE_BASE_PATH,
-  EXAM_TEMPLATE_SECTIONS,
-  SCORE_TEMPLATE_TEXT,
-} from "../constants";
+import { EXAM_TEMPLATE_BASE_PATH, EXAM_TEMPLATE_SECTIONS, SCORE_TEMPLATE_TEXT } from "../constants";
 import {
   fromDraft,
   toDraft,
@@ -28,14 +29,18 @@ interface ScoreTemplateEditorViewProps {
 export const ScoreTemplateEditorView = ({
   publicId,
 }: ScoreTemplateEditorViewProps): ReactElement => {
-  const { data: template, isLoading, isError } = useScoreTemplate(publicId);
+  const { data: template, isLoading, isError, error } = useScoreTemplate(publicId);
   const { data: questionTypes = [] } = useQuestionTypes(true);
 
   if (isLoading) {
     return <LoadingState rows={6} />;
   }
   if (isError || !template) {
-    return <Alert tone="error">Could not load this exam template.</Alert>;
+    return (
+      <Alert tone="error">
+        {getUserFacingApiErrorMessage(error, SCORE_TEMPLATE_TEXT.LOAD_ERROR)}
+      </Alert>
+    );
   }
   if (template.status !== "DRAFT") {
     return <Alert tone="warning">{SCORE_TEMPLATE_TEXT.NOT_DRAFT_ERROR}</Alert>;
@@ -64,8 +69,10 @@ const ScoreTemplateEditorForm = ({
   questionTypes,
 }: ScoreTemplateEditorFormProps): ReactElement => {
   const router = useRouter();
+  const { data: currentUser } = useCurrentUser();
   const replaceItemsMutation = useReplaceScoreTemplateItems();
   const activateMutation = useActivateScoreTemplate();
+  const isPlatformAdmin = currentUser?.roles.includes("PLATFORM_ADMIN") ?? false;
   const [name, setName] = useState(template.name);
   const [items, setItems] = useState<ScoreTemplateItemDraft[]>(() => template.items.map(toDraft));
   const [activateTarget, setActivateTarget] = useState<ScoreTemplateResponse | null>(null);
@@ -81,9 +88,10 @@ const ScoreTemplateEditorForm = ({
   // instead, so this doesn't also render (uselessly) behind the modal.
   const saveErrorMessage =
     activateTarget === null && replaceItemsMutation.isError
-      ? replaceItemsMutation.error instanceof ApiError
-        ? replaceItemsMutation.error.message
-        : SCORE_TEMPLATE_TEXT.NOT_DRAFT_ERROR
+      ? getUserFacingApiErrorMessage(
+          replaceItemsMutation.error,
+          SCORE_TEMPLATE_TEXT.NOT_DRAFT_ERROR,
+        )
       : undefined;
   const [newSection, setNewSection] = useState<QuestionTypeSection | "">("");
   const [newTypeCode, setNewTypeCode] = useState("");
@@ -154,12 +162,17 @@ const ScoreTemplateEditorForm = ({
               router.push(`${EXAM_TEMPLATE_BASE_PATH}/${target.publicId}`);
             },
             onError: (error) => {
-              setConfirmError(error instanceof ApiError ? error.message : SCORE_TEMPLATE_TEXT.CONCURRENT_MODIFICATION_ERROR);
+              setConfirmError(
+                getUserFacingApiErrorMessage(
+                  error,
+                  SCORE_TEMPLATE_TEXT.CONCURRENT_MODIFICATION_ERROR,
+                ),
+              );
             },
           });
         },
         onError: (error) => {
-          setConfirmError(error instanceof ApiError ? error.message : SCORE_TEMPLATE_TEXT.NOT_DRAFT_ERROR);
+          setConfirmError(getUserFacingApiErrorMessage(error, SCORE_TEMPLATE_TEXT.NOT_DRAFT_ERROR));
         },
       },
     );
@@ -217,7 +230,7 @@ const ScoreTemplateEditorForm = ({
   return (
     <div className="space-y-6">
       <PageHeader
-        title={`${template.code} v${template.version} (DRAFT)`}
+        title={`${template.code} v${template.version} (${SCORE_TEMPLATE_TEXT.DRAFT_STATUS_LABEL})`}
         actions={
           <>
             <Button
@@ -227,9 +240,11 @@ const ScoreTemplateEditorForm = ({
             >
               {SCORE_TEMPLATE_TEXT.SAVE_DRAFT}
             </Button>
-            <Button variant="primary" onClick={handleOpenActivate}>
-              {SCORE_TEMPLATE_TEXT.ACTIVATE_ACTION}
-            </Button>
+            {isPlatformAdmin && (
+              <Button variant="primary" onClick={handleOpenActivate}>
+                {SCORE_TEMPLATE_TEXT.ACTIVATE_ACTION}
+              </Button>
+            )}
             <Button variant="ghost" onClick={() => router.push(EXAM_TEMPLATE_BASE_PATH)}>
               {SCORE_TEMPLATE_TEXT.DETAIL_BACK}
             </Button>
@@ -241,7 +256,7 @@ const ScoreTemplateEditorForm = ({
 
       <div>
         <label htmlFor="score-template-name" className="block text-sm font-medium text-gray-700">
-          Name
+          {SCORE_TEMPLATE_TEXT.NAME_LABEL}
         </label>
         <input
           id="score-template-name"
@@ -259,7 +274,7 @@ const ScoreTemplateEditorForm = ({
               htmlFor="exam-template-add-section"
               className="block text-sm font-medium text-gray-700"
             >
-              Add question type
+              {SCORE_TEMPLATE_TEXT.ADD_TYPE}
             </label>
             <select
               id="exam-template-add-section"
@@ -270,7 +285,7 @@ const ScoreTemplateEditorForm = ({
               }}
               className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
             >
-              <option value="">Select section first</option>
+              <option value="">{SCORE_TEMPLATE_TEXT.ADD_SECTION_PLACEHOLDER}</option>
               {EXAM_TEMPLATE_SECTIONS.map((section) => (
                 <option key={section} value={section}>
                   {section}
@@ -286,10 +301,10 @@ const ScoreTemplateEditorForm = ({
             >
               <option value="">
                 {!newSection
-                  ? "Select section first"
+                  ? SCORE_TEMPLATE_TEXT.NO_SECTION_SELECTED
                   : availableTypes.length === 0
                     ? SCORE_TEMPLATE_TEXT.NO_TYPES_TO_ADD
-                    : "Select a type"}
+                    : SCORE_TEMPLATE_TEXT.ADD_TYPE_PLACEHOLDER}
               </option>
               {availableTypes.map((type) => (
                 <option key={type.code} value={type.code}>

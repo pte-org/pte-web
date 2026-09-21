@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, Badge, Button, LoadingState, PageHeader } from "@pte/ui";
+import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useCloneScoreTemplate, useScoreTemplate } from "../api";
 import {
   EXAM_TEMPLATE_BASE_PATH,
@@ -22,14 +23,18 @@ export const ScoreTemplateDetailView = ({
   publicId,
 }: ScoreTemplateDetailViewProps): ReactElement => {
   const router = useRouter();
-  const { data: template, isLoading, isError } = useScoreTemplate(publicId);
+  const { data: template, isLoading, isError, error } = useScoreTemplate(publicId);
   const cloneMutation = useCloneScoreTemplate();
 
   if (isLoading) {
     return <LoadingState rows={6} />;
   }
   if (isError || !template) {
-    return <Alert tone="error">Could not load this exam template.</Alert>;
+    return (
+      <Alert tone="error">
+        {getUserFacingApiErrorMessage(error, SCORE_TEMPLATE_TEXT.LOAD_ERROR)}
+      </Alert>
+    );
   }
 
   const status = template.status as ScoreTemplateStatusFilter;
@@ -63,8 +68,16 @@ export const ScoreTemplateDetailView = ({
         }
       />
 
+      {template.rejectionReason && (
+        <Alert tone="warning" title={SCORE_TEMPLATE_TEXT.REJECTION_FEEDBACK_LABEL}>
+          {template.rejectionReason}
+        </Alert>
+      )}
+
       {cloneMutation.isError && (
-        <Alert tone="error">Could not clone this template. Please try again.</Alert>
+        <Alert tone="error">
+          {getUserFacingApiErrorMessage(cloneMutation.error, SCORE_TEMPLATE_TEXT.CLONE_ERROR)}
+        </Alert>
       )}
 
       <ScoreTemplateItemTable editable={false} items={template.items} />

@@ -8,6 +8,10 @@ import {
   getScoreTemplate,
   listScoreTemplates,
   replaceScoreTemplateItems,
+  approveScoreTemplate,
+  rejectScoreTemplate,
+  submitScoreTemplateApproval,
+  type RejectScoreTemplateRequest,
   type ReplaceScoreTemplateItemsRequest,
   type CreateScoreTemplateRequest,
   type ScoreTemplateResponse,
@@ -44,12 +48,7 @@ export function useCreateScoreTemplate(): UseMutationResult<
   });
 }
 
-/**
- * No dedicated `GET /score-templates/active` endpoint on the backend
- * (Phase 1 — Plan A gives no HTTP role any reason to fetch just the active
- * one; a host consuming it is Plan B's concern) — derived client-side from
- * the same list every admin screen already loads.
- */
+/** Kept for admin screens that need to inspect the active version from the catalog. */
 export function useActiveScoreTemplate(): UseQueryResult<ScoreTemplateResponse | undefined> {
   return useQuery({
     queryKey: SCORE_TEMPLATES_QUERY_KEY,
@@ -126,5 +125,54 @@ export function useActivateScoreTemplate(): UseMutationResult<
       void queryClient.invalidateQueries({ queryKey: SCORE_TEMPLATES_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: SCORE_TEMPLATE_QUERY_KEY });
     },
+  });
+}
+
+function invalidateScoreTemplateQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+  publicId: string,
+): void {
+  void queryClient.invalidateQueries({ queryKey: SCORE_TEMPLATES_QUERY_KEY });
+  void queryClient.invalidateQueries({ queryKey: [...SCORE_TEMPLATE_QUERY_KEY, publicId] });
+}
+
+export function useSubmitScoreTemplateApproval(): UseMutationResult<
+  ScoreTemplateResponse,
+  unknown,
+  string
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (publicId) => submitScoreTemplateApproval(apiClient, publicId),
+    onSuccess: (_data, publicId) => invalidateScoreTemplateQueries(queryClient, publicId),
+  });
+}
+
+export function useApproveScoreTemplate(): UseMutationResult<
+  ScoreTemplateResponse,
+  unknown,
+  string
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (publicId) => approveScoreTemplate(apiClient, publicId),
+    onSuccess: (_data, publicId) => invalidateScoreTemplateQueries(queryClient, publicId),
+  });
+}
+
+interface RejectScoreTemplateInput {
+  publicId: string;
+  payload: RejectScoreTemplateRequest;
+}
+
+export function useRejectScoreTemplate(): UseMutationResult<
+  ScoreTemplateResponse,
+  unknown,
+  RejectScoreTemplateInput
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ publicId, payload }) => rejectScoreTemplate(apiClient, publicId, payload),
+    onSuccess: (_data, { publicId }) => invalidateScoreTemplateQueries(queryClient, publicId),
   });
 }

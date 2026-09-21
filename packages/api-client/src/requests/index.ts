@@ -9,6 +9,7 @@ export * from "./organization";
 export * from "./quota";
 export * from "./user";
 export * from "./scheduling/sessions";
+export * from "./scheduling/examOrchestration";
 export * from "./scheduling/enrollments";
 export * from "./scheduling/classAssignments";
 export * from "./scheduling/proctorAssignments";

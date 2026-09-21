@@ -2,6 +2,7 @@ export { ExamsListView } from "./ExamsListView";
 export { SessionDetailView } from "./SessionDetailView";
 export { SessionTable } from "./SessionTable";
 export { CreateSessionModal } from "./CreateSessionModal";
+export { CreateExamWizard } from "./CreateExamWizard";
 export { ProctorAssignmentSection } from "./ProctorAssignmentSection";
 export { AssignProctorModal } from "./AssignProctorModal";
 export { AnswersSection } from "./AnswersSection";
