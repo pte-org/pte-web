@@ -12,6 +12,7 @@ import {
   approveQuestion,
   createQuestion,
   createQuestionRevision,
+  getMediaPreview,
   getQuestion,
   listQuestions,
   publishQuestion,
@@ -20,6 +21,7 @@ import {
   updateQuestion,
   unarchiveQuestion,
   type CreateQuestionRequest,
+  type MediaPreviewResponse,
   type QuestionResponse,
   type UpdateQuestionRequest,
 } from "@pte/api-client";
@@ -118,6 +120,20 @@ export function useQuestion(publicId: string): UseQueryResult<QuestionResponse> 
   });
 }
 
+export const MEDIA_PREVIEW_QUERY_KEY = ["questionMediaPreview"] as const;
+
+export function useMediaPreview(
+  mediaPublicId: string | null | undefined,
+): UseQueryResult<MediaPreviewResponse> {
+  return useQuery({
+    queryKey: [...MEDIA_PREVIEW_QUERY_KEY, mediaPublicId],
+    queryFn: () => getMediaPreview(apiClient, mediaPublicId as string),
+    enabled: Boolean(mediaPublicId),
+    staleTime: 30_000,
+    retry: 1,
+  });
+}
+
 function useInvalidateQuestionsOnSuccess(): () => void {
   const queryClient = useQueryClient();
   return () => {
@@ -150,7 +166,11 @@ export function useUnarchiveQuestion(): UseMutationResult<QuestionResponse, unkn
   });
 }
 
-export function useCreateQuestion(): UseMutationResult<QuestionResponse, unknown, CreateQuestionRequest> {
+export function useCreateQuestion(): UseMutationResult<
+  QuestionResponse,
+  unknown,
+  CreateQuestionRequest
+> {
   const onSuccess = useInvalidateQuestionsOnSuccess();
   return useMutation({ mutationFn: (payload) => createQuestion(apiClient, payload), onSuccess });
 }

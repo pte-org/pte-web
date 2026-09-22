@@ -41,7 +41,12 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
     unarchiveMutation.isError;
 
   const buildActions = (question: Question): ActionMenuItem[] => {
-    const actions: ActionMenuItem[] = [];
+    const actions: ActionMenuItem[] = [
+      {
+        label: QUESTIONBANK_TEXT.ROW_VIEW_DETAILS,
+        onSelect: () => router.push(`/admin/questions/${question.id}`),
+      },
+    ];
     if (question.status === "draft") {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_SUBMIT,
@@ -91,9 +96,7 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
 
   return (
     <div className="space-y-4">
-      {hasMutationError && (
-        <Alert tone="error">{QUESTIONBANK_TEXT.STATUS_UPDATE_ERROR}</Alert>
-      )}
+      {hasMutationError && <Alert tone="error">{QUESTIONBANK_TEXT.STATUS_UPDATE_ERROR}</Alert>}
       <div className="overflow-hidden rounded-lg bg-white shadow-card">
         <div className="overflow-x-auto">
           <table className="min-w-[900px] w-full border-collapse">

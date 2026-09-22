@@ -72,6 +72,7 @@ export type UpdateQuestionRequest = Omit<CreateQuestionRequest, "pteTaskType" | 
 export interface QuestionResponse {
   publicId: string;
   pteTaskType: PteTaskType | string;
+  taskTypeKey?: string | null;
   section: PteSection | string;
   visibility: QuestionVisibility | string;
   tenantId: string | null;
