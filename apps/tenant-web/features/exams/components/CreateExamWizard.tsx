@@ -130,14 +130,14 @@ export const CreateExamWizard = ({
     );
   };
 
-  const validate = (): boolean => {
-    const nextErrors = validateCreateExamWorkflow(effectiveForm);
+  const validate = (requireAudience = true): boolean => {
+    const nextErrors = validateCreateExamWorkflow(effectiveForm, undefined, requireAudience);
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   };
 
   const goToReview = (): void => {
-    if (validate()) setStep(2);
+    if (validate(false)) setStep(2);
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {

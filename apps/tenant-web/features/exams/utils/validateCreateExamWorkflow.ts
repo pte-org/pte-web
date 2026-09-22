@@ -15,6 +15,7 @@ export interface CreateExamWorkflowErrors {
 export function validateCreateExamWorkflow(
   input: CreateExamWorkflowInput,
   now = Date.now(),
+  requireAudience = true,
 ): CreateExamWorkflowErrors {
   const errors: CreateExamWorkflowErrors = {};
 
@@ -47,7 +48,9 @@ export function validateCreateExamWorkflow(
   if (input.reusePolicy !== "ALLOW" && !input.seriesKey.trim()) {
     errors.seriesKey = CREATE_EXAM_WIZARD_ERRORS.SERIES_REQUIRED;
   }
-  if (input.sources.length === 0) errors.sources = CREATE_EXAM_WIZARD_ERRORS.AUDIENCE_REQUIRED;
+  if (requireAudience && input.sources.length === 0) {
+    errors.sources = CREATE_EXAM_WIZARD_ERRORS.AUDIENCE_REQUIRED;
+  }
 
   return errors;
 }
