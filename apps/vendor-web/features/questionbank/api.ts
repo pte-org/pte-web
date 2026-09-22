@@ -60,13 +60,6 @@ function mapQuestion(response: QuestionResponse): Question {
     skill: SKILL_MAP[response.section] ?? "reading",
     taskType: response.pteTaskType,
     content: response.title || response.promptText || "—",
-    // The real backend has no difficulty concept at all yet (no field on
-    // Question/QuestionResponse) — null rather than a made-up default so the
-    // UI can show "—" honestly instead of implying data that doesn't exist.
-    difficulty: null,
-    // No createdAt on QuestionResponse today either (BaseEntity has it, but
-    // the DTO doesn't expose it) — same "—" treatment as difficulty.
-    createdAt: null,
     status: mapStatus(response.status),
     rejectionReason: response.rejectionReason,
   };

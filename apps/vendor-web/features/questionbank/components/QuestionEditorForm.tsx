@@ -26,6 +26,7 @@ interface DraftOption {
 interface QuestionEditorFormProps {
   question?: QuestionResponse;
   onSaved?: (question: QuestionResponse) => void;
+  onCancel?: () => void;
 }
 
 const fieldClass =
@@ -34,6 +35,7 @@ const fieldClass =
 export const QuestionEditorForm = ({
   question,
   onSaved,
+  onCancel,
 }: QuestionEditorFormProps): ReactElement => {
   const createMutation = useCreateQuestion();
   const updateMutation = useUpdateQuestion();
@@ -139,12 +141,9 @@ export const QuestionEditorForm = ({
     setError(null);
     if (!questionType) return setError(E.QUESTION_TYPES_UNAVAILABLE);
     if (!title.trim()) return setError(E.TITLE_REQUIRED);
-    if (questionType.requiresPromptText && !promptText.trim())
-      return setError(E.PROMPT_REQUIRED);
-    if (questionType.requiresAudioPrompt && !audioPromptRef)
-      return setError(E.AUDIO_REQUIRED);
-    if (questionType.requiresImagePrompt && !imagePromptRef)
-      return setError(E.IMAGE_REQUIRED);
+    if (questionType.requiresPromptText && !promptText.trim()) return setError(E.PROMPT_REQUIRED);
+    if (questionType.requiresAudioPrompt && !audioPromptRef) return setError(E.AUDIO_REQUIRED);
+    if (questionType.requiresImagePrompt && !imagePromptRef) return setError(E.IMAGE_REQUIRED);
     if (questionType.requiresWordCount && (!minWordCount || !maxWordCount))
       return setError(E.WORD_COUNTS_REQUIRED);
     if (questionType.requiresCorrectAnswer && !hasOptions && !correctAnswerText.trim())
@@ -199,14 +198,8 @@ export const QuestionEditorForm = ({
         {question ? T.FORM_EDIT_TITLE : T.FORM_CREATE_TITLE}
       </h2>
       {error && <Alert tone="error">{error}</Alert>}
-      {questionTypesError && (
-        <Alert tone="error">{E.LOAD_TYPES}</Alert>
-      )}
-      {(createMutation.isError || updateMutation.isError) && (
-        <Alert tone="error">
-          {E.SAVE}
-        </Alert>
-      )}
+      {questionTypesError && <Alert tone="error">{E.LOAD_TYPES}</Alert>}
+      {(createMutation.isError || updateMutation.isError) && <Alert tone="error">{E.SAVE}</Alert>}
       <label className="text-sm font-medium text-gray-700">
         {T.TASK_TYPE}
         <select
@@ -346,9 +339,16 @@ export const QuestionEditorForm = ({
           </Button>
         </fieldset>
       )}
-      <Button type="submit" isLoading={isPending}>
-        {question ? T.SAVE_DRAFT : T.CREATE_DRAFT}
-      </Button>
+      <div className="flex flex-wrap gap-2">
+        {onCancel && (
+          <Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>
+            {T.CANCEL}
+          </Button>
+        )}
+        <Button type="submit" isLoading={isPending}>
+          {question ? T.SAVE_DRAFT : T.CREATE_DRAFT}
+        </Button>
+      </div>
     </form>
   );
 };

@@ -10,7 +10,6 @@ import {
 } from "../api";
 import {
   QUESTIONBANK_TEXT,
-  QUESTION_DIFFICULTY_VARIANT,
   QUESTION_SKILL_LABELS,
   QUESTION_STATUS_LABELS,
   QUESTION_STATUS_VARIANT,
@@ -105,8 +104,6 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
                 <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.CODE}</th>
                 <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.SKILL}</th>
                 <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.CONTENT}</th>
-                <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.DIFFICULTY}</th>
-                <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.CREATED}</th>
                 <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.STATUS}</th>
                 <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.ACTIONS}</th>
               </tr>
@@ -118,18 +115,6 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
                   <td className={CELL_CLASS}>{QUESTION_SKILL_LABELS[question.skill]}</td>
                   <td className={`${CELL_CLASS} max-w-xs`}>
                     <span className="line-clamp-1">{question.content}</span>
-                  </td>
-                  <td className={CELL_CLASS}>
-                    {question.difficulty ? (
-                      <Badge variant={QUESTION_DIFFICULTY_VARIANT[question.difficulty]}>
-                        {question.difficulty}
-                      </Badge>
-                    ) : (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </td>
-                  <td className={`${CELL_CLASS} text-gray-500`}>
-                    {question.createdAt ?? QUESTIONBANK_TEXT.EMPTY_VALUE}
                   </td>
                   <td className={CELL_CLASS}>
                     <Badge variant={QUESTION_STATUS_VARIANT[question.status]}>

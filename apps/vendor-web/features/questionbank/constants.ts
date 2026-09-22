@@ -1,7 +1,5 @@
 import type { BadgeVariant } from "@pte/ui";
 import type {
-  QuestionDifficulty,
-  QuestionDifficultyFilter,
   QuestionSkill,
   QuestionSkillFilter,
   QuestionStatus,
@@ -105,6 +103,7 @@ export const QUESTION_EDITOR_TEXT = {
   ADD_OPTION: "Add option",
   SAVE_DRAFT: "Save Draft",
   CREATE_DRAFT: "Create Draft",
+  CANCEL: "Cancel",
 } as const;
 
 export const QUESTION_EDITOR_ERRORS = {
@@ -134,8 +133,6 @@ export const QUESTION_TABLE_HEADERS = {
   CODE: "Question Code",
   SKILL: "Skill",
   CONTENT: "Content",
-  DIFFICULTY: "Difficulty",
-  CREATED: "Created On",
   STATUS: "Status",
   ACTIONS: "Actions",
 } as const;
@@ -161,14 +158,6 @@ export const QUESTION_STATUS_VARIANT: Record<QuestionStatus, BadgeVariant> = {
   archived: "info",
 };
 
-export const QUESTION_DIFFICULTY_VARIANT: Record<QuestionDifficulty, BadgeVariant> = {
-  A1: "info",
-  A2: "info",
-  B1: "info",
-  B2: "warning",
-  C: "danger",
-};
-
 export const SKILL_FILTER_OPTIONS: {
   value: QuestionSkillFilter;
   label: string;
@@ -178,18 +167,6 @@ export const SKILL_FILTER_OPTIONS: {
   { value: "reading", label: "Reading" },
   { value: "writing", label: "Writing" },
   { value: "speaking", label: "Speaking" },
-];
-
-export const DIFFICULTY_FILTER_OPTIONS: {
-  value: QuestionDifficultyFilter;
-  label: string;
-}[] = [
-  { value: "all", label: "All difficulties" },
-  { value: "A1", label: "A1" },
-  { value: "A2", label: "A2" },
-  { value: "B1", label: "B1" },
-  { value: "B2", label: "B2" },
-  { value: "C", label: "C" },
 ];
 
 export const QUESTION_STATUS_FILTER_OPTIONS: {

@@ -2,17 +2,11 @@
 
 import type { ReactElement } from "react";
 import {
-  DIFFICULTY_FILTER_OPTIONS,
   QUESTIONBANK_TEXT,
   QUESTION_STATUS_FILTER_OPTIONS,
   SKILL_FILTER_OPTIONS,
 } from "../constants";
-import type {
-  QuestionDifficultyFilter,
-  QuestionFilter,
-  QuestionSkillFilter,
-  QuestionStatusFilter,
-} from "../types";
+import type { QuestionFilter, QuestionSkillFilter, QuestionStatusFilter } from "../types";
 
 interface QuestionFiltersProps {
   filter: QuestionFilter;
@@ -41,23 +35,6 @@ export const QuestionFilters = ({ filter, onChange }: QuestionFiltersProps): Rea
       className={SELECT_CLASS}
     >
       {SKILL_FILTER_OPTIONS.map((option) => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
-    <select
-      aria-label={DIFFICULTY_FILTER_OPTIONS[0].label}
-      value={filter.difficulty}
-      onChange={(event) =>
-        onChange({
-          ...filter,
-          difficulty: event.target.value as QuestionDifficultyFilter,
-        })
-      }
-      className={SELECT_CLASS}
-    >
-      {DIFFICULTY_FILTER_OPTIONS.map((option) => (
         <option key={option.value} value={option.value}>
           {option.label}
         </option>

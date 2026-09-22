@@ -14,7 +14,6 @@ import { QuestionTable } from "./_QuestionTable";
 const INITIAL_FILTER: QuestionFilter = {
   query: "",
   skill: "all",
-  difficulty: "all",
   status: "all",
 };
 

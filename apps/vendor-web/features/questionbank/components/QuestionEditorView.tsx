@@ -12,7 +12,10 @@ export const NewQuestionView = (): ReactElement => {
   return (
     <div className="space-y-5">
       <PageHeader title={T.NEW_TITLE} subtitle={T.NEW_SUBTITLE} />
-      <QuestionEditorForm onSaved={() => router.push("/admin/questions")} />
+      <QuestionEditorForm
+        onSaved={() => router.push("/admin/questions")}
+        onCancel={() => router.push("/admin/questions")}
+      />
     </div>
   );
 };
@@ -35,14 +38,19 @@ export const EditQuestionView = ({ publicId }: { publicId: string }): ReactEleme
   if (isLoading) return <LoadingState rows={8} />;
   if (isError || !question) return <Alert tone="error">{E.LOAD_QUESTION}</Alert>;
   if (revisionMutation.isError) return <Alert tone="error">{E.CREATE_REVISION}</Alert>;
-  if (question.status === "PENDING_APPROVAL") return <Alert tone="warning">{E.PENDING_APPROVAL}</Alert>;
+  if (question.status === "PENDING_APPROVAL")
+    return <Alert tone="warning">{E.PENDING_APPROVAL}</Alert>;
   if (question.status === "ARCHIVED") return <Alert tone="warning">{E.ARCHIVED}</Alert>;
   const editableQuestion = question.status === "APPROVED" ? revisionQuestion : question;
   if (!editableQuestion || revisionMutation.isPending) return <LoadingState rows={8} />;
   return (
     <div className="space-y-5">
       <PageHeader title={T.EDIT_TITLE} subtitle={T.EDIT_SUBTITLE} />
-      <QuestionEditorForm question={editableQuestion} onSaved={() => router.push("/admin/questions")} />
+      <QuestionEditorForm
+        question={editableQuestion}
+        onSaved={() => router.push("/admin/questions")}
+        onCancel={() => router.push("/admin/questions")}
+      />
     </div>
   );
 };
