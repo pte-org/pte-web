@@ -3,7 +3,6 @@
 import { useState, type ReactElement } from "react";
 import { Alert, Button, Modal } from "@pte/ui";
 import {
-  getUserFacingApiErrorMessage,
   type CreateQuestionTypeRequest,
   type QuestionTypeResponse,
   type QuestionTypeSection,
@@ -12,6 +11,7 @@ import {
 } from "@pte/api-client";
 import { useCreateQuestionType, useUpdateQuestionType } from "../api";
 import { QUESTION_TYPE_SECTIONS, QUESTION_TYPE_TEXT } from "../constants";
+import { getQuestionTypeErrorMessage } from "../errorMessage";
 import {
   QuestionTypeEditorFields,
   type EditorMode,
@@ -72,7 +72,7 @@ const newDraft = (displayOrder: number): QuestionTypeFormDraft => ({
 });
 
 const errorMessage = (error: unknown, fallback: string): string =>
-  getUserFacingApiErrorMessage(error, fallback);
+  getQuestionTypeErrorMessage(error, fallback);
 
 export const QuestionTypeEditorModal = ({
   mode,
@@ -192,6 +192,7 @@ export const QuestionTypeEditorModal = ({
       }
     >
       <div className="space-y-4">
+        <Alert tone="info">{QUESTION_TYPE_TEXT.STANDARD_SOURCE_NOTICE}</Alert>
         {hasMutationError && (
           <Alert tone="error">
             {errorMessage(

@@ -14,7 +14,7 @@ export const SCORE_TEMPLATE_TEXT = {
   CREATE_ACTION: "Create template",
   DELETE_ACTION: "Delete",
   CREATE_MODAL_TITLE: "Create exam template",
-  CREATE_MODAL_SUBTITLE: "Create an empty DRAFT and add question types in the editor.",
+  CREATE_MODAL_SUBTITLE: "Create an empty DRAFT and add task types from the platform catalog.",
   CODE_LABEL: "Code",
   NAME_LABEL: "Name",
   CANCEL_ACTION: "Cancel",
@@ -25,13 +25,25 @@ export const SCORE_TEMPLATE_TEXT = {
   VIEW_ACTION: "View",
   EDIT_ACTION: "Edit",
   EXPORT_ACTION: "Export JSON",
-  ADD_TYPE: "Add question type",
+  ADD_TYPE: "Add task type",
   ADD_SECTION_PLACEHOLDER: "Select section first",
-  ADD_TYPE_PLACEHOLDER: "Select a question type",
+  ADD_TYPE_PLACEHOLDER: "Select a task type",
   NO_SECTION_SELECTED: "Select a section first",
   DRAFT_STATUS_LABEL: "DRAFT",
   REMOVE_TYPE: "Remove",
-  NO_TYPES_TO_ADD: "No active question types are available in this section.",
+  NO_TYPES_TO_ADD: "No active task types are available in this section.",
+  NO_ACTIVE_TASK_TYPES:
+    "No active task types are available in the platform catalog. Ask a platform administrator to enable the standard catalog before editing this template.",
+  ALL_ACTIVE_TYPES_USED:
+    "All active task types in this section are already in the template. Choose another section or remove one before adding it again.",
+  INCOMPATIBLE_RUNTIME_PROFILE:
+    "The available task types in this section are not compatible with the current app runtime. Ask the platform team to release support before using them.",
+  TASK_TYPE_CATALOG_NOTICE:
+    "Task types come from the active platform catalog. A new interaction or scoring behavior requires a platform release and cannot be added from this editor.",
+  TASK_TYPES_LOAD_ERROR:
+    "Could not load the active task type catalog. Please refresh before editing.",
+  TEMPLATE_READINESS_BLOCKED:
+    "This template cannot be activated until every selected task type has a supported active runtime profile. Review the task type catalog and try again.",
   SAVE_DRAFT: "Save",
   ACTIVATE_ACTION: "Activate",
   SUBMIT_APPROVAL_ACTION: "Submit for review",
@@ -59,6 +71,33 @@ export const SCORE_TEMPLATE_TEXT = {
   LOAD_ERROR: "Could not load exam templates. Please refresh.",
   CLONE_ERROR: "Could not clone this template. Please try again.",
 } as const;
+
+export const SCORE_TEMPLATE_ERROR_MESSAGES: Record<string, string> = {
+  SCORE_TEMPLATE_NOT_FOUND:
+    "This exam template could not be found. Refresh the list and try again.",
+  SCORE_TEMPLATE_NOT_DRAFT:
+    "This template version is locked. Clone it to create a new editable version.",
+  SCORE_TEMPLATE_CONCURRENT_MODIFICATION:
+    "Another platform user changed this template. Refresh the page and review your changes again.",
+  SCORE_TEMPLATE_PENDING_APPROVAL: "This template is already awaiting platform admin review.",
+  SCORE_TEMPLATE_VALIDATION_FAILED:
+    "This template is not ready yet. Review the selected task types, counts, timing, and skill weights.",
+  TASK_RUNTIME_PROFILE_NOT_FOUND:
+    "One selected task type has no runtime profile. Ask the platform team to enable it before activating this template.",
+  TASK_RUNTIME_PROFILE_NOT_ACTIVE:
+    "One selected task type is retired for new templates. Choose an active standard task type.",
+  TASK_RUNTIME_PROFILE_NOT_ALLOWED:
+    "One selected task type uses a runtime profile that the platform no longer supports. Ask the platform team to release support.",
+  RUNTIME_PROFILE_NOT_PINNED:
+    "This template is missing runtime information for one task type. Save it again or ask the platform team to repair the template.",
+  RUNTIME_PROFILE_INVALID:
+    "One task type has an invalid runtime configuration. Ask the platform team to repair the catalog before activating this template.",
+  SCORING_PROFILE_INVALID:
+    "One task type has an incompatible scoring configuration. Ask the platform team to publish a compatible template.",
+  UNKNOWN_TASK_TYPE:
+    "This template contains a task type the platform no longer recognizes. Refresh the catalog before continuing.",
+  ACCESS_DENIED: "You do not have permission to perform this template action.",
+};
 
 export const SCORE_TEMPLATE_LIST_HEADERS = {
   CODE: "Code",

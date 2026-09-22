@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { getUserFacingApiErrorMessage, type QuestionTypeResponse } from "@pte/api-client";
+import type { QuestionTypeResponse } from "@pte/api-client";
 import { Alert, Badge, Button, PageHeader } from "@pte/ui";
-import { useDeleteQuestionType, useQuestionTypes, useSupportedQuestionTypes } from "../api";
+import { useDeleteQuestionType, useSupportedTaskTypes, useTaskTypes } from "../api";
 import { QUESTION_TYPE_REQUIREMENT_LABELS, QUESTION_TYPE_TEXT } from "../constants";
+import { getQuestionTypeErrorMessage } from "../errorMessage";
 import { QuestionTypeEditorModal } from "./QuestionTypeEditorModal";
 
 const HEADER_CLASS =
@@ -12,11 +13,11 @@ const HEADER_CLASS =
 const CELL_CLASS = "px-3 py-3 text-sm text-gray-700 align-middle";
 
 const errorMessage = (error: unknown, fallback: string): string =>
-  getUserFacingApiErrorMessage(error, fallback);
+  getQuestionTypeErrorMessage(error, fallback);
 
 export const QuestionTypeView = (): ReactElement => {
-  const { data: questionTypes = [], isLoading, isError } = useQuestionTypes(false);
-  const { data: supportedTypes = [], isError: supportedTypesError } = useSupportedQuestionTypes();
+  const { data: questionTypes = [], isLoading, isError } = useTaskTypes(false);
+  const { data: supportedTypes = [], isError: supportedTypesError } = useSupportedTaskTypes();
   const deleteMutation = useDeleteQuestionType();
   const [mode, setMode] = useState<"create" | "edit" | null>(null);
   const [editing, setEditing] = useState<QuestionTypeResponse | null>(null);
@@ -65,6 +66,7 @@ export const QuestionTypeView = (): ReactElement => {
       {(isError || supportedTypesError) && (
         <Alert tone="error">{QUESTION_TYPE_TEXT.LOAD_ERROR}</Alert>
       )}
+      <Alert tone="info">{QUESTION_TYPE_TEXT.CATALOG_BOUNDARY_NOTICE}</Alert>
       {deleteMutation.isError && (
         <Alert tone="error">
           {errorMessage(deleteMutation.error, QUESTION_TYPE_TEXT.DELETE_ERROR)}

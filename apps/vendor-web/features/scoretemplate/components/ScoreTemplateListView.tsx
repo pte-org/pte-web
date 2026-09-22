@@ -3,7 +3,7 @@
 import { useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, Badge, Button, Input, LoadingState, Modal, PageHeader } from "@pte/ui";
-import { getUserFacingApiErrorMessage } from "@pte/api-client";
+import { getScoreTemplateErrorMessage } from "../errorMessage";
 import { useCurrentUser } from "@/features/auth/api";
 import {
   useApproveScoreTemplate,
@@ -73,7 +73,7 @@ export const ScoreTemplateListView = (): ReactElement => {
       setCreateName("");
       router.push(`${EXAM_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`);
     } catch (error) {
-      setCreateError(getUserFacingApiErrorMessage(error, SCORE_TEMPLATE_TEXT.CREATE_ERROR));
+      setCreateError(getScoreTemplateErrorMessage(error, SCORE_TEMPLATE_TEXT.CREATE_ERROR));
     }
   };
 
@@ -140,22 +140,22 @@ export const ScoreTemplateListView = (): ReactElement => {
       {createError && <Alert tone="error">{createError}</Alert>}
       {createMutation.isError && !createError && (
         <Alert tone="error">
-          {getUserFacingApiErrorMessage(createMutation.error, SCORE_TEMPLATE_TEXT.CREATE_ERROR)}
+          {getScoreTemplateErrorMessage(createMutation.error, SCORE_TEMPLATE_TEXT.CREATE_ERROR)}
         </Alert>
       )}
       {deleteMutation.isError && (
         <Alert tone="error">
-          {getUserFacingApiErrorMessage(deleteMutation.error, SCORE_TEMPLATE_TEXT.DELETE_ERROR)}
+          {getScoreTemplateErrorMessage(deleteMutation.error, SCORE_TEMPLATE_TEXT.DELETE_ERROR)}
         </Alert>
       )}
       {cloneMutation.isError && (
         <Alert tone="error">
-          {getUserFacingApiErrorMessage(cloneMutation.error, SCORE_TEMPLATE_TEXT.CLONE_ERROR)}
+          {getScoreTemplateErrorMessage(cloneMutation.error, SCORE_TEMPLATE_TEXT.CLONE_ERROR)}
         </Alert>
       )}
       {submitApprovalMutation.isError && (
         <Alert tone="error">
-          {getUserFacingApiErrorMessage(
+          {getScoreTemplateErrorMessage(
             submitApprovalMutation.error,
             SCORE_TEMPLATE_TEXT.NOT_DRAFT_ERROR,
           )}
@@ -163,7 +163,7 @@ export const ScoreTemplateListView = (): ReactElement => {
       )}
       {approveMutation.isError && (
         <Alert tone="error">
-          {getUserFacingApiErrorMessage(
+          {getScoreTemplateErrorMessage(
             approveMutation.error,
             SCORE_TEMPLATE_TEXT.CONCURRENT_MODIFICATION_ERROR,
           )}
@@ -171,7 +171,7 @@ export const ScoreTemplateListView = (): ReactElement => {
       )}
       {rejectMutation.isError && (
         <Alert tone="error">
-          {getUserFacingApiErrorMessage(
+          {getScoreTemplateErrorMessage(
             rejectMutation.error,
             SCORE_TEMPLATE_TEXT.CONCURRENT_MODIFICATION_ERROR,
           )}

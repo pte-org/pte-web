@@ -1,4 +1,6 @@
 // Mirrors pte-api's com.pte.scoretemplate.dto.{response,request} DTOs exactly
+import type { TaskRuntimeProfileDescriptor, TaskRuntimeReadiness } from "../questiontype";
+
 // (Phase 1, plans/score-template-exam-generation). taskType/section are plain
 // strings on the backend too — scoretemplate stays independent of itembank's
 // PteTaskType/PteSection enums.
@@ -20,6 +22,8 @@ export interface ScoreTemplateItemResponse {
   writingWeight: number;
   readingWeight: number;
   listeningWeight: number;
+  /** Additive runtime provenance; absent for legacy template responses. */
+  runtime?: TaskRuntimeProfileDescriptor | null;
 }
 
 export interface ScoreTemplateResponse {
@@ -30,6 +34,7 @@ export interface ScoreTemplateResponse {
   status: ScoreTemplateStatus | string;
   rejectionReason: string | null;
   items: ScoreTemplateItemResponse[];
+  readiness?: TaskRuntimeReadiness | null;
 }
 
 export interface ScoreTemplateSlotFeasibilityResponse {

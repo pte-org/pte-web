@@ -3,7 +3,7 @@
 import type { ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, Badge, Button, LoadingState, PageHeader } from "@pte/ui";
-import { getUserFacingApiErrorMessage } from "@pte/api-client";
+import { getScoreTemplateErrorMessage } from "../errorMessage";
 import { useCloneScoreTemplate, useScoreTemplate } from "../api";
 import {
   EXAM_TEMPLATE_BASE_PATH,
@@ -32,7 +32,7 @@ export const ScoreTemplateDetailView = ({
   if (isError || !template) {
     return (
       <Alert tone="error">
-        {getUserFacingApiErrorMessage(error, SCORE_TEMPLATE_TEXT.LOAD_ERROR)}
+        {getScoreTemplateErrorMessage(error, SCORE_TEMPLATE_TEXT.LOAD_ERROR)}
       </Alert>
     );
   }
@@ -76,7 +76,7 @@ export const ScoreTemplateDetailView = ({
 
       {cloneMutation.isError && (
         <Alert tone="error">
-          {getUserFacingApiErrorMessage(cloneMutation.error, SCORE_TEMPLATE_TEXT.CLONE_ERROR)}
+          {getScoreTemplateErrorMessage(cloneMutation.error, SCORE_TEMPLATE_TEXT.CLONE_ERROR)}
         </Alert>
       )}
 

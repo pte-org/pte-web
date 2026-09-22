@@ -2,16 +2,14 @@
 
 import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import {
-  getUserFacingApiErrorMessage,
-  type QuestionTypeResponse,
-  type QuestionTypeSection,
-} from "@pte/api-client";
+import { type QuestionTypeResponse, type QuestionTypeSection } from "@pte/api-client";
 import { Alert, Button, LoadingState, PageHeader } from "@pte/ui";
 import { useActivateScoreTemplate, useReplaceScoreTemplateItems, useScoreTemplate } from "../api";
 import { useCurrentUser } from "@/features/auth/api";
-import { useQuestionTypes } from "@/features/questiontemplate/api";
+import { useTaskTypes } from "@/features/questiontemplate/api";
 import { EXAM_TEMPLATE_BASE_PATH, EXAM_TEMPLATE_SECTIONS, SCORE_TEMPLATE_TEXT } from "../constants";
+import { getScoreTemplateErrorMessage } from "../errorMessage";
+import { hasUnreadyTaskType, isTaskTypeRuntimeReady } from "../taskTypeReadiness";
 import {
   fromDraft,
   toDraft,
@@ -30,7 +28,12 @@ export const ScoreTemplateEditorView = ({
   publicId,
 }: ScoreTemplateEditorViewProps): ReactElement => {
   const { data: template, isLoading, isError, error } = useScoreTemplate(publicId);
-  const { data: questionTypes = [] } = useQuestionTypes(true);
+  const {
+    data: questionTypes = [],
+    isLoading: isTaskTypesLoading,
+    isError: isTaskTypesError,
+    error: taskTypesError,
+  } = useTaskTypes(true);
 
   if (isLoading) {
     return <LoadingState rows={6} />;
@@ -38,7 +41,17 @@ export const ScoreTemplateEditorView = ({
   if (isError || !template) {
     return (
       <Alert tone="error">
-        {getUserFacingApiErrorMessage(error, SCORE_TEMPLATE_TEXT.LOAD_ERROR)}
+        {getScoreTemplateErrorMessage(error, SCORE_TEMPLATE_TEXT.LOAD_ERROR)}
+      </Alert>
+    );
+  }
+  if (isTaskTypesLoading) {
+    return <LoadingState rows={6} />;
+  }
+  if (isTaskTypesError) {
+    return (
+      <Alert tone="error">
+        {getScoreTemplateErrorMessage(taskTypesError, SCORE_TEMPLATE_TEXT.TASK_TYPES_LOAD_ERROR)}
       </Alert>
     );
   }
@@ -88,13 +101,16 @@ const ScoreTemplateEditorForm = ({
   // instead, so this doesn't also render (uselessly) behind the modal.
   const saveErrorMessage =
     activateTarget === null && replaceItemsMutation.isError
-      ? getUserFacingApiErrorMessage(
+      ? getScoreTemplateErrorMessage(
           replaceItemsMutation.error,
           SCORE_TEMPLATE_TEXT.NOT_DRAFT_ERROR,
         )
       : undefined;
   const [newSection, setNewSection] = useState<QuestionTypeSection | "">("");
   const [newTypeCode, setNewTypeCode] = useState("");
+  const selectableQuestionTypes = questionTypes.filter(
+    (type) => type.active && isTaskTypeRuntimeReady(type),
+  );
 
   const handleItemChange = (
     index: number,
@@ -111,8 +127,8 @@ const ScoreTemplateEditorForm = ({
       const usedByOtherItems = new Set(
         current.filter((_, itemIndex) => itemIndex !== index).map((item) => item.taskType),
       );
-      const firstAvailableType = questionTypes.find(
-        (type) => type.active && type.section === section && !usedByOtherItems.has(type.code),
+      const firstAvailableType = selectableQuestionTypes.find(
+        (type) => type.section === section && !usedByOtherItems.has(type.code),
       );
       return current.map((item, itemIndex) =>
         itemIndex === index ? { ...item, section, taskType: firstAvailableType?.code ?? "" } : item,
@@ -163,7 +179,7 @@ const ScoreTemplateEditorForm = ({
             },
             onError: (error) => {
               setConfirmError(
-                getUserFacingApiErrorMessage(
+                getScoreTemplateErrorMessage(
                   error,
                   SCORE_TEMPLATE_TEXT.CONCURRENT_MODIFICATION_ERROR,
                 ),
@@ -172,7 +188,7 @@ const ScoreTemplateEditorForm = ({
           });
         },
         onError: (error) => {
-          setConfirmError(getUserFacingApiErrorMessage(error, SCORE_TEMPLATE_TEXT.NOT_DRAFT_ERROR));
+          setConfirmError(getScoreTemplateErrorMessage(error, SCORE_TEMPLATE_TEXT.NOT_DRAFT_ERROR));
         },
       },
     );
@@ -182,7 +198,7 @@ const ScoreTemplateEditorForm = ({
   // taskType (never accepted as admin input), and timingMode no longer
   // exists at all (column dropped) — see ScoreTemplateItemDraft.
   const handleAddType = (): void => {
-    const type = questionTypes.find((candidate) => candidate.code === newTypeCode);
+    const type = selectableQuestionTypes.find((candidate) => candidate.code === newTypeCode);
     if (!type || type.section !== newSection || items.some((item) => item.taskType === type.code))
       return;
 
@@ -215,12 +231,26 @@ const ScoreTemplateEditorForm = ({
     );
   };
 
-  const availableTypes = questionTypes.filter(
-    (type) =>
-      type.active &&
-      type.section === newSection &&
-      !items.some((item) => item.taskType === type.code),
+  const availableTypes = selectableQuestionTypes.filter(
+    (type) => type.section === newSection && !items.some((item) => item.taskType === type.code),
   );
+  const activeCatalogTypes = questionTypes.filter((type) => type.active);
+  const selectedTypeUnavailable =
+    items.some((item) => !questionTypes.some((type) => type.code === item.taskType)) ||
+    hasUnreadyTaskType(items, questionTypes);
+  const canActivateFromCatalog = activeCatalogTypes.length > 0 && !selectedTypeUnavailable;
+  const addTypeDiagnostic = !newSection
+    ? null
+    : activeCatalogTypes.length === 0 ||
+        questionTypes.filter((type) => type.active && type.section === newSection).length === 0
+      ? SCORE_TEMPLATE_TEXT.NO_ACTIVE_TASK_TYPES
+      : availableTypes.length > 0
+        ? null
+        : questionTypes
+              .filter((type) => type.active && type.section === newSection)
+              .every((type) => items.some((item) => item.taskType === type.code))
+          ? SCORE_TEMPLATE_TEXT.ALL_ACTIVE_TYPES_USED
+          : SCORE_TEMPLATE_TEXT.INCOMPATIBLE_RUNTIME_PROFILE;
 
   const handleOpenActivate = (): void => {
     setConfirmError(undefined);
@@ -241,7 +271,11 @@ const ScoreTemplateEditorForm = ({
               {SCORE_TEMPLATE_TEXT.SAVE_DRAFT}
             </Button>
             {isPlatformAdmin && (
-              <Button variant="primary" onClick={handleOpenActivate}>
+              <Button
+                variant="primary"
+                onClick={handleOpenActivate}
+                disabled={!canActivateFromCatalog}
+              >
                 {SCORE_TEMPLATE_TEXT.ACTIVATE_ACTION}
               </Button>
             )}
@@ -253,6 +287,9 @@ const ScoreTemplateEditorForm = ({
       />
 
       {saveErrorMessage && <Alert tone="error">{saveErrorMessage}</Alert>}
+      {!canActivateFromCatalog && (
+        <Alert tone="warning">{SCORE_TEMPLATE_TEXT.TEMPLATE_READINESS_BLOCKED}</Alert>
+      )}
 
       <div>
         <label htmlFor="score-template-name" className="block text-sm font-medium text-gray-700">
@@ -268,6 +305,7 @@ const ScoreTemplateEditorForm = ({
       </div>
 
       <div className="rounded-lg border border-blue-100 bg-blue-50/60 p-4">
+        <p className="mb-3 text-sm text-blue-900">{SCORE_TEMPLATE_TEXT.TASK_TYPE_CATALOG_NOTICE}</p>
         <div className="flex flex-col gap-3 md:flex-row md:items-end">
           <div className="flex-1">
             <label
@@ -302,9 +340,7 @@ const ScoreTemplateEditorForm = ({
               <option value="">
                 {!newSection
                   ? SCORE_TEMPLATE_TEXT.NO_SECTION_SELECTED
-                  : availableTypes.length === 0
-                    ? SCORE_TEMPLATE_TEXT.NO_TYPES_TO_ADD
-                    : SCORE_TEMPLATE_TEXT.ADD_TYPE_PLACEHOLDER}
+                  : (addTypeDiagnostic ?? SCORE_TEMPLATE_TEXT.ADD_TYPE_PLACEHOLDER)}
               </option>
               {availableTypes.map((type) => (
                 <option key={type.code} value={type.code}>
@@ -326,7 +362,7 @@ const ScoreTemplateEditorForm = ({
       <ScoreTemplateItemTable
         editable
         items={items}
-        questionTypes={questionTypes}
+        questionTypes={selectableQuestionTypes}
         onChange={handleItemChange}
         onSectionChange={handleItemSectionChange}
         onRemove={handleRemoveType}
