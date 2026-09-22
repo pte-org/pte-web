@@ -13,6 +13,10 @@ export function isTaskTypeRuntimeReady(taskType: QuestionTypeResponse): boolean 
 
   return (
     runtime.status === "ACTIVE" &&
+    typeof runtime.screenKey === "string" &&
+    runtime.screenKey.length > 0 &&
+    typeof runtime.contractVersion === "number" &&
+    runtime.contractVersion > 0 &&
     typeof runtime.profileKey === "string" &&
     runtime.profileKey.length > 0 &&
     typeof runtime.profileVersion === "number" &&
@@ -29,11 +33,13 @@ export function isTaskTypeRuntimeReady(taskType: QuestionTypeResponse): boolean 
 }
 
 export function hasUnreadyTaskType(
-  items: ReadonlyArray<{ taskType: string }>,
+  items: ReadonlyArray<{ taskTypeKey: string }>,
   taskTypes: ReadonlyArray<QuestionTypeResponse>,
 ): boolean {
   return items.some((item) => {
-    const taskType = taskTypes.find((candidate) => candidate.code === item.taskType);
+    const taskType = taskTypes.find(
+      (candidate) => (candidate.taskTypeKey ?? candidate.code) === item.taskTypeKey,
+    );
     return taskType !== undefined && !isTaskTypeRuntimeReady(taskType);
   });
 }

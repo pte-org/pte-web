@@ -4,7 +4,7 @@ import { useState, type ReactElement } from "react";
 import type { QuestionTypeResponse } from "@pte/api-client";
 import { ActionMenu, Alert, Badge, Button, PageHeader, PencilIcon, TrashIcon } from "@pte/ui";
 import type { ActionMenuItem } from "@pte/ui";
-import { useDeleteQuestionType, useSupportedTaskTypes, useTaskTypes } from "../api";
+import { useRetireTaskType, useTaskTypeCapabilities, useTaskTypes } from "../api";
 import { QUESTION_TYPE_REQUIREMENT_LABELS, QUESTION_TYPE_TEXT } from "../constants";
 import { getQuestionTypeErrorMessage } from "../errorMessage";
 import { QuestionTypeEditorModal } from "./QuestionTypeEditorModal";
@@ -18,8 +18,8 @@ const errorMessage = (error: unknown, fallback: string): string =>
 
 export const QuestionTypeView = (): ReactElement => {
   const { data: questionTypes = [], isLoading, isError } = useTaskTypes(false);
-  const { data: supportedTypes = [], isError: supportedTypesError } = useSupportedTaskTypes();
-  const deleteMutation = useDeleteQuestionType();
+  const { data: capabilities = [], isError: capabilitiesError } = useTaskTypeCapabilities();
+  const deleteMutation = useRetireTaskType();
   const [mode, setMode] = useState<"create" | "edit" | null>(null);
   const [editing, setEditing] = useState<QuestionTypeResponse | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -79,7 +79,7 @@ export const QuestionTypeView = (): ReactElement => {
         }
       />
 
-      {(isError || supportedTypesError) && (
+      {(isError || capabilitiesError) && (
         <Alert tone="error">{QUESTION_TYPE_TEXT.LOAD_ERROR}</Alert>
       )}
       <Alert tone="info">{QUESTION_TYPE_TEXT.CATALOG_BOUNDARY_NOTICE}</Alert>
@@ -111,7 +111,7 @@ export const QuestionTypeView = (): ReactElement => {
                   <td className={CELL_CLASS}>
                     <p className="font-medium text-gray-900">{type.displayName}</p>
                     <p className="mt-1 font-mono text-xs text-gray-500">
-                      {type.code} {QUESTION_TYPE_TEXT.SEPARATOR} {type.shortName}
+            {type.taskTypeKey ?? type.code} {QUESTION_TYPE_TEXT.SEPARATOR} {type.shortName}
                     </p>
                   </td>
                   <td className={CELL_CLASS}>{type.section}</td>
@@ -158,7 +158,7 @@ export const QuestionTypeView = (): ReactElement => {
           mode={mode}
           editing={editing}
           questionTypes={questionTypes}
-          supportedTypes={supportedTypes}
+          capabilities={capabilities}
           onClose={closeEditor}
           onSuccess={(successMessage) => {
             setMessage(successMessage);

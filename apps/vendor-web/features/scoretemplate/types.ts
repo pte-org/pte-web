@@ -1,10 +1,11 @@
 import type {
   ScoreTemplateItemRequest,
   ScoreTemplateItemResponse,
+  ScoreTemplatePolicy,
   ScoreTemplateResponse,
 } from "@pte/api-client";
 
-export type { ScoreTemplateItemResponse, ScoreTemplateResponse };
+export type { ScoreTemplateItemResponse, ScoreTemplatePolicy, ScoreTemplateResponse };
 
 export type ScoreTemplateStatusFilter = "ACTIVE" | "PENDING_APPROVAL" | "DRAFT" | "RETIRED";
 
@@ -16,6 +17,7 @@ export type ScoreTemplateStatusFilter = "ACTIVE" | "PENDING_APPROVAL" | "DRAFT" 
  */
 export interface ScoreTemplateItemDraft {
   taskType: string;
+  taskTypeKey: string;
   section: string;
   sequence: number;
   minCount: string;
@@ -31,7 +33,8 @@ export interface ScoreTemplateItemDraft {
 
 export function toDraft(item: ScoreTemplateItemResponse): ScoreTemplateItemDraft {
   return {
-    taskType: item.taskType,
+    taskType: item.taskType ?? item.taskTypeKey,
+    taskTypeKey: item.taskTypeKey,
     section: item.section,
     sequence: item.sequence,
     minCount: String(item.minCount),
@@ -54,6 +57,7 @@ function toNumber(value: string): number {
 export function fromDraft(draft: ScoreTemplateItemDraft): ScoreTemplateItemRequest {
   return {
     taskType: draft.taskType,
+    taskTypeKey: draft.taskTypeKey || draft.taskType,
     section: draft.section,
     sequence: draft.sequence,
     minCount: toNumber(draft.minCount),

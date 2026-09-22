@@ -4,6 +4,11 @@ import type {
   QuestionTypeResponse,
   SupportedQuestionTypeResponse,
   UpdateQuestionTypeRequest,
+  UpdateTaskTypeRequest,
+  CreateTaskTypeRequest,
+  TaskTypeCapabilityResponse,
+  TaskTypeAvailabilityResponse,
+  TaskTypePageResponse,
 } from "../../types/questiontype";
 
 export const QUESTION_TYPE_ENDPOINTS = {
@@ -11,8 +16,13 @@ export const QUESTION_TYPE_ENDPOINTS = {
   type: (publicId: string) => `/api/v1/question-types/${publicId}`,
 } as const;
 
-/** New catalog terminology; the wire endpoint intentionally stays unchanged. */
-export const TASK_TYPE_ENDPOINTS = QUESTION_TYPE_ENDPOINTS;
+/** Canonical dynamic catalog. The old question-types route remains a standard-only adapter. */
+export const TASK_TYPE_ENDPOINTS = {
+  types: "/api/v1/task-types",
+  type: (publicId: string) => `/api/v1/task-types/${publicId}`,
+  capabilities: "/api/v1/task-types/capabilities",
+  availability: "/api/v1/task-types/availability",
+} as const;
 
 export function listQuestionTypes(
   client: ApiClient,
@@ -28,6 +38,13 @@ export function listSupportedQuestionTypes(
   return client.request<SupportedQuestionTypeResponse[]>(
     `${QUESTION_TYPE_ENDPOINTS.types}/supported`,
   );
+}
+
+/** Terminology alias retained for callers migrating from question-type naming. */
+export function listSupportedTaskTypes(
+  client: ApiClient,
+): Promise<SupportedQuestionTypeResponse[]> {
+  return listSupportedQuestionTypes(client);
 }
 
 export function createQuestionType(
@@ -64,13 +81,66 @@ export function deleteQuestionType(client: ApiClient, publicId: string): Promise
   });
 }
 
-/**
- * Compatibility adapters for new callers. Keep the question-type functions
- * above because tenant/question-bank clients still import them directly.
- */
-export const listTaskTypes = listQuestionTypes;
-export const listSupportedTaskTypes = listSupportedQuestionTypes;
-export const createTaskType = createQuestionType;
-export const getTaskType = getQuestionType;
-export const updateTaskType = updateQuestionType;
-export const deleteTaskType = deleteQuestionType;
+export async function listTaskTypes(
+  client: ApiClient,
+  options: { activeOnly?: boolean } = {},
+): Promise<QuestionTypeResponse[]> {
+  const query = new URLSearchParams({
+    activeOnly: String(options.activeOnly ?? true),
+  });
+  const response = await client.request<TaskTypePageResponse>(
+    `${TASK_TYPE_ENDPOINTS.types}?${query.toString()}`,
+  );
+  return Array.isArray(response) ? response : response.items;
+}
+
+export function listTaskTypeCapabilities(
+  client: ApiClient,
+  options: { activeOnly?: boolean } = {},
+): Promise<TaskTypeCapabilityResponse[]> {
+  const query = options.activeOnly === undefined ? "" : `?activeOnly=${options.activeOnly}`;
+  return client.request<TaskTypeCapabilityResponse[]>(
+    `${TASK_TYPE_ENDPOINTS.capabilities}${query}`,
+  );
+}
+
+export function getTaskTypeAvailability(
+  client: ApiClient,
+  params: { taskTypeKey?: string; displayName?: string; excludePublicId?: string } = {},
+): Promise<TaskTypeAvailabilityResponse> {
+  const query = new URLSearchParams();
+  if (params.taskTypeKey) query.set("taskTypeKey", params.taskTypeKey);
+  if (params.displayName) query.set("displayName", params.displayName);
+  if (params.excludePublicId) query.set("excludePublicId", params.excludePublicId);
+  const suffix = query.toString() ? `?${query.toString()}` : "";
+  return client.request<TaskTypeAvailabilityResponse>(`${TASK_TYPE_ENDPOINTS.availability}${suffix}`);
+}
+
+export function createTaskType(
+  client: ApiClient,
+  payload: CreateTaskTypeRequest,
+): Promise<QuestionTypeResponse> {
+  return client.request<QuestionTypeResponse>(TASK_TYPE_ENDPOINTS.types, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export function getTaskType(client: ApiClient, publicId: string): Promise<QuestionTypeResponse> {
+  return client.request<QuestionTypeResponse>(TASK_TYPE_ENDPOINTS.type(publicId));
+}
+
+export function updateTaskType(
+  client: ApiClient,
+  publicId: string,
+  payload: UpdateTaskTypeRequest,
+): Promise<QuestionTypeResponse> {
+  return client.request<QuestionTypeResponse>(TASK_TYPE_ENDPOINTS.type(publicId), {
+    method: "PUT",
+    body: payload,
+  });
+}
+
+export function deleteTaskType(client: ApiClient, publicId: string): Promise<void> {
+  return client.request<void>(TASK_TYPE_ENDPOINTS.type(publicId), { method: "DELETE" });
+}

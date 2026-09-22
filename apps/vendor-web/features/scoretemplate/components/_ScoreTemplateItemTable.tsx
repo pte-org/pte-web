@@ -67,7 +67,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
         <tbody>
           {props.editable
             ? props.items.map((item, index) => (
-                <tr key={`${item.taskType}-${index}`} className="border-t border-gray-100">
+                <tr key={`${item.taskTypeKey}-${index}`} className="border-t border-gray-100">
                   <td className={CELL_CLASS}>{item.sequence}</td>
                   <td className={CELL_CLASS}>
                     <select
@@ -86,21 +86,23 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                     <div className="flex flex-col items-start gap-1">
                       <select
                         className={SELECT_CLASS}
-                        value={item.taskType}
+                        value={item.taskTypeKey}
                         disabled={!item.section}
-                        onChange={(event) => props.onChange(index, "taskType", event.target.value)}
+                        onChange={(event) => props.onChange(index, "taskTypeKey", event.target.value)}
                       >
                         <option value="">{SCORE_TEMPLATE_TEXT.ADD_TYPE_PLACEHOLDER}</option>
                         {props.questionTypes
                           .filter((type) => type.active && type.section === item.section)
                           .map((type) => (
-                            <option key={type.code} value={type.code}>
-                              {type.code}
+                            <option key={type.taskTypeKey ?? type.code} value={type.taskTypeKey ?? type.code}>
+                              {type.taskTypeKey ?? type.code}
                             </option>
                           ))}
-                        {item.taskType &&
-                          !props.questionTypes.some((type) => type.code === item.taskType) && (
-                            <option value={item.taskType}>{item.taskType}</option>
+                        {item.taskTypeKey &&
+                          !props.questionTypes.some(
+                            (type) => (type.taskTypeKey ?? type.code) === item.taskTypeKey,
+                          ) && (
+                            <option value={item.taskTypeKey}>{item.taskTypeKey}</option>
                           )}
                       </select>
                       <Button variant="ghost" size="sm" onClick={() => props.onRemove(index)}>
@@ -134,12 +136,14 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
               ))
             : props.items.map((item, index) => (
                 <tr
-                  key={`${item.taskType}-${index}`}
+                  key={`${item.taskTypeKey}-${index}`}
                   className="border-t border-gray-100 hover:bg-slate-50/70"
                 >
                   <td className={CELL_CLASS}>{item.sequence}</td>
                   <td className={CELL_CLASS}>{item.section}</td>
-                  <td className={`${CELL_CLASS} font-mono text-xs`}>{item.taskType}</td>
+                  <td className={`${CELL_CLASS} font-mono text-xs`}>
+                    {item.taskTypeKey ?? item.taskType ?? "—"}
+                  </td>
                   <td className={CELL_CLASS}>{item.minCount}</td>
                   <td className={CELL_CLASS}>{item.maxCount}</td>
                   <td className={CELL_CLASS}>{item.prepSeconds}</td>

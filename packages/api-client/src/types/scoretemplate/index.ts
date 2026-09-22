@@ -7,9 +7,11 @@ import type { TaskRuntimeProfileDescriptor, TaskRuntimeReadiness } from "../ques
 
 export type ScoreTemplateStatus = "DRAFT" | "PENDING_APPROVAL" | "ACTIVE" | "RETIRED";
 export type ScoringMethod = "AI_SPEECH" | "AI_TEXT" | "OBJECTIVE" | "UNSCORED";
+export type ScoreTemplatePolicy = "STANDARD_PTE" | "CUSTOM";
 
 export interface ScoreTemplateItemResponse {
-  taskType: string;
+  taskType: string | null;
+  taskTypeKey: string;
   section: string;
   sequence: number;
   minCount: number;
@@ -34,6 +36,7 @@ export interface ScoreTemplateResponse {
   status: ScoreTemplateStatus | string;
   rejectionReason: string | null;
   items: ScoreTemplateItemResponse[];
+  templatePolicy: ScoreTemplatePolicy | string;
   readiness?: TaskRuntimeReadiness | null;
 }
 
@@ -67,7 +70,8 @@ export interface RejectScoreTemplateRequest {
  * the overall score).
  */
 export interface ScoreTemplateItemRequest {
-  taskType: string;
+  taskType?: string | null;
+  taskTypeKey: string;
   section: string;
   sequence: number;
   minCount: number;
@@ -83,9 +87,11 @@ export interface ScoreTemplateItemRequest {
 export interface ReplaceScoreTemplateItemsRequest {
   name: string;
   items: ScoreTemplateItemRequest[];
+  templatePolicy?: ScoreTemplatePolicy | string;
 }
 
 export interface CreateScoreTemplateRequest {
   code: string;
   name: string;
+  templatePolicy?: ScoreTemplatePolicy | string;
 }

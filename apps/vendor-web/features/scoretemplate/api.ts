@@ -11,10 +11,12 @@ import {
   approveScoreTemplate,
   rejectScoreTemplate,
   submitScoreTemplateApproval,
+  getScoreTemplateFeasibility,
   type RejectScoreTemplateRequest,
   type ReplaceScoreTemplateItemsRequest,
   type CreateScoreTemplateRequest,
   type ScoreTemplateResponse,
+  type ScoreTemplateFeasibilityResponse,
 } from "@pte/api-client";
 import {
   useMutation,
@@ -61,6 +63,16 @@ export function useScoreTemplate(publicId: string): UseQueryResult<ScoreTemplate
   return useQuery({
     queryKey: [...SCORE_TEMPLATE_QUERY_KEY, publicId],
     queryFn: () => getScoreTemplate(apiClient, publicId),
+    enabled: publicId.length > 0,
+  });
+}
+
+export function useScoreTemplateFeasibility(
+  publicId: string,
+): UseQueryResult<ScoreTemplateFeasibilityResponse> {
+  return useQuery({
+    queryKey: [...SCORE_TEMPLATE_QUERY_KEY, publicId, "feasibility"],
+    queryFn: () => getScoreTemplateFeasibility(apiClient, publicId),
     enabled: publicId.length > 0,
   });
 }

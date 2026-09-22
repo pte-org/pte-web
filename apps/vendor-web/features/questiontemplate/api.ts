@@ -7,11 +7,23 @@ import {
   listSupportedQuestionTypes,
   updateQuestionType,
   type CreateQuestionTypeRequest,
+  type CreateTaskTypeRequest,
   type QuestionTypeResponse,
   type SupportedQuestionTypeResponse,
+  type TaskTypeAvailabilityResponse,
+  type TaskTypeCapabilityResponse,
+  type UpdateTaskTypeRequest as UpdateTaskTypeCatalogRequest,
   type UpdateQuestionTypeRequest,
 } from "@pte/api-client";
-import { listSupportedTaskTypes, listTaskTypes } from "@pte/api-client";
+import {
+  createTaskType,
+  deleteTaskType,
+  getTaskTypeAvailability,
+  listSupportedTaskTypes,
+  listTaskTypeCapabilities,
+  listTaskTypes,
+  updateTaskType,
+} from "@pte/api-client";
 import {
   useMutation,
   useQuery,
@@ -59,6 +71,28 @@ export function useSupportedTaskTypes(): UseQueryResult<SupportedQuestionTypeRes
   });
 }
 
+export function useTaskTypeCapabilities(): UseQueryResult<TaskTypeCapabilityResponse[]> {
+  return useQuery({
+    queryKey: [...SUPPORTED_TASK_TYPES_QUERY_KEY, "capabilities"],
+    queryFn: () => listTaskTypeCapabilities(apiClient, { activeOnly: true }),
+    staleTime: 60_000,
+  });
+}
+
+export function useTaskTypeAvailability(params: {
+  taskTypeKey?: string;
+  displayName?: string;
+  excludePublicId?: string;
+}): UseQueryResult<TaskTypeAvailabilityResponse> {
+  const hasInput = Boolean(params.taskTypeKey?.trim() || params.displayName?.trim());
+  return useQuery({
+    queryKey: ["taskTypeAvailability", params],
+    queryFn: () => getTaskTypeAvailability(apiClient, params),
+    enabled: hasInput,
+    staleTime: 300,
+  });
+}
+
 function invalidateTaskTypeQueries(queryClient: ReturnType<typeof useQueryClient>): void {
   void queryClient.invalidateQueries({ queryKey: QUESTION_TYPES_QUERY_KEY });
   void queryClient.invalidateQueries({ queryKey: TASK_TYPES_QUERY_KEY });
@@ -84,6 +118,18 @@ export function useUpdateQuestionType(): UseMutationResult<
   });
 }
 
+export function useUpdateTaskType(): UseMutationResult<
+  QuestionTypeResponse,
+  unknown,
+  { publicId: string; payload: UpdateTaskTypeCatalogRequest }
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ publicId, payload }) => updateTaskType(apiClient, publicId, payload),
+    onSuccess: () => invalidateTaskTypeQueries(queryClient),
+  });
+}
+
 interface CreateQuestionTypeInput {
   payload: CreateQuestionTypeRequest;
 }
@@ -101,6 +147,18 @@ export function useCreateQuestionType(): UseMutationResult<
   });
 }
 
+export function useCreateTaskType(): UseMutationResult<
+  QuestionTypeResponse,
+  unknown,
+  { payload: CreateTaskTypeRequest }
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ payload }) => createTaskType(apiClient, payload),
+    onSuccess: () => invalidateTaskTypeQueries(queryClient),
+  });
+}
+
 interface DeleteQuestionTypeInput {
   publicId: string;
 }
@@ -110,6 +168,14 @@ export function useDeleteQuestionType(): UseMutationResult<void, unknown, Delete
 
   return useMutation({
     mutationFn: ({ publicId }) => deleteQuestionType(apiClient, publicId),
+    onSuccess: () => invalidateTaskTypeQueries(queryClient),
+  });
+}
+
+export function useRetireTaskType(): UseMutationResult<void, unknown, DeleteQuestionTypeInput> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ publicId }) => deleteTaskType(apiClient, publicId),
     onSuccess: () => invalidateTaskTypeQueries(queryClient),
   });
 }

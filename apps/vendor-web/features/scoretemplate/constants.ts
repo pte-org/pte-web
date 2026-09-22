@@ -14,9 +14,15 @@ export const SCORE_TEMPLATE_TEXT = {
   CREATE_ACTION: "Create template",
   DELETE_ACTION: "Delete",
   CREATE_MODAL_TITLE: "Create exam template",
-  CREATE_MODAL_SUBTITLE: "Create an empty DRAFT and add task types from the platform catalog.",
+  CREATE_MODAL_SUBTITLE:
+    "Create an empty DRAFT, choose its policy, and add task types from the platform catalog.",
   CODE_LABEL: "Code",
   NAME_LABEL: "Name",
+  POLICY_LABEL: "Template policy",
+  STANDARD_POLICY: "Standard PTE",
+  CUSTOM_POLICY: "Custom task set",
+  CUSTOM_POLICY_NOTICE:
+    "Custom templates may use selected task types without requiring the complete standard PTE catalog.",
   CANCEL_ACTION: "Cancel",
   CREATE_ERROR: "Could not create this exam template.",
   DELETE_ERROR: "Could not delete this exam template.",
@@ -39,11 +45,15 @@ export const SCORE_TEMPLATE_TEXT = {
   INCOMPATIBLE_RUNTIME_PROFILE:
     "The available task types in this section are not compatible with the current app runtime. Ask the platform team to release support before using them.",
   TASK_TYPE_CATALOG_NOTICE:
-    "Task types come from the active platform catalog. A new interaction or scoring behavior requires a platform release and cannot be added from this editor.",
+    "Task types come from the active platform catalog. Their screen, authoring, and scoring behavior comes from the released runtime contract.",
   TASK_TYPES_LOAD_ERROR:
     "Could not load the active task type catalog. Please refresh before editing.",
   TEMPLATE_READINESS_BLOCKED:
     "This template cannot be activated until every selected task type has a supported active runtime profile. Review the task type catalog and try again.",
+  QUESTION_BANK_READINESS_BLOCKED:
+    "This template cannot be activated until the question bank contains enough approved questions for every selected task type.",
+  READINESS_CHECK_ERROR:
+    "The readiness check could not be completed. Refresh before activating this template.",
   SAVE_DRAFT: "Save",
   ACTIVATE_ACTION: "Activate",
   SUBMIT_APPROVAL_ACTION: "Submit for review",
@@ -105,7 +115,13 @@ export const SCORE_TEMPLATE_LIST_HEADERS = {
   NAME: "Name",
   STATUS: "Status",
   ITEMS: "Items",
+  POLICY: "Policy",
   ACTIONS: "Actions",
+} as const;
+
+export const SCORE_TEMPLATE_POLICY_LABELS = {
+  STANDARD_PTE: "Standard PTE",
+  CUSTOM: "Custom task set",
 } as const;
 
 export const SCORE_TEMPLATE_ITEM_HEADERS = {

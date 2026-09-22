@@ -18,10 +18,11 @@ import {
   SCORE_TEMPLATE_LIST_HEADERS,
   SCORE_TEMPLATE_STATUS_LABELS,
   SCORE_TEMPLATE_STATUS_VARIANT,
+  SCORE_TEMPLATE_POLICY_LABELS,
   SCORE_TEMPLATE_TEXT,
   EXAM_TEMPLATE_BASE_PATH,
 } from "../constants";
-import type { ScoreTemplateResponse, ScoreTemplateStatusFilter } from "../types";
+import type { ScoreTemplatePolicy, ScoreTemplateResponse, ScoreTemplateStatusFilter } from "../types";
 import { downloadScoreTemplateJson } from "../serialization";
 
 const HEADER_CLASS =
@@ -48,6 +49,7 @@ export const ScoreTemplateListView = (): ReactElement => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [createCode, setCreateCode] = useState("");
   const [createName, setCreateName] = useState("");
+  const [createPolicy, setCreatePolicy] = useState<ScoreTemplatePolicy>("STANDARD_PTE");
   const [createError, setCreateError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [rejectTarget, setRejectTarget] = useState<ScoreTemplateResponse | null>(null);
@@ -67,10 +69,12 @@ export const ScoreTemplateListView = (): ReactElement => {
       const draft = await createMutation.mutateAsync({
         code: createCode.trim(),
         name: createName.trim(),
+        templatePolicy: createPolicy,
       });
       closeCreate();
       setCreateCode("");
       setCreateName("");
+      setCreatePolicy("STANDARD_PTE");
       router.push(`${EXAM_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`);
     } catch (error) {
       setCreateError(getScoreTemplateErrorMessage(error, SCORE_TEMPLATE_TEXT.CREATE_ERROR));
@@ -191,6 +195,7 @@ export const ScoreTemplateListView = (): ReactElement => {
                   <th className={HEADER_CLASS}>{SCORE_TEMPLATE_LIST_HEADERS.NAME}</th>
                   <th className={HEADER_CLASS}>{SCORE_TEMPLATE_LIST_HEADERS.STATUS}</th>
                   <th className={HEADER_CLASS}>{SCORE_TEMPLATE_LIST_HEADERS.ITEMS}</th>
+                  <th className={HEADER_CLASS}>{SCORE_TEMPLATE_LIST_HEADERS.POLICY}</th>
                   <th className={HEADER_CLASS}>{SCORE_TEMPLATE_LIST_HEADERS.ACTIONS}</th>
                 </tr>
               </thead>
@@ -213,6 +218,11 @@ export const ScoreTemplateListView = (): ReactElement => {
                         </Badge>
                       </td>
                       <td className={CELL_CLASS}>{template.items.length}</td>
+                      <td className={CELL_CLASS}>
+                        {SCORE_TEMPLATE_POLICY_LABELS[
+                          template.templatePolicy as keyof typeof SCORE_TEMPLATE_POLICY_LABELS
+                        ] ?? template.templatePolicy}
+                      </td>
                       <td className={CELL_CLASS}>
                         <div className="flex items-center gap-2">
                           <Button
@@ -349,6 +359,26 @@ export const ScoreTemplateListView = (): ReactElement => {
             required
             maxLength={255}
           />
+          <div>
+            <label
+              htmlFor="create-exam-template-policy"
+              className="mb-1 block text-sm font-medium text-gray-700"
+            >
+              {SCORE_TEMPLATE_TEXT.POLICY_LABEL}
+            </label>
+            <select
+              id="create-exam-template-policy"
+              value={createPolicy}
+              onChange={(event) => setCreatePolicy(event.target.value as ScoreTemplatePolicy)}
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
+            >
+              <option value="STANDARD_PTE">{SCORE_TEMPLATE_TEXT.STANDARD_POLICY}</option>
+              <option value="CUSTOM">{SCORE_TEMPLATE_TEXT.CUSTOM_POLICY}</option>
+            </select>
+            {createPolicy === "CUSTOM" && (
+              <p className="mt-1 text-xs text-gray-500">{SCORE_TEMPLATE_TEXT.CUSTOM_POLICY_NOTICE}</p>
+            )}
+          </div>
           {createError && <Alert tone="error">{createError}</Alert>}
         </form>
       </Modal>

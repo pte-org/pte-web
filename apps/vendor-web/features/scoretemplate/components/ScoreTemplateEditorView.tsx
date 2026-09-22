@@ -4,7 +4,12 @@ import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { type QuestionTypeResponse, type QuestionTypeSection } from "@pte/api-client";
 import { Alert, Button, LoadingState, PageHeader } from "@pte/ui";
-import { useActivateScoreTemplate, useReplaceScoreTemplateItems, useScoreTemplate } from "../api";
+import {
+  useActivateScoreTemplate,
+  useReplaceScoreTemplateItems,
+  useScoreTemplate,
+  useScoreTemplateFeasibility,
+} from "../api";
 import { useCurrentUser } from "@/features/auth/api";
 import { useTaskTypes } from "@/features/questiontemplate/api";
 import { EXAM_TEMPLATE_BASE_PATH, EXAM_TEMPLATE_SECTIONS, SCORE_TEMPLATE_TEXT } from "../constants";
@@ -14,6 +19,7 @@ import {
   fromDraft,
   toDraft,
   type ScoreTemplateItemDraft,
+  type ScoreTemplatePolicy,
   type ScoreTemplateResponse,
 } from "../types";
 import { ActivateTemplateModal } from "./ActivateTemplateModal";
@@ -34,6 +40,11 @@ export const ScoreTemplateEditorView = ({
     isError: isTaskTypesError,
     error: taskTypesError,
   } = useTaskTypes(true);
+  const {
+    data: feasibility,
+    isLoading: isFeasibilityLoading,
+    isError: isFeasibilityError,
+  } = useScoreTemplateFeasibility(publicId);
 
   if (isLoading) {
     return <LoadingState rows={6} />;
@@ -68,6 +79,9 @@ export const ScoreTemplateEditorView = ({
       key={template.publicId}
       template={template}
       questionTypes={questionTypes}
+      feasibilityReady={feasibility?.ready === true}
+      isFeasibilityLoading={isFeasibilityLoading}
+      isFeasibilityError={isFeasibilityError}
     />
   );
 };
@@ -75,11 +89,17 @@ export const ScoreTemplateEditorView = ({
 interface ScoreTemplateEditorFormProps {
   template: ScoreTemplateResponse;
   questionTypes: QuestionTypeResponse[];
+  feasibilityReady: boolean;
+  isFeasibilityLoading: boolean;
+  isFeasibilityError: boolean;
 }
 
 const ScoreTemplateEditorForm = ({
   template,
   questionTypes,
+  feasibilityReady,
+  isFeasibilityLoading,
+  isFeasibilityError,
 }: ScoreTemplateEditorFormProps): ReactElement => {
   const router = useRouter();
   const { data: currentUser } = useCurrentUser();
@@ -87,6 +107,9 @@ const ScoreTemplateEditorForm = ({
   const activateMutation = useActivateScoreTemplate();
   const isPlatformAdmin = currentUser?.roles.includes("PLATFORM_ADMIN") ?? false;
   const [name, setName] = useState(template.name);
+  const [templatePolicy, setTemplatePolicy] = useState<ScoreTemplatePolicy>(
+    template.templatePolicy === "CUSTOM" ? "CUSTOM" : "STANDARD_PTE",
+  );
   const [items, setItems] = useState<ScoreTemplateItemDraft[]>(() => template.items.map(toDraft));
   const [activateTarget, setActivateTarget] = useState<ScoreTemplateResponse | null>(null);
   // Set only by the confirm-modal's own save-then-activate flow, shown
@@ -108,6 +131,7 @@ const ScoreTemplateEditorForm = ({
       : undefined;
   const [newSection, setNewSection] = useState<QuestionTypeSection | "">("");
   const [newTypeCode, setNewTypeCode] = useState("");
+  const taskTypeKey = (type: QuestionTypeResponse): string => type.taskTypeKey ?? type.code;
   const selectableQuestionTypes = questionTypes.filter(
     (type) => type.active && isTaskTypeRuntimeReady(type),
   );
@@ -118,20 +142,33 @@ const ScoreTemplateEditorForm = ({
     value: string,
   ): void => {
     setItems((current) =>
-      current.map((item, i) => (i === index ? { ...item, [field]: value } : item)),
+      current.map((item, i) =>
+        i !== index
+          ? item
+          : field === "taskTypeKey"
+            ? { ...item, taskTypeKey: value, taskType: value }
+            : { ...item, [field]: value },
+      ),
     );
   };
 
   const handleItemSectionChange = (index: number, section: string): void => {
     setItems((current) => {
       const usedByOtherItems = new Set(
-        current.filter((_, itemIndex) => itemIndex !== index).map((item) => item.taskType),
+        current.filter((_, itemIndex) => itemIndex !== index).map((item) => item.taskTypeKey),
       );
       const firstAvailableType = selectableQuestionTypes.find(
-        (type) => type.section === section && !usedByOtherItems.has(type.code),
+        (type) => type.section === section && !usedByOtherItems.has(taskTypeKey(type)),
       );
       return current.map((item, itemIndex) =>
-        itemIndex === index ? { ...item, section, taskType: firstAvailableType?.code ?? "" } : item,
+        itemIndex === index
+          ? {
+              ...item,
+              section,
+              taskType: firstAvailableType ? taskTypeKey(firstAvailableType) : "",
+              taskTypeKey: firstAvailableType ? taskTypeKey(firstAvailableType) : "",
+            }
+          : item,
       );
     });
   };
@@ -144,10 +181,14 @@ const ScoreTemplateEditorForm = ({
   // the on-screen values (Overall %) reflect what was actually just saved.
   const handleSaveDraft = (): void => {
     replaceItemsMutation.mutate(
-      { publicId: template.publicId, payload: { name, items: items.map(fromDraft) } },
+      {
+        publicId: template.publicId,
+        payload: { name, items: items.map(fromDraft), templatePolicy },
+      },
       {
         onSuccess: (response) => {
           setName(response.name);
+          setTemplatePolicy(response.templatePolicy === "CUSTOM" ? "CUSTOM" : "STANDARD_PTE");
           setItems(response.items.map(toDraft));
         },
       },
@@ -163,7 +204,10 @@ const ScoreTemplateEditorForm = ({
   const handleActivateConfirmed = (target: ScoreTemplateResponse): void => {
     setConfirmError(undefined);
     replaceItemsMutation.mutate(
-      { publicId: template.publicId, payload: { name, items: items.map(fromDraft) } },
+      {
+        publicId: template.publicId,
+        payload: { name, items: items.map(fromDraft), templatePolicy },
+      },
       {
         onSuccess: (saved) => {
           // Sync the just-saved (server-recomputed) values back into local
@@ -171,6 +215,7 @@ const ScoreTemplateEditorForm = ({
           // form stays on screen showing what's actually in the DB now,
           // not stale pre-save values.
           setName(saved.name);
+          setTemplatePolicy(saved.templatePolicy === "CUSTOM" ? "CUSTOM" : "STANDARD_PTE");
           setItems(saved.items.map(toDraft));
           activateMutation.mutate(target.publicId, {
             onSuccess: () => {
@@ -198,14 +243,16 @@ const ScoreTemplateEditorForm = ({
   // taskType (never accepted as admin input), and timingMode no longer
   // exists at all (column dropped) — see ScoreTemplateItemDraft.
   const handleAddType = (): void => {
-    const type = selectableQuestionTypes.find((candidate) => candidate.code === newTypeCode);
-    if (!type || type.section !== newSection || items.some((item) => item.taskType === type.code))
+    const type = selectableQuestionTypes.find((candidate) => taskTypeKey(candidate) === newTypeCode);
+    const selectedKey = type ? taskTypeKey(type) : "";
+    if (!type || type.section !== newSection || items.some((item) => item.taskTypeKey === selectedKey))
       return;
 
     setItems((current) => [
       ...current,
       {
         taskType: type.code,
+        taskTypeKey: selectedKey,
         section: type.section,
         sequence: current.length + 1,
         minCount: "1",
@@ -232,13 +279,25 @@ const ScoreTemplateEditorForm = ({
   };
 
   const availableTypes = selectableQuestionTypes.filter(
-    (type) => type.section === newSection && !items.some((item) => item.taskType === type.code),
+    (type) =>
+      type.section === newSection &&
+      !items.some((item) => item.taskTypeKey === taskTypeKey(type)),
   );
   const activeCatalogTypes = questionTypes.filter((type) => type.active);
   const selectedTypeUnavailable =
-    items.some((item) => !questionTypes.some((type) => type.code === item.taskType)) ||
+    items.some(
+      (item) =>
+        !questionTypes.some((type) => taskTypeKey(type) === item.taskTypeKey) ||
+        !questionTypes.some((type) => taskTypeKey(type) === item.taskTypeKey && type.active),
+    ) ||
     hasUnreadyTaskType(items, questionTypes);
-  const canActivateFromCatalog = activeCatalogTypes.length > 0 && !selectedTypeUnavailable;
+  const canActivateFromCatalog =
+    items.length > 0 &&
+    activeCatalogTypes.length > 0 &&
+    !selectedTypeUnavailable &&
+    !isFeasibilityLoading &&
+    !isFeasibilityError &&
+    feasibilityReady;
   const addTypeDiagnostic = !newSection
     ? null
     : activeCatalogTypes.length === 0 ||
@@ -248,7 +307,7 @@ const ScoreTemplateEditorForm = ({
         ? null
         : questionTypes
               .filter((type) => type.active && type.section === newSection)
-              .every((type) => items.some((item) => item.taskType === type.code))
+              .every((type) => items.some((item) => item.taskTypeKey === taskTypeKey(type)))
           ? SCORE_TEMPLATE_TEXT.ALL_ACTIVE_TYPES_USED
           : SCORE_TEMPLATE_TEXT.INCOMPATIBLE_RUNTIME_PROFILE;
 
@@ -290,6 +349,12 @@ const ScoreTemplateEditorForm = ({
       {!canActivateFromCatalog && (
         <Alert tone="warning">{SCORE_TEMPLATE_TEXT.TEMPLATE_READINESS_BLOCKED}</Alert>
       )}
+      {isFeasibilityError && (
+        <Alert tone="warning">{SCORE_TEMPLATE_TEXT.READINESS_CHECK_ERROR}</Alert>
+      )}
+      {!isFeasibilityError && !isFeasibilityLoading && !feasibilityReady && items.length > 0 && (
+        <Alert tone="warning">{SCORE_TEMPLATE_TEXT.QUESTION_BANK_READINESS_BLOCKED}</Alert>
+      )}
 
       <div>
         <label htmlFor="score-template-name" className="block text-sm font-medium text-gray-700">
@@ -302,6 +367,24 @@ const ScoreTemplateEditorForm = ({
           onChange={(event) => setName(event.target.value)}
           className="mt-1 w-full max-w-md rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
         />
+      </div>
+
+      <div>
+        <label htmlFor="score-template-policy" className="block text-sm font-medium text-gray-700">
+          {SCORE_TEMPLATE_TEXT.POLICY_LABEL}
+        </label>
+        <select
+          id="score-template-policy"
+          value={templatePolicy}
+          onChange={(event) => setTemplatePolicy(event.target.value as ScoreTemplatePolicy)}
+          className="mt-1 w-full max-w-md rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
+        >
+          <option value="STANDARD_PTE">{SCORE_TEMPLATE_TEXT.STANDARD_POLICY}</option>
+          <option value="CUSTOM">{SCORE_TEMPLATE_TEXT.CUSTOM_POLICY}</option>
+        </select>
+        {templatePolicy === "CUSTOM" && (
+          <p className="mt-1 text-xs text-gray-500">{SCORE_TEMPLATE_TEXT.CUSTOM_POLICY_NOTICE}</p>
+        )}
       </div>
 
       <div className="rounded-lg border border-blue-100 bg-blue-50/60 p-4">
@@ -343,8 +426,8 @@ const ScoreTemplateEditorForm = ({
                   : (addTypeDiagnostic ?? SCORE_TEMPLATE_TEXT.ADD_TYPE_PLACEHOLDER)}
               </option>
               {availableTypes.map((type) => (
-                <option key={type.code} value={type.code}>
-                  {type.displayName} ({type.code})
+                <option key={taskTypeKey(type)} value={taskTypeKey(type)}>
+                  {type.displayName} ({taskTypeKey(type)})
                 </option>
               ))}
             </select>
