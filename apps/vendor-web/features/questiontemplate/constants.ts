@@ -31,6 +31,7 @@ export const QUESTION_TYPE_TEXT = {
   TABLE_SCORED: "Scored",
   TABLE_STATUS: "Status",
   TABLE_ACTIONS: "Actions",
+  ROW_ACTIONS: "Task type actions",
   YES: "Yes",
   NO: "No",
   EMPTY_LIST: "No task types are currently in the catalog.",

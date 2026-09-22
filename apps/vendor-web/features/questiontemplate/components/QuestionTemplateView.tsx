@@ -2,7 +2,8 @@
 
 import { useState, type ReactElement } from "react";
 import type { QuestionTypeResponse } from "@pte/api-client";
-import { Alert, Badge, Button, PageHeader } from "@pte/ui";
+import { ActionMenu, Alert, Badge, Button, PageHeader, PencilIcon, TrashIcon } from "@pte/ui";
+import type { ActionMenuItem } from "@pte/ui";
 import { useDeleteQuestionType, useSupportedTaskTypes, useTaskTypes } from "../api";
 import { QUESTION_TYPE_REQUIREMENT_LABELS, QUESTION_TYPE_TEXT } from "../constants";
 import { getQuestionTypeErrorMessage } from "../errorMessage";
@@ -50,6 +51,21 @@ export const QuestionTypeView = (): ReactElement => {
       // The mutation error is rendered below with the API's message.
     }
   };
+
+  const buildActions = (type: QuestionTypeResponse): ActionMenuItem[] => [
+    {
+      label: QUESTION_TYPE_TEXT.EDIT,
+      icon: PencilIcon,
+      onSelect: () => beginEdit(type),
+    },
+    {
+      label: QUESTION_TYPE_TEXT.DELETE,
+      icon: TrashIcon,
+      danger: true,
+      disabled: deleteMutation.isPending && deleteMutation.variables?.publicId === type.publicId,
+      onSelect: () => void remove(type),
+    },
+  ];
 
   return (
     <div className="space-y-6">
@@ -119,21 +135,7 @@ export const QuestionTypeView = (): ReactElement => {
                     </Badge>
                   </td>
                   <td className={`${CELL_CLASS} whitespace-nowrap`}>
-                    <Button variant="ghost" size="sm" onClick={() => beginEdit(type)}>
-                      {QUESTION_TYPE_TEXT.EDIT}
-                    </Button>
-                    <Button
-                      variant="danger"
-                      size="sm"
-                      className="ml-2"
-                      isLoading={
-                        deleteMutation.isPending &&
-                        deleteMutation.variables?.publicId === type.publicId
-                      }
-                      onClick={() => void remove(type)}
-                    >
-                      {QUESTION_TYPE_TEXT.DELETE}
-                    </Button>
+                    <ActionMenu label={QUESTION_TYPE_TEXT.ROW_ACTIONS} items={buildActions(type)} />
                   </td>
                 </tr>
               ))}

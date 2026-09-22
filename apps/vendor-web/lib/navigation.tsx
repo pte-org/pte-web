@@ -11,7 +11,12 @@ export const ADMIN_NAV: NavItem[] = [
     icon: <DocumentIcon />,
     section: T.TENANTS_SECTION,
   },
-  { label: T.PLAN_CATALOG, href: "/admin/plans", icon: <LicenseIcon />, section: T.COMMERCIAL_SECTION },
+  {
+    label: T.PLAN_CATALOG,
+    href: "/admin/plans",
+    icon: <LicenseIcon />,
+    section: T.COMMERCIAL_SECTION,
+  },
   {
     label: T.LICENSE_CODES,
     href: "/admin/license-codes",
@@ -31,7 +36,7 @@ export const ADMIN_NAV: NavItem[] = [
     section: T.CONTENT_SECTION,
   },
   {
-    label: T.QUESTION_TYPES,
+    label: T.TASK_TYPES,
     href: "/admin/question-types",
     icon: <DocumentIcon />,
     section: T.CONTENT_SECTION,

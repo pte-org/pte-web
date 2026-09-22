@@ -6,7 +6,7 @@ export const ADMIN_NAV_TEXT = {
   LICENSE_CODES: "License codes",
   PLATFORM_SETTINGS: "Platform settings",
   QUESTION_BANK: "Question Bank",
-  QUESTION_TYPES: "Question Types",
+  TASK_TYPES: "Task Type Catalog",
   EXAM_TEMPLATES: "Exam Templates",
   HOME_SECTION: "Home",
   TENANTS_SECTION: "Tenants",

@@ -50,7 +50,7 @@ export const QUESTION_EDITOR_TEXT = {
   FORM_EDIT_TITLE: "Edit Question Revision",
   FORM_CREATE_TITLE: "Create PTE Question",
   TASK_TYPE: "Task type",
-  LOADING_TASK_TYPES: "Loading question types...",
+  LOADING_TASK_TYPES: "Loading task types...",
   TITLE: "Title",
   PROMPT_TEXT: "Prompt text",
   AUDIO_PROMPT: "Audio prompt",
@@ -72,7 +72,8 @@ export const QUESTION_EDITOR_TEXT = {
 
 export const QUESTION_EDITOR_ERRORS = {
   MEDIA_UPLOAD: "Media upload failed. Please try again.",
-  QUESTION_TYPES_UNAVAILABLE: "Question type configuration is unavailable. Please refresh and try again.",
+  QUESTION_TYPES_UNAVAILABLE:
+    "Task type configuration is unavailable. Please refresh and try again.",
   TITLE_REQUIRED: "Title is required.",
   PROMPT_REQUIRED: "Prompt text is required for this task.",
   AUDIO_REQUIRED: "An audio prompt is required for this task.",
@@ -82,7 +83,7 @@ export const QUESTION_EDITOR_ERRORS = {
   OPTION_TEXT_REQUIRED: "Every option must contain text.",
   CORRECT_OPTION_REQUIRED: "Select at least one correct option.",
   SINGLE_CORRECT_REQUIRED: "Single-choice tasks require exactly one correct option.",
-  LOAD_TYPES: "Could not load question types. Please refresh.",
+  LOAD_TYPES: "Could not load task types. Please refresh.",
   SAVE: "Could not save the question. Check the required fields and try again.",
   LOAD_QUESTION: "Could not load this question.",
   CREATE_REVISION: "Could not create a draft revision for this question.",
