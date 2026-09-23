@@ -12,6 +12,8 @@ import { errorMessage as mutationErrorMessage } from "@/features/examoperations/
 import { SESSION_DETAIL_TEXT, SESSION_STATUS_LABELS, SESSION_STATUS_VARIANT } from "../constants";
 import { useCancelSession, useCloseSession, useOpenSession, useSession } from "../api";
 import { AnswersSection } from "./AnswersSection";
+import { HostScoreReviewPanel } from "./HostScoreReviewPanel";
+import { ReportPublicationPanel } from "./ReportPublicationPanel";
 import { ClassAssignmentSection } from "./ClassAssignmentSection";
 import { ProctorAssignmentSection } from "./ProctorAssignmentSection";
 import { ExaminerAssignmentSection } from "./ExaminerAssignmentSection";
@@ -79,7 +81,9 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
             {session.status === "OPEN" && (
               <button
                 type="button"
-                onClick={() => close.mutate()}
+                onClick={() => {
+                  if (window.confirm(T.CLOSE_EXAM_CONFIRM_CUTOFF)) close.mutate();
+                }}
                 disabled={close.isPending}
                 className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
@@ -176,8 +180,11 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
 
       <section className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-5">
         <h3 className="text-sm font-semibold text-gray-900">{T.ANSWERS_SECTION}</h3>
+        <HostScoreReviewPanel sessionPublicId={sessionPublicId} />
         <AnswersSection sessionPublicId={sessionPublicId} />
       </section>
+
+      <ReportPublicationPanel sessionPublicId={sessionPublicId} sessionStatus={session.status} />
     </div>
   );
 };

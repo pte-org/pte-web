@@ -14,6 +14,10 @@ export const EXAM_PREVIEW_QUERY_KEY = ["examPreview"] as const;
 export const ASSIGNED_CLASSES_QUERY_KEY = ["assignedClasses"] as const;
 export const EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY = ["examinerAssignmentOverview"] as const;
 export const EXAMINER_DIRECTORY_QUERY_KEY = ["examinerAssignmentDirectory"] as const;
+export const HOST_SCORE_REVIEW_QUERY_KEY = ["hostScoreReview"] as const;
+export const SCORE_SOURCE_AUDIT_QUERY_KEY = ["scoreSourceAuditHistory"] as const;
+export const REPORT_PUBLICATION_READINESS_QUERY_KEY = ["reportPublicationReadiness"] as const;
+export const REPORT_PUBLICATION_SUMMARY_QUERY_KEY = ["reportPublicationSummary"] as const;
 
 export const EXAMS_TEXT = {
   TITLE: "Exams",
@@ -225,6 +229,8 @@ export const SESSION_DETAIL_TEXT = {
   VIEW_EXAM: "View Exam",
   OPEN_EXAM: "Open Exam",
   CLOSE_EXAM: "Close Exam",
+  CLOSE_EXAM_CONFIRM_CUTOFF:
+    "Close this exam now? Students who are still working will no longer be able to submit answers. You must close the session before publishing results.",
   CANCEL_EXAM: "Cancel Exam",
   CANCEL_EXAM_CONFIRM: "Cancel this exam? Students will not be able to access it.",
   STUDENTS_SECTION: "Students",

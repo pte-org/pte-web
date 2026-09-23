@@ -66,6 +66,8 @@ export const LoginView = (): ReactElement => {
     router.replace(
       roles.includes("EXAMINER") && !roles.includes("HOST_ADMIN")
         ? AUTH_ROUTES.examinerWork
+        : roles.includes("STUDENT")
+          ? AUTH_ROUTES.studentResults
         : AUTH_ROUTES.hostDashboard,
     );
   };

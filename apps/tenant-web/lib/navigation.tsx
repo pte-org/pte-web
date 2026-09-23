@@ -1,7 +1,7 @@
 import type { NavItem } from "@/features/auth/components";
 import type { OrgLabels } from "@/features/orgLabels/constants";
 import { BookOpenIcon, DocumentIcon, GridIcon, LicenseIcon, UsersIcon } from "@pte/ui";
-import { EXAMINER_NAV_TEXT, HOST_NAV_TEXT as T } from "./navigationConstants";
+import { EXAMINER_NAV_TEXT, HOST_NAV_TEXT as T, STUDENT_NAV_TEXT } from "./navigationConstants";
 
 /**
  * Non-label entries stay static; the Program entry's label is org-type-driven.
@@ -54,6 +54,17 @@ export function buildExaminerNav(): NavItem[] {
       href: "/examiner/work",
       icon: <DocumentIcon />,
       section: EXAMINER_NAV_TEXT.SECTION,
+    },
+  ];
+}
+
+export function buildStudentNav(): NavItem[] {
+  return [
+    {
+      label: STUDENT_NAV_TEXT.RESULTS,
+      href: "/student/results",
+      icon: <DocumentIcon />,
+      section: STUDENT_NAV_TEXT.SECTION,
     },
   ];
 }

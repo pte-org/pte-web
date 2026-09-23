@@ -60,6 +60,93 @@ export interface SubmitTeacherScoreRequest {
   score: number;
 }
 
+export type ScoreSource = "AI" | "EXAMINER";
+export type ScoreSourceSelectionScope = "ALL" | "SECTION" | "TASK_TYPE";
+
+export interface HostScoreReviewView {
+  answerPublicId: string;
+  attemptPublicId: string;
+  taskType: string;
+  section: string | null;
+  scoringMethod: "AI_SPEECH" | "AI_TEXT" | "OBJECTIVE" | "UNSCORED" | null;
+  status: ScoringAnswerStatus;
+  aiRawScore: number | null;
+  aiProviderCategory: "REAL" | "STUB" | null;
+  aiProvider: string | null;
+  aiModel: string | null;
+  aiProviderVersion: string | null;
+  aiAvailable: boolean;
+  examinerScore: number | null;
+  examinerStatus: "NOT_SUBMITTED" | "SUBMITTED";
+  assignedExaminerPublicId: string | null;
+  examinerAvailable: boolean;
+  teacherScore: number | null;
+  selectedScoreSource: ScoreSource | null;
+  lockVersion: number;
+}
+
+export interface HostScoreReviewResponse {
+  reviewVersion: string;
+  publicationLocked: boolean;
+  aiEligibleAttemptCount: number;
+  assignedAttemptCount: number;
+  unassignedAttemptCount: number;
+  pendingExaminerAnswerCount: number;
+  unavailableSelectedAnswerCount: number;
+  answers: HostScoreReviewView[];
+}
+
+export interface SelectScoreSourceRequest {
+  scope: ScoreSourceSelectionScope;
+  scopeValue: string | null;
+  selectedSource: ScoreSource;
+  expectedReviewVersion: string | null;
+  requestPublicId: string | null;
+}
+
+export interface ScoreSourceSelectionPreviewResponse {
+  reviewVersion: string;
+  scope: ScoreSourceSelectionScope;
+  scopeValue: string | null;
+  selectedSource: ScoreSource;
+  matchedAnswerCount: number;
+  availableAnswerCount: number;
+  unavailableAnswerCount: number;
+  currentAiCount: number;
+  currentExaminerCount: number;
+  currentUnselectedCount: number;
+  publicationLocked: boolean;
+  canApply: boolean;
+}
+
+export interface ScoreSourceSelectionResultResponse {
+  auditPublicId: string;
+  requestPublicId: string;
+  scope: ScoreSourceSelectionScope;
+  scopeValue: string | null;
+  selectedSource: ScoreSource;
+  affectedAnswerCount: number;
+  previousAiCount: number;
+  previousExaminerCount: number;
+  previousUnselectedCount: number;
+  occurredAt: string;
+  replayed: boolean;
+}
+
+export interface ScoreSourceAuditResponse {
+  auditPublicId: string;
+  requestPublicId: string | null;
+  actorPublicId: string;
+  scope: ScoreSourceSelectionScope;
+  scopeValue: string | null;
+  selectedSource: ScoreSource;
+  affectedAnswerCount: number;
+  previousAiCount: number;
+  previousExaminerCount: number;
+  previousUnselectedCount: number;
+  occurredAt: string;
+}
+
 /** Matches scoring's real `ScoringAnswerResponse` record exactly. */
 export interface ScoringAnswerResponse {
   answerPublicId: string;

@@ -13,6 +13,7 @@ export * from "./user";
 export * from "./scheduling";
 export * from "./authoring";
 export * from "./scoring";
+export * from "./reporting";
 export * from "./scoretemplate";
 export * from "./assessment";
 export * from "./admin";

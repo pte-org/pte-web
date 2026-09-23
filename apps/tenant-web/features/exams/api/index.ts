@@ -12,11 +12,18 @@ import {
   createExaminerAssignmentPreview,
   DEFAULT_PAGE_SIZE,
   getAnswer,
+  getHostScoreReview,
+  getScoreSourceSelectionAudits,
   getActiveScoreTemplate,
   getExaminerAssignmentOverview,
   getSession,
   getSessionExamPreview,
   listAnswers,
+  previewScoreSourceSelection,
+  applyScoreSourceSelection,
+  preflightReportPublication,
+  publishSessionReports,
+  getReportPublicationSummary,
   listAssignedClasses,
   listAllExamStaff,
   listProctorAssignments,
@@ -32,6 +39,13 @@ import {
   updateProctorRole,
   type AnswerListResponse,
   type AnswerReviewDetailResponse,
+  type HostScoreReviewResponse,
+  type SelectScoreSourceRequest,
+  type ScoreSourceSelectionPreviewResponse,
+  type ScoreSourceSelectionResultResponse,
+  type ScoreSourceAuditResponse,
+  type ReportPublicationReadinessResponse,
+  type ReportPublicationSummaryResponse,
   type CreateExaminerAssignmentPreviewRequest,
   type ExaminerAssignmentOverviewResponse,
   type ExaminerAssignmentPreviewResponse,
@@ -64,6 +78,10 @@ import {
   TENANT_USERS_QUERY_KEY,
   EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY,
   EXAMINER_DIRECTORY_QUERY_KEY,
+  HOST_SCORE_REVIEW_QUERY_KEY,
+  SCORE_SOURCE_AUDIT_QUERY_KEY,
+  REPORT_PUBLICATION_READINESS_QUERY_KEY,
+  REPORT_PUBLICATION_SUMMARY_QUERY_KEY,
 } from "../constants";
 import type {
   AssignedClass,
@@ -427,6 +445,85 @@ export function useAnswers(
         size,
       }),
     enabled: sessionPublicId.length > 0,
+  });
+}
+
+export function useHostScoreReview(sessionPublicId: string): UseQueryResult<HostScoreReviewResponse> {
+  return useQuery({
+    queryKey: [...HOST_SCORE_REVIEW_QUERY_KEY, sessionPublicId],
+    queryFn: () => getHostScoreReview(apiClient, sessionPublicId),
+    enabled: sessionPublicId.length > 0,
+  });
+}
+
+export function useScoreSourceSelectionAudits(
+  sessionPublicId: string,
+): UseQueryResult<ScoreSourceAuditResponse[]> {
+  return useQuery({
+    queryKey: [...SCORE_SOURCE_AUDIT_QUERY_KEY, sessionPublicId],
+    queryFn: () => getScoreSourceSelectionAudits(apiClient, sessionPublicId),
+    enabled: sessionPublicId.length > 0,
+  });
+}
+
+export function usePreviewScoreSourceSelection(
+  sessionPublicId: string,
+): UseMutationResult<ScoreSourceSelectionPreviewResponse, unknown, SelectScoreSourceRequest> {
+  return useMutation({
+    mutationFn: (payload) => previewScoreSourceSelection(apiClient, sessionPublicId, payload),
+  });
+}
+
+export function useApplyScoreSourceSelection(
+  sessionPublicId: string,
+): UseMutationResult<ScoreSourceSelectionResultResponse, unknown, SelectScoreSourceRequest> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => applyScoreSourceSelection(apiClient, sessionPublicId, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: [...HOST_SCORE_REVIEW_QUERY_KEY, sessionPublicId] });
+      void queryClient.invalidateQueries({ queryKey: [...SCORE_SOURCE_AUDIT_QUERY_KEY, sessionPublicId] });
+      void queryClient.invalidateQueries({ queryKey: ANSWERS_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: [...REPORT_PUBLICATION_READINESS_QUERY_KEY, sessionPublicId] });
+    },
+  });
+}
+
+export function useReportPublicationPreflight(
+  sessionPublicId: string,
+  enabled: boolean,
+): UseQueryResult<ReportPublicationReadinessResponse> {
+  return useQuery({
+    queryKey: [...REPORT_PUBLICATION_READINESS_QUERY_KEY, sessionPublicId],
+    queryFn: () => preflightReportPublication(apiClient, sessionPublicId),
+    enabled: enabled && sessionPublicId.length > 0,
+    staleTime: 30_000,
+  });
+}
+
+export function useReportPublicationSummary(
+  sessionPublicId: string,
+  enabled: boolean,
+): UseQueryResult<ReportPublicationSummaryResponse | null> {
+  return useQuery({
+    queryKey: [...REPORT_PUBLICATION_SUMMARY_QUERY_KEY, sessionPublicId],
+    queryFn: () => getReportPublicationSummary(apiClient, sessionPublicId),
+    enabled: enabled && sessionPublicId.length > 0,
+    staleTime: 30_000,
+  });
+}
+
+export function usePublishSessionReports(
+  sessionPublicId: string,
+): UseMutationResult<void, unknown, void> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => publishSessionReports(apiClient, sessionPublicId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: [...HOST_SCORE_REVIEW_QUERY_KEY, sessionPublicId] });
+      void queryClient.invalidateQueries({ queryKey: [...REPORT_PUBLICATION_READINESS_QUERY_KEY, sessionPublicId] });
+      void queryClient.invalidateQueries({ queryKey: [...REPORT_PUBLICATION_SUMMARY_QUERY_KEY, sessionPublicId] });
+    },
   });
 }
 
