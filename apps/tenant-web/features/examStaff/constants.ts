@@ -89,5 +89,3 @@ export const EXAM_STAFF_SORT_OPTIONS = [
   { value: "EMAIL_ASC", label: EXAM_STAFF_TEXT.emailAsc, sort: "EMAIL", direction: "ASC" },
   { value: "EMAIL_DESC", label: EXAM_STAFF_TEXT.emailDesc, sort: "EMAIL", direction: "DESC" },
 ] as const;
-
-export const EXAM_STAFF_PAGE_SIZE_OPTIONS = [20, 50, 100] as const;

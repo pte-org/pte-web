@@ -29,6 +29,36 @@ export interface SessionResponse {
   draftVersion: number;
 }
 
+/** Host preview of the immutable published snapshot; deliberately answer-stripped. */
+export interface ExamPreviewResponse {
+  snapshotPublicId: string;
+  name: string;
+  version: number;
+  items: ExamPreviewItem[];
+}
+
+export interface ExamPreviewItem {
+  orderIndex: number;
+  section: string;
+  taskType: string;
+  taskTypeCode: string;
+  taskTypeDisplayName: string;
+  title: string;
+  promptText: string | null;
+  audioUrl: string | null;
+  imageUrl: string | null;
+  minWordCount: number | null;
+  maxWordCount: number | null;
+  options: ExamPreviewOption[];
+}
+
+/** Scoring flags are intentionally absent. */
+export interface ExamPreviewOption {
+  orderIndex: number;
+  blankIndex: number | null;
+  text: string;
+}
+
 export type ExamMode = "PRACTICE" | "MOCK_TEST" | "REAL_EXAM";
 export type LockdownMode = "NONE" | "STANDARD" | "STRICT";
 export type FormMode = "SHARED_FORM" | "UNIQUE_FORM_PER_STUDENT";

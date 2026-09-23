@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactElement } from "react";
+import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
 import type {
   ExamStaffRoleFilter,
   UserListDirection,
@@ -26,12 +27,7 @@ import {
   type DataTableColumn,
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
-import {
-  EXAM_STAFF_PAGE_SIZE_OPTIONS,
-  EXAM_STAFF_ROLE_OPTIONS,
-  EXAM_STAFF_SORT_OPTIONS,
-  EXAM_STAFF_TEXT,
-} from "../constants";
+import { EXAM_STAFF_ROLE_OPTIONS, EXAM_STAFF_SORT_OPTIONS, EXAM_STAFF_TEXT } from "../constants";
 import { useExamStaff, useReactivateExamStaff, useSuspendExamStaff } from "../api";
 import { AddExamStaffModal } from "./AddExamStaffModal";
 import {
@@ -41,7 +37,6 @@ import {
 } from "@/features/userManagement";
 import type { AccountDetails, GeneratedCredentials } from "@/features/userManagement";
 
-const DEFAULT_PAGE_SIZE = 20;
 const DEBOUNCE_MS = 250;
 
 type SortOptionValue = (typeof EXAM_STAFF_SORT_OPTIONS)[number]["value"];
@@ -250,8 +245,7 @@ export const ExamStaffView = (): ReactElement => {
             setPage(nextPage);
           }}
           disabled={staff.isFetching}
-          showPageSizeSelector
-          pageSizeOptions={EXAM_STAFF_PAGE_SIZE_OPTIONS}
+          showPageSizeInput
           onPageSizeChange={(nextSize) => {
             setSize(nextSize);
             resetPage();

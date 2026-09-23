@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
+import { DEFAULT_PAGE_SIZE, type AnswerListItemResponse } from "@pte/api-client";
 import { Badge, DataTable, PaginationControls, Select, type DataTableColumn } from "@pte/ui";
-import type { AnswerListItemResponse } from "@pte/api-client";
 import {
   ANSWER_STATUS_LABELS,
   ANSWER_STATUS_VARIANT,
@@ -38,9 +38,10 @@ function formatScore(score: number | null): string {
 export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactElement => {
   const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(0);
+  const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
   const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
 
-  const { data, isLoading } = useAnswers(sessionPublicId, statusFilter, page);
+  const { data, isLoading } = useAnswers(sessionPublicId, statusFilter, page, size);
 
   const columns: DataTableColumn<AnswerListItemResponse>[] = [
     {
@@ -110,7 +111,16 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
       />
 
       {data && data.totalPages > 1 && (
-        <PaginationControls meta={data} onPageChange={setPage} disabled={isLoading} />
+        <PaginationControls
+          meta={data}
+          onPageChange={setPage}
+          disabled={isLoading}
+          showPageSizeInput
+          onPageSizeChange={(nextSize) => {
+            setSize(nextSize);
+            setPage(0);
+          }}
+        />
       )}
 
       <AnswerDetailModal

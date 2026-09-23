@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactElement } from "react";
+import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
 import type {
   StudentRosterAssignmentStatus,
   StudentRosterDirection,
@@ -30,7 +31,6 @@ import { useClasses } from "@/features/classes/api";
 import { useMyOrganizations, usePrograms } from "@/features/programs/api";
 import {
   STUDENT_ROSTER_FILTER_TEXT,
-  STUDENT_ROSTER_PAGE_SIZE_OPTIONS,
   STUDENT_ROSTER_SORT_OPTIONS,
   STUDENT_SEARCH_ACTIONS_TEXT,
   STUDENT_SEARCH_TABLE_HEADERS,
@@ -48,7 +48,6 @@ import {
 import type { AccountDetails, GeneratedCredentials } from "@/features/userManagement";
 
 const DEBOUNCE_MS = 250;
-const DEFAULT_PAGE_SIZE = 20;
 const DEFAULT_ASSIGNMENT_STATUS: StudentRosterAssignmentStatus = "ALL";
 
 type SortOptionValue = (typeof STUDENT_ROSTER_SORT_OPTIONS)[number]["value"];
@@ -342,8 +341,7 @@ export const StudentSearchView = (): ReactElement => {
           meta={visibleResult.meta}
           onPageChange={handlePageChange}
           disabled={roster.isFetching}
-          showPageSizeSelector
-          pageSizeOptions={STUDENT_ROSTER_PAGE_SIZE_OPTIONS}
+          showPageSizeInput
           onPageSizeChange={(nextSize) => {
             setSize(nextSize);
             resetPage();

@@ -9,9 +9,11 @@ import {
   createSession,
   createExamDraft,
   createUser,
+  DEFAULT_PAGE_SIZE,
   getAnswer,
   getActiveScoreTemplate,
   getSession,
+  getSessionExamPreview,
   listAnswers,
   listAssignedClasses,
   listProctorAssignments,
@@ -27,6 +29,7 @@ import {
   updateProctorRole,
   type AnswerListResponse,
   type AnswerReviewDetailResponse,
+  type ExamPreviewResponse,
   type ProctorRole,
   type SessionResponse,
   type ScoreTemplateResponse,
@@ -45,6 +48,7 @@ import { useAllTenantClasses } from "@/features/classes/api";
 import {
   CREATE_EXAM_WIZARD_TEXT,
   ANSWER_QUERY_KEY,
+  EXAM_PREVIEW_QUERY_KEY,
   ANSWERS_QUERY_KEY,
   ASSIGNED_CLASSES_QUERY_KEY,
   ENROLLMENTS_QUERY_KEY,
@@ -99,6 +103,18 @@ export function useSession(publicId: string): UseQueryResult<ExamSession> {
     queryKey: [...SESSION_QUERY_KEY, publicId],
     queryFn: async () => sessionResponseToExamSession(await getSession(apiClient, publicId)),
     enabled: publicId.length > 0,
+  });
+}
+
+export function useSessionExamPreview(
+  publicId: string,
+  enabled: boolean,
+): UseQueryResult<ExamPreviewResponse> {
+  return useQuery({
+    queryKey: [...EXAM_PREVIEW_QUERY_KEY, publicId],
+    queryFn: () => getSessionExamPreview(apiClient, publicId),
+    enabled: enabled && publicId.length > 0,
+    staleTime: 4 * 60 * 1000,
   });
 }
 
@@ -336,14 +352,16 @@ export function useAnswers(
   sessionPublicId: string,
   statusFilter: string,
   page: number,
+  size = DEFAULT_PAGE_SIZE,
 ): UseQueryResult<AnswerListResponse> {
   return useQuery({
-    queryKey: [...ANSWERS_QUERY_KEY, sessionPublicId, statusFilter, page],
+    queryKey: [...ANSWERS_QUERY_KEY, sessionPublicId, statusFilter, page, size],
     queryFn: () =>
       listAnswers(apiClient, {
         sessionPublicId,
         status: statusFilter || undefined,
         page,
+        size,
       }),
     enabled: sessionPublicId.length > 0,
   });

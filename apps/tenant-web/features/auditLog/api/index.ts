@@ -1,13 +1,19 @@
 "use client";
 
 import {
+  DEFAULT_PAGE_SIZE,
   listAuditLogs,
   listUsers,
   type AuditLogResponse,
   type PagedResult,
   type UserResponse,
 } from "@pte/api-client";
-import { keepPreviousData, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useQuery,
+  useQueryClient,
+  type UseQueryResult,
+} from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import { TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
 import { AUDIT_LOGS_QUERY_KEY } from "../constants";
@@ -39,7 +45,7 @@ function useAllTenantUsers(): UseQueryResult<UserResponse[]> {
 export function useAuditLogs(
   aggregateType?: string,
   page = 0,
-  size = 20,
+  size = DEFAULT_PAGE_SIZE,
 ): UseQueryResult<PagedResult<AuditLogEntry>> {
   const users = useAllTenantUsers();
   const queryClient = useQueryClient();
@@ -53,7 +59,10 @@ export function useAuditLogs(
       const byId = new Map(allUsers.map((user) => [user.publicId, user]));
       return {
         ...logs,
-        data: logs.data.map((log) => ({ log, actorName: byId.get(log.actorUserId)?.fullName ?? null })),
+        data: logs.data.map((log) => ({
+          log,
+          actorName: byId.get(log.actorUserId)?.fullName ?? null,
+        })),
       };
     },
     enabled: users.data !== undefined,

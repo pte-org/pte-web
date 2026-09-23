@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { Alert, Badge, LoadingState, PageHeader } from "@pte/ui";
 import {
@@ -14,6 +14,7 @@ import { useCancelSession, useCloseSession, useOpenSession, useSession } from ".
 import { AnswersSection } from "./AnswersSection";
 import { ClassAssignmentSection } from "./ClassAssignmentSection";
 import { ProctorAssignmentSection } from "./ProctorAssignmentSection";
+import { ExamPreviewModal } from "./ExamPreviewModal";
 
 interface SessionDetailViewProps {
   sessionPublicId: string;
@@ -28,6 +29,7 @@ function formatDateTime(value: string): string {
 }
 
 export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): ReactElement => {
+  const [previewOpen, setPreviewOpen] = useState(false);
   const { data: session, isLoading } = useSession(sessionPublicId);
   const open = useOpenSession(sessionPublicId);
   const close = useCloseSession(sessionPublicId);
@@ -49,6 +51,15 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
         title={session.name}
         actions={
           <div className="flex items-center gap-3">
+            {session.snapshotPublicId && (
+              <button
+                type="button"
+                onClick={() => setPreviewOpen(true)}
+                className="rounded-md border border-action px-4 py-2 text-sm font-semibold text-action hover:bg-blue-50"
+              >
+                {T.VIEW_EXAM}
+              </button>
+            )}
             <Badge variant={SESSION_STATUS_VARIANT[session.status]}>
               {SESSION_STATUS_LABELS[session.status]}
             </Badge>
@@ -86,6 +97,12 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
             )}
           </div>
         }
+      />
+
+      <ExamPreviewModal
+        sessionPublicId={sessionPublicId}
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
       />
 
       {lifecycleError && <Alert tone="error">{lifecycleError}</Alert>}

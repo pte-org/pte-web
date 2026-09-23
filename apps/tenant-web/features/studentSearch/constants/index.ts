@@ -121,8 +121,6 @@ export const STUDENT_ROSTER_SORT_OPTIONS = [
   },
 ] as const;
 
-export const STUDENT_ROSTER_PAGE_SIZE_OPTIONS = [20, 50, 100] as const;
-
 export const STUDENT_STATUS_LABELS = {
   ACTIVE: "Active",
   SUSPENDED: "Suspended",

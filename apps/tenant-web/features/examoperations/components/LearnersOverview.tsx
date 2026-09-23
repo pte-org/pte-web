@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import type { StudentRosterRow } from "@pte/api-client";
+import { DEFAULT_PAGE_SIZE, type StudentRosterRow } from "@pte/api-client";
 import {
   Alert,
   DataTable,
@@ -24,9 +24,10 @@ const T = LEARNERS_OVERVIEW_TEXT;
 
 export const LearnersOverview = (): ReactElement => {
   const [page, setPage] = useState(0);
+  const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
   const studentsQuery = useStudentRoster({
     page,
-    size: 20,
+    size,
     search: "",
     assignmentStatus: "ALL",
     sort: "CREATED_AT",
@@ -103,6 +104,11 @@ export const LearnersOverview = (): ReactElement => {
           meta={studentsQuery.data.meta}
           onPageChange={setPage}
           disabled={studentsQuery.isFetching}
+          showPageSizeInput
+          onPageSizeChange={(nextSize) => {
+            setSize(nextSize);
+            setPage(0);
+          }}
           totalItemsLabel={T.TOTAL_ITEMS(studentsQuery.data.meta.totalElements)}
         />
       )}

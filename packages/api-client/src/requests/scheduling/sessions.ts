@@ -1,10 +1,15 @@
 import type { ApiClient } from "../../client/client";
-import type { CreateSessionRequest, SessionResponse } from "../../types/scheduling";
+import type {
+  CreateSessionRequest,
+  ExamPreviewResponse,
+  SessionResponse,
+} from "../../types/scheduling";
 
 /** Matches `SessionController`'s `@RequestMapping("/api/v1/sessions")` — see requests/question/index.ts's identical note. */
 export const SESSION_ENDPOINTS = {
   sessions: "/api/v1/sessions",
   session: (publicId: string) => `/api/v1/sessions/${publicId}`,
+  examPreview: (publicId: string) => `/api/v1/sessions/${publicId}/exam-preview`,
   open: (publicId: string) => `/api/v1/sessions/${publicId}/open`,
   close: (publicId: string) => `/api/v1/sessions/${publicId}/close`,
 } as const;
@@ -25,6 +30,13 @@ export function listSessions(client: ApiClient): Promise<SessionResponse[]> {
 
 export function getSession(client: ApiClient, publicId: string): Promise<SessionResponse> {
   return client.request<SessionResponse>(SESSION_ENDPOINTS.session(publicId));
+}
+
+export function getSessionExamPreview(
+  client: ApiClient,
+  publicId: string,
+): Promise<ExamPreviewResponse> {
+  return client.request<ExamPreviewResponse>(SESSION_ENDPOINTS.examPreview(publicId));
 }
 
 export function openSession(client: ApiClient, publicId: string): Promise<SessionResponse> {

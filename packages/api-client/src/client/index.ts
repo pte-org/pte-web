@@ -1,4 +1,4 @@
-export { createApiClient } from "./client";
+export { createApiClient, DEFAULT_PAGE_SIZE } from "./client";
 export type {
   ApiClient,
   ApiClientOptions,

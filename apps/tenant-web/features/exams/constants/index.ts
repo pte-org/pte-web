@@ -10,6 +10,7 @@ export const PROCTOR_ASSIGNMENTS_QUERY_KEY = ["proctorAssignments"] as const;
 export const TENANT_USERS_QUERY_KEY = ["tenantUsers"] as const;
 export const ANSWERS_QUERY_KEY = ["answers"] as const;
 export const ANSWER_QUERY_KEY = ["answer"] as const;
+export const EXAM_PREVIEW_QUERY_KEY = ["examPreview"] as const;
 export const ASSIGNED_CLASSES_QUERY_KEY = ["assignedClasses"] as const;
 
 export const EXAMS_TEXT = {
@@ -212,6 +213,7 @@ export const EMPTY_CREATE_SESSION: CreateSessionInput = {
 
 export const SESSION_DETAIL_TEXT = {
   BACK: "Back to Exams",
+  VIEW_EXAM: "View Exam",
   OPEN_EXAM: "Open Exam",
   CLOSE_EXAM: "Close Exam",
   CANCEL_EXAM: "Cancel Exam",
@@ -220,6 +222,21 @@ export const SESSION_DETAIL_TEXT = {
   CLASSES_SECTION: "Assigned Classes",
   PROCTORS_SECTION: "Proctors",
   ANSWERS_SECTION: "Submitted Answers",
+} as const;
+
+export const EXAM_PREVIEW_TEXT = {
+  TITLE: "Exam Preview",
+  ANSWER_KEY_NOTICE: "Correct answers and scoring keys are hidden in this preview.",
+  ITEM_COUNT: (count: number) => `${count} question${count === 1 ? "" : "s"}`,
+  OPTIONS: "Options",
+  AUDIO: "Audio prompt",
+  WORD_COUNT: (min: number | null, max: number | null) => {
+    if (min !== null && max !== null) return `${min}–${max} words`;
+    if (min !== null) return `At least ${min} words`;
+    if (max !== null) return `Up to ${max} words`;
+    return "";
+  },
+  UNAVAILABLE: "The published exam questions are not available yet.",
 } as const;
 
 export const CLASS_ASSIGNMENT_TEXT = {

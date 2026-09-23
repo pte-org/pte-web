@@ -4,7 +4,7 @@ import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ActionMenu, Alert, DataTable, EyeIcon, PageHeader, PaginationControls } from "@pte/ui";
-import { type OrderResponse } from "@pte/api-client";
+import { DEFAULT_PAGE_SIZE, type OrderResponse } from "@pte/api-client";
 import { useOrdersPage } from "../api";
 import { BILLING_TEXT as T } from "../constants";
 import { BillingPanel } from "./BillingPanel";
@@ -15,7 +15,8 @@ const formatDate = (value: string): string => new Date(value).toLocaleString();
 export const OrdersView = (): ReactElement => {
   const router = useRouter();
   const [page, setPage] = useState(0);
-  const { data, isLoading, isError } = useOrdersPage(page, 20);
+  const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
+  const { data, isLoading, isError } = useOrdersPage(page, size);
   const orders = data?.data ?? [];
 
   return (
@@ -89,6 +90,11 @@ export const OrdersView = (): ReactElement => {
             meta={data.meta}
             onPageChange={setPage}
             disabled={isLoading}
+            showPageSizeInput
+            onPageSizeChange={(nextSize) => {
+              setSize(nextSize);
+              setPage(0);
+            }}
             totalItemsLabel={T.TOTAL_ORDERS(data.meta.totalElements)}
           />
         )}

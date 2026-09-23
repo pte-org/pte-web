@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, DataTable, LoadingState, PageHeader, PaginationControls, type DataTableColumn } from "@pte/ui";
+import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
+import {
+  Alert,
+  DataTable,
+  LoadingState,
+  PageHeader,
+  PaginationControls,
+  type DataTableColumn,
+} from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import { AUDIT_LOG_AGGREGATE_TYPES, AUDIT_LOG_TABLE_HEADERS, AUDIT_LOG_TEXT } from "../constants";
@@ -11,7 +19,8 @@ export const AuditLogView = (): ReactElement => {
   const labels = useOrgLabels();
   const [aggregateType, setAggregateType] = useState<string>("");
   const [page, setPage] = useState(0);
-  const { data, isLoading, isError, error } = useAuditLogs(aggregateType || undefined, page, 20);
+  const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
+  const { data, isLoading, isError, error } = useAuditLogs(aggregateType || undefined, page, size);
   const entries = data?.data ?? [];
 
   const columns: DataTableColumn<AuditLogEntry>[] = [
@@ -73,6 +82,11 @@ export const AuditLogView = (): ReactElement => {
           meta={data.meta}
           onPageChange={setPage}
           disabled={isLoading}
+          showPageSizeInput
+          onPageSizeChange={(nextSize) => {
+            setSize(nextSize);
+            setPage(0);
+          }}
           totalItemsLabel={AUDIT_LOG_TEXT.totalItems(data.meta.totalElements)}
         />
       )}

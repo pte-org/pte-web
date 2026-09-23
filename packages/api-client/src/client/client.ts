@@ -71,6 +71,8 @@ export interface PageMeta {
   hasPrevious: boolean;
 }
 
+export const DEFAULT_PAGE_SIZE = 10;
+
 export interface PagedResult<T> {
   data: T[];
   meta: PageMeta;
@@ -148,9 +150,8 @@ function extractServerErrorDetails(body: unknown): ExtractedErrorDetails {
     userMessage?: unknown;
   };
   const message = typeof candidate.message === "string" ? candidate.message : undefined;
-  const explicitCode = typeof candidate.code === "string" && candidate.code.trim()
-    ? candidate.code
-    : undefined;
+  const explicitCode =
+    typeof candidate.code === "string" && candidate.code.trim() ? candidate.code : undefined;
   const code = explicitCode ?? (isMachineErrorCode(message) ? message : undefined);
   const userMessage =
     typeof candidate.userMessage === "string" && candidate.userMessage.trim()
