@@ -16,6 +16,7 @@ export * from "./scheduling/proctorAssignments";
 export * from "./scheduling/studentEnrollments";
 export * from "./scoring/answers";
 export * from "./scoring/assignments";
+export * from "./scoring/examiner";
 export * from "./scoretemplate";
 export * from "./assessment";
 export * from "./admin/organizations";

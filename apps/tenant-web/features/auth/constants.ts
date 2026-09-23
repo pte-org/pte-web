@@ -15,6 +15,7 @@ export const AUTH_ROUTES = {
   login: "/login",
   register: "/register",
   hostDashboard: "/host/dashboard",
+  examinerWork: "/examiner/work",
 } as const;
 
 export const AUTH_TEXT = {

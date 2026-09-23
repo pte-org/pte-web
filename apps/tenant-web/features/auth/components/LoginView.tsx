@@ -4,13 +4,7 @@ import { useState, type FormEvent, type ReactElement } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  EyeIcon,
-  LockIcon,
-  MailIcon,
-  useSessionManager,
-  type SessionRole,
-} from "@pte/ui";
+import { EyeIcon, LockIcon, MailIcon, useSessionManager, type SessionRole } from "@pte/ui";
 import {
   decodeAccessTokenClaims,
   type LoginOrganizationOption,
@@ -69,7 +63,11 @@ export const LoginView = (): ReactElement => {
       tenantId: claims.tenantId,
       expiresAt: claims.expiresAt || Date.now() + data.expiresInSeconds * 1000,
     });
-    router.replace(AUTH_ROUTES.hostDashboard);
+    router.replace(
+      roles.includes("EXAMINER") && !roles.includes("HOST_ADMIN")
+        ? AUTH_ROUTES.examinerWork
+        : AUTH_ROUTES.hostDashboard,
+    );
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {

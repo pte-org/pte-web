@@ -1,7 +1,7 @@
 import type { NavItem } from "@/features/auth/components";
 import type { OrgLabels } from "@/features/orgLabels/constants";
 import { BookOpenIcon, DocumentIcon, GridIcon, LicenseIcon, UsersIcon } from "@pte/ui";
-import { HOST_NAV_TEXT as T } from "./navigationConstants";
+import { EXAMINER_NAV_TEXT, HOST_NAV_TEXT as T } from "./navigationConstants";
 
 /**
  * Non-label entries stay static; the Program entry's label is org-type-driven.
@@ -16,8 +16,18 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
   return [
     { label: T.OVERVIEW, href: "/host/dashboard", icon: <GridIcon />, section: T.HOME_SECTION },
     { label: T.LEARNERS, href: "/host/students", icon: <UsersIcon />, section: T.USERS_SECTION },
-    { label: T.EXAM_STAFF, href: "/host/exam-staff", icon: <UsersIcon />, section: T.USERS_SECTION },
-    { label: labels.program, href: "/host/programs", icon: <BookOpenIcon />, section: T.DELIVERY_SECTION },
+    {
+      label: T.EXAM_STAFF,
+      href: "/host/exam-staff",
+      icon: <UsersIcon />,
+      section: T.USERS_SECTION,
+    },
+    {
+      label: labels.program,
+      href: "/host/programs",
+      icon: <BookOpenIcon />,
+      section: T.DELIVERY_SECTION,
+    },
     { label: T.EXAMS, href: "/host/exams", icon: <BookOpenIcon />, section: T.DELIVERY_SECTION },
     {
       label: T.PLANS_AND_BILLING,
@@ -32,6 +42,18 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       icon: <DocumentIcon />,
       section: T.DATA_SECTION,
       requiredRoles: ["HOST_ADMIN"],
+    },
+  ];
+}
+
+/** Examiner navigation is intentionally isolated from all Host-only destinations. */
+export function buildExaminerNav(): NavItem[] {
+  return [
+    {
+      label: EXAMINER_NAV_TEXT.QUEUE,
+      href: "/examiner/work",
+      icon: <DocumentIcon />,
+      section: EXAMINER_NAV_TEXT.SECTION,
     },
   ];
 }

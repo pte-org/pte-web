@@ -12,3 +12,8 @@ export const HOST_NAV_TEXT = {
   ACCOUNT_SECTION: "Account",
   DATA_SECTION: "Data",
 } as const;
+
+export const EXAMINER_NAV_TEXT = {
+  QUEUE: "Marking queue",
+  SECTION: "Examiner",
+} as const;

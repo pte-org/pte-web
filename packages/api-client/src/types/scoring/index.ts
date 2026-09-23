@@ -132,3 +132,88 @@ export interface ExaminerAssignmentOverviewResponse {
   totalBatches: number;
   totalPages: number;
 }
+
+export type ExaminerQueueStatus = "ALL" | "PENDING" | "IN_PROGRESS" | "COMPLETED";
+export type ExaminerAnswerContentKind =
+  "AUDIO" | "TEXT" | "SELECTION" | "POSITIONAL_SELECTION" | "WORD_INDICES" | "UNRECOGNIZED";
+
+export interface ExaminerQueueItemResponse {
+  attemptPublicId: string;
+  sessionPublicId: string;
+  assignedAt: string;
+  eligibleAnswerCount: number;
+  submittedAnswerCount: number;
+  status: Exclude<ExaminerQueueStatus, "ALL">;
+}
+
+export interface ExaminerQueueResponse {
+  items: ExaminerQueueItemResponse[];
+  page: number;
+  size: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+export interface ExaminerPromptOptionResponse {
+  orderIndex: number;
+  text: string;
+  blankIndex: number | null;
+}
+
+export interface ExaminerResponseOptionResponse {
+  orderIndex: number;
+  text: string;
+  selected: boolean;
+}
+
+export interface ExaminerPromptResponse {
+  orderIndex: number;
+  section: string;
+  taskType: string;
+  title: string;
+  promptText: string | null;
+  audioPromptUrl: string | null;
+  imagePromptUrl: string | null;
+  minWordCount: number | null;
+  maxWordCount: number | null;
+  options: ExaminerPromptOptionResponse[];
+}
+
+export interface ExaminerAnswerPayloadResponse {
+  kind: ExaminerAnswerContentKind;
+  text: string | null;
+  mediaUrl: string | null;
+  options: ExaminerResponseOptionResponse[];
+  gapValues: (string | null)[] | null;
+  wordIndices: number[] | null;
+}
+
+export interface ExaminerAnswerDetailResponse {
+  answerPublicId: string;
+  taskType: string;
+  prompt: ExaminerPromptResponse;
+  response: ExaminerAnswerPayloadResponse;
+  status: "PENDING" | "SUBMITTED";
+  myScore: number | null;
+  submittedAt: string | null;
+}
+
+export interface ExaminerAttemptDetailResponse {
+  attemptPublicId: string;
+  sessionPublicId: string;
+  assignedAt: string;
+  eligibleAnswerCount: number;
+  submittedAnswerCount: number;
+  answers: ExaminerAnswerDetailResponse[];
+}
+
+export interface SubmitExaminerScoreRequest {
+  score: number;
+}
+
+export interface ExaminerScoreSubmissionResponse {
+  answerPublicId: string;
+  myScore: number;
+  status: "SUBMITTED";
+  submittedAt: string;
+}
