@@ -65,6 +65,22 @@ export const STUDENT_ROSTER_TABLE_TEXT = {
   EMPTY_VALUE: "—",
 } as const;
 
+export const EXISTING_STUDENT_ASSIGNMENT_TEXT = {
+  TITLE: "Add Existing Students",
+  SEARCH_LABEL: "Search students",
+  SEARCH_PLACEHOLDER: "Search by name, email, account, or student code",
+  SEARCH_HELPER: "Only active students who are not already enrolled are available.",
+  SELECT_ALL: "Select all shown",
+  SELECTED: (count: number) => `${count} selected`,
+  NO_MATCHES: "No available students match your search.",
+  NO_STUDENTS: "No active students are available to add.",
+  LOAD_ERROR: "Unable to load students. Please try again.",
+  CANCEL: "Cancel",
+  SUBMIT: "Add to Exam",
+  SUBMITTING: "Adding...",
+  TOTAL_ITEMS: (count: number) => `${count} student(s) found`,
+} as const;
+
 export const SKIPPED_ROWS_REPORT_TEXT = {
   HEADING: "{count} row(s) skipped",
   ROW_HEADER: "Row",
@@ -74,7 +90,8 @@ export const SKIPPED_ROWS_REPORT_TEXT = {
 
 export const SKIPPED_ROW_REASON_MESSAGES: Record<string, string> = {
   EMAIL_ALREADY_USED: "An account with this email already exists.",
-  ROSTER_IMPORT_FAILED: "We could not create an account for this row. Please review it and try again.",
+  ROSTER_IMPORT_FAILED:
+    "We could not create an account for this row. Please review it and try again.",
 };
 
 export const SKIPPED_ROW_UNKNOWN_REASON =

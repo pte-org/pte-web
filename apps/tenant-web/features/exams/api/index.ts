@@ -8,7 +8,6 @@ import {
   addAudienceSource,
   createSession,
   createExamDraft,
-  createUser,
   DEFAULT_PAGE_SIZE,
   getAnswer,
   getActiveScoreTemplate,
@@ -59,7 +58,6 @@ import {
 } from "../constants";
 import type {
   AssignedClass,
-  CreateProctorInput,
   CreateSessionInput,
   ExamSession,
   ProctorAssignmentEntry,
@@ -395,31 +393,6 @@ export function useSubmitTeacherScore(
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: [...ANSWER_QUERY_KEY, answerPublicId] });
       void queryClient.invalidateQueries({ queryKey: ANSWERS_QUERY_KEY });
-    },
-  });
-}
-
-export function useCreateProctorAccount(): UseMutationResult<
-  UserResponse,
-  unknown,
-  CreateProctorInput
-> {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (input) =>
-      createUser(apiClient, {
-        email: input.email.trim(),
-        fullName: input.fullName.trim(),
-        password: input.password,
-        roles: [PROCTOR_ROLE],
-        tenantId: null,
-      }),
-    // Awaited so AssignProctorModal's chained useAssignProctor call (fired
-    // from this mutation's onSuccess) sees the just-created proctor already
-    // in the tenant-users cache.
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
     },
   });
 }

@@ -1,15 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import {
-  Alert,
-  DataTable,
-  ShieldIcon,
-  TrashIcon,
-  UsersIcon,
-  cn,
-  type DataTableColumn,
-} from "@pte/ui";
+import { Alert, DataTable, TrashIcon, cn, type DataTableColumn } from "@pte/ui";
 import type { ProctorRole } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
@@ -28,20 +20,9 @@ interface ProctorAssignmentSectionProps {
 
 const T = PROCTOR_SECTION_TEXT;
 
-const ROLE_ACCENT: Record<
-  ProctorRole,
-  { icon: typeof ShieldIcon; select: string; iconBg: string }
-> = {
-  LEAD_PROCTOR: {
-    icon: ShieldIcon,
-    select: "border-blue-200 bg-blue-50 text-blue-700 focus:ring-blue-500",
-    iconBg: "bg-blue-100 text-blue-600",
-  },
-  ASSISTANT_PROCTOR: {
-    icon: UsersIcon,
-    select: "border-gray-200 bg-white text-gray-700 focus:ring-blue-500",
-    iconBg: "bg-slate-200 text-slate-600",
-  },
+const ROLE_SELECT_CLASS: Record<ProctorRole, string> = {
+  LEAD_PROCTOR: "border-blue-200 bg-blue-50 text-blue-700 focus:ring-blue-500",
+  ASSISTANT_PROCTOR: "border-gray-200 bg-white text-gray-700 focus:ring-blue-500",
 };
 
 export const ProctorAssignmentSection = ({
@@ -77,7 +58,7 @@ export const ProctorAssignmentSection = ({
           }
           className={cn(
             "w-40 cursor-pointer rounded-md border px-2.5 py-1.5 text-sm font-medium outline-none transition-colors focus:ring-2",
-            ROLE_ACCENT[entry.role].select,
+            ROLE_SELECT_CLASS[entry.role],
           )}
         >
           {PROCTOR_ROLE_OPTIONS.map((option) => (
@@ -101,7 +82,7 @@ export const ProctorAssignmentSection = ({
           onClick={() => setAddOpen(true)}
           className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover"
         >
-          + {T.ADD_PROCTOR}
+          + {T.ASSIGN_PROCTOR}
         </button>
       </div>
 
@@ -127,36 +108,6 @@ export const ProctorAssignmentSection = ({
           </button>
         )}
       />
-
-      <div className="rounded-lg border border-gray-200 bg-white p-4">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
-          {T.ROLES_LEGEND_TITLE}
-        </p>
-        <dl className="grid gap-4 sm:grid-cols-2">
-          {PROCTOR_ROLE_OPTIONS.map((option) => {
-            const accent = ROLE_ACCENT[option.value];
-            const Icon = accent.icon;
-            return (
-              <div key={option.value} className="flex gap-3">
-                <span
-                  className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-full",
-                    accent.iconBg,
-                  )}
-                >
-                  <Icon className="h-4 w-4" />
-                </span>
-                <div>
-                  <dt className="text-sm font-semibold text-gray-900">{option.label}</dt>
-                  <dd className="text-sm text-gray-500">
-                    {PROCTOR_ROLE_DESCRIPTIONS[option.value]}
-                  </dd>
-                </div>
-              </div>
-            );
-          })}
-        </dl>
-      </div>
 
       <AssignProctorModal
         key={addOpen ? "assignProctor-open" : "assignProctor-closed"}

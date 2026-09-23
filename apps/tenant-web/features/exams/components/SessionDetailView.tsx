@@ -2,10 +2,9 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Alert, Badge, LoadingState, PageHeader } from "@pte/ui";
+import { Alert, Badge, Button, LoadingState, PageHeader } from "@pte/ui";
 import {
-  AddStudentForm,
-  RosterImport,
+  ExistingStudentAssignmentModal,
   StudentRosterTable,
 } from "@/features/examoperations/components";
 import { errorMessage as mutationErrorMessage } from "@/features/examoperations/errorMessage";
@@ -30,6 +29,7 @@ function formatDateTime(value: string): string {
 
 export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): ReactElement => {
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [studentAssignmentOpen, setStudentAssignmentOpen] = useState(false);
   const { data: session, isLoading } = useSession(sessionPublicId);
   const open = useOpenSession(sessionPublicId);
   const close = useCloseSession(sessionPublicId);
@@ -122,12 +122,20 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
       </section>
 
       <section className="flex flex-col gap-5 rounded-lg border border-gray-200 bg-white p-5">
-        <h3 className="text-sm font-semibold text-gray-900">{T.STUDENTS_SECTION}</h3>
-        <StudentRosterTable sessionPublicId={sessionPublicId} />
-        <div className="grid gap-6 border-t border-gray-100 pt-5 lg:grid-cols-2">
-          <RosterImport sessionPublicId={sessionPublicId} />
-          <AddStudentForm sessionPublicId={sessionPublicId} />
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-sm font-semibold text-gray-900">{T.STUDENTS_SECTION}</h3>
+          {session.status === "SCHEDULED" && (
+            <Button size="sm" onClick={() => setStudentAssignmentOpen(true)}>
+              {T.ADD_EXISTING_STUDENTS}
+            </Button>
+          )}
         </div>
+        <StudentRosterTable sessionPublicId={sessionPublicId} />
+        <ExistingStudentAssignmentModal
+          open={studentAssignmentOpen}
+          onClose={() => setStudentAssignmentOpen(false)}
+          sessionPublicId={sessionPublicId}
+        />
       </section>
 
       <section className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-5">

@@ -219,6 +219,7 @@ export const SESSION_DETAIL_TEXT = {
   CANCEL_EXAM: "Cancel Exam",
   CANCEL_EXAM_CONFIRM: "Cancel this exam? Students will not be able to access it.",
   STUDENTS_SECTION: "Students",
+  ADD_EXISTING_STUDENTS: "Add existing students",
   CLASSES_SECTION: "Assigned Classes",
   PROCTORS_SECTION: "Proctors",
   ANSWERS_SECTION: "Submitted Answers",
@@ -303,11 +304,10 @@ export const ANSWER_DETAIL_TEXT = {
 } as const;
 
 export const PROCTOR_SECTION_TEXT = {
-  ADD_PROCTOR: "Add Proctor",
+  ASSIGN_PROCTOR: "Assign Proctor",
   EMPTY_TITLE: "No proctors assigned yet",
   UNASSIGN: "Remove from Exam",
   ASSIGNED_COUNT: "{count} proctor(s) assigned",
-  ROLES_LEGEND_TITLE: "About proctor roles",
 } as const;
 
 export const PROCTOR_TABLE_HEADERS = {
@@ -338,28 +338,12 @@ export const PROCTOR_ROLE_OPTIONS: { value: ProctorRole; label: string }[] = [
 ];
 
 export const ASSIGN_PROCTOR_TEXT = {
-  TITLE: "Add Proctor to Exam",
-  TAB_EXISTING: "Pick Existing",
-  TAB_NEW: "Create New",
+  TITLE: "Assign Proctor to Exam",
   EXISTING_LABEL: "Proctor",
   EXISTING_PLACEHOLDER: "Select a proctor",
-  NO_EXISTING: "No existing proctors in your organization yet — create one below.",
-  EMAIL_LABEL: "Email",
-  EMAIL_PLACEHOLDER: "proctor@school.edu.vn",
-  FULL_NAME_LABEL: "Full name",
-  PASSWORD_LABEL: "Password",
-  PASSWORD_HELPER: "At least 8 characters. Share this with the proctor directly.",
+  NO_EXISTING: "No unassigned proctors are available in your organization.",
   ROLE_LABEL: "Role in this exam",
   CANCEL: "Cancel",
-  SUBMIT: "Add to Exam",
-  SUBMITTING: "Adding...",
+  SUBMIT: "Assign to Exam",
+  SUBMITTING: "Assigning...",
 } as const;
-
-export const CREATE_PROCTOR_ERRORS = {
-  EMAIL_REQUIRED: "Email is required.",
-  EMAIL_INVALID: "Enter a valid email address.",
-  FULL_NAME_REQUIRED: "Full name is required.",
-  PASSWORD_TOO_SHORT: "Password must be at least 8 characters.",
-} as const;
-
-export const EMPTY_CREATE_PROCTOR = { email: "", fullName: "", password: "" } as const;

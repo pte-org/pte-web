@@ -102,6 +102,22 @@ export function useEnrollRosterAccounts(
   });
 }
 
+/** Enrolls existing student accounts into a scheduled exam session. */
+export function useEnrollExistingStudents(
+  sessionPublicId: string,
+): UseMutationResult<void, unknown, string[]> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (studentPublicIds) => {
+      await bulkEnroll(apiClient, sessionPublicId, { studentPublicIds });
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: [...ENROLLMENTS_QUERY_KEY, sessionPublicId] });
+    },
+  });
+}
+
 export interface AddStudentInput {
   email: string;
   fullName: string;
@@ -138,9 +154,7 @@ export function useCreateStudent(): UseMutationResult<CreatedAccount, unknown, A
       const [created] = response.created;
       if (!created) {
         const [skipped] = response.skipped;
-        throw new UserFacingError(
-          skipped ? skipped.reason : "Unable to create account",
-        );
+        throw new UserFacingError(skipped ? skipped.reason : "Unable to create account");
       }
       return created;
     },
@@ -172,7 +186,10 @@ export interface RosterEntry {
  * name/email join happens here rather than a new cross-service call from
  * scheduling, per Phase 1's Design Constraints).
  */
-export function useSessionRoster(sessionPublicId: string): UseQueryResult<RosterEntry[]> {
+export function useSessionRoster(
+  sessionPublicId: string,
+  enabled = true,
+): UseQueryResult<RosterEntry[]> {
   const students = useTenantStudents();
   const queryClient = useQueryClient();
 
@@ -195,7 +212,7 @@ export function useSessionRoster(sessionPublicId: string): UseQueryResult<Roster
         return student ? [{ enrollmentPublicId: enrollment.publicId, student }] : [];
       });
     },
-    enabled: sessionPublicId.length > 0 && students.data !== undefined,
+    enabled: enabled && sessionPublicId.length > 0 && students.data !== undefined,
   });
 }
 

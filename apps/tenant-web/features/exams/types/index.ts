@@ -67,15 +67,3 @@ export interface ProctorAssignmentEntry {
   proctor: UserResponse;
   role: ProctorRole;
 }
-
-export interface CreateProctorInput {
-  email: string;
-  fullName: string;
-  password: string;
-}
-
-export interface CreateProctorErrors {
-  email?: string;
-  fullName?: string;
-  password?: string;
-}

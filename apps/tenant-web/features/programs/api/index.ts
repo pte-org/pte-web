@@ -240,7 +240,7 @@ export function useUnassignCoordinator(
 
 /**
  * Create a brand-new Coordinator account (not yet assigned to anything).
- * Uses a Host-supplied password, mirroring exams' `useCreateProctorAccount`.
+ * Uses a Host-supplied password for this one-at-a-time form.
  */
 export function useCreateCoordinatorAccount(): UseMutationResult<
   UserResponse,
