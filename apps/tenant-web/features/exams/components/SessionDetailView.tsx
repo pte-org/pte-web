@@ -2,9 +2,10 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Alert, Badge, Button, LoadingState, PageHeader } from "@pte/ui";
+import { Alert, Badge, Button, CollapsibleSection, LoadingState, PageHeader } from "@pte/ui";
 import {
   ExistingStudentAssignmentModal,
+  ExistingStudentImportModal,
   StudentRosterTable,
 } from "@/features/examoperations/components";
 import { errorMessage as mutationErrorMessage } from "@/features/examoperations/errorMessage";
@@ -13,6 +14,7 @@ import { useCancelSession, useCloseSession, useOpenSession, useSession } from ".
 import { AnswersSection } from "./AnswersSection";
 import { ClassAssignmentSection } from "./ClassAssignmentSection";
 import { ProctorAssignmentSection } from "./ProctorAssignmentSection";
+import { ExaminerAssignmentSection } from "./ExaminerAssignmentSection";
 import { ExamPreviewModal } from "./ExamPreviewModal";
 
 interface SessionDetailViewProps {
@@ -30,6 +32,7 @@ function formatDateTime(value: string): string {
 export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): ReactElement => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [studentAssignmentOpen, setStudentAssignmentOpen] = useState(false);
+  const [studentImportOpen, setStudentImportOpen] = useState(false);
   const { data: session, isLoading } = useSession(sessionPublicId);
   const open = useOpenSession(sessionPublicId);
   const close = useCloseSession(sessionPublicId);
@@ -113,35 +116,63 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
         </p>
       </div>
 
-      <section className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-5">
-        <h3 className="text-sm font-semibold text-gray-900">{T.CLASSES_SECTION}</h3>
+      <CollapsibleSection
+        title={T.CLASSES_SECTION}
+        className="rounded-lg border border-gray-200 bg-white p-5"
+        contentClassName="flex flex-col gap-3"
+      >
         <ClassAssignmentSection
           sessionPublicId={sessionPublicId}
           canModify={session.status === "SCHEDULED"}
         />
-      </section>
+      </CollapsibleSection>
 
-      <section className="flex flex-col gap-5 rounded-lg border border-gray-200 bg-white p-5">
-        <div className="flex items-center justify-between gap-3">
-          <h3 className="text-sm font-semibold text-gray-900">{T.STUDENTS_SECTION}</h3>
-          {session.status === "SCHEDULED" && (
-            <Button size="sm" onClick={() => setStudentAssignmentOpen(true)}>
+      <CollapsibleSection
+        title={T.STUDENTS_SECTION}
+        className="rounded-lg border border-gray-200 bg-white p-5"
+        contentClassName="flex flex-col gap-5"
+        actions={
+          <div className="flex flex-wrap justify-end gap-2">
+            <Button
+              size="sm"
+              onClick={() => setStudentAssignmentOpen(true)}
+              disabled={session.status !== "SCHEDULED"}
+              title={session.status !== "SCHEDULED" ? T.AUDIENCE_NOT_SCHEDULED_NOTICE : undefined}
+            >
               {T.ADD_EXISTING_STUDENTS}
             </Button>
-          )}
-        </div>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setStudentImportOpen(true)}
+              disabled={session.status !== "SCHEDULED"}
+              title={session.status !== "SCHEDULED" ? T.AUDIENCE_NOT_SCHEDULED_NOTICE : undefined}
+            >
+              {T.IMPORT_EXISTING_STUDENTS}
+            </Button>
+          </div>
+        }
+      >
+        {session.status !== "SCHEDULED" && (
+          <Alert tone="warning">{T.AUDIENCE_NOT_SCHEDULED_NOTICE}</Alert>
+        )}
         <StudentRosterTable sessionPublicId={sessionPublicId} />
-        <ExistingStudentAssignmentModal
-          open={studentAssignmentOpen}
-          onClose={() => setStudentAssignmentOpen(false)}
-          sessionPublicId={sessionPublicId}
-        />
-      </section>
+      </CollapsibleSection>
 
-      <section className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-5">
-        <h3 className="text-sm font-semibold text-gray-900">{T.PROCTORS_SECTION}</h3>
-        <ProctorAssignmentSection sessionPublicId={sessionPublicId} />
-      </section>
+      <ExistingStudentAssignmentModal
+        open={studentAssignmentOpen}
+        onClose={() => setStudentAssignmentOpen(false)}
+        sessionPublicId={sessionPublicId}
+      />
+      <ExistingStudentImportModal
+        open={studentImportOpen}
+        onClose={() => setStudentImportOpen(false)}
+        sessionPublicId={sessionPublicId}
+      />
+
+      <ProctorAssignmentSection sessionPublicId={sessionPublicId} />
+
+      <ExaminerAssignmentSection sessionPublicId={sessionPublicId} />
 
       <section className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-5">
         <h3 className="text-sm font-semibold text-gray-900">{T.ANSWERS_SECTION}</h3>

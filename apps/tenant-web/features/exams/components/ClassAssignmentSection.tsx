@@ -57,29 +57,28 @@ export const ClassAssignmentSection = ({
       {errorMessage(assign.error) && <Alert tone="error">{errorMessage(assign.error)}</Alert>}
       {errorMessage(unassign.error) && <Alert tone="error">{errorMessage(unassign.error)}</Alert>}
 
-      {canModify && (
-        <div className="flex items-end gap-3">
-          <div className="flex-1">
-            <Select
-              label={T.ASSIGN_LABEL}
-              placeholder={T.ASSIGN_PLACEHOLDER}
-              options={availableOptions}
-              value={selectedClassPublicId}
-              disabled={tenantClassesLoading}
-              onChange={(event) => setSelectedClassPublicId(event.target.value)}
-            />
-          </div>
-          <Button
-            type="button"
-            onClick={handleAssign}
-            disabled={!selectedClassPublicId || assign.isPending}
-            isLoading={assign.isPending}
-            loadingText={T.ASSIGNING}
-          >
-            {T.ASSIGN}
-          </Button>
+      <div className="flex items-end gap-3">
+        <div className="flex-1">
+          <Select
+            label={T.ASSIGN_LABEL}
+            placeholder={T.ASSIGN_PLACEHOLDER}
+            options={availableOptions}
+            value={selectedClassPublicId}
+            disabled={!canModify || tenantClassesLoading}
+            onChange={(event) => setSelectedClassPublicId(event.target.value)}
+          />
         </div>
-      )}
+        <Button
+          type="button"
+          onClick={handleAssign}
+          disabled={!canModify || !selectedClassPublicId || assign.isPending}
+          isLoading={assign.isPending}
+          loadingText={T.ASSIGNING}
+          title={!canModify ? T.SOURCE_LOCKED : undefined}
+        >
+          {T.ASSIGN}
+        </Button>
+      </div>
 
       <DataTable
         columns={columns}

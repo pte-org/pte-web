@@ -13,6 +13,7 @@ import {
   listPrograms,
   suspendClass,
   transferStudent,
+  updateClass,
   unassignStudent,
   type AssignStudentRequest,
   type BulkAssignStudentsResponse,
@@ -20,6 +21,7 @@ import {
   type ClassResponse,
   type CreateClassRequest,
   type TransferStudentRequest,
+  type UpdateClassRequest,
   type UserResponse,
 } from "@pte/api-client";
 import {
@@ -62,6 +64,7 @@ export function useCreateClass(
     mutationFn: (payload) => createClass(apiClient, organizationPublicId, programPublicId, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: [...CLASSES_QUERY_KEY, programPublicId] });
+      void queryClient.invalidateQueries({ queryKey: ALL_TENANT_CLASSES_QUERY_KEY });
       // Also covers the Program dashboard's class count (keyed under CLASS_MEMBERSHIPS_QUERY_KEY —
       // see useProgramDashboard) since creating a Class doesn't touch any membership row itself.
       invalidateClassMemberships(queryClient);
@@ -85,6 +88,7 @@ export function useClassStatusMutations(
 
   const onSuccess = (): void => {
     void queryClient.invalidateQueries({ queryKey: [...CLASSES_QUERY_KEY, programPublicId] });
+    void queryClient.invalidateQueries({ queryKey: ALL_TENANT_CLASSES_QUERY_KEY });
     // Also covers the Program dashboard's class count (see useProgramDashboard) — archive/
     // activate/suspend/deactivate all change which Classes count toward it.
     invalidateClassMemberships(queryClient);
@@ -159,6 +163,31 @@ export interface TenantClassOption {
   programName: string;
   classPublicId: string;
   className: string;
+  status: ClassResponse["status"];
+}
+
+export function useUpdateClass(
+  organizationPublicId: string,
+  programPublicId: string,
+  classPublicId: string,
+): UseMutationResult<ClassResponse, unknown, UpdateClassRequest> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload) =>
+      updateClass(apiClient, organizationPublicId, programPublicId, classPublicId, payload),
+    onSuccess: (updatedClass) => {
+      queryClient.setQueryData<ClassResponse[]>(
+        [...CLASSES_QUERY_KEY, programPublicId],
+        (classes) =>
+          classes?.map((studentClass) =>
+            studentClass.publicId === updatedClass.publicId ? updatedClass : studentClass,
+          ),
+      );
+      void queryClient.invalidateQueries({ queryKey: [...CLASSES_QUERY_KEY, programPublicId] });
+      void queryClient.invalidateQueries({ queryKey: ALL_TENANT_CLASSES_QUERY_KEY });
+    },
+  });
 }
 
 /**
@@ -171,7 +200,7 @@ export interface TenantClassOption {
  * scale (small org/program counts) — same accepted-unbounded-client-side
  * convention as Phase 7's student search.
  */
-export function useAllTenantClasses(): UseQueryResult<TenantClassOption[]> {
+export function useAllTenantClasses(enabled = true): UseQueryResult<TenantClassOption[]> {
   return useQuery({
     queryKey: ALL_TENANT_CLASSES_QUERY_KEY,
     queryFn: async () => {
@@ -200,11 +229,13 @@ export function useAllTenantClasses(): UseQueryResult<TenantClassOption[]> {
             programName: program.name,
             classPublicId: studentClass.publicId,
             className: studentClass.name,
+            status: studentClass.status,
           }));
         }),
       );
       return classesByProgram.flat();
     },
+    enabled,
   });
 }
 

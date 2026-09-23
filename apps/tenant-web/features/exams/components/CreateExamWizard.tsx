@@ -1,10 +1,14 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
+import Link from "next/link";
 import type { AudienceSourceRequest, ScoreTemplateResponse } from "@pte/api-client";
 import { Alert, Input, Modal, Select } from "@pte/ui";
+import { useAllTenantClasses } from "@/features/classes/api";
 import { useSubscriptionsQuery, useTenantPlansQuery } from "@/features/commercialization/api";
 import { errorMessage } from "@/features/examoperations/errorMessage";
+import { useTenantStudents } from "@/features/examoperations/api";
+import { useMyOrganizations, usePrograms } from "@/features/programs/api";
 import {
   AUDIENCE_SOURCE_OPTIONS,
   CREATE_EXAM_WIZARD_ERRORS,
@@ -63,9 +67,18 @@ export const CreateExamWizard = ({
   const [errors, setErrors] = useState<CreateExamWorkflowErrors>({});
   const [sourceType, setSourceType] = useState<AudienceSourceRequest["sourceType"]>("STUDENT");
   const [sourcePublicId, setSourcePublicId] = useState("");
+  const [sourceSearch, setSourceSearch] = useState("");
 
   const { data: subscriptions = [], isLoading: subscriptionsLoading } = useSubscriptionsQuery();
   const { data: plans = [] } = useTenantPlansQuery();
+  const { data: tenantClasses = [], isLoading: classesLoading } = useAllTenantClasses(open);
+  const { data: tenantStudents = [], isLoading: studentsLoading } = useTenantStudents(open);
+  const { data: organizations = [] } = useMyOrganizations(open);
+  const organizationPublicId = organizations[0]?.publicId ?? "";
+  const { data: programs = [], isLoading: programsLoading } = usePrograms(
+    organizationPublicId,
+    open,
+  );
   const activeSubscriptions = subscriptions.filter(
     (subscription) => subscription.status === "ACTIVE",
   );
@@ -78,6 +91,66 @@ export const CreateExamWizard = ({
     ...form,
     templatePublicId: form.templatePublicId || activeTemplate?.publicId || "",
   };
+
+  const normalizedSourceSearch = sourceSearch.trim().toLowerCase();
+  const sourceMatchesSearch = (values: string[]): boolean =>
+    !normalizedSourceSearch ||
+    values.some((value) => value.toLowerCase().includes(normalizedSourceSearch));
+
+  const allSourceOptions = [
+    ...(sourceType === "STUDENT"
+      ? tenantStudents
+          .filter((student) => student.status === "ACTIVE")
+          .map((student) => ({
+            label: `${student.fullName} (${student.email})${student.studentCode ? ` · ${student.studentCode}` : ""}`,
+            value: student.publicId,
+            searchValues: [
+              student.fullName,
+              student.email,
+              student.username,
+              student.studentCode ?? "",
+            ],
+          }))
+      : []),
+    ...(sourceType === "CLASS"
+      ? tenantClasses
+          .filter((studentClass) => studentClass.status === "ACTIVE")
+          .map((studentClass) => ({
+            label: `${studentClass.className} (${studentClass.programName})`,
+            value: studentClass.classPublicId,
+            searchValues: [studentClass.className, studentClass.programName],
+          }))
+      : []),
+    ...(sourceType === "PROGRAM"
+      ? programs
+          .filter((program) => program.status === "ACTIVE")
+          .map((program) => ({
+            label: program.name,
+            value: program.publicId,
+            searchValues: [program.name],
+          }))
+      : []),
+  ];
+  const sourceOptions = allSourceOptions
+    .filter((option) => sourceMatchesSearch(option.searchValues))
+    .map(({ label, value }) => ({ label, value }));
+  const sourceLabels = new Map<string, string>();
+  tenantStudents.forEach((student) =>
+    sourceLabels.set(`STUDENT:${student.publicId}`, `${student.fullName} (${student.email})`),
+  );
+  tenantClasses.forEach((studentClass) =>
+    sourceLabels.set(
+      `CLASS:${studentClass.classPublicId}`,
+      `${studentClass.className} (${studentClass.programName})`,
+    ),
+  );
+  programs.forEach((program) => sourceLabels.set(`PROGRAM:${program.publicId}`, program.name));
+  const sourceLoading =
+    sourceType === "STUDENT"
+      ? studentsLoading
+      : sourceType === "CLASS"
+        ? classesLoading
+        : programsLoading;
 
   const update = <K extends keyof CreateExamWorkflowInput>(
     field: K,
@@ -121,6 +194,7 @@ export const CreateExamWizard = ({
     }
     update("sources", [...effectiveForm.sources, { sourceType, sourcePublicId: normalizedId }]);
     setSourcePublicId("");
+    setSourceSearch("");
   };
 
   const removeSource = (index: number): void => {
@@ -301,28 +375,62 @@ export const CreateExamWizard = ({
               />
             )}
             <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
-              <div className="mb-3 text-sm font-semibold text-gray-900">
-                {CREATE_EXAM_WIZARD_TEXT.SOURCES_TITLE}
+              <div className="mb-3 flex items-start justify-between gap-3">
+                <div className="text-sm font-semibold text-gray-900">
+                  {CREATE_EXAM_WIZARD_TEXT.SOURCES_TITLE}
+                </div>
+                {sourceType === "CLASS" && (
+                  <Link
+                    href="/host/programs"
+                    className="text-xs font-medium text-blue-700 hover:underline"
+                  >
+                    {CREATE_EXAM_WIZARD_TEXT.MANAGE_CLASSES}
+                  </Link>
+                )}
               </div>
               <p className="mb-3 text-sm text-gray-600">{CREATE_EXAM_WIZARD_TEXT.SOURCES_HELPER}</p>
-              <div className="grid gap-3 sm:grid-cols-[10rem_1fr_auto] sm:items-end">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <Select
                   label={CREATE_EXAM_WIZARD_TEXT.SOURCE_TYPE_LABEL}
                   value={sourceType}
-                  onChange={(event) =>
-                    setSourceType(event.target.value as AudienceSourceRequest["sourceType"])
-                  }
+                  onChange={(event) => {
+                    setSourceType(event.target.value as AudienceSourceRequest["sourceType"]);
+                    setSourcePublicId("");
+                    setSourceSearch("");
+                  }}
                   options={[...AUDIENCE_SOURCE_OPTIONS]}
                 />
                 <Input
-                  label={CREATE_EXAM_WIZARD_TEXT.SOURCE_ID_LABEL}
+                  label={CREATE_EXAM_WIZARD_TEXT.SOURCE_SEARCH_LABEL}
+                  placeholder={CREATE_EXAM_WIZARD_TEXT.SOURCE_SEARCH_PLACEHOLDER}
+                  value={sourceSearch}
+                  onChange={(event) => {
+                    setSourceSearch(event.target.value);
+                    setSourcePublicId("");
+                  }}
+                />
+              </div>
+              <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                <Select
+                  label={CREATE_EXAM_WIZARD_TEXT.SOURCE_OPTION_LABEL}
+                  placeholder={
+                    sourceLoading
+                      ? CREATE_EXAM_WIZARD_TEXT.SOURCE_LOADING
+                      : sourceOptions.length === 0
+                        ? CREATE_EXAM_WIZARD_TEXT.SOURCE_EMPTY
+                        : CREATE_EXAM_WIZARD_TEXT.SOURCE_PLACEHOLDER
+                  }
+                  helperText={CREATE_EXAM_WIZARD_TEXT.SOURCE_HELPER}
                   value={sourcePublicId}
+                  disabled={sourceLoading || sourceOptions.length === 0}
                   onChange={(event) => setSourcePublicId(event.target.value)}
+                  options={sourceOptions}
                 />
                 <button
                   type="button"
                   onClick={addSource}
-                  className="rounded-lg border border-action px-3 py-2.5 text-sm font-medium text-action hover:bg-blue-50"
+                  disabled={!sourcePublicId}
+                  className="rounded-lg border border-action px-3 py-2.5 text-sm font-medium text-action hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {CREATE_EXAM_WIZARD_TEXT.ADD_SOURCE}
                 </button>
@@ -338,7 +446,9 @@ export const CreateExamWizard = ({
                       className="flex items-center justify-between rounded bg-white px-3 py-2 text-sm"
                     >
                       <span className="text-gray-700">
-                        {source.sourceType}: {source.sourcePublicId}
+                        {source.sourceType}:{" "}
+                        {sourceLabels.get(`${source.sourceType}:${source.sourcePublicId}`) ??
+                          source.sourcePublicId}
                       </span>
                       <button
                         type="button"

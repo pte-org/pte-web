@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, DataTable, TrashIcon, cn, type DataTableColumn } from "@pte/ui";
+import { Alert, CollapsibleSection, DataTable, TrashIcon, cn, type DataTableColumn } from "@pte/ui";
 import type { ProctorRole } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
@@ -9,6 +9,7 @@ import {
   PROCTOR_ROLE_OPTIONS,
   PROCTOR_SECTION_TEXT,
   PROCTOR_TABLE_HEADERS,
+  SESSION_DETAIL_TEXT,
 } from "../constants";
 import { useProctorAssignments, useUnassignProctor, useUpdateProctorRole } from "../api";
 import type { ProctorAssignmentEntry } from "../types";
@@ -72,42 +73,49 @@ export const ProctorAssignmentSection = ({
   ];
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-500">
-          {T.ASSIGNED_COUNT.replace("{count}", String((assignments ?? []).length))}
-        </span>
-        <button
-          type="button"
-          onClick={() => setAddOpen(true)}
-          className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover"
-        >
-          + {T.ASSIGN_PROCTOR}
-        </button>
-      </div>
+    <>
+      <CollapsibleSection
+        title={SESSION_DETAIL_TEXT.PROCTORS_SECTION}
+        className="rounded-lg border border-gray-200 bg-white p-5"
+        contentClassName="flex flex-col gap-3"
+        actions={
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <span className="text-sm text-gray-500">
+              {T.ASSIGNED_COUNT.replace("{count}", String((assignments ?? []).length))}
+            </span>
+            <button
+              type="button"
+              onClick={() => setAddOpen(true)}
+              className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover"
+            >
+              + {T.ASSIGN_PROCTOR}
+            </button>
+          </div>
+        }
+      >
+        {unassignError && <Alert tone="error">{unassignError}</Alert>}
+        {updateRoleError && <Alert tone="error">{updateRoleError}</Alert>}
 
-      {unassignError && <Alert tone="error">{unassignError}</Alert>}
-      {updateRoleError && <Alert tone="error">{updateRoleError}</Alert>}
-
-      <DataTable
-        columns={columns}
-        rows={assignments ?? []}
-        getRowKey={(entry) => entry.assignmentPublicId}
-        isLoading={isLoading}
-        emptyTitle={T.EMPTY_TITLE}
-        rowActionsHeader={PROCTOR_TABLE_HEADERS.ACTIONS}
-        rowActions={(entry) => (
-          <button
-            type="button"
-            onClick={() => unassign.mutate(entry.assignmentPublicId)}
-            title={T.UNASSIGN}
-            aria-label={T.UNASSIGN}
-            className="rounded-full p-1.5 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
-          >
-            <TrashIcon className="h-4 w-4" />
-          </button>
-        )}
-      />
+        <DataTable
+          columns={columns}
+          rows={assignments ?? []}
+          getRowKey={(entry) => entry.assignmentPublicId}
+          isLoading={isLoading}
+          emptyTitle={T.EMPTY_TITLE}
+          rowActionsHeader={PROCTOR_TABLE_HEADERS.ACTIONS}
+          rowActions={(entry) => (
+            <button
+              type="button"
+              onClick={() => unassign.mutate(entry.assignmentPublicId)}
+              title={T.UNASSIGN}
+              aria-label={T.UNASSIGN}
+              className="rounded-full p-1.5 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
+            >
+              <TrashIcon className="h-4 w-4" />
+            </button>
+          )}
+        />
+      </CollapsibleSection>
 
       <AssignProctorModal
         key={addOpen ? "assignProctor-open" : "assignProctor-closed"}
@@ -116,6 +124,6 @@ export const ProctorAssignmentSection = ({
         sessionPublicId={sessionPublicId}
         assignedProctorPublicIds={(assignments ?? []).map((entry) => entry.proctor.publicId)}
       />
-    </div>
+    </>
   );
 };

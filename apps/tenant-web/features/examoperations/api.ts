@@ -167,10 +167,11 @@ export function useCreateStudent(): UseMutationResult<CreatedAccount, unknown, A
  * via `select`, not two different `queryFn`s under the same key (which would
  * let whichever resolves first silently populate the cache for both).
  */
-export function useTenantStudents(): UseQueryResult<UserResponse[]> {
+export function useTenantStudents(enabled = true): UseQueryResult<UserResponse[]> {
   return useQuery({
     queryKey: TENANT_USERS_QUERY_KEY,
     queryFn: () => listUsers(apiClient),
+    enabled,
     select: (users) => users.filter((user) => user.roles.includes(STUDENT_ROLE)),
   });
 }
@@ -190,7 +191,7 @@ export function useSessionRoster(
   sessionPublicId: string,
   enabled = true,
 ): UseQueryResult<RosterEntry[]> {
-  const students = useTenantStudents();
+  const students = useTenantStudents(enabled);
   const queryClient = useQueryClient();
 
   return useQuery({

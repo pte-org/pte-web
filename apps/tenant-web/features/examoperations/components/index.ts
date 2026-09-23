@@ -1,5 +1,6 @@
 export { LearnersOverview } from "./LearnersOverview";
 export { ExistingStudentAssignmentModal } from "./ExistingStudentAssignmentModal";
+export { ExistingStudentImportModal } from "./ExistingStudentImportModal";
 export { RosterImport } from "./RosterImport";
 export { AddStudentForm } from "./AddStudentForm";
 export { StudentRosterTable } from "./StudentRosterTable";

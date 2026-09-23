@@ -64,6 +64,20 @@ export function listExamStaff(client: ApiClient, query: ExamStaffQuery): Promise
   return client.request<PagedResult<UserResponse>>(`${USER_ENDPOINTS.users}/exam-staff?${params}`);
 }
 
+/** Reads every bounded server page for a caller who needs the complete staff selector. */
+export async function listAllExamStaff(
+  client: ApiClient,
+  query: Omit<ExamStaffQuery, "page">,
+): Promise<UserResponse[]> {
+  const firstPage = await listExamStaff(client, { ...query, page: 0 });
+  const users = [...firstPage.data];
+  for (let page = 1; page < firstPage.meta.totalPages; page += 1) {
+    const result = await listExamStaff(client, { ...query, page });
+    users.push(...result.data);
+  }
+  return users;
+}
+
 /** Platform-admin-only — see `listUsers` above for the Host-facing equivalent. */
 export function listUsersByTenant(
   client: ApiClient,

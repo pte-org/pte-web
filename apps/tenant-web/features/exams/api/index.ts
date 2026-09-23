@@ -3,18 +3,22 @@
 import {
   assignClass,
   assignProctor,
+  confirmExaminerAssignmentPreview,
   closeSession,
   cancelExam,
   addAudienceSource,
   createSession,
   createExamDraft,
+  createExaminerAssignmentPreview,
   DEFAULT_PAGE_SIZE,
   getAnswer,
   getActiveScoreTemplate,
+  getExaminerAssignmentOverview,
   getSession,
   getSessionExamPreview,
   listAnswers,
   listAssignedClasses,
+  listAllExamStaff,
   listProctorAssignments,
   listSessions,
   listUsers,
@@ -28,6 +32,9 @@ import {
   updateProctorRole,
   type AnswerListResponse,
   type AnswerReviewDetailResponse,
+  type CreateExaminerAssignmentPreviewRequest,
+  type ExaminerAssignmentOverviewResponse,
+  type ExaminerAssignmentPreviewResponse,
   type ExamPreviewResponse,
   type ProctorRole,
   type SessionResponse,
@@ -55,6 +62,8 @@ import {
   SESSION_QUERY_KEY,
   SESSIONS_QUERY_KEY,
   TENANT_USERS_QUERY_KEY,
+  EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY,
+  EXAMINER_DIRECTORY_QUERY_KEY,
 } from "../constants";
 import type {
   AssignedClass,
@@ -226,6 +235,62 @@ export function useCancelSession(publicId: string): UseMutationResult<ExamSessio
   return useMutation({
     mutationFn: async () => sessionResponseToExamSession(await cancelExam(apiClient, publicId)),
     onSuccess: (session) => replaceSessionInCache(queryClient, session),
+  });
+}
+
+export function useExaminerAssignmentOverview(
+  sessionPublicId: string,
+  page: number,
+): UseQueryResult<ExaminerAssignmentOverviewResponse> {
+  return useQuery({
+    queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId, page],
+    queryFn: () => getExaminerAssignmentOverview(apiClient, sessionPublicId, page, 20),
+    enabled: sessionPublicId.length > 0,
+  });
+}
+
+export function useActiveExaminers(): UseQueryResult<UserResponse[]> {
+  return useQuery({
+    queryKey: EXAMINER_DIRECTORY_QUERY_KEY,
+    queryFn: () =>
+      listAllExamStaff(apiClient, {
+        size: 100,
+        role: "EXAMINER",
+        status: "ACTIVE",
+        sort: "FULL_NAME",
+        direction: "ASC",
+      }),
+  });
+}
+
+export function useCreateExaminerAssignmentPreview(
+  sessionPublicId: string,
+): UseMutationResult<
+  ExaminerAssignmentPreviewResponse,
+  unknown,
+  CreateExaminerAssignmentPreviewRequest
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => createExaminerAssignmentPreview(apiClient, sessionPublicId, payload),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId],
+      }),
+  });
+}
+
+export function useConfirmExaminerAssignmentPreview(
+  sessionPublicId: string,
+): UseMutationResult<ExaminerAssignmentPreviewResponse, unknown, string> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (batchPublicId) =>
+      confirmExaminerAssignmentPreview(apiClient, sessionPublicId, batchPublicId),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId],
+      }),
   });
 }
 

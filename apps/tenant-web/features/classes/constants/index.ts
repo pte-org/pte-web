@@ -29,6 +29,7 @@ export const CLASS_TABLE_HEADERS = {
 } as const;
 
 export const CLASS_ROW_ACTIONS_TEXT = {
+  edit: "Edit",
   activate: "Activate",
   deactivate: "Deactivate",
   suspend: "Suspend",
@@ -42,6 +43,15 @@ export const CREATE_CLASS_TEXT = {
   cancel: "Cancel",
   submit: (label: string) => `Create ${label}`,
   submitting: "Creating...",
+} as const;
+
+export const EDIT_CLASS_TEXT = {
+  title: (label: string) => `Edit ${label}`,
+  nameLabel: (label: string) => `${label} name`,
+  namePlaceholder: "e.g. 12A1",
+  cancel: "Cancel",
+  submit: "Save changes",
+  submitting: "Saving...",
 } as const;
 
 export const CREATE_CLASS_ERRORS = {

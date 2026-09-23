@@ -12,6 +12,8 @@ export const ANSWERS_QUERY_KEY = ["answers"] as const;
 export const ANSWER_QUERY_KEY = ["answer"] as const;
 export const EXAM_PREVIEW_QUERY_KEY = ["examPreview"] as const;
 export const ASSIGNED_CLASSES_QUERY_KEY = ["assignedClasses"] as const;
+export const EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY = ["examinerAssignmentOverview"] as const;
+export const EXAMINER_DIRECTORY_QUERY_KEY = ["examinerAssignmentDirectory"] as const;
 
 export const EXAMS_TEXT = {
   TITLE: "Exams",
@@ -95,9 +97,16 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   SERIES_PLACEHOLDER: "e.g. 2026-HK1",
   SOURCES_TITLE: "Audience sources",
   SOURCES_HELPER:
-    "Add one or more students, classes, or programs. Duplicate students are automatically removed.",
+    "Select existing students, classes, or programs. Duplicate students are automatically removed.",
   SOURCE_TYPE_LABEL: "Source type",
-  SOURCE_ID_LABEL: "Student, class, or program ID",
+  SOURCE_OPTION_LABEL: "Existing source",
+  SOURCE_SEARCH_LABEL: "Search existing sources",
+  SOURCE_SEARCH_PLACEHOLDER: "Search by name, email, account, or code",
+  SOURCE_PLACEHOLDER: "Select an existing source",
+  SOURCE_LOADING: "Loading existing sources...",
+  SOURCE_EMPTY: "No existing sources match your search.",
+  SOURCE_HELPER: "Only existing records from this organization can be selected.",
+  MANAGE_CLASSES: "Manage classes",
   ADD_SOURCE: "Add source",
   REMOVE_SOURCE: "Remove",
   NO_SOURCES: "Add at least one student, class, or program source.",
@@ -153,7 +162,7 @@ export const CREATE_EXAM_WIZARD_ERRORS = {
   CLOSES_AFTER_OPENS: "The close time must be after the open time.",
   CAPACITY_REQUIRED: "Enter a positive whole-number capacity.",
   SERIES_REQUIRED: "Add an exam series for this reuse rule.",
-  SOURCE_REQUIRED: "Enter a source ID before adding it.",
+  SOURCE_REQUIRED: "Select an existing source before adding it.",
   SOURCE_DUPLICATE: "This audience source has already been added.",
   AUDIENCE_REQUIRED: "Add at least one audience source.",
   OPEN_FUTURE: "Choose an opening time in the future.",
@@ -220,9 +229,60 @@ export const SESSION_DETAIL_TEXT = {
   CANCEL_EXAM_CONFIRM: "Cancel this exam? Students will not be able to access it.",
   STUDENTS_SECTION: "Students",
   ADD_EXISTING_STUDENTS: "Add existing students",
+  IMPORT_EXISTING_STUDENTS: "Import existing students",
+  AUDIENCE_NOT_SCHEDULED_NOTICE:
+    "Students can only be added while this exam is Scheduled. The buttons are enabled then.",
   CLASSES_SECTION: "Assigned Classes",
   PROCTORS_SECTION: "Proctors",
   ANSWERS_SECTION: "Submitted Answers",
+  EXAMINER_ASSIGNMENTS_SECTION: "Examiner assignments",
+} as const;
+
+export const EXAMINER_ASSIGNMENT_TEXT = {
+  MODE_LABEL: "Assignment method",
+  RANDOM_MODE: "Random pooled (balanced)",
+  MANUAL_MODE: "Assign by Class/Program",
+  SCOPE_LABEL: "Class or Program",
+  SCOPE_TYPE_CLASS: "Class",
+  SCOPE_TYPE_PROGRAM: "Program",
+  SCOPE_PLACEHOLDER: "Select a scope",
+  ADD_SCOPE: "Add scope",
+  REMOVE_SCOPE: "Remove",
+  EXAMINERS_LABEL: "Examiners",
+  EXAMINER_LABEL: "Examiner",
+  EXAMINER_PLACEHOLDER: "Select an active Examiner",
+  NO_EXAMINERS: "No active Examiners are available in this organization.",
+  NO_ACTIVE_SCOPES: "No active Classes are available for assignment.",
+  NO_SCOPES: "Assign at least one Class or Program scope.",
+  RANDOM_HELP:
+    "All selected scopes are combined into one pool, then attempts are split as evenly as possible.",
+  SUPPLEMENTAL_HELP:
+    "Already assigned attempts are excluded; this preview adds only new eligible attempts.",
+  PREVIEW: "Preview assignment",
+  PREVIEWING: "Preparing preview...",
+  PREVIEW_VALID: "Preview ready. Confirm to commit this exact allocation.",
+  PREVIEW_INVALID: "No valid allocation was created. Review the conflicts or selected scope.",
+  CONFLICTS: "Manual mapping conflicts",
+  ATTEMPT: "Attempt",
+  CONFLICTING_SCOPES: "Conflicting scopes",
+  ATTEMPT_COUNT: "Attempts",
+  ANSWER_COUNT: "Eligible answers",
+  LOADS: "Distribution by Examiner",
+  CONFIRM: "Confirm assignment",
+  CONFIRMING: "Confirming...",
+  CONFIRMED: "Assignment committed.",
+  EXPIRED: "This preview expired. Create a new preview.",
+  STALE:
+    "This preview is no longer valid because the candidate pool changed. Create a new preview.",
+  RETRY: "Retry",
+  BATCHES: "Preview and assignment history",
+  NO_BATCHES: "No assignment batches yet.",
+  ASSIGNED_TOTAL: (count: number) => `${count} attempt(s) assigned in this session`,
+  CREATED: "Created",
+  STATUS: "Status",
+  ACTIONS: "Actions",
+  PREVIOUS_PAGE: "Previous",
+  NEXT_PAGE: "Next",
 } as const;
 
 export const EXAM_PREVIEW_TEXT = {
@@ -246,6 +306,7 @@ export const CLASS_ASSIGNMENT_TEXT = {
   ASSIGN_PLACEHOLDER: "Select a Class to assign",
   ASSIGN: "Assign Class",
   ASSIGNING: "Assigning...",
+  SOURCE_LOCKED: "Class assignment is available only while this exam is Scheduled.",
   UNASSIGN: "Unassign",
   ACTIONS: "Actions",
   NOT_SCHEDULED_NOTICE: "Classes can only be assigned or unassigned while this exam is Scheduled.",

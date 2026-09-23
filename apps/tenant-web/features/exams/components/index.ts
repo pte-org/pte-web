@@ -8,3 +8,4 @@ export { AssignProctorModal } from "./AssignProctorModal";
 export { AnswersSection } from "./AnswersSection";
 export { AnswerDetailModal } from "./AnswerDetailModal";
 export { ClassAssignmentSection } from "./ClassAssignmentSection";
+export { ExaminerAssignmentSection } from "./ExaminerAssignmentSection";

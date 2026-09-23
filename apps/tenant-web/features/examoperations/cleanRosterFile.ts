@@ -7,6 +7,9 @@ const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5MB — a roster of a few thousa
 
 const HEADER_ALIASES: Record<string, keyof RosterRow> = {
   email: "email",
+  username: "username",
+  account: "username",
+  user: "username",
   fullname: "fullName",
   name: "fullName",
   studentcode: "studentCode",
@@ -73,9 +76,7 @@ export async function parseRosterFile(file: File): Promise<RosterFileResult> {
     if (rows.length > 0) return { fileName: file.name, rows };
   }
 
-  throw new UserFacingError(
-    "Import file must contain a header row and at least one data row",
-  );
+  throw new UserFacingError("Import file must contain a header row and at least one data row");
 }
 
 function extractRosterRows(rawRows: unknown[][]): RosterRow[] {
