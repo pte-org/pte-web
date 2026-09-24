@@ -1,8 +1,9 @@
-import type { ApiClient } from "../../client/client";
+import { DEFAULT_PAGE_SIZE, type ApiClient, type PagedResult } from "../../client/client";
 import type {
   CreateQuestionRequest,
   QuestionFilters,
   QuestionResponse,
+  QuestionStatsResponse,
   UpdateQuestionRequest,
 } from "../../types/question";
 
@@ -14,6 +15,7 @@ import type {
  */
 export const QUESTION_ENDPOINTS = {
   questions: "/api/v1/questions",
+  stats: "/api/v1/questions/stats",
   byId: (id: string) => `/api/v1/questions/${id}`,
   publish: (id: string) => `/api/v1/questions/${id}/publish`,
   edit: (id: string) => `/api/v1/questions/${id}/edit`,
@@ -25,19 +27,29 @@ export const QUESTION_ENDPOINTS = {
 } as const;
 
 /**
- * `QuestionController.list` (`services/authoring`) returns a plain
- * `List<QuestionResponse>` with no pagination and takes no query params —
- * unlike most other list endpoints in this repo, there is no `PagedResult`
- * envelope here to unwrap.
+ * `QuestionController.list` returns the common `PagedResult` envelope. Filters
+ * are applied before pagination so changing a filter also resets the result
+ * count used by the shared pagination controls.
  */
-export function listQuestions(client: ApiClient, filters: QuestionFilters = {}): Promise<QuestionResponse[]> {
+export function listQuestions(
+  client: ApiClient,
+  filters: QuestionFilters = {},
+  page = 0,
+  size = DEFAULT_PAGE_SIZE,
+): Promise<PagedResult<QuestionResponse>> {
   const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("size", String(size));
   if (filters.taskType) params.set("taskType", filters.taskType);
   if (filters.section) params.set("section", filters.section);
   if (filters.status) params.set("status", filters.status);
   if (filters.q) params.set("q", filters.q);
   const suffix = params.toString() ? `?${params.toString()}` : "";
-  return client.request<QuestionResponse[]>(`${QUESTION_ENDPOINTS.questions}${suffix}`);
+  return client.request<PagedResult<QuestionResponse>>(`${QUESTION_ENDPOINTS.questions}${suffix}`);
+}
+
+export function getQuestionStats(client: ApiClient): Promise<QuestionStatsResponse> {
+  return client.request<QuestionStatsResponse>(QUESTION_ENDPOINTS.stats);
 }
 
 export function getQuestion(client: ApiClient, id: string): Promise<QuestionResponse> {

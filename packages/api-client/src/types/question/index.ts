@@ -4,8 +4,7 @@
  * `QuestionStatus`) — the previous version of this file (questionType,
  * scoreWeight, prepTime, assetIds, version, parentId, ...) never matched any
  * real controller and was never exercised end to end. `GET /questions`
- * (`QuestionController.list`) returns a plain `List<QuestionResponse>` with
- * no pagination — there is no `page`/`size` query param on the real endpoint.
+ * (`QuestionController.list`) returns the common `PagedResult` envelope.
  */
 export type PteSection = "SPEAKING" | "WRITING" | "READING" | "LISTENING";
 
@@ -97,6 +96,15 @@ export interface QuestionResponse {
 export interface QuestionFilters {
   taskType?: string;
   section?: PteSection | string;
-  status?: QuestionStatus;
+  status?: QuestionStatus | string;
   q?: string;
+}
+
+export interface QuestionStatsResponse {
+  total: number;
+  listening: number;
+  reading: number;
+  writing: number;
+  speaking: number;
+  draft: number;
 }

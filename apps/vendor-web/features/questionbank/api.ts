@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  keepPreviousData,
   useMutation,
   useQuery,
   useQueryClient,
@@ -12,6 +13,7 @@ import {
   approveQuestion,
   createQuestion,
   createQuestionRevision,
+  getQuestionStats,
   getMediaPreview,
   getQuestion,
   listQuestions,
@@ -22,7 +24,9 @@ import {
   unarchiveQuestion,
   type CreateQuestionRequest,
   type MediaPreviewResponse,
+  type PagedResult,
   type QuestionResponse,
+  type QuestionFilters,
   type UpdateQuestionRequest,
 } from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
@@ -65,43 +69,58 @@ function mapQuestion(response: QuestionResponse): Question {
   };
 }
 
-function buildStats(questions: Question[]): QuestionStats {
-  const countBySkill = (skill: Question["skill"]): number =>
-    questions.filter((question) => question.skill === skill).length;
-  const draft = questions.filter((question) => question.status === "draft");
-
+async function fetchQuestions(
+  filters: QuestionFilters,
+  page: number,
+  size: number,
+): Promise<PagedResult<Question>> {
+  const result = await listQuestions(apiClient, filters, page, size);
   return {
-    total: String(questions.length),
-    totalTrend: "",
-    listening: String(countBySkill("listening")),
-    listeningNote: "",
-    reading: String(countBySkill("reading")),
-    readingNote: "",
-    writing: String(countBySkill("writing")),
-    writingNote: "",
-    speaking: String(countBySkill("speaking")),
-    speakingNote: "",
-    draft: String(draft.length),
-    draftNote: "",
+    ...result,
+    data: result.data.map(mapQuestion),
   };
 }
 
-async function fetchQuestions(): Promise<Question[]> {
-  const result = await listQuestions(apiClient);
-  return result.map(mapQuestion);
-}
-
-export function useQuestions(): UseQueryResult<Question[]> {
+export function useQuestions(
+  filters: QuestionFilters,
+  page: number,
+  size: number,
+): UseQueryResult<PagedResult<Question>> {
   return useQuery({
-    queryKey: QUESTIONS_QUERY_KEY,
-    queryFn: fetchQuestions,
+    queryKey: [
+      ...QUESTIONS_QUERY_KEY,
+      filters.taskType ?? "",
+      filters.section ?? "",
+      filters.status ?? "",
+      filters.q ?? "",
+      page,
+      size,
+    ],
+    queryFn: () => fetchQuestions(filters, page, size),
+    placeholderData: keepPreviousData,
   });
 }
 
 export function useQuestionStats(): UseQueryResult<QuestionStats> {
   return useQuery({
     queryKey: QUESTION_STATS_QUERY_KEY,
-    queryFn: async () => buildStats(await fetchQuestions()),
+    queryFn: async () => {
+      const stats = await getQuestionStats(apiClient);
+      return {
+        total: String(stats.total),
+        totalTrend: "",
+        listening: String(stats.listening),
+        listeningNote: "",
+        reading: String(stats.reading),
+        readingNote: "",
+        writing: String(stats.writing),
+        writingNote: "",
+        speaking: String(stats.speaking),
+        speakingNote: "",
+        draft: String(stats.draft),
+        draftNote: "",
+      };
+    },
   });
 }
 
