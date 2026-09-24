@@ -376,12 +376,22 @@ export const CreateExamWizard = ({
                   {CREATE_EXAM_WIZARD_TEXT.SKILLS_HELPER}
                 </p>
                 <div className="flex flex-wrap gap-x-6 gap-y-3">
-                  {EXAM_SKILL_OPTIONS.filter((option) => templateSkills.includes(option.value)).map(
-                    (option) => (
-                      <label key={option.value} className="flex items-center gap-2 text-sm text-gray-700">
+                  {EXAM_SKILL_OPTIONS.map((option) => {
+                    const isAvailable = templateSkills.includes(option.value);
+                    const availabilityId = `exam-skill-${option.value.toLowerCase()}-availability`;
+
+                    return (
+                      <label
+                        key={option.value}
+                        className={`flex items-center gap-2 text-sm ${
+                          isAvailable ? "text-gray-700" : "text-gray-400"
+                        }`}
+                      >
                         <input
                           type="checkbox"
                           checked={form.selectedSkills.includes(option.value)}
+                          disabled={!isAvailable}
+                          aria-describedby={isAvailable ? undefined : availabilityId}
                           onChange={(event) => {
                             const nextSkills = event.target.checked
                               ? [...form.selectedSkills, option.value]
@@ -389,10 +399,15 @@ export const CreateExamWizard = ({
                             update("selectedSkills", nextSkills);
                           }}
                         />
-                        {option.label}
+                        <span>{option.label}</span>
+                        {!isAvailable && (
+                          <span id={availabilityId} className="text-xs">
+                            ({CREATE_EXAM_WIZARD_TEXT.SKILL_UNAVAILABLE})
+                          </span>
+                        )}
                       </label>
-                    ),
-                  )}
+                    );
+                  })}
                 </div>
                 {errors.selectedSkills && (
                   <p className="mt-2 text-sm text-red-600">{errors.selectedSkills}</p>

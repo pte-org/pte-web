@@ -97,7 +97,9 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   CAPACITY_LABEL: "Maximum students",
   MODE_LABEL: "Exam mode",
   SKILLS_LABEL: "Skills included",
-  SKILLS_HELPER: "Choose one or more sections for Practice. Mock and Official exams use the full template.",
+  SKILLS_HELPER:
+    "Choose one or more of the four skills for Practice. A skill must be included in the active template to be selectable.",
+  SKILL_UNAVAILABLE: "Not included in the active template",
   FULL_TEMPLATE_SCOPE: "Full template scope",
   RETRIES_LABEL: "Allowed retries per student",
   RETRIES_HELPER: "Retries are additional submissions after the first attempt. Choose 0 to disable retries (maximum 9).",
