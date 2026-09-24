@@ -1,7 +1,13 @@
 "use client";
 
 import { useMemo, useState, type ReactElement } from "react";
-import type { ScoreSource, ScoreSourceSelectionScope, SelectScoreSourceRequest } from "@pte/api-client";
+import type {
+  HostScoreReviewResponse,
+  ScoreSource,
+  ScoreSourceSelectionPreviewResponse,
+  ScoreSourceSelectionScope,
+  SelectScoreSourceRequest,
+} from "@pte/api-client";
 import { Alert, Button, Select } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
@@ -25,17 +31,20 @@ const SOURCE_OPTIONS = [
   { label: "AI score", value: "AI" },
   { label: "Examiner score", value: "EXAMINER" },
 ];
+const EMPTY_ANSWERS: HostScoreReviewResponse["answers"] = [];
 
 function displayScore(value: number | null): string {
   return value === null ? "—" : String(value);
 }
 
-export const HostScoreReviewPanel = ({ sessionPublicId }: HostScoreReviewPanelProps): ReactElement => {
+export const HostScoreReviewPanel = ({
+  sessionPublicId,
+}: HostScoreReviewPanelProps): ReactElement => {
   const [scope, setScope] = useState<ScoreSourceSelectionScope>("ALL");
   const [section, setSection] = useState("");
   const [taskType, setTaskType] = useState("");
   const [source, setSource] = useState<ScoreSource>("AI");
-  const [preview, setPreview] = useState<ReturnType<typeof usePreviewScoreSourceSelection>["data"]>();
+  const [preview, setPreview] = useState<ScoreSourceSelectionPreviewResponse | null>(null);
   const [request, setRequest] = useState<SelectScoreSourceRequest | null>(null);
 
   const review = useHostScoreReview(sessionPublicId);
@@ -43,19 +52,31 @@ export const HostScoreReviewPanel = ({ sessionPublicId }: HostScoreReviewPanelPr
   const examinerDirectory = useActiveExaminers();
   const previewMutation = usePreviewScoreSourceSelection(sessionPublicId);
   const applyMutation = useApplyScoreSourceSelection(sessionPublicId);
-  const answers = review.data?.answers ?? [];
+  const answers = review.data?.answers ?? EMPTY_ANSWERS;
   const sections = useMemo(
-    () => [...new Set(answers.map((answer) => answer.section).filter((value): value is string => Boolean(value)))],
+    () => [
+      ...new Set(
+        answers.map((answer) => answer.section).filter((value): value is string => Boolean(value)),
+      ),
+    ],
     [answers],
   );
   const taskTypes = useMemo(
-    () => [...new Set(answers.filter((answer) => !section || answer.section === section)
-      .filter((answer) => answer.scoringMethod === "AI_SPEECH" || answer.scoringMethod === "AI_TEXT")
-      .map((answer) => answer.taskType))],
+    () => [
+      ...new Set(
+        answers
+          .filter((answer) => !section || answer.section === section)
+          .filter(
+            (answer) => answer.scoringMethod === "AI_SPEECH" || answer.scoringMethod === "AI_TEXT",
+          )
+          .map((answer) => answer.taskType),
+      ),
+    ],
     [answers, section],
   );
 
-  const scopeValue = scope === "ALL" ? null : scope === "SECTION" ? section || null : taskType || null;
+  const scopeValue =
+    scope === "ALL" ? null : scope === "SECTION" ? section || null : taskType || null;
   const canPreview = Boolean(
     review.data && !review.data.publicationLocked && (scope === "ALL" || scopeValue !== null),
   );
@@ -104,8 +125,8 @@ export const HostScoreReviewPanel = ({ sessionPublicId }: HostScoreReviewPanelPr
       <div>
         <h3 className="text-base font-semibold text-gray-900">Score review</h3>
         <p className="mt-1 text-sm text-gray-600">
-          Compare AI and Examiner scores. Host selection changes the score source used for the final report;
-          the legacy Host score remains separate.
+          Compare AI and Examiner scores. Host selection changes the score source used for the final
+          report; the legacy Host score remains separate.
         </p>
       </div>
 
@@ -115,7 +136,10 @@ export const HostScoreReviewPanel = ({ sessionPublicId }: HostScoreReviewPanelPr
           <Metric label="Assigned" value={review.data.assignedAttemptCount} />
           <Metric label="Unassigned" value={review.data.unassignedAttemptCount} />
           <Metric label="Examiner answers pending" value={review.data.pendingExaminerAnswerCount} />
-          <Metric label="Selected score unavailable" value={review.data.unavailableSelectedAnswerCount} />
+          <Metric
+            label="Selected score unavailable"
+            value={review.data.unavailableSelectedAnswerCount}
+          />
         </div>
       )}
 
@@ -125,9 +149,9 @@ export const HostScoreReviewPanel = ({ sessionPublicId }: HostScoreReviewPanelPr
       {error && <Alert tone="error">{error}</Alert>}
       {applyMutation.isSuccess && (
         <Alert tone="success">
-          Applied {applyMutation.data.affectedAnswerCount} score selections; previous AI/Examiner/unselected counts: {" "}
-          {applyMutation.data.previousAiCount}/{applyMutation.data.previousExaminerCount}/
-          {applyMutation.data.previousUnselectedCount}.
+          Applied {applyMutation.data.affectedAnswerCount} score selections; previous
+          AI/Examiner/unselected counts: {applyMutation.data.previousAiCount}/
+          {applyMutation.data.previousExaminerCount}/{applyMutation.data.previousUnselectedCount}.
         </Alert>
       )}
 
@@ -188,16 +212,22 @@ export const HostScoreReviewPanel = ({ sessionPublicId }: HostScoreReviewPanelPr
         <div className="flex flex-col gap-3 rounded-md bg-gray-50 p-4 text-sm">
           <p>
             {preview.matchedAnswerCount} answers match; {preview.availableAnswerCount} available and{" "}
-            {preview.unavailableAnswerCount} unavailable. Current AI/Examiner/unselected: {preview.currentAiCount}/
-            {preview.currentExaminerCount}/{preview.currentUnselectedCount}.
+            {preview.unavailableAnswerCount} unavailable. Current AI/Examiner/unselected:{" "}
+            {preview.currentAiCount}/{preview.currentExaminerCount}/{preview.currentUnselectedCount}
+            .
           </p>
           {!preview.canApply && (
             <Alert tone="warning">
-              Nothing changed. Resolve unavailable scores or refresh the review before applying this selection.
+              Nothing changed. Resolve unavailable scores or refresh the review before applying this
+              selection.
             </Alert>
           )}
           <div>
-            <Button type="button" onClick={apply} disabled={!preview.canApply || applyMutation.isPending}>
+            <Button
+              type="button"
+              onClick={apply}
+              disabled={!preview.canApply || applyMutation.isPending}
+            >
               {applyMutation.isPending ? "Applying…" : "Apply selection"}
             </Button>
           </div>
@@ -226,7 +256,8 @@ export const HostScoreReviewPanel = ({ sessionPublicId }: HostScoreReviewPanelPr
                 <td className="px-3 py-2">
                   {displayScore(answer.aiRawScore)}
                   <div className="text-xs text-gray-500">
-                    {answer.aiProviderCategory ?? "No provenance"}{answer.aiProvider ? ` · ${answer.aiProvider}` : ""}
+                    {answer.aiProviderCategory ?? "No provenance"}
+                    {answer.aiProvider ? ` · ${answer.aiProvider}` : ""}
                     {answer.aiAvailable ? " · available" : " · unavailable"}
                   </div>
                 </td>
@@ -237,15 +268,20 @@ export const HostScoreReviewPanel = ({ sessionPublicId }: HostScoreReviewPanelPr
                 <td className="px-3 py-2">{answer.selectedScoreSource ?? "Not selected"}</td>
                 <td className="px-3 py-2" title={answer.assignedExaminerPublicId ?? undefined}>
                   {answer.assignedExaminerPublicId
-                    ? examinerDirectory.data?.find((examiner) => examiner.publicId === answer.assignedExaminerPublicId)
-                        ?.fullName ?? `Assigned (${answer.assignedExaminerPublicId.slice(0, 8)})`
+                    ? (examinerDirectory.data?.find(
+                        (examiner) => examiner.publicId === answer.assignedExaminerPublicId,
+                      )?.fullName ?? `Assigned (${answer.assignedExaminerPublicId.slice(0, 8)})`)
                     : "Unassigned"}
                 </td>
                 <td className="px-3 py-2">{displayScore(answer.teacherScore)}</td>
               </tr>
             ))}
             {answers.length === 0 && (
-              <tr><td colSpan={6} className="px-3 py-6 text-center text-gray-500">No answer scores are available yet.</td></tr>
+              <tr>
+                <td colSpan={6} className="px-3 py-6 text-center text-gray-500">
+                  No answer scores are available yet.
+                </td>
+              </tr>
             )}
           </tbody>
         </table>
@@ -256,7 +292,11 @@ export const HostScoreReviewPanel = ({ sessionPublicId }: HostScoreReviewPanelPr
           Source selection history {audits.data ? `(${audits.data.length})` : ""}
         </summary>
         {audits.isLoading ? <p className="mt-3 text-sm text-gray-500">Loading history…</p> : null}
-        {audits.error ? <Alert className="mt-3" tone="error">Unable to load score-source history.</Alert> : null}
+        {audits.error ? (
+          <Alert className="mt-3" tone="error">
+            Unable to load score-source history.
+          </Alert>
+        ) : null}
         {!audits.isLoading && !audits.error && audits.data?.length ? (
           <div className="mt-3 overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 text-left text-xs">
@@ -272,14 +312,24 @@ export const HostScoreReviewPanel = ({ sessionPublicId }: HostScoreReviewPanelPr
                 {audits.data.map((audit) => (
                   <tr key={audit.auditPublicId}>
                     <td className="px-3 py-2">
-                      <div>{new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" })
-                        .format(new Date(audit.occurredAt))}</div>
+                      <div>
+                        {new Intl.DateTimeFormat("en-GB", {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        }).format(new Date(audit.occurredAt))}
+                      </div>
                       <div className="text-gray-500">{audit.actorPublicId.slice(0, 8)}</div>
                     </td>
-                    <td className="px-3 py-2">{audit.scope}{audit.scopeValue ? ` · ${audit.scopeValue}` : ""}</td>
-                    <td className="px-3 py-2">{audit.selectedSource} · {audit.affectedAnswerCount} answers</td>
                     <td className="px-3 py-2">
-                      {audit.previousAiCount} / {audit.previousExaminerCount} / {audit.previousUnselectedCount}
+                      {audit.scope}
+                      {audit.scopeValue ? ` · ${audit.scopeValue}` : ""}
+                    </td>
+                    <td className="px-3 py-2">
+                      {audit.selectedSource} · {audit.affectedAnswerCount} answers
+                    </td>
+                    <td className="px-3 py-2">
+                      {audit.previousAiCount} / {audit.previousExaminerCount} /{" "}
+                      {audit.previousUnselectedCount}
                     </td>
                   </tr>
                 ))}
@@ -288,7 +338,9 @@ export const HostScoreReviewPanel = ({ sessionPublicId }: HostScoreReviewPanelPr
           </div>
         ) : null}
         {!audits.isLoading && !audits.error && audits.data?.length === 0 ? (
-          <p className="mt-3 text-sm text-gray-500">No source changes have been recorded for this exam.</p>
+          <p className="mt-3 text-sm text-gray-500">
+            No source changes have been recorded for this exam.
+          </p>
         ) : null}
       </details>
     </div>

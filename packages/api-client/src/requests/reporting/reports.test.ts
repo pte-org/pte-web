@@ -26,7 +26,10 @@ describe("report requests", () => {
 
     expect(client.request).toHaveBeenNthCalledWith(1, REPORT_ENDPOINTS.mine);
     expect(client.request).toHaveBeenNthCalledWith(2, REPORT_ENDPOINTS.attempt("attempt-id"));
-    expect(client.request).toHaveBeenNthCalledWith(3, REPORT_ENDPOINTS.publicationSummary("session-id"));
+    expect(client.request).toHaveBeenNthCalledWith(
+      3,
+      REPORT_ENDPOINTS.publicationSummary("session-id"),
+    );
   });
 
   it("preflights and publishes a session through Reporting", async () => {
@@ -34,11 +37,19 @@ describe("report requests", () => {
     await preflightReportPublication(client, "session-id");
     await publishSessionReports(client, "session-id");
 
-    expect(client.request).toHaveBeenNthCalledWith(1, REPORT_ENDPOINTS.publicationPreflight("session-id"), {
-      method: "POST",
-    });
-    expect(client.request).toHaveBeenNthCalledWith(2, REPORT_ENDPOINTS.publishSession("session-id"), {
-      method: "POST",
-    });
+    expect(client.request).toHaveBeenNthCalledWith(
+      1,
+      REPORT_ENDPOINTS.publicationPreflight("session-id"),
+      {
+        method: "POST",
+      },
+    );
+    expect(client.request).toHaveBeenNthCalledWith(
+      2,
+      REPORT_ENDPOINTS.publishSession("session-id"),
+      {
+        method: "POST",
+      },
+    );
   });
 });

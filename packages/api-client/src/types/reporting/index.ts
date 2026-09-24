@@ -9,6 +9,7 @@ export interface ReportResponse {
   sessionPublicId: string;
   published: boolean;
   publishedAt: string | null;
+  immutableSnapshot: boolean;
   overall: SkillScoreResponse | null;
   communicativeSkills: SkillScoreResponse[];
 }

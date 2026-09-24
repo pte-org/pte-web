@@ -4,6 +4,7 @@ import { useState, type ChangeEvent, type FormEvent, type ReactElement } from "r
 import { Alert, Button, Input } from "@pte/ui";
 import {
   completeCloudinaryUpload,
+  getMediaPreview,
   getUserFacingApiErrorMessage,
   requestCloudinaryUpload,
   type CreateQuestionRequest,
@@ -127,9 +128,10 @@ export const QuestionEditorForm = ({
       });
       if (kind === "AUDIO_PROMPT") setAudioPromptRef(signed.mediaPublicId);
       else setImagePromptRef(signed.mediaPublicId);
+      const preview = await getMediaPreview(apiClient, signed.mediaPublicId);
       setMediaPreview({
         kind: kind === "AUDIO_PROMPT" ? "audio" : "image",
-        url: uploaded.secure_url,
+        url: preview.url,
       });
     } catch (uploadError) {
       setError(getUserFacingApiErrorMessage(uploadError, E.MEDIA_UPLOAD));

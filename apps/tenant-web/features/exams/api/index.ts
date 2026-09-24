@@ -448,7 +448,9 @@ export function useAnswers(
   });
 }
 
-export function useHostScoreReview(sessionPublicId: string): UseQueryResult<HostScoreReviewResponse> {
+export function useHostScoreReview(
+  sessionPublicId: string,
+): UseQueryResult<HostScoreReviewResponse> {
   return useQuery({
     queryKey: [...HOST_SCORE_REVIEW_QUERY_KEY, sessionPublicId],
     queryFn: () => getHostScoreReview(apiClient, sessionPublicId),
@@ -481,10 +483,16 @@ export function useApplyScoreSourceSelection(
   return useMutation({
     mutationFn: (payload) => applyScoreSourceSelection(apiClient, sessionPublicId, payload),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: [...HOST_SCORE_REVIEW_QUERY_KEY, sessionPublicId] });
-      void queryClient.invalidateQueries({ queryKey: [...SCORE_SOURCE_AUDIT_QUERY_KEY, sessionPublicId] });
+      void queryClient.invalidateQueries({
+        queryKey: [...HOST_SCORE_REVIEW_QUERY_KEY, sessionPublicId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [...SCORE_SOURCE_AUDIT_QUERY_KEY, sessionPublicId],
+      });
       void queryClient.invalidateQueries({ queryKey: ANSWERS_QUERY_KEY });
-      void queryClient.invalidateQueries({ queryKey: [...REPORT_PUBLICATION_READINESS_QUERY_KEY, sessionPublicId] });
+      void queryClient.invalidateQueries({
+        queryKey: [...REPORT_PUBLICATION_READINESS_QUERY_KEY, sessionPublicId],
+      });
     },
   });
 }
@@ -520,9 +528,15 @@ export function usePublishSessionReports(
   return useMutation({
     mutationFn: () => publishSessionReports(apiClient, sessionPublicId),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: [...HOST_SCORE_REVIEW_QUERY_KEY, sessionPublicId] });
-      void queryClient.invalidateQueries({ queryKey: [...REPORT_PUBLICATION_READINESS_QUERY_KEY, sessionPublicId] });
-      void queryClient.invalidateQueries({ queryKey: [...REPORT_PUBLICATION_SUMMARY_QUERY_KEY, sessionPublicId] });
+      void queryClient.invalidateQueries({
+        queryKey: [...HOST_SCORE_REVIEW_QUERY_KEY, sessionPublicId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [...REPORT_PUBLICATION_READINESS_QUERY_KEY, sessionPublicId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [...REPORT_PUBLICATION_SUMMARY_QUERY_KEY, sessionPublicId],
+      });
     },
   });
 }

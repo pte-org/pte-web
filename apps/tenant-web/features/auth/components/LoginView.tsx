@@ -68,7 +68,7 @@ export const LoginView = (): ReactElement => {
         ? AUTH_ROUTES.examinerWork
         : roles.includes("STUDENT")
           ? AUTH_ROUTES.studentResults
-        : AUTH_ROUTES.hostDashboard,
+          : AUTH_ROUTES.hostDashboard,
     );
   };
 

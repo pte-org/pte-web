@@ -17,7 +17,10 @@ export const SCORE_REVIEW_ENDPOINTS = {
     `/api/v1/scoring/sessions/${sessionPublicId}/source-selection/audits`,
 } as const;
 
-export function getHostScoreReview(client: ApiClient, sessionPublicId: string): Promise<HostScoreReviewResponse> {
+export function getHostScoreReview(
+  client: ApiClient,
+  sessionPublicId: string,
+): Promise<HostScoreReviewResponse> {
   return client.request<HostScoreReviewResponse>(SCORE_REVIEW_ENDPOINTS.review(sessionPublicId));
 }
 
@@ -26,10 +29,13 @@ export function previewScoreSourceSelection(
   sessionPublicId: string,
   payload: SelectScoreSourceRequest,
 ): Promise<ScoreSourceSelectionPreviewResponse> {
-  return client.request<ScoreSourceSelectionPreviewResponse>(SCORE_REVIEW_ENDPOINTS.preview(sessionPublicId), {
-    method: "POST",
-    body: payload,
-  });
+  return client.request<ScoreSourceSelectionPreviewResponse>(
+    SCORE_REVIEW_ENDPOINTS.preview(sessionPublicId),
+    {
+      method: "POST",
+      body: payload,
+    },
+  );
 }
 
 export function applyScoreSourceSelection(
@@ -37,10 +43,13 @@ export function applyScoreSourceSelection(
   sessionPublicId: string,
   payload: SelectScoreSourceRequest,
 ): Promise<ScoreSourceSelectionResultResponse> {
-  return client.request<ScoreSourceSelectionResultResponse>(SCORE_REVIEW_ENDPOINTS.apply(sessionPublicId), {
-    method: "POST",
-    body: payload,
-  });
+  return client.request<ScoreSourceSelectionResultResponse>(
+    SCORE_REVIEW_ENDPOINTS.apply(sessionPublicId),
+    {
+      method: "POST",
+      body: payload,
+    },
+  );
 }
 
 export function getScoreSourceSelectionAudits(
