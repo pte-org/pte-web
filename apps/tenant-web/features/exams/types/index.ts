@@ -17,6 +17,9 @@ export interface ExamSession {
   closesAt: string;
   status: SessionStatus;
   capacity: number;
+  examMode: ExamMode | null;
+  selectedSkills: ExamSkill[];
+  maxRetriesPerStudent: number;
 }
 
 /** The 4 PTE sections a host picks from to generate an exam (Plan B) — 1 to 4, distinct. */
@@ -40,6 +43,9 @@ export interface CreateExamWorkflowInput {
   opensAt: string;
   closesAt: string;
   examMode: ExamMode;
+  selectedSkills: ExamSkill[];
+  /** Controlled input value; parsed and validated before sending to the API. */
+  maxRetriesPerStudent: string;
   formMode: FormMode;
   reusePolicy: ReusePolicy;
   seriesKey: string;

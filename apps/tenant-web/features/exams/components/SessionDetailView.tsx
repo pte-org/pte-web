@@ -9,7 +9,13 @@ import {
   StudentRosterTable,
 } from "@/features/examoperations/components";
 import { errorMessage as mutationErrorMessage } from "@/features/examoperations/errorMessage";
-import { SESSION_DETAIL_TEXT, SESSION_STATUS_LABELS, SESSION_STATUS_VARIANT } from "../constants";
+import {
+  EXAM_MODE_LABELS,
+  EXAM_SKILL_OPTIONS,
+  SESSION_DETAIL_TEXT,
+  SESSION_STATUS_LABELS,
+  SESSION_STATUS_VARIANT,
+} from "../constants";
 import { useCancelSession, useCloseSession, useOpenSession, useSession } from "../api";
 import { AnswersSection } from "./AnswersSection";
 import { HostScoreReviewPanel } from "./HostScoreReviewPanel";
@@ -35,6 +41,10 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [studentAssignmentOpen, setStudentAssignmentOpen] = useState(false);
   const [studentImportOpen, setStudentImportOpen] = useState(false);
+  const [sessionIdCopyState, setSessionIdCopyState] = useState<{
+    sessionId: string;
+    status: "copied" | "failed";
+  } | null>(null);
   const { data: session, isLoading } = useSession(sessionPublicId);
   const open = useOpenSession(sessionPublicId);
   const close = useCloseSession(sessionPublicId);
@@ -45,6 +55,15 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
   }
 
   const lifecycleError = mutationErrorMessage(open.error ?? close.error ?? cancel.error);
+
+  const copySessionId = async (): Promise<void> => {
+    try {
+      await navigator.clipboard.writeText(session.id);
+      setSessionIdCopyState({ sessionId: session.id, status: "copied" });
+    } catch {
+      setSessionIdCopyState({ sessionId: session.id, status: "failed" });
+    }
+  };
 
   return (
     <div className="flex flex-col gap-5">
@@ -105,6 +124,63 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
           </div>
         }
       />
+
+      <section className="rounded-lg border border-gray-200 bg-white p-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-sm font-semibold text-gray-900">{T.SESSION_ID_SECTION}</h2>
+            <p className="mt-1 text-sm text-gray-500">{T.SESSION_ID_HELPER}</p>
+          </div>
+          <div className="flex flex-col gap-2 sm:items-end">
+            <code className="select-all break-all rounded bg-gray-50 px-3 py-2 text-sm text-gray-800">
+              {session.id}
+            </code>
+            <Button size="sm" variant="secondary" onClick={() => void copySessionId()}>
+              {T.COPY_SESSION_ID}
+            </Button>
+            {sessionIdCopyState?.sessionId === session.id &&
+              sessionIdCopyState.status === "copied" && (
+              <p role="status" className="text-xs text-emerald-700">
+                {T.SESSION_ID_COPIED}
+              </p>
+            )}
+            {sessionIdCopyState?.sessionId === session.id &&
+              sessionIdCopyState.status === "failed" && (
+              <p role="alert" className="text-xs text-red-700">
+                {T.SESSION_ID_COPY_FAILED}
+              </p>
+            )}
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-lg border border-gray-200 bg-white p-5">
+        <h2 className="mb-3 text-sm font-semibold text-gray-900">{T.CONFIGURATION_SECTION}</h2>
+        <dl className="grid gap-4 text-sm sm:grid-cols-3">
+          <div>
+            <dt className="text-gray-500">{T.MODE_LABEL}</dt>
+            <dd className="mt-1 font-medium text-gray-900">
+              {session.examMode ? EXAM_MODE_LABELS[session.examMode] : T.LEGACY_MODE}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-gray-500">{T.SKILLS_LABEL}</dt>
+            <dd className="mt-1 font-medium text-gray-900">
+              {session.selectedSkills.length > 0
+                ? session.selectedSkills
+                    .map((skill) => EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label ?? skill)
+                    .join(", ")
+                : T.LEGACY_SKILLS}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-gray-500">{T.RETRIES_LABEL}</dt>
+            <dd className="mt-1 font-medium text-gray-900">
+              {T.TOTAL_ATTEMPTS(session.maxRetriesPerStudent)}
+            </dd>
+          </div>
+        </dl>
+      </section>
 
       <ExamPreviewModal
         sessionPublicId={sessionPublicId}

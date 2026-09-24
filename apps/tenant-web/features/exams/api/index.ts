@@ -87,6 +87,7 @@ import type {
   AssignedClass,
   CreateSessionInput,
   ExamSession,
+  ExamSkill,
   ProctorAssignmentEntry,
   CreateExamWorkflowInput,
 } from "../types";
@@ -103,6 +104,9 @@ function sessionResponseToExamSession(response: SessionResponse): ExamSession {
     closesAt: response.closesAt,
     status: response.status,
     capacity: response.capacity,
+    examMode: response.examMode,
+    selectedSkills: (response.selectedSkills ?? []) as ExamSkill[],
+    maxRetriesPerStudent: response.maxRetriesPerStudent ?? 0,
   };
 }
 
@@ -197,6 +201,8 @@ export function useCreateExamWorkflow(): UseMutationResult<
         opensAt: new Date(input.opensAt).toISOString(),
         closesAt: new Date(input.closesAt).toISOString(),
         examMode: input.examMode,
+        selectedSkills: input.selectedSkills,
+        maxRetriesPerStudent: Number(input.maxRetriesPerStudent),
         formMode: input.formMode,
         reusePolicy: input.reusePolicy,
         seriesKey: input.seriesKey.trim() || null,

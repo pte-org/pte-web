@@ -27,6 +27,9 @@ export interface SessionResponse {
   seriesKey: string | null;
   generationJobPublicId: string | null;
   draftVersion: number;
+  /** Additive fields; optional so older API fixtures/clients remain source-compatible. */
+  selectedSkills?: string[] | null;
+  maxRetriesPerStudent?: number;
 }
 
 /** Host preview of the immutable published snapshot; deliberately answer-stripped. */
@@ -159,6 +162,8 @@ export interface CreateExamDraftRequest {
   reusePolicy?: ReusePolicy | null;
   seriesKey?: string | null;
   capacity: number;
+  selectedSkills?: string[];
+  maxRetriesPerStudent?: number;
 }
 
 export interface PatchExamDraftRequest {
@@ -173,6 +178,8 @@ export interface PatchExamDraftRequest {
   seriesKey?: string | null;
   capacity?: number;
   expectedVersion?: number;
+  selectedSkills?: string[];
+  maxRetriesPerStudent?: number;
 }
 
 export type AudienceSourceType = "STUDENT" | "CLASS" | "PROGRAM";

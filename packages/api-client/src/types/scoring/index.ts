@@ -11,6 +11,7 @@ export interface AnswerListItemResponse {
   rawScore: number | null;
   teacherScore: number | null;
   createdAt: string;
+  attemptNumber: number | null;
 }
 
 /** Matches scoring's real `AnswerListResponse` record exactly. */

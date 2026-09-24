@@ -45,6 +45,11 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
 
   const columns: DataTableColumn<AnswerListItemResponse>[] = [
     {
+      key: "attemptNumber",
+      header: ANSWER_TABLE_HEADERS.ATTEMPT,
+      cell: (row) => <span className="font-medium text-gray-700">{T.ATTEMPT_VALUE(row.attemptNumber)}</span>,
+    },
+    {
       key: "taskType",
       header: ANSWER_TABLE_HEADERS.TASK_TYPE,
       cell: (row) => <span className="font-medium text-gray-900">{row.taskType}</span>,

@@ -29,6 +29,7 @@ export const EXAMS_TEXT = {
 
 export const EXAM_TABLE_HEADERS = {
   NAME: "Exam Name",
+  CONFIGURATION: "Configuration",
   STATUS: "Status",
   OPENS_AT: "Opens",
   CLOSES_AT: "Closes",
@@ -95,6 +96,11 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   CLOSES_AT_LABEL: "Closes at",
   CAPACITY_LABEL: "Maximum students",
   MODE_LABEL: "Exam mode",
+  SKILLS_LABEL: "Skills included",
+  SKILLS_HELPER: "Choose one or more sections for Practice. Mock and Official exams use the full template.",
+  FULL_TEMPLATE_SCOPE: "Full template scope",
+  RETRIES_LABEL: "Allowed retries per student",
+  RETRIES_HELPER: "Retries are additional submissions after the first attempt. Choose 0 to disable retries (maximum 9).",
   FORM_MODE_LABEL: "Question form",
   REUSE_POLICY_LABEL: "Student reuse rule",
   SERIES_LABEL: "Exam series",
@@ -119,6 +125,9 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   NO_ACTIVE_SUBSCRIPTIONS: "No active subscription is available for this exam.",
   REVIEW_TITLE: "Review before generation",
   REVIEW_TEMPLATE: "Template",
+  REVIEW_MODE: "Exam mode",
+  REVIEW_SKILLS: "Included skills",
+  REVIEW_RETRIES: "Retries per student",
   REVIEW_AUDIENCE: "Audience sources",
   REVIEW_RULE: "Student reuse rule",
   REVIEW_CAPACITY: "Maximum students",
@@ -170,6 +179,9 @@ export const CREATE_EXAM_WIZARD_ERRORS = {
   SOURCE_DUPLICATE: "This audience source has already been added.",
   AUDIENCE_REQUIRED: "Add at least one audience source.",
   OPEN_FUTURE: "Choose an opening time in the future.",
+  SKILLS_REQUIRED: "Choose at least one skill included in the selected template.",
+  FULL_SCOPE_REQUIRED: "Mock and Official exams must include every skill in the selected template.",
+  RETRIES_INVALID: "Enter a whole number of retries from 0 to 9.",
 } as const;
 
 export const EXAM_MODE_OPTIONS: { value: ExamMode; label: string }[] = [
@@ -177,6 +189,12 @@ export const EXAM_MODE_OPTIONS: { value: ExamMode; label: string }[] = [
   { value: "MOCK_TEST", label: CREATE_EXAM_WIZARD_TEXT.MODE_MOCK },
   { value: "REAL_EXAM", label: CREATE_EXAM_WIZARD_TEXT.MODE_REAL },
 ];
+
+export const EXAM_MODE_LABELS: Record<ExamMode, string> = {
+  PRACTICE: CREATE_EXAM_WIZARD_TEXT.MODE_PRACTICE,
+  MOCK_TEST: CREATE_EXAM_WIZARD_TEXT.MODE_MOCK,
+  REAL_EXAM: CREATE_EXAM_WIZARD_TEXT.MODE_REAL,
+};
 
 export const FORM_MODE_OPTIONS: { value: FormMode; label: string }[] = [
   { value: "SHARED_FORM", label: CREATE_EXAM_WIZARD_TEXT.FORM_SHARED },
@@ -226,6 +244,11 @@ export const EMPTY_CREATE_SESSION: CreateSessionInput = {
 
 export const SESSION_DETAIL_TEXT = {
   BACK: "Back to Exams",
+  SESSION_ID_SECTION: "Exam session ID",
+  SESSION_ID_HELPER: "Share this ID with students so they can open this exam in the PTE app.",
+  COPY_SESSION_ID: "Copy ID",
+  SESSION_ID_COPIED: "Session ID copied.",
+  SESSION_ID_COPY_FAILED: "Could not copy the session ID. Select the ID and copy it manually.",
   VIEW_EXAM: "View Exam",
   OPEN_EXAM: "Open Exam",
   CLOSE_EXAM: "Close Exam",
@@ -242,6 +265,15 @@ export const SESSION_DETAIL_TEXT = {
   PROCTORS_SECTION: "Proctors",
   ANSWERS_SECTION: "Submitted Answers",
   EXAMINER_ASSIGNMENTS_SECTION: "Examiner assignments",
+  CONFIGURATION_SECTION: "Exam configuration",
+  MODE_LABEL: "Mode",
+  SKILLS_LABEL: "Skills included",
+  RETRIES_LABEL: "Retries per student",
+  LEGACY_MODE: "Previously created exam",
+  LEGACY_SKILLS: "Template-defined skills",
+  TOTAL_ATTEMPTS: (retries: number) =>
+    `${retries} ${retries === 1 ? "retry" : "retries"} allowed (${retries + 1} total ${retries === 0 ? "attempt" : "attempts"})`,
+  RETRIES_SUMMARY: (retries: number) => `${retries} ${retries === 1 ? "retry" : "retries"}`,
 } as const;
 
 export const EXAMINER_ASSIGNMENT_TEXT = {
@@ -323,9 +355,12 @@ export const ANSWERS_SECTION_TEXT = {
   STATUS_FILTER_LABEL: "Status",
   STATUS_FILTER_ALL: "All statuses",
   VIEW: "View",
+  ATTEMPT_VALUE: (attemptNumber: number | null) =>
+    attemptNumber === null ? "Unavailable" : `Attempt ${attemptNumber}`,
 } as const;
 
 export const ANSWER_TABLE_HEADERS = {
+  ATTEMPT: "Attempt",
   TASK_TYPE: "Task Type",
   STATUS: "Status",
   AI_SCORE: "AI Score",

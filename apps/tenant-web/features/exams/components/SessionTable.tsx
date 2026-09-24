@@ -5,7 +5,10 @@ import Link from "next/link";
 import { Badge, DataTable, type DataTableColumn } from "@pte/ui";
 import {
   EXAM_TABLE_HEADERS,
+  EXAM_MODE_LABELS,
+  EXAM_SKILL_OPTIONS,
   EXAMS_TEXT,
+  SESSION_DETAIL_TEXT,
   SESSION_STATUS_LABELS,
   SESSION_STATUS_VARIANT,
 } from "../constants";
@@ -34,6 +37,26 @@ export const SessionTable = ({ sessions, isLoading }: SessionTableProps): ReactE
         >
           {session.name}
         </Link>
+      ),
+    },
+    {
+      key: "configuration",
+      header: EXAM_TABLE_HEADERS.CONFIGURATION,
+      cell: (session) => (
+        <div className="text-sm">
+          <div className="font-medium text-gray-800">
+            {session.examMode ? EXAM_MODE_LABELS[session.examMode] : SESSION_DETAIL_TEXT.LEGACY_MODE}
+          </div>
+          <div className="text-gray-500">
+            {session.selectedSkills.length > 0
+              ? session.selectedSkills
+                  .map((skill) => EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label ?? skill)
+                  .join(", ")
+              : SESSION_DETAIL_TEXT.LEGACY_SKILLS}
+            {" · "}
+            {SESSION_DETAIL_TEXT.RETRIES_SUMMARY(session.maxRetriesPerStudent)}
+          </div>
+        </div>
       ),
     },
     {
