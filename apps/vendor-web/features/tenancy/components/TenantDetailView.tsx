@@ -3,7 +3,7 @@
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
-import { Alert, Badge, DescriptionList, LoadingState, PageHeader } from "@pte/ui";
+import { Alert, Badge, LoadingState, PageHeader } from "@pte/ui";
 import {
   CREATE_LOGIN_ACCOUNT_TEXT,
   CREATE_TENANT_CONFLICT_TEXT,
@@ -37,6 +37,8 @@ import { CreateLoginAccountModal } from "./CreateLoginAccountModal";
 import { OrganizationTable } from "./_OrganizationTable";
 import { ResetPasswordModal } from "./ResetPasswordModal";
 import { TenantEmptyState } from "./_TenantEmptyState";
+import { CopyableId } from "./_CopyableId";
+import { DetailGroup } from "./_DetailGroup";
 
 const T = TENANT_DETAIL_TEXT;
 const L = LOGIN_ACCOUNT_TEXT;
@@ -134,30 +136,31 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
         )}
       />
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-card">
-        <h2 className="mb-4 text-base font-semibold text-gray-900">{T.INFORMATION_TITLE}</h2>
-        <DescriptionList
+      <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
+        <h2 className="text-base font-semibold text-gray-900">{T.INFORMATION_TITLE}</h2>
+        <DetailGroup
+          title={T.GROUP_IDENTITY}
           items={[
-            { label: T.ID_LABEL, value: tenant.id },
-            { label: T.CODE_LABEL, value: tenant.code },
+            { label: T.ID_LABEL, value: <CopyableId value={tenant.id} /> },
+            { label: T.CODE_LABEL, value: <CopyableId value={tenant.code} /> },
+          ]}
+        />
+        <DetailGroup
+          title={T.GROUP_ORGANIZATION}
+          items={[
             { label: T.NAME_LABEL, value: tenant.name },
             {
               label: T.ORGANIZATION_TYPE_LABEL,
               value: organizationTypeLabel(tenant.organizationType),
             },
-            { label: T.TAX_CODE_LABEL, value: tenant.taxCode ?? T.EMPTY_VALUE },
+            { label: T.TAX_CODE_LABEL, value: tenant.taxCode ?? T.EMPTY_VALUE, fullWidth: true },
+          ]}
+        />
+        <DetailGroup
+          title={T.GROUP_PLAN}
+          items={[
             { label: T.PLAN_LABEL, value: TENANT_PLAN_LABELS[tenant.plan] },
             { label: T.STUDENT_LIMIT_LABEL, value: tenant.seatsTotal },
-            {
-              label: T.STATUS_LABEL,
-              value: (
-                <Badge variant={TENANT_STATUS_VARIANT[tenant.status]}>
-                  {TENANT_STATUS_LABELS[tenant.status]}
-                </Badge>
-              ),
-            },
-            { label: T.LOGO_URL_LABEL, value: tenant.logoUrl ?? T.EMPTY_VALUE },
-            { label: T.PRIMARY_COLOR_LABEL, value: tenant.primaryColor ?? T.EMPTY_VALUE },
           ]}
         />
       </section>
@@ -191,28 +194,23 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
         {resetSucceeded && <Alert tone="success">{L.RESET_SUCCESS}</Alert>}
 
         {loginAccount ? (
-          <div className="rounded-lg border border-gray-200 bg-white p-5">
-            <DescriptionList
+          <div className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5">
+            <DetailGroup
+              title={L.GROUP_IDENTITY}
               items={[
-                { label: L.USER_ID_LABEL, value: loginAccount.id },
+                { label: L.USER_ID_LABEL, value: <CopyableId value={loginAccount.id} /> },
                 { label: L.USERNAME_LABEL, value: loginAccount.username },
+              ]}
+            />
+            <DetailGroup
+              title={L.GROUP_ACCOUNT}
+              items={[
                 { label: L.EMAIL_LABEL, value: loginAccount.email },
                 { label: L.FULL_NAME_LABEL, value: loginAccount.fullName },
-                { label: L.TENANT_ID_LABEL, value: loginAccount.tenantId ?? L.EMPTY_VALUE },
                 {
                   label: L.ROLES_LABEL,
                   value:
                     loginAccount.roles.length > 0 ? loginAccount.roles.join(", ") : L.EMPTY_VALUE,
-                },
-                { label: L.STUDENT_CODE_LABEL, value: loginAccount.studentCode ?? L.EMPTY_VALUE },
-                { label: L.CLASS_NAME_LABEL, value: loginAccount.className ?? L.EMPTY_VALUE },
-                { label: L.PHONE_LABEL, value: loginAccount.phone ?? L.EMPTY_VALUE },
-                { label: L.DATE_OF_BIRTH_LABEL, value: loginAccount.dateOfBirth ?? L.EMPTY_VALUE },
-                {
-                  label: L.PASSWORD_STATE_LABEL,
-                  value: loginAccount.mustChangePassword
-                    ? L.PASSWORD_STATE_REQUIRED
-                    : L.PASSWORD_STATE_NOT_REQUIRED,
                 },
                 {
                   label: T.STATUS_LABEL,
@@ -221,6 +219,27 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
                       {LOGIN_ACCOUNT_STATUS_LABELS[loginAccount.status]}
                     </Badge>
                   ),
+                },
+              ]}
+            />
+            <DetailGroup
+              title={L.GROUP_STUDENT}
+              items={[
+                { label: L.STUDENT_CODE_LABEL, value: loginAccount.studentCode ?? L.EMPTY_VALUE },
+                { label: L.CLASS_NAME_LABEL, value: loginAccount.className ?? L.EMPTY_VALUE },
+                { label: L.PHONE_LABEL, value: loginAccount.phone ?? L.EMPTY_VALUE },
+                { label: L.DATE_OF_BIRTH_LABEL, value: loginAccount.dateOfBirth ?? L.EMPTY_VALUE },
+              ]}
+            />
+            <DetailGroup
+              title={L.GROUP_SECURITY}
+              items={[
+                {
+                  label: L.PASSWORD_STATE_LABEL,
+                  value: loginAccount.mustChangePassword
+                    ? L.PASSWORD_STATE_REQUIRED
+                    : L.PASSWORD_STATE_NOT_REQUIRED,
+                  fullWidth: true,
                 },
               ]}
             />
