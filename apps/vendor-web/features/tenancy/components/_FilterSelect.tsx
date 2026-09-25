@@ -128,13 +128,13 @@ export const FilterSelect = ({
               aria-hidden="true"
               tabIndex={-1}
               onClick={() => setIsOpen(false)}
-              className="fixed inset-0 z-10 cursor-default"
+              className="fixed inset-0 z-[55] cursor-default"
             />
             <ul
               ref={listRef}
               role="listbox"
               aria-label={ariaLabel}
-              className="fixed z-20 max-h-60 max-w-[calc(100vw-1rem)] overflow-auto rounded-md border border-gray-200 bg-white py-1 text-sm shadow-lg"
+              className="fixed z-[60] max-h-60 max-w-[calc(100vw-1rem)] overflow-auto rounded-md border border-gray-200 bg-white py-1 text-sm shadow-lg"
               style={{
                 top: listPosition?.top ?? 0,
                 left: listPosition?.left ?? 0,
