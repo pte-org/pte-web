@@ -15,6 +15,7 @@ import {
   StatCard,
   CheckCircleIcon,
   PencilIcon,
+  useToast,
 } from "@pte/ui";
 import {
   getUserFacingApiErrorMessage,
@@ -47,6 +48,18 @@ const INITIAL_FORM: PlanRequest = {
 const formatMoney = (plan: PlanResponse): string =>
   `${Number(plan.price).toLocaleString()} ${plan.currency}`;
 
+// Backend integer fields are Java `int` (max 2,147,483,647); reject anything a
+// 10-digit typo could produce instead of letting the server 500 on overflow.
+const MAX_INT_FIELD_VALUE = 2_000_000_000;
+// Business rule: no plan needs more than 2,000 students per session or add-on slot.
+const MAX_STUDENT_COUNT = 2_000;
+
+const clampToIntField = (rawValue: string, maxValue: number = MAX_INT_FIELD_VALUE): number | null => {
+  const parsed = Number(rawValue);
+  if (!rawValue || Number.isNaN(parsed)) return null;
+  return Math.min(parsed, maxValue);
+};
+
 type CatalogFilter = PlanType | "ALL";
 
 const PLAN_FORM_ID = "plan-catalog-form";
@@ -63,7 +76,7 @@ export const PlanCatalogView = (): ReactElement => {
   const [editing, setEditing] = useState<PlanResponse | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [planToArchive, setPlanToArchive] = useState<PlanResponse | null>(null);
-  const [message, setMessage] = useState("");
+  const { showToast } = useToast();
   const visiblePlans = useMemo(
     () => (catalogFilter === "ALL" ? plans : plans.filter((plan) => plan.type === catalogFilter)),
     [catalogFilter, plans],
@@ -104,13 +117,11 @@ export const PlanCatalogView = (): ReactElement => {
     setEditing(null);
     setForm({ ...INITIAL_FORM });
     setFormType(INITIAL_FORM.type);
-    setMessage("");
     setIsFormOpen(true);
   };
 
   const save = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
-    setMessage("");
     const payload: PlanRequest = {
       ...form,
       name: form.name.trim(),
@@ -122,10 +133,10 @@ export const PlanCatalogView = (): ReactElement => {
     };
     if (editing) {
       await updatePlan.mutateAsync({ publicId: editing.publicId, payload });
-      setMessage(T.UPDATED);
+      showToast(T.UPDATED, { tone: "success" });
     } else {
       await createPlan.mutateAsync(payload);
-      setMessage(T.CREATED);
+      showToast(T.CREATED, { tone: "success" });
     }
     resetForm();
   };
@@ -133,6 +144,7 @@ export const PlanCatalogView = (): ReactElement => {
   const transition = async (plan: PlanResponse): Promise<void> => {
     if (plan.status === "DRAFT") {
       await activatePlan.mutateAsync(plan.publicId);
+      showToast(T.ACTIVATED, { tone: "success" });
       return;
     }
     if (plan.status === "ACTIVE") setPlanToArchive(plan);
@@ -142,6 +154,7 @@ export const PlanCatalogView = (): ReactElement => {
     if (!planToArchive) return;
     await archivePlan.mutateAsync(planToArchive.publicId);
     setPlanToArchive(null);
+    showToast(T.ARCHIVED_SUCCESS, { tone: "success" });
   };
 
   return (
@@ -155,8 +168,7 @@ export const PlanCatalogView = (): ReactElement => {
           </Button>
         }
       />
-      {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
-      {message && <Alert tone="success">{message}</Alert>}
+      {!isFormOpen && errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       <CollapsibleSection
         title={T.OVERVIEW_TITLE}
         subtitle={T.OVERVIEW_SUBTITLE}
@@ -195,6 +207,7 @@ export const PlanCatalogView = (): ReactElement => {
           className="flex flex-col gap-6"
           onSubmit={(event) => void save(event)}
         >
+          {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
           <section className="flex flex-col gap-4">
             <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
               {T.SECTION_GENERAL}
@@ -264,19 +277,25 @@ export const PlanCatalogView = (): ReactElement => {
                   label={T.DURATION}
                   type="number"
                   min="1"
+                  max={MAX_INT_FIELD_VALUE}
                   value={form.durationDays ?? ""}
                   onChange={(event) =>
-                    setForm({ ...form, durationDays: Number(event.target.value) || null })
+                    setForm({ ...form, durationDays: clampToIntField(event.target.value) })
                   }
                 />
                 <Input
                   id="plan-max-students"
                   label={T.STUDENTS_PER_SESSION}
+                  helperText={T.MAX_STUDENT_COUNT_HELPER}
                   type="number"
                   min="1"
+                  max={MAX_STUDENT_COUNT}
                   value={form.maxStudentsPerSession ?? ""}
                   onChange={(event) =>
-                    setForm({ ...form, maxStudentsPerSession: Number(event.target.value) || null })
+                    setForm({
+                      ...form,
+                      maxStudentsPerSession: clampToIntField(event.target.value, MAX_STUDENT_COUNT),
+                    })
                   }
                 />
               </div>
@@ -284,11 +303,16 @@ export const PlanCatalogView = (): ReactElement => {
               <Input
                 id="plan-extra-slots"
                 label={T.EXTRA_STUDENT_SLOTS}
+                helperText={T.MAX_STUDENT_COUNT_HELPER}
                 type="number"
                 min="1"
+                max={MAX_STUDENT_COUNT}
                 value={form.extraStudentSlots ?? ""}
                 onChange={(event) =>
-                  setForm({ ...form, extraStudentSlots: Number(event.target.value) || null })
+                  setForm({
+                    ...form,
+                    extraStudentSlots: clampToIntField(event.target.value, MAX_STUDENT_COUNT),
+                  })
                 }
               />
             )}

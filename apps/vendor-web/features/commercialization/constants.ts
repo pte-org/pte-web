@@ -90,6 +90,7 @@ export const PLAN_CATALOG_TEXT = {
   DURATION: "Duration (days)",
   STUDENTS_PER_SESSION: "Students per session",
   EXTRA_STUDENT_SLOTS: "Extra student slots",
+  MAX_STUDENT_COUNT_HELPER: "Maximum 2,000 students.",
   SAVE_CHANGES: "Save changes",
   CREATE_DRAFT: "Create draft",
   CANCEL: "Cancel",
@@ -119,6 +120,8 @@ export const PLAN_CATALOG_TEXT = {
   ERROR: "Plans could not be loaded or saved.",
   UPDATED: "Plan updated.",
   CREATED: "Plan draft created.",
+  ACTIVATED: "Plan activated.",
+  ARCHIVED_SUCCESS: "Plan archived.",
   EMPTY_VALUE: "—",
 } as const;
 
