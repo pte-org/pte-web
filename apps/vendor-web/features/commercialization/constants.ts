@@ -78,6 +78,8 @@ export const PLAN_CATALOG_TEXT = {
   EDIT_TITLE: "Edit plan",
   CREATE_TITLE: "Create plan",
   FORM_SUBTITLE: "Only ACTIVE plans are visible to tenants.",
+  SECTION_GENERAL: "General",
+  SECTION_PRICING: "Pricing & limits",
   PLAN_NAME: "Plan name",
   PLAN_TYPE: "Plan type",
   EXAM_PACKAGE: "Exam package",

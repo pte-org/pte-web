@@ -8,6 +8,7 @@ import {
   CollapsibleSection,
   DataTable,
   Input,
+  Modal,
   PageHeader,
   Select,
   StatCard,
@@ -46,6 +47,8 @@ const formatMoney = (plan: PlanResponse): string =>
   `${Number(plan.price).toLocaleString()} ${plan.currency}`;
 
 type CatalogFilter = PlanType | "ALL";
+
+const PLAN_FORM_ID = "plan-catalog-form";
 
 export const PlanCatalogView = (): ReactElement => {
   const { data: plans = [], isLoading, isError } = usePlansQuery();
@@ -136,11 +139,9 @@ export const PlanCatalogView = (): ReactElement => {
         title={T.TITLE}
         subtitle={T.SUBTITLE}
         actions={
-          !isFormOpen && (
-            <Button type="button" onClick={beginCreate}>
-              {T.ADD}
-            </Button>
-          )
+          <Button type="button" onClick={beginCreate}>
+            {T.ADD}
+          </Button>
         }
       />
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
@@ -158,12 +159,35 @@ export const PlanCatalogView = (): ReactElement => {
           accent="cream"
         />
       </CollapsibleSection>
-      {isFormOpen && (
-        <CommercialPanel
-          title={editing ? T.EDIT_TITLE : T.CREATE_TITLE}
-          subtitle={T.FORM_SUBTITLE}
+      <Modal
+        open={isFormOpen}
+        onClose={resetForm}
+        title={editing ? T.EDIT_TITLE : T.CREATE_TITLE}
+        size="lg"
+        footer={
+          <>
+            <Button type="button" variant="secondary" onClick={resetForm}>
+              {T.CANCEL}
+            </Button>
+            <Button
+              type="submit"
+              form={PLAN_FORM_ID}
+              isLoading={createPlan.isPending || updatePlan.isPending}
+            >
+              {editing ? T.SAVE_CHANGES : T.CREATE_DRAFT}
+            </Button>
+          </>
+        }
+      >
+        <form
+          id={PLAN_FORM_ID}
+          className="flex flex-col gap-6"
+          onSubmit={(event) => void save(event)}
         >
-          <form className="grid gap-4 md:grid-cols-2" onSubmit={(event) => void save(event)}>
+          <section className="flex flex-col gap-4">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+              {T.SECTION_GENERAL}
+            </h3>
             <Input
               id="plan-name"
               label={T.PLAN_NAME}
@@ -171,26 +195,35 @@ export const PlanCatalogView = (): ReactElement => {
               onChange={(event) => setForm({ ...form, name: event.target.value })}
               required
             />
-            <Select
-              id="plan-type"
-              label={T.PLAN_TYPE}
-              options={[
-                { label: T.EXAM_PACKAGE, value: "EXAM_PACKAGE" },
-                { label: T.STUDENT_CAPACITY, value: "STUDENT_CAPACITY" },
-              ]}
-              value={formType}
-              onChange={(event) => {
-                const nextType = event.target.value as PlanType;
-                setFormType(nextType);
-                setForm({ ...form, type: nextType });
-              }}
-            />
-            <Input
-              id="plan-description"
-              label={T.DESCRIPTION}
-              value={form.description ?? ""}
-              onChange={(event) => setForm({ ...form, description: event.target.value })}
-            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Select
+                id="plan-type"
+                label={T.PLAN_TYPE}
+                options={[
+                  { label: T.EXAM_PACKAGE, value: "EXAM_PACKAGE" },
+                  { label: T.STUDENT_CAPACITY, value: "STUDENT_CAPACITY" },
+                ]}
+                value={formType}
+                onChange={(event) => {
+                  const nextType = event.target.value as PlanType;
+                  setFormType(nextType);
+                  setForm({ ...form, type: nextType });
+                }}
+              />
+              <Input
+                id="plan-description"
+                label={T.DESCRIPTION}
+                value={form.description ?? ""}
+                onChange={(event) => setForm({ ...form, description: event.target.value })}
+              />
+            </div>
+          </section>
+
+          <section className="flex flex-col gap-4 border-t border-gray-100 pt-6">
+            <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+              {T.SECTION_PRICING}
+            </h3>
+            <p className="-mt-2 text-xs text-gray-500">{T.FORM_SUBTITLE}</p>
             <div className="grid gap-4 sm:grid-cols-2">
               <Input
                 id="plan-price"
@@ -248,17 +281,9 @@ export const PlanCatalogView = (): ReactElement => {
                 }
               />
             )}
-            <div className="flex items-end gap-2">
-              <Button type="submit" isLoading={createPlan.isPending || updatePlan.isPending}>
-                {editing ? T.SAVE_CHANGES : T.CREATE_DRAFT}
-              </Button>
-              <Button type="button" variant="secondary" onClick={resetForm}>
-                {T.CANCEL}
-              </Button>
-            </div>
-          </form>
-        </CommercialPanel>
-      )}
+          </section>
+        </form>
+      </Modal>
       <CommercialPanel
         title={T.CATALOG_TITLE}
         subtitle={T.CATALOG_SUBTITLE}
