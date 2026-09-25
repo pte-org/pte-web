@@ -35,6 +35,8 @@ export { PaginationControls } from "./PaginationControls";
 export type { PageMeta } from "./PaginationControls";
 export { DescriptionList } from "./DescriptionList";
 export type { DescriptionItem } from "./DescriptionList";
+export { DetailGroup } from "./DetailGroup";
+export { CopyableId } from "./CopyableId";
 export { SidebarNav } from "./SidebarNav";
 export type { SidebarNavItem } from "./SidebarNav";
 export { TopBar } from "./TopBar";

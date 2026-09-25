@@ -3,7 +3,7 @@
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
-import { Alert, Badge, LoadingState, PageHeader } from "@pte/ui";
+import { Alert, Badge, CopyableId, DetailGroup, LoadingState, PageHeader } from "@pte/ui";
 import {
   CREATE_LOGIN_ACCOUNT_TEXT,
   CREATE_TENANT_CONFLICT_TEXT,
@@ -37,8 +37,6 @@ import { CreateLoginAccountModal } from "./CreateLoginAccountModal";
 import { OrganizationTable } from "./_OrganizationTable";
 import { ResetPasswordModal } from "./ResetPasswordModal";
 import { TenantEmptyState } from "./_TenantEmptyState";
-import { CopyableId } from "./_CopyableId";
-import { DetailGroup } from "./_DetailGroup";
 
 const T = TENANT_DETAIL_TEXT;
 const L = LOGIN_ACCOUNT_TEXT;

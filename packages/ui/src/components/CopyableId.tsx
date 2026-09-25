@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { CheckCircleIcon, CopyIcon } from "@pte/ui";
+import { CheckCircleIcon, CopyIcon } from "./icons";
 
 interface CopyableIdProps {
   value: string;
