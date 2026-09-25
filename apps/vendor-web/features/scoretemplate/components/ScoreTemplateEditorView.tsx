@@ -3,7 +3,7 @@
 import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { type QuestionTypeResponse, type QuestionTypeSection } from "@pte/api-client";
-import { Alert, Button, LoadingState, PageHeader } from "@pte/ui";
+import { Alert, Button, LoadingState, PageHeader, Select } from "@pte/ui";
 import {
   useActivateScoreTemplate,
   useReplaceScoreTemplateItems,
@@ -369,19 +369,17 @@ const ScoreTemplateEditorForm = ({
         />
       </div>
 
-      <div>
-        <label htmlFor="score-template-policy" className="block text-sm font-medium text-gray-700">
-          {SCORE_TEMPLATE_TEXT.POLICY_LABEL}
-        </label>
-        <select
+      <div className="max-w-md">
+        <Select
           id="score-template-policy"
+          label={SCORE_TEMPLATE_TEXT.POLICY_LABEL}
           value={templatePolicy}
           onChange={(event) => setTemplatePolicy(event.target.value as ScoreTemplatePolicy)}
-          className="mt-1 w-full max-w-md rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
-        >
-          <option value="STANDARD_PTE">{SCORE_TEMPLATE_TEXT.STANDARD_POLICY}</option>
-          <option value="CUSTOM">{SCORE_TEMPLATE_TEXT.CUSTOM_POLICY}</option>
-        </select>
+          options={[
+            { value: "STANDARD_PTE", label: SCORE_TEMPLATE_TEXT.STANDARD_POLICY },
+            { value: "CUSTOM", label: SCORE_TEMPLATE_TEXT.CUSTOM_POLICY },
+          ]}
+        />
         {templatePolicy === "CUSTOM" && (
           <p className="mt-1 text-xs text-gray-500">{SCORE_TEMPLATE_TEXT.CUSTOM_POLICY_NOTICE}</p>
         )}
@@ -390,47 +388,36 @@ const ScoreTemplateEditorForm = ({
       <div className="rounded-lg border border-blue-100 bg-blue-50/60 p-4">
         <p className="mb-3 text-sm text-blue-900">{SCORE_TEMPLATE_TEXT.TASK_TYPE_CATALOG_NOTICE}</p>
         <div className="flex flex-col gap-3 md:flex-row md:items-end">
-          <div className="flex-1">
-            <label
-              htmlFor="exam-template-add-section"
-              className="block text-sm font-medium text-gray-700"
-            >
-              {SCORE_TEMPLATE_TEXT.ADD_TYPE}
-            </label>
-            <select
+          <div className="flex flex-1 flex-col gap-2">
+            <Select
               id="exam-template-add-section"
+              label={SCORE_TEMPLATE_TEXT.ADD_TYPE}
               value={newSection}
               onChange={(event) => {
                 setNewSection(event.target.value as QuestionTypeSection | "");
                 setNewTypeCode("");
               }}
-              className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
-            >
-              <option value="">{SCORE_TEMPLATE_TEXT.ADD_SECTION_PLACEHOLDER}</option>
-              {EXAM_TEMPLATE_SECTIONS.map((section) => (
-                <option key={section} value={section}>
-                  {section}
-                </option>
-              ))}
-            </select>
-            <select
+              placeholder={SCORE_TEMPLATE_TEXT.ADD_SECTION_PLACEHOLDER}
+              options={EXAM_TEMPLATE_SECTIONS.map((section) => ({
+                value: section,
+                label: section,
+              }))}
+            />
+            <Select
               id="exam-template-add-type"
               value={newTypeCode}
               onChange={(event) => setNewTypeCode(event.target.value)}
               disabled={!newSection || availableTypes.length === 0}
-              className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
-            >
-              <option value="">
-                {!newSection
+              placeholder={
+                !newSection
                   ? SCORE_TEMPLATE_TEXT.NO_SECTION_SELECTED
-                  : (addTypeDiagnostic ?? SCORE_TEMPLATE_TEXT.ADD_TYPE_PLACEHOLDER)}
-              </option>
-              {availableTypes.map((type) => (
-                <option key={taskTypeKey(type)} value={taskTypeKey(type)}>
-                  {type.displayName} ({taskTypeKey(type)})
-                </option>
-              ))}
-            </select>
+                  : (addTypeDiagnostic ?? SCORE_TEMPLATE_TEXT.ADD_TYPE_PLACEHOLDER)
+              }
+              options={availableTypes.map((type) => ({
+                value: taskTypeKey(type),
+                label: `${type.displayName} (${taskTypeKey(type)})`,
+              }))}
+            />
           </div>
           <Button
             variant="secondary"

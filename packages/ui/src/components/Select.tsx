@@ -29,6 +29,7 @@ interface SelectProps {
   required?: boolean;
   disabled?: boolean;
   className?: string;
+  title?: string;
   "aria-label"?: string;
 }
 
@@ -60,6 +61,7 @@ export const Select = ({
   required,
   disabled,
   className,
+  title,
   "aria-label": ariaLabel,
 }: SelectProps): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
@@ -130,6 +132,7 @@ export const Select = ({
         type="button"
         id={id}
         disabled={disabled}
+        title={title}
         aria-label={ariaLabel ?? label}
         aria-haspopup="listbox"
         aria-expanded={isOpen}

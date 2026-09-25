@@ -31,6 +31,10 @@ export const QUESTIONBANK_TEXT = {
   ROW_DELETE: "Delete",
   ROW_PUBLISH: "Publish",
   ROW_ARCHIVE: "Archive",
+  ARCHIVE_CONFIRM_TITLE: "Archive this question?",
+  ARCHIVE_CONFIRM_DESCRIPTION:
+    "Archived questions are hidden from exam generation and cannot be edited until unarchived.",
+  ARCHIVE_CONFIRM_BUTTON: "Archive question",
   ROW_UNARCHIVE: "Unarchive",
   ROW_SUBMIT: "Submit for approval",
   ROW_APPROVE: "Approve",

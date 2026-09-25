@@ -1,6 +1,18 @@
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { ActionMenu, Alert, Badge, type ActionMenuItem } from "@pte/ui";
+import {
+  ActionMenu,
+  Alert,
+  Badge,
+  BanIcon,
+  CheckCircleIcon,
+  ConfirmDialog,
+  DocumentIcon,
+  PencilIcon,
+  TrashIcon,
+  UploadIcon,
+  type ActionMenuItem,
+} from "@pte/ui";
 import {
   useApproveQuestion,
   useArchiveQuestion,
@@ -32,6 +44,7 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
   const rejectMutation = useRejectQuestion();
   const archiveMutation = useArchiveQuestion();
   const unarchiveMutation = useUnarchiveQuestion();
+  const [questionToArchive, setQuestionToArchive] = useState<Question | null>(null);
   const hasMutationError =
     submitMutation.isError ||
     approveMutation.isError ||
@@ -43,22 +56,26 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
     const actions: ActionMenuItem[] = [
       {
         label: QUESTIONBANK_TEXT.ROW_VIEW_DETAILS,
+        icon: DocumentIcon,
         onSelect: () => router.push(`/admin/questions/${question.id}`),
       },
     ];
     if (question.status === "draft") {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_SUBMIT,
+        icon: UploadIcon,
         onSelect: () => submitMutation.mutate(question.id),
       });
     }
     if (question.status === "pending_approval") {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_APPROVE,
+        icon: CheckCircleIcon,
         onSelect: () => approveMutation.mutate(question.id),
       });
       actions.push({
         label: "Reject",
+        icon: BanIcon,
         onSelect: () => {
           const reason = window.prompt(
             QUESTIONBANK_TEXT.REJECTION_REASON_PROMPT,
@@ -75,22 +92,31 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
     ) {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_ARCHIVE,
-        onSelect: () => archiveMutation.mutate(question.id),
+        icon: TrashIcon,
+        onSelect: () => setQuestionToArchive(question),
       });
     }
     if (question.status === "archived") {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_UNARCHIVE,
+        icon: CheckCircleIcon,
         onSelect: () => unarchiveMutation.mutate(question.id),
       });
     }
     if (question.status === "draft" || question.status === "published") {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_EDIT,
+        icon: PencilIcon,
         onSelect: () => router.push(`/admin/questions/${question.id}/edit`),
       });
     }
     return actions;
+  };
+
+  const confirmArchive = (): void => {
+    if (!questionToArchive) return;
+    archiveMutation.mutate(questionToArchive.id);
+    setQuestionToArchive(null);
   };
 
   return (
@@ -130,6 +156,16 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
           </table>
         </div>
       </div>
+      <ConfirmDialog
+        open={questionToArchive !== null}
+        title={QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_TITLE}
+        description={QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_DESCRIPTION}
+        confirmLabel={QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_BUTTON}
+        tone="danger"
+        isConfirming={archiveMutation.isPending}
+        onConfirm={confirmArchive}
+        onClose={() => setQuestionToArchive(null)}
+      />
     </div>
   );
 };
