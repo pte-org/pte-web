@@ -141,15 +141,6 @@ export const ORGANIZATION_TYPE_FILTER_OPTIONS: { value: string; label: string }[
   ...ORGANIZATION_TYPE_OPTIONS,
 ];
 
-export const CAPACITY_FILTER_OPTIONS: {
-  value: "all" | "0-100" | "101-500" | "501+";
-  label: string;
-}[] = [
-  { value: "all", label: "All student limits" },
-  { value: "0-100", label: "Up to 100 students" },
-  { value: "101-500", label: "101–500 students" },
-  { value: "501+", label: "501+ students" },
-];
 
 export const TENANT_STATS_TEXT = {
   TOTAL: "Total tenants",

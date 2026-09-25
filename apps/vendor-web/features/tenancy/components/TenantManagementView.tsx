@@ -38,7 +38,6 @@ const INITIAL_FILTER: TenantFilter = {
   status: "all",
   plan: "all",
   organizationType: "all",
-  capacity: "all",
 };
 
 function mutationErrorMessage(error: unknown): string | undefined {

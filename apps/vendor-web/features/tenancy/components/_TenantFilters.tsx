@@ -2,13 +2,12 @@
 
 import type { ReactElement } from "react";
 import {
-  CAPACITY_FILTER_OPTIONS,
   ORGANIZATION_TYPE_FILTER_OPTIONS,
   PLAN_FILTER_OPTIONS,
   STATUS_FILTER_OPTIONS,
   TENANCY_TEXT,
 } from "../constants";
-import type { TenantCapacityFilter, TenantFilter, TenantPlan, TenantStatusFilter } from "../types";
+import type { TenantFilter, TenantPlan, TenantStatusFilter } from "../types";
 import { FilterSelect } from "./_FilterSelect";
 
 interface TenantFiltersProps {
@@ -31,7 +30,7 @@ const SearchIcon = (): ReactElement => (
 );
 
 export const TenantFilters = ({ filter, onChange }: TenantFiltersProps): ReactElement => (
-  <div className="grid gap-3 rounded-lg bg-white p-4 shadow-card md:grid-cols-2 xl:grid-cols-5">
+  <div className="grid gap-3 rounded-lg bg-white p-4 shadow-card md:grid-cols-2 xl:grid-cols-4">
     <div className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 shadow-sm focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-100 md:col-span-2 xl:col-span-1">
       <SearchIcon />
       <input
@@ -60,12 +59,6 @@ export const TenantFilters = ({ filter, onChange }: TenantFiltersProps): ReactEl
       value={filter.organizationType}
       options={ORGANIZATION_TYPE_FILTER_OPTIONS}
       onChange={(value) => onChange({ ...filter, organizationType: value })}
-    />
-    <FilterSelect
-      ariaLabel={CAPACITY_FILTER_OPTIONS[0].label}
-      value={filter.capacity}
-      options={CAPACITY_FILTER_OPTIONS}
-      onChange={(value) => onChange({ ...filter, capacity: value as TenantCapacityFilter })}
     />
   </div>
 );
