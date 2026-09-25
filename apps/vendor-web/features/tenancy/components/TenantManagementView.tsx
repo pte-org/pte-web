@@ -12,15 +12,11 @@ import {
   StatCard,
   UsersIcon,
 } from "@pte/ui";
-import {
-  CREATE_TENANT_CONFLICT_TEXT,
-  TENANCY_TEXT,
-  TENANT_OVERVIEW_TEXT,
-  TENANT_STATS_TEXT,
-} from "../constants";
+import { TENANCY_TEXT, TENANT_OVERVIEW_TEXT, TENANT_STATS_TEXT } from "../constants";
 import { filterTenants } from "../utils/filterTenants";
-import { useCreateTenant, useReactivateTenant, useSuspendTenant, useTenants } from "../api";
-import type { CreateTenantInput, Tenant, TenantFilter } from "../types";
+import { useReactivateTenant, useSuspendTenant, useTenants } from "../api";
+import { useCreateTenantFlow } from "../hooks/useCreateTenantFlow";
+import type { Tenant, TenantFilter } from "../types";
 import { useGrantQuota } from "../../licensing/api";
 import { GrantQuotaModal } from "../../licensing/components/GrantQuotaModal";
 import { QuotaHistoryModal } from "../../licensing/components/QuotaHistoryModal";
@@ -40,49 +36,19 @@ const INITIAL_FILTER: TenantFilter = {
   organizationType: "all",
 };
 
-function mutationErrorMessage(error: unknown): string | undefined {
+function lifecycleErrorMessage(error: unknown): string | undefined {
   if (!error) return undefined;
-  if (error instanceof ApiError && error.kind === "conflict") {
-    if (error.code === "TENANT_CODE_ALREADY_USED" || error.code === "REQUESTED_CODE_ALREADY_USED") {
-      return CREATE_TENANT_CONFLICT_TEXT.DUPLICATE_CODE;
-    }
-    if (error.code === "TENANT_NAME_ALREADY_USED") {
-      return CREATE_TENANT_CONFLICT_TEXT.DUPLICATE_NAME;
-    }
-    return getUserFacingApiErrorMessage(error, CREATE_TENANT_CONFLICT_TEXT.TENANT_CONFLICT);
-  }
   return getUserFacingApiErrorMessage(error);
-}
-
-function normalizeComparable(value: string): string {
-  return value.trim().toLowerCase();
-}
-
-function validateCreateConflict(input: CreateTenantInput, tenants: Tenant[]): string | undefined {
-  const code = normalizeComparable(input.code);
-  const name = normalizeComparable(input.name);
-
-  if (tenants.some((tenant) => normalizeComparable(tenant.code) === code)) {
-    return CREATE_TENANT_CONFLICT_TEXT.DUPLICATE_CODE;
-  }
-  if (tenants.some((tenant) => normalizeComparable(tenant.name) === name)) {
-    return CREATE_TENANT_CONFLICT_TEXT.DUPLICATE_NAME;
-  }
-
-  return undefined;
 }
 
 export const TenantManagementView = (): ReactElement => {
   const { data: tenants } = useTenants();
   const suspend = useSuspendTenant();
   const reactivate = useReactivateTenant();
-  const create = useCreateTenant();
+  const createFlow = useCreateTenantFlow();
 
   const [filter, setFilter] = useState<TenantFilter>(INITIAL_FILTER);
   const [suspendTarget, setSuspendTarget] = useState<Tenant | null>(null);
-  const [createOpen, setCreateOpen] = useState(false);
-  const [createError, setCreateError] = useState<string | undefined>();
-  const [createdTenant, setCreatedTenant] = useState<Tenant | null>(null);
   const [lifecycleError, setLifecycleError] = useState<string | undefined>();
   const [grantTarget, setGrantTarget] = useState<Tenant | null>(null);
   const [historyTarget, setHistoryTarget] = useState<Tenant | null>(null);
@@ -95,7 +61,7 @@ export const TenantManagementView = (): ReactElement => {
   const confirmSuspend = (tenant: Tenant): void => {
     setLifecycleError(undefined);
     suspend.mutate(tenant.id, {
-      onError: (error) => setLifecycleError(mutationErrorMessage(error)),
+      onError: (error) => setLifecycleError(lifecycleErrorMessage(error)),
     });
     setSuspendTarget(null);
   };
@@ -103,24 +69,7 @@ export const TenantManagementView = (): ReactElement => {
   const confirmReactivate = (tenant: Tenant): void => {
     setLifecycleError(undefined);
     reactivate.mutate(tenant.id, {
-      onError: (error) => setLifecycleError(mutationErrorMessage(error)),
-    });
-  };
-
-  const confirmCreate = (input: CreateTenantInput): void => {
-    setCreateError(undefined);
-    const conflictMessage = validateCreateConflict(input, tenants ?? []);
-    if (conflictMessage) {
-      setCreateError(conflictMessage);
-      return;
-    }
-
-    create.mutate(input, {
-      onSuccess: (tenant) => {
-        setCreateOpen(false);
-        setCreateError(undefined);
-        setCreatedTenant(tenant);
-      },
+      onError: (error) => setLifecycleError(lifecycleErrorMessage(error)),
     });
   };
 
@@ -150,7 +99,7 @@ export const TenantManagementView = (): ReactElement => {
         actions={
           <button
             type="button"
-            onClick={() => setCreateOpen(true)}
+            onClick={createFlow.openModal}
             className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover"
           >
             + {TENANCY_TEXT.ADD_TENANT}
@@ -202,7 +151,7 @@ export const TenantManagementView = (): ReactElement => {
           onViewQuotaHistory={setHistoryTarget}
         />
       ) : (
-        <TenantEmptyState onAdd={() => setCreateOpen(true)} />
+        <TenantEmptyState onAdd={createFlow.openModal} />
       )}
 
       <SuspendTenantModal
@@ -213,19 +162,15 @@ export const TenantManagementView = (): ReactElement => {
       />
 
       <CreateTenantModal
-        key={createOpen ? "open" : "closed"}
-        open={createOpen}
-        onClose={() => {
-          create.reset();
-          setCreateError(undefined);
-          setCreateOpen(false);
-        }}
-        onSubmit={confirmCreate}
-        error={createError ?? mutationErrorMessage(create.error)}
-        isSubmitting={create.isPending}
+        key={createFlow.open ? "open" : "closed"}
+        open={createFlow.open}
+        onClose={createFlow.closeModal}
+        onSubmit={createFlow.confirmCreate}
+        error={createFlow.error}
+        isSubmitting={createFlow.isSubmitting}
       />
 
-      <TenantCreatedModal tenant={createdTenant} onClose={() => setCreatedTenant(null)} />
+      <TenantCreatedModal tenant={createFlow.createdTenant} onClose={createFlow.closeCreatedModal} />
 
       <GrantQuotaModal
         key={grantTarget?.id ?? "grant-quota-closed"}
