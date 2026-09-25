@@ -60,6 +60,8 @@ export const QuestionBankView = (): ReactElement => {
   };
 
   const questions = questionPage?.data ?? [];
+  const isFiltered =
+    filter.query.trim() !== "" || filter.skill !== "all" || filter.status !== "all";
 
   return (
     <div className="flex flex-col gap-5">
@@ -80,7 +82,11 @@ export const QuestionBankView = (): ReactElement => {
       <QuestionFilters filter={filter} onChange={handleFilterChange} />
       {isError && <Alert tone="error">{QUESTIONBANK_TEXT.LOAD_ERROR}</Alert>}
       {isFetching && questionPage && <Alert tone="info">{QUESTIONBANK_TEXT.SYNCING}</Alert>}
-      <QuestionTable questions={questions} />
+      <QuestionTable
+        questions={questions}
+        isFiltered={isFiltered}
+        onClearFilters={() => handleFilterChange(INITIAL_FILTER)}
+      />
       {questionPage && (
         <PaginationControls
           meta={questionPage.meta}

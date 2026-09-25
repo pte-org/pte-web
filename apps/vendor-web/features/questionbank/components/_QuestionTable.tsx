@@ -5,9 +5,11 @@ import {
   Alert,
   Badge,
   BanIcon,
+  Button,
   CheckCircleIcon,
   ConfirmDialog,
   DocumentIcon,
+  EmptyState,
   PencilIcon,
   TrashIcon,
   UploadIcon,
@@ -33,13 +35,19 @@ import { RejectQuestionModal } from "./_RejectQuestionModal";
 
 interface QuestionTableProps {
   questions: Question[];
+  isFiltered?: boolean;
+  onClearFilters?: () => void;
 }
 
 const HEADER_CLASS =
   "px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
 const CELL_CLASS = "px-5 py-4 text-sm text-gray-700 align-middle";
 
-export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement => {
+export const QuestionTable = ({
+  questions,
+  isFiltered = false,
+  onClearFilters,
+}: QuestionTableProps): ReactElement => {
   const router = useRouter();
   const { showToast } = useToast();
   const submitMutation = useSubmitQuestionApproval();
@@ -140,6 +148,29 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
       },
     );
   };
+
+  if (questions.length === 0) {
+    return (
+      <div className="space-y-4">
+        {hasMutationError && <Alert tone="error">{QUESTIONBANK_TEXT.STATUS_UPDATE_ERROR}</Alert>}
+        <EmptyState
+          title={QUESTIONBANK_TEXT.EMPTY_TITLE}
+          description={
+            isFiltered
+              ? QUESTIONBANK_TEXT.EMPTY_DESCRIPTION_FILTERED
+              : QUESTIONBANK_TEXT.EMPTY_DESCRIPTION_UNFILTERED
+          }
+          action={
+            isFiltered && onClearFilters ? (
+              <Button type="button" variant="secondary" onClick={onClearFilters}>
+                {QUESTIONBANK_TEXT.EMPTY_CLEAR_FILTERS}
+              </Button>
+            ) : undefined
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
