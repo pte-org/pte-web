@@ -50,8 +50,10 @@ const TenantRow = ({
 
   return (
     <tr className="border-t border-gray-100 hover:bg-slate-50/70">
-      <td className={`${CELL_CLASS} font-mono text-xs text-gray-500`}>{tenant.code}</td>
-      <td className={`${CELL_CLASS} font-medium text-gray-900`}>{tenant.name}</td>
+      <td className={CELL_CLASS}>
+        <div className="font-medium text-gray-900">{tenant.name}</div>
+        <div className="font-mono text-xs text-gray-500">{tenant.code}</div>
+      </td>
       <td className={`${CELL_CLASS} text-gray-500`}>
         {organizationTypeLabel(tenant.organizationType)}
       </td>
@@ -59,7 +61,6 @@ const TenantRow = ({
         {tenant.taxCode ?? TENANCY_TEXT.EMPTY_VALUE}
       </td>
       <td className={CELL_CLASS}>{TENANT_PLAN_LABELS[tenant.plan]}</td>
-      <td className={CELL_CLASS}>{tenant.seatsTotal}</td>
       <td className={CELL_CLASS}>
         <Badge variant={TENANT_STATUS_VARIANT[tenant.status]}>
           {TENANT_STATUS_LABELS[tenant.status]}
@@ -111,15 +112,13 @@ export const TenantTable = ({
 }: TenantTableProps): ReactElement => (
   <div className="overflow-hidden rounded-lg bg-white shadow-card">
     <div className="overflow-x-auto">
-      <table className="min-w-[1180px] w-full border-collapse">
+      <table className="min-w-[860px] w-full border-collapse">
         <thead className="bg-slate-50">
           <tr>
-            <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.CODE}</th>
             <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.NAME}</th>
             <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.TYPE}</th>
             <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.TAX_CODE}</th>
             <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.PLAN}</th>
-            <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.STUDENT_LIMIT}</th>
             <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.STATUS}</th>
             <th className={HEADER_CLASS}>{TENANT_TABLE_HEADERS.ACTIONS}</th>
           </tr>
