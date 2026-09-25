@@ -252,8 +252,9 @@ export const PlanCatalogView = (): ReactElement => {
               <Input
                 id="plan-price"
                 label={T.PRICE}
+                helperText={T.PRICE_HELPER}
                 type="number"
-                min="0"
+                min="0.01"
                 step="0.01"
                 value={form.price}
                 onChange={(event) => setForm({ ...form, price: event.target.value })}

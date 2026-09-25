@@ -86,6 +86,7 @@ export const PLAN_CATALOG_TEXT = {
   STUDENT_CAPACITY: "Student capacity",
   DESCRIPTION: "Description",
   PRICE: "Price",
+  PRICE_HELPER: "Must be greater than 0.",
   CURRENCY: "Currency",
   DURATION: "Duration (days)",
   STUDENTS_PER_SESSION: "Students per session",
