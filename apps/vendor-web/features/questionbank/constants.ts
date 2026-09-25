@@ -180,7 +180,7 @@ export const QUESTION_STATUS_VARIANT: Record<QuestionStatus, BadgeVariant> = {
   draft: "warning",
   pending_approval: "info",
   published: "success",
-  archived: "info",
+  archived: "neutral",
 };
 
 export const SKILL_FILTER_OPTIONS: {
