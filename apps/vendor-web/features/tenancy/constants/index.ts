@@ -34,6 +34,9 @@ export const TENANCY_TEXT = {
   EMPTY_TEXT:
     "Start by adding the first partner or school to set up a managed learning environment.",
   EMPTY_VALUE: "—",
+  SUSPEND_SUCCESS: "Tenant suspended.",
+  REACTIVATE_SUCCESS: "Tenant reactivated.",
+  CREATE_SUCCESS: "Tenant created.",
 } as const;
 
 export const TENANT_TABLE_HEADERS = {
@@ -176,6 +179,7 @@ export const CREATE_TENANT_ERRORS = {
 export const CREATE_TENANT_CONFLICT_TEXT = {
   DUPLICATE_CODE: "This tenant code already exists. Please use another code.",
   DUPLICATE_NAME: "This tenant name already exists. Please use another name.",
+  DUPLICATE_TAX_CODE: "This tax code is already used by another tenant. Please check and try again.",
   TENANT_CONFLICT:
     "The tenant code or name already exists. Please check the information and try again.",
   CONFLICT: "The tenant name already exists. Please check the information and try again.",

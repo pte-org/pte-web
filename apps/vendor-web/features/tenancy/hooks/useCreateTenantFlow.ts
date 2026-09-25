@@ -14,6 +14,9 @@ function mutationErrorMessage(error: unknown): string | undefined {
     if (error.code === "TENANT_NAME_ALREADY_USED") {
       return CREATE_TENANT_CONFLICT_TEXT.DUPLICATE_NAME;
     }
+    if (error.code === "TENANT_TAX_CODE_ALREADY_USED") {
+      return CREATE_TENANT_CONFLICT_TEXT.DUPLICATE_TAX_CODE;
+    }
     return getUserFacingApiErrorMessage(error, CREATE_TENANT_CONFLICT_TEXT.TENANT_CONFLICT);
   }
   return getUserFacingApiErrorMessage(error);

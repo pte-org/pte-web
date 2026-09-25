@@ -11,6 +11,7 @@ import {
   PageHeader,
   StatCard,
   UsersIcon,
+  useToast,
 } from "@pte/ui";
 import { TENANCY_TEXT, TENANT_OVERVIEW_TEXT, TENANT_STATS_TEXT } from "../constants";
 import { filterTenants } from "../utils/filterTenants";
@@ -45,7 +46,10 @@ export const TenantManagementView = (): ReactElement => {
   const { data: tenants } = useTenants();
   const suspend = useSuspendTenant();
   const reactivate = useReactivateTenant();
-  const createFlow = useCreateTenantFlow();
+  const { showToast } = useToast();
+  const createFlow = useCreateTenantFlow({
+    onCreated: () => showToast(TENANCY_TEXT.CREATE_SUCCESS, { tone: "success" }),
+  });
 
   const [filter, setFilter] = useState<TenantFilter>(INITIAL_FILTER);
   const [suspendTarget, setSuspendTarget] = useState<Tenant | null>(null);
@@ -61,6 +65,7 @@ export const TenantManagementView = (): ReactElement => {
   const confirmSuspend = (tenant: Tenant): void => {
     setLifecycleError(undefined);
     suspend.mutate(tenant.id, {
+      onSuccess: () => showToast(TENANCY_TEXT.SUSPEND_SUCCESS, { tone: "success" }),
       onError: (error) => setLifecycleError(lifecycleErrorMessage(error)),
     });
     setSuspendTarget(null);
@@ -69,6 +74,7 @@ export const TenantManagementView = (): ReactElement => {
   const confirmReactivate = (tenant: Tenant): void => {
     setLifecycleError(undefined);
     reactivate.mutate(tenant.id, {
+      onSuccess: () => showToast(TENANCY_TEXT.REACTIVATE_SUCCESS, { tone: "success" }),
       onError: (error) => setLifecycleError(lifecycleErrorMessage(error)),
     });
   };
