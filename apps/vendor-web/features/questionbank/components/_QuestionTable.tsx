@@ -29,6 +29,7 @@ import {
   QUESTION_TABLE_HEADERS,
 } from "../constants";
 import type { Question } from "../types";
+import { RejectQuestionModal } from "./_RejectQuestionModal";
 
 interface QuestionTableProps {
   questions: Question[];
@@ -47,6 +48,7 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
   const archiveMutation = useArchiveQuestion();
   const unarchiveMutation = useUnarchiveQuestion();
   const [questionToArchive, setQuestionToArchive] = useState<Question | null>(null);
+  const [questionToReject, setQuestionToReject] = useState<Question | null>(null);
   const hasMutationError =
     submitMutation.isError ||
     approveMutation.isError ||
@@ -84,17 +86,7 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_REJECT,
         icon: BanIcon,
-        onSelect: () => {
-          const reason = window.prompt(
-            QUESTIONBANK_TEXT.REJECTION_REASON_PROMPT,
-            QUESTIONBANK_TEXT.REJECTION_REASON_DEFAULT,
-          );
-          if (reason?.trim())
-            rejectMutation.mutate(
-              { id: question.id, reason },
-              { onSuccess: () => showToast(QUESTIONBANK_TEXT.REJECT_SUCCESS) },
-            );
-        },
+        onSelect: () => setQuestionToReject(question),
       });
     }
     if (
@@ -134,6 +126,19 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
       onSuccess: () => showToast(QUESTIONBANK_TEXT.ARCHIVE_SUCCESS),
     });
     setQuestionToArchive(null);
+  };
+
+  const confirmReject = (reason: string): void => {
+    if (!questionToReject) return;
+    rejectMutation.mutate(
+      { id: questionToReject.id, reason },
+      {
+        onSuccess: () => {
+          showToast(QUESTIONBANK_TEXT.REJECT_SUCCESS);
+          setQuestionToReject(null);
+        },
+      },
+    );
   };
 
   return (
@@ -182,6 +187,12 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
         isConfirming={archiveMutation.isPending}
         onConfirm={confirmArchive}
         onClose={() => setQuestionToArchive(null)}
+      />
+      <RejectQuestionModal
+        open={questionToReject !== null}
+        isSubmitting={rejectMutation.isPending}
+        onConfirm={confirmReject}
+        onClose={() => setQuestionToReject(null)}
       />
     </div>
   );
