@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ChangeEvent, type FormEvent, type ReactElement } from "react";
-import { Alert, Button, Input, Select } from "@pte/ui";
+import { Alert, Button, Input, Select, useToast } from "@pte/ui";
 import {
   completeCloudinaryUpload,
   getMediaPreview,
@@ -40,6 +40,7 @@ export const QuestionEditorForm = ({
 }: QuestionEditorFormProps): ReactElement => {
   const createMutation = useCreateQuestion();
   const updateMutation = useUpdateQuestion();
+  const { showToast } = useToast();
   const {
     data: questionTypes = [],
     isLoading: questionTypesLoading,
@@ -179,10 +180,23 @@ export const QuestionEditorForm = ({
     };
     if (question) {
       const payload: UpdateQuestionRequest = { ...content, version: question.version };
-      updateMutation.mutate({ id: question.publicId, payload }, { onSuccess: onSaved });
+      updateMutation.mutate(
+        { id: question.publicId, payload },
+        {
+          onSuccess: (saved) => {
+            showToast(T.UPDATE_SUCCESS);
+            onSaved?.(saved);
+          },
+        },
+      );
     } else {
       const payload: CreateQuestionRequest = { pteTaskType: selectedTaskType, ...content };
-      createMutation.mutate(payload, { onSuccess: onSaved });
+      createMutation.mutate(payload, {
+        onSuccess: (saved) => {
+          showToast(T.CREATE_SUCCESS);
+          onSaved?.(saved);
+        },
+      });
     }
   };
 

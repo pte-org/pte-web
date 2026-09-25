@@ -114,6 +114,8 @@ export const QUESTION_EDITOR_TEXT = {
   SAVE_DRAFT: "Save Draft",
   CREATE_DRAFT: "Create Draft",
   CANCEL: "Cancel",
+  CREATE_SUCCESS: "Question created as a draft.",
+  UPDATE_SUCCESS: "Question draft saved.",
 } as const;
 
 export const QUESTION_EDITOR_ERRORS = {
