@@ -11,6 +11,7 @@ import {
   PencilIcon,
   TrashIcon,
   UploadIcon,
+  useToast,
   type ActionMenuItem,
 } from "@pte/ui";
 import {
@@ -39,6 +40,7 @@ const CELL_CLASS = "px-5 py-4 text-sm text-gray-700 align-middle";
 
 export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement => {
   const router = useRouter();
+  const { showToast } = useToast();
   const submitMutation = useSubmitQuestionApproval();
   const approveMutation = useApproveQuestion();
   const rejectMutation = useRejectQuestion();
@@ -64,24 +66,34 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_SUBMIT,
         icon: UploadIcon,
-        onSelect: () => submitMutation.mutate(question.id),
+        onSelect: () =>
+          submitMutation.mutate(question.id, {
+            onSuccess: () => showToast(QUESTIONBANK_TEXT.SUBMIT_SUCCESS),
+          }),
       });
     }
     if (question.status === "pending_approval") {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_APPROVE,
         icon: CheckCircleIcon,
-        onSelect: () => approveMutation.mutate(question.id),
+        onSelect: () =>
+          approveMutation.mutate(question.id, {
+            onSuccess: () => showToast(QUESTIONBANK_TEXT.APPROVE_SUCCESS),
+          }),
       });
       actions.push({
-        label: "Reject",
+        label: QUESTIONBANK_TEXT.ROW_REJECT,
         icon: BanIcon,
         onSelect: () => {
           const reason = window.prompt(
             QUESTIONBANK_TEXT.REJECTION_REASON_PROMPT,
             QUESTIONBANK_TEXT.REJECTION_REASON_DEFAULT,
           );
-          if (reason?.trim()) rejectMutation.mutate({ id: question.id, reason });
+          if (reason?.trim())
+            rejectMutation.mutate(
+              { id: question.id, reason },
+              { onSuccess: () => showToast(QUESTIONBANK_TEXT.REJECT_SUCCESS) },
+            );
         },
       });
     }
@@ -100,7 +112,10 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_UNARCHIVE,
         icon: CheckCircleIcon,
-        onSelect: () => unarchiveMutation.mutate(question.id),
+        onSelect: () =>
+          unarchiveMutation.mutate(question.id, {
+            onSuccess: () => showToast(QUESTIONBANK_TEXT.UNARCHIVE_SUCCESS),
+          }),
       });
     }
     if (question.status === "draft" || question.status === "published") {
@@ -115,7 +130,9 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
 
   const confirmArchive = (): void => {
     if (!questionToArchive) return;
-    archiveMutation.mutate(questionToArchive.id);
+    archiveMutation.mutate(questionToArchive.id, {
+      onSuccess: () => showToast(QUESTIONBANK_TEXT.ARCHIVE_SUCCESS),
+    });
     setQuestionToArchive(null);
   };
 

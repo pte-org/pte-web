@@ -43,6 +43,11 @@ export const QUESTIONBANK_TEXT = {
   REJECTION_REASON_PROMPT: "Reason for rejection",
   REJECTION_REASON_DEFAULT: "Please revise this question.",
   STATUS_UPDATE_ERROR: "Could not update this question's status. Please try again.",
+  SUBMIT_SUCCESS: "Question submitted for approval.",
+  APPROVE_SUCCESS: "Question approved and published.",
+  REJECT_SUCCESS: "Question rejected and sent back to draft.",
+  ARCHIVE_SUCCESS: "Question archived.",
+  UNARCHIVE_SUCCESS: "Question unarchived.",
 } as const;
 
 export const QUESTION_DETAIL_TEXT = {
