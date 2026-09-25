@@ -110,6 +110,10 @@ export const PLAN_CATALOG_TEXT = {
   EDIT: "Edit",
   ACTIVATE: "Activate",
   ARCHIVE: "Archive",
+  ARCHIVE_CONFIRM_TITLE: "Archive this plan?",
+  ARCHIVE_CONFIRM_DESCRIPTION:
+    "Archived plans can no longer be edited, activated, or shown to tenants. This cannot be undone.",
+  ARCHIVE_CONFIRM_BUTTON: "Archive plan",
   LOADING: "Loading plans...",
   EMPTY: "No plans found",
   ERROR: "Plans could not be loaded or saved.",

@@ -6,6 +6,7 @@ import {
   ActionMenu,
   Button,
   CollapsibleSection,
+  ConfirmDialog,
   DataTable,
   Input,
   Modal,
@@ -61,6 +62,7 @@ export const PlanCatalogView = (): ReactElement => {
   const [form, setForm] = useState<PlanRequest>(INITIAL_FORM);
   const [editing, setEditing] = useState<PlanResponse | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [planToArchive, setPlanToArchive] = useState<PlanResponse | null>(null);
   const [message, setMessage] = useState("");
   const visiblePlans = useMemo(
     () => (catalogFilter === "ALL" ? plans : plans.filter((plan) => plan.type === catalogFilter)),
@@ -129,8 +131,17 @@ export const PlanCatalogView = (): ReactElement => {
   };
 
   const transition = async (plan: PlanResponse): Promise<void> => {
-    if (plan.status === "DRAFT") await activatePlan.mutateAsync(plan.publicId);
-    if (plan.status === "ACTIVE") await archivePlan.mutateAsync(plan.publicId);
+    if (plan.status === "DRAFT") {
+      await activatePlan.mutateAsync(plan.publicId);
+      return;
+    }
+    if (plan.status === "ACTIVE") setPlanToArchive(plan);
+  };
+
+  const confirmArchive = async (): Promise<void> => {
+    if (!planToArchive) return;
+    await archivePlan.mutateAsync(planToArchive.publicId);
+    setPlanToArchive(null);
   };
 
   return (
@@ -364,6 +375,16 @@ export const PlanCatalogView = (): ReactElement => {
           emptyTitle={isLoading ? T.LOADING : T.EMPTY}
         />
       </CommercialPanel>
+      <ConfirmDialog
+        open={planToArchive !== null}
+        title={T.ARCHIVE_CONFIRM_TITLE}
+        description={T.ARCHIVE_CONFIRM_DESCRIPTION}
+        confirmLabel={T.ARCHIVE_CONFIRM_BUTTON}
+        tone="danger"
+        isConfirming={archivePlan.isPending}
+        onConfirm={() => void confirmArchive()}
+        onClose={() => setPlanToArchive(null)}
+      />
     </div>
   );
 };
