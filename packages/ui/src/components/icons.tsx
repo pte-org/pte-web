@@ -180,6 +180,12 @@ export const ChevronRightIcon = ({ className }: IconProps): ReactElement => (
   </svg>
 );
 
+export const ChevronDownIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...base} className={className}>
+    <path d="m6 9 6 6 6-6" />
+  </svg>
+);
+
 export const UploadIcon = ({ className }: IconProps): ReactElement => (
   <svg {...base} className={className}>
     <path d="M12 16V4" />
