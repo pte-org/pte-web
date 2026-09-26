@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Modal } from "@pte/ui";
+import { Alert, Modal, Select } from "@pte/ui";
 import { PLAN_SELECT_OPTIONS } from "../../tenancy/constants";
 import { TenantFormField, fieldInputClass } from "../../tenancy/components/_TenantFormField";
 import { EMPTY_GRANT_QUOTA, GRANT_QUOTA_ERRORS, GRANT_QUOTA_TEXT } from "../constants";
@@ -86,7 +86,7 @@ export const GrantQuotaModal = ({
           required
           error={errors.packageName}
         >
-          <select
+          <Select
             id="grant-package"
             value={form.packageName}
             onChange={(event) =>
@@ -95,17 +95,10 @@ export const GrantQuotaModal = ({
                 packageName: event.target.value as GrantQuotaInput["packageName"],
               }))
             }
-            className={fieldInputClass(errors.packageName)}
-          >
-            <option value="" disabled>
-              {T.PACKAGE_PLACEHOLDER}
-            </option>
-            {PLAN_SELECT_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            placeholder={T.PACKAGE_PLACEHOLDER}
+            options={PLAN_SELECT_OPTIONS}
+            className={errors.packageName ? "!border-red-300 !bg-red-50/40" : undefined}
+          />
         </TenantFormField>
 
         <TenantFormField

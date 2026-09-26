@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import type { ReactElement } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@pte/ui";
 import { DASHBOARD_TEXT } from "../constants";
 import { useTenants } from "../../tenancy/api";
+import { useCreateTenantFlow } from "../../tenancy/hooks/useCreateTenantFlow";
+import { CreateTenantModal } from "../../tenancy/components/CreateTenantModal";
+import { TenantCreatedModal } from "../../tenancy/components/TenantCreatedModal";
 import type { Tenant } from "../../tenancy/types";
 import type { AdminStats } from "../types";
 import { SystemNoticeBanner } from "./_SystemNoticeBanner";
@@ -15,10 +18,15 @@ import { TenantDetailModal } from "./_TenantDetailModal";
 import { VietnamTenantMap } from "./_VietnamTenantMap";
 
 const RECENT_TENANT_LIMIT = 5;
+const TENANTS_ROUTE = "/admin/tenants";
 
 export const OverviewView = (): ReactElement => {
+  const router = useRouter();
   const { data: allTenants } = useTenants();
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
+  const createFlow = useCreateTenantFlow({
+    onCreated: () => router.push(TENANTS_ROUTE),
+  });
   const tenants = allTenants ?? [];
   const recentTenants = tenants.slice(0, RECENT_TENANT_LIMIT);
   const activeLearners = tenants.reduce((total, tenant) => total + tenant.seatsUsed, 0);
@@ -43,12 +51,13 @@ export const OverviewView = (): ReactElement => {
         title={DASHBOARD_TEXT.GREETING}
         subtitle={DASHBOARD_TEXT.GREETING_SUBTITLE}
         actions={
-          <Link
-            href="/admin/tenants"
+          <button
+            type="button"
+            onClick={createFlow.openModal}
             className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover"
           >
             + {DASHBOARD_TEXT.ADD_TENANT}
-          </Link>
+          </button>
         }
       />
       <SystemNoticeBanner />
@@ -60,6 +69,17 @@ export const OverviewView = (): ReactElement => {
         onViewTenant={setSelectedTenant}
       />
       <TenantDetailModal tenant={selectedTenant} onClose={() => setSelectedTenant(null)} />
+
+      <CreateTenantModal
+        key={createFlow.open ? "open" : "closed"}
+        open={createFlow.open}
+        onClose={createFlow.closeModal}
+        onSubmit={createFlow.confirmCreate}
+        error={createFlow.error}
+        isSubmitting={createFlow.isSubmitting}
+      />
+
+      <TenantCreatedModal tenant={createFlow.createdTenant} onClose={createFlow.closeCreatedModal} />
     </div>
   );
 };

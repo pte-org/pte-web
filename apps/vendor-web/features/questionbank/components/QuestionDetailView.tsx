@@ -1,7 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { Alert, Badge, DescriptionList, LoadingState, PageHeader } from "@pte/ui";
+import {
+  Alert,
+  Badge,
+  CopyableId,
+  DetailGroup,
+  LoadingState,
+  PageHeader,
+  cn,
+} from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useMediaPreview, useQuestion } from "../api";
 import {
@@ -70,8 +78,7 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
   if (isError) return <Alert tone="error">{T.LOAD_ERROR}</Alert>;
   if (!question) return <Alert tone="error">{T.NOT_FOUND}</Alert>;
 
-  const rawStatus = String(question.status);
-  const currentStatus = statusKey(rawStatus);
+  const currentStatus = statusKey(String(question.status));
   const taskType = question.taskTypeKey ?? question.pteTaskType ?? T.EMPTY_VALUE;
   const canEdit = question.status === "DRAFT" || question.status === "APPROVED";
   const hasMedia = Boolean(question.audioPromptRef || question.imagePromptRef);
@@ -103,18 +110,18 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
         }
       />
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-card">
-        <h2 className="mb-4 text-base font-semibold text-gray-900">{T.INFORMATION_TITLE}</h2>
-        <DescriptionList
+      <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
+        <h2 className="text-base font-semibold text-gray-900">{T.INFORMATION_TITLE}</h2>
+        <DetailGroup
+          title={T.GROUP_IDENTITY}
+          items={[{ label: T.QUESTION_CODE, value: <CopyableId value={question.publicId} /> }]}
+        />
+        <DetailGroup
+          title={T.GROUP_CLASSIFICATION}
           items={[
-            { label: T.QUESTION_CODE, value: question.publicId },
             { label: T.TASK_TYPE, value: taskType },
             { label: T.SECTION, value: valueOrEmpty(question.section) },
             { label: T.VISIBILITY, value: valueOrEmpty(question.visibility) },
-            {
-              label: T.STATUS,
-              value: currentStatus ? QUESTION_STATUS_LABELS[currentStatus] : rawStatus,
-            },
             { label: T.REVISION, value: String(question.revisionNumber ?? T.EMPTY_VALUE) },
             {
               label: T.WORD_COUNT,
@@ -122,6 +129,7 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
                 question.minWordCount != null && question.maxWordCount != null
                   ? T.WORD_COUNT_RANGE(question.minWordCount, question.maxWordCount)
                   : T.EMPTY_VALUE,
+              fullWidth: true,
             },
           ]}
         />
@@ -168,8 +176,8 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
         </section>
       </div>
 
-      <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-card">
-        <h2 className="mb-4 text-base font-semibold text-gray-900">{T.ANSWERS_TITLE}</h2>
+      <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
+        <h2 className="text-base font-semibold text-gray-900">{T.ANSWERS_TITLE}</h2>
         {question.options.length > 0 && (
           <div className="space-y-2">
             <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
@@ -182,23 +190,39 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
                 .map((option, index) => (
                   <li
                     key={option.publicId}
-                    className="flex items-center justify-between gap-3 rounded-md border border-slate-200 px-3 py-2 text-sm"
+                    className={cn(
+                      "flex items-center gap-3 rounded-md border px-3 py-2 text-sm",
+                      option.correct
+                        ? "border-green-200 bg-green-50"
+                        : "border-slate-200 bg-white",
+                    )}
                   >
-                    <span>
-                      {index + 1}. {option.text}
+                    <span
+                      className={cn(
+                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                        option.correct
+                          ? "bg-green-600 text-white"
+                          : "bg-slate-100 text-slate-500",
+                      )}
+                    >
+                      {index + 1}
                     </span>
+                    <span className="flex-1 text-gray-800">{option.text}</span>
                     {option.correct && <Badge variant="success">{T.CORRECT}</Badge>}
                   </li>
                 ))}
             </ol>
           </div>
         )}
-        <DescriptionList
-          items={[
-            { label: T.REFERENCE_ANSWER, value: valueOrEmpty(question.referenceAnswerText) },
-            { label: T.CORRECT_ANSWER, value: valueOrEmpty(question.correctAnswerText) },
-          ]}
-        />
+        {(question.referenceAnswerText?.trim() || question.correctAnswerText?.trim()) && (
+          <DetailGroup
+            title={T.GROUP_ANSWER_KEY}
+            items={[
+              { label: T.REFERENCE_ANSWER, value: valueOrEmpty(question.referenceAnswerText) },
+              { label: T.CORRECT_ANSWER, value: valueOrEmpty(question.correctAnswerText) },
+            ]}
+          />
+        )}
       </section>
     </div>
   );

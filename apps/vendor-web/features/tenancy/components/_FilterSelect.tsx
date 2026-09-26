@@ -2,35 +2,18 @@
 
 import { createPortal } from "react-dom";
 import { useEffect, useRef, useState, type ReactElement } from "react";
-import { cn } from "../utils/cn";
-import { ChevronDownIcon } from "./icons";
-import { FormField } from "./FormField";
+import { ChevronDownIcon, cn } from "@pte/ui";
 
-export interface SelectOption {
-  label: string;
+interface FilterSelectOption {
   value: string;
-  disabled?: boolean;
+  label: string;
 }
 
-interface SelectChangeEvent {
-  target: { value: string; name?: string };
-}
-
-interface SelectProps {
-  id?: string;
-  name?: string;
-  label?: string;
-  error?: string;
-  helperText?: string;
-  options: SelectOption[];
-  placeholder?: string;
-  value?: string;
-  onChange?: (event: SelectChangeEvent) => void;
-  required?: boolean;
-  disabled?: boolean;
-  className?: string;
-  title?: string;
-  "aria-label"?: string;
+interface FilterSelectProps {
+  ariaLabel: string;
+  value: string;
+  options: FilterSelectOption[];
+  onChange: (value: string) => void;
 }
 
 interface ListPosition {
@@ -45,30 +28,19 @@ const VIEWPORT_PADDING_PX = 8;
 /**
  * Custom listbox, not a native `<select>` — the browser renders the native popup itself, so its
  * size/colors can't be themed. The list is portaled to `document.body` and positioned with fixed
- * coordinates (same pattern as `Dropdown`) so it can't be clipped by an `overflow-x-auto` ancestor
- * such as a scrollable table wrapper.
+ * coordinates so it can't be clipped by the table's `overflow-x-auto` wrapper.
  */
-export const Select = ({
-  id,
-  name,
-  label,
-  error,
-  helperText,
-  options,
-  placeholder,
+export const FilterSelect = ({
+  ariaLabel,
   value,
+  options,
   onChange,
-  required,
-  disabled,
-  className,
-  title,
-  "aria-label": ariaLabel,
-}: SelectProps): ReactElement => {
+}: FilterSelectProps): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
   const [listPosition, setListPosition] = useState<ListPosition | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
-  const selectedOption = options.find((option) => option.value === value);
+  const selectedOption = options.find((option) => option.value === value) ?? options[0];
 
   useEffect(() => {
     if (!isOpen) return;
@@ -119,37 +91,26 @@ export const Select = ({
     return () => document.removeEventListener("keydown", closeOnEscape);
   }, [isOpen]);
 
-  const selectOption = (option: SelectOption): void => {
-    if (option.disabled) return;
-    onChange?.({ target: { value: option.value, name } });
+  const selectOption = (nextValue: string): void => {
+    onChange(nextValue);
     setIsOpen(false);
   };
 
   return (
-    <FormField id={id} label={label} error={error} helperText={helperText} required={required}>
+    <div className="relative">
       <button
         ref={buttonRef}
         type="button"
-        id={id}
-        disabled={disabled}
-        title={title}
-        aria-label={ariaLabel ?? label}
+        aria-label={ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
-        aria-invalid={error ? true : undefined}
         onClick={() => {
           setListPosition(null);
           setIsOpen((open) => !open);
         }}
-        className={cn(
-          "flex w-full items-center justify-between gap-2 rounded-md border bg-white px-3 py-2.5 text-left text-sm outline-none transition-colors focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
-          error ? "border-red-500" : "border-gray-300",
-          className,
-        )}
+        className="flex w-full items-center justify-between gap-2 rounded-md border border-gray-300 bg-white py-2 pl-3 pr-2.5 text-left text-sm text-gray-700 shadow-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
       >
-        <span className={cn("truncate", !selectedOption && "text-gray-400")}>
-          {selectedOption?.label ?? placeholder ?? ""}
-        </span>
+        <span className="truncate">{selectedOption?.label}</span>
         <ChevronDownIcon
           className={cn(
             "h-4 w-4 shrink-0 text-gray-400 transition-transform duration-150",
@@ -172,7 +133,7 @@ export const Select = ({
             <ul
               ref={listRef}
               role="listbox"
-              aria-label={ariaLabel ?? label}
+              aria-label={ariaLabel}
               className="fixed z-[60] max-h-60 max-w-[calc(100vw-1rem)] overflow-auto rounded-md border border-gray-200 bg-white py-1 text-sm shadow-lg"
               style={{
                 top: listPosition?.top ?? 0,
@@ -186,17 +147,12 @@ export const Select = ({
                   key={option.value}
                   role="option"
                   aria-selected={option.value === value}
-                  onClick={() => selectOption(option)}
+                  onClick={() => selectOption(option.value)}
                   className={cn(
-                    "truncate px-3 py-1.5",
-                    option.disabled
-                      ? "cursor-not-allowed text-gray-300"
-                      : cn(
-                          "cursor-pointer",
-                          option.value === value
-                            ? "bg-blue-600 text-white"
-                            : "text-gray-700 hover:bg-blue-50",
-                        ),
+                    "cursor-pointer truncate px-3 py-1.5",
+                    option.value === value
+                      ? "bg-blue-600 text-white"
+                      : "text-gray-700 hover:bg-blue-50",
                   )}
                 >
                   {option.label}
@@ -206,6 +162,6 @@ export const Select = ({
           </>,
           document.body,
         )}
-    </FormField>
+    </div>
   );
 };

@@ -2,7 +2,17 @@
 
 import { useState, type ReactElement } from "react";
 import type { QuestionTypeResponse } from "@pte/api-client";
-import { ActionMenu, Alert, Badge, Button, PageHeader, PencilIcon, TrashIcon } from "@pte/ui";
+import {
+  ActionMenu,
+  Alert,
+  Badge,
+  Button,
+  ConfirmDialog,
+  PageHeader,
+  PencilIcon,
+  TrashIcon,
+  useToast,
+} from "@pte/ui";
 import type { ActionMenuItem } from "@pte/ui";
 import { useRetireTaskType, useTaskTypeCapabilities, useTaskTypes } from "../api";
 import { QUESTION_TYPE_REQUIREMENT_LABELS, QUESTION_TYPE_TEXT } from "../constants";
@@ -20,18 +30,17 @@ export const QuestionTypeView = (): ReactElement => {
   const { data: questionTypes = [], isLoading, isError } = useTaskTypes(false);
   const { data: capabilities = [], isError: capabilitiesError } = useTaskTypeCapabilities();
   const deleteMutation = useRetireTaskType();
+  const { showToast } = useToast();
   const [mode, setMode] = useState<"create" | "edit" | null>(null);
   const [editing, setEditing] = useState<QuestionTypeResponse | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
+  const [typeToDelete, setTypeToDelete] = useState<QuestionTypeResponse | null>(null);
 
   const beginCreate = (): void => {
-    setMessage(null);
     setEditing(null);
     setMode("create");
   };
 
   const beginEdit = (type: QuestionTypeResponse): void => {
-    setMessage(null);
     setEditing(type);
     setMode("edit");
   };
@@ -41,14 +50,14 @@ export const QuestionTypeView = (): ReactElement => {
     setEditing(null);
   };
 
-  const remove = async (type: QuestionTypeResponse): Promise<void> => {
-    if (!window.confirm(QUESTION_TYPE_TEXT.DELETE_CONFIRM)) return;
-    setMessage(null);
+  const confirmRemove = async (): Promise<void> => {
+    if (!typeToDelete) return;
     try {
-      await deleteMutation.mutateAsync({ publicId: type.publicId });
-      setMessage(QUESTION_TYPE_TEXT.DELETE_SUCCESS);
+      await deleteMutation.mutateAsync({ publicId: typeToDelete.publicId });
+      showToast(QUESTION_TYPE_TEXT.DELETE_SUCCESS);
+      setTypeToDelete(null);
     } catch {
-      // The mutation error is rendered below with the API's message.
+      // The mutation error is rendered below with the API's message; keep the dialog open.
     }
   };
 
@@ -63,7 +72,7 @@ export const QuestionTypeView = (): ReactElement => {
       icon: TrashIcon,
       danger: true,
       disabled: deleteMutation.isPending && deleteMutation.variables?.publicId === type.publicId,
-      onSelect: () => void remove(type),
+      onSelect: () => setTypeToDelete(type),
     },
   ];
 
@@ -88,8 +97,6 @@ export const QuestionTypeView = (): ReactElement => {
           {errorMessage(deleteMutation.error, QUESTION_TYPE_TEXT.DELETE_ERROR)}
         </Alert>
       )}
-      {message && <Alert tone="success">{message}</Alert>}
-
       <div className="overflow-hidden rounded-lg bg-white shadow-card">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[980px] border-collapse">
@@ -161,11 +168,22 @@ export const QuestionTypeView = (): ReactElement => {
           capabilities={capabilities}
           onClose={closeEditor}
           onSuccess={(successMessage) => {
-            setMessage(successMessage);
+            showToast(successMessage);
             closeEditor();
           }}
         />
       )}
+
+      <ConfirmDialog
+        open={typeToDelete !== null}
+        title={QUESTION_TYPE_TEXT.DELETE}
+        description={QUESTION_TYPE_TEXT.DELETE_CONFIRM}
+        confirmLabel={QUESTION_TYPE_TEXT.DELETE}
+        tone="danger"
+        isConfirming={deleteMutation.isPending}
+        onConfirm={() => void confirmRemove()}
+        onClose={() => setTypeToDelete(null)}
+      />
     </div>
   );
 };

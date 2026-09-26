@@ -6,7 +6,7 @@ import type {
   ExaminerQueueItemResponse,
   ExaminerQueueStatus,
 } from "@pte/api-client";
-import { PageHeader } from "@pte/ui";
+import { PageHeader, Select } from "@pte/ui";
 import { EXAMINER_QUEUE_STATUSES, EXAMINER_WORK_TEXT as T } from "./constants";
 import { useExaminerAttempt, useExaminerQueue, useSubmitExaminerScore } from "./api";
 
@@ -290,18 +290,12 @@ export const ExaminerWorkView = (): ReactElement => {
         <label htmlFor="examiner-queue-status" className="text-sm font-medium text-slate-700">
           {T.FILTER_LABEL}
         </label>
-        <select
+        <Select
           id="examiner-queue-status"
           value={status}
           onChange={(event) => chooseStatus(event.target.value as ExaminerQueueStatus)}
-          className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 shadow-sm"
-        >
-          {EXAMINER_QUEUE_STATUSES.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+          options={EXAMINER_QUEUE_STATUSES}
+        />
       </div>
 
       {!selected && (

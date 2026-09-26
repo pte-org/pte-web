@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import { Select } from "@pte/ui";
 import { CREATE_TENANT_TEXT, ORGANIZATION_TYPE_OPTIONS, PLAN_SELECT_OPTIONS } from "../constants";
 import type { CreateTenantErrors, CreateTenantInput } from "../types";
 import { TenantFormField, fieldInputClass } from "./_TenantFormField";
@@ -53,21 +54,14 @@ export const TenantGeneralFields = ({
       required
       error={errors.organizationType}
     >
-      <select
+      <Select
         id="tenant-org-type"
         value={form.organizationType}
         onChange={(event) => onChange("organizationType", event.target.value)}
-        className={fieldInputClass(errors.organizationType)}
-      >
-        <option value="" disabled>
-          {T.ORG_TYPE_PLACEHOLDER}
-        </option>
-        {ORGANIZATION_TYPE_OPTIONS.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+        placeholder={T.ORG_TYPE_PLACEHOLDER}
+        options={ORGANIZATION_TYPE_OPTIONS}
+        className={errors.organizationType ? "!border-red-300 !bg-red-50/40" : undefined}
+      />
     </TenantFormField>
 
     <TenantFormField
@@ -90,21 +84,14 @@ export const TenantGeneralFields = ({
     </TenantFormField>
 
     <TenantFormField label={T.PLAN_LABEL} htmlFor="tenant-plan" required error={errors.plan}>
-      <select
+      <Select
         id="tenant-plan"
         value={form.plan}
         onChange={(event) => onChange("plan", event.target.value)}
-        className={fieldInputClass(errors.plan)}
-      >
-        <option value="" disabled>
-          {T.PLAN_PLACEHOLDER}
-        </option>
-        {PLAN_SELECT_OPTIONS.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+        placeholder={T.PLAN_PLACEHOLDER}
+        options={PLAN_SELECT_OPTIONS}
+        className={errors.plan ? "!border-red-300 !bg-red-50/40" : undefined}
+      />
     </TenantFormField>
 
     <TenantFormField

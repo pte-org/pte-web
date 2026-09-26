@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ChangeEvent, type FormEvent, type ReactElement } from "react";
-import { Alert, Button, Input } from "@pte/ui";
+import { Alert, Button, Input, Select, useToast } from "@pte/ui";
 import {
   completeCloudinaryUpload,
   getMediaPreview,
@@ -40,6 +40,7 @@ export const QuestionEditorForm = ({
 }: QuestionEditorFormProps): ReactElement => {
   const createMutation = useCreateQuestion();
   const updateMutation = useUpdateQuestion();
+  const { showToast } = useToast();
   const {
     data: questionTypes = [],
     isLoading: questionTypesLoading,
@@ -179,10 +180,23 @@ export const QuestionEditorForm = ({
     };
     if (question) {
       const payload: UpdateQuestionRequest = { ...content, version: question.version };
-      updateMutation.mutate({ id: question.publicId, payload }, { onSuccess: onSaved });
+      updateMutation.mutate(
+        { id: question.publicId, payload },
+        {
+          onSuccess: (saved) => {
+            showToast(T.UPDATE_SUCCESS);
+            onSaved?.(saved);
+          },
+        },
+      );
     } else {
       const payload: CreateQuestionRequest = { pteTaskType: selectedTaskType, ...content };
-      createMutation.mutate(payload, { onSuccess: onSaved });
+      createMutation.mutate(payload, {
+        onSuccess: (saved) => {
+          showToast(T.CREATE_SUCCESS);
+          onSaved?.(saved);
+        },
+      });
     }
   };
 
@@ -202,25 +216,23 @@ export const QuestionEditorForm = ({
       {error && <Alert tone="error">{error}</Alert>}
       {questionTypesError && <Alert tone="error">{E.LOAD_TYPES}</Alert>}
       {(createMutation.isError || updateMutation.isError) && <Alert tone="error">{E.SAVE}</Alert>}
-      <label className="text-sm font-medium text-gray-700">
-        {T.TASK_TYPE}
-        <select
-          className={`${fieldClass} mt-1`}
-          value={selectedTaskType}
-          disabled={Boolean(question) || questionTypesLoading}
-          onChange={(event) => setTaskType(event.target.value)}
-        >
-          {!taskType && <option value="">{T.LOADING_TASK_TYPES}</option>}
-          {questionTypes.map((type) => (
-            <option key={type.code} value={type.code}>
-              {type.displayName} ({type.shortName})
-            </option>
-          ))}
-          {selectedTaskType && !questionTypes.some((type) => type.code === selectedTaskType) && (
-            <option value={selectedTaskType}>{selectedTaskType}</option>
-          )}
-        </select>
-      </label>
+      <Select
+        id="question-task-type"
+        label={T.TASK_TYPE}
+        value={selectedTaskType}
+        disabled={Boolean(question) || questionTypesLoading}
+        onChange={(event) => setTaskType(event.target.value)}
+        placeholder={!taskType ? T.LOADING_TASK_TYPES : undefined}
+        options={[
+          ...questionTypes.map((type) => ({
+            value: type.code,
+            label: `${type.displayName} (${type.shortName})`,
+          })),
+          ...(selectedTaskType && !questionTypes.some((type) => type.code === selectedTaskType)
+            ? [{ value: selectedTaskType, label: selectedTaskType }]
+            : []),
+        ]}
+      />
       <Input label={T.TITLE} value={title} onChange={(event) => setTitle(event.target.value)} />
       <label className="text-sm font-medium text-gray-700">
         {T.PROMPT_TEXT}

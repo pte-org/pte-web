@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { Button } from "@pte/ui";
+import { Button, Select } from "@pte/ui";
 import type { QuestionTypeResponse } from "@pte/api-client";
 import { SCORE_TEMPLATE_ITEM_HEADERS, SCORE_TEMPLATE_TEXT } from "../constants";
 import type { ScoreTemplateItemDraft, ScoreTemplateItemResponse } from "../types";
@@ -9,8 +9,13 @@ const HEADER_CLASS =
 const CELL_CLASS = "px-3 py-2 text-sm text-gray-700 align-middle whitespace-nowrap";
 const INPUT_CLASS =
   "w-20 rounded border border-gray-300 px-2 py-1 text-sm outline-none focus:border-blue-500";
-const SELECT_CLASS =
-  "rounded border border-gray-300 bg-white px-2 py-1 text-sm outline-none focus:border-blue-500";
+
+const SECTION_OPTIONS = [
+  { value: "SPEAKING", label: "SPEAKING" },
+  { value: "WRITING", label: "WRITING" },
+  { value: "READING", label: "READING" },
+  { value: "LISTENING", label: "LISTENING" },
+];
 
 type ReadOnlyProps = {
   editable: false;
@@ -70,41 +75,35 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                 <tr key={`${item.taskTypeKey}-${index}`} className="border-t border-gray-100">
                   <td className={CELL_CLASS}>{item.sequence}</td>
                   <td className={CELL_CLASS}>
-                    <select
-                      className={SELECT_CLASS}
+                    <Select
                       value={item.section}
                       onChange={(event) => props.onSectionChange(index, event.target.value)}
-                    >
-                      <option value="">{SCORE_TEMPLATE_TEXT.ADD_SECTION_PLACEHOLDER}</option>
-                      <option value="SPEAKING">SPEAKING</option>
-                      <option value="WRITING">WRITING</option>
-                      <option value="READING">READING</option>
-                      <option value="LISTENING">LISTENING</option>
-                    </select>
+                      placeholder={SCORE_TEMPLATE_TEXT.ADD_SECTION_PLACEHOLDER}
+                      options={SECTION_OPTIONS}
+                    />
                   </td>
                   <td className={`${CELL_CLASS} font-mono text-xs`}>
                     <div className="flex flex-col items-start gap-1">
-                      <select
-                        className={SELECT_CLASS}
+                      <Select
                         value={item.taskTypeKey}
                         disabled={!item.section}
                         onChange={(event) => props.onChange(index, "taskTypeKey", event.target.value)}
-                      >
-                        <option value="">{SCORE_TEMPLATE_TEXT.ADD_TYPE_PLACEHOLDER}</option>
-                        {props.questionTypes
-                          .filter((type) => type.active && type.section === item.section)
-                          .map((type) => (
-                            <option key={type.taskTypeKey ?? type.code} value={type.taskTypeKey ?? type.code}>
-                              {type.taskTypeKey ?? type.code}
-                            </option>
-                          ))}
-                        {item.taskTypeKey &&
+                        placeholder={SCORE_TEMPLATE_TEXT.ADD_TYPE_PLACEHOLDER}
+                        options={[
+                          ...props.questionTypes
+                            .filter((type) => type.active && type.section === item.section)
+                            .map((type) => ({
+                              value: type.taskTypeKey ?? type.code,
+                              label: type.taskTypeKey ?? type.code,
+                            })),
+                          ...(item.taskTypeKey &&
                           !props.questionTypes.some(
                             (type) => (type.taskTypeKey ?? type.code) === item.taskTypeKey,
-                          ) && (
-                            <option value={item.taskTypeKey}>{item.taskTypeKey}</option>
-                          )}
-                      </select>
+                          )
+                            ? [{ value: item.taskTypeKey, label: item.taskTypeKey }]
+                            : []),
+                        ]}
+                      />
                       <Button variant="ghost" size="sm" onClick={() => props.onRemove(index)}>
                         {SCORE_TEMPLATE_TEXT.REMOVE_TYPE}
                       </Button>

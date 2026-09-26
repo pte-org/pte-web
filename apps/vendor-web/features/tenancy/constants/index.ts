@@ -34,6 +34,9 @@ export const TENANCY_TEXT = {
   EMPTY_TEXT:
     "Start by adding the first partner or school to set up a managed learning environment.",
   EMPTY_VALUE: "—",
+  SUSPEND_SUCCESS: "Tenant suspended.",
+  REACTIVATE_SUCCESS: "Tenant reactivated.",
+  CREATE_SUCCESS: "Tenant created.",
 } as const;
 
 export const TENANT_TABLE_HEADERS = {
@@ -141,15 +144,6 @@ export const ORGANIZATION_TYPE_FILTER_OPTIONS: { value: string; label: string }[
   ...ORGANIZATION_TYPE_OPTIONS,
 ];
 
-export const CAPACITY_FILTER_OPTIONS: {
-  value: "all" | "0-100" | "101-500" | "501+";
-  label: string;
-}[] = [
-  { value: "all", label: "All student limits" },
-  { value: "0-100", label: "Up to 100 students" },
-  { value: "101-500", label: "101–500 students" },
-  { value: "501+", label: "501+ students" },
-];
 
 export const TENANT_STATS_TEXT = {
   TOTAL: "Total tenants",
@@ -185,6 +179,7 @@ export const CREATE_TENANT_ERRORS = {
 export const CREATE_TENANT_CONFLICT_TEXT = {
   DUPLICATE_CODE: "This tenant code already exists. Please use another code.",
   DUPLICATE_NAME: "This tenant name already exists. Please use another name.",
+  DUPLICATE_TAX_CODE: "This tax code is already used by another tenant. Please check and try again.",
   TENANT_CONFLICT:
     "The tenant code or name already exists. Please check the information and try again.",
   CONFLICT: "The tenant name already exists. Please check the information and try again.",
@@ -228,6 +223,9 @@ export const TENANT_DETAIL_TEXT = {
     `${organizationType} · ${plan} · ${seats} students`,
   EMPTY_VALUE: "—",
   INFORMATION_TITLE: "Tenant information",
+  GROUP_IDENTITY: "Identity",
+  GROUP_ORGANIZATION: "Organization",
+  GROUP_PLAN: "Plan & capacity",
   ID_LABEL: "Tenant ID",
   CODE_LABEL: "Tenant code",
   NAME_LABEL: "Tenant name",
@@ -283,6 +281,10 @@ export const LOGIN_ACCOUNT_TEXT = {
   EMPTY_TEXT: "Create the Host's first login so they can sign in.",
   CREATE_LOGIN: "Create Login",
   RESET_PASSWORD: "Reset Password",
+  GROUP_IDENTITY: "Identity",
+  GROUP_ACCOUNT: "Account",
+  GROUP_STUDENT: "Student info",
+  GROUP_SECURITY: "Security",
   EMAIL_LABEL: "Email",
   FULL_NAME_LABEL: "Full name",
   USER_ID_LABEL: "User ID",

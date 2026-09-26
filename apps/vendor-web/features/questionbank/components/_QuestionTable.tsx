@@ -1,6 +1,21 @@
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { ActionMenu, Alert, Badge, type ActionMenuItem } from "@pte/ui";
+import {
+  ActionMenu,
+  Alert,
+  Badge,
+  BanIcon,
+  Button,
+  CheckCircleIcon,
+  ConfirmDialog,
+  DocumentIcon,
+  EmptyState,
+  PencilIcon,
+  TrashIcon,
+  UploadIcon,
+  useToast,
+  type ActionMenuItem,
+} from "@pte/ui";
 import {
   useApproveQuestion,
   useArchiveQuestion,
@@ -16,22 +31,32 @@ import {
   QUESTION_TABLE_HEADERS,
 } from "../constants";
 import type { Question } from "../types";
+import { RejectQuestionModal } from "./_RejectQuestionModal";
 
 interface QuestionTableProps {
   questions: Question[];
+  isFiltered?: boolean;
+  onClearFilters?: () => void;
 }
 
 const HEADER_CLASS =
   "px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
 const CELL_CLASS = "px-5 py-4 text-sm text-gray-700 align-middle";
 
-export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement => {
+export const QuestionTable = ({
+  questions,
+  isFiltered = false,
+  onClearFilters,
+}: QuestionTableProps): ReactElement => {
   const router = useRouter();
+  const { showToast } = useToast();
   const submitMutation = useSubmitQuestionApproval();
   const approveMutation = useApproveQuestion();
   const rejectMutation = useRejectQuestion();
   const archiveMutation = useArchiveQuestion();
   const unarchiveMutation = useUnarchiveQuestion();
+  const [questionToArchive, setQuestionToArchive] = useState<Question | null>(null);
+  const [questionToReject, setQuestionToReject] = useState<Question | null>(null);
   const hasMutationError =
     submitMutation.isError ||
     approveMutation.isError ||
@@ -43,29 +68,33 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
     const actions: ActionMenuItem[] = [
       {
         label: QUESTIONBANK_TEXT.ROW_VIEW_DETAILS,
+        icon: DocumentIcon,
         onSelect: () => router.push(`/admin/questions/${question.id}`),
       },
     ];
     if (question.status === "draft") {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_SUBMIT,
-        onSelect: () => submitMutation.mutate(question.id),
+        icon: UploadIcon,
+        onSelect: () =>
+          submitMutation.mutate(question.id, {
+            onSuccess: () => showToast(QUESTIONBANK_TEXT.SUBMIT_SUCCESS),
+          }),
       });
     }
     if (question.status === "pending_approval") {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_APPROVE,
-        onSelect: () => approveMutation.mutate(question.id),
+        icon: CheckCircleIcon,
+        onSelect: () =>
+          approveMutation.mutate(question.id, {
+            onSuccess: () => showToast(QUESTIONBANK_TEXT.APPROVE_SUCCESS),
+          }),
       });
       actions.push({
-        label: "Reject",
-        onSelect: () => {
-          const reason = window.prompt(
-            QUESTIONBANK_TEXT.REJECTION_REASON_PROMPT,
-            QUESTIONBANK_TEXT.REJECTION_REASON_DEFAULT,
-          );
-          if (reason?.trim()) rejectMutation.mutate({ id: question.id, reason });
-        },
+        label: QUESTIONBANK_TEXT.ROW_REJECT,
+        icon: BanIcon,
+        onSelect: () => setQuestionToReject(question),
       });
     }
     if (
@@ -75,23 +104,73 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
     ) {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_ARCHIVE,
-        onSelect: () => archiveMutation.mutate(question.id),
+        icon: TrashIcon,
+        onSelect: () => setQuestionToArchive(question),
       });
     }
     if (question.status === "archived") {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_UNARCHIVE,
-        onSelect: () => unarchiveMutation.mutate(question.id),
+        icon: CheckCircleIcon,
+        onSelect: () =>
+          unarchiveMutation.mutate(question.id, {
+            onSuccess: () => showToast(QUESTIONBANK_TEXT.UNARCHIVE_SUCCESS),
+          }),
       });
     }
     if (question.status === "draft" || question.status === "published") {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_EDIT,
+        icon: PencilIcon,
         onSelect: () => router.push(`/admin/questions/${question.id}/edit`),
       });
     }
     return actions;
   };
+
+  const confirmArchive = (): void => {
+    if (!questionToArchive) return;
+    archiveMutation.mutate(questionToArchive.id, {
+      onSuccess: () => showToast(QUESTIONBANK_TEXT.ARCHIVE_SUCCESS),
+    });
+    setQuestionToArchive(null);
+  };
+
+  const confirmReject = (reason: string): void => {
+    if (!questionToReject) return;
+    rejectMutation.mutate(
+      { id: questionToReject.id, reason },
+      {
+        onSuccess: () => {
+          showToast(QUESTIONBANK_TEXT.REJECT_SUCCESS);
+          setQuestionToReject(null);
+        },
+      },
+    );
+  };
+
+  if (questions.length === 0) {
+    return (
+      <div className="space-y-4">
+        {hasMutationError && <Alert tone="error">{QUESTIONBANK_TEXT.STATUS_UPDATE_ERROR}</Alert>}
+        <EmptyState
+          title={QUESTIONBANK_TEXT.EMPTY_TITLE}
+          description={
+            isFiltered
+              ? QUESTIONBANK_TEXT.EMPTY_DESCRIPTION_FILTERED
+              : QUESTIONBANK_TEXT.EMPTY_DESCRIPTION_UNFILTERED
+          }
+          action={
+            isFiltered && onClearFilters ? (
+              <Button type="button" variant="secondary" onClick={onClearFilters}>
+                {QUESTIONBANK_TEXT.EMPTY_CLEAR_FILTERS}
+              </Button>
+            ) : undefined
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -130,6 +209,22 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
           </table>
         </div>
       </div>
+      <ConfirmDialog
+        open={questionToArchive !== null}
+        title={QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_TITLE}
+        description={QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_DESCRIPTION}
+        confirmLabel={QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_BUTTON}
+        tone="danger"
+        isConfirming={archiveMutation.isPending}
+        onConfirm={confirmArchive}
+        onClose={() => setQuestionToArchive(null)}
+      />
+      <RejectQuestionModal
+        open={questionToReject !== null}
+        isSubmitting={rejectMutation.isPending}
+        onConfirm={confirmReject}
+        onClose={() => setQuestionToReject(null)}
+      />
     </div>
   );
 };
