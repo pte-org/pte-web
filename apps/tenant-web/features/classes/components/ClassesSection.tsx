@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import Link from "next/link";
 import { Alert, Badge, DataTable, type DataTableColumn } from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
@@ -13,8 +12,7 @@ import {
   CLASSES_SECTION_TEXT,
   MERGE_CLASSES_SELECTION_TEXT,
 } from "../constants";
-import { useClasses, useClassStatusMutations, useCreateClass, useUpdateClass } from "../api";
-import { CreateClassModal } from "./CreateClassModal";
+import { useClasses, useClassStatusMutations, useUpdateClass } from "../api";
 import { EditClassModal } from "./EditClassModal";
 import { ImportOrAssignModal } from "./ImportOrAssignModal";
 import { MergeClassesModal } from "./MergeClassesModal";
@@ -59,12 +57,11 @@ const ClassRowActions = ({
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-3 text-sm">
+      <div className="flex flex-wrap items-center gap-2 text-sm">
         <button
           type="button"
-          disabled={pending}
           onClick={onEdit}
-          className="text-blue-700 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover"
         >
           {CLASS_ROW_ACTIONS_TEXT.edit}
         </button>
@@ -72,7 +69,7 @@ const ClassRowActions = ({
           type="button"
           disabled={pending}
           onClick={onAssignStudents}
-          className="text-blue-700 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {CLASS_ROW_ACTIONS_TEXT.assignStudents}
         </button>
@@ -81,7 +78,7 @@ const ClassRowActions = ({
             type="button"
             disabled={pending}
             onClick={() => mutations.activate.mutate()}
-            className="text-blue-700 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {CLASS_ROW_ACTIONS_TEXT.activate}
           </button>
@@ -91,7 +88,7 @@ const ClassRowActions = ({
             type="button"
             disabled={pending}
             onClick={() => mutations.suspend.mutate()}
-            className="text-gray-600 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {CLASS_ROW_ACTIONS_TEXT.suspend}
           </button>
@@ -101,7 +98,7 @@ const ClassRowActions = ({
             type="button"
             disabled={pending}
             onClick={() => mutations.deactivate.mutate()}
-            className="text-gray-600 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {CLASS_ROW_ACTIONS_TEXT.deactivate}
           </button>
@@ -110,7 +107,7 @@ const ClassRowActions = ({
           type="button"
           disabled={pending}
           onClick={() => mutations.archive.mutate()}
-          className="text-red-600 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {CLASS_ROW_ACTIONS_TEXT.archive}
         </button>
@@ -126,24 +123,17 @@ export const ClassesSection = ({
   classLabel,
 }: ClassesSectionProps): ReactElement => {
   const { data: classes, isLoading } = useClasses(organizationPublicId, programPublicId);
-  const create = useCreateClass(organizationPublicId, programPublicId);
   const [editingClass, setEditingClass] = useState<ClassResponse | null>(null);
   const update = useUpdateClass(
     organizationPublicId,
     programPublicId,
     editingClass?.publicId ?? "",
   );
-  const [createOpen, setCreateOpen] = useState(false);
   const [mergeMode, setMergeMode] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState<Set<string | number>>(new Set());
   const [mergeModalOpen, setMergeModalOpen] = useState(false);
   const [importClassId, setImportClassId] = useState<string | null>(null);
 
-  const confirmCreate = (name: string): void => {
-    create.mutate({ name }, { onSuccess: () => setCreateOpen(false) });
-  };
-
-  const createErrorMessage = errorMessage(create.error);
   const updateErrorMessage = errorMessage(update.error);
 
   const selectedClasses = (classes ?? []).filter((studentClass) =>
@@ -160,12 +150,7 @@ export const ClassesSection = ({
       key: "name",
       header: CLASS_TABLE_HEADERS.NAME,
       cell: (studentClass) => (
-        <Link
-          href={`/host/programs/${programPublicId}/classes/${studentClass.publicId}?organizationPublicId=${organizationPublicId}`}
-          className="font-medium text-blue-700 hover:underline"
-        >
-          {studentClass.name}
-        </Link>
+        <span className="font-medium text-slate-900">{studentClass.name}</span>
       ),
     },
     {
@@ -198,29 +183,17 @@ export const ClassesSection = ({
         <p className="text-sm text-gray-500">
           {CLASSES_SECTION_TEXT.countLabel(classes?.length ?? 0, classLabel)}
         </p>
-        <div className="flex items-center gap-2">
-          {!mergeMode && (classes?.length ?? 0) >= 2 && (
-            <button
-              type="button"
-              onClick={() => setMergeMode(true)}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              {MERGE_CLASSES_SELECTION_TEXT.startButton(classLabel)}
-            </button>
-          )}
-          {!mergeMode && (
-            <button
-              type="button"
-              onClick={() => setCreateOpen(true)}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-            >
-              {CLASSES_SECTION_TEXT.addButton()}
-            </button>
-          )}
-        </div>
+        {!mergeMode && (classes?.length ?? 0) >= 2 && (
+          <button
+            type="button"
+            onClick={() => setMergeMode(true)}
+            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          >
+            {MERGE_CLASSES_SELECTION_TEXT.startButton(classLabel)}
+          </button>
+        )}
       </div>
 
-      {createErrorMessage && !createOpen && <Alert tone="error">{createErrorMessage}</Alert>}
       {updateErrorMessage && !editingClass && <Alert tone="error">{updateErrorMessage}</Alert>}
 
       {mergeMode && (
@@ -259,19 +232,6 @@ export const ClassesSection = ({
         selectedKeys={selectedKeys}
         onSelectionChange={setSelectedKeys}
         selectRowLabel={(studentClass) => studentClass.name}
-      />
-
-      <CreateClassModal
-        key={createOpen ? "createClass-open" : "createClass-closed"}
-        open={createOpen}
-        onClose={() => {
-          create.reset();
-          setCreateOpen(false);
-        }}
-        onSubmit={confirmCreate}
-        error={createErrorMessage}
-        isSubmitting={create.isPending}
-        classLabel={classLabel}
       />
 
       <EditClassModal
