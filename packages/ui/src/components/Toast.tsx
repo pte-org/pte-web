@@ -5,6 +5,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
   type ComponentType,
@@ -54,7 +55,12 @@ const TONE_ICON: Record<ToastTone, ComponentType<{ className?: string }>> = {
 /** Mount once near the app root (see `Providers`). Consume with `useToast()`. */
 export const ToastProvider = ({ children }: { children: ReactNode }): ReactElement => {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+  const [mounted, setMounted] = useState(false);
   const timeouts = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const dismiss = useCallback((id: string) => {
     setToasts((current) => current.filter((toast) => toast.id !== id));
@@ -82,7 +88,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }): ReactEleme
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      {typeof document !== "undefined" &&
+      {mounted &&
         createPortal(
           <div className="fixed inset-x-0 top-4 z-[100] flex flex-col items-center gap-2 px-4 sm:inset-x-auto sm:right-4 sm:items-end">
             {toasts.map((toast) => {
