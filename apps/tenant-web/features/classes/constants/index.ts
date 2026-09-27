@@ -24,8 +24,28 @@ export const CLASSES_SECTION_TEXT = {
 
 export const CLASS_TABLE_HEADERS = {
   NAME: "Name",
+  PROGRAM: "Program",
   STATUS: "Status",
   ACTIONS: "Actions",
+} as const;
+
+export const CLASSES_LIST_TEXT = {
+  subtitle: (classLabel: string, programLabel: string) =>
+    `Browse every ${classLabel.toLowerCase()} across all ${programLabel.toLowerCase()}.`,
+  programFilterLabel: (programLabel: string) => `Filter by ${programLabel}`,
+  programFilterAll: (programLabel: string) => `All ${programLabel.toLowerCase()}s`,
+  countLabel: (count: number, classLabel: string) =>
+    `${count} ${classLabel.toLowerCase()}${count === 1 ? "" : "s"}`,
+  emptyNoProgramsTitle: (programLabel: string) => `No ${programLabel.toLowerCase()} yet`,
+  emptyNoProgramsDescription: (programLabel: string, classLabel: string) =>
+    `Create a ${programLabel.toLowerCase()} first, then add ${classLabel.toLowerCase()}s to it.`,
+  emptyNoProgramsCta: (programLabel: string) => `+ Create ${programLabel}`,
+  emptyNoClassesTitle: (classLabel: string) => `No ${classLabel.toLowerCase()} yet`,
+  emptyNoClassesPickPrompt: (programLabel: string, classLabel: string) =>
+    `Pick a ${programLabel.toLowerCase()} to add a ${classLabel.toLowerCase()} to:`,
+  emptyNoClassesDirectCta: (programLabel: string, classLabel: string) =>
+    `+ Create ${classLabel} in ${programLabel}`,
+  studentCountPlaceholder: "—",
 } as const;
 
 export const CLASS_ROW_ACTIONS_TEXT = {

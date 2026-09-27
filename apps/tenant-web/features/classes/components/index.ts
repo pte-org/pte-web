@@ -1,4 +1,5 @@
 export { ClassesSection } from "./ClassesSection";
+export { ClassesListView } from "./ClassesListView";
 export { CreateClassModal } from "./CreateClassModal";
 export { EditClassModal } from "./EditClassModal";
 export { ClassDetailView } from "./ClassDetailView";
