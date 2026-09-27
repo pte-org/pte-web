@@ -1,4 +1,5 @@
 export const AUDIT_LOGS_QUERY_KEY = ["auditLogs"] as const;
+export const AUDIT_LOG_ACTORS_QUERY_KEY = ["auditLogActors"] as const;
 
 /** Mirrors admin's real `AdminConstants.AGGREGATE_PROGRAM`/`AGGREGATE_CLASS` string values exactly. */
 export const AUDIT_LOG_AGGREGATE_TYPES = {
