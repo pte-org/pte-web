@@ -12,7 +12,7 @@ export const REDEEM_ERROR_MESSAGES: Record<string, string> = {
 };
 
 export const BILLING_TEXT = {
-  BACK_TO_PLANS: "← Back to plans",
+  BACK_TO_PLANS: "Back to Plans & billing",
   CHECKOUT_TITLE: "Checkout",
   CHECKOUT_SUBTITLE: "Review your order before opening the secure payment page.",
   ORDER_ERROR: "The order could not be created.",

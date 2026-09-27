@@ -2,7 +2,15 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import Link from "next/link";
-import { Alert, Button, Input, PageHeader } from "@pte/ui";
+import {
+  Alert,
+  Button,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  Input,
+  LicenseIcon,
+  PageHeader,
+} from "@pte/ui";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useRedeemLicense } from "../api";
 import { BILLING_TEXT as T, REDEEM_ERROR_MESSAGES } from "../constants";
@@ -30,6 +38,14 @@ export const RedeemLicenseView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
+      <Link
+        href="/host/billing"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
+      >
+        <ChevronLeftIcon className="h-4 w-4" />
+        <span>{T.BACK_TO_PLANS}</span>
+      </Link>
+
       <PageHeader title={T.REDEEM_TITLE} subtitle={T.REDEEM_SUBTITLE} />
       {redeem.isSuccess && redeem.data && (
         <Alert tone="success" title={T.REDEEM_SUCCESS_TITLE}>
@@ -58,9 +74,25 @@ export const RedeemLicenseView = (): ReactElement => {
           </Button>
         </form>
       </BillingPanel>
-      <Link href="/host/subscriptions" className="text-sm font-semibold text-action hover:underline">
-        {T.VIEW_ACTIVE_ACCESS}
-      </Link>
+      <div className="pt-1">
+        <Link
+          href="/host/subscriptions"
+          className="group inline-flex items-center gap-3.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-blue-300 hover:shadow-md"
+        >
+          <span className="grid h-10 w-10 place-items-center rounded-lg bg-slate-100 text-slate-600 transition-colors group-hover:bg-blue-50 group-hover:text-blue-600">
+            <LicenseIcon className="h-5 w-5" />
+          </span>
+          <div>
+            <p className="text-sm font-semibold text-slate-800 transition-colors group-hover:text-blue-700">
+              {T.VIEW_ACTIVE_ACCESS}
+            </p>
+            <p className="mt-0.5 text-xs text-slate-500">
+              {T.ACTIVE_ACCESS_SUBTITLE}
+            </p>
+          </div>
+          <ChevronRightIcon className="ml-3 h-4 w-4 text-slate-400 transition-all group-hover:translate-x-0.5 group-hover:text-blue-600" />
+        </Link>
+      </div>
     </div>
   );
 };

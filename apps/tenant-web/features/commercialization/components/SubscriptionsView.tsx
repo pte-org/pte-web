@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Alert, PageHeader } from "@pte/ui";
+import { Alert, ChevronLeftIcon, PageHeader } from "@pte/ui";
 import { useSubscriptionsQuery } from "../api";
 import { BILLING_TEXT as T } from "../constants";
 import { BillingPanel } from "./BillingPanel";
@@ -22,14 +22,17 @@ export const SubscriptionsView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
+      <Link
+        href="/host/billing"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
+      >
+        <ChevronLeftIcon className="h-4 w-4" />
+        <span>{T.BACK_TO_PLANS}</span>
+      </Link>
+
       <PageHeader
         title={T.ACTIVE_ACCESS_TITLE}
         subtitle={T.ACTIVE_ACCESS_SUBTITLE}
-        actions={
-          <Link href="/host/billing" className="text-sm font-semibold text-action hover:underline">
-            {T.MANAGE_PLANS}
-          </Link>
-        }
       />
       {isError && <Alert tone="error">{T.SUBSCRIPTIONS_LOAD_ERROR}</Alert>}
       {expiringSoon.length > 0 && <Alert tone="warning">{T.EXPIRING_SOON}</Alert>}
