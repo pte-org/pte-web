@@ -5,7 +5,9 @@ import Link from "next/link";
 import {
   Alert,
   Badge,
+  Button,
   DataTable,
+  FolderPlusIcon,
   PageHeader,
   Select,
   type DataTableColumn,
@@ -79,17 +81,21 @@ export const ClassesListView = (): ReactElement => {
 
   if (tenantHasNoPrograms) {
     return (
-      <div className="flex flex-col gap-5 p-2">
-        <PageHeader title={labels.class} />
-        <p className="text-gray-600">
-          {CLASSES_LIST_TEXT.emptyNoProgramsDescription(labels.program, labels.class)}
-        </p>
-        <Link
-          href="/host/programs"
-          className="self-start rounded-md bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover"
-        >
-          {CLASSES_LIST_TEXT.emptyNoProgramsCta(labels.program)}
-        </Link>
+      <div className="flex min-h-[60vh] items-center justify-center bg-slate-50 p-6">
+        <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-2xl bg-white px-8 py-10 text-center shadow-card">
+          <FolderPlusIcon className="h-12 w-12 text-action" />
+          <h2 className="text-xl font-semibold text-slate-900">
+            {CLASSES_LIST_TEXT.emptyNoProgramsTitle(labels.program)}
+          </h2>
+          <p className="text-sm text-slate-500">
+            {CLASSES_LIST_TEXT.emptyNoProgramsDescription(labels.program, labels.class)}
+          </p>
+          <Link href="/host/programs" className="mt-2">
+            <Button variant="primary" size="lg">
+              {CLASSES_LIST_TEXT.emptyNoProgramsCta(labels.program)}
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }

@@ -36,10 +36,10 @@ export const CLASSES_LIST_TEXT = {
   programFilterAll: (programLabel: string) => `All ${programLabel.toLowerCase()}s`,
   countLabel: (count: number, classLabel: string) =>
     `${count} ${classLabel.toLowerCase()}${count === 1 ? "" : "s"}`,
-  emptyNoProgramsTitle: (programLabel: string) => `No ${programLabel.toLowerCase()} yet`,
+  emptyNoProgramsTitle: (programLabel: string) => `Get Started by Creating a ${programLabel}`,
   emptyNoProgramsDescription: (programLabel: string, classLabel: string) =>
-    `Create a ${programLabel.toLowerCase()} first, then add ${classLabel.toLowerCase()}s to it.`,
-  emptyNoProgramsCta: (programLabel: string) => `+ Create ${programLabel}`,
+    `Set up your first ${programLabel.toLowerCase()} so you can organize ${classLabel.toLowerCase()}s and start adding students.`,
+  emptyNoProgramsCta: (programLabel: string) => `Create Your First ${programLabel}`,
   emptyNoClassesTitle: (classLabel: string) => `No ${classLabel.toLowerCase()} yet`,
   emptyNoClassesPickPrompt: (programLabel: string, classLabel: string) =>
     `Pick a ${programLabel.toLowerCase()} to add a ${classLabel.toLowerCase()} to:`,
