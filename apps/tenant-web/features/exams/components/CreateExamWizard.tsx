@@ -301,25 +301,7 @@ export const CreateExamWizard = ({
               error={errors.name}
               onChange={(event) => update("name", event.target.value)}
             />
-            <Select
-              label={CREATE_EXAM_WIZARD_TEXT.TEMPLATE_LABEL}
-              placeholder={CREATE_EXAM_WIZARD_TEXT.TEMPLATE_PLACEHOLDER}
-              helperText={templateMessage ?? CREATE_EXAM_WIZARD_TEXT.TEMPLATE_HELPER}
-              value={effectiveForm.templatePublicId}
-              error={errors.templatePublicId}
-              disabled={templateLoading || !activeTemplate}
-              onChange={(event) => update("templatePublicId", event.target.value)}
-              options={
-                activeTemplate
-                  ? [
-                      {
-                        label: `${activeTemplate.name} (v${activeTemplate.version})`,
-                        value: activeTemplate.publicId,
-                      },
-                    ]
-                  : []
-              }
-            />
+            {templateMessage && <Alert tone="error">{templateMessage}</Alert>}
             <Select
               label={CREATE_EXAM_WIZARD_TEXT.SUBSCRIPTION_LABEL}
               placeholder={
