@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Button, Modal, useToast } from "@pte/ui";
+import { Alert, Button, Modal } from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { MERGE_CLASSES_TEXT } from "../constants";
@@ -34,7 +34,6 @@ export const MergeClassesModal = ({
     selectedClasses[0]?.publicId ?? "",
   );
   const merge = useMergeClasses(organizationPublicId, programPublicId, targetClassPublicId);
-  const { showToast } = useToast();
 
   const sourceClasses = selectedClasses.filter(
     (studentClass) => studentClass.publicId !== targetClassPublicId,
@@ -47,13 +46,10 @@ export const MergeClassesModal = ({
   };
 
   const handleSubmit = (): void => {
-    merge.mutate(sourceClasses.map((studentClass) => studentClass.publicId), {
-      onSuccess: (data) => {
-        showToast(T.successTitle(data.movedStudentPublicIds.length));
-        onMerged();
-      },
-      onError: () => showToast(T.mergeError, { tone: "error" }),
-    });
+    merge.mutate(
+      sourceClasses.map((studentClass) => studentClass.publicId),
+      { onSuccess: onMerged },
+    );
   };
 
   if (merge.isSuccess) {

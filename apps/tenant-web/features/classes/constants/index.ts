@@ -20,10 +20,6 @@ export const CLASSES_SECTION_TEXT = {
   emptyTitle: (label: string) => `No ${label} yet`,
   emptyText: (label: string) =>
     `Create your first ${label.toLowerCase()} to start assigning students.`,
-  createSuccess: (label: string) => `${label} created.`,
-  createError: (label: string) => `Could not create this ${label.toLowerCase()}. Please try again.`,
-  updateSuccess: (label: string) => `${label} updated.`,
-  updateError: (label: string) => `Could not update this ${label.toLowerCase()}. Please try again.`,
 } as const;
 
 export const CLASS_TABLE_HEADERS = {
@@ -38,22 +34,6 @@ export const CLASS_ROW_ACTIONS_TEXT = {
   deactivate: "Deactivate",
   suspend: "Suspend",
   archive: "Archive",
-  cancel: "Cancel",
-  suspendConfirmTitle: (label: string) => `Suspend this ${label.toLowerCase()}?`,
-  suspendConfirmDescription: (label: string) =>
-    `Students in this ${label.toLowerCase()} will temporarily lose access until it is reactivated.`,
-  deactivateConfirmTitle: (label: string) => `Deactivate this ${label.toLowerCase()}?`,
-  deactivateConfirmDescription: (label: string) =>
-    `This ${label.toLowerCase()} will no longer be available for new assignments.`,
-  archiveConfirmTitle: (label: string) => `Archive this ${label.toLowerCase()}?`,
-  archiveConfirmDescription: (label: string) =>
-    `Archived ${label.toLowerCase()}s are hidden from active lists and cannot be edited. This cannot be undone.`,
-  activateSuccess: (label: string) => `${label} activated.`,
-  suspendSuccess: (label: string) => `${label} suspended.`,
-  deactivateSuccess: (label: string) => `${label} deactivated.`,
-  archiveSuccess: (label: string) => `${label} archived.`,
-  statusUpdateError: (label: string) =>
-    `Could not update this ${label.toLowerCase()}. Please try again.`,
 } as const;
 
 export const CREATE_CLASS_TEXT = {
@@ -217,7 +197,6 @@ export const MERGE_CLASSES_TEXT = {
   submitting: "Merging...",
   successTitle: (count: number) => `${count} student(s) moved.`,
   done: "Done",
-  mergeError: "Could not merge these classes. Please try again.",
 } as const;
 
 export const SPLIT_CLASS_SELECTION_TEXT = {
