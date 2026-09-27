@@ -53,12 +53,7 @@ export const ProgramsListView = (): ReactElement => {
       key: "name",
       header: PROGRAM_TABLE_HEADERS.NAME,
       cell: (program) => (
-        <Link
-          href={`/host/programs/${program.publicId}?organizationPublicId=${organizationPublicId}`}
-          className="font-medium text-blue-700 hover:underline"
-        >
-          {program.name}
-        </Link>
+        <span className="font-medium text-gray-900">{program.name}</span>
       ),
     },
     {
@@ -74,6 +69,18 @@ export const ProgramsListView = (): ReactElement => {
       key: "dates",
       header: PROGRAM_TABLE_HEADERS.DATES,
       cell: (program) => formatDateRange(program.startDate, program.endDate),
+    },
+    {
+      key: "actions",
+      header: PROGRAM_TABLE_HEADERS.ACTIONS,
+      cell: (program) => (
+        <Link
+          href={`/host/programs/${program.publicId}?organizationPublicId=${organizationPublicId}`}
+          className="text-sm font-medium text-blue-700 hover:underline"
+        >
+          {PROGRAMS_TEXT.viewDetails}
+        </Link>
+      ),
     },
   ];
 

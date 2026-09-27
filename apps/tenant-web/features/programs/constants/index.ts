@@ -22,12 +22,14 @@ export const PROGRAMS_TEXT = {
   emptyText: (label: string) => `Create your first ${label.toLowerCase()} to start adding classes.`,
   organizationLabel: "Organization",
   organizationPlaceholder: "Select an organization",
+  viewDetails: "View Details",
 } as const;
 
 export const PROGRAM_TABLE_HEADERS = {
   NAME: "Name",
   STATUS: "Status",
   DATES: "Dates",
+  ACTIONS: "Actions",
 } as const;
 
 export const CREATE_PROGRAM_TEXT = {

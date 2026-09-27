@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import Link from "next/link";
-import { Alert, Badge, LoadingState, PageHeader } from "@pte/ui";
+import { Alert, Badge, ChevronLeftIcon, LoadingState, PageHeader } from "@pte/ui";
 import { ClassesSection } from "@/features/classes/components";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
@@ -31,8 +31,12 @@ export const ProgramDetailView = ({
     return (
       <div className="flex flex-col gap-4">
         <Alert tone="error">{T.missingOrganization}</Alert>
-        <Link href="/host/programs" className="text-sm text-blue-700 hover:underline">
-          {T.backToList(labels.program)}
+        <Link
+          href="/host/programs"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
+        >
+          <ChevronLeftIcon className="h-4 w-4" />
+          <span>{T.backToList(labels.program)}</span>
         </Link>
       </div>
     );
@@ -74,8 +78,12 @@ const ProgramDetailContent = ({
     return (
       <div className="flex flex-col gap-4">
         <Alert tone="error">{errorMessage(error, T.loadFailed)}</Alert>
-        <Link href="/host/programs" className="text-sm text-blue-700 hover:underline">
-          {T.backToList(programLabel)}
+        <Link
+          href="/host/programs"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
+        >
+          <ChevronLeftIcon className="h-4 w-4" />
+          <span>{T.backToList(programLabel)}</span>
         </Link>
       </div>
     );
@@ -99,8 +107,12 @@ const ProgramDetailContent = ({
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/host/programs" className="text-sm text-blue-700 hover:underline">
-        {T.back(programLabel)}
+      <Link
+        href="/host/programs"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
+      >
+        <ChevronLeftIcon className="h-4 w-4" />
+        <span>{T.back(programLabel)}</span>
       </Link>
 
       <PageHeader
