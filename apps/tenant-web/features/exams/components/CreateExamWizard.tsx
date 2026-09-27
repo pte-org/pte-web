@@ -193,6 +193,7 @@ export const CreateExamWizard = ({
       formMode: "SHARED_FORM",
       reusePolicy: "ALLOW",
       seriesKey: "",
+      maxRetriesPerStudent: practice ? previous.maxRetriesPerStudent : "0",
     }));
     setErrors((previous) => ({ ...previous, seriesKey: undefined }));
   };
@@ -427,17 +428,21 @@ export const CreateExamWizard = ({
                 </p>
               </div>
             )}
-            <Input
-              type="number"
-              min={0}
-              max={9}
-              step={1}
-              label={CREATE_EXAM_WIZARD_TEXT.RETRIES_LABEL}
-              value={form.maxRetriesPerStudent}
-              error={errors.maxRetriesPerStudent}
-              onChange={(event) => update("maxRetriesPerStudent", event.target.value)}
-            />
-            <p className="-mt-3 text-sm text-gray-500">{CREATE_EXAM_WIZARD_TEXT.RETRIES_HELPER}</p>
+            {form.examMode === "PRACTICE" && (
+              <Input
+                type="number"
+                min={0}
+                max={9}
+                step={1}
+                label={CREATE_EXAM_WIZARD_TEXT.RETRIES_LABEL}
+                value={form.maxRetriesPerStudent}
+                error={errors.maxRetriesPerStudent}
+                onChange={(event) => update("maxRetriesPerStudent", event.target.value)}
+              />
+            )}
+            {form.examMode === "PRACTICE" && (
+              <p className="-mt-3 text-sm text-gray-500">{CREATE_EXAM_WIZARD_TEXT.RETRIES_HELPER}</p>
+            )}
           </>
         ) : (
           <>
