@@ -46,6 +46,9 @@ export const CREATE_PROGRAM_TEXT = {
 
 export const CREATE_PROGRAM_ERRORS = {
   nameRequired: (label: string) => `${label} name is required.`,
+  startDateRequired: "Start date is required.",
+  endDateRequired: "End date is required.",
+  endDateBeforeStartDate: "End date must be after start date.",
 } as const;
 
 export const EMPTY_CREATE_PROGRAM = {

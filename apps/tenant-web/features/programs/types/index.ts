@@ -9,6 +9,8 @@ export interface CreateProgramInput {
 
 export interface CreateProgramErrors {
   name?: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface ProgramRosterEntry {
