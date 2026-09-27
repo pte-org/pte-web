@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactElement } from "react";
+import Link from "next/link";
 import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
 import type {
   StudentRosterAssignmentStatus,
@@ -27,9 +28,10 @@ import {
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
-import { useClasses } from "@/features/classes/api";
+import { useClasses, useAllTenantClasses } from "@/features/classes/api";
 import { useMyOrganizations, usePrograms } from "@/features/programs/api";
 import {
+  ADD_STUDENT_GUARD_TEXT,
   STUDENT_ROSTER_FILTER_TEXT,
   STUDENT_ROSTER_SORT_OPTIONS,
   STUDENT_SEARCH_ACTIONS_TEXT,
@@ -72,6 +74,7 @@ export const StudentSearchView = (): ReactElement => {
     useState<StudentRosterAssignmentStatus>(DEFAULT_ASSIGNMENT_STATUS);
   const [sortOption, setSortOption] = useState<SortOptionValue>("CREATED_AT_DESC");
   const [manageMode, setManageMode] = useState<"add" | "import" | null>(null);
+  const [guardOpen, setGuardOpen] = useState(false);
   const [studentToSuspend, setStudentToSuspend] = useState<StudentRosterRow | null>(null);
   const [detailsTarget, setDetailsTarget] = useState<StudentRosterRow | null>(null);
   const [passwordTarget, setPasswordTarget] = useState<StudentRosterRow | null>(null);
@@ -93,6 +96,12 @@ export const StudentSearchView = (): ReactElement => {
     organizationPublicId,
     programPublicId,
   );
+  // Tenant-wide guard: blocks Add/Import buttons when the tenant has zero
+  // Classes across all Programs/Organizations. Reuses useAllTenantClasses()
+  // (already cached by Phase 2's /host/classes page) so this is free on
+  // warm caches.
+  const { data: tenantClasses, isLoading: tenantClassesLoading } = useAllTenantClasses();
+  const hasAnyClass = (tenantClasses?.length ?? 0) > 0;
   const selectedSort = sortOptionFor(sortOption);
   const rosterQuery = {
     page,
@@ -126,6 +135,20 @@ export const StudentSearchView = (): ReactElement => {
   const resetPage = (): void => {
     setKeepPreviousRows(false);
     setPage(0);
+  };
+
+  const trySetManageMode = (nextMode: "add" | "import"): void => {
+    if (tenantClassesLoading) {
+      // Don't block UX on the guard fetch — let the modal open as before.
+      setManageMode(nextMode);
+      return;
+    }
+    if (!hasAnyClass) {
+      setGuardOpen(true);
+      setManageMode(null);
+      return;
+    }
+    setManageMode(nextMode);
   };
 
   const handlePageChange = (nextPage: number): void => {
@@ -180,10 +203,16 @@ export const StudentSearchView = (): ReactElement => {
         subtitle={STUDENT_SEARCH_TEXT.subtitle}
         actions={
           <>
-            <Button variant="secondary" onClick={() => setManageMode("import")}>
+            <Button
+              variant="secondary"
+              onClick={() => trySetManageMode("import")}
+              disabled={tenantClassesLoading}
+            >
               {STUDENT_SEARCH_ACTIONS_TEXT.import}
             </Button>
-            <Button onClick={() => setManageMode("add")}>{STUDENT_SEARCH_ACTIONS_TEXT.add}</Button>
+            <Button onClick={() => trySetManageMode("add")} disabled={tenantClassesLoading}>
+              {STUDENT_SEARCH_ACTIONS_TEXT.add}
+            </Button>
           </>
         }
       />
@@ -291,6 +320,28 @@ export const StudentSearchView = (): ReactElement => {
       {mutationError && <Alert tone="error">{mutationError}</Alert>}
       {roster.isFetching && visibleResult && (
         <Alert tone="info">{STUDENT_ROSTER_FILTER_TEXT.syncing}</Alert>
+      )}
+      {guardOpen && (
+        <div className="flex items-start justify-between gap-3 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <div className="flex flex-col gap-2">
+            <p className="font-semibold">{ADD_STUDENT_GUARD_TEXT.title}</p>
+            <p>{ADD_STUDENT_GUARD_TEXT.body}</p>
+            <Link
+              href="/host/classes"
+              className="font-medium text-blue-700 hover:underline"
+            >
+              {ADD_STUDENT_GUARD_TEXT.cta} →
+            </Link>
+          </div>
+          <button
+            type="button"
+            onClick={() => setGuardOpen(false)}
+            className="text-amber-900 hover:underline"
+            aria-label={ADD_STUDENT_GUARD_TEXT.dismiss}
+          >
+            ×
+          </button>
+        </div>
       )}
 
       <DataTable

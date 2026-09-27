@@ -17,6 +17,13 @@ export const STUDENT_SEARCH_ACTIONS_TEXT = {
   import: "Import students",
 } as const;
 
+export const ADD_STUDENT_GUARD_TEXT = {
+  title: "No classes yet",
+  body: "Create at least one Program and Class before adding students.",
+  cta: "Go to Classes",
+  dismiss: "Dismiss",
+} as const;
+
 export const MANAGE_STUDENTS_TEXT = {
   title: "Add students",
   tabAdd: "Add student",
