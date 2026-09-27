@@ -19,6 +19,7 @@ export function validateCreateExamWorkflow(
   now = Date.now(),
   requireAudience = true,
   templateSkills: readonly ExamSkill[] = ["SPEAKING", "WRITING", "READING", "LISTENING"],
+  requireSeriesKey = true,
 ): CreateExamWorkflowErrors {
   const errors: CreateExamWorkflowErrors = {};
 
@@ -48,7 +49,7 @@ export function validateCreateExamWorkflow(
   ) {
     errors.capacity = CREATE_EXAM_WIZARD_ERRORS.CAPACITY_REQUIRED;
   }
-  if (input.reusePolicy !== "ALLOW" && !input.seriesKey.trim()) {
+  if (requireSeriesKey && input.reusePolicy !== "ALLOW" && !input.seriesKey.trim()) {
     errors.seriesKey = CREATE_EXAM_WIZARD_ERRORS.SERIES_REQUIRED;
   }
   const retryCount = Number(input.maxRetriesPerStudent);

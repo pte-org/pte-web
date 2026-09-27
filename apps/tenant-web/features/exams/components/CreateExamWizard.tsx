@@ -190,9 +190,9 @@ export const CreateExamWizard = ({
       ...previous,
       examMode: value,
       selectedSkills: practice ? previous.selectedSkills : templateSkills,
-      formMode: practice ? "SHARED_FORM" : "UNIQUE_FORM_PER_STUDENT",
-      reusePolicy: practice ? "ALLOW" : "EXCLUDE_STARTED_IN_SERIES",
-      seriesKey: practice ? "" : previous.seriesKey,
+      formMode: "SHARED_FORM",
+      reusePolicy: "ALLOW",
+      seriesKey: "",
     }));
     setErrors((previous) => ({ ...previous, seriesKey: undefined }));
   };
@@ -235,6 +235,7 @@ export const CreateExamWizard = ({
       undefined,
       requireAudience,
       templateSkills,
+      requireAudience,
     );
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -442,28 +443,6 @@ export const CreateExamWizard = ({
           <>
             <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
               {CREATE_EXAM_WIZARD_TEXT.STEP_AUDIENCE}
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Select
-                label={CREATE_EXAM_WIZARD_TEXT.FORM_MODE_LABEL}
-                value={form.formMode}
-                onChange={(event) =>
-                  update("formMode", event.target.value as CreateExamWorkflowInput["formMode"])
-                }
-                options={FORM_MODE_OPTIONS}
-              />
-              <Select
-                label={CREATE_EXAM_WIZARD_TEXT.REUSE_POLICY_LABEL}
-                value={form.reusePolicy}
-                error={errors.seriesKey}
-                onChange={(event) =>
-                  update(
-                    "reusePolicy",
-                    event.target.value as CreateExamWorkflowInput["reusePolicy"],
-                  )
-                }
-                options={REUSE_POLICY_OPTIONS}
-              />
             </div>
             {form.reusePolicy !== "ALLOW" && (
               <Input
