@@ -65,6 +65,9 @@ export const PROGRAM_DETAIL_TEXT = {
     "Missing organization context — go back to the list and open this from there.",
   backToList: (label: string) => `Back to ${label}s`,
   loadFailed: "Couldn't load this — it may have been archived or you may not have access.",
+  activateSuccess: (label: string) => `${label} activated successfully.`,
+  suspendSuccess: (label: string) => `${label} suspended successfully.`,
+  archiveSuccess: (label: string) => `${label} archived successfully.`,
 } as const;
 
 export const PROGRAM_DASHBOARD_TEXT = {

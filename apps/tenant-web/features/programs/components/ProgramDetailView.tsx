@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import Link from "next/link";
-import { Alert, Badge, ChevronLeftIcon, LoadingState, PageHeader } from "@pte/ui";
+import { Alert, Badge, ChevronLeftIcon, LoadingState, PageHeader, useToast } from "@pte/ui";
 import { ClassesSection } from "@/features/classes/components";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
@@ -66,6 +66,7 @@ const ProgramDetailContent = ({
   classLabel,
 }: ProgramDetailContentProps): ReactElement => {
   const T = PROGRAM_DETAIL_TEXT;
+  const { showToast } = useToast();
   const {
     data: program,
     isLoading,
@@ -126,7 +127,14 @@ const ProgramDetailContent = ({
               <button
                 type="button"
                 disabled={lifecyclePending}
-                onClick={() => statusMutations.activate.mutate()}
+                onClick={() =>
+                  statusMutations.activate.mutate(undefined, {
+                    onSuccess: () =>
+                      showToast(T.activateSuccess(programLabel), { tone: "success" }),
+                    onError: (err) =>
+                      showToast(errorMessage(err) ?? "Failed to activate", { tone: "error" }),
+                  })
+                }
                 className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {T.activate}
@@ -136,7 +144,14 @@ const ProgramDetailContent = ({
               <button
                 type="button"
                 disabled={lifecyclePending}
-                onClick={() => statusMutations.suspend.mutate()}
+                onClick={() =>
+                  statusMutations.suspend.mutate(undefined, {
+                    onSuccess: () =>
+                      showToast(T.suspendSuccess(programLabel), { tone: "success" }),
+                    onError: (err) =>
+                      showToast(errorMessage(err) ?? "Failed to suspend", { tone: "error" }),
+                  })
+                }
                 className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {T.suspend}
@@ -145,7 +160,14 @@ const ProgramDetailContent = ({
             <button
               type="button"
               disabled={lifecyclePending}
-              onClick={() => statusMutations.archive.mutate()}
+              onClick={() =>
+                statusMutations.archive.mutate(undefined, {
+                  onSuccess: () =>
+                    showToast(T.archiveSuccess(programLabel), { tone: "success" }),
+                  onError: (err) =>
+                    showToast(errorMessage(err) ?? "Failed to archive", { tone: "error" }),
+                })
+              }
               className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {T.archive}
