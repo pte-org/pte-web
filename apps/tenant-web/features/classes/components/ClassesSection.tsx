@@ -16,6 +16,7 @@ import {
 import { useClasses, useClassStatusMutations, useCreateClass, useUpdateClass } from "../api";
 import { CreateClassModal } from "./CreateClassModal";
 import { EditClassModal } from "./EditClassModal";
+import { ImportOrAssignModal } from "./ImportOrAssignModal";
 import { MergeClassesModal } from "./MergeClassesModal";
 
 interface ClassesSectionProps {
@@ -29,6 +30,7 @@ interface ClassRowActionsProps {
   programPublicId: string;
   studentClass: ClassResponse;
   onEdit: () => void;
+  onAssignStudents: () => void;
 }
 
 const ClassRowActions = ({
@@ -36,6 +38,7 @@ const ClassRowActions = ({
   programPublicId,
   studentClass,
   onEdit,
+  onAssignStudents,
 }: ClassRowActionsProps): ReactElement => {
   const mutations = useClassStatusMutations(
     organizationPublicId,
@@ -64,6 +67,14 @@ const ClassRowActions = ({
           className="text-blue-700 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
         >
           {CLASS_ROW_ACTIONS_TEXT.edit}
+        </button>
+        <button
+          type="button"
+          disabled={pending}
+          onClick={onAssignStudents}
+          className="text-blue-700 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {CLASS_ROW_ACTIONS_TEXT.assignStudents}
         </button>
         {studentClass.status !== "ACTIVE" && (
           <button
@@ -126,6 +137,7 @@ export const ClassesSection = ({
   const [mergeMode, setMergeMode] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState<Set<string | number>>(new Set());
   const [mergeModalOpen, setMergeModalOpen] = useState(false);
+  const [importClassId, setImportClassId] = useState<string | null>(null);
 
   const confirmCreate = (name: string): void => {
     create.mutate({ name }, { onSuccess: () => setCreateOpen(false) });
@@ -174,6 +186,7 @@ export const ClassesSection = ({
           programPublicId={programPublicId}
           studentClass={studentClass}
           onEdit={() => setEditingClass(studentClass)}
+          onAssignStudents={() => setImportClassId(studentClass.publicId)}
         />
       ),
     },
@@ -294,6 +307,15 @@ export const ClassesSection = ({
           setMergeModalOpen(false);
           exitMergeMode();
         }}
+      />
+
+      <ImportOrAssignModal
+        key={importClassId ?? "importOrAssign-closed"}
+        open={importClassId !== null}
+        onClose={() => setImportClassId(null)}
+        organizationPublicId={organizationPublicId}
+        programPublicId={programPublicId}
+        classPublicId={importClassId ?? ""}
       />
     </div>
   );

@@ -60,6 +60,7 @@ export const CLASSES_LIST_TEXT = {
 
 export const CLASS_ROW_ACTIONS_TEXT = {
   edit: "Edit",
+  assignStudents: "Assign Students",
   activate: "Activate",
   deactivate: "Deactivate",
   suspend: "Suspend",
