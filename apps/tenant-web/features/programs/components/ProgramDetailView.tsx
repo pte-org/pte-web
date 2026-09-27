@@ -2,6 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Alert,
   Badge,
@@ -73,6 +74,7 @@ const ProgramDetailContent = ({
   programLabel,
   classLabel,
 }: ProgramDetailContentProps): ReactElement => {
+  const router = useRouter();
   const T = PROGRAM_DETAIL_TEXT;
   const { showToast } = useToast();
   const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
@@ -211,6 +213,7 @@ const ProgramDetailContent = ({
             onSuccess: () => {
               setArchiveConfirmOpen(false);
               showToast(T.archiveSuccess(programLabel), { tone: "success" });
+              router.push("/host/programs");
             },
             onError: (err) => {
               showToast(errorMessage(err) ?? "Failed to archive", { tone: "error" });
