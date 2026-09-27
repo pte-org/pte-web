@@ -2,18 +2,18 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Alert, ChevronLeftIcon, PageHeader } from "@pte/ui";
+import { Alert, ChevronLeftIcon, EyeIcon, PageHeader } from "@pte/ui";
 import { useSubscriptionsQuery } from "../api";
 import { BILLING_TEXT as T } from "../constants";
 import { BillingPanel } from "./BillingPanel";
 import { BillingStatusBadge } from "./BillingStatusBadge";
-
-const mask = (value: string): string =>
-  value.length > 4 ? `${T.MASKED_VALUE} ${value.slice(-4)}` : T.MASKED_VALUE;
+import { RevealLicenseKeyModal } from "./RevealLicenseKeyModal";
 
 export const SubscriptionsView = (): ReactElement => {
   const { data: subscriptions = [], isLoading, isError } = useSubscriptionsQuery();
   const [now] = useState(() => Date.now());
+  const [revealTargetId, setRevealTargetId] = useState<string | null>(null);
+  const [revealedKeys, setRevealedKeys] = useState<Record<string, string>>({});
   const examSubscriptions = subscriptions.filter((item) => item.maxStudentsPerSession !== null);
   const capacitySubscriptions = subscriptions.filter((item) => item.maxStudentsPerSession === null);
   const expiringSoon = examSubscriptions.filter(
@@ -69,7 +69,36 @@ export const SubscriptionsView = (): ReactElement => {
               <div className="mt-5 grid gap-4 sm:grid-cols-3">
                 <Metric label={T.STUDENT_CAP} value={String(subscription.maxStudentsPerSession)} />
                 <Metric label={T.ACTIVATION} value={subscription.activationSource} />
-                <Metric label={T.LICENSE_KEY} value={mask(subscription.licenseKey)} />
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-slate-500">{T.LICENSE_KEY}</p>
+                  <div className="mt-1 flex items-center gap-1.5">
+                    <p className="text-sm font-semibold text-slate-900">
+                      {revealedKeys[subscription.publicId] ?? subscription.licenseKey}
+                    </p>
+                    <button
+                      type="button"
+                      aria-label={
+                        revealedKeys[subscription.publicId]
+                          ? T.HIDE_LICENSE_KEY
+                          : T.REVEAL_LICENSE_KEY
+                      }
+                      onClick={() => {
+                        if (revealedKeys[subscription.publicId]) {
+                          setRevealedKeys((current) => {
+                            const next = { ...current };
+                            delete next[subscription.publicId];
+                            return next;
+                          });
+                        } else {
+                          setRevealTargetId(subscription.publicId);
+                        }
+                      }}
+                      className="text-slate-400 hover:text-slate-600"
+                    >
+                      <EyeIcon closed={Boolean(revealedKeys[subscription.publicId])} className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
@@ -95,6 +124,14 @@ export const SubscriptionsView = (): ReactElement => {
               </div>
             ))}
       </BillingPanel>
+      <RevealLicenseKeyModal
+        open={revealTargetId !== null}
+        subscriptionPublicId={revealTargetId}
+        onClose={() => setRevealTargetId(null)}
+        onRevealed={(subscriptionPublicId, licenseKey) =>
+          setRevealedKeys((current) => ({ ...current, [subscriptionPublicId]: licenseKey }))
+        }
+      />
     </div>
   );
 };
