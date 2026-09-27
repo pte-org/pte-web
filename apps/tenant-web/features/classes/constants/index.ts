@@ -63,6 +63,9 @@ export const CLASSES_LIST_TEXT = {
 export const CLASS_ROW_ACTIONS_TEXT = {
   edit: "Edit",
   assignStudents: "Assign Students",
+  assignStudentsDisabledTitle:
+    "Class must be Active to assign students. Activate it first from the actions menu.",
+  moreOptions: (label: string) => `More options for ${label}`,
   activate: "Activate",
   deactivate: "Deactivate",
   suspend: "Suspend",

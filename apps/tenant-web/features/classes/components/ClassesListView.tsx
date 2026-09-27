@@ -55,11 +55,15 @@ interface ClassRowActionsProps {
 }
 
 const ClassRowActions = ({ option, onAssignStudents }: ClassRowActionsProps): ReactElement => {
+  // Tenant-wide row has no kebab — status mutations live in the program
+  // detail scope (ClassesSection). Here we only expose the 2 navigation /
+  // assignment actions, restyled as outlined pills so the two views match.
   return (
-    <div className="flex items-center gap-3 text-sm">
+    <div className="flex flex-wrap items-center gap-2">
       <Link
         href={`/host/programs/${option.programPublicId}/classes/${option.classPublicId}?organizationPublicId=${option.organizationPublicId}`}
-        className="font-medium text-blue-700 hover:underline"
+        aria-label={`${CLASS_ROW_ACTIONS_TEXT.edit} ${option.className}`}
+        className="rounded-full border border-action bg-transparent px-4 py-1.5 text-sm font-semibold text-action transition-colors hover:bg-action/5"
       >
         {CLASS_ROW_ACTIONS_TEXT.edit}
       </Link>
@@ -72,7 +76,8 @@ const ClassRowActions = ({ option, onAssignStudents }: ClassRowActionsProps): Re
             classPublicId: option.classPublicId,
           })
         }
-        className="text-blue-700 hover:underline"
+        aria-label={`${CLASS_ROW_ACTIONS_TEXT.assignStudents} ${option.className}`}
+        className="rounded-full border border-slate-300 bg-transparent px-4 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
       >
         {CLASS_ROW_ACTIONS_TEXT.assignStudents}
       </button>

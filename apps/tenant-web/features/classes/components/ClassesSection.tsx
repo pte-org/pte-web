@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Badge, DataTable, type DataTableColumn } from "@pte/ui";
+import { Alert, Badge, DataTable, Dropdown, type DataTableColumn, type DropdownItem } from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
@@ -55,62 +55,68 @@ const ClassRowActions = ({
       mutations.archive.error,
   );
 
+  const isActive = studentClass.status === "ACTIVE";
+  const assignDisabled = pending || !isActive;
+  const kebabItems: DropdownItem[] = [
+    {
+      label: CLASS_ROW_ACTIONS_TEXT.activate,
+      onSelect: () => mutations.activate.mutate(),
+      hidden: isActive,
+    },
+    {
+      label: CLASS_ROW_ACTIONS_TEXT.suspend,
+      onSelect: () => mutations.suspend.mutate(),
+      hidden: !isActive,
+    },
+    {
+      label: CLASS_ROW_ACTIONS_TEXT.deactivate,
+      onSelect: () => mutations.deactivate.mutate(),
+      hidden: studentClass.status === "INACTIVE",
+    },
+    { separator: true, key: "danger-divider" },
+    {
+      label: CLASS_ROW_ACTIONS_TEXT.archive,
+      onSelect: () => mutations.archive.mutate(),
+      danger: true,
+    },
+  ];
+
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex flex-wrap items-center gap-2 text-sm">
+      <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={onEdit}
-          className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover"
+          disabled={pending}
+          aria-label={`${CLASS_ROW_ACTIONS_TEXT.edit} ${studentClass.name}`}
+          className="rounded-full border border-action bg-transparent px-4 py-1.5 text-sm font-semibold text-action transition-colors hover:bg-action/5 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {CLASS_ROW_ACTIONS_TEXT.edit}
         </button>
         <button
           type="button"
-          disabled={pending}
+          disabled={assignDisabled}
           onClick={onAssignStudents}
-          className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+          title={
+            isActive
+              ? undefined
+              : CLASS_ROW_ACTIONS_TEXT.assignStudentsDisabledTitle
+          }
+          aria-label={`${CLASS_ROW_ACTIONS_TEXT.assignStudents} ${studentClass.name}`}
+          aria-describedby={isActive ? undefined : `assign-help-${studentClass.publicId}`}
+          className="rounded-full border border-slate-300 bg-transparent px-4 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {CLASS_ROW_ACTIONS_TEXT.assignStudents}
         </button>
-        {studentClass.status !== "ACTIVE" && (
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => mutations.activate.mutate()}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {CLASS_ROW_ACTIONS_TEXT.activate}
-          </button>
-        )}
-        {studentClass.status === "ACTIVE" && (
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => mutations.suspend.mutate()}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {CLASS_ROW_ACTIONS_TEXT.suspend}
-          </button>
-        )}
-        {studentClass.status !== "INACTIVE" && (
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => mutations.deactivate.mutate()}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {CLASS_ROW_ACTIONS_TEXT.deactivate}
-          </button>
-        )}
-        <button
-          type="button"
-          disabled={pending}
-          onClick={() => mutations.archive.mutate()}
-          className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {CLASS_ROW_ACTIONS_TEXT.archive}
-        </button>
+        <span id={`assign-help-${studentClass.publicId}`} className="sr-only">
+          {CLASS_ROW_ACTIONS_TEXT.assignStudentsDisabledTitle}
+        </span>
+        <Dropdown
+          items={kebabItems}
+          label={CLASS_ROW_ACTIONS_TEXT.moreOptions(studentClass.name)}
+          triggerClassName="h-8 w-8 rounded-md text-slate-500 hover:bg-slate-100"
+          align="right"
+        />
       </div>
       {rowError && <p className="text-xs text-red-600">{rowError}</p>}
     </div>
