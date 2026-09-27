@@ -16,7 +16,7 @@ export const CLASS_STATUS_VARIANT = {
 export const CLASSES_SECTION_TEXT = {
   countLabel: (count: number, label: string) =>
     `${count} ${label.toLowerCase()}${count === 1 ? "" : "s"}`,
-  addButton: (label: string) => `+ Create ${label}`,
+  addButton: () => `+ Add Class`,
   emptyTitle: (label: string) => `No ${label} yet`,
   emptyText: (label: string) =>
     `Create your first ${label.toLowerCase()} to start assigning students.`,
@@ -45,6 +45,12 @@ export const CLASSES_LIST_TEXT = {
     `Pick a ${programLabel.toLowerCase()} to add a ${classLabel.toLowerCase()} to:`,
   emptyNoClassesDirectCta: (programLabel: string, classLabel: string) =>
     `+ Create ${classLabel} in ${programLabel}`,
+  createClassButton: "+ Create Class",
+  createClassPickerLabel: (programLabel: string) => programLabel,
+  createClassPickerPlaceholder: (programLabel: string) => `Select a ${programLabel.toLowerCase()}`,
+  createClassNoProgramsTitle: (classLabel: string) => `No ${classLabel} yet`,
+  createClassNoProgramsText: (programLabel: string) =>
+    `You need at least one ${programLabel.toLowerCase()} before you can create a class.`,
   studentCountPlaceholder: "—",
 } as const;
 

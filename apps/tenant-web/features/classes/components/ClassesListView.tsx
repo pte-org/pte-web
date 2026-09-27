@@ -8,7 +8,6 @@ import {
   Button,
   DataTable,
   FolderPlusIcon,
-  PageHeader,
   Select,
   type DataTableColumn,
 } from "@pte/ui";
@@ -24,6 +23,12 @@ import {
 } from "../constants";
 
 const ALL_FILTER = "ALL";
+
+interface ClassesListViewProps {
+  organizationOptions: { value: string; label: string }[];
+  selectedOrganizationPublicId: string;
+  onOrganizationChange: (organizationPublicId: string) => void;
+}
 
 interface ClassRowActionsProps {
   option: TenantClassOption;
@@ -45,7 +50,11 @@ const ClassRowActions = ({ option }: ClassRowActionsProps): ReactElement => {
   );
 };
 
-export const ClassesListView = (): ReactElement => {
+export const ClassesListView = ({
+  organizationOptions,
+  selectedOrganizationPublicId,
+  onOrganizationChange,
+}: ClassesListViewProps): ReactElement => {
   const labels = useOrgLabels();
   const { data: classes, isLoading, isError, error } = useAllTenantClasses();
   const [programFilter, setProgramFilter] = useState<string>(ALL_FILTER);
@@ -114,7 +123,6 @@ export const ClassesListView = (): ReactElement => {
     const only = programOptions[0];
     return (
       <div className="flex flex-col gap-5 p-2">
-        <PageHeader title={labels.class} />
         <p className="text-gray-600">{CLASSES_LIST_TEXT.emptyNoClassesTitle(labels.class)}</p>
         <Link
           href={`/host/programs/${only.value}/classes`}
@@ -167,10 +175,18 @@ export const ClassesListView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={labels.class} />
       <p className="text-gray-600">
         {CLASSES_LIST_TEXT.subtitle(labels.class, labels.program)}
       </p>
+
+      {organizationOptions.length > 1 && (
+        <Select
+          label={CLASSES_LIST_TEXT.createClassPickerLabel(labels.program)}
+          options={organizationOptions}
+          value={selectedOrganizationPublicId}
+          onChange={(event) => onOrganizationChange(event.target.value)}
+        />
+      )}
 
       {programOptions.length >= 2 && (
         <Select
@@ -214,7 +230,6 @@ const NoClassesMultiProgram = ({
   const [picked, setPicked] = useState<string>(programOptions[0]?.value ?? "");
   return (
     <div className="flex flex-col gap-5 p-2">
-      <PageHeader title={classLabel} />
       <p className="text-gray-600">
         {CLASSES_LIST_TEXT.emptyNoClassesTitle(classLabel)} —{" "}
         {CLASSES_LIST_TEXT.emptyNoClassesPickPrompt(programLabel, classLabel)}

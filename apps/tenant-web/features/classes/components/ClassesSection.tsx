@@ -201,7 +201,7 @@ export const ClassesSection = ({
               onClick={() => setCreateOpen(true)}
               className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
             >
-              {CLASSES_SECTION_TEXT.addButton(classLabel)}
+              {CLASSES_SECTION_TEXT.addButton()}
             </button>
           )}
         </div>
