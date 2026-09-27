@@ -190,9 +190,10 @@ export const CreateExamWizard = ({
       ...previous,
       examMode: value,
       selectedSkills: practice ? previous.selectedSkills : templateSkills,
-      formMode: practice ? "SHARED_FORM" : "UNIQUE_FORM_PER_STUDENT",
-      reusePolicy: practice ? "ALLOW" : "EXCLUDE_STARTED_IN_SERIES",
-      seriesKey: practice ? "" : previous.seriesKey,
+      formMode: "SHARED_FORM",
+      reusePolicy: "ALLOW",
+      seriesKey: "",
+      maxRetriesPerStudent: practice ? previous.maxRetriesPerStudent : "0",
     }));
     setErrors((previous) => ({ ...previous, seriesKey: undefined }));
   };
@@ -235,6 +236,7 @@ export const CreateExamWizard = ({
       undefined,
       requireAudience,
       templateSkills,
+      requireAudience,
     );
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -426,44 +428,26 @@ export const CreateExamWizard = ({
                 </p>
               </div>
             )}
-            <Input
-              type="number"
-              min={0}
-              max={9}
-              step={1}
-              label={CREATE_EXAM_WIZARD_TEXT.RETRIES_LABEL}
-              value={form.maxRetriesPerStudent}
-              error={errors.maxRetriesPerStudent}
-              onChange={(event) => update("maxRetriesPerStudent", event.target.value)}
-            />
-            <p className="-mt-3 text-sm text-gray-500">{CREATE_EXAM_WIZARD_TEXT.RETRIES_HELPER}</p>
+            {form.examMode === "PRACTICE" && (
+              <Input
+                type="number"
+                min={0}
+                max={9}
+                step={1}
+                label={CREATE_EXAM_WIZARD_TEXT.RETRIES_LABEL}
+                value={form.maxRetriesPerStudent}
+                error={errors.maxRetriesPerStudent}
+                onChange={(event) => update("maxRetriesPerStudent", event.target.value)}
+              />
+            )}
+            {form.examMode === "PRACTICE" && (
+              <p className="-mt-3 text-sm text-gray-500">{CREATE_EXAM_WIZARD_TEXT.RETRIES_HELPER}</p>
+            )}
           </>
         ) : (
           <>
             <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
               {CREATE_EXAM_WIZARD_TEXT.STEP_AUDIENCE}
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Select
-                label={CREATE_EXAM_WIZARD_TEXT.FORM_MODE_LABEL}
-                value={form.formMode}
-                onChange={(event) =>
-                  update("formMode", event.target.value as CreateExamWorkflowInput["formMode"])
-                }
-                options={FORM_MODE_OPTIONS}
-              />
-              <Select
-                label={CREATE_EXAM_WIZARD_TEXT.REUSE_POLICY_LABEL}
-                value={form.reusePolicy}
-                error={errors.seriesKey}
-                onChange={(event) =>
-                  update(
-                    "reusePolicy",
-                    event.target.value as CreateExamWorkflowInput["reusePolicy"],
-                  )
-                }
-                options={REUSE_POLICY_OPTIONS}
-              />
             </div>
             {form.reusePolicy !== "ALLOW" && (
               <Input
