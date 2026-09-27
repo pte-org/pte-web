@@ -6,6 +6,7 @@ import { DashboardChrome } from "@/features/auth/components";
 import { HOST_ROLES } from "@/features/auth/constants";
 import { ClassesListView } from "@/features/classes/components";
 import { CreateClassModal } from "@/features/classes/components/CreateClassModal";
+import { ImportOrAssignModal } from "@/features/classes/components/ImportOrAssignModal";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import { buildHostNav } from "@/lib/navigation";
@@ -51,6 +52,21 @@ export default function ClassesPage() {
     setCreateOpen(true);
   };
 
+  // Pre-fill the assign-students modal with the row's class. The modal
+  // itself is owned by the row component (ClassesListView / ClassesSection).
+  const [assignContext, setAssignContext] = useState<{
+    organizationPublicId: string;
+    programPublicId: string;
+    classPublicId: string;
+  } | null>(null);
+  const onRequestAssignStudents = (input: {
+    organizationPublicId: string;
+    programPublicId: string;
+    classPublicId: string;
+  }): void => {
+    setAssignContext(input);
+  };
+
   const onConfirmCreate = (name: string): void => {
     if (!selectedProgramPublicId) return;
     create.mutate(
@@ -77,6 +93,11 @@ export default function ClassesPage() {
                 setCreateOpen(true);
               }}
               disabled={programOptions.length === 0}
+              title={
+                programOptions.length === 0
+                  ? CLASSES_LIST_TEXT.createClassButtonTitle
+                  : undefined
+              }
               className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
               {CLASSES_LIST_TEXT.createClassButton}
@@ -93,6 +114,16 @@ export default function ClassesPage() {
           onOrganizationChange={onOrgChange}
           allPrograms={programOptions}
           onRequestCreateClass={onRequestCreateClass}
+          onRequestAssignStudents={onRequestAssignStudents}
+        />
+
+        <ImportOrAssignModal
+          key={assignContext?.classPublicId ?? "assignStudents-closed"}
+          open={assignContext !== null}
+          onClose={() => setAssignContext(null)}
+          organizationPublicId={assignContext?.organizationPublicId ?? ""}
+          programPublicId={assignContext?.programPublicId ?? ""}
+          classPublicId={assignContext?.classPublicId ?? ""}
         />
 
         <CreateClassModal

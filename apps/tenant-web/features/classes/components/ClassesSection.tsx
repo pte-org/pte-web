@@ -253,8 +253,8 @@ export const ClassesSection = ({
         rows={classes ?? []}
         getRowKey={(studentClass) => studentClass.publicId}
         isLoading={isLoading}
-        emptyTitle={CLASSES_SECTION_TEXT.emptyTitle(classLabel)}
-        emptyDescription={CLASSES_SECTION_TEXT.emptyText(classLabel)}
+        emptyTitle={CLASSES_SECTION_TEXT.emptyInlineTitle(classLabel)}
+        emptyDescription={CLASSES_SECTION_TEXT.emptyInlineDescription(classLabel)}
         selectable={mergeMode}
         selectedKeys={selectedKeys}
         onSelectionChange={setSelectedKeys}

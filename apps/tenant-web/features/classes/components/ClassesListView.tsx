@@ -37,16 +37,24 @@ interface ClassesListViewProps {
   allPrograms: ProgramOption[];
   /** Open the create-class modal pre-filled with the picked program. */
   onRequestCreateClass: (programPublicId: string) => void;
+  /** Open the import/assign modal pre-bound to a specific class. */
+  onRequestAssignStudents: (input: {
+    organizationPublicId: string;
+    programPublicId: string;
+    classPublicId: string;
+  }) => void;
 }
 
 interface ClassRowActionsProps {
   option: TenantClassOption;
+  onAssignStudents: (input: {
+    organizationPublicId: string;
+    programPublicId: string;
+    classPublicId: string;
+  }) => void;
 }
 
-const ClassRowActions = ({ option }: ClassRowActionsProps): ReactElement => {
-  // Status mutations are scoped per class — same wiring as ClassesSection.
-  // Lazy-imported here via re-evaluated hook call would be unusual; we
-  // rely on the hook's internal `enabled` flag pattern instead.
+const ClassRowActions = ({ option, onAssignStudents }: ClassRowActionsProps): ReactElement => {
   return (
     <div className="flex items-center gap-3 text-sm">
       <Link
@@ -55,6 +63,19 @@ const ClassRowActions = ({ option }: ClassRowActionsProps): ReactElement => {
       >
         {CLASS_ROW_ACTIONS_TEXT.edit}
       </Link>
+      <button
+        type="button"
+        onClick={() =>
+          onAssignStudents({
+            organizationPublicId: option.organizationPublicId,
+            programPublicId: option.programPublicId,
+            classPublicId: option.classPublicId,
+          })
+        }
+        className="text-blue-700 hover:underline"
+      >
+        {CLASS_ROW_ACTIONS_TEXT.assignStudents}
+      </button>
     </div>
   );
 };
@@ -65,6 +86,7 @@ export const ClassesListView = ({
   onOrganizationChange,
   allPrograms,
   onRequestCreateClass,
+  onRequestAssignStudents,
 }: ClassesListViewProps): ReactElement => {
   const labels = useOrgLabels();
   const { data: classes, isLoading, isError, error } = useAllTenantClasses();
@@ -171,14 +193,18 @@ export const ClassesListView = ({
     {
       key: "actions",
       header: CLASS_TABLE_HEADERS.ACTIONS,
-      cell: (option) => <ClassRowActions option={option} />,
+      cell: (option) => (
+        <ClassRowActions option={option} onAssignStudents={onRequestAssignStudents} />
+      ),
     },
   ];
 
   return (
     <div className="flex flex-col gap-5">
       <p className="text-gray-600">
-        {CLASSES_LIST_TEXT.subtitle(labels.class, labels.program)}
+        {organizationOptions.length > 1
+          ? CLASSES_LIST_TEXT.subtitleScoped(labels.class, labels.program)
+          : CLASSES_LIST_TEXT.subtitle(labels.class, labels.program)}
       </p>
 
       {organizationOptions.length > 1 && (

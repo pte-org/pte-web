@@ -17,9 +17,12 @@ export const CLASSES_SECTION_TEXT = {
   countLabel: (count: number, label: string) =>
     `${count} ${label.toLowerCase()}${count === 1 ? "" : "s"}`,
   addButton: () => `+ Add Class`,
-  emptyTitle: (label: string) => `No ${label} yet`,
+  emptyTitle: (label: string) => `No ${label.toLowerCase()} yet`,
   emptyText: (label: string) =>
     `Create your first ${label.toLowerCase()} to start assigning students.`,
+  emptyInlineTitle: (label: string) => `Start by creating a ${label.toLowerCase()}`,
+  emptyInlineDescription: (label: string) =>
+    `Use \`+ Add Class\` above to create your first ${label.toLowerCase()}.`,
 } as const;
 
 export const CLASS_TABLE_HEADERS = {
@@ -31,7 +34,9 @@ export const CLASS_TABLE_HEADERS = {
 
 export const CLASSES_LIST_TEXT = {
   subtitle: (classLabel: string, programLabel: string) =>
-    `Browse every ${classLabel.toLowerCase()} across all ${programLabel.toLowerCase()}.`,
+    `Browse every ${classLabel.toLowerCase()} across all ${programLabel.toLowerCase()}s in your organization.`,
+  subtitleScoped: (classLabel: string, programLabel: string) =>
+    `Browse every ${classLabel.toLowerCase()} in this ${programLabel.toLowerCase()}.`,
   programFilterLabel: (programLabel: string) => `Filter by ${programLabel}`,
   programFilterAll: (programLabel: string) => `All ${programLabel.toLowerCase()}s`,
   countLabel: (count: number, classLabel: string) =>
@@ -50,6 +55,7 @@ export const CLASSES_LIST_TEXT = {
     `Each row is a ${programLabel.toLowerCase()} you can add a class to.`,
   pickProgramRowCta: "+ Add Class",
   createClassButton: "+ Create Class",
+  createClassButtonTitle: "Create a Program first to add Classes to it.",
   createClassPickerLabel: (programLabel: string) => programLabel,
   createClassPickerPlaceholder: (programLabel: string) => `Select a ${programLabel.toLowerCase()}`,
   createClassNoProgramsTitle: (classLabel: string) => `No ${classLabel} yet`,
