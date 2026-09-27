@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Badge, Button, Input, LoadingState, Modal, PageHeader } from "@pte/ui";
+import { Alert, Badge, Button, Input, LoadingState, Modal, PageHeader, Select } from "@pte/ui";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
 import { useCurrentUser } from "@/features/auth/api";
 import {
@@ -360,21 +360,16 @@ export const ScoreTemplateListView = (): ReactElement => {
             maxLength={255}
           />
           <div>
-            <label
-              htmlFor="create-exam-template-policy"
-              className="mb-1 block text-sm font-medium text-gray-700"
-            >
-              {SCORE_TEMPLATE_TEXT.POLICY_LABEL}
-            </label>
-            <select
+            <Select
               id="create-exam-template-policy"
+              label={SCORE_TEMPLATE_TEXT.POLICY_LABEL}
               value={createPolicy}
               onChange={(event) => setCreatePolicy(event.target.value as ScoreTemplatePolicy)}
-              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-500"
-            >
-              <option value="STANDARD_PTE">{SCORE_TEMPLATE_TEXT.STANDARD_POLICY}</option>
-              <option value="CUSTOM">{SCORE_TEMPLATE_TEXT.CUSTOM_POLICY}</option>
-            </select>
+              options={[
+                { value: "STANDARD_PTE", label: SCORE_TEMPLATE_TEXT.STANDARD_POLICY },
+                { value: "CUSTOM", label: SCORE_TEMPLATE_TEXT.CUSTOM_POLICY },
+              ]}
+            />
             {createPolicy === "CUSTOM" && (
               <p className="mt-1 text-xs text-gray-500">{SCORE_TEMPLATE_TEXT.CUSTOM_POLICY_NOTICE}</p>
             )}

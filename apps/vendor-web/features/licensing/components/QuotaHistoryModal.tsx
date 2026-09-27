@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import type { QuotaTransactionResponse } from "@pte/api-client";
-import { Modal } from "@pte/ui";
+import { Modal, Select } from "@pte/ui";
 import {
   QUOTA_ACTION_TYPE_FILTER_OPTIONS,
   QUOTA_ACTION_TYPE_LABELS,
@@ -58,18 +58,12 @@ export const QuotaHistoryModal = ({
       }
     >
       <div className="mb-3 flex justify-end">
-        <select
+        <Select
           aria-label={QUOTA_ACTION_TYPE_FILTER_OPTIONS[0].label}
           value={actionFilter}
           onChange={(event) => setActionFilter(event.target.value)}
-          className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm text-gray-700 outline-none focus:border-blue-500"
-        >
-          {QUOTA_ACTION_TYPE_FILTER_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+          options={QUOTA_ACTION_TYPE_FILTER_OPTIONS}
+        />
       </div>
 
       {visible.length > 0 ? (

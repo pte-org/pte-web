@@ -36,7 +36,7 @@ export const PlatformSettingsView = (): ReactElement => {
         {isLoading && <p className="text-sm text-slate-500">{T.LOADING}</p>}
         <div className="space-y-5">
           {settings.filter((setting) => SETTING_KEYS.includes(setting.key as (typeof SETTING_KEYS)[number])).map((setting) => (
-            <form key={setting.key} className="grid gap-4 border-b border-slate-100 pb-5 last:border-0 last:pb-0 sm:grid-cols-[1fr_auto] sm:items-end" onSubmit={(event) => void save(event, setting)}>
+            <form key={setting.key} className="grid gap-4 border-b border-slate-100 pb-5 last:border-0 last:pb-0 sm:grid-cols-[1fr_auto] sm:items-start" onSubmit={(event) => void save(event, setting)}>
               <Input
                 id={`setting-${setting.key}`}
                 label={setting.key}
@@ -46,7 +46,12 @@ export const PlatformSettingsView = (): ReactElement => {
                 value={values[setting.key] ?? setting.value}
                 onChange={(event) => setValues({ ...values, [setting.key]: event.target.value })}
               />
-              <Button type="submit" isLoading={update.isPending}>{T.SAVE}</Button>
+              <div className="flex flex-col">
+                <span aria-hidden="true" className="h-5" />
+                <Button type="submit" className="sm:w-28" isLoading={update.isPending}>
+                  {T.SAVE}
+                </Button>
+              </div>
             </form>
           ))}
         </div>

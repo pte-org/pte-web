@@ -8,6 +8,7 @@ import {
   LoadingState,
   PageHeader,
   PaginationControls,
+  Select,
   type DataTableColumn,
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
@@ -48,19 +49,19 @@ export const AuditLogView = (): ReactElement => {
         <label className="text-sm font-medium text-gray-700" htmlFor="audit-log-filter">
           {AUDIT_LOG_TEXT.filterLabel}
         </label>
-        <select
+        <Select
           id="audit-log-filter"
           value={aggregateType}
           onChange={(event) => {
             setAggregateType(event.target.value);
             setPage(0);
           }}
-          className="rounded-md border border-gray-300 px-2.5 py-1.5 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-blue-200"
-        >
-          <option value="">{AUDIT_LOG_TEXT.filterAll}</option>
-          <option value={AUDIT_LOG_AGGREGATE_TYPES.PROGRAM}>{labels.program}</option>
-          <option value={AUDIT_LOG_AGGREGATE_TYPES.CLASS}>{labels.class}</option>
-        </select>
+          options={[
+            { value: "", label: AUDIT_LOG_TEXT.filterAll },
+            { value: AUDIT_LOG_AGGREGATE_TYPES.PROGRAM, label: labels.program },
+            { value: AUDIT_LOG_AGGREGATE_TYPES.CLASS, label: labels.class },
+          ]}
+        />
       </div>
 
       {isError && <Alert tone="error">{errorMessage(error, AUDIT_LOG_TEXT.loadFailed)}</Alert>}

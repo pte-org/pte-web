@@ -48,10 +48,7 @@ export interface TenantFilter {
   status: TenantStatusFilter;
   plan: TenantPlan | "all";
   organizationType: string | "all";
-  capacity: TenantCapacityFilter;
 }
-
-export type TenantCapacityFilter = "all" | "0-100" | "101-500" | "501+";
 
 /**
  * Raw form values for creating a tenant — one field per real

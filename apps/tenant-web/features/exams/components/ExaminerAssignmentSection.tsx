@@ -8,7 +8,7 @@ import type {
   ExaminerAssignmentScopeRequest,
   UserResponse,
 } from "@pte/api-client";
-import { Alert, CollapsibleSection } from "@pte/ui";
+import { Alert, CollapsibleSection, Select } from "@pte/ui";
 import { useAllTenantClasses, type TenantClassOption } from "@/features/classes/api";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { EXAMINER_ASSIGNMENT_TEXT as T, SESSION_DETAIL_TEXT } from "../constants";
@@ -200,20 +200,21 @@ export const ExaminerAssignmentSection = ({
       {confirmError && <Alert tone="error">{confirmError}</Alert>}
 
       <div className="flex flex-col gap-4">
-        <label className="flex max-w-md flex-col gap-1.5 text-sm font-medium text-gray-700">
-          {T.MODE_LABEL}
-          <select
+        <div className="max-w-md">
+          <Select
+            id="examiner-assignment-mode"
+            label={T.MODE_LABEL}
             value={mode}
             onChange={(event) => {
               resetAssignmentFeedback();
               setMode(event.target.value as ExaminerAssignmentMode);
             }}
-            className="rounded-md border border-gray-300 bg-white px-3 py-2"
-          >
-            <option value="RANDOM">{T.RANDOM_MODE}</option>
-            <option value="MANUAL">{T.MANUAL_MODE}</option>
-          </select>
-        </label>
+            options={[
+              { value: "RANDOM", label: T.RANDOM_MODE },
+              { value: "MANUAL", label: T.MANUAL_MODE },
+            ]}
+          />
+        </div>
 
         {mode === "RANDOM" && (
           <p className="text-sm text-gray-600">
@@ -269,69 +270,47 @@ export const ExaminerAssignmentSection = ({
                 key={scope.key}
                 className="grid gap-3 rounded-md border border-gray-200 p-3 md:grid-cols-[150px_1fr_1fr_auto]"
               >
-                <label className="flex flex-col gap-1 text-xs font-medium text-gray-600">
-                  {T.SCOPE_TYPE_CLASS} / {T.SCOPE_TYPE_PROGRAM}
-                  <select
-                    value={scope.type}
-                    onChange={(event) =>
-                      updateScope(scope.key, {
-                        type: event.target.value as AssignmentScopeType,
-                      })
-                    }
-                    className="rounded-md border border-gray-300 bg-white px-2 py-2 text-sm"
-                  >
-                    {SCOPE_TYPES.map((item) => (
-                      <option key={item.value} value={item.value}>
-                        {item.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="flex flex-col gap-1 text-xs font-medium text-gray-600">
-                  {T.SCOPE_LABEL}
-                  <select
-                    value={scope.scopePublicId}
-                    onChange={(event) =>
-                      updateScope(scope.key, { scopePublicId: event.target.value })
-                    }
-                    disabled={classesLoading || classesQuery.isError}
-                    className="rounded-md border border-gray-300 bg-white px-2 py-2 text-sm"
-                  >
-                    <option value="">{classesLoading ? "Loading..." : T.SCOPE_PLACEHOLDER}</option>
-                    {options
-                      .filter(
-                        (option) =>
-                          !selectedKeys.has(`${scope.type}:${option.publicId}`) ||
-                          option.publicId === scope.scopePublicId,
-                      )
-                      .map((option) => (
-                        <option key={option.publicId} value={option.publicId}>
-                          {option.label}
-                        </option>
-                      ))}
-                  </select>
-                </label>
+                <Select
+                  id={`scope-type-${scope.key}`}
+                  label={`${T.SCOPE_TYPE_CLASS} / ${T.SCOPE_TYPE_PROGRAM}`}
+                  value={scope.type}
+                  onChange={(event) =>
+                    updateScope(scope.key, {
+                      type: event.target.value as AssignmentScopeType,
+                    })
+                  }
+                  options={SCOPE_TYPES}
+                />
+                <Select
+                  id={`scope-value-${scope.key}`}
+                  label={T.SCOPE_LABEL}
+                  value={scope.scopePublicId}
+                  onChange={(event) => updateScope(scope.key, { scopePublicId: event.target.value })}
+                  disabled={classesLoading || classesQuery.isError}
+                  placeholder={classesLoading ? "Loading..." : T.SCOPE_PLACEHOLDER}
+                  options={options
+                    .filter(
+                      (option) =>
+                        !selectedKeys.has(`${scope.type}:${option.publicId}`) ||
+                        option.publicId === scope.scopePublicId,
+                    )
+                    .map((option) => ({ value: option.publicId, label: option.label }))}
+                />
                 {mode === "MANUAL" ? (
-                  <label className="flex flex-col gap-1 text-xs font-medium text-gray-600">
-                    {T.EXAMINER_LABEL}
-                    <select
-                      value={scope.examinerPublicId}
-                      onChange={(event) =>
-                        updateScope(scope.key, { examinerPublicId: event.target.value })
-                      }
-                      disabled={
-                        examinersLoading || examinersQuery.isError || examiners.length === 0
-                      }
-                      className="rounded-md border border-gray-300 bg-white px-2 py-2 text-sm"
-                    >
-                      <option value="">{T.EXAMINER_PLACEHOLDER}</option>
-                      {examiners.map((examiner) => (
-                        <option key={examiner.publicId} value={examiner.publicId}>
-                          {examinerName(examiner)}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
+                  <Select
+                    id={`scope-examiner-${scope.key}`}
+                    label={T.EXAMINER_LABEL}
+                    value={scope.examinerPublicId}
+                    onChange={(event) =>
+                      updateScope(scope.key, { examinerPublicId: event.target.value })
+                    }
+                    disabled={examinersLoading || examinersQuery.isError || examiners.length === 0}
+                    placeholder={T.EXAMINER_PLACEHOLDER}
+                    options={examiners.map((examiner) => ({
+                      value: examiner.publicId,
+                      label: examinerName(examiner),
+                    }))}
+                  />
                 ) : (
                   <div />
                 )}

@@ -121,12 +121,12 @@ export const Dropdown = ({
               aria-hidden="true"
               tabIndex={-1}
               onClick={() => setOpen(false)}
-              className="fixed inset-0 z-10 cursor-default"
+              className="fixed inset-0 z-[55] cursor-default"
             />
             <div
               ref={menuRef}
               role="menu"
-              className="fixed z-20 min-w-44 max-w-[calc(100vw-1rem)] rounded-md bg-white py-1 shadow-card"
+              className="fixed z-[60] min-w-44 max-w-[calc(100vw-1rem)] rounded-md bg-white py-1 shadow-card"
               style={{
                 top: menuPosition?.top ?? 0,
                 left: menuPosition?.left ?? 0,

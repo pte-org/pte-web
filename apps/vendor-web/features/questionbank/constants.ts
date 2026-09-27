@@ -31,14 +31,33 @@ export const QUESTIONBANK_TEXT = {
   ROW_DELETE: "Delete",
   ROW_PUBLISH: "Publish",
   ROW_ARCHIVE: "Archive",
+  ARCHIVE_CONFIRM_TITLE: "Archive this question?",
+  ARCHIVE_CONFIRM_DESCRIPTION:
+    "Archived questions are hidden from exam generation and cannot be edited until unarchived.",
+  ARCHIVE_CONFIRM_BUTTON: "Archive question",
   ROW_UNARCHIVE: "Unarchive",
   ROW_SUBMIT: "Submit for approval",
   ROW_APPROVE: "Approve",
   ROW_REJECT: "Reject",
   EMPTY_VALUE: "—",
-  REJECTION_REASON_PROMPT: "Reason for rejection",
+  EMPTY_TITLE: "No questions found",
+  EMPTY_DESCRIPTION_FILTERED: "No questions match your search or filters. Try adjusting them.",
+  EMPTY_DESCRIPTION_UNFILTERED: "The question bank is empty. Add your first question to get started.",
+  EMPTY_CLEAR_FILTERS: "Clear filters",
   REJECTION_REASON_DEFAULT: "Please revise this question.",
+  REJECT_MODAL_TITLE: "Reject this question?",
+  REJECT_MODAL_DESCRIPTION: "It will go back to Draft so the author can revise it.",
+  REJECT_REASON_LABEL: "Reason for rejection",
+  REJECT_REASON_PLACEHOLDER: "Explain what needs to change...",
+  REJECT_REASON_REQUIRED: "A reason is required so the author knows what to fix.",
+  REJECT_CONFIRM_BUTTON: "Reject question",
+  CANCEL: "Cancel",
   STATUS_UPDATE_ERROR: "Could not update this question's status. Please try again.",
+  SUBMIT_SUCCESS: "Question submitted for approval.",
+  APPROVE_SUCCESS: "Question approved and published.",
+  REJECT_SUCCESS: "Question rejected and sent back to draft.",
+  ARCHIVE_SUCCESS: "Question archived.",
+  UNARCHIVE_SUCCESS: "Question unarchived.",
 } as const;
 
 export const QUESTION_DETAIL_TEXT = {
@@ -46,11 +65,12 @@ export const QUESTION_DETAIL_TEXT = {
   SUBTITLE: (taskType: string) => `Review the content and media attached to ${taskType}.`,
   EDIT: "Edit question",
   INFORMATION_TITLE: "Question information",
+  GROUP_IDENTITY: "Identity",
+  GROUP_CLASSIFICATION: "Classification",
   QUESTION_CODE: "Question code",
   TASK_TYPE: "Task type",
   SECTION: "Section",
   VISIBILITY: "Visibility",
-  STATUS: "Status",
   REVISION: "Revision",
   WORD_COUNT: "Word count",
   WORD_COUNT_RANGE: (min: number, max: number) => `${min}–${max} words`,
@@ -68,6 +88,7 @@ export const QUESTION_DETAIL_TEXT = {
   ANSWERS_TITLE: "Answers",
   OPTIONS: "Options",
   CORRECT: "Correct answer",
+  GROUP_ANSWER_KEY: "Answer key",
   REFERENCE_ANSWER: "Reference answer",
   CORRECT_ANSWER: "Correct answer text",
   EMPTY_VALUE: "—",
@@ -110,6 +131,8 @@ export const QUESTION_EDITOR_TEXT = {
   SAVE_DRAFT: "Save Draft",
   CREATE_DRAFT: "Create Draft",
   CANCEL: "Cancel",
+  CREATE_SUCCESS: "Question created as a draft.",
+  UPDATE_SUCCESS: "Question draft saved.",
 } as const;
 
 export const QUESTION_EDITOR_ERRORS = {
@@ -161,7 +184,7 @@ export const QUESTION_STATUS_VARIANT: Record<QuestionStatus, BadgeVariant> = {
   draft: "warning",
   pending_approval: "info",
   published: "success",
-  archived: "info",
+  archived: "neutral",
 };
 
 export const SKILL_FILTER_OPTIONS: {

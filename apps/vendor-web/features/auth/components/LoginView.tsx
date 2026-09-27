@@ -4,7 +4,7 @@ import { useState, type FormEvent, type ReactElement } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { EyeIcon, LockIcon, MailIcon, useSessionManager, type SessionRole } from "@pte/ui";
+import { EyeIcon, LockIcon, MailIcon, Select, useSessionManager, type SessionRole } from "@pte/ui";
 import {
   decodeAccessTokenClaims,
   type LoginOrganizationOption,
@@ -205,19 +205,16 @@ export const LoginView = (): ReactElement => {
                 <label htmlFor="organization" className={LABEL_CLASS}>
                   {AUTH_TEXT.ORGANIZATION_LABEL}
                 </label>
-                <select
+                <Select
                   id="organization"
                   value={organizationId}
                   onChange={(event) => setOrganizationId(event.target.value)}
-                  className="rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
-                >
-                  <option value="">{AUTH_TEXT.ORGANIZATION_PLACEHOLDER}</option>
-                  {organizationOptions.map((option) => (
-                    <option key={option.tenantId} value={option.tenantId}>
-                      {option.organizationName} ({option.tenantCode})
-                    </option>
-                  ))}
-                </select>
+                  placeholder={AUTH_TEXT.ORGANIZATION_PLACEHOLDER}
+                  options={organizationOptions.map((option) => ({
+                    value: option.tenantId,
+                    label: `${option.organizationName} (${option.tenantCode})`,
+                  }))}
+                />
               </div>
             )}
 

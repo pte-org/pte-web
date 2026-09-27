@@ -21,7 +21,7 @@ export const ConfirmDialog = ({
   title,
   description,
   confirmLabel,
-  cancelLabel = "Huy",
+  cancelLabel = "Cancel",
   tone = "primary",
   isConfirming = false,
   onConfirm,

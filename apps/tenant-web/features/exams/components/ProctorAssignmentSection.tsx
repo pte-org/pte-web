@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, CollapsibleSection, DataTable, TrashIcon, cn, type DataTableColumn } from "@pte/ui";
+import {
+  Alert,
+  CollapsibleSection,
+  DataTable,
+  Select,
+  TrashIcon,
+  cn,
+  type DataTableColumn,
+} from "@pte/ui";
 import type { ProctorRole } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
@@ -48,7 +56,7 @@ export const ProctorAssignmentSection = ({
       key: "role",
       header: PROCTOR_TABLE_HEADERS.ROLE,
       cell: (entry) => (
-        <select
+        <Select
           value={entry.role}
           title={PROCTOR_ROLE_DESCRIPTIONS[entry.role]}
           onChange={(event) =>
@@ -57,17 +65,9 @@ export const ProctorAssignmentSection = ({
               role: event.target.value as ProctorRole,
             })
           }
-          className={cn(
-            "w-40 cursor-pointer rounded-md border px-2.5 py-1.5 text-sm font-medium outline-none transition-colors focus:ring-2",
-            ROLE_SELECT_CLASS[entry.role],
-          )}
-        >
-          {PROCTOR_ROLE_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+          options={PROCTOR_ROLE_OPTIONS}
+          className={cn("w-40 font-medium", ROLE_SELECT_CLASS[entry.role])}
+        />
       ),
     },
   ];
