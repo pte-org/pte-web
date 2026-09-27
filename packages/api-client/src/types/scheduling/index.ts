@@ -62,7 +62,7 @@ export interface ExamPreviewOption {
   text: string;
 }
 
-export type ExamMode = "PRACTICE" | "MOCK_TEST" | "REAL_EXAM";
+export type ExamMode = "PRACTICE" | "OFFICIAL_EXAM";
 export type LockdownMode = "NONE" | "STANDARD" | "STRICT";
 export type FormMode = "SHARED_FORM" | "UNIQUE_FORM_PER_STUDENT";
 export type ReusePolicy =

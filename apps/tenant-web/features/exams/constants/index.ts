@@ -188,14 +188,12 @@ export const CREATE_EXAM_WIZARD_ERRORS = {
 
 export const EXAM_MODE_OPTIONS: { value: ExamMode; label: string }[] = [
   { value: "PRACTICE", label: CREATE_EXAM_WIZARD_TEXT.MODE_PRACTICE },
-  { value: "MOCK_TEST", label: CREATE_EXAM_WIZARD_TEXT.MODE_MOCK },
-  { value: "REAL_EXAM", label: CREATE_EXAM_WIZARD_TEXT.MODE_REAL },
+  { value: "OFFICIAL_EXAM", label: CREATE_EXAM_WIZARD_TEXT.MODE_REAL },
 ];
 
 export const EXAM_MODE_LABELS: Record<ExamMode, string> = {
   PRACTICE: CREATE_EXAM_WIZARD_TEXT.MODE_PRACTICE,
-  MOCK_TEST: CREATE_EXAM_WIZARD_TEXT.MODE_MOCK,
-  REAL_EXAM: CREATE_EXAM_WIZARD_TEXT.MODE_REAL,
+  OFFICIAL_EXAM: CREATE_EXAM_WIZARD_TEXT.MODE_REAL,
 };
 
 export const FORM_MODE_OPTIONS: { value: FormMode; label: string }[] = [
