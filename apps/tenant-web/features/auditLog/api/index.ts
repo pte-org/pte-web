@@ -3,10 +3,10 @@
 import {
   DEFAULT_PAGE_SIZE,
   listAuditLogs,
-  listUsers,
+  listUserDirectory,
   type AuditLogResponse,
   type PagedResult,
-  type UserResponse,
+  type UserDirectoryEntryResponse,
 } from "@pte/api-client";
 import {
   keepPreviousData,
@@ -15,8 +15,7 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
-import { TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
-import { AUDIT_LOGS_QUERY_KEY } from "../constants";
+import { AUDIT_LOGS_QUERY_KEY, AUDIT_LOG_ACTORS_QUERY_KEY } from "../constants";
 
 export interface AuditLogEntry {
   log: AuditLogResponse;
@@ -24,39 +23,41 @@ export interface AuditLogEntry {
 }
 
 /**
- * Same `queryKey`+`queryFn` as `useTenantStudents`/`useTenantLecturers`/
- * `useTenantCoordinators` (unfiltered here, since an audit log actor can be
- * any role, not just one) — shares the one `GET /users` cache entry rather
- * than issuing a separate fetch.
+ * Every user in the tenant, unfiltered — deliberately NOT `useTenantStudents`/
+ * `listUsers`'s `TENANT_USERS_QUERY_KEY` cache. That endpoint only returns users the
+ * caller (a HOST_ADMIN) may *manage*, which excludes HOST_ADMIN accounts entirely —
+ * joining against it made every admin-performed audit entry resolve to no actor name
+ * at all. This hits `GET /users/directory` instead, which has no such filter.
  */
-function useAllTenantUsers(): UseQueryResult<UserResponse[]> {
+function useAuditActorDirectory(): UseQueryResult<UserDirectoryEntryResponse[]> {
   return useQuery({
-    queryKey: TENANT_USERS_QUERY_KEY,
-    queryFn: () => listUsers(apiClient),
+    queryKey: AUDIT_LOG_ACTORS_QUERY_KEY,
+    queryFn: () => listUserDirectory(apiClient),
   });
 }
 
 /**
  * The tenant's audit trail, optionally filtered by aggregate type, joined
- * client-side against the tenant's users so each row shows the actor's name
- * — `AuditLogResponse` only carries `actorUserId` (same join-here-not-in-
- * admin reasoning as `useClassRoster`/`useProgramRoster`).
+ * client-side against the tenant's user directory so each row shows the
+ * actor's name — `AuditLogResponse` only carries `actorUserId`.
  */
 export function useAuditLogs(
   aggregateType?: string,
   page = 0,
   size = DEFAULT_PAGE_SIZE,
 ): UseQueryResult<PagedResult<AuditLogEntry>> {
-  const users = useAllTenantUsers();
+  const actors = useAuditActorDirectory();
   const queryClient = useQueryClient();
 
   return useQuery({
     queryKey: [...AUDIT_LOGS_QUERY_KEY, aggregateType ?? "ALL", page, size],
     queryFn: async () => {
       const logs = await listAuditLogs(apiClient, aggregateType, page, size);
-      const allUsers =
-        queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? users.data ?? [];
-      const byId = new Map(allUsers.map((user) => [user.publicId, user]));
+      const allActors =
+        queryClient.getQueryData<UserDirectoryEntryResponse[]>(AUDIT_LOG_ACTORS_QUERY_KEY) ??
+        actors.data ??
+        [];
+      const byId = new Map(allActors.map((actor) => [actor.publicId, actor]));
       return {
         ...logs,
         data: logs.data.map((log) => ({
@@ -65,7 +66,7 @@ export function useAuditLogs(
         })),
       };
     },
-    enabled: users.data !== undefined,
+    enabled: actors.data !== undefined,
     placeholderData: keepPreviousData,
   });
 }
