@@ -45,6 +45,10 @@ export const CLASSES_LIST_TEXT = {
     `Pick a ${programLabel.toLowerCase()} to add a ${classLabel.toLowerCase()} to:`,
   emptyNoClassesDirectCta: (programLabel: string, classLabel: string) =>
     `+ Create ${classLabel} in ${programLabel}`,
+  pickProgramHeading: (classLabel: string) => `No ${classLabel.toLowerCase()}s yet`,
+  pickProgramSubheading: (programLabel: string) =>
+    `Each row is a ${programLabel.toLowerCase()} you can add a class to.`,
+  pickProgramRowCta: "+ Add Class",
   createClassButton: "+ Create Class",
   createClassPickerLabel: (programLabel: string) => programLabel,
   createClassPickerPlaceholder: (programLabel: string) => `Select a ${programLabel.toLowerCase()}`,

@@ -42,6 +42,15 @@ export default function ClassesPage() {
     create.reset();
   };
 
+  // Called from the per-program "+ Add Class" rows in the empty state, and
+  // also reusable for any future entry point. Pre-fills the modal picker
+  // and opens it; the user can still change program before submitting.
+  const onRequestCreateClass = (programPublicId: string): void => {
+    setSelectedProgramPublicId(programPublicId);
+    create.reset();
+    setCreateOpen(true);
+  };
+
   const onConfirmCreate = (name: string): void => {
     if (!selectedProgramPublicId) return;
     create.mutate(
@@ -82,6 +91,8 @@ export default function ClassesPage() {
           }))}
           selectedOrganizationPublicId={organizationPublicId}
           onOrganizationChange={onOrgChange}
+          allPrograms={programOptions}
+          onRequestCreateClass={onRequestCreateClass}
         />
 
         <CreateClassModal

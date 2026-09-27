@@ -24,10 +24,19 @@ import {
 
 const ALL_FILTER = "ALL";
 
+interface ProgramOption {
+  value: string;
+  label: string;
+}
+
 interface ClassesListViewProps {
-  organizationOptions: { value: string; label: string }[];
+  organizationOptions: ProgramOption[];
   selectedOrganizationPublicId: string;
   onOrganizationChange: (organizationPublicId: string) => void;
+  /** Programs the tenant already owns (loaded from /programs endpoint, not derived from classes). */
+  allPrograms: ProgramOption[];
+  /** Open the create-class modal pre-filled with the picked program. */
+  onRequestCreateClass: (programPublicId: string) => void;
 }
 
 interface ClassRowActionsProps {
@@ -54,12 +63,17 @@ export const ClassesListView = ({
   organizationOptions,
   selectedOrganizationPublicId,
   onOrganizationChange,
+  allPrograms,
+  onRequestCreateClass,
 }: ClassesListViewProps): ReactElement => {
   const labels = useOrgLabels();
   const { data: classes, isLoading, isError, error } = useAllTenantClasses();
   const [programFilter, setProgramFilter] = useState<string>(ALL_FILTER);
 
-  const programOptions = useMemo(() => {
+  // Programs that already contain at least one class — used by the in-row
+  // class filter. Distinct from `allPrograms` which is the full owned list,
+  // including programs that have no class yet.
+  const programsWithClasses = useMemo(() => {
     const seen = new Map<string, string>();
     for (const c of classes ?? []) {
       if (!seen.has(c.programPublicId)) seen.set(c.programPublicId, c.programName);
@@ -83,10 +97,10 @@ export const ClassesListView = ({
     );
   }
 
-  // Empty state: distinguish "0 programs" vs "0 classes but has programs".
-  // We can tell from `programOptions` — if the fan-out finished and there
-  // are still no program entries, the tenant has 0 programs.
-  const tenantHasNoPrograms = !isLoading && (classes ?? []).length === 0 && programOptions.length === 0;
+  // "Tenant owns no programs" comes from `allPrograms` (the Programs API),
+  // not from the classes fan-out: a tenant with zero classes but several
+  // programs is *not* in this branch.
+  const tenantHasNoPrograms = !isLoading && allPrograms.length === 0;
 
   if (tenantHasNoPrograms) {
     return (
@@ -109,28 +123,16 @@ export const ClassesListView = ({
     );
   }
 
-  if (!isLoading && (classes ?? []).length === 0 && programOptions.length >= 2) {
+  // "Tenant owns programs but none of them have any class" — give a per-row
+  // Add Class CTA so the host doesn't have to navigate into each Program.
+  if (!isLoading && (classes ?? []).length === 0 && allPrograms.length >= 1) {
     return (
-      <NoClassesMultiProgram
-        programOptions={programOptions}
+      <PickProgramToAddClass
+        programs={allPrograms}
         classLabel={labels.class}
         programLabel={labels.program}
+        onRequestCreateClass={onRequestCreateClass}
       />
-    );
-  }
-
-  if (!isLoading && (classes ?? []).length === 0 && programOptions.length === 1) {
-    const only = programOptions[0];
-    return (
-      <div className="flex flex-col gap-5 p-2">
-        <p className="text-gray-600">{CLASSES_LIST_TEXT.emptyNoClassesTitle(labels.class)}</p>
-        <Link
-          href={`/host/programs/${only.value}/classes`}
-          className="self-start rounded-md bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover"
-        >
-          {CLASSES_LIST_TEXT.emptyNoClassesDirectCta(only.label, labels.class)}
-        </Link>
-      </div>
     );
   }
 
@@ -188,12 +190,12 @@ export const ClassesListView = ({
         />
       )}
 
-      {programOptions.length >= 2 && (
+      {programsWithClasses.length >= 2 && (
         <Select
           label={CLASSES_LIST_TEXT.programFilterLabel(labels.program)}
           options={[
             { value: ALL_FILTER, label: CLASSES_LIST_TEXT.programFilterAll(labels.program) },
-            ...programOptions,
+            ...programsWithClasses,
           ]}
           value={programFilter}
           onChange={(event) => setProgramFilter(event.target.value)}
@@ -216,43 +218,45 @@ export const ClassesListView = ({
   );
 };
 
-interface NoClassesMultiProgramProps {
-  programOptions: { value: string; label: string }[];
+interface PickProgramToAddClassProps {
+  programs: ProgramOption[];
   classLabel: string;
   programLabel: string;
+  onRequestCreateClass: (programPublicId: string) => void;
 }
 
-const NoClassesMultiProgram = ({
-  programOptions,
+const PickProgramToAddClass = ({
+  programs,
   classLabel,
   programLabel,
-}: NoClassesMultiProgramProps): ReactElement => {
-  const [picked, setPicked] = useState<string>(programOptions[0]?.value ?? "");
-  return (
-    <div className="flex flex-col gap-5 p-2">
-      <p className="text-gray-600">
-        {CLASSES_LIST_TEXT.emptyNoClassesTitle(classLabel)} —{" "}
-        {CLASSES_LIST_TEXT.emptyNoClassesPickPrompt(programLabel, classLabel)}
+  onRequestCreateClass,
+}: PickProgramToAddClassProps): ReactElement => (
+  <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-1">
+      <h3 className="text-base font-semibold text-slate-900">
+        {CLASSES_LIST_TEXT.pickProgramHeading(classLabel)}
+      </h3>
+      <p className="text-sm text-slate-500">
+        {CLASSES_LIST_TEXT.pickProgramSubheading(programLabel)}
       </p>
-      <div className="flex max-w-md flex-col gap-3">
-        <Select
-          label={programLabel}
-          options={programOptions}
-          value={picked}
-          onChange={(event) => setPicked(event.target.value)}
-        />
-        {picked && (
-          <Link
-            href={`/host/programs/${picked}/classes`}
-            className="self-start rounded-md bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover"
-          >
-            {CLASSES_LIST_TEXT.emptyNoClassesDirectCta(
-              programOptions.find((option) => option.value === picked)?.label ?? programLabel,
-              classLabel,
-            )}
-          </Link>
-        )}
-      </div>
     </div>
-  );
-};
+
+    <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
+      {programs.map((program) => (
+        <li
+          key={program.value}
+          className="flex items-center justify-between gap-4 px-4 py-3"
+        >
+          <span className="text-sm font-medium text-slate-900">{program.label}</span>
+          <button
+            type="button"
+            onClick={() => onRequestCreateClass(program.value)}
+            className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover"
+          >
+            {CLASSES_LIST_TEXT.pickProgramRowCta}
+          </button>
+        </li>
+      ))}
+    </ul>
+  </div>
+);
