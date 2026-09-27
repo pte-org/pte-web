@@ -14,6 +14,12 @@ export const DASHBOARD_TEXT = {
   ROW_DETAIL: "View details",
 } as const;
 
+export const DASHBOARD_OVERVIEW_TEXT = {
+  TITLE: "Overview",
+  SUBTITLE: "Platform activity at a glance.",
+  EMPTY_VALUE: "—",
+} as const;
+
 export const DASHBOARD_MAP_TEXT = {
   TITLE: "Tenant Distribution",
   SUBTITLE: "Locations of active tenants across Vietnam.",

@@ -127,7 +127,7 @@ export function useUnassignLecturer(
 
 /**
  * Create a brand-new Lecturer account (not yet assigned to anything). Uses
- * a Host-supplied password, mirroring exams' `useCreateProctorAccount`.
+ * a Host-supplied password for this one-at-a-time form.
  */
 export function useCreateLecturerAccount(): UseMutationResult<
   UserResponse,

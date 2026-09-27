@@ -48,10 +48,7 @@ export interface TenantFilter {
   status: TenantStatusFilter;
   plan: TenantPlan | "all";
   organizationType: string | "all";
-  capacity: TenantCapacityFilter;
 }
-
-export type TenantCapacityFilter = "all" | "0-100" | "101-500" | "501+";
 
 /**
  * Raw form values for creating a tenant — one field per real
@@ -94,6 +91,7 @@ export type LoginAccountStatus = "active" | "suspended";
 /** The Host's HOST_ADMIN login account for a Tenant — matches iam's `UserResponse`. */
 export interface LoginAccount {
   id: string;
+  username: string;
   email: string;
   fullName: string;
   tenantId: string | null;
@@ -103,6 +101,7 @@ export interface LoginAccount {
   className: string | null;
   phone: string | null;
   dateOfBirth: string | null;
+  mustChangePassword: boolean;
 }
 
 export interface CreateLoginAccountInput {

@@ -3,6 +3,7 @@
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Badge, LoadingState, Modal, NumberInput, cn } from "@pte/ui";
 import type { AnswerOptionView } from "@pte/api-client";
+import { errorMessage } from "@/features/examoperations/errorMessage";
 import { ANSWER_DETAIL_TEXT, ANSWER_STATUS_LABELS, ANSWER_STATUS_VARIANT } from "../constants";
 import { useAnswer, useSubmitTeacherScore } from "../api";
 
@@ -12,10 +13,6 @@ interface AnswerDetailModalProps {
 }
 
 const T = ANSWER_DETAIL_TEXT;
-
-function errorMessage(error: unknown): string | undefined {
-  return error instanceof Error ? error.message : undefined;
-}
 
 function OptionRow({ option }: { option: AnswerOptionView }): ReactElement {
   return (

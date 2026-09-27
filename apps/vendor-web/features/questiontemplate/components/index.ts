@@ -1,0 +1,1 @@
+export { QuestionTypeView } from "./QuestionTemplateView";

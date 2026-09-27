@@ -4,8 +4,7 @@
  * `QuestionStatus`) — the previous version of this file (questionType,
  * scoreWeight, prepTime, assetIds, version, parentId, ...) never matched any
  * real controller and was never exercised end to end. `GET /questions`
- * (`QuestionController.list`) returns a plain `List<QuestionResponse>` with
- * no pagination — there is no `page`/`size` query param on the real endpoint.
+ * (`QuestionController.list`) returns the common `PagedResult` envelope.
  */
 export type PteSection = "SPEAKING" | "WRITING" | "READING" | "LISTENING";
 
@@ -23,12 +22,12 @@ export type PteTaskType =
   | "MC_READING_SINGLE"
   | "MC_READING_MULTIPLE"
   | "RE_ORDER_PARAGRAPHS"
-  | "FILL_BLANKS_READING"
-  | "FILL_BLANKS_READING_WRITING"
+  | "FILL_IN_THE_BLANKS_DRAG_AND_DROP"
+  | "FILL_IN_THE_BLANKS_DROPDOWN"
   | "SUMMARIZE_SPOKEN_TEXT"
   | "MC_LISTENING_SINGLE"
   | "MC_LISTENING_MULTIPLE"
-  | "FILL_BLANKS_LISTENING"
+  | "FILL_IN_THE_BLANKS_TYPE_IN"
   | "HIGHLIGHT_CORRECT_SUMMARY"
   | "SELECT_MISSING_WORD"
   | "HIGHLIGHT_INCORRECT_WORDS"
@@ -72,6 +71,7 @@ export type UpdateQuestionRequest = Omit<CreateQuestionRequest, "pteTaskType" | 
 export interface QuestionResponse {
   publicId: string;
   pteTaskType: PteTaskType | string;
+  taskTypeKey?: string | null;
   section: PteSection | string;
   visibility: QuestionVisibility | string;
   tenantId: string | null;
@@ -96,6 +96,15 @@ export interface QuestionResponse {
 export interface QuestionFilters {
   taskType?: string;
   section?: PteSection | string;
-  status?: QuestionStatus;
+  status?: QuestionStatus | string;
   q?: string;
+}
+
+export interface QuestionStatsResponse {
+  total: number;
+  listening: number;
+  reading: number;
+  writing: number;
+  speaking: number;
+  draft: number;
 }

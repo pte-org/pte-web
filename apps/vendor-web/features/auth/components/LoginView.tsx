@@ -1,16 +1,10 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  EyeIcon,
-  GradCapIcon,
-  LockIcon,
-  MailIcon,
-  useSessionManager,
-  type SessionRole,
-} from "@pte/ui";
+import { EyeIcon, LockIcon, MailIcon, Select, useSessionManager, type SessionRole } from "@pte/ui";
 import {
   decodeAccessTokenClaims,
   type LoginOrganizationOption,
@@ -126,7 +120,13 @@ export const LoginView = (): ReactElement => {
         <AuthBrandPanel />
         <div className="flex flex-col justify-center gap-6 p-8 md:p-10">
           <div className="flex items-center gap-2 text-blue-800">
-            <GradCapIcon className="h-6 w-6" />
+            <Image
+              src="/logo.png"
+              alt="PTE Prep logo"
+              width={32}
+              height={32}
+              className="h-8 w-8 rounded-md object-contain"
+            />
             <span className="text-lg font-bold">{AUTH_TEXT.BRAND}</span>
           </div>
           <div>
@@ -205,19 +205,16 @@ export const LoginView = (): ReactElement => {
                 <label htmlFor="organization" className={LABEL_CLASS}>
                   {AUTH_TEXT.ORGANIZATION_LABEL}
                 </label>
-                <select
+                <Select
                   id="organization"
                   value={organizationId}
                   onChange={(event) => setOrganizationId(event.target.value)}
-                  className="rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
-                >
-                  <option value="">{AUTH_TEXT.ORGANIZATION_PLACEHOLDER}</option>
-                  {organizationOptions.map((option) => (
-                    <option key={option.tenantId} value={option.tenantId}>
-                      {option.organizationName} ({option.tenantCode})
-                    </option>
-                  ))}
-                </select>
+                  placeholder={AUTH_TEXT.ORGANIZATION_PLACEHOLDER}
+                  options={organizationOptions.map((option) => ({
+                    value: option.tenantId,
+                    label: `${option.organizationName} (${option.tenantCode})`,
+                  }))}
+                />
               </div>
             )}
 

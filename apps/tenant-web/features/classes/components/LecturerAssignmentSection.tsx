@@ -2,6 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { Alert, DataTable, TrashIcon, type DataTableColumn } from "@pte/ui";
+import { errorMessage } from "@/features/examoperations/errorMessage";
 import { LECTURER_SECTION_TEXT, LECTURER_TABLE_HEADERS } from "../constants";
 import { useLecturerAssignments, useUnassignLecturer } from "../api";
 import type { LecturerAssignmentEntry } from "../types";
@@ -14,10 +15,6 @@ interface LecturerAssignmentSectionProps {
 }
 
 const T = LECTURER_SECTION_TEXT;
-
-function errorMessage(error: unknown): string | undefined {
-  return error instanceof Error ? error.message : undefined;
-}
 
 export const LecturerAssignmentSection = ({
   organizationPublicId,

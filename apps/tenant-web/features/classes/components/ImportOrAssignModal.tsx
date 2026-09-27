@@ -40,7 +40,7 @@ const TAB_CLASS = (active: boolean): string =>
   );
 
 function isAlreadyInClassError(error: unknown): boolean {
-  return error instanceof ApiError && error.message === STUDENT_ALREADY_IN_CLASS_CODE;
+  return error instanceof ApiError && error.code === STUDENT_ALREADY_IN_CLASS_CODE;
 }
 
 function assignErrorMessage(error: unknown): string | undefined {

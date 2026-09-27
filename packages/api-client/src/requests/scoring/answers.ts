@@ -1,4 +1,4 @@
-import type { ApiClient } from "../../client/client";
+import { DEFAULT_PAGE_SIZE, type ApiClient } from "../../client/client";
 import type {
   AnswerListResponse,
   AnswerReviewDetailResponse,
@@ -27,7 +27,9 @@ export function listAnswers(
   if (params.sessionPublicId) query.set("sessionPublicId", params.sessionPublicId);
   if (params.status) query.set("status", params.status);
   if (params.page !== undefined) query.set("page", String(params.page));
-  if (params.size !== undefined) query.set("size", String(params.size));
+  if (params.size !== undefined || params.page !== undefined) {
+    query.set("size", String(params.size ?? DEFAULT_PAGE_SIZE));
+  }
   const qs = query.toString();
   return client.request<AnswerListResponse>(
     `${SCORING_ANSWER_ENDPOINTS.answers}${qs ? `?${qs}` : ""}`,

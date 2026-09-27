@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import type { StudentRosterRow } from "@pte/api-client";
+import { DEFAULT_PAGE_SIZE, type StudentRosterRow } from "@pte/api-client";
 import {
   Alert,
   DataTable,
-  Dropdown,
+  ActionMenu,
   LockIcon,
   PaginationControls,
   type DataTableColumn,
@@ -24,9 +24,10 @@ const T = LEARNERS_OVERVIEW_TEXT;
 
 export const LearnersOverview = (): ReactElement => {
   const [page, setPage] = useState(0);
+  const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
   const studentsQuery = useStudentRoster({
     page,
-    size: 20,
+    size,
     search: "",
     assignmentStatus: "ALL",
     sort: "CREATED_AT",
@@ -39,20 +40,30 @@ export const LearnersOverview = (): ReactElement => {
     {
       key: "fullName",
       header: STUDENT_TABLE_HEADERS.FULL_NAME,
-      cell: (student) => <span className="font-medium text-gray-900">{student.fullName ?? "-"}</span>,
+      cell: (student) => (
+        <span className="font-medium text-gray-900">{student.fullName ?? T.EMPTY_VALUE}</span>
+      ),
     },
-    { key: "email", header: STUDENT_TABLE_HEADERS.EMAIL, cell: (student) => student.email ?? "-" },
+    {
+      key: "email",
+      header: STUDENT_TABLE_HEADERS.EMAIL,
+      cell: (student) => student.email ?? T.EMPTY_VALUE,
+    },
     {
       key: "studentCode",
       header: STUDENT_TABLE_HEADERS.STUDENT_CODE,
-      cell: (student) => student.studentCode ?? "-",
+      cell: (student) => student.studentCode ?? T.EMPTY_VALUE,
     },
     {
       key: "className",
       header: STUDENT_TABLE_HEADERS.CLASS_NAME,
-      cell: (student) => student.className ?? "-",
+      cell: (student) => student.className ?? T.EMPTY_VALUE,
     },
-    { key: "phone", header: STUDENT_TABLE_HEADERS.PHONE, cell: (student) => student.phone ?? "-" },
+    {
+      key: "phone",
+      header: STUDENT_TABLE_HEADERS.PHONE,
+      cell: (student) => student.phone ?? T.EMPTY_VALUE,
+    },
   ];
 
   return (
@@ -76,7 +87,7 @@ export const LearnersOverview = (): ReactElement => {
         emptyTitle={T.EMPTY_TITLE}
         emptyDescription={T.EMPTY_TEXT}
         rowActions={(student) => (
-          <Dropdown
+          <ActionMenu
             items={[
               {
                 label: STUDENT_ROW_ACTIONS_TEXT.RESET_PASSWORD,
@@ -93,7 +104,12 @@ export const LearnersOverview = (): ReactElement => {
           meta={studentsQuery.data.meta}
           onPageChange={setPage}
           disabled={studentsQuery.isFetching}
-          totalItemsLabel={`Showing ${studentsQuery.data.meta.totalElements} student(s)`}
+          showPageSizeInput
+          onPageSizeChange={(nextSize) => {
+            setSize(nextSize);
+            setPage(0);
+          }}
+          totalItemsLabel={T.TOTAL_ITEMS(studentsQuery.data.meta.totalElements)}
         />
       )}
 

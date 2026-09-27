@@ -1,4 +1,4 @@
-import type { ApiClient, PagedResult } from "../../client/client";
+import { DEFAULT_PAGE_SIZE, type ApiClient, type PagedResult } from "../../client/client";
 import type { AuditLogResponse } from "../../types/admin/auditLog";
 
 export const AUDIT_LOG_ENDPOINTS = {
@@ -10,7 +10,7 @@ export function listAuditLogs(
   client: ApiClient,
   aggregateType?: string,
   page = 0,
-  size = 20,
+  size = DEFAULT_PAGE_SIZE,
 ): Promise<PagedResult<AuditLogResponse>> {
   const params = new URLSearchParams({ page: String(page), size: String(size) });
   if (aggregateType) params.set("aggregateType", aggregateType);

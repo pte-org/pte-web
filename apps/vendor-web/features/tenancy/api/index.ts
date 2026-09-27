@@ -109,6 +109,7 @@ function organizationResponseToOrganization(response: OrganizationResponse): Org
 function userResponseToLoginAccount(response: UserResponse): LoginAccount {
   return {
     id: response.publicId,
+    username: response.username,
     email: response.email,
     fullName: response.fullName,
     tenantId: response.tenantId,
@@ -118,6 +119,7 @@ function userResponseToLoginAccount(response: UserResponse): LoginAccount {
     className: response.className,
     phone: response.phone,
     dateOfBirth: response.dateOfBirth,
+    mustChangePassword: response.mustChangePassword,
   };
 }
 

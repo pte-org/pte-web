@@ -5,6 +5,7 @@ import type {
   CreateUserRequest,
   ExamStaffPage,
   ExamStaffQuery,
+  GeneratedCredentialsResponse,
   ResetPasswordRequest,
   UserResponse,
 } from "../../types/user";
@@ -16,6 +17,8 @@ export const USER_ENDPOINTS = {
   suspend: (publicId: string) => `/api/v1/users/${publicId}/suspend`,
   reactivate: (publicId: string) => `/api/v1/users/${publicId}/reactivate`,
   resetPassword: (publicId: string) => `/api/v1/users/${publicId}/reset-password`,
+  sendCredentialsEmail: (publicId: string) => `/api/v1/users/${publicId}/credentials/send-email`,
+  generateCredentials: (publicId: string) => `/api/v1/users/${publicId}/credentials/generate`,
 } as const;
 
 export function createUser(client: ApiClient, payload: CreateUserRequest): Promise<UserResponse> {
@@ -61,6 +64,20 @@ export function listExamStaff(client: ApiClient, query: ExamStaffQuery): Promise
   return client.request<PagedResult<UserResponse>>(`${USER_ENDPOINTS.users}/exam-staff?${params}`);
 }
 
+/** Reads every bounded server page for a caller who needs the complete staff selector. */
+export async function listAllExamStaff(
+  client: ApiClient,
+  query: Omit<ExamStaffQuery, "page">,
+): Promise<UserResponse[]> {
+  const firstPage = await listExamStaff(client, { ...query, page: 0 });
+  const users = [...firstPage.data];
+  for (let page = 1; page < firstPage.meta.totalPages; page += 1) {
+    const result = await listExamStaff(client, { ...query, page });
+    users.push(...result.data);
+  }
+  return users;
+}
+
 /** Platform-admin-only — see `listUsers` above for the Host-facing equivalent. */
 export function listUsersByTenant(
   client: ApiClient,
@@ -78,6 +95,32 @@ export function resetPassword(
     method: "POST",
     body: payload,
   });
+}
+
+/** Rotates the password server-side and queues a one-time credential email. */
+export function sendCredentialsEmail(
+  client: ApiClient,
+  publicId: string,
+): Promise<GeneratedCredentialsResponse> {
+  return client.request<GeneratedCredentialsResponse>(
+    USER_ENDPOINTS.sendCredentialsEmail(publicId),
+    {
+      method: "POST",
+    },
+  );
+}
+
+/** Rotates a Student password for Host verification without sending email. */
+export function generateStudentCredentials(
+  client: ApiClient,
+  publicId: string,
+): Promise<GeneratedCredentialsResponse> {
+  return client.request<GeneratedCredentialsResponse>(
+    USER_ENDPOINTS.generateCredentials(publicId),
+    {
+      method: "POST",
+    },
+  );
 }
 
 export function suspendUser(client: ApiClient, publicId: string): Promise<UserResponse> {

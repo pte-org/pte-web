@@ -1,6 +1,21 @@
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Badge, Dropdown, type DropdownItem } from "@pte/ui";
+import {
+  ActionMenu,
+  Alert,
+  Badge,
+  BanIcon,
+  Button,
+  CheckCircleIcon,
+  ConfirmDialog,
+  DocumentIcon,
+  EmptyState,
+  PencilIcon,
+  TrashIcon,
+  UploadIcon,
+  useToast,
+  type ActionMenuItem,
+} from "@pte/ui";
 import {
   useApproveQuestion,
   useArchiveQuestion,
@@ -10,79 +25,156 @@ import {
 } from "../api";
 import {
   QUESTIONBANK_TEXT,
-  QUESTION_DIFFICULTY_VARIANT,
   QUESTION_SKILL_LABELS,
   QUESTION_STATUS_LABELS,
   QUESTION_STATUS_VARIANT,
   QUESTION_TABLE_HEADERS,
 } from "../constants";
 import type { Question } from "../types";
+import { RejectQuestionModal } from "./_RejectQuestionModal";
 
 interface QuestionTableProps {
   questions: Question[];
+  isFiltered?: boolean;
+  onClearFilters?: () => void;
 }
 
 const HEADER_CLASS =
   "px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
 const CELL_CLASS = "px-5 py-4 text-sm text-gray-700 align-middle";
 
-export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement => {
+export const QuestionTable = ({
+  questions,
+  isFiltered = false,
+  onClearFilters,
+}: QuestionTableProps): ReactElement => {
   const router = useRouter();
+  const { showToast } = useToast();
   const submitMutation = useSubmitQuestionApproval();
   const approveMutation = useApproveQuestion();
   const rejectMutation = useRejectQuestion();
   const archiveMutation = useArchiveQuestion();
   const unarchiveMutation = useUnarchiveQuestion();
+  const [questionToArchive, setQuestionToArchive] = useState<Question | null>(null);
+  const [questionToReject, setQuestionToReject] = useState<Question | null>(null);
   const hasMutationError =
-    submitMutation.isError || approveMutation.isError || rejectMutation.isError || archiveMutation.isError || unarchiveMutation.isError;
+    submitMutation.isError ||
+    approveMutation.isError ||
+    rejectMutation.isError ||
+    archiveMutation.isError ||
+    unarchiveMutation.isError;
 
-  const buildActions = (question: Question): DropdownItem[] => {
-    const actions: DropdownItem[] = [];
+  const buildActions = (question: Question): ActionMenuItem[] => {
+    const actions: ActionMenuItem[] = [
+      {
+        label: QUESTIONBANK_TEXT.ROW_VIEW_DETAILS,
+        icon: DocumentIcon,
+        onSelect: () => router.push(`/admin/questions/${question.id}`),
+      },
+    ];
     if (question.status === "draft") {
       actions.push({
-        label: "Submit for approval",
-        onSelect: () => submitMutation.mutate(question.id),
+        label: QUESTIONBANK_TEXT.ROW_SUBMIT,
+        icon: UploadIcon,
+        onSelect: () =>
+          submitMutation.mutate(question.id, {
+            onSuccess: () => showToast(QUESTIONBANK_TEXT.SUBMIT_SUCCESS),
+          }),
       });
     }
     if (question.status === "pending_approval") {
       actions.push({
-        label: "Approve",
-        onSelect: () => approveMutation.mutate(question.id),
+        label: QUESTIONBANK_TEXT.ROW_APPROVE,
+        icon: CheckCircleIcon,
+        onSelect: () =>
+          approveMutation.mutate(question.id, {
+            onSuccess: () => showToast(QUESTIONBANK_TEXT.APPROVE_SUCCESS),
+          }),
       });
       actions.push({
-        label: "Reject",
-        onSelect: () => {
-          const reason = window.prompt("Reason for rejection", "Please revise this question.");
-          if (reason?.trim()) rejectMutation.mutate({ id: question.id, reason });
-        },
+        label: QUESTIONBANK_TEXT.ROW_REJECT,
+        icon: BanIcon,
+        onSelect: () => setQuestionToReject(question),
       });
     }
-    if (question.status === "draft" || question.status === "pending_approval" || question.status === "published") {
+    if (
+      question.status === "draft" ||
+      question.status === "pending_approval" ||
+      question.status === "published"
+    ) {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_ARCHIVE,
-        onSelect: () => archiveMutation.mutate(question.id),
+        icon: TrashIcon,
+        onSelect: () => setQuestionToArchive(question),
       });
     }
     if (question.status === "archived") {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_UNARCHIVE,
-        onSelect: () => unarchiveMutation.mutate(question.id),
+        icon: CheckCircleIcon,
+        onSelect: () =>
+          unarchiveMutation.mutate(question.id, {
+            onSuccess: () => showToast(QUESTIONBANK_TEXT.UNARCHIVE_SUCCESS),
+          }),
       });
     }
     if (question.status === "draft" || question.status === "published") {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_EDIT,
+        icon: PencilIcon,
         onSelect: () => router.push(`/admin/questions/${question.id}/edit`),
       });
     }
     return actions;
   };
 
+  const confirmArchive = (): void => {
+    if (!questionToArchive) return;
+    archiveMutation.mutate(questionToArchive.id, {
+      onSuccess: () => showToast(QUESTIONBANK_TEXT.ARCHIVE_SUCCESS),
+    });
+    setQuestionToArchive(null);
+  };
+
+  const confirmReject = (reason: string): void => {
+    if (!questionToReject) return;
+    rejectMutation.mutate(
+      { id: questionToReject.id, reason },
+      {
+        onSuccess: () => {
+          showToast(QUESTIONBANK_TEXT.REJECT_SUCCESS);
+          setQuestionToReject(null);
+        },
+      },
+    );
+  };
+
+  if (questions.length === 0) {
+    return (
+      <div className="space-y-4">
+        {hasMutationError && <Alert tone="error">{QUESTIONBANK_TEXT.STATUS_UPDATE_ERROR}</Alert>}
+        <EmptyState
+          title={QUESTIONBANK_TEXT.EMPTY_TITLE}
+          description={
+            isFiltered
+              ? QUESTIONBANK_TEXT.EMPTY_DESCRIPTION_FILTERED
+              : QUESTIONBANK_TEXT.EMPTY_DESCRIPTION_UNFILTERED
+          }
+          action={
+            isFiltered && onClearFilters ? (
+              <Button type="button" variant="secondary" onClick={onClearFilters}>
+                {QUESTIONBANK_TEXT.EMPTY_CLEAR_FILTERS}
+              </Button>
+            ) : undefined
+          }
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
-      {hasMutationError && (
-        <Alert tone="error">Could not update this question&apos;s status. Please try again.</Alert>
-      )}
+      {hasMutationError && <Alert tone="error">{QUESTIONBANK_TEXT.STATUS_UPDATE_ERROR}</Alert>}
       <div className="overflow-hidden rounded-lg bg-white shadow-card">
         <div className="overflow-x-auto">
           <table className="min-w-[900px] w-full border-collapse">
@@ -91,8 +183,6 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
                 <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.CODE}</th>
                 <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.SKILL}</th>
                 <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.CONTENT}</th>
-                <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.DIFFICULTY}</th>
-                <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.CREATED}</th>
                 <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.STATUS}</th>
                 <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.ACTIONS}</th>
               </tr>
@@ -106,22 +196,12 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
                     <span className="line-clamp-1">{question.content}</span>
                   </td>
                   <td className={CELL_CLASS}>
-                    {question.difficulty ? (
-                      <Badge variant={QUESTION_DIFFICULTY_VARIANT[question.difficulty]}>
-                        {question.difficulty}
-                      </Badge>
-                    ) : (
-                      <span className="text-gray-400">—</span>
-                    )}
-                  </td>
-                  <td className={`${CELL_CLASS} text-gray-500`}>{question.createdAt ?? "—"}</td>
-                  <td className={CELL_CLASS}>
                     <Badge variant={QUESTION_STATUS_VARIANT[question.status]}>
                       {QUESTION_STATUS_LABELS[question.status]}
                     </Badge>
                   </td>
                   <td className={CELL_CLASS}>
-                    <Dropdown items={buildActions(question)} />
+                    <ActionMenu items={buildActions(question)} />
                   </td>
                 </tr>
               ))}
@@ -129,6 +209,22 @@ export const QuestionTable = ({ questions }: QuestionTableProps): ReactElement =
           </table>
         </div>
       </div>
+      <ConfirmDialog
+        open={questionToArchive !== null}
+        title={QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_TITLE}
+        description={QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_DESCRIPTION}
+        confirmLabel={QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_BUTTON}
+        tone="danger"
+        isConfirming={archiveMutation.isPending}
+        onConfirm={confirmArchive}
+        onClose={() => setQuestionToArchive(null)}
+      />
+      <RejectQuestionModal
+        open={questionToReject !== null}
+        isSubmitting={rejectMutation.isPending}
+        onConfirm={confirmReject}
+        onClose={() => setQuestionToReject(null)}
+      />
     </div>
   );
 };

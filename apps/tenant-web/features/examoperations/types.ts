@@ -1,5 +1,6 @@
 export interface RosterRow {
   email?: string;
+  username?: string;
   fullName?: string;
   studentCode?: string;
   className?: string;

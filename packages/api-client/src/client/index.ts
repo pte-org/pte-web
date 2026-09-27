@@ -1,4 +1,4 @@
-export { createApiClient } from "./client";
+export { createApiClient, DEFAULT_PAGE_SIZE } from "./client";
 export type {
   ApiClient,
   ApiClientOptions,
@@ -6,10 +6,12 @@ export type {
   TokenGetter,
   RefreshedTokens,
   DownloadResponse,
+  ApiResponseEnvelope,
   PageMeta,
   PagedResult,
 } from "./client";
 export { ApiError } from "./apiError";
-export type { ApiErrorKind } from "./apiError";
+export type { ApiErrorKind, ApiErrorMetadata } from "./apiError";
+export { getUserFacingApiErrorMessage } from "./errorMessage";
 export { decodeAccessTokenClaims } from "./jwt";
 export type { AccessTokenClaims } from "./jwt";

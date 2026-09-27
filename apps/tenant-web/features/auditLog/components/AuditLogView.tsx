@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, DataTable, LoadingState, PageHeader, PaginationControls, type DataTableColumn } from "@pte/ui";
+import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
+import {
+  Alert,
+  DataTable,
+  LoadingState,
+  PageHeader,
+  PaginationControls,
+  Select,
+  type DataTableColumn,
+} from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import { AUDIT_LOG_AGGREGATE_TYPES, AUDIT_LOG_TABLE_HEADERS, AUDIT_LOG_TEXT } from "../constants";
@@ -11,7 +20,8 @@ export const AuditLogView = (): ReactElement => {
   const labels = useOrgLabels();
   const [aggregateType, setAggregateType] = useState<string>("");
   const [page, setPage] = useState(0);
-  const { data, isLoading, isError, error } = useAuditLogs(aggregateType || undefined, page, 20);
+  const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
+  const { data, isLoading, isError, error } = useAuditLogs(aggregateType || undefined, page, size);
   const entries = data?.data ?? [];
 
   const columns: DataTableColumn<AuditLogEntry>[] = [
@@ -39,19 +49,19 @@ export const AuditLogView = (): ReactElement => {
         <label className="text-sm font-medium text-gray-700" htmlFor="audit-log-filter">
           {AUDIT_LOG_TEXT.filterLabel}
         </label>
-        <select
+        <Select
           id="audit-log-filter"
           value={aggregateType}
           onChange={(event) => {
             setAggregateType(event.target.value);
             setPage(0);
           }}
-          className="rounded-md border border-gray-300 px-2.5 py-1.5 text-sm text-gray-700 outline-none focus:ring-2 focus:ring-blue-200"
-        >
-          <option value="">{AUDIT_LOG_TEXT.filterAll}</option>
-          <option value={AUDIT_LOG_AGGREGATE_TYPES.PROGRAM}>{labels.program}</option>
-          <option value={AUDIT_LOG_AGGREGATE_TYPES.CLASS}>{labels.class}</option>
-        </select>
+          options={[
+            { value: "", label: AUDIT_LOG_TEXT.filterAll },
+            { value: AUDIT_LOG_AGGREGATE_TYPES.PROGRAM, label: labels.program },
+            { value: AUDIT_LOG_AGGREGATE_TYPES.CLASS, label: labels.class },
+          ]}
+        />
       </div>
 
       {isError && <Alert tone="error">{errorMessage(error, AUDIT_LOG_TEXT.loadFailed)}</Alert>}
@@ -73,7 +83,12 @@ export const AuditLogView = (): ReactElement => {
           meta={data.meta}
           onPageChange={setPage}
           disabled={isLoading}
-          totalItemsLabel={`Showing ${data.meta.totalElements} entr${data.meta.totalElements === 1 ? "y" : "ies"}`}
+          showPageSizeInput
+          onPageSizeChange={(nextSize) => {
+            setSize(nextSize);
+            setPage(0);
+          }}
+          totalItemsLabel={AUDIT_LOG_TEXT.totalItems(data.meta.totalElements)}
         />
       )}
     </div>

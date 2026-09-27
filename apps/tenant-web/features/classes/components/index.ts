@@ -1,5 +1,6 @@
 export { ClassesSection } from "./ClassesSection";
 export { CreateClassModal } from "./CreateClassModal";
+export { EditClassModal } from "./EditClassModal";
 export { ClassDetailView } from "./ClassDetailView";
 export { ImportOrAssignModal } from "./ImportOrAssignModal";
 export { TransferStudentModal } from "./TransferStudentModal";

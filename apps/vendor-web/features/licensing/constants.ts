@@ -15,6 +15,12 @@ export const LICENSING_TEXT = {
   STAT_ACTIVE: "Active",
   STAT_SUSPENDED: "Suspended",
   STAT_TOTAL_SEATS: "Total student seats",
+  EMPTY_VALUE: "—",
+} as const;
+
+export const LICENSING_OVERVIEW_TEXT = {
+  TITLE: "License overview",
+  SUBTITLE: "Issued licenses and student capacity at a glance.",
 } as const;
 
 export const LICENSE_TABLE_HEADERS = {
@@ -64,6 +70,7 @@ export const EMPTY_GRANT_QUOTA: GrantQuotaInput = {
 export const QUOTA_HISTORY_TEXT = {
   TITLE: "Quota History",
   EMPTY: "No quota transactions yet.",
+  EMPTY_VALUE: "—",
   CLOSE: "Close",
 } as const;
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { ApiError } from "@pte/api-client";
+import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { PageHeader } from "@pte/ui";
 import { GRANT_QUOTA_TEXT, LICENSING_TEXT } from "../constants";
 import { licenseStats, useGrantQuota, useLicenses } from "../api";
@@ -12,10 +12,11 @@ import { GrantQuotaModal } from "./GrantQuotaModal";
 import { QuotaHistoryModal } from "./QuotaHistoryModal";
 
 function grantErrorMessage(error: unknown): string | undefined {
+  if (!error) return undefined;
   if (error instanceof ApiError && error.kind === "conflict") {
-    return GRANT_QUOTA_TEXT.CONFLICT;
+    return getUserFacingApiErrorMessage(error, GRANT_QUOTA_TEXT.CONFLICT);
   }
-  return error instanceof Error ? error.message : undefined;
+  return getUserFacingApiErrorMessage(error);
 }
 
 export const LicensingView = (): ReactElement => {

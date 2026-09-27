@@ -50,18 +50,22 @@ import type {
 const COORDINATOR_ROLE = "EXAMINER";
 
 /** Returns the Host's automatically provisioned Organization. */
-export function useMyOrganizations(): UseQueryResult<OrganizationResponse[]> {
+export function useMyOrganizations(enabled = true): UseQueryResult<OrganizationResponse[]> {
   return useQuery({
     queryKey: MY_ORGANIZATIONS_QUERY_KEY,
     queryFn: () => listMyOrganizations(apiClient),
+    enabled,
   });
 }
 
-export function usePrograms(organizationPublicId: string): UseQueryResult<ProgramResponse[]> {
+export function usePrograms(
+  organizationPublicId: string,
+  enabled = true,
+): UseQueryResult<ProgramResponse[]> {
   return useQuery({
     queryKey: [...PROGRAMS_QUERY_KEY, organizationPublicId],
     queryFn: () => listPrograms(apiClient, organizationPublicId),
-    enabled: organizationPublicId.length > 0,
+    enabled: enabled && organizationPublicId.length > 0,
   });
 }
 
@@ -240,7 +244,7 @@ export function useUnassignCoordinator(
 
 /**
  * Create a brand-new Coordinator account (not yet assigned to anything).
- * Uses a Host-supplied password, mirroring exams' `useCreateProctorAccount`.
+ * Uses a Host-supplied password for this one-at-a-time form.
  */
 export function useCreateCoordinatorAccount(): UseMutationResult<
   UserResponse,

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, DataTable, Dropdown, LockIcon, XIcon, type DataTableColumn } from "@pte/ui";
+import { ActionMenu, Alert, DataTable, LockIcon, XIcon, type DataTableColumn } from "@pte/ui";
 import { useResetStudentPassword, useSessionRoster, useUnenroll, type RosterEntry } from "../api";
 import { errorMessage } from "../errorMessage";
 import { ResetStudentPasswordModal } from "./ResetStudentPasswordModal";
@@ -31,12 +31,12 @@ export const StudentRosterTable = ({ sessionPublicId }: StudentRosterTableProps)
     {
       key: "studentCode",
       header: STUDENT_TABLE_HEADERS.STUDENT_CODE,
-      cell: (entry) => entry.student.studentCode ?? "-",
+      cell: (entry) => entry.student.studentCode ?? STUDENT_ROSTER_TABLE_TEXT.EMPTY_VALUE,
     },
     {
       key: "className",
       header: STUDENT_TABLE_HEADERS.CLASS_NAME,
-      cell: (entry) => entry.student.className ?? "-",
+      cell: (entry) => entry.student.className ?? STUDENT_ROSTER_TABLE_TEXT.EMPTY_VALUE,
     },
   ];
 
@@ -52,7 +52,7 @@ export const StudentRosterTable = ({ sessionPublicId }: StudentRosterTableProps)
         isLoading={isLoading}
         emptyTitle={STUDENT_ROSTER_TABLE_TEXT.EMPTY_TITLE}
         rowActions={(entry) => (
-          <Dropdown
+          <ActionMenu
             items={[
               {
                 label: STUDENT_ROW_ACTIONS_TEXT.RESET_PASSWORD,

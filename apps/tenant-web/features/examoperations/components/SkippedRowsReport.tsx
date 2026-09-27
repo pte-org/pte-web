@@ -1,6 +1,11 @@
 import type { ReactElement } from "react";
 import type { SkippedRow } from "../types";
-import { SKIPPED_ROWS_REPORT_TEXT } from "./constants";
+import {
+  SKIPPED_ROW_REASON_MESSAGES,
+  SKIPPED_ROW_UNKNOWN_REASON,
+  SKIPPED_ROWS_REPORT_TEXT,
+  ROSTER_TEXT,
+} from "./constants";
 
 interface SkippedRowsReportProps {
   rows: SkippedRow[];
@@ -26,8 +31,10 @@ export const SkippedRowsReport = ({ rows }: SkippedRowsReportProps): ReactElemen
           {rows.map((row) => (
             <tr key={row.rowIndex} className="border-b border-gray-100">
               <td className="py-2 pr-4 font-mono text-gray-700">{row.rowIndex + 1}</td>
-              <td className="py-2 pr-4 text-gray-700">{row.email ?? "-"}</td>
-              <td className="py-2 text-amber-700">{row.reason}</td>
+              <td className="py-2 pr-4 text-gray-700">{row.email ?? ROSTER_TEXT.EMPTY_VALUE}</td>
+              <td className="py-2 text-amber-700">
+                {SKIPPED_ROW_REASON_MESSAGES[row.reason] ?? SKIPPED_ROW_UNKNOWN_REASON}
+              </td>
             </tr>
           ))}
         </tbody>

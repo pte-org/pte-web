@@ -3,11 +3,20 @@
 import {
   activateScoreTemplate,
   cloneScoreTemplate,
+  createScoreTemplate,
+  deleteScoreTemplate,
   getScoreTemplate,
   listScoreTemplates,
   replaceScoreTemplateItems,
+  approveScoreTemplate,
+  rejectScoreTemplate,
+  submitScoreTemplateApproval,
+  getScoreTemplateFeasibility,
+  type RejectScoreTemplateRequest,
   type ReplaceScoreTemplateItemsRequest,
+  type CreateScoreTemplateRequest,
   type ScoreTemplateResponse,
+  type ScoreTemplateFeasibilityResponse,
 } from "@pte/api-client";
 import {
   useMutation,
@@ -26,12 +35,22 @@ export function useScoreTemplates(): UseQueryResult<ScoreTemplateResponse[]> {
   });
 }
 
-/**
- * No dedicated `GET /score-templates/active` endpoint on the backend
- * (Phase 1 — Plan A gives no HTTP role any reason to fetch just the active
- * one; a host consuming it is Plan B's concern) — derived client-side from
- * the same list every admin screen already loads.
- */
+export function useCreateScoreTemplate(): UseMutationResult<
+  ScoreTemplateResponse,
+  unknown,
+  CreateScoreTemplateRequest
+> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload) => createScoreTemplate(apiClient, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: SCORE_TEMPLATES_QUERY_KEY });
+    },
+  });
+}
+
+/** Kept for admin screens that need to inspect the active version from the catalog. */
 export function useActiveScoreTemplate(): UseQueryResult<ScoreTemplateResponse | undefined> {
   return useQuery({
     queryKey: SCORE_TEMPLATES_QUERY_KEY,
@@ -48,11 +67,32 @@ export function useScoreTemplate(publicId: string): UseQueryResult<ScoreTemplate
   });
 }
 
+export function useScoreTemplateFeasibility(
+  publicId: string,
+): UseQueryResult<ScoreTemplateFeasibilityResponse> {
+  return useQuery({
+    queryKey: [...SCORE_TEMPLATE_QUERY_KEY, publicId, "feasibility"],
+    queryFn: () => getScoreTemplateFeasibility(apiClient, publicId),
+    enabled: publicId.length > 0,
+  });
+}
+
 export function useCloneScoreTemplate(): UseMutationResult<ScoreTemplateResponse, unknown, string> {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (sourcePublicId: string) => cloneScoreTemplate(apiClient, sourcePublicId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: SCORE_TEMPLATES_QUERY_KEY });
+    },
+  });
+}
+
+export function useDeleteScoreTemplate(): UseMutationResult<void, unknown, string> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (publicId: string) => deleteScoreTemplate(apiClient, publicId),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: SCORE_TEMPLATES_QUERY_KEY });
     },
@@ -81,7 +121,11 @@ export function useReplaceScoreTemplateItems(): UseMutationResult<
   });
 }
 
-export function useActivateScoreTemplate(): UseMutationResult<ScoreTemplateResponse, unknown, string> {
+export function useActivateScoreTemplate(): UseMutationResult<
+  ScoreTemplateResponse,
+  unknown,
+  string
+> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -93,5 +137,54 @@ export function useActivateScoreTemplate(): UseMutationResult<ScoreTemplateRespo
       void queryClient.invalidateQueries({ queryKey: SCORE_TEMPLATES_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: SCORE_TEMPLATE_QUERY_KEY });
     },
+  });
+}
+
+function invalidateScoreTemplateQueries(
+  queryClient: ReturnType<typeof useQueryClient>,
+  publicId: string,
+): void {
+  void queryClient.invalidateQueries({ queryKey: SCORE_TEMPLATES_QUERY_KEY });
+  void queryClient.invalidateQueries({ queryKey: [...SCORE_TEMPLATE_QUERY_KEY, publicId] });
+}
+
+export function useSubmitScoreTemplateApproval(): UseMutationResult<
+  ScoreTemplateResponse,
+  unknown,
+  string
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (publicId) => submitScoreTemplateApproval(apiClient, publicId),
+    onSuccess: (_data, publicId) => invalidateScoreTemplateQueries(queryClient, publicId),
+  });
+}
+
+export function useApproveScoreTemplate(): UseMutationResult<
+  ScoreTemplateResponse,
+  unknown,
+  string
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (publicId) => approveScoreTemplate(apiClient, publicId),
+    onSuccess: (_data, publicId) => invalidateScoreTemplateQueries(queryClient, publicId),
+  });
+}
+
+interface RejectScoreTemplateInput {
+  publicId: string;
+  payload: RejectScoreTemplateRequest;
+}
+
+export function useRejectScoreTemplate(): UseMutationResult<
+  ScoreTemplateResponse,
+  unknown,
+  RejectScoreTemplateInput
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ publicId, payload }) => rejectScoreTemplate(apiClient, publicId, payload),
+    onSuccess: (_data, { publicId }) => invalidateScoreTemplateQueries(queryClient, publicId),
   });
 }

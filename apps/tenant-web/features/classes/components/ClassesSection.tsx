@@ -13,8 +13,9 @@ import {
   CLASSES_SECTION_TEXT,
   MERGE_CLASSES_SELECTION_TEXT,
 } from "../constants";
-import { useClasses, useClassStatusMutations, useCreateClass } from "../api";
+import { useClasses, useClassStatusMutations, useCreateClass, useUpdateClass } from "../api";
 import { CreateClassModal } from "./CreateClassModal";
+import { EditClassModal } from "./EditClassModal";
 import { MergeClassesModal } from "./MergeClassesModal";
 
 interface ClassesSectionProps {
@@ -27,12 +28,14 @@ interface ClassRowActionsProps {
   organizationPublicId: string;
   programPublicId: string;
   studentClass: ClassResponse;
+  onEdit: () => void;
 }
 
 const ClassRowActions = ({
   organizationPublicId,
   programPublicId,
   studentClass,
+  onEdit,
 }: ClassRowActionsProps): ReactElement => {
   const mutations = useClassStatusMutations(
     organizationPublicId,
@@ -54,6 +57,14 @@ const ClassRowActions = ({
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center gap-3 text-sm">
+        <button
+          type="button"
+          disabled={pending}
+          onClick={onEdit}
+          className="text-blue-700 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {CLASS_ROW_ACTIONS_TEXT.edit}
+        </button>
         {studentClass.status !== "ACTIVE" && (
           <button
             type="button"
@@ -105,6 +116,12 @@ export const ClassesSection = ({
 }: ClassesSectionProps): ReactElement => {
   const { data: classes, isLoading } = useClasses(organizationPublicId, programPublicId);
   const create = useCreateClass(organizationPublicId, programPublicId);
+  const [editingClass, setEditingClass] = useState<ClassResponse | null>(null);
+  const update = useUpdateClass(
+    organizationPublicId,
+    programPublicId,
+    editingClass?.publicId ?? "",
+  );
   const [createOpen, setCreateOpen] = useState(false);
   const [mergeMode, setMergeMode] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState<Set<string | number>>(new Set());
@@ -115,6 +132,7 @@ export const ClassesSection = ({
   };
 
   const createErrorMessage = errorMessage(create.error);
+  const updateErrorMessage = errorMessage(update.error);
 
   const selectedClasses = (classes ?? []).filter((studentClass) =>
     selectedKeys.has(studentClass.publicId),
@@ -155,6 +173,7 @@ export const ClassesSection = ({
           organizationPublicId={organizationPublicId}
           programPublicId={programPublicId}
           studentClass={studentClass}
+          onEdit={() => setEditingClass(studentClass)}
         />
       ),
     },
@@ -189,6 +208,7 @@ export const ClassesSection = ({
       </div>
 
       {createErrorMessage && !createOpen && <Alert tone="error">{createErrorMessage}</Alert>}
+      {updateErrorMessage && !editingClass && <Alert tone="error">{updateErrorMessage}</Alert>}
 
       {mergeMode && (
         <div className="flex items-center justify-between rounded-md border border-blue-200 bg-blue-50 px-4 py-2">
@@ -239,6 +259,27 @@ export const ClassesSection = ({
         error={createErrorMessage}
         isSubmitting={create.isPending}
         classLabel={classLabel}
+      />
+
+      <EditClassModal
+        key={editingClass?.publicId ?? "editClass-closed"}
+        open={editingClass !== null}
+        onClose={() => {
+          update.reset();
+          setEditingClass(null);
+        }}
+        onSubmit={(name) =>
+          update.mutate(
+            { name },
+            {
+              onSuccess: () => setEditingClass(null),
+            },
+          )
+        }
+        error={updateErrorMessage}
+        isSubmitting={update.isPending}
+        classLabel={classLabel}
+        initialName={editingClass?.name ?? ""}
       />
 
       <MergeClassesModal

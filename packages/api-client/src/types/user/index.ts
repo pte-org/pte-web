@@ -3,6 +3,7 @@ import type { PagedResult } from "../../client/client";
 /** Matches iam's real `UserResponse` record exactly. */
 export interface UserResponse {
   publicId: string;
+  username: string;
   email: string;
   fullName: string;
   tenantId: string | null;
@@ -12,6 +13,8 @@ export interface UserResponse {
   className: string | null;
   phone: string | null;
   dateOfBirth: string | null;
+  organizationType?: string | null;
+  mustChangePassword: boolean;
 }
 
 export type ExamStaffRole = "PROCTOR" | "EXAMINER";
@@ -48,6 +51,16 @@ export interface CreateUserRequest {
 /** Matches iam's real `ResetPasswordRequest` record exactly. */
 export interface ResetPasswordRequest {
   newPassword: string;
+}
+
+/** One-time result from the server-generated credential rotation endpoint. */
+export interface GeneratedCredentialsResponse {
+  publicId: string;
+  username: string;
+  email: string | null;
+  fullName: string | null;
+  temporaryPassword: string;
+  emailQueued: boolean;
 }
 
 /** Matches iam's real `BulkCreateUserRow` record exactly (one Excel roster row). */

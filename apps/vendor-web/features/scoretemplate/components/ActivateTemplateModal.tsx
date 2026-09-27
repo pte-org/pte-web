@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { Button, Modal } from "@pte/ui";
+import { Alert, Button, Modal } from "@pte/ui";
 import { SCORE_TEMPLATE_TEXT } from "../constants";
 import type { ScoreTemplateResponse } from "../types";
 
@@ -9,6 +9,8 @@ interface ActivateTemplateModalProps {
   /** The DRAFT to activate; `null` keeps the modal closed. */
   template: ScoreTemplateResponse | null;
   isActivating: boolean;
+  /** A failed confirm attempt's message — shown here, not on the page behind the modal's backdrop, so it's actually visible. */
+  errorMessage?: string;
   onCancel: () => void;
   onConfirm: (template: ScoreTemplateResponse) => void;
 }
@@ -16,6 +18,7 @@ interface ActivateTemplateModalProps {
 export const ActivateTemplateModal = ({
   template,
   isActivating,
+  errorMessage,
   onCancel,
   onConfirm,
 }: ActivateTemplateModalProps): ReactElement => (
@@ -39,6 +42,11 @@ export const ActivateTemplateModal = ({
     }
   >
     <p className="text-sm text-gray-600">{SCORE_TEMPLATE_TEXT.ACTIVATE_MODAL_WARNING}</p>
+    {errorMessage && (
+      <Alert tone="error" className="mt-4">
+        {errorMessage}
+      </Alert>
+    )}
     {template && (
       <div className="mt-4 rounded-lg bg-gray-50 p-3">
         <p className="font-semibold text-gray-900">

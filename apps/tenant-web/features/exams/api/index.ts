@@ -3,25 +3,56 @@
 import {
   assignClass,
   assignProctor,
+  confirmExaminerAssignmentPreview,
   closeSession,
+  cancelExam,
+  addAudienceSource,
   createSession,
-  createUser,
+  createExamDraft,
+  createExaminerAssignmentPreview,
+  DEFAULT_PAGE_SIZE,
   getAnswer,
+  getHostScoreReview,
+  getScoreSourceSelectionAudits,
+  getActiveScoreTemplate,
+  getExaminerAssignmentOverview,
   getSession,
+  getSessionExamPreview,
   listAnswers,
+  previewScoreSourceSelection,
+  applyScoreSourceSelection,
+  preflightReportPublication,
+  publishSessionReports,
+  getReportPublicationSummary,
   listAssignedClasses,
+  listAllExamStaff,
   listProctorAssignments,
   listSessions,
   listUsers,
   openSession,
+  preflightExam,
+  generateExam,
+  publishExam,
   submitTeacherScore,
   unassignClass,
   unassignProctor,
   updateProctorRole,
   type AnswerListResponse,
   type AnswerReviewDetailResponse,
+  type HostScoreReviewResponse,
+  type SelectScoreSourceRequest,
+  type ScoreSourceSelectionPreviewResponse,
+  type ScoreSourceSelectionResultResponse,
+  type ScoreSourceAuditResponse,
+  type ReportPublicationReadinessResponse,
+  type ReportPublicationSummaryResponse,
+  type CreateExaminerAssignmentPreviewRequest,
+  type ExaminerAssignmentOverviewResponse,
+  type ExaminerAssignmentPreviewResponse,
+  type ExamPreviewResponse,
   type ProctorRole,
   type SessionResponse,
+  type ScoreTemplateResponse,
   type UserResponse,
 } from "@pte/api-client";
 import {
@@ -32,9 +63,12 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
+import { UserFacingError } from "@/features/examoperations/errorMessage";
 import { useAllTenantClasses } from "@/features/classes/api";
 import {
+  CREATE_EXAM_WIZARD_TEXT,
   ANSWER_QUERY_KEY,
+  EXAM_PREVIEW_QUERY_KEY,
   ANSWERS_QUERY_KEY,
   ASSIGNED_CLASSES_QUERY_KEY,
   ENROLLMENTS_QUERY_KEY,
@@ -42,13 +76,20 @@ import {
   SESSION_QUERY_KEY,
   SESSIONS_QUERY_KEY,
   TENANT_USERS_QUERY_KEY,
+  EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY,
+  EXAMINER_DIRECTORY_QUERY_KEY,
+  HOST_SCORE_REVIEW_QUERY_KEY,
+  SCORE_SOURCE_AUDIT_QUERY_KEY,
+  REPORT_PUBLICATION_READINESS_QUERY_KEY,
+  REPORT_PUBLICATION_SUMMARY_QUERY_KEY,
 } from "../constants";
 import type {
   AssignedClass,
-  CreateProctorInput,
   CreateSessionInput,
   ExamSession,
+  ExamSkill,
   ProctorAssignmentEntry,
+  CreateExamWorkflowInput,
 } from "../types";
 
 const PROCTOR_ROLE = "PROCTOR";
@@ -63,6 +104,9 @@ function sessionResponseToExamSession(response: SessionResponse): ExamSession {
     closesAt: response.closesAt,
     status: response.status,
     capacity: response.capacity,
+    examMode: response.examMode,
+    selectedSkills: (response.selectedSkills ?? []) as ExamSkill[],
+    maxRetriesPerStudent: response.maxRetriesPerStudent ?? 0,
   };
 }
 
@@ -88,6 +132,18 @@ export function useSession(publicId: string): UseQueryResult<ExamSession> {
     queryKey: [...SESSION_QUERY_KEY, publicId],
     queryFn: async () => sessionResponseToExamSession(await getSession(apiClient, publicId)),
     enabled: publicId.length > 0,
+  });
+}
+
+export function useSessionExamPreview(
+  publicId: string,
+  enabled: boolean,
+): UseQueryResult<ExamPreviewResponse> {
+  return useQuery({
+    queryKey: [...EXAM_PREVIEW_QUERY_KEY, publicId],
+    queryFn: () => getSessionExamPreview(apiClient, publicId),
+    enabled: enabled && publicId.length > 0,
+    staleTime: 4 * 60 * 1000,
   });
 }
 
@@ -121,6 +177,64 @@ export function useCreateSession(): UseMutationResult<ExamSession, unknown, Crea
   });
 }
 
+export function useActiveScoreTemplate(): UseQueryResult<ScoreTemplateResponse> {
+  return useQuery({
+    queryKey: ["activeScoreTemplate"],
+    queryFn: () => getActiveScoreTemplate(apiClient),
+  });
+}
+
+/** Runs the canonical draft -> audience -> preflight -> generation -> publish flow. */
+export function useCreateExamWorkflow(): UseMutationResult<
+  ExamSession,
+  unknown,
+  CreateExamWorkflowInput
+> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input) => {
+      const draft = await createExamDraft(apiClient, {
+        name: input.name.trim(),
+        templatePublicId: input.templatePublicId,
+        subscriptionPublicId: input.subscriptionPublicId,
+        opensAt: new Date(input.opensAt).toISOString(),
+        closesAt: new Date(input.closesAt).toISOString(),
+        examMode: input.examMode,
+        selectedSkills: input.selectedSkills,
+        maxRetriesPerStudent: Number(input.maxRetriesPerStudent),
+        formMode: input.formMode,
+        reusePolicy: input.reusePolicy,
+        seriesKey: input.seriesKey.trim() || null,
+        capacity: Number(input.capacity),
+      });
+      for (const source of input.sources) {
+        await addAudienceSource(apiClient, draft.publicId, source);
+      }
+      const preflight = await preflightExam(apiClient, draft.publicId);
+      if (!preflight.ready) {
+        const details = preflight.issues
+          .map((issue) => CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_ISSUE_MESSAGES[issue])
+          .filter((message): message is string => Boolean(message));
+        throw new UserFacingError(
+          details.length > 0
+            ? `${CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_BLOCKED} ${details.join(" ")}`
+            : CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_BLOCKED,
+        );
+      }
+      await generateExam(apiClient, draft.publicId, globalThis.crypto.randomUUID());
+      return sessionResponseToExamSession(await publishExam(apiClient, draft.publicId));
+    },
+    onSuccess: (session) => {
+      queryClient.setQueryData<ExamSession[]>(SESSIONS_QUERY_KEY, (previous = []) => [
+        session,
+        ...previous.filter((existing) => existing.id !== session.id),
+      ]);
+      void queryClient.invalidateQueries({ queryKey: SESSIONS_QUERY_KEY });
+    },
+  });
+}
+
 export function useOpenSession(publicId: string): UseMutationResult<ExamSession, unknown, void> {
   const queryClient = useQueryClient();
 
@@ -136,6 +250,71 @@ export function useCloseSession(publicId: string): UseMutationResult<ExamSession
   return useMutation({
     mutationFn: async () => sessionResponseToExamSession(await closeSession(apiClient, publicId)),
     onSuccess: (session) => replaceSessionInCache(queryClient, session),
+  });
+}
+
+export function useCancelSession(publicId: string): UseMutationResult<ExamSession, unknown, void> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => sessionResponseToExamSession(await cancelExam(apiClient, publicId)),
+    onSuccess: (session) => replaceSessionInCache(queryClient, session),
+  });
+}
+
+export function useExaminerAssignmentOverview(
+  sessionPublicId: string,
+  page: number,
+): UseQueryResult<ExaminerAssignmentOverviewResponse> {
+  return useQuery({
+    queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId, page],
+    queryFn: () => getExaminerAssignmentOverview(apiClient, sessionPublicId, page, 20),
+    enabled: sessionPublicId.length > 0,
+  });
+}
+
+export function useActiveExaminers(): UseQueryResult<UserResponse[]> {
+  return useQuery({
+    queryKey: EXAMINER_DIRECTORY_QUERY_KEY,
+    queryFn: () =>
+      listAllExamStaff(apiClient, {
+        size: 100,
+        role: "EXAMINER",
+        status: "ACTIVE",
+        sort: "FULL_NAME",
+        direction: "ASC",
+      }),
+  });
+}
+
+export function useCreateExaminerAssignmentPreview(
+  sessionPublicId: string,
+): UseMutationResult<
+  ExaminerAssignmentPreviewResponse,
+  unknown,
+  CreateExaminerAssignmentPreviewRequest
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => createExaminerAssignmentPreview(apiClient, sessionPublicId, payload),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId],
+      }),
+  });
+}
+
+export function useConfirmExaminerAssignmentPreview(
+  sessionPublicId: string,
+): UseMutationResult<ExaminerAssignmentPreviewResponse, unknown, string> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (batchPublicId) =>
+      confirmExaminerAssignmentPreview(apiClient, sessionPublicId, batchPublicId),
+    onSuccess: () =>
+      queryClient.invalidateQueries({
+        queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId],
+      }),
   });
 }
 
@@ -260,16 +439,111 @@ export function useAnswers(
   sessionPublicId: string,
   statusFilter: string,
   page: number,
+  size = DEFAULT_PAGE_SIZE,
 ): UseQueryResult<AnswerListResponse> {
   return useQuery({
-    queryKey: [...ANSWERS_QUERY_KEY, sessionPublicId, statusFilter, page],
+    queryKey: [...ANSWERS_QUERY_KEY, sessionPublicId, statusFilter, page, size],
     queryFn: () =>
       listAnswers(apiClient, {
         sessionPublicId,
         status: statusFilter || undefined,
         page,
+        size,
       }),
     enabled: sessionPublicId.length > 0,
+  });
+}
+
+export function useHostScoreReview(
+  sessionPublicId: string,
+): UseQueryResult<HostScoreReviewResponse> {
+  return useQuery({
+    queryKey: [...HOST_SCORE_REVIEW_QUERY_KEY, sessionPublicId],
+    queryFn: () => getHostScoreReview(apiClient, sessionPublicId),
+    enabled: sessionPublicId.length > 0,
+  });
+}
+
+export function useScoreSourceSelectionAudits(
+  sessionPublicId: string,
+): UseQueryResult<ScoreSourceAuditResponse[]> {
+  return useQuery({
+    queryKey: [...SCORE_SOURCE_AUDIT_QUERY_KEY, sessionPublicId],
+    queryFn: () => getScoreSourceSelectionAudits(apiClient, sessionPublicId),
+    enabled: sessionPublicId.length > 0,
+  });
+}
+
+export function usePreviewScoreSourceSelection(
+  sessionPublicId: string,
+): UseMutationResult<ScoreSourceSelectionPreviewResponse, unknown, SelectScoreSourceRequest> {
+  return useMutation({
+    mutationFn: (payload) => previewScoreSourceSelection(apiClient, sessionPublicId, payload),
+  });
+}
+
+export function useApplyScoreSourceSelection(
+  sessionPublicId: string,
+): UseMutationResult<ScoreSourceSelectionResultResponse, unknown, SelectScoreSourceRequest> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => applyScoreSourceSelection(apiClient, sessionPublicId, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: [...HOST_SCORE_REVIEW_QUERY_KEY, sessionPublicId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [...SCORE_SOURCE_AUDIT_QUERY_KEY, sessionPublicId],
+      });
+      void queryClient.invalidateQueries({ queryKey: ANSWERS_QUERY_KEY });
+      void queryClient.invalidateQueries({
+        queryKey: [...REPORT_PUBLICATION_READINESS_QUERY_KEY, sessionPublicId],
+      });
+    },
+  });
+}
+
+export function useReportPublicationPreflight(
+  sessionPublicId: string,
+  enabled: boolean,
+): UseQueryResult<ReportPublicationReadinessResponse> {
+  return useQuery({
+    queryKey: [...REPORT_PUBLICATION_READINESS_QUERY_KEY, sessionPublicId],
+    queryFn: () => preflightReportPublication(apiClient, sessionPublicId),
+    enabled: enabled && sessionPublicId.length > 0,
+    staleTime: 30_000,
+  });
+}
+
+export function useReportPublicationSummary(
+  sessionPublicId: string,
+  enabled: boolean,
+): UseQueryResult<ReportPublicationSummaryResponse | null> {
+  return useQuery({
+    queryKey: [...REPORT_PUBLICATION_SUMMARY_QUERY_KEY, sessionPublicId],
+    queryFn: () => getReportPublicationSummary(apiClient, sessionPublicId),
+    enabled: enabled && sessionPublicId.length > 0,
+    staleTime: 30_000,
+  });
+}
+
+export function usePublishSessionReports(
+  sessionPublicId: string,
+): UseMutationResult<void, unknown, void> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => publishSessionReports(apiClient, sessionPublicId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: [...HOST_SCORE_REVIEW_QUERY_KEY, sessionPublicId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [...REPORT_PUBLICATION_READINESS_QUERY_KEY, sessionPublicId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [...REPORT_PUBLICATION_SUMMARY_QUERY_KEY, sessionPublicId],
+      });
+    },
   });
 }
 
@@ -305,31 +579,6 @@ export function useSubmitTeacherScore(
   });
 }
 
-export function useCreateProctorAccount(): UseMutationResult<
-  UserResponse,
-  unknown,
-  CreateProctorInput
-> {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (input) =>
-      createUser(apiClient, {
-        email: input.email.trim(),
-        fullName: input.fullName.trim(),
-        password: input.password,
-        roles: [PROCTOR_ROLE],
-        tenantId: null,
-      }),
-    // Awaited so AssignProctorModal's chained useAssignProctor call (fired
-    // from this mutation's onSuccess) sees the just-created proctor already
-    // in the tenant-users cache.
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
-    },
-  });
-}
-
 /**
  * A session's assigned Classes, joined client-side against the tenant's own
  * Class list (`SessionClassAssignmentResponse` only carries `classPublicId`
@@ -342,11 +591,19 @@ export function useAssignedClasses(sessionPublicId: string): UseQueryResult<Assi
     queryKey: [...ASSIGNED_CLASSES_QUERY_KEY, sessionPublicId],
     queryFn: async () => {
       const assignments = await listAssignedClasses(apiClient, sessionPublicId);
-      const byId = new Map((tenantClasses.data ?? []).map((option) => [option.classPublicId, option]));
+      const byId = new Map(
+        (tenantClasses.data ?? []).map((option) => [option.classPublicId, option]),
+      );
       return assignments.flatMap((assignment) => {
         const option = byId.get(assignment.classPublicId);
         return option
-          ? [{ classPublicId: option.classPublicId, className: option.className, programName: option.programName }]
+          ? [
+              {
+                classPublicId: option.classPublicId,
+                className: option.className,
+                programName: option.programName,
+              },
+            ]
           : [];
       });
     },
@@ -358,7 +615,9 @@ function invalidateClassAssignments(
   queryClient: ReturnType<typeof useQueryClient>,
   sessionPublicId: string,
 ): void {
-  void queryClient.invalidateQueries({ queryKey: [...ASSIGNED_CLASSES_QUERY_KEY, sessionPublicId] });
+  void queryClient.invalidateQueries({
+    queryKey: [...ASSIGNED_CLASSES_QUERY_KEY, sessionPublicId],
+  });
   void queryClient.invalidateQueries({ queryKey: [...ENROLLMENTS_QUERY_KEY, sessionPublicId] });
 }
 
@@ -375,7 +634,9 @@ export function useAssignClass(sessionPublicId: string): UseMutationResult<void,
 }
 
 /** Unassigns a Class — removes the enrollments of that Class's current members only. */
-export function useUnassignClass(sessionPublicId: string): UseMutationResult<void, unknown, string> {
+export function useUnassignClass(
+  sessionPublicId: string,
+): UseMutationResult<void, unknown, string> {
   const queryClient = useQueryClient();
 
   return useMutation({

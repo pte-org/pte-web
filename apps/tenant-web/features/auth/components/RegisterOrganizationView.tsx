@@ -2,9 +2,17 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import Link from "next/link";
-import { ApiError, type SubmitApplicationRequest } from "@pte/api-client";
+import {
+  ApiError,
+  getUserFacingApiErrorMessage,
+  type SubmitApplicationRequest,
+} from "@pte/api-client";
 import { Button, CheckCircleIcon, Input, MailIcon, Select } from "@pte/ui";
-import { AUTH_ROUTES, REGISTRATION_TEXT } from "../constants";
+import {
+  AUTH_ROUTES,
+  REGISTRATION_ORGANIZATION_TYPES,
+  REGISTRATION_TEXT as T,
+} from "../constants";
 import { useSubmitApplication } from "@/features/commercialization/api";
 import { PublicShell } from "@/features/public/components";
 
@@ -20,23 +28,16 @@ const INITIAL_VALUES: FormValues = {
   taxCode: "",
 };
 
-const ORGANIZATION_TYPES = [
-  { label: "School", value: "school" },
-  { label: "Language center", value: "language-center" },
-  { label: "University", value: "university" },
-  { label: "Other", value: "other" },
-];
-
 function validate(values: FormValues): FormErrors {
   const errors: FormErrors = {};
-  if (!values.orgName.trim()) errors.orgName = "Enter your organization name.";
-  if (!values.orgType) errors.orgType = "Select an organization type.";
+  if (!values.orgName.trim()) errors.orgName = T.organizationNameRequired;
+  if (!values.orgType) errors.orgType = T.organizationTypeRequired;
   if (!/^[a-z0-9-]{3,32}$/.test(values.requestedCode.trim()))
-    errors.requestedCode = "Use 3–32 lowercase letters, numbers, or hyphens.";
-  if (!values.contactEmail.trim()) errors.contactEmail = "Enter your email address.";
+    errors.requestedCode = T.requestedCodeInvalid;
+  if (!values.contactEmail.trim()) errors.contactEmail = T.emailRequired;
   else if (!/^\S+@\S+\.\S+$/.test(values.contactEmail))
-    errors.contactEmail = "Enter a valid email address.";
-  if (!values.taxCode.trim()) errors.taxCode = "Enter your organization's tax code.";
+    errors.contactEmail = T.emailInvalid;
+  if (!values.taxCode.trim()) errors.taxCode = T.taxCodeRequired;
   return errors;
 }
 
@@ -69,14 +70,14 @@ export const RegisterOrganizationView = (): ReactElement => {
       });
       setSubmitted(true);
     } catch (error) {
-      if (error instanceof ApiError && error.message === "TENANT_NAME_ALREADY_USED") {
-        setErrors((current) => ({ ...current, orgName: REGISTRATION_TEXT.duplicateName }));
-      } else if (error instanceof ApiError && error.message === "REQUESTED_CODE_ALREADY_USED") {
-        setErrors((current) => ({ ...current, requestedCode: REGISTRATION_TEXT.duplicateCode }));
+      if (error instanceof ApiError && error.code === "TENANT_NAME_ALREADY_USED") {
+        setErrors((current) => ({ ...current, orgName: T.duplicateName }));
+      } else if (error instanceof ApiError && error.code === "REQUESTED_CODE_ALREADY_USED") {
+        setErrors((current) => ({ ...current, requestedCode: T.duplicateCode }));
       } else if (error instanceof ApiError && error.status === 429) {
-        setSubmissionError(REGISTRATION_TEXT.rateLimited);
+        setSubmissionError(T.rateLimited);
       } else {
-        setSubmissionError(REGISTRATION_TEXT.submitFailed);
+        setSubmissionError(T.submitFailed);
       }
     }
   };
@@ -90,20 +91,20 @@ export const RegisterOrganizationView = (): ReactElement => {
               <CheckCircleIcon className="h-7 w-7" />
             </span>
             <p className="mt-6 text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">
-              Application received
+              {T.applicationReceived}
             </p>
             <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950">
-              Your organization is in review.
+              {T.reviewTitle}
             </h1>
             <p className="mx-auto mt-4 max-w-md text-sm leading-6 text-slate-600">
-              We will contact you at the email provided after the review is complete.
+              {T.reviewDescription}
             </p>
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link
                 href={AUTH_ROUTES.login}
                 className="inline-flex h-10 items-center justify-center rounded-md bg-action px-4 text-sm font-medium text-white hover:bg-action-hover"
               >
-                Sign in
+                {T.signIn}
               </Link>
             </div>
           </div>
@@ -114,19 +115,21 @@ export const RegisterOrganizationView = (): ReactElement => {
 
   const fieldConflict =
     submit.error instanceof ApiError &&
-    (submit.error.message === "TENANT_NAME_ALREADY_USED" ||
-      submit.error.message === "REQUESTED_CODE_ALREADY_USED");
+    (submit.error.code === "TENANT_NAME_ALREADY_USED" ||
+      submit.error.code === "REQUESTED_CODE_ALREADY_USED");
   const submitError =
     submissionError ||
-    (submit.error instanceof ApiError && !fieldConflict ? submit.error.message : undefined);
+    (submit.error instanceof ApiError && !fieldConflict
+      ? getUserFacingApiErrorMessage(submit.error, T.submitFailed)
+      : undefined);
   return (
     <PublicShell>
       <section className="mx-auto max-w-4xl px-5 py-10 sm:py-14 lg:px-8 lg:py-18">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-card sm:p-8">
           <div className="border-b border-slate-100 pb-5">
-            <h2 className="text-xl font-bold text-slate-950">Organization details</h2>
+            <h2 className="text-xl font-bold text-slate-950">{T.detailsTitle}</h2>
             <p className="mt-1 text-sm text-slate-500">
-              Submit an application. Platform staff will create access after review.
+              {T.detailsSubtitle}
             </p>
           </div>
           {submitError && (
@@ -142,8 +145,8 @@ export const RegisterOrganizationView = (): ReactElement => {
             <div className="grid gap-5 sm:grid-cols-2">
               <Input
                 id="orgName"
-                label="Organization name"
-                placeholder="e.g. Bright English Center"
+                label={T.organizationNameLabel}
+                placeholder={T.organizationNamePlaceholder}
                 value={values.orgName}
                 onChange={(event) => updateField("orgName", event.target.value)}
                 error={errors.orgName}
@@ -151,9 +154,9 @@ export const RegisterOrganizationView = (): ReactElement => {
               />
               <Select
                 id="orgType"
-                label="Organization type"
-                placeholder="Select type"
-                options={ORGANIZATION_TYPES}
+                label={T.organizationTypeLabel}
+                placeholder={T.organizationTypePlaceholder}
+                options={REGISTRATION_ORGANIZATION_TYPES}
                 value={values.orgType}
                 onChange={(event) => updateField("orgType", event.target.value)}
                 error={errors.orgType}
@@ -161,9 +164,9 @@ export const RegisterOrganizationView = (): ReactElement => {
               />
               <Input
                 id="requestedCode"
-                label="Requested tenant code"
-                helperText={REGISTRATION_TEXT.requestedCodeHint}
-                placeholder="bright-center"
+                label={T.requestedCodeLabel}
+                helperText={T.requestedCodeHint}
+                placeholder={T.requestedCodePlaceholder}
                 value={values.requestedCode}
                 onChange={(event) => updateField("requestedCode", event.target.value.toLowerCase())}
                 error={errors.requestedCode}
@@ -171,18 +174,18 @@ export const RegisterOrganizationView = (): ReactElement => {
               />
               <Input
                 id="contactPhone"
-                label="Phone number"
+                label={T.phoneLabel}
                 type="tel"
-                placeholder="Your contact number"
+                placeholder={T.phonePlaceholder}
                 value={values.contactPhone ?? ""}
                 onChange={(event) => updateField("contactPhone", event.target.value)}
               />
               <Input
                 id="contactEmail"
-                label="Work email"
+                label={T.workEmailLabel}
                 type="email"
                 autoComplete="email"
-                placeholder="admin@organization.com"
+                placeholder={T.workEmailPlaceholder}
                 value={values.contactEmail}
                 onChange={(event) => updateField("contactEmail", event.target.value)}
                 error={errors.contactEmail}
@@ -191,9 +194,9 @@ export const RegisterOrganizationView = (): ReactElement => {
               />
               <Input
                 id="taxCode"
-                label="Tax code"
-                helperText="Required for organization verification."
-                placeholder="Enter your tax code"
+                label={T.taxCodeLabel}
+                helperText={T.taxCodeHelper}
+                placeholder={T.taxCodePlaceholder}
                 value={values.taxCode}
                 onChange={(event) => updateField("taxCode", event.target.value)}
                 error={errors.taxCode}
@@ -202,22 +205,22 @@ export const RegisterOrganizationView = (): ReactElement => {
             </div>
             <div className="flex flex-col gap-3 border-t border-slate-100 pt-5 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs text-slate-500">
-                Already have an account?{" "}
+                {T.alreadyHaveAccount}{" "}
                 <Link
                   href={AUTH_ROUTES.login}
                   className="font-semibold text-action hover:underline"
                 >
-                  Sign in
+                  {T.signIn}
                 </Link>
               </p>
               <Button
                 type="submit"
                 size="lg"
                 isLoading={submit.isPending}
-                loadingText="Submitting..."
-                rightIcon={<span aria-hidden="true">→</span>}
+                loadingText={T.submitting}
+                rightIcon={<span aria-hidden="true">{T.submitIcon}</span>}
               >
-                Submit application
+                {T.submitApplication}
               </Button>
             </div>
           </form>

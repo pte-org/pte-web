@@ -22,8 +22,6 @@ const RETIRED_SERVICE_SEGMENTS = [
   "scheduling",
   "exam-delivery",
   "proctor",
-  "scoring",
-  "reporting",
   "notification",
   "media",
 ] as const;

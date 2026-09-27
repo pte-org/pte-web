@@ -4,6 +4,8 @@ import { cn } from "../utils/cn";
 interface StatCardProps {
   label: string;
   value: string;
+  className?: string;
+  compact?: boolean;
   icon?: ReactNode;
   /** Short delta shown next to the value, e.g. "67%". */
   trend?: string;
@@ -29,6 +31,8 @@ const ACCENT_CLASSES: Record<NonNullable<StatCardProps["accent"]>, string> = {
 export const StatCard = ({
   label,
   value,
+  className,
+  compact = false,
   icon,
   trend,
   trendPositive = true,
@@ -47,7 +51,9 @@ export const StatCard = ({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-lg bg-white p-5 shadow-card transition-[box-shadow] duration-150 hover:shadow-lg",
+        "relative overflow-hidden rounded-lg bg-white shadow-card transition-[box-shadow] duration-150 hover:shadow-lg",
+        compact ? "p-4" : "p-5",
+        className,
       )}
     >
       <div className="flex items-start justify-between gap-3">
@@ -55,7 +61,8 @@ export const StatCard = ({
         {icon && (
           <span
             className={cn(
-              "grid h-10 w-10 shrink-0 place-items-center rounded-lg [&>svg]:h-5 [&>svg]:w-5",
+              "grid shrink-0 place-items-center rounded-lg",
+              compact ? "h-9 w-9 [&>svg]:h-4 [&>svg]:w-4" : "h-10 w-10 [&>svg]:h-5 [&>svg]:w-5",
               ACCENT_CLASSES[accent ?? (highlight ? "cream" : "blue")],
             )}
           >
@@ -64,7 +71,7 @@ export const StatCard = ({
         )}
       </div>
 
-      <div className="mt-4 flex items-center justify-between gap-3">
+      <div className={cn(compact ? "mt-3" : "mt-4", "flex items-center justify-between gap-3")}>
         <div className="flex items-center gap-2">
           {trend && (
             <span
@@ -76,7 +83,9 @@ export const StatCard = ({
               {trendPositive ? "+" : "-"}
             </span>
           )}
-          <span className="text-2xl font-semibold tabular-nums text-slate-800">{value}</span>
+          <span className={cn(compact ? "text-xl" : "text-2xl", "font-semibold tabular-nums text-slate-800")}>
+            {value}
+          </span>
         </div>
 
         {trend && <span className="text-sm font-normal text-slate-400">{trend}</span>}
@@ -96,7 +105,7 @@ export const StatCard = ({
         </div>
       )}
 
-      {footnote && <p className="mt-3 text-xs font-normal text-slate-400">{footnote}</p>}
+      {footnote && <p className={cn(compact ? "mt-2" : "mt-3", "text-xs font-normal text-slate-400")}>{footnote}</p>}
     </div>
   );
 };

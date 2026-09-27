@@ -1,5 +1,7 @@
 import type { ReactElement } from "react";
-import { SCORE_TEMPLATE_ITEM_HEADERS } from "../constants";
+import { Button, Select } from "@pte/ui";
+import type { QuestionTypeResponse } from "@pte/api-client";
+import { SCORE_TEMPLATE_ITEM_HEADERS, SCORE_TEMPLATE_TEXT } from "../constants";
 import type { ScoreTemplateItemDraft, ScoreTemplateItemResponse } from "../types";
 
 const HEADER_CLASS =
@@ -7,6 +9,13 @@ const HEADER_CLASS =
 const CELL_CLASS = "px-3 py-2 text-sm text-gray-700 align-middle whitespace-nowrap";
 const INPUT_CLASS =
   "w-20 rounded border border-gray-300 px-2 py-1 text-sm outline-none focus:border-blue-500";
+
+const SECTION_OPTIONS = [
+  { value: "SPEAKING", label: "SPEAKING" },
+  { value: "WRITING", label: "WRITING" },
+  { value: "READING", label: "READING" },
+  { value: "LISTENING", label: "LISTENING" },
+];
 
 type ReadOnlyProps = {
   editable: false;
@@ -16,17 +25,21 @@ type ReadOnlyProps = {
 type EditableProps = {
   editable: true;
   items: ScoreTemplateItemDraft[];
+  questionTypes: QuestionTypeResponse[];
   onChange: (index: number, field: keyof ScoreTemplateItemDraft, value: string) => void;
+  onSectionChange: (index: number, section: string) => void;
+  onRemove: (index: number) => void;
 };
 
 type ScoreTemplateItemTableProps = ReadOnlyProps | EditableProps;
 
+// overallWeight is deliberately not here — it's backend-derived (mean of the
+// 4 skill weights below), rendered as a static cell, never an editable input.
 const NUMERIC_FIELDS: { field: keyof ScoreTemplateItemDraft; header: string }[] = [
   { field: "minCount", header: SCORE_TEMPLATE_ITEM_HEADERS.MIN_COUNT },
   { field: "maxCount", header: SCORE_TEMPLATE_ITEM_HEADERS.MAX_COUNT },
   { field: "prepSeconds", header: SCORE_TEMPLATE_ITEM_HEADERS.PREP_SECONDS },
   { field: "responseSeconds", header: SCORE_TEMPLATE_ITEM_HEADERS.RESPONSE_SECONDS },
-  { field: "overallWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.OVERALL_WEIGHT },
   { field: "speakingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.SPEAKING_WEIGHT },
   { field: "writingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.WRITING_WEIGHT },
   { field: "readingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.READING_WEIGHT },
@@ -41,25 +54,61 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
         <thead className="bg-slate-50">
           <tr>
             <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.SEQUENCE}</th>
-            <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.TASK_TYPE}</th>
             <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.SECTION}</th>
+            <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.TASK_TYPE}</th>
             {NUMERIC_FIELDS.slice(0, 4).map(({ field, header }) => (
-              <th key={field} className={HEADER_CLASS}>{header}</th>
+              <th key={field} className={HEADER_CLASS}>
+                {header}
+              </th>
             ))}
-            <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.TIMING_MODE}</th>
-            <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.SCORING_METHOD}</th>
+            <th className={HEADER_CLASS}>{SCORE_TEMPLATE_ITEM_HEADERS.OVERALL_WEIGHT}</th>
             {NUMERIC_FIELDS.slice(4).map(({ field, header }) => (
-              <th key={field} className={HEADER_CLASS}>{header}</th>
+              <th key={field} className={HEADER_CLASS}>
+                {header}
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
           {props.editable
             ? props.items.map((item, index) => (
-                <tr key={`${item.taskType}-${index}`} className="border-t border-gray-100">
+                <tr key={`${item.taskTypeKey}-${index}`} className="border-t border-gray-100">
                   <td className={CELL_CLASS}>{item.sequence}</td>
-                  <td className={`${CELL_CLASS} font-mono text-xs`}>{item.taskType}</td>
-                  <td className={CELL_CLASS}>{item.section}</td>
+                  <td className={CELL_CLASS}>
+                    <Select
+                      value={item.section}
+                      onChange={(event) => props.onSectionChange(index, event.target.value)}
+                      placeholder={SCORE_TEMPLATE_TEXT.ADD_SECTION_PLACEHOLDER}
+                      options={SECTION_OPTIONS}
+                    />
+                  </td>
+                  <td className={`${CELL_CLASS} font-mono text-xs`}>
+                    <div className="flex flex-col items-start gap-1">
+                      <Select
+                        value={item.taskTypeKey}
+                        disabled={!item.section}
+                        onChange={(event) => props.onChange(index, "taskTypeKey", event.target.value)}
+                        placeholder={SCORE_TEMPLATE_TEXT.ADD_TYPE_PLACEHOLDER}
+                        options={[
+                          ...props.questionTypes
+                            .filter((type) => type.active && type.section === item.section)
+                            .map((type) => ({
+                              value: type.taskTypeKey ?? type.code,
+                              label: type.taskTypeKey ?? type.code,
+                            })),
+                          ...(item.taskTypeKey &&
+                          !props.questionTypes.some(
+                            (type) => (type.taskTypeKey ?? type.code) === item.taskTypeKey,
+                          )
+                            ? [{ value: item.taskTypeKey, label: item.taskTypeKey }]
+                            : []),
+                        ]}
+                      />
+                      <Button variant="ghost" size="sm" onClick={() => props.onRemove(index)}>
+                        {SCORE_TEMPLATE_TEXT.REMOVE_TYPE}
+                      </Button>
+                    </div>
+                  </td>
                   {NUMERIC_FIELDS.slice(0, 4).map(({ field }) => (
                     <td key={field} className={CELL_CLASS}>
                       <input
@@ -70,8 +119,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                       />
                     </td>
                   ))}
-                  <td className={CELL_CLASS}>{item.timingMode}</td>
-                  <td className={CELL_CLASS}>{item.scoringMethod}</td>
+                  <td className={CELL_CLASS}>{item.overallWeight}</td>
                   {NUMERIC_FIELDS.slice(4).map(({ field }) => (
                     <td key={field} className={CELL_CLASS}>
                       <input
@@ -86,16 +134,19 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                 </tr>
               ))
             : props.items.map((item, index) => (
-                <tr key={`${item.taskType}-${index}`} className="border-t border-gray-100 hover:bg-slate-50/70">
+                <tr
+                  key={`${item.taskTypeKey}-${index}`}
+                  className="border-t border-gray-100 hover:bg-slate-50/70"
+                >
                   <td className={CELL_CLASS}>{item.sequence}</td>
-                  <td className={`${CELL_CLASS} font-mono text-xs`}>{item.taskType}</td>
                   <td className={CELL_CLASS}>{item.section}</td>
+                  <td className={`${CELL_CLASS} font-mono text-xs`}>
+                    {item.taskTypeKey ?? item.taskType ?? "—"}
+                  </td>
                   <td className={CELL_CLASS}>{item.minCount}</td>
                   <td className={CELL_CLASS}>{item.maxCount}</td>
                   <td className={CELL_CLASS}>{item.prepSeconds}</td>
                   <td className={CELL_CLASS}>{item.responseSeconds}</td>
-                  <td className={CELL_CLASS}>{item.timingMode}</td>
-                  <td className={CELL_CLASS}>{item.scoringMethod}</td>
                   <td className={CELL_CLASS}>{item.overallWeight}</td>
                   <td className={CELL_CLASS}>{item.speakingWeight}</td>
                   <td className={CELL_CLASS}>{item.writingWeight}</td>

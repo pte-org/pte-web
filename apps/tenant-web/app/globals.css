@@ -3,3 +3,37 @@
 /* Tailwind v4 does not scan workspace packages by default. */
 @source "../../../packages/ui/src";
 @import "../../../packages/ui/src/styles/design-tokens.css";
+
+@keyframes pte-home-rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+.home-rise {
+  animation: pte-home-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.home-rise-delay-1 {
+  animation-delay: 120ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .home-rise,
+  .home-rise-delay-1 {
+    animation: none;
+  }
+}

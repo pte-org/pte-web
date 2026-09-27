@@ -2,6 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { Alert, DataTable, TrashIcon, type DataTableColumn } from "@pte/ui";
+import { errorMessage } from "@/features/examoperations/errorMessage";
 import { COORDINATOR_SECTION_TEXT, COORDINATOR_TABLE_HEADERS } from "../constants";
 import { useCoordinatorAssignments, useUnassignCoordinator } from "../api";
 import type { CoordinatorAssignmentEntry } from "../types";
@@ -13,10 +14,6 @@ interface CoordinatorAssignmentSectionProps {
 }
 
 const T = COORDINATOR_SECTION_TEXT;
-
-function errorMessage(error: unknown): string | undefined {
-  return error instanceof Error ? error.message : undefined;
-}
 
 export const CoordinatorAssignmentSection = ({
   organizationPublicId,

@@ -1,32 +1,27 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { ApiError } from "@pte/api-client";
 import { Alert, PageHeader } from "@pte/ui";
+import { errorMessage } from "@/features/examoperations/errorMessage";
 import { EXAMS_TEXT } from "../constants";
-import { useCreateSession, useSessions } from "../api";
-import type { CreateSessionInput } from "../types";
+import { useActiveScoreTemplate, useCreateExamWorkflow, useSessions } from "../api";
 import { SessionTable } from "./SessionTable";
-import { CreateSessionModal } from "./CreateSessionModal";
-
-function mutationErrorMessage(error: unknown): string | undefined {
-  if (error instanceof ApiError) return error.message;
-  return error instanceof Error ? error.message : undefined;
-}
+import { CreateExamWizard } from "./CreateExamWizard";
 
 export const ExamsListView = (): ReactElement => {
   const { data: sessions, isLoading } = useSessions();
-  const create = useCreateSession();
+  const create = useCreateExamWorkflow();
+  const activeTemplate = useActiveScoreTemplate();
 
   const [createOpen, setCreateOpen] = useState(false);
 
-  const confirmCreate = (input: CreateSessionInput): void => {
+  const confirmCreate = (input: Parameters<typeof create.mutate>[0]): void => {
     create.mutate(input, {
       onSuccess: () => setCreateOpen(false),
     });
   };
 
-  const createErrorMessage = mutationErrorMessage(create.error);
+  const createErrorMessage = errorMessage(create.error);
 
   return (
     <div className="flex flex-col gap-5">
@@ -47,15 +42,18 @@ export const ExamsListView = (): ReactElement => {
 
       <SessionTable sessions={sessions ?? []} isLoading={isLoading} />
 
-      <CreateSessionModal
-        key={createOpen ? "createSession-open" : "createSession-closed"}
+      <CreateExamWizard
+        key={createOpen ? "createExamWizard-open" : "createExamWizard-closed"}
         open={createOpen}
         onClose={() => {
           create.reset();
           setCreateOpen(false);
         }}
         onSubmit={confirmCreate}
-        error={createErrorMessage}
+        activeTemplate={activeTemplate.data}
+        templateLoading={activeTemplate.isLoading}
+        templateError={activeTemplate.error}
+        error={create.error}
         isSubmitting={create.isPending}
       />
     </div>

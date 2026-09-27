@@ -29,6 +29,7 @@ export const CLASS_TABLE_HEADERS = {
 } as const;
 
 export const CLASS_ROW_ACTIONS_TEXT = {
+  edit: "Edit",
   activate: "Activate",
   deactivate: "Deactivate",
   suspend: "Suspend",
@@ -44,6 +45,15 @@ export const CREATE_CLASS_TEXT = {
   submitting: "Creating...",
 } as const;
 
+export const EDIT_CLASS_TEXT = {
+  title: (label: string) => `Edit ${label}`,
+  nameLabel: (label: string) => `${label} name`,
+  namePlaceholder: "e.g. 12A1",
+  cancel: "Cancel",
+  submit: "Save changes",
+  submitting: "Saving...",
+} as const;
+
 export const CREATE_CLASS_ERRORS = {
   nameRequired: (label: string) => `${label} name is required.`,
 } as const;
@@ -57,6 +67,7 @@ export const CLASS_ROSTER_TEXT = {
   loadFailed: "Couldn't load this — it may have been archived or you may not have access.",
   missingContext:
     "Missing organization/program context — go back to the list and open this from there.",
+  emptyValue: "—",
 } as const;
 
 export const CLASS_ROSTER_TABLE_HEADERS = {

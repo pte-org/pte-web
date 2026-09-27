@@ -1,5 +1,7 @@
-import type { ReactElement, ReactNode } from "react";
-import type { PageMeta as ApiPageMeta } from "@pte/api-client";
+"use client";
+
+import { useEffect, useState, type ReactElement, type ReactNode } from "react";
+import { DEFAULT_PAGE_SIZE, type PageMeta as ApiPageMeta } from "@pte/api-client";
 import { Button } from "./Button";
 import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
 
@@ -10,9 +12,8 @@ interface PaginationControlsProps {
   meta: PageMeta;
   onPageChange: (page: number) => void;
   disabled?: boolean;
-  pageSizeOptions?: readonly number[];
   onPageSizeChange?: (size: number) => void;
-  showPageSizeSelector?: boolean;
+  showPageSizeInput?: boolean;
   showFirstLast?: boolean;
   pageSizeLabel?: string;
   firstLabel?: string;
@@ -26,17 +27,32 @@ export const PaginationControls = ({
   meta,
   onPageChange,
   disabled = false,
-  pageSizeOptions = [20, 50, 100],
   onPageSizeChange,
-  showPageSizeSelector = false,
+  showPageSizeInput = false,
   showFirstLast = false,
   pageSizeLabel = "Rows per page",
   firstLabel = "First",
   lastLabel = "Last",
   totalItemsLabel,
 }: PaginationControlsProps): ReactElement => {
+  const currentPageSize = meta.size > 0 ? meta.size : DEFAULT_PAGE_SIZE;
+  const [pageSizeInput, setPageSizeInput] = useState(String(currentPageSize));
   const isFirst = meta.page <= 0;
   const isLast = meta.page >= meta.totalPages - 1;
+
+  useEffect(() => {
+    setPageSizeInput(String(currentPageSize));
+  }, [currentPageSize]);
+
+  const commitPageSize = (): void => {
+    const nextPageSize = Number(pageSizeInput);
+    if (!Number.isInteger(nextPageSize) || nextPageSize < 1) {
+      setPageSizeInput(String(currentPageSize));
+      return;
+    }
+
+    if (nextPageSize !== currentPageSize) onPageSizeChange?.(nextPageSize);
+  };
 
   return (
     <div className="flex flex-col items-center justify-between gap-3 text-sm text-gray-600 sm:flex-row">
@@ -47,22 +63,27 @@ export const PaginationControls = ({
         {totalItemsLabel}
       </div>
       <div className="flex flex-wrap items-center justify-center gap-2">
-        {showPageSizeSelector && onPageSizeChange && (
+        {showPageSizeInput && onPageSizeChange && (
           <label className="flex items-center gap-2">
             <span>{pageSizeLabel}</span>
-            <select
+            <input
+              type="number"
+              min={1}
+              step={1}
+              inputMode="numeric"
               aria-label={pageSizeLabel}
-              value={meta.size}
+              value={pageSizeInput}
               disabled={disabled}
-              onChange={(event) => onPageSizeChange(Number(event.target.value))}
-              className="rounded-md border border-gray-300 bg-white px-2 py-1.5 text-sm text-gray-700"
-            >
-              {pageSizeOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
+              onChange={(event) => setPageSizeInput(event.target.value)}
+              onBlur={commitPageSize}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  event.currentTarget.blur();
+                }
+              }}
+              className="w-16 rounded-md border border-gray-300 bg-white px-2 py-1.5 text-center text-sm text-gray-700 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20"
+            />
           </label>
         )}
         {showFirstLast && (

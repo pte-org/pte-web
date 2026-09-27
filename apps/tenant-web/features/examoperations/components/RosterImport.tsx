@@ -124,9 +124,9 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
               <tbody>
                 {rows.slice(0, 10).map((row, index) => (
                   <tr key={index} className="border-b border-gray-100">
-                    <td className="py-2 pr-4 text-gray-700">{row.email ?? "-"}</td>
-                    <td className="py-2 pr-4 text-gray-700">{row.fullName ?? "-"}</td>
-                    <td className="py-2 text-gray-700">{row.className ?? "-"}</td>
+                    <td className="py-2 pr-4 text-gray-700">{row.email ?? ROSTER_TEXT.EMPTY_VALUE}</td>
+                    <td className="py-2 pr-4 text-gray-700">{row.fullName ?? ROSTER_TEXT.EMPTY_VALUE}</td>
+                    <td className="py-2 text-gray-700">{row.className ?? ROSTER_TEXT.EMPTY_VALUE}</td>
                   </tr>
                 ))}
               </tbody>

@@ -11,6 +11,8 @@ export interface StudentRosterRow {
   programName: string | null;
   classPublicId: string | null;
   className: string | null;
+  username: string;
+  mustChangePassword: boolean;
 }
 
 export type StudentRosterAssignmentStatus = "ALL" | "ASSIGNED" | "UNASSIGNED";

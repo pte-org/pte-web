@@ -1,12 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-
-const TEXT = {
-  TITLE: "System Error",
-  DESCRIPTION: "Something went wrong. Please reload the page.",
-  RELOAD: "Reload",
-} as const;
+import { ERROR_PAGE_TEXT as TEXT } from "@/lib/errorPageConstants";
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
@@ -18,8 +13,8 @@ export default function GlobalError({ reset }: GlobalErrorProps): ReactElement {
     <html lang="en">
       <body className="flex min-h-screen items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-4 text-center">
-          <h1 className="text-xl font-semibold text-gray-900">{TEXT.TITLE}</h1>
-          <p className="text-sm text-gray-600">{TEXT.DESCRIPTION}</p>
+          <h1 className="text-xl font-semibold text-gray-900">{TEXT.SYSTEM_TITLE}</h1>
+          <p className="text-sm text-gray-600">{TEXT.SYSTEM_DESCRIPTION}</p>
           <button
             type="button"
             onClick={reset}
