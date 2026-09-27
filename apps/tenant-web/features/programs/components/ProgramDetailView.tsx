@@ -7,14 +7,12 @@ import { ClassesSection } from "@/features/classes/components";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import {
-  COORDINATOR_SECTION_TEXT,
   PROGRAM_DASHBOARD_TEXT,
   PROGRAM_DETAIL_TEXT,
   PROGRAM_STATUS_LABELS,
   PROGRAM_STATUS_VARIANT,
 } from "../constants";
 import { useProgram, useProgramStatusMutations } from "../api";
-import { CoordinatorAssignmentSection } from "./CoordinatorAssignmentSection";
 import { ProgramDashboard } from "./ProgramDashboard";
 
 interface ProgramDetailViewProps {
@@ -161,14 +159,6 @@ const ProgramDetailContent = ({
           organizationPublicId={organizationPublicId}
           programPublicId={programPublicId}
           classLabel={classLabel}
-        />
-      </section>
-
-      <section className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5">
-        <h3 className="text-sm font-semibold text-gray-900">{COORDINATOR_SECTION_TEXT.title}</h3>
-        <CoordinatorAssignmentSection
-          organizationPublicId={organizationPublicId}
-          programPublicId={programPublicId}
         />
       </section>
     </div>

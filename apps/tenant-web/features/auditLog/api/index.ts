@@ -24,10 +24,10 @@ export interface AuditLogEntry {
 }
 
 /**
- * Same `queryKey`+`queryFn` as `useTenantStudents`/`useTenantLecturers`/
- * `useTenantCoordinators` (unfiltered here, since an audit log actor can be
- * any role, not just one) — shares the one `GET /users` cache entry rather
- * than issuing a separate fetch.
+ * Same `queryKey`+`queryFn` as `useTenantStudents`/`useTenantLecturers`
+ * (unfiltered here, since an audit log actor can be any role, not just one)
+ * — shares the one `GET /users` cache entry rather than issuing a separate
+ * fetch.
  */
 function useAllTenantUsers(): UseQueryResult<UserResponse[]> {
   return useQuery({
