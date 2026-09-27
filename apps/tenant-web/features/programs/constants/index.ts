@@ -68,6 +68,11 @@ export const PROGRAM_DETAIL_TEXT = {
   activateSuccess: (label: string) => `${label} activated successfully.`,
   suspendSuccess: (label: string) => `${label} suspended successfully.`,
   archiveSuccess: (label: string) => `${label} archived successfully.`,
+  confirmArchiveTitle: (label: string) => `Archive ${label}`,
+  confirmArchiveDescription: (name: string, label: string) =>
+    `Are you sure you want to archive "${name}"? This ${label.toLowerCase()} will be archived and no longer active.`,
+  confirmArchiveButton: "Archive",
+  cancel: "Cancel",
 } as const;
 
 export const PROGRAM_DASHBOARD_TEXT = {
