@@ -2,7 +2,21 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Alert, Badge, DataTable, type DataTableColumn } from "@pte/ui";
+import {
+  ActionMenu,
+  Alert,
+  BanIcon,
+  Badge,
+  CheckCircleIcon,
+  ConfirmDialog,
+  DataTable,
+  PencilIcon,
+  ShieldIcon,
+  TrashIcon,
+  useToast,
+  type ActionMenuItem,
+  type DataTableColumn,
+} from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
@@ -28,13 +42,17 @@ interface ClassRowActionsProps {
   organizationPublicId: string;
   programPublicId: string;
   studentClass: ClassResponse;
+  classLabel: string;
   onEdit: () => void;
 }
+
+type PendingConfirmAction = "SUSPEND" | "DEACTIVATE" | "ARCHIVE" | null;
 
 const ClassRowActions = ({
   organizationPublicId,
   programPublicId,
   studentClass,
+  classLabel,
   onEdit,
 }: ClassRowActionsProps): ReactElement => {
   const mutations = useClassStatusMutations(
@@ -42,6 +60,8 @@ const ClassRowActions = ({
     programPublicId,
     studentClass.publicId,
   );
+  const { showToast } = useToast();
+  const [confirmAction, setConfirmAction] = useState<PendingConfirmAction>(null);
   const pending =
     mutations.activate.isPending ||
     mutations.deactivate.isPending ||
@@ -54,57 +74,106 @@ const ClassRowActions = ({
       mutations.archive.error,
   );
 
+  const items: ActionMenuItem[] = [
+    { label: CLASS_ROW_ACTIONS_TEXT.edit, icon: PencilIcon, onSelect: onEdit, disabled: pending },
+    {
+      label: CLASS_ROW_ACTIONS_TEXT.activate,
+      icon: CheckCircleIcon,
+      onSelect: () =>
+        mutations.activate.mutate(undefined, {
+          onSuccess: () => showToast(CLASS_ROW_ACTIONS_TEXT.activateSuccess(classLabel)),
+          onError: () =>
+            showToast(CLASS_ROW_ACTIONS_TEXT.statusUpdateError(classLabel), { tone: "error" }),
+        }),
+      disabled: pending,
+      hidden: studentClass.status === "ACTIVE",
+    },
+    {
+      label: CLASS_ROW_ACTIONS_TEXT.suspend,
+      icon: BanIcon,
+      onSelect: () => setConfirmAction("SUSPEND"),
+      disabled: pending,
+      hidden: studentClass.status !== "ACTIVE",
+    },
+    {
+      label: CLASS_ROW_ACTIONS_TEXT.deactivate,
+      icon: ShieldIcon,
+      onSelect: () => setConfirmAction("DEACTIVATE"),
+      disabled: pending,
+      hidden: studentClass.status === "INACTIVE",
+    },
+    { separator: true },
+    {
+      label: CLASS_ROW_ACTIONS_TEXT.archive,
+      icon: TrashIcon,
+      onSelect: () => setConfirmAction("ARCHIVE"),
+      disabled: pending,
+      danger: true,
+    },
+  ];
+
+  const notify = (successMessage: string) => ({
+    onSuccess: () => showToast(successMessage),
+    onError: () =>
+      showToast(CLASS_ROW_ACTIONS_TEXT.statusUpdateError(classLabel), { tone: "error" }),
+  });
+
+  const confirmDialogProps = {
+    SUSPEND: {
+      title: CLASS_ROW_ACTIONS_TEXT.suspendConfirmTitle(classLabel),
+      description: CLASS_ROW_ACTIONS_TEXT.suspendConfirmDescription(classLabel),
+      confirmLabel: CLASS_ROW_ACTIONS_TEXT.suspend,
+      tone: "primary" as const,
+      onConfirm: () =>
+        mutations.suspend.mutate(
+          undefined,
+          notify(CLASS_ROW_ACTIONS_TEXT.suspendSuccess(classLabel)),
+        ),
+    },
+    DEACTIVATE: {
+      title: CLASS_ROW_ACTIONS_TEXT.deactivateConfirmTitle(classLabel),
+      description: CLASS_ROW_ACTIONS_TEXT.deactivateConfirmDescription(classLabel),
+      confirmLabel: CLASS_ROW_ACTIONS_TEXT.deactivate,
+      tone: "primary" as const,
+      onConfirm: () =>
+        mutations.deactivate.mutate(
+          undefined,
+          notify(CLASS_ROW_ACTIONS_TEXT.deactivateSuccess(classLabel)),
+        ),
+    },
+    ARCHIVE: {
+      title: CLASS_ROW_ACTIONS_TEXT.archiveConfirmTitle(classLabel),
+      description: CLASS_ROW_ACTIONS_TEXT.archiveConfirmDescription(classLabel),
+      confirmLabel: CLASS_ROW_ACTIONS_TEXT.archive,
+      tone: "danger" as const,
+      onConfirm: () =>
+        mutations.archive.mutate(
+          undefined,
+          notify(CLASS_ROW_ACTIONS_TEXT.archiveSuccess(classLabel)),
+        ),
+    },
+  } as const;
+
+  const activeConfirm = confirmAction ? confirmDialogProps[confirmAction] : null;
+
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-3 text-sm">
-        <button
-          type="button"
-          disabled={pending}
-          onClick={onEdit}
-          className="text-blue-700 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {CLASS_ROW_ACTIONS_TEXT.edit}
-        </button>
-        {studentClass.status !== "ACTIVE" && (
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => mutations.activate.mutate()}
-            className="text-blue-700 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {CLASS_ROW_ACTIONS_TEXT.activate}
-          </button>
-        )}
-        {studentClass.status === "ACTIVE" && (
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => mutations.suspend.mutate()}
-            className="text-gray-600 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {CLASS_ROW_ACTIONS_TEXT.suspend}
-          </button>
-        )}
-        {studentClass.status !== "INACTIVE" && (
-          <button
-            type="button"
-            disabled={pending}
-            onClick={() => mutations.deactivate.mutate()}
-            className="text-gray-600 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {CLASS_ROW_ACTIONS_TEXT.deactivate}
-          </button>
-        )}
-        <button
-          type="button"
-          disabled={pending}
-          onClick={() => mutations.archive.mutate()}
-          className="text-red-600 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {CLASS_ROW_ACTIONS_TEXT.archive}
-        </button>
-      </div>
+      <ActionMenu items={items} />
       {rowError && <p className="text-xs text-red-600">{rowError}</p>}
+      <ConfirmDialog
+        open={activeConfirm !== null}
+        title={activeConfirm?.title ?? ""}
+        description={activeConfirm?.description ?? ""}
+        confirmLabel={activeConfirm?.confirmLabel ?? ""}
+        cancelLabel={CLASS_ROW_ACTIONS_TEXT.cancel}
+        tone={activeConfirm?.tone}
+        isConfirming={pending}
+        onConfirm={() => {
+          activeConfirm?.onConfirm();
+          setConfirmAction(null);
+        }}
+        onClose={() => setConfirmAction(null)}
+      />
     </div>
   );
 };
@@ -116,6 +185,7 @@ export const ClassesSection = ({
 }: ClassesSectionProps): ReactElement => {
   const { data: classes, isLoading } = useClasses(organizationPublicId, programPublicId);
   const create = useCreateClass(organizationPublicId, programPublicId);
+  const { showToast } = useToast();
   const [editingClass, setEditingClass] = useState<ClassResponse | null>(null);
   const update = useUpdateClass(
     organizationPublicId,
@@ -128,7 +198,17 @@ export const ClassesSection = ({
   const [mergeModalOpen, setMergeModalOpen] = useState(false);
 
   const confirmCreate = (name: string): void => {
-    create.mutate({ name }, { onSuccess: () => setCreateOpen(false) });
+    create.mutate(
+      { name },
+      {
+        onSuccess: () => {
+          setCreateOpen(false);
+          showToast(CLASSES_SECTION_TEXT.createSuccess(classLabel));
+        },
+        onError: () =>
+          showToast(CLASSES_SECTION_TEXT.createError(classLabel), { tone: "error" }),
+      },
+    );
   };
 
   const createErrorMessage = errorMessage(create.error);
@@ -173,6 +253,7 @@ export const ClassesSection = ({
           organizationPublicId={organizationPublicId}
           programPublicId={programPublicId}
           studentClass={studentClass}
+          classLabel={classLabel}
           onEdit={() => setEditingClass(studentClass)}
         />
       ),
@@ -272,7 +353,12 @@ export const ClassesSection = ({
           update.mutate(
             { name },
             {
-              onSuccess: () => setEditingClass(null),
+              onSuccess: () => {
+                setEditingClass(null);
+                showToast(CLASSES_SECTION_TEXT.updateSuccess(classLabel));
+              },
+              onError: () =>
+                showToast(CLASSES_SECTION_TEXT.updateError(classLabel), { tone: "error" }),
             },
           )
         }
