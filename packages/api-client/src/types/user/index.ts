@@ -17,6 +17,12 @@ export interface UserResponse {
   mustChangePassword: boolean;
 }
 
+/** Matches identity's real `UserDirectoryEntryResponse` record exactly. */
+export interface UserDirectoryEntryResponse {
+  publicId: string;
+  fullName: string;
+}
+
 export type ExamStaffRole = "PROCTOR" | "EXAMINER";
 export type ExamStaffRoleFilter = "ALL" | ExamStaffRole;
 export type UserStatusFilter = "ALL" | "ACTIVE" | "SUSPENDED";

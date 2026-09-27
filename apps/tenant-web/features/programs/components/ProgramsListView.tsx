@@ -16,9 +16,24 @@ import { useCreateProgram, useMyOrganizations, usePrograms } from "../api";
 import type { CreateProgramInput } from "../types";
 import { CreateProgramModal } from "./CreateProgramModal";
 
+function formatDate(value: string | null): string {
+  if (!value) return "…";
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (match) {
+    const [, year, month, day] = match;
+    return `${day}/${month}/${year}`;
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
 function formatDateRange(startDate: string | null, endDate: string | null): string {
   if (!startDate && !endDate) return "—";
-  return `${startDate ?? "…"} – ${endDate ?? "…"}`;
+  return `${formatDate(startDate)} – ${formatDate(endDate)}`;
 }
 
 export const ProgramsListView = (): ReactElement => {
@@ -53,12 +68,7 @@ export const ProgramsListView = (): ReactElement => {
       key: "name",
       header: PROGRAM_TABLE_HEADERS.NAME,
       cell: (program) => (
-        <Link
-          href={`/host/programs/${program.publicId}?organizationPublicId=${organizationPublicId}`}
-          className="font-medium text-blue-700 hover:underline"
-        >
-          {program.name}
-        </Link>
+        <span className="font-medium text-gray-900">{program.name}</span>
       ),
     },
     {
@@ -74,6 +84,18 @@ export const ProgramsListView = (): ReactElement => {
       key: "dates",
       header: PROGRAM_TABLE_HEADERS.DATES,
       cell: (program) => formatDateRange(program.startDate, program.endDate),
+    },
+    {
+      key: "actions",
+      header: PROGRAM_TABLE_HEADERS.ACTIONS,
+      cell: (program) => (
+        <Link
+          href={`/host/programs/${program.publicId}?organizationPublicId=${organizationPublicId}`}
+          className="text-sm font-medium text-blue-700 hover:underline"
+        >
+          {PROGRAMS_TEXT.viewDetails}
+        </Link>
+      ),
     },
   ];
 

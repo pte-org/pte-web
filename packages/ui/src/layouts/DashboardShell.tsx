@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement, type ReactNode } from "react";
 import { cn } from "../utils/cn";
-import { MenuIcon, XIcon } from "../components/icons";
+import { ChevronLeftIcon, ChevronRightIcon, MenuIcon, XIcon } from "../components/icons";
 
 interface DashboardShellProps {
   /** Brand block pinned to the top of the sidebar. */
@@ -30,11 +30,39 @@ export const DashboardShell = ({
   children,
 }: DashboardShellProps): ReactElement => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDesktopOpen, setIsDesktopOpen] = useState(true);
 
   return (
     <div className="flex min-h-screen bg-slate-100">
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[270px] shrink-0 flex-col bg-white text-slate-700 shadow-sidebar md:flex">
-        {brand && <div className="flex min-h-[70px] items-center px-6">{brand}</div>}
+      {/* Desktop Floating Edge Toggle Button (Notion / Linear style) */}
+      <button
+        type="button"
+        aria-label={isDesktopOpen ? CLOSE_LABEL : MENU_LABEL}
+        title={isDesktopOpen ? "Thu gọn thanh điều hướng" : "Mở rộng thanh điều hướng"}
+        className={cn(
+          "fixed top-[21px] z-50 hidden h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-md transition-all duration-300 ease-in-out hover:scale-110 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 active:scale-95 md:flex",
+          isDesktopOpen ? "left-[256px]" : "left-3.5",
+        )}
+        onClick={() => setIsDesktopOpen((prev) => !prev)}
+      >
+        {isDesktopOpen ? (
+          <ChevronLeftIcon className="h-4 w-4" />
+        ) : (
+          <ChevronRightIcon className="h-4 w-4" />
+        )}
+      </button>
+
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-40 hidden w-[270px] shrink-0 flex-col bg-white text-slate-700 shadow-sidebar transition-transform duration-300 ease-in-out md:flex",
+          isDesktopOpen ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
+        {brand && (
+          <div className="flex min-h-[70px] items-center px-4 sm:px-6">
+            <div className="min-w-0 flex-1">{brand}</div>
+          </div>
+        )}
         <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-3">{sidebar}</nav>
       </aside>
 
@@ -63,14 +91,25 @@ export const DashboardShell = ({
         </div>
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col md:pl-[270px]">
-        <header className="sticky top-0 z-30 flex min-h-[70px] items-center justify-between gap-3 bg-white/95 px-4 shadow-[0_1px_8px_rgba(145,158,171,0.12)] backdrop-blur-xl md:px-8">
+      <div
+        className={cn(
+          "flex min-w-0 flex-1 flex-col transition-all duration-300 ease-in-out",
+          isDesktopOpen ? "md:pl-[270px]" : "md:pl-0",
+        )}
+      >
+        <header
+          className={cn(
+            "sticky top-0 z-30 flex min-h-[70px] items-center justify-between gap-3 bg-white/95 px-4 shadow-[0_1px_8px_rgba(145,158,171,0.12)] backdrop-blur-xl transition-all duration-300 ease-in-out",
+            isDesktopOpen ? "md:px-8" : "md:pl-14 md:pr-8",
+          )}
+        >
           <div className="flex min-w-0 items-center gap-3">
             <button
               type="button"
               aria-label={MENU_LABEL}
+              title={MENU_LABEL}
               className="grid h-10 w-10 place-items-center rounded-md text-gray-600 transition-colors hover:bg-blue-50 hover:text-blue-700 md:hidden"
-              onClick={() => setIsSidebarOpen(true)}
+              onClick={() => setIsSidebarOpen((prev) => !prev)}
             >
               <MenuIcon className="h-6 w-6" />
             </button>
