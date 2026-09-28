@@ -2,7 +2,11 @@
 
 import { useEffect, useMemo, useState, type FormEvent, type ReactElement } from "react";
 import Link from "next/link";
-import type { AudienceSourceRequest, ScoreTemplateResponse } from "@pte/api-client";
+import {
+  resolveExamLockdownMode,
+  type AudienceSourceRequest,
+  type ScoreTemplateResponse,
+} from "@pte/api-client";
 import { Alert, Input, Modal, Select } from "@pte/ui";
 import { useAllTenantClasses } from "@/features/classes/api";
 import { useSubscriptionsQuery, useTenantPlansQuery } from "@/features/commercialization/api";
@@ -23,6 +27,7 @@ import {
   validateCreateExamWorkflow,
   type CreateExamWorkflowErrors,
 } from "../utils/validateCreateExamWorkflow";
+import { getExamPolicyLabel } from "../utils/examPolicy";
 
 interface CreateExamWizardProps {
   open: boolean;
@@ -45,6 +50,7 @@ function emptyForm(): CreateExamWorkflowInput {
     opensAt: "",
     closesAt: "",
     examMode: "PRACTICE",
+    practiceAntiCheatEnabled: false,
     selectedSkills: [],
     maxRetriesPerStudent: "0",
     formMode: "SHARED_FORM",
@@ -115,6 +121,10 @@ export const CreateExamWizard = ({
     ...form,
     templatePublicId: form.templatePublicId || activeTemplate?.publicId || "",
   };
+  const effectiveLockdownMode = resolveExamLockdownMode(
+    effectiveForm.examMode,
+    effectiveForm.practiceAntiCheatEnabled,
+  );
 
   const normalizedSourceSearch = sourceSearch.trim().toLowerCase();
   const sourceMatchesSearch = (values: string[]): boolean =>
@@ -189,6 +199,7 @@ export const CreateExamWizard = ({
     setForm((previous) => ({
       ...previous,
       examMode: value,
+      practiceAntiCheatEnabled: practice ? previous.practiceAntiCheatEnabled : false,
       selectedSkills: practice ? previous.selectedSkills : templateSkills,
       formMode: "SHARED_FORM",
       reusePolicy: "ALLOW",
@@ -411,6 +422,34 @@ export const CreateExamWizard = ({
               </div>
             )}
             {form.examMode === "PRACTICE" && (
+              <fieldset className="rounded-md border border-gray-200 p-4">
+                <legend className="px-1 text-sm font-medium text-gray-700">
+                  {CREATE_EXAM_WIZARD_TEXT.PRACTICE_ANTI_CHEAT_LABEL}
+                </legend>
+                <div className="flex items-start gap-3">
+                  <input
+                    id="practice-anti-cheat"
+                    type="checkbox"
+                    checked={form.practiceAntiCheatEnabled}
+                    aria-describedby="practice-anti-cheat-helper"
+                    className="mt-1 h-4 w-4 rounded border-gray-300 text-action focus:ring-action"
+                    onChange={(event) =>
+                      update("practiceAntiCheatEnabled", event.target.checked)
+                    }
+                  />
+                  <label
+                    htmlFor="practice-anti-cheat"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    {CREATE_EXAM_WIZARD_TEXT.PRACTICE_ANTI_CHEAT_CONTROL}
+                  </label>
+                </div>
+                <p id="practice-anti-cheat-helper" className="mt-2 text-sm text-gray-500">
+                  {CREATE_EXAM_WIZARD_TEXT.PRACTICE_ANTI_CHEAT_HELPER}
+                </p>
+              </fieldset>
+            )}
+            {form.examMode === "PRACTICE" && (
               <Input
                 type="number"
                 min={0}
@@ -540,6 +579,10 @@ export const CreateExamWizard = ({
                 <div>
                   <dt className="font-medium">{CREATE_EXAM_WIZARD_TEXT.REVIEW_MODE}</dt>
                   <dd>{EXAM_MODE_OPTIONS.find((option) => option.value === form.examMode)?.label}</dd>
+                </div>
+                <div>
+                  <dt className="font-medium">{CREATE_EXAM_WIZARD_TEXT.REVIEW_SECURITY_POLICY}</dt>
+                  <dd>{getExamPolicyLabel(form.examMode, effectiveLockdownMode)}</dd>
                 </div>
                 <div>
                   <dt className="font-medium">{CREATE_EXAM_WIZARD_TEXT.REVIEW_SKILLS}</dt>

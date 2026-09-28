@@ -38,6 +38,10 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
     "This exam was changed in another window. Refresh the page and review your changes again.",
   EXAM_DRAFT_CONFIGURATION_INVALID:
     "Some exam settings are incompatible. Review the selected mode and reuse rule.",
+  LOCKDOWN_MODE_INVALID_FOR_EXAM_MODE:
+    "The selected security policy is not compatible with this exam mode.",
+  LOCKDOWN_MODE_REQUIRED:
+    "The exam security policy could not be resolved. Refresh the exam and try again.",
   AUDIENCE_SOURCE_NOT_FOUND:
     "We couldn't find one of the selected audience sources. Refresh the page and try again.",
   AUDIENCE_CHANGED_REQUIRES_REGENERATION:

@@ -50,10 +50,12 @@ import {
   type ExaminerAssignmentOverviewResponse,
   type ExaminerAssignmentPreviewResponse,
   type ExamPreviewResponse,
+  type LockdownMode,
   type ProctorRole,
   type SessionResponse,
   type ScoreTemplateResponse,
   type UserResponse,
+  resolveExamLockdownMode,
 } from "@pte/api-client";
 import {
   useMutation,
@@ -67,6 +69,7 @@ import { UserFacingError } from "@/features/examoperations/errorMessage";
 import { useAllTenantClasses } from "@/features/classes/api";
 import {
   CREATE_EXAM_WIZARD_TEXT,
+  CREATE_EXAM_WIZARD_ERRORS,
   ANSWER_QUERY_KEY,
   EXAM_PREVIEW_QUERY_KEY,
   ANSWERS_QUERY_KEY,
@@ -105,9 +108,16 @@ function sessionResponseToExamSession(response: SessionResponse): ExamSession {
     status: response.status,
     capacity: response.capacity,
     examMode: response.examMode,
+    policy: response.policy ?? null,
     selectedSkills: (response.selectedSkills ?? []) as ExamSkill[],
     maxRetriesPerStudent: response.maxRetriesPerStudent ?? 0,
   };
+}
+
+function assertResolvedPolicy(response: SessionResponse, expected: LockdownMode): void {
+  if (response.policy?.lockdownMode !== expected) {
+    throw new UserFacingError(CREATE_EXAM_WIZARD_ERRORS.POLICY_MISMATCH);
+  }
 }
 
 function replaceSessionInCache(
@@ -194,6 +204,10 @@ export function useCreateExamWorkflow(): UseMutationResult<
 
   return useMutation({
     mutationFn: async (input) => {
+      const expectedLockdownMode = resolveExamLockdownMode(
+        input.examMode,
+        input.practiceAntiCheatEnabled,
+      );
       const draft = await createExamDraft(apiClient, {
         name: input.name.trim(),
         templatePublicId: input.templatePublicId,
@@ -201,6 +215,7 @@ export function useCreateExamWorkflow(): UseMutationResult<
         opensAt: new Date(input.opensAt).toISOString(),
         closesAt: new Date(input.closesAt).toISOString(),
         examMode: input.examMode,
+        lockdownMode: expectedLockdownMode,
         selectedSkills: input.selectedSkills,
         maxRetriesPerStudent: Number(input.maxRetriesPerStudent),
         formMode: input.formMode,
@@ -208,6 +223,7 @@ export function useCreateExamWorkflow(): UseMutationResult<
         seriesKey: input.seriesKey.trim() || null,
         capacity: Number(input.capacity),
       });
+      assertResolvedPolicy(draft, expectedLockdownMode);
       for (const source of input.sources) {
         await addAudienceSource(apiClient, draft.publicId, source);
       }
@@ -223,7 +239,9 @@ export function useCreateExamWorkflow(): UseMutationResult<
         );
       }
       await generateExam(apiClient, draft.publicId, globalThis.crypto.randomUUID());
-      return sessionResponseToExamSession(await publishExam(apiClient, draft.publicId));
+      const published = await publishExam(apiClient, draft.publicId);
+      assertResolvedPolicy(published, expectedLockdownMode);
+      return sessionResponseToExamSession(published);
     },
     onSuccess: (session) => {
       queryClient.setQueryData<ExamSession[]>(SESSIONS_QUERY_KEY, (previous = []) => [

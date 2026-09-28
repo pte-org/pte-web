@@ -27,9 +27,20 @@ export interface SessionResponse {
   seriesKey: string | null;
   generationJobPublicId: string | null;
   draftVersion: number;
+  /** Canonical session policy; nullable/optional for older response fixtures. */
+  policy?: ExamPolicyResponse | null;
   /** Additive fields; optional so older API fixtures/clients remain source-compatible. */
   selectedSkills?: string[] | null;
   maxRetriesPerStudent?: number;
+}
+
+export interface ExamPolicyResponse {
+  replayPolicyType: string;
+  replayPolicyLimit: number | null;
+  deviceCheckRequired: boolean | null;
+  proctorRequired: boolean | null;
+  answerIntegrityLevel: string | null;
+  lockdownMode: LockdownMode | null;
 }
 
 /** Host preview of the immutable published snapshot; deliberately answer-stripped. */
@@ -70,6 +81,15 @@ export type ReusePolicy =
   | "EXCLUDE_STARTED_IN_SERIES"
   | "EXCLUDE_ASSIGNED_IN_SERIES"
   | "BLOCK_ON_SCHEDULE_OVERLAP";
+
+/** Canonical mapping used by tenant form boundaries and shared request tests. */
+export function resolveExamLockdownMode(
+  examMode: ExamMode,
+  practiceAntiCheatEnabled: boolean,
+): LockdownMode {
+  if (examMode === "OFFICIAL_EXAM") return "STRICT";
+  return practiceAntiCheatEnabled ? "STANDARD" : "NONE";
+}
 
 /**
  * Matches scheduling's real `CreateSessionRequest` record exactly (Plan B,
@@ -164,6 +184,7 @@ export interface CreateExamDraftRequest {
   capacity: number;
   selectedSkills?: string[];
   maxRetriesPerStudent?: number;
+  lockdownMode?: LockdownMode | null;
 }
 
 export interface PatchExamDraftRequest {
@@ -180,6 +201,7 @@ export interface PatchExamDraftRequest {
   expectedVersion?: number;
   selectedSkills?: string[];
   maxRetriesPerStudent?: number;
+  lockdownMode?: LockdownMode | null;
 }
 
 export type AudienceSourceType = "STUDENT" | "CLASS" | "PROGRAM";

@@ -1,5 +1,6 @@
 import type {
   AudienceSourceRequest,
+  ExamPolicyResponse,
   ExamMode,
   FormMode,
   ProctorRole,
@@ -18,6 +19,7 @@ export interface ExamSession {
   status: SessionStatus;
   capacity: number;
   examMode: ExamMode | null;
+  policy: ExamPolicyResponse | null;
   selectedSkills: ExamSkill[];
   maxRetriesPerStudent: number;
 }
@@ -43,6 +45,8 @@ export interface CreateExamWorkflowInput {
   opensAt: string;
   closesAt: string;
   examMode: ExamMode;
+  /** Practice-only form control; serialized to the canonical LockdownMode at the API boundary. */
+  practiceAntiCheatEnabled: boolean;
   selectedSkills: ExamSkill[];
   /** Controlled input value; parsed and validated before sending to the API. */
   maxRetriesPerStudent: string;
