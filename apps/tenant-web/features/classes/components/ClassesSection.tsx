@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
+import { useRouter } from "next/navigation";
 import { Alert, Badge, DataTable, Dropdown, type DataTableColumn, type DropdownItem } from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
@@ -14,8 +15,8 @@ import {
 } from "../constants";
 import { useClasses, useClassStatusMutations, useUpdateClass } from "../api";
 import { EditClassModal } from "./EditClassModal";
-import { ImportOrAssignModal } from "./ImportOrAssignModal";
 import { MergeClassesModal } from "./MergeClassesModal";
+import { buildAssignStudentsUrl } from "../utils/assignStudentsUrl";
 
 interface ClassesSectionProps {
   organizationPublicId: string;
@@ -28,7 +29,6 @@ interface ClassRowActionsProps {
   programPublicId: string;
   studentClass: ClassResponse;
   onEdit: () => void;
-  onAssignStudents: () => void;
 }
 
 const ClassRowActions = ({
@@ -36,8 +36,8 @@ const ClassRowActions = ({
   programPublicId,
   studentClass,
   onEdit,
-  onAssignStudents,
 }: ClassRowActionsProps): ReactElement => {
+  const router = useRouter();
   const mutations = useClassStatusMutations(
     organizationPublicId,
     programPublicId,
@@ -96,7 +96,15 @@ const ClassRowActions = ({
         <button
           type="button"
           disabled={assignDisabled}
-          onClick={onAssignStudents}
+          onClick={() =>
+            router.push(
+              buildAssignStudentsUrl("/host/students", {
+                organizationPublicId,
+                programPublicId,
+                classPublicId: studentClass.publicId,
+              }),
+            )
+          }
           title={
             isActive
               ? undefined
@@ -138,7 +146,6 @@ export const ClassesSection = ({
   const [mergeMode, setMergeMode] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState<Set<string | number>>(new Set());
   const [mergeModalOpen, setMergeModalOpen] = useState(false);
-  const [importClassId, setImportClassId] = useState<string | null>(null);
 
   const updateErrorMessage = errorMessage(update.error);
 
@@ -177,7 +184,6 @@ export const ClassesSection = ({
           programPublicId={programPublicId}
           studentClass={studentClass}
           onEdit={() => setEditingClass(studentClass)}
-          onAssignStudents={() => setImportClassId(studentClass.publicId)}
         />
       ),
     },
@@ -273,15 +279,6 @@ export const ClassesSection = ({
           setMergeModalOpen(false);
           exitMergeMode();
         }}
-      />
-
-      <ImportOrAssignModal
-        key={importClassId ?? "importOrAssign-closed"}
-        open={importClassId !== null}
-        onClose={() => setImportClassId(null)}
-        organizationPublicId={organizationPublicId}
-        programPublicId={programPublicId}
-        classPublicId={importClassId ?? ""}
       />
     </div>
   );

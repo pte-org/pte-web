@@ -137,3 +137,12 @@ export const STUDENT_STATUS_VARIANT = {
   ACTIVE: "success",
   SUSPENDED: "warning",
 } as const;
+
+export const ASSIGN_DEEPLINK_TEXT = {
+  backToClass: (name: string) => `← Back to ${name}`,
+  lockedFilterBanner: (name: string) =>
+    `Showing students for ${name}. Clear filter to add to other classes.`,
+  clearFilter: "Clear filter",
+  classBlocked: (status: string, name: string) =>
+    `Class ${name} is ${status}. Activate it from the Program detail before assigning students.`,
+} as const;

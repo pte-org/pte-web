@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@pte/ui";
 import { DashboardChrome } from "@/features/auth/components";
 import { HOST_ROLES } from "@/features/auth/constants";
 import { ClassesListView } from "@/features/classes/components";
 import { CreateClassModal } from "@/features/classes/components/CreateClassModal";
-import { ImportOrAssignModal } from "@/features/classes/components/ImportOrAssignModal";
+import { buildAssignStudentsUrl } from "@/features/classes/utils/assignStudentsUrl";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import { buildHostNav } from "@/lib/navigation";
@@ -16,6 +17,7 @@ import { CLASSES_LIST_TEXT } from "@/features/classes/constants";
 
 export default function ClassesPage() {
   const labels = useOrgLabels();
+  const router = useRouter();
   const { data: organizations } = useMyOrganizations();
 
   const [selectedOrganizationPublicId, setOrganizationPublicId] = useState("");
@@ -52,19 +54,15 @@ export default function ClassesPage() {
     setCreateOpen(true);
   };
 
-  // Pre-fill the assign-students modal with the row's class. The modal
-  // itself is owned by the row component (ClassesListView / ClassesSection).
-  const [assignContext, setAssignContext] = useState<{
-    organizationPublicId: string;
-    programPublicId: string;
-    classPublicId: string;
-  } | null>(null);
+  // Navigate to the Students page with the row's class pre-filled.
+  // The Students page reads the query params, prefills Program + Class
+  // filters, and auto-opens the Add Individually modal.
   const onRequestAssignStudents = (input: {
     organizationPublicId: string;
     programPublicId: string;
     classPublicId: string;
   }): void => {
-    setAssignContext(input);
+    router.push(buildAssignStudentsUrl("/host/students", input));
   };
 
   const onConfirmCreate = (name: string): void => {
@@ -115,15 +113,6 @@ export default function ClassesPage() {
           allPrograms={programOptions}
           onRequestCreateClass={onRequestCreateClass}
           onRequestAssignStudents={onRequestAssignStudents}
-        />
-
-        <ImportOrAssignModal
-          key={assignContext?.classPublicId ?? "assignStudents-closed"}
-          open={assignContext !== null}
-          onClose={() => setAssignContext(null)}
-          organizationPublicId={assignContext?.organizationPublicId ?? ""}
-          programPublicId={assignContext?.programPublicId ?? ""}
-          classPublicId={assignContext?.classPublicId ?? ""}
         />
 
         <CreateClassModal

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, type ReactElement } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
 import type {
   StudentRosterAssignmentStatus,
@@ -32,6 +33,7 @@ import { useClasses, useAllTenantClasses } from "@/features/classes/api";
 import { useMyOrganizations, usePrograms } from "@/features/programs/api";
 import {
   ADD_STUDENT_GUARD_TEXT,
+  ASSIGN_DEEPLINK_TEXT,
   STUDENT_ROSTER_FILTER_TEXT,
   STUDENT_ROSTER_SORT_OPTIONS,
   STUDENT_SEARCH_ACTIONS_TEXT,
@@ -42,6 +44,10 @@ import {
 } from "../constants";
 import { useReactivateStudent, useStudentRoster, useSuspendStudent } from "../api";
 import { ManageStudentsModal } from "./ManageStudentsModal";
+import { BreadcrumbBackToClass } from "./BreadcrumbBackToClass";
+import { LockedFilterBanner } from "./LockedFilterBanner";
+import { ClassBlockedAlert } from "./ClassBlockedAlert";
+import { useAssignStudentsDeeplink } from "./useAssignStudentsDeeplink";
 import {
   AccountDetailsModal,
   GeneratedCredentialsModal,
@@ -67,11 +73,6 @@ export const StudentSearchView = (): ReactElement => {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
-  const [selectedOrganizationPublicId, setSelectedOrganizationPublicId] = useState("");
-  const [programPublicId, setProgramPublicId] = useState("");
-  const [classPublicId, setClassPublicId] = useState("");
-  const [assignmentStatus, setAssignmentStatus] =
-    useState<StudentRosterAssignmentStatus>(DEFAULT_ASSIGNMENT_STATUS);
   const [sortOption, setSortOption] = useState<SortOptionValue>("CREATED_AT_DESC");
   const [manageMode, setManageMode] = useState<"add" | "import" | null>(null);
   const [guardOpen, setGuardOpen] = useState(false);
@@ -80,6 +81,29 @@ export const StudentSearchView = (): ReactElement => {
   const [passwordTarget, setPasswordTarget] = useState<StudentRosterRow | null>(null);
   const [credentials, setCredentials] = useState<GeneratedCredentials | null>(null);
   const [keepPreviousRows, setKeepPreviousRows] = useState(false);
+
+  // Read deeplink params synchronously after hydration. `useSearchParams` is
+  // sync on the client; reading in the render body avoids a useEffect delay.
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const paramOrg = searchParams.get("organizationPublicId") ?? "";
+  const paramProgram = searchParams.get("programPublicId") ?? "";
+  const paramClass = searchParams.get("classPublicId") ?? "";
+  const paramModal = searchParams.get("modal") ?? "";
+
+  // Lazy-initialize filter state from URL deeplink on mount.
+  // React 19 prefers deriving state in render over setState-in-effect.
+  const [selectedOrganizationPublicId, setSelectedOrganizationPublicId] = useState(() =>
+    paramOrg || "",
+  );
+  const [programPublicId, setProgramPublicId] = useState(() =>
+    paramProgram || "",
+  );
+  const [classPublicId, setClassPublicId] = useState(() =>
+    paramClass || "",
+  );
+  const [assignmentStatus, setAssignmentStatus] =
+    useState<StudentRosterAssignmentStatus>(DEFAULT_ASSIGNMENT_STATUS);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -96,6 +120,21 @@ export const StudentSearchView = (): ReactElement => {
     organizationPublicId,
     programPublicId,
   );
+
+  const deeplink = useAssignStudentsDeeplink(paramOrg, paramProgram, paramClass, paramModal, classes);
+
+  // One-shot auto-open: when deeplink + active class + ?modal=add resolve,
+  // set manageMode to "add". Guarded by deeplink.autoOpenFired so it only
+  // fires once even if conditions flip between renders.
+  if (
+    deeplink.shouldAutoOpenModal &&
+    !deeplink.autoOpenFired &&
+    manageMode !== "add" &&
+    !deeplink.classFilterLocked
+  ) {
+    deeplink.setAutoOpenFired(true);
+    setManageMode("add");
+  }
   // Tenant-wide guard: blocks Add/Import buttons when the tenant has zero
   // Classes across all Programs/Organizations. Reuses useAllTenantClasses()
   // (already cached by Phase 2's /host/classes page) so this is free on
@@ -151,6 +190,21 @@ export const StudentSearchView = (): ReactElement => {
     setManageMode(nextMode);
   };
 
+  // Resets the deeplink prefill state and unlocks Program + Class filters.
+  // Replaces the URL so a browser Back from the cleared state returns to the
+  // source class page (not to the prefill URL).
+  const clearLockedFilter = (): void => {
+    deeplink.setClassFilterLocked(false);
+    deeplink.setPersistedClassName(null);
+    deeplink.setPersistedBlockedReason(null);
+    deeplink.setWasPrefilledByDeeplink(false);
+    setProgramPublicId("");
+    setClassPublicId("");
+    setKeepPreviousRows(false);
+    setPage(0);
+    router.replace("/host/students");
+  };
+
   const handlePageChange = (nextPage: number): void => {
     setKeepPreviousRows(true);
     setPage(nextPage);
@@ -198,6 +252,14 @@ export const StudentSearchView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
+      {deeplink.prefilledClassName && (
+        <BreadcrumbBackToClass
+          className={deeplink.prefilledClassName}
+          programPublicId={programPublicId}
+          classPublicId={classPublicId}
+          organizationPublicId={organizationPublicId}
+        />
+      )}
       <PageHeader
         title={STUDENT_SEARCH_TEXT.title}
         subtitle={STUDENT_SEARCH_TEXT.subtitle}
@@ -255,8 +317,9 @@ export const StudentSearchView = (): ReactElement => {
               value: program.publicId,
             }))}
             value={programPublicId}
-            disabled={programsLoading || !organizationPublicId}
+            disabled={programsLoading || !organizationPublicId || deeplink.classFilterLocked}
             onChange={(event) => {
+              if (deeplink.classFilterLocked) return;
               setProgramPublicId(event.target.value);
               setClassPublicId("");
               resetPage();
@@ -276,8 +339,9 @@ export const StudentSearchView = (): ReactElement => {
               value: studentClass.publicId,
             }))}
             value={classPublicId}
-            disabled={!programPublicId || classesLoading}
+            disabled={!programPublicId || classesLoading || deeplink.classFilterLocked}
             onChange={(event) => {
+              if (deeplink.classFilterLocked) return;
               setClassPublicId(event.target.value);
               resetPage();
             }}
@@ -313,6 +377,22 @@ export const StudentSearchView = (): ReactElement => {
           />
         </div>
       </div>
+
+      {deeplink.classBlockedReason && deeplink.prefilledClassName && (
+        <ClassBlockedAlert
+          status={deeplink.classBlockedReason}
+          className={deeplink.prefilledClassName}
+          classBlockedLabel={ASSIGN_DEEPLINK_TEXT.classBlocked}
+        />
+      )}
+      {deeplink.classFilterLocked && deeplink.prefilledClassName && (
+        <LockedFilterBanner
+          className={deeplink.prefilledClassName}
+          onClearFilter={clearLockedFilter}
+          clearFilterLabel={ASSIGN_DEEPLINK_TEXT.clearFilter}
+          lockedFilterBannerLabel={ASSIGN_DEEPLINK_TEXT.lockedFilterBanner}
+        />
+      )}
 
       {queryError && (
         <Alert tone="error">{queryError || STUDENT_ROSTER_FILTER_TEXT.loadFailed}</Alert>
@@ -462,7 +542,18 @@ export const StudentSearchView = (): ReactElement => {
       />
 
       {manageMode && (
-        <ManageStudentsModal open initialMode={manageMode} onClose={() => setManageMode(null)} />
+        <ManageStudentsModal
+          open
+          initialMode={manageMode}
+          onClose={() => {
+            setManageMode(null);
+            // If the modal was auto-opened from a deeplink, lock Program + Class
+            // filters so the user does not accidentally add students to the wrong class.
+            if (deeplink.wasPrefilledByDeeplink) {
+              deeplink.setClassFilterLocked(true);
+            }
+          }}
+        />
       )}
     </div>
   );
