@@ -2,14 +2,17 @@
 
 import { useMemo, useState, type ReactElement } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   Alert,
   Badge,
   Button,
   DataTable,
+  Dropdown,
   FolderPlusIcon,
   Select,
   type DataTableColumn,
+  type DropdownItem,
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
@@ -21,13 +24,9 @@ import {
   CLASS_STATUS_VARIANT,
   CLASS_TABLE_HEADERS,
 } from "../constants";
+import { PickProgramToAddClass, type ProgramOption } from "./PickProgramToAddClass";
 
 const ALL_FILTER = "ALL";
-
-interface ProgramOption {
-  value: string;
-  label: string;
-}
 
 interface ClassesListViewProps {
   organizationOptions: ProgramOption[];
@@ -55,33 +54,39 @@ interface ClassRowActionsProps {
 }
 
 const ClassRowActions = ({ option, onAssignStudents }: ClassRowActionsProps): ReactElement => {
-  // Tenant-wide row has no kebab — status mutations live in the program
-  // detail scope (ClassesSection). Here we only expose the 2 navigation /
-  // assignment actions, restyled as outlined pills so the two views match.
+  const router = useRouter();
+  const isActive = option.status === "ACTIVE";
+  const assignDisabled = !isActive;
+
+  const items: DropdownItem[] = [
+    {
+      label: CLASS_ROW_ACTIONS_TEXT.viewDetail,
+      onSelect: () =>
+        router.push(
+          `/host/programs/${option.programPublicId}/classes/${option.classPublicId}?organizationPublicId=${option.organizationPublicId}`,
+        ),
+    },
+    {
+      label: CLASS_ROW_ACTIONS_TEXT.assignStudents,
+      onSelect: () =>
+        onAssignStudents({
+          organizationPublicId: option.organizationPublicId,
+          programPublicId: option.programPublicId,
+          classPublicId: option.classPublicId,
+        }),
+      disabled: assignDisabled,
+      ...(assignDisabled && {
+        title: CLASS_ROW_ACTIONS_TEXT.assignStudentsDisabledTitle,
+      }),
+    },
+  ];
+
   return (
-    <div className="flex flex-wrap items-center gap-2">
-      <Link
-        href={`/host/programs/${option.programPublicId}/classes/${option.classPublicId}?organizationPublicId=${option.organizationPublicId}`}
-        aria-label={`${CLASS_ROW_ACTIONS_TEXT.edit} ${option.className}`}
-        className="rounded-full border border-action bg-transparent px-4 py-1.5 text-sm font-semibold text-action transition-colors hover:bg-action/5"
-      >
-        {CLASS_ROW_ACTIONS_TEXT.edit}
-      </Link>
-      <button
-        type="button"
-        onClick={() =>
-          onAssignStudents({
-            organizationPublicId: option.organizationPublicId,
-            programPublicId: option.programPublicId,
-            classPublicId: option.classPublicId,
-          })
-        }
-        aria-label={`${CLASS_ROW_ACTIONS_TEXT.assignStudents} ${option.className}`}
-        className="rounded-full border border-slate-300 bg-transparent px-4 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
-      >
-        {CLASS_ROW_ACTIONS_TEXT.assignStudents}
-      </button>
-    </div>
+    <Dropdown
+      items={items}
+      label={CLASS_ROW_ACTIONS_TEXT.actions}
+      align="right"
+    />
   );
 };
 
@@ -167,14 +172,7 @@ export const ClassesListView = ({
     {
       key: "name",
       header: CLASS_TABLE_HEADERS.NAME,
-      cell: (option) => (
-        <Link
-          href={`/host/programs/${option.programPublicId}/classes/${option.classPublicId}?organizationPublicId=${option.organizationPublicId}`}
-          className="font-medium text-blue-700 hover:underline"
-        >
-          {option.className}
-        </Link>
-      ),
+      cell: (option) => <span className="font-medium text-slate-900">{option.className}</span>,
     },
     {
       key: "program",
@@ -248,46 +246,3 @@ export const ClassesListView = ({
     </div>
   );
 };
-
-interface PickProgramToAddClassProps {
-  programs: ProgramOption[];
-  classLabel: string;
-  programLabel: string;
-  onRequestCreateClass: (programPublicId: string) => void;
-}
-
-const PickProgramToAddClass = ({
-  programs,
-  classLabel,
-  programLabel,
-  onRequestCreateClass,
-}: PickProgramToAddClassProps): ReactElement => (
-  <div className="flex flex-col gap-5">
-    <div className="flex flex-col gap-1">
-      <h3 className="text-base font-semibold text-slate-900">
-        {CLASSES_LIST_TEXT.pickProgramHeading(classLabel)}
-      </h3>
-      <p className="text-sm text-slate-500">
-        {CLASSES_LIST_TEXT.pickProgramSubheading(programLabel)}
-      </p>
-    </div>
-
-    <ul className="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
-      {programs.map((program) => (
-        <li
-          key={program.value}
-          className="flex items-center justify-between gap-4 px-4 py-3"
-        >
-          <span className="text-sm font-medium text-slate-900">{program.label}</span>
-          <button
-            type="button"
-            onClick={() => onRequestCreateClass(program.value)}
-            className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover"
-          >
-            {CLASSES_LIST_TEXT.pickProgramRowCta}
-          </button>
-        </li>
-      ))}
-    </ul>
-  </div>
-);

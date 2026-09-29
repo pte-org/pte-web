@@ -24,10 +24,16 @@ export const PROGRAMS_TEXT = {
   organizationPlaceholder: "Select an organization",
 } as const;
 
+export const PROGRAM_ROW_ACTIONS_TEXT = {
+  actions: "Actions",
+  viewDetail: "View detail",
+} as const;
+
 export const PROGRAM_TABLE_HEADERS = {
   NAME: "Name",
   STATUS: "Status",
   DATES: "Dates",
+  ACTIONS: "Action",
 } as const;
 
 export const CREATE_PROGRAM_TEXT = {

@@ -1,12 +1,22 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import Link from "next/link";
-import { Alert, Badge, DataTable, PageHeader, Select, type DataTableColumn } from "@pte/ui";
+import { useRouter } from "next/navigation";
+import {
+  Alert,
+  Badge,
+  DataTable,
+  Dropdown,
+  PageHeader,
+  Select,
+  type DataTableColumn,
+  type DropdownItem,
+} from "@pte/ui";
 import type { ProgramResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import {
+  PROGRAM_ROW_ACTIONS_TEXT,
   PROGRAM_STATUS_LABELS,
   PROGRAM_STATUS_VARIANT,
   PROGRAM_TABLE_HEADERS,
@@ -20,6 +30,23 @@ function formatDateRange(startDate: string | null, endDate: string | null): stri
   if (!startDate && !endDate) return "—";
   return `${startDate ?? "…"} – ${endDate ?? "…"}`;
 }
+
+interface ProgramRowActionsProps {
+  program: ProgramResponse;
+  organizationPublicId: string;
+}
+
+const ProgramRowActions = ({ program, organizationPublicId }: ProgramRowActionsProps): ReactElement => {
+  const router = useRouter();
+  const items: DropdownItem[] = [
+    {
+      label: PROGRAM_ROW_ACTIONS_TEXT.viewDetail,
+      onSelect: () =>
+        router.push(`/host/programs/${program.publicId}?organizationPublicId=${organizationPublicId}`),
+    },
+  ];
+  return <Dropdown items={items} label={PROGRAM_ROW_ACTIONS_TEXT.actions} align="right" />;
+};
 
 export const ProgramsListView = (): ReactElement => {
   const labels = useOrgLabels();
@@ -52,14 +79,7 @@ export const ProgramsListView = (): ReactElement => {
     {
       key: "name",
       header: PROGRAM_TABLE_HEADERS.NAME,
-      cell: (program) => (
-        <Link
-          href={`/host/programs/${program.publicId}?organizationPublicId=${organizationPublicId}`}
-          className="font-medium text-blue-700 hover:underline"
-        >
-          {program.name}
-        </Link>
-      ),
+      cell: (program) => <span className="font-medium text-slate-900">{program.name}</span>,
     },
     {
       key: "status",
@@ -74,6 +94,13 @@ export const ProgramsListView = (): ReactElement => {
       key: "dates",
       header: PROGRAM_TABLE_HEADERS.DATES,
       cell: (program) => formatDateRange(program.startDate, program.endDate),
+    },
+    {
+      key: "actions",
+      header: PROGRAM_TABLE_HEADERS.ACTIONS,
+      cell: (program) => (
+        <ProgramRowActions program={program} organizationPublicId={organizationPublicId} />
+      ),
     },
   ];
 

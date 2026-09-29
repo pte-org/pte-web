@@ -57,7 +57,28 @@ const ClassRowActions = ({
 
   const isActive = studentClass.status === "ACTIVE";
   const assignDisabled = pending || !isActive;
-  const kebabItems: DropdownItem[] = [
+
+  const items: DropdownItem[] = [
+    {
+      label: CLASS_ROW_ACTIONS_TEXT.edit,
+      onSelect: () => onEdit(),
+    },
+    {
+      label: CLASS_ROW_ACTIONS_TEXT.assignStudents,
+      onSelect: () =>
+        router.push(
+          buildAssignStudentsUrl("/host/students", {
+            organizationPublicId,
+            programPublicId,
+            classPublicId: studentClass.publicId,
+          }),
+        ),
+      disabled: assignDisabled,
+      ...(assignDisabled && {
+        title: CLASS_ROW_ACTIONS_TEXT.assignStudentsDisabledTitle,
+      }),
+    },
+    { separator: true, key: "nav-status-divider" },
     {
       label: CLASS_ROW_ACTIONS_TEXT.activate,
       onSelect: () => mutations.activate.mutate(),
@@ -83,49 +104,11 @@ const ClassRowActions = ({
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={onEdit}
-          disabled={pending}
-          aria-label={`${CLASS_ROW_ACTIONS_TEXT.edit} ${studentClass.name}`}
-          className="rounded-full border border-action bg-transparent px-4 py-1.5 text-sm font-semibold text-action transition-colors hover:bg-action/5 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {CLASS_ROW_ACTIONS_TEXT.edit}
-        </button>
-        <button
-          type="button"
-          disabled={assignDisabled}
-          onClick={() =>
-            router.push(
-              buildAssignStudentsUrl("/host/students", {
-                organizationPublicId,
-                programPublicId,
-                classPublicId: studentClass.publicId,
-              }),
-            )
-          }
-          title={
-            isActive
-              ? undefined
-              : CLASS_ROW_ACTIONS_TEXT.assignStudentsDisabledTitle
-          }
-          aria-label={`${CLASS_ROW_ACTIONS_TEXT.assignStudents} ${studentClass.name}`}
-          aria-describedby={isActive ? undefined : `assign-help-${studentClass.publicId}`}
-          className="rounded-full border border-slate-300 bg-transparent px-4 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {CLASS_ROW_ACTIONS_TEXT.assignStudents}
-        </button>
-        <span id={`assign-help-${studentClass.publicId}`} className="sr-only">
-          {CLASS_ROW_ACTIONS_TEXT.assignStudentsDisabledTitle}
-        </span>
-        <Dropdown
-          items={kebabItems}
-          label={CLASS_ROW_ACTIONS_TEXT.moreOptions(studentClass.name)}
-          triggerClassName="h-8 w-8 rounded-md text-slate-500 hover:bg-slate-100"
-          align="right"
-        />
-      </div>
+      <Dropdown
+        items={items}
+        label={CLASS_ROW_ACTIONS_TEXT.actions}
+        align="right"
+      />
       {rowError && <p className="text-xs text-red-600">{rowError}</p>}
     </div>
   );
