@@ -1,22 +1,19 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
   Alert,
   Badge,
   DataTable,
-  Dropdown,
   PageHeader,
   Select,
   type DataTableColumn,
-  type DropdownItem,
 } from "@pte/ui";
 import type { ProgramResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import {
-  PROGRAM_ROW_ACTIONS_TEXT,
   PROGRAM_STATUS_LABELS,
   PROGRAM_STATUS_VARIANT,
   PROGRAM_TABLE_HEADERS,
@@ -26,27 +23,25 @@ import { useCreateProgram, useMyOrganizations, usePrograms } from "../api";
 import type { CreateProgramInput } from "../types";
 import { CreateProgramModal } from "./CreateProgramModal";
 
+function formatDate(value: string | null): string {
+  if (!value) return "…";
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+  if (match) {
+    const [, year, month, day] = match;
+    return `${day}/${month}/${year}`;
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
 function formatDateRange(startDate: string | null, endDate: string | null): string {
   if (!startDate && !endDate) return "—";
-  return `${startDate ?? "…"} – ${endDate ?? "…"}`;
+  return `${formatDate(startDate)} – ${formatDate(endDate)}`;
 }
-
-interface ProgramRowActionsProps {
-  program: ProgramResponse;
-  organizationPublicId: string;
-}
-
-const ProgramRowActions = ({ program, organizationPublicId }: ProgramRowActionsProps): ReactElement => {
-  const router = useRouter();
-  const items: DropdownItem[] = [
-    {
-      label: PROGRAM_ROW_ACTIONS_TEXT.viewDetail,
-      onSelect: () =>
-        router.push(`/host/programs/${program.publicId}?organizationPublicId=${organizationPublicId}`),
-    },
-  ];
-  return <Dropdown items={items} label={PROGRAM_ROW_ACTIONS_TEXT.actions} align="right" />;
-};
 
 export const ProgramsListView = (): ReactElement => {
   const labels = useOrgLabels();
@@ -79,7 +74,9 @@ export const ProgramsListView = (): ReactElement => {
     {
       key: "name",
       header: PROGRAM_TABLE_HEADERS.NAME,
-      cell: (program) => <span className="font-medium text-slate-900">{program.name}</span>,
+      cell: (program) => (
+        <span className="font-medium text-gray-900">{program.name}</span>
+      ),
     },
     {
       key: "status",
@@ -99,7 +96,12 @@ export const ProgramsListView = (): ReactElement => {
       key: "actions",
       header: PROGRAM_TABLE_HEADERS.ACTIONS,
       cell: (program) => (
-        <ProgramRowActions program={program} organizationPublicId={organizationPublicId} />
+        <Link
+          href={`/host/programs/${program.publicId}?organizationPublicId=${organizationPublicId}`}
+          className="text-sm font-medium text-blue-700 hover:underline"
+        >
+          {PROGRAMS_TEXT.viewDetails}
+        </Link>
       ),
     },
   ];

@@ -1,4 +1,4 @@
-import type { ExamMode, FormMode, ProctorRole, ReusePolicy } from "@pte/api-client";
+import type { ExamMode, FormMode, LockdownMode, ProctorRole, ReusePolicy } from "@pte/api-client";
 import type { CreateSessionInput, ExamSkill } from "../types";
 
 // react-query cache-key roots — named constants per this repo's established
@@ -96,6 +96,10 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   CLOSES_AT_LABEL: "Closes at",
   CAPACITY_LABEL: "Maximum students",
   MODE_LABEL: "Exam mode",
+  PRACTICE_ANTI_CHEAT_LABEL: "Controlled desktop practice",
+  PRACTICE_ANTI_CHEAT_CONTROL: "Enable anti-cheat controls for this Practice exam",
+  PRACTICE_ANTI_CHEAT_HELPER:
+    "Enable fullscreen and the existing desktop checks. Violations warn and are audited; Practice is not auto-submitted.",
   SKILLS_LABEL: "Skills included",
   SKILLS_HELPER:
     "Choose one or more of the four skills for Practice. A skill must be included in the active template to be selectable.",
@@ -128,6 +132,7 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   REVIEW_TITLE: "Review before generation",
   REVIEW_TEMPLATE: "Template",
   REVIEW_MODE: "Exam mode",
+  REVIEW_SECURITY_POLICY: "Security policy",
   REVIEW_SKILLS: "Included skills",
   REVIEW_RETRIES: "Retries per student",
   REVIEW_AUDIENCE: "Audience sources",
@@ -160,6 +165,11 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   MODE_PRACTICE: "Practice",
   MODE_MOCK: "Mock exam",
   MODE_REAL: "Official exam",
+  POLICY_PRACTICE_UNRESTRICTED: "Practice — unrestricted",
+  POLICY_PRACTICE_CONTROLLED: "Practice — controlled desktop",
+  POLICY_OFFICIAL_STRICT: "Official — strict",
+  POLICY_LEGACY: "Previously created exam",
+  POLICY_UNAVAILABLE: "Security policy unavailable — review required",
   FORM_SHARED: "One shared form",
   FORM_UNIQUE: "Separate form per student",
   REUSE_ALLOW: "Allow previous attempts",
@@ -184,18 +194,24 @@ export const CREATE_EXAM_WIZARD_ERRORS = {
   SKILLS_REQUIRED: "Choose at least one skill included in the selected template.",
   FULL_SCOPE_REQUIRED: "Mock and Official exams must include every skill in the selected template.",
   RETRIES_INVALID: "Enter a whole number of retries from 0 to 9.",
+  POLICY_MISMATCH:
+    "The server returned a different security policy. Refresh the exam settings and try again.",
 } as const;
+
+export const EXAM_POLICY_LABELS: Record<LockdownMode, string> = {
+  NONE: CREATE_EXAM_WIZARD_TEXT.POLICY_PRACTICE_UNRESTRICTED,
+  STANDARD: CREATE_EXAM_WIZARD_TEXT.POLICY_PRACTICE_CONTROLLED,
+  STRICT: CREATE_EXAM_WIZARD_TEXT.POLICY_OFFICIAL_STRICT,
+};
 
 export const EXAM_MODE_OPTIONS: { value: ExamMode; label: string }[] = [
   { value: "PRACTICE", label: CREATE_EXAM_WIZARD_TEXT.MODE_PRACTICE },
-  { value: "MOCK_TEST", label: CREATE_EXAM_WIZARD_TEXT.MODE_MOCK },
-  { value: "REAL_EXAM", label: CREATE_EXAM_WIZARD_TEXT.MODE_REAL },
+  { value: "OFFICIAL_EXAM", label: CREATE_EXAM_WIZARD_TEXT.MODE_REAL },
 ];
 
 export const EXAM_MODE_LABELS: Record<ExamMode, string> = {
   PRACTICE: CREATE_EXAM_WIZARD_TEXT.MODE_PRACTICE,
-  MOCK_TEST: CREATE_EXAM_WIZARD_TEXT.MODE_MOCK,
-  REAL_EXAM: CREATE_EXAM_WIZARD_TEXT.MODE_REAL,
+  OFFICIAL_EXAM: CREATE_EXAM_WIZARD_TEXT.MODE_REAL,
 };
 
 export const FORM_MODE_OPTIONS: { value: FormMode; label: string }[] = [
@@ -271,11 +287,14 @@ export const SESSION_DETAIL_TEXT = {
   MODE_LABEL: "Mode",
   SKILLS_LABEL: "Skills included",
   RETRIES_LABEL: "Retries per student",
+  SECURITY_POLICY_LABEL: "Security policy",
   LEGACY_MODE: "Previously created exam",
   LEGACY_SKILLS: "Template-defined skills",
   TOTAL_ATTEMPTS: (retries: number) =>
     `${retries} ${retries === 1 ? "retry" : "retries"} allowed (${retries + 1} total ${retries === 0 ? "attempt" : "attempts"})`,
   RETRIES_SUMMARY: (retries: number) => `${retries} ${retries === 1 ? "retry" : "retries"}`,
+  LEGACY_POLICY: CREATE_EXAM_WIZARD_TEXT.POLICY_LEGACY,
+  POLICY_UNAVAILABLE: CREATE_EXAM_WIZARD_TEXT.POLICY_UNAVAILABLE,
 } as const;
 
 export const EXAMINER_ASSIGNMENT_TEXT = {

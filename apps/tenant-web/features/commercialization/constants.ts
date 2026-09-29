@@ -12,7 +12,7 @@ export const REDEEM_ERROR_MESSAGES: Record<string, string> = {
 };
 
 export const BILLING_TEXT = {
-  BACK_TO_PLANS: "← Back to plans",
+  BACK_TO_PLANS: "Back to Plans & billing",
   CHECKOUT_TITLE: "Checkout",
   CHECKOUT_SUBTITLE: "Review your order before opening the secure payment page.",
   ORDER_ERROR: "The order could not be created.",
@@ -54,6 +54,16 @@ export const BILLING_TEXT = {
   ACTIVATION: "Activation",
   LICENSE_KEY: "License key",
   MASKED_VALUE: "••••",
+  REVEAL_LICENSE_KEY: "Reveal license key",
+  HIDE_LICENSE_KEY: "Hide license key",
+  REVEAL_MODAL_TITLE: "Confirm your password",
+  REVEAL_MODAL_DESCRIPTION: "Re-enter your password to view the full license key.",
+  REVEAL_PASSWORD_LABEL: "Password",
+  REVEAL_SUBMIT: "Reveal",
+  REVEAL_SUBMITTING: "Verifying...",
+  REVEAL_INVALID_PASSWORD: "Incorrect password. Try again.",
+  REVEAL_ERROR: "Could not reveal the license key. Try again.",
+  CANCEL: "Cancel",
   SUBSCRIPTION_PERIOD: (started: string, expires: string) => `Started ${started} · Expires ${expires}`,
   CAPACITY_LEDGER: "Capacity ledger",
   CAPACITY_LEDGER_SUBTITLE: "Permanent quota purchased for this tenant.",

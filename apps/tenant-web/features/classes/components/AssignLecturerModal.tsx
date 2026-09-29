@@ -22,7 +22,7 @@ const T = ASSIGN_LECTURER_TEXT;
 
 const TAB_CLASS = (active: boolean): string =>
   cn(
-    "rounded-md px-3 py-1.5 text-sm font-medium",
+    "rounded-md px-3 py-1.5 text-center text-sm font-medium transition-colors",
     active ? "bg-blue-100 text-blue-700" : "text-gray-500 hover:bg-gray-100",
   );
 
@@ -121,7 +121,7 @@ export const AssignLecturerModal = ({
         </div>
       )}
 
-      <div className="mb-4 flex gap-2 rounded-lg bg-gray-50 p-1">
+      <div className="mb-4 grid grid-cols-2 gap-2 rounded-lg bg-gray-50 p-1">
         <button
           type="button"
           className={TAB_CLASS(tab === "existing")}

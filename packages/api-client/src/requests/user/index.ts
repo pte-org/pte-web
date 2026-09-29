@@ -7,11 +7,13 @@ import type {
   ExamStaffQuery,
   GeneratedCredentialsResponse,
   ResetPasswordRequest,
+  UserDirectoryEntryResponse,
   UserResponse,
 } from "../../types/user";
 
 export const USER_ENDPOINTS = {
   users: "/api/v1/users",
+  directory: "/api/v1/users/directory",
   bulk: "/api/v1/users/bulk",
   byTenant: (tenantPublicId: string) => `/api/v1/users/by-tenant/${tenantPublicId}`,
   suspend: (publicId: string) => `/api/v1/users/${publicId}/suspend`,
@@ -47,6 +49,16 @@ export function bulkCreateUsers(
  */
 export function listUsers(client: ApiClient): Promise<UserResponse[]> {
   return client.request<UserResponse[]>(USER_ENDPOINTS.users);
+}
+
+/**
+ * Every user in the caller's tenant (publicId + fullName only), unfiltered by the
+ * manageable-roles rule `listUsers` applies — use this to resolve a display name
+ * (e.g. an Audit Log actor) for ANY tenant user, including HOST_ADMIN accounts that
+ * `listUsers` omits entirely.
+ */
+export function listUserDirectory(client: ApiClient): Promise<UserDirectoryEntryResponse[]> {
+  return client.request<UserDirectoryEntryResponse[]>(USER_ENDPOINTS.directory);
 }
 
 export function listExamStaff(client: ApiClient, query: ExamStaffQuery): Promise<ExamStaffPage> {

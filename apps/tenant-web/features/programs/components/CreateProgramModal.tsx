@@ -86,12 +86,15 @@ export const CreateProgramModal = ({
           type="date"
           label={T.startDateLabel}
           value={form.startDate}
+          error={errors.startDate}
           onChange={(event) => handleChange("startDate", event.target.value)}
         />
         <Input
           type="date"
           label={T.endDateLabel}
           value={form.endDate}
+          error={errors.endDate}
+          min={form.startDate || undefined}
           onChange={(event) => handleChange("endDate", event.target.value)}
         />
       </form>
