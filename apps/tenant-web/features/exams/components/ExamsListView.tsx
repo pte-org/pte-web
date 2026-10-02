@@ -43,7 +43,7 @@ export const ExamsListView = (): ReactElement => {
       <SessionTable sessions={sessions ?? []} isLoading={isLoading} />
 
       <CreateExamWizard
-        key={createOpen ? "createExamWizard-open" : "createExamWizard-closed"}
+        key={`${createOpen ? "createExamWizard-open" : "createExamWizard-closed"}-${activeTemplate.data?.publicId ?? "no-template"}`}
         open={createOpen}
         onClose={() => {
           create.reset();
@@ -51,7 +51,6 @@ export const ExamsListView = (): ReactElement => {
         }}
         onSubmit={confirmCreate}
         activeTemplate={activeTemplate.data}
-        templateLoading={activeTemplate.isLoading}
         templateError={activeTemplate.error}
         error={create.error}
         isSubmitting={create.isPending}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent, type ReactElement } from "react";
+import { useMemo, useState, type FormEvent, type ReactElement } from "react";
 import Link from "next/link";
 import {
   resolveExamLockdownMode,
@@ -19,7 +19,6 @@ import {
   CREATE_EXAM_WIZARD_TEXT,
   EXAM_MODE_OPTIONS,
   EXAM_SKILL_OPTIONS,
-  FORM_MODE_OPTIONS,
   REUSE_POLICY_OPTIONS,
 } from "../constants";
 import type { CreateExamWorkflowInput, ExamSkill } from "../types";
@@ -34,7 +33,6 @@ interface CreateExamWizardProps {
   onClose: () => void;
   onSubmit: (input: CreateExamWorkflowInput) => void;
   activeTemplate?: ScoreTemplateResponse;
-  templateLoading?: boolean;
   templateError?: unknown;
   error?: unknown;
   isSubmitting?: boolean;
@@ -42,16 +40,22 @@ interface CreateExamWizardProps {
 
 const FORM_ID = "create-exam-workflow-form";
 
-function emptyForm(): CreateExamWorkflowInput {
+function getTemplateSkills(items?: ScoreTemplateResponse["items"]): ExamSkill[] {
+  return EXAM_SKILL_OPTIONS.filter((option) =>
+    items?.some((item) => item.section === option.value),
+  ).map((option) => option.value);
+}
+
+function emptyForm(activeTemplate?: ScoreTemplateResponse): CreateExamWorkflowInput {
   return {
     name: "",
-    templatePublicId: "",
+    templatePublicId: activeTemplate?.publicId ?? "",
     subscriptionPublicId: "",
     opensAt: "",
     closesAt: "",
     examMode: "PRACTICE",
     practiceAntiCheatEnabled: false,
-    selectedSkills: [],
+    selectedSkills: getTemplateSkills(activeTemplate?.items),
     maxRetriesPerStudent: "0",
     formMode: "SHARED_FORM",
     reusePolicy: "ALLOW",
@@ -66,38 +70,21 @@ export const CreateExamWizard = ({
   onClose,
   onSubmit,
   activeTemplate,
-  templateLoading = false,
   templateError,
   error,
   isSubmitting = false,
 }: CreateExamWizardProps): ReactElement => {
   const [step, setStep] = useState<1 | 2>(1);
-  const [form, setForm] = useState<CreateExamWorkflowInput>(emptyForm);
+  const [form, setForm] = useState<CreateExamWorkflowInput>(() => emptyForm(activeTemplate));
   const [errors, setErrors] = useState<CreateExamWorkflowErrors>({});
   const [sourceType, setSourceType] = useState<AudienceSourceRequest["sourceType"]>("STUDENT");
   const [sourcePublicId, setSourcePublicId] = useState("");
   const [sourceSearch, setSourceSearch] = useState("");
 
   const templateSkills = useMemo<ExamSkill[]>(
-    () =>
-      EXAM_SKILL_OPTIONS.filter((option) =>
-        activeTemplate?.items.some((item) => item.section === option.value),
-      ).map((option) => option.value),
+    () => getTemplateSkills(activeTemplate?.items),
     [activeTemplate?.items],
   );
-
-  useEffect(() => {
-    if (!open || !activeTemplate) return;
-    setForm((previous) =>
-      previous.templatePublicId === activeTemplate.publicId
-        ? previous
-        : {
-            ...previous,
-            templatePublicId: activeTemplate.publicId,
-            selectedSkills: templateSkills,
-          },
-    );
-  }, [open, activeTemplate, templateSkills]);
 
   const { data: subscriptions = [], isLoading: subscriptionsLoading } = useSubscriptionsQuery();
   const { data: plans = [] } = useTenantPlansQuery();
