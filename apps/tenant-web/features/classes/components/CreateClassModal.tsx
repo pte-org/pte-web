@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Input, Modal } from "@pte/ui";
+import { Alert, Input, Modal, Select } from "@pte/ui";
 import { CREATE_CLASS_ERRORS, CREATE_CLASS_TEXT } from "../constants";
 
 interface CreateClassModalProps {
@@ -11,6 +11,11 @@ interface CreateClassModalProps {
   error?: string;
   isSubmitting?: boolean;
   classLabel: string;
+  /** When provided, the modal renders a Program <Select> above the name field. */
+  programs?: { value: string; label: string }[];
+  programLabel?: string;
+  selectedProgramPublicId?: string;
+  onProgramChange?: (programPublicId: string) => void;
 }
 
 const FORM_ID = "create-class-form";
@@ -22,10 +27,15 @@ export const CreateClassModal = ({
   error,
   isSubmitting = false,
   classLabel,
+  programs,
+  programLabel,
+  selectedProgramPublicId,
+  onProgramChange,
 }: CreateClassModalProps): ReactElement => {
   const [name, setName] = useState("");
   const [nameError, setNameError] = useState<string | undefined>();
   const T = CREATE_CLASS_TEXT;
+  const showPicker = programs !== undefined && programLabel !== undefined && onProgramChange !== undefined;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -68,6 +78,14 @@ export const CreateClassModal = ({
         </div>
       )}
       <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+        {showPicker && (
+          <Select
+            label={programLabel}
+            options={programs}
+            value={selectedProgramPublicId ?? ""}
+            onChange={(event) => onProgramChange(event.target.value)}
+          />
+        )}
         <Input
           label={T.nameLabel(classLabel)}
           placeholder={T.namePlaceholder}

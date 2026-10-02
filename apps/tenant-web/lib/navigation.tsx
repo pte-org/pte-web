@@ -28,6 +28,12 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       icon: <BookOpenIcon />,
       section: T.DELIVERY_SECTION,
     },
+    {
+      label: labels.class,
+      href: "/host/classes",
+      icon: <BookOpenIcon />,
+      section: T.DELIVERY_SECTION,
+    },
     { label: T.EXAMS, href: "/host/exams", icon: <BookOpenIcon />, section: T.DELIVERY_SECTION },
     {
       label: T.PLANS_AND_BILLING,

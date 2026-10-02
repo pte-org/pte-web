@@ -17,6 +17,13 @@ export const STUDENT_SEARCH_ACTIONS_TEXT = {
   import: "Import students",
 } as const;
 
+export const ADD_STUDENT_GUARD_TEXT = {
+  title: "No classes yet",
+  body: "Create at least one Program and Class before adding students.",
+  cta: "Go to Classes",
+  dismiss: "Dismiss",
+} as const;
+
 export const MANAGE_STUDENTS_TEXT = {
   title: "Add students",
   tabAdd: "Add student",
@@ -129,4 +136,13 @@ export const STUDENT_STATUS_LABELS = {
 export const STUDENT_STATUS_VARIANT = {
   ACTIVE: "success",
   SUSPENDED: "warning",
+} as const;
+
+export const ASSIGN_DEEPLINK_TEXT = {
+  backToClass: (name: string) => `← Back to ${name}`,
+  lockedFilterBanner: (name: string) =>
+    `Showing students for ${name}. Clear filter to add to other classes.`,
+  clearFilter: "Clear filter",
+  classBlocked: (status: string, name: string) =>
+    `Class ${name} is ${status}. Activate it from the Program detail before assigning students.`,
 } as const;

@@ -16,20 +16,58 @@ export const CLASS_STATUS_VARIANT = {
 export const CLASSES_SECTION_TEXT = {
   countLabel: (count: number, label: string) =>
     `${count} ${label.toLowerCase()}${count === 1 ? "" : "s"}`,
-  addButton: (label: string) => `+ Create ${label}`,
-  emptyTitle: (label: string) => `No ${label} yet`,
-  emptyText: (label: string) =>
-    `Create your first ${label.toLowerCase()} to start assigning students.`,
+  emptyInlineTitle: (label: string) => `No ${label.toLowerCase()}s in this Program yet`,
+  emptyInlineDescription: (label: string) =>
+    `Once a ${label.toLowerCase()} is added to this Program, it will show up here.`,
 } as const;
 
 export const CLASS_TABLE_HEADERS = {
   NAME: "Name",
+  PROGRAM: "Program",
   STATUS: "Status",
   ACTIONS: "Actions",
 } as const;
 
+export const CLASSES_LIST_TEXT = {
+  subtitle: (classLabel: string, programLabel: string) =>
+    `Browse every ${classLabel.toLowerCase()} across all ${programLabel.toLowerCase()}s in your organization.`,
+  subtitleScoped: (classLabel: string, programLabel: string) =>
+    `Browse every ${classLabel.toLowerCase()} in this ${programLabel.toLowerCase()}.`,
+  programFilterLabel: (programLabel: string) => `Filter by ${programLabel}`,
+  programFilterAll: (programLabel: string) => `All ${programLabel.toLowerCase()}s`,
+  countLabel: (count: number, classLabel: string) =>
+    `${count} ${classLabel.toLowerCase()}${count === 1 ? "" : "s"}`,
+  emptyNoProgramsTitle: (programLabel: string) => `Get Started by Creating a ${programLabel}`,
+  emptyNoProgramsDescription: (programLabel: string, classLabel: string) =>
+    `Set up your first ${programLabel.toLowerCase()} so you can organize ${classLabel.toLowerCase()}s and start adding students.`,
+  emptyNoProgramsCta: (programLabel: string) => `Create Your First ${programLabel}`,
+  emptyNoClassesTitle: (classLabel: string) => `No ${classLabel.toLowerCase()} yet`,
+  emptyNoClassesPickPrompt: (programLabel: string, classLabel: string) =>
+    `Pick a ${programLabel.toLowerCase()} to add a ${classLabel.toLowerCase()} to:`,
+  emptyNoClassesDirectCta: (programLabel: string, classLabel: string) =>
+    `+ Create ${classLabel} in ${programLabel}`,
+  pickProgramHeading: (classLabel: string) => `No ${classLabel.toLowerCase()}s yet`,
+  pickProgramSubheading: (programLabel: string) =>
+    `Each row is a ${programLabel.toLowerCase()} you can add a class to.`,
+  pickProgramRowCta: "+ Add Class",
+  createClassButton: "+ Create Class",
+  createClassButtonTitle: "Create a Program first to add Classes to it.",
+  createClassPickerLabel: (programLabel: string) => programLabel,
+  createClassPickerPlaceholder: (programLabel: string) => `Select a ${programLabel.toLowerCase()}`,
+  createClassNoProgramsTitle: (classLabel: string) => `No ${classLabel} yet`,
+  createClassNoProgramsText: (programLabel: string) =>
+    `You need at least one ${programLabel.toLowerCase()} before you can create a class.`,
+  studentCountPlaceholder: "—",
+} as const;
+
 export const CLASS_ROW_ACTIONS_TEXT = {
+  actions: "Actions",
   edit: "Edit",
+  viewDetail: "View detail",
+  assignStudents: "Assign Students",
+  assignStudentsDisabledTitle:
+    "Class must be Active to assign students. Activate it first from the actions menu.",
+  moreOptions: (label: string) => `More options for ${label}`,
   activate: "Activate",
   deactivate: "Deactivate",
   suspend: "Suspend",
