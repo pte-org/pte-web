@@ -8,8 +8,10 @@ import {
   listSubscriptions,
   previewStudentImport,
   redeemLicenseCode,
+  revealLicenseKey,
   submitApplication,
   type CreateOrderRequest,
+  type LicenseKeyResponse,
   type OrderResponse,
   type PagedResult,
   type PlanResponse,
@@ -78,6 +80,18 @@ export function useSubscriptionsQuery(): UseQueryResult<SubscriptionResponse[]> 
   return useQuery({
     queryKey: SUBSCRIPTIONS_QUERY_KEY,
     queryFn: () => listSubscriptions(apiClient),
+  });
+}
+
+/** Step-up re-authentication: resolves with the full license key, or rejects on a wrong password. */
+export function useRevealLicenseKey(): UseMutationResult<
+  LicenseKeyResponse,
+  unknown,
+  { subscriptionPublicId: string; password: string }
+> {
+  return useMutation({
+    mutationFn: ({ subscriptionPublicId, password }) =>
+      revealLicenseKey(apiClient, subscriptionPublicId, { password }),
   });
 }
 

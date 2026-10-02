@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Alert, Badge, LoadingState, PageHeader } from "@pte/ui";
+import { Alert, Badge, ChevronLeftIcon, LoadingState, PageHeader } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import {
@@ -33,8 +33,12 @@ export const ClassDetailView = ({
     return (
       <div className="flex flex-col gap-4">
         <Alert tone="error">{CLASS_ROSTER_TEXT.missingContext}</Alert>
-        <Link href="/host/programs" className="text-sm text-blue-700 hover:underline">
-          {CLASS_ROSTER_TEXT.back(labels.program)}
+        <Link
+          href="/host/programs"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
+        >
+          <ChevronLeftIcon className="h-4 w-4" />
+          <span>{CLASS_ROSTER_TEXT.back(labels.program)}</span>
         </Link>
       </div>
     );
@@ -90,9 +94,10 @@ const ClassDetailContent = ({
     <div className="flex flex-col gap-5">
       <Link
         href={`/host/programs/${programPublicId}?organizationPublicId=${organizationPublicId}`}
-        className="text-sm text-blue-700 hover:underline"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
       >
-        {CLASS_ROSTER_TEXT.back(programLabel)}
+        <ChevronLeftIcon className="h-4 w-4" />
+        <span>{CLASS_ROSTER_TEXT.back(programLabel)}</span>
       </Link>
 
       <PageHeader

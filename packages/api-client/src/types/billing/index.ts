@@ -60,12 +60,21 @@ export interface PlanRequest {
 export interface SubscriptionResponse {
   publicId: string;
   planId: string;
+  /** Always masked (e.g. "•••• AB12") — see `revealLicenseKey` for the full value. */
   licenseKey: string;
   startsAt: string;
   expiresAt: string;
   maxStudentsPerSession: number;
   status: SubscriptionStatus;
   activationSource: ActivationSource;
+}
+
+export interface RevealLicenseKeyRequest {
+  password: string;
+}
+
+export interface LicenseKeyResponse {
+  licenseKey: string;
 }
 
 export interface OrderResponse {

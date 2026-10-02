@@ -38,6 +38,10 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
     "This exam was changed in another window. Refresh the page and review your changes again.",
   EXAM_DRAFT_CONFIGURATION_INVALID:
     "Some exam settings are incompatible. Review the selected mode and reuse rule.",
+  LOCKDOWN_MODE_INVALID_FOR_EXAM_MODE:
+    "The selected security policy is not compatible with this exam mode.",
+  LOCKDOWN_MODE_REQUIRED:
+    "The exam security policy could not be resolved. Refresh the exam and try again.",
   AUDIENCE_SOURCE_NOT_FOUND:
     "We couldn't find one of the selected audience sources. Refresh the page and try again.",
   AUDIENCE_CHANGED_REQUIRES_REGENERATION:
@@ -64,6 +68,15 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
     "Choose a valid exam window where the closing time is after the opening time.",
   HOST_CONTEXT_REQUIRED: "Your host organization could not be identified. Please sign in again.",
   PROGRAM_NOT_FOUND: "The selected program could not be found or is no longer active.",
+  PROGRAM_NAME_ALREADY_USED: "A program with this name already exists in your organization.",
+  PROGRAM_HAS_ACTIVE_CLASSES:
+    "This program still has active classes. Please archive all classes before archiving the program.",
+  CLASS_NOT_FOUND: "The selected class could not be found or is no longer active.",
+  CLASS_NAME_ALREADY_USED: "A class with this name already exists in this program.",
+  CLASS_HAS_ACTIVE_MEMBERS:
+    "This class still has active members. Please remove all members before archiving the class.",
+  CLASS_MEMBERSHIP_NOT_FOUND: "The class membership could not be found.",
+  STUDENT_NOT_FOUND: "The selected student could not be found.",
 };
 
 const KIND_FALLBACKS: Record<ApiErrorKind, string> = {

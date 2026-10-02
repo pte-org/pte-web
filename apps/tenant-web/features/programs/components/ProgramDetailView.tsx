@@ -1,20 +1,27 @@
 "use client";
 
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Alert, Badge, LoadingState, PageHeader } from "@pte/ui";
+import { useRouter } from "next/navigation";
+import {
+  Alert,
+  Badge,
+  ChevronLeftIcon,
+  ConfirmDialog,
+  LoadingState,
+  PageHeader,
+  useToast,
+} from "@pte/ui";
 import { ClassesSection } from "@/features/classes/components";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import {
-  COORDINATOR_SECTION_TEXT,
   PROGRAM_DASHBOARD_TEXT,
   PROGRAM_DETAIL_TEXT,
   PROGRAM_STATUS_LABELS,
   PROGRAM_STATUS_VARIANT,
 } from "../constants";
 import { useProgram, useProgramStatusMutations } from "../api";
-import { CoordinatorAssignmentSection } from "./CoordinatorAssignmentSection";
 import { ProgramDashboard } from "./ProgramDashboard";
 
 interface ProgramDetailViewProps {
@@ -33,8 +40,12 @@ export const ProgramDetailView = ({
     return (
       <div className="flex flex-col gap-4">
         <Alert tone="error">{T.missingOrganization}</Alert>
-        <Link href="/host/programs" className="text-sm text-blue-700 hover:underline">
-          {T.backToList(labels.program)}
+        <Link
+          href="/host/programs"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
+        >
+          <ChevronLeftIcon className="h-4 w-4" />
+          <span>{T.backToList(labels.program)}</span>
         </Link>
       </div>
     );
@@ -63,7 +74,10 @@ const ProgramDetailContent = ({
   programLabel,
   classLabel,
 }: ProgramDetailContentProps): ReactElement => {
+  const router = useRouter();
   const T = PROGRAM_DETAIL_TEXT;
+  const { showToast } = useToast();
+  const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
   const {
     data: program,
     isLoading,
@@ -76,8 +90,12 @@ const ProgramDetailContent = ({
     return (
       <div className="flex flex-col gap-4">
         <Alert tone="error">{errorMessage(error, T.loadFailed)}</Alert>
-        <Link href="/host/programs" className="text-sm text-blue-700 hover:underline">
-          {T.backToList(programLabel)}
+        <Link
+          href="/host/programs"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
+        >
+          <ChevronLeftIcon className="h-4 w-4" />
+          <span>{T.backToList(programLabel)}</span>
         </Link>
       </div>
     );
@@ -101,8 +119,12 @@ const ProgramDetailContent = ({
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/host/programs" className="text-sm text-blue-700 hover:underline">
-        {T.back(programLabel)}
+      <Link
+        href="/host/programs"
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
+      >
+        <ChevronLeftIcon className="h-4 w-4" />
+        <span>{T.back(programLabel)}</span>
       </Link>
 
       <PageHeader
@@ -116,7 +138,14 @@ const ProgramDetailContent = ({
               <button
                 type="button"
                 disabled={lifecyclePending}
-                onClick={() => statusMutations.activate.mutate()}
+                onClick={() =>
+                  statusMutations.activate.mutate(undefined, {
+                    onSuccess: () =>
+                      showToast(T.activateSuccess(programLabel), { tone: "success" }),
+                    onError: (err) =>
+                      showToast(errorMessage(err) ?? "Failed to activate", { tone: "error" }),
+                  })
+                }
                 className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {T.activate}
@@ -126,7 +155,14 @@ const ProgramDetailContent = ({
               <button
                 type="button"
                 disabled={lifecyclePending}
-                onClick={() => statusMutations.suspend.mutate()}
+                onClick={() =>
+                  statusMutations.suspend.mutate(undefined, {
+                    onSuccess: () =>
+                      showToast(T.suspendSuccess(programLabel), { tone: "success" }),
+                    onError: (err) =>
+                      showToast(errorMessage(err) ?? "Failed to suspend", { tone: "error" }),
+                  })
+                }
                 className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {T.suspend}
@@ -135,7 +171,7 @@ const ProgramDetailContent = ({
             <button
               type="button"
               disabled={lifecyclePending}
-              onClick={() => statusMutations.archive.mutate()}
+              onClick={() => setArchiveConfirmOpen(true)}
               className="rounded-md border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {T.archive}
@@ -164,13 +200,28 @@ const ProgramDetailContent = ({
         />
       </section>
 
-      <section className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5">
-        <h3 className="text-sm font-semibold text-gray-900">{COORDINATOR_SECTION_TEXT.title}</h3>
-        <CoordinatorAssignmentSection
-          organizationPublicId={organizationPublicId}
-          programPublicId={programPublicId}
-        />
-      </section>
+      <ConfirmDialog
+        open={archiveConfirmOpen}
+        title={T.confirmArchiveTitle(programLabel)}
+        description={T.confirmArchiveDescription(program.name, programLabel)}
+        confirmLabel={T.confirmArchiveButton}
+        cancelLabel={T.cancel}
+        tone="danger"
+        isConfirming={statusMutations.archive.isPending}
+        onConfirm={() =>
+          statusMutations.archive.mutate(undefined, {
+            onSuccess: () => {
+              setArchiveConfirmOpen(false);
+              showToast(T.archiveSuccess(programLabel), { tone: "success" });
+              router.push("/host/programs");
+            },
+            onError: (err) => {
+              showToast(errorMessage(err) ?? "Failed to archive", { tone: "error" });
+            },
+          })
+        }
+        onClose={() => setArchiveConfirmOpen(false)}
+      />
     </div>
   );
 };

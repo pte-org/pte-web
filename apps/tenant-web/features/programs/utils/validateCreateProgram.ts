@@ -11,5 +11,15 @@ export function validateCreateProgram(
     errors.name = CREATE_PROGRAM_ERRORS.nameRequired(programLabel);
   }
 
+  if (!input.startDate) {
+    errors.startDate = CREATE_PROGRAM_ERRORS.startDateRequired;
+  }
+
+  if (!input.endDate) {
+    errors.endDate = CREATE_PROGRAM_ERRORS.endDateRequired;
+  } else if (input.startDate && new Date(input.endDate) <= new Date(input.startDate)) {
+    errors.endDate = CREATE_PROGRAM_ERRORS.endDateBeforeStartDate;
+  }
+
   return errors;
 }

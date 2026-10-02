@@ -17,6 +17,7 @@ import {
   SESSION_STATUS_VARIANT,
 } from "../constants";
 import { useCancelSession, useCloseSession, useOpenSession, useSession } from "../api";
+import { getExamPolicyLabel } from "../utils/examPolicy";
 import { AnswersSection } from "./AnswersSection";
 import { HostScoreReviewPanel } from "./HostScoreReviewPanel";
 import { ReportPublicationPanel } from "./ReportPublicationPanel";
@@ -156,7 +157,7 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
 
       <section className="rounded-lg border border-gray-200 bg-white p-5">
         <h2 className="mb-3 text-sm font-semibold text-gray-900">{T.CONFIGURATION_SECTION}</h2>
-        <dl className="grid gap-4 text-sm sm:grid-cols-3">
+        <dl className="grid gap-4 text-sm sm:grid-cols-4">
           <div>
             <dt className="text-gray-500">{T.MODE_LABEL}</dt>
             <dd className="mt-1 font-medium text-gray-900">
@@ -177,6 +178,12 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
             <dt className="text-gray-500">{T.RETRIES_LABEL}</dt>
             <dd className="mt-1 font-medium text-gray-900">
               {T.TOTAL_ATTEMPTS(session.maxRetriesPerStudent)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-gray-500">{T.SECURITY_POLICY_LABEL}</dt>
+            <dd className="mt-1 font-medium text-gray-900">
+              {getExamPolicyLabel(session.examMode, session.policy?.lockdownMode)}
             </dd>
           </div>
         </dl>

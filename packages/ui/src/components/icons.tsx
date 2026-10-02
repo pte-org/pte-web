@@ -223,3 +223,10 @@ export const ShieldIcon = ({ className }: IconProps): ReactElement => (
     <path d="m9 12 2 2 4-4" />
   </svg>
 );
+
+export const FolderPlusIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...base} className={className}>
+    <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
+    <path d="M12 11v6M9 14h6" />
+  </svg>
+);
