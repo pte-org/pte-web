@@ -65,8 +65,6 @@ export const CREATE_TICKET_TEXT = {
   CATEGORY_PLACEHOLDER: "Select a category",
   DESCRIPTION_LABEL: "Description",
   DESCRIPTION_PLACEHOLDER: "Describe the issue or feedback in detail (max 2000 characters)",
-  SESSION_ID_LABEL: "Exam Session ID (optional)",
-  SESSION_ID_PLACEHOLDER: "e.g. 3fa85f64-5717-4562-b3fc-2c963f66afa6",
   CANCEL: "Cancel",
   SUBMIT: "Submit Ticket",
   SUCCESS_TOAST: "Your ticket has been submitted.",
@@ -76,14 +74,8 @@ export const CREATE_TICKET_ERRORS = {
   CATEGORY_REQUIRED: "Please select a category.",
   DESCRIPTION_REQUIRED: "Description is required.",
   DESCRIPTION_TOO_LONG: "Description must be 2000 characters or fewer.",
-  ENTITY_ID_REQUIRED: "Entity ID is required when entity type is selected.",
-  ENTITY_ID_INVALID: "Entity ID must be a valid UUID.",
-  ENTITY_NOT_FOUND: "Exam Session ID not found. Please check the ID and try again.",
 } as const;
 
-export const SERVER_ERROR_MAP: Record<string, string> = {
-  ENTITY_REFERENCE_NOT_FOUND: CREATE_TICKET_ERRORS.ENTITY_NOT_FOUND,
-};
 
 export const REPORT_QUESTION_TEXT = {
   TITLE: "Report Question Issue",
@@ -98,11 +90,9 @@ export const REPORT_QUESTION_TEXT = {
 export const EMPTY_CREATE_TICKET: CreateTicketInput = {
   category: "",
   description: "",
-  entityId: "",
 };
 
 export const CATEGORY_OPTIONS = [
   { value: "BUG", label: CATEGORY_LABELS.BUG },
-  { value: "CONTENT_COMPLAINT", label: CATEGORY_LABELS.CONTENT_COMPLAINT },
   { value: "GENERAL_FEEDBACK", label: CATEGORY_LABELS.GENERAL_FEEDBACK },
 ] as const;

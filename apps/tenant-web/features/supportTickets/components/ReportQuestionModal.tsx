@@ -71,11 +71,6 @@ export const ReportQuestionModal = ({
         {report.isError && <Alert tone="error">{report.error.message}</Alert>}
 
         <div className="flex flex-col gap-1">
-          <span className="text-sm font-medium text-gray-700">{T.QUESTION_ID_LABEL}</span>
-          <span className="font-mono text-xs text-gray-500 break-all">{questionPublicId}</span>
-        </div>
-
-        <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700" htmlFor="report-description">
             {T.DESCRIPTION_LABEL}
           </label>

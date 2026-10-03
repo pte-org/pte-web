@@ -52,15 +52,11 @@ export function useSubmitTicket(): UseMutationResult<
 > {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: CreateTicketInput) => {
-      const entityId = input.entityId.trim() || undefined;
-      return submitTicket(apiClient, {
+    mutationFn: (input: CreateTicketInput) =>
+      submitTicket(apiClient, {
         category: input.category as Exclude<typeof input.category, "">,
         description: input.description,
-        entityType: entityId ? "EXAM_SESSION" : undefined,
-        entityId,
-      });
-    },
+      }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: SUPPORT_TICKETS_QUERY_KEY });
     },

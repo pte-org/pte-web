@@ -16,11 +16,9 @@ export type SupportTicketNote = SupportTicketNoteResponse;
 export interface CreateTicketInput {
   category: TicketCategory | "";
   description: string;
-  entityId: string;
 }
 
 export interface CreateTicketErrors {
   category?: string;
   description?: string;
-  entityId?: string;
 }
