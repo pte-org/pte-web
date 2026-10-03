@@ -1,6 +1,6 @@
 import type { NavItem } from "@/features/auth/components";
 import type { OrgLabels } from "@/features/orgLabels/constants";
-import { BookOpenIcon, DocumentIcon, GridIcon, LicenseIcon, UsersIcon } from "@pte/ui";
+import { BookOpenIcon, ClipboardIcon, DocumentIcon, GridIcon, LicenseIcon, UsersIcon } from "@pte/ui";
 import { EXAMINER_NAV_TEXT, HOST_NAV_TEXT as T, STUDENT_NAV_TEXT } from "./navigationConstants";
 
 /**
@@ -46,6 +46,13 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       label: T.AUDIT_LOG,
       href: "/host/audit-log",
       icon: <DocumentIcon />,
+      section: T.DATA_SECTION,
+      requiredRoles: ["HOST_ADMIN"],
+    },
+    {
+      label: T.SUPPORT_TICKETS,
+      href: "/host/support-tickets",
+      icon: <ClipboardIcon />,
       section: T.DATA_SECTION,
       requiredRoles: ["HOST_ADMIN"],
     },
