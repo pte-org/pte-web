@@ -52,7 +52,6 @@ export const ADMIN_SUPPORT_TICKETS_TEXT = {
 } as const;
 
 export const ADMIN_TICKET_TABLE_HEADERS = {
-  ID: "ID",
   TENANT: "Tenant",
   CATEGORY: "Category",
   STATUS: "Status",
@@ -69,10 +68,9 @@ export const ADMIN_TICKET_DETAIL_TEXT = {
   SECTION_INFO: "Ticket information",
   SECTION_NOTES: "Admin notes",
   STATUS_LABEL: "Status",
-  TENANT_LABEL: "Tenant ID",
+  TENANT_LABEL: "Tenant",
   CATEGORY_LABEL: "Category",
   ENTITY_TYPE_LABEL: "Related entity type",
-  ENTITY_ID_LABEL: "Related entity ID",
   DESCRIPTION_LABEL: "Description",
   SUBMITTED_LABEL: "Submitted",
   UPDATED_LABEL: "Last updated",

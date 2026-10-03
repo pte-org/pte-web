@@ -2,7 +2,10 @@
 
 import { type ReactElement } from "react";
 import { useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { getTenant } from "@pte/api-client";
 import { Alert, LoadingState, PageHeader, useToast } from "@pte/ui";
+import { apiClient } from "@/lib/apiClient";
 import { ADMIN_TICKET_DETAIL_TEXT as T, CATEGORY_LABELS } from "../constants";
 import {
   useAdminSupportTicket,
@@ -28,6 +31,12 @@ export const AdminSupportTicketDetailView = ({
   const { data: ticket, isLoading, isError } = useAdminSupportTicket(ticketPublicId);
   const updateStatus = useUpdateTicketStatus(ticketPublicId);
   const addNote = useAddTicketNote(ticketPublicId);
+
+  const { data: tenant } = useQuery({
+    queryKey: ["tenant", ticket?.tenantId],
+    queryFn: () => getTenant(apiClient, ticket!.tenantId),
+    enabled: !!ticket?.tenantId,
+  });
 
   const handleTransition = (next: TicketStatus): void => {
     updateStatus.mutate(
@@ -76,16 +85,13 @@ export const AdminSupportTicketDetailView = ({
       <section className="rounded-lg border border-gray-100 bg-white p-6">
         <h2 className="mb-4 text-base font-semibold text-gray-900">{T.SECTION_INFO}</h2>
         <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <InfoRow label={T.TENANT_LABEL} value={ticket.tenantId} />
+          <InfoRow label={T.TENANT_LABEL} value={tenant?.name ?? ticket.tenantId} />
           <InfoRow
             label={T.CATEGORY_LABEL}
             value={<TicketCategoryBadge category={ticket.category} />}
           />
           {ticket.entityType && (
             <InfoRow label={T.ENTITY_TYPE_LABEL} value={ticket.entityType} />
-          )}
-          {ticket.entityId && (
-            <InfoRow label={T.ENTITY_ID_LABEL} value={ticket.entityId} mono />
           )}
           <InfoRow label={T.SUBMITTED_LABEL} value={new Date(ticket.createdAt).toLocaleString()} />
           <InfoRow label={T.UPDATED_LABEL} value={new Date(ticket.updatedAt).toLocaleString()} />
