@@ -16,13 +16,11 @@ export type SupportTicketNote = SupportTicketNoteResponse;
 export interface CreateTicketInput {
   category: TicketCategory | "";
   description: string;
-  entityType: TicketEntityType | "";
   entityId: string;
 }
 
 export interface CreateTicketErrors {
   category?: string;
   description?: string;
-  entityType?: string;
   entityId?: string;
 }

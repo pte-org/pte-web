@@ -30,7 +30,6 @@ export const CATEGORY_VARIANTS: Record<TicketCategory, BadgeVariant> = {
 
 export const ENTITY_TYPE_LABELS = {
   EXAM_SESSION: "Exam Session",
-  EXAM_ATTEMPT: "Exam Attempt",
   QUESTION: "Question",
 } as const;
 
@@ -66,10 +65,8 @@ export const CREATE_TICKET_TEXT = {
   CATEGORY_PLACEHOLDER: "Select a category",
   DESCRIPTION_LABEL: "Description",
   DESCRIPTION_PLACEHOLDER: "Describe the issue or feedback in detail (max 2000 characters)",
-  ENTITY_TYPE_LABEL: "Linked Entity Type (optional)",
-  ENTITY_TYPE_PLACEHOLDER: "Select entity type",
-  ENTITY_ID_LABEL: "Entity ID (UUID)",
-  ENTITY_ID_PLACEHOLDER: "e.g. 3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  SESSION_ID_LABEL: "Exam Session ID (optional)",
+  SESSION_ID_PLACEHOLDER: "e.g. 3fa85f64-5717-4562-b3fc-2c963f66afa6",
   CANCEL: "Cancel",
   SUBMIT: "Submit Ticket",
   SUCCESS_TOAST: "Your ticket has been submitted.",
@@ -81,12 +78,26 @@ export const CREATE_TICKET_ERRORS = {
   DESCRIPTION_TOO_LONG: "Description must be 2000 characters or fewer.",
   ENTITY_ID_REQUIRED: "Entity ID is required when entity type is selected.",
   ENTITY_ID_INVALID: "Entity ID must be a valid UUID.",
+  ENTITY_NOT_FOUND: "Exam Session ID not found. Please check the ID and try again.",
+} as const;
+
+export const SERVER_ERROR_MAP: Record<string, string> = {
+  ENTITY_REFERENCE_NOT_FOUND: CREATE_TICKET_ERRORS.ENTITY_NOT_FOUND,
+};
+
+export const REPORT_QUESTION_TEXT = {
+  TITLE: "Report Question Issue",
+  QUESTION_ID_LABEL: "Question ID",
+  DESCRIPTION_LABEL: "Describe the issue",
+  DESCRIPTION_PLACEHOLDER: "What is wrong with this question? (max 2000 characters)",
+  CANCEL: "Cancel",
+  SUBMIT: "Submit Report",
+  SUCCESS_TOAST: "Your report has been submitted.",
 } as const;
 
 export const EMPTY_CREATE_TICKET: CreateTicketInput = {
   category: "",
   description: "",
-  entityType: "",
   entityId: "",
 };
 
@@ -94,10 +105,4 @@ export const CATEGORY_OPTIONS = [
   { value: "BUG", label: CATEGORY_LABELS.BUG },
   { value: "CONTENT_COMPLAINT", label: CATEGORY_LABELS.CONTENT_COMPLAINT },
   { value: "GENERAL_FEEDBACK", label: CATEGORY_LABELS.GENERAL_FEEDBACK },
-] as const;
-
-export const ENTITY_TYPE_OPTIONS = [
-  { value: "EXAM_SESSION", label: ENTITY_TYPE_LABELS.EXAM_SESSION },
-  { value: "EXAM_ATTEMPT", label: ENTITY_TYPE_LABELS.EXAM_ATTEMPT },
-  { value: "QUESTION", label: ENTITY_TYPE_LABELS.QUESTION },
 ] as const;

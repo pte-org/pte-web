@@ -72,7 +72,7 @@ export const SupportTicketDetailView = ({
                 {T.ENTITY_SECTION}
               </dt>
               <dd className="mt-1 text-sm text-gray-700">
-                {ENTITY_TYPE_LABELS[ticket.entityType]}
+                {ENTITY_TYPE_LABELS[ticket.entityType as keyof typeof ENTITY_TYPE_LABELS] ?? ticket.entityType}
                 <span className="ml-2 font-mono text-xs text-gray-400">{ticket.entityId}</span>
               </dd>
             </div>

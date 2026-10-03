@@ -7,7 +7,7 @@ import {
   CREATE_TICKET_ERRORS as E,
   CREATE_TICKET_TEXT as T,
   EMPTY_CREATE_TICKET,
-  ENTITY_TYPE_OPTIONS,
+  SERVER_ERROR_MAP,
 } from "../constants";
 import { validateCreateTicket } from "../utils/validateCreateTicket";
 import type { CreateTicketErrors, CreateTicketInput } from "../types";
@@ -75,7 +75,7 @@ export const CreateTicketModal = ({
       }
     >
       <form id={FORM_ID} onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {error && <Alert tone="error">{error}</Alert>}
+        {error && <Alert tone="error">{SERVER_ERROR_MAP[error] ?? error}</Alert>}
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700" htmlFor="ticket-category">
@@ -84,7 +84,11 @@ export const CreateTicketModal = ({
           <Select
             id="ticket-category"
             value={form.category}
-            onChange={(e) => set("category", e.target.value as CreateTicketInput["category"])}
+            onChange={(e) => {
+            const val = e.target.value as CreateTicketInput["category"];
+            set("category", val);
+            if (val !== "CONTENT_COMPLAINT") set("entityId", "");
+          }}
             options={[{ value: "", label: T.CATEGORY_PLACEHOLDER }, ...CATEGORY_OPTIONS]}
           />
           {errors.category && <p className="text-xs text-red-600">{errors.category}</p>}
@@ -111,32 +115,17 @@ export const CreateTicketModal = ({
           </div>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700" htmlFor="ticket-entity-type">
-            {T.ENTITY_TYPE_LABEL}
-          </label>
-          <Select
-            id="ticket-entity-type"
-            value={form.entityType}
-            onChange={(e) => {
-              set("entityType", e.target.value as CreateTicketInput["entityType"]);
-              if (!e.target.value) set("entityId", "");
-            }}
-            options={[{ value: "", label: T.ENTITY_TYPE_PLACEHOLDER }, ...ENTITY_TYPE_OPTIONS]}
-          />
-        </div>
-
-        {form.entityType && (
+        {form.category === "CONTENT_COMPLAINT" && (
           <div className="flex flex-col gap-1">
-            <label className="text-sm font-medium text-gray-700" htmlFor="ticket-entity-id">
-              {T.ENTITY_ID_LABEL}
+            <label className="text-sm font-medium text-gray-700" htmlFor="ticket-session-id">
+              {T.SESSION_ID_LABEL}
             </label>
             <input
-              id="ticket-entity-id"
+              id="ticket-session-id"
               type="text"
               value={form.entityId}
               onChange={(e) => set("entityId", e.target.value)}
-              placeholder={T.ENTITY_ID_PLACEHOLDER}
+              placeholder={T.SESSION_ID_PLACEHOLDER}
               className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-action focus:outline-none focus:ring-1 focus:ring-action"
             />
             {errors.entityId && <p className="text-xs text-red-600">{errors.entityId}</p>}

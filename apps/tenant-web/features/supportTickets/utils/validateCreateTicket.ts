@@ -13,9 +13,7 @@ export function validateCreateTicket(input: CreateTicketInput): CreateTicketErro
     errors.description = E.DESCRIPTION_TOO_LONG;
   }
 
-  if (input.entityType && !input.entityId.trim()) {
-    errors.entityId = E.ENTITY_ID_REQUIRED;
-  } else if (input.entityId.trim() && !UUID_REGEX.test(input.entityId.trim())) {
+  if (input.entityId.trim() && !UUID_REGEX.test(input.entityId.trim())) {
     errors.entityId = E.ENTITY_ID_INVALID;
   }
 

@@ -47,13 +47,6 @@ export const AdminSupportTicketsView = (): ReactElement => {
       ),
     },
     {
-      key: "tenantId",
-      header: H.TENANT,
-      cell: (t) => (
-        <span className="font-mono text-xs text-gray-500">{t.tenantId.slice(0, 8)}…</span>
-      ),
-    },
-    {
       key: "category",
       header: H.CATEGORY,
       cell: (t) => <TicketCategoryBadge category={t.category} />,

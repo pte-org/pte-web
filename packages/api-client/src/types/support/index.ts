@@ -2,7 +2,7 @@ export type TicketCategory = "BUG" | "CONTENT_COMPLAINT" | "GENERAL_FEEDBACK";
 
 export type TicketStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED";
 
-export type TicketEntityType = "EXAM_SESSION" | "EXAM_ATTEMPT" | "QUESTION";
+export type TicketEntityType = "EXAM_SESSION" | "QUESTION";
 
 export interface SupportTicketNoteResponse {
   publicId: string;
@@ -27,8 +27,6 @@ export interface SupportTicketResponse {
 
 export interface SupportTicketSummaryResponse {
   publicId: string;
-  tenantId: string;
-  submitterUserPublicId: string;
   category: TicketCategory;
   description: string;
   status: TicketStatus;

@@ -52,12 +52,32 @@ export function useSubmitTicket(): UseMutationResult<
 > {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: CreateTicketInput) =>
-      submitTicket(apiClient, {
+    mutationFn: (input: CreateTicketInput) => {
+      const entityId = input.entityId.trim() || undefined;
+      return submitTicket(apiClient, {
         category: input.category as Exclude<typeof input.category, "">,
         description: input.description,
-        entityType: input.entityType || undefined,
-        entityId: input.entityId.trim() || undefined,
+        entityType: entityId ? "EXAM_SESSION" : undefined,
+        entityId,
+      });
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: SUPPORT_TICKETS_QUERY_KEY });
+    },
+  });
+}
+
+export function useReportQuestion(
+  questionPublicId: string,
+): UseMutationResult<SupportTicketResponse, Error, string> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (description: string) =>
+      submitTicket(apiClient, {
+        category: "CONTENT_COMPLAINT",
+        description,
+        entityType: "QUESTION",
+        entityId: questionPublicId,
       }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: SUPPORT_TICKETS_QUERY_KEY });
