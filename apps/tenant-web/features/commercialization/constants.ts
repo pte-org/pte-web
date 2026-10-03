@@ -64,7 +64,8 @@ export const BILLING_TEXT = {
   REVEAL_INVALID_PASSWORD: "Incorrect password. Try again.",
   REVEAL_ERROR: "Could not reveal the license key. Try again.",
   CANCEL: "Cancel",
-  SUBSCRIPTION_PERIOD: (started: string, expires: string) => `Started ${started} · Expires ${expires}`,
+  SUBSCRIPTION_PERIOD: (started: string, expires: string) =>
+    `Started ${started} · Expires ${expires}`,
   CAPACITY_LEDGER: "Capacity ledger",
   CAPACITY_LEDGER_SUBTITLE: "Permanent quota purchased for this tenant.",
   NO_CAPACITY_ADD_ONS: "No capacity add-ons found.",
@@ -99,7 +100,8 @@ export const BILLING_TEXT = {
   STUDENTS_TO_ADD: "students to add",
   CURRENT_CAPACITY: "Current capacity",
   CURRENT_CAPACITY_SUBTITLE: "Free limit plus permanent capacity add-ons.",
-  CURRENT_USAGE: (current: number | string, limit: number | string) => `${current} of ${limit} students`,
+  CURRENT_USAGE: (current: number | string, limit: number | string) =>
+    `${current} of ${limit} students`,
   STUDENT_CAPACITY_USED: "Student capacity used",
   USED: (percentage: number) => `${percentage}% used`,
   CAPACITY_ALMOST_FULL: "Capacity is almost full.",
@@ -119,7 +121,8 @@ export const BILLING_TEXT = {
   PAYMENT_STATUS_SUBTITLE: "Payment updates come from the payment webhook.",
   PAYMENT_STATUS_ERROR: "Payment status could not be loaded.",
   LOADING_PAYMENT_STATUS: "Loading payment status...",
-  NO_ORDER: "No order is available yet. Start checkout from the plan catalog.",
+  NO_ORDER_SELECTED: "Select an order from the order history to view its payment status.",
+  ORDER_UNAVAILABLE: "This order is unavailable for the current tenant.",
   ORDER: (code: string | number) => `Order ${code}`,
   ORDER_PLAN_SUBTITLE: (planId: string, amount: string, currency: string) =>
     `Plan ${planId} · ${amount} ${currency}`,

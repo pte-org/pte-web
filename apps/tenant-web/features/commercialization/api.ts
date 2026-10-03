@@ -2,6 +2,8 @@
 
 import {
   createOrder,
+  getOrder,
+  getSubscription,
   getStudentQuota,
   listOrders,
   listPlans,
@@ -55,18 +57,30 @@ export function useOrdersQuery(
   });
 }
 
-export function useOrdersPage(page: number, size: number): UseQueryResult<PagedResult<OrderResponse>> {
+export function useOrdersPage(
+  page: number,
+  size: number,
+): UseQueryResult<PagedResult<OrderResponse>> {
   return useQuery({
     queryKey: [...ORDERS_QUERY_KEY, page, size],
     queryFn: () => listOrders(apiClient, page, size),
   });
 }
 
-export function useCreateOrder(): UseMutationResult<
-  OrderResponse,
-  unknown,
-  CreateOrderRequest
-> {
+export function useOrderQuery(
+  publicId: string | null,
+  enabled = true,
+): UseQueryResult<OrderResponse> {
+  return useQuery({
+    queryKey: [...ORDERS_QUERY_KEY, "detail", publicId],
+    queryFn: () => getOrder(apiClient, publicId as string),
+    enabled: enabled && Boolean(publicId),
+    refetchInterval: (query: Query<OrderResponse, Error>) =>
+      query.state.data?.status === "PENDING" ? 10_000 : false,
+  });
+}
+
+export function useCreateOrder(): UseMutationResult<OrderResponse, unknown, CreateOrderRequest> {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload) => createOrder(apiClient, payload),
@@ -80,6 +94,17 @@ export function useSubscriptionsQuery(): UseQueryResult<SubscriptionResponse[]> 
   return useQuery({
     queryKey: SUBSCRIPTIONS_QUERY_KEY,
     queryFn: () => listSubscriptions(apiClient),
+  });
+}
+
+export function useSubscriptionQuery(
+  publicId: string | null,
+  enabled = true,
+): UseQueryResult<SubscriptionResponse> {
+  return useQuery({
+    queryKey: [...SUBSCRIPTIONS_QUERY_KEY, "detail", publicId],
+    queryFn: () => getSubscription(apiClient, publicId as string),
+    enabled: enabled && Boolean(publicId),
   });
 }
 
@@ -127,11 +152,7 @@ export function useStudentImportPreview(): UseMutationResult<
   });
 }
 
-export function useSubmitApplication(): UseMutationResult<
-  void,
-  unknown,
-  SubmitApplicationRequest
-> {
+export function useSubmitApplication(): UseMutationResult<void, unknown, SubmitApplicationRequest> {
   return useMutation({
     mutationFn: (payload) => submitApplication(apiClient, payload),
   });
