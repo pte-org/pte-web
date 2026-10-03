@@ -20,9 +20,7 @@ export const NoteThread = ({ notes }: NoteThreadProps): ReactElement => {
     <div className="flex flex-col gap-3">
       {notes.map((note) => (
         <div key={note.publicId} className="rounded-lg border border-gray-100 bg-gray-50 p-4">
-          <div className="mb-2 flex items-center gap-2">
-            <span className="font-mono text-xs text-gray-500">{note.adminPublicId.slice(0, 8)}…</span>
-            <span className="text-xs text-gray-400">·</span>
+          <div className="mb-2 flex items-center justify-end">
             <span className="text-xs text-gray-400">{new Date(note.createdAt).toLocaleString()}</span>
           </div>
           <p className="text-sm text-gray-700 whitespace-pre-wrap">{note.content}</p>

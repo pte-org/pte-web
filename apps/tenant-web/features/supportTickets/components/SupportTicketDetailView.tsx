@@ -27,7 +27,6 @@ export const SupportTicketDetailView = ({
     <div className="flex flex-col gap-6">
       <PageHeader
         title={T.TICKET_DETAILS}
-        subtitle={`#${ticket.publicId.slice(0, 8)}`}
         actions={
           <Link
             href="/host/support-tickets"
