@@ -54,13 +54,6 @@ export const SupportTicketsView = (): ReactElement => {
 
   const columns: DataTableColumn<SupportTicket>[] = [
     {
-      key: "id",
-      header: H.ID,
-      cell: (t) => (
-        <span className="font-mono text-xs text-gray-500">{t.publicId.slice(0, 8)}…</span>
-      ),
-    },
-    {
       key: "category",
       header: H.CATEGORY,
       cell: (t) => <TicketCategoryBadge category={t.category} />,

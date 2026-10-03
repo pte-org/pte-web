@@ -90,9 +90,6 @@ export const AdminSupportTicketDetailView = ({
             label={T.CATEGORY_LABEL}
             value={<TicketCategoryBadge category={ticket.category} />}
           />
-          {ticket.entityType && (
-            <InfoRow label={T.ENTITY_TYPE_LABEL} value={ticket.entityType} />
-          )}
           <InfoRow label={T.SUBMITTED_LABEL} value={new Date(ticket.createdAt).toLocaleString()} />
           <InfoRow label={T.UPDATED_LABEL} value={new Date(ticket.updatedAt).toLocaleString()} />
         </dl>

@@ -3,7 +3,7 @@
 import type { ReactElement } from "react";
 import Link from "next/link";
 import { Alert, LoadingState, PageHeader } from "@pte/ui";
-import { ENTITY_TYPE_LABELS, SUPPORT_TICKETS_TEXT as T } from "../constants";
+import { SUPPORT_TICKETS_TEXT as T } from "../constants";
 import { useSupportTicket } from "../api";
 import { TicketCategoryBadge } from "./_TicketCategoryBadge";
 import { TicketStatusBadge } from "./_TicketStatusBadge";
@@ -66,17 +66,6 @@ export const SupportTicketDetailView = ({
               {new Date(ticket.createdAt).toLocaleString()}
             </dd>
           </div>
-          {ticket.entityType && (
-            <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">
-                {T.ENTITY_SECTION}
-              </dt>
-              <dd className="mt-1 text-sm text-gray-700">
-                {ENTITY_TYPE_LABELS[ticket.entityType as keyof typeof ENTITY_TYPE_LABELS] ?? ticket.entityType}
-                <span className="ml-2 font-mono text-xs text-gray-400">{ticket.entityId}</span>
-              </dd>
-            </div>
-          )}
         </dl>
       </div>
 
