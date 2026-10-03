@@ -47,7 +47,7 @@ export const ADMIN_SUPPORT_TICKETS_TEXT = {
   EMPTY_TEXT: "No tickets match the current filters.",
   FILTER_ALL_STATUS: "All statuses",
   FILTER_ALL_CATEGORY: "All categories",
-  FILTER_TENANT_PLACEHOLDER: "Filter by tenant ID (UUID)",
+  FILTER_ALL_TENANTS: "All tenants",
   TOTAL_ITEMS: (n: number) => `${n} ticket${n !== 1 ? "s" : ""}`,
 } as const;
 
@@ -82,5 +82,5 @@ export const ADMIN_TICKET_DETAIL_TEXT = {
   ADD_NOTE_SUCCESS: "Note added.",
   UPDATE_STATUS_SUCCESS: "Status updated.",
   EMPTY_VALUE: "—",
-  TICKET_TITLE: (id: string) => `Ticket ${id}…`,
+  TICKET_TITLE: "Ticket Details",
 } as const;

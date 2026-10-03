@@ -72,7 +72,7 @@ export const AdminSupportTicketDetailView = ({
       </div>
 
       <PageHeader
-        title={T.TICKET_TITLE(ticket.publicId.slice(0, 8))}
+        title={T.TICKET_TITLE}
         subtitle={CATEGORY_LABELS[ticket.category]}
       />
 

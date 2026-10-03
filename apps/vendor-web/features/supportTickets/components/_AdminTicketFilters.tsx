@@ -1,7 +1,10 @@
 "use client";
 
-import { type ChangeEvent, type ReactElement } from "react";
+import { type ReactElement } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { listTenants } from "@pte/api-client";
 import { Select } from "@pte/ui";
+import { apiClient } from "@/lib/apiClient";
 import {
   ADMIN_SUPPORT_TICKETS_TEXT as T,
   CATEGORY_LABELS,
@@ -41,27 +44,37 @@ export const AdminTicketFilters = ({
   onStatusChange,
   onCategoryChange,
   onTenantIdChange,
-}: AdminTicketFiltersProps): ReactElement => (
-  <div className="flex flex-wrap items-center gap-3">
-    <Select
-      id="ticket-status-filter"
-      value={status}
-      onChange={(e) => onStatusChange(e.target.value as TicketStatus | "")}
-      options={STATUS_OPTIONS}
-    />
-    <Select
-      id="ticket-category-filter"
-      value={category}
-      onChange={(e) => onCategoryChange(e.target.value as TicketCategory | "")}
-      options={CATEGORY_OPTIONS}
-    />
-    <input
-      id="ticket-tenant-filter"
-      type="text"
-      value={tenantId}
-      onChange={(e: ChangeEvent<HTMLInputElement>) => onTenantIdChange(e.target.value)}
-      placeholder={T.FILTER_TENANT_PLACEHOLDER}
-      className="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 placeholder:text-gray-400 focus:border-action focus:outline-none focus:ring-1 focus:ring-action"
-    />
-  </div>
-);
+}: AdminTicketFiltersProps): ReactElement => {
+  const { data: tenants = [] } = useQuery({
+    queryKey: ["tenants"],
+    queryFn: () => listTenants(apiClient),
+  });
+
+  const tenantOptions = [
+    { value: "", label: T.FILTER_ALL_TENANTS },
+    ...tenants.map((t) => ({ value: t.publicId, label: t.name })),
+  ];
+
+  return (
+    <div className="flex flex-wrap items-center gap-3">
+      <Select
+        id="ticket-status-filter"
+        value={status}
+        onChange={(e) => onStatusChange(e.target.value as TicketStatus | "")}
+        options={STATUS_OPTIONS}
+      />
+      <Select
+        id="ticket-category-filter"
+        value={category}
+        onChange={(e) => onCategoryChange(e.target.value as TicketCategory | "")}
+        options={CATEGORY_OPTIONS}
+      />
+      <Select
+        id="ticket-tenant-filter"
+        value={tenantId}
+        onChange={(e) => onTenantIdChange(e.target.value)}
+        options={tenantOptions}
+      />
+    </div>
+  );
+};
