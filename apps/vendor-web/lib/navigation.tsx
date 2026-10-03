@@ -47,6 +47,12 @@ export const ADMIN_NAV: NavItem[] = [
     icon: <DocumentIcon />,
     section: T.CONTENT_SECTION,
   },
+  {
+    label: T.SUPPORT_TICKETS,
+    href: "/admin/support-tickets",
+    icon: <ClipboardIcon />,
+    section: T.SUPPORT_SECTION,
+  },
 ];
 
 export const HOST_NAV: NavItem[] = [
