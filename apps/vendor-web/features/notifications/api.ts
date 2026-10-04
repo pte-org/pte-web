@@ -81,6 +81,7 @@ export function useNotificationCenter() {
       ),
     enabled: enabled && isOpen,
     refetchOnWindowFocus: true,
+    refetchInterval: () => (isOpen && visibleTab() ? POLL_MS : false),
     retry: false,
   });
 
