@@ -1,9 +1,11 @@
 "use client";
 
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import type { ExamPreviewItem } from "@pte/api-client";
-import { Alert, Badge, LoadingState, Modal } from "@pte/ui";
+import { Alert, Badge, LoadingState, Modal, useToast } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
+import { REPORT_QUESTION_TEXT } from "@/features/supportTickets/constants";
+import { ReportQuestionModal } from "@/features/supportTickets/components/ReportQuestionModal";
 import { EXAM_PREVIEW_TEXT as T } from "../constants";
 import { useSessionExamPreview } from "../api";
 
@@ -13,7 +15,13 @@ interface ExamPreviewModalProps {
   onClose: () => void;
 }
 
-function PreviewItem({ item }: { item: ExamPreviewItem }): ReactElement {
+interface PreviewItemProps {
+  item: ExamPreviewItem;
+  onReport: (questionPublicId: string) => void;
+  reported: boolean;
+}
+
+function PreviewItem({ item, onReport, reported }: PreviewItemProps): ReactElement {
   const wordCount = T.WORD_COUNT(item.minWordCount, item.maxWordCount);
 
   return (
@@ -25,6 +33,21 @@ function PreviewItem({ item }: { item: ExamPreviewItem }): ReactElement {
           {item.taskTypeDisplayName || item.taskType}
         </span>
         {wordCount && <span className="text-xs text-gray-500">{wordCount}</span>}
+        {(() => {
+          const qid = item.sourceQuestionPublicId;
+          if (!qid) return null;
+          return (
+            <button
+              type="button"
+              onClick={() => onReport(qid)}
+              disabled={reported}
+              title={reported ? "Already reported" : "Report an issue with this question"}
+              className="ml-auto rounded-md border border-red-200 px-2 py-0.5 text-xs font-semibold text-red-500 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              !
+            </button>
+          );
+        })()}
       </div>
 
       {item.title && <h3 className="font-medium text-gray-900">{item.title}</h3>}
@@ -78,33 +101,61 @@ export const ExamPreviewModal = ({
   onClose,
 }: ExamPreviewModalProps): ReactElement => {
   const preview = useSessionExamPreview(sessionPublicId, open);
+  const { showToast } = useToast();
+
+  const [reportingQuestionId, setReportingQuestionId] = useState<string | null>(null);
+  const [reportedQuestionIds, setReportedQuestionIds] = useState<Set<string>>(new Set());
+
+  const handleReportSuccess = (): void => {
+    if (reportingQuestionId) {
+      setReportedQuestionIds((prev) => new Set(prev).add(reportingQuestionId));
+    }
+    setReportingQuestionId(null);
+    showToast(REPORT_QUESTION_TEXT.SUCCESS_TOAST, { tone: "success" });
+  };
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title={preview.data?.name ? `${T.TITLE}: ${preview.data.name}` : T.TITLE}
-      size="full"
-    >
-      {preview.isLoading ? (
-        <LoadingState rows={5} />
-      ) : preview.isError ? (
-        <Alert tone="error">{errorMessage(preview.error)}</Alert>
-      ) : !preview.data ? (
-        <Alert tone="info">{T.UNAVAILABLE}</Alert>
-      ) : (
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm text-gray-500">
-              {T.ITEM_COUNT(preview.data.items.length)} · v{preview.data.version}
-            </p>
-            <p className="text-xs text-gray-500">{T.ANSWER_KEY_NOTICE}</p>
+    <>
+      <Modal
+        open={open}
+        onClose={onClose}
+        title={preview.data?.name ? `${T.TITLE}: ${preview.data.name}` : T.TITLE}
+        size="full"
+      >
+        {preview.isLoading ? (
+          <LoadingState rows={5} />
+        ) : preview.isError ? (
+          <Alert tone="error">{errorMessage(preview.error)}</Alert>
+        ) : !preview.data ? (
+          <Alert tone="info">{T.UNAVAILABLE}</Alert>
+        ) : (
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-gray-500">
+                {T.ITEM_COUNT(preview.data.items.length)} · v{preview.data.version}
+              </p>
+              <p className="text-xs text-gray-500">{T.ANSWER_KEY_NOTICE}</p>
+            </div>
+            {preview.data.items.map((item) => (
+              <PreviewItem
+                key={item.orderIndex}
+                item={item}
+                onReport={setReportingQuestionId}
+                reported={!!item.sourceQuestionPublicId && reportedQuestionIds.has(item.sourceQuestionPublicId)}
+              />
+            ))}
           </div>
-          {preview.data.items.map((item) => (
-            <PreviewItem key={item.orderIndex} item={item} />
-          ))}
-        </div>
+        )}
+      </Modal>
+
+      {reportingQuestionId && (
+        <ReportQuestionModal
+          questionPublicId={reportingQuestionId}
+          open={true}
+          onClose={() => setReportingQuestionId(null)}
+          onSuccess={handleReportSuccess}
+        />
       )}
-    </Modal>
+    </>
   );
 };

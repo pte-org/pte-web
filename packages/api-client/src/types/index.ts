@@ -19,3 +19,4 @@ export * from "./assessment";
 export * from "./admin";
 export * from "./billing";
 export * from "./notification";
+export * from "./support";
