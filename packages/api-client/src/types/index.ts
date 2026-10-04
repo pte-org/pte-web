@@ -18,3 +18,4 @@ export * from "./scoretemplate";
 export * from "./assessment";
 export * from "./admin";
 export * from "./billing";
+export * from "./support";

@@ -12,4 +12,6 @@ export const ADMIN_NAV_TEXT = {
   TENANTS_SECTION: "Tenants",
   COMMERCIAL_SECTION: "Commercial",
   CONTENT_SECTION: "Content",
+  SUPPORT_TICKETS: "Support Tickets",
+  SUPPORT_SECTION: "Support",
 } as const;

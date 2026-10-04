@@ -64,6 +64,7 @@ export interface ExamPreviewItem {
   minWordCount: number | null;
   maxWordCount: number | null;
   options: ExamPreviewOption[];
+  sourceQuestionPublicId: string | null;
 }
 
 /** Scoring flags are intentionally absent. */
