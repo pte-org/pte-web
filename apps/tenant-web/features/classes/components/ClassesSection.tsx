@@ -1,123 +1,38 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { useRouter } from "next/navigation";
-import { Alert, Badge, DataTable, Dropdown, type DataTableColumn, type DropdownItem } from "@pte/ui";
+import { Alert, Badge, DataTable, type DataTableColumn } from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
-  CLASS_ROW_ACTIONS_TEXT,
   CLASS_STATUS_LABELS,
   CLASS_STATUS_VARIANT,
   CLASS_TABLE_HEADERS,
   CLASSES_SECTION_TEXT,
   MERGE_CLASSES_SELECTION_TEXT,
 } from "../constants";
-import { useClasses, useClassStatusMutations, useUpdateClass } from "../api";
+import { useClasses, useUpdateClass } from "../api";
+import { ClassRowActions } from "./ClassRowActions";
 import { EditClassModal } from "./EditClassModal";
 import { MergeClassesModal } from "./MergeClassesModal";
-import { buildAssignStudentsUrl } from "../utils/assignStudentsUrl";
 
 interface ClassesSectionProps {
   organizationPublicId: string;
   programPublicId: string;
   classLabel: string;
+  /**
+   * Per-class student counts keyed by class publicId, read from the Program dashboard
+   * query that is already cached on this screen. Optional so the section still renders
+   * (with 0) wherever the dashboard is not mounted.
+   */
+  studentCountByClassPublicId?: ReadonlyMap<string, number>;
 }
-
-interface ClassRowActionsProps {
-  organizationPublicId: string;
-  programPublicId: string;
-  studentClass: ClassResponse;
-  onEdit: () => void;
-}
-
-const ClassRowActions = ({
-  organizationPublicId,
-  programPublicId,
-  studentClass,
-  onEdit,
-}: ClassRowActionsProps): ReactElement => {
-  const router = useRouter();
-  const mutations = useClassStatusMutations(
-    organizationPublicId,
-    programPublicId,
-    studentClass.publicId,
-  );
-  const pending =
-    mutations.activate.isPending ||
-    mutations.deactivate.isPending ||
-    mutations.suspend.isPending ||
-    mutations.archive.isPending;
-  const rowError = errorMessage(
-    mutations.activate.error ??
-      mutations.deactivate.error ??
-      mutations.suspend.error ??
-      mutations.archive.error,
-  );
-
-  const isActive = studentClass.status === "ACTIVE";
-  const assignDisabled = pending || !isActive;
-
-  const items: DropdownItem[] = [
-    {
-      label: CLASS_ROW_ACTIONS_TEXT.edit,
-      onSelect: () => onEdit(),
-    },
-    {
-      label: CLASS_ROW_ACTIONS_TEXT.assignStudents,
-      onSelect: () =>
-        router.push(
-          buildAssignStudentsUrl("/host/students", {
-            organizationPublicId,
-            programPublicId,
-            classPublicId: studentClass.publicId,
-          }),
-        ),
-      disabled: assignDisabled,
-      ...(assignDisabled && {
-        title: CLASS_ROW_ACTIONS_TEXT.assignStudentsDisabledTitle,
-      }),
-    },
-    { separator: true, key: "nav-status-divider" },
-    {
-      label: CLASS_ROW_ACTIONS_TEXT.activate,
-      onSelect: () => mutations.activate.mutate(),
-      hidden: isActive,
-    },
-    {
-      label: CLASS_ROW_ACTIONS_TEXT.suspend,
-      onSelect: () => mutations.suspend.mutate(),
-      hidden: !isActive,
-    },
-    {
-      label: CLASS_ROW_ACTIONS_TEXT.deactivate,
-      onSelect: () => mutations.deactivate.mutate(),
-      hidden: studentClass.status === "INACTIVE",
-    },
-    { separator: true, key: "danger-divider" },
-    {
-      label: CLASS_ROW_ACTIONS_TEXT.archive,
-      onSelect: () => mutations.archive.mutate(),
-      danger: true,
-    },
-  ];
-
-  return (
-    <div className="flex flex-col gap-1">
-      <Dropdown
-        items={items}
-        label={CLASS_ROW_ACTIONS_TEXT.actions}
-        align="right"
-      />
-      {rowError && <p className="text-xs text-red-600">{rowError}</p>}
-    </div>
-  );
-};
 
 export const ClassesSection = ({
   organizationPublicId,
   programPublicId,
   classLabel,
+  studentCountByClassPublicId,
 }: ClassesSectionProps): ReactElement => {
   const { data: classes, isLoading } = useClasses(organizationPublicId, programPublicId);
   const [editingClass, setEditingClass] = useState<ClassResponse | null>(null);
@@ -165,6 +80,8 @@ export const ClassesSection = ({
         <ClassRowActions
           organizationPublicId={organizationPublicId}
           programPublicId={programPublicId}
+          studentCount={studentCountByClassPublicId?.get(studentClass.publicId) ?? 0}
+          classLabel={classLabel}
           studentClass={studentClass}
           onEdit={() => setEditingClass(studentClass)}
         />
