@@ -21,7 +21,7 @@ import {
   PROGRAM_STATUS_LABELS,
   PROGRAM_STATUS_VARIANT,
 } from "../constants";
-import { useProgram, useProgramStatusMutations } from "../api";
+import { useProgram, useProgramDashboard, useProgramStatusMutations } from "../api";
 import { ProgramDashboard } from "./ProgramDashboard";
 
 interface ProgramDetailViewProps {
@@ -84,6 +84,10 @@ const ProgramDetailContent = ({
     isError,
     error,
   } = useProgram(organizationPublicId, programPublicId);
+  const { data: dashboard, isLoading: dashboardLoading } = useProgramDashboard(
+    organizationPublicId,
+    programPublicId,
+  );
   const statusMutations = useProgramStatusMutations(organizationPublicId, programPublicId);
 
   if (isError) {
@@ -117,6 +121,13 @@ const ProgramDetailContent = ({
     statusMutations.suspend.isPending ||
     statusMutations.archive.isPending;
 
+  // Per-class counts come from the already-cached dashboard query (same query key
+  // `ProgramDashboard` uses), so this adds no extra network request. Classes missing
+  // from the map fall back to 0 in `ClassRowActions`.
+  const classStudentCounts = new Map(
+    (dashboard?.classes ?? []).map((row) => [row.classPublicId, row.studentCount]),
+  );
+
   return (
     <div className="flex flex-col gap-5">
       <Link
@@ -143,7 +154,7 @@ const ProgramDetailContent = ({
                     onSuccess: () =>
                       showToast(T.activateSuccess(programLabel), { tone: "success" }),
                     onError: (err) =>
-                      showToast(errorMessage(err) ?? "Failed to activate", { tone: "error" }),
+                      showToast(errorMessage(err) ?? T.activateFailed(programLabel), { tone: "error" }),
                   })
                 }
                 className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
@@ -160,7 +171,7 @@ const ProgramDetailContent = ({
                     onSuccess: () =>
                       showToast(T.suspendSuccess(programLabel), { tone: "success" }),
                     onError: (err) =>
-                      showToast(errorMessage(err) ?? "Failed to suspend", { tone: "error" }),
+                      showToast(errorMessage(err) ?? T.suspendFailed(programLabel), { tone: "error" }),
                   })
                 }
                 className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
@@ -197,17 +208,22 @@ const ProgramDetailContent = ({
           organizationPublicId={organizationPublicId}
           programPublicId={programPublicId}
           classLabel={classLabel}
+          studentCountByClassPublicId={classStudentCounts}
         />
       </section>
 
       <ConfirmDialog
         open={archiveConfirmOpen}
         title={T.confirmArchiveTitle(programLabel)}
-        description={T.confirmArchiveDescription(program.name, programLabel)}
+        description={
+          dashboard
+            ? T.archiveCascadeWarning(dashboard.classCount, dashboard.studentCount, programLabel)
+            : T.archiveCountsLoading
+        }
         confirmLabel={T.confirmArchiveButton}
         cancelLabel={T.cancel}
         tone="danger"
-        isConfirming={statusMutations.archive.isPending}
+        isConfirming={statusMutations.archive.isPending || dashboardLoading}
         onConfirm={() =>
           statusMutations.archive.mutate(undefined, {
             onSuccess: () => {
@@ -216,7 +232,7 @@ const ProgramDetailContent = ({
               router.push("/host/programs");
             },
             onError: (err) => {
-              showToast(errorMessage(err) ?? "Failed to archive", { tone: "error" });
+              showToast(errorMessage(err) ?? T.archiveFailed(programLabel), { tone: "error" });
             },
           })
         }
