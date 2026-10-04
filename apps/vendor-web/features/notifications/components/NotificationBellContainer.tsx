@@ -11,6 +11,8 @@ function targetHref(item: InboxItemResponse): string {
       return `/admin/applications/${item.targetPublicId}`;
     case "ANNOUNCEMENT":
       return `/admin/notifications/${item.publicId}`;
+    case "SUPPORT_TICKET":
+      return `/admin/support-tickets/${item.targetPublicId}`;
     default:
       return `/admin/notifications/${item.publicId}`;
   }

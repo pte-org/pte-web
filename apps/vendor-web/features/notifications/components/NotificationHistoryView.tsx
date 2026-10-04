@@ -31,10 +31,14 @@ const CATEGORY_OPTIONS = [
   { label: "Session", value: "SESSION" },
   { label: "Application", value: "APPLICATION" },
   { label: "Billing", value: "BILLING" },
+  { label: "Support", value: "SUPPORT" },
 ];
 
 function targetHref(item: InboxItemResponse): string {
   if (item.targetType === "APPLICATION") return `/admin/applications/${item.targetPublicId}`;
+  if (item.targetType === "SUPPORT_TICKET") {
+    return `/admin/support-tickets/${item.targetPublicId}`;
+  }
   return `/admin/notifications/${item.publicId}`;
 }
 

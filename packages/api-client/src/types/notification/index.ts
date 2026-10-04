@@ -1,7 +1,8 @@
 import type { PagedResult } from "../../client/client";
 
 export type InboxReadFilter = "ALL" | "UNREAD";
-export type InboxCategory = "SYSTEM_NOTICE" | "MAINTENANCE" | "SESSION" | "APPLICATION" | "BILLING";
+export type InboxCategory =
+  "SYSTEM_NOTICE" | "MAINTENANCE" | "SESSION" | "APPLICATION" | "BILLING" | "SUPPORT";
 export type InboxImportance = "INFO" | "IMPORTANT";
 export type InboxNotificationType =
   | "APPLICATION_SUBMITTED"
@@ -10,9 +11,18 @@ export type InboxNotificationType =
   | "SESSION_GRADING_COMPLETED"
   | "COMMERCIAL_OUTCOME_CONFIRMED"
   | "ORDER_EXPIRED"
-  | "SUBSCRIPTION_REVOKED";
+  | "SUBSCRIPTION_REVOKED"
+  | "SUPPORT_TICKET_SUBMITTED"
+  | "SUPPORT_TICKET_NOTE_ADDED"
+  | "SUPPORT_TICKET_STATUS_CHANGED";
 export type InboxTargetType =
-  "APPLICATION" | "ANNOUNCEMENT" | "SESSION" | "ORDER" | "SUBSCRIPTION" | "QUOTA";
+  | "APPLICATION"
+  | "ANNOUNCEMENT"
+  | "SESSION"
+  | "ORDER"
+  | "SUBSCRIPTION"
+  | "QUOTA"
+  | "SUPPORT_TICKET";
 
 export interface InboxItemResponse {
   publicId: string;

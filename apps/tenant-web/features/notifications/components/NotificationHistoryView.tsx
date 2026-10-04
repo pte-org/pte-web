@@ -31,6 +31,7 @@ const CATEGORY_OPTIONS = [
   { label: "Session", value: "SESSION" },
   { label: "Application", value: "APPLICATION" },
   { label: "Billing", value: "BILLING" },
+  { label: "Support", value: "SUPPORT" },
 ];
 
 function targetHref(item: InboxItemResponse): string {
@@ -43,6 +44,8 @@ function targetHref(item: InboxItemResponse): string {
       return `/host/subscriptions?publicId=${encodeURIComponent(item.targetPublicId)}`;
     case "QUOTA":
       return "/host/quota";
+    case "SUPPORT_TICKET":
+      return `/host/support-tickets/${item.targetPublicId}`;
     default:
       return `/host/notifications/${item.publicId}`;
   }

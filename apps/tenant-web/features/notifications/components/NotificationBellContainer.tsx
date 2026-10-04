@@ -15,6 +15,8 @@ function targetHref(item: InboxItemResponse): string {
       return `/host/subscriptions?publicId=${encodeURIComponent(item.targetPublicId)}`;
     case "QUOTA":
       return "/host/quota";
+    case "SUPPORT_TICKET":
+      return `/host/support-tickets/${item.targetPublicId}`;
     default:
       return `/host/notifications/${item.publicId}`;
   }
