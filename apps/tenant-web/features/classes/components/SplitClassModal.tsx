@@ -43,6 +43,11 @@ export const SplitClassModal = ({
     onClose();
   };
 
+  const handleNameChange = (value: string): void => {
+    setNewClassName(value);
+    if (nameError !== undefined) setNameError(undefined);
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     if (!newClassName.trim()) {
@@ -108,7 +113,7 @@ export const SplitClassModal = ({
           placeholder={T.newClassNamePlaceholder}
           value={newClassName}
           error={nameError}
-          onChange={(event) => setNewClassName(event.target.value)}
+          onChange={(event) => handleNameChange(event.target.value)}
         />
       </form>
     </Modal>

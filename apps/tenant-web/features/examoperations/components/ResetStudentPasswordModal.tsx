@@ -25,6 +25,11 @@ export const ResetStudentPasswordModal = ({
   const [password, setPassword] = useState("");
   const [validationError, setValidationError] = useState<string | undefined>();
 
+  const handlePasswordChange = (value: string): void => {
+    setPassword(value);
+    if (validationError !== undefined) setValidationError(undefined);
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     if (password.length < MIN_LENGTH) {
@@ -70,7 +75,7 @@ export const ResetStudentPasswordModal = ({
           label={T.NEW_PASSWORD_LABEL}
           value={password}
           error={validationError}
-          onChange={(event) => setPassword(event.target.value)}
+          onChange={(event) => handlePasswordChange(event.target.value)}
         />
       </form>
     </Modal>
