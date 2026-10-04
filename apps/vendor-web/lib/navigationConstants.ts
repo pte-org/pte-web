@@ -5,6 +5,7 @@ export const ADMIN_NAV_TEXT = {
   PLAN_CATALOG: "Plan catalog",
   LICENSE_CODES: "License codes",
   PLATFORM_SETTINGS: "Platform settings",
+  ANNOUNCEMENTS: "Announcements",
   QUESTION_BANK: "Question Bank",
   TASK_TYPES: "Task Type Catalog",
   EXAM_TEMPLATES: "Exam Templates",

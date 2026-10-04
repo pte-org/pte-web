@@ -30,6 +30,13 @@ export const ADMIN_NAV: NavItem[] = [
     section: T.COMMERCIAL_SECTION,
   },
   {
+    label: T.ANNOUNCEMENTS,
+    href: "/admin/announcements",
+    icon: <DocumentIcon />,
+    section: T.COMMERCIAL_SECTION,
+    requiredRoles: ["PLATFORM_ADMIN"],
+  },
+  {
     label: T.QUESTION_BANK,
     href: "/admin/questions",
     icon: <ClipboardIcon />,

@@ -36,3 +36,5 @@ export * from "./billing/orders";
 export * from "./billing/licenseCodes";
 export * from "./billing/platformSettings";
 export * from "./billing/quota";
+export * from "./notification";
+export * from "./scoring/gradingCohort";

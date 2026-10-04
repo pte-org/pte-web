@@ -27,6 +27,8 @@ export { PageHeader } from "./PageHeader";
 export { EmptyState } from "./EmptyState";
 export { LoadingState } from "./LoadingState";
 export { ErrorState } from "./ErrorState";
+export { NotificationBell, NotificationHistory } from "./NotificationCenter";
+export type { NotificationBellProps, NotificationHistoryProps } from "./NotificationCenter";
 export { Alert } from "./Alert";
 export type { AlertTone } from "./Alert";
 export { DataTable } from "./DataTable";

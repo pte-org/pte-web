@@ -21,6 +21,7 @@ import { getExamPolicyLabel } from "../utils/examPolicy";
 import { AnswersSection } from "./AnswersSection";
 import { HostScoreReviewPanel } from "./HostScoreReviewPanel";
 import { ReportPublicationPanel } from "./ReportPublicationPanel";
+import { GradingCohortSection } from "./GradingCohortSection";
 import { ClassAssignmentSection } from "./ClassAssignmentSection";
 import { ProctorAssignmentSection } from "./ProctorAssignmentSection";
 import { ExaminerAssignmentSection } from "./ExaminerAssignmentSection";
@@ -141,16 +142,16 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
             </Button>
             {sessionIdCopyState?.sessionId === session.id &&
               sessionIdCopyState.status === "copied" && (
-              <p role="status" className="text-xs text-emerald-700">
-                {T.SESSION_ID_COPIED}
-              </p>
-            )}
+                <p role="status" className="text-xs text-emerald-700">
+                  {T.SESSION_ID_COPIED}
+                </p>
+              )}
             {sessionIdCopyState?.sessionId === session.id &&
               sessionIdCopyState.status === "failed" && (
-              <p role="alert" className="text-xs text-red-700">
-                {T.SESSION_ID_COPY_FAILED}
-              </p>
-            )}
+                <p role="alert" className="text-xs text-red-700">
+                  {T.SESSION_ID_COPY_FAILED}
+                </p>
+              )}
           </div>
         </div>
       </section>
@@ -169,7 +170,10 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
             <dd className="mt-1 font-medium text-gray-900">
               {session.selectedSkills.length > 0
                 ? session.selectedSkills
-                    .map((skill) => EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label ?? skill)
+                    .map(
+                      (skill) =>
+                        EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label ?? skill,
+                    )
                     .join(", ")
                 : T.LEGACY_SKILLS}
             </dd>
@@ -268,6 +272,7 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
       </section>
 
       <ReportPublicationPanel sessionPublicId={sessionPublicId} sessionStatus={session.status} />
+      <GradingCohortSection sessionPublicId={sessionPublicId} sessionStatus={session.status} />
     </div>
   );
 };
