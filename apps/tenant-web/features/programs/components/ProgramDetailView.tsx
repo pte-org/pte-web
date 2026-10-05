@@ -216,7 +216,7 @@ const ProgramDetailContent = ({
               router.push("/host/programs");
             },
             onError: (err) => {
-              showToast(errorMessage(err) ?? "Failed to archive", { tone: "error" });
+              showToast(errorMessage(err) ?? "Failed to remove", { tone: "error" });
             },
           })
         }

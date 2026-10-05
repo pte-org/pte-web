@@ -3,6 +3,7 @@
 import {
   approveApplication,
   archivePlan,
+  deletePlan,
   createPlan,
   issueLicenseCode,
   listApplications,
@@ -95,7 +96,7 @@ export function useUpdatePlan(): UseMutationResult<
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ publicId, payload }) => updatePlan(apiClient, publicId, payload),
-    onSuccess: () => {
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: PLANS_QUERY_KEY });
     },
   });
@@ -115,7 +116,17 @@ export function useArchivePlan(): UseMutationResult<PlanResponse, unknown, strin
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (publicId) => archivePlan(apiClient, publicId),
-    onSuccess: () => {
+    onSettled: () => {
+      void queryClient.invalidateQueries({ queryKey: PLANS_QUERY_KEY });
+    },
+  });
+}
+
+export function useDeletePlan(): UseMutationResult<void, unknown, string> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (publicId) => deletePlan(apiClient, publicId),
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: PLANS_QUERY_KEY });
     },
   });

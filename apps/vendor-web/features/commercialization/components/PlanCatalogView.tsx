@@ -15,6 +15,7 @@ import {
   StatCard,
   CheckCircleIcon,
   PencilIcon,
+  TrashIcon,
   useToast,
 } from "@pte/ui";
 import {
@@ -26,6 +27,7 @@ import {
 import {
   useActivatePlan,
   useArchivePlan,
+  useDeletePlan,
   useCreatePlan,
   usePlansQuery,
   useUpdatePlan,
@@ -70,19 +72,22 @@ export const PlanCatalogView = (): ReactElement => {
   const updatePlan = useUpdatePlan();
   const activatePlan = useActivatePlan();
   const archivePlan = useArchivePlan();
+  const deletePlan = useDeletePlan();
   const [formType, setFormType] = useState<PlanType>("EXAM_PACKAGE");
   const [catalogFilter, setCatalogFilter] = useState<CatalogFilter>("ALL");
   const [form, setForm] = useState<PlanRequest>(INITIAL_FORM);
   const [editing, setEditing] = useState<PlanResponse | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [planToArchive, setPlanToArchive] = useState<PlanResponse | null>(null);
+  const [planToDelete, setPlanToDelete] = useState<PlanResponse | null>(null);
+  const isBusy = createPlan.isPending || updatePlan.isPending || activatePlan.isPending || archivePlan.isPending || deletePlan.isPending;
   const { showToast } = useToast();
   const visiblePlans = useMemo(
     () => (catalogFilter === "ALL" ? plans : plans.filter((plan) => plan.type === catalogFilter)),
     [catalogFilter, plans],
   );
   const activeCount = plans.filter((plan) => plan.status === "ACTIVE").length;
-  const error = createPlan.error ?? updatePlan.error ?? activatePlan.error ?? archivePlan.error;
+  const error = createPlan.error ?? updatePlan.error ?? activatePlan.error ?? archivePlan.error ?? deletePlan.error;
   const errorMessage = error
     ? getUserFacingApiErrorMessage(error, T.ERROR)
     : isError
@@ -90,7 +95,8 @@ export const PlanCatalogView = (): ReactElement => {
       : undefined;
 
   const beginEdit = (plan: PlanResponse): void => {
-    if (plan.status === "ARCHIVED") return;
+    if (isBusy || plan.status === "ARCHIVED") return;
+    clearErrors();
     setEditing(plan);
     setIsFormOpen(true);
     setForm({
@@ -107,6 +113,7 @@ export const PlanCatalogView = (): ReactElement => {
   };
 
   const resetForm = (): void => {
+    if (isBusy) return;
     setEditing(null);
     setForm({ ...INITIAL_FORM });
     setFormType(INITIAL_FORM.type);
@@ -114,6 +121,8 @@ export const PlanCatalogView = (): ReactElement => {
   };
 
   const beginCreate = (): void => {
+    if (isBusy) return;
+    clearErrors();
     setEditing(null);
     setForm({ ...INITIAL_FORM });
     setFormType(INITIAL_FORM.type);
@@ -122,6 +131,8 @@ export const PlanCatalogView = (): ReactElement => {
 
   const save = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
+    if (isBusy) return;
+    clearErrors();
     const payload: PlanRequest = {
       ...form,
       name: form.name.trim(),
@@ -131,30 +142,48 @@ export const PlanCatalogView = (): ReactElement => {
       maxStudentsPerSession: formType === "EXAM_PACKAGE" ? form.maxStudentsPerSession : null,
       extraStudentSlots: formType === "STUDENT_CAPACITY" ? form.extraStudentSlots : null,
     };
-    if (editing) {
-      await updatePlan.mutateAsync({ publicId: editing.publicId, payload });
-      showToast(T.UPDATED, { tone: "success" });
-    } else {
-      await createPlan.mutateAsync(payload);
-      showToast(T.CREATED, { tone: "success" });
+    try {
+      if (editing) {
+        await updatePlan.mutateAsync({ publicId: editing.publicId, payload });
+        showToast(T.UPDATED, { tone: "success" });
+      } else {
+        await createPlan.mutateAsync(payload);
+        showToast(T.CREATED, { tone: "success" });
+      }
+      resetForm();
+    } catch (error) {
+      showToast(getUserFacingApiErrorMessage(error, T.ERROR), { tone: "error" });
     }
-    resetForm();
   };
 
-  const transition = async (plan: PlanResponse): Promise<void> => {
+  const clearErrors = (): void => {
+    createPlan.reset(); updatePlan.reset(); activatePlan.reset(); archivePlan.reset(); deletePlan.reset();
+  };
+
+  const transition = (plan: PlanResponse): void => {
+    if (isBusy) return;
+    clearErrors();
     if (plan.status === "DRAFT") {
-      await activatePlan.mutateAsync(plan.publicId);
-      showToast(T.ACTIVATED, { tone: "success" });
+      activatePlan.mutate(plan.publicId, { onSuccess: () => showToast(T.ACTIVATED, { tone: "success" }) });
       return;
     }
-    if (plan.status === "ACTIVE") setPlanToArchive(plan);
+    if (plan.canArchive === true) setPlanToArchive(plan);
   };
 
-  const confirmArchive = async (): Promise<void> => {
-    if (!planToArchive) return;
-    await archivePlan.mutateAsync(planToArchive.publicId);
-    setPlanToArchive(null);
-    showToast(T.ARCHIVED_SUCCESS, { tone: "success" });
+  const confirmArchive = (): void => {
+    if (!planToArchive || isBusy) return;
+    archivePlan.mutate(planToArchive.publicId, { onSuccess: () => {
+      setPlanToArchive(null);
+      showToast(T.ARCHIVED_SUCCESS, { tone: "success" });
+    } });
+  };
+
+  const confirmDelete = (): void => {
+    if (!planToDelete || isBusy) return;
+    deletePlan.mutate(planToDelete.publicId, { onSuccess: () => {
+      setPlanToDelete(null);
+      showToast(T.DELETED_SUCCESS, { tone: "success" });
+    } });
   };
 
   return (
@@ -163,7 +192,7 @@ export const PlanCatalogView = (): ReactElement => {
         title={T.TITLE}
         subtitle={T.SUBTITLE}
         actions={
-          <Button type="button" onClick={beginCreate}>
+          <Button type="button" onClick={beginCreate} disabled={isBusy}>
             {T.ADD}
           </Button>
         }
@@ -185,11 +214,12 @@ export const PlanCatalogView = (): ReactElement => {
       <Modal
         open={isFormOpen}
         onClose={resetForm}
+        isDismissDisabled={isBusy}
         title={editing ? T.EDIT_TITLE : T.CREATE_TITLE}
         size="lg"
         footer={
           <>
-            <Button type="button" variant="secondary" onClick={resetForm}>
+            <Button type="button" variant="secondary" onClick={resetForm} disabled={isBusy}>
               {T.CANCEL}
             </Button>
             <Button
@@ -228,6 +258,7 @@ export const PlanCatalogView = (): ReactElement => {
                   { label: T.STUDENT_CAPACITY, value: "STUDENT_CAPACITY" },
                 ]}
                 value={formType}
+                disabled={editing?.status === "ACTIVE"}
                 onChange={(event) => {
                   const nextType = event.target.value as PlanType;
                   setFormType(nextType);
@@ -385,12 +416,21 @@ export const PlanCatalogView = (): ReactElement => {
                     label: T.EDIT,
                     icon: PencilIcon,
                     onSelect: () => beginEdit(row),
+                    disabled: isBusy,
                   },
                   {
-                    label: row.status === "DRAFT" ? T.ACTIVATE : T.ARCHIVE,
+                    label: row.status === "DRAFT" ? T.ACTIVATE : row.canArchive === true ? T.ARCHIVE : row.archiveBlockReason === "PLAN_HAS_OUTSTANDING_CODES" ? T.ARCHIVE_BLOCKED : T.CAPABILITIES_UNAVAILABLE,
                     icon: CheckCircleIcon,
-                    onSelect: () => void transition(row),
+                    onSelect: () => transition(row),
+                    disabled: isBusy || (row.status === "ACTIVE" && row.canArchive !== true),
                   },
+                  ...(row.status === "DRAFT" ? [{
+                    label: row.canDeleteDraft === true ? T.DELETE_DRAFT : row.deleteBlockReason === "PLAN_HAS_REFERENCES" ? T.DELETE_BLOCKED : T.CAPABILITIES_UNAVAILABLE,
+                    icon: TrashIcon,
+                    danger: true,
+                    disabled: isBusy || row.canDeleteDraft !== true,
+                    onSelect: () => { clearErrors(); setPlanToDelete(row); },
+                  }] : []),
                 ]}
               />
             )
@@ -402,12 +442,22 @@ export const PlanCatalogView = (): ReactElement => {
       <ConfirmDialog
         open={planToArchive !== null}
         title={T.ARCHIVE_CONFIRM_TITLE}
-        description={T.ARCHIVE_CONFIRM_DESCRIPTION}
+        description={<><p>{planToArchive?.name}</p><p>{T.ARCHIVE_CONFIRM_DESCRIPTION}</p>{archivePlan.error && <Alert tone="error">{getUserFacingApiErrorMessage(archivePlan.error, T.ERROR)}</Alert>}</>}
         confirmLabel={T.ARCHIVE_CONFIRM_BUTTON}
         tone="danger"
         isConfirming={archivePlan.isPending}
         onConfirm={() => void confirmArchive()}
-        onClose={() => setPlanToArchive(null)}
+        onClose={() => { if (!isBusy) setPlanToArchive(null); }}
+      />
+      <ConfirmDialog
+        open={planToDelete !== null}
+        title={T.DELETE_CONFIRM_TITLE}
+        description={<><p>{planToDelete?.name}</p><p>{T.DELETE_CONFIRM_DESCRIPTION}</p>{deletePlan.error && <Alert tone="error">{getUserFacingApiErrorMessage(deletePlan.error, T.ERROR)}</Alert>}</>}
+        confirmLabel={T.DELETE_DRAFT}
+        tone="danger"
+        isConfirming={deletePlan.isPending}
+        onConfirm={confirmDelete}
+        onClose={() => { if (!isBusy) setPlanToDelete(null); }}
       />
     </div>
   );

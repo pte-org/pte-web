@@ -31,10 +31,11 @@ export const ConfirmDialog = ({
     open={open}
     title={title}
     onClose={onClose}
+    isDismissDisabled={isConfirming}
     size="sm"
     footer={
       <>
-        <Button variant="ghost" onClick={onClose}>
+        <Button variant="ghost" onClick={onClose} disabled={isConfirming}>
           {cancelLabel}
         </Button>
         <Button

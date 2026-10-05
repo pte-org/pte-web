@@ -35,3 +35,7 @@ export function activatePlan(client: ApiClient, publicId: string): Promise<PlanR
 export function archivePlan(client: ApiClient, publicId: string): Promise<PlanResponse> {
   return client.request(PLAN_ENDPOINTS.archive(publicId), { method: "POST" });
 }
+
+export function deletePlan(client: ApiClient, publicId: string): Promise<void> {
+  return client.request(PLAN_ENDPOINTS.plan(publicId), { method: "DELETE" });
+}

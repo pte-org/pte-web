@@ -9,6 +9,9 @@ export interface Question {
   content: string;
   status: QuestionStatus;
   rejectionReason?: string | null;
+  canDeleteDraft?: boolean;
+  canArchive?: boolean;
+  deleteBlockReason?: string | null;
 }
 
 export interface QuestionStats {

@@ -44,6 +44,11 @@ export interface PlanResponse {
   maxStudentsPerSession: number | null;
   extraStudentSlots: number | null;
   status: PlanStatus;
+  /** Missing on older servers: destructive actions must fail closed. */
+  canDeleteDraft?: boolean;
+  canArchive?: boolean;
+  deleteBlockReason?: string | null;
+  archiveBlockReason?: string | null;
 }
 
 export interface PlanRequest {
