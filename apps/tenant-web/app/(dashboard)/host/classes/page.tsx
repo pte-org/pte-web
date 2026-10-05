@@ -66,6 +66,9 @@ export default function ClassesPage() {
   };
 
   const onConfirmCreate = (name: string): void => {
+    // `CreateClassModal` already blocks submit with a field error when no
+    // Program is picked, so reaching here without one means the picker was
+    // bypassed. Keep the guard so we can never fire an un-scoped request.
     if (!selectedProgramPublicId) return;
     create.mutate(
       { name },

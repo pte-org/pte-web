@@ -3,6 +3,7 @@
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Input, Modal, Select } from "@pte/ui";
 import { CREATE_CLASS_ERRORS, CREATE_CLASS_TEXT } from "../constants";
+import { validateClassName } from "../utils/validateClassName";
 
 interface CreateClassModalProps {
   open: boolean;
@@ -34,16 +35,31 @@ export const CreateClassModal = ({
 }: CreateClassModalProps): ReactElement => {
   const [name, setName] = useState("");
   const [nameError, setNameError] = useState<string | undefined>();
+  const [programError, setProgramError] = useState<string | undefined>();
   const T = CREATE_CLASS_TEXT;
   const showPicker = programs !== undefined && programLabel !== undefined && onProgramChange !== undefined;
 
+  const handleNameChange = (value: string): void => {
+    setName(value);
+    if (nameError !== undefined) setNameError(undefined);
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    if (!name.trim()) {
-      setNameError(CREATE_CLASS_ERRORS.nameRequired(classLabel));
+    // The header "+ Create Class" entry point opens this modal with no program
+    // pre-selected, so the picker must be validated here. Silently returning
+    // (the old behaviour) left the Host staring at a modal that did nothing.
+    if (showPicker && !selectedProgramPublicId) {
+      setProgramError(CREATE_CLASS_ERRORS.programRequired(programLabel));
+      return;
+    }
+    const nameError = validateClassName(name, classLabel);
+    if (nameError) {
+      setNameError(nameError);
       return;
     }
     setNameError(undefined);
+    setProgramError(undefined);
     onSubmit(name.trim());
   };
 
@@ -83,7 +99,11 @@ export const CreateClassModal = ({
             label={programLabel}
             options={programs}
             value={selectedProgramPublicId ?? ""}
-            onChange={(event) => onProgramChange(event.target.value)}
+            error={programError}
+            onChange={(event) => {
+              setProgramError(undefined);
+              onProgramChange(event.target.value);
+            }}
           />
         )}
         <Input
@@ -91,7 +111,7 @@ export const CreateClassModal = ({
           placeholder={T.namePlaceholder}
           value={name}
           error={nameError}
-          onChange={(event) => setName(event.target.value)}
+          onChange={(event) => handleNameChange(event.target.value)}
         />
       </form>
     </Modal>

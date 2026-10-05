@@ -23,6 +23,7 @@ export { ProgressBar } from "./ProgressBar";
 export type { ProgressTone } from "./ProgressBar";
 export { Modal } from "./Modal";
 export { ConfirmDialog } from "./ConfirmDialog";
+export { TypedConfirmInput, isTypedConfirmValid } from "./TypedConfirmInput";
 export { PageHeader } from "./PageHeader";
 export { EmptyState } from "./EmptyState";
 export { LoadingState } from "./LoadingState";

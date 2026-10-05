@@ -9,6 +9,8 @@ interface RosterDropzoneProps {
   fileName?: string;
   dropPrompt: string;
   fileInputLabel: string;
+  /** Optional guidance rendered directly under the dropzone. */
+  helperText?: string;
   onFileSelected: (file: File) => void;
 }
 
@@ -24,6 +26,7 @@ export const RosterDropzone = ({
   fileName,
   dropPrompt,
   fileInputLabel,
+  helperText,
   onFileSelected,
 }: RosterDropzoneProps): ReactElement => {
   const [isDragging, setIsDragging] = useState(false);
@@ -54,6 +57,7 @@ export const RosterDropzone = ({
     >
       <span className="text-gray-600">{dropPrompt}</span>
       {fileName && <span className="font-medium text-gray-900">{fileName}</span>}
+      {helperText && <span className="max-w-prose text-xs text-gray-500">{helperText}</span>}
       <input
         type="file"
         accept={ACCEPTED_FILE_TYPE}

@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Button, Modal } from "@pte/ui";
+import { Alert, Badge, Button, Modal, isTypedConfirmValid } from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
-import { MERGE_CLASSES_TEXT } from "../constants";
+import { CLASS_STATUS_LABELS, CLASS_STATUS_VARIANT, MERGE_CLASSES_TEXT } from "../constants";
 import { useMergeClasses } from "../api";
+import { isNonActiveClass } from "../utils/nonActiveTarget";
+import { NonActiveTargetConfirm } from "./NonActiveTargetConfirm";
 
 interface MergeClassesModalProps {
   open: boolean;
@@ -33,12 +35,26 @@ export const MergeClassesModal = ({
   const [targetClassPublicId, setTargetClassPublicId] = useState(
     selectedClasses[0]?.publicId ?? "",
   );
+  const [typedConfirm, setTypedConfirm] = useState("");
   const merge = useMergeClasses(organizationPublicId, programPublicId, targetClassPublicId);
+
+  const targetClass = selectedClasses.find(
+    (studentClass) => studentClass.publicId === targetClassPublicId,
+  );
+  const targetIsNonActive = targetClass !== undefined && isNonActiveClass(targetClass.status);
 
   const sourceClasses = selectedClasses.filter(
     (studentClass) => studentClass.publicId !== targetClassPublicId,
   );
   const submitError = errorMessage(merge.error);
+
+  // Switching destination invalidates any previously typed confirmation.
+  const handleTargetChange = (nextPublicId: string): void => {
+    setTargetClassPublicId(nextPublicId);
+    setTypedConfirm("");
+  };
+  const typedConfirmSatisfied =
+    !targetIsNonActive || isTypedConfirmValid(typedConfirm, targetClass?.name ?? "");
 
   const handleClose = (): void => {
     merge.reset();
@@ -46,6 +62,7 @@ export const MergeClassesModal = ({
   };
 
   const handleSubmit = (): void => {
+    if (!typedConfirmSatisfied) return;
     merge.mutate(
       sourceClasses.map((studentClass) => studentClass.publicId),
       { onSuccess: onMerged },
@@ -82,7 +99,9 @@ export const MergeClassesModal = ({
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={merge.isPending || sourceClasses.length === 0}
+            disabled={
+              merge.isPending || sourceClasses.length === 0 || !typedConfirmSatisfied
+            }
             className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {merge.isPending ? T.submitting : T.submit}
@@ -109,13 +128,25 @@ export const MergeClassesModal = ({
               name="merge-target"
               value={studentClass.publicId}
               checked={targetClassPublicId === studentClass.publicId}
-              onChange={() => setTargetClassPublicId(studentClass.publicId)}
+              onChange={() => handleTargetChange(studentClass.publicId)}
               className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
             />
             {studentClass.name}
+            {isNonActiveClass(studentClass.status) && (
+              <Badge variant={CLASS_STATUS_VARIANT[studentClass.status]}>
+                {CLASS_STATUS_LABELS[studentClass.status]}
+              </Badge>
+            )}
           </label>
         ))}
       </fieldset>
+      {targetIsNonActive && targetClass && (
+        <NonActiveTargetConfirm
+          targetName={targetClass.name}
+          typed={typedConfirm}
+          onTypedChange={setTypedConfirm}
+        />
+      )}
       <p className="mt-4 text-sm text-gray-500">{T.sourcesLabel(classLabel)}</p>
     </Modal>
   );
