@@ -1,4 +1,6 @@
 export const APPLICATIONS_QUERY_KEY = ["commercialization", "applications"] as const;
+export const APPLICATION_QUERY_KEY = (publicId: string) =>
+  ["commercialization", "application", publicId] as const;
 export const PLANS_QUERY_KEY = ["commercialization", "plans"] as const;
 export const SETTINGS_QUERY_KEY = ["commercialization", "settings"] as const;
 export const LICENSE_CODES_QUERY_KEY = ["commercialization", "license-codes"] as const;
@@ -28,6 +30,7 @@ export const ADMIN_APPLICATIONS_TEXT = {
   COLUMN_TAX_CODE: "Tax code",
   COLUMN_STATUS: "Status",
   LOAD_ERROR: "Applications could not be loaded. Try again shortly.",
+  RETRY: "Retry",
   OVERVIEW_TITLE: "Application overview",
   OVERVIEW_SUBTITLE: "Tenant application status at a glance.",
   TOTAL: "Total applications",
@@ -45,7 +48,12 @@ export const ADMIN_APPLICATION_DETAIL_TEXT = {
   BACK: "← Back to applications",
   NOT_FOUND: "This application was not found or is no longer available.",
   UPDATE_ERROR: "The application could not be updated. Please try again.",
-  APPROVED: "Application approved. One-time host credentials were sent to the contact email.",
+  APPROVED: "Application approved. Verify the Host account manually; credentials delivery is not confirmed here.",
+  LOAD_ERROR: "Application details could not be loaded.",
+  FORBIDDEN: "You do not have permission to view this application.",
+  RETRY: "Retry",
+  UNCERTAIN: "The result is uncertain. Refresh the application before trying the action again.",
+  REFRESH_ERROR: "The action result is uncertain and the latest application state could not be loaded. Do not retry yet.",
   REQUESTED_CODE: (code: string) => `Requested code ${code}`,
   DETAILS_TITLE: "Application details",
   DETAILS_SUBTITLE: "Submitted organization information.",
@@ -63,6 +71,8 @@ export const ADMIN_APPLICATION_DETAIL_TEXT = {
   WORK_EMAIL: "Work email",
   PHONE: "Phone number",
   TAX_CODE: "Tax code",
+  REVIEWED_BY: "Reviewed by",
+  REVIEWED_AT: "Reviewed at",
   EMPTY_VALUE: "—",
 } as const;
 

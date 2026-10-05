@@ -2,6 +2,7 @@
 
 import {
   approveApplication,
+  getApplication,
   archivePlan,
   deletePlan,
   createPlan,
@@ -34,6 +35,7 @@ import {
 import { apiClient } from "@/lib/apiClient";
 import {
   APPLICATIONS_QUERY_KEY,
+  APPLICATION_QUERY_KEY,
   LICENSE_CODES_QUERY_KEY,
   PLANS_QUERY_KEY,
   SETTINGS_QUERY_KEY,
@@ -46,6 +48,16 @@ export function useApplicationsQuery(): UseQueryResult<TenantApplicationResponse
   });
 }
 
+export function useApplicationQuery(
+  publicId: string,
+): UseQueryResult<TenantApplicationResponse> {
+  return useQuery({
+    queryKey: APPLICATION_QUERY_KEY(publicId),
+    queryFn: () => getApplication(apiClient, publicId),
+    enabled: publicId.length > 0,
+  });
+}
+
 export function useApproveApplication(): UseMutationResult<
   void,
   unknown,
@@ -54,8 +66,11 @@ export function useApproveApplication(): UseMutationResult<
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (publicId) => approveApplication(apiClient, publicId),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: APPLICATIONS_QUERY_KEY });
+    onSuccess: async (_data, publicId) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: APPLICATIONS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: APPLICATION_QUERY_KEY(publicId) }),
+      ]);
     },
   });
 }
@@ -68,8 +83,11 @@ export function useRejectApplication(): UseMutationResult<
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ publicId, payload }) => rejectApplication(apiClient, publicId, payload),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: APPLICATIONS_QUERY_KEY });
+    onSuccess: async (_data, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: APPLICATIONS_QUERY_KEY }),
+        queryClient.invalidateQueries({ queryKey: APPLICATION_QUERY_KEY(variables.publicId) }),
+      ]);
     },
   });
 }
