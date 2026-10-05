@@ -30,7 +30,7 @@ const SearchIcon = (): ReactElement => (
 );
 
 export const TenantFilters = ({ filter, onChange }: TenantFiltersProps): ReactElement => (
-  <div className="grid gap-3 rounded-lg bg-white p-4 shadow-card md:grid-cols-2 xl:grid-cols-4">
+  <div className="grid gap-3 rounded-lg bg-white p-4 shadow-card md:grid-cols-2 xl:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
     <div className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 shadow-sm focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-100 md:col-span-2 xl:col-span-1">
       <SearchIcon />
       <input
