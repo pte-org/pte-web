@@ -40,6 +40,14 @@ export const SessionTable = ({ sessions, isLoading }: SessionTableProps): ReactE
       ),
     },
     {
+      key: "sessionCode",
+      header: EXAM_TABLE_HEADERS.CODE,
+      className: "whitespace-nowrap",
+      cell: (session) => (
+        <code className="whitespace-nowrap text-xs text-gray-700">{session.sessionCode}</code>
+      ),
+    },
+    {
       key: "configuration",
       header: EXAM_TABLE_HEADERS.CONFIGURATION,
       cell: (session) => (

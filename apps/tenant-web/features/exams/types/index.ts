@@ -11,6 +11,8 @@ import type {
 
 export interface ExamSession {
   id: string;
+  /** What hosts share and students type; falls back to the UUID when the API predates exam codes. */
+  sessionCode: string;
   name: string;
   subscriptionPublicId: string;
   snapshotPublicId: string | null;
