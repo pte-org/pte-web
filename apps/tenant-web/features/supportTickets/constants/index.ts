@@ -8,12 +8,14 @@ export const STATUS_LABELS: Record<TicketStatus, string> = {
   OPEN: "Open",
   IN_PROGRESS: "In Progress",
   RESOLVED: "Resolved",
+  CLOSED: "Closed",
 };
 
 export const STATUS_VARIANTS: Record<TicketStatus, BadgeVariant> = {
   OPEN: "neutral",
   IN_PROGRESS: "warning",
   RESOLVED: "success",
+  CLOSED: "neutral",
 };
 
 export const CATEGORY_LABELS: Record<TicketCategory, string> = {
@@ -57,6 +59,18 @@ export const SUPPORT_TICKET_TABLE_HEADERS = {
   DESCRIPTION: "Description",
   SUBMITTED: "Submitted",
   ACTIONS: "",
+} as const;
+
+export const TICKET_ACTIONS_TEXT = {
+  ACTIONS: "Ticket actions",
+  VIEW_DETAIL: "View detail",
+  CLOSE: "Close ticket",
+  CONFIRM_CLOSE_TITLE: "Close this ticket?",
+  CONFIRM_CLOSE_DESCRIPTION:
+    "The support team will stop working on this ticket. A closed ticket cannot be reopened.",
+  CANCEL: "Cancel",
+  CLOSE_SUCCESS_TOAST: "Ticket closed.",
+  CLOSE_FAILED: "We couldn't close this ticket. Please try again.",
 } as const;
 
 export const CREATE_TICKET_TEXT = {

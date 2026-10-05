@@ -100,6 +100,7 @@ const PROCTOR_ROLE = "PROCTOR";
 function sessionResponseToExamSession(response: SessionResponse): ExamSession {
   return {
     id: response.publicId,
+    sessionCode: response.sessionCode ?? response.publicId,
     name: response.name,
     subscriptionPublicId: response.subscriptionPublicId,
     snapshotPublicId: response.snapshotPublicId,

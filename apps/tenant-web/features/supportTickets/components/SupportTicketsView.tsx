@@ -4,20 +4,26 @@ import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
 import {
+  ActionMenu,
   Alert,
+  BanIcon,
+  ConfirmDialog,
   DataTable,
+  EyeIcon,
   LoadingState,
   PageHeader,
   PaginationControls,
   useToast,
   type DataTableColumn,
 } from "@pte/ui";
+import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
   SUPPORT_TICKET_TABLE_HEADERS as H,
   SUPPORT_TICKETS_TEXT as T,
+  TICKET_ACTIONS_TEXT as A,
   CREATE_TICKET_TEXT,
 } from "../constants";
-import { useSupportTickets, useSubmitTicket } from "../api";
+import { useCloseTicket, useSupportTickets, useSubmitTicket } from "../api";
 import type { CreateTicketInput, SupportTicket, TicketCategory, TicketStatus } from "../types";
 import { TicketCategoryBadge } from "./_TicketCategoryBadge";
 import { TicketFilters } from "./_TicketFilters";
@@ -33,6 +39,7 @@ export const SupportTicketsView = (): ReactElement => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
   const [createOpen, setCreateOpen] = useState(false);
+  const [closeTarget, setCloseTarget] = useState<SupportTicket | null>(null);
 
   const { data, isLoading, isError } = useSupportTickets(
     status || undefined,
@@ -41,6 +48,7 @@ export const SupportTicketsView = (): ReactElement => {
     size,
   );
   const submit = useSubmitTicket();
+  const close = useCloseTicket();
 
   const handleCreate = (input: CreateTicketInput): void => {
     submit.mutate(input, {
@@ -49,6 +57,15 @@ export const SupportTicketsView = (): ReactElement => {
         submit.reset();
         showToast(CREATE_TICKET_TEXT.SUCCESS_TOAST, { tone: "success" });
       },
+    });
+  };
+
+  const handleClose = (): void => {
+    if (!closeTarget) return;
+    close.mutate(closeTarget.publicId, {
+      onSuccess: () => showToast(A.CLOSE_SUCCESS_TOAST, { tone: "success" }),
+      onError: (err) => showToast(errorMessage(err) ?? A.CLOSE_FAILED, { tone: "error" }),
+      onSettled: () => setCloseTarget(null),
     });
   };
 
@@ -76,19 +93,6 @@ export const SupportTicketsView = (): ReactElement => {
       key: "createdAt",
       header: H.SUBMITTED,
       cell: (t) => new Date(t.createdAt).toLocaleDateString(),
-    },
-    {
-      key: "actions",
-      header: H.ACTIONS,
-      cell: (t) => (
-        <button
-          type="button"
-          onClick={() => router.push(`/host/support-tickets/${t.publicId}`)}
-          className="text-sm font-medium text-action hover:underline"
-        >
-          View
-        </button>
-      ),
     },
   ];
 
@@ -126,6 +130,27 @@ export const SupportTicketsView = (): ReactElement => {
           getRowKey={(t) => t.publicId}
           emptyTitle={T.EMPTY_TITLE}
           emptyDescription={T.EMPTY_TEXT}
+          rowActionsHeader={H.ACTIONS}
+          rowActions={(t) => (
+            <ActionMenu
+              label={A.ACTIONS}
+              items={[
+                {
+                  label: A.VIEW_DETAIL,
+                  icon: EyeIcon,
+                  onSelect: () => router.push(`/host/support-tickets/${t.publicId}`),
+                },
+                {
+                  label: A.CLOSE,
+                  icon: BanIcon,
+                  danger: true,
+                  // Only an OPEN ticket can be withdrawn; once an admin picks it up it stays.
+                  disabled: t.status !== "OPEN" || close.isPending,
+                  onSelect: () => setCloseTarget(t),
+                },
+              ]}
+            />
+          )}
         />
       )}
 
@@ -146,6 +171,18 @@ export const SupportTicketsView = (): ReactElement => {
         onSubmit={handleCreate}
         error={submit.error?.message}
         isSubmitting={submit.isPending}
+      />
+
+      <ConfirmDialog
+        open={closeTarget !== null}
+        title={A.CONFIRM_CLOSE_TITLE}
+        description={A.CONFIRM_CLOSE_DESCRIPTION}
+        confirmLabel={A.CLOSE}
+        cancelLabel={A.CANCEL}
+        tone="danger"
+        isConfirming={close.isPending}
+        onConfirm={handleClose}
+        onClose={() => setCloseTarget(null)}
       />
     </div>
   );

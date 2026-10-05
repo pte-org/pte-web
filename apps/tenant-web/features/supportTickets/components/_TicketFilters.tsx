@@ -4,15 +4,14 @@ import type { ReactElement } from "react";
 import { Select } from "@pte/ui";
 import {
   CATEGORY_OPTIONS,
+  STATUS_LABELS,
   SUPPORT_TICKETS_TEXT as T,
 } from "../constants";
 import type { TicketCategory, TicketStatus } from "../types";
 
 const STATUS_OPTIONS = [
   { value: "", label: T.FILTER_ALL_STATUS },
-  { value: "OPEN", label: "Open" },
-  { value: "IN_PROGRESS", label: "In Progress" },
-  { value: "RESOLVED", label: "Resolved" },
+  ...Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label })),
 ];
 
 interface TicketFiltersProps {
