@@ -24,6 +24,7 @@ export const MOCK_HOME_PLANS = [
     maxStudentsPerSession: 50,
     extraStudentSlots: null,
     status: "ACTIVE",
+    version: 0,
     label: "For focused exam runs",
     audience: "Up to 50 students per exam",
     features: [
@@ -43,6 +44,7 @@ export const MOCK_HOME_PLANS = [
     maxStudentsPerSession: 100,
     extraStudentSlots: null,
     status: "ACTIVE",
+    version: 0,
     label: "Best for growing programs",
     audience: "Up to 100 students per exam",
     features: ["90 days of exam access", "More students per session", "A calmer planning window"],
@@ -59,6 +61,7 @@ export const MOCK_HOME_PLANS = [
     maxStudentsPerSession: null,
     extraStudentSlots: 50,
     status: "ACTIVE",
+    version: 0,
     label: "Permanent add-on",
     audience: "+50 student slots",
     features: [
@@ -78,6 +81,7 @@ export const MOCK_HOME_PLANS = [
     maxStudentsPerSession: null,
     extraStudentSlots: 200,
     status: "ACTIVE",
+    version: 0,
     label: "For established centers",
     audience: "+200 student slots",
     features: [

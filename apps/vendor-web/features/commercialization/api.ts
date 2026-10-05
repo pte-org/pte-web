@@ -20,6 +20,8 @@ import {
   type LicenseCodeResponse,
   type PlanRequest,
   type PlanResponse,
+  type PlanTransitionRequest,
+  type PlanUpdateRequest,
   type PlatformSettingRequest,
   type PlatformSettingResponse,
   type RejectApplicationRequest,
@@ -100,8 +102,8 @@ export function useCreatePlan(): UseMutationResult<PlanResponse, unknown, PlanRe
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload) => createPlan(apiClient, payload),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: PLANS_QUERY_KEY });
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: PLANS_QUERY_KEY });
     },
   });
 }
@@ -109,33 +111,33 @@ export function useCreatePlan(): UseMutationResult<PlanResponse, unknown, PlanRe
 export function useUpdatePlan(): UseMutationResult<
   PlanResponse,
   unknown,
-  { publicId: string; payload: PlanRequest }
+  { publicId: string; payload: PlanUpdateRequest }
 > {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ publicId, payload }) => updatePlan(apiClient, publicId, payload),
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: PLANS_QUERY_KEY });
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: PLANS_QUERY_KEY });
     },
   });
 }
 
-export function useActivatePlan(): UseMutationResult<PlanResponse, unknown, string> {
+export function useActivatePlan(): UseMutationResult<PlanResponse, unknown, { publicId: string; payload: PlanTransitionRequest }> {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (publicId) => activatePlan(apiClient, publicId),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: PLANS_QUERY_KEY });
+    mutationFn: ({ publicId, payload }) => activatePlan(apiClient, publicId, payload),
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: PLANS_QUERY_KEY });
     },
   });
 }
 
-export function useArchivePlan(): UseMutationResult<PlanResponse, unknown, string> {
+export function useArchivePlan(): UseMutationResult<PlanResponse, unknown, { publicId: string; payload: PlanTransitionRequest }> {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (publicId) => archivePlan(apiClient, publicId),
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: PLANS_QUERY_KEY });
+    mutationFn: ({ publicId, payload }) => archivePlan(apiClient, publicId, payload),
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: PLANS_QUERY_KEY });
     },
   });
 }
@@ -144,8 +146,8 @@ export function useDeletePlan(): UseMutationResult<void, unknown, string> {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (publicId) => deletePlan(apiClient, publicId),
-    onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: PLANS_QUERY_KEY });
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: PLANS_QUERY_KEY });
     },
   });
 }

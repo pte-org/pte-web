@@ -49,6 +49,7 @@ export interface PlanResponse {
   canArchive?: boolean;
   deleteBlockReason?: string | null;
   archiveBlockReason?: string | null;
+  version: number;
 }
 
 export interface PlanRequest {
@@ -60,6 +61,14 @@ export interface PlanRequest {
   durationDays?: number | null;
   maxStudentsPerSession?: number | null;
   extraStudentSlots?: number | null;
+}
+
+export interface PlanUpdateRequest extends PlanRequest {
+  expectedVersion: number;
+}
+
+export interface PlanTransitionRequest {
+  expectedVersion: number;
 }
 
 export interface SubscriptionResponse {
