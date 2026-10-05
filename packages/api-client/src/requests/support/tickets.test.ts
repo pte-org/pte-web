@@ -4,6 +4,7 @@ import {
   submitTicket,
   listTickets,
   getTicket,
+  closeTicket,
   SUPPORT_TICKET_ENDPOINTS,
 } from "./tickets";
 
@@ -121,6 +122,20 @@ describe("support ticket requests", () => {
       await getTicket(client, publicId);
 
       expect(client.request).toHaveBeenCalledWith(SUPPORT_TICKET_ENDPOINTS.ticket(publicId));
+    });
+  });
+
+  describe("closeTicket", () => {
+    it("POSTs to the host close endpoint of the ticket", async () => {
+      const client = fakeClient();
+      const publicId = "ticket-public-id";
+
+      await closeTicket(client, publicId);
+
+      expect(client.request).toHaveBeenCalledWith(
+        "/api/v1/support-tickets/ticket-public-id/close",
+        { method: "POST" },
+      );
     });
   });
 });

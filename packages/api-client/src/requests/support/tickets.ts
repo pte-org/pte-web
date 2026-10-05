@@ -12,6 +12,7 @@ import type {
 export const SUPPORT_TICKET_ENDPOINTS = {
   tickets: "/api/v1/support-tickets",
   ticket: (publicId: string) => `/api/v1/support-tickets/${publicId}`,
+  closeTicket: (publicId: string) => `/api/v1/support-tickets/${publicId}/close`,
   adminTickets: "/api/v1/admin/support-tickets",
   adminTicket: (publicId: string) => `/api/v1/admin/support-tickets/${publicId}`,
   adminUpdateStatus: (publicId: string) => `/api/v1/admin/support-tickets/${publicId}`,
@@ -48,6 +49,16 @@ export function getTicket(
   publicId: string,
 ): Promise<SupportTicketResponse> {
   return client.request<SupportTicketResponse>(SUPPORT_TICKET_ENDPOINTS.ticket(publicId));
+}
+
+/** Host withdraws a ticket; the server rejects it once an admin has moved it past OPEN. */
+export function closeTicket(
+  client: ApiClient,
+  publicId: string,
+): Promise<SupportTicketResponse> {
+  return client.request<SupportTicketResponse>(SUPPORT_TICKET_ENDPOINTS.closeTicket(publicId), {
+    method: "POST",
+  });
 }
 
 export function adminListTickets(
