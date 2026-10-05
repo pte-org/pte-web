@@ -35,6 +35,21 @@ const RETIRED_SERVICE_SEGMENTS = [
  */
 const KNOWN_FICTITIOUS_PATHS = new Set(["/api/v1/assets/upload"]);
 
+/**
+ * Modulith routes that happen to start with a retired service name. Each is
+ * backed by a real pte-api controller, so it is exempt by exact prefix while
+ * any other path under the same segment still fails.
+ *
+ * - `/api/v1/admin/support-tickets` — AdminSupportTicketController.
+ */
+const LIVE_PREFIXES_UNDER_RETIRED_SEGMENTS = ["/api/v1/admin/support-tickets"] as const;
+
+function isLiveUnderRetiredSegment(path: string): boolean {
+  return LIVE_PREFIXES_UNDER_RETIRED_SEGMENTS.some(
+    (prefix) => path === prefix || path.startsWith(`${prefix}/`),
+  );
+}
+
 /** Collects every concrete path string from the `*_ENDPOINTS` const objects. */
 function collectEndpointPaths(): { name: string; path: string }[] {
   const collected: { name: string; path: string }[] = [];
@@ -74,7 +89,11 @@ describe("api-client endpoint paths", () => {
     expect(path.startsWith("/api/v1/")).toBe(true);
   });
 
-  it.each(paths.filter(({ path }) => !KNOWN_FICTITIOUS_PATHS.has(path)))(
+  it.each(
+    paths.filter(
+      ({ path }) => !KNOWN_FICTITIOUS_PATHS.has(path) && !isLiveUnderRetiredSegment(path),
+    ),
+  )(
     "$name carries no retired service segment",
     ({ path }) => {
       const [, , , firstSegment] = path.split("/");
