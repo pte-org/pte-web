@@ -22,6 +22,7 @@ export const ADMIN_NAV: NavItem[] = [
     href: "/admin/license-codes",
     icon: <LicenseIcon />,
     section: T.COMMERCIAL_SECTION,
+    requiredRoles: ["PLATFORM_ADMIN"],
   },
   {
     label: T.PLATFORM_SETTINGS,

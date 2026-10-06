@@ -168,7 +168,7 @@ export const LicenseCodesView = (): ReactElement => {
   const activePlans = plans.filter((plan) => plan.type === "EXAM_PACKAGE" && plan.status === "ACTIVE");
   const codes = codePageQuery.data?.data ?? [];
   const isFiltered = Boolean(filters.status || filters.planId || filters.tenantId);
-  const error = issue.error ?? revoke.error ?? revokePreviewRequest.error;
+  const error = issue.error ?? revoke.error ?? revokePreviewRequest.error ?? codePageQuery.error;
   const errorMessage = localError || (error
     ? safeOperationMessage(error, T.ERROR)
     : codePageQuery.isError ? T.ERROR : undefined);
@@ -444,20 +444,31 @@ export const LicenseCodesView = (): ReactElement => {
         subtitle={T.ISSUED_SUBTITLE}
         actions={<Button type="button" variant="secondary" onClick={refreshLicenseCodes}>{T.REFRESH_LIST}</Button>}
       >
-        <div className="mb-5 grid gap-3 rounded-md border border-slate-200 bg-slate-50 p-3 md:grid-cols-[180px_1fr_1fr_auto_auto] md:items-end">
-          <Select id="license-status-filter" label={T.STATUS_FILTER} options={STATUS_OPTIONS} value={draftStatus} onChange={(event) => setDraftStatus(event.target.value as StatusFilter)} />
-          <Select
-            id="license-plan-filter"
-            label={T.PLAN_ID}
-            placeholder={T.ALL_PLANS}
-            options={plans.map((plan) => ({ label: plan.name, value: plan.publicId }))}
-            value={draftPlanId}
-            onChange={(event) => setDraftPlanId(event.target.value)}
-            disabled={plansLoading || plansError}
-          />
-          <Input id="license-tenant-filter" label={T.TENANT_FILTER} value={draftTenantId} onChange={(event) => setDraftTenantId(event.target.value)} helperText={T.TENANT_FILTER_HELP} />
-          <Button type="button" onClick={applyFilters}>{T.APPLY_FILTERS}</Button>
-          <Button type="button" variant="ghost" onClick={resetFilters}>{T.RESET_FILTERS}</Button>
+        <div className="mb-5 rounded-md border border-slate-200 bg-slate-50 p-3">
+          <div className="grid gap-3 md:grid-cols-[180px_1fr_1fr_auto_auto] md:items-end">
+            <Select id="license-status-filter" label={T.STATUS_FILTER} options={STATUS_OPTIONS} value={draftStatus} onChange={(event) => setDraftStatus(event.target.value as StatusFilter)} />
+            <Select
+              id="license-plan-filter"
+              label={T.PLAN_ID}
+              placeholder={T.ALL_PLANS}
+              options={plans.map((plan) => ({ label: plan.name, value: plan.publicId }))}
+              value={draftPlanId}
+              onChange={(event) => setDraftPlanId(event.target.value)}
+              disabled={plansLoading || plansError}
+            />
+            <Input
+              id="license-tenant-filter"
+              label={T.TENANT_FILTER}
+              value={draftTenantId}
+              onChange={(event) => setDraftTenantId(event.target.value)}
+              aria-describedby="license-tenant-filter-help"
+            />
+            <Button type="button" onClick={applyFilters}>{T.APPLY_FILTERS}</Button>
+            <Button type="button" variant="ghost" onClick={resetFilters}>{T.RESET_FILTERS}</Button>
+            <p id="license-tenant-filter-help" className="text-xs text-slate-500 md:col-start-3">
+              {T.TENANT_FILTER_HELP}
+            </p>
+          </div>
         </div>
         <DataTable
           columns={[
