@@ -4,6 +4,13 @@ export const APPLICATION_QUERY_KEY = (publicId: string) =>
 export const PLANS_QUERY_KEY = ["commercialization", "plans"] as const;
 export const SETTINGS_QUERY_KEY = ["commercialization", "settings"] as const;
 export const LICENSE_CODES_QUERY_KEY = ["commercialization", "license-codes"] as const;
+export const LICENSE_CODES_PAGE_QUERY_KEY = (params: {
+  page: number;
+  size: number;
+  status: string;
+  planId: string;
+  tenantId: string;
+}) => [...LICENSE_CODES_QUERY_KEY, params] as const;
 
 export const PLATFORM_SETTINGS_TEXT = {
   TITLE: "Platform settings",
@@ -174,16 +181,46 @@ export const LICENSE_CODES_TEXT = {
   REJECTED_NEW_ISSUE: "Clear this rejected request so you can correct the plan or expiry.",
   INVALID_EXPIRY: "Enter a valid future date and time.",
   ISSUE: "Issue code",
-  ISSUED_TITLE: "Issued codes",
-  ISSUED_SUBTITLE: "Codes and status are loaded from the billing API.",
-  CODE: "Code",
-  PLAN_ID: "Plan ID",
+  ISSUED_TITLE: "License inventory",
+  ISSUED_SUBTITLE: "Codes are masked in the list. Reveal is an explicit, short-lived admin action.",
+  CODE: "Masked code",
+  PLAN_ID: "Plan",
+  RECIPIENT: "Recipient",
+  PUBLIC_ID: "Public ID",
   ISSUED: "Issued",
   EXPIRES: "Expires",
   STATUS: "Status",
   REVOKE: "Revoke",
   LOADING: "Loading codes...",
   EMPTY: "No license codes found",
+  FILTER_EMPTY: "No codes match these filters.",
+  STATUS_FILTER: "Status",
+  ALL_STATUSES: "All statuses",
+  ALL_PLANS: "All plans",
+  TENANT_FILTER: "Recipient tenant ID",
+  TENANT_FILTER_HELP: "Optional UUID filter; this never searches bearer values.",
+  APPLY_FILTERS: "Apply filters",
+  RESET_FILTERS: "Reset",
+  PREVIOUS: "Previous",
+  NEXT: "Next",
+  TOTAL_CODES: (count: number) => `${count} codes`,
+  STALE_DATA: "Showing the last successful page while a refresh is pending.",
+  PLAN_LOAD_ERROR: "Plans could not be loaded. Issuance is temporarily unavailable.",
+  REFRESH_LIST: "Refresh list",
+  LOOKUP_TITLE: "Find a code safely",
+  LOOKUP_SUBTITLE: "Paste a bearer only into this POST form. It is not stored in the URL or query cache.",
+  LOOKUP_LABEL: "License code",
+  LOOKUP: "Lookup",
+  LOOKUP_RESULT: "Lookup result",
+  LOOKUP_NOT_FOUND: "No matching code was found.",
+  REVEAL: "Reveal",
+  REVEAL_TITLE: "Reveal license code",
+  REVEAL_DESCRIPTION: "The bearer is shown locally for up to 60 seconds. Copy is available only after an explicit click.",
+  REVEAL_ERROR: "The code could not be revealed. Refresh and try again.",
+  CLOSE: "Close",
+  COPY: "Copy code",
+  COPIED: "Code copied.",
+  REVEALED: "Code revealed locally. It is not retained in the page cache.",
   REVOKE_TITLE: "Revoke license code?",
   REVOKE_DESCRIPTION: "Review the live subscription impact before confirming. The action cannot be undone.",
   REVOKE_CONFIRM: "Revoke code",

@@ -1,6 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import { createApiClient } from "../../client/client";
-import { issueLicenseCode, previewLicenseCodeRevoke, revokeLicenseCode } from "./licenseCodes";
+import {
+  issueLicenseCode,
+  listAdminLicenseCodes,
+  lookupLicenseCode,
+  previewLicenseCodeRevoke,
+  revealLicenseCode,
+  revokeLicenseCode,
+} from "./licenseCodes";
 
 describe("license issue intent", () => {
   it("reuses the supplied key and returns only the safe receipt", async () => {
@@ -52,5 +59,35 @@ describe("license revoke scope", () => {
     expect(fetchFn.mock.calls[0][0]).toBe("https://test.invalid/api/v1/admin/license-codes/code-id/revoke-preview");
     expect(fetchFn.mock.calls[1][0]).toBe("https://test.invalid/api/v1/admin/license-codes/code-id/revoke");
     expect(fetchFn.mock.calls[1][1].body).toContain("fraud review");
+  });
+});
+
+describe("bounded admin license reads", () => {
+  it("keeps page filters in metadata and secret reads direct/non-cacheable", async () => {
+    const fetchFn = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ success: true, data: {
+        data: [{ publicId: "row-id", maskedCode: "•••• STUV", effectiveStatus: "ISSUED" }],
+        meta: { page: 1, size: 25, totalElements: 26, totalPages: 2, first: false, last: true,
+          hasNext: false, hasPrevious: true },
+      } }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ success: true, data: {
+        publicId: "row-id", maskedCode: "•••• STUV", effectiveStatus: "ISSUED",
+      } }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ success: true, data: { code: "SYNTHETIC-CODE" } }), { status: 200 }));
+    const client = createApiClient({ baseUrl: "https://test.invalid", fetchFn });
+
+    await expect(listAdminLicenseCodes(client, {
+      page: 1, size: 25, status: "ISSUED", planId: "plan-id", tenantId: "tenant-id",
+    })).resolves.toMatchObject({ meta: { page: 1, totalElements: 26 } });
+    await expect(lookupLicenseCode(client, "SYNTHETIC-CODE")).resolves.toMatchObject({ maskedCode: "•••• STUV" });
+    await expect(revealLicenseCode(client, "row-id")).resolves.toEqual({ code: "SYNTHETIC-CODE" });
+
+    expect(fetchFn.mock.calls[0][0]).toContain("/api/v1/admin/license-codes?page=1&size=25&status=ISSUED");
+    expect(fetchFn.mock.calls[0][0]).toContain("planId=plan-id");
+    expect(fetchFn.mock.calls[0][0]).toContain("tenantId=tenant-id");
+    expect(fetchFn.mock.calls[1][1].body).toBe(JSON.stringify({ code: "SYNTHETIC-CODE" }));
+    expect(fetchFn.mock.calls[1][1].cache).toBe("no-store");
+    expect(fetchFn.mock.calls[2][1].cache).toBe("no-store");
+    expect(new Headers(fetchFn.mock.calls[2][1].headers).get("Cache-Control")).toBe("no-store");
   });
 });

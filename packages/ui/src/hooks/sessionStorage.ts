@@ -50,6 +50,7 @@ export const sessionStorage = {
   save(session: PteSession): void {
     if (!isBrowser()) return;
     window.localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    noteSessionSaved(session);
   },
   retrieve(): PteSession | null {
     if (!isBrowser()) return null;
@@ -61,6 +62,7 @@ export const sessionStorage = {
   clear(): void {
     if (!isBrowser()) return;
     window.localStorage.removeItem(SESSION_KEY);
+    noteSessionCleared();
   },
   isAuthenticated(): boolean {
     return Boolean(this.getAccessToken());
@@ -71,3 +73,4 @@ export const sessionStorage = {
     return matchesRole(session, role);
   },
 };
+import { noteSessionCleared, noteSessionSaved } from "./sessionLifecycle";

@@ -128,6 +128,27 @@ export interface IssueLicenseCodeRequest {
   codeExpiresAt?: string | null;
 }
 
+/** Safe admin row; the bearer is never a property of this page/detail type. */
+export interface AdminLicenseCodeSummary {
+  publicId: string;
+  maskedCode: string;
+  persistedStatus: LicenseCodeStatus;
+  effectiveStatus: LicenseCodeStatus;
+  planPublicId: string;
+  planName: string;
+  planType: PlanType | null;
+  issuedAt: string;
+  codeExpiresAt: string | null;
+  recipientPublicId: string | null;
+  recipientName: string | null;
+  subscriptionPublicId: string | null;
+}
+
+export interface LicenseCodeRevealResponse {
+  /** Secret-bearing response; callers must keep it out of query/mutation caches. */
+  code: string;
+}
+
 export interface LicenseIssueReceipt {
   publicId: string;
   planId: string;

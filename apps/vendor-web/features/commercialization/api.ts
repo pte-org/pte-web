@@ -8,17 +8,20 @@ import {
   createPlan,
   issueLicenseCode,
   listApplications,
-  listLicenseCodes,
+  listAdminLicenseCodes,
   listPlatformSettings,
   listPlans,
+  lookupLicenseCode,
   rejectApplication,
   previewLicenseCodeRevoke,
+  revealLicenseCode,
   revokeLicenseCode,
   updatePlatformSetting,
   updatePlan,
   activatePlan,
   type IssueLicenseCodeRequest,
-  type LicenseCodeResponse,
+  type AdminLicenseCodeListParams,
+  type AdminLicenseCodeSummary,
   type LicenseIssueReceipt,
   type LicenseRevokePreviewResponse,
   type LicenseRevokeResponse,
@@ -31,6 +34,7 @@ import {
   type PlatformSettingResponse,
   type RejectApplicationRequest,
   type TenantApplicationResponse,
+  type PagedResult,
 } from "@pte/api-client";
 import {
   useMutation,
@@ -44,6 +48,7 @@ import {
   APPLICATIONS_QUERY_KEY,
   APPLICATION_QUERY_KEY,
   LICENSE_CODES_QUERY_KEY,
+  LICENSE_CODES_PAGE_QUERY_KEY,
   PLANS_QUERY_KEY,
   SETTINGS_QUERY_KEY,
 } from "./constants";
@@ -175,11 +180,30 @@ export function useUpdatePlatformSetting(): UseMutationResult<
   });
 }
 
-export function useLicenseCodesQuery(): UseQueryResult<LicenseCodeResponse[]> {
+export function useAdminLicenseCodesQuery(
+  params: AdminLicenseCodeListParams,
+): UseQueryResult<PagedResult<AdminLicenseCodeSummary>> {
+  const normalizedParams = {
+    page: params.page ?? 0,
+    size: params.size ?? 25,
+    status: params.status ?? "",
+    planId: params.planId ?? "",
+    tenantId: params.tenantId ?? "",
+  };
   return useQuery({
-    queryKey: LICENSE_CODES_QUERY_KEY,
-    queryFn: () => listLicenseCodes(apiClient),
+    queryKey: LICENSE_CODES_PAGE_QUERY_KEY(normalizedParams),
+    queryFn: () => listAdminLicenseCodes(apiClient, params),
   });
+}
+
+/** Deliberately direct: the bearer input/result must not become a mutation cache entry. */
+export function lookupAdminLicenseCode(code: string): Promise<AdminLicenseCodeSummary> {
+  return lookupLicenseCode(apiClient, code);
+}
+
+/** Deliberately direct: raw bearer response is held only by the caller's local state. */
+export function revealAdminLicenseCode(publicId: string): Promise<{ code: string }> {
+  return revealLicenseCode(apiClient, publicId);
 }
 
 export function useIssueLicenseCode(): UseMutationResult<
