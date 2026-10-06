@@ -38,7 +38,8 @@ export interface PlanResponse {
   name: string;
   description: string | null;
   type: PlanType;
-  price: string;
+  /** Backend BigDecimal may be serialized as a JSON number or a decimal string. */
+  price: string | number;
   currency: string;
   durationDays: number | null;
   maxStudentsPerSession: number | null;

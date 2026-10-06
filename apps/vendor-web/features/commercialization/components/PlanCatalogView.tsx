@@ -67,7 +67,7 @@ const MAX_STUDENT_COUNT = 2_000;
 const MAX_EXAM_DURATION_DAYS = 3_650;
 
 const formatMoney = (plan: PlanResponse): string => {
-  const [integerPart, fractionPart] = plan.price.split(".");
+  const [integerPart, fractionPart] = String(plan.price).split(".");
   const groupedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   return `${groupedInteger}${fractionPart ? `.${fractionPart}` : ""} ${plan.currency}`;
 };
@@ -76,7 +76,7 @@ const formFromPlan = (plan: PlanResponse): PlanFormState => ({
   name: plan.name,
   description: plan.description ?? "",
   type: plan.type,
-  price: plan.price,
+  price: String(plan.price),
   currency: plan.currency,
   durationDays: plan.durationDays === null ? "" : String(plan.durationDays),
   maxStudentsPerSession:
