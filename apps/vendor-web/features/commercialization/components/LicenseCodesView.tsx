@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent, type ReactElement } from "react";
+import { useSyncExternalStore, useState, type FormEvent, type ReactElement } from "react";
 import {
   ActionMenu,
   Alert,
@@ -11,8 +11,9 @@ import {
   Input,
   PageHeader,
   Select,
+  useSessionManager,
 } from "@pte/ui";
-import { getUserFacingApiErrorMessage, type LicenseCodeResponse } from "@pte/api-client";
+import { ApiError, decodeAccessTokenClaims, getUserFacingApiErrorMessage, type LicenseCodeResponse, type IssueLicenseCodeRequest } from "@pte/api-client";
 import {
   useIssueLicenseCode,
   useLicenseCodesQuery,
@@ -24,47 +25,113 @@ import { CommercialPanel } from "./CommercialPanel";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
 
 const formatDate = (value: string | null): string =>
-  value ? new Date(value).toLocaleDateString() : T.EMPTY_VALUE;
+  value ? new Date(value).toLocaleString() : T.EMPTY_VALUE;
+
+type IssueIntent = { idempotencyKey: string; payload: IssueLicenseCodeRequest };
+const SAFE_NEW_INTENT_ERROR_CODES = new Set([
+  "LICENSE_CODE_IDEMPOTENCY_KEY_REQUIRED",
+  "LICENSE_CODE_IDEMPOTENCY_KEY_INVALID",
+  "LICENSE_CODE_PLAN_REQUIRED",
+  "LICENSE_CODE_PLAN_NOT_ACTIVE",
+  "LICENSE_CODE_EXAM_PLAN_REQUIRED",
+  "LICENSE_CODE_EXPIRY_INVALID",
+  "LICENSE_CODE_EXPIRY_PRECISION_INVALID",
+  "PLAN_NOT_FOUND",
+]);
+const subscribeRecovery = (notify: () => void): (() => void) => {
+  window.addEventListener("storage", notify);
+  window.addEventListener("license-issue-intent", notify);
+  return () => { window.removeEventListener("storage", notify); window.removeEventListener("license-issue-intent", notify); };
+};
+const parseRecovery = (stored: string | null): IssueIntent | null => {
+  try {
+    const value: unknown = stored ? JSON.parse(stored) : null;
+    if (typeof value !== "object" || value === null || !("idempotencyKey" in value)
+        || typeof value.idempotencyKey !== "string" || !("payload" in value)
+        || typeof value.payload !== "object" || value.payload === null || !("planId" in value.payload)
+        || typeof value.payload.planId !== "string" || !("codeExpiresAt" in value.payload)
+        || (value.payload.codeExpiresAt !== null && typeof value.payload.codeExpiresAt !== "string")) return null;
+    return { idempotencyKey: value.idempotencyKey, payload: { planId: value.payload.planId, codeExpiresAt: value.payload.codeExpiresAt } };
+  } catch { return null; }
+};
 
 export const LicenseCodesView = (): ReactElement => {
   const { data: codes = [], isLoading, isError } = useLicenseCodesQuery();
-  const { data: plans = [] } = usePlansQuery();
+  const { data: plans = [], refetch: refreshPlans, isError: plansError } = usePlansQuery();
   const issue = useIssueLicenseCode();
   const revoke = useRevokeLicenseCode();
   const [planId, setPlanId] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [codeToRevoke, setCodeToRevoke] = useState<LicenseCodeResponse | null>(null);
   const [message, setMessage] = useState("");
+  const [memoryRecovery, setMemoryRecovery] = useState<{ owner: string; intent: IssueIntent | null } | null>(null);
+  const [localError, setLocalError] = useState("");
+  const [confirmNewIntent, setConfirmNewIntent] = useState(false);
+  const { session, isReady } = useSessionManager();
+  const actorId = session ? decodeAccessTokenClaims(session.accessToken)?.sub : undefined;
+  const recoveryKey = actorId ? `pte-license-issue:${actorId}` : null;
+  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const expiryDate = expiresAt ? new Date(expiresAt) : null;
+  const utcPreview = expiryDate && !Number.isNaN(expiryDate.getTime()) ? expiryDate.toISOString() : T.EMPTY_VALUE;
+
+  const storedIntent = useSyncExternalStore(subscribeRecovery, () => {
+    try { return recoveryKey ? window.sessionStorage.getItem(recoveryKey) : null; } catch { return null; }
+  }, () => null);
+  const intent = memoryRecovery?.owner === recoveryKey ? memoryRecovery.intent : parseRecovery(storedIntent);
+  const issueErrorCode = issue.error instanceof ApiError ? issue.error.code : undefined;
+  const rejected = issueErrorCode !== undefined && SAFE_NEW_INTENT_ERROR_CODES.has(issueErrorCode);
+  const saveRecovery = (next: IssueIntent | null): void => {
+    if (!recoveryKey) return;
+    setMemoryRecovery({ owner: recoveryKey, intent: next });
+    try {
+      if (next) window.sessionStorage.setItem(recoveryKey, JSON.stringify(next));
+      else window.sessionStorage.removeItem(recoveryKey);
+      window.dispatchEvent(new Event("license-issue-intent"));
+    } catch { /* Current-page retry still uses in-memory state when storage is unavailable. */ }
+  };
   const activePlans = plans.filter(
     (plan) => plan.type === "EXAM_PACKAGE" && plan.status === "ACTIVE",
   );
   const error = issue.error ?? revoke.error;
-  const errorMessage = error
+  const errorMessage = localError || (error
     ? getUserFacingApiErrorMessage(error, T.ERROR)
-    : isError
+    : isError || plansError
       ? T.ERROR
-      : undefined;
+      : undefined);
 
   const issueCode = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
-    if (!planId) return;
-    const result = await issue.mutateAsync({
-      planId,
-      codeExpiresAt: expiresAt ? new Date(`${expiresAt}T23:59:59`).toISOString() : null,
-    });
-    setMessage(T.ISSUED_SUCCESS(result.code));
-    setPlanId("");
-    setExpiresAt("");
+    if (issue.isPending || !recoveryKey) return;
+    setLocalError("");
+    setMessage("");
+    const submittedExpiry = expiresAt ? new Date(expiresAt) : null;
+    if (!intent && (!planId || (submittedExpiry && (Number.isNaN(submittedExpiry.getTime()) || submittedExpiry.getTime() <= new Date().getTime())))) {
+      setLocalError(T.INVALID_EXPIRY);
+      return;
+    }
+    const next = intent ?? { idempotencyKey: crypto.randomUUID(), payload: {
+      planId, codeExpiresAt: submittedExpiry ? submittedExpiry.toISOString() : null,
+    } };
+    saveRecovery(next);
+    try {
+      const result = await issue.mutateAsync(next);
+      setMessage(result.replayed ? T.RECOVERED_SUCCESS(result.publicId) : T.ISSUED_SUCCESS(result.publicId));
+      saveRecovery(null);
+      setPlanId("");
+      setExpiresAt("");
+    } catch { /* Mutation error is rendered; retry retains the same key and payload. */ }
   };
 
   const confirmRevoke = async (): Promise<void> => {
     if (!codeToRevoke) return;
-    await revoke.mutateAsync({
-      code: codeToRevoke.code,
-      reason: T.REVOKE_REASON,
-    });
-    setMessage(T.REVOKED_SUCCESS(codeToRevoke.code));
-    setCodeToRevoke(null);
+    try {
+      await revoke.mutateAsync({
+        code: codeToRevoke.code,
+        reason: T.REVOKE_REASON,
+      });
+      setMessage(T.REVOKED_SUCCESS(codeToRevoke.publicId));
+      setCodeToRevoke(null);
+    } catch { /* Keep confirmation open and render the mutation error. */ }
   };
 
   return (
@@ -72,6 +139,7 @@ export const LicenseCodesView = (): ReactElement => {
       <PageHeader title={T.TITLE} subtitle={T.SUBTITLE} />
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       {message && <Alert tone="success">{message}</Alert>}
+      {intent && <Alert tone="warning">{issue.isPending ? T.ISSUE_PENDING : rejected ? T.ISSUE_REJECTED : T.UNCERTAIN} {intent.payload.planId} · {intent.payload.codeExpiresAt ?? T.EMPTY_VALUE}</Alert>}
       <CommercialPanel title={T.ISSUE_TITLE} subtitle={T.ISSUE_SUBTITLE}>
         <form
           className="grid gap-4 sm:grid-cols-[1fr_220px_auto] sm:items-end"
@@ -85,18 +153,25 @@ export const LicenseCodesView = (): ReactElement => {
             value={planId}
             onChange={(event) => setPlanId(event.target.value)}
             required
+            disabled={intent !== null || issue.isPending}
           />
           <Input
             id="license-expires"
             label={T.EXPIRY_LABEL}
-            type="date"
+            type="datetime-local"
             value={expiresAt}
             onChange={(event) => setExpiresAt(event.target.value)}
+            disabled={intent !== null || issue.isPending}
           />
-          <Button type="submit" isLoading={issue.isPending} disabled={!planId}>
-            {T.ISSUE}
+          <Button type="submit" isLoading={issue.isPending} disabled={!isReady || !actorId || (!planId && !intent)}>
+            {intent ? T.RETRY_ISSUE : T.ISSUE}
           </Button>
         </form>
+        <p className="mt-3 text-xs text-slate-600">{T.EXPIRY_HELP(zone, utcPreview)}</p>
+        <Button type="button" disabled={issue.isPending} onClick={() => void refreshPlans()}>{T.REFRESH_PLANS}</Button>
+        {intent && <Button type="button" disabled={issue.isPending} onClick={() => setConfirmNewIntent(true)}>
+          {T.NEW_ISSUE}
+        </Button>}
       </CommercialPanel>
       <CommercialPanel
         title={T.ISSUED_TITLE}
@@ -155,6 +230,19 @@ export const LicenseCodesView = (): ReactElement => {
         />
       </CommercialPanel>
       <ConfirmDialog
+        open={confirmNewIntent}
+        title={T.NEW_ISSUE_CONFIRM}
+        description={rejected ? T.REJECTED_NEW_ISSUE : T.NEW_ISSUE_WARNING}
+        confirmLabel={T.NEW_ISSUE}
+        onConfirm={() => {
+          if (issue.isPending) return;
+          saveRecovery(null);
+          issue.reset();
+          setConfirmNewIntent(false);
+        }}
+        onClose={() => setConfirmNewIntent(false)}
+      />
+      <ConfirmDialog
         open={codeToRevoke !== null}
         title={T.REVOKE_TITLE}
         description={T.REVOKE_DESCRIPTION}
@@ -162,7 +250,7 @@ export const LicenseCodesView = (): ReactElement => {
         tone="danger"
         isConfirming={revoke.isPending}
         onConfirm={() => void confirmRevoke()}
-        onClose={() => setCodeToRevoke(null)}
+        onClose={() => { if (!revoke.isPending) setCodeToRevoke(null); }}
       />
     </div>
   );

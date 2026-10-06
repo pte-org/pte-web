@@ -128,6 +128,16 @@ export interface IssueLicenseCodeRequest {
   codeExpiresAt?: string | null;
 }
 
+export interface LicenseIssueReceipt {
+  publicId: string;
+  planId: string;
+  persistedStatus: LicenseCodeStatus;
+  status: LicenseCodeStatus;
+  issuedAt: string;
+  codeExpiresAt: string | null;
+  replayed: boolean;
+}
+
 export interface RevokeLicenseCodeRequest {
   reason: string;
 }

@@ -2,12 +2,14 @@ import type { ApiClient } from "../../client/client";
 import type {
   IssueLicenseCodeRequest,
   LicenseCodeResponse,
+  LicenseIssueReceipt,
   RedeemLicenseCodeRequest,
   RevokeLicenseCodeRequest,
   SubscriptionActivationResponse,
 } from "../../types/billing";
 
 export const LICENSE_CODE_ENDPOINTS = {
+  issue: "/api/v1/admin/license-codes",
   licenseCodes: "/api/v1/license-codes",
   revoke: (code: string) =>
     "/api/v1/license-codes/" + encodeURIComponent(code) + "/revoke",
@@ -21,8 +23,11 @@ export function listLicenseCodes(client: ApiClient): Promise<LicenseCodeResponse
 export function issueLicenseCode(
   client: ApiClient,
   payload: IssueLicenseCodeRequest,
-): Promise<LicenseCodeResponse> {
-  return client.request(LICENSE_CODE_ENDPOINTS.licenseCodes, { method: "POST", body: payload });
+  idempotencyKey: string,
+): Promise<LicenseIssueReceipt> {
+  return client.request(LICENSE_CODE_ENDPOINTS.issue, {
+    method: "POST", body: payload, headers: { "Idempotency-Key": idempotencyKey },
+  });
 }
 
 export function revokeLicenseCode(

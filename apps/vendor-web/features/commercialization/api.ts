@@ -18,6 +18,7 @@ import {
   activatePlan,
   type IssueLicenseCodeRequest,
   type LicenseCodeResponse,
+  type LicenseIssueReceipt,
   type PlanRequest,
   type PlanResponse,
   type PlanTransitionRequest,
@@ -178,15 +179,15 @@ export function useLicenseCodesQuery(): UseQueryResult<LicenseCodeResponse[]> {
 }
 
 export function useIssueLicenseCode(): UseMutationResult<
-  LicenseCodeResponse,
+  LicenseIssueReceipt,
   unknown,
-  IssueLicenseCodeRequest
+  { payload: IssueLicenseCodeRequest; idempotencyKey: string }
 > {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload) => issueLicenseCode(apiClient, payload),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: LICENSE_CODES_QUERY_KEY });
+    mutationFn: ({ payload, idempotencyKey }) => issueLicenseCode(apiClient, payload, idempotencyKey),
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: LICENSE_CODES_QUERY_KEY });
     },
   });
 }
