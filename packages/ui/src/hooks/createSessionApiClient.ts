@@ -1,5 +1,6 @@
 import { createApiClient, type ApiClient, type RefreshedTokens } from "@pte/api-client";
 import { sessionStorage } from "./sessionStorage";
+import { getSessionGeneration } from "./sessionLifecycle";
 
 /**
  * `vendor-web` and `tenant-web` each wired an identical `createApiClient`
@@ -25,6 +26,7 @@ export function createSessionApiClient(baseUrl: string): ApiClient {
       });
     },
     onUnauthorized: () => sessionStorage.clear(),
+    getSessionGeneration,
   });
 }
 

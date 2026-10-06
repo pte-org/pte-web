@@ -22,12 +22,20 @@ export const ADMIN_NAV: NavItem[] = [
     href: "/admin/license-codes",
     icon: <LicenseIcon />,
     section: T.COMMERCIAL_SECTION,
+    requiredRoles: ["PLATFORM_ADMIN"],
   },
   {
     label: T.PLATFORM_SETTINGS,
     href: "/admin/settings",
     icon: <DocumentIcon />,
     section: T.COMMERCIAL_SECTION,
+  },
+  {
+    label: T.ANNOUNCEMENTS,
+    href: "/admin/announcements",
+    icon: <DocumentIcon />,
+    section: T.COMMERCIAL_SECTION,
+    requiredRoles: ["PLATFORM_ADMIN"],
   },
   {
     label: T.QUESTION_BANK,

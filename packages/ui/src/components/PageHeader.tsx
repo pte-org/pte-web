@@ -12,6 +12,6 @@ export const PageHeader = ({ title, subtitle, actions }: PageHeaderProps): React
       <h1 className="text-[21px] font-semibold leading-tight text-slate-900">{title}</h1>
       {subtitle && <p className="mt-1 text-sm leading-5 text-gray-600">{subtitle}</p>}
     </div>
-    {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+    {actions && <div className="flex flex-wrap items-center gap-2 sm:shrink-0">{actions}</div>}
   </div>
 );

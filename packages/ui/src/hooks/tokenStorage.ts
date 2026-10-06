@@ -31,5 +31,7 @@ export const tokenStorage = {
     if (!isBrowser()) return;
     window.localStorage.removeItem(TOKEN_KEY);
     window.localStorage.removeItem(SESSION_KEY);
+    noteSessionCleared();
   },
 };
+import { noteSessionCleared } from "./sessionLifecycle";

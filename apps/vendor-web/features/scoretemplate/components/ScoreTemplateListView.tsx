@@ -2,7 +2,26 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Badge, Button, Input, LoadingState, Modal, PageHeader, Select } from "@pte/ui";
+import {
+  ActionMenu,
+  Alert,
+  Badge,
+  BanIcon,
+  Button,
+  CheckCircleIcon,
+  CopyIcon,
+  DocumentIcon,
+  EyeIcon,
+  Input,
+  LoadingState,
+  Modal,
+  PageHeader,
+  PencilIcon,
+  Select,
+  TrashIcon,
+  UploadIcon,
+  type ActionMenuItem,
+} from "@pte/ui";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
 import { useCurrentUser } from "@/features/auth/api";
 import {
@@ -22,7 +41,11 @@ import {
   SCORE_TEMPLATE_TEXT,
   EXAM_TEMPLATE_BASE_PATH,
 } from "../constants";
-import type { ScoreTemplatePolicy, ScoreTemplateResponse, ScoreTemplateStatusFilter } from "../types";
+import type {
+  ScoreTemplatePolicy,
+  ScoreTemplateResponse,
+  ScoreTemplateStatusFilter,
+} from "../types";
 import { downloadScoreTemplateJson } from "../serialization";
 
 const HEADER_CLASS =
@@ -127,6 +150,70 @@ export const ScoreTemplateListView = (): ReactElement => {
     });
   };
 
+  const buildActions = (template: ScoreTemplateResponse): ActionMenuItem[] => {
+    const isDraft = template.status === "DRAFT";
+    const actions: ActionMenuItem[] = [
+      {
+        label: isDraft ? SCORE_TEMPLATE_TEXT.EDIT_ACTION : SCORE_TEMPLATE_TEXT.VIEW_ACTION,
+        icon: isDraft ? PencilIcon : EyeIcon,
+        onSelect: () => router.push(detailHref(template)),
+      },
+      {
+        label: SCORE_TEMPLATE_TEXT.EXPORT_ACTION,
+        icon: DocumentIcon,
+        onSelect: () => downloadScoreTemplateJson(template),
+      },
+    ];
+
+    if (!isDraft) {
+      actions.push({
+        label: SCORE_TEMPLATE_TEXT.CLONE_ACTION,
+        icon: CopyIcon,
+        disabled: cloneMutation.isPending && cloneMutation.variables === template.publicId,
+        onSelect: () => handleClone(template.publicId),
+      });
+    }
+
+    if (isDraft) {
+      actions.push({
+        label: SCORE_TEMPLATE_TEXT.SUBMIT_APPROVAL_ACTION,
+        icon: UploadIcon,
+        disabled:
+          submitApprovalMutation.isPending &&
+          submitApprovalMutation.variables === template.publicId,
+        onSelect: () => handleSubmitApproval(template.publicId),
+      });
+      actions.push({
+        label: SCORE_TEMPLATE_TEXT.DELETE_ACTION,
+        icon: TrashIcon,
+        danger: true,
+        disabled: deleteMutation.isPending && deleteMutation.variables === template.publicId,
+        onSelect: () => handleDelete(template),
+      });
+    }
+
+    if (template.status === "PENDING_APPROVAL" && isPlatformAdmin) {
+      actions.push({
+        label: SCORE_TEMPLATE_TEXT.APPROVE_ACTION,
+        icon: CheckCircleIcon,
+        disabled: approveMutation.isPending && approveMutation.variables === template.publicId,
+        onSelect: () => handleApprove(template.publicId),
+      });
+      actions.push({
+        label: SCORE_TEMPLATE_TEXT.REJECT_ACTION,
+        icon: BanIcon,
+        disabled: rejectMutation.isPending,
+        onSelect: () => {
+          setRejectTarget(template);
+          setRejectReason("");
+          setRejectError(null);
+        },
+      });
+    }
+
+    return actions;
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -224,89 +311,7 @@ export const ScoreTemplateListView = (): ReactElement => {
                         ] ?? template.templatePolicy}
                       </td>
                       <td className={CELL_CLASS}>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => router.push(detailHref(template))}
-                          >
-                            {template.status === "DRAFT"
-                              ? SCORE_TEMPLATE_TEXT.EDIT_ACTION
-                              : SCORE_TEMPLATE_TEXT.VIEW_ACTION}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => downloadScoreTemplateJson(template)}
-                          >
-                            {SCORE_TEMPLATE_TEXT.EXPORT_ACTION}
-                          </Button>
-                          {template.status !== "DRAFT" && (
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              isLoading={
-                                cloneMutation.isPending &&
-                                cloneMutation.variables === template.publicId
-                              }
-                              onClick={() => handleClone(template.publicId)}
-                            >
-                              {SCORE_TEMPLATE_TEXT.CLONE_ACTION}
-                            </Button>
-                          )}
-                          {template.status === "DRAFT" && (
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              isLoading={
-                                submitApprovalMutation.isPending &&
-                                submitApprovalMutation.variables === template.publicId
-                              }
-                              onClick={() => handleSubmitApproval(template.publicId)}
-                            >
-                              {SCORE_TEMPLATE_TEXT.SUBMIT_APPROVAL_ACTION}
-                            </Button>
-                          )}
-                          {template.status === "PENDING_APPROVAL" && isPlatformAdmin && (
-                            <>
-                              <Button
-                                variant="primary"
-                                size="sm"
-                                isLoading={
-                                  approveMutation.isPending &&
-                                  approveMutation.variables === template.publicId
-                                }
-                                onClick={() => handleApprove(template.publicId)}
-                              >
-                                {SCORE_TEMPLATE_TEXT.APPROVE_ACTION}
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  setRejectTarget(template);
-                                  setRejectReason("");
-                                  setRejectError(null);
-                                }}
-                              >
-                                {SCORE_TEMPLATE_TEXT.REJECT_ACTION}
-                              </Button>
-                            </>
-                          )}
-                          {template.status === "DRAFT" && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              isLoading={
-                                deleteMutation.isPending &&
-                                deleteMutation.variables === template.publicId
-                              }
-                              onClick={() => handleDelete(template)}
-                            >
-                              {SCORE_TEMPLATE_TEXT.DELETE_ACTION}
-                            </Button>
-                          )}
-                        </div>
+                        <ActionMenu items={buildActions(template)} />
                       </td>
                     </tr>
                   );
@@ -371,7 +376,9 @@ export const ScoreTemplateListView = (): ReactElement => {
               ]}
             />
             {createPolicy === "CUSTOM" && (
-              <p className="mt-1 text-xs text-gray-500">{SCORE_TEMPLATE_TEXT.CUSTOM_POLICY_NOTICE}</p>
+              <p className="mt-1 text-xs text-gray-500">
+                {SCORE_TEMPLATE_TEXT.CUSTOM_POLICY_NOTICE}
+              </p>
             )}
           </div>
           {createError && <Alert tone="error">{createError}</Alert>}

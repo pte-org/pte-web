@@ -23,11 +23,34 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   DUPLICATE_EMAIL_IN_BATCH: "Some email addresses appear more than once in the uploaded file.",
   INVALID_LOGIN: "The username or password is incorrect.",
   ACCESS_DENIED: "You do not have permission to complete this action.",
+  LICENSE_CODE_IDEMPOTENCY_KEY_REQUIRED: "Reload this page before issuing a license code.",
+  LICENSE_CODE_IDEMPOTENCY_KEY_INVALID: "Reload this page to generate a valid issuance key.",
+  LICENSE_CODE_IDEMPOTENCY_KEY_REUSED: "This request belongs to another issuance. Recover the original result or explicitly start a new issuance.",
+  LICENSE_CODE_ISSUE_RETRYABLE: "The result is not confirmed. Recover this request using the same issuance key.",
+  LICENSE_CODE_ISSUE_FAILED: "The issuance could not be confirmed. Recover this request before starting another.",
+  LICENSE_CODE_ISSUE_RESULT_MISSING: "The original issuance is retained in history but its code is unavailable. Contact support.",
+  LICENSE_CODE_EXAM_PLAN_REQUIRED: "Select an active exam package and try again.",
+  LICENSE_CODE_EXPIRY_INVALID: "Code expiry must be in the future. Correct it and start a new issuance.",
+  LICENSE_CODE_EXPIRY_PRECISION_INVALID: "Expiry supports microsecond precision at most.",
   LICENSE_CODE_NOT_FOUND: "We couldn't find that license code. Please check it and try again.",
   LICENSE_CODE_ALREADY_REDEEMED: "This license code has already been redeemed.",
   LICENSE_CODE_REVOKED: "This license code has been revoked.",
   LICENSE_CODE_EXPIRED: "This license code has expired.",
   LICENSE_CODE_NOT_REDEEMABLE: "This license code cannot be redeemed.",
+  LICENSE_CODE_REVOKE_SCOPE_CHANGED:
+    "The license revoke scope changed. Refresh the preview and review it again.",
+  LICENSE_CODE_REVOKE_PREVIEW_EXPIRED:
+    "The license revoke preview expired. Refresh the preview and review it again.",
+  LICENSE_CODE_REVOKE_CONFIRMATION_REQUIRED:
+    "Confirm the revoke scope and all required acknowledgements before continuing.",
+  LICENSE_CODE_REVOKE_CAPACITY_UNSUPPORTED:
+    "This redeemed capacity code cannot be reversed from the admin screen.",
+  LICENSE_CODE_REVOKE_TENANT_MISMATCH:
+    "The linked subscription does not match this license code.",
+  LICENSE_CODE_REVOKE_IMPACT_UNAVAILABLE:
+    "The current exam impact could not be verified. Try again later.",
+  LICENSE_CODE_REVOKE_LEGACY_ENDPOINT:
+    "This revoke link is outdated. Open the license code from the admin screen and preview it again.",
   EXAM_PREFLIGHT_FAILED:
     "This exam is not ready yet. Review the template, schedule, subscription, and audience selections.",
   EXAM_DRAFT_NOT_EDITABLE:

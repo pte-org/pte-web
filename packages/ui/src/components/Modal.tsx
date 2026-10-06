@@ -22,6 +22,8 @@ interface ModalProps {
    * not dismissed by an accidental click outside the modal content.
    */
   closeOnBackdropClick?: boolean;
+  /** Prevent dismissal while a mutation owns this dialog. */
+  isDismissDisabled?: boolean;
 }
 
 const CLOSE_LABEL = "Close";
@@ -43,15 +45,16 @@ export const Modal = ({
   size = "md",
   stickyFooter = false,
   closeOnBackdropClick = false,
+  isDismissDisabled = false,
 }: ModalProps): ReactElement | null => {
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent): void => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape" && !isDismissDisabled) onClose();
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
+  }, [open, onClose, isDismissDisabled]);
 
   useEffect(() => {
     if (!open) return;
@@ -67,7 +70,7 @@ export const Modal = ({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm"
-      onClick={closeOnBackdropClick ? onClose : undefined}
+      onClick={closeOnBackdropClick && !isDismissDisabled ? onClose : undefined}
     >
       <div
         role="dialog"
@@ -84,6 +87,7 @@ export const Modal = ({
             <button
               type="button"
               aria-label={CLOSE_LABEL}
+              disabled={isDismissDisabled}
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600"
             >

@@ -81,7 +81,7 @@ export const ADMIN_TICKET_DETAIL_TEXT = {
   EMPTY_NOTES_TITLE: "No notes yet",
   EMPTY_NOTES_TEXT: "Add the first note to document your findings.",
   ADD_NOTE_LABEL: "Add a note",
-  ADD_NOTE_PLACEHOLDER: "Write a note visible only to admins…",
+  ADD_NOTE_PLACEHOLDER: "Write a note visible to the tenant…",
   ADD_NOTE_SUBMIT: "Add note",
   ADD_NOTE_SUCCESS: "Note added.",
   UPDATE_STATUS_SUCCESS: "Status updated.",

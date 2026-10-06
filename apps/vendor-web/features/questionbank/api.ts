@@ -10,6 +10,7 @@ import {
 } from "@tanstack/react-query";
 import {
   archiveQuestion,
+  deleteQuestion,
   approveQuestion,
   createQuestion,
   createQuestionRevision,
@@ -66,6 +67,9 @@ function mapQuestion(response: QuestionResponse): Question {
     content: response.title || response.promptText || "—",
     status: mapStatus(response.status),
     rejectionReason: response.rejectionReason,
+    canDeleteDraft: response.canDeleteDraft,
+    canArchive: response.canArchive,
+    deleteBlockReason: response.deleteBlockReason,
   };
 }
 
@@ -166,8 +170,13 @@ export function useArchiveQuestion(): UseMutationResult<QuestionResponse, unknow
   const onSuccess = useInvalidateQuestionsOnSuccess();
   return useMutation({
     mutationFn: (id: string) => archiveQuestion(apiClient, id),
-    onSuccess,
+    onSettled: onSuccess,
   });
+}
+
+export function useDeleteQuestion(): UseMutationResult<void, unknown, string> {
+  const invalidate = useInvalidateQuestionsOnSuccess();
+  return useMutation({ mutationFn: (id) => deleteQuestion(apiClient, id), onSettled: invalidate });
 }
 
 export function useUnarchiveQuestion(): UseMutationResult<QuestionResponse, unknown, string> {

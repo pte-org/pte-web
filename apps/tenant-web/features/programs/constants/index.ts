@@ -63,18 +63,18 @@ export const PROGRAM_DETAIL_TEXT = {
   activate: "Activate",
   deactivate: "Deactivate",
   suspend: "Suspend",
-  archive: "Archive",
+  archive: "Remove",
   missingOrganization:
     "Missing organization context — go back to the list and open this from there.",
   backToList: (label: string) => `Back to ${pluralize(label)}`,
   loadFailed: "Couldn't load this — it may have been archived or you may not have access.",
   activateSuccess: (label: string) => `${label} activated successfully.`,
   suspendSuccess: (label: string) => `${label} suspended successfully.`,
-  archiveSuccess: (label: string) => `${label} archived successfully.`,
-  confirmArchiveTitle: (label: string) => `Archive ${label}`,
+  archiveSuccess: (label: string) => `${label} removed successfully.`,
+  confirmArchiveTitle: (label: string) => `Remove ${label}`,
   confirmArchiveDescription: (name: string, label: string) =>
-    `Are you sure you want to archive "${name}"? This ${label.toLowerCase()} will be archived and no longer active.`,
-  confirmArchiveButton: "Archive",
+    `Remove "${name}" from the active workspace? This ${label.toLowerCase()}'s history is retained. Active classes must be removed or deactivated first.`,
+  confirmArchiveButton: "Remove",
   cancel: "Cancel",
   archiveConfirmTitle: (label: string) => `Archive ${label}?`,
   archiveCascadeWarning: (classCount: number, studentCount: number, label: string) =>

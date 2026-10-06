@@ -7,9 +7,16 @@ import type {
 
 export const SUBSCRIPTION_ENDPOINTS = {
   subscriptions: "/api/v1/subscriptions",
-  revealLicenseKey: (publicId: string) =>
-    `/api/v1/subscriptions/${publicId}/license-key/reveal`,
+  subscription: (publicId: string) => `/api/v1/subscriptions/${publicId}`,
+  revealLicenseKey: (publicId: string) => `/api/v1/subscriptions/${publicId}/license-key/reveal`,
 } as const;
+
+export function getSubscription(
+  client: ApiClient,
+  publicId: string,
+): Promise<SubscriptionResponse> {
+  return client.request<SubscriptionResponse>(SUBSCRIPTION_ENDPOINTS.subscription(publicId));
+}
 
 export function listSubscriptions(client: ApiClient): Promise<SubscriptionResponse[]> {
   return client.request(SUBSCRIPTION_ENDPOINTS.subscriptions);

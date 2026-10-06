@@ -60,14 +60,24 @@ function loginAccountErrorMessage(error: unknown): string | undefined {
   return getUserFacingApiErrorMessage(error);
 }
 
+function resetPasswordErrorMessage(error: unknown): string | undefined {
+  if (error instanceof ApiError && (error.kind === "network" || error.kind === "server")) {
+    return LOGIN_ACCOUNT_TEXT.RESET_UNCERTAIN;
+  }
+  return mutationErrorMessage(error);
+}
+
 interface TenantDetailViewProps {
   tenantPublicId: string;
 }
 
 export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): ReactElement => {
-  const { data: tenant, isLoading } = useTenant(tenantPublicId);
+  const tenantQuery = useTenant(tenantPublicId);
+  const { data: tenant, isLoading } = tenantQuery;
   const { data: organizations } = useOrganizations(tenantPublicId);
-  const { data: loginAccount } = useLoginAccount(tenantPublicId);
+  const loginAccountQuery = useLoginAccount(tenantPublicId);
+  const loginAccount = loginAccountQuery.data?.account ?? null;
+  const isAmbiguousLoginAccount = loginAccountQuery.data?.ambiguous ?? false;
   const updateBranding = useUpdateBranding(tenantPublicId);
   const suspendOrganization = useSuspendOrganization(tenantPublicId);
   const reactivateOrganization = useReactivateOrganization(tenantPublicId);
@@ -110,8 +120,25 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
     });
   };
 
-  if (isLoading || !tenant) {
+  if (isLoading) {
     return <LoadingState />;
+  }
+
+  if (tenantQuery.error || !tenant) {
+    return (
+      <Alert tone="error">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <span>{getUserFacingApiErrorMessage(tenantQuery.error, T.LOAD_ERROR)}</span>
+          <button
+            type="button"
+            className="font-semibold underline"
+            onClick={() => void tenantQuery.refetch()}
+          >
+            {T.RETRY}
+          </button>
+        </div>
+      </Alert>
+    );
   }
 
   return (
@@ -191,7 +218,26 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
 
         {resetSucceeded && <Alert tone="success">{L.RESET_SUCCESS}</Alert>}
 
-        {loginAccount ? (
+        {loginAccountQuery.isLoading ? (
+          <div className="rounded-lg border border-gray-200 bg-white p-5 text-sm text-gray-500">
+            {L.LOADING}
+          </div>
+        ) : loginAccountQuery.error ? (
+          <Alert tone="error">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <span>{loginAccountErrorMessage(loginAccountQuery.error) ?? L.LOAD_ERROR}</span>
+              <button
+                type="button"
+                className="font-semibold underline"
+                onClick={() => void loginAccountQuery.refetch()}
+              >
+                {L.RETRY}
+              </button>
+            </div>
+          </Alert>
+        ) : isAmbiguousLoginAccount ? (
+          <Alert tone="error">{L.AMBIGUOUS_TARGET}</Alert>
+        ) : loginAccount ? (
           <div className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5">
             <DetailGroup
               title={L.GROUP_IDENTITY}
@@ -290,15 +336,23 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
       />
 
       <ResetPasswordModal
-        key={resetPasswordOpen ? "resetPassword-open" : "resetPassword-closed"}
+        key={
+          resetPasswordOpen
+            ? `resetPassword-open-${loginAccount?.id ?? "unknown"}`
+            : "resetPassword-closed"
+        }
         open={resetPasswordOpen}
         onClose={() => {
           resetPassword.reset();
           setResetPasswordOpen(false);
         }}
         onSubmit={confirmResetPassword}
-        error={mutationErrorMessage(resetPassword.error)}
+        error={resetPasswordErrorMessage(resetPassword.error)}
         isSubmitting={resetPassword.isPending}
+        tenantName={tenant.name}
+        targetName={loginAccount?.fullName ?? ""}
+        targetUsername={loginAccount?.username ?? ""}
+        targetRoles={loginAccount?.roles ?? []}
       />
     </div>
   );

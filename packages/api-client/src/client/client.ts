@@ -2,6 +2,7 @@ import { ApiError, type ApiErrorKind } from "./apiError";
 import { isMachineErrorCode } from "./errorMessage";
 
 export type TokenGetter = () => string | null;
+export type SessionGenerationGetter = () => number;
 
 export interface RefreshedTokens {
   accessToken: string;
@@ -32,6 +33,8 @@ export interface ApiClientOptions {
    * should clear its session here.
    */
   onUnauthorized?: () => void;
+  /** Current protected-session generation; prevents an old refresh/result from touching a new account. */
+  getSessionGeneration?: SessionGenerationGetter;
   /** Injectable fetch implementation; defaults to the global fetch. */
   fetchFn?: typeof fetch;
 }
@@ -87,6 +90,14 @@ export interface ApiClient {
     options?: RequestInit,
   ): Promise<DownloadResponse>;
   download(path: string, options?: RequestOptions): Promise<DownloadResponse>;
+}
+
+/** A request completed after logout or account/tenant switch and must not update protected state. */
+export class StaleSessionRequestError extends Error {
+  constructor() {
+    super("The session changed while the request was in flight.");
+    this.name = "StaleSessionRequestError";
+  }
 }
 
 const NETWORK_ERROR_MESSAGE =
@@ -175,31 +186,45 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     refreshAccessToken,
     onTokenRefreshed,
     onUnauthorized,
+    getSessionGeneration,
     fetchFn = fetch,
   } = options;
 
   // Dedups concurrent 401s into a single in-flight refresh — e.g. several
   // widgets each mid-request when the access token expires must not each
   // fire their own `/auth/refresh` call.
-  let refreshingPromise: Promise<boolean> | null = null;
+  type RefreshOutcome = "refreshed" | "unavailable" | "stale";
+  let refreshingPromise: { generation: number | undefined; promise: Promise<RefreshOutcome> } | null = null;
 
-  async function tryRefresh(): Promise<boolean> {
-    if (!refreshAccessToken) return false;
-    const refreshToken = getRefreshToken?.() ?? null;
-    if (!refreshToken) return false;
-
-    if (!refreshingPromise) {
-      refreshingPromise = refreshAccessToken(refreshToken)
-        .then((tokens) => {
-          onTokenRefreshed?.(tokens);
-          return true;
-        })
-        .catch(() => false)
-        .finally(() => {
-          refreshingPromise = null;
-        });
+  async function tryRefresh(expectedGeneration?: number): Promise<RefreshOutcome> {
+    if (!refreshAccessToken) return "unavailable";
+    if (expectedGeneration !== undefined && getSessionGeneration?.() !== expectedGeneration) {
+      return "stale";
     }
-    return refreshingPromise;
+    const refreshToken = getRefreshToken?.() ?? null;
+    if (!refreshToken) return "unavailable";
+    const generationAtStart = expectedGeneration ?? getSessionGeneration?.();
+
+    if (!refreshingPromise || refreshingPromise.generation !== generationAtStart) {
+      const promise = refreshAccessToken(refreshToken)
+        .then((tokens) => {
+          if (generationAtStart !== undefined
+              && getSessionGeneration?.() !== generationAtStart) return "stale";
+          onTokenRefreshed?.(tokens);
+          return "refreshed";
+        })
+        .catch(() => "unavailable" as const);
+      refreshingPromise = { generation: generationAtStart, promise };
+      void promise.then(() => {
+        if (refreshingPromise?.promise === promise) {
+          refreshingPromise = null;
+        }
+      });
+    }
+    const outcome = await refreshingPromise.promise;
+    if (outcome === "refreshed" && generationAtStart !== undefined
+        && getSessionGeneration?.() !== generationAtStart) return "stale";
+    return outcome;
   }
 
   function buildHeaders(customHeaders?: HeadersInit, hasJsonBody = false): Headers {
@@ -236,6 +261,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     requestOptions: RequestOptions = {},
     isRetry = false,
   ): Promise<T> {
+    const requestGeneration = getSessionGeneration?.();
     const { body, headers: customHeaders, ...rest } = requestOptions;
     const response = await send(path, {
       ...rest,
@@ -243,10 +269,21 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
 
-    if (response.status === 401 && !isRetry && (await tryRefresh())) {
-      return request<T>(path, requestOptions, true);
+    if (response.status === 401 && !isRetry) {
+      const refreshOutcome = await tryRefresh(requestGeneration);
+      if (refreshOutcome === "refreshed" && (requestGeneration === undefined
+          || getSessionGeneration?.() === requestGeneration)) {
+        return request<T>(path, requestOptions, true);
+      }
+      if (refreshOutcome === "stale" || (requestGeneration !== undefined
+          && getSessionGeneration?.() !== requestGeneration)) {
+        throw new StaleSessionRequestError();
+      }
     }
     await assertOk(response);
+    if (requestGeneration !== undefined && getSessionGeneration?.() !== requestGeneration) {
+      throw new StaleSessionRequestError();
+    }
     return unwrapResponse<T>(await parseJsonSafely(response));
   }
 
@@ -256,6 +293,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     requestOptions: RequestInit = {},
     isRetry = false,
   ): Promise<T> {
+    const requestGeneration = getSessionGeneration?.();
     const { headers: customHeaders, ...rest } = requestOptions;
     const response = await send(path, {
       ...rest,
@@ -264,10 +302,21 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
       body: formData,
     });
 
-    if (response.status === 401 && !isRetry && (await tryRefresh())) {
-      return upload<T>(path, formData, requestOptions, true);
+    if (response.status === 401 && !isRetry) {
+      const refreshOutcome = await tryRefresh(requestGeneration);
+      if (refreshOutcome === "refreshed" && (requestGeneration === undefined
+          || getSessionGeneration?.() === requestGeneration)) {
+        return upload<T>(path, formData, requestOptions, true);
+      }
+      if (refreshOutcome === "stale" || (requestGeneration !== undefined
+          && getSessionGeneration?.() !== requestGeneration)) {
+        throw new StaleSessionRequestError();
+      }
     }
     await assertOk(response);
+    if (requestGeneration !== undefined && getSessionGeneration?.() !== requestGeneration) {
+      throw new StaleSessionRequestError();
+    }
     return unwrapResponse<T>(await parseJsonSafely(response));
   }
 
@@ -277,6 +326,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     requestOptions: RequestInit = {},
     isRetry = false,
   ): Promise<DownloadResponse> {
+    const requestGeneration = getSessionGeneration?.();
     const { headers: customHeaders, ...rest } = requestOptions;
     const response = await send(path, {
       ...rest,
@@ -285,10 +335,21 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
       body: formData,
     });
 
-    if (response.status === 401 && !isRetry && (await tryRefresh())) {
-      return uploadDownload(path, formData, requestOptions, true);
+    if (response.status === 401 && !isRetry) {
+      const refreshOutcome = await tryRefresh(requestGeneration);
+      if (refreshOutcome === "refreshed" && (requestGeneration === undefined
+          || getSessionGeneration?.() === requestGeneration)) {
+        return uploadDownload(path, formData, requestOptions, true);
+      }
+      if (refreshOutcome === "stale" || (requestGeneration !== undefined
+          && getSessionGeneration?.() !== requestGeneration)) {
+        throw new StaleSessionRequestError();
+      }
     }
     await assertOk(response);
+    if (requestGeneration !== undefined && getSessionGeneration?.() !== requestGeneration) {
+      throw new StaleSessionRequestError();
+    }
     return {
       blob: await response.blob(),
       filename: filenameFromDisposition(response.headers.get("Content-Disposition")),
@@ -300,6 +361,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     requestOptions: RequestOptions = {},
     isRetry = false,
   ): Promise<DownloadResponse> {
+    const requestGeneration = getSessionGeneration?.();
     const { body, headers: customHeaders, ...rest } = requestOptions;
     const response = await send(path, {
       ...rest,
@@ -307,10 +369,21 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
       body: body === undefined ? undefined : JSON.stringify(body),
     });
 
-    if (response.status === 401 && !isRetry && (await tryRefresh())) {
-      return download(path, requestOptions, true);
+    if (response.status === 401 && !isRetry) {
+      const refreshOutcome = await tryRefresh(requestGeneration);
+      if (refreshOutcome === "refreshed" && (requestGeneration === undefined
+          || getSessionGeneration?.() === requestGeneration)) {
+        return download(path, requestOptions, true);
+      }
+      if (refreshOutcome === "stale" || (requestGeneration !== undefined
+          && getSessionGeneration?.() !== requestGeneration)) {
+        throw new StaleSessionRequestError();
+      }
     }
     await assertOk(response);
+    if (requestGeneration !== undefined && getSessionGeneration?.() !== requestGeneration) {
+      throw new StaleSessionRequestError();
+    }
     return {
       blob: await response.blob(),
       filename: filenameFromDisposition(response.headers.get("Content-Disposition")),

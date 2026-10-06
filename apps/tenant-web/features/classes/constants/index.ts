@@ -70,7 +70,7 @@ export const CLASS_ROW_ACTIONS_TEXT = {
   activate: "Activate",
   deactivate: "Deactivate",
   suspend: "Suspend",
-  archive: "Archive",
+  archive: "Remove",
 } as const;
 
 export const CREATE_CLASS_TEXT = {
@@ -102,7 +102,7 @@ export const CLASS_ROSTER_TEXT = {
   exportButton: "Export to Excel",
   emptyTitle: "No students assigned yet",
   emptyText: "Import a roster or assign an existing student to get started.",
-  loadFailed: "Couldn't load this — it may have been archived or you may not have access.",
+  loadFailed: "Couldn't load this. Check the link and your access, then try again.",
   missingContext:
     "Missing organization/program context — go back to the list and open this from there.",
   emptyValue: "—",
@@ -235,7 +235,7 @@ export const MERGE_CLASSES_TEXT = {
   title: (label: string) => `Merge ${pluralize(label)}`,
   destinationLabel: (label: string) => `Merge into which ${label.toLowerCase()}?`,
   sourcesLabel: (label: string) =>
-    `The rest will be merged into it and their students moved. The source ${label.toLowerCase()}(s) themselves are not archived — archive them separately afterward if you want.`,
+    `The rest will be merged into it and their students moved. Source ${label.toLowerCase()}(s) are not removed automatically. Remove them separately afterward if needed.`,
   cancel: "Cancel",
   submit: "Merge",
   submitting: "Merging...",
