@@ -6,16 +6,27 @@ import {
   Alert,
   BanIcon,
   Button,
+  Checkbox,
   ConfirmDialog,
   DataTable,
   Input,
+  Modal,
   PageHeader,
   Select,
   useSessionManager,
 } from "@pte/ui";
-import { ApiError, decodeAccessTokenClaims, getUserFacingApiErrorMessage, type LicenseCodeResponse, type IssueLicenseCodeRequest } from "@pte/api-client";
+import {
+  ApiError,
+  decodeAccessTokenClaims,
+  getUserFacingApiErrorMessage,
+  type ConfirmLicenseRevokeRequest,
+  type IssueLicenseCodeRequest,
+  type LicenseCodeResponse,
+  type LicenseRevokePreviewResponse,
+} from "@pte/api-client";
 import {
   useIssueLicenseCode,
+  useLicenseCodeRevokePreview,
   useLicenseCodesQuery,
   usePlansQuery,
   useRevokeLicenseCode,
@@ -59,10 +70,16 @@ export const LicenseCodesView = (): ReactElement => {
   const { data: codes = [], isLoading, isError } = useLicenseCodesQuery();
   const { data: plans = [], refetch: refreshPlans, isError: plansError } = usePlansQuery();
   const issue = useIssueLicenseCode();
+  const revokePreviewRequest = useLicenseCodeRevokePreview();
   const revoke = useRevokeLicenseCode();
   const [planId, setPlanId] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [codeToRevoke, setCodeToRevoke] = useState<LicenseCodeResponse | null>(null);
+  const [revokePreview, setRevokePreview] = useState<LicenseRevokePreviewResponse | null>(null);
+  const [revokeReason, setRevokeReason] = useState<string>(T.REVOKE_REASON);
+  const [cancelSubscription, setCancelSubscription] = useState(false);
+  const [cancelScheduledScope, setCancelScheduledScope] = useState(false);
+  const [preserveOpenClosed, setPreserveOpenClosed] = useState(false);
   const [message, setMessage] = useState("");
   const [memoryRecovery, setMemoryRecovery] = useState<{ owner: string; intent: IssueIntent | null } | null>(null);
   const [localError, setLocalError] = useState("");
@@ -92,7 +109,7 @@ export const LicenseCodesView = (): ReactElement => {
   const activePlans = plans.filter(
     (plan) => plan.type === "EXAM_PACKAGE" && plan.status === "ACTIVE",
   );
-  const error = issue.error ?? revoke.error;
+  const error = issue.error ?? revoke.error ?? revokePreviewRequest.error;
   const errorMessage = localError || (error
     ? getUserFacingApiErrorMessage(error, T.ERROR)
     : isError || plansError
@@ -122,16 +139,65 @@ export const LicenseCodesView = (): ReactElement => {
     } catch { /* Mutation error is rendered; retry retains the same key and payload. */ }
   };
 
+  const loadRevokePreview = async (publicId: string): Promise<void> => {
+    setRevokePreview(null);
+    revokePreviewRequest.reset();
+    try {
+      const preview = await revokePreviewRequest.mutateAsync(publicId);
+      setRevokePreview(preview);
+      setLocalError("");
+      setCancelSubscription(false);
+      setCancelScheduledScope(false);
+      setPreserveOpenClosed(false);
+    } catch { /* Preview failure is rendered and cannot be confirmed blindly. */ }
+  };
+
+  const beginRevoke = (row: LicenseCodeResponse): void => {
+    setCodeToRevoke(row);
+    setLocalError("");
+    revoke.reset();
+    setRevokeReason(T.REVOKE_REASON);
+    setCancelSubscription(false);
+    setCancelScheduledScope(false);
+    setPreserveOpenClosed(false);
+    void loadRevokePreview(row.publicId);
+  };
+
   const confirmRevoke = async (): Promise<void> => {
-    if (!codeToRevoke) return;
+    if (!codeToRevoke || !revokePreview
+        || !cancelScheduledScope || !preserveOpenClosed
+        || (revokePreview.subscriptionPublicId !== null && !cancelSubscription)) return;
+    const payload: ConfirmLicenseRevokeRequest = {
+      reason: revokeReason,
+      scopeDigest: revokePreview.scopeDigest,
+      previewExpiresAt: revokePreview.previewExpiresAt,
+      expectedEffectiveState: revokePreview.effectiveState,
+      expectedPlanId: revokePreview.planId,
+      expectedSubscriptionPublicId: revokePreview.subscriptionPublicId,
+      expectedSubscriptionStatus: revokePreview.subscriptionStatus,
+      cancelSubscription: revokePreview.subscriptionPublicId !== null,
+      cancelScheduledScope,
+      preserveOpenClosed,
+    };
     try {
       await revoke.mutateAsync({
-        code: codeToRevoke.code,
-        reason: T.REVOKE_REASON,
+        publicId: codeToRevoke.publicId,
+        payload,
       });
       setMessage(T.REVOKED_SUCCESS(codeToRevoke.publicId));
       setCodeToRevoke(null);
-    } catch { /* Keep confirmation open and render the mutation error. */ }
+      setRevokePreview(null);
+    } catch (caught) {
+      if (caught instanceof ApiError && (
+        caught.code === "LICENSE_CODE_REVOKE_SCOPE_CHANGED"
+        || caught.code === "LICENSE_CODE_REVOKE_PREVIEW_EXPIRED"
+      )) {
+        setLocalError(caught.code === "LICENSE_CODE_REVOKE_PREVIEW_EXPIRED"
+          ? T.REVOKE_PREVIEW_EXPIRED : T.REVOKE_SCOPE_CHANGED);
+        void loadRevokePreview(codeToRevoke.publicId);
+      }
+      /* Keep confirmation open; a response loss must not blindly resubmit. */
+    }
   };
 
   return (
@@ -212,14 +278,14 @@ export const LicenseCodesView = (): ReactElement => {
           rows={codes}
           getRowKey={(row) => row.publicId}
           rowActions={(row) =>
-            row.status === "ISSUED" ? (
+            (row.status === "ISSUED" || (row.status === "REDEEMED" && row.subscriptionId !== null)) ? (
               <ActionMenu
                 items={[
                   {
                     label: T.REVOKE,
                     icon: BanIcon,
                     danger: true,
-                    onSelect: () => setCodeToRevoke(row),
+                    onSelect: () => beginRevoke(row),
                   },
                 ]}
               />
@@ -242,16 +308,115 @@ export const LicenseCodesView = (): ReactElement => {
         }}
         onClose={() => setConfirmNewIntent(false)}
       />
-      <ConfirmDialog
+      <Modal
         open={codeToRevoke !== null}
         title={T.REVOKE_TITLE}
-        description={T.REVOKE_DESCRIPTION}
-        confirmLabel={T.REVOKE_CONFIRM}
-        tone="danger"
-        isConfirming={revoke.isPending}
-        onConfirm={() => void confirmRevoke()}
-        onClose={() => { if (!revoke.isPending) setCodeToRevoke(null); }}
-      />
+        size="lg"
+        isDismissDisabled={revoke.isPending || revokePreviewRequest.isPending}
+        onClose={() => {
+          if (revoke.isPending || revokePreviewRequest.isPending) return;
+          setCodeToRevoke(null);
+          setRevokePreview(null);
+          setLocalError("");
+        }}
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              disabled={revoke.isPending || revokePreviewRequest.isPending}
+              onClick={() => {
+                setCodeToRevoke(null);
+                setRevokePreview(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              isLoading={revoke.isPending}
+              disabled={!revokePreview || !cancelScheduledScope || !preserveOpenClosed
+                || (revokePreview?.subscriptionPublicId !== null && !cancelSubscription)}
+              onClick={() => void confirmRevoke()}
+            >
+              {T.REVOKE_CONFIRM}
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-gray-600">{T.REVOKE_DESCRIPTION}</p>
+          {revokePreviewRequest.isPending && (
+            <p className="text-sm text-gray-600">{T.REVOKE_PREVIEW_LOADING}</p>
+          )}
+          {!revokePreviewRequest.isPending && !revokePreview && (
+            <div className="flex items-center justify-between gap-3 rounded-md bg-red-50 p-3 text-sm text-red-800">
+              <span>{T.REVOKE_PREVIEW_ERROR}</span>
+              {codeToRevoke && (
+                <Button variant="ghost" onClick={() => void loadRevokePreview(codeToRevoke.publicId)}>
+                  {T.REVOKE_PREVIEW_RETRY}
+                </Button>
+              )}
+            </div>
+          )}
+          {revokePreview && (
+            <>
+              <div className="grid gap-3 rounded-md border border-gray-200 bg-gray-50 p-3 text-sm sm:grid-cols-2">
+                <div><span className="text-gray-500">Impact</span><div className="font-medium text-gray-900">
+                  {revokePreview.impactCategory === "EXAM_SUBSCRIPTION"
+                    ? T.REVOKE_IMPACT_EXAM : T.REVOKE_IMPACT_CODE_ONLY}
+                </div></div>
+                <div><span className="text-gray-500">{T.REVOKE_SUBSCRIPTION}</span><div className="font-medium text-gray-900">
+                  {revokePreview.subscriptionStatus ?? T.EMPTY_VALUE}
+                </div></div>
+                <div><span className="text-gray-500">{T.REVOKE_SCHEDULED}</span><div className="font-medium text-gray-900">
+                  {revokePreview.scheduledCount || T.REVOKE_NO_SCHEDULED}
+                </div></div>
+                <div><span className="text-gray-500">{T.REVOKE_OPEN}</span><div className="font-medium text-gray-900">
+                  {revokePreview.openCount}
+                </div></div>
+                <div><span className="text-gray-500">{T.REVOKE_CLOSED}</span><div className="font-medium text-gray-900">
+                  {revokePreview.closedCount}
+                </div></div>
+                <div><span className="text-gray-500">Preview valid until</span><div className="font-medium text-gray-900">
+                  {formatDate(revokePreview.previewExpiresAt)}
+                </div></div>
+              </div>
+              <Input
+                id="license-revoke-reason"
+                label={T.REVOKE_REASON}
+                value={revokeReason}
+                maxLength={255}
+                onChange={(event) => setRevokeReason(event.target.value)}
+                helperText={T.REVOKE_REASON_HELP}
+                disabled={revoke.isPending}
+              />
+              {revokePreview.subscriptionPublicId && (
+                <Checkbox
+                  id="license-revoke-subscription"
+                  label={T.REVOKE_ACK_SUBSCRIPTION}
+                  checked={cancelSubscription}
+                  onChange={(event) => setCancelSubscription(event.target.checked)}
+                  disabled={revoke.isPending}
+                />
+              )}
+              <Checkbox
+                id="license-revoke-scheduled"
+                label={T.REVOKE_ACK_SCHEDULED}
+                checked={cancelScheduledScope}
+                onChange={(event) => setCancelScheduledScope(event.target.checked)}
+                disabled={revoke.isPending}
+              />
+              <Checkbox
+                id="license-revoke-open-closed"
+                label={T.REVOKE_ACK_OPEN_CLOSED}
+                checked={preserveOpenClosed}
+                onChange={(event) => setPreserveOpenClosed(event.target.checked)}
+                disabled={revoke.isPending}
+              />
+            </>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };

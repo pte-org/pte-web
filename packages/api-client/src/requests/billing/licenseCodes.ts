@@ -3,16 +3,20 @@ import type {
   IssueLicenseCodeRequest,
   LicenseCodeResponse,
   LicenseIssueReceipt,
+  LicenseRevokePreviewResponse,
+  LicenseRevokeResponse,
+  ConfirmLicenseRevokeRequest,
   RedeemLicenseCodeRequest,
-  RevokeLicenseCodeRequest,
   SubscriptionActivationResponse,
 } from "../../types/billing";
 
 export const LICENSE_CODE_ENDPOINTS = {
   issue: "/api/v1/admin/license-codes",
   licenseCodes: "/api/v1/license-codes",
-  revoke: (code: string) =>
-    "/api/v1/license-codes/" + encodeURIComponent(code) + "/revoke",
+  revokePreview: (publicId: string) =>
+    "/api/v1/admin/license-codes/" + encodeURIComponent(publicId) + "/revoke-preview",
+  revoke: (publicId: string) =>
+    "/api/v1/admin/license-codes/" + encodeURIComponent(publicId) + "/revoke",
   redeem: "/api/v1/license-code-redemptions",
 } as const;
 
@@ -32,10 +36,17 @@ export function issueLicenseCode(
 
 export function revokeLicenseCode(
   client: ApiClient,
-  code: string,
-  payload: RevokeLicenseCodeRequest,
-): Promise<LicenseCodeResponse> {
-  return client.request(LICENSE_CODE_ENDPOINTS.revoke(code), { method: "POST", body: payload });
+  publicId: string,
+  payload: ConfirmLicenseRevokeRequest,
+): Promise<LicenseRevokeResponse> {
+  return client.request(LICENSE_CODE_ENDPOINTS.revoke(publicId), { method: "POST", body: payload });
+}
+
+export function previewLicenseCodeRevoke(
+  client: ApiClient,
+  publicId: string,
+): Promise<LicenseRevokePreviewResponse> {
+  return client.request(LICENSE_CODE_ENDPOINTS.revokePreview(publicId));
 }
 
 export function redeemLicenseCode(

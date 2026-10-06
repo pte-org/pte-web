@@ -12,6 +12,7 @@ import {
   listPlatformSettings,
   listPlans,
   rejectApplication,
+  previewLicenseCodeRevoke,
   revokeLicenseCode,
   updatePlatformSetting,
   updatePlan,
@@ -19,6 +20,9 @@ import {
   type IssueLicenseCodeRequest,
   type LicenseCodeResponse,
   type LicenseIssueReceipt,
+  type LicenseRevokePreviewResponse,
+  type LicenseRevokeResponse,
+  type ConfirmLicenseRevokeRequest,
   type PlanRequest,
   type PlanResponse,
   type PlanTransitionRequest,
@@ -192,14 +196,24 @@ export function useIssueLicenseCode(): UseMutationResult<
   });
 }
 
-export function useRevokeLicenseCode(): UseMutationResult<
-  LicenseCodeResponse,
+export function useLicenseCodeRevokePreview(): UseMutationResult<
+  LicenseRevokePreviewResponse,
   unknown,
-  { code: string; reason: string }
+  string
+> {
+  return useMutation({
+    mutationFn: (publicId) => previewLicenseCodeRevoke(apiClient, publicId),
+  });
+}
+
+export function useRevokeLicenseCode(): UseMutationResult<
+  LicenseRevokeResponse,
+  unknown,
+  { publicId: string; payload: ConfirmLicenseRevokeRequest }
 > {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ code, reason }) => revokeLicenseCode(apiClient, code, { reason }),
+    mutationFn: ({ publicId, payload }) => revokeLicenseCode(apiClient, publicId, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: LICENSE_CODES_QUERY_KEY });
     },

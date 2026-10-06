@@ -37,6 +37,20 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   LICENSE_CODE_REVOKED: "This license code has been revoked.",
   LICENSE_CODE_EXPIRED: "This license code has expired.",
   LICENSE_CODE_NOT_REDEEMABLE: "This license code cannot be redeemed.",
+  LICENSE_CODE_REVOKE_SCOPE_CHANGED:
+    "The license revoke scope changed. Refresh the preview and review it again.",
+  LICENSE_CODE_REVOKE_PREVIEW_EXPIRED:
+    "The license revoke preview expired. Refresh the preview and review it again.",
+  LICENSE_CODE_REVOKE_CONFIRMATION_REQUIRED:
+    "Confirm the revoke scope and all required acknowledgements before continuing.",
+  LICENSE_CODE_REVOKE_CAPACITY_UNSUPPORTED:
+    "This redeemed capacity code cannot be reversed from the admin screen.",
+  LICENSE_CODE_REVOKE_TENANT_MISMATCH:
+    "The linked subscription does not match this license code.",
+  LICENSE_CODE_REVOKE_IMPACT_UNAVAILABLE:
+    "The current exam impact could not be verified. Try again later.",
+  LICENSE_CODE_REVOKE_LEGACY_ENDPOINT:
+    "This revoke link is outdated. Open the license code from the admin screen and preview it again.",
   EXAM_PREFLIGHT_FAILED:
     "This exam is not ready yet. Review the template, schedule, subscription, and audience selections.",
   EXAM_DRAFT_NOT_EDITABLE:

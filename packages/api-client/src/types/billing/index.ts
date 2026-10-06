@@ -138,8 +138,46 @@ export interface LicenseIssueReceipt {
   replayed: boolean;
 }
 
-export interface RevokeLicenseCodeRequest {
+export interface LicenseRevokePreviewResponse {
+  publicId: string;
+  planId: string;
+  effectiveState: LicenseCodeStatus;
+  impactCategory: "CODE_ONLY" | "EXAM_SUBSCRIPTION";
+  subscriptionPublicId: string | null;
+  subscriptionStatus: SubscriptionStatus | null;
+  tenantPublicId: string | null;
+  scheduledCount: number;
+  openCount: number;
+  closedCount: number;
+  scheduledSessionPublicIds: string[];
+  previewExpiresAt: string;
+  scopeDigest: string;
+}
+
+export interface ConfirmLicenseRevokeRequest {
   reason: string;
+  scopeDigest: string;
+  previewExpiresAt: string;
+  expectedEffectiveState: LicenseCodeStatus;
+  expectedPlanId: string;
+  expectedSubscriptionPublicId: string | null;
+  expectedSubscriptionStatus: SubscriptionStatus | null;
+  cancelSubscription: boolean;
+  cancelScheduledScope: boolean;
+  preserveOpenClosed: boolean;
+}
+
+export interface LicenseRevokeResponse {
+  publicId: string;
+  status: LicenseCodeStatus;
+  impactCategory: "CODE_ONLY" | "EXAM_SUBSCRIPTION";
+  subscriptionPublicId: string | null;
+  subscriptionStatus: SubscriptionStatus | null;
+  subscriptionCancelled: boolean;
+  scheduledCancelledCount: number;
+  openPreservedCount: number;
+  closedPreservedCount: number;
+  cancelledSessionPublicIds: string[];
 }
 
 export interface RedeemLicenseCodeRequest {
