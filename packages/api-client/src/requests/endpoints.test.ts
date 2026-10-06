@@ -9,7 +9,9 @@ import * as requests from "./index";
  * at runtime rather than compile errors:
  *
  *  1. A path that reintroduces a per-service segment (`/api/v1/iam/...`,
- *     `/api/v1/scheduling/...`). Those services stopped existing.
+ *     `/api/v1/scheduling/...`). Those services stopped existing. `admin` is
+ *     intentionally not listed: it is still a valid resource namespace for
+ *     platform-admin routes such as `/api/v1/admin/support-tickets`.
  *  2. A path that drops `/api/v1` entirely. That breaks the stable public
  *     contract and can collide with the Next.js UI routes on the same origin.
  */
@@ -17,7 +19,6 @@ import * as requests from "./index";
 /** Service names from the pre-modulith routing table — none may reappear. */
 const RETIRED_SERVICE_SEGMENTS = [
   "iam",
-  "admin",
   "authoring",
   "scheduling",
   "exam-delivery",
@@ -34,6 +35,21 @@ const RETIRED_SERVICE_SEGMENTS = [
  * than silently "fixed" into something that looks real but still 404s.
  */
 const KNOWN_FICTITIOUS_PATHS = new Set(["/api/v1/assets/upload"]);
+
+/**
+ * Modulith routes that happen to start with a retired service name. Each is
+ * backed by a real pte-api controller, so it is exempt by exact prefix while
+ * any other path under the same segment still fails.
+ *
+ * - `/api/v1/admin/support-tickets` — AdminSupportTicketController.
+ */
+const LIVE_PREFIXES_UNDER_RETIRED_SEGMENTS = ["/api/v1/admin/support-tickets"] as const;
+
+function isLiveUnderRetiredSegment(path: string): boolean {
+  return LIVE_PREFIXES_UNDER_RETIRED_SEGMENTS.some(
+    (prefix) => path === prefix || path.startsWith(`${prefix}/`),
+  );
+}
 
 /** Collects every concrete path string from the `*_ENDPOINTS` const objects. */
 function collectEndpointPaths(): { name: string; path: string }[] {
@@ -74,7 +90,11 @@ describe("api-client endpoint paths", () => {
     expect(path.startsWith("/api/v1/")).toBe(true);
   });
 
-  it.each(paths.filter(({ path }) => !KNOWN_FICTITIOUS_PATHS.has(path)))(
+  it.each(
+    paths.filter(
+      ({ path }) => !KNOWN_FICTITIOUS_PATHS.has(path) && !isLiveUnderRetiredSegment(path),
+    ),
+  )(
     "$name carries no retired service segment",
     ({ path }) => {
       const [, , , firstSegment] = path.split("/");

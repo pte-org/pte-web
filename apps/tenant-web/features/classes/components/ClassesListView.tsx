@@ -16,6 +16,7 @@ import {
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
+import { pluralize } from "@/features/orgLabels/constants";
 import { useAllTenantClasses, type TenantClassOption } from "../api";
 import {
   CLASSES_LIST_TEXT,
@@ -124,7 +125,7 @@ export const ClassesListView = ({
   if (isError) {
     return (
       <Alert tone="error">
-        {errorMessage(error) ?? `Couldn't load ${labels.class.toLowerCase()}s.`}
+        {errorMessage(error) ?? `Couldn't load ${pluralize(labels.class.toLowerCase())}.`}
       </Alert>
     );
   }
@@ -178,11 +179,6 @@ export const ClassesListView = ({
       key: "program",
       header: CLASS_TABLE_HEADERS.PROGRAM,
       cell: (option) => option.programName,
-    },
-    {
-      key: "students",
-      header: CLASSES_LIST_TEXT.studentCountPlaceholder,
-      cell: () => CLASSES_LIST_TEXT.studentCountPlaceholder,
     },
     {
       key: "status",

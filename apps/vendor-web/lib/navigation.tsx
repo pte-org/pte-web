@@ -22,12 +22,20 @@ export const ADMIN_NAV: NavItem[] = [
     href: "/admin/license-codes",
     icon: <LicenseIcon />,
     section: T.COMMERCIAL_SECTION,
+    requiredRoles: ["PLATFORM_ADMIN"],
   },
   {
     label: T.PLATFORM_SETTINGS,
     href: "/admin/settings",
     icon: <DocumentIcon />,
     section: T.COMMERCIAL_SECTION,
+  },
+  {
+    label: T.ANNOUNCEMENTS,
+    href: "/admin/announcements",
+    icon: <DocumentIcon />,
+    section: T.COMMERCIAL_SECTION,
+    requiredRoles: ["PLATFORM_ADMIN"],
   },
   {
     label: T.QUESTION_BANK,
@@ -46,6 +54,12 @@ export const ADMIN_NAV: NavItem[] = [
     href: "/admin/exam-template",
     icon: <DocumentIcon />,
     section: T.CONTENT_SECTION,
+  },
+  {
+    label: T.SUPPORT_TICKETS,
+    href: "/admin/support-tickets",
+    icon: <ClipboardIcon />,
+    section: T.SUPPORT_SECTION,
   },
 ];
 

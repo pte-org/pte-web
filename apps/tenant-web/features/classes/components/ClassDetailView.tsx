@@ -123,6 +123,7 @@ const ClassDetailContent = ({
         programPublicId={programPublicId}
         classPublicId={classPublicId}
         classLabel={classLabel}
+        className={studentClass.name}
       />
 
       <section className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5">

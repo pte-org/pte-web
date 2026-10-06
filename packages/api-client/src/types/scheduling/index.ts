@@ -11,6 +11,8 @@ export type SessionStatus =
  */
 export interface SessionResponse {
   publicId: string;
+  /** Human-readable exam code (e.g. `FPT-261010-K7QM`); optional until every API serving this client returns it. */
+  sessionCode?: string;
   name: string;
   tenantId: string;
   subscriptionPublicId: string;
@@ -64,6 +66,7 @@ export interface ExamPreviewItem {
   minWordCount: number | null;
   maxWordCount: number | null;
   options: ExamPreviewOption[];
+  sourceQuestionPublicId: string | null;
 }
 
 /** Scoring flags are intentionally absent. */

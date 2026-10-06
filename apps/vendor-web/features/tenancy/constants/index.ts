@@ -219,6 +219,8 @@ export const EMPTY_CREATE_TENANT: CreateTenantInput = {
 
 export const TENANT_DETAIL_TEXT = {
   BACK_TO_TENANTS: "Back to Tenants",
+  LOAD_ERROR: "Tenant details could not be loaded. Retry before changing access.",
+  RETRY: "Retry",
   SUMMARY_SUBTITLE: (organizationType: string, plan: string, seats: number) =>
     `${organizationType} · ${plan} · ${seats} students`,
   EMPTY_VALUE: "—",
@@ -279,6 +281,11 @@ export const LOGIN_ACCOUNT_TEXT = {
   SUBTITLE: "The Host's own login for this tenant.",
   EMPTY_TITLE: "No login account yet",
   EMPTY_TEXT: "Create the Host's first login so they can sign in.",
+  LOADING: "Verifying the tenant's Host account...",
+  LOAD_ERROR: "The Host account could not be verified. Retry before changing credentials.",
+  RETRY: "Retry",
+  AMBIGUOUS_TARGET:
+    "More than one HOST_ADMIN account is linked to this tenant. Verify the target manually before creating or resetting an account.",
   CREATE_LOGIN: "Create Login",
   RESET_PASSWORD: "Reset Password",
   GROUP_IDENTITY: "Identity",
@@ -300,6 +307,8 @@ export const LOGIN_ACCOUNT_TEXT = {
   PASSWORD_STATE_NOT_REQUIRED: "Not required",
   EMPTY_VALUE: "—",
   RESET_SUCCESS: "Password reset. Relay it to the Host directly — it won't be shown again.",
+  RESET_UNCERTAIN:
+    "The reset result could not be confirmed. Verify the target account manually before trying again.",
 } as const;
 
 export const LOGIN_ACCOUNT_STATUS_LABELS: Record<LoginAccountStatus, string> = {
@@ -341,8 +350,17 @@ export const RESET_PASSWORD_TEXT = {
   TITLE: "Reset Password",
   PASSWORD_LABEL: "New Password",
   PASSWORD_HELPER: "At least 8 characters. Relay it to the Host directly.",
+  SUBMITTING: "Resetting...",
   CANCEL: "Cancel",
   SUBMIT: "Reset Password",
+  TARGET_TITLE: "Target account",
+  TENANT_LABEL: "Tenant",
+  TARGET_NAME_LABEL: "Full name",
+  TARGET_USERNAME_LABEL: "Username",
+  TARGET_ROLES_LABEL: "Role",
+  EMPTY_VALUE: "—",
+  TARGET_CONFIRMATION: "I confirm this is the account I intend to reset.",
+  TARGET_CONFIRMATION_REQUIRED: "Confirm the tenant, username, and role before resetting the password.",
 } as const;
 
 export const RESET_PASSWORD_ERRORS = {

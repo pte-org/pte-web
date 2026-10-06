@@ -19,6 +19,7 @@ import {
 import {
   useApproveQuestion,
   useArchiveQuestion,
+  useDeleteQuestion,
   useRejectQuestion,
   useSubmitQuestionApproval,
   useUnarchiveQuestion,
@@ -31,6 +32,7 @@ import {
   QUESTION_TABLE_HEADERS,
 } from "../constants";
 import type { Question } from "../types";
+import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { RejectQuestionModal } from "./_RejectQuestionModal";
 
 interface QuestionTableProps {
@@ -54,14 +56,18 @@ export const QuestionTable = ({
   const approveMutation = useApproveQuestion();
   const rejectMutation = useRejectQuestion();
   const archiveMutation = useArchiveQuestion();
+  const deleteMutation = useDeleteQuestion();
   const unarchiveMutation = useUnarchiveQuestion();
   const [questionToArchive, setQuestionToArchive] = useState<Question | null>(null);
+  const [questionToDelete, setQuestionToDelete] = useState<Question | null>(null);
+  const isBusy = submitMutation.isPending || approveMutation.isPending || rejectMutation.isPending || archiveMutation.isPending || unarchiveMutation.isPending || deleteMutation.isPending;
   const [questionToReject, setQuestionToReject] = useState<Question | null>(null);
   const hasMutationError =
     submitMutation.isError ||
     approveMutation.isError ||
     rejectMutation.isError ||
     archiveMutation.isError ||
+    deleteMutation.isError ||
     unarchiveMutation.isError;
 
   const buildActions = (question: Question): ActionMenuItem[] => {
@@ -97,16 +103,18 @@ export const QuestionTable = ({
         onSelect: () => setQuestionToReject(question),
       });
     }
-    if (
-      question.status === "draft" ||
-      question.status === "pending_approval" ||
-      question.status === "published"
-    ) {
+    if (question.canArchive === true) {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_ARCHIVE,
-        icon: TrashIcon,
-        onSelect: () => setQuestionToArchive(question),
+        icon: BanIcon,
+        onSelect: () => { archiveMutation.reset(); setQuestionToArchive(question); },
       });
+    }
+    if (question.status === "draft" && question.canDeleteDraft === true) {
+      actions.push({ label: QUESTIONBANK_TEXT.ROW_DELETE_DRAFT, icon: TrashIcon, danger: true,
+        onSelect: () => { deleteMutation.reset(); setQuestionToDelete(question); } });
+    } else if (question.status === "draft" && question.canArchive !== true) {
+      actions.push({ label: QUESTIONBANK_TEXT.DELETE_BLOCKED, disabled: true, onSelect: () => undefined });
     }
     if (question.status === "archived") {
       actions.push({
@@ -125,15 +133,21 @@ export const QuestionTable = ({
         onSelect: () => router.push(`/admin/questions/${question.id}/edit`),
       });
     }
-    return actions;
+    return actions.map((action) => "separator" in action ? action : { ...action, disabled: isBusy || action.disabled });
   };
 
   const confirmArchive = (): void => {
-    if (!questionToArchive) return;
+    if (!questionToArchive || isBusy) return;
     archiveMutation.mutate(questionToArchive.id, {
-      onSuccess: () => showToast(QUESTIONBANK_TEXT.ARCHIVE_SUCCESS),
+      onSuccess: () => { showToast(QUESTIONBANK_TEXT.ARCHIVE_SUCCESS); setQuestionToArchive(null); },
     });
-    setQuestionToArchive(null);
+  };
+
+  const confirmDelete = (): void => {
+    if (!questionToDelete || isBusy) return;
+    deleteMutation.mutate(questionToDelete.id, { onSuccess: () => {
+      showToast(QUESTIONBANK_TEXT.DELETE_SUCCESS); setQuestionToDelete(null);
+    } });
   };
 
   const confirmReject = (reason: string): void => {
@@ -212,12 +226,22 @@ export const QuestionTable = ({
       <ConfirmDialog
         open={questionToArchive !== null}
         title={QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_TITLE}
-        description={QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_DESCRIPTION}
+        description={<><p>{questionToArchive?.content}</p><p>{QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_DESCRIPTION}</p>{archiveMutation.error && <Alert tone="error">{getUserFacingApiErrorMessage(archiveMutation.error, QUESTIONBANK_TEXT.STATUS_UPDATE_ERROR)}</Alert>}</>}
         confirmLabel={QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_BUTTON}
         tone="danger"
         isConfirming={archiveMutation.isPending}
         onConfirm={confirmArchive}
-        onClose={() => setQuestionToArchive(null)}
+        onClose={() => { if (!isBusy) setQuestionToArchive(null); }}
+      />
+      <ConfirmDialog
+        open={questionToDelete !== null}
+        title={QUESTIONBANK_TEXT.DELETE_CONFIRM_TITLE}
+        description={<><p>{questionToDelete?.content}</p><p>{QUESTIONBANK_TEXT.DELETE_CONFIRM_DESCRIPTION}</p>{deleteMutation.error && <Alert tone="error">{getUserFacingApiErrorMessage(deleteMutation.error, QUESTIONBANK_TEXT.STATUS_UPDATE_ERROR)}</Alert>}</>}
+        confirmLabel={QUESTIONBANK_TEXT.ROW_DELETE_DRAFT}
+        tone="danger"
+        isConfirming={deleteMutation.isPending}
+        onConfirm={confirmDelete}
+        onClose={() => { if (!isBusy) setQuestionToDelete(null); }}
       />
       <RejectQuestionModal
         open={questionToReject !== null}

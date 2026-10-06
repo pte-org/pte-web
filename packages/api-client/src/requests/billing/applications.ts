@@ -7,6 +7,7 @@ import type {
 
 export const APPLICATION_ENDPOINTS = {
   applications: "/api/v1/applications",
+  detail: (publicId: string) => "/api/v1/applications/" + publicId,
   approve: (publicId: string) => "/api/v1/applications/" + publicId + "/approval",
   reject: (publicId: string) => "/api/v1/applications/" + publicId + "/rejection",
 } as const;
@@ -20,6 +21,13 @@ export function submitApplication(
 
 export function listApplications(client: ApiClient): Promise<TenantApplicationResponse[]> {
   return client.request(APPLICATION_ENDPOINTS.applications);
+}
+
+export function getApplication(
+  client: ApiClient,
+  publicId: string,
+): Promise<TenantApplicationResponse> {
+  return client.request(APPLICATION_ENDPOINTS.detail(publicId));
 }
 
 export function approveApplication(

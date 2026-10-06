@@ -2,7 +2,8 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Input, Modal } from "@pte/ui";
-import { CREATE_CLASS_ERRORS, EDIT_CLASS_TEXT } from "../constants";
+import { EDIT_CLASS_TEXT } from "../constants";
+import { validateClassName } from "../utils/validateClassName";
 
 interface EditClassModalProps {
   open: boolean;
@@ -29,10 +30,16 @@ export const EditClassModal = ({
   const [nameError, setNameError] = useState<string>();
   const T = EDIT_CLASS_TEXT;
 
+  const handleNameChange = (value: string): void => {
+    setName(value);
+    if (nameError !== undefined) setNameError(undefined);
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    if (!name.trim()) {
-      setNameError(CREATE_CLASS_ERRORS.nameRequired(classLabel));
+    const nameError = validateClassName(name, classLabel);
+    if (nameError) {
+      setNameError(nameError);
       return;
     }
     setNameError(undefined);
@@ -75,7 +82,7 @@ export const EditClassModal = ({
           placeholder={T.namePlaceholder}
           value={name}
           error={nameError}
-          onChange={(event) => setName(event.target.value)}
+          onChange={(event) => handleNameChange(event.target.value)}
         />
       </form>
     </Modal>

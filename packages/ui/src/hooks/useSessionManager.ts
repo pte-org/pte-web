@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { sessionStorage, type PteSession, type SessionRole } from "./sessionStorage";
+import { subscribeSessionLifecycle } from "./sessionLifecycle";
 
 export interface SessionManager {
   session: PteSession | null;
@@ -18,6 +19,7 @@ export function useSessionManager(): SessionManager {
   useEffect(() => {
     setSession(sessionStorage.retrieve());
     setIsReady(true);
+    return subscribeSessionLifecycle(() => setSession(sessionStorage.retrieve()));
   }, []);
 
   const saveSession = useCallback((next: PteSession) => {

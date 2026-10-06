@@ -38,12 +38,19 @@ export interface PlanResponse {
   name: string;
   description: string | null;
   type: PlanType;
-  price: string;
+  /** Backend BigDecimal may be serialized as a JSON number or a decimal string. */
+  price: string | number;
   currency: string;
   durationDays: number | null;
   maxStudentsPerSession: number | null;
   extraStudentSlots: number | null;
   status: PlanStatus;
+  /** Missing on older servers: destructive actions must fail closed. */
+  canDeleteDraft?: boolean;
+  canArchive?: boolean;
+  deleteBlockReason?: string | null;
+  archiveBlockReason?: string | null;
+  version: number;
 }
 
 export interface PlanRequest {
@@ -55,6 +62,14 @@ export interface PlanRequest {
   durationDays?: number | null;
   maxStudentsPerSession?: number | null;
   extraStudentSlots?: number | null;
+}
+
+export interface PlanUpdateRequest extends PlanRequest {
+  expectedVersion: number;
+}
+
+export interface PlanTransitionRequest {
+  expectedVersion: number;
 }
 
 export interface SubscriptionResponse {
@@ -114,8 +129,77 @@ export interface IssueLicenseCodeRequest {
   codeExpiresAt?: string | null;
 }
 
-export interface RevokeLicenseCodeRequest {
+/** Safe admin row; the bearer is never a property of this page/detail type. */
+export interface AdminLicenseCodeSummary {
+  publicId: string;
+  maskedCode: string;
+  persistedStatus: LicenseCodeStatus;
+  effectiveStatus: LicenseCodeStatus;
+  planPublicId: string;
+  planName: string;
+  planType: PlanType | null;
+  issuedAt: string;
+  codeExpiresAt: string | null;
+  recipientPublicId: string | null;
+  recipientName: string | null;
+  subscriptionPublicId: string | null;
+}
+
+export interface LicenseCodeRevealResponse {
+  /** Secret-bearing response; callers must keep it out of query/mutation caches. */
+  code: string;
+}
+
+export interface LicenseIssueReceipt {
+  publicId: string;
+  planId: string;
+  persistedStatus: LicenseCodeStatus;
+  status: LicenseCodeStatus;
+  issuedAt: string;
+  codeExpiresAt: string | null;
+  replayed: boolean;
+}
+
+export interface LicenseRevokePreviewResponse {
+  publicId: string;
+  planId: string;
+  effectiveState: LicenseCodeStatus;
+  impactCategory: "CODE_ONLY" | "EXAM_SUBSCRIPTION";
+  subscriptionPublicId: string | null;
+  subscriptionStatus: SubscriptionStatus | null;
+  tenantPublicId: string | null;
+  scheduledCount: number;
+  openCount: number;
+  closedCount: number;
+  scheduledSessionPublicIds: string[];
+  previewExpiresAt: string;
+  scopeDigest: string;
+}
+
+export interface ConfirmLicenseRevokeRequest {
   reason: string;
+  scopeDigest: string;
+  previewExpiresAt: string;
+  expectedEffectiveState: LicenseCodeStatus;
+  expectedPlanId: string;
+  expectedSubscriptionPublicId: string | null;
+  expectedSubscriptionStatus: SubscriptionStatus | null;
+  cancelSubscription: boolean;
+  cancelScheduledScope: boolean;
+  preserveOpenClosed: boolean;
+}
+
+export interface LicenseRevokeResponse {
+  publicId: string;
+  status: LicenseCodeStatus;
+  impactCategory: "CODE_ONLY" | "EXAM_SUBSCRIPTION";
+  subscriptionPublicId: string | null;
+  subscriptionStatus: SubscriptionStatus | null;
+  subscriptionCancelled: boolean;
+  scheduledCancelledCount: number;
+  openPreservedCount: number;
+  closedPreservedCount: number;
+  cancelledSessionPublicIds: string[];
 }
 
 export interface RedeemLicenseCodeRequest {

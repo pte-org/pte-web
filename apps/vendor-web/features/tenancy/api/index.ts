@@ -40,6 +40,7 @@ import type {
   CreateLoginAccountInput,
   CreateTenantInput,
   LoginAccount,
+  LoginAccountLookup,
   Organization,
   ResetPasswordInput,
   SystemHealth,
@@ -120,6 +121,15 @@ function userResponseToLoginAccount(response: UserResponse): LoginAccount {
     phone: response.phone,
     dateOfBirth: response.dateOfBirth,
     mustChangePassword: response.mustChangePassword,
+  };
+}
+
+function userResponsesToLoginAccountLookup(users: UserResponse[]): LoginAccountLookup {
+  const hostAdmins = users.filter((user) => user.roles.includes("HOST_ADMIN"));
+  return {
+    account: hostAdmins.length === 1 ? userResponseToLoginAccount(hostAdmins[0]) : null,
+    ambiguous: hostAdmins.length > 1,
+    candidateCount: hostAdmins.length,
   };
 }
 
@@ -294,12 +304,12 @@ export function useReactivateOrganization(
   });
 }
 
-export function useLoginAccount(tenantPublicId: string): UseQueryResult<LoginAccount | null> {
+export function useLoginAccount(tenantPublicId: string): UseQueryResult<LoginAccountLookup> {
   return useQuery({
     queryKey: [...LOGIN_ACCOUNT_QUERY_KEY, tenantPublicId],
     queryFn: async () => {
       const users = await listUsersByTenant(apiClient, tenantPublicId);
-      return users.length > 0 ? userResponseToLoginAccount(users[0]) : null;
+      return userResponsesToLoginAccountLookup(users);
     },
     enabled: tenantPublicId.length > 0,
   });
@@ -323,7 +333,11 @@ export function useCreateLoginAccount(
       return userResponseToLoginAccount(response);
     },
     onSuccess: (account) => {
-      queryClient.setQueryData([...LOGIN_ACCOUNT_QUERY_KEY, tenantPublicId], account);
+      queryClient.setQueryData<LoginAccountLookup>([...LOGIN_ACCOUNT_QUERY_KEY, tenantPublicId], {
+        account,
+        ambiguous: false,
+        candidateCount: 1,
+      });
       void queryClient.invalidateQueries({
         queryKey: [...LOGIN_ACCOUNT_QUERY_KEY, tenantPublicId],
       });

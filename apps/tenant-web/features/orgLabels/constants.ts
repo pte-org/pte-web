@@ -27,6 +27,23 @@ export const ORG_LABEL_DICTIONARY: Record<OrgTypeFamily, OrgLabelSet> = {
   CENTER_FAMILY: { program: "Program", class: "Class" },
 };
 
+/**
+ * English-only pluralisation for a tenant label, so `"Class"` renders `Classes`
+ * rather than the naive `Class` + `s` -> `Classs`. The label dictionary is
+ * English by contract (per-tenant wording only changes the noun, not the
+ * language), so a small suffix rule is enough and no i18n library is warranted.
+ */
+export function pluralize(label: string, count?: number): string {
+  const word = count === 1 ? label : pluralizeWord(label);
+  return count === undefined ? word : `${count} ${word}`;
+}
+
+function pluralizeWord(word: string): string {
+  if (/(?:s|x|z|ch|sh)$/i.test(word)) return `${word}es`;
+  if (/[^aeiou]y$/i.test(word)) return `${word.slice(0, -1)}ies`;
+  return `${word}s`;
+}
+
 export interface OrgLabels extends OrgLabelSet {
   isLoading: boolean;
 }

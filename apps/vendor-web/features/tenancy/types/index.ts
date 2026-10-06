@@ -104,6 +104,12 @@ export interface LoginAccount {
   mustChangePassword: boolean;
 }
 
+export interface LoginAccountLookup {
+  account: LoginAccount | null;
+  ambiguous: boolean;
+  candidateCount: number;
+}
+
 export interface CreateLoginAccountInput {
   email: string;
   fullName: string;

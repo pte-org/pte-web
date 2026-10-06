@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, DataTable, type DataTableColumn } from "@pte/ui";
+import { Alert, ConfirmDialog, DataTable, type DataTableColumn } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
   CLASS_ROSTER_ROW_ACTIONS_TEXT,
@@ -9,6 +9,7 @@ import {
   CLASS_ROSTER_TEXT,
   SPLIT_CLASS_SELECTION_TEXT,
 } from "../constants";
+import { CLASS_ROSTER_UNASSIGN_CONFIRM_TEXT } from "../constants/confirmText";
 import { useClassRoster, useUnassignStudent, type ClassRosterEntry } from "../api";
 import { exportClassRosterToExcel } from "../exportClassRoster";
 import { TransferStudentModal } from "./TransferStudentModal";
@@ -19,6 +20,8 @@ interface ClassRosterTableProps {
   programPublicId: string;
   classPublicId: string;
   classLabel: string;
+  /** Concrete class name, named in the unassign confirmation (AC3). */
+  className: string;
 }
 
 interface RowActionsProps {
@@ -26,19 +29,30 @@ interface RowActionsProps {
   programPublicId: string;
   classPublicId: string;
   classLabel: string;
+  className: string;
   entry: ClassRosterEntry;
 }
+
+const U = CLASS_ROSTER_UNASSIGN_CONFIRM_TEXT;
 
 const RowActions = ({
   organizationPublicId,
   programPublicId,
   classPublicId,
   classLabel,
+  className,
   entry,
 }: RowActionsProps): ReactElement => {
   const [transferOpen, setTransferOpen] = useState(false);
+  const [unassignConfirmOpen, setUnassignConfirmOpen] = useState(false);
   const unassign = useUnassignStudent(organizationPublicId, programPublicId, classPublicId);
   const unassignError = errorMessage(unassign.error);
+
+  const handleUnassignConfirm = (): void => {
+    unassign.mutate(entry.membership.publicId, {
+      onSettled: () => setUnassignConfirmOpen(false),
+    });
+  };
 
   return (
     <div className="flex flex-col gap-1">
@@ -53,7 +67,7 @@ const RowActions = ({
         <button
           type="button"
           disabled={unassign.isPending}
-          onClick={() => unassign.mutate(entry.membership.publicId)}
+          onClick={() => setUnassignConfirmOpen(true)}
           className="text-red-600 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
         >
           {CLASS_ROSTER_ROW_ACTIONS_TEXT.unassign}
@@ -71,6 +85,18 @@ const RowActions = ({
         membershipPublicId={entry.membership.publicId}
         studentPublicId={entry.student.publicId}
       />
+
+      <ConfirmDialog
+        open={unassignConfirmOpen}
+        title={U.title}
+        description={U.description(entry.student.fullName, className)}
+        confirmLabel={U.confirmButton}
+        cancelLabel={U.cancel}
+        tone="danger"
+        isConfirming={unassign.isPending}
+        onConfirm={handleUnassignConfirm}
+        onClose={() => setUnassignConfirmOpen(false)}
+      />
     </div>
   );
 };
@@ -80,6 +106,7 @@ export const ClassRosterTable = ({
   programPublicId,
   classPublicId,
   classLabel,
+  className,
 }: ClassRosterTableProps): ReactElement => {
   const {
     data: roster,
@@ -129,6 +156,7 @@ export const ClassRosterTable = ({
           programPublicId={programPublicId}
           classPublicId={classPublicId}
           classLabel={classLabel}
+          className={className}
           entry={entry}
         />
       ),

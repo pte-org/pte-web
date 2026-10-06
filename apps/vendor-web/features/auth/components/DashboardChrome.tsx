@@ -4,9 +4,9 @@ import type { ReactElement, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Avatar,
-  BellIcon,
   DashboardShell,
   Dropdown,
   GlobeIcon,
@@ -15,6 +15,7 @@ import {
   useTokenManager,
   type SessionRole,
 } from "@pte/ui";
+import { NotificationBellContainer } from "@/features/notifications";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
 import { AUTH_ROUTES } from "../constants";
@@ -24,6 +25,7 @@ export interface NavItem {
   href: string;
   icon?: ReactNode;
   section?: string;
+  requiredRoles?: SessionRole[];
 }
 
 interface DashboardChromeProps {
@@ -44,7 +46,6 @@ const DISCLAIMER = "PTE mock exam platform. Not affiliated with Pearson.";
 
 const HEADER_TEXT = {
   LANGUAGE: "Language",
-  NOTIFICATIONS: "Notifications",
   ACCOUNT: "Account",
   LOGOUT: "Log out",
 } as const;
@@ -71,11 +72,15 @@ const isActive = (pathname: string | null, href: string): boolean =>
 
 const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
   const pathname = usePathname();
+  const { data: user } = useCurrentUser();
+  const visibleItems = navItems.filter(
+    (item) => !item.requiredRoles || item.requiredRoles.some((role) => user?.roles.includes(role)),
+  );
   return (
     <>
-      {navItems.map((item, index) => (
+      {visibleItems.map((item, index) => (
         <div key={item.href} className="flex flex-col gap-1">
-          {(index === 0 || item.section !== navItems[index - 1]?.section) && item.section && (
+          {(index === 0 || item.section !== visibleItems[index - 1]?.section) && item.section && (
             <span className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400 first:pt-1">
               {item.section}
             </span>
@@ -100,10 +105,12 @@ const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
 
 const HeaderActions = (): ReactElement => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { clearToken } = useTokenManager();
   const { data: user, isLoading } = useCurrentUser();
 
   const logout = (): void => {
+    queryClient.clear();
     clearToken();
     router.replace(AUTH_ROUTES.login);
   };
@@ -117,14 +124,7 @@ const HeaderActions = (): ReactElement => {
       >
         <GlobeIcon className="h-5 w-5" />
       </button>
-      <button
-        type="button"
-        aria-label={HEADER_TEXT.NOTIFICATIONS}
-        className="relative grid h-10 w-10 place-items-center rounded-md text-slate-500 transition-colors hover:bg-blue-50 hover:text-blue-700"
-      >
-        <BellIcon className="h-5 w-5" />
-        <span className="absolute right-0.5 top-0.5 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white" />
-      </button>
+      <NotificationBellContainer />
       {isLoading ? (
         <Skeleton className="h-8 w-8 rounded-full" />
       ) : (

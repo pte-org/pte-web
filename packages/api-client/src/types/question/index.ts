@@ -91,6 +91,9 @@ export interface QuestionResponse {
   current?: boolean;
   version?: number;
   rejectionReason?: string | null;
+  canDeleteDraft?: boolean;
+  canArchive?: boolean;
+  deleteBlockReason?: string | null;
 }
 
 export interface QuestionFilters {
