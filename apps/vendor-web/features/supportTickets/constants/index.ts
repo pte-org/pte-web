@@ -8,12 +8,14 @@ export const STATUS_LABELS: Record<TicketStatus, string> = {
   OPEN: "Open",
   IN_PROGRESS: "In Progress",
   RESOLVED: "Resolved",
+  CLOSED: "Closed by host",
 };
 
 export const STATUS_VARIANTS: Record<TicketStatus, BadgeVariant> = {
   OPEN: "neutral",
   IN_PROGRESS: "warning",
   RESOLVED: "success",
+  CLOSED: "neutral",
 };
 
 export const CATEGORY_LABELS: Record<TicketCategory, string> = {
@@ -32,12 +34,14 @@ export const STATUS_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
   OPEN: ["IN_PROGRESS"],
   IN_PROGRESS: ["RESOLVED"],
   RESOLVED: [],
+  CLOSED: [],
 };
 
 export const TRANSITION_LABELS: Record<TicketStatus, string> = {
   OPEN: "Start",
   IN_PROGRESS: "Resolve",
   RESOLVED: "",
+  CLOSED: "",
 };
 
 export const ADMIN_SUPPORT_TICKETS_TEXT = {

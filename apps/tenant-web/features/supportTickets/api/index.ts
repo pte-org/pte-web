@@ -2,6 +2,7 @@
 
 import {
   DEFAULT_PAGE_SIZE,
+  closeTicket,
   getTicket,
   listTickets,
   submitTicket,
@@ -76,6 +77,17 @@ export function useReportQuestion(
         entityId: questionPublicId,
       }),
     onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: SUPPORT_TICKETS_QUERY_KEY });
+    },
+  });
+}
+
+export function useCloseTicket(): UseMutationResult<SupportTicketResponse, Error, string> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (publicId: string) => closeTicket(apiClient, publicId),
+    // Refetch on failure too: a rejected close means an admin already moved the ticket on.
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: SUPPORT_TICKETS_QUERY_KEY });
     },
   });

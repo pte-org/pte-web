@@ -1,6 +1,6 @@
 export type TicketCategory = "BUG" | "CONTENT_COMPLAINT" | "GENERAL_FEEDBACK";
 
-export type TicketStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED";
+export type TicketStatus = "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED";
 
 export type TicketEntityType = "EXAM_SESSION" | "QUESTION";
 

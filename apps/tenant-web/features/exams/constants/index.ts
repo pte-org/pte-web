@@ -29,6 +29,7 @@ export const EXAMS_TEXT = {
 
 export const EXAM_TABLE_HEADERS = {
   NAME: "Exam Name",
+  CODE: "Code",
   CONFIGURATION: "Configuration",
   STATUS: "Status",
   OPENS_AT: "Opens",
@@ -262,11 +263,11 @@ export const EMPTY_CREATE_SESSION: CreateSessionInput = {
 
 export const SESSION_DETAIL_TEXT = {
   BACK: "Back to Exams",
-  SESSION_ID_SECTION: "Exam session ID",
-  SESSION_ID_HELPER: "Share this ID with students so they can open this exam in the PTE app.",
-  COPY_SESSION_ID: "Copy ID",
-  SESSION_ID_COPIED: "Session ID copied.",
-  SESSION_ID_COPY_FAILED: "Could not copy the session ID. Select the ID and copy it manually.",
+  SESSION_CODE_SECTION: "Exam code",
+  SESSION_CODE_HELPER: "Share this code with students so they can open this exam in the PTE app.",
+  COPY_SESSION_CODE: "Copy code",
+  SESSION_CODE_COPIED: "Exam code copied.",
+  SESSION_CODE_COPY_FAILED: "Could not copy the exam code. Select the code and copy it manually.",
   VIEW_EXAM: "View Exam",
   OPEN_EXAM: "Open Exam",
   CLOSE_EXAM: "Close Exam",

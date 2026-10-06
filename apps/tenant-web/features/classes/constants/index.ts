@@ -1,3 +1,5 @@
+import { pluralize } from "@/features/orgLabels/constants";
+
 export const CLASSES_QUERY_KEY = ["classes"] as const;
 export const ALL_TENANT_CLASSES_QUERY_KEY = ["allTenantClasses"] as const;
 
@@ -14,9 +16,8 @@ export const CLASS_STATUS_VARIANT = {
 } as const;
 
 export const CLASSES_SECTION_TEXT = {
-  countLabel: (count: number, label: string) =>
-    `${count} ${label.toLowerCase()}${count === 1 ? "" : "s"}`,
-  emptyInlineTitle: (label: string) => `No ${label.toLowerCase()}s in this Program yet`,
+  countLabel: (count: number, label: string) => pluralize(label.toLowerCase(), count),
+  emptyInlineTitle: (label: string) => `No ${pluralize(label.toLowerCase())} in this Program yet`,
   emptyInlineDescription: (label: string) =>
     `Once a ${label.toLowerCase()} is added to this Program, it will show up here.`,
 } as const;
@@ -30,23 +31,22 @@ export const CLASS_TABLE_HEADERS = {
 
 export const CLASSES_LIST_TEXT = {
   subtitle: (classLabel: string, programLabel: string) =>
-    `Browse every ${classLabel.toLowerCase()} across all ${programLabel.toLowerCase()}s in your organization.`,
+    `Browse every ${classLabel.toLowerCase()} across all ${pluralize(programLabel.toLowerCase())} in your organization.`,
   subtitleScoped: (classLabel: string, programLabel: string) =>
     `Browse every ${classLabel.toLowerCase()} in this ${programLabel.toLowerCase()}.`,
   programFilterLabel: (programLabel: string) => `Filter by ${programLabel}`,
-  programFilterAll: (programLabel: string) => `All ${programLabel.toLowerCase()}s`,
-  countLabel: (count: number, classLabel: string) =>
-    `${count} ${classLabel.toLowerCase()}${count === 1 ? "" : "s"}`,
+  programFilterAll: (programLabel: string) => `All ${pluralize(programLabel.toLowerCase())}`,
+  countLabel: (count: number, classLabel: string) => pluralize(classLabel.toLowerCase(), count),
   emptyNoProgramsTitle: (programLabel: string) => `Get Started by Creating a ${programLabel}`,
   emptyNoProgramsDescription: (programLabel: string, classLabel: string) =>
-    `Set up your first ${programLabel.toLowerCase()} so you can organize ${classLabel.toLowerCase()}s and start adding students.`,
+    `Set up your first ${programLabel.toLowerCase()} so you can organize ${pluralize(classLabel.toLowerCase())} and start adding students.`,
   emptyNoProgramsCta: (programLabel: string) => `Create Your First ${programLabel}`,
   emptyNoClassesTitle: (classLabel: string) => `No ${classLabel.toLowerCase()} yet`,
   emptyNoClassesPickPrompt: (programLabel: string, classLabel: string) =>
     `Pick a ${programLabel.toLowerCase()} to add a ${classLabel.toLowerCase()} to:`,
   emptyNoClassesDirectCta: (programLabel: string, classLabel: string) =>
     `+ Create ${classLabel} in ${programLabel}`,
-  pickProgramHeading: (classLabel: string) => `No ${classLabel.toLowerCase()}s yet`,
+  pickProgramHeading: (classLabel: string) => `No ${pluralize(classLabel.toLowerCase())} yet`,
   pickProgramSubheading: (programLabel: string) =>
     `Each row is a ${programLabel.toLowerCase()} you can add a class to.`,
   pickProgramRowCta: "+ Add Class",
@@ -57,7 +57,6 @@ export const CLASSES_LIST_TEXT = {
   createClassNoProgramsTitle: (classLabel: string) => `No ${classLabel} yet`,
   createClassNoProgramsText: (programLabel: string) =>
     `You need at least one ${programLabel.toLowerCase()} before you can create a class.`,
-  studentCountPlaceholder: "—",
 } as const;
 
 export const CLASS_ROW_ACTIONS_TEXT = {
@@ -94,6 +93,7 @@ export const EDIT_CLASS_TEXT = {
 
 export const CREATE_CLASS_ERRORS = {
   nameRequired: (label: string) => `${label} name is required.`,
+  programRequired: (label: string) => `Select a ${label} first.`,
 } as const;
 
 export const CLASS_ROSTER_TEXT = {
@@ -217,8 +217,14 @@ export const TRANSFER_STUDENT_TEXT = {
     "Transferring will not change or cancel these — the Host may want to review them separately:",
 } as const;
 
+/** Shown directly under the Excel dropzone in "Add Students → Import Excel". */
+export const IMPORT_HELP = {
+  classNameOverride:
+    "If your file has a className column, it overrides the target class. Leave it blank to assign rows into the current class.",
+} as const;
+
 export const MERGE_CLASSES_SELECTION_TEXT = {
-  startButton: (label: string) => `Merge ${label}s`,
+  startButton: (label: string) => `Merge ${pluralize(label)}`,
   cancelSelection: "Cancel",
   selectedCount: (count: number) => `${count} selected`,
   confirmButton: "Merge Selected",
@@ -226,7 +232,7 @@ export const MERGE_CLASSES_SELECTION_TEXT = {
 } as const;
 
 export const MERGE_CLASSES_TEXT = {
-  title: (label: string) => `Merge ${label}s`,
+  title: (label: string) => `Merge ${pluralize(label)}`,
   destinationLabel: (label: string) => `Merge into which ${label.toLowerCase()}?`,
   sourcesLabel: (label: string) =>
     `The rest will be merged into it and their students moved. Source ${label.toLowerCase()}(s) are not removed automatically. Remove them separately afterward if needed.`,

@@ -43,8 +43,8 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
   const [previewOpen, setPreviewOpen] = useState(false);
   const [studentAssignmentOpen, setStudentAssignmentOpen] = useState(false);
   const [studentImportOpen, setStudentImportOpen] = useState(false);
-  const [sessionIdCopyState, setSessionIdCopyState] = useState<{
-    sessionId: string;
+  const [sessionCodeCopyState, setSessionCodeCopyState] = useState<{
+    sessionCode: string;
     status: "copied" | "failed";
   } | null>(null);
   const { data: session, isLoading } = useSession(sessionPublicId);
@@ -58,12 +58,12 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
 
   const lifecycleError = mutationErrorMessage(open.error ?? close.error ?? cancel.error);
 
-  const copySessionId = async (): Promise<void> => {
+  const copySessionCode = async (): Promise<void> => {
     try {
-      await navigator.clipboard.writeText(session.id);
-      setSessionIdCopyState({ sessionId: session.id, status: "copied" });
+      await navigator.clipboard.writeText(session.sessionCode);
+      setSessionCodeCopyState({ sessionCode: session.sessionCode, status: "copied" });
     } catch {
-      setSessionIdCopyState({ sessionId: session.id, status: "failed" });
+      setSessionCodeCopyState({ sessionCode: session.sessionCode, status: "failed" });
     }
   };
 
@@ -130,26 +130,26 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
       <section className="rounded-lg border border-gray-200 bg-white p-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-gray-900">{T.SESSION_ID_SECTION}</h2>
-            <p className="mt-1 text-sm text-gray-500">{T.SESSION_ID_HELPER}</p>
+            <h2 className="text-sm font-semibold text-gray-900">{T.SESSION_CODE_SECTION}</h2>
+            <p className="mt-1 text-sm text-gray-500">{T.SESSION_CODE_HELPER}</p>
           </div>
           <div className="flex flex-col gap-2 sm:items-end">
             <code className="select-all break-all rounded bg-gray-50 px-3 py-2 text-sm text-gray-800">
-              {session.id}
+              {session.sessionCode}
             </code>
-            <Button size="sm" variant="secondary" onClick={() => void copySessionId()}>
-              {T.COPY_SESSION_ID}
+            <Button size="sm" variant="secondary" onClick={() => void copySessionCode()}>
+              {T.COPY_SESSION_CODE}
             </Button>
-            {sessionIdCopyState?.sessionId === session.id &&
-              sessionIdCopyState.status === "copied" && (
+            {sessionCodeCopyState?.sessionCode === session.sessionCode &&
+              sessionCodeCopyState.status === "copied" && (
                 <p role="status" className="text-xs text-emerald-700">
-                  {T.SESSION_ID_COPIED}
+                  {T.SESSION_CODE_COPIED}
                 </p>
               )}
-            {sessionIdCopyState?.sessionId === session.id &&
-              sessionIdCopyState.status === "failed" && (
+            {sessionCodeCopyState?.sessionCode === session.sessionCode &&
+              sessionCodeCopyState.status === "failed" && (
                 <p role="alert" className="text-xs text-red-700">
-                  {T.SESSION_ID_COPY_FAILED}
+                  {T.SESSION_CODE_COPY_FAILED}
                 </p>
               )}
           </div>
