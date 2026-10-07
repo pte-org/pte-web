@@ -26,8 +26,6 @@ interface ModalProps {
   isDismissDisabled?: boolean;
 }
 
-const CLOSE_LABEL = "Close";
-
 const SIZE_CLASS: Record<ModalSize, string> = {
   sm: "max-w-sm",
   md: "max-w-md",
@@ -69,27 +67,27 @@ export const Modal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm motion-safe:animate-pte-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm motion-safe:animate-pte-fade-in"
       onClick={closeOnBackdropClick && !isDismissDisabled ? onClose : undefined}
     >
       <div
         role="dialog"
         aria-modal="true"
         className={cn(
-          "max-h-[90vh] w-full overflow-hidden rounded-lg bg-white shadow-card motion-safe:animate-pte-scale-in",
+          "max-h-[90vh] w-full overflow-hidden rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] shadow-card motion-safe:animate-pte-scale-in",
           SIZE_CLASS[size],
         )}
         onClick={(event) => event.stopPropagation()}
       >
         {title && (
-          <div className="flex items-start justify-between gap-4 border-b border-gray-100 px-5 py-4">
-            <h2 className="text-base font-semibold text-gray-900">{title}</h2>
+          <div className="flex items-start justify-between gap-4 border-b border-[var(--shell-border)] px-5 py-4">
+            <h2 className="text-base font-semibold text-[var(--ink-primary)]">{title}</h2>
             <button
               type="button"
-              aria-label={CLOSE_LABEL}
+              aria-label="Close"
               disabled={isDismissDisabled}
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-[var(--ink-muted)] hover:text-[var(--ink-primary)]"
             >
               <XIcon className="h-5 w-5" />
             </button>
@@ -99,7 +97,7 @@ export const Modal = ({
         {footer && (
           <div
             className={cn(
-              "flex justify-end gap-2 border-t border-gray-100 bg-white px-5 py-4",
+              "flex justify-end gap-2 border-t border-[var(--shell-border)] bg-[var(--surface-card)] px-5 py-4",
               stickyFooter && "sticky bottom-0",
             )}
           >

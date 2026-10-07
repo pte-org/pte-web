@@ -99,7 +99,6 @@ export const CreateSessionModal = ({
               ? T.NO_ACTIVE_SUBSCRIPTIONS
               : T.SUBSCRIPTION_PLACEHOLDER
           }
-          helperText={T.SUBSCRIPTION_HELPER}
           value={form.subscriptionPublicId}
           error={errors.subscriptionPublicId}
           disabled={subscriptionsLoading || activeSubscriptions.length === 0}
@@ -124,7 +123,6 @@ export const CreateSessionModal = ({
               />
             ))}
           </div>
-          <span className="text-sm text-gray-500">{T.SKILLS_HELPER}</span>
           {errors.skills && <span className="text-sm text-red-600">{errors.skills}</span>}
         </div>
         <Input

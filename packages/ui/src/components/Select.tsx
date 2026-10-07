@@ -142,17 +142,17 @@ export const Select = ({
           setIsOpen((open) => !open);
         }}
         className={cn(
-          "flex w-full items-center justify-between gap-2 rounded-md border bg-white px-3 py-2.5 text-left text-sm outline-none transition-colors focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20 disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400",
-          error ? "border-red-500" : "border-gray-300",
+          "flex w-full items-center justify-between gap-2 rounded-md border bg-[var(--surface-card)] px-3 py-2.5 text-left text-sm text-[var(--ink-primary)] outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-subtle)] disabled:text-[var(--ink-muted)]",
+          error ? "border-[var(--blush-action)]" : "border-[var(--control-border)]",
           className,
         )}
       >
-        <span className={cn("truncate", !selectedOption && "text-gray-400")}>
+        <span className={cn("truncate", !selectedOption && "text-[var(--ink-muted)]")}>
           {selectedOption?.label ?? placeholder ?? ""}
         </span>
         <ChevronDownIcon
           className={cn(
-            "h-4 w-4 shrink-0 text-gray-400 transition-transform duration-150",
+            "h-4 w-4 shrink-0 text-[var(--ink-muted)] transition-transform duration-150",
             isOpen && "-rotate-180",
           )}
         />
@@ -173,7 +173,7 @@ export const Select = ({
               ref={listRef}
               role="listbox"
               aria-label={ariaLabel ?? label}
-              className="fixed z-[60] max-h-60 max-w-[calc(100vw-1rem)] overflow-auto rounded-md border border-gray-200 bg-white py-1 text-sm shadow-lg"
+              className="fixed z-[60] max-h-60 max-w-[calc(100vw-1rem)] overflow-auto rounded-md border border-[var(--shell-border)] bg-[var(--surface-card)] py-1 text-sm shadow-lg"
               style={{
                 top: listPosition?.top ?? 0,
                 left: listPosition?.left ?? 0,
@@ -190,12 +190,12 @@ export const Select = ({
                   className={cn(
                     "truncate px-3 py-1.5",
                     option.disabled
-                      ? "cursor-not-allowed text-gray-300"
+                      ? "cursor-not-allowed text-[var(--ink-muted)]"
                       : cn(
                           "cursor-pointer",
                           option.value === value
-                            ? "bg-blue-600 text-white"
-                            : "text-gray-700 hover:bg-blue-50",
+                            ? "bg-[var(--action)] text-white"
+                            : "text-[var(--ink-secondary)] hover:bg-[var(--brand-tint)]",
                         ),
                   )}
                 >

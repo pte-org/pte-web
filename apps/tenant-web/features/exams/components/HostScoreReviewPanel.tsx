@@ -124,10 +124,6 @@ export const HostScoreReviewPanel = ({
     <div className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5">
       <div>
         <h3 className="text-base font-semibold text-gray-900">Score review</h3>
-        <p className="mt-1 text-sm text-gray-600">
-          Compare AI and Examiner scores. Host selection changes the score source used for the final
-          report; the legacy Host score remains separate.
-        </p>
       </div>
 
       {review.data && (

@@ -5,7 +5,6 @@ export const SUPPORTED_TASK_TYPES_QUERY_KEY = ["supportedTaskTypes"] as const;
 
 export const QUESTION_TYPE_TEXT = {
   TITLE: "Task Type Catalog",
-  SUBTITLE: "Manage task keys and the released screens used by authoring, validation, and exam delivery.",
   CREATE: "Create task type",
   EDIT: "Edit",
   DELETE: "Delete",

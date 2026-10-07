@@ -52,7 +52,7 @@ export function DataTable<TRow>({
   selectAllLabel = "Select all rows",
   selectRowLabel = () => "Select row",
 }: DataTableProps<TRow>): ReactElement {
-  if (isLoading) return <LoadingState rows={4} />;
+  if (isLoading) return <LoadingState rows={4} variant="table" />;
 
   if (rows.length === 0) {
     return <EmptyState title={emptyTitle} description={emptyDescription} />;
@@ -76,10 +76,10 @@ export function DataTable<TRow>({
   };
 
   return (
-    <div className="overflow-visible rounded-xl border border-shell-border bg-shell-frame shadow-none motion-safe:animate-pte-fade-up">
+    <div className="overflow-visible rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] shadow-none motion-safe:animate-pte-fade-up">
       <div className="overflow-x-auto">
-        <table className={cn("min-w-full divide-y divide-gray-200 text-sm", tableClassName)}>
-          <thead className="sticky top-0 z-10 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <table className={cn("min-w-full divide-y divide-[var(--divider)] text-sm", tableClassName)}>
+          <thead className="sticky top-0 z-10 bg-[var(--surface-subtle)] text-left text-xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)]">
             <tr>
               {selectable && (
                 <th scope="col" className="w-10 px-5 py-3.5">
@@ -104,11 +104,11 @@ export function DataTable<TRow>({
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white text-gray-700">
+            <tbody className="divide-y divide-[var(--divider)] bg-[var(--surface-card)] text-[var(--ink-secondary)]">
             {rows.map((row) => {
               const key = getRowKey(row);
               return (
-                <tr key={key} className="transition-colors duration-150 hover:bg-slate-50">
+                <tr key={key} className="transition-colors duration-150 hover:bg-[var(--surface-row-hover)]">
                   {selectable && (
                     <td className="px-5 py-4">
                       <input

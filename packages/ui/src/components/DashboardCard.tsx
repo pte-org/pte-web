@@ -9,7 +9,10 @@ export const DashboardCard = ({
 }: ComponentProps<"div">): ReactElement => (
   <div
     {...props}
-    className={cn("rounded-xl border-[0.5px] border-shell-border bg-shell-frame p-5", className)}
+    className={cn(
+      "rounded-xl border-[0.5px] border-[var(--shell-border)] bg-[var(--surface-card)] p-5",
+      className,
+    )}
   >
     {children}
   </div>

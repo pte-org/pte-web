@@ -16,10 +16,10 @@ export const PageHeader = ({ title, subtitle, actions, className }: PageHeaderPr
     )}
   >
     <div>
-      <h1 className="text-[28px] font-medium leading-8 tracking-[-0.025em] text-slate-950">
+      <h1 className="text-[28px] font-medium leading-8 tracking-[-0.025em] text-[var(--ink-primary)]">
         {title}
       </h1>
-      {subtitle && <p className="mt-1 text-sm leading-5 text-slate-500">{subtitle}</p>}
+      {subtitle && <p className="mt-1 text-sm leading-5 text-[var(--ink-secondary)]">{subtitle}</p>}
     </div>
     {actions && <div className="flex flex-wrap items-center gap-2 sm:shrink-0">{actions}</div>}
   </div>

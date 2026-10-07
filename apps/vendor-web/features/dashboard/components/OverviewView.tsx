@@ -49,7 +49,6 @@ export const OverviewView = (): ReactElement => {
     <div className="flex flex-col gap-5">
       <PageHeader
         title={DASHBOARD_TEXT.GREETING}
-        subtitle={DASHBOARD_TEXT.GREETING_SUBTITLE}
         actions={
           <button
             type="button"

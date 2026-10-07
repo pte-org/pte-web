@@ -203,7 +203,10 @@ export const QuestionTable = ({
             </thead>
             <tbody>
               {questions.map((question) => (
-                <tr key={question.id} className="border-t border-gray-100 hover:bg-slate-50/70">
+                <tr
+                  key={question.id}
+                  className="border-t border-gray-100 hover:bg-[var(--surface-row-hover)]"
+                >
                   <td className={`${CELL_CLASS} font-mono text-xs text-gray-900`}>{question.id}</td>
                   <td className={CELL_CLASS}>{QUESTION_SKILL_LABELS[question.skill]}</td>
                   <td className={`${CELL_CLASS} max-w-xs`}>

@@ -19,8 +19,8 @@ const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary:
     "bg-action text-white shadow-sm shadow-action/25 hover:bg-action-hover active:bg-action-active",
   secondary: "bg-action-tint text-action hover:bg-action-tint-hover",
-  danger: "bg-red-600 text-white hover:bg-red-700",
-  ghost: "bg-transparent text-action hover:bg-action-tint",
+  danger: "bg-[var(--blush-action)] text-white hover:brightness-110",
+  ghost: "bg-transparent text-[var(--action)] hover:bg-[var(--action-tint)]",
 };
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
@@ -47,7 +47,7 @@ export const Button = ({
     <button
       type={type}
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-[background-color,box-shadow,transform] duration-150 hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none",
+        "inline-flex transform-gpu select-none items-center justify-center gap-2 rounded-lg font-medium transition-[background-color,border-color,box-shadow,filter,opacity,transform] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-md motion-safe:active:translate-y-0 motion-safe:active:scale-[0.98] motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--action)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:transform-none disabled:bg-[var(--surface-subtle)] disabled:text-[var(--ink-muted)] disabled:shadow-none",
         VARIANT_CLASSES[variant],
         SIZE_CLASSES[size],
         fullWidth && "w-full",
@@ -59,7 +59,7 @@ export const Button = ({
     >
       {isLoading && (
         <span
-          className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent"
+          className="h-4 w-4 rounded-full border-2 border-current border-t-transparent motion-safe:animate-spin motion-reduce:opacity-70"
           aria-hidden="true"
         />
       )}

@@ -80,7 +80,6 @@ export const QuestionTypeView = (): ReactElement => {
     <div className="space-y-6">
       <PageHeader
         title={QUESTION_TYPE_TEXT.TITLE}
-        subtitle={QUESTION_TYPE_TEXT.SUBTITLE}
         actions={
           <Button variant="primary" onClick={beginCreate}>
             + {QUESTION_TYPE_TEXT.CREATE}
@@ -113,7 +112,10 @@ export const QuestionTypeView = (): ReactElement => {
             </thead>
             <tbody>
               {questionTypes.map((type) => (
-                <tr key={type.publicId} className="border-t border-gray-100 hover:bg-slate-50/70">
+                <tr
+                  key={type.publicId}
+                  className="border-t border-gray-100 hover:bg-[var(--surface-row-hover)]"
+                >
                   <td className={CELL_CLASS}>{type.displayOrder}</td>
                   <td className={CELL_CLASS}>
                     <p className="font-medium text-gray-900">{type.displayName}</p>

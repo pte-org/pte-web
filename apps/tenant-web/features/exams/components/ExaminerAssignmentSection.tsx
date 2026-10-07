@@ -216,12 +216,6 @@ export const ExaminerAssignmentSection = ({
           />
         </div>
 
-        {mode === "RANDOM" && (
-          <p className="text-sm text-gray-600">
-            {assignedAttemptCount > 0 ? T.SUPPLEMENTAL_HELP : T.RANDOM_HELP}
-          </p>
-        )}
-
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-3">
             <h4 className="text-sm font-semibold text-gray-800">{T.SCOPE_LABEL}</h4>

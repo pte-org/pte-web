@@ -3,7 +3,16 @@
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
-import { Alert, Badge, CopyableId, DetailGroup, LoadingState, PageHeader } from "@pte/ui";
+import {
+  Alert,
+  Badge,
+  CopyableId,
+  DetailGroup,
+  LoadingState,
+  PageHeader,
+  Tabs,
+  useLocale,
+} from "@pte/ui";
 import {
   CREATE_LOGIN_ACCOUNT_TEXT,
   CREATE_TENANT_CONFLICT_TEXT,
@@ -88,6 +97,8 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
   const [createLoginOpen, setCreateLoginOpen] = useState(false);
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
   const [resetSucceeded, setResetSucceeded] = useState(false);
+  const [activeSection, setActiveSection] = useState("summary");
+  const { t } = useLocale();
 
   const confirmCreateLoginAccount = (input: CreateLoginAccountInput): void => {
     createLoginAccount.mutate(input, {
@@ -161,7 +172,26 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
         )}
       />
 
-      <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
+      <Tabs
+        id="tenant-detail-tabs"
+        value={activeSection}
+        onChange={setActiveSection}
+        items={[
+          { id: "summary", label: t("tenant.tabs.summary", "Summary") },
+          { id: "account", label: t("tenant.tabs.account", "Login account") },
+          { id: "organizations", label: t("tenant.tabs.organizations", "Organizations") },
+        ]}
+      />
+
+      <div
+        role="tabpanel"
+        id={`tenant-detail-tabs-panel-${activeSection}`}
+        aria-labelledby={`tenant-detail-tabs-tab-${activeSection}`}
+        tabIndex={0}
+        className="flex flex-col gap-5 outline-none"
+      >
+      {activeSection === "summary" && <>
+      <section className="flex flex-col gap-4 rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] p-5 shadow-card">
         <h2 className="text-base font-semibold text-gray-900">{T.INFORMATION_TITLE}</h2>
         <DetailGroup
           title={T.GROUP_IDENTITY}
@@ -198,12 +228,12 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
         error={mutationErrorMessage(updateBranding.error)}
         saved={brandingSaved}
       />
+      </>}
 
-      <section className="flex flex-col gap-4">
+      {activeSection === "account" && <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold text-gray-900">{L.TITLE}</h2>
-            <p className="text-sm text-gray-500">{L.SUBTITLE}</p>
           </div>
           {loginAccount && (
             <button
@@ -296,13 +326,12 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
             addLabel={L.CREATE_LOGIN}
           />
         )}
-      </section>
+      </section>}
 
-      <section className="flex flex-col gap-4">
+      {activeSection === "organizations" && <section className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-base font-semibold text-gray-900">{T.ORGANIZATIONS_TITLE}</h2>
-            <p className="text-sm text-gray-500">{T.ORGANIZATIONS_SUBTITLE}</p>
           </div>
         </div>
 
@@ -321,7 +350,8 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
         ) : (
           <TenantEmptyState title={T.EMPTY_ORGANIZATIONS_TITLE} text={T.EMPTY_ORGANIZATIONS_TEXT} />
         )}
-      </section>
+      </section>}
+      </div>
 
       <CreateLoginAccountModal
         key={createLoginOpen ? "createLoginAccount-open" : "createLoginAccount-closed"}

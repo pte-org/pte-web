@@ -7,7 +7,7 @@ import {
   type AudienceSourceRequest,
   type ScoreTemplateResponse,
 } from "@pte/api-client";
-import { Alert, Input, Modal, Select } from "@pte/ui";
+import { Alert, Input, Modal, Select, Stepper } from "@pte/ui";
 import { useAllTenantClasses } from "@/features/classes/api";
 import { useSubscriptionsQuery, useTenantPlansQuery } from "@/features/commercialization/api";
 import { errorMessage } from "@/features/examoperations/errorMessage";
@@ -286,6 +286,13 @@ export const CreateExamWizard = ({
       }
     >
       <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+        <Stepper
+          steps={[
+            { id: "setup", label: CREATE_EXAM_WIZARD_TEXT.STEP_BASIC },
+            { id: "review", label: CREATE_EXAM_WIZARD_TEXT.REVIEW_TITLE },
+          ]}
+          currentStep={step === 1 ? "setup" : "review"}
+        />
         {submitMessage && <Alert tone="error">{submitMessage}</Alert>}
         {step === 1 ? (
           <>
@@ -354,9 +361,6 @@ export const CreateExamWizard = ({
                 <legend className="px-1 text-sm font-medium text-gray-700">
                   {CREATE_EXAM_WIZARD_TEXT.SKILLS_LABEL}
                 </legend>
-                <p className="mb-3 text-sm text-gray-500">
-                  {CREATE_EXAM_WIZARD_TEXT.SKILLS_HELPER}
-                </p>
                 <div className="flex flex-wrap gap-x-6 gap-y-3">
                   {EXAM_SKILL_OPTIONS.map((option) => {
                     const isAvailable = templateSkills.includes(option.value);
@@ -418,7 +422,6 @@ export const CreateExamWizard = ({
                     id="practice-anti-cheat"
                     type="checkbox"
                     checked={form.practiceAntiCheatEnabled}
-                    aria-describedby="practice-anti-cheat-helper"
                     className="mt-1 h-4 w-4 rounded border-gray-300 text-action focus:ring-action"
                     onChange={(event) =>
                       update("practiceAntiCheatEnabled", event.target.checked)
@@ -431,9 +434,6 @@ export const CreateExamWizard = ({
                     {CREATE_EXAM_WIZARD_TEXT.PRACTICE_ANTI_CHEAT_CONTROL}
                   </label>
                 </div>
-                <p id="practice-anti-cheat-helper" className="mt-2 text-sm text-gray-500">
-                  {CREATE_EXAM_WIZARD_TEXT.PRACTICE_ANTI_CHEAT_HELPER}
-                </p>
               </fieldset>
             )}
             {form.examMode === "PRACTICE" && (
@@ -447,9 +447,6 @@ export const CreateExamWizard = ({
                 error={errors.maxRetriesPerStudent}
                 onChange={(event) => update("maxRetriesPerStudent", event.target.value)}
               />
-            )}
-            {form.examMode === "PRACTICE" && (
-              <p className="-mt-3 text-sm text-gray-500">{CREATE_EXAM_WIZARD_TEXT.RETRIES_HELPER}</p>
             )}
           </>
         ) : (
@@ -480,7 +477,6 @@ export const CreateExamWizard = ({
                   </Link>
                 )}
               </div>
-              <p className="mb-3 text-sm text-gray-600">{CREATE_EXAM_WIZARD_TEXT.SOURCES_HELPER}</p>
               <div className="grid gap-3 sm:grid-cols-2">
                 <Select
                   label={CREATE_EXAM_WIZARD_TEXT.SOURCE_TYPE_LABEL}
@@ -512,7 +508,6 @@ export const CreateExamWizard = ({
                         ? CREATE_EXAM_WIZARD_TEXT.SOURCE_EMPTY
                         : CREATE_EXAM_WIZARD_TEXT.SOURCE_PLACEHOLDER
                   }
-                  helperText={CREATE_EXAM_WIZARD_TEXT.SOURCE_HELPER}
                   value={sourcePublicId}
                   disabled={sourceLoading || sourceOptions.length === 0}
                   onChange={(event) => setSourcePublicId(event.target.value)}

@@ -9,9 +9,11 @@ import {
   Avatar,
   DashboardShell,
   Dropdown,
-  GlobeIcon,
+  LocaleSwitcher,
   Skeleton,
+  ThemeToggle,
   cn,
+  useLocale,
   useTokenManager,
   type SessionRole,
 } from "@pte/ui";
@@ -22,9 +24,11 @@ import { AUTH_ROUTES } from "../constants";
 
 export interface NavItem {
   label: string;
+  labelKey?: string;
   href: string;
   icon?: ReactNode;
   section?: string;
+  sectionKey?: string;
   requiredRoles?: SessionRole[];
 }
 
@@ -45,13 +49,14 @@ const BRAND_SUBTITLE = "Admin System";
 const DISCLAIMER = "PTE mock exam platform. Not affiliated with Pearson.";
 
 const HEADER_TEXT = {
-  LANGUAGE: "Language",
   ACCOUNT: "Account",
   LOGOUT: "Log out",
 } as const;
 
-const SidebarBrand = (): ReactElement => (
-  <div className="flex items-center gap-2">
+const SidebarBrand = (): ReactElement => {
+  const { t } = useLocale();
+  return (
+    <div className="flex items-center gap-2">
     <Image
       src="/logo.png"
       alt={`${BRAND_NAME} logo`}
@@ -61,11 +66,12 @@ const SidebarBrand = (): ReactElement => (
       className="h-10 w-10 rounded-md object-contain shadow-sm"
     />
     <div className="leading-tight">
-      <p className="text-sm font-semibold text-slate-900">{BRAND_NAME}</p>
-      <p className="text-xs text-slate-500">{BRAND_SUBTITLE}</p>
+      <p className="text-sm font-semibold text-[var(--ink-primary)]">{BRAND_NAME}</p>
+      <p className="text-xs text-[var(--ink-muted)]">{t("brand.adminSubtitle", BRAND_SUBTITLE)}</p>
     </div>
-  </div>
-);
+    </div>
+  );
+};
 
 const isActive = (pathname: string | null, href: string): boolean =>
   href === "/admin" ? pathname === "/admin" : Boolean(pathname?.startsWith(href));
@@ -73,6 +79,7 @@ const isActive = (pathname: string | null, href: string): boolean =>
 const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
   const pathname = usePathname();
   const { data: user } = useCurrentUser();
+  const { t } = useLocale();
   const visibleItems = navItems.filter(
     (item) => !item.requiredRoles || item.requiredRoles.some((role) => user?.roles.includes(role)),
   );
@@ -81,8 +88,8 @@ const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
       {visibleItems.map((item, index) => (
         <div key={item.href} className="flex flex-col gap-1">
           {(index === 0 || item.section !== visibleItems[index - 1]?.section) && item.section && (
-            <span className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-slate-400 first:pt-1">
-              {item.section}
+            <span className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-muted)] first:pt-1">
+              {item.sectionKey ? t(item.sectionKey, item.section) : item.section}
             </span>
           )}
           <Link
@@ -90,12 +97,12 @@ const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
             className={cn(
               "flex min-h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors",
               isActive(pathname, item.href)
-                ? "bg-slate-200 font-medium text-slate-950"
-                : "text-slate-600 hover:bg-slate-200/70 hover:text-slate-950",
+                ? "bg-[var(--brand-tint)] font-medium text-[var(--brand-ink)]"
+                : "text-[var(--ink-secondary)] hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)]",
             )}
           >
-            {item.icon && <span className="[&>svg]:h-5 [&>svg]:w-5">{item.icon}</span>}
-            <span>{item.label}</span>
+            {item.icon && <span className="[&>svg]:h-[18px] [&>svg]:w-[18px]">{item.icon}</span>}
+            <span>{item.labelKey ? t(item.labelKey, item.label) : item.label}</span>
           </Link>
         </div>
       ))}
@@ -108,6 +115,7 @@ const HeaderActions = (): ReactElement => {
   const queryClient = useQueryClient();
   const { clearToken } = useTokenManager();
   const { data: user, isLoading } = useCurrentUser();
+  const { t } = useLocale();
 
   const logout = (): void => {
     queryClient.clear();
@@ -117,38 +125,36 @@ const HeaderActions = (): ReactElement => {
 
   return (
     <>
-      <button
-        type="button"
-        aria-label={HEADER_TEXT.LANGUAGE}
-        className="grid h-10 w-10 place-items-center rounded-md text-slate-500 transition-colors hover:bg-blue-50 hover:text-blue-700"
-      >
-        <GlobeIcon className="h-5 w-5" />
-      </button>
+      <LocaleSwitcher />
+      <ThemeToggle />
       <NotificationBellContainer />
       {isLoading ? (
         <Skeleton className="h-8 w-8 rounded-full" />
       ) : (
         <Dropdown
-          label={user?.fullName ?? HEADER_TEXT.ACCOUNT}
+          label={user?.fullName ?? t("common.account", HEADER_TEXT.ACCOUNT)}
           trigger={<Avatar name={user?.fullName} />}
-          items={[{ label: HEADER_TEXT.LOGOUT, onSelect: logout }]}
+          items={[{ label: t("common.logout", HEADER_TEXT.LOGOUT), onSelect: logout }]}
         />
       )}
     </>
   );
 };
 
-const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactElement => (
-  <DashboardShell
-    brand={<SidebarBrand />}
-    sidebar={<SidebarNav navItems={navItems} />}
-    headerBrand={<span className="text-lg font-medium text-slate-950">{BRAND_NAME}</span>}
-    headerActions={<HeaderActions />}
-    footer={DISCLAIMER}
-  >
-    {children}
-  </DashboardShell>
-);
+const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactElement => {
+  const { t } = useLocale();
+  return (
+    <DashboardShell
+      brand={<SidebarBrand />}
+      sidebar={<SidebarNav navItems={navItems} />}
+      headerBrand={<span className="text-lg font-medium text-[var(--brand-ink)]">{BRAND_NAME}</span>}
+      headerActions={<HeaderActions />}
+      footer={t("common.disclaimer", DISCLAIMER)}
+    >
+      {children}
+    </DashboardShell>
+  );
+};
 
 export const DashboardChrome = (props: DashboardChromeProps): ReactElement => (
   <RequireAuth allowedRoles={props.allowedRoles}>

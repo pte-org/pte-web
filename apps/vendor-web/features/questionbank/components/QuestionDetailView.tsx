@@ -90,7 +90,6 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
       </Link>
       <PageHeader
         title={question.title}
-        subtitle={T.SUBTITLE(taskType)}
         actions={
           <>
             {currentStatus && (

@@ -7,7 +7,6 @@ import {
   AlertTriangleIcon,
   Button,
   CheckCircleIcon,
-  CollapsibleSection,
   DocumentIcon,
   MotionReveal,
   PageHeader,
@@ -15,7 +14,7 @@ import {
   UsersIcon,
   useToast,
 } from "@pte/ui";
-import { TENANCY_TEXT, TENANT_OVERVIEW_TEXT, TENANT_STATS_TEXT } from "../constants";
+import { TENANCY_TEXT, TENANT_STATS_TEXT } from "../constants";
 import { filterTenants } from "../utils/filterTenants";
 import { useReactivateTenant, useSuspendTenant, useTenants } from "../api";
 import { useCreateTenantFlow } from "../hooks/useCreateTenantFlow";
@@ -103,7 +102,6 @@ export const TenantManagementView = (): ReactElement => {
     <div className="flex flex-col gap-5">
       <PageHeader
         title={TENANCY_TEXT.TITLE}
-        subtitle={TENANCY_TEXT.SUBTITLE}
         actions={
           <Button
             type="button"
@@ -114,11 +112,7 @@ export const TenantManagementView = (): ReactElement => {
         }
       />
 
-      <CollapsibleSection
-        title={TENANT_OVERVIEW_TEXT.TITLE}
-        subtitle={TENANT_OVERVIEW_TEXT.SUBTITLE}
-        contentClassName="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
-      >
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           label={TENANT_STATS_TEXT.TOTAL}
           value={String(allTenants.length)}
@@ -143,7 +137,7 @@ export const TenantManagementView = (): ReactElement => {
           icon={<UsersIcon />}
           accent="sky"
         />
-      </CollapsibleSection>
+      </div>
 
       <MotionReveal delayMs={70}>
         <TenantFilters filter={filter} onChange={setFilter} />

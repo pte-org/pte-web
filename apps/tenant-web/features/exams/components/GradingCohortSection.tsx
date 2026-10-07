@@ -66,9 +66,6 @@ export function GradingCohortSection({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <h2 className="text-sm font-semibold text-gray-900">Grading cohort</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Freeze all submitted attempts before publishing session results.
-          </p>
         </div>
         {preview.data?.finalized && <Badge variant="success">Finalized</Badge>}
       </div>

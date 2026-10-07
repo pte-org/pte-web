@@ -72,7 +72,6 @@ function NotificationHistoryContent(): ReactElement {
     <div className="flex flex-col gap-5">
       <PageHeader
         title="Notifications"
-        subtitle="Platform and account updates for the signed-in administrator."
         actions={
           <>
             <Select

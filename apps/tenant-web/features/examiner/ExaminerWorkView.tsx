@@ -285,7 +285,7 @@ export const ExaminerWorkView = (): ReactElement => {
 
   return (
     <div className="mx-auto w-full max-w-6xl p-5 sm:p-8">
-      <PageHeader title={T.TITLE} subtitle={T.SUBTITLE} />
+      <PageHeader title={T.TITLE} />
       <div className="mt-6 flex flex-col gap-2 sm:max-w-xs">
         <label htmlFor="examiner-queue-status" className="text-sm font-medium text-slate-700">
           {T.FILTER_LABEL}

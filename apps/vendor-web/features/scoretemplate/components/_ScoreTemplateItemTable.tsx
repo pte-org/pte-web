@@ -136,7 +136,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
             : props.items.map((item, index) => (
                 <tr
                   key={`${item.taskTypeKey}-${index}`}
-                  className="border-t border-gray-100 hover:bg-slate-50/70"
+                  className="border-t border-gray-100 hover:bg-[var(--surface-row-hover)]"
                 >
                   <td className={CELL_CLASS}>{item.sequence}</td>
                   <td className={CELL_CLASS}>{item.section}</td>

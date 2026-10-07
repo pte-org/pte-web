@@ -5,7 +5,6 @@ import {
   Alert,
   ActionMenu,
   Button,
-  CollapsibleSection,
   ConfirmDialog,
   DataTable,
   Input,
@@ -343,7 +342,6 @@ export const PlanCatalogView = (): ReactElement => {
     <div className="flex flex-col gap-5">
       <PageHeader
         title={T.TITLE}
-        subtitle={T.SUBTITLE}
         actions={
           <Button type="button" onClick={beginCreate} disabled={isBusy}>
             {T.ADD}
@@ -351,11 +349,7 @@ export const PlanCatalogView = (): ReactElement => {
         }
       />
       {!isFormOpen && errorMessage && <Alert tone="error">{errorMessage}</Alert>}
-      <CollapsibleSection
-        title={T.OVERVIEW_TITLE}
-        subtitle={T.OVERVIEW_SUBTITLE}
-        contentClassName="grid gap-4 sm:grid-cols-3"
-      >
+      <div className="grid gap-4 sm:grid-cols-3">
         <StatCard label={T.TOTAL} value={isLoading || isError ? T.EMPTY_VALUE : String(plans.length)} accent="blue" />
         <StatCard label={T.ACTIVE} value={isLoading || isError ? T.EMPTY_VALUE : String(activeCount)} accent="mint" />
         <StatCard
@@ -363,7 +357,7 @@ export const PlanCatalogView = (): ReactElement => {
           value={isLoading || isError ? T.EMPTY_VALUE : String(plans.filter((plan) => plan.status === "DRAFT").length)}
           accent="cream"
         />
-      </CollapsibleSection>
+      </div>
       <Modal
         open={isFormOpen}
         onClose={resetForm}
@@ -443,7 +437,6 @@ export const PlanCatalogView = (): ReactElement => {
             <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
               {T.SECTION_PRICING}
             </h3>
-            <p className="-mt-2 text-xs text-gray-500">{T.FORM_SUBTITLE}</p>
             <div className="grid gap-4 sm:grid-cols-2">
               <Input
                 id="plan-price"
@@ -508,7 +501,6 @@ export const PlanCatalogView = (): ReactElement => {
       </Modal>
       <CommercialPanel
         title={T.CATALOG_TITLE}
-        subtitle={T.CATALOG_SUBTITLE}
         actions={
           <Select
             id="catalog-type"

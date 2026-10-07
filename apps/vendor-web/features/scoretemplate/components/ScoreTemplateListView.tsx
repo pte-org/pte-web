@@ -218,7 +218,6 @@ export const ScoreTemplateListView = (): ReactElement => {
     <div className="space-y-6">
       <PageHeader
         title={SCORE_TEMPLATE_TEXT.LIST_TITLE}
-        subtitle={SCORE_TEMPLATE_TEXT.LIST_SUBTITLE}
         actions={
           <Button variant="secondary" onClick={() => setIsCreateOpen(true)}>
             {SCORE_TEMPLATE_TEXT.CREATE_ACTION}
@@ -292,7 +291,7 @@ export const ScoreTemplateListView = (): ReactElement => {
                   return (
                     <tr
                       key={template.publicId}
-                      className="border-t border-gray-100 hover:bg-slate-50/70"
+                      className="border-t border-gray-100 hover:bg-[var(--surface-row-hover)]"
                     >
                       <td className={`${CELL_CLASS} font-mono text-xs text-gray-900`}>
                         {template.code}
@@ -347,7 +346,6 @@ export const ScoreTemplateListView = (): ReactElement => {
           className="space-y-4"
           onSubmit={(event) => void handleCreate(event)}
         >
-          <p className="text-sm text-gray-600">{SCORE_TEMPLATE_TEXT.CREATE_MODAL_SUBTITLE}</p>
           <Input
             id="create-exam-template-code"
             label={SCORE_TEMPLATE_TEXT.CODE_LABEL}

@@ -131,7 +131,6 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="text-sm font-semibold text-gray-900">{T.SESSION_CODE_SECTION}</h2>
-            <p className="mt-1 text-sm text-gray-500">{T.SESSION_CODE_HELPER}</p>
           </div>
           <div className="flex flex-col gap-2 sm:items-end">
             <code className="select-all break-all rounded bg-gray-50 px-3 py-2 text-sm text-gray-800">

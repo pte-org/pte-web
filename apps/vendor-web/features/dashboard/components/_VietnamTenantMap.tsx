@@ -36,7 +36,6 @@ export const VietnamTenantMap = ({ tenants }: VietnamTenantMapProps): ReactEleme
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-base font-semibold text-gray-900">{DASHBOARD_MAP_TEXT.TITLE}</h2>
-          <p className="mt-1 text-sm text-gray-500">{DASHBOARD_MAP_TEXT.SUBTITLE}</p>
         </div>
         <div className="rounded-md bg-blue-50 px-3 py-2 text-right">
           <p className="text-xs font-medium uppercase tracking-wide text-blue-600">

@@ -2,6 +2,7 @@
 
 import { useState, type ReactElement, type ReactNode } from "react";
 import { DotsVerticalIcon, MenuIcon } from "../components/icons";
+import { useLocale } from "../i18n";
 import { cn } from "../utils/cn";
 
 export interface DashboardHeaderProps {
@@ -10,27 +11,24 @@ export interface DashboardHeaderProps {
   onMenuClick?: () => void;
 }
 
-const MENU_LABEL = "Mo menu";
-const QUICK_ACTIONS_LABEL = "Mo nhanh thao tac";
-
-/** PTE adaptation of NextAdmin's responsive header chrome. */
 export const DashboardHeader = ({
   brand,
   actions,
   onMenuClick,
 }: DashboardHeaderProps): ReactElement => {
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
+  const { t } = useLocale();
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-shell-border bg-shell-frame px-4 backdrop-blur-xl md:px-8">
+      <header className="sticky top-0 z-30 border-b border-[var(--shell-border)] bg-[var(--shell-frame)] px-4 backdrop-blur-xl md:px-8">
         <div className="flex min-h-[72px] items-center md:hidden">
           <div className="flex flex-1 justify-start">
             <button
               type="button"
-              aria-label={MENU_LABEL}
-              title={MENU_LABEL}
-              className="grid h-10 w-10 place-items-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950"
+              aria-label={t("common.openMenu", "Open menu")}
+              title={t("common.openMenu", "Open menu")}
+              className="grid h-10 w-10 place-items-center rounded-lg text-[var(--ink-secondary)] transition-colors hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)]"
               onClick={onMenuClick}
             >
               <MenuIcon className="h-5 w-5" />
@@ -40,11 +38,11 @@ export const DashboardHeader = ({
           <div className="flex flex-1 justify-end">
             <button
               type="button"
-              aria-label={QUICK_ACTIONS_LABEL}
-              title={QUICK_ACTIONS_LABEL}
+              aria-label={t("common.options", "Options")}
+              title={t("common.options", "Options")}
               className={cn(
-                "grid h-10 w-10 place-items-center rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-950",
-                isQuickActionsOpen && "bg-slate-100 text-slate-950",
+                "grid h-10 w-10 place-items-center rounded-lg text-[var(--ink-secondary)] transition-colors hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)]",
+                isQuickActionsOpen && "bg-[var(--surface-subtle)] text-[var(--ink-primary)]",
               )}
               onClick={() => setIsQuickActionsOpen((current) => !current)}
             >
@@ -60,7 +58,7 @@ export const DashboardHeader = ({
       </header>
 
       {isQuickActionsOpen && (
-        <div className="border-b border-shell-border bg-shell-frame px-4 py-3 md:hidden">
+        <div className="border-b border-[var(--shell-border)] bg-[var(--shell-frame)] px-4 py-3 md:hidden">
           <div className="flex items-center justify-end gap-2.5">{actions}</div>
         </div>
       )}

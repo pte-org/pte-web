@@ -6,7 +6,6 @@ import {
   ActionMenu,
   Alert,
   BuildingIcon,
-  CollapsibleSection,
   DataTable,
   EyeIcon,
   PageHeader,
@@ -77,7 +76,6 @@ export const AdminApplicationsView = (): ReactElement => {
     <div className="flex flex-col gap-5">
       <PageHeader
         title={T.TITLE}
-        subtitle={T.SUBTITLE}
         actions={
           <Select
             id="application-status"
@@ -99,11 +97,7 @@ export const AdminApplicationsView = (): ReactElement => {
           </div>
         </Alert>
       )}
-      <CollapsibleSection
-        title={T.OVERVIEW_TITLE}
-        subtitle={T.OVERVIEW_SUBTITLE}
-        contentClassName="grid gap-4 sm:grid-cols-3"
-      >
+      <div className="grid gap-4 sm:grid-cols-3">
         <StatCard
           label={T.TOTAL}
           value={isLoading || isError ? T.EMPTY_VALUE : String(applications.length)}
@@ -123,7 +117,7 @@ export const AdminApplicationsView = (): ReactElement => {
           icon={<BuildingIcon />}
           accent="mint"
         />
-      </CollapsibleSection>
+      </div>
       <DataTable
         columns={columns}
         rows={visibleApplications}

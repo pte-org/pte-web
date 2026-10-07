@@ -112,7 +112,6 @@ export const AnswerDetailModal = ({
           >
             <div>
               <h3 className="text-sm font-semibold text-gray-900">{T.TEACHER_SCORE_TITLE}</h3>
-              <p className="text-xs text-gray-500">{T.TEACHER_SCORE_HELPER}</p>
             </div>
             {submitScore.isError && <Alert tone="error">{errorMessage(submitScore.error)}</Alert>}
             {submitScore.isSuccess && <Alert tone="success">{T.SAVED}</Alert>}
