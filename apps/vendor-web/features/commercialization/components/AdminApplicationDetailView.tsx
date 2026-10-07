@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import Link from "next/link";
-import { Alert, Button, DescriptionList, Input, PageHeader } from "@pte/ui";
+import { Alert, BackButton, Button, DescriptionList, Input, PageHeader } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useApplicationsQuery, useApproveApplication, useRejectApplication } from "../api";
 import { ADMIN_APPLICATION_DETAIL_TEXT as T } from "../constants";
@@ -32,9 +31,7 @@ export const AdminApplicationDetailView = ({ applicationId }: AdminApplicationDe
   if (!application) {
     return (
       <div className="flex flex-col gap-4">
-        <Link href="/admin/applications" className="text-sm font-medium text-action hover:underline">
-          {T.BACK}
-        </Link>
+        <BackButton href="/admin/applications" label={T.BACK} />
         <Alert tone="error">{T.NOT_FOUND}</Alert>
       </div>
     );
@@ -57,9 +54,7 @@ export const AdminApplicationDetailView = ({ applicationId }: AdminApplicationDe
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/admin/applications" className="text-sm font-medium text-action hover:underline">
-        {T.BACK}
-      </Link>
+      <BackButton href="/admin/applications" label={T.BACK} />
       <PageHeader
         title={application.orgName}
         subtitle={T.REQUESTED_CODE(application.requestedCode)}
