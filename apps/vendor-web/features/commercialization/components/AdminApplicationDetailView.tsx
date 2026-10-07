@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import Link from "next/link";
-import { Alert, Button, DescriptionList, Input, PageHeader } from "@pte/ui";
+import { Alert, BackButton, Button, DescriptionList, Input, PageHeader } from "@pte/ui";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useApplicationQuery, useApproveApplication, useRejectApplication } from "../api";
 import { ADMIN_APPLICATION_DETAIL_TEXT as T } from "../constants";
@@ -46,9 +45,7 @@ const AdminApplicationDetailContent = ({
           : getUserFacingApiErrorMessage(error, T.LOAD_ERROR);
     return (
       <div className="flex flex-col gap-4">
-        <Link href="/admin/applications" className="text-sm font-medium text-action hover:underline">
-          {T.BACK}
-        </Link>
+        <BackButton href="/admin/applications" label={T.BACK} />
         <Alert tone="error">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span>{message}</span>
@@ -67,9 +64,7 @@ const AdminApplicationDetailContent = ({
   if (!application) {
     return (
       <div className="flex flex-col gap-4">
-        <Link href="/admin/applications" className="text-sm font-medium text-action hover:underline">
-          {T.BACK}
-        </Link>
+        <BackButton href="/admin/applications" label={T.BACK} />
         <Alert tone="error">{T.NOT_FOUND}</Alert>
       </div>
     );
@@ -125,9 +120,7 @@ const AdminApplicationDetailContent = ({
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/admin/applications" className="text-sm font-medium text-action hover:underline">
-        {T.BACK}
-      </Link>
+      <BackButton href="/admin/applications" label={T.BACK} />
       <PageHeader
         title={application.orgName}
         subtitle={T.REQUESTED_CODE(application.requestedCode)}
