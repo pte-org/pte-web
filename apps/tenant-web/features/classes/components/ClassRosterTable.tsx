@@ -165,7 +165,10 @@ export const ClassRosterTable = ({
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-end gap-3">
+      {/* Toolbar: flex-wrap so buttons drop to a new row on narrow screens
+          instead of clipping. Right-align only on `sm+` — on mobile the
+          wrap looks natural at full width, no need to justify-end. */}
+      <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
         {(roster ?? []).length > 0 && (
           <button
             type="button"
@@ -187,7 +190,7 @@ export const ClassRosterTable = ({
       </div>
 
       {splitMode && (
-        <div className="flex items-center justify-between rounded-md border border-blue-200 bg-blue-50 px-4 py-2">
+        <div className="flex flex-col gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:px-4">
           <span className="text-sm text-blue-800">
             {SPLIT_CLASS_SELECTION_TEXT.selectedCount(selectedKeys.size)}
           </span>

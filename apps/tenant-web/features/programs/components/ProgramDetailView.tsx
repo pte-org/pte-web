@@ -1,17 +1,16 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   Alert,
   Badge,
-  ChevronLeftIcon,
   ConfirmDialog,
   LoadingState,
   PageHeader,
   useToast,
 } from "@pte/ui";
+import { AppBackButton } from "@/features/navigation/components/AppBackButton";
 import { ClassesSection } from "@/features/classes/components";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
@@ -40,13 +39,7 @@ export const ProgramDetailView = ({
     return (
       <div className="flex flex-col gap-4">
         <Alert tone="error">{T.missingOrganization}</Alert>
-        <Link
-          href="/host/programs"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
-        >
-          <ChevronLeftIcon className="h-4 w-4" />
-          <span>{T.backToList(labels.program)}</span>
-        </Link>
+        <AppBackButton href="/host/programs" label={T.backToList(labels.program)} />
       </div>
     );
   }
@@ -94,13 +87,7 @@ const ProgramDetailContent = ({
     return (
       <div className="flex flex-col gap-4">
         <Alert tone="error">{errorMessage(error, T.loadFailed)}</Alert>
-        <Link
-          href="/host/programs"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
-        >
-          <ChevronLeftIcon className="h-4 w-4" />
-          <span>{T.backToList(programLabel)}</span>
-        </Link>
+        <AppBackButton href="/host/programs" label={T.backToList(programLabel)} />
       </div>
     );
   }
@@ -130,13 +117,7 @@ const ProgramDetailContent = ({
 
   return (
     <div className="flex flex-col gap-5">
-      <Link
-        href="/host/programs"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
-      >
-        <ChevronLeftIcon className="h-4 w-4" />
-        <span>{T.back(programLabel)}</span>
-      </Link>
+      <AppBackButton href="/host/programs" label={T.back(programLabel)} />
 
       <PageHeader
         title={program.name}

@@ -83,8 +83,44 @@ const SidebarBrand = (): ReactElement => {
   </Link>
 };
 
-const isActive = (pathname: string | null, href: string): boolean =>
-  href === "/" ? pathname === "/" : Boolean(pathname?.startsWith(href));
+// Active-state rules:
+// - An exact match always wins.
+// - Otherwise a nav item is active when the current pathname starts with
+//   its href.
+// - Class detail pages live at `/host/programs/{programId}/classes/{cid}`
+//   for URL continuity with the Program → Class navigation flow. Without
+//   extra rules that URL would highlight the Programs nav item — even
+//   though the user is conceptually looking at a Class. We resolve this
+//   by deactivating `/host/programs` whenever the pathname enters the
+//   `/classes/` sub-segment of a program, AND activating `/host/classes`
+//   in that case. The user lands on a Class via the Classes section, so
+//   Classes should be the highlighted entry point.
+// - Programs list (`/host/programs`) and Programs detail
+//   (`/host/programs/{id}`) still highlight normally because they have
+//   no `/classes/` sub-segment.
+const HOST_NAV_DEACTIVATES: Readonly<Record<string, (pathname: string) => boolean>> = {
+  "/host/programs": (pathname) =>
+    pathname.includes("/classes/") || pathname.endsWith("/classes"),
+};
+
+const HOST_NAV_ACTIVATES: Readonly<Record<string, (pathname: string) => boolean>> = {
+  // The Classes section owns the class-detail page even though the URL
+  // sits under `/host/programs/.../classes/...`. Force Classes active
+  // whenever we navigate into a class.
+  "/host/classes": (pathname) =>
+    pathname.includes("/classes/") || pathname.endsWith("/classes"),
+};
+
+const isActive = (pathname: string | null, href: string): boolean => {
+  if (!pathname) return false;
+  const forceOn = HOST_NAV_ACTIVATES[href];
+  if (forceOn && forceOn(pathname)) return true;
+  if (href === "/") return pathname === "/";
+  if (!pathname.startsWith(href)) return false;
+  const deactivator = HOST_NAV_DEACTIVATES[href];
+  if (deactivator && deactivator(pathname)) return false;
+  return true;
+};
 
 const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
   const pathname = usePathname();
