@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, type ReactElement, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { useEffect, useState, type ReactElement, type ReactNode } from "react";
 import { cn } from "../utils/cn";
 import { XIcon } from "./icons";
 
@@ -45,6 +46,12 @@ export const Modal = ({
   closeOnBackdropClick = false,
   isDismissDisabled = false,
 }: ModalProps): ReactElement | null => {
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setPortalTarget(document.body);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
     const onKeyDown = (event: KeyboardEvent): void => {
@@ -63,9 +70,9 @@ export const Modal = ({
     };
   }, [open]);
 
-  if (!open) return null;
+  if (!open || !portalTarget) return null;
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm motion-safe:animate-pte-fade-in"
       onClick={closeOnBackdropClick && !isDismissDisabled ? onClose : undefined}
@@ -105,6 +112,7 @@ export const Modal = ({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    portalTarget,
   );
 };

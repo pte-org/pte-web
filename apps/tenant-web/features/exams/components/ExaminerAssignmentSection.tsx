@@ -190,7 +190,7 @@ export const ExaminerAssignmentSection = ({
   return (
     <CollapsibleSection
       title={SESSION_DETAIL_TEXT.EXAMINER_ASSIGNMENTS_SECTION}
-      className="rounded-lg border border-gray-200 bg-white p-5"
+      className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5"
       contentClassName="flex flex-col gap-5"
     >
       {classesQuery.isError && <Alert tone="error">{classesError}</Alert>}
@@ -218,7 +218,7 @@ export const ExaminerAssignmentSection = ({
 
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-3">
-            <h4 className="text-sm font-semibold text-gray-800">{T.SCOPE_LABEL}</h4>
+            <h4 className="text-sm font-semibold text-[var(--ink-primary)]">{T.SCOPE_LABEL}</h4>
             <button
               type="button"
               onClick={() => {
@@ -233,18 +233,18 @@ export const ExaminerAssignmentSection = ({
                   },
                 ]);
               }}
-              className="rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+              className="rounded-lg border border-[var(--shell-border)] px-3 py-1.5 text-sm text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)]"
             >
               + {T.ADD_SCOPE}
             </button>
           </div>
 
-          {scopes.length === 0 && <p className="text-sm text-gray-500">{T.NO_SCOPES}</p>}
+          {scopes.length === 0 && <p className="text-sm text-[var(--ink-secondary)]">{T.NO_SCOPES}</p>}
           {scopes.length === 0 &&
             !classesLoading &&
             !classesQuery.isError &&
             activeClasses.length === 0 && (
-              <p className="text-sm text-gray-500">{T.NO_ACTIVE_SCOPES}</p>
+              <p className="text-sm text-[var(--ink-secondary)]">{T.NO_ACTIVE_SCOPES}</p>
             )}
           {scopes.map((scope) => {
             const selectedKeys = new Set(
@@ -262,7 +262,7 @@ export const ExaminerAssignmentSection = ({
             return (
               <div
                 key={scope.key}
-                className="grid gap-3 rounded-md border border-gray-200 p-3 md:grid-cols-[150px_1fr_1fr_auto]"
+                className="grid gap-3 rounded-md border border-[var(--shell-border)] p-3 md:grid-cols-[150px_1fr_1fr_auto]"
               >
                 <Select
                   id={`scope-type-${scope.key}`}
@@ -324,21 +324,21 @@ export const ExaminerAssignmentSection = ({
         </div>
 
         {mode === "RANDOM" && (
-          <fieldset className="flex flex-col gap-2 rounded-md border border-gray-200 p-3">
-            <legend className="px-1 text-sm font-semibold text-gray-800">
+          <fieldset className="flex flex-col gap-2 rounded-md border border-[var(--shell-border)] p-3">
+            <legend className="px-1 text-sm font-semibold text-[var(--ink-primary)]">
               {T.EXAMINERS_LABEL}
             </legend>
             {examinersLoading ? (
-              <p className="text-sm text-gray-500">Loading...</p>
+              <p className="text-sm text-[var(--ink-secondary)]">Loading...</p>
             ) : examinersQuery.isError ? (
               <p className="text-sm text-red-700">{examinersError}</p>
             ) : examiners.length === 0 ? (
-              <p className="text-sm text-gray-500">{T.NO_EXAMINERS}</p>
+              <p className="text-sm text-[var(--ink-secondary)]">{T.NO_EXAMINERS}</p>
             ) : (
               examiners.map((examiner) => (
                 <label
                   key={examiner.publicId}
-                  className="flex items-center gap-2 text-sm text-gray-700"
+                  className="flex items-center gap-2 text-sm text-[var(--ink-primary)]"
                 >
                   <input
                     type="checkbox"
@@ -367,7 +367,7 @@ export const ExaminerAssignmentSection = ({
       </div>
 
       {preview && (
-        <div className="flex flex-col gap-3 rounded-md border border-gray-200 bg-gray-50 p-4">
+        <div className="flex flex-col gap-3 rounded-md border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4">
           <Alert
             tone={
               preview.valid && !currentPreviewExpired && !currentPreviewStale
@@ -393,7 +393,7 @@ export const ExaminerAssignmentSection = ({
               T.PREVIEW_INVALID
             )}
           </Alert>
-          <p className="text-sm text-gray-700">
+          <p className="text-sm text-[var(--ink-primary)]">
             {T.ATTEMPT_COUNT}: <strong>{preview.attemptCount}</strong>
             <span className="px-2">·</span>
             {T.ANSWER_COUNT}: <strong>{preview.eligibleAnswerCount}</strong>
@@ -405,7 +405,7 @@ export const ExaminerAssignmentSection = ({
               {preview.conflicts.map((conflict) => (
                 <div
                   key={conflict.attemptPublicId}
-                  className="rounded border border-red-200 bg-white p-2 text-sm"
+                  className="rounded border border-[var(--blush-action)] bg-[var(--surface-card)] p-2 text-sm text-[var(--ink-primary)]"
                 >
                   <p>
                     {T.ATTEMPT}: <code>{conflict.attemptPublicId}</code>
@@ -456,25 +456,25 @@ export const ExaminerAssignmentSection = ({
 
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h4 className="text-sm font-semibold text-gray-800">{T.BATCHES}</h4>
-          <span className="text-sm text-gray-500">{T.ASSIGNED_TOTAL(assignedAttemptCount)}</span>
+          <h4 className="text-sm font-semibold text-[var(--ink-primary)]">{T.BATCHES}</h4>
+          <span className="text-sm text-[var(--ink-secondary)]">{T.ASSIGNED_TOTAL(assignedAttemptCount)}</span>
         </div>
         {overview.isLoading ? (
-          <p className="text-sm text-gray-500">Loading...</p>
+          <p className="text-sm text-[var(--ink-secondary)]">Loading...</p>
         ) : overview.isError ? (
           <button
             type="button"
             onClick={() => void overview.refetch()}
-            className="self-start rounded-md border border-gray-300 px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
+            className="self-start rounded-lg border border-[var(--shell-border)] px-3 py-1.5 text-sm text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)]"
           >
             {T.RETRY}
           </button>
         ) : (overview.data?.batches.length ?? 0) === 0 ? (
-          <p className="text-sm text-gray-500">{T.NO_BATCHES}</p>
+          <p className="text-sm text-[var(--ink-secondary)]">{T.NO_BATCHES}</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 text-sm">
-              <thead className="bg-gray-50 text-left text-xs uppercase text-gray-600">
+            <table className="min-w-full divide-y divide-[var(--divider)] text-sm">
+              <thead className="bg-[var(--surface-subtle)] text-left text-xs uppercase text-[var(--ink-secondary)]">
                 <tr>
                   <th className="px-3 py-2">{T.STATUS}</th>
                   <th className="px-3 py-2">{T.MODE_LABEL}</th>
@@ -484,7 +484,7 @@ export const ExaminerAssignmentSection = ({
                   <th className="px-3 py-2">{T.ACTIONS}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100 bg-white">
+              <tbody className="divide-y divide-[var(--divider)] bg-[var(--surface-card)]">
                 {overview.data?.batches.map((batch) => (
                   <tr key={batch.batchPublicId}>
                     <td className="px-3 py-2">
@@ -525,7 +525,7 @@ export const ExaminerAssignmentSection = ({
               type="button"
               disabled={batchPage === 0 || overview.isFetching}
               onClick={() => setBatchPage((page) => Math.max(0, page - 1))}
-              className="rounded border border-gray-300 px-3 py-1.5 disabled:opacity-50"
+              className="rounded border border-[var(--shell-border)] px-3 py-1.5 text-[var(--ink-primary)] disabled:opacity-50"
             >
               {T.PREVIOUS_PAGE}
             </button>
@@ -536,7 +536,7 @@ export const ExaminerAssignmentSection = ({
               type="button"
               disabled={batchPage + 1 >= overviewTotalPages || overview.isFetching}
               onClick={() => setBatchPage((page) => page + 1)}
-              className="rounded border border-gray-300 px-3 py-1.5 disabled:opacity-50"
+              className="rounded border border-[var(--shell-border)] px-3 py-1.5 text-[var(--ink-primary)] disabled:opacity-50"
             >
               {T.NEXT_PAGE}
             </button>
@@ -561,17 +561,17 @@ function LoadTable({ loads, examiners }: LoadTableProps): ReactElement | null {
   const byId = new Map(examiners.map((examiner) => [examiner.publicId, examiner]));
   return (
     <div className="flex flex-col gap-2">
-      <h4 className="text-sm font-semibold text-gray-800">{T.LOADS}</h4>
+      <h4 className="text-sm font-semibold text-[var(--ink-primary)]">{T.LOADS}</h4>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="bg-white text-left text-xs uppercase text-gray-600">
+        <table className="min-w-full divide-y divide-[var(--divider)] text-sm">
+          <thead className="bg-[var(--surface-subtle)] text-left text-xs uppercase text-[var(--ink-secondary)]">
             <tr>
               <th className="px-3 py-2">{T.EXAMINER_LABEL}</th>
               <th className="px-3 py-2">{T.ATTEMPT_COUNT}</th>
               <th className="px-3 py-2">{T.ANSWER_COUNT}</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 bg-white">
+          <tbody className="divide-y divide-[var(--divider)] bg-[var(--surface-card)]">
             {loads.map((load) => (
               <tr key={load.examinerPublicId}>
                 <td className="px-3 py-2">

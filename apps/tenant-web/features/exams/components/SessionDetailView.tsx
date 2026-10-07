@@ -2,29 +2,11 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Alert, Badge, Button, CollapsibleSection, LoadingState, PageHeader } from "@pte/ui";
-import {
-  ExistingStudentAssignmentModal,
-  ExistingStudentImportModal,
-  StudentRosterTable,
-} from "@/features/examoperations/components";
+import { Alert, Badge, LoadingState, PageHeader } from "@pte/ui";
 import { errorMessage as mutationErrorMessage } from "@/features/examoperations/errorMessage";
-import {
-  EXAM_MODE_LABELS,
-  EXAM_SKILL_OPTIONS,
-  SESSION_DETAIL_TEXT,
-  SESSION_STATUS_LABELS,
-  SESSION_STATUS_VARIANT,
-} from "../constants";
+import { SESSION_DETAIL_TEXT, SESSION_STATUS_LABELS, SESSION_STATUS_VARIANT } from "../constants";
 import { useCancelSession, useCloseSession, useOpenSession, useSession } from "../api";
-import { getExamPolicyLabel } from "../utils/examPolicy";
-import { AnswersSection } from "./AnswersSection";
-import { HostScoreReviewPanel } from "./HostScoreReviewPanel";
-import { ReportPublicationPanel } from "./ReportPublicationPanel";
-import { GradingCohortSection } from "./GradingCohortSection";
-import { ClassAssignmentSection } from "./ClassAssignmentSection";
-import { ProctorAssignmentSection } from "./ProctorAssignmentSection";
-import { ExaminerAssignmentSection } from "./ExaminerAssignmentSection";
+import { ExamDetailTabs } from "./ExamDetailTabs";
 import { ExamPreviewModal } from "./ExamPreviewModal";
 
 interface SessionDetailViewProps {
@@ -33,20 +15,8 @@ interface SessionDetailViewProps {
 
 const T = SESSION_DETAIL_TEXT;
 
-function formatDateTime(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(date);
-}
-
 export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): ReactElement => {
   const [previewOpen, setPreviewOpen] = useState(false);
-  const [studentAssignmentOpen, setStudentAssignmentOpen] = useState(false);
-  const [studentImportOpen, setStudentImportOpen] = useState(false);
-  const [sessionCodeCopyState, setSessionCodeCopyState] = useState<{
-    sessionCode: string;
-    status: "copied" | "failed";
-  } | null>(null);
   const { data: session, isLoading } = useSession(sessionPublicId);
   const open = useOpenSession(sessionPublicId);
   const close = useCloseSession(sessionPublicId);
@@ -58,18 +28,9 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
 
   const lifecycleError = mutationErrorMessage(open.error ?? close.error ?? cancel.error);
 
-  const copySessionCode = async (): Promise<void> => {
-    try {
-      await navigator.clipboard.writeText(session.sessionCode);
-      setSessionCodeCopyState({ sessionCode: session.sessionCode, status: "copied" });
-    } catch {
-      setSessionCodeCopyState({ sessionCode: session.sessionCode, status: "failed" });
-    }
-  };
-
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/host/exams" className="text-sm text-blue-700 hover:underline">
+      <Link href="/host/exams" className="text-sm text-[var(--brand-ink)] hover:underline">
         {T.BACK}
       </Link>
 
@@ -81,7 +42,7 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
               <button
                 type="button"
                 onClick={() => setPreviewOpen(true)}
-                className="rounded-md border border-action px-4 py-2 text-sm font-semibold text-action hover:bg-blue-50"
+                className="rounded-lg border border-action px-4 py-2 text-sm font-semibold text-action hover:bg-[var(--action-tint)]"
               >
                 {T.VIEW_EXAM}
               </button>
@@ -106,7 +67,7 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
                   if (window.confirm(T.CLOSE_EXAM_CONFIRM_CUTOFF)) close.mutate();
                 }}
                 disabled={close.isPending}
-                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-lg border border-[var(--shell-border)] px-4 py-2 text-sm font-semibold text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {T.CLOSE_EXAM}
               </button>
@@ -118,7 +79,7 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
                   if (window.confirm(T.CANCEL_EXAM_CONFIRM)) cancel.mutate();
                 }}
                 disabled={cancel.isPending}
-                className="rounded-md border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-lg border border-[var(--blush-action)] px-4 py-2 text-sm font-semibold text-[var(--blush-action)] hover:bg-[var(--blush-tint)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {T.CANCEL_EXAM}
               </button>
@@ -127,71 +88,6 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
         }
       />
 
-      <section className="rounded-lg border border-gray-200 bg-white p-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-sm font-semibold text-gray-900">{T.SESSION_CODE_SECTION}</h2>
-          </div>
-          <div className="flex flex-col gap-2 sm:items-end">
-            <code className="select-all break-all rounded bg-gray-50 px-3 py-2 text-sm text-gray-800">
-              {session.sessionCode}
-            </code>
-            <Button size="sm" variant="secondary" onClick={() => void copySessionCode()}>
-              {T.COPY_SESSION_CODE}
-            </Button>
-            {sessionCodeCopyState?.sessionCode === session.sessionCode &&
-              sessionCodeCopyState.status === "copied" && (
-                <p role="status" className="text-xs text-emerald-700">
-                  {T.SESSION_CODE_COPIED}
-                </p>
-              )}
-            {sessionCodeCopyState?.sessionCode === session.sessionCode &&
-              sessionCodeCopyState.status === "failed" && (
-                <p role="alert" className="text-xs text-red-700">
-                  {T.SESSION_CODE_COPY_FAILED}
-                </p>
-              )}
-          </div>
-        </div>
-      </section>
-
-      <section className="rounded-lg border border-gray-200 bg-white p-5">
-        <h2 className="mb-3 text-sm font-semibold text-gray-900">{T.CONFIGURATION_SECTION}</h2>
-        <dl className="grid gap-4 text-sm sm:grid-cols-4">
-          <div>
-            <dt className="text-gray-500">{T.MODE_LABEL}</dt>
-            <dd className="mt-1 font-medium text-gray-900">
-              {session.examMode ? EXAM_MODE_LABELS[session.examMode] : T.LEGACY_MODE}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">{T.SKILLS_LABEL}</dt>
-            <dd className="mt-1 font-medium text-gray-900">
-              {session.selectedSkills.length > 0
-                ? session.selectedSkills
-                    .map(
-                      (skill) =>
-                        EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label ?? skill,
-                    )
-                    .join(", ")
-                : T.LEGACY_SKILLS}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">{T.RETRIES_LABEL}</dt>
-            <dd className="mt-1 font-medium text-gray-900">
-              {T.TOTAL_ATTEMPTS(session.maxRetriesPerStudent)}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-gray-500">{T.SECURITY_POLICY_LABEL}</dt>
-            <dd className="mt-1 font-medium text-gray-900">
-              {getExamPolicyLabel(session.examMode, session.policy?.lockdownMode)}
-            </dd>
-          </div>
-        </dl>
-      </section>
-
       <ExamPreviewModal
         sessionPublicId={sessionPublicId}
         open={previewOpen}
@@ -199,79 +95,7 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
       />
 
       {lifecycleError && <Alert tone="error">{lifecycleError}</Alert>}
-
-      <div className="rounded-lg border border-gray-200 bg-white p-5 text-sm text-gray-600">
-        <p>
-          {formatDateTime(session.opensAt)} — {formatDateTime(session.closesAt)}
-        </p>
-      </div>
-
-      <CollapsibleSection
-        title={T.CLASSES_SECTION}
-        className="rounded-lg border border-gray-200 bg-white p-5"
-        contentClassName="flex flex-col gap-3"
-      >
-        <ClassAssignmentSection
-          sessionPublicId={sessionPublicId}
-          canModify={session.status === "SCHEDULED"}
-        />
-      </CollapsibleSection>
-
-      <CollapsibleSection
-        title={T.STUDENTS_SECTION}
-        className="rounded-lg border border-gray-200 bg-white p-5"
-        contentClassName="flex flex-col gap-5"
-        actions={
-          <div className="flex flex-wrap justify-end gap-2">
-            <Button
-              size="sm"
-              onClick={() => setStudentAssignmentOpen(true)}
-              disabled={session.status !== "SCHEDULED"}
-              title={session.status !== "SCHEDULED" ? T.AUDIENCE_NOT_SCHEDULED_NOTICE : undefined}
-            >
-              {T.ADD_EXISTING_STUDENTS}
-            </Button>
-            <Button
-              size="sm"
-              variant="secondary"
-              onClick={() => setStudentImportOpen(true)}
-              disabled={session.status !== "SCHEDULED"}
-              title={session.status !== "SCHEDULED" ? T.AUDIENCE_NOT_SCHEDULED_NOTICE : undefined}
-            >
-              {T.IMPORT_EXISTING_STUDENTS}
-            </Button>
-          </div>
-        }
-      >
-        {session.status !== "SCHEDULED" && (
-          <Alert tone="warning">{T.AUDIENCE_NOT_SCHEDULED_NOTICE}</Alert>
-        )}
-        <StudentRosterTable sessionPublicId={sessionPublicId} />
-      </CollapsibleSection>
-
-      <ExistingStudentAssignmentModal
-        open={studentAssignmentOpen}
-        onClose={() => setStudentAssignmentOpen(false)}
-        sessionPublicId={sessionPublicId}
-      />
-      <ExistingStudentImportModal
-        open={studentImportOpen}
-        onClose={() => setStudentImportOpen(false)}
-        sessionPublicId={sessionPublicId}
-      />
-
-      <ProctorAssignmentSection sessionPublicId={sessionPublicId} />
-
-      <ExaminerAssignmentSection sessionPublicId={sessionPublicId} />
-
-      <section className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-5">
-        <h3 className="text-sm font-semibold text-gray-900">{T.ANSWERS_SECTION}</h3>
-        <HostScoreReviewPanel sessionPublicId={sessionPublicId} />
-        <AnswersSection sessionPublicId={sessionPublicId} />
-      </section>
-
-      <ReportPublicationPanel sessionPublicId={sessionPublicId} sessionStatus={session.status} />
-      <GradingCohortSection sessionPublicId={sessionPublicId} sessionStatus={session.status} />
+      <ExamDetailTabs session={session} sessionPublicId={sessionPublicId} />
     </div>
   );
 };

@@ -19,10 +19,12 @@ function OptionRow({ option }: { option: AnswerOptionView }): ReactElement {
     <li
       className={cn(
         "flex items-center justify-between rounded-md border px-3 py-2 text-sm",
-        option.selectedByStudent ? "border-blue-300 bg-blue-50" : "border-gray-200 bg-white",
+        option.selectedByStudent
+          ? "border-[var(--brand-soft)] bg-[var(--brand-tint)]"
+          : "border-[var(--shell-border)] bg-[var(--surface-card)]",
       )}
     >
-      <span className="text-gray-800">{option.text}</span>
+      <span className="text-[var(--ink-primary)]">{option.text}</span>
       <span className="flex gap-1.5">
         {option.selectedByStudent && <Badge variant="info">{T.SELECTED_BADGE}</Badge>}
         {option.correct && <Badge variant="success">{T.CORRECT_BADGE}</Badge>}
@@ -54,11 +56,11 @@ export const AnswerDetailModal = ({
         <div className="flex flex-col gap-5">
           <dl className="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <dt className="text-gray-500">{T.TASK_TYPE_LABEL}</dt>
-              <dd className="font-medium text-gray-900">{answer.taskType}</dd>
+              <dt className="text-[var(--ink-secondary)]">{T.TASK_TYPE_LABEL}</dt>
+              <dd className="font-medium text-[var(--ink-primary)]">{answer.taskType}</dd>
             </div>
             <div>
-              <dt className="text-gray-500">{T.STATUS_LABEL}</dt>
+              <dt className="text-[var(--ink-secondary)]">{T.STATUS_LABEL}</dt>
               <dd>
                 <Badge variant={ANSWER_STATUS_VARIANT[answer.status]}>
                   {ANSWER_STATUS_LABELS[answer.status]}
@@ -66,14 +68,14 @@ export const AnswerDetailModal = ({
               </dd>
             </div>
             <div>
-              <dt className="text-gray-500">{T.AI_SCORE_LABEL}</dt>
-              <dd className="font-medium text-gray-900">
+              <dt className="text-[var(--ink-secondary)]">{T.AI_SCORE_LABEL}</dt>
+              <dd className="font-medium text-[var(--ink-primary)]">
                 {answer.rawScore === null ? T.NOT_SCORED : answer.rawScore}
               </dd>
             </div>
           </dl>
 
-          <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4">
             {answer.payload.kind === "AUDIO" &&
               (answer.payload.mediaUrl ? (
                 <audio controls src={answer.payload.mediaUrl} className="w-full" />
@@ -83,7 +85,7 @@ export const AnswerDetailModal = ({
 
             {answer.payload.kind === "SELECTION" && answer.payload.options && (
               <div className="flex flex-col gap-2">
-                <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">
+                <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">
                   {T.OPTIONS_TITLE}
                 </p>
                 <ul className="flex flex-col gap-2">
@@ -95,23 +97,23 @@ export const AnswerDetailModal = ({
             )}
 
             {answer.payload.kind === "TEXT" && (
-              <p className="whitespace-pre-wrap text-sm text-gray-800">{answer.payload.text}</p>
+              <p className="whitespace-pre-wrap text-sm text-[var(--ink-primary)]">{answer.payload.text}</p>
             )}
 
             {answer.payload.kind === "UNRECOGNIZED" && (
               <div className="flex flex-col gap-2">
                 <Alert tone="warning">{T.UNRECOGNIZED_NOTICE}</Alert>
-                <p className="whitespace-pre-wrap text-sm text-gray-800">{answer.payload.text}</p>
+                <p className="whitespace-pre-wrap text-sm text-[var(--ink-primary)]">{answer.payload.text}</p>
               </div>
             )}
           </div>
 
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-3 border-t border-gray-100 pt-4"
+            className="flex flex-col gap-3 border-t border-[var(--divider)] pt-4"
           >
             <div>
-              <h3 className="text-sm font-semibold text-gray-900">{T.TEACHER_SCORE_TITLE}</h3>
+              <h3 className="text-sm font-semibold text-[var(--ink-primary)]">{T.TEACHER_SCORE_TITLE}</h3>
             </div>
             {submitScore.isError && <Alert tone="error">{errorMessage(submitScore.error)}</Alert>}
             {submitScore.isSuccess && <Alert tone="success">{T.SAVED}</Alert>}
