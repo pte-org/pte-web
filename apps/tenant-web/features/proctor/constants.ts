@@ -71,3 +71,20 @@ export const PROCTOR_AUDIT_TEXT = {
   COL_HASH: "Hash position",
   BACK_TO_PROFILE: "Back to profile",
 } as const;
+
+export const PROCTOR_PROFILE_TEXT = {
+  TITLE: "Proctor profile",
+  SUBTITLE: "Your account details. This view is read-only.",
+  FULL_NAME_LABEL: "Full name",
+  EMAIL_LABEL: "Email",
+  ROLES_LABEL: "Roles",
+  STATUS_LABEL: "Status",
+  TENANT_LABEL: "Tenant",
+  LOADING: "Loading profile…",
+  ERROR_TITLE: "Could not load profile",
+  ERROR_DESCRIPTION: "Try refreshing the page. If the problem persists, contact your host admin.",
+  EMPTY_FULL_NAME: "(no name set)",
+  EMPTY_TENANT: "(no tenant)",
+  ROLES_SEPARATOR: ", ",
+  RETRY: "Retry",
+} as const;
