@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import Link from "next/link";
-import { Alert, Badge, ChevronLeftIcon, LoadingState, PageHeader } from "@pte/ui";
+import { Alert, BackButton, Badge, LoadingState, PageHeader } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import {
@@ -33,13 +32,7 @@ export const ClassDetailView = ({
     return (
       <div className="flex flex-col gap-4">
         <Alert tone="error">{CLASS_ROSTER_TEXT.missingContext}</Alert>
-        <Link
-          href="/host/programs"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
-        >
-          <ChevronLeftIcon className="h-4 w-4" />
-          <span>{CLASS_ROSTER_TEXT.back(labels.program)}</span>
-        </Link>
+        <BackButton href="/host/programs" label={CLASS_ROSTER_TEXT.back(labels.program)} />
       </div>
     );
   }
@@ -49,7 +42,6 @@ export const ClassDetailView = ({
       organizationPublicId={organizationPublicId}
       programPublicId={programPublicId}
       classPublicId={classPublicId}
-      programLabel={labels.program}
       classLabel={labels.class}
     />
   );
@@ -59,7 +51,6 @@ interface ClassDetailContentProps {
   organizationPublicId: string;
   programPublicId: string;
   classPublicId: string;
-  programLabel: string;
   classLabel: string;
 }
 
@@ -67,7 +58,6 @@ const ClassDetailContent = ({
   organizationPublicId,
   programPublicId,
   classPublicId,
-  programLabel,
   classLabel,
 }: ClassDetailContentProps): ReactElement => {
   const [importOpen, setImportOpen] = useState(false);
@@ -81,6 +71,17 @@ const ClassDetailContent = ({
     error,
   } = useClasses(organizationPublicId, programPublicId);
   const studentClass = classes?.find((candidate) => candidate.publicId === classPublicId);
+  // Back from a Class detail page should land on the Classes list page,
+  // not on the Program detail page. The Classes list page is the
+  // sidebar-level entry point (`/host/classes`) and shows every class
+  // across the current organization; the Program detail page is one
+  // navigation level too high — landing there would force the user to
+  // scroll back to the Classes section to continue managing classes.
+  // Label it as "Back to {classLabel}" so it always matches the entity
+  // we're returning to. While the page is loading the Class list, fall
+  // back to a neutral "Back" so the label is always accurate.
+  const backLabel = studentClass ? `Back to ${classLabel}` : "Back";
+  const backHref = `/host/classes?organizationPublicId=${organizationPublicId}`;
 
   if (isError) {
     return <Alert tone="error">{errorMessage(error, CLASS_ROSTER_TEXT.loadFailed)}</Alert>;
@@ -92,13 +93,7 @@ const ClassDetailContent = ({
 
   return (
     <div className="flex flex-col gap-5">
-      <Link
-        href={`/host/programs/${programPublicId}?organizationPublicId=${organizationPublicId}`}
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
-      >
-        <ChevronLeftIcon className="h-4 w-4" />
-        <span>{CLASS_ROSTER_TEXT.back(programLabel)}</span>
-      </Link>
+      <BackButton href={backHref} label={backLabel} />
 
       <PageHeader
         title={studentClass.name}

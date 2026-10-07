@@ -3,7 +3,7 @@
 import { useMemo, type ReactElement } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Alert, Button, CheckCircleIcon, ChevronLeftIcon, PageHeader } from "@pte/ui";
+import { Alert, BackButton, Button, CheckCircleIcon, PageHeader } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useCreateOrder, useOrdersQuery, useTenantPlansQuery } from "../api";
 import { BILLING_TEXT as T } from "../constants";
@@ -35,13 +35,7 @@ export const CheckoutView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <Link
-        href="/host/billing"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
-      >
-        <ChevronLeftIcon className="h-4 w-4" />
-        <span>{T.BACK_TO_PLANS}</span>
-      </Link>
+      <BackButton href="/host/billing" label={T.BACK_TO_PLANS} />
       <PageHeader title={T.CHECKOUT_TITLE} subtitle={T.CHECKOUT_SUBTITLE} />
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       {!isLoading && !plan && <Alert tone="warning">{T.SELECT_ACTIVE_PLAN}</Alert>}
