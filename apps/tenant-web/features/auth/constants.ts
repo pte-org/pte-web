@@ -11,6 +11,15 @@ export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://loca
  */
 export const HOST_ROLES: SessionRole[] = ["HOST_ADMIN"];
 
+/**
+ * Real backend roles allowed into `/proctor/*`. PROCTOR is the only
+ * monitoring role in the canonical identity taxonomy. PROCTOR users
+ * reach proctor routes via deep-link from the host UI; the sidebar nav
+ * for proctor accounts is built by `buildProctorNav()` in
+ * `lib/navigation.tsx`.
+ */
+export const PROCTOR_ROLES: SessionRole[] = ["PROCTOR"];
+
 export const AUTH_ROUTES = {
   login: "/login",
   register: "/register",
