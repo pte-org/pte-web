@@ -92,7 +92,12 @@ const ClassDetailContent = ({
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    // `gap-4` on mobile keeps the page dense; `sm:gap-5` adds breathing
+    // room once there's real horizontal space. Stacking order is
+    // intentionally: BackButton → Roster → Lecturer — the action the
+    // user came to do (manage the class roster) sits at the top of the
+    // fold on small screens.
+    <div className="flex flex-col gap-4 sm:gap-5">
       <BackButton href={backHref} label={backLabel} />
 
       <PageHeader
@@ -121,7 +126,7 @@ const ClassDetailContent = ({
         className={studentClass.name}
       />
 
-      <section className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5">
+      <section className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-4 sm:p-5">
         <h3 className="text-sm font-semibold text-gray-900">{LECTURER_SECTION_TEXT.title}</h3>
         <LecturerAssignmentSection
           organizationPublicId={organizationPublicId}
