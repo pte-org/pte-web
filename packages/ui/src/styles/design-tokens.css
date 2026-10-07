@@ -2,6 +2,9 @@
   --surface-page: #f2f6fa;
   --surface-card: #ffffff;
   --surface-subtle: #eaeff4;
+  --shell-canvas: #f4f4f5;
+  --shell-frame: #ffffff;
+  --shell-border: #e4e4e7;
   --ink-primary: #2a3547;
   --ink-secondary: #5a6a85;
   --ink-muted: #7c8fac;
@@ -35,6 +38,9 @@
     rgba(145, 158, 171, 0.3) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px;
   --sidebar-shadow:
     rgba(145, 158, 171, 0.2) 0px 0px 2px 0px, rgba(145, 158, 171, 0.08) 0px 12px 24px -4px;
+  --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-duration-fast: 160ms;
+  --motion-duration-normal: 280ms;
   --background: var(--surface-page);
   --foreground: var(--ink-primary);
   color-scheme: light;
@@ -47,6 +53,14 @@
   --font-mono: var(--font-geist-mono);
   --shadow-card: var(--card-shadow);
   --shadow-sidebar: var(--sidebar-shadow);
+  --shadow-shell: 0 3px 6px -2px rgba(0, 0, 0, 0.02), 0 1px 1px 0 rgba(0, 0, 0, 0.04);
+  --color-shell-canvas: var(--shell-canvas);
+  --color-shell-frame: var(--shell-frame);
+  --color-shell-border: var(--shell-border);
+  --animate-pte-fade-in: pte-fade-in 280ms ease-out both;
+  --animate-pte-fade-up: pte-fade-up 420ms var(--motion-ease-out) both;
+  --animate-pte-scale-in: pte-scale-in 320ms var(--motion-ease-out) both;
+  --animate-pte-dropdown-in: pte-dropdown-in 140ms ease-out both;
 
   /* Keep existing feature classes on the shared Academic Swiss palette. */
   --color-blue-50: var(--brand-tint);
@@ -115,6 +129,52 @@
   --color-red-600: var(--blush-action);
   --color-red-700: var(--blush-action);
   --color-rose-500: var(--blush-action);
+}
+
+@keyframes pte-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pte-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pte-scale-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pte-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /*

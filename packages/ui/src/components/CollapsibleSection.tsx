@@ -28,7 +28,10 @@ export const CollapsibleSection = ({
   const contentId = `collapsible-section-content-${sectionId}`;
 
   return (
-    <section aria-labelledby={titleId} className={cn("flex flex-col gap-3", className)}>
+    <section
+      aria-labelledby={titleId}
+      className={cn("flex flex-col gap-3 motion-safe:animate-pte-fade-up", className)}
+    >
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <h2 id={titleId} className="text-sm font-semibold text-slate-800">
@@ -42,7 +45,7 @@ export const CollapsibleSection = ({
             type="button"
             aria-expanded={isExpanded}
             aria-controls={contentId}
-            className="inline-flex min-h-9 items-center gap-2 rounded-md border border-slate-200 bg-white px-3 text-sm font-semibold text-action shadow-sm transition-colors hover:border-action hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2"
+            className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-shell-border bg-shell-frame px-3 text-sm font-medium text-slate-900 shadow-none transition-[background-color,border-color,box-shadow,transform] duration-150 hover:-translate-y-px hover:border-slate-300 hover:bg-slate-50 hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2 active:translate-y-0"
             onClick={() => setIsExpanded((current) => !current)}
           >
             {isExpanded ? "Collapse" : "Expand"}

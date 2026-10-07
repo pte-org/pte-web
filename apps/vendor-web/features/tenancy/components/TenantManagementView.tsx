@@ -5,9 +5,11 @@ import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import {
   Alert,
   AlertTriangleIcon,
+  Button,
   CheckCircleIcon,
   CollapsibleSection,
   DocumentIcon,
+  MotionReveal,
   PageHeader,
   StatCard,
   UsersIcon,
@@ -103,13 +105,12 @@ export const TenantManagementView = (): ReactElement => {
         title={TENANCY_TEXT.TITLE}
         subtitle={TENANCY_TEXT.SUBTITLE}
         actions={
-          <button
+          <Button
             type="button"
             onClick={createFlow.openModal}
-            className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover"
           >
             + {TENANCY_TEXT.ADD_TENANT}
-          </button>
+          </Button>
         }
       />
 
@@ -144,20 +145,30 @@ export const TenantManagementView = (): ReactElement => {
         />
       </CollapsibleSection>
 
-      <TenantFilters filter={filter} onChange={setFilter} />
+      <MotionReveal delayMs={70}>
+        <TenantFilters filter={filter} onChange={setFilter} />
+      </MotionReveal>
 
-      {lifecycleError && <Alert tone="error">{lifecycleError}</Alert>}
+      {lifecycleError && (
+        <MotionReveal delayMs={100}>
+          <Alert tone="error">{lifecycleError}</Alert>
+        </MotionReveal>
+      )}
 
       {visibleTenants.length > 0 ? (
-        <TenantTable
-          tenants={visibleTenants}
-          onSuspend={setSuspendTarget}
-          onReactivate={confirmReactivate}
-          onGrantQuota={setGrantTarget}
-          onViewQuotaHistory={setHistoryTarget}
-        />
+        <MotionReveal delayMs={120}>
+          <TenantTable
+            tenants={visibleTenants}
+            onSuspend={setSuspendTarget}
+            onReactivate={confirmReactivate}
+            onGrantQuota={setGrantTarget}
+            onViewQuotaHistory={setHistoryTarget}
+          />
+        </MotionReveal>
       ) : (
-        <TenantEmptyState onAdd={createFlow.openModal} />
+        <MotionReveal delayMs={120}>
+          <TenantEmptyState onAdd={createFlow.openModal} />
+        </MotionReveal>
       )}
 
       <SuspendTenantModal

@@ -90,8 +90,8 @@ const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
             className={cn(
               "flex min-h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors",
               isActive(pathname, item.href)
-                ? "bg-action font-medium text-white shadow-[0px_4px_10px_rgba(11,95,174,0.25)]"
-                : "text-slate-600 hover:bg-blue-50 hover:text-blue-700",
+                ? "bg-slate-200 font-medium text-slate-950"
+                : "text-slate-600 hover:bg-slate-200/70 hover:text-slate-950",
             )}
           >
             {item.icon && <span className="[&>svg]:h-5 [&>svg]:w-5">{item.icon}</span>}
@@ -142,7 +142,7 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
   <DashboardShell
     brand={<SidebarBrand />}
     sidebar={<SidebarNav navItems={navItems} />}
-    headerBrand={<span className="text-lg font-semibold text-blue-700">{BRAND_NAME}</span>}
+    headerBrand={<span className="text-lg font-medium text-slate-950">{BRAND_NAME}</span>}
     headerActions={<HeaderActions />}
     footer={DISCLAIMER}
   >

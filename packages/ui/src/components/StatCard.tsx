@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
 import { cn } from "../utils/cn";
+import { DashboardCard } from "./DashboardCard";
 
 interface StatCardProps {
   label: string;
@@ -49,15 +50,14 @@ export const StatCard = ({
       : "[&::-webkit-progress-value]:bg-rose-500 [&::-moz-progress-bar]:bg-rose-500";
 
   return (
-    <div
+    <DashboardCard
       className={cn(
-        "relative overflow-hidden rounded-lg bg-white shadow-card transition-[box-shadow] duration-150 hover:shadow-lg",
+        "relative overflow-hidden shadow-none motion-safe:animate-pte-scale-in transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-card",
         compact ? "p-4" : "p-5",
         className,
       )}
     >
       <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-normal text-slate-500">{label}</p>
         {icon && (
           <span
             className={cn(
@@ -71,21 +71,29 @@ export const StatCard = ({
         )}
       </div>
 
-      <div className={cn(compact ? "mt-3" : "mt-4", "flex items-center justify-between gap-3")}>
-        <div className="flex items-center gap-2">
-          {trend && (
+      <div className={cn(compact ? "mt-4" : "mt-5", "flex items-end justify-between gap-3")}>
+        <div>
+          <p className="text-sm font-normal text-slate-500">{label}</p>
+          <div className="mt-2 flex items-center gap-2">
+            {trend && (
+              <span
+                className={cn(
+                  "text-2xl font-light leading-none",
+                  trendPositive ? "text-emerald-500" : "text-rose-500",
+                )}
+              >
+                {trendPositive ? "+" : "-"}
+              </span>
+            )}
             <span
               className={cn(
-                "text-2xl font-light leading-none",
-                trendPositive ? "text-emerald-500" : "text-rose-500",
+                compact ? "text-xl" : "text-2xl",
+                "font-semibold tabular-nums text-slate-800",
               )}
             >
-              {trendPositive ? "+" : "-"}
+              {value}
             </span>
-          )}
-          <span className={cn(compact ? "text-xl" : "text-2xl", "font-semibold tabular-nums text-slate-800")}>
-            {value}
-          </span>
+          </div>
         </div>
 
         {trend && <span className="text-sm font-normal text-slate-400">{trend}</span>}
@@ -105,7 +113,11 @@ export const StatCard = ({
         </div>
       )}
 
-      {footnote && <p className={cn(compact ? "mt-2" : "mt-3", "text-xs font-normal text-slate-400")}>{footnote}</p>}
-    </div>
+      {footnote && (
+        <p className={cn(compact ? "mt-2" : "mt-3", "text-xs font-normal text-slate-400")}>
+          {footnote}
+        </p>
+      )}
+    </DashboardCard>
   );
 };

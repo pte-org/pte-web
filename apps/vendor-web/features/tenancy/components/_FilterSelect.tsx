@@ -134,7 +134,7 @@ export const FilterSelect = ({
               ref={listRef}
               role="listbox"
               aria-label={ariaLabel}
-              className="fixed z-[60] max-h-60 max-w-[calc(100vw-1rem)] overflow-auto rounded-md border border-gray-200 bg-white py-1 text-sm shadow-lg"
+              className="fixed z-[60] max-h-60 max-w-[calc(100vw-1rem)] origin-top overflow-auto rounded-md border border-gray-200 bg-white py-1 text-sm shadow-lg motion-safe:animate-pte-dropdown-in"
               style={{
                 top: listPosition?.top ?? 0,
                 left: listPosition?.left ?? 0,

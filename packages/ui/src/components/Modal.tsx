@@ -69,14 +69,14 @@ export const Modal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur-sm motion-safe:animate-pte-fade-in"
       onClick={closeOnBackdropClick && !isDismissDisabled ? onClose : undefined}
     >
       <div
         role="dialog"
         aria-modal="true"
         className={cn(
-          "max-h-[90vh] w-full overflow-hidden rounded-lg bg-white shadow-card",
+          "max-h-[90vh] w-full overflow-hidden rounded-lg bg-white shadow-card motion-safe:animate-pte-scale-in",
           SIZE_CLASS[size],
         )}
         onClick={(event) => event.stopPropagation()}

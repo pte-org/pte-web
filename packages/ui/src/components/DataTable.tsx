@@ -19,6 +19,7 @@ interface DataTableProps<TRow> {
   emptyDescription?: string;
   rowActions?: (row: TRow) => ReactNode;
   rowActionsHeader?: ReactNode;
+  tableClassName?: string;
   /**
    * Multi-row checkbox selection (Phase 12: Class merge/split needed this
    * first — kept generic since any future feature bulk-acting on table rows
@@ -44,6 +45,7 @@ export function DataTable<TRow>({
   emptyDescription,
   rowActions,
   rowActionsHeader,
+  tableClassName,
   selectable = false,
   selectedKeys,
   onSelectionChange,
@@ -74,9 +76,9 @@ export function DataTable<TRow>({
   };
 
   return (
-    <div className="overflow-visible rounded-lg bg-white shadow-card">
+    <div className="overflow-visible rounded-xl border border-shell-border bg-shell-frame shadow-none motion-safe:animate-pte-fade-up">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
+        <table className={cn("min-w-full divide-y divide-gray-200 text-sm", tableClassName)}>
           <thead className="sticky top-0 z-10 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
             <tr>
               {selectable && (
@@ -106,7 +108,7 @@ export function DataTable<TRow>({
             {rows.map((row) => {
               const key = getRowKey(row);
               return (
-                <tr key={key} className="transition-colors hover:bg-slate-50">
+                <tr key={key} className="transition-colors duration-150 hover:bg-slate-50">
                   {selectable && (
                     <td className="px-5 py-4">
                       <input

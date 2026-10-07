@@ -2,7 +2,9 @@
 
 import { useState, type ReactElement, type ReactNode } from "react";
 import { cn } from "../utils/cn";
-import { ChevronLeftIcon, ChevronRightIcon, MenuIcon, XIcon } from "../components/icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "../components/icons";
+import { DashboardHeader } from "./DashboardHeader";
+import { DashboardSidebar } from "./DashboardSidebar";
 
 interface DashboardShellProps {
   /** Brand block pinned to the top of the sidebar. */
@@ -33,7 +35,7 @@ export const DashboardShell = ({
   const [isDesktopOpen, setIsDesktopOpen] = useState(true);
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
+    <div className="flex min-h-screen bg-shell-canvas">
       {/* Desktop Floating Edge Toggle Button (Notion / Linear style) */}
       <button
         type="button"
@@ -54,16 +56,13 @@ export const DashboardShell = ({
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 hidden w-[270px] shrink-0 flex-col bg-white text-slate-700 shadow-sidebar transition-transform duration-300 ease-in-out md:flex",
+          "fixed inset-y-0 left-0 z-40 hidden w-[270px] shrink-0 flex-col border-r border-shell-border bg-shell-canvas text-slate-700 transition-transform duration-300 ease-in-out motion-safe:animate-pte-fade-in md:flex",
           isDesktopOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        {brand && (
-          <div className="flex min-h-[70px] items-center px-4 sm:px-6">
-            <div className="min-w-0 flex-1">{brand}</div>
-          </div>
-        )}
-        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-3">{sidebar}</nav>
+        <DashboardSidebar brand={brand} onToggle={() => setIsDesktopOpen((prev) => !prev)}>
+          {sidebar}
+        </DashboardSidebar>
       </aside>
 
       {isSidebarOpen && (
@@ -74,56 +73,36 @@ export const DashboardShell = ({
             className="absolute inset-0 bg-slate-900/40"
             onClick={() => setIsSidebarOpen(false)}
           />
-          <aside className="relative z-10 flex h-full w-[270px] max-w-[85vw] flex-col bg-white text-slate-700 shadow-sidebar">
-            <div className="flex min-h-[70px] items-center justify-between px-6">
-              <div>{brand}</div>
-              <button
-                type="button"
-                aria-label={CLOSE_LABEL}
-                className="grid h-10 w-10 place-items-center rounded-md text-slate-500 transition-colors hover:bg-blue-50 hover:text-blue-700"
-                onClick={() => setIsSidebarOpen(false)}
-              >
-                <XIcon className="h-5 w-5" />
-              </button>
-            </div>
-            <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-3">{sidebar}</nav>
+          <aside className="relative z-10 h-full motion-safe:animate-pte-fade-in">
+            <DashboardSidebar
+              brand={brand}
+              isMobile
+              onToggle={() => setIsSidebarOpen(false)}
+              onItemClick={() => setIsSidebarOpen(false)}
+            >
+              {sidebar}
+            </DashboardSidebar>
           </aside>
         </div>
       )}
 
       <div
         className={cn(
-          "flex min-w-0 flex-1 flex-col transition-all duration-300 ease-in-out",
+          "flex min-w-0 flex-1 flex-col overflow-hidden transition-all duration-300 ease-in-out md:my-4 md:pr-4",
+          "md:rounded-2xl md:border md:border-shell-border md:bg-shell-frame md:shadow-shell",
           isDesktopOpen ? "md:pl-[270px]" : "md:pl-0",
         )}
       >
-        <header
-          className={cn(
-            "sticky top-0 z-30 flex min-h-[70px] items-center justify-between gap-3 bg-white/95 px-4 shadow-[0_1px_8px_rgba(145,158,171,0.12)] backdrop-blur-xl transition-all duration-300 ease-in-out",
-            isDesktopOpen ? "md:px-8" : "md:pl-14 md:pr-8",
-          )}
-        >
-          <div className="flex min-w-0 items-center gap-3">
-            <button
-              type="button"
-              aria-label={MENU_LABEL}
-              title={MENU_LABEL}
-              className="grid h-10 w-10 place-items-center rounded-md text-gray-600 transition-colors hover:bg-blue-50 hover:text-blue-700 md:hidden"
-              onClick={() => setIsSidebarOpen((prev) => !prev)}
-            >
-              <MenuIcon className="h-6 w-6" />
-            </button>
-            <div className="min-w-0">{headerBrand}</div>
-          </div>
-          <div className={cn("flex shrink-0 items-center gap-3", !headerActions && "hidden")}>
-            {headerActions}
-          </div>
-        </header>
-        <main className="flex-1 bg-slate-100 px-4 py-6 md:px-8 md:py-7">
+        <DashboardHeader
+          brand={headerBrand}
+          actions={headerActions}
+          onMenuClick={() => setIsSidebarOpen((prev) => !prev)}
+        />
+        <main className="flex-1 bg-shell-frame px-4 py-6 md:px-8 md:py-7">
           <div className="w-full">{children}</div>
         </main>
         {footer && (
-          <footer className="border-t border-gray-200 bg-white px-6 py-4 text-center text-xs text-gray-400">
+          <footer className="border-t border-shell-border bg-shell-frame px-6 py-4 text-center text-xs text-gray-400">
             {footer}
           </footer>
         )}
