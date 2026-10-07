@@ -3,7 +3,12 @@ import type { CreateOrderRequest, OrderResponse } from "../../types/billing";
 
 export const ORDER_ENDPOINTS = {
   orders: "/api/v1/orders",
+  order: (publicId: string) => `/api/v1/orders/${publicId}`,
 } as const;
+
+export function getOrder(client: ApiClient, publicId: string): Promise<OrderResponse> {
+  return client.request<OrderResponse>(ORDER_ENDPOINTS.order(publicId));
+}
 
 export function listOrders(
   client: ApiClient,

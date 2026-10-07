@@ -13,6 +13,7 @@ export const VENDOR_ROLES = ["admin", "host"] as const;
  * silently disagree about which roles belong on which side.
  */
 export const ADMIN_ROLES: SessionRole[] = ["PLATFORM_ADMIN", "PLATFORM_AUTHOR"];
+export const PLATFORM_ADMIN_ONLY: SessionRole[] = ["PLATFORM_ADMIN"];
 export const HOST_ROLES: SessionRole[] = ["HOST_ADMIN"];
 
 export const AUTH_ROUTES = {

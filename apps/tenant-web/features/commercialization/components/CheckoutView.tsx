@@ -20,9 +20,7 @@ export const CheckoutView = (): ReactElement => {
     [plans, selectedPlanId],
   );
   const error = createOrder.error;
-  const errorMessage = error
-    ? getUserFacingApiErrorMessage(error, T.ORDER_ERROR)
-    : undefined;
+  const errorMessage = error ? getUserFacingApiErrorMessage(error, T.ORDER_ERROR) : undefined;
   const pendingOrder = plan
     ? orders.find((item) => item.planId === plan.publicId && item.status === "PENDING")
     : undefined;
@@ -96,7 +94,11 @@ export const CheckoutView = (): ReactElement => {
               {T.CONTINUE_TO_PAYOS}
             </Button>
             <Link
-              href="/host/payment-status"
+              href={
+                pendingOrder
+                  ? `/host/payment-status?orderId=${encodeURIComponent(pendingOrder.publicId)}`
+                  : "/host/orders"
+              }
               className="mt-4 block text-center text-sm font-semibold text-action hover:underline"
             >
               {T.VIEW_PAYMENT_STATUS}

@@ -29,7 +29,7 @@ const STATUS_OPTIONS = [
 export const AdminApplicationsView = (): ReactElement => {
   const router = useRouter();
   const [status, setStatus] = useState("ALL");
-  const { data: applications = [], isLoading, isError } = useApplicationsQuery();
+  const { data: applications = [], isLoading, isError, refetch } = useApplicationsQuery();
   const visibleApplications = useMemo(
     () => applications.filter((application) => status === "ALL" || application.status === status),
     [applications, status],
@@ -89,7 +89,16 @@ export const AdminApplicationsView = (): ReactElement => {
           />
         }
       />
-      {isError && <Alert tone="error">{T.LOAD_ERROR}</Alert>}
+      {isError && (
+        <Alert tone="error">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span>{T.LOAD_ERROR}</span>
+            <button type="button" className="font-semibold underline" onClick={() => void refetch()}>
+              {T.RETRY}
+            </button>
+          </div>
+        </Alert>
+      )}
       <CollapsibleSection
         title={T.OVERVIEW_TITLE}
         subtitle={T.OVERVIEW_SUBTITLE}
@@ -97,20 +106,20 @@ export const AdminApplicationsView = (): ReactElement => {
       >
         <StatCard
           label={T.TOTAL}
-          value={String(applications.length)}
+          value={isLoading || isError ? T.EMPTY_VALUE : String(applications.length)}
           icon={<BuildingIcon />}
           accent="blue"
         />
         <StatCard
           label={T.NEEDS_REVIEW}
-          value={String(pendingCount)}
+          value={isLoading || isError ? T.EMPTY_VALUE : String(pendingCount)}
           icon={<UsersIcon />}
           accent="cream"
           highlight
         />
         <StatCard
           label={T.APPROVED_COUNT}
-          value={String(approvedCount)}
+          value={isLoading || isError ? T.EMPTY_VALUE : String(approvedCount)}
           icon={<BuildingIcon />}
           accent="mint"
         />

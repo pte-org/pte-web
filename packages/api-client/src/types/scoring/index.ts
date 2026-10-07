@@ -158,6 +158,8 @@ export interface ScoringAnswerResponse {
   teacherScore: number | null;
 }
 
+export * from "./gradingCohort";
+
 export type AssignmentScopeType = "CLASS" | "PROGRAM";
 export type ExaminerAssignmentMode = "MANUAL" | "RANDOM";
 export type ExaminerAssignmentBatchStatus =

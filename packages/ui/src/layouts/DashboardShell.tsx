@@ -119,8 +119,8 @@ export const DashboardShell = ({
             {headerActions}
           </div>
         </header>
-        <main className="flex-1 bg-slate-100 px-4 py-6 md:px-8 md:py-8">
-          <div className="mx-auto w-full max-w-[1200px]">{children}</div>
+        <main className="flex-1 bg-slate-100 px-4 py-6 md:px-8 md:py-7">
+          <div className="w-full">{children}</div>
         </main>
         {footer && (
           <footer className="border-t border-gray-200 bg-white px-6 py-4 text-center text-xs text-gray-400">

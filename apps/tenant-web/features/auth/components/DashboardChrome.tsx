@@ -4,9 +4,9 @@ import type { ReactElement, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Avatar,
-  BellIcon,
   DashboardShell,
   Dropdown,
   GlobeIcon,
@@ -15,6 +15,7 @@ import {
   useTokenManager,
   type SessionRole,
 } from "@pte/ui";
+import { NotificationBellContainer } from "@/features/notifications";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
 import { AUTH_ROUTES } from "../constants";
@@ -153,10 +154,12 @@ const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
 
 const HeaderActions = (): ReactElement => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { clearToken } = useTokenManager();
   const { data: user, isLoading } = useCurrentUser();
 
   const logout = (): void => {
+    queryClient.clear();
     clearToken();
     router.replace(AUTH_ROUTES.login);
   };
@@ -170,14 +173,7 @@ const HeaderActions = (): ReactElement => {
       >
         <GlobeIcon className="h-5 w-5" />
       </button>
-      <button
-        type="button"
-        aria-label={HEADER_TEXT.NOTIFICATIONS}
-        className="relative grid h-10 w-10 place-items-center rounded-md text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-700"
-      >
-        <BellIcon className="h-5 w-5" />
-        <span className="absolute right-0 top-0 h-2 w-2 rounded-full bg-red-500" />
-      </button>
+      <NotificationBellContainer />
       {isLoading ? (
         <Skeleton className="h-8 w-8 rounded-full" />
       ) : (

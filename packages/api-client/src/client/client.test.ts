@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { ApiError } from "./apiError";
-import { createApiClient } from "./client";
+import { createApiClient, StaleSessionRequestError } from "./client";
 import { getUserFacingApiErrorMessage } from "./errorMessage";
 
 function jsonResponse(body: unknown, status: number): Response {
@@ -156,5 +156,65 @@ describe("ApiClient binary multipart uploads", () => {
     );
     const requestInit = fetchMock.mock.calls[0]?.[1] as RequestInit;
     expect(new Headers(requestInit.headers).has("Content-Type")).toBe(false);
+  });
+});
+
+describe("ApiClient protected-session fencing", () => {
+  it("does not replay an old refresh into a newer account generation", async () => {
+    let generation = 1;
+    let resolveRefresh: ((value: { accessToken: string; refreshToken: string; expiresInSeconds: number }) => void) | undefined;
+    const refreshAccessToken = vi.fn(() => new Promise<{ accessToken: string; refreshToken: string; expiresInSeconds: number }>((resolve) => {
+      resolveRefresh = resolve;
+    }));
+    const onUnauthorized = vi.fn();
+    const onTokenRefreshed = vi.fn();
+    const fetchMock = vi.fn().mockResolvedValue(
+      jsonResponse({ success: false, data: null, message: "ACCESS_DENIED" }, 401),
+    );
+    const client = createApiClient({
+      baseUrl: "https://api.example.test",
+      getToken: () => "access",
+      getRefreshToken: () => "refresh",
+      refreshAccessToken,
+      onUnauthorized,
+      onTokenRefreshed,
+      getSessionGeneration: () => generation,
+      fetchFn: fetchMock,
+    });
+
+    const pending = client.request("/protected");
+    await vi.waitFor(() => expect(refreshAccessToken).toHaveBeenCalledTimes(1));
+    generation = 2;
+    resolveRefresh?.({ accessToken: "new-access", refreshToken: "new-refresh", expiresInSeconds: 60 });
+
+    await expect(pending).rejects.toBeInstanceOf(StaleSessionRequestError);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(onTokenRefreshed).not.toHaveBeenCalled();
+    expect(onUnauthorized).not.toHaveBeenCalled();
+  });
+
+  it("does not refresh with the newer account after an old request becomes unauthorized", async () => {
+    let generation = 1;
+    const refreshAccessToken = vi.fn().mockResolvedValue({
+      accessToken: "new-access",
+      refreshToken: "new-refresh",
+      expiresInSeconds: 60,
+    });
+    const fetchMock = vi.fn(async () => {
+      generation = 2;
+      return jsonResponse({ success: false, data: null, message: "ACCESS_DENIED" }, 401);
+    });
+    const client = createApiClient({
+      baseUrl: "https://api.example.test",
+      getToken: () => "access-b",
+      getRefreshToken: () => "refresh-b",
+      refreshAccessToken,
+      getSessionGeneration: () => generation,
+      fetchFn: fetchMock,
+    });
+
+    await expect(client.request("/protected")).rejects.toBeInstanceOf(StaleSessionRequestError);
+    expect(refreshAccessToken).not.toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

@@ -9,7 +9,9 @@ import * as requests from "./index";
  * at runtime rather than compile errors:
  *
  *  1. A path that reintroduces a per-service segment (`/api/v1/iam/...`,
- *     `/api/v1/scheduling/...`). Those services stopped existing.
+ *     `/api/v1/scheduling/...`). Those services stopped existing. `admin` is
+ *     intentionally not listed: it is still a valid resource namespace for
+ *     platform-admin routes such as `/api/v1/admin/support-tickets`.
  *  2. A path that drops `/api/v1` entirely. That breaks the stable public
  *     contract and can collide with the Next.js UI routes on the same origin.
  */
@@ -17,7 +19,6 @@ import * as requests from "./index";
 /** Service names from the pre-modulith routing table — none may reappear. */
 const RETIRED_SERVICE_SEGMENTS = [
   "iam",
-  "admin",
   "authoring",
   "scheduling",
   "exam-delivery",
