@@ -1,6 +1,11 @@
 "use client";
 
-import { useId, type KeyboardEvent as ReactKeyboardEvent, type ReactElement } from "react";
+import {
+  useId,
+  type KeyboardEvent as ReactKeyboardEvent,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 import { useLocale } from "../i18n";
 import { cn } from "../utils/cn";
 
@@ -17,9 +22,17 @@ interface TabsProps {
   onChange: (value: string) => void;
   className?: string;
   id?: string;
+  ariaLabel?: string;
 }
 
-export const Tabs = ({ items, value, onChange, className, id }: TabsProps): ReactElement => {
+export const Tabs = ({
+  items,
+  value,
+  onChange,
+  className,
+  id,
+  ariaLabel,
+}: TabsProps): ReactElement => {
   const generatedTabsId = useId().replace(/:/g, "");
   const tabsId = id ?? generatedTabsId;
   const { t } = useLocale();
@@ -46,7 +59,11 @@ export const Tabs = ({ items, value, onChange, className, id }: TabsProps): Reac
 
   return (
     <div className={cn("border-b border-[var(--shell-border)]", className)}>
-      <div className="flex min-w-0 gap-1 overflow-x-auto" role="tablist" aria-label={t("common.sections", "Sections")}>
+      <div
+        className="flex min-w-0 gap-1 overflow-x-auto"
+        role="tablist"
+        aria-label={ariaLabel ?? t("common.sections", "Sections")}
+      >
         {items.map((item) => {
           const selected = item.id === value;
           return (
@@ -81,12 +98,36 @@ export const Tabs = ({ items, value, onChange, className, id }: TabsProps): Reac
   );
 };
 
+export interface TabPanelProps {
+  id: string;
+  active: boolean;
+  children: ReactNode;
+  /** Keep the panel mounted after its first visit so local filters/forms retain state. */
+  keepMounted?: boolean;
+  labelledBy?: string;
+  className?: string;
+}
+
 export const TabPanel = ({
   id,
   active,
   children,
-}: {
-  id: string;
-  active: boolean;
-  children: ReactElement | ReactElement[];
-}): ReactElement | null => (active ? <div role="tabpanel" id={id}>{children}</div> : null);
+  keepMounted = false,
+  labelledBy,
+  className,
+}: TabPanelProps): ReactElement | null => {
+  if (!active && !keepMounted) return null;
+
+  return (
+    <div
+      role="tabpanel"
+      id={id}
+      aria-labelledby={labelledBy}
+      aria-hidden={!active || undefined}
+      hidden={!active}
+      className={className}
+    >
+      {children}
+    </div>
+  );
+};

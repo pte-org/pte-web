@@ -70,7 +70,7 @@ export { ForbiddenState } from "./ForbiddenState";
 export { Stepper } from "./Stepper";
 export type { StepItem } from "./Stepper";
 export { TabPanel, Tabs } from "./Tabs";
-export type { TabItem } from "./Tabs";
+export type { TabItem, TabPanelProps } from "./Tabs";
 export { DEFAULT_TOAST_DURATION_MS, ToastProvider, useToast } from "./Toast";
 export type { ShowToastOptions, ToastTone } from "./Toast";
 export * from "./icons";
