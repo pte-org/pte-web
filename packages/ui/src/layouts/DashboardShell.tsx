@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactElement, type ReactNode } from "react";
+import { useEffect, useState, type MouseEvent, type ReactElement, type ReactNode } from "react";
 import { cn } from "../utils/cn";
 import { ChevronLeftIcon, ChevronRightIcon } from "../components/icons";
 import { useLocale } from "../i18n";
@@ -13,6 +13,7 @@ interface DashboardShellProps {
   headerBrand?: ReactNode;
   headerActions?: ReactNode;
   footer?: ReactNode;
+  navigationKey?: string | null;
   children: ReactNode;
 }
 
@@ -22,17 +23,65 @@ export const DashboardShell = ({
   headerBrand,
   headerActions,
   footer,
+  navigationKey,
   children,
 }: DashboardShellProps): ReactElement => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktopOpen, setIsDesktopOpen] = useState(true);
+  const [isNavigating, setIsNavigating] = useState(false);
   const { t } = useLocale();
   const navigationLabel = isDesktopOpen
     ? t("common.collapseNavigation", "Collapse navigation")
     : t("common.expandNavigation", "Expand navigation");
 
+  useEffect(() => {
+    setIsNavigating(false);
+  }, [navigationKey]);
+
+  const handleNavigationClick = (event: MouseEvent<HTMLDivElement>): void => {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const link = target.closest("a");
+    if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
+
+    const href = link.getAttribute("href");
+    if (!href || href.startsWith("#")) return;
+
+    const nextUrl = new URL(href, window.location.href);
+    const currentUrl = `${window.location.pathname}${window.location.search}`;
+    if (nextUrl.origin !== window.location.origin || nextUrl.pathname + nextUrl.search === currentUrl) {
+      return;
+    }
+
+    window.setTimeout(() => {
+      if (!event.defaultPrevented) setIsNavigating(true);
+    }, 0);
+  };
+
   return (
-    <div className="flex min-h-screen bg-[var(--shell-canvas)] text-[var(--ink-primary)]">
+    <div
+      className="relative flex min-h-screen bg-[var(--shell-canvas)] text-[var(--ink-primary)]"
+      onClickCapture={handleNavigationClick}
+    >
+      {isNavigating && (
+        <div
+          className="pointer-events-none fixed inset-x-0 top-0 z-[100] h-0.5 overflow-hidden bg-transparent"
+          role="progressbar"
+          aria-label={t("common.loading", "Loading")}
+        >
+          <div className="h-full w-1/3 bg-[var(--action)] motion-safe:animate-pte-progress motion-reduce:w-1/2" />
+        </div>
+      )}
       <button
         type="button"
         aria-label={navigationLabel}

@@ -24,7 +24,7 @@ const DetailPanel = (): ReactElement => (
 
 export const DashboardLoadingState = ({
   variant = "page",
-  label = "Loading page",
+  label = "Đang tải trang",
   className,
 }: DashboardLoadingStateProps): ReactElement => (
   <div
@@ -41,7 +41,7 @@ export const DashboardLoadingState = ({
           <Skeleton className="h-8 w-52" />
           <Skeleton className="h-10 w-32" />
         </div>
-        <LoadingState rows={5} variant="table" />
+        <LoadingState rows={5} variant="table" announce={false} />
       </>
     ) : variant === "detail" ? (
       <>
@@ -71,7 +71,7 @@ export const DashboardLoadingState = ({
             </div>
           ))}
         </div>
-        <LoadingState rows={5} variant="table" />
+        <LoadingState rows={5} variant="table" announce={false} />
       </>
     )}
   </div>

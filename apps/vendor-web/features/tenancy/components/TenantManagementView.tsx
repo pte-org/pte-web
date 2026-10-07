@@ -7,6 +7,7 @@ import {
   AlertTriangleIcon,
   Button,
   CheckCircleIcon,
+  DashboardLoadingState,
   DocumentIcon,
   MotionReveal,
   PageHeader,
@@ -44,7 +45,7 @@ function lifecycleErrorMessage(error: unknown): string | undefined {
 }
 
 export const TenantManagementView = (): ReactElement => {
-  const { data: tenants } = useTenants();
+  const { data: tenants, isLoading } = useTenants();
   const suspend = useSuspendTenant();
   const reactivate = useReactivateTenant();
   const { showToast } = useToast();
@@ -97,6 +98,8 @@ export const TenantManagementView = (): ReactElement => {
     }
     return getUserFacingApiErrorMessage(error);
   };
+
+  if (isLoading) return <DashboardLoadingState />;
 
   return (
     <div className="flex flex-col gap-5">

@@ -3,7 +3,7 @@
 import type { ReactElement, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Avatar,
@@ -142,6 +142,8 @@ const HeaderActions = (): ReactElement => {
 };
 
 const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactElement => {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { t } = useLocale();
   return (
     <DashboardShell
@@ -149,6 +151,7 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
       sidebar={<SidebarNav navItems={navItems} />}
       headerBrand={<span className="text-lg font-medium text-[var(--brand-ink)]">{BRAND_NAME}</span>}
       headerActions={<HeaderActions />}
+      navigationKey={`${pathname}?${searchParams.toString()}`}
       footer={t("common.disclaimer", DISCLAIMER)}
     >
       {children}

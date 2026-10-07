@@ -17,9 +17,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary:
-    "bg-action text-white shadow-sm shadow-action/25 hover:bg-action-hover active:bg-action-active",
+    "bg-action text-[var(--action-foreground)] shadow-sm shadow-action/25 hover:bg-action-hover active:bg-action-active",
   secondary: "bg-action-tint text-action hover:bg-action-tint-hover",
-  danger: "bg-[var(--blush-action)] text-white hover:brightness-110",
+  danger: "bg-[var(--blush-action)] text-[var(--blush-foreground)] hover:brightness-110",
   ghost: "bg-transparent text-[var(--action)] hover:bg-[var(--action-tint)]",
 };
 
@@ -47,7 +47,7 @@ export const Button = ({
     <button
       type={type}
       className={cn(
-        "inline-flex transform-gpu select-none items-center justify-center gap-2 rounded-lg font-medium transition-[background-color,border-color,box-shadow,filter,opacity,transform] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-md motion-safe:active:translate-y-0 motion-safe:active:scale-[0.98] motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--action)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:transform-none disabled:bg-[var(--surface-subtle)] disabled:text-[var(--ink-muted)] disabled:shadow-none",
+        "inline-flex transform-gpu select-none items-center justify-center gap-2 rounded-lg font-medium transition-[background-color,border-color,box-shadow,filter,opacity,transform,translate,scale] duration-200 ease-out motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-md motion-safe:active:translate-y-0 motion-safe:active:scale-[0.98] motion-reduce:transform-none motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--action)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:transform-none disabled:bg-[var(--surface-subtle)] disabled:text-[var(--ink-muted)] disabled:shadow-none",
         VARIANT_CLASSES[variant],
         SIZE_CLASSES[size],
         fullWidth && "w-full",

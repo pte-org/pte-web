@@ -21,6 +21,7 @@
   --action-active: #08467c;
   --action-tint: #e8f2f9;
   --action-tint-hover: #d9eaf5;
+  --action-foreground: #ffffff;
   --sky-tint: #e8f7ff;
   --sky-action: #0e729f;
   --mint-tint: #e6fffa;
@@ -29,6 +30,7 @@
   --cream-action: #9c6400;
   --blush-tint: #fdede8;
   --blush-action: #be452b;
+  --blush-foreground: #ffffff;
   /* Stitch data/state colors retained for later semantic adoption. */
   --chart-blue: #2a78d6;
   --chart-orange: #eb6834;
@@ -70,6 +72,7 @@
   --action-active: #2e80c6;
   --action-tint: #163859;
   --action-tint-hover: #204a70;
+  --action-foreground: #07111d;
   --sky-tint: #123a52;
   --sky-action: #6bc8ef;
   --mint-tint: #123f3a;
@@ -78,6 +81,7 @@
   --cream-action: #f4c86c;
   --blush-tint: #4b292b;
   --blush-action: #ff9a83;
+  --blush-foreground: #24110f;
   --chart-blue: #70a8ff;
   --chart-orange: #ff9a70;
   --skeleton-base: #1a2940;
@@ -210,6 +214,7 @@
   --animate-pte-fade-up: pte-fade-up 420ms var(--motion-ease-out) both;
   --animate-pte-scale-in: pte-scale-in 320ms var(--motion-ease-out) both;
   --animate-pte-dropdown-in: pte-dropdown-in 140ms ease-out both;
+  --animate-pte-progress: pte-progress 1.1s ease-in-out infinite;
 
   /* Keep existing feature classes on the shared Academic Swiss palette. */
   --color-blue-50: var(--brand-tint);
@@ -333,6 +338,16 @@
 
   to {
     transform: translateX(100%);
+  }
+}
+
+@keyframes pte-progress {
+  0% {
+    transform: translateX(-110%);
+  }
+
+  100% {
+    transform: translateX(330%);
   }
 }
 
