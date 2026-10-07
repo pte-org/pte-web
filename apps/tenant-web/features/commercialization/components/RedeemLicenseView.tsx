@@ -4,8 +4,8 @@ import { useState, type FormEvent, type ReactElement } from "react";
 import Link from "next/link";
 import {
   Alert,
+  BackButton,
   Button,
-  ChevronLeftIcon,
   ChevronRightIcon,
   Input,
   LicenseIcon,
@@ -38,13 +38,7 @@ export const RedeemLicenseView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <Link
-        href="/host/billing"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
-      >
-        <ChevronLeftIcon className="h-4 w-4" />
-        <span>{T.BACK_TO_PLANS}</span>
-      </Link>
+      <BackButton href="/host/billing" label={T.BACK_TO_PLANS} />
 
       <PageHeader title={T.REDEEM_TITLE} subtitle={T.REDEEM_SUBTITLE} />
       {redeem.isSuccess && redeem.data && (

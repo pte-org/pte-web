@@ -25,6 +25,8 @@ export { Modal } from "./Modal";
 export { ConfirmDialog } from "./ConfirmDialog";
 export { TypedConfirmInput, isTypedConfirmValid } from "./TypedConfirmInput";
 export { PageHeader } from "./PageHeader";
+export { BackButton } from "./BackButton";
+export type { BackButtonProps } from "./BackButton";
 export { EmptyState } from "./EmptyState";
 export { LoadingState } from "./LoadingState";
 export { ErrorState } from "./ErrorState";

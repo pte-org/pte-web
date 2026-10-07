@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import Link from "next/link";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
-import { Alert, Badge, CopyableId, DetailGroup, LoadingState, PageHeader } from "@pte/ui";
+import { Alert, BackButton, Badge, CopyableId, DetailGroup, LoadingState, PageHeader } from "@pte/ui";
 import {
   CREATE_LOGIN_ACCOUNT_TEXT,
   CREATE_TENANT_CONFLICT_TEXT,
@@ -143,9 +142,7 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/admin/tenants" className="text-sm font-medium text-blue-700 hover:underline">
-        &larr; {T.BACK_TO_TENANTS}
-      </Link>
+      <BackButton href="/admin/tenants" label={T.BACK_TO_TENANTS} />
 
       <PageHeader
         title={tenant.name}

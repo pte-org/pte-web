@@ -52,7 +52,7 @@ export const ADMIN_APPLICATIONS_TEXT = {
 
 export const ADMIN_APPLICATION_DETAIL_TEXT = {
   LOADING: "Loading application...",
-  BACK: "← Back to applications",
+  BACK: "Back to applications",
   NOT_FOUND: "This application was not found or is no longer available.",
   UPDATE_ERROR: "The application could not be updated. Please try again.",
   APPROVED: "Application approved. Verify the Host account manually; credentials delivery is not confirmed here.",
