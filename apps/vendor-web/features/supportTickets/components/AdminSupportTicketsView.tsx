@@ -80,7 +80,7 @@ export const AdminSupportTicketsView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={T.TITLE} subtitle={T.SUBTITLE} />
+      <PageHeader title={T.TITLE} />
 
       <AdminTicketFilters
         status={status}

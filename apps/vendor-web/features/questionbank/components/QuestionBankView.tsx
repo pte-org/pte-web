@@ -67,7 +67,6 @@ export const QuestionBankView = (): ReactElement => {
     <div className="flex flex-col gap-5">
       <PageHeader
         title={QUESTIONBANK_TEXT.TITLE}
-        subtitle={QUESTIONBANK_TEXT.SUBTITLE}
         actions={
           <button
             type="button"

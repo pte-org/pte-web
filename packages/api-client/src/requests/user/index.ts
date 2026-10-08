@@ -9,6 +9,10 @@ import type {
   ResetPasswordRequest,
   UserDirectoryEntryResponse,
   UserResponse,
+  PlatformUserCreateRequest,
+  PlatformUserPage,
+  PlatformUserRoleUpdateRequest,
+  PlatformUserListParams,
 } from "../../types/user";
 
 export const USER_ENDPOINTS = {
@@ -21,6 +25,14 @@ export const USER_ENDPOINTS = {
   resetPassword: (publicId: string) => `/api/v1/users/${publicId}/reset-password`,
   sendCredentialsEmail: (publicId: string) => `/api/v1/users/${publicId}/credentials/send-email`,
   generateCredentials: (publicId: string) => `/api/v1/users/${publicId}/credentials/generate`,
+} as const;
+
+export const PLATFORM_USER_ENDPOINTS = {
+  users: "/api/v1/platform-users",
+  user: (publicId: string) => `/api/v1/platform-users/${encodeURIComponent(publicId)}`,
+  roles: (publicId: string) => `/api/v1/platform-users/${encodeURIComponent(publicId)}/roles`,
+  suspend: (publicId: string) => `/api/v1/platform-users/${encodeURIComponent(publicId)}/suspend`,
+  reactivate: (publicId: string) => `/api/v1/platform-users/${encodeURIComponent(publicId)}/reactivate`,
 } as const;
 
 export function createUser(client: ApiClient, payload: CreateUserRequest): Promise<UserResponse> {
@@ -141,4 +153,52 @@ export function suspendUser(client: ApiClient, publicId: string): Promise<UserRe
 
 export function reactivateUser(client: ApiClient, publicId: string): Promise<UserResponse> {
   return client.request<UserResponse>(USER_ENDPOINTS.reactivate(publicId), { method: "POST" });
+}
+
+export function listPlatformUsers(
+  client: ApiClient,
+  params: PlatformUserListParams = {},
+): Promise<PlatformUserPage> {
+  const query = new URLSearchParams({
+    page: String(params.page ?? 0),
+    size: String(params.size ?? 20),
+  });
+  if (params.role) query.set("role", params.role);
+  if (params.status) query.set("status", params.status);
+  return client.request<PlatformUserPage>(`${PLATFORM_USER_ENDPOINTS.users}?${query.toString()}`);
+}
+
+export function getPlatformUser(client: ApiClient, publicId: string): Promise<UserResponse> {
+  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.user(publicId));
+}
+
+export function createPlatformUser(
+  client: ApiClient,
+  payload: PlatformUserCreateRequest,
+): Promise<UserResponse> {
+  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.users, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export function updatePlatformUserRoles(
+  client: ApiClient,
+  publicId: string,
+  payload: PlatformUserRoleUpdateRequest,
+): Promise<UserResponse> {
+  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.roles(publicId), {
+    method: "PATCH",
+    body: payload,
+  });
+}
+
+export function suspendPlatformUser(client: ApiClient, publicId: string): Promise<UserResponse> {
+  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.suspend(publicId), { method: "POST" });
+}
+
+export function reactivatePlatformUser(client: ApiClient, publicId: string): Promise<UserResponse> {
+  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.reactivate(publicId), {
+    method: "POST",
+  });
 }

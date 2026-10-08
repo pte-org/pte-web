@@ -11,6 +11,7 @@ import {
   useScoreTemplateFeasibility,
 } from "../api";
 import { useCurrentUser } from "@/features/auth/api";
+import { canReviewAcademic } from "@/features/auth/permissions";
 import { useTaskTypes } from "@/features/questiontemplate/api";
 import { EXAM_TEMPLATE_BASE_PATH, EXAM_TEMPLATE_SECTIONS, SCORE_TEMPLATE_TEXT } from "../constants";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
@@ -105,7 +106,7 @@ const ScoreTemplateEditorForm = ({
   const { data: currentUser } = useCurrentUser();
   const replaceItemsMutation = useReplaceScoreTemplateItems();
   const activateMutation = useActivateScoreTemplate();
-  const isPlatformAdmin = currentUser?.roles.includes("PLATFORM_ADMIN") ?? false;
+  const canActivate = canReviewAcademic(currentUser?.roles);
   const [name, setName] = useState(template.name);
   const [templatePolicy, setTemplatePolicy] = useState<ScoreTemplatePolicy>(
     template.templatePolicy === "CUSTOM" ? "CUSTOM" : "STANDARD_PTE",
@@ -329,7 +330,7 @@ const ScoreTemplateEditorForm = ({
             >
               {SCORE_TEMPLATE_TEXT.SAVE_DRAFT}
             </Button>
-            {isPlatformAdmin && (
+            {canActivate && (
               <Button
                 variant="primary"
                 onClick={handleOpenActivate}

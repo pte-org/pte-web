@@ -2,7 +2,7 @@
 
 import type { ReactElement, ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { ProtectedRoute, useSessionManager, type SessionRole } from "@pte/ui";
+import { ForbiddenState, ProtectedRoute, useSessionManager, type SessionRole } from "@pte/ui";
 import { AUTH_ROUTES } from "../constants";
 import { AuthLoading } from "./AuthLoading";
 
@@ -12,7 +12,7 @@ export const RequireAuth = ({
   allowedRoles,
 }: {
   children: ReactNode;
-  allowedRoles?: SessionRole[];
+  allowedRoles?: readonly SessionRole[];
 }): ReactElement => {
   const router = useRouter();
   const { session, isReady, hasRole } = useSessionManager();
@@ -24,8 +24,13 @@ export const RequireAuth = ({
       isAuthenticated={Boolean(session?.accessToken)}
       isAuthorized={allowedRoles ? hasRole(allowedRoles) : true}
       onUnauthenticated={() => router.replace(AUTH_ROUTES.login)}
-      onUnauthorized={() => router.replace(AUTH_ROUTES.login)}
-      fallback={<AuthLoading />}
+      fallback={
+        session?.accessToken ? (
+          <ForbiddenState />
+        ) : (
+          <AuthLoading />
+        )
+      }
     >
       {children}
     </ProtectedRoute>

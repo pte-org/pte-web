@@ -1,19 +1,15 @@
 "use client";
 
+import { Suspense } from "react";
 import { useParams } from "next/navigation";
-import { DashboardChrome } from "@/features/auth/components";
-import { HOST_ROLES } from "@/features/auth/constants";
+import { LoadingState } from "@pte/ui";
 import { SessionDetailView } from "@/features/exams/components";
-import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
-import { buildHostNav } from "@/lib/navigation";
 
 export default function SessionDetailPage() {
   const { publicId } = useParams<{ publicId: string }>();
-  const labels = useOrgLabels();
-
   return (
-    <DashboardChrome navItems={buildHostNav(labels)} allowedRoles={HOST_ROLES}>
+    <Suspense fallback={<LoadingState rows={4} />}>
       <SessionDetailView sessionPublicId={publicId} />
-    </DashboardChrome>
+    </Suspense>
   );
 }

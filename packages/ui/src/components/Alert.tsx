@@ -11,10 +11,10 @@ interface AlertProps {
 }
 
 const TONE_CLASS: Record<AlertTone, string> = {
-  info: "bg-sky-50 text-sky-700",
-  success: "bg-green-50 text-green-700",
-  warning: "bg-amber-50 text-amber-700",
-  error: "bg-red-50 text-red-700",
+  info: "bg-[var(--sky-tint)] text-[var(--sky-action)]",
+  success: "bg-[var(--mint-tint)] text-[var(--mint-action)]",
+  warning: "bg-[var(--cream-tint)] text-[var(--cream-action)]",
+  error: "bg-[var(--blush-tint)] text-[var(--blush-action)]",
 };
 
 export const Alert = ({ tone = "info", title, children, className }: AlertProps): ReactElement => (

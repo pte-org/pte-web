@@ -7,6 +7,8 @@ import {
   createTaskType,
   listQuestionTypes,
   listTaskTypes,
+  submitTaskTypeApproval,
+  approveTaskType,
 } from "./index";
 
 function fakeClient(): ApiClient & { request: ReturnType<typeof vi.fn> } {
@@ -67,5 +69,23 @@ describe("task-type catalog compatibility adapters", () => {
       method: "POST",
       body: taskPayload,
     });
+  });
+
+  it("keeps task-type workflow commands on the canonical route", async () => {
+    const client = fakeClient();
+
+    await submitTaskTypeApproval(client, "draft-id");
+    await approveTaskType(client, "draft-id");
+
+    expect(client.request).toHaveBeenNthCalledWith(
+      1,
+      "/api/v1/task-types/draft-id/submit-approval",
+      { method: "POST" },
+    );
+    expect(client.request).toHaveBeenNthCalledWith(
+      2,
+      "/api/v1/task-types/draft-id/approve",
+      { method: "POST" },
+    );
   });
 });

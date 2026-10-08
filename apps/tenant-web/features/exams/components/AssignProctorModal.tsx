@@ -56,7 +56,7 @@ export const AssignProctorModal = ({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="rounded-lg border border-[var(--shell-border)] px-4 py-2 text-sm font-medium text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)]"
           >
             {T.CANCEL}
           </button>
@@ -84,7 +84,7 @@ export const AssignProctorModal = ({
         className="flex flex-col gap-4"
       >
         {availableProctors.length === 0 && !proctorsLoading ? (
-          <p className="text-sm text-gray-500">{T.NO_EXISTING}</p>
+          <p className="text-sm text-[var(--ink-secondary)]">{T.NO_EXISTING}</p>
         ) : (
           <Select
             label={T.EXISTING_LABEL}

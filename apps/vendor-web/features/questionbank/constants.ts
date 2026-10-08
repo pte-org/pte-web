@@ -11,7 +11,6 @@ export const QUESTION_STATS_QUERY_KEY = ["questionStats"] as const;
 
 export const QUESTIONBANK_TEXT = {
   TITLE: "Question Bank",
-  SUBTITLE: "Manage and update the PTE question database.",
   ADD: "Add question",
   SEARCH_PLACEHOLDER: "Enter a code or question content...",
   TOTAL_QUESTIONS: (count: number) => `${count} questions`,
@@ -67,7 +66,6 @@ export const QUESTIONBANK_TEXT = {
 
 export const QUESTION_DETAIL_TEXT = {
   BACK: "← Back to Question Bank",
-  SUBTITLE: (taskType: string) => `Review the content and media attached to ${taskType}.`,
   EDIT: "Edit question",
   INFORMATION_TITLE: "Question information",
   GROUP_IDENTITY: "Identity",
@@ -104,16 +102,12 @@ export const QUESTION_DETAIL_TEXT = {
 } as const;
 
 export const QUESTIONBANK_OVERVIEW_TEXT = {
-  TITLE: "Overview",
-  SUBTITLE: "Question inventory at a glance.",
   EMPTY_VALUE: "—",
 } as const;
 
 export const QUESTION_EDITOR_TEXT = {
   NEW_TITLE: "New question",
-  NEW_SUBTITLE: "Create a draft question for Admin approval.",
   EDIT_TITLE: "Edit question",
-  EDIT_SUBTITLE: "Save changes as a draft revision.",
   FORM_EDIT_TITLE: "Edit Question Revision",
   FORM_CREATE_TITLE: "Create PTE Question",
   TASK_TYPE: "Task type",

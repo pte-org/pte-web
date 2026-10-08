@@ -34,6 +34,8 @@ import {
 import type { Question } from "../types";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { RejectQuestionModal } from "./_RejectQuestionModal";
+import { useCurrentUser } from "@/features/auth/api";
+import { canReviewAcademic } from "@/features/auth/permissions";
 
 interface QuestionTableProps {
   questions: Question[];
@@ -51,6 +53,7 @@ export const QuestionTable = ({
   onClearFilters,
 }: QuestionTableProps): ReactElement => {
   const router = useRouter();
+  const { data: currentUser } = useCurrentUser();
   const { showToast } = useToast();
   const submitMutation = useSubmitQuestionApproval();
   const approveMutation = useApproveQuestion();
@@ -58,6 +61,7 @@ export const QuestionTable = ({
   const archiveMutation = useArchiveQuestion();
   const deleteMutation = useDeleteQuestion();
   const unarchiveMutation = useUnarchiveQuestion();
+  const canReview = canReviewAcademic(currentUser?.roles);
   const [questionToArchive, setQuestionToArchive] = useState<Question | null>(null);
   const [questionToDelete, setQuestionToDelete] = useState<Question | null>(null);
   const isBusy = submitMutation.isPending || approveMutation.isPending || rejectMutation.isPending || archiveMutation.isPending || unarchiveMutation.isPending || deleteMutation.isPending;
@@ -88,7 +92,7 @@ export const QuestionTable = ({
           }),
       });
     }
-    if (question.status === "pending_approval") {
+    if (question.status === "pending_approval" && canReview) {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_APPROVE,
         icon: CheckCircleIcon,
@@ -116,7 +120,7 @@ export const QuestionTable = ({
     } else if (question.status === "draft" && question.canArchive !== true) {
       actions.push({ label: QUESTIONBANK_TEXT.DELETE_BLOCKED, disabled: true, onSelect: () => undefined });
     }
-    if (question.status === "archived") {
+    if (question.status === "archived" && canReview) {
       actions.push({
         label: QUESTIONBANK_TEXT.ROW_UNARCHIVE,
         icon: CheckCircleIcon,
@@ -203,7 +207,10 @@ export const QuestionTable = ({
             </thead>
             <tbody>
               {questions.map((question) => (
-                <tr key={question.id} className="border-t border-gray-100 hover:bg-slate-50/70">
+                <tr
+                  key={question.id}
+                  className="border-t border-gray-100 hover:bg-[var(--surface-row-hover)]"
+                >
                   <td className={`${CELL_CLASS} font-mono text-xs text-gray-900`}>{question.id}</td>
                   <td className={CELL_CLASS}>{QUESTION_SKILL_LABELS[question.skill]}</td>
                   <td className={`${CELL_CLASS} max-w-xs`}>

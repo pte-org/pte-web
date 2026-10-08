@@ -42,7 +42,10 @@ export const OrganizationTable = ({
           {organizations.map((organization) => {
             const isSuspended = organization.status === "suspended";
             return (
-              <tr key={organization.id} className="border-t border-gray-100 hover:bg-slate-50/70">
+              <tr
+                key={organization.id}
+                className="border-t border-gray-100 hover:bg-[var(--surface-row-hover)]"
+              >
                 <td className={`${CELL_CLASS} font-medium text-gray-900`}>{organization.name}</td>
                 <td className={CELL_CLASS}>{FACILITY_TYPE_LABELS[organization.facilityType]}</td>
                 <td className={`${CELL_CLASS} text-gray-500`}>

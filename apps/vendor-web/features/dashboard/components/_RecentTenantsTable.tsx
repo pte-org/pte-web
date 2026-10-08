@@ -49,7 +49,7 @@ export const RecentTenantsTable = ({
           {tenants.map((tenant) => (
             <tr
               key={tenant.id}
-              className="border-t border-gray-100 hover:bg-slate-50/70 transition-colors"
+              className="border-t border-gray-100 transition-colors hover:bg-[var(--surface-row-hover)]"
             >
               <td className={`${CELL_CLASS} font-medium text-gray-900`}>
                 <div className="flex items-center gap-3">

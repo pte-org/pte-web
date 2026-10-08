@@ -8,14 +8,10 @@ export const EXAM_TEMPLATE_SECTIONS = ["SPEAKING", "WRITING", "READING", "LISTEN
 
 export const SCORE_TEMPLATE_TEXT = {
   LIST_TITLE: "Exam Templates",
-  LIST_SUBTITLE:
-    "Manage the PTE question distribution, timing, and scoring templates used to build exams.",
   CLONE_ACTION: "Clone to new draft",
   CREATE_ACTION: "Create template",
   DELETE_ACTION: "Delete",
   CREATE_MODAL_TITLE: "Create exam template",
-  CREATE_MODAL_SUBTITLE:
-    "Create an empty DRAFT, choose its policy, and add task types from the platform catalog.",
   CODE_LABEL: "Code",
   NAME_LABEL: "Name",
   POLICY_LABEL: "Template policy",

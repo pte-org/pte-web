@@ -25,7 +25,9 @@ export const StudentRosterTable = ({ sessionPublicId }: StudentRosterTableProps)
     {
       key: "fullName",
       header: STUDENT_TABLE_HEADERS.FULL_NAME,
-      cell: (entry) => <span className="font-medium text-gray-900">{entry.student.fullName}</span>,
+      cell: (entry) => (
+        <span className="font-medium text-[var(--ink-primary)]">{entry.student.fullName}</span>
+      ),
     },
     { key: "email", header: STUDENT_TABLE_HEADERS.EMAIL, cell: (entry) => entry.student.email },
     {

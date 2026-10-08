@@ -19,6 +19,7 @@ interface DataTableProps<TRow> {
   emptyDescription?: string;
   rowActions?: (row: TRow) => ReactNode;
   rowActionsHeader?: ReactNode;
+  tableClassName?: string;
   /**
    * Multi-row checkbox selection (Phase 12: Class merge/split needed this
    * first — kept generic since any future feature bulk-acting on table rows
@@ -44,13 +45,14 @@ export function DataTable<TRow>({
   emptyDescription,
   rowActions,
   rowActionsHeader,
+  tableClassName,
   selectable = false,
   selectedKeys,
   onSelectionChange,
   selectAllLabel = "Select all rows",
   selectRowLabel = () => "Select row",
 }: DataTableProps<TRow>): ReactElement {
-  if (isLoading) return <LoadingState rows={4} />;
+  if (isLoading) return <LoadingState rows={4} variant="table" />;
 
   if (rows.length === 0) {
     return <EmptyState title={emptyTitle} description={emptyDescription} />;
@@ -81,10 +83,10 @@ export function DataTable<TRow>({
   const cellPaddingBody = "px-3 py-3 sm:px-5 sm:py-4";
 
   return (
-    <div className="overflow-visible rounded-lg bg-white shadow-card">
+    <div className="overflow-visible rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] shadow-none motion-safe:animate-pte-fade-up">
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200 text-sm">
-          <thead className="sticky top-0 z-10 bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
+        <table className={cn("min-w-full divide-y divide-[var(--divider)] text-sm", tableClassName)}>
+          <thead className="sticky top-0 z-10 bg-[var(--surface-subtle)] text-left text-xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)]">
             <tr>
               {selectable && (
                 <th scope="col" className={cn("w-10", cellPadding)}>
@@ -109,11 +111,11 @@ export function DataTable<TRow>({
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200 bg-white text-gray-700">
+            <tbody className="divide-y divide-[var(--divider)] bg-[var(--surface-card)] text-[var(--ink-secondary)]">
             {rows.map((row) => {
               const key = getRowKey(row);
               return (
-                <tr key={key} className="transition-colors hover:bg-slate-50">
+                <tr key={key} className="transition-colors duration-150 hover:bg-[var(--surface-row-hover)]">
                   {selectable && (
                     <td className={cellPaddingBody}>
                       <input

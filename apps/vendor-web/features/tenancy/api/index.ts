@@ -247,14 +247,17 @@ export function useUpdateBranding(
   });
 }
 
-export function useOrganizations(tenantPublicId: string): UseQueryResult<Organization[]> {
+export function useOrganizations(
+  tenantPublicId: string,
+  enabled = true,
+): UseQueryResult<Organization[]> {
   return useQuery({
     queryKey: [...ORGANIZATIONS_QUERY_KEY, tenantPublicId],
     queryFn: async () => {
       const organizations = await listOrganizations(apiClient, tenantPublicId);
       return organizations.map(organizationResponseToOrganization);
     },
-    enabled: tenantPublicId.length > 0,
+    enabled: enabled && tenantPublicId.length > 0,
   });
 }
 
@@ -304,14 +307,17 @@ export function useReactivateOrganization(
   });
 }
 
-export function useLoginAccount(tenantPublicId: string): UseQueryResult<LoginAccountLookup> {
+export function useLoginAccount(
+  tenantPublicId: string,
+  enabled = true,
+): UseQueryResult<LoginAccountLookup> {
   return useQuery({
     queryKey: [...LOGIN_ACCOUNT_QUERY_KEY, tenantPublicId],
     queryFn: async () => {
       const users = await listUsersByTenant(apiClient, tenantPublicId);
       return userResponsesToLoginAccountLookup(users);
     },
-    enabled: tenantPublicId.length > 0,
+    enabled: enabled && tenantPublicId.length > 0,
   });
 }
 

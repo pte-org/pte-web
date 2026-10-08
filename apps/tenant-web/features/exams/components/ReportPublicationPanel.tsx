@@ -36,13 +36,9 @@ export const ReportPublicationPanel = ({
   const failedPublishBlockers = publicationBlockersFromError(publish.error);
 
   return (
-    <section className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-5">
+    <section className="flex flex-col gap-3 rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5">
       <div>
-        <h3 className="text-base font-semibold text-gray-900">Review and publish reports</h3>
-        <p className="mt-1 text-sm text-gray-600">
-          Student results are frozen from the selected AI/Examiner scores and the score template
-          pinned to this exam.
-        </p>
+        <h3 className="text-base font-semibold text-[var(--ink-primary)]">Review and publish reports</h3>
       </div>
       {!closed && (
         <Alert tone="warning">
@@ -55,25 +51,25 @@ export const ReportPublicationPanel = ({
         </Alert>
       )}
       {publicationLocked && publicationSummary.data && (
-        <div className="rounded-md bg-gray-50 p-4 text-sm text-gray-700">
-          <p className="font-medium text-gray-900">Publication record</p>
+        <div className="rounded-md bg-[var(--surface-subtle)] p-4 text-sm text-[var(--ink-primary)]">
+          <p className="font-medium text-[var(--ink-primary)]">Publication record</p>
           <p className="mt-1">
             {publicationSummary.data.publishedReportCount}/{publicationSummary.data.cohortSize}{" "}
             reports published
             {" · "}Published {new Date(publicationSummary.data.publishedAt).toLocaleString()}
           </p>
-          <p className="mt-1 break-all text-xs text-gray-500">
+          <p className="mt-1 break-all text-xs text-[var(--ink-muted)]">
             Publication {publicationSummary.data.publicationPublicId} · Host{" "}
             {publicationSummary.data.publishedByPublicId}
           </p>
         </div>
       )}
       {publicationLocked && publicationSummary.isLoading && (
-        <p className="text-sm text-gray-500">Loading publication record…</p>
+        <p className="text-sm text-[var(--ink-secondary)]">Loading publication record…</p>
       )}
       {error && <Alert tone="error">{error}</Alert>}
       {failedPublishBlockers.length > 0 && (
-        <ul className="list-disc pl-5 text-sm text-red-700">
+        <ul className="list-disc pl-5 text-sm text-[var(--blush-action)]">
           {failedPublishBlockers.slice(0, 20).map((blocker, index) => (
             <li key={`${blocker.attemptPublicId}-${blocker.answerPublicId ?? index}`}>
               {blocker.section ?? "Attempt"} {blocker.taskType ?? blocker.attemptPublicId}:{" "}
@@ -119,13 +115,13 @@ export const ReportPublicationPanel = ({
         )}
       </div>
       {checked && preflight.data && (
-        <div className="flex flex-col gap-2 rounded-md bg-gray-50 p-4 text-sm">
+        <div className="flex flex-col gap-2 rounded-md bg-[var(--surface-subtle)] p-4 text-sm text-[var(--ink-primary)]">
           <p>
             {preflight.data.readyAttemptCount}/{preflight.data.submittedAttemptCount} submitted
             attempts ready; {preflight.data.blockerCount} blocking answer(s).
           </p>
           {preflight.data.blockers.length > 0 && (
-            <ul className="list-disc pl-5 text-red-700">
+            <ul className="list-disc pl-5 text-[var(--blush-action)]">
               {preflight.data.blockers.slice(0, 20).map((blocker, index) => (
                 <li key={`${blocker.attemptPublicId}-${blocker.answerPublicId ?? index}`}>
                   {blocker.section ?? "Attempt"} {blocker.taskType ?? blocker.attemptPublicId}:{" "}
