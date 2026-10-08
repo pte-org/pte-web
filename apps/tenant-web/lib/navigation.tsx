@@ -1,7 +1,12 @@
 import type { NavItem } from "@/features/auth/components";
 import type { OrgLabels } from "@/features/orgLabels/constants";
-import { BookOpenIcon, ClipboardIcon, DocumentIcon, GridIcon, LicenseIcon, UsersIcon } from "@pte/ui";
-import { EXAMINER_NAV_TEXT, HOST_NAV_TEXT as T, STUDENT_NAV_TEXT } from "./navigationConstants";
+import { BookOpenIcon, ClipboardIcon, DocumentIcon, GridIcon, LicenseIcon, ShieldIcon, UsersIcon } from "@pte/ui";
+import {
+  EXAMINER_NAV_TEXT,
+  HOST_NAV_TEXT as T,
+  PROCTOR_NAV_TEXT,
+  STUDENT_NAV_TEXT,
+} from "./navigationConstants";
 
 /**
  * Non-label entries stay static; the Program entry's label is org-type-driven.
@@ -78,6 +83,24 @@ export function buildStudentNav(): NavItem[] {
       href: "/student/results",
       icon: <DocumentIcon />,
       section: STUDENT_NAV_TEXT.SECTION,
+    },
+  ];
+}
+
+/**
+ * Proctor navigation. PROCTOR accounts land in the proctor console
+ * (proctor is a monitoring role, not a host tenant-admin). Audit-log
+ * list at `/proctor/audit-log` is out of scope this phase; pro enters
+ * post-hoc review per-session via deep-link from
+ * `/proctor/sessions/{publicId}` (the live monitoring view).
+ */
+export function buildProctorNav(): NavItem[] {
+  return [
+    {
+      label: PROCTOR_NAV_TEXT.PROFILE,
+      href: "/proctor/profile",
+      icon: <ShieldIcon />,
+      section: PROCTOR_NAV_TEXT.SECTION,
     },
   ];
 }

@@ -1,0 +1,5 @@
+# Marker file so this directory exists in the tree.
+#
+# Phase 02-04 populate `features/proctor/` with components, hooks, and
+# constants. This file is intentionally empty and can be deleted once
+# any real file (e.g. `api.ts` from Phase 02) lands here.
