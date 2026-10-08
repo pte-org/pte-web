@@ -5,7 +5,6 @@ export const EXAMINER_ATTEMPT_QUERY_KEY = ["examinerAttemptWork"] as const;
 
 export const EXAMINER_WORK_TEXT = {
   TITLE: "Examiner marking queue",
-  SUBTITLE: "Review only the attempts assigned to you and submit one score per eligible answer.",
   FILTER_LABEL: "Queue status",
   STATUS_ALL: "All assignments",
   STATUS_PENDING: "Not started",

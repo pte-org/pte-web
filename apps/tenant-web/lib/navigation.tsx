@@ -1,7 +1,12 @@
 import type { NavItem } from "@/features/auth/components";
 import type { OrgLabels } from "@/features/orgLabels/constants";
-import { BookOpenIcon, ClipboardIcon, DocumentIcon, GridIcon, LicenseIcon, UsersIcon } from "@pte/ui";
-import { EXAMINER_NAV_TEXT, HOST_NAV_TEXT as T, STUDENT_NAV_TEXT } from "./navigationConstants";
+import { BookOpenIcon, ClipboardIcon, DocumentIcon, GridIcon, LicenseIcon, ShieldIcon, UsersIcon } from "@pte/ui";
+import {
+  EXAMINER_NAV_TEXT,
+  HOST_NAV_TEXT as T,
+  PROCTOR_NAV_TEXT,
+  STUDENT_NAV_TEXT,
+} from "./navigationConstants";
 
 /**
  * Non-label entries stay static; the Program entry's label is org-type-driven.
@@ -14,46 +19,56 @@ import { EXAMINER_NAV_TEXT, HOST_NAV_TEXT as T, STUDENT_NAV_TEXT } from "./navig
  */
 export function buildHostNav(labels: OrgLabels): NavItem[] {
   return [
-    { label: T.OVERVIEW, href: "/host/dashboard", icon: <GridIcon />, section: T.HOME_SECTION },
-    { label: T.LEARNERS, href: "/host/students", icon: <UsersIcon />, section: T.USERS_SECTION },
+    { label: T.OVERVIEW, labelKey: "nav.overview", href: "/host/dashboard", icon: <GridIcon />, section: T.HOME_SECTION, sectionKey: "nav.home" },
+    { label: T.LEARNERS, labelKey: "nav.learners", href: "/host/students", icon: <UsersIcon />, section: T.USERS_SECTION, sectionKey: "nav.users" },
     {
       label: T.EXAM_STAFF,
+      labelKey: "nav.examStaff",
       href: "/host/exam-staff",
       icon: <UsersIcon />,
       section: T.USERS_SECTION,
+      sectionKey: "nav.users",
     },
     {
       label: labels.program,
       href: "/host/programs",
       icon: <BookOpenIcon />,
       section: T.DELIVERY_SECTION,
+      sectionKey: "nav.delivery",
     },
     {
       label: labels.class,
       href: "/host/classes",
       icon: <BookOpenIcon />,
       section: T.DELIVERY_SECTION,
+      sectionKey: "nav.delivery",
     },
-    { label: T.EXAMS, href: "/host/exams", icon: <BookOpenIcon />, section: T.DELIVERY_SECTION },
+    { label: T.EXAMS, labelKey: "nav.exams", href: "/host/exams", icon: <BookOpenIcon />, section: T.DELIVERY_SECTION, sectionKey: "nav.delivery" },
     {
       label: T.PLANS_AND_BILLING,
+      labelKey: "nav.plansBilling",
       href: "/host/billing",
       icon: <LicenseIcon />,
       section: T.ACCOUNT_SECTION,
+      sectionKey: "nav.account",
       requiredRoles: ["HOST_ADMIN"],
     },
     {
       label: T.AUDIT_LOG,
+      labelKey: "nav.auditLog",
       href: "/host/audit-log",
       icon: <DocumentIcon />,
       section: T.DATA_SECTION,
+      sectionKey: "nav.data",
       requiredRoles: ["HOST_ADMIN"],
     },
     {
       label: T.SUPPORT_TICKETS,
+      labelKey: "nav.supportTickets",
       href: "/host/support-tickets",
       icon: <ClipboardIcon />,
       section: T.DATA_SECTION,
+      sectionKey: "nav.data",
       requiredRoles: ["HOST_ADMIN"],
     },
   ];
@@ -64,9 +79,11 @@ export function buildExaminerNav(): NavItem[] {
   return [
     {
       label: EXAMINER_NAV_TEXT.QUEUE,
+      labelKey: "nav.markingQueue",
       href: "/examiner/work",
       icon: <DocumentIcon />,
       section: EXAMINER_NAV_TEXT.SECTION,
+      sectionKey: "nav.examiner",
     },
   ];
 }
@@ -75,9 +92,29 @@ export function buildStudentNav(): NavItem[] {
   return [
     {
       label: STUDENT_NAV_TEXT.RESULTS,
+      labelKey: "nav.myResults",
       href: "/student/results",
       icon: <DocumentIcon />,
       section: STUDENT_NAV_TEXT.SECTION,
+      sectionKey: "nav.student",
+    },
+  ];
+}
+
+/**
+ * Proctor navigation. PROCTOR accounts land in the proctor console
+ * (proctor is a monitoring role, not a host tenant-admin). Audit-log
+ * list at `/proctor/audit-log` is out of scope this phase; pro enters
+ * post-hoc review per-session via deep-link from
+ * `/proctor/sessions/{publicId}` (the live monitoring view).
+ */
+export function buildProctorNav(): NavItem[] {
+  return [
+    {
+      label: PROCTOR_NAV_TEXT.PROFILE,
+      href: "/proctor/profile",
+      icon: <ShieldIcon />,
+      section: PROCTOR_NAV_TEXT.SECTION,
     },
   ];
 }

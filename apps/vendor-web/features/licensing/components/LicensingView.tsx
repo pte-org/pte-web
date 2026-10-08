@@ -36,7 +36,6 @@ export const LicensingView = (): ReactElement => {
     <div className="flex flex-col gap-5">
       <PageHeader
         title={LICENSING_TEXT.TITLE}
-        subtitle={LICENSING_TEXT.SUBTITLE}
         actions={
           <button
             type="button"

@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ActionMenu, Alert, ChevronLeftIcon, DataTable, EyeIcon, PageHeader, PaginationControls } from "@pte/ui";
+import { ActionMenu, Alert, DataTable, EyeIcon, PageHeader, PaginationControls } from "@pte/ui";
 import { DEFAULT_PAGE_SIZE, type OrderResponse } from "@pte/api-client";
+import { AppBackButton } from "@/features/navigation/components/AppBackButton";
 import { useOrdersPage } from "../api";
 import { BILLING_TEXT as T } from "../constants";
 import { BillingPanel } from "./BillingPanel";
@@ -21,13 +21,7 @@ export const OrdersView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <Link
-        href="/host/billing"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
-      >
-        <ChevronLeftIcon className="h-4 w-4" />
-        <span>{T.BACK_TO_PLANS}</span>
-      </Link>
+      <AppBackButton href="/host/billing" label={T.BACK_TO_PLANS} />
 
       <PageHeader
         title={T.ORDERS_TITLE}

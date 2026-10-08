@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import Link from "next/link";
 import { Alert, Button, DescriptionList, Input, PageHeader } from "@pte/ui";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
+import { AppBackButton } from "@/features/navigation/components/AppBackButton";
 import { useApplicationQuery, useApproveApplication, useRejectApplication } from "../api";
 import { ADMIN_APPLICATION_DETAIL_TEXT as T } from "../constants";
 import { CommercialPanel } from "./CommercialPanel";
@@ -46,9 +46,7 @@ const AdminApplicationDetailContent = ({
           : getUserFacingApiErrorMessage(error, T.LOAD_ERROR);
     return (
       <div className="flex flex-col gap-4">
-        <Link href="/admin/applications" className="text-sm font-medium text-action hover:underline">
-          {T.BACK}
-        </Link>
+        <AppBackButton href="/admin/applications" label={T.BACK} />
         <Alert tone="error">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span>{message}</span>
@@ -67,9 +65,7 @@ const AdminApplicationDetailContent = ({
   if (!application) {
     return (
       <div className="flex flex-col gap-4">
-        <Link href="/admin/applications" className="text-sm font-medium text-action hover:underline">
-          {T.BACK}
-        </Link>
+        <AppBackButton href="/admin/applications" label={T.BACK} />
         <Alert tone="error">{T.NOT_FOUND}</Alert>
       </div>
     );
@@ -125,9 +121,7 @@ const AdminApplicationDetailContent = ({
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/admin/applications" className="text-sm font-medium text-action hover:underline">
-        {T.BACK}
-      </Link>
+      <AppBackButton href="/admin/applications" label={T.BACK} />
       <PageHeader
         title={application.orgName}
         subtitle={T.REQUESTED_CODE(application.requestedCode)}
@@ -137,7 +131,7 @@ const AdminApplicationDetailContent = ({
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       {approvalSent && <Alert tone="success">{T.APPROVED}</Alert>}
       <div className="grid gap-5 lg:grid-cols-[1.35fr_1fr]">
-        <CommercialPanel title={T.DETAILS_TITLE} subtitle={T.DETAILS_SUBTITLE}>
+        <CommercialPanel title={T.DETAILS_TITLE}>
           <DescriptionList
             items={[
               { label: T.ORGANIZATION_TYPE, value: application.orgType },
@@ -157,7 +151,7 @@ const AdminApplicationDetailContent = ({
             ]}
           />
         </CommercialPanel>
-        <CommercialPanel title={T.REVIEW_TITLE} subtitle={T.REVIEW_SUBTITLE}>
+        <CommercialPanel title={T.REVIEW_TITLE}>
           <div className="flex flex-col gap-4">
             <div className="rounded-md bg-slate-50 p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{T.CURRENT_STATUS}</p>

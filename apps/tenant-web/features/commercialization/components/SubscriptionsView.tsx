@@ -2,7 +2,8 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Alert, ChevronLeftIcon, EyeIcon, PageHeader } from "@pte/ui";
+import { Alert, EyeIcon, PageHeader } from "@pte/ui";
+import { AppBackButton } from "@/features/navigation/components/AppBackButton";
 import { useSubscriptionsQuery } from "../api";
 import { BILLING_TEXT as T } from "../constants";
 import { BillingPanel } from "./BillingPanel";
@@ -112,13 +113,7 @@ export const SubscriptionsView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <Link
-        href="/host/billing"
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 hover:underline"
-      >
-        <ChevronLeftIcon className="h-4 w-4" />
-        <span>{T.BACK_TO_PLANS}</span>
-      </Link>
+      <AppBackButton href="/host/billing" label={T.BACK_TO_PLANS} />
 
       <PageHeader
         title={T.ACTIVE_ACCESS_TITLE}

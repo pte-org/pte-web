@@ -100,3 +100,25 @@ export interface BulkCreateUsersResponse {
     reason: string;
   }[];
 }
+
+export type PlatformAssignableRole = "PLATFORM_MANAGER" | "ACADEMIC_MANAGER" | "ACADEMIC_STAFF";
+
+export interface PlatformUserCreateRequest {
+  email: string;
+  fullName: string;
+  password: string;
+  roles: PlatformAssignableRole[];
+}
+
+export interface PlatformUserRoleUpdateRequest {
+  roles: PlatformAssignableRole[];
+}
+
+export interface PlatformUserListParams {
+  page?: number;
+  size?: number;
+  role?: PlatformAssignableRole | "PLATFORM_ADMIN" | "PLATFORM_AUTHOR";
+  status?: "ACTIVE" | "SUSPENDED";
+}
+
+export type PlatformUserPage = PagedResult<UserResponse>;

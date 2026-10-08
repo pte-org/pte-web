@@ -62,17 +62,16 @@ export function GradingCohortSection({
   };
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-5">
+    <section className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <h2 className="text-sm font-semibold text-gray-900">Grading cohort</h2>
-          <p className="mt-1 text-sm text-gray-500">
-            Freeze all submitted attempts before publishing session results.
-          </p>
+          <h2 className="text-sm font-semibold text-[var(--ink-primary)]">Grading cohort</h2>
         </div>
         {preview.data?.finalized && <Badge variant="success">Finalized</Badge>}
       </div>
-      {preview.isLoading && <p className="mt-4 text-sm text-gray-500">Loading grading coverage…</p>}
+      {preview.isLoading && (
+        <p className="mt-4 text-sm text-[var(--ink-secondary)]">Loading grading coverage…</p>
+      )}
       {preview.error && (
         <Alert tone="error" className="mt-4">
           {getUserFacingApiErrorMessage(preview.error)}
@@ -84,15 +83,15 @@ export function GradingCohortSection({
       {preview.data && !preview.data.finalized && (
         <>
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-md bg-slate-50 p-3">
-              <p className="text-xs text-slate-500">Submitted included</p>
-              <p className="mt-1 text-lg font-semibold text-slate-900">
+            <div className="rounded-md bg-[var(--surface-subtle)] p-3">
+              <p className="text-xs text-[var(--ink-secondary)]">Submitted included</p>
+              <p className="mt-1 text-lg font-semibold text-[var(--ink-primary)]">
                 {preview.data.submittedAttemptCount}
               </p>
             </div>
-            <div className="rounded-md bg-slate-50 p-3">
-              <p className="text-xs text-slate-500">Outstanding</p>
-              <p className="mt-1 text-lg font-semibold text-slate-900">
+            <div className="rounded-md bg-[var(--surface-subtle)] p-3">
+              <p className="text-xs text-[var(--ink-secondary)]">Outstanding</p>
+              <p className="mt-1 text-lg font-semibold text-[var(--ink-primary)]">
                 {preview.data.outstandingAttemptCount}
               </p>
             </div>
@@ -134,7 +133,7 @@ export function GradingCohortSection({
                         }))
                       }
                       placeholder="Reason, for example: absent"
-                      className="mt-1 block w-full rounded-md border border-amber-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:ring-2 focus:ring-action"
+                      className="mt-1 block w-full rounded-md border border-amber-300 bg-[var(--surface-card)] px-3 py-2 text-sm text-[var(--ink-primary)] outline-none focus:ring-2 focus:ring-action"
                     />
                   </label>
                 ))}

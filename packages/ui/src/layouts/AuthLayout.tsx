@@ -1,4 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
+import { LocaleSwitcher } from "../i18n";
+import { ThemeToggle } from "../theme";
 
 interface AuthLayoutProps {
   title: string;
@@ -16,13 +18,17 @@ export const AuthLayout = ({
   children,
 }: AuthLayoutProps): ReactElement => {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
-      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-card">
+    <div className="relative flex min-h-screen items-center justify-center bg-[var(--surface-page)] p-4">
+      <div className="absolute right-4 top-4 flex items-center gap-2">
+        <LocaleSwitcher />
+        <ThemeToggle />
+      </div>
+      <div className="w-full max-w-md rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-8 shadow-card">
         {brand && <div className="mb-6 flex justify-center">{brand}</div>}
-        <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
-        {subtitle && <p className="mt-1 text-sm text-gray-500">{subtitle}</p>}
+        <h1 className="text-2xl font-semibold text-[var(--ink-primary)]">{title}</h1>
+        {subtitle && <p className="mt-1 text-sm text-[var(--ink-secondary)]">{subtitle}</p>}
         <div className="mt-6">{children}</div>
-        {footer && <div className="mt-6 text-center text-sm text-gray-500">{footer}</div>}
+        {footer && <div className="mt-6 text-center text-sm text-[var(--ink-secondary)]">{footer}</div>}
       </div>
     </div>
   );

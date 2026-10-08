@@ -7,6 +7,7 @@ import type {
   ExaminerQueueStatus,
 } from "@pte/api-client";
 import { PageHeader, Select } from "@pte/ui";
+import { ChevronLeftIcon } from "@pte/ui";
 import { EXAMINER_QUEUE_STATUSES, EXAMINER_WORK_TEXT as T } from "./constants";
 import { useExaminerAttempt, useExaminerQueue, useSubmitExaminerScore } from "./api";
 
@@ -233,9 +234,10 @@ const AttemptDetail = ({
         <button
           type="button"
           onClick={onBack}
-          className="rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+          className="inline-flex items-center gap-1.5 self-start rounded-md px-1 py-1 text-sm font-medium text-slate-600 transition-colors duration-150 ease-out hover:text-slate-900 active:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900/15 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
         >
-          {T.BACK_TO_QUEUE}
+          <ChevronLeftIcon className="h-4 w-4 shrink-0 -ml-0.5" />
+          <span>{T.BACK_TO_QUEUE}</span>
         </button>
       </div>
       {query.isLoading && (
@@ -285,7 +287,7 @@ export const ExaminerWorkView = (): ReactElement => {
 
   return (
     <div className="mx-auto w-full max-w-6xl p-5 sm:p-8">
-      <PageHeader title={T.TITLE} subtitle={T.SUBTITLE} />
+      <PageHeader title={T.TITLE} />
       <div className="mt-6 flex flex-col gap-2 sm:max-w-xs">
         <label htmlFor="examiner-queue-status" className="text-sm font-medium text-slate-700">
           {T.FILTER_LABEL}

@@ -9,7 +9,7 @@ export interface SessionManager {
   isReady: boolean;
   saveSession: (session: PteSession) => void;
   clearSession: () => void;
-  hasRole: (role: SessionRole | SessionRole[]) => boolean;
+  hasRole: (role: SessionRole | readonly SessionRole[]) => boolean;
 }
 
 export function useSessionManager(): SessionManager {
@@ -33,7 +33,7 @@ export function useSessionManager(): SessionManager {
   }, []);
 
   const hasRole = useCallback(
-    (role: SessionRole | SessionRole[]) => {
+    (role: SessionRole | readonly SessionRole[]) => {
       if (!session) return false;
       const wanted = Array.isArray(role) ? role : [role];
       return session.roles.some((sessionRole) => wanted.includes(sessionRole));

@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import type { ReactElement } from "react";
+import { AppBackButton } from "@/features/navigation/components/AppBackButton";
 
 interface BreadcrumbBackToClassProps {
   className: string;
@@ -10,18 +10,21 @@ interface BreadcrumbBackToClassProps {
   organizationPublicId: string;
 }
 
+/**
+ * Renders a "Back to {className}" affordance. Used by the student search page
+ * when the user was deep-linked from a class. Kept as its own component for
+ * forward compatibility (future: add class status / row count), but the UI is
+ * delegated to the shared `BackButton` so every Back affordance looks the
+ * same.
+ */
 export const BreadcrumbBackToClass = ({
   className,
   programPublicId,
   classPublicId,
   organizationPublicId,
 }: BreadcrumbBackToClassProps): ReactElement => (
-  <nav aria-label={`Back to ${className}`}>
-    <Link
-      href={`/host/programs/${programPublicId}/classes/${classPublicId}?organizationPublicId=${organizationPublicId}`}
-      className="text-sm font-medium text-blue-700 hover:underline"
-    >
-      {`← Back to ${className}`}
-    </Link>
-  </nav>
+  <AppBackButton
+    href={`/host/programs/${programPublicId}/classes/${classPublicId}?organizationPublicId=${organizationPublicId}`}
+    label={`Back to ${className}`}
+  />
 );

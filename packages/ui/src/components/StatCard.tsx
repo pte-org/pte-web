@@ -1,5 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
 import { cn } from "../utils/cn";
+import { DashboardCard } from "./DashboardCard";
 
 interface StatCardProps {
   label: string;
@@ -21,11 +22,11 @@ interface StatCardProps {
 }
 
 const ACCENT_CLASSES: Record<NonNullable<StatCardProps["accent"]>, string> = {
-  blue: "bg-blue-50 text-blue-700",
-  sky: "bg-sky-50 text-sky-700",
-  mint: "bg-green-50 text-green-700",
-  cream: "bg-amber-50 text-amber-700",
-  blush: "bg-red-50 text-red-700",
+  blue: "bg-[var(--brand-tint)] text-[var(--brand-ink)]",
+  sky: "bg-[var(--sky-tint)] text-[var(--sky-action)]",
+  mint: "bg-[var(--mint-tint)] text-[var(--mint-action)]",
+  cream: "bg-[var(--cream-tint)] text-[var(--cream-action)]",
+  blush: "bg-[var(--blush-tint)] text-[var(--blush-action)]",
 };
 
 export const StatCard = ({
@@ -49,15 +50,14 @@ export const StatCard = ({
       : "[&::-webkit-progress-value]:bg-rose-500 [&::-moz-progress-bar]:bg-rose-500";
 
   return (
-    <div
+    <DashboardCard
       className={cn(
-        "relative overflow-hidden rounded-lg bg-white shadow-card transition-[box-shadow] duration-150 hover:shadow-lg",
+        "relative overflow-hidden shadow-none motion-safe:animate-pte-scale-in transition-[box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-card",
         compact ? "p-4" : "p-5",
         className,
       )}
     >
       <div className="flex items-start justify-between gap-3">
-        <p className="text-sm font-normal text-slate-500">{label}</p>
         {icon && (
           <span
             className={cn(
@@ -71,24 +71,32 @@ export const StatCard = ({
         )}
       </div>
 
-      <div className={cn(compact ? "mt-3" : "mt-4", "flex items-center justify-between gap-3")}>
-        <div className="flex items-center gap-2">
-          {trend && (
+      <div className={cn(compact ? "mt-4" : "mt-5", "flex items-end justify-between gap-3")}>
+        <div>
+          <p className="text-sm font-normal text-[var(--ink-secondary)]">{label}</p>
+          <div className="mt-2 flex items-center gap-2">
+            {trend && (
+              <span
+                className={cn(
+                "text-2xl font-light leading-none",
+                  trendPositive ? "text-[var(--mint-action)]" : "text-[var(--blush-action)]",
+                )}
+              >
+                {trendPositive ? "+" : "-"}
+              </span>
+            )}
             <span
               className={cn(
-                "text-2xl font-light leading-none",
-                trendPositive ? "text-emerald-500" : "text-rose-500",
+                compact ? "text-xl" : "text-2xl",
+                "font-semibold tabular-nums text-[var(--ink-primary)]",
               )}
             >
-              {trendPositive ? "+" : "-"}
+              {value}
             </span>
-          )}
-          <span className={cn(compact ? "text-xl" : "text-2xl", "font-semibold tabular-nums text-slate-800")}>
-            {value}
-          </span>
+          </div>
         </div>
 
-        {trend && <span className="text-sm font-normal text-slate-400">{trend}</span>}
+        {trend && <span className="text-sm font-normal text-[var(--ink-muted)]">{trend}</span>}
       </div>
 
       {progressValue !== undefined && (
@@ -98,14 +106,18 @@ export const StatCard = ({
             max={100}
             aria-label={label}
             className={cn(
-              "block h-1.5 w-full appearance-none overflow-hidden rounded-full [&::-webkit-progress-bar]:rounded-full [&::-webkit-progress-bar]:bg-slate-100 [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:transition-all [&::-moz-progress-bar]:rounded-full",
+              "block h-1.5 w-full appearance-none overflow-hidden rounded-full [&::-webkit-progress-bar]:rounded-full [&::-webkit-progress-bar]:bg-[var(--surface-subtle)] [&::-webkit-progress-value]:rounded-full [&::-webkit-progress-value]:transition-all [&::-moz-progress-bar]:rounded-full",
               progressTone,
             )}
           />
         </div>
       )}
 
-      {footnote && <p className={cn(compact ? "mt-2" : "mt-3", "text-xs font-normal text-slate-400")}>{footnote}</p>}
-    </div>
+      {footnote && (
+        <p className={cn(compact ? "mt-2" : "mt-3", "text-xs font-normal text-[var(--ink-muted)]")}>
+          {footnote}
+        </p>
+      )}
+    </DashboardCard>
   );
 };

@@ -44,8 +44,8 @@ export const ClassAssignmentSection = ({
       key: "className",
       header: T.ASSIGN_LABEL,
       cell: (entry) => (
-        <span className="font-medium text-gray-900">
-          {entry.className} <span className="text-gray-500">({entry.programName})</span>
+        <span className="font-medium text-[var(--ink-primary)]">
+          {entry.className} <span className="text-[var(--ink-secondary)]">({entry.programName})</span>
         </span>
       ),
     },
@@ -95,7 +95,7 @@ export const ClassAssignmentSection = ({
                   onClick={() => unassign.mutate(entry.classPublicId)}
                   title={T.UNASSIGN}
                   aria-label={T.UNASSIGN}
-                  className="rounded-full p-1.5 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
+                  className="rounded-full p-1.5 text-[var(--blush-action)] transition-colors hover:bg-[var(--blush-tint)] hover:text-[var(--blush-action)]"
                 >
                   <TrashIcon className="h-4 w-4" />
                 </button>

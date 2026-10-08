@@ -126,7 +126,7 @@ export const Dropdown = ({
             <div
               ref={menuRef}
               role="menu"
-              className="fixed z-[60] min-w-44 max-w-[calc(100vw-1rem)] rounded-md bg-white py-1 shadow-card"
+              className="fixed z-[60] min-w-44 max-w-[calc(100vw-1rem)] origin-top-right rounded-md bg-white py-1 shadow-card motion-safe:animate-pte-dropdown-in"
               style={{
                 top: menuPosition?.top ?? 0,
                 left: menuPosition?.left ?? 0,

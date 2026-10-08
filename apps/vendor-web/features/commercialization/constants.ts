@@ -14,9 +14,7 @@ export const LICENSE_CODES_PAGE_QUERY_KEY = (params: {
 
 export const PLATFORM_SETTINGS_TEXT = {
   TITLE: "Platform settings",
-  SUBTITLE: "Set defaults used by tenant subscriptions and quota checks.",
   PANEL_TITLE: "Commercial defaults",
-  PANEL_SUBTITLE: "These values are controlled by platform administrators.",
   LOADING: "Loading settings...",
   SAVE: "Save",
   ERROR: "Settings could not be loaded or saved.",
@@ -25,7 +23,6 @@ export const PLATFORM_SETTINGS_TEXT = {
 
 export const ADMIN_APPLICATIONS_TEXT = {
   TITLE: "Tenant applications",
-  SUBTITLE: "Review organization requests before workspace access is created.",
   FILTER_ARIA_LABEL: "Filter applications by status",
   ALL_STATUSES: "All statuses",
   PENDING: "Pending",
@@ -38,8 +35,6 @@ export const ADMIN_APPLICATIONS_TEXT = {
   COLUMN_STATUS: "Status",
   LOAD_ERROR: "Applications could not be loaded. Try again shortly.",
   RETRY: "Retry",
-  OVERVIEW_TITLE: "Application overview",
-  OVERVIEW_SUBTITLE: "Tenant application status at a glance.",
   TOTAL: "Total applications",
   NEEDS_REVIEW: "Needs review",
   APPROVED_COUNT: "Approved",
@@ -52,7 +47,7 @@ export const ADMIN_APPLICATIONS_TEXT = {
 
 export const ADMIN_APPLICATION_DETAIL_TEXT = {
   LOADING: "Loading application...",
-  BACK: "← Back to applications",
+  BACK: "Back to applications",
   NOT_FOUND: "This application was not found or is no longer available.",
   UPDATE_ERROR: "The application could not be updated. Please try again.",
   APPROVED: "Application approved. Verify the Host account manually; credentials delivery is not confirmed here.",
@@ -63,9 +58,7 @@ export const ADMIN_APPLICATION_DETAIL_TEXT = {
   REFRESH_ERROR: "The action result is uncertain and the latest application state could not be loaded. Do not retry yet.",
   REQUESTED_CODE: (code: string) => `Requested code ${code}`,
   DETAILS_TITLE: "Application details",
-  DETAILS_SUBTITLE: "Submitted organization information.",
   REVIEW_TITLE: "Review decision",
-  REVIEW_SUBTITLE: "Approve access or record a reason for rejection.",
   CURRENT_STATUS: "Current status",
   REJECTION_REASON_LABEL: "Rejection reason",
   REJECTION_REASON_PLACEHOLDER: "Explain what must be corrected",
@@ -85,16 +78,12 @@ export const ADMIN_APPLICATION_DETAIL_TEXT = {
 
 export const PLAN_CATALOG_TEXT = {
   TITLE: "Plan catalog",
-  SUBTITLE: "Configure packages available to approved tenants.",
   ADD: "+ Add plan",
-  OVERVIEW_TITLE: "Plan overview",
-  OVERVIEW_SUBTITLE: "Catalog status at a glance.",
   TOTAL: "Total plans",
   ACTIVE: "Active plans",
   DRAFT: "Draft plans",
   EDIT_TITLE: "Edit plan",
   CREATE_TITLE: "Create plan",
-  FORM_SUBTITLE: "Only ACTIVE plans are visible to tenants.",
   SECTION_GENERAL: "General",
   SECTION_PRICING: "Pricing & limits",
   PLAN_NAME: "Plan name",
@@ -124,7 +113,6 @@ export const PLAN_CATALOG_TEXT = {
   CREATE_DRAFT: "Create draft",
   CANCEL: "Cancel",
   CATALOG_TITLE: "Published catalog",
-  CATALOG_SUBTITLE: "Separate exam access from permanent student capacity.",
   FILTER_ARIA_LABEL: "Filter plans by type",
   ALL: "All",
   CAPACITY_ADD_ONS: "Capacity add-ons",
@@ -163,9 +151,7 @@ export const PLAN_CATALOG_TEXT = {
 
 export const LICENSE_CODES_TEXT = {
   TITLE: "License codes",
-  SUBTITLE: "Issue and track redeemable exam package codes.",
   ISSUE_TITLE: "Issue a code",
-  ISSUE_SUBTITLE: "Codes are limited to an active exam package.",
   PLAN_LABEL: "Plan",
   PLAN_PLACEHOLDER: "Select active exam package",
   REFRESH_PLANS: "Refresh plans",
@@ -182,7 +168,6 @@ export const LICENSE_CODES_TEXT = {
   INVALID_EXPIRY: "Enter a valid future date and time.",
   ISSUE: "Issue code",
   ISSUED_TITLE: "License inventory",
-  ISSUED_SUBTITLE: "Codes are masked in the list. Reveal is an explicit, short-lived admin action.",
   CODE: "Masked code",
   PLAN_ID: "Plan",
   RECIPIENT: "Recipient",
@@ -208,7 +193,6 @@ export const LICENSE_CODES_TEXT = {
   PLAN_LOAD_ERROR: "Plans could not be loaded. Issuance is temporarily unavailable.",
   REFRESH_LIST: "Refresh list",
   LOOKUP_TITLE: "Find a code safely",
-  LOOKUP_SUBTITLE: "Paste a bearer only into this POST form. It is not stored in the URL or query cache.",
   LOOKUP_LABEL: "License code",
   LOOKUP: "Lookup",
   LOOKUP_RESULT: "Lookup result",
