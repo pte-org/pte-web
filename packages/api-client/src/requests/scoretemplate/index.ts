@@ -11,8 +11,9 @@ import type {
  * Matches `ScoreTemplateController`'s `@RequestMapping("/api/v1/score-templates")` —
  * pte-api's Nginx edge forwards `/api/v1/*` unchanged, so every request
  * module in this package must carry the controller's real full path.
- * Every endpoint is `PLATFORM_ADMIN`-only on the backend (FR-03) — hosts
- * never call these.
+ * Academic authoring endpoints are available to platform admin, academic
+ * manager, and academic staff; review/activation endpoints remain restricted
+ * to platform admin and academic manager. Hosts never call these.
  */
 export const SCORE_TEMPLATE_ENDPOINTS = {
   templates: "/api/v1/score-templates",
