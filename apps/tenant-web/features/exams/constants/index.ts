@@ -96,15 +96,6 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   OPENS_AT_LABEL: "Opens at",
   CLOSES_AT_LABEL: "Closes at",
   CAPACITY_LABEL: "Maximum students",
-  MODE_LABEL: "Exam mode",
-  PRACTICE_ANTI_CHEAT_LABEL: "Controlled desktop practice",
-  PRACTICE_ANTI_CHEAT_CONTROL: "Enable anti-cheat controls for this Practice exam",
-  PRACTICE_ANTI_CHEAT_HELPER:
-    "Enable fullscreen and the existing desktop checks. Violations warn and are audited; Practice is not auto-submitted.",
-  SKILLS_LABEL: "Skills included",
-  SKILLS_HELPER:
-    "Choose one or more of the four skills for Practice. A skill must be included in the active template to be selectable.",
-  SKILL_UNAVAILABLE: "Not included in the active template",
   FULL_TEMPLATE_SCOPE: "Full template scope",
   RETRIES_LABEL: "Allowed retries per student",
   RETRIES_HELPER: "Retries are additional submissions after the first attempt. Choose 0 to disable retries (maximum 9).",
@@ -132,7 +123,6 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   NO_ACTIVE_SUBSCRIPTIONS: "No active subscription is available for this exam.",
   REVIEW_TITLE: "Review before generation",
   REVIEW_TEMPLATE: "Template",
-  REVIEW_MODE: "Exam mode",
   REVIEW_SECURITY_POLICY: "Security policy",
   REVIEW_SKILLS: "Included skills",
   REVIEW_RETRIES: "Retries per student",
@@ -163,11 +153,7 @@ export const CREATE_EXAM_WIZARD_TEXT = {
       "The audience is larger than the capacity allowed by the subscription.",
   } as Record<string, string>,
   SUCCESS: "Exam generated and scheduled successfully.",
-  MODE_PRACTICE: "Practice",
-  MODE_MOCK: "Mock exam",
   MODE_REAL: "Official exam",
-  POLICY_PRACTICE_UNRESTRICTED: "Practice — unrestricted",
-  POLICY_PRACTICE_CONTROLLED: "Practice — controlled desktop",
   POLICY_OFFICIAL_STRICT: "Official — strict",
   POLICY_LEGACY: "Previously created exam",
   POLICY_UNAVAILABLE: "Security policy unavailable — review required",
@@ -192,26 +178,16 @@ export const CREATE_EXAM_WIZARD_ERRORS = {
   SOURCE_DUPLICATE: "This audience source has already been added.",
   AUDIENCE_REQUIRED: "Add at least one audience source.",
   OPEN_FUTURE: "Choose an opening time in the future.",
-  SKILLS_REQUIRED: "Choose at least one skill included in the selected template.",
-  FULL_SCOPE_REQUIRED: "Mock and Official exams must include every skill in the selected template.",
   RETRIES_INVALID: "Enter a whole number of retries from 0 to 9.",
   POLICY_MISMATCH:
     "The server returned a different security policy. Refresh the exam settings and try again.",
 } as const;
 
-export const EXAM_POLICY_LABELS: Record<LockdownMode, string> = {
-  NONE: CREATE_EXAM_WIZARD_TEXT.POLICY_PRACTICE_UNRESTRICTED,
-  STANDARD: CREATE_EXAM_WIZARD_TEXT.POLICY_PRACTICE_CONTROLLED,
-  STRICT: CREATE_EXAM_WIZARD_TEXT.POLICY_OFFICIAL_STRICT,
-};
-
-export const EXAM_MODE_OPTIONS: { value: ExamMode; label: string }[] = [
-  { value: "PRACTICE", label: CREATE_EXAM_WIZARD_TEXT.MODE_PRACTICE },
-  { value: "OFFICIAL_EXAM", label: CREATE_EXAM_WIZARD_TEXT.MODE_REAL },
-];
+/** Every host-created exam is official; the server enforces STRICT lockdown for it. */
+export const OFFICIAL_EXAM_MODE: ExamMode = "OFFICIAL_EXAM";
+export const OFFICIAL_EXAM_LOCKDOWN_MODE: LockdownMode = "STRICT";
 
 export const EXAM_MODE_LABELS: Record<ExamMode, string> = {
-  PRACTICE: CREATE_EXAM_WIZARD_TEXT.MODE_PRACTICE,
   OFFICIAL_EXAM: CREATE_EXAM_WIZARD_TEXT.MODE_REAL,
 };
 

@@ -55,7 +55,6 @@ import {
   type SessionResponse,
   type ScoreTemplateResponse,
   type UserResponse,
-  resolveExamLockdownMode,
 } from "@pte/api-client";
 import {
   useMutation,
@@ -85,6 +84,8 @@ import {
   SCORE_SOURCE_AUDIT_QUERY_KEY,
   REPORT_PUBLICATION_READINESS_QUERY_KEY,
   REPORT_PUBLICATION_SUMMARY_QUERY_KEY,
+  OFFICIAL_EXAM_LOCKDOWN_MODE,
+  OFFICIAL_EXAM_MODE,
 } from "../constants";
 import type {
   AssignedClass,
@@ -205,19 +206,16 @@ export function useCreateExamWorkflow(): UseMutationResult<
 
   return useMutation({
     mutationFn: async (input) => {
-      const expectedLockdownMode = resolveExamLockdownMode(
-        input.examMode,
-        input.practiceAntiCheatEnabled,
-      );
+      const expectedLockdownMode = OFFICIAL_EXAM_LOCKDOWN_MODE;
+      // selectedSkills is omitted on purpose: the server then uses the full template scope.
       const draft = await createExamDraft(apiClient, {
         name: input.name.trim(),
         templatePublicId: input.templatePublicId,
         subscriptionPublicId: input.subscriptionPublicId,
         opensAt: new Date(input.opensAt).toISOString(),
         closesAt: new Date(input.closesAt).toISOString(),
-        examMode: input.examMode,
+        examMode: OFFICIAL_EXAM_MODE,
         lockdownMode: expectedLockdownMode,
-        selectedSkills: input.selectedSkills,
         maxRetriesPerStudent: Number(input.maxRetriesPerStudent),
         formMode: input.formMode,
         reusePolicy: input.reusePolicy,

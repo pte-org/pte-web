@@ -2,11 +2,7 @@
 
 import { useMemo, useState, type FormEvent, type ReactElement } from "react";
 import Link from "next/link";
-import {
-  resolveExamLockdownMode,
-  type AudienceSourceRequest,
-  type ScoreTemplateResponse,
-} from "@pte/api-client";
+import type { AudienceSourceRequest, ScoreTemplateResponse } from "@pte/api-client";
 import { Alert, Input, Modal, Select } from "@pte/ui";
 import { useAllTenantClasses } from "@/features/classes/api";
 import { useSubscriptionsQuery, useTenantPlansQuery } from "@/features/commercialization/api";
@@ -17,7 +13,6 @@ import {
   AUDIENCE_SOURCE_OPTIONS,
   CREATE_EXAM_WIZARD_ERRORS,
   CREATE_EXAM_WIZARD_TEXT,
-  EXAM_MODE_OPTIONS,
   EXAM_SKILL_OPTIONS,
   REUSE_POLICY_OPTIONS,
 } from "../constants";
@@ -26,7 +21,6 @@ import {
   validateCreateExamWorkflow,
   type CreateExamWorkflowErrors,
 } from "../utils/validateCreateExamWorkflow";
-import { getExamPolicyLabel } from "../utils/examPolicy";
 
 interface CreateExamWizardProps {
   open: boolean;
@@ -53,9 +47,6 @@ function emptyForm(activeTemplate?: ScoreTemplateResponse): CreateExamWorkflowIn
     subscriptionPublicId: "",
     opensAt: "",
     closesAt: "",
-    examMode: "PRACTICE",
-    practiceAntiCheatEnabled: false,
-    selectedSkills: getTemplateSkills(activeTemplate?.items),
     maxRetriesPerStudent: "0",
     formMode: "SHARED_FORM",
     reusePolicy: "ALLOW",
@@ -108,10 +99,11 @@ export const CreateExamWizard = ({
     ...form,
     templatePublicId: form.templatePublicId || activeTemplate?.publicId || "",
   };
-  const effectiveLockdownMode = resolveExamLockdownMode(
-    effectiveForm.examMode,
-    effectiveForm.practiceAntiCheatEnabled,
-  );
+  const templateSkillLabels =
+    templateSkills
+      .map((skill) => EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label)
+      .filter(Boolean)
+      .join(", ") || CREATE_EXAM_WIZARD_TEXT.EMPTY_VALUE;
 
   const normalizedSourceSearch = sourceSearch.trim().toLowerCase();
   const sourceMatchesSearch = (values: string[]): boolean =>
@@ -181,21 +173,6 @@ export const CreateExamWizard = ({
     setErrors((previous) => ({ ...previous, [field]: undefined }));
   };
 
-  const changeExamMode = (value: CreateExamWorkflowInput["examMode"]): void => {
-    const practice = value === "PRACTICE";
-    setForm((previous) => ({
-      ...previous,
-      examMode: value,
-      practiceAntiCheatEnabled: practice ? previous.practiceAntiCheatEnabled : false,
-      selectedSkills: practice ? previous.selectedSkills : templateSkills,
-      formMode: "SHARED_FORM",
-      reusePolicy: "ALLOW",
-      seriesKey: "",
-      maxRetriesPerStudent: practice ? previous.maxRetriesPerStudent : "0",
-    }));
-    setErrors((previous) => ({ ...previous, seriesKey: undefined }));
-  };
-
   const addSource = (): void => {
     const normalizedId = sourcePublicId.trim();
     if (!normalizedId) {
@@ -233,7 +210,6 @@ export const CreateExamWizard = ({
       effectiveForm,
       undefined,
       requireAudience,
-      templateSkills,
       requireAudience,
     );
     setErrors(nextErrors);
@@ -317,14 +293,6 @@ export const CreateExamWizard = ({
               }))}
             />
             <div className="grid gap-4 sm:grid-cols-2">
-              <Select
-                label={CREATE_EXAM_WIZARD_TEXT.MODE_LABEL}
-                value={form.examMode}
-                onChange={(event) =>
-                  changeExamMode(event.target.value as CreateExamWorkflowInput["examMode"])
-                }
-                options={EXAM_MODE_OPTIONS}
-              />
               <Input
                 type="number"
                 min={1}
@@ -333,6 +301,17 @@ export const CreateExamWizard = ({
                 value={form.capacity}
                 error={errors.capacity}
                 onChange={(event) => update("capacity", event.target.value)}
+              />
+              <Input
+                type="number"
+                min={0}
+                max={9}
+                step={1}
+                label={CREATE_EXAM_WIZARD_TEXT.RETRIES_LABEL}
+                helperText={CREATE_EXAM_WIZARD_TEXT.RETRIES_HELPER}
+                value={form.maxRetriesPerStudent}
+                error={errors.maxRetriesPerStudent}
+                onChange={(event) => update("maxRetriesPerStudent", event.target.value)}
               />
               <Input
                 type="datetime-local"
@@ -349,108 +328,12 @@ export const CreateExamWizard = ({
                 onChange={(event) => update("closesAt", event.target.value)}
               />
             </div>
-            {form.examMode === "PRACTICE" ? (
-              <fieldset className="rounded-md border border-gray-200 p-4">
-                <legend className="px-1 text-sm font-medium text-gray-700">
-                  {CREATE_EXAM_WIZARD_TEXT.SKILLS_LABEL}
-                </legend>
-                <p className="mb-3 text-sm text-gray-500">
-                  {CREATE_EXAM_WIZARD_TEXT.SKILLS_HELPER}
-                </p>
-                <div className="flex flex-wrap gap-x-6 gap-y-3">
-                  {EXAM_SKILL_OPTIONS.map((option) => {
-                    const isAvailable = templateSkills.includes(option.value);
-                    const availabilityId = `exam-skill-${option.value.toLowerCase()}-availability`;
-
-                    return (
-                      <label
-                        key={option.value}
-                        className={`flex items-center gap-2 text-sm ${
-                          isAvailable ? "text-gray-700" : "text-gray-400"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={form.selectedSkills.includes(option.value)}
-                          disabled={!isAvailable}
-                          aria-describedby={isAvailable ? undefined : availabilityId}
-                          onChange={(event) => {
-                            const nextSkills = event.target.checked
-                              ? [...form.selectedSkills, option.value]
-                              : form.selectedSkills.filter((skill) => skill !== option.value);
-                            update("selectedSkills", nextSkills);
-                          }}
-                        />
-                        <span>{option.label}</span>
-                        {!isAvailable && (
-                          <span id={availabilityId} className="text-xs">
-                            ({CREATE_EXAM_WIZARD_TEXT.SKILL_UNAVAILABLE})
-                          </span>
-                        )}
-                      </label>
-                    );
-                  })}
-                </div>
-                {errors.selectedSkills && (
-                  <p className="mt-2 text-sm text-red-600">{errors.selectedSkills}</p>
-                )}
-              </fieldset>
-            ) : (
-              <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
-                <div className="text-sm font-medium text-gray-700">
-                  {CREATE_EXAM_WIZARD_TEXT.FULL_TEMPLATE_SCOPE}
-                </div>
-                <p className="mt-1 text-sm text-gray-600">
-                  {templateSkills
-                    .map((skill) => EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label)
-                    .filter(Boolean)
-                    .join(", ") || CREATE_EXAM_WIZARD_TEXT.EMPTY_VALUE}
-                </p>
+            <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+              <div className="text-sm font-medium text-gray-700">
+                {CREATE_EXAM_WIZARD_TEXT.FULL_TEMPLATE_SCOPE}
               </div>
-            )}
-            {form.examMode === "PRACTICE" && (
-              <fieldset className="rounded-md border border-gray-200 p-4">
-                <legend className="px-1 text-sm font-medium text-gray-700">
-                  {CREATE_EXAM_WIZARD_TEXT.PRACTICE_ANTI_CHEAT_LABEL}
-                </legend>
-                <div className="flex items-start gap-3">
-                  <input
-                    id="practice-anti-cheat"
-                    type="checkbox"
-                    checked={form.practiceAntiCheatEnabled}
-                    aria-describedby="practice-anti-cheat-helper"
-                    className="mt-1 h-4 w-4 rounded border-gray-300 text-action focus:ring-action"
-                    onChange={(event) =>
-                      update("practiceAntiCheatEnabled", event.target.checked)
-                    }
-                  />
-                  <label
-                    htmlFor="practice-anti-cheat"
-                    className="text-sm font-medium text-gray-700"
-                  >
-                    {CREATE_EXAM_WIZARD_TEXT.PRACTICE_ANTI_CHEAT_CONTROL}
-                  </label>
-                </div>
-                <p id="practice-anti-cheat-helper" className="mt-2 text-sm text-gray-500">
-                  {CREATE_EXAM_WIZARD_TEXT.PRACTICE_ANTI_CHEAT_HELPER}
-                </p>
-              </fieldset>
-            )}
-            {form.examMode === "PRACTICE" && (
-              <Input
-                type="number"
-                min={0}
-                max={9}
-                step={1}
-                label={CREATE_EXAM_WIZARD_TEXT.RETRIES_LABEL}
-                value={form.maxRetriesPerStudent}
-                error={errors.maxRetriesPerStudent}
-                onChange={(event) => update("maxRetriesPerStudent", event.target.value)}
-              />
-            )}
-            {form.examMode === "PRACTICE" && (
-              <p className="-mt-3 text-sm text-gray-500">{CREATE_EXAM_WIZARD_TEXT.RETRIES_HELPER}</p>
-            )}
+              <p className="mt-1 text-sm text-gray-600">{templateSkillLabels}</p>
+            </div>
           </>
         ) : (
           <>
@@ -564,21 +447,12 @@ export const CreateExamWizard = ({
                   <dd>{activeTemplate?.name ?? CREATE_EXAM_WIZARD_TEXT.EMPTY_VALUE}</dd>
                 </div>
                 <div>
-                  <dt className="font-medium">{CREATE_EXAM_WIZARD_TEXT.REVIEW_MODE}</dt>
-                  <dd>{EXAM_MODE_OPTIONS.find((option) => option.value === form.examMode)?.label}</dd>
-                </div>
-                <div>
                   <dt className="font-medium">{CREATE_EXAM_WIZARD_TEXT.REVIEW_SECURITY_POLICY}</dt>
-                  <dd>{getExamPolicyLabel(form.examMode, effectiveLockdownMode)}</dd>
+                  <dd>{CREATE_EXAM_WIZARD_TEXT.POLICY_OFFICIAL_STRICT}</dd>
                 </div>
                 <div>
                   <dt className="font-medium">{CREATE_EXAM_WIZARD_TEXT.REVIEW_SKILLS}</dt>
-                  <dd>
-                    {form.selectedSkills
-                      .map((skill) => EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label)
-                      .filter(Boolean)
-                      .join(", ") || CREATE_EXAM_WIZARD_TEXT.EMPTY_VALUE}
-                  </dd>
+                  <dd>{templateSkillLabels}</dd>
                 </div>
                 <div>
                   <dt className="font-medium">{CREATE_EXAM_WIZARD_TEXT.REVIEW_RETRIES}</dt>
