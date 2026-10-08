@@ -1,3 +1,5 @@
+import { RequireAuth } from "@/features/auth/components";
+import { ACADEMIC_ROLES } from "@/features/auth/constants";
 import { ScoreTemplateEditorView } from "@/features/scoretemplate/components";
 
 interface ExamTemplateEditPageProps {
@@ -7,5 +9,9 @@ interface ExamTemplateEditPageProps {
 export default async function ExamTemplateEditPage({ params }: ExamTemplateEditPageProps) {
   const { publicId } = await params;
 
-  return <ScoreTemplateEditorView publicId={publicId} />;
+  return (
+    <RequireAuth allowedRoles={ACADEMIC_ROLES}>
+      <ScoreTemplateEditorView publicId={publicId} />
+    </RequireAuth>
+  );
 }

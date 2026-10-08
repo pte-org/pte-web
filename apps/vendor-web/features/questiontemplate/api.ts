@@ -22,6 +22,8 @@ import {
   listSupportedTaskTypes,
   listTaskTypeCapabilities,
   listTaskTypes,
+  approveTaskType,
+  submitTaskTypeApproval,
   updateTaskType,
 } from "@pte/api-client";
 import {
@@ -176,6 +178,30 @@ export function useRetireTaskType(): UseMutationResult<void, unknown, DeleteQues
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ publicId }) => deleteTaskType(apiClient, publicId),
+    onSuccess: () => invalidateTaskTypeQueries(queryClient),
+  });
+}
+
+export function useSubmitTaskTypeApproval(): UseMutationResult<
+  QuestionTypeResponse,
+  unknown,
+  string
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (publicId) => submitTaskTypeApproval(apiClient, publicId),
+    onSuccess: () => invalidateTaskTypeQueries(queryClient),
+  });
+}
+
+export function useApproveTaskType(): UseMutationResult<
+  QuestionTypeResponse,
+  unknown,
+  string
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (publicId) => approveTaskType(apiClient, publicId),
     onSuccess: () => invalidateTaskTypeQueries(queryClient),
   });
 }

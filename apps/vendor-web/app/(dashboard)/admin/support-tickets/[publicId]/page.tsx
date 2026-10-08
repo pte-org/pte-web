@@ -1,3 +1,5 @@
+import { RequireAuth } from "@/features/auth/components";
+import { PLATFORM_OPERATIONS_ROLES } from "@/features/auth/constants";
 import { AdminSupportTicketDetailView } from "@/features/supportTickets/components";
 
 interface AdminSupportTicketDetailPageProps {
@@ -9,5 +11,9 @@ export default async function AdminSupportTicketDetailPage({
 }: AdminSupportTicketDetailPageProps) {
   const { publicId } = await params;
 
-  return <AdminSupportTicketDetailView ticketPublicId={publicId} />;
+  return (
+    <RequireAuth allowedRoles={PLATFORM_OPERATIONS_ROLES}>
+      <AdminSupportTicketDetailView ticketPublicId={publicId} />
+    </RequireAuth>
+  );
 }

@@ -7,17 +7,27 @@ import {
   Alert,
   Badge,
   Button,
+  CheckCircleIcon,
   ConfirmDialog,
   PageHeader,
   PencilIcon,
   TrashIcon,
+  UploadIcon,
   useToast,
 } from "@pte/ui";
 import type { ActionMenuItem } from "@pte/ui";
-import { useRetireTaskType, useTaskTypeCapabilities, useTaskTypes } from "../api";
+import {
+  useApproveTaskType,
+  useRetireTaskType,
+  useSubmitTaskTypeApproval,
+  useTaskTypeCapabilities,
+  useTaskTypes,
+} from "../api";
 import { QUESTION_TYPE_REQUIREMENT_LABELS, QUESTION_TYPE_TEXT } from "../constants";
 import { getQuestionTypeErrorMessage } from "../errorMessage";
 import { QuestionTypeEditorModal } from "./QuestionTypeEditorModal";
+import { useCurrentUser } from "@/features/auth/api";
+import { canReviewAcademic, isPlatformAdmin } from "@/features/auth/permissions";
 
 const HEADER_CLASS =
   "px-3 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap";
@@ -28,8 +38,13 @@ const errorMessage = (error: unknown, fallback: string): string =>
 
 export const QuestionTypeView = (): ReactElement => {
   const { data: questionTypes = [], isLoading, isError } = useTaskTypes(false);
+  const { data: currentUser } = useCurrentUser();
+  const canRetire = canReviewAcademic(currentUser?.roles);
+  const canEditActiveType = isPlatformAdmin(currentUser?.roles);
   const { data: capabilities = [], isError: capabilitiesError } = useTaskTypeCapabilities();
   const deleteMutation = useRetireTaskType();
+  const submitMutation = useSubmitTaskTypeApproval();
+  const approveMutation = useApproveTaskType();
   const { showToast } = useToast();
   const [mode, setMode] = useState<"create" | "edit" | null>(null);
   const [editing, setEditing] = useState<QuestionTypeResponse | null>(null);
@@ -61,20 +76,59 @@ export const QuestionTypeView = (): ReactElement => {
     }
   };
 
-  const buildActions = (type: QuestionTypeResponse): ActionMenuItem[] => [
-    {
-      label: QUESTION_TYPE_TEXT.EDIT,
-      icon: PencilIcon,
-      onSelect: () => beginEdit(type),
-    },
-    {
-      label: QUESTION_TYPE_TEXT.DELETE,
-      icon: TrashIcon,
-      danger: true,
-      disabled: deleteMutation.isPending && deleteMutation.variables?.publicId === type.publicId,
-      onSelect: () => setTypeToDelete(type),
-    },
-  ];
+  const buildActions = (type: QuestionTypeResponse): ActionMenuItem[] => {
+    const isDraft = type.lifecycleStatus === "DRAFT";
+    const isPendingApproval = type.lifecycleStatus === "PENDING_APPROVAL";
+
+    return [
+      ...(isDraft || (type.lifecycleStatus === "ACTIVE" && canEditActiveType)
+        ? [
+            {
+              label: QUESTION_TYPE_TEXT.EDIT,
+              icon: PencilIcon,
+              onSelect: () => beginEdit(type),
+            },
+          ]
+        : []),
+      ...(isDraft
+        ? [
+            {
+              label: QUESTION_TYPE_TEXT.SUBMIT_APPROVAL,
+              icon: UploadIcon,
+              disabled: submitMutation.isPending,
+              onSelect: () =>
+                submitMutation.mutate(type.publicId, {
+                  onSuccess: () => showToast(QUESTION_TYPE_TEXT.SUBMIT_SUCCESS),
+                }),
+            },
+          ]
+        : isPendingApproval && canRetire
+          ? [
+              {
+                label: QUESTION_TYPE_TEXT.APPROVE,
+                icon: CheckCircleIcon,
+                disabled: approveMutation.isPending,
+                onSelect: () =>
+                  approveMutation.mutate(type.publicId, {
+                    onSuccess: () => showToast(QUESTION_TYPE_TEXT.APPROVE_SUCCESS),
+                  }),
+              },
+            ]
+          : []),
+      ...(canRetire
+        ? [
+            {
+              label: QUESTION_TYPE_TEXT.DELETE,
+              icon: TrashIcon,
+              danger: true,
+              disabled:
+                deleteMutation.isPending && deleteMutation.variables?.publicId === type.publicId,
+              onSelect: () => setTypeToDelete(type),
+            },
+          ]
+        : []),
+    ];
+  };
 
   return (
     <div className="space-y-6">
@@ -91,9 +145,12 @@ export const QuestionTypeView = (): ReactElement => {
         <Alert tone="error">{QUESTION_TYPE_TEXT.LOAD_ERROR}</Alert>
       )}
       <Alert tone="info">{QUESTION_TYPE_TEXT.CATALOG_BOUNDARY_NOTICE}</Alert>
-      {deleteMutation.isError && (
+      {(deleteMutation.isError || submitMutation.isError || approveMutation.isError) && (
         <Alert tone="error">
-          {errorMessage(deleteMutation.error, QUESTION_TYPE_TEXT.DELETE_ERROR)}
+          {errorMessage(
+            deleteMutation.error ?? submitMutation.error ?? approveMutation.error,
+            deleteMutation.isError ? QUESTION_TYPE_TEXT.DELETE_ERROR : QUESTION_TYPE_TEXT.WORKFLOW_ERROR,
+          )}
         </Alert>
       )}
       <div className="overflow-hidden rounded-lg bg-white shadow-card">
@@ -140,7 +197,8 @@ export const QuestionTypeView = (): ReactElement => {
                   </td>
                   <td className={CELL_CLASS}>
                     <Badge variant={type.active ? "success" : "neutral"}>
-                      {type.active ? QUESTION_TYPE_TEXT.ACTIVE : QUESTION_TYPE_TEXT.INACTIVE}
+                      {type.lifecycleStatus ??
+                        (type.active ? QUESTION_TYPE_TEXT.ACTIVE : QUESTION_TYPE_TEXT.INACTIVE)}
                     </Badge>
                   </td>
                   <td className={`${CELL_CLASS} whitespace-nowrap`}>

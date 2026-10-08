@@ -10,13 +10,19 @@ import {
   NavSupportTicketIcon,
   NavTaskTypeIcon,
   NavTenantIcon,
+  UsersIcon,
 } from "@pte/ui";
 import type { NavItem } from "@/features/auth/components";
+import {
+  ACADEMIC_ROLES,
+  PLATFORM_ADMIN_ONLY,
+  PLATFORM_OPERATIONS_ROLES,
+} from "@/features/auth/constants";
 import { ADMIN_NAV_TEXT as T } from "./navigationConstants";
 
 export const ADMIN_NAV: NavItem[] = [
   { label: T.OVERVIEW, labelKey: "nav.overview", href: "/admin", icon: <NavDashboardIcon />, section: T.HOME_SECTION, sectionKey: "nav.home" },
-  { label: T.TENANTS, labelKey: "nav.tenants", href: "/admin/tenants", icon: <NavTenantIcon />, section: T.TENANTS_SECTION, sectionKey: "nav.tenants" },
+  { label: T.TENANTS, labelKey: "nav.tenants", href: "/admin/tenants", icon: <NavTenantIcon />, section: T.TENANTS_SECTION, sectionKey: "nav.tenants", requiredRoles: PLATFORM_OPERATIONS_ROLES },
   {
     label: T.APPLICATIONS,
     labelKey: "nav.applications",
@@ -24,6 +30,16 @@ export const ADMIN_NAV: NavItem[] = [
     icon: <NavApplicationIcon />,
     section: T.TENANTS_SECTION,
     sectionKey: "nav.tenants",
+    requiredRoles: PLATFORM_OPERATIONS_ROLES,
+  },
+  {
+    label: T.PLATFORM_USERS,
+    labelKey: "nav.platformUsers",
+    href: "/admin/platform-users",
+    icon: <UsersIcon />,
+    section: T.TENANTS_SECTION,
+    sectionKey: "nav.tenants",
+    requiredRoles: PLATFORM_ADMIN_ONLY,
   },
   {
     label: T.PLAN_CATALOG,
@@ -32,6 +48,7 @@ export const ADMIN_NAV: NavItem[] = [
     icon: <NavPlanCatalogIcon />,
     section: T.COMMERCIAL_SECTION,
     sectionKey: "nav.commercial",
+    requiredRoles: PLATFORM_OPERATIONS_ROLES,
   },
   {
     label: T.LICENSE_CODES,
@@ -40,7 +57,7 @@ export const ADMIN_NAV: NavItem[] = [
     icon: <NavLicenseCodeIcon />,
     section: T.COMMERCIAL_SECTION,
     sectionKey: "nav.commercial",
-    requiredRoles: ["PLATFORM_ADMIN"],
+    requiredRoles: PLATFORM_OPERATIONS_ROLES,
   },
   {
     label: T.PLATFORM_SETTINGS,
@@ -49,6 +66,7 @@ export const ADMIN_NAV: NavItem[] = [
     icon: <NavSettingsIcon />,
     section: T.COMMERCIAL_SECTION,
     sectionKey: "nav.commercial",
+    requiredRoles: PLATFORM_ADMIN_ONLY,
   },
   {
     label: T.ANNOUNCEMENTS,
@@ -57,7 +75,7 @@ export const ADMIN_NAV: NavItem[] = [
     icon: <NavAnnouncementIcon />,
     section: T.COMMERCIAL_SECTION,
     sectionKey: "nav.commercial",
-    requiredRoles: ["PLATFORM_ADMIN"],
+    requiredRoles: PLATFORM_OPERATIONS_ROLES,
   },
   {
     label: T.QUESTION_BANK,
@@ -66,6 +84,7 @@ export const ADMIN_NAV: NavItem[] = [
     icon: <NavQuestionBankIcon />,
     section: T.CONTENT_SECTION,
     sectionKey: "nav.content",
+    requiredRoles: ACADEMIC_ROLES,
   },
   {
     label: T.TASK_TYPES,
@@ -74,6 +93,7 @@ export const ADMIN_NAV: NavItem[] = [
     icon: <NavTaskTypeIcon />,
     section: T.CONTENT_SECTION,
     sectionKey: "nav.content",
+    requiredRoles: ACADEMIC_ROLES,
   },
   {
     label: T.EXAM_TEMPLATES,
@@ -82,6 +102,7 @@ export const ADMIN_NAV: NavItem[] = [
     icon: <NavExamTemplateIcon />,
     section: T.CONTENT_SECTION,
     sectionKey: "nav.content",
+    requiredRoles: ACADEMIC_ROLES,
   },
   {
     label: T.SUPPORT_TICKETS,
@@ -90,6 +111,7 @@ export const ADMIN_NAV: NavItem[] = [
     icon: <NavSupportTicketIcon />,
     section: T.SUPPORT_SECTION,
     sectionKey: "nav.support",
+    requiredRoles: PLATFORM_OPERATIONS_ROLES,
   },
 ];
 

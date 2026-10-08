@@ -20,6 +20,7 @@ import {
 } from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
 import { CURRENT_USER_QUERY_KEY } from "./constants";
+import { normalizeSessionRoles } from "@pte/ui";
 
 export function useLoginAdmin(): UseMutationResult<JwtTokenResponse, unknown, AdminLoginRequest> {
   return useMutation({
@@ -48,6 +49,10 @@ export function useCurrentUser(): UseQueryResult<CurrentUser> {
   return useQuery({
     queryKey: CURRENT_USER_QUERY_KEY,
     queryFn: () => getCurrentUser(apiClient),
+    select: (user) => ({
+      ...user,
+      roles: normalizeSessionRoles(user.roles),
+    }),
     retry: false,
   });
 }

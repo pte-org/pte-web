@@ -24,6 +24,7 @@ import {
 } from "@pte/ui";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
 import { useCurrentUser } from "@/features/auth/api";
+import { canReviewAcademic } from "@/features/auth/permissions";
 import {
   useApproveScoreTemplate,
   useCloneScoreTemplate,
@@ -68,7 +69,7 @@ export const ScoreTemplateListView = (): ReactElement => {
   const approveMutation = useApproveScoreTemplate();
   const rejectMutation = useRejectScoreTemplate();
   const { data: currentUser } = useCurrentUser();
-  const isPlatformAdmin = currentUser?.roles.includes("PLATFORM_ADMIN") ?? false;
+  const canReview = canReviewAcademic(currentUser?.roles);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [createCode, setCreateCode] = useState("");
   const [createName, setCreateName] = useState("");
@@ -192,7 +193,7 @@ export const ScoreTemplateListView = (): ReactElement => {
       });
     }
 
-    if (template.status === "PENDING_APPROVAL" && isPlatformAdmin) {
+    if (template.status === "PENDING_APPROVAL" && canReview) {
       actions.push({
         label: SCORE_TEMPLATE_TEXT.APPROVE_ACTION,
         icon: CheckCircleIcon,

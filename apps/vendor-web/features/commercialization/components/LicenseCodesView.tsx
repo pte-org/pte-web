@@ -47,6 +47,7 @@ import {
 import { LICENSE_CODES_TEXT as T } from "../constants";
 import { CommercialPanel } from "./CommercialPanel";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
+import { isPlatformAdmin } from "@/features/auth/permissions";
 
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_REVEAL_MS = 60_000;
@@ -110,6 +111,7 @@ const safeOperationMessage = (error: unknown, fallback: string): string =>
 
 export const LicenseCodesView = (): ReactElement => {
   const { session, isReady } = useSessionManager();
+  const canUseSensitiveActions = isPlatformAdmin(session?.roles);
   const actorId = session ? decodeAccessTokenClaims(session.accessToken)?.sub : undefined;
   const recoveryKey = actorId ? `pte-license-issue:${actorId}` : null;
   const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -511,8 +513,10 @@ export const LicenseCodesView = (): ReactElement => {
           rowActions={(row) => (
             <ActionMenu
               items={[
-                { label: T.REVEAL, icon: EyeIcon, onSelect: () => void revealCode(row) },
-                ...((row.effectiveStatus === "ISSUED" || (row.effectiveStatus === "REDEEMED" && row.subscriptionPublicId !== null))
+                ...(canUseSensitiveActions
+                  ? [{ label: T.REVEAL, icon: EyeIcon, onSelect: () => void revealCode(row) }]
+                  : []),
+                ...(canUseSensitiveActions && (row.effectiveStatus === "ISSUED" || (row.effectiveStatus === "REDEEMED" && row.subscriptionPublicId !== null))
                   ? [{ label: T.REVOKE, icon: BanIcon, danger: true, onSelect: () => beginRevoke(row) }]
                   : []),
               ]}

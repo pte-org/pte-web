@@ -1,3 +1,5 @@
+import { RequireAuth } from "@/features/auth/components";
+import { ACADEMIC_ROLES } from "@/features/auth/constants";
 import { QuestionDetailView } from "@/features/questionbank/components";
 
 interface QuestionDetailPageProps {
@@ -7,5 +9,9 @@ interface QuestionDetailPageProps {
 export default async function QuestionDetailPage({ params }: QuestionDetailPageProps) {
   const { publicId } = await params;
 
-  return <QuestionDetailView publicId={publicId} />;
+  return (
+    <RequireAuth allowedRoles={ACADEMIC_ROLES}>
+      <QuestionDetailView publicId={publicId} />
+    </RequireAuth>
+  );
 }

@@ -1,5 +1,5 @@
 import { RequireAuth } from "@/features/auth/components";
-import { PLATFORM_ADMIN_ONLY } from "@/features/auth/constants";
+import { PLATFORM_OPERATIONS_ROLES } from "@/features/auth/constants";
 import { AnnouncementDetailView } from "@/features/notifications/components/AnnouncementDetailView";
 
 export default async function AdminAnnouncementDetailPage({
@@ -9,7 +9,7 @@ export default async function AdminAnnouncementDetailPage({
 }) {
   const { publicId } = await params;
   return (
-    <RequireAuth allowedRoles={PLATFORM_ADMIN_ONLY}>
+    <RequireAuth allowedRoles={PLATFORM_OPERATIONS_ROLES}>
       <AnnouncementDetailView publicId={publicId} />
     </RequireAuth>
   );

@@ -21,6 +21,8 @@ import { useReactivateTenant, useSuspendTenant, useTenants } from "../api";
 import { useCreateTenantFlow } from "../hooks/useCreateTenantFlow";
 import type { Tenant, TenantFilter } from "../types";
 import { useGrantQuota } from "../../licensing/api";
+import { useCurrentUser } from "@/features/auth/api";
+import { isPlatformAdmin } from "@/features/auth/permissions";
 import { GrantQuotaModal } from "../../licensing/components/GrantQuotaModal";
 import { QuotaHistoryModal } from "../../licensing/components/QuotaHistoryModal";
 import { GRANT_QUOTA_TEXT } from "../../licensing/constants";
@@ -45,6 +47,8 @@ function lifecycleErrorMessage(error: unknown): string | undefined {
 }
 
 export const TenantManagementView = (): ReactElement => {
+  const { data: currentUser } = useCurrentUser();
+  const canManageQuota = isPlatformAdmin(currentUser?.roles);
   const { data: tenants, isLoading } = useTenants();
   const suspend = useSuspendTenant();
   const reactivate = useReactivateTenant();
@@ -158,8 +162,8 @@ export const TenantManagementView = (): ReactElement => {
             tenants={visibleTenants}
             onSuspend={setSuspendTarget}
             onReactivate={confirmReactivate}
-            onGrantQuota={setGrantTarget}
-            onViewQuotaHistory={setHistoryTarget}
+            onGrantQuota={canManageQuota ? setGrantTarget : undefined}
+            onViewQuotaHistory={canManageQuota ? setHistoryTarget : undefined}
           />
         </MotionReveal>
       ) : (

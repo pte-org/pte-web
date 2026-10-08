@@ -18,6 +18,7 @@ import {
   type SessionRole,
 } from "@pte/ui";
 import { NotificationBellContainer } from "@/features/notifications";
+import { hasAnyRole, roleLabel } from "../permissions";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
 import { AUTH_ROUTES } from "../constants";
@@ -29,7 +30,7 @@ export interface NavItem {
   icon?: ReactNode;
   section?: string;
   sectionKey?: string;
-  requiredRoles?: SessionRole[];
+  requiredRoles?: readonly SessionRole[];
 }
 
 interface DashboardChromeProps {
@@ -37,11 +38,11 @@ interface DashboardChromeProps {
   children: ReactNode;
   /**
    * Required, not defaulted — `DashboardChrome` is the shared shell for
-   * BOTH `/admin/*` (platform-admin-only) and `/host` (host-admin-only)
+   * BOTH `/admin/*` (platform-role-only) and `/host` (host-admin-only)
    * pages. A default would silently lock every caller to the same role
    * set instead of forcing each call site to say explicitly who's allowed.
    */
-  allowedRoles: SessionRole[];
+  allowedRoles: readonly SessionRole[];
 }
 
 const BRAND_NAME = "PTE Prep";
@@ -81,7 +82,7 @@ const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
   const { data: user } = useCurrentUser();
   const { t } = useLocale();
   const visibleItems = navItems.filter(
-    (item) => !item.requiredRoles || item.requiredRoles.some((role) => user?.roles.includes(role)),
+    (item) => !item.requiredRoles || hasAnyRole(user?.roles, item.requiredRoles),
   );
   return (
     <>
@@ -134,7 +135,14 @@ const HeaderActions = (): ReactElement => {
         <Dropdown
           label={user?.fullName ?? t("common.account", HEADER_TEXT.ACCOUNT)}
           trigger={<Avatar name={user?.fullName} />}
-          items={[{ label: t("common.logout", HEADER_TEXT.LOGOUT), onSelect: logout }]}
+          items={[
+            ...(user?.roles.map((role) => ({
+              label: roleLabel(role),
+              disabled: true,
+              onSelect: () => undefined,
+            })) ?? []),
+            { label: t("common.logout", HEADER_TEXT.LOGOUT), onSelect: logout },
+          ]}
         />
       )}
     </>

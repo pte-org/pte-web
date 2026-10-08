@@ -26,8 +26,8 @@ interface TenantTableProps {
   tenants: Tenant[];
   onSuspend: (tenant: Tenant) => void;
   onReactivate: (tenant: Tenant) => void;
-  onGrantQuota: (tenant: Tenant) => void;
-  onViewQuotaHistory: (tenant: Tenant) => void;
+  onGrantQuota?: (tenant: Tenant) => void;
+  onViewQuotaHistory?: (tenant: Tenant) => void;
 }
 
 const organizationTypeLabel = (value: string): string =>
@@ -101,16 +101,20 @@ export const TenantTable = ({
                 icon: EyeIcon,
                 onSelect: () => router.push(`/admin/tenants/${tenant.id}`),
               },
-              {
-                label: TENANCY_TEXT.ACTION_GRANT_QUOTA,
-                icon: LicenseIcon,
-                onSelect: () => onGrantQuota(tenant),
-              },
-              {
-                label: TENANCY_TEXT.ACTION_VIEW_QUOTA_HISTORY,
-                icon: LicenseIcon,
-                onSelect: () => onViewQuotaHistory(tenant),
-              },
+              ...(onGrantQuota
+                ? [{
+                    label: TENANCY_TEXT.ACTION_GRANT_QUOTA,
+                    icon: LicenseIcon,
+                    onSelect: () => onGrantQuota(tenant),
+                  }]
+                : []),
+              ...(onViewQuotaHistory
+                ? [{
+                    label: TENANCY_TEXT.ACTION_VIEW_QUOTA_HISTORY,
+                    icon: LicenseIcon,
+                    onSelect: () => onViewQuotaHistory(tenant),
+                  }]
+                : []),
               isSuspended
                 ? {
                     label: TENANCY_TEXT.ACTION_REACTIVATE,

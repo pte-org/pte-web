@@ -1,3 +1,5 @@
+import { RequireAuth } from "@/features/auth/components";
+import { ACADEMIC_ROLES } from "@/features/auth/constants";
 import { EditQuestionView } from "@/features/questionbank/components";
 
 interface EditQuestionPageProps {
@@ -6,5 +8,9 @@ interface EditQuestionPageProps {
 
 export default async function EditQuestionPage({ params }: EditQuestionPageProps) {
   const { publicId } = await params;
-  return <EditQuestionView publicId={publicId} />;
+  return (
+    <RequireAuth allowedRoles={ACADEMIC_ROLES}>
+      <EditQuestionView publicId={publicId} />
+    </RequireAuth>
+  );
 }

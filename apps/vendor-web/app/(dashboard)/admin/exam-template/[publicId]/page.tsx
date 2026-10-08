@@ -1,3 +1,5 @@
+import { RequireAuth } from "@/features/auth/components";
+import { ACADEMIC_ROLES } from "@/features/auth/constants";
 import { ScoreTemplateDetailView } from "@/features/scoretemplate/components";
 
 interface ExamTemplateDetailPageProps {
@@ -9,5 +11,9 @@ export default async function ExamTemplateDetailPage({
 }: ExamTemplateDetailPageProps) {
   const { publicId } = await params;
 
-  return <ScoreTemplateDetailView publicId={publicId} />;
+  return (
+    <RequireAuth allowedRoles={ACADEMIC_ROLES}>
+      <ScoreTemplateDetailView publicId={publicId} />
+    </RequireAuth>
+  );
 }

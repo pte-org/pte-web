@@ -1,3 +1,5 @@
+import { RequireAuth } from "@/features/auth/components";
+import { PLATFORM_OPERATIONS_ROLES } from "@/features/auth/constants";
 import { AdminApplicationDetailView } from "@/features/commercialization/components";
 
 interface AdminApplicationDetailPageProps {
@@ -9,5 +11,9 @@ export default async function AdminApplicationDetailPage({
 }: AdminApplicationDetailPageProps) {
   const { applicationId } = await params;
 
-  return <AdminApplicationDetailView applicationId={applicationId} />;
+  return (
+    <RequireAuth allowedRoles={PLATFORM_OPERATIONS_ROLES}>
+      <AdminApplicationDetailView applicationId={applicationId} />
+    </RequireAuth>
+  );
 }

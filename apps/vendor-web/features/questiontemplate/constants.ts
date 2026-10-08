@@ -8,6 +8,8 @@ export const QUESTION_TYPE_TEXT = {
   CREATE: "Create task type",
   EDIT: "Edit",
   DELETE: "Delete",
+  SUBMIT_APPROVAL: "Submit for approval",
+  APPROVE: "Approve and activate",
   CREATE_TITLE: "Create task type",
   SAVE: "Save changes",
   CANCEL: "Cancel",
@@ -21,6 +23,9 @@ export const QUESTION_TYPE_TEXT = {
   CREATE_ERROR: "Could not add this task type. Check the key, display name, and selected screen.",
   SAVE_ERROR: "Could not update this task type. Please try again.",
   DELETE_ERROR: "Could not remove this task type. Please try again.",
+  WORKFLOW_ERROR: "Could not update the task type workflow. Please try again.",
+  SUBMIT_SUCCESS: "Task type submitted for academic review.",
+  APPROVE_SUCCESS: "Task type approved and activated.",
   DELETE_CONFIRM:
     "Remove this task type from the active catalog? Existing questions remain available, but new questions and templates cannot use it.",
   TABLE_QUESTION_TYPE: "Task type",

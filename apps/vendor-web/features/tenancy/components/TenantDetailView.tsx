@@ -13,6 +13,8 @@ import {
   useLocale,
 } from "@pte/ui";
 import { AppBackButton } from "@/features/navigation/components/AppBackButton";
+import { useCurrentUser } from "@/features/auth/api";
+import { isPlatformAdmin } from "@/features/auth/permissions";
 import {
   CREATE_LOGIN_ACCOUNT_TEXT,
   CREATE_TENANT_CONFLICT_TEXT,
@@ -81,10 +83,12 @@ interface TenantDetailViewProps {
 }
 
 export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): ReactElement => {
+  const { data: currentUser } = useCurrentUser();
+  const canManageTenantAccount = isPlatformAdmin(currentUser?.roles);
   const tenantQuery = useTenant(tenantPublicId);
   const { data: tenant, isLoading } = tenantQuery;
-  const { data: organizations } = useOrganizations(tenantPublicId);
-  const loginAccountQuery = useLoginAccount(tenantPublicId);
+  const { data: organizations } = useOrganizations(tenantPublicId, canManageTenantAccount);
+  const loginAccountQuery = useLoginAccount(tenantPublicId, canManageTenantAccount);
   const loginAccount = loginAccountQuery.data?.account ?? null;
   const isAmbiguousLoginAccount = loginAccountQuery.data?.ambiguous ?? false;
   const updateBranding = useUpdateBranding(tenantPublicId);
@@ -176,8 +180,12 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
         onChange={setActiveSection}
         items={[
           { id: "summary", label: t("tenant.tabs.summary", "Summary") },
-          { id: "account", label: t("tenant.tabs.account", "Login account") },
-          { id: "organizations", label: t("tenant.tabs.organizations", "Organizations") },
+          ...(canManageTenantAccount
+            ? [
+                { id: "account", label: t("tenant.tabs.account", "Login account") },
+                { id: "organizations", label: t("tenant.tabs.organizations", "Organizations") },
+              ]
+            : []),
         ]}
       />
 

@@ -1,11 +1,11 @@
 import { RequireAuth } from "@/features/auth/components";
 import { PLATFORM_ADMIN_ONLY } from "@/features/auth/constants";
-import { PlatformSettingsView } from "@/features/commercialization/components";
+import { PlatformUsersView } from "@/features/platformUsers/components";
 
-export default function AdminSettingsPage() {
+export default function PlatformUsersPage() {
   return (
     <RequireAuth allowedRoles={PLATFORM_ADMIN_ONLY}>
-      <PlatformSettingsView />
+      <PlatformUsersView />
     </RequireAuth>
   );
 }
