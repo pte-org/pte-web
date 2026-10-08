@@ -1,19 +1,32 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Badge, Button, DashboardCard, useLocale } from "@pte/ui";
+import { Alert, Badge, Button, DashboardCard, useLocale } from "@pte/ui";
 import {
   EXAM_MODE_LABELS,
   EXAM_SKILL_OPTIONS,
   SESSION_DETAIL_TEXT,
-  SESSION_STATUS_LABELS,
   SESSION_STATUS_VARIANT,
 } from "../constants";
 import type { ExamSession } from "../types";
 import { getExamPolicyLabel } from "../utils/examPolicy";
 
+export interface ExamOverviewLifecycle {
+  lifecycleError: string | undefined;
+  onOpen: () => void;
+  onClose: () => void;
+  onCancel: () => void;
+  canOpen: boolean;
+  canClose: boolean;
+  canCancel: boolean;
+  openPending: boolean;
+  closePending: boolean;
+  cancelPending: boolean;
+}
+
 interface ExamOverviewTabProps {
   session: ExamSession;
+  lifecycle: ExamOverviewLifecycle;
 }
 
 const T = SESSION_DETAIL_TEXT;
@@ -27,7 +40,7 @@ function formatDateTime(value: string, locale: "vi" | "en"): string {
   }).format(date);
 }
 
-export const ExamOverviewTab = ({ session }: ExamOverviewTabProps): ReactElement => {
+export const ExamOverviewTab = ({ session, lifecycle }: ExamOverviewTabProps): ReactElement => {
   const { locale, t } = useLocale();
   const [copyState, setCopyState] = useState<"copied" | "failed" | null>(null);
 
@@ -44,9 +57,13 @@ export const ExamOverviewTab = ({ session }: ExamOverviewTabProps): ReactElement
   const skillsLabel =
     session.selectedSkills.length > 0
       ? session.selectedSkills
-          .map((skill) => EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label ?? skill)
+          .map(
+            (skill) => EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label ?? skill,
+          )
           .join(", ")
       : T.LEGACY_SKILLS;
+  const statusLabel = t(`tenant.examStatus.${session.status.toLowerCase()}`, session.status);
+  const hasLifecycleActions = lifecycle.canOpen || lifecycle.canClose || lifecycle.canCancel;
 
   return (
     <div className="flex flex-col gap-5">
@@ -81,14 +98,12 @@ export const ExamOverviewTab = ({ session }: ExamOverviewTabProps): ReactElement
           <div className="flex items-start justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">
-                {t("tenant.examTabs.overview", "Overview")}
+                {t("tenant.examOverview.status", "Status")}
               </p>
               <p className="mt-2 text-sm text-[var(--ink-secondary)]">{T.MODE_LABEL}</p>
               <p className="mt-1 text-base font-semibold text-[var(--ink-primary)]">{modeLabel}</p>
             </div>
-            <Badge variant={SESSION_STATUS_VARIANT[session.status]}>
-              {SESSION_STATUS_LABELS[session.status]}
-            </Badge>
+            <Badge variant={SESSION_STATUS_VARIANT[session.status]}>{statusLabel}</Badge>
           </div>
           <div className="mt-4 border-t border-[var(--divider)] pt-4">
             <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">
@@ -102,6 +117,48 @@ export const ExamOverviewTab = ({ session }: ExamOverviewTabProps): ReactElement
           </div>
         </DashboardCard>
       </div>
+
+      {(hasLifecycleActions || lifecycle.lifecycleError) && (
+        <DashboardCard className="motion-safe:animate-pte-fade-up">
+          <div className="flex flex-wrap items-center gap-3">
+            {lifecycle.canOpen && (
+              <Button
+                size="sm"
+                variant="primary"
+                onClick={lifecycle.onOpen}
+                isLoading={lifecycle.openPending}
+              >
+                {t("tenant.examOverview.open", "Open exam")}
+              </Button>
+            )}
+            {lifecycle.canClose && (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={lifecycle.onClose}
+                isLoading={lifecycle.closePending}
+              >
+                {t("tenant.examOverview.close", "Close exam")}
+              </Button>
+            )}
+            {lifecycle.canCancel && (
+              <Button
+                size="sm"
+                variant="danger"
+                onClick={lifecycle.onCancel}
+                isLoading={lifecycle.cancelPending}
+              >
+                {t("tenant.examOverview.cancel", "Cancel exam")}
+              </Button>
+            )}
+          </div>
+          {lifecycle.lifecycleError && (
+            <div role="alert" className="mt-3">
+              <Alert tone="error">{lifecycle.lifecycleError}</Alert>
+            </div>
+          )}
+        </DashboardCard>
+      )}
 
       <DashboardCard className="motion-safe:animate-pte-fade-up">
         <dl className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -123,7 +180,9 @@ export const ExamOverviewTab = ({ session }: ExamOverviewTabProps): ReactElement
             <dt className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">
               {t("tenant.examDetails.capacity", "Capacity")}
             </dt>
-            <dd className="mt-2 text-sm font-medium text-[var(--ink-primary)]">{session.capacity}</dd>
+            <dd className="mt-2 text-sm font-medium text-[var(--ink-primary)]">
+              {session.capacity}
+            </dd>
           </div>
           <div>
             <dt className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">

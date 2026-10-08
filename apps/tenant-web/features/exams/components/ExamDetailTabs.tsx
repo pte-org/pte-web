@@ -9,16 +9,19 @@ import {
 } from "@/features/examoperations/components";
 import type { ExamSession } from "../types";
 import { ExaminerTab } from "./ExaminerTab";
-import { ExamOverviewTab } from "./ExamOverviewTab";
+import { ExamOverviewTab, type ExamOverviewLifecycle } from "./ExamOverviewTab";
 import { ExamParticipantsTab } from "./ExamParticipantsTab";
+import { ExamQuestionsTab } from "./ExamQuestionsTab";
 import { ExamResultsTab } from "./ExamResultsTab";
 import { ExamSettingsTab } from "./ExamSettingsTab";
 import { ExamSubmissionsTab } from "./ExamSubmissionsTab";
 
-type ExamDetailTab = "overview" | "settings" | "participants" | "submissions" | "examiner" | "results";
+type ExamDetailTab =
+  "overview" | "questions" | "settings" | "participants" | "submissions" | "examiner" | "results";
 
 const TAB_IDS: readonly ExamDetailTab[] = [
   "overview",
+  "questions",
   "settings",
   "participants",
   "submissions",
@@ -29,6 +32,7 @@ const TAB_IDS: readonly ExamDetailTab[] = [
 interface ExamDetailTabsProps {
   session: ExamSession;
   sessionPublicId: string;
+  lifecycle: ExamOverviewLifecycle;
 }
 
 const isExamDetailTab = (value: string | null): value is ExamDetailTab =>
@@ -43,18 +47,20 @@ const readTabFromLocation = (): ExamDetailTab => {
   return parseTab(value);
 };
 
-export const ExamDetailTabs = ({ session, sessionPublicId }: ExamDetailTabsProps): ReactElement => {
-  const { t } = useLocale();
+export const ExamDetailTabs = ({
+  session,
+  sessionPublicId,
+  lifecycle,
+}: ExamDetailTabsProps): ReactElement => {
+  const { locale, t } = useLocale();
   const searchParams = useSearchParams();
   const initialTab = parseTab(searchParams.get("tab"));
   const [activeTab, setActiveTab] = useState<ExamDetailTab>(initialTab);
-  const [visitedTabs, setVisitedTabs] = useState<Set<ExamDetailTab>>(
-    () => new Set([initialTab]),
-  );
+  const [visitedTabs, setVisitedTabs] = useState<Set<ExamDetailTab>>(() => new Set([initialTab]));
   const [studentAssignmentOpen, setStudentAssignmentOpen] = useState(false);
   const [studentImportOpen, setStudentImportOpen] = useState(false);
 
-  const selectTab = useCallback((nextTab: ExamDetailTab): void => {
+  const activateTab = useCallback((nextTab: ExamDetailTab): void => {
     setActiveTab(nextTab);
     setStudentAssignmentOpen(false);
     setStudentImportOpen(false);
@@ -62,38 +68,49 @@ export const ExamDetailTabs = ({ session, sessionPublicId }: ExamDetailTabsProps
       if (current.has(nextTab)) return current;
       return new Set(current).add(nextTab);
     });
-
-    if (typeof window === "undefined") return;
-    const url = new URL(window.location.href);
-    if (nextTab === "overview") {
-      url.searchParams.delete("tab");
-    } else {
-      url.searchParams.set("tab", nextTab);
-    }
-    const nextUrl = `${url.pathname}${url.search}${url.hash}`;
-    const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-    if (nextUrl !== currentUrl) window.history.pushState(window.history.state, "", nextUrl);
   }, []);
+
+  const selectTab = useCallback(
+    (nextTab: ExamDetailTab): void => {
+      activateTab(nextTab);
+
+      if (typeof window === "undefined") return;
+      const url = new URL(window.location.href);
+      if (nextTab === "overview") {
+        url.searchParams.delete("tab");
+      } else {
+        url.searchParams.set("tab", nextTab);
+      }
+      const nextUrl = url.pathname + url.search + url.hash;
+      const currentUrl = window.location.pathname + window.location.search + window.location.hash;
+      if (nextUrl !== currentUrl) window.history.pushState(window.history.state, "", nextUrl);
+    },
+    [activateTab],
+  );
 
   useEffect(() => {
     const syncTabFromLocation = (): void => {
-      selectTab(readTabFromLocation());
+      activateTab(readTabFromLocation());
     };
     syncTabFromLocation();
     window.addEventListener("popstate", syncTabFromLocation);
     return () => window.removeEventListener("popstate", syncTabFromLocation);
-  }, [selectTab]);
+  }, [activateTab]);
 
   const keepPanelMounted = (tab: ExamDetailTab): boolean =>
     tab === "overview" ||
-    (visitedTabs.has(tab) && (tab === "submissions" || tab === "examiner"));
+    (visitedTabs.has(tab) && (tab === "questions" || tab === "submissions" || tab === "examiner"));
 
   const items: TabItem[] = [
     { id: "overview", label: t("tenant.examTabs.overview", "Overview") },
+    { id: "questions", label: t("tenant.examTabs.questions", "Questions") },
     { id: "settings", label: t("tenant.examTabs.settings", "Exam settings") },
     { id: "participants", label: t("tenant.examTabs.participants", "Participants & proctors") },
     { id: "submissions", label: t("tenant.examTabs.submissions", "Submissions") },
-    { id: "examiner", label: t("tenant.examTabs.examiner", "Examiner") },
+    {
+      id: "examiner",
+      label: locale === "vi" ? "Phân công chấm điểm" : t("tenant.examTabs.examiner", "Examiner"),
+    },
     { id: "results", label: t("tenant.examTabs.results", "Results & publication") },
   ];
 
@@ -116,7 +133,16 @@ export const ExamDetailTabs = ({ session, sessionPublicId }: ExamDetailTabsProps
         keepMounted={keepPanelMounted("overview")}
         className="mt-5"
       >
-        <ExamOverviewTab session={session} />
+        <ExamOverviewTab session={session} lifecycle={lifecycle} />
+      </TabPanel>
+      <TabPanel
+        id="exam-detail-tabs-panel-questions"
+        labelledBy="exam-detail-tabs-tab-questions"
+        active={activeTab === "questions"}
+        keepMounted={keepPanelMounted("questions")}
+        className="mt-5 min-w-0"
+      >
+        <ExamQuestionsTab session={session} sessionPublicId={sessionPublicId} />
       </TabPanel>
       <TabPanel
         id="exam-detail-tabs-panel-settings"
