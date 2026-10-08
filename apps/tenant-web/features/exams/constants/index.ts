@@ -78,10 +78,10 @@ export const CREATE_SESSION_TEXT = {
 
 export const CREATE_EXAM_WIZARD_TEXT = {
   TITLE: "Create exam",
-  STEP_DETAILS: "1. Exam details",
-  STEP_SCHEDULE_POLICY: "2. Schedule & policy",
-  STEP_AUDIENCE: "3. Audience",
-  STEP_REVIEW: "4. Review & create",
+  STEP_DETAILS: "Exam details",
+  STEP_SCHEDULE_POLICY: "Schedule & policy",
+  STEP_AUDIENCE: "Audience",
+  STEP_REVIEW: "Review & create",
   NAME_LABEL: "Exam name",
   NAME_PLACEHOLDER: "e.g. Semester 1 mock exam",
   TEMPLATE_LABEL: "Exam template",
