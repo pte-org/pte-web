@@ -23,3 +23,8 @@ export const STUDENT_NAV_TEXT = {
   RESULTS: "My results",
   SECTION: "Student",
 } as const;
+
+export const PROCTOR_NAV_TEXT = {
+  PROFILE: "Profile",
+  SECTION: "Proctor",
+} as const;
