@@ -78,8 +78,10 @@ export const CREATE_SESSION_TEXT = {
 
 export const CREATE_EXAM_WIZARD_TEXT = {
   TITLE: "Create exam",
-  STEP_BASIC: "1. Exam details",
-  STEP_AUDIENCE: "2. Audience and generation",
+  STEP_DETAILS: "1. Exam details",
+  STEP_SCHEDULE_POLICY: "2. Schedule & policy",
+  STEP_AUDIENCE: "3. Audience",
+  STEP_REVIEW: "4. Review & create",
   NAME_LABEL: "Exam name",
   NAME_PLACEHOLDER: "e.g. Semester 1 mock exam",
   TEMPLATE_LABEL: "Exam template",
@@ -129,7 +131,8 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   TEMPLATE_READY: "The template has enough published questions.",
   TEMPLATE_NOT_READY: "The question bank does not yet have enough questions for this template.",
   BACK: "Back",
-  NEXT: "Review audience",
+  NEXT: "Continue",
+  REVIEW_AND_CREATE: "Review & create",
   CANCEL: "Cancel",
   SUBMIT: "Generate and publish",
   SUBMITTING: "Preparing exam...",

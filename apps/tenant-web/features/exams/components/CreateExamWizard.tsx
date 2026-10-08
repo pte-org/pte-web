@@ -39,6 +39,7 @@ interface CreateExamWizardProps {
 }
 
 const FORM_ID = "create-exam-workflow-form";
+type CreateExamStep = 1 | 2 | 3 | 4;
 
 function getTemplateSkills(items?: ScoreTemplateResponse["items"]): ExamSkill[] {
   return EXAM_SKILL_OPTIONS.filter((option) =>
@@ -74,7 +75,7 @@ export const CreateExamWizard = ({
   error,
   isSubmitting = false,
 }: CreateExamWizardProps): ReactElement => {
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<CreateExamStep>(1);
   const [form, setForm] = useState<CreateExamWorkflowInput>(() => emptyForm(activeTemplate));
   const [errors, setErrors] = useState<CreateExamWorkflowErrors>({});
   const [sourceType, setSourceType] = useState<AudienceSourceRequest["sourceType"]>("STUDENT");
@@ -240,8 +241,40 @@ export const CreateExamWizard = ({
     return Object.keys(nextErrors).length === 0;
   };
 
-  const goToReview = (): void => {
-    if (validate(false)) setStep(2);
+  const validateStep = (currentStep: Exclude<CreateExamStep, 4>): boolean => {
+    const allErrors = validateCreateExamWorkflow(
+      effectiveForm,
+      undefined,
+      currentStep === 3,
+      templateSkills,
+      currentStep === 3,
+    );
+    const fields: ReadonlyArray<keyof CreateExamWorkflowErrors> =
+      currentStep === 1
+        ? ["name", "templatePublicId", "subscriptionPublicId", "capacity", "selectedSkills"]
+        : currentStep === 2
+          ? ["opensAt", "closesAt", "maxRetriesPerStudent", "seriesKey"]
+          : ["sources"];
+    const nextErrors: CreateExamWorkflowErrors = {};
+    fields.forEach((field) => {
+      const message = allErrors[field];
+      if (message) nextErrors[field] = message;
+    });
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const goToNextStep = (): void => {
+    if (step === 4 || !validateStep(step)) return;
+    setStep((currentStep) =>
+      currentStep < 4 ? ((currentStep + 1) as CreateExamStep) : currentStep,
+    );
+  };
+
+  const goToPreviousStep = (): void => {
+    setStep((currentStep) =>
+      currentStep > 1 ? ((currentStep - 1) as CreateExamStep) : currentStep,
+    );
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
@@ -254,30 +287,33 @@ export const CreateExamWizard = ({
       open={open}
       onClose={onClose}
       title={CREATE_EXAM_WIZARD_TEXT.TITLE}
-      size="xl"
+      size="full"
+      stickyFooter
       footer={
         <>
           <button
             type="button"
-            onClick={step === 1 ? onClose : () => setStep(1)}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            onClick={step === 1 ? onClose : goToPreviousStep}
+            className="rounded-lg border border-[var(--shell-border)] px-4 py-2 text-sm font-medium text-[var(--ink-primary)] transition-colors hover:bg-[var(--surface-subtle)]"
           >
             {step === 1 ? CREATE_EXAM_WIZARD_TEXT.CANCEL : CREATE_EXAM_WIZARD_TEXT.BACK}
           </button>
-          {step === 1 ? (
+          {step < 4 ? (
             <button
               type="button"
-              onClick={goToReview}
-              className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover"
+              onClick={goToNextStep}
+              className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-[var(--action-foreground)] transition-colors hover:bg-action-hover"
             >
-              {CREATE_EXAM_WIZARD_TEXT.NEXT}
+              {step === 3
+                ? CREATE_EXAM_WIZARD_TEXT.REVIEW_AND_CREATE
+                : CREATE_EXAM_WIZARD_TEXT.NEXT}
             </button>
           ) : (
             <button
               type="submit"
               form={FORM_ID}
               disabled={isSubmitting}
-              className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
+              className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-[var(--action-foreground)] transition-colors hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isSubmitting ? CREATE_EXAM_WIZARD_TEXT.SUBMITTING : CREATE_EXAM_WIZARD_TEXT.SUBMIT}
             </button>
@@ -288,16 +324,18 @@ export const CreateExamWizard = ({
       <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <Stepper
           steps={[
-            { id: "setup", label: CREATE_EXAM_WIZARD_TEXT.STEP_BASIC },
-            { id: "review", label: CREATE_EXAM_WIZARD_TEXT.REVIEW_TITLE },
+            { id: "details", label: CREATE_EXAM_WIZARD_TEXT.STEP_DETAILS },
+            { id: "schedule", label: CREATE_EXAM_WIZARD_TEXT.STEP_SCHEDULE_POLICY },
+            { id: "audience", label: CREATE_EXAM_WIZARD_TEXT.STEP_AUDIENCE },
+            { id: "review", label: CREATE_EXAM_WIZARD_TEXT.STEP_REVIEW },
           ]}
-          currentStep={step === 1 ? "setup" : "review"}
+          currentStep={["details", "schedule", "audience", "review"][step - 1]}
         />
         {submitMessage && <Alert tone="error">{submitMessage}</Alert>}
         {step === 1 ? (
           <>
-            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              {CREATE_EXAM_WIZARD_TEXT.STEP_BASIC}
+            <div className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)]">
+              {CREATE_EXAM_WIZARD_TEXT.STEP_DETAILS}
             </div>
             <Input
               label={CREATE_EXAM_WIZARD_TEXT.NAME_LABEL}
@@ -341,24 +379,10 @@ export const CreateExamWizard = ({
                 error={errors.capacity}
                 onChange={(event) => update("capacity", event.target.value)}
               />
-              <Input
-                type="datetime-local"
-                label={CREATE_EXAM_WIZARD_TEXT.OPENS_AT_LABEL}
-                value={form.opensAt}
-                error={errors.opensAt}
-                onChange={(event) => update("opensAt", event.target.value)}
-              />
-              <Input
-                type="datetime-local"
-                label={CREATE_EXAM_WIZARD_TEXT.CLOSES_AT_LABEL}
-                value={form.closesAt}
-                error={errors.closesAt}
-                onChange={(event) => update("closesAt", event.target.value)}
-              />
             </div>
             {form.examMode === "PRACTICE" ? (
-              <fieldset className="rounded-md border border-gray-200 p-4">
-                <legend className="px-1 text-sm font-medium text-gray-700">
+              <fieldset className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5">
+                <legend className="px-1 text-sm font-medium text-[var(--ink-primary)]">
                   {CREATE_EXAM_WIZARD_TEXT.SKILLS_LABEL}
                 </legend>
                 <div className="flex flex-wrap gap-x-6 gap-y-3">
@@ -370,7 +394,9 @@ export const CreateExamWizard = ({
                       <label
                         key={option.value}
                         className={`flex items-center gap-2 text-sm ${
-                          isAvailable ? "text-gray-700" : "text-gray-400"
+                          isAvailable
+                            ? "text-[var(--ink-primary)]"
+                            : "text-[var(--ink-muted)]"
                         }`}
                       >
                         <input
@@ -396,15 +422,15 @@ export const CreateExamWizard = ({
                   })}
                 </div>
                 {errors.selectedSkills && (
-                  <p className="mt-2 text-sm text-red-600">{errors.selectedSkills}</p>
+                  <p className="mt-2 text-sm text-[var(--blush-action)]">{errors.selectedSkills}</p>
                 )}
               </fieldset>
             ) : (
-              <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
-                <div className="text-sm font-medium text-gray-700">
+              <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-5">
+                <div className="text-sm font-medium text-[var(--ink-primary)]">
                   {CREATE_EXAM_WIZARD_TEXT.FULL_TEMPLATE_SCOPE}
                 </div>
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-1 text-sm text-[var(--ink-secondary)]">
                   {templateSkills
                     .map((skill) => EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label)
                     .filter(Boolean)
@@ -412,9 +438,43 @@ export const CreateExamWizard = ({
                 </p>
               </div>
             )}
+          </>
+        ) : step === 2 ? (
+          <>
+            <div className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)]">
+              {CREATE_EXAM_WIZARD_TEXT.STEP_SCHEDULE_POLICY}
+            </div>
+            <div className="grid gap-4 rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5 sm:grid-cols-2">
+              <Input
+                type="datetime-local"
+                label={CREATE_EXAM_WIZARD_TEXT.OPENS_AT_LABEL}
+                value={form.opensAt}
+                error={errors.opensAt}
+                onChange={(event) => update("opensAt", event.target.value)}
+              />
+              <Input
+                type="datetime-local"
+                label={CREATE_EXAM_WIZARD_TEXT.CLOSES_AT_LABEL}
+                value={form.closesAt}
+                error={errors.closesAt}
+                onChange={(event) => update("closesAt", event.target.value)}
+              />
+              {form.examMode === "PRACTICE" && (
+                <Input
+                  type="number"
+                  min={0}
+                  max={9}
+                  step={1}
+                  label={CREATE_EXAM_WIZARD_TEXT.RETRIES_LABEL}
+                  value={form.maxRetriesPerStudent}
+                  error={errors.maxRetriesPerStudent}
+                  onChange={(event) => update("maxRetriesPerStudent", event.target.value)}
+                />
+              )}
+            </div>
             {form.examMode === "PRACTICE" && (
-              <fieldset className="rounded-md border border-gray-200 p-4">
-                <legend className="px-1 text-sm font-medium text-gray-700">
+              <fieldset className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5">
+                <legend className="px-1 text-sm font-medium text-[var(--ink-primary)]">
                   {CREATE_EXAM_WIZARD_TEXT.PRACTICE_ANTI_CHEAT_LABEL}
                 </legend>
                 <div className="flex items-start gap-3">
@@ -422,38 +482,20 @@ export const CreateExamWizard = ({
                     id="practice-anti-cheat"
                     type="checkbox"
                     checked={form.practiceAntiCheatEnabled}
-                    className="mt-1 h-4 w-4 rounded border-gray-300 text-action focus:ring-action"
+                    className="mt-1 h-4 w-4 rounded border-[var(--shell-border)] text-action focus:ring-action"
                     onChange={(event) =>
                       update("practiceAntiCheatEnabled", event.target.checked)
                     }
                   />
                   <label
                     htmlFor="practice-anti-cheat"
-                    className="text-sm font-medium text-gray-700"
+                    className="text-sm font-medium text-[var(--ink-primary)]"
                   >
                     {CREATE_EXAM_WIZARD_TEXT.PRACTICE_ANTI_CHEAT_CONTROL}
                   </label>
                 </div>
               </fieldset>
             )}
-            {form.examMode === "PRACTICE" && (
-              <Input
-                type="number"
-                min={0}
-                max={9}
-                step={1}
-                label={CREATE_EXAM_WIZARD_TEXT.RETRIES_LABEL}
-                value={form.maxRetriesPerStudent}
-                error={errors.maxRetriesPerStudent}
-                onChange={(event) => update("maxRetriesPerStudent", event.target.value)}
-              />
-            )}
-          </>
-        ) : (
-          <>
-            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              {CREATE_EXAM_WIZARD_TEXT.STEP_AUDIENCE}
-            </div>
             {form.reusePolicy !== "ALLOW" && (
               <Input
                 label={CREATE_EXAM_WIZARD_TEXT.SERIES_LABEL}
@@ -463,15 +505,21 @@ export const CreateExamWizard = ({
                 onChange={(event) => update("seriesKey", event.target.value)}
               />
             )}
-            <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+          </>
+        ) : step === 3 ? (
+          <>
+            <div className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)]">
+              {CREATE_EXAM_WIZARD_TEXT.STEP_AUDIENCE}
+            </div>
+            <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-5">
               <div className="mb-3 flex items-start justify-between gap-3">
-                <div className="text-sm font-semibold text-gray-900">
+                <div className="text-sm font-semibold text-[var(--ink-primary)]">
                   {CREATE_EXAM_WIZARD_TEXT.SOURCES_TITLE}
                 </div>
                 {sourceType === "CLASS" && (
                   <Link
                     href="/host/programs"
-                    className="text-xs font-medium text-blue-700 hover:underline"
+                    className="text-xs font-medium text-[var(--brand-ink)] hover:underline"
                   >
                     {CREATE_EXAM_WIZARD_TEXT.MANAGE_CLASSES}
                   </Link>
@@ -517,22 +565,26 @@ export const CreateExamWizard = ({
                   type="button"
                   onClick={addSource}
                   disabled={!sourcePublicId}
-                  className="rounded-lg border border-action px-3 py-2.5 text-sm font-medium text-action hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-lg border border-action px-3 py-2.5 text-sm font-medium text-action transition-colors hover:bg-[var(--action-tint)] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {CREATE_EXAM_WIZARD_TEXT.ADD_SOURCE}
                 </button>
               </div>
-              {errors.sources && <p className="mt-2 text-sm text-red-600">{errors.sources}</p>}
+              {errors.sources && (
+                <p className="mt-2 text-sm text-[var(--blush-action)]">{errors.sources}</p>
+              )}
               {effectiveForm.sources.length === 0 ? (
-                <p className="mt-3 text-sm text-gray-500">{CREATE_EXAM_WIZARD_TEXT.NO_SOURCES}</p>
+                <p className="mt-3 text-sm text-[var(--ink-muted)]">
+                  {CREATE_EXAM_WIZARD_TEXT.NO_SOURCES}
+                </p>
               ) : (
                 <ul className="mt-3 flex flex-col gap-2">
                   {effectiveForm.sources.map((source, index) => (
                     <li
                       key={`${source.sourceType}-${source.sourcePublicId}`}
-                      className="flex items-center justify-between rounded bg-white px-3 py-2 text-sm"
+                      className="flex items-center justify-between rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] px-3 py-2 text-sm"
                     >
-                      <span className="text-gray-700">
+                      <span className="text-[var(--ink-primary)]">
                         {source.sourceType}:{" "}
                         {sourceLabels.get(`${source.sourceType}:${source.sourcePublicId}`) ??
                           source.sourcePublicId}
@@ -540,7 +592,7 @@ export const CreateExamWizard = ({
                       <button
                         type="button"
                         onClick={() => removeSource(index)}
-                        className="text-red-600 hover:text-red-700"
+                        className="text-[var(--blush-action)] hover:underline"
                       >
                         {CREATE_EXAM_WIZARD_TEXT.REMOVE_SOURCE}
                       </button>
@@ -549,11 +601,17 @@ export const CreateExamWizard = ({
                 </ul>
               )}
             </div>
-            <div className="rounded-md border border-blue-100 bg-blue-50 p-4">
-              <div className="mb-2 text-sm font-semibold text-blue-900">
+          </>
+        ) : (
+          <>
+            <div className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)]">
+              {CREATE_EXAM_WIZARD_TEXT.STEP_REVIEW}
+            </div>
+            <div className="rounded-xl border border-[var(--brand-soft)] bg-[var(--brand-tint)] p-5">
+              <div className="mb-2 text-sm font-semibold text-[var(--brand-deep)]">
                 {CREATE_EXAM_WIZARD_TEXT.REVIEW_TITLE}
               </div>
-              <dl className="grid gap-2 text-sm text-blue-900 sm:grid-cols-2">
+              <dl className="grid gap-4 text-sm text-[var(--ink-primary)] sm:grid-cols-2">
                 <div>
                   <dt className="font-medium">{CREATE_EXAM_WIZARD_TEXT.REVIEW_TEMPLATE}</dt>
                   <dd>{activeTemplate?.name ?? CREATE_EXAM_WIZARD_TEXT.EMPTY_VALUE}</dd>
