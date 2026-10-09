@@ -20,7 +20,7 @@ import {
 
 // Sheet (root)
 
-export interface SheetProps extends AriaDialogTriggerProps {}
+export type SheetProps = AriaDialogTriggerProps;
 
 export function Sheet(props: SheetProps) {
   return <AriaDialogTrigger {...props} />;
@@ -28,7 +28,7 @@ export function Sheet(props: SheetProps) {
 
 // Sheet Trigger
 
-export interface SheetTriggerProps extends AriaButtonProps {}
+export type SheetTriggerProps = AriaButtonProps;
 
 export function SheetTrigger({ className, ...props }: SheetTriggerProps) {
   return <AriaButton className={cn("outline-none", className)} {...props} />;
@@ -138,7 +138,7 @@ export function SheetContent({
 
 // Sheet Header
 
-export interface SheetHeaderProps extends ComponentProps<"div"> {}
+export type SheetHeaderProps = ComponentProps<"div">;
 
 export function SheetHeader({ className, ...props }: SheetHeaderProps) {
   return (
@@ -168,7 +168,7 @@ export function SheetTitle({ className, ...props }: SheetTitleProps) {
 
 // Sheet Description
 
-export interface SheetDescriptionProps extends ComponentProps<"p"> {}
+export type SheetDescriptionProps = ComponentProps<"p">;
 
 export function SheetDescription({ className, ...props }: SheetDescriptionProps) {
   return (
@@ -182,7 +182,7 @@ export function SheetDescription({ className, ...props }: SheetDescriptionProps)
 
 // Sheet Body
 
-export interface SheetBodyProps extends ComponentProps<"div"> {}
+export type SheetBodyProps = ComponentProps<"div">;
 
 export function SheetBody({ className, ...props }: SheetBodyProps) {
   return (
@@ -224,7 +224,7 @@ export function SheetFooter({
 
 // Sheet Close
 
-export interface SheetCloseProps extends AriaButtonProps {}
+export type SheetCloseProps = AriaButtonProps;
 
 export function SheetClose({ className, ...props }: SheetCloseProps) {
   return <AriaButton slot="close" className={cn("outline-none", className)} {...props} />;

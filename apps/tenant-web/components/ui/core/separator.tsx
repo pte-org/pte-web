@@ -19,7 +19,7 @@ const separatorStyles = cva("shrink-0 bg-(--border-color-base-200)", {
   },
 });
 
-export interface SeparatorProps extends AriaSeparatorProps {}
+export type SeparatorProps = AriaSeparatorProps;
 
 export function Separator({ className, orientation = "horizontal", ...props }: SeparatorProps) {
   return (

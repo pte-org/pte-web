@@ -104,7 +104,7 @@ const dateSegmentStyles = cva(
   },
 );
 
-export interface DateSegmentProps extends AriaDateSegmentProps {}
+export type DateSegmentProps = AriaDateSegmentProps;
 
 export function DateSegment({ className, ...props }: DateSegmentProps) {
   return (

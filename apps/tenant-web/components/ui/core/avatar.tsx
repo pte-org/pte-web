@@ -62,7 +62,7 @@ export function Avatar({ className, size = "md", children, ...props }: AvatarPro
   );
 }
 
-export interface AvatarImageProps extends AvatarPrimitive.Image.Props {}
+export type AvatarImageProps = AvatarPrimitive.Image.Props;
 
 export function AvatarImage({ className, ...props }: AvatarImageProps) {
   return (
@@ -77,7 +77,7 @@ export function AvatarImage({ className, ...props }: AvatarImageProps) {
   );
 }
 
-export interface AvatarFallbackProps extends AvatarPrimitive.Fallback.Props {}
+export type AvatarFallbackProps = AvatarPrimitive.Fallback.Props;
 
 export function AvatarFallback({ className, ...props }: AvatarFallbackProps) {
   return (

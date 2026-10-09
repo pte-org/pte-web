@@ -57,7 +57,7 @@ export function Dialog({
   );
 }
 
-export interface DialogHeaderProps extends ComponentProps<"div"> {}
+export type DialogHeaderProps = ComponentProps<"div">;
 
 export function DialogHeader({ className, ...props }: DialogHeaderProps) {
   return (
@@ -83,13 +83,13 @@ export function DialogTitle({ className, ...props }: DialogTitleProps) {
   );
 }
 
-export interface DialogDescriptionProps extends DescriptionProps {}
+export type DialogDescriptionProps = DescriptionProps;
 
 export function DialogDescription({ ...props }: DialogDescriptionProps) {
   return <Description {...props} />;
 }
 
-export interface DialogBodyProps extends ComponentProps<"div"> {}
+export type DialogBodyProps = ComponentProps<"div">;
 
 export function DialogBody({ className, ...props }: DialogBodyProps) {
   return (
@@ -117,7 +117,7 @@ export function DialogFooter({ className, children, ...props }: DialogFooterProp
   );
 }
 
-export interface DialogCloseProps extends Omit<ButtonProps, "slot"> {}
+export type DialogCloseProps = Omit<ButtonProps, "slot">;
 
 export function DialogClose({ ...props }: DialogCloseProps) {
   return <Button slot="close" {...props} />;
