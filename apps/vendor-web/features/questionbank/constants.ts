@@ -1,7 +1,6 @@
 import type { BadgeVariant } from "@pte/ui";
 import type {
   QuestionPool,
-  QuestionPoolFilter,
   QuestionSkill,
   QuestionSkillFilter,
   QuestionStatus,
@@ -210,15 +209,6 @@ export const SKILL_FILTER_OPTIONS: {
   { value: "reading", label: "Reading" },
   { value: "writing", label: "Writing" },
   { value: "speaking", label: "Speaking" },
-];
-
-export const QUESTION_POOL_FILTER_OPTIONS: {
-  value: QuestionPoolFilter;
-  label: string;
-}[] = [
-  { value: "all", label: "All pools" },
-  { value: "exam", label: "Exam" },
-  { value: "practice", label: "Practice" },
 ];
 
 export const QUESTION_STATUS_FILTER_OPTIONS: {

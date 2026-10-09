@@ -34,11 +34,9 @@ export interface QuestionStats {
 
 export type QuestionSkillFilter = QuestionSkill | "all";
 export type QuestionStatusFilter = QuestionStatus | "all";
-export type QuestionPoolFilter = QuestionPool | "all";
 
 export interface QuestionFilter {
   query: string;
   skill: QuestionSkillFilter;
   status: QuestionStatusFilter;
-  pool: QuestionPoolFilter;
 }
