@@ -5,9 +5,10 @@ import { Alert, Badge, CopyableId, DetailGroup, LoadingState, PageHeader, cn } f
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
-import { useMediaPreview, useQuestion } from "../api";
+import { mapPool, useMediaPreview, useQuestion } from "../api";
 import {
   QUESTION_DETAIL_TEXT as RAW_QUESTION_DETAIL_TEXT,
+  QUESTION_POOL_LABELS as RAW_QUESTION_POOL_LABELS,
   QUESTION_STATUS_LABELS as RAW_QUESTION_STATUS_LABELS,
   QUESTION_STATUS_VARIANT,
 } from "../constants";
@@ -70,6 +71,7 @@ const MediaPreview = ({ kind, publicId }: MediaPreviewProps) => {
 export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
   const T = useAdminCopy(RAW_QUESTION_DETAIL_TEXT);
   const statusLabels = useAdminCopy(RAW_QUESTION_STATUS_LABELS);
+  const poolLabels = useAdminCopy(RAW_QUESTION_POOL_LABELS);
   const sectionLabels = useAdminCopy({
     SPEAKING: "Speaking",
     WRITING: "Writing",
@@ -135,6 +137,7 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
             { label: T.TASK_TYPE, value: taskType },
             { label: T.SECTION, value: section },
             { label: T.VISIBILITY, value: visibility },
+            { label: T.POOL, value: poolLabels[mapPool(question.pool)] },
             { label: T.REVISION, value: String(question.revisionNumber ?? T.EMPTY_VALUE) },
             {
               label: T.WORD_COUNT,

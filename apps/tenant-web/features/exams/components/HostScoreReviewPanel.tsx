@@ -9,7 +9,15 @@ import type {
   ScoreSourceSelectionScope,
   SelectScoreSourceRequest,
 } from "@pte/api-client";
-import { Alert, Button, DataTable, Select, useLocale, type DataTableColumn } from "@pte/ui";
+import {
+  Alert,
+  Button,
+  ConfirmDialog,
+  DataTable,
+  Select,
+  useLocale,
+  type DataTableColumn,
+} from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
   useActiveExaminers,
@@ -49,6 +57,7 @@ export const HostScoreReviewPanel = ({
   const [source, setSource] = useState<ScoreSource>("AI");
   const [preview, setPreview] = useState<ScoreSourceSelectionPreviewResponse | null>(null);
   const [request, setRequest] = useState<SelectScoreSourceRequest | null>(null);
+  const [pendingApply, setPendingApply] = useState<SelectScoreSourceRequest | null>(null);
 
   const text = {
     title: t("tenant.scoreReview.title", "Score review"),
@@ -215,14 +224,13 @@ export const HostScoreReviewPanel = ({
           expectedReviewVersion: preview.reviewVersion,
           requestPublicId: crypto.randomUUID(),
         };
-    const confirmed = window.confirm(
-      text.applyConfirm({
-        source: nextRequest.selectedSource,
-        count: preview.matchedAnswerCount,
-        unavailable: preview.unavailableAnswerCount,
-      }),
-    );
-    if (!confirmed) return;
+    setPendingApply(nextRequest);
+  };
+
+  const confirmApply = (): void => {
+    if (!pendingApply) return;
+    const nextRequest = pendingApply;
+    setPendingApply(null);
     setRequest(nextRequest);
     applyMutation.mutate(nextRequest, {
       onSuccess: () => {
@@ -505,6 +513,18 @@ export const HostScoreReviewPanel = ({
           />
         </div>
       </details>
+      <ConfirmDialog
+        open={pendingApply !== null}
+        title={t("tenant.scoreReview.applyTitle", "Apply score source?")}
+        description={text.applyConfirm({
+          source: pendingApply?.selectedSource ?? "",
+          count: preview?.matchedAnswerCount ?? 0,
+          unavailable: preview?.unavailableAnswerCount ?? 0,
+        })}
+        confirmLabel={text.applySelection}
+        onConfirm={confirmApply}
+        onClose={() => setPendingApply(null)}
+      />
     </div>
   );
 };

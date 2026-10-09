@@ -46,10 +46,6 @@ export interface CreateExamWorkflowInput {
   subscriptionPublicId: string;
   opensAt: string;
   closesAt: string;
-  examMode: ExamMode;
-  /** Practice-only form control; serialized to the canonical LockdownMode at the API boundary. */
-  practiceAntiCheatEnabled: boolean;
-  selectedSkills: ExamSkill[];
   /** Controlled input value; parsed and validated before sending to the API. */
   maxRetriesPerStudent: string;
   formMode: FormMode;

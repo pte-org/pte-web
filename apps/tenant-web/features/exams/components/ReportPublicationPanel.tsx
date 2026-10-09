@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { ApiError, type ReportPublicationBlockerResponse } from "@pte/api-client";
-import { Alert, Button, useLocale } from "@pte/ui";
+import { Alert, Button, ConfirmDialog, useLocale } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
   useHostScoreReview,
@@ -22,6 +22,7 @@ export const ReportPublicationPanel = ({
 }: ReportPublicationPanelProps): ReactElement => {
   const { locale, t } = useLocale();
   const [checked, setChecked] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const review = useHostScoreReview(sessionPublicId);
   const preflight = useReportPublicationPreflight(sessionPublicId, checked);
   const publish = usePublishSessionReports(sessionPublicId);
@@ -141,16 +142,7 @@ export const ReportPublicationPanel = ({
           {preflight.isFetching ? text.checking : text.checkReadiness}
         </Button>
         {canPublish && (
-          <Button
-            type="button"
-            disabled={publish.isPending}
-            onClick={() => {
-              const count = preflight.data?.submittedAttemptCount ?? 0;
-              if (window.confirm(text.publishConfirm(count))) {
-                publish.mutate();
-              }
-            }}
-          >
+          <Button type="button" disabled={publish.isPending} onClick={() => setConfirmOpen(true)}>
             {publish.isPending ? text.publishing : text.approve}
           </Button>
         )}
@@ -178,6 +170,15 @@ export const ReportPublicationPanel = ({
           {preflight.data.blockers.length > 20 && <p>{text.showingFirst}</p>}
         </div>
       )}
+      <ConfirmDialog
+        open={confirmOpen}
+        title={t("tenant.publication.publishTitle", "Publish reports?")}
+        description={text.publishConfirm(preflight.data?.submittedAttemptCount ?? 0)}
+        confirmLabel={text.approve}
+        isConfirming={publish.isPending}
+        onConfirm={() => publish.mutate(undefined, { onSettled: () => setConfirmOpen(false) })}
+        onClose={() => setConfirmOpen(false)}
+      />
     </section>
   );
 };

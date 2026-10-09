@@ -25,6 +25,7 @@ import {
 } from "../api";
 import {
   QUESTIONBANK_TEXT as RAW_QUESTIONBANK_TEXT,
+  QUESTION_POOL_LABELS as RAW_QUESTION_POOL_LABELS,
   QUESTION_SKILL_LABELS as RAW_QUESTION_SKILL_LABELS,
   QUESTION_STATUS_LABELS as RAW_QUESTION_STATUS_LABELS,
   QUESTION_STATUS_VARIANT,
@@ -52,6 +53,7 @@ export const QuestionTable = ({
   const T = useAdminCopy(RAW_QUESTIONBANK_TEXT);
   const H = useAdminCopy(RAW_QUESTION_TABLE_HEADERS);
   const skillLabels = useAdminCopy(RAW_QUESTION_SKILL_LABELS);
+  const poolLabels = useAdminCopy(RAW_QUESTION_POOL_LABELS);
   const statusLabels = useAdminCopy(RAW_QUESTION_STATUS_LABELS);
   const skillFilterOptions = useAdminCopy([
     { value: "", label: "All skills" },
@@ -66,6 +68,11 @@ export const QuestionTable = ({
     { value: "pending_approval", label: "Pending approval" },
     { value: "published", label: "Published" },
     { value: "archived", label: "Archived" },
+  ]);
+  const poolFilterOptions = useAdminCopy([
+    { value: "", label: "All pools" },
+    { value: "exam", label: "Exam" },
+    { value: "practice", label: "Practice" },
   ]);
   const router = useRouter();
   const { data: currentUser } = useCurrentUser();
@@ -230,6 +237,14 @@ export const QuestionTable = ({
             header: H.CONTENT,
             filterAccessor: (question) => question.content,
             cell: (question) => <span className="line-clamp-1 max-w-xl">{question.content}</span>,
+          },
+          {
+            key: "pool",
+            label: H.POOL,
+            header: H.POOL,
+            filterOptions: poolFilterOptions,
+            filterAccessor: (question) => question.pool,
+            cell: (question) => poolLabels[question.pool],
           },
           {
             key: "status",
