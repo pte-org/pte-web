@@ -6,17 +6,18 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  Avatar,
-  DashboardShell,
-  Dropdown,
   LocaleSwitcher,
   Skeleton,
-  ThemeToggle,
   cn,
   useLocale,
   useTokenManager,
   type SessionRole,
 } from "@pte/ui";
+import CommonDashboardLayout from "@/components/common/dashboard-layout";
+import SearchBar from "@/components/common/header/searchbar";
+import ThemeToggle from "@/components/common/header/theme-toggle";
+import { UserProfileButton } from "@/components/common/header/user-profile";
+import { Breadcrumbs } from "@/components/ui/core/breadcrumbs";
 import { NotificationBellContainer } from "@/features/notifications";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
@@ -58,15 +59,17 @@ const DISCLAIMER = "PTE mock exam platform. Not affiliated with Pearson.";
 
 const HEADER_TEXT = {
   ACCOUNT: "Account",
-  LOGOUT: "Log out",
 } as const;
 
-const SidebarBrand = (): ReactElement => {
+const SidebarBrand = ({ collapsed = false }: { collapsed?: boolean }): ReactElement => {
   const { t } = useLocale();
   return <Link
     href="/"
     aria-label={`${BRAND_NAME} home`}
-    className="flex items-center gap-2 rounded-md p-1 transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
+    className={cn(
+      "flex items-center rounded-md p-1 transition-colors hover:bg-background-gray-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500",
+      collapsed ? "justify-center" : "gap-2",
+    )}
   >
     <Image
       src="/logo.png"
@@ -76,10 +79,12 @@ const SidebarBrand = (): ReactElement => {
       priority
       className="h-10 w-10 rounded-md object-contain shadow-sm"
     />
-    <div className="leading-tight">
-      <p className="text-sm font-semibold text-[var(--ink-primary)]">{BRAND_NAME}</p>
-      <p className="text-xs text-[var(--ink-muted)]">{t("brand.schoolSubtitle", BRAND_SUBTITLE)}</p>
-    </div>
+    {!collapsed && (
+      <div className="leading-tight">
+        <p className="text-sm font-semibold text-text-primary">{BRAND_NAME}</p>
+        <p className="text-xs text-text-tertiary">{t("brand.schoolSubtitle", BRAND_SUBTITLE)}</p>
+      </div>
+    )}
   </Link>
 };
 
@@ -122,7 +127,15 @@ const isActive = (pathname: string | null, href: string): boolean => {
   return true;
 };
 
-const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
+const SidebarNav = ({
+  navItems,
+  isSidebarOpen,
+  onItemClick,
+}: {
+  navItems: NavItem[];
+  isSidebarOpen: boolean;
+  onItemClick?: () => void;
+}): ReactElement => {
   const pathname = usePathname();
   const { data: user } = useCurrentUser();
   const { t } = useLocale();
@@ -131,27 +144,49 @@ const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
   );
   return (
     <>
-      {visibleItems.map((item, index) => (
-        <div key={item.href} className="flex flex-col gap-1">
-          {(index === 0 || item.section !== visibleItems[index - 1]?.section) && item.section && (
-            <span className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-muted)] first:pt-1">
-              {item.sectionKey ? t(item.sectionKey, item.section) : item.section}
-            </span>
-          )}
-          <Link
-            href={item.href}
-            className={cn(
-              "flex min-h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors",
-              isActive(pathname, item.href)
-                ? "bg-[var(--action)] font-medium text-white shadow-[0px_4px_10px_rgba(11,95,174,0.25)]"
-                : "text-[var(--ink-secondary)] hover:bg-[var(--brand-tint)] hover:text-[var(--brand-ink)]",
+      {visibleItems.map((item, index) => {
+        const label = item.labelKey ? t(item.labelKey, item.label) : item.label;
+        const isSectionStart = index === 0 || item.section !== visibleItems[index - 1]?.section;
+
+        return (
+          <div key={item.href} className="flex flex-col gap-1">
+            {isSectionStart && item.section && (
+              isSidebarOpen ? (
+                <span className="mt-6 mb-4 px-3 text-xs uppercase text-text-tertiary">
+                  {item.sectionKey ? t(item.sectionKey, item.section) : item.section}
+                </span>
+              ) : (
+                <span className="mx-2 my-3 block h-px bg-card-border" aria-hidden="true" />
+              )
             )}
-          >
-            {item.icon && <span className="[&>svg]:h-5 [&>svg]:w-5">{item.icon}</span>}
-            {item.labelKey ? t(item.labelKey, item.label) : item.label}
-          </Link>
-        </div>
-      ))}
+            <Link
+              href={item.href}
+              onClick={onItemClick}
+              aria-label={label}
+              title={isSidebarOpen ? undefined : label}
+              className={cn(
+                "flex min-h-10 items-center rounded-lg text-sm font-medium transition-colors duration-200",
+                isSidebarOpen ? "w-full gap-3 px-3 py-2" : "mx-auto h-10 w-10 justify-center px-2 py-2.5",
+                isActive(pathname, item.href)
+                  ? "bg-sidebar-navigation-nav-item-nav-hover-background text-text-primary"
+                  : "text-text-secondary hover:bg-sidebar-navigation-nav-item-nav-hover-background hover:text-text-primary",
+              )}
+            >
+              {item.icon && (
+                <span
+                  className={cn(
+                    "shrink-0 [&>svg]:h-5 [&>svg]:w-5",
+                    isActive(pathname, item.href) ? "text-icon-primary" : "text-icon-tertiary",
+                  )}
+                >
+                  {item.icon}
+                </span>
+              )}
+              {isSidebarOpen && <span className="truncate">{label}</span>}
+            </Link>
+          </div>
+        );
+      })}
     </>
   );
 };
@@ -175,12 +210,12 @@ const HeaderActions = (): ReactElement => {
       <ThemeToggle />
       <NotificationBellContainer />
       {isLoading ? (
-        <Skeleton className="h-8 w-8 rounded-full" />
+        <Skeleton className="h-10 w-28 rounded-lg" />
       ) : (
-        <Dropdown
-          label={user?.fullName ?? t("common.account", HEADER_TEXT.ACCOUNT)}
-          trigger={<Avatar name={user?.fullName} />}
-          items={[{ label: t("common.logout", HEADER_TEXT.LOGOUT), onSelect: logout }]}
+        <UserProfileButton
+          name={user?.fullName ?? t("common.account", HEADER_TEXT.ACCOUNT)}
+          email={user?.email}
+          onLogout={logout}
         />
       )}
     </>
@@ -190,18 +225,63 @@ const HeaderActions = (): ReactElement => {
 const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactElement => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { data: user } = useCurrentUser();
   const { t } = useLocale();
+  const searchItems = navItems
+    .filter(
+      (item) => !item.requiredRoles || item.requiredRoles.some((role) => user?.roles.includes(role)),
+    )
+    .map((item) => ({
+      id: item.href,
+      title: item.labelKey ? t(item.labelKey, item.label) : item.label,
+      section: item.sectionKey ? t(item.sectionKey, item.section ?? "Pages") : item.section ?? "Pages",
+      url: item.href,
+      icon: item.icon,
+    }));
+  const activeItem = navItems.find((item) => isActive(pathname, item.href));
+  const breadcrumbs = activeItem ? (
+    <Breadcrumbs
+      dividerType="chevron"
+      items={[
+        { href: "/", label: t("nav.home", "Trang chủ") },
+        ...(activeItem.href === "/"
+          ? []
+          : [
+              {
+                href: activeItem.href,
+                label: activeItem.labelKey
+                  ? t(activeItem.labelKey, activeItem.label)
+                  : activeItem.label,
+              },
+            ]),
+      ]}
+    />
+  ) : null;
+
   return (
-    <DashboardShell
-      brand={<SidebarBrand />}
-      sidebar={<SidebarNav navItems={navItems} />}
-      headerBrand={<span className="text-lg font-bold text-[var(--brand-ink)]">{BRAND_NAME}</span>}
+    <CommonDashboardLayout
+      brand={({ isSidebarOpen }) => <SidebarBrand collapsed={!isSidebarOpen} />}
+      sidebar={({ isSidebarOpen, onItemClick }) => (
+        <SidebarNav
+          navItems={navItems}
+          isSidebarOpen={isSidebarOpen}
+          onItemClick={onItemClick}
+        />
+      )}
+      headerBrand={<span className="text-lg font-bold text-brand-500">{BRAND_NAME}</span>}
+      headerSearch={
+        <SearchBar
+          items={searchItems}
+          placeholder={t("common.searchPages", "Tìm kiếm trang...")}
+        />
+      }
+      breadcrumbs={breadcrumbs}
       headerActions={<HeaderActions />}
       navigationKey={`${pathname}?${searchParams.toString()}`}
       footer={t("common.disclaimer", DISCLAIMER)}
     >
       {children}
-    </DashboardShell>
+    </CommonDashboardLayout>
   );
 };
 
