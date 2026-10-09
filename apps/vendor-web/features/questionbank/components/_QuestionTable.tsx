@@ -25,6 +25,7 @@ import {
 } from "../api";
 import {
   QUESTIONBANK_TEXT,
+  QUESTION_POOL_LABELS,
   QUESTION_SKILL_LABELS,
   QUESTION_STATUS_LABELS,
   QUESTION_STATUS_VARIANT,
@@ -48,6 +49,12 @@ const QUESTION_SKILL_FILTER_OPTIONS = [
   { value: "reading", label: "Reading" },
   { value: "writing", label: "Writing" },
   { value: "speaking", label: "Speaking" },
+] as const;
+
+const QUESTION_POOL_FILTER_OPTIONS = [
+  { value: "", label: "All pools" },
+  { value: "exam", label: "Exam" },
+  { value: "practice", label: "Practice" },
 ] as const;
 
 const QUESTION_STATUS_FILTER_OPTIONS = [
@@ -235,6 +242,14 @@ export const QuestionTable = ({
             header: QUESTION_TABLE_HEADERS.CONTENT,
             filterAccessor: (question) => question.content,
             cell: (question) => <span className="line-clamp-1 max-w-xl">{question.content}</span>,
+          },
+          {
+            key: "pool",
+            label: QUESTION_TABLE_HEADERS.POOL,
+            header: QUESTION_TABLE_HEADERS.POOL,
+            filterOptions: QUESTION_POOL_FILTER_OPTIONS,
+            filterAccessor: (question) => question.pool,
+            cell: (question) => QUESTION_POOL_LABELS[question.pool],
           },
           {
             key: "status",

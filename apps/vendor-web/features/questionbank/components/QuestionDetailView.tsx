@@ -5,9 +5,10 @@ import { Alert, Badge, CopyableId, DetailGroup, LoadingState, PageHeader, cn } f
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
-import { useMediaPreview, useQuestion } from "../api";
+import { mapPool, useMediaPreview, useQuestion } from "../api";
 import {
   QUESTION_DETAIL_TEXT as T,
+  QUESTION_POOL_LABELS,
   QUESTION_STATUS_LABELS,
   QUESTION_STATUS_VARIANT,
 } from "../constants";
@@ -114,6 +115,7 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
             { label: T.TASK_TYPE, value: taskType },
             { label: T.SECTION, value: valueOrEmpty(question.section) },
             { label: T.VISIBILITY, value: valueOrEmpty(question.visibility) },
+            { label: T.POOL, value: QUESTION_POOL_LABELS[mapPool(question.pool)] },
             { label: T.REVISION, value: String(question.revisionNumber ?? T.EMPTY_VALUE) },
             {
               label: T.WORD_COUNT,

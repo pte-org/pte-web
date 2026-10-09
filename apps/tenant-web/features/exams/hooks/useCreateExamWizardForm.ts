@@ -1,9 +1,8 @@
 "use client";
 
 import { useCallback, useMemo, useReducer } from "react";
-import type { CreateExamWorkflowInput, ExamSkill } from "../types";
+import type { CreateExamWorkflowInput } from "../types";
 import {
-  applyExamModeChange,
   createEmptyExamWorkflow,
   filterWorkflowErrors,
   getCreateExamStepFields,
@@ -32,11 +31,6 @@ type UpdateFormAction = {
 
 type CreateExamWizardFormAction =
   | UpdateFormAction
-  | {
-      type: "change-mode";
-      examMode: CreateExamWorkflowInput["examMode"];
-      templateSkills: readonly ExamSkill[];
-    }
   | { type: "set-errors"; errors: CreateExamWorkflowErrors }
   | {
       type: "set-field-error";
@@ -49,7 +43,6 @@ type CreateExamWizardFormAction =
 export interface UseCreateExamWizardFormOptions {
   initialForm?: CreateExamWorkflowInput;
   activeTemplatePublicId?: string;
-  templateSkills: readonly ExamSkill[];
 }
 
 function createInitialForm(
@@ -70,7 +63,6 @@ function clearFieldError(
     case "closesAt":
     case "capacity":
     case "seriesKey":
-    case "selectedSkills":
     case "maxRetriesPerStudent":
     case "sources":
       return { ...errors, [field]: undefined };
@@ -104,12 +96,6 @@ function formReducer(
         errors: clearFieldError(state.errors, action.field),
       };
     }
-    case "change-mode":
-      return {
-        ...state,
-        form: applyExamModeChange(state.form, action.examMode, action.templateSkills),
-        errors: { ...state.errors, seriesKey: undefined },
-      };
     case "set-errors":
       return { ...state, errors: action.errors };
     case "set-field-error":
@@ -136,7 +122,6 @@ export interface UseCreateExamWizardFormResult {
     field: K,
     value: CreateExamWorkflowInput[K],
   ) => void;
-  changeExamMode: (examMode: CreateExamWorkflowInput["examMode"]) => void;
   onSourcesChange: (nextSources: CreateExamWorkflowInput["sources"]) => void;
   setFieldError: (field: keyof CreateExamWorkflowErrors, message?: string) => void;
   validate: (requireAudience?: boolean) => boolean;
@@ -150,7 +135,6 @@ export interface UseCreateExamWizardFormResult {
 export function useCreateExamWizardForm({
   initialForm,
   activeTemplatePublicId,
-  templateSkills,
 }: UseCreateExamWizardFormOptions): UseCreateExamWizardFormResult {
   const resolvedInitialForm = useMemo(() => createInitialForm(initialForm), [initialForm]);
   const [state, dispatch] = useReducer(formReducer, resolvedInitialForm, createInitialState);
@@ -170,13 +154,6 @@ export function useCreateExamWizardForm({
     [],
   );
 
-  const changeExamMode = useCallback(
-    (examMode: CreateExamWorkflowInput["examMode"]): void => {
-      dispatch({ type: "change-mode", examMode, templateSkills });
-    },
-    [templateSkills],
-  );
-
   const onSourcesChange = useCallback((nextSources: CreateExamWorkflowInput["sources"]): void => {
     dispatch({ type: "update", field: "sources", value: nextSources });
   }, []);
@@ -194,13 +171,12 @@ export function useCreateExamWizardForm({
         effectiveForm,
         undefined,
         requireAudience,
-        templateSkills,
         requireAudience,
       );
       dispatch({ type: "set-errors", errors: nextErrors });
       return Object.keys(nextErrors).length === 0;
     },
-    [effectiveForm, templateSkills],
+    [effectiveForm],
   );
 
   const validateStep = useCallback(
@@ -209,14 +185,13 @@ export function useCreateExamWizardForm({
         effectiveForm,
         undefined,
         currentStep === 3,
-        templateSkills,
         currentStep === 3,
       );
       const nextErrors = filterWorkflowErrors(allErrors, getCreateExamStepFields(currentStep));
       dispatch({ type: "set-errors", errors: nextErrors });
       return Object.keys(nextErrors).length === 0;
     },
-    [effectiveForm, templateSkills],
+    [effectiveForm],
   );
 
   const setStep = useCallback((step: CreateExamStep): void => {
@@ -253,7 +228,6 @@ export function useCreateExamWizardForm({
     errors: state.errors,
     sources: state.form.sources,
     update,
-    changeExamMode,
     onSourcesChange,
     setFieldError,
     validate,

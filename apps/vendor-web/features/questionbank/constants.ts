@@ -1,5 +1,6 @@
 import type { BadgeVariant } from "@pte/ui";
 import type {
+  QuestionPool,
   QuestionSkill,
   QuestionSkillFilter,
   QuestionStatus,
@@ -76,6 +77,7 @@ export const QUESTION_DETAIL_TEXT = {
   TASK_TYPE: "Task type",
   SECTION: "Section",
   VISIBILITY: "Visibility",
+  POOL: "Question pool",
   REVISION: "Revision",
   WORD_COUNT: "Word count",
   WORD_COUNT_RANGE: (min: number, max: number) => `${min}–${max} words`,
@@ -114,6 +116,10 @@ export const QUESTION_EDITOR_TEXT = {
   FORM_CREATE_TITLE: "Create PTE Question",
   TASK_TYPE: "Task type",
   LOADING_TASK_TYPES: "Loading task types...",
+  POOL: "Question pool",
+  POOL_HELPER_CREATE:
+    "Exam questions can be drawn into exams; practice questions are only used for practice. This cannot be changed later.",
+  POOL_HELPER_EDIT: "The pool is fixed when a question is created.",
   TITLE: "Title",
   PROMPT_TEXT: "Prompt text",
   AUDIO_PROMPT: "Audio prompt",
@@ -163,6 +169,7 @@ export const QUESTION_TABLE_HEADERS = {
   CODE: "Question Code",
   SKILL: "Skill",
   CONTENT: "Content",
+  POOL: "Pool",
   STATUS: "Status",
   ACTIONS: "Actions",
 } as const;
@@ -172,6 +179,11 @@ export const QUESTION_SKILL_LABELS: Record<QuestionSkill, string> = {
   reading: "Reading",
   writing: "Writing",
   speaking: "Speaking",
+};
+
+export const QUESTION_POOL_LABELS: Record<QuestionPool, string> = {
+  exam: "Exam",
+  practice: "Practice",
 };
 
 export const QUESTION_STATUS_LABELS: Record<QuestionStatus, string> = {
