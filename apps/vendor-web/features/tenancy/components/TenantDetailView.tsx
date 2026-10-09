@@ -175,6 +175,7 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
         id="tenant-detail-tabs"
         value={activeSection}
         onChange={setActiveSection}
+        variant="default"
         items={[
           { id: "summary", label: t("tenant.tabs.summary", "Summary") },
           ...(canManageTenantAccount

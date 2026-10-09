@@ -192,7 +192,20 @@ const HeaderActions = (): ReactElement => {
 const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactElement => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { data: user } = useCurrentUser();
   const { t } = useLocale();
+  const searchItems = navItems
+    .filter((item) => !item.requiredRoles || hasAnyRole(user?.roles, item.requiredRoles))
+    .map((item) => ({
+      id: item.href,
+      title: item.labelKey ? t(item.labelKey, item.label) : item.label,
+      section: item.sectionKey
+        ? t(item.sectionKey, item.section ?? "Pages")
+        : (item.section ?? "Pages"),
+      url: item.href,
+      icon: item.icon,
+    }));
   const activeItem = navItems.find((item) => isActive(pathname, item.href));
   const breadcrumbs = activeItem ? (
     <Breadcrumbs
@@ -228,6 +241,9 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
       sidebar={({ isSidebarOpen, onItemClick }) => (
         <SidebarNav navItems={navItems} isSidebarOpen={isSidebarOpen} onItemClick={onItemClick} />
       )}
+      headerSearchItems={searchItems}
+      headerSearchPlaceholder={t("common.searchPages", "Tìm kiếm trang...")}
+      onHeaderSearchNavigate={(url) => router.push(url)}
       headerActions={<HeaderActions />}
       breadcrumbs={breadcrumbs}
       navigationKey={`${pathname}?${searchParams.toString()}`}
