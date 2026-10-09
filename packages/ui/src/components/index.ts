@@ -42,7 +42,13 @@ export type { NotificationBellProps, NotificationHistoryProps } from "./Notifica
 export { Alert } from "./Alert";
 export type { AlertTone } from "./Alert";
 export { DataTable } from "./DataTable";
-export type { DataTableColumn, DataTableProps } from "./DataTable";
+export type {
+  DataTableColumn,
+  DataTableProps,
+  DataTableSortDirection,
+  DataTableSortState,
+  DataTableSortValue,
+} from "./DataTable";
 export { PaginationControls } from "./PaginationControls";
 export type { PageMeta } from "./PaginationControls";
 export { Pagination } from "./Pagination";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import type { UserResponse } from "@pte/api-client";
 import {
   Alert,
@@ -14,9 +14,8 @@ import {
   StatusBadge,
   Button,
 } from "@pte/ui";
-import { ChevronBothDirection } from "@tailgrids/icons";
 import { errorMessage } from "@/features/examoperations/errorMessage";
-import { EXAM_STAFF_ROLE_OPTIONS, EXAM_STAFF_SORT_OPTIONS, EXAM_STAFF_TEXT } from "../constants";
+import { EXAM_STAFF_ROLE_OPTIONS, EXAM_STAFF_TEXT } from "../constants";
 import { useAllExamStaff, useReactivateExamStaff, useSuspendExamStaff } from "../api";
 import { AddExamStaffModal } from "./AddExamStaffModal";
 import { ExamStaffTable, type ExamStaffTableColumn } from "./ExamStaffTable";
@@ -26,9 +25,6 @@ import {
   useSendUserCredentials,
 } from "@/features/userManagement";
 import type { AccountDetails, GeneratedCredentials } from "@/features/userManagement";
-
-type SortOptionValue = (typeof EXAM_STAFF_SORT_OPTIONS)[number]["value"];
-type ColumnSort = "FULL_NAME" | "EMAIL";
 
 const ROLE_LABELS: Record<string, string> = {
   PROCTOR: EXAM_STAFF_TEXT.proctor,
@@ -46,12 +42,6 @@ const STATUS_OPTIONS = [
   { label: EXAM_STAFF_TEXT.suspended, value: "SUSPENDED" },
 ];
 
-function sortOptionFor(value: SortOptionValue) {
-  return (
-    EXAM_STAFF_SORT_OPTIONS.find((option) => option.value === value) ?? EXAM_STAFF_SORT_OPTIONS[0]
-  );
-}
-
 function roleLabel(user: UserResponse): string {
   return (
     user.roles
@@ -61,83 +51,34 @@ function roleLabel(user: UserResponse): string {
   );
 }
 
-function SortHeader({ label, onSort }: { label: string; onSort?: () => void }): ReactElement {
-  const content = (
-    <>
-      <span>{label}</span>
-      <ChevronBothDirection className="size-3.5 text-text-100" aria-hidden="true" />
-    </>
-  );
-
-  if (!onSort) {
-    return <span className="inline-flex items-center gap-1.5">{content}</span>;
-  }
-
-  return (
-    <button
-      type="button"
-      onClick={onSort}
-      className="inline-flex items-center gap-1.5 rounded-sm outline-none transition-colors hover:text-text-primary focus-visible:ring-2 focus-visible:ring-input-primary-focus-border"
-    >
-      {content}
-    </button>
-  );
-}
-
 export const ExamStaffView = (): ReactElement => {
-  const [sortOption, setSortOption] = useState<SortOptionValue>("CREATED_AT_DESC");
   const [addOpen, setAddOpen] = useState(false);
   const [suspendTarget, setSuspendTarget] = useState<UserResponse | null>(null);
   const [detailsTarget, setDetailsTarget] = useState<UserResponse | null>(null);
   const [emailTarget, setEmailTarget] = useState<UserResponse | null>(null);
   const [credentials, setCredentials] = useState<GeneratedCredentials | null>(null);
 
-  const selectedSort = sortOptionFor(sortOption);
   const staff = useAllExamStaff();
   const suspend = useSuspendExamStaff();
   const reactivate = useReactivateExamStaff();
   const sendCredentials = useSendUserCredentials();
 
-  const rows = useMemo(() => {
-    const nextRows = [...(staff.data ?? [])];
-    if (sortOption === "CREATED_AT_DESC") return nextRows;
-
-    const sortByEmail = sortOption.startsWith("EMAIL");
-    const descending = sortOption.endsWith("_DESC");
-    return nextRows.sort((left, right) => {
-      const leftValue = sortByEmail ? left.email : left.fullName;
-      const rightValue = sortByEmail ? right.email : right.fullName;
-      const comparison = leftValue.localeCompare(rightValue, undefined, { sensitivity: "base" });
-      return descending ? -comparison : comparison;
-    });
-  }, [sortOption, staff.data]);
+  const rows = staff.data ?? [];
   const queryError = errorMessage(staff.error);
   const mutationError = errorMessage(suspend.error ?? reactivate.error ?? sendCredentials.error);
-
-  const setColumnSort = (sort: ColumnSort): void => {
-    const current = selectedSort.sort === sort ? selectedSort.direction : undefined;
-    const nextDirection = current === "ASC" ? "DESC" : "ASC";
-    const nextOption = EXAM_STAFF_SORT_OPTIONS.find(
-      (option) => option.sort === sort && option.direction === nextDirection,
-    );
-    if (!nextOption) return;
-    setSortOption(nextOption.value);
-  };
 
   const columns: ExamStaffTableColumn<UserResponse>[] = [
     {
       key: "fullName",
       label: EXAM_STAFF_TEXT.fullName,
-      header: (
-        <SortHeader label={EXAM_STAFF_TEXT.fullName} onSort={() => setColumnSort("FULL_NAME")} />
-      ),
+      header: EXAM_STAFF_TEXT.fullName,
       filterAccessor: (user) => user.fullName,
       cell: (user) => <span className="font-medium text-text-primary">{user.fullName}</span>,
     },
     {
       key: "account",
       label: EXAM_STAFF_TEXT.account,
-      header: <SortHeader label={EXAM_STAFF_TEXT.account} onSort={() => setColumnSort("EMAIL")} />,
+      header: EXAM_STAFF_TEXT.account,
       filterAccessor: (user) => user.username,
       cell: (user) => user.username,
       cellClassName: "whitespace-nowrap",
@@ -145,7 +86,7 @@ export const ExamStaffView = (): ReactElement => {
     {
       key: "email",
       label: EXAM_STAFF_TEXT.email,
-      header: <SortHeader label={EXAM_STAFF_TEXT.email} onSort={() => setColumnSort("EMAIL")} />,
+      header: EXAM_STAFF_TEXT.email,
       filterAccessor: (user) => user.email,
       cell: (user) => user.email,
       cellClassName: "whitespace-nowrap",
@@ -153,7 +94,7 @@ export const ExamStaffView = (): ReactElement => {
     {
       key: "role",
       label: EXAM_STAFF_TEXT.role,
-      header: <SortHeader label={EXAM_STAFF_TEXT.role} />,
+      header: EXAM_STAFF_TEXT.role,
       filterOptions: ROLE_FILTER_OPTIONS,
       filterAccessor: roleLabel,
       cell: roleLabel,
@@ -161,7 +102,7 @@ export const ExamStaffView = (): ReactElement => {
     {
       key: "status",
       label: EXAM_STAFF_TEXT.status,
-      header: <SortHeader label={EXAM_STAFF_TEXT.status} />,
+      header: EXAM_STAFF_TEXT.status,
       filterOptions: STATUS_OPTIONS,
       filterAccessor: (user) => user.status,
       cell: (user) => (

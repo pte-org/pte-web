@@ -20,6 +20,10 @@ export interface DataTableColumn<TRow> {
   header: ReactNode;
   cell: (row: TRow) => ReactNode;
   label?: string;
+  /** Render a shared sort control in the column header. Defaults to true. */
+  sortable?: boolean;
+  /** Value used by the common browser-side sort when no custom value is supplied. */
+  sortAccessor?: (row: TRow) => DataTableSortValue;
   /** A custom control rendered in the common filter row. */
   filter?: ReactNode;
   /** Value used by the common browser-side filter when no custom control is supplied. */
@@ -31,6 +35,15 @@ export interface DataTableColumn<TRow> {
   headerClassName?: string;
   cellClassName?: string;
   className?: string;
+}
+
+export type DataTableSortDirection = "asc" | "desc";
+
+export type DataTableSortValue = string | number | boolean | Date | null | undefined;
+
+export interface DataTableSortState {
+  key: string;
+  direction: DataTableSortDirection;
 }
 
 export interface DataTableProps<TRow> {
@@ -54,6 +67,10 @@ export interface DataTableProps<TRow> {
   searchAriaLabel?: string;
   /** Apply the common search and column filters to the rows in the browser. */
   clientSideFiltering?: boolean;
+  /** Apply the common column sort to the rows in the browser. */
+  clientSideSorting?: boolean;
+  /** Optional first sort applied by the common table. */
+  initialSort?: DataTableSortState | null;
   /** Let the common table own page size, page slicing and footer pagination. */
   clientSidePagination?: boolean;
   initialPageSize?: number;
@@ -89,6 +106,8 @@ export function DataTable<TRow>({
   searchPlaceholder = "Search",
   searchAriaLabel = "Search table",
   clientSideFiltering = true,
+  clientSideSorting = true,
+  initialSort = null,
   clientSidePagination = false,
   initialPageSize = 10,
   pageSizeLabel = "Per page",
@@ -106,6 +125,7 @@ export function DataTable<TRow>({
   const selection = selectedKeys ?? new Set<string | number>();
   const [globalSearch, setGlobalSearch] = useState("");
   const [columnFilterValues, setColumnFilterValues] = useState<Record<string, string>>({});
+  const [sort, setSort] = useState<DataTableSortState | null>(initialSort);
   const [pageSize, setPageSize] = useState(Math.max(initialPageSize, 1));
   const [currentPage, setCurrentPage] = useState(1);
   const filterableColumns = columns.filter(
@@ -133,11 +153,38 @@ export function DataTable<TRow>({
     });
   }, [clientSideFiltering, columnFilterValues, filterableColumns, globalSearch, rows]);
 
+  const sortedRows = useMemo(() => {
+    if (!clientSideSorting || !sort) return filteredRows;
+
+    const column = columns.find(
+      (candidate) =>
+        candidate.key === sort.key &&
+        candidate.sortable !== false &&
+        candidate.key.toLowerCase() !== "actions",
+    );
+    if (!column) return filteredRows;
+
+    return filteredRows
+      .map((row, index) => ({ row, index }))
+      .sort((left, right) => {
+        const comparison = compareSortValues(
+          getSortValue(column, left.row),
+          getSortValue(column, right.row),
+        );
+        return comparison === 0
+          ? left.index - right.index
+          : sort.direction === "asc"
+            ? comparison
+            : -comparison;
+      })
+      .map(({ row }) => row);
+  }, [clientSideSorting, columns, filteredRows, sort]);
+
   const totalPages = Math.max(Math.ceil(filteredRows.length / pageSize), 1);
   const safeCurrentPage = Math.min(currentPage, totalPages);
   const visibleRows = clientSidePagination
-    ? filteredRows.slice((safeCurrentPage - 1) * pageSize, safeCurrentPage * pageSize)
-    : filteredRows;
+    ? sortedRows.slice((safeCurrentPage - 1) * pageSize, safeCurrentPage * pageSize)
+    : sortedRows;
   const allSelected =
     selectable && visibleRows.length > 0 && visibleRows.every((row) => selection.has(getRowKey(row)));
 
@@ -160,6 +207,14 @@ export function DataTable<TRow>({
   const toggleAll = (): void => {
     if (!onSelectionChange) return;
     onSelectionChange(allSelected ? new Set() : new Set(visibleRows.map(getRowKey)));
+  };
+
+  const toggleSort = (key: string): void => {
+    setSort((current) => ({
+      key,
+      direction: current?.key === key && current.direction === "asc" ? "desc" : "asc",
+    }));
+    setCurrentPage(1);
   };
 
   const cellPadding = "px-3 py-3 sm:px-5 sm:py-3.5";
@@ -241,6 +296,15 @@ export function DataTable<TRow>({
                       <th
                         key={column.key}
                         scope="col"
+                        aria-sort={
+                          column.sortable === false || column.key.toLowerCase() === "actions"
+                            ? undefined
+                            : sort?.key === column.key
+                              ? sort.direction === "asc"
+                                ? "ascending"
+                                : "descending"
+                              : "none"
+                        }
                         className={cn(
                           cellPadding,
                           "border-b border-[var(--divider)]",
@@ -248,7 +312,7 @@ export function DataTable<TRow>({
                           column.className,
                         )}
                       >
-                        {column.header}
+                        {renderColumnHeader({ column, sort, onSort: toggleSort })}
                       </th>
                     ))}
                     {rowActions && (
@@ -432,10 +496,88 @@ function renderColumnFilter<TRow>({
   );
 }
 
+function renderColumnHeader<TRow>({
+  column,
+  sort,
+  onSort,
+}: {
+  column: DataTableColumn<TRow>;
+  sort: DataTableSortState | null;
+  onSort: (key: string) => void;
+}): ReactNode {
+  if (column.sortable === false || column.key.toLowerCase() === "actions") {
+    return column.header;
+  }
+
+  const direction = sort?.key === column.key ? sort.direction : null;
+  const label = column.label ?? (typeof column.header === "string" ? column.header : column.key);
+
+  return (
+    <button
+      type="button"
+      aria-label={`Sort by ${label}`}
+      onClick={() => onSort(column.key)}
+      className="inline-flex items-center gap-1.5 rounded-sm text-inherit outline-none transition-colors hover:text-[var(--ink-primary)] focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35"
+    >
+      <span>{column.header}</span>
+      <SortIndicator direction={direction} />
+    </button>
+  );
+}
+
+function SortIndicator({ direction }: { direction: DataTableSortDirection | null }): ReactElement {
+  return (
+    <svg
+      viewBox="0 0 10 14"
+      className="h-3.5 w-2.5 shrink-0"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path
+        d="m2 5 3-3 3 3"
+        className={direction === "asc" ? "text-[var(--action)]" : "text-[var(--ink-muted)]"}
+      />
+      <path
+        d="m2 9 3 3 3-3"
+        className={direction === "desc" ? "text-[var(--action)]" : "text-[var(--ink-muted)]"}
+      />
+    </svg>
+  );
+}
+
 function getFilterText<TRow>(column: DataTableColumn<TRow>, row: TRow): string {
   const value = column.filterAccessor?.(row);
   if (value !== undefined && value !== null) return String(value);
   return reactNodeToText(column.cell(row));
+}
+
+function getSortValue<TRow>(column: DataTableColumn<TRow>, row: TRow): DataTableSortValue {
+  if (column.sortAccessor) return column.sortAccessor(row);
+  if (column.filterAccessor) return column.filterAccessor(row);
+  return reactNodeToText(column.cell(row));
+}
+
+function compareSortValues(left: DataTableSortValue, right: DataTableSortValue): number {
+  if (left === null || left === undefined) return right === null || right === undefined ? 0 : 1;
+  if (right === null || right === undefined) return -1;
+
+  if (left instanceof Date || right instanceof Date) {
+    const leftTime = left instanceof Date ? left.getTime() : new Date(String(left)).getTime();
+    const rightTime = right instanceof Date ? right.getTime() : new Date(String(right)).getTime();
+    if (Number.isFinite(leftTime) && Number.isFinite(rightTime)) return leftTime - rightTime;
+  }
+
+  if (typeof left === "number" && typeof right === "number") return left - right;
+  if (typeof left === "boolean" && typeof right === "boolean") return Number(left) - Number(right);
+
+  return String(left).localeCompare(String(right), undefined, {
+    numeric: true,
+    sensitivity: "base",
+  });
 }
 
 function reactNodeToText(node: ReactNode): string {
