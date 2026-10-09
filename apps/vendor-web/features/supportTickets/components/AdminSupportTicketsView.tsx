@@ -6,7 +6,6 @@ import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
 import {
   Alert,
   DataTable,
-  PageHeader,
   PaginationControls,
   type DataTableColumn,
 } from "@pte/ui";
@@ -63,7 +62,9 @@ export const AdminSupportTicketsView = (): ReactElement => {
     {
       key: "createdAt",
       header: H.SUBMITTED,
+      filterType: "date-range",
       filterAccessor: (t) => t.createdAt,
+      filterPlaceholder: "Date range",
       cell: (t) => new Date(t.createdAt).toLocaleDateString(),
     },
     {
@@ -83,8 +84,6 @@ export const AdminSupportTicketsView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={T.TITLE} />
-
       {isError && <Alert tone="error">Failed to load support tickets.</Alert>}
 
       <DataTable
@@ -94,6 +93,7 @@ export const AdminSupportTicketsView = (): ReactElement => {
         isLoading={isLoading}
         emptyTitle={T.EMPTY_TITLE}
         emptyDescription={T.EMPTY_TEXT}
+        clientSidePagination={false}
         pagination={
           data ? (
             <PaginationControls

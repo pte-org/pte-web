@@ -11,7 +11,6 @@ import {
   DataTable,
   Input,
   Modal,
-  PageHeader,
   PaginationControls,
   PencilIcon,
   Select,
@@ -137,11 +136,6 @@ export const PlatformUsersView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title={T.TITLE}
-        subtitle={T.SUBTITLE}
-        actions={<Button onClick={() => setCreateOpen(true)}>{T.CREATE}</Button>}
-      />
       {Boolean(error) && <Alert tone="error">{getUserFacingApiErrorMessage(error, T.ERROR)}</Alert>}
       <DataTable
         columns={[
@@ -186,6 +180,7 @@ export const PlatformUsersView = (): ReactElement => {
         getRowKey={(user) => user.publicId}
         isLoading={users.isLoading}
         emptyTitle={users.isLoading ? T.LOADING : T.EMPTY}
+        toolbarActions={<Button onClick={() => setCreateOpen(true)}>{T.CREATE}</Button>}
         rowActions={(user) => {
           const isSelf = user.publicId === currentUser?.publicId;
           const isAdmin = user.roles.includes("PLATFORM_ADMIN");
@@ -210,6 +205,7 @@ export const PlatformUsersView = (): ReactElement => {
           );
         }}
         rowActionsHeader={T.ACTIONS}
+        clientSidePagination={false}
         pagination={
           users.data ? (
             <PaginationControls

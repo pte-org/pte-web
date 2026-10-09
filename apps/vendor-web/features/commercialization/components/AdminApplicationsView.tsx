@@ -7,7 +7,6 @@ import {
   Alert,
   DataTable,
   EyeIcon,
-  PageHeader,
 } from "@pte/ui";
 import { useApplicationsQuery } from "../api";
 import type { TenantApplicationResponse } from "@pte/api-client";
@@ -72,9 +71,6 @@ export const AdminApplicationsView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title={T.TITLE}
-      />
       {isError && (
         <Alert tone="error">
           <div className="flex flex-wrap items-center justify-between gap-3">

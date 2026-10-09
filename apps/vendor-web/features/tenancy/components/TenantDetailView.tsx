@@ -12,7 +12,6 @@ import {
   Tabs,
   useLocale,
 } from "@pte/ui";
-import { AppBackButton } from "@/features/navigation/components/AppBackButton";
 import { useCurrentUser } from "@/features/auth/api";
 import { isPlatformAdmin } from "@/features/auth/permissions";
 import {
@@ -158,8 +157,6 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
 
   return (
     <div className="flex flex-col gap-5">
-      <AppBackButton href="/admin/tenants" label={T.BACK_TO_TENANTS} />
-
       <PageHeader
         title={tenant.name}
         actions={
@@ -196,167 +193,188 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
         tabIndex={0}
         className="flex flex-col gap-5 outline-none"
       >
-      {activeSection === "summary" && <>
-      <section className="flex flex-col gap-4 rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] p-5 shadow-card">
-        <h2 className="text-base font-semibold text-gray-900">{T.INFORMATION_TITLE}</h2>
-        <DetailGroup
-          title={T.GROUP_IDENTITY}
-          items={[
-            { label: T.ID_LABEL, value: <CopyableId value={tenant.id} /> },
-            { label: T.CODE_LABEL, value: <CopyableId value={tenant.code} /> },
-          ]}
-        />
-        <DetailGroup
-          title={T.GROUP_ORGANIZATION}
-          items={[
-            { label: T.NAME_LABEL, value: tenant.name },
-            {
-              label: T.ORGANIZATION_TYPE_LABEL,
-              value: organizationTypeLabel(tenant.organizationType),
-            },
-            { label: T.TAX_CODE_LABEL, value: tenant.taxCode ?? T.EMPTY_VALUE, fullWidth: true },
-          ]}
-        />
-        <DetailGroup
-          title={T.GROUP_PLAN}
-          items={[
-            { label: T.PLAN_LABEL, value: TENANT_PLAN_LABELS[tenant.plan] },
-            { label: T.STUDENT_LIMIT_LABEL, value: tenant.seatsTotal },
-          ]}
-        />
-      </section>
+        {activeSection === "summary" && (
+          <>
+            <section className="flex flex-col gap-4 rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] p-5 shadow-card">
+              <h2 className="text-base font-semibold text-gray-900">{T.INFORMATION_TITLE}</h2>
+              <DetailGroup
+                title={T.GROUP_IDENTITY}
+                items={[
+                  { label: T.ID_LABEL, value: <CopyableId value={tenant.id} /> },
+                  { label: T.CODE_LABEL, value: <CopyableId value={tenant.code} /> },
+                ]}
+              />
+              <DetailGroup
+                title={T.GROUP_ORGANIZATION}
+                items={[
+                  { label: T.NAME_LABEL, value: tenant.name },
+                  {
+                    label: T.ORGANIZATION_TYPE_LABEL,
+                    value: organizationTypeLabel(tenant.organizationType),
+                  },
+                  {
+                    label: T.TAX_CODE_LABEL,
+                    value: tenant.taxCode ?? T.EMPTY_VALUE,
+                    fullWidth: true,
+                  },
+                ]}
+              />
+              <DetailGroup
+                title={T.GROUP_PLAN}
+                items={[
+                  { label: T.PLAN_LABEL, value: TENANT_PLAN_LABELS[tenant.plan] },
+                  { label: T.STUDENT_LIMIT_LABEL, value: tenant.seatsTotal },
+                ]}
+              />
+            </section>
 
-      <BrandingEditor
-        key={`${tenant.logoUrl ?? ""}|${tenant.primaryColor ?? ""}`}
-        tenant={tenant}
-        onSubmit={submitBranding}
-        isSubmitting={updateBranding.isPending}
-        error={mutationErrorMessage(updateBranding.error)}
-        saved={brandingSaved}
-      />
-      </>}
+            <BrandingEditor
+              key={`${tenant.logoUrl ?? ""}|${tenant.primaryColor ?? ""}`}
+              tenant={tenant}
+              onSubmit={submitBranding}
+              isSubmitting={updateBranding.isPending}
+              error={mutationErrorMessage(updateBranding.error)}
+              saved={brandingSaved}
+            />
+          </>
+        )}
 
-      {activeSection === "account" && <section className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-gray-900">{L.TITLE}</h2>
-          </div>
-          {loginAccount && (
-            <button
-              type="button"
-              onClick={() => setResetPasswordOpen(true)}
-              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-            >
-              {L.RESET_PASSWORD}
-            </button>
-          )}
-        </div>
-
-        {resetSucceeded && <Alert tone="success">{L.RESET_SUCCESS}</Alert>}
-
-        {loginAccountQuery.isLoading ? (
-          <div className="rounded-lg border border-gray-200 bg-white p-5 text-sm text-gray-500">
-            {L.LOADING}
-          </div>
-        ) : loginAccountQuery.error ? (
-          <Alert tone="error">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <span>{loginAccountErrorMessage(loginAccountQuery.error) ?? L.LOAD_ERROR}</span>
-              <button
-                type="button"
-                className="font-semibold underline"
-                onClick={() => void loginAccountQuery.refetch()}
-              >
-                {L.RETRY}
-              </button>
+        {activeSection === "account" && (
+          <section className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-gray-900">{L.TITLE}</h2>
+              </div>
+              {loginAccount && (
+                <button
+                  type="button"
+                  onClick={() => setResetPasswordOpen(true)}
+                  className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                >
+                  {L.RESET_PASSWORD}
+                </button>
+              )}
             </div>
-          </Alert>
-        ) : isAmbiguousLoginAccount ? (
-          <Alert tone="error">{L.AMBIGUOUS_TARGET}</Alert>
-        ) : loginAccount ? (
-          <div className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5">
-            <DetailGroup
-              title={L.GROUP_IDENTITY}
-              items={[
-                { label: L.USER_ID_LABEL, value: <CopyableId value={loginAccount.id} /> },
-                { label: L.USERNAME_LABEL, value: loginAccount.username },
-              ]}
-            />
-            <DetailGroup
-              title={L.GROUP_ACCOUNT}
-              items={[
-                { label: L.EMAIL_LABEL, value: loginAccount.email },
-                { label: L.FULL_NAME_LABEL, value: loginAccount.fullName },
-                {
-                  label: L.ROLES_LABEL,
-                  value:
-                    loginAccount.roles.length > 0 ? loginAccount.roles.join(", ") : L.EMPTY_VALUE,
-                },
-                {
-                  label: T.STATUS_LABEL,
-                  value: (
-                    <Badge variant={LOGIN_ACCOUNT_STATUS_VARIANT[loginAccount.status]}>
-                      {LOGIN_ACCOUNT_STATUS_LABELS[loginAccount.status]}
-                    </Badge>
-                  ),
-                },
-              ]}
-            />
-            <DetailGroup
-              title={L.GROUP_STUDENT}
-              items={[
-                { label: L.STUDENT_CODE_LABEL, value: loginAccount.studentCode ?? L.EMPTY_VALUE },
-                { label: L.CLASS_NAME_LABEL, value: loginAccount.className ?? L.EMPTY_VALUE },
-                { label: L.PHONE_LABEL, value: loginAccount.phone ?? L.EMPTY_VALUE },
-                { label: L.DATE_OF_BIRTH_LABEL, value: loginAccount.dateOfBirth ?? L.EMPTY_VALUE },
-              ]}
-            />
-            <DetailGroup
-              title={L.GROUP_SECURITY}
-              items={[
-                {
-                  label: L.PASSWORD_STATE_LABEL,
-                  value: loginAccount.mustChangePassword
-                    ? L.PASSWORD_STATE_REQUIRED
-                    : L.PASSWORD_STATE_NOT_REQUIRED,
-                  fullWidth: true,
-                },
-              ]}
-            />
-          </div>
-        ) : (
-          <TenantEmptyState
-            onAdd={() => setCreateLoginOpen(true)}
-            title={L.EMPTY_TITLE}
-            text={L.EMPTY_TEXT}
-            addLabel={L.CREATE_LOGIN}
-          />
+
+            {resetSucceeded && <Alert tone="success">{L.RESET_SUCCESS}</Alert>}
+
+            {loginAccountQuery.isLoading ? (
+              <div className="rounded-lg border border-gray-200 bg-white p-5 text-sm text-gray-500">
+                {L.LOADING}
+              </div>
+            ) : loginAccountQuery.error ? (
+              <Alert tone="error">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <span>{loginAccountErrorMessage(loginAccountQuery.error) ?? L.LOAD_ERROR}</span>
+                  <button
+                    type="button"
+                    className="font-semibold underline"
+                    onClick={() => void loginAccountQuery.refetch()}
+                  >
+                    {L.RETRY}
+                  </button>
+                </div>
+              </Alert>
+            ) : isAmbiguousLoginAccount ? (
+              <Alert tone="error">{L.AMBIGUOUS_TARGET}</Alert>
+            ) : loginAccount ? (
+              <div className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5">
+                <DetailGroup
+                  title={L.GROUP_IDENTITY}
+                  items={[
+                    { label: L.USER_ID_LABEL, value: <CopyableId value={loginAccount.id} /> },
+                    { label: L.USERNAME_LABEL, value: loginAccount.username },
+                  ]}
+                />
+                <DetailGroup
+                  title={L.GROUP_ACCOUNT}
+                  items={[
+                    { label: L.EMAIL_LABEL, value: loginAccount.email },
+                    { label: L.FULL_NAME_LABEL, value: loginAccount.fullName },
+                    {
+                      label: L.ROLES_LABEL,
+                      value:
+                        loginAccount.roles.length > 0
+                          ? loginAccount.roles.join(", ")
+                          : L.EMPTY_VALUE,
+                    },
+                    {
+                      label: T.STATUS_LABEL,
+                      value: (
+                        <Badge variant={LOGIN_ACCOUNT_STATUS_VARIANT[loginAccount.status]}>
+                          {LOGIN_ACCOUNT_STATUS_LABELS[loginAccount.status]}
+                        </Badge>
+                      ),
+                    },
+                  ]}
+                />
+                <DetailGroup
+                  title={L.GROUP_STUDENT}
+                  items={[
+                    {
+                      label: L.STUDENT_CODE_LABEL,
+                      value: loginAccount.studentCode ?? L.EMPTY_VALUE,
+                    },
+                    { label: L.CLASS_NAME_LABEL, value: loginAccount.className ?? L.EMPTY_VALUE },
+                    { label: L.PHONE_LABEL, value: loginAccount.phone ?? L.EMPTY_VALUE },
+                    {
+                      label: L.DATE_OF_BIRTH_LABEL,
+                      value: loginAccount.dateOfBirth ?? L.EMPTY_VALUE,
+                    },
+                  ]}
+                />
+                <DetailGroup
+                  title={L.GROUP_SECURITY}
+                  items={[
+                    {
+                      label: L.PASSWORD_STATE_LABEL,
+                      value: loginAccount.mustChangePassword
+                        ? L.PASSWORD_STATE_REQUIRED
+                        : L.PASSWORD_STATE_NOT_REQUIRED,
+                      fullWidth: true,
+                    },
+                  ]}
+                />
+              </div>
+            ) : (
+              <TenantEmptyState
+                onAdd={() => setCreateLoginOpen(true)}
+                title={L.EMPTY_TITLE}
+                text={L.EMPTY_TEXT}
+                addLabel={L.CREATE_LOGIN}
+              />
+            )}
+          </section>
         )}
-      </section>}
 
-      {activeSection === "organizations" && <section className="flex flex-col gap-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-base font-semibold text-gray-900">{T.ORGANIZATIONS_TITLE}</h2>
-          </div>
-        </div>
+        {activeSection === "organizations" && (
+          <section className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-semibold text-gray-900">{T.ORGANIZATIONS_TITLE}</h2>
+              </div>
+            </div>
 
-        {suspendOrganization.error || reactivateOrganization.error ? (
-          <Alert tone="error">
-            {mutationErrorMessage(suspendOrganization.error ?? reactivateOrganization.error)}
-          </Alert>
-        ) : null}
+            {suspendOrganization.error || reactivateOrganization.error ? (
+              <Alert tone="error">
+                {mutationErrorMessage(suspendOrganization.error ?? reactivateOrganization.error)}
+              </Alert>
+            ) : null}
 
-        {organizations && organizations.length > 0 ? (
-          <OrganizationTable
-            organizations={organizations}
-            onSuspend={confirmSuspendOrganization}
-            onReactivate={confirmReactivateOrganization}
-          />
-        ) : (
-          <TenantEmptyState title={T.EMPTY_ORGANIZATIONS_TITLE} text={T.EMPTY_ORGANIZATIONS_TEXT} />
+            {organizations && organizations.length > 0 ? (
+              <OrganizationTable
+                organizations={organizations}
+                onSuspend={confirmSuspendOrganization}
+                onReactivate={confirmReactivateOrganization}
+              />
+            ) : (
+              <TenantEmptyState
+                title={T.EMPTY_ORGANIZATIONS_TITLE}
+                text={T.EMPTY_ORGANIZATIONS_TEXT}
+              />
+            )}
+          </section>
         )}
-      </section>}
       </div>
 
       <CreateLoginAccountModal

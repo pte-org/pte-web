@@ -6,17 +6,18 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  Avatar,
   Breadcrumbs,
   DashboardShell,
-  Dropdown,
   LocaleSwitcher,
+  LogoutIcon,
   SidebarNav as SharedSidebarNav,
   Skeleton,
   ThemeToggle,
+  UserMenu,
   cn,
   useLocale,
   useTokenManager,
+  type DropdownItem,
   type SessionRole,
 } from "@pte/ui";
 import { NotificationBellContainer } from "@/features/notifications";
@@ -49,7 +50,6 @@ interface DashboardChromeProps {
 
 const BRAND_NAME = "PTE Prep";
 const BRAND_SUBTITLE = "Admin System";
-const DISCLAIMER = "PTE mock exam platform. Not affiliated with Pearson.";
 
 const HEADER_TEXT = {
   ACCOUNT: "Account",
@@ -78,7 +78,9 @@ const SidebarBrand = ({ collapsed = false }: { collapsed?: boolean }): ReactElem
       {!collapsed && (
         <div className="leading-tight">
           <p className="text-sm font-semibold text-[var(--ink-primary)]">{BRAND_NAME}</p>
-          <p className="text-xs text-[var(--ink-muted)]">{t("brand.adminSubtitle", BRAND_SUBTITLE)}</p>
+          <p className="text-xs text-[var(--ink-muted)]">
+            {t("brand.adminSubtitle", BRAND_SUBTITLE)}
+          </p>
         </div>
       )}
     </Link>
@@ -108,9 +110,7 @@ const SidebarNav = ({
     label: item.labelKey ? t(item.labelKey, item.label) : item.label,
     href: item.href,
     icon: item.icon,
-    section: item.sectionKey
-      ? t(item.sectionKey, item.section ?? "Pages")
-      : item.section,
+    section: item.sectionKey ? t(item.sectionKey, item.section ?? "Pages") : item.section,
     isActive: isActive(pathname, item.href),
   }));
 
@@ -157,25 +157,32 @@ const HeaderActions = (): ReactElement => {
     router.replace(AUTH_ROUTES.login);
   };
 
+  const userMenuItems: DropdownItem[] = [
+    ...(user?.roles.map((role) => ({
+      label: roleLabel(role),
+      disabled: true,
+      onSelect: () => undefined,
+    })) ?? []),
+    ...(user?.roles.length ? [{ separator: true as const, key: "roles-logout" }] : []),
+    {
+      label: t("common.logout", HEADER_TEXT.LOGOUT),
+      onSelect: logout,
+      icon: LogoutIcon,
+    },
+  ];
+
   return (
     <>
       <LocaleSwitcher />
       <ThemeToggle />
       <NotificationBellContainer />
       {isLoading ? (
-        <Skeleton className="h-8 w-8 rounded-full" />
+        <Skeleton className="h-10 w-10 rounded-lg sm:w-28" />
       ) : (
-        <Dropdown
-          label={user?.fullName ?? t("common.account", HEADER_TEXT.ACCOUNT)}
-          trigger={<Avatar name={user?.fullName} />}
-          items={[
-            ...(user?.roles.map((role) => ({
-              label: roleLabel(role),
-              disabled: true,
-              onSelect: () => undefined,
-            })) ?? []),
-            { label: t("common.logout", HEADER_TEXT.LOGOUT), onSelect: logout },
-          ]}
+        <UserMenu
+          name={user?.fullName ?? t("common.account", HEADER_TEXT.ACCOUNT)}
+          email={user?.email}
+          items={userMenuItems}
         />
       )}
     </>
@@ -203,7 +210,14 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
         { href: "/", label: t("nav.home", "Home") },
         ...(activeItem.href === "/"
           ? []
-          : [{ href: activeItem.href, label: activeItem.labelKey ? t(activeItem.labelKey, activeItem.label) : activeItem.label }]),
+          : [
+              {
+                href: activeItem.href,
+                label: activeItem.labelKey
+                  ? t(activeItem.labelKey, activeItem.label)
+                  : activeItem.label,
+              },
+            ]),
       ]}
     />
   ) : null;
@@ -212,17 +226,11 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
     <DashboardShell
       brand={({ isSidebarOpen }) => <SidebarBrand collapsed={!isSidebarOpen} />}
       sidebar={({ isSidebarOpen, onItemClick }) => (
-        <SidebarNav
-          navItems={navItems}
-          isSidebarOpen={isSidebarOpen}
-          onItemClick={onItemClick}
-        />
+        <SidebarNav navItems={navItems} isSidebarOpen={isSidebarOpen} onItemClick={onItemClick} />
       )}
-      headerBrand={<span className="text-lg font-medium text-[var(--brand-ink)]">{BRAND_NAME}</span>}
       headerActions={<HeaderActions />}
       breadcrumbs={breadcrumbs}
       navigationKey={`${pathname}?${searchParams.toString()}`}
-      footer={t("common.disclaimer", DISCLAIMER)}
     >
       {children}
     </DashboardShell>

@@ -19,7 +19,6 @@ import {
   EyeIcon,
   Input,
   Modal,
-  PageHeader,
   PaginationControls,
   Select,
   subscribeSessionLifecycle,
@@ -377,7 +376,6 @@ export const LicenseCodesView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={T.TITLE} />
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       {message && <Alert tone="success">{message}</Alert>}
       {codePageQuery.isFetching && codePageQuery.data && <Alert tone="info">{T.STALE_DATA}</Alert>}
@@ -503,9 +501,29 @@ export const LicenseCodesView = (): ReactElement => {
                 </div>
               ) : T.EMPTY_VALUE,
             },
-            { key: "issued", header: T.ISSUED, cell: (row: AdminLicenseCodeSummary) => formatDate(row.issuedAt) },
-            { key: "expires", header: T.EXPIRES, cell: (row: AdminLicenseCodeSummary) => formatDate(row.codeExpiresAt) },
-            { key: "status", header: T.STATUS, cell: (row: AdminLicenseCodeSummary) => <CommercialStatusBadge status={row.effectiveStatus} /> },
+            {
+              key: "issued",
+              header: T.ISSUED,
+              filterType: "date-range",
+              filterAccessor: (row: AdminLicenseCodeSummary) => row.issuedAt,
+              filterPlaceholder: "Date range",
+              cell: (row: AdminLicenseCodeSummary) => formatDate(row.issuedAt),
+            },
+            {
+              key: "expires",
+              header: T.EXPIRES,
+              filterType: "date-range",
+              filterAccessor: (row: AdminLicenseCodeSummary) => row.codeExpiresAt,
+              filterPlaceholder: "Date range",
+              cell: (row: AdminLicenseCodeSummary) => formatDate(row.codeExpiresAt),
+            },
+            {
+              key: "status",
+              header: T.STATUS,
+              filterOptions: STATUS_OPTIONS,
+              filterAccessor: (row: AdminLicenseCodeSummary) => row.effectiveStatus,
+              cell: (row: AdminLicenseCodeSummary) => <CommercialStatusBadge status={row.effectiveStatus} />,
+            },
           ]}
           rows={codes}
           getRowKey={(row) => row.publicId}
@@ -524,6 +542,7 @@ export const LicenseCodesView = (): ReactElement => {
           )}
           rowActionsHeader=""
           emptyTitle={codePageQuery.isLoading ? T.LOADING : isFiltered ? T.FILTER_EMPTY : T.EMPTY}
+          clientSidePagination={false}
           pagination={
             codePageQuery.data ? (
               <PaginationControls

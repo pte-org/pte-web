@@ -9,7 +9,6 @@ import {
   DataTable,
   Input,
   Modal,
-  PageHeader,
   Select,
   CheckCircleIcon,
   PencilIcon,
@@ -63,6 +62,13 @@ const INITIAL_FORM: PlanFormState = {
 
 const MAX_STUDENT_COUNT = 2_000;
 const MAX_EXAM_DURATION_DAYS = 3_650;
+
+const PLAN_STATUS_FILTER_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "DRAFT", label: "Draft" },
+  { value: "ACTIVE", label: "Active" },
+  { value: "ARCHIVED", label: "Archived" },
+] as const;
 
 const formatMoney = (plan: PlanResponse): string => {
   const [integerPart, fractionPart] = String(plan.price).split(".");
@@ -332,14 +338,6 @@ export const PlanCatalogView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title={T.TITLE}
-        actions={
-          <Button type="button" onClick={beginCreate} disabled={isBusy}>
-            {T.ADD}
-          </Button>
-        }
-      />
       {!isFormOpen && errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       <Modal
         open={isFormOpen}
@@ -484,6 +482,11 @@ export const PlanCatalogView = (): ReactElement => {
       </Modal>
       <CommercialPanel title={T.CATALOG_TITLE}>
         <DataTable
+          toolbarActions={
+            <Button type="button" onClick={beginCreate} disabled={isBusy}>
+              {T.ADD}
+            </Button>
+          }
           isLoading={isLoading}
           columns={[
             {
@@ -538,6 +541,7 @@ export const PlanCatalogView = (): ReactElement => {
             {
               key: "status",
               header: T.TABLE_STATUS,
+              filterOptions: PLAN_STATUS_FILTER_OPTIONS,
               filterAccessor: (row: PlanResponse) => row.status,
               cell: (row: PlanResponse) => <CommercialStatusBadge status={row.status} />,
             },

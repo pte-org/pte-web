@@ -10,7 +10,6 @@ import {
   CheckCircleIcon,
   ConfirmDialog,
   DataTable,
-  PageHeader,
   PencilIcon,
   TrashIcon,
   UploadIcon,
@@ -149,15 +148,6 @@ export const QuestionTypeView = (): ReactElement => {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={QUESTION_TYPE_TEXT.TITLE}
-        actions={
-          <Button variant="primary" onClick={beginCreate}>
-            + {QUESTION_TYPE_TEXT.CREATE}
-          </Button>
-        }
-      />
-
       {(isError || capabilitiesError) && (
         <Alert tone="error">{QUESTION_TYPE_TEXT.LOAD_ERROR}</Alert>
       )}
@@ -171,6 +161,11 @@ export const QuestionTypeView = (): ReactElement => {
         </Alert>
       )}
       <DataTable
+        toolbarActions={
+          <Button variant="primary" onClick={beginCreate}>
+            + {QUESTION_TYPE_TEXT.CREATE}
+          </Button>
+        }
         columns={[
           {
             key: "order",

@@ -53,7 +53,9 @@ export const QuotaHistoryModal = ({
             key: "date",
             label: QUOTA_HISTORY_TABLE_HEADERS.DATE,
             header: QUOTA_HISTORY_TABLE_HEADERS.DATE,
+            filterType: "date-range",
             filterAccessor: (transaction: QuotaTransactionResponse) => transaction.createdAt,
+            filterPlaceholder: "Date range",
             cell: (transaction: QuotaTransactionResponse) => formatDate(transaction.createdAt),
           },
           {

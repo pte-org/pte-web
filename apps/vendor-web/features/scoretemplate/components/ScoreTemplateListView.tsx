@@ -15,7 +15,6 @@ import {
   EyeIcon,
   Input,
   Modal,
-  PageHeader,
   PencilIcon,
   Select,
   TrashIcon,
@@ -213,15 +212,6 @@ export const ScoreTemplateListView = (): ReactElement => {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={SCORE_TEMPLATE_TEXT.LIST_TITLE}
-        actions={
-          <Button variant="secondary" onClick={() => setIsCreateOpen(true)}>
-            {SCORE_TEMPLATE_TEXT.CREATE_ACTION}
-          </Button>
-        }
-      />
-
       {notice && <Alert tone="success">{notice}</Alert>}
       {isError && <Alert tone="error">{SCORE_TEMPLATE_TEXT.LOAD_ERROR}</Alert>}
       {createError && <Alert tone="error">{createError}</Alert>}
@@ -296,7 +286,10 @@ export const ScoreTemplateListView = (): ReactElement => {
             header: SCORE_TEMPLATE_LIST_HEADERS.STATUS,
             filterOptions: [
               { value: "", label: "All statuses" },
-              ...Object.entries(SCORE_TEMPLATE_STATUS_LABELS).map(([value, label]) => ({ value, label })),
+              ...Object.entries(SCORE_TEMPLATE_STATUS_LABELS).map(([value, label]) => ({
+                value,
+                label,
+              })),
             ],
             filterAccessor: (template: ScoreTemplateResponse) => template.status,
             cell: (template: ScoreTemplateResponse) => {
@@ -321,7 +314,10 @@ export const ScoreTemplateListView = (): ReactElement => {
             header: SCORE_TEMPLATE_LIST_HEADERS.POLICY,
             filterOptions: [
               { value: "", label: "All policies" },
-              ...Object.entries(SCORE_TEMPLATE_POLICY_LABELS).map(([value, label]) => ({ value, label })),
+              ...Object.entries(SCORE_TEMPLATE_POLICY_LABELS).map(([value, label]) => ({
+                value,
+                label,
+              })),
             ],
             filterAccessor: (template: ScoreTemplateResponse) => template.templatePolicy,
             cell: (template: ScoreTemplateResponse) =>
@@ -334,6 +330,9 @@ export const ScoreTemplateListView = (): ReactElement => {
         getRowKey={(template) => template.publicId}
         isLoading={isLoading}
         emptyTitle="No exam templates found"
+        toolbarActions={
+          <Button onClick={() => setIsCreateOpen(true)}>{SCORE_TEMPLATE_TEXT.CREATE_ACTION}</Button>
+        }
         tableClassName="min-w-[720px]"
         rowActionsHeader={SCORE_TEMPLATE_LIST_HEADERS.ACTIONS}
         rowActions={(template) => <ActionMenu items={buildActions(template)} />}

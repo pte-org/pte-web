@@ -55,7 +55,9 @@ export const RecentTenantsTable = ({
           key: "activatedAt",
           label: RECENT_TABLE_HEADERS.ACTIVATED,
           header: RECENT_TABLE_HEADERS.ACTIVATED,
+          filterType: "date-range",
           filterAccessor: (tenant: Tenant) => tenant.activatedAt,
+          filterPlaceholder: "Date range",
           cell: (tenant: Tenant) => tenant.activatedAt,
         },
         {

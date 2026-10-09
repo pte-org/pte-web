@@ -244,9 +244,15 @@ const ScoreTemplateEditorForm = ({
   // taskType (never accepted as admin input), and timingMode no longer
   // exists at all (column dropped) — see ScoreTemplateItemDraft.
   const handleAddType = (): void => {
-    const type = selectableQuestionTypes.find((candidate) => taskTypeKey(candidate) === newTypeCode);
+    const type = selectableQuestionTypes.find(
+      (candidate) => taskTypeKey(candidate) === newTypeCode,
+    );
     const selectedKey = type ? taskTypeKey(type) : "";
-    if (!type || type.section !== newSection || items.some((item) => item.taskTypeKey === selectedKey))
+    if (
+      !type ||
+      type.section !== newSection ||
+      items.some((item) => item.taskTypeKey === selectedKey)
+    )
       return;
 
     setItems((current) => [
@@ -281,8 +287,7 @@ const ScoreTemplateEditorForm = ({
 
   const availableTypes = selectableQuestionTypes.filter(
     (type) =>
-      type.section === newSection &&
-      !items.some((item) => item.taskTypeKey === taskTypeKey(type)),
+      type.section === newSection && !items.some((item) => item.taskTypeKey === taskTypeKey(type)),
   );
   const activeCatalogTypes = questionTypes.filter((type) => type.active);
   const selectedTypeUnavailable =
@@ -290,8 +295,7 @@ const ScoreTemplateEditorForm = ({
       (item) =>
         !questionTypes.some((type) => taskTypeKey(type) === item.taskTypeKey) ||
         !questionTypes.some((type) => taskTypeKey(type) === item.taskTypeKey && type.active),
-    ) ||
-    hasUnreadyTaskType(items, questionTypes);
+    ) || hasUnreadyTaskType(items, questionTypes);
   const canActivateFromCatalog =
     items.length > 0 &&
     activeCatalogTypes.length > 0 &&
@@ -339,9 +343,6 @@ const ScoreTemplateEditorForm = ({
                 {SCORE_TEMPLATE_TEXT.ACTIVATE_ACTION}
               </Button>
             )}
-            <Button variant="ghost" onClick={() => router.push(EXAM_TEMPLATE_BASE_PATH)}>
-              {SCORE_TEMPLATE_TEXT.DETAIL_BACK}
-            </Button>
           </>
         }
       />
