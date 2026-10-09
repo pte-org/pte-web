@@ -14,12 +14,14 @@ export const ThemeToggle = ({ className }: { className?: string }): ReactElement
   return (
     <button
       type="button"
-      aria-label={isDark ? t("common.lightTheme", "Light theme") : t("common.darkTheme", "Dark theme")}
+      aria-label={
+        isDark ? t("common.lightTheme", "Light theme") : t("common.darkTheme", "Dark theme")
+      }
       aria-pressed={isDark}
       title={isDark ? t("common.lightTheme", "Light theme") : t("common.darkTheme", "Dark theme")}
       onClick={toggleTheme}
       className={cn(
-        "grid h-10 w-10 place-items-center rounded-lg text-[var(--ink-secondary)] transition-colors hover:bg-[var(--brand-tint)] hover:text-[var(--brand-ink)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]",
+        "grid h-10 w-10 place-items-center rounded-lg border border-[var(--shell-border)] bg-[var(--shell-frame)] text-[var(--ink-primary)] shadow-xs transition-colors hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35 focus-visible:ring-offset-1",
         className,
       )}
     >

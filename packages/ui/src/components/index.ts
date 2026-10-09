@@ -1,11 +1,11 @@
 export { Button } from "./Button";
-export type { ButtonVariant, ButtonSize } from "./Button";
+export type { ButtonAppearance, ButtonProps, ButtonVariant, ButtonSize } from "./Button";
 export { FormField } from "./FormField";
 export { Input, TextInput, DateInput, NumberInput } from "./Input";
 export { PasswordInput } from "./PasswordInput";
 export { Textarea } from "./Textarea";
 export { Select } from "./Select";
-export type { SelectOption } from "./Select";
+export type { SelectOption, SelectProps } from "./Select";
 export { Checkbox } from "./Checkbox";
 export { FileDropzone } from "./FileDropzone";
 export { FormActions } from "./FormActions";
@@ -42,9 +42,25 @@ export type { NotificationBellProps, NotificationHistoryProps } from "./Notifica
 export { Alert } from "./Alert";
 export type { AlertTone } from "./Alert";
 export { DataTable } from "./DataTable";
-export type { DataTableColumn } from "./DataTable";
-export { PaginationControls } from "./PaginationControls";
-export type { PageMeta } from "./PaginationControls";
+export type {
+  DataTableColumn,
+  DataTableFilterType,
+  DataTableFilterValue,
+  DataTableProps,
+  DataTableSortDirection,
+  DataTableSortState,
+  DataTableSortValue,
+} from "./DataTable";
+export { DateRangePicker } from "./DateRangePicker";
+export type { DateRangePickerProps, DateRangeValue } from "./DateRangePicker";
+export { PaginationControls, PaginationPageSizeSelect } from "./PaginationControls";
+export type { PageMeta, PaginationPageSizeSelectProps } from "./PaginationControls";
+export { Pagination } from "./Pagination";
+export type { PaginationProps } from "./Pagination";
+export { TableFilterInput, TableSearchControl } from "./TableFilters";
+export type { TableFilterInputProps, TableSearchControlProps } from "./TableFilters";
+export { TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow } from "./Table";
+export type { TableRootProps } from "./Table";
 export { DescriptionList } from "./DescriptionList";
 export type { DescriptionItem } from "./DescriptionList";
 export { DetailGroup } from "./DetailGroup";
@@ -55,6 +71,7 @@ export { TopBar } from "./TopBar";
 export { Breadcrumbs } from "./Breadcrumbs";
 export type { BreadcrumbItem } from "./Breadcrumbs";
 export { UserMenu } from "./UserMenu";
+export type { UserMenuProps } from "./UserMenu";
 export { Avatar } from "./Avatar";
 export { Dropdown } from "./Dropdown";
 export type {

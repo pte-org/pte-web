@@ -118,6 +118,7 @@ export const PLAN_CATALOG_TEXT = {
   CAPACITY_ADD_ONS: "Capacity add-ons",
   TABLE_PLAN: "Plan",
   TABLE_PRICE: "Price",
+  TABLE_TYPE: "Type",
   TABLE_TERM: "Term",
   TABLE_CAPACITY: "Capacity",
   TABLE_STATUS: "Status",

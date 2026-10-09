@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import Link from "next/link";
-import { ActionMenu, Avatar, Badge } from "@pte/ui";
+import { ActionMenu, Avatar, Badge, DataTable } from "@pte/ui";
 import {
   TENANT_PLAN_LABELS,
   TENANT_STATUS_LABELS,
@@ -14,10 +14,6 @@ interface RecentTenantsTableProps {
   total: number;
   onViewTenant: (tenant: Tenant) => void;
 }
-
-const HEADER_CLASS =
-  "px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
-const CELL_CLASS = "px-5 py-4 text-sm text-gray-700";
 
 export const RecentTenantsTable = ({
   tenants,
@@ -34,51 +30,62 @@ export const RecentTenantsTable = ({
         {DASHBOARD_TEXT.VIEW_ALL}
       </Link>
     </div>
-    <div className="overflow-x-auto">
-      <table className="min-w-[680px] w-full border-collapse">
-        <thead className="bg-slate-50">
-          <tr>
-            <th className={HEADER_CLASS}>{RECENT_TABLE_HEADERS.NAME}</th>
-            <th className={HEADER_CLASS}>{RECENT_TABLE_HEADERS.PLAN}</th>
-            <th className={HEADER_CLASS}>{RECENT_TABLE_HEADERS.ACTIVATED}</th>
-            <th className={HEADER_CLASS}>{RECENT_TABLE_HEADERS.STATUS}</th>
-            <th className={HEADER_CLASS} aria-label={RECENT_TABLE_HEADERS.ACTIONS} />
-          </tr>
-        </thead>
-        <tbody>
-          {tenants.map((tenant) => (
-            <tr
-              key={tenant.id}
-              className="border-t border-gray-100 transition-colors hover:bg-[var(--surface-row-hover)]"
-            >
-              <td className={`${CELL_CLASS} font-medium text-gray-900`}>
-                <div className="flex items-center gap-3">
-                  <Avatar name={tenant.name} />
-                  {tenant.name}
-                </div>
-              </td>
-              <td className={CELL_CLASS}>{TENANT_PLAN_LABELS[tenant.plan]}</td>
-              <td className={CELL_CLASS}>{tenant.activatedAt}</td>
-              <td className={CELL_CLASS}>
-                <Badge variant={TENANT_STATUS_VARIANT[tenant.status]}>
-                  {TENANT_STATUS_LABELS[tenant.status]}
-                </Badge>
-              </td>
-              <td className={CELL_CLASS}>
-                <ActionMenu
-                  items={[
-                    {
-                      label: DASHBOARD_TEXT.ROW_DETAIL,
-                      onSelect: () => onViewTenant(tenant),
-                    },
-                  ]}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <DataTable
+      columns={[
+        {
+          key: "name",
+          label: RECENT_TABLE_HEADERS.NAME,
+          header: RECENT_TABLE_HEADERS.NAME,
+          filterAccessor: (tenant: Tenant) => tenant.name,
+          cell: (tenant: Tenant) => (
+            <div className="flex items-center gap-3 font-medium">
+              <Avatar name={tenant.name} />
+              {tenant.name}
+            </div>
+          ),
+        },
+        {
+          key: "plan",
+          label: RECENT_TABLE_HEADERS.PLAN,
+          header: RECENT_TABLE_HEADERS.PLAN,
+          filterAccessor: (tenant: Tenant) => TENANT_PLAN_LABELS[tenant.plan],
+          cell: (tenant: Tenant) => TENANT_PLAN_LABELS[tenant.plan],
+        },
+        {
+          key: "activatedAt",
+          label: RECENT_TABLE_HEADERS.ACTIVATED,
+          header: RECENT_TABLE_HEADERS.ACTIVATED,
+          filterType: "date-range",
+          filterAccessor: (tenant: Tenant) => tenant.activatedAt,
+          filterPlaceholder: "Date range",
+          cell: (tenant: Tenant) => tenant.activatedAt,
+        },
+        {
+          key: "status",
+          label: RECENT_TABLE_HEADERS.STATUS,
+          header: RECENT_TABLE_HEADERS.STATUS,
+          filterOptions: [
+            { value: "", label: "All statuses" },
+            ...Object.entries(TENANT_STATUS_LABELS).map(([value, label]) => ({ value, label })),
+          ],
+          filterAccessor: (tenant: Tenant) => tenant.status,
+          cell: (tenant: Tenant) => (
+            <Badge variant={TENANT_STATUS_VARIANT[tenant.status]}>
+              {TENANT_STATUS_LABELS[tenant.status]}
+            </Badge>
+          ),
+        },
+      ]}
+      rows={tenants}
+      getRowKey={(tenant) => tenant.id}
+      tableClassName="min-w-[680px]"
+      rowActionsHeader={RECENT_TABLE_HEADERS.ACTIONS}
+      rowActions={(tenant) => (
+        <ActionMenu
+          items={[{ label: DASHBOARD_TEXT.ROW_DETAIL, onSelect: () => onViewTenant(tenant) }]}
+        />
+      )}
+    />
     <div className="border-t border-gray-100 px-5 py-3 text-xs text-gray-500">
       {recentCountLabel(tenants.length, total)}
     </div>

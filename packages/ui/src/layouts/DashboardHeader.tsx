@@ -7,12 +7,14 @@ import { cn } from "../utils/cn";
 
 export interface DashboardHeaderProps {
   brand?: ReactNode;
+  search?: ReactNode;
   actions?: ReactNode;
   onMenuClick?: () => void;
 }
 
 export const DashboardHeader = ({
   brand,
+  search,
   actions,
   onMenuClick,
 }: DashboardHeaderProps): ReactElement => {
@@ -21,7 +23,7 @@ export const DashboardHeader = ({
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-[var(--shell-border)] bg-[var(--shell-frame)] px-4 backdrop-blur-xl md:px-8">
+      <header className="sticky top-0 z-30 border-b-[0.5px] border-[var(--shell-border)] bg-[var(--shell-frame)] px-4 backdrop-blur-xl md:px-8">
         <div className="flex min-h-[72px] items-center md:hidden">
           <div className="flex flex-1 justify-start">
             <button
@@ -51,9 +53,10 @@ export const DashboardHeader = ({
           </div>
         </div>
 
-        <div className="hidden min-h-[72px] items-center justify-between gap-4 md:flex">
-          <div className="min-w-0">{brand}</div>
-          <div className="flex shrink-0 items-center gap-2.5">{actions}</div>
+        <div className="hidden min-h-[72px] items-center gap-4 md:flex">
+          <div className="min-w-0 shrink-0">{brand}</div>
+          {search && <div className="min-w-0 flex-1">{search}</div>}
+          <div className="ml-auto flex shrink-0 items-center gap-2.5">{actions}</div>
         </div>
       </header>
 

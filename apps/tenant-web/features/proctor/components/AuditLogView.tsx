@@ -1,17 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useState, type ReactElement } from "react";
 import { Button, DataTable, PageHeader, type DataTableColumn } from "@pte/ui";
-import {
-  useProctorAuditLog,
-  useProctorSecurityAudit,
-  type ProctorSecurityAuditPage,
-} from "../api";
-import {
-  AUDIT_ACTION_LABELS,
-  PROCTOR_AUDIT_TEXT as T,
-} from "../constants";
+import { useProctorAuditLog, useProctorSecurityAudit, type ProctorSecurityAuditPage } from "../api";
+import { AUDIT_ACTION_LABELS, PROCTOR_AUDIT_TEXT as T } from "../constants";
 import type { ProctorAuditLogEntry, ProctorSecurityAuditEntry } from "../types";
 
 interface AuditLogViewProps {
@@ -45,6 +37,9 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
     {
       key: "createdAt",
       header: T.COL_TIME,
+      filterType: "date-range",
+      filterAccessor: (row) => row.createdAt,
+      filterPlaceholder: "Date range",
       cell: (row) => formatTimestamp(row.createdAt),
     },
     {
@@ -71,6 +66,9 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
     {
       key: "recordedAt",
       header: T.COL_TIME,
+      filterType: "date-range",
+      filterAccessor: (row) => row.recordedAt,
+      filterPlaceholder: "Date range",
       cell: (row) => formatTimestamp(row.recordedAt),
     },
     {
@@ -101,15 +99,13 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
         <span>
           {T.COL_PROCTOR}: <code className="font-mono text-xs">#{shortId(sessionPublicId)}</code>
         </span>
-        <Link
-          href="/proctor/profile"
-          className="text-sm font-medium text-blue-700 hover:text-blue-800"
-        >
-          {T.BACK_TO_PROFILE}
-        </Link>
       </section>
 
-      <div role="tablist" aria-label="Audit log tabs" className="flex gap-1 border-b border-slate-200">
+      <div
+        role="tablist"
+        aria-label="Audit log tabs"
+        className="flex gap-1 border-b border-slate-200"
+      >
         {TABS.map((tab) => {
           const isActive = activeTab === tab.key;
           return (

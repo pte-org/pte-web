@@ -3,7 +3,6 @@
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { Alert, EyeIcon, PageHeader } from "@pte/ui";
-import { AppBackButton } from "@/features/navigation/components/AppBackButton";
 import { useSubscriptionsQuery } from "../api";
 import { BILLING_TEXT as T } from "../constants";
 import { BillingPanel } from "./BillingPanel";
@@ -81,8 +80,8 @@ const SubscriptionPeriodPill = ({
           isExpired
             ? "border border-red-200 bg-red-50 text-red-700"
             : isExpiringSoon
-            ? "border border-amber-200 bg-amber-50 text-amber-700"
-            : "border border-emerald-200 bg-emerald-50 text-emerald-700"
+              ? "border border-amber-200 bg-amber-50 text-amber-700"
+              : "border border-emerald-200 bg-emerald-50 text-emerald-700"
         }`}
       >
         <span
@@ -93,8 +92,8 @@ const SubscriptionPeriodPill = ({
         {isExpired
           ? "Expired"
           : isExpiringSoon
-          ? `Expires in ${days} ${days === 1 ? "day" : "days"}`
-          : `${days} days left`}
+            ? `Expires in ${days} ${days === 1 ? "day" : "days"}`
+            : `${days} days left`}
       </span>
     </div>
   );
@@ -113,12 +112,7 @@ export const SubscriptionsView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <AppBackButton href="/host/billing" label={T.BACK_TO_PLANS} />
-
-      <PageHeader
-        title={T.ACTIVE_ACCESS_TITLE}
-        subtitle={T.ACTIVE_ACCESS_SUBTITLE}
-      />
+      <PageHeader title={T.ACTIVE_ACCESS_TITLE} subtitle={T.ACTIVE_ACCESS_SUBTITLE} />
       {isError && <Alert tone="error">{T.SUBSCRIPTIONS_LOAD_ERROR}</Alert>}
       {expiringSoon.length > 0 && <Alert tone="warning">{T.EXPIRING_SOON}</Alert>}
       <BillingPanel title={T.EXAM_SUBSCRIPTIONS} subtitle={T.EXAM_SUBSCRIPTIONS_SUBTITLE}>
@@ -179,7 +173,10 @@ export const SubscriptionsView = (): ReactElement => {
                       }}
                       className="text-slate-400 hover:text-slate-600"
                     >
-                      <EyeIcon closed={Boolean(revealedKeys[subscription.publicId])} className="h-4 w-4" />
+                      <EyeIcon
+                        closed={Boolean(revealedKeys[subscription.publicId])}
+                        className="h-4 w-4"
+                      />
                     </button>
                   </div>
                 </div>
@@ -189,30 +186,34 @@ export const SubscriptionsView = (): ReactElement => {
         </div>
       </BillingPanel>
       <BillingPanel title={T.CAPACITY_LEDGER} subtitle={T.CAPACITY_LEDGER_SUBTITLE}>
-        {capacitySubscriptions.length === 0
-          ? <p className="text-sm text-slate-500">{T.NO_CAPACITY_ADD_ONS}</p>
-          : capacitySubscriptions.map((subscription) => (
-              <div
-                key={subscription.publicId}
-                className="flex flex-wrap items-center justify-between gap-4"
-              >
-                <div>
-                  <p className="text-base font-semibold text-slate-900">
-                    {T.PLAN(subscription.planId)}
-                  </p>
-                  <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                    <div className="inline-flex items-center gap-1.5 rounded-md border border-slate-200/90 bg-white px-2.5 py-1 font-medium text-slate-600 shadow-sm">
-                      <span className="text-slate-400">Activated:</span>
-                      <span className="font-semibold text-slate-800">{formatDate(subscription.startsAt)}</span>
-                    </div>
-                    <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 font-medium text-blue-700">
-                      Permanent
+        {capacitySubscriptions.length === 0 ? (
+          <p className="text-sm text-slate-500">{T.NO_CAPACITY_ADD_ONS}</p>
+        ) : (
+          capacitySubscriptions.map((subscription) => (
+            <div
+              key={subscription.publicId}
+              className="flex flex-wrap items-center justify-between gap-4"
+            >
+              <div>
+                <p className="text-base font-semibold text-slate-900">
+                  {T.PLAN(subscription.planId)}
+                </p>
+                <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                  <div className="inline-flex items-center gap-1.5 rounded-md border border-slate-200/90 bg-white px-2.5 py-1 font-medium text-slate-600 shadow-sm">
+                    <span className="text-slate-400">Activated:</span>
+                    <span className="font-semibold text-slate-800">
+                      {formatDate(subscription.startsAt)}
                     </span>
                   </div>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 font-medium text-blue-700">
+                    Permanent
+                  </span>
                 </div>
-                <BillingStatusBadge status={subscription.status} />
               </div>
-            ))}
+              <BillingStatusBadge status={subscription.status} />
+            </div>
+          ))
+        )}
       </BillingPanel>
       <RevealLicenseKeyModal
         open={revealTargetId !== null}

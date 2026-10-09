@@ -61,9 +61,6 @@ export const ScoreTemplateDetailView = ({
             >
               {SCORE_TEMPLATE_TEXT.CLONE_ACTION}
             </Button>
-            <Button variant="ghost" onClick={() => router.push(EXAM_TEMPLATE_BASE_PATH)}>
-              {SCORE_TEMPLATE_TEXT.DETAIL_BACK}
-            </Button>
           </>
         }
       />

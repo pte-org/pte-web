@@ -23,6 +23,7 @@ export const AUDIT_LOG_TEXT = {
 
 export const AUDIT_LOG_TABLE_HEADERS = {
   WHEN: "When",
+  AGGREGATE_TYPE: "Resource",
   ACTOR: "Actor",
   ACTION: "Action",
   SUMMARY: "Summary",

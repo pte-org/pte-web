@@ -11,7 +11,6 @@ import {
   DataTable,
   Input,
   Modal,
-  PageHeader,
   PaginationControls,
   PencilIcon,
   Select,
@@ -37,9 +36,6 @@ import {
 } from "../constants";
 
 const PAGE_SIZE = 100;
-type RoleFilter = PlatformAssignableRole | "ALL";
-type StatusFilter = UserResponse["status"] | "ALL";
-
 type CreateDraft = {
   email: string;
   fullName: string;
@@ -68,19 +64,12 @@ export const PlatformUsersView = (): ReactElement => {
   const { data: currentUser } = useCurrentUser();
   const { showToast } = useToast();
   const [page, setPage] = useState(0);
-  const [roleFilter, setRoleFilter] = useState<RoleFilter>("ALL");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [createOpen, setCreateOpen] = useState(false);
   const [createDraft, setCreateDraft] = useState<CreateDraft>({ ...INITIAL_CREATE });
   const [editing, setEditing] = useState<UserResponse | null>(null);
   const [editRole, setEditRole] = useState<PlatformAssignableRole>("PLATFORM_MANAGER");
   const [suspendTarget, setSuspendTarget] = useState<UserResponse | null>(null);
-  const users = usePlatformUsers(
-    page,
-    PAGE_SIZE,
-    roleFilter === "ALL" ? undefined : roleFilter,
-    statusFilter === "ALL" ? undefined : statusFilter,
-  );
+  const users = usePlatformUsers(page, PAGE_SIZE);
   const create = useCreatePlatformUser();
   const updateRoles = useUpdatePlatformUserRoles();
   const suspend = useSuspendPlatformUser();
@@ -147,46 +136,13 @@ export const PlatformUsersView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title={T.TITLE}
-        subtitle={T.SUBTITLE}
-        actions={<Button onClick={() => setCreateOpen(true)}>{T.CREATE}</Button>}
-      />
       {Boolean(error) && <Alert tone="error">{getUserFacingApiErrorMessage(error, T.ERROR)}</Alert>}
-      <div className="grid gap-3 rounded-lg bg-white p-4 shadow-card sm:grid-cols-2">
-        <Select
-          id="platform-user-role-filter"
-          label={T.FILTER_ROLE}
-          options={[
-            { value: "ALL", label: T.ALL_ROLES },
-            ...PLATFORM_ASSIGNABLE_ROLE_OPTIONS,
-          ]}
-          value={roleFilter}
-          onChange={(event) => {
-            setRoleFilter(event.target.value as RoleFilter);
-            setPage(0);
-          }}
-        />
-        <Select
-          id="platform-user-status-filter"
-          label={T.FILTER_STATUS}
-          options={[
-            { value: "ALL", label: T.ALL_STATUSES },
-            { value: "ACTIVE", label: "Active" },
-            { value: "SUSPENDED", label: "Suspended" },
-          ]}
-          value={statusFilter}
-          onChange={(event) => {
-            setStatusFilter(event.target.value as StatusFilter);
-            setPage(0);
-          }}
-        />
-      </div>
       <DataTable
         columns={[
           {
             key: "identity",
             header: T.FULL_NAME,
+            filterAccessor: (user: UserResponse) => `${user.fullName} ${user.email}`,
             cell: (user: UserResponse) => (
               <div>
                 <p className="font-medium text-slate-900">{user.fullName}</p>
@@ -197,11 +153,22 @@ export const PlatformUsersView = (): ReactElement => {
           {
             key: "roles",
             header: T.ROLE,
+            filterOptions: [
+              { value: "", label: T.ALL_ROLES },
+              ...PLATFORM_ASSIGNABLE_ROLE_OPTIONS,
+            ],
+            filterAccessor: (user: UserResponse) => user.roles.join(" "),
             cell: (user: UserResponse) => user.roles.map(roleLabel).join(", "),
           },
           {
             key: "status",
             header: T.STATUS,
+            filterOptions: [
+              { value: "", label: T.ALL_STATUSES },
+              { value: "ACTIVE", label: "Active" },
+              { value: "SUSPENDED", label: "Suspended" },
+            ],
+            filterAccessor: (user: UserResponse) => user.status,
             cell: (user: UserResponse) => (
               <Badge variant={user.status === "ACTIVE" ? "success" : "neutral"}>
                 {user.status}
@@ -213,6 +180,7 @@ export const PlatformUsersView = (): ReactElement => {
         getRowKey={(user) => user.publicId}
         isLoading={users.isLoading}
         emptyTitle={users.isLoading ? T.LOADING : T.EMPTY}
+        toolbarActions={<Button onClick={() => setCreateOpen(true)}>{T.CREATE}</Button>}
         rowActions={(user) => {
           const isSelf = user.publicId === currentUser?.publicId;
           const isAdmin = user.roles.includes("PLATFORM_ADMIN");
@@ -237,14 +205,17 @@ export const PlatformUsersView = (): ReactElement => {
           );
         }}
         rowActionsHeader={T.ACTIONS}
+        clientSidePagination={false}
+        pagination={
+          users.data ? (
+            <PaginationControls
+              meta={users.data.meta}
+              onPageChange={setPage}
+              disabled={users.isFetching}
+            />
+          ) : undefined
+        }
       />
-      {users.data && (
-        <PaginationControls
-          meta={users.data.meta}
-          onPageChange={setPage}
-          disabled={users.isFetching}
-        />
-      )}
 
       <Modal
         open={createOpen}

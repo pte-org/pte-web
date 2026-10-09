@@ -74,14 +74,14 @@ export const Modal = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4 backdrop-blur-sm motion-safe:animate-pte-fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 motion-safe:animate-pte-fade-in"
       onClick={closeOnBackdropClick && !isDismissDisabled ? onClose : undefined}
     >
       <div
         role="dialog"
         aria-modal="true"
         className={cn(
-          "max-h-[90vh] w-full overflow-hidden rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] shadow-card motion-safe:animate-pte-scale-in",
+          "max-h-[90vh] w-full overflow-hidden rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] text-[var(--ink-primary)] shadow-[var(--card-shadow)] motion-safe:animate-pte-scale-in",
           SIZE_CLASS[size],
         )}
         onClick={(event) => event.stopPropagation()}
@@ -94,7 +94,7 @@ export const Modal = ({
               aria-label="Close"
               disabled={isDismissDisabled}
               onClick={onClose}
-              className="text-[var(--ink-muted)] hover:text-[var(--ink-primary)]"
+              className="rounded-md p-1 text-[var(--ink-muted)] transition-colors hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35"
             >
               <XIcon className="h-5 w-5" />
             </button>

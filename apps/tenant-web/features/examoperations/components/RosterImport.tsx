@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Button } from "@pte/ui";
+import { Alert, Button, DataTable } from "@pte/ui";
 import { RosterDropzone } from "./_RosterDropzone";
 import { SkippedRowsReport } from "./SkippedRowsReport";
 import { PendingImportBanner } from "./PendingImportBanner";
@@ -112,26 +112,35 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
           <p className="text-sm text-gray-700">
             {ROSTER_TEXT.REVIEW_ROWS}: {rows.length}
           </p>
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-max border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-gray-200 text-left text-gray-500">
-                  <th className="py-2 pr-4 font-medium">{ROSTER_REVIEW_TABLE_HEADERS.EMAIL}</th>
-                  <th className="py-2 pr-4 font-medium">{ROSTER_REVIEW_TABLE_HEADERS.FULL_NAME}</th>
-                  <th className="py-2 font-medium">{ROSTER_REVIEW_TABLE_HEADERS.CLASS_NAME}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.slice(0, 10).map((row, index) => (
-                  <tr key={index} className="border-b border-gray-100">
-                    <td className="py-2 pr-4 text-gray-700">{row.email ?? ROSTER_TEXT.EMPTY_VALUE}</td>
-                    <td className="py-2 pr-4 text-gray-700">{row.fullName ?? ROSTER_TEXT.EMPTY_VALUE}</td>
-                    <td className="py-2 text-gray-700">{row.className ?? ROSTER_TEXT.EMPTY_VALUE}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <DataTable
+            columns={[
+              {
+                key: "email",
+                label: ROSTER_REVIEW_TABLE_HEADERS.EMAIL,
+                header: ROSTER_REVIEW_TABLE_HEADERS.EMAIL,
+                filterAccessor: (row: RosterRow) => row.email,
+                cell: (row: RosterRow) => row.email ?? ROSTER_TEXT.EMPTY_VALUE,
+              },
+              {
+                key: "fullName",
+                label: ROSTER_REVIEW_TABLE_HEADERS.FULL_NAME,
+                header: ROSTER_REVIEW_TABLE_HEADERS.FULL_NAME,
+                filterAccessor: (row: RosterRow) => row.fullName,
+                cell: (row: RosterRow) => row.fullName ?? ROSTER_TEXT.EMPTY_VALUE,
+              },
+              {
+                key: "className",
+                label: ROSTER_REVIEW_TABLE_HEADERS.CLASS_NAME,
+                header: ROSTER_REVIEW_TABLE_HEADERS.CLASS_NAME,
+                filterAccessor: (row: RosterRow) => row.className,
+                cell: (row: RosterRow) => row.className ?? ROSTER_TEXT.EMPTY_VALUE,
+              },
+            ]}
+            rows={rows.slice(0, 10)}
+            getRowKey={(row) => `${row.email ?? "row"}-${row.fullName ?? ""}`}
+            showSearch={false}
+            tableClassName="min-w-max"
+          />
           {!!createAccounts.error && (
             <Alert tone="error">{errorMessage(createAccounts.error)}</Alert>
           )}

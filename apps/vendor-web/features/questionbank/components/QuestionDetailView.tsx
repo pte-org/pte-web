@@ -1,15 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Alert,
-  Badge,
-  CopyableId,
-  DetailGroup,
-  LoadingState,
-  PageHeader,
-  cn,
-} from "@pte/ui";
+import { Alert, Badge, CopyableId, DetailGroup, LoadingState, PageHeader, cn } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
@@ -89,9 +81,6 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/admin/questions" className="text-sm font-medium text-action hover:underline">
-        {T.BACK}
-      </Link>
       <PageHeader
         title={question.title}
         actions={
@@ -211,21 +200,24 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
                       {index + 1}
                     </span>
                     <span className="flex-1 text-gray-800">{option.text}</span>
-                    {showAnswerKey && option.correct && <Badge variant="success">{T.CORRECT}</Badge>}
+                    {showAnswerKey && option.correct && (
+                      <Badge variant="success">{T.CORRECT}</Badge>
+                    )}
                   </li>
                 ))}
             </ol>
           </div>
         )}
-        {showAnswerKey && (question.referenceAnswerText?.trim() || question.correctAnswerText?.trim()) && (
-          <DetailGroup
-            title={T.GROUP_ANSWER_KEY}
-            items={[
-              { label: T.REFERENCE_ANSWER, value: valueOrEmpty(question.referenceAnswerText) },
-              { label: T.CORRECT_ANSWER, value: valueOrEmpty(question.correctAnswerText) },
-            ]}
-          />
-        )}
+        {showAnswerKey &&
+          (question.referenceAnswerText?.trim() || question.correctAnswerText?.trim()) && (
+            <DetailGroup
+              title={T.GROUP_ANSWER_KEY}
+              items={[
+                { label: T.REFERENCE_ANSWER, value: valueOrEmpty(question.referenceAnswerText) },
+                { label: T.CORRECT_ANSWER, value: valueOrEmpty(question.correctAnswerText) },
+              ]}
+            />
+          )}
       </section>
     </div>
   );
