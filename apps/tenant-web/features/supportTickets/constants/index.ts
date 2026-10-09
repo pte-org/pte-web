@@ -58,7 +58,7 @@ export const SUPPORT_TICKET_TABLE_HEADERS = {
   STATUS: "Status",
   DESCRIPTION: "Description",
   SUBMITTED: "Submitted",
-  ACTIONS: "",
+  ACTIONS: "Actions",
 } as const;
 
 export const TICKET_ACTIONS_TEXT = {
@@ -89,7 +89,6 @@ export const CREATE_TICKET_ERRORS = {
   DESCRIPTION_REQUIRED: "Description is required.",
   DESCRIPTION_TOO_LONG: "Description must be 2000 characters or fewer.",
 } as const;
-
 
 export const REPORT_QUESTION_TEXT = {
   TITLE: "Report Question Issue",

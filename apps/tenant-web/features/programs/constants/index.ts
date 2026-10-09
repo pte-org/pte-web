@@ -10,6 +10,13 @@ export const PROGRAM_STATUS_LABELS = {
   SUSPENDED: "Suspended",
 } as const;
 
+export const PROGRAM_STATUS_FILTER_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "ACTIVE", label: PROGRAM_STATUS_LABELS.ACTIVE },
+  { value: "INACTIVE", label: PROGRAM_STATUS_LABELS.INACTIVE },
+  { value: "SUSPENDED", label: PROGRAM_STATUS_LABELS.SUSPENDED },
+] as const;
+
 export const PROGRAM_STATUS_VARIANT = {
   ACTIVE: "success",
   INACTIVE: "neutral",

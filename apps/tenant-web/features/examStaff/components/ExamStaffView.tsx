@@ -1,35 +1,23 @@
 "use client";
 
-import { useEffect, useState, type ReactElement } from "react";
-import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
-import type {
-  ExamStaffRoleFilter,
-  UserListDirection,
-  UserListSort,
-  UserResponse,
-  UserStatusFilter,
-} from "@pte/api-client";
+import { useState, type ReactElement } from "react";
+import type { UserResponse } from "@pte/api-client";
 import {
   Alert,
   ActionMenu,
   BanIcon,
-  Button,
   CheckCircleIcon,
   ConfirmDialog,
-  DataTable,
   EyeIcon,
-  Input,
   MailIcon,
-  PageHeader,
-  PaginationControls,
-  Select,
   StatusBadge,
-  type DataTableColumn,
+  Button,
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
-import { EXAM_STAFF_ROLE_OPTIONS, EXAM_STAFF_SORT_OPTIONS, EXAM_STAFF_TEXT } from "../constants";
-import { useExamStaff, useReactivateExamStaff, useSuspendExamStaff } from "../api";
+import { EXAM_STAFF_ROLE_OPTIONS, EXAM_STAFF_TEXT } from "../constants";
+import { useAllExamStaff, useReactivateExamStaff, useSuspendExamStaff } from "../api";
 import { AddExamStaffModal } from "./AddExamStaffModal";
+import { ExamStaffTable, type ExamStaffTableColumn } from "./ExamStaffTable";
 import {
   AccountDetailsModal,
   GeneratedCredentialsModal,
@@ -37,31 +25,21 @@ import {
 } from "@/features/userManagement";
 import type { AccountDetails, GeneratedCredentials } from "@/features/userManagement";
 
-const DEBOUNCE_MS = 250;
-
-type SortOptionValue = (typeof EXAM_STAFF_SORT_OPTIONS)[number]["value"];
-
 const ROLE_LABELS: Record<string, string> = {
   PROCTOR: EXAM_STAFF_TEXT.proctor,
   EXAMINER: EXAM_STAFF_TEXT.examiner,
 };
 
 const ROLE_FILTER_OPTIONS = [
-  { label: EXAM_STAFF_TEXT.allRoles, value: "ALL" },
+  { label: EXAM_STAFF_TEXT.allRoles, value: "" },
   ...EXAM_STAFF_ROLE_OPTIONS.map((option) => ({ ...option })),
 ];
 
 const STATUS_OPTIONS = [
-  { label: EXAM_STAFF_TEXT.allStatuses, value: "ALL" },
+  { label: EXAM_STAFF_TEXT.allStatuses, value: "" },
   { label: EXAM_STAFF_TEXT.active, value: "ACTIVE" },
   { label: EXAM_STAFF_TEXT.suspended, value: "SUSPENDED" },
 ];
-
-function sortOptionFor(value: SortOptionValue) {
-  return (
-    EXAM_STAFF_SORT_OPTIONS.find((option) => option.value === value) ?? EXAM_STAFF_SORT_OPTIONS[0]
-  );
-}
 
 function roleLabel(user: UserResponse): string {
   return (
@@ -73,65 +51,59 @@ function roleLabel(user: UserResponse): string {
 }
 
 export const ExamStaffView = (): ReactElement => {
-  const [input, setInput] = useState("");
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(0);
-  const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
-  const [role, setRole] = useState<ExamStaffRoleFilter>("ALL");
-  const [status, setStatus] = useState<UserStatusFilter>("ALL");
-  const [sortOption, setSortOption] = useState<SortOptionValue>("CREATED_AT_DESC");
   const [addOpen, setAddOpen] = useState(false);
   const [suspendTarget, setSuspendTarget] = useState<UserResponse | null>(null);
   const [detailsTarget, setDetailsTarget] = useState<UserResponse | null>(null);
   const [emailTarget, setEmailTarget] = useState<UserResponse | null>(null);
   const [credentials, setCredentials] = useState<GeneratedCredentials | null>(null);
-  const [keepPreviousRows, setKeepPreviousRows] = useState(false);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setSearch(input);
-      setPage(0);
-      setKeepPreviousRows(false);
-    }, DEBOUNCE_MS);
-    return () => clearTimeout(timeout);
-  }, [input]);
-
-  const selectedSort = sortOptionFor(sortOption);
-  const staff = useExamStaff({
-    page,
-    size,
-    search,
-    role,
-    status,
-    sort: selectedSort.sort as UserListSort,
-    direction: selectedSort.direction as UserListDirection,
-  });
+  const staff = useAllExamStaff();
   const suspend = useSuspendExamStaff();
   const reactivate = useReactivateExamStaff();
   const sendCredentials = useSendUserCredentials();
-  const isNewFilterPending = staff.isPlaceholderData && !keepPreviousRows;
-  const visibleResult = isNewFilterPending ? undefined : staff.data;
-  const rows = visibleResult?.data ?? [];
+
+  const rows = staff.data ?? [];
   const queryError = errorMessage(staff.error);
   const mutationError = errorMessage(suspend.error ?? reactivate.error ?? sendCredentials.error);
 
-  const resetPage = (): void => {
-    setPage(0);
-    setKeepPreviousRows(false);
-  };
-
-  const columns: DataTableColumn<UserResponse>[] = [
+  const columns: ExamStaffTableColumn<UserResponse>[] = [
     {
       key: "fullName",
+      label: EXAM_STAFF_TEXT.fullName,
       header: EXAM_STAFF_TEXT.fullName,
-      cell: (user) => <span className="font-medium text-gray-900">{user.fullName}</span>,
+      filterAccessor: (user) => user.fullName,
+      cell: (user) => <span className="font-medium text-text-primary">{user.fullName}</span>,
     },
-    { key: "account", header: EXAM_STAFF_TEXT.account, cell: (user) => user.username },
-    { key: "email", header: EXAM_STAFF_TEXT.email, cell: (user) => user.email },
-    { key: "role", header: EXAM_STAFF_TEXT.role, cell: roleLabel },
+    {
+      key: "account",
+      label: EXAM_STAFF_TEXT.account,
+      header: EXAM_STAFF_TEXT.account,
+      filterAccessor: (user) => user.username,
+      cell: (user) => user.username,
+      cellClassName: "whitespace-nowrap",
+    },
+    {
+      key: "email",
+      label: EXAM_STAFF_TEXT.email,
+      header: EXAM_STAFF_TEXT.email,
+      filterAccessor: (user) => user.email,
+      cell: (user) => user.email,
+      cellClassName: "whitespace-nowrap",
+    },
+    {
+      key: "role",
+      label: EXAM_STAFF_TEXT.role,
+      header: EXAM_STAFF_TEXT.role,
+      filterOptions: ROLE_FILTER_OPTIONS,
+      filterAccessor: roleLabel,
+      cell: roleLabel,
+    },
     {
       key: "status",
+      label: EXAM_STAFF_TEXT.status,
       header: EXAM_STAFF_TEXT.status,
+      filterOptions: STATUS_OPTIONS,
+      filterAccessor: (user) => user.status,
       cell: (user) => (
         <StatusBadge
           label={user.status === "ACTIVE" ? EXAM_STAFF_TEXT.active : EXAM_STAFF_TEXT.suspended}
@@ -142,66 +114,24 @@ export const ExamStaffView = (): ReactElement => {
   ];
 
   return (
-    <div className="flex flex-col gap-5">
-      <PageHeader
-        title={EXAM_STAFF_TEXT.title}
-        subtitle={EXAM_STAFF_TEXT.subtitle}
-        actions={<Button onClick={() => setAddOpen(true)}>{EXAM_STAFF_TEXT.addButton}</Button>}
-      />
-
-      <div className="grid gap-3 lg:grid-cols-4">
-        <div className="lg:pt-5">
-          <Input
-            aria-label={EXAM_STAFF_TEXT.searchPlaceholder}
-            placeholder={EXAM_STAFF_TEXT.searchPlaceholder}
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-          />
-        </div>
-        <Select
-          label={EXAM_STAFF_TEXT.roleLabel}
-          options={ROLE_FILTER_OPTIONS}
-          value={role}
-          onChange={(event) => {
-            setRole(event.target.value as ExamStaffRoleFilter);
-            resetPage();
-          }}
-        />
-        <Select
-          label={EXAM_STAFF_TEXT.statusLabel}
-          options={STATUS_OPTIONS}
-          value={status}
-          onChange={(event) => {
-            setStatus(event.target.value as UserStatusFilter);
-            resetPage();
-          }}
-        />
-        <Select
-          label={EXAM_STAFF_TEXT.sortLabel}
-          options={EXAM_STAFF_SORT_OPTIONS.map((option) => ({
-            label: option.label,
-            value: option.value,
-          }))}
-          value={sortOption}
-          onChange={(event) => {
-            setSortOption(event.target.value as SortOptionValue);
-            resetPage();
-          }}
-        />
-      </div>
-
+    <div className="flex flex-col gap-6">
       {queryError && <Alert tone="error">{queryError || EXAM_STAFF_TEXT.loadFailed}</Alert>}
       {mutationError && <Alert tone="error">{mutationError}</Alert>}
-      {staff.isFetching && visibleResult && <Alert tone="info">{EXAM_STAFF_TEXT.syncing}</Alert>}
+      {staff.isFetching && staff.data && <Alert tone="info">{EXAM_STAFF_TEXT.syncing}</Alert>}
 
-      <DataTable
+      <ExamStaffTable
         columns={columns}
         rows={rows}
         getRowKey={(user) => user.publicId}
-        isLoading={staff.isLoading || (staff.isFetching && !visibleResult)}
+        isLoading={staff.isLoading}
         emptyTitle={EXAM_STAFF_TEXT.emptyTitle}
         emptyDescription={EXAM_STAFF_TEXT.emptyDescription}
         rowActionsHeader={EXAM_STAFF_TEXT.actions}
+        toolbarActions={
+          <Button variant="primary" appearance="fill" size="md" onClick={() => setAddOpen(true)}>
+            {EXAM_STAFF_TEXT.addButton}
+          </Button>
+        }
         rowActions={(user) => (
           <ActionMenu
             label={`${EXAM_STAFF_TEXT.actions}: ${user.fullName}`}
@@ -236,27 +166,6 @@ export const ExamStaffView = (): ReactElement => {
           />
         )}
       />
-
-      {visibleResult && (
-        <PaginationControls
-          meta={visibleResult.meta}
-          onPageChange={(nextPage) => {
-            setKeepPreviousRows(true);
-            setPage(nextPage);
-          }}
-          disabled={staff.isFetching}
-          showPageSizeInput
-          onPageSizeChange={(nextSize) => {
-            setSize(nextSize);
-            resetPage();
-          }}
-          showFirstLast
-          pageSizeLabel={EXAM_STAFF_TEXT.pageSizeLabel}
-          firstLabel={EXAM_STAFF_TEXT.firstPage}
-          lastLabel={EXAM_STAFF_TEXT.lastPage}
-          totalItemsLabel={EXAM_STAFF_TEXT.totalItems(visibleResult.meta.totalElements)}
-        />
-      )}
 
       <ConfirmDialog
         open={suspendTarget !== null}

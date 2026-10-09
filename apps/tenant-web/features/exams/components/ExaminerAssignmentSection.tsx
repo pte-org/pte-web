@@ -4,11 +4,19 @@ import { useEffect, useMemo, useState, type ReactElement } from "react";
 import type {
   AssignmentScopeType,
   CreateExaminerAssignmentPreviewRequest,
+  ExaminerAssignmentOverviewResponse,
   ExaminerAssignmentMode,
   ExaminerAssignmentScopeRequest,
   UserResponse,
 } from "@pte/api-client";
-import { Alert, CollapsibleSection, Select } from "@pte/ui";
+import {
+  Alert,
+  CollapsibleSection,
+  DataTable,
+  PaginationControls,
+  Select,
+  type DataTableColumn,
+} from "@pte/ui";
 import { useAllTenantClasses, type TenantClassOption } from "@/features/classes/api";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { EXAMINER_ASSIGNMENT_TEXT as T, SESSION_DETAIL_TEXT } from "../constants";
@@ -36,6 +44,16 @@ const SCOPE_TYPES: { value: AssignmentScopeType; label: string }[] = [
 ];
 const EMPTY_CLASSES: TenantClassOption[] = [];
 const EMPTY_USERS: UserResponse[] = [];
+type AssignmentBatch = ExaminerAssignmentOverviewResponse["batches"][number];
+
+const BATCH_STATUS_FILTER_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "PREVIEWED", label: "Previewed" },
+  { value: "COMMITTED", label: "Committed" },
+  { value: "EXPIRED", label: "Expired" },
+  { value: "STALE", label: "Stale" },
+  { value: "INVALID", label: "Invalid" },
+] as const;
 
 function examinerName(examiner: UserResponse): string {
   return examiner.fullName?.trim() || examiner.email || examiner.username;
@@ -175,7 +193,6 @@ export const ExaminerAssignmentSection = ({
   }, [nextPreviewExpiry]);
 
   const assignedAttemptCount = overview.data?.assignedAttemptCount ?? 0;
-  const overviewTotalPages = overview.data?.totalPages ?? 0;
   const confirmationMatchesPreview =
     preview?.batchPublicId != null && confirmPreview.data?.batchPublicId === preview.batchPublicId;
   const currentPreviewCommitted =
@@ -186,6 +203,48 @@ export const ExaminerAssignmentSection = ({
       preview.previewExpiresAt !== null &&
       Date.parse(preview.previewExpiresAt) <= currentTime);
   const currentPreviewStale = confirmationMatchesPreview && confirmPreview.data?.status === "STALE";
+
+  const batchColumns: DataTableColumn<AssignmentBatch>[] = [
+    {
+      key: "status",
+      header: T.STATUS,
+      filterOptions: BATCH_STATUS_FILTER_OPTIONS,
+      filterAccessor: (batch) =>
+        batch.status === "PREVIEWED" && Date.parse(batch.previewExpiresAt) <= currentTime
+          ? "EXPIRED"
+          : batch.status,
+      cell: (batch) =>
+        batch.status === "PREVIEWED" && Date.parse(batch.previewExpiresAt) <= currentTime
+          ? "EXPIRED"
+          : batch.status,
+    },
+    {
+      key: "mode",
+      header: T.MODE_LABEL,
+      filterAccessor: (batch) => (batch.mode === "RANDOM" ? T.RANDOM_MODE : T.MANUAL_MODE),
+      cell: (batch) => (batch.mode === "RANDOM" ? T.RANDOM_MODE : T.MANUAL_MODE),
+    },
+    {
+      key: "attemptCount",
+      header: T.ATTEMPT_COUNT,
+      filterAccessor: (batch) => batch.attemptCount,
+      cell: (batch) => batch.attemptCount,
+    },
+    {
+      key: "answerCount",
+      header: T.ANSWER_COUNT,
+      filterAccessor: (batch) => batch.eligibleAnswerCount,
+      cell: (batch) => batch.eligibleAnswerCount,
+    },
+    {
+      key: "created",
+      header: T.CREATED,
+      filterType: "date-range",
+      filterAccessor: (batch) => batch.createdAt,
+      filterPlaceholder: "Date range",
+      cell: (batch) => formatDate(batch.createdAt),
+    },
+  ];
 
   return (
     <CollapsibleSection
@@ -239,7 +298,9 @@ export const ExaminerAssignmentSection = ({
             </button>
           </div>
 
-          {scopes.length === 0 && <p className="text-sm text-[var(--ink-secondary)]">{T.NO_SCOPES}</p>}
+          {scopes.length === 0 && (
+            <p className="text-sm text-[var(--ink-secondary)]">{T.NO_SCOPES}</p>
+          )}
           {scopes.length === 0 &&
             !classesLoading &&
             !classesQuery.isError &&
@@ -279,7 +340,9 @@ export const ExaminerAssignmentSection = ({
                   id={`scope-value-${scope.key}`}
                   label={T.SCOPE_LABEL}
                   value={scope.scopePublicId}
-                  onChange={(event) => updateScope(scope.key, { scopePublicId: event.target.value })}
+                  onChange={(event) =>
+                    updateScope(scope.key, { scopePublicId: event.target.value })
+                  }
                   disabled={classesLoading || classesQuery.isError}
                   placeholder={classesLoading ? "Loading..." : T.SCOPE_PLACEHOLDER}
                   options={options
@@ -457,11 +520,11 @@ export const ExaminerAssignmentSection = ({
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h4 className="text-sm font-semibold text-[var(--ink-primary)]">{T.BATCHES}</h4>
-          <span className="text-sm text-[var(--ink-secondary)]">{T.ASSIGNED_TOTAL(assignedAttemptCount)}</span>
+          <span className="text-sm text-[var(--ink-secondary)]">
+            {T.ASSIGNED_TOTAL(assignedAttemptCount)}
+          </span>
         </div>
-        {overview.isLoading ? (
-          <p className="text-sm text-[var(--ink-secondary)]">Loading...</p>
-        ) : overview.isError ? (
+        {overview.isError ? (
           <button
             type="button"
             onClick={() => void overview.refetch()}
@@ -469,78 +532,44 @@ export const ExaminerAssignmentSection = ({
           >
             {T.RETRY}
           </button>
-        ) : (overview.data?.batches.length ?? 0) === 0 ? (
-          <p className="text-sm text-[var(--ink-secondary)]">{T.NO_BATCHES}</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-[var(--divider)] text-sm">
-              <thead className="bg-[var(--surface-subtle)] text-left text-xs uppercase text-[var(--ink-secondary)]">
-                <tr>
-                  <th className="px-3 py-2">{T.STATUS}</th>
-                  <th className="px-3 py-2">{T.MODE_LABEL}</th>
-                  <th className="px-3 py-2">{T.ATTEMPT_COUNT}</th>
-                  <th className="px-3 py-2">{T.ANSWER_COUNT}</th>
-                  <th className="px-3 py-2">{T.CREATED}</th>
-                  <th className="px-3 py-2">{T.ACTIONS}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--divider)] bg-[var(--surface-card)]">
-                {overview.data?.batches.map((batch) => (
-                  <tr key={batch.batchPublicId}>
-                    <td className="px-3 py-2">
-                      {batch.status === "PREVIEWED" &&
-                      Date.parse(batch.previewExpiresAt) <= currentTime
-                        ? "EXPIRED"
-                        : batch.status}
-                    </td>
-                    <td className="px-3 py-2">
-                      {batch.mode === "RANDOM" ? T.RANDOM_MODE : T.MANUAL_MODE}
-                    </td>
-                    <td className="px-3 py-2">{batch.attemptCount}</td>
-                    <td className="px-3 py-2">{batch.eligibleAnswerCount}</td>
-                    <td className="px-3 py-2">{formatDate(batch.createdAt)}</td>
-                    <td className="px-3 py-2">
-                      {batch.status === "PREVIEWED" &&
-                        Date.parse(batch.previewExpiresAt) > currentTime &&
-                        confirmPreview.data?.batchPublicId !== batch.batchPublicId && (
-                          <button
-                            type="button"
-                            disabled={confirmPreview.isPending}
-                            onClick={() => confirmPreview.mutate(batch.batchPublicId)}
-                            className="text-action hover:underline disabled:opacity-50"
-                          >
-                            {T.CONFIRM}
-                          </button>
-                        )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-        {!overview.isError && overviewTotalPages > 1 && (
-          <div className="flex items-center justify-end gap-3 text-sm">
-            <button
-              type="button"
-              disabled={batchPage === 0 || overview.isFetching}
-              onClick={() => setBatchPage((page) => Math.max(0, page - 1))}
-              className="rounded border border-[var(--shell-border)] px-3 py-1.5 text-[var(--ink-primary)] disabled:opacity-50"
-            >
-              {T.PREVIOUS_PAGE}
-            </button>
-            <span>
-              {(overview.data?.page ?? batchPage) + 1} / {overviewTotalPages}
-            </span>
-            <button
-              type="button"
-              disabled={batchPage + 1 >= overviewTotalPages || overview.isFetching}
-              onClick={() => setBatchPage((page) => page + 1)}
-              className="rounded border border-[var(--shell-border)] px-3 py-1.5 text-[var(--ink-primary)] disabled:opacity-50"
-            >
-              {T.NEXT_PAGE}
-            </button>
-          </div>
+          <DataTable
+            columns={batchColumns}
+            rows={overview.data?.batches ?? []}
+            getRowKey={(batch) => batch.batchPublicId}
+            isLoading={overview.isLoading}
+            emptyTitle={T.NO_BATCHES}
+            rowActionsHeader={T.ACTIONS}
+            clientSidePagination={false}
+            rowActions={(batch) =>
+              batch.status === "PREVIEWED" &&
+              Date.parse(batch.previewExpiresAt) > currentTime &&
+              confirmPreview.data?.batchPublicId !== batch.batchPublicId ? (
+                <button
+                  type="button"
+                  disabled={confirmPreview.isPending}
+                  onClick={() => confirmPreview.mutate(batch.batchPublicId)}
+                  className="text-action hover:underline disabled:opacity-50"
+                >
+                  {T.CONFIRM}
+                </button>
+              ) : null
+            }
+            pagination={
+              overview.data ? (
+                <PaginationControls
+                  meta={{
+                    page: overview.data.page,
+                    size: overview.data.size,
+                    totalElements: overview.data.totalBatches,
+                    totalPages: overview.data.totalPages,
+                  }}
+                  onPageChange={setBatchPage}
+                  disabled={overview.isFetching}
+                />
+              ) : undefined
+            }
+          />
         )}
       </div>
       <LoadTable
@@ -562,30 +591,41 @@ function LoadTable({ loads, examiners }: LoadTableProps): ReactElement | null {
   return (
     <div className="flex flex-col gap-2">
       <h4 className="text-sm font-semibold text-[var(--ink-primary)]">{T.LOADS}</h4>
-      <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-[var(--divider)] text-sm">
-          <thead className="bg-[var(--surface-subtle)] text-left text-xs uppercase text-[var(--ink-secondary)]">
-            <tr>
-              <th className="px-3 py-2">{T.EXAMINER_LABEL}</th>
-              <th className="px-3 py-2">{T.ATTEMPT_COUNT}</th>
-              <th className="px-3 py-2">{T.ANSWER_COUNT}</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--divider)] bg-[var(--surface-card)]">
-            {loads.map((load) => (
-              <tr key={load.examinerPublicId}>
-                <td className="px-3 py-2">
-                  {byId.get(load.examinerPublicId)
-                    ? examinerName(byId.get(load.examinerPublicId) as UserResponse)
-                    : load.examinerPublicId}
-                </td>
-                <td className="px-3 py-2">{load.attemptCount}</td>
-                <td className="px-3 py-2">{load.eligibleAnswerCount}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        columns={
+          [
+            {
+              key: "examiner",
+              header: T.EXAMINER_LABEL,
+              filterAccessor: (load) => {
+                const examiner = byId.get(load.examinerPublicId);
+                return examiner
+                  ? `${examinerName(examiner)} ${examiner.email}`
+                  : load.examinerPublicId;
+              },
+              cell: (load) =>
+                byId.get(load.examinerPublicId)
+                  ? examinerName(byId.get(load.examinerPublicId) as UserResponse)
+                  : load.examinerPublicId,
+            },
+            {
+              key: "attemptCount",
+              header: T.ATTEMPT_COUNT,
+              filterAccessor: (load) => load.attemptCount,
+              cell: (load) => load.attemptCount,
+            },
+            {
+              key: "answerCount",
+              header: T.ANSWER_COUNT,
+              filterAccessor: (load) => load.eligibleAnswerCount,
+              cell: (load) => load.eligibleAnswerCount,
+            },
+          ] satisfies DataTableColumn<LoadTableProps["loads"][number]>[]
+        }
+        rows={loads}
+        getRowKey={(load) => load.examinerPublicId}
+        emptyTitle={T.NO_BATCHES}
+      />
     </div>
   );
 }

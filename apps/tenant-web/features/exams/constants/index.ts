@@ -45,6 +45,17 @@ export const SESSION_STATUS_LABELS = {
   CANCELLED: "Cancelled",
 } as const;
 
+export const SESSION_STATUS_FILTER_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "DRAFT", label: SESSION_STATUS_LABELS.DRAFT },
+  { value: "PREPARING", label: SESSION_STATUS_LABELS.PREPARING },
+  { value: "READY", label: SESSION_STATUS_LABELS.READY },
+  { value: "SCHEDULED", label: SESSION_STATUS_LABELS.SCHEDULED },
+  { value: "OPEN", label: SESSION_STATUS_LABELS.OPEN },
+  { value: "CLOSED", label: SESSION_STATUS_LABELS.CLOSED },
+  { value: "CANCELLED", label: SESSION_STATUS_LABELS.CANCELLED },
+] as const;
+
 export const SESSION_STATUS_VARIANT = {
   DRAFT: "neutral",
   PREPARING: "info",
@@ -376,7 +387,7 @@ export const ANSWER_TABLE_HEADERS = {
   AI_SCORE: "AI Score",
   TEACHER_SCORE: "Teacher Score",
   SUBMITTED_AT: "Submitted",
-  ACTIONS: "Action",
+  ACTIONS: "Actions",
 } as const;
 
 export const ANSWER_STATUS_LABELS: Record<string, string> = {
@@ -424,7 +435,7 @@ export const PROCTOR_TABLE_HEADERS = {
   FULL_NAME: "Full name",
   EMAIL: "Email",
   ROLE: "Role",
-  ACTIONS: "Action",
+  ACTIONS: "Actions",
 } as const;
 
 export const DEFAULT_PROCTOR_ROLE: ProctorRole = "ASSISTANT_PROCTOR";

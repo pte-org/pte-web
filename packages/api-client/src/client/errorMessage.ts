@@ -20,6 +20,7 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   TENANT_CODE_ALREADY_USED: "This organization code is already in use.",
   REQUESTED_CODE_ALREADY_USED: "This organization code is already in use.",
   STUDENT_ALREADY_IN_CLASS: "This student is already enrolled in the selected class.",
+  EMAIL_ALREADY_USED: "An account with this email already exists.",
   DUPLICATE_EMAIL_IN_BATCH: "Some email addresses appear more than once in the uploaded file.",
   INVALID_LOGIN: "The username or password is incorrect.",
   ACCESS_DENIED: "You do not have permission to complete this action.",

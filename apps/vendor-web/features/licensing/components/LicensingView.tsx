@@ -4,9 +4,8 @@ import { useState, type ReactElement } from "react";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { PageHeader } from "@pte/ui";
 import { GRANT_QUOTA_TEXT, LICENSING_TEXT } from "../constants";
-import { licenseStats, useGrantQuota, useLicenses } from "../api";
+import { useGrantQuota, useLicenses } from "../api";
 import type { GrantQuotaInput, License } from "../types";
-import { LicenseStatGrid } from "./_LicenseStatGrid";
 import { LicenseTable } from "./_LicenseTable";
 import { GrantQuotaModal } from "./GrantQuotaModal";
 import { QuotaHistoryModal } from "./QuotaHistoryModal";
@@ -45,7 +44,6 @@ export const LicensingView = (): ReactElement => {
           </button>
         }
       />
-      <LicenseStatGrid stats={licenses ? licenseStats(licenses) : undefined} />
       <LicenseTable
         licenses={licenses ?? []}
         onGrant={setGrantTarget}

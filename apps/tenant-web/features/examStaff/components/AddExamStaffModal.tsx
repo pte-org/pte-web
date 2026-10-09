@@ -54,29 +54,39 @@ export const AddExamStaffModal = ({ open, onClose }: AddExamStaffModalProps): Re
       title={EXAM_STAFF_TEXT.addTitle}
       footer={
         <>
-          <Button type="button" variant="secondary" onClick={onClose}>
+          <Button type="button" variant="primary" appearance="outline" size="md" onClick={onClose}>
             {EXAM_STAFF_TEXT.close}
           </Button>
           <Button
             type="submit"
             form="add-exam-staff-form"
+            variant="primary"
+            appearance="fill"
+            size="md"
             isLoading={create.isPending}
             loadingText={EXAM_STAFF_TEXT.submitting}
+            className="min-w-28"
           >
             {EXAM_STAFF_TEXT.submit}
           </Button>
         </>
       }
     >
-      <form id="add-exam-staff-form" onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+      <form
+        id="add-exam-staff-form"
+        onSubmit={handleSubmit}
+        noValidate
+        className="flex flex-col gap-4"
+      >
         <p className="text-sm text-gray-600">{EXAM_STAFF_TEXT.addDescription}</p>
         {Boolean(create.error) && (
           <Alert tone="error">{errorMessage(create.error) ?? EXAM_STAFF_TEXT.createFailed}</Alert>
         )}
         <Select
+          id="exam-staff-role"
           label={EXAM_STAFF_TEXT.roleLabel}
+          options={EXAM_STAFF_ROLE_OPTIONS}
           value={form.role}
-          options={EXAM_STAFF_ROLE_OPTIONS.map((option) => ({ ...option }))}
           onChange={(event) => handleChange("role", event.target.value)}
         />
         <Input

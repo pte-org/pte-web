@@ -1,7 +1,6 @@
 "use client";
 
 import { type ReactElement } from "react";
-import Link from "next/link";
 import { LoadingState, PageHeader, useLocale } from "@pte/ui";
 import { errorMessage as mutationErrorMessage } from "@/features/examoperations/errorMessage";
 import { useCancelSession, useCloseSession, useOpenSession, useSession } from "../api";
@@ -32,10 +31,6 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/host/exams" className="text-sm text-[var(--brand-ink)] hover:underline">
-        {t("tenant.examOverview.back", "Back to exams")}
-      </Link>
-
       <PageHeader title={session.name} />
 
       <ExamDetailTabs

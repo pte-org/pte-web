@@ -53,26 +53,30 @@ const NotificationRows = ({
   onSelectItem: (item: InboxItemResponse) => void;
   compact?: boolean;
 }): ReactElement => (
-  <div className={cn("divide-y divide-slate-100", compact && "max-h-80 overflow-y-auto")}>
+  <div
+    className={cn("divide-y divide-[var(--shell-border)]", compact && "max-h-80 overflow-y-auto")}
+  >
     {items.map((item) => (
       <button
         key={item.publicId}
         type="button"
         onClick={() => onSelectItem(item)}
         className={cn(
-          "block w-full px-4 py-3 text-left transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-action",
-          item.readAt === null && "bg-blue-50/50",
+          "block w-full px-4 py-3 text-left transition-colors hover:bg-[var(--surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand)]",
+          item.readAt === null && "bg-[var(--brand-tint)]/50",
         )}
         aria-label={`${item.readAt === null ? "Unread: " : ""}${item.title}`}
       >
         <div className="flex items-start justify-between gap-3">
-          <span className="min-w-0 flex-1 text-sm font-semibold text-slate-900">{item.title}</span>
+          <span className="min-w-0 flex-1 text-sm font-semibold text-[var(--ink-primary)]">
+            {item.title}
+          </span>
           {item.readAt === null && (
             <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-action" />
           )}
         </div>
-        <p className="mt-1 line-clamp-2 text-sm text-slate-600">{item.body}</p>
-        <div className="mt-2 flex items-center justify-between gap-2 text-xs text-slate-400">
+        <p className="mt-1 line-clamp-2 text-sm text-[var(--ink-secondary)]">{item.body}</p>
+        <div className="mt-2 flex items-center justify-between gap-2 text-xs text-[var(--ink-muted)]">
           <Badge variant={importanceVariant(item.importance)}>
             {item.category.replaceAll("_", " ")}
           </Badge>
@@ -137,11 +141,11 @@ export const NotificationBell = ({
         aria-expanded={isOpen}
         aria-controls="notification-panel"
         onClick={onToggle}
-        className="relative grid h-10 w-10 place-items-center rounded-md text-slate-500 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action"
+        className="relative grid h-10 w-10 place-items-center rounded-lg border border-[var(--shell-border)] bg-[var(--shell-frame)] text-[var(--ink-primary)] shadow-xs transition-colors hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35 focus-visible:ring-offset-1"
       >
         <BellIcon className="h-5 w-5" />
         {unreadCount > 0 && (
-          <span className="absolute -right-1 -top-1 min-w-4 rounded-full bg-rose-500 px-1 text-[10px] font-semibold leading-4 text-white ring-2 ring-white">
+          <span className="absolute -right-1 -top-1 min-w-4 rounded-full bg-[var(--blush-action)] px-1 text-[10px] font-semibold leading-4 text-white ring-2 ring-[var(--surface-card)]">
             {displayCount(unreadCount)}
           </span>
         )}
@@ -161,7 +165,9 @@ export const NotificationBell = ({
                 {t("common.notifications", "Notifications")}
               </h2>
               <p className="mt-0.5 text-xs text-[var(--ink-secondary)]">
-                {locale === "vi" ? "Cập nhật mới cho tài khoản của bạn" : "Recent updates for your account"}
+                {locale === "vi"
+                  ? "Cập nhật mới cho tài khoản của bạn"
+                  : "Recent updates for your account"}
               </p>
             </div>
             <Button
@@ -196,7 +202,11 @@ export const NotificationBell = ({
             <div className="p-4">
               <EmptyState
                 title={t("common.allCaughtUp", "You are all caught up")}
-                description={locale === "vi" ? "Cập nhật nền tảng và kỳ thi sẽ hiển thị tại đây." : "New platform and exam updates will appear here."}
+                description={
+                  locale === "vi"
+                    ? "Cập nhật nền tảng và kỳ thi sẽ hiển thị tại đây."
+                    : "New platform and exam updates will appear here."
+                }
               />
             </div>
           ) : (
@@ -238,10 +248,15 @@ export const NotificationHistory = ({
   }
   if (isLoading) return <LoadingState rows={5} />;
   if (items.length === 0) {
-    return <EmptyState title={t("common.noNotifications", "No notifications")} description={t("common.noNotifications", "There are no notifications in this view.")} />;
+    return (
+      <EmptyState
+        title={t("common.noNotifications", "No notifications")}
+        description={t("common.noNotifications", "There are no notifications in this view.")}
+      />
+    );
   }
   return (
-    <div className="overflow-hidden rounded-lg bg-white shadow-card">
+    <div className="overflow-hidden rounded-lg bg-[var(--surface-card)] shadow-card">
       <NotificationRows items={items} onSelectItem={onSelectItem} />
     </div>
   );

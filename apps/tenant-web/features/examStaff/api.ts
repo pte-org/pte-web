@@ -2,6 +2,7 @@
 
 import {
   createUser,
+  listAllExamStaff,
   listExamStaff,
   reactivateUser,
   suspendUser,
@@ -37,6 +38,21 @@ export function useExamStaff(query: ExamStaffQuery): UseQueryResult<ExamStaffPag
     ],
     queryFn: () => listExamStaff(apiClient, query),
     placeholderData: keepPreviousData,
+  });
+}
+
+/** Load the complete staff set once so table filters can be applied locally. */
+export function useAllExamStaff(): UseQueryResult<UserResponse[]> {
+  return useQuery({
+    queryKey: [...EXAM_STAFF_QUERY_KEY, "all"],
+    queryFn: () =>
+      listAllExamStaff(apiClient, {
+        size: 100,
+        role: "ALL",
+        status: "ALL",
+        sort: "CREATED_AT",
+        direction: "DESC",
+      }),
   });
 }
 

@@ -6,6 +6,7 @@ import type { ClassResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
   CLASS_STATUS_LABELS,
+  CLASS_STATUS_FILTER_OPTIONS,
   CLASS_STATUS_VARIANT,
   CLASS_TABLE_HEADERS,
   CLASSES_SECTION_TEXT,
@@ -67,6 +68,8 @@ export const ClassesSection = ({
     {
       key: "status",
       header: CLASS_TABLE_HEADERS.STATUS,
+      filterOptions: CLASS_STATUS_FILTER_OPTIONS,
+      filterAccessor: (studentClass) => studentClass.status,
       cell: (studentClass) => (
         <Badge variant={CLASS_STATUS_VARIANT[studentClass.status]}>
           {CLASS_STATUS_LABELS[studentClass.status]}

@@ -1,15 +1,33 @@
 :root {
-  --surface-page: #f2f6fa;
+  --font-interface: var(--font-inter, "Inter"), ui-sans-serif, system-ui, sans-serif;
+  /* Neutral surfaces and type colors are copied from NextAdmin's
+     src/app/css/default.css and dark.css. */
+  --surface-page: #f4f4f5;
   --surface-card: #ffffff;
-  --surface-subtle: #eaeff4;
+  --surface-subtle: #f4f4f5;
   --shell-canvas: #f4f4f5;
-  --shell-frame: #ffffff;
-  --shell-border: #e4e4e7;
-  --ink-primary: #2a3547;
-  --ink-secondary: #5a6a85;
-  --ink-muted: #7c8fac;
-  --divider: #e5eaef;
-  --control-border: #7c8fac;
+  --shell-frame: #fcfcfd;
+  --shell-border: #e8e8e8;
+  --shell-surface-border: #e5e5e5;
+  --sidebar-nav-hover-background: rgba(0, 0, 0, 0.05);
+  --ink-primary: #18181b;
+  --ink-secondary: #52525b;
+  --ink-muted: #71717a;
+  --divider: #e8e8e8;
+  --control-border: #d4d4d8;
+  --popover-shadow: 0px 5px 5px -2px rgba(16, 24, 40, 0.04);
+  /* Data tables use NextAdmin's card/input tokens. Brand blue is reserved
+     for focus and active actions, not idle table chrome. */
+  --table-header-background: var(--table-surface-background);
+  --table-surface-background: #ffffff;
+  --table-header-text: #52525b;
+  --table-body-text: #18181b;
+  --table-muted-text: #71717a;
+  --table-border: #e8e8e8;
+  --table-control-background: #ffffff;
+  --table-control-border: #d4d4d8;
+  --table-control-hover: #f4f4f5;
+  --table-row-hover: #fafafa;
   --brand-soft: #5d87ff;
   --brand: #4169e8;
   --brand-hover: #3359d2;
@@ -37,10 +55,8 @@
   --skeleton-base: #eef2f6;
   --skeleton-highlight: rgba(255, 255, 255, 0.72);
   --surface-row-hover: #f8fafc;
-  --card-shadow:
-    rgba(145, 158, 171, 0.3) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px;
-  --sidebar-shadow:
-    rgba(145, 158, 171, 0.2) 0px 0px 2px 0px, rgba(145, 158, 171, 0.08) 0px 12px 24px -4px;
+  --card-shadow: 0 3px 6px -2px rgba(16, 24, 40, 0.02), 0 1px 1px 0 rgba(16, 24, 40, 0.04);
+  --sidebar-shadow: 0 32px 64px -12px rgba(16, 24, 40, 0.14);
   --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --motion-duration-fast: 160ms;
   --motion-duration-normal: 280ms;
@@ -49,18 +65,37 @@
   color-scheme: light;
 }
 
+html,
+body {
+  font-family: var(--font-interface);
+}
+
 [data-theme="dark"] {
-  --surface-page: #0b1220;
-  --surface-card: #111c2e;
-  --surface-subtle: #1a2940;
-  --shell-canvas: #0f172a;
-  --shell-frame: #111c2e;
-  --shell-border: #263754;
-  --ink-primary: #edf4ff;
-  --ink-secondary: #b7c5da;
-  --ink-muted: #8293ad;
-  --divider: #263754;
-  --control-border: #526987;
+  /* Exact NextAdmin dark neutral palette. */
+  --surface-page: #09090b;
+  --surface-card: #171718;
+  --surface-subtle: #18181b;
+  --shell-canvas: #09090b;
+  --shell-frame: #0f0f0f;
+  --shell-border: #2b2c2e;
+  --shell-surface-border: #1d1d1f;
+  --sidebar-nav-hover-background: rgba(255, 255, 255, 0.05);
+  --ink-primary: rgba(255, 255, 255, 0.9);
+  --ink-secondary: #a1a1aa;
+  --ink-muted: #a1a1aa;
+  --divider: #2b2c2e;
+  --control-border: rgba(255, 255, 255, 0.05);
+  --popover-shadow: 0px 5px 5px -2px rgba(16, 24, 40, 0.04);
+  --table-header-background: var(--table-surface-background);
+  --table-surface-background: #171718;
+  --table-header-text: #a1a1aa;
+  --table-body-text: rgba(255, 255, 255, 0.9);
+  --table-muted-text: #a1a1aa;
+  --table-border: #2b2c2e;
+  --table-control-background: rgba(255, 255, 255, 0.05);
+  --table-control-border: rgba(255, 255, 255, 0.05);
+  --table-control-hover: #27272a;
+  --table-row-hover: #18181b;
   --brand-soft: #8aa7ff;
   --brand: #6d8cff;
   --brand-hover: #8aa7ff;
@@ -86,9 +121,9 @@
   --chart-orange: #ff9a70;
   --skeleton-base: #1a2940;
   --skeleton-highlight: rgba(255, 255, 255, 0.08);
-  --surface-row-hover: #17263a;
-  --card-shadow: rgba(0, 0, 0, 0.32) 0 12px 28px -8px;
-  --sidebar-shadow: rgba(0, 0, 0, 0.4) 0 12px 32px -8px;
+  --surface-row-hover: #18181b;
+  --card-shadow: 0 3px 6px -2px rgba(0, 0, 0, 0.02), 0 1px 1px 0 rgba(0, 0, 0, 0.04);
+  --sidebar-shadow: 0 32px 64px -12px rgba(16, 24, 40, 0.14);
   --background: var(--surface-page);
   --foreground: var(--ink-primary);
   color-scheme: dark;
@@ -202,7 +237,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-plus-jakarta);
+  --font-sans: var(--font-interface);
   --font-mono: var(--font-geist-mono);
   --shadow-card: var(--card-shadow);
   --shadow-sidebar: var(--sidebar-shadow);
@@ -398,7 +433,7 @@
   body {
     background: var(--background);
     color: var(--foreground);
-    font-family: var(--font-plus-jakarta), Helvetica, Arial, sans-serif;
+    font-family: var(--font-interface);
     font-size: 14px;
     line-height: 1.43;
   }
