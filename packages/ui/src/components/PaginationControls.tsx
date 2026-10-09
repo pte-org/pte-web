@@ -4,6 +4,7 @@ import type { ReactElement, ReactNode } from "react";
 import { DEFAULT_PAGE_SIZE, type PageMeta as ApiPageMeta } from "@pte/api-client";
 import { Pagination } from "./Pagination";
 import { Select } from "./Select";
+import { useLocale } from "../i18n";
 
 /** The pagination controls only need this structural subset of the API meta. */
 export type PageMeta = Pick<ApiPageMeta, "page" | "size" | "totalElements" | "totalPages">;
@@ -36,6 +37,7 @@ export const PaginationControls = ({
   onPageSizeChange,
   showPageSizeInput = false,
 }: PaginationControlsProps): ReactElement => {
+  const { t } = useLocale();
   const currentPageSize = meta.size > 0 ? meta.size : DEFAULT_PAGE_SIZE;
   const totalItems = Math.max(meta.totalElements, 0);
 
@@ -59,7 +61,9 @@ export const PaginationControls = ({
           />
         )}
       </div>
-      <span className="tabular-nums">Total {totalItems} records</span>
+      <span className="tabular-nums">
+        {t("common.totalRecords", "Total {count} records", { count: totalItems })}
+      </span>
     </div>
   );
 };
@@ -71,6 +75,7 @@ export const PaginationPageSizeSelect = ({
   onChange,
   disabled = false,
 }: PaginationPageSizeSelectProps): ReactElement => {
+  const { t } = useLocale();
   const currentPageSize = Math.max(Math.trunc(value) || DEFAULT_PAGE_SIZE, 1);
   const options = [...PAGE_SIZE_OPTIONS, currentPageSize]
     .filter((option, index, values) => values.indexOf(option) === index)
@@ -78,9 +83,9 @@ export const PaginationPageSizeSelect = ({
 
   return (
     <label className="flex items-center gap-2 whitespace-nowrap text-[var(--table-muted-text)]">
-      <span>Per page</span>
+      <span>{t("common.perPage", "Per page")}</span>
       <Select
-        aria-label="Per page"
+        aria-label={t("common.perPage", "Per page")}
         options={options}
         value={String(currentPageSize)}
         onChange={(event) => onChange(Number(event.target.value))}

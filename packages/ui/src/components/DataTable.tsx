@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import { cn } from "../utils/cn";
+import { useLocale } from "../i18n";
 import { EmptyState } from "./EmptyState";
 import { LoadingState } from "./LoadingState";
 import { Pagination } from "./Pagination";
@@ -106,15 +107,15 @@ export function DataTable<TRow>({
   rows,
   getRowKey,
   isLoading = false,
-  emptyTitle = "No data",
+  emptyTitle,
   emptyDescription,
   rowActions,
   rowActionsHeader,
   toolbar,
   filters,
   showSearch = true,
-  searchPlaceholder = "Search",
-  searchAriaLabel = "Search table",
+  searchPlaceholder,
+  searchAriaLabel,
   toolbarActions,
   clientSideFiltering = true,
   clientSideSorting = true,
@@ -129,9 +130,16 @@ export function DataTable<TRow>({
   selectable = false,
   selectedKeys,
   onSelectionChange,
-  selectAllLabel = "Select all rows",
-  selectRowLabel = () => "Select row",
+  selectAllLabel,
+  selectRowLabel,
 }: DataTableProps<TRow>): ReactElement {
+  const { t } = useLocale();
+  const resolvedEmptyTitle = emptyTitle ?? t("common.noData", "No data");
+  const resolvedSearchPlaceholder = searchPlaceholder ?? t("common.search", "Search");
+  const resolvedSearchAriaLabel = searchAriaLabel ?? t("common.searchTable", "Search table");
+  const resolvedSelectAllLabel = selectAllLabel ?? t("common.selectAllRows", "Select all rows");
+  const resolvedSelectRowLabel = selectRowLabel ?? (() => t("common.selectRow", "Select row"));
+  const resolvedDateRangePlaceholder = t("common.dateRange", "Date range");
   const selection = selectedKeys ?? new Set<string | number>();
   const [globalSearch, setGlobalSearch] = useState("");
   const [columnFilterValues, setColumnFilterValues] = useState<
@@ -238,7 +246,7 @@ export function DataTable<TRow>({
   const hasBuiltInSearch = showSearch && !toolbar;
   const hasPageSizeControl = clientSidePagination && filteredRows.length > 10;
   const hasToolbar = Boolean(toolbar || filters || hasBuiltInSearch || toolbarActions);
-  const actionsHeader = rowActionsHeader || "Actions";
+  const actionsHeader = rowActionsHeader || t("common.actions", "Actions");
 
   return (
     <div className={shellClassName}>
@@ -248,8 +256,8 @@ export function DataTable<TRow>({
             {toolbar ??
               (hasBuiltInSearch ? (
                 <TableSearchControl
-                  ariaLabel={searchAriaLabel}
-                  placeholder={searchPlaceholder}
+                  ariaLabel={resolvedSearchAriaLabel}
+                  placeholder={resolvedSearchPlaceholder}
                   value={globalSearch}
                   onChange={setGlobalSearch}
                   variant="table"
@@ -288,7 +296,7 @@ export function DataTable<TRow>({
                       <th scope="col" className={cn("w-10", cellPadding)}>
                         <input
                           type="checkbox"
-                          aria-label={selectAllLabel}
+                          aria-label={resolvedSelectAllLabel}
                           checked={allSelected}
                           onChange={toggleAll}
                           className="h-4 w-4 rounded border-[var(--table-control-border)] text-[var(--action)] focus:ring-[var(--brand)]"
@@ -314,7 +322,12 @@ export function DataTable<TRow>({
                           column.headerClassName,
                         )}
                       >
-                        {renderColumnHeader({ column, sort, onSort: toggleSort })}
+                        {renderColumnHeader({
+                          column,
+                          sort,
+                          onSort: toggleSort,
+                          sortLabelPrefix: t("common.sortBy", "Sort by {label}"),
+                        })}
                       </th>
                     ))}
                     {rowActions && (
@@ -358,6 +371,8 @@ export function DataTable<TRow>({
                                 ...current,
                                 [column.key]: value,
                               })),
+                            filterLabel: t("common.filter", "filter"),
+                            dateRangePlaceholder: resolvedDateRangePlaceholder,
                           })}
                         </th>
                       ))}
@@ -381,7 +396,7 @@ export function DataTable<TRow>({
                         className="px-4 py-0 sm:px-5"
                       >
                         <EmptyState
-                          title={emptyTitle}
+                          title={resolvedEmptyTitle}
                           description={emptyDescription}
                           className="rounded-none border-0 px-6 py-10 shadow-none"
                         />
@@ -399,7 +414,7 @@ export function DataTable<TRow>({
                             <td className={cellPaddingBody}>
                               <input
                                 type="checkbox"
-                                aria-label={selectRowLabel(row)}
+                                aria-label={resolvedSelectRowLabel(row)}
                                 checked={selection.has(key)}
                                 onChange={() => toggleRow(key)}
                                 className="h-4 w-4 rounded border-[var(--table-control-border)] text-[var(--action)] focus:ring-[var(--brand)]"
@@ -434,7 +449,7 @@ export function DataTable<TRow>({
             <div className="divide-y divide-[var(--table-border)] sm:hidden">
               {visibleRows.length === 0 ? (
                 <EmptyState
-                  title={emptyTitle}
+                  title={resolvedEmptyTitle}
                   description={emptyDescription}
                   className="rounded-none border-0 px-6 py-10 shadow-none"
                 />
@@ -467,7 +482,9 @@ export function DataTable<TRow>({
               />
             )}
           </div>
-          <span>Total {filteredRows.length} records</span>
+          <span>
+            {t("common.totalRecords", "Total {count} records", { count: filteredRows.length })}
+          </span>
         </div>
       ) : (
         pagination && (
@@ -484,10 +501,14 @@ function renderColumnFilter<TRow>({
   column,
   value,
   onChange,
+  filterLabel,
+  dateRangePlaceholder,
 }: {
   column: DataTableColumn<TRow>;
   value: DataTableFilterValue;
   onChange: (value: DataTableFilterValue) => void;
+  filterLabel: string;
+  dateRangePlaceholder: string;
 }): ReactNode {
   if (column.filter !== undefined) return column.filter;
   if (column.filterable === false || column.key.toLowerCase() === "actions") return null;
@@ -495,10 +516,10 @@ function renderColumnFilter<TRow>({
   if (column.filterType === "date-range") {
     return (
       <DateRangePicker
-        ariaLabel={`${getColumnLabel(column)} filter`}
+        ariaLabel={`${getColumnLabel(column)} ${filterLabel}`}
         value={isDateRangeValue(value) ? value : EMPTY_DATE_RANGE}
         onChange={onChange}
-        placeholder={column.filterPlaceholder ?? "Date range"}
+        placeholder={column.filterPlaceholder ?? dateRangePlaceholder}
         variant="table"
       />
     );
@@ -509,7 +530,7 @@ function renderColumnFilter<TRow>({
   if (column.filterOptions) {
     return (
       <Select
-        aria-label={`${getColumnLabel(column)} filter`}
+        aria-label={`${getColumnLabel(column)} ${filterLabel}`}
         options={column.filterOptions}
         value={textValue}
         onChange={(event) => onChange(event.target.value)}
@@ -522,7 +543,7 @@ function renderColumnFilter<TRow>({
 
   return (
     <TableFilterInput
-      ariaLabel={`${getColumnLabel(column)} filter`}
+      ariaLabel={`${getColumnLabel(column)} ${filterLabel}`}
       placeholder={column.filterPlaceholder}
       value={textValue}
       onChange={onChange}
@@ -610,10 +631,12 @@ function renderColumnHeader<TRow>({
   column,
   sort,
   onSort,
+  sortLabelPrefix,
 }: {
   column: DataTableColumn<TRow>;
   sort: DataTableSortState | null;
   onSort: (key: string) => void;
+  sortLabelPrefix: string;
 }): ReactNode {
   if (column.sortable === false || column.key.toLowerCase() === "actions") {
     return column.header;
@@ -625,7 +648,7 @@ function renderColumnHeader<TRow>({
   return (
     <button
       type="button"
-      aria-label={`Sort by ${label}`}
+      aria-label={sortLabelPrefix.replace("{label}", label)}
       onClick={() => onSort(column.key)}
       className="inline-flex items-center gap-1 rounded-sm text-inherit outline-none transition-colors hover:text-[var(--table-body-text)] focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35"
     >

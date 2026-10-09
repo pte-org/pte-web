@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type MouseEvent, type ReactElement, type ReactNode } from "react";
+import type { HeaderSearchItem } from "../components/HeaderSearch";
 import { cn } from "../utils/cn";
 import { useLocale } from "../i18n";
 import { DashboardHeader } from "./DashboardHeader";
@@ -13,6 +14,9 @@ export interface DashboardShellProps {
   sidebar: DashboardShellSlot;
   headerBrand?: ReactNode;
   headerSearch?: ReactNode;
+  headerSearchItems?: readonly HeaderSearchItem[];
+  headerSearchPlaceholder?: string;
+  onHeaderSearchNavigate?: (url: string) => void;
   headerActions?: ReactNode;
   breadcrumbs?: ReactNode;
   footer?: ReactNode;
@@ -25,6 +29,9 @@ export const DashboardShell = ({
   sidebar,
   headerBrand,
   headerSearch,
+  headerSearchItems,
+  headerSearchPlaceholder,
+  onHeaderSearchNavigate,
   headerActions,
   breadcrumbs,
   footer,
@@ -130,6 +137,9 @@ export const DashboardShell = ({
           <DashboardHeader
             brand={headerBrand}
             search={headerSearch}
+            searchItems={headerSearchItems}
+            searchPlaceholder={headerSearchPlaceholder}
+            onSearchNavigate={onHeaderSearchNavigate}
             actions={headerActions}
             onMenuClick={() => setIsSidebarOpen((prev) => !prev)}
           />

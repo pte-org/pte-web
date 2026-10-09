@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { cn } from "../utils/cn";
 import { Button } from "./Button";
 import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
+import { useLocale } from "../i18n";
 
 export interface PaginationProps {
   currentPage: number;
@@ -24,6 +25,7 @@ export function Pagination({
   grouped = false,
   sideLayout = "full",
 }: PaginationProps): ReactElement | null {
+  const { t } = useLocale();
   const pageCount = Math.max(totalPages, 1);
   const page = Math.min(Math.max(currentPage, 1), pageCount);
   const isFirst = page === 1;
@@ -32,7 +34,11 @@ export function Pagination({
   if (pageCount <= 1) return null;
 
   return (
-    <nav role="navigation" aria-label="Pagination" className="w-full text-sm">
+    <nav
+      role="navigation"
+      aria-label={t("common.pagination", "Pagination")}
+      className="w-full text-sm"
+    >
       <ul
         className={cn(
           "mx-auto flex w-full items-center justify-center gap-1 text-[var(--ink-secondary)]",
@@ -45,12 +51,13 @@ export function Pagination({
             direction="previous"
             disabled={disabled || isFirst}
             sideLayout={sideLayout}
+            label={t("common.previous", "Previous")}
             onClick={() => onPageChange?.(page - 1)}
           />
         </li>
 
         <li className="sm:hidden">
-          Page {page} of {pageCount}
+          {t("common.pageOf", "Page {page} of {total}", { page, total: pageCount })}
         </li>
 
         <li className="hidden items-center gap-1 sm:flex">
@@ -67,7 +74,7 @@ export function Pagination({
               <button
                 key={item}
                 type="button"
-                aria-label={`Go to page ${item}`}
+                aria-label={t("common.goToPage", "Go to page {page}", { page: item })}
                 aria-current={item === page ? "page" : undefined}
                 disabled={disabled}
                 onClick={() => onPageChange?.(item)}
@@ -88,6 +95,7 @@ export function Pagination({
             direction="next"
             disabled={disabled || isLast}
             sideLayout={sideLayout}
+            label={t("common.next", "Next")}
             onClick={() => onPageChange?.(page + 1)}
           />
         </li>
@@ -100,15 +108,16 @@ function PaginationSideButton({
   direction,
   disabled,
   sideLayout,
+  label,
   onClick,
 }: {
   direction: "previous" | "next";
   disabled: boolean;
   sideLayout: PaginationProps["sideLayout"];
+  label: string;
   onClick: () => void;
 }): ReactElement {
   const isPrevious = direction === "previous";
-  const label = isPrevious ? "Previous" : "Next";
   const icon = isPrevious ? (
     <ChevronLeftIcon className="h-4 w-4 shrink-0" />
   ) : (

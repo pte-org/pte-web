@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import { useEffect, useRef, useState, type ChangeEvent, type ReactElement } from "react";
 import { cn } from "../utils/cn";
 import { ChevronDownIcon } from "./icons";
+import { useLocale } from "../i18n";
 
 export interface DateRangeValue {
   from: string;
@@ -44,13 +45,18 @@ export const DateRangePicker = ({
   ariaLabel,
   value,
   onChange,
-  placeholder = "Date range",
+  placeholder,
   className,
   variant = "default",
-  fromLabel = "From",
-  toLabel = "To",
-  clearLabel = "Clear",
+  fromLabel,
+  toLabel,
+  clearLabel,
 }: DateRangePickerProps): ReactElement => {
+  const { t } = useLocale();
+  const resolvedPlaceholder = placeholder ?? t("common.dateRange", "Date range");
+  const resolvedFromLabel = fromLabel ?? t("common.from", "From");
+  const resolvedToLabel = toLabel ?? t("common.until", "Until");
+  const resolvedClearLabel = clearLabel ?? t("common.clear", "Clear");
   const [isOpen, setIsOpen] = useState(false);
   const [panelPosition, setPanelPosition] = useState<PanelPosition | null>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -117,10 +123,10 @@ export const DateRangePicker = ({
     value.from && value.to
       ? `${formatDisplayDate(value.from)} – ${formatDisplayDate(value.to)}`
       : value.from
-        ? `From ${formatDisplayDate(value.from)}`
+        ? `${resolvedFromLabel} ${formatDisplayDate(value.from)}`
         : value.to
-          ? `Until ${formatDisplayDate(value.to)}`
-          : placeholder;
+          ? `${resolvedToLabel} ${formatDisplayDate(value.to)}`
+          : resolvedPlaceholder;
 
   return (
     <>
@@ -195,10 +201,10 @@ export const DateRangePicker = ({
                     isTable ? "text-[var(--table-muted-text)]" : "text-[var(--ink-secondary)]",
                   )}
                 >
-                  <span>{fromLabel}</span>
+                  <span>{resolvedFromLabel}</span>
                   <input
                     type="date"
-                    aria-label={`${ariaLabel} ${fromLabel}`}
+                    aria-label={`${ariaLabel} ${resolvedFromLabel}`}
                     value={value.from}
                     max={value.to || undefined}
                     onChange={updateRange("from")}
@@ -216,10 +222,10 @@ export const DateRangePicker = ({
                     isTable ? "text-[var(--table-muted-text)]" : "text-[var(--ink-secondary)]",
                   )}
                 >
-                  <span>{toLabel}</span>
+                  <span>{resolvedToLabel}</span>
                   <input
                     type="date"
-                    aria-label={`${ariaLabel} ${toLabel}`}
+                    aria-label={`${ariaLabel} ${resolvedToLabel}`}
                     value={value.to}
                     min={value.from || undefined}
                     onChange={updateRange("to")}
@@ -246,7 +252,9 @@ export const DateRangePicker = ({
                   )}
                   role={isInvalid ? "alert" : undefined}
                 >
-                  {isInvalid ? "From date must be on or before to date." : "Filter by a date range"}
+                  {isInvalid
+                    ? t("common.dateFromToInvalid", "From date must be on or before to date.")
+                    : t("common.filterDateRange", "Filter by a date range")}
                 </p>
                 <button
                   type="button"
@@ -259,7 +267,7 @@ export const DateRangePicker = ({
                       : "hover:bg-[var(--surface-subtle)] disabled:text-[var(--ink-muted)]",
                   )}
                 >
-                  {clearLabel}
+                  {resolvedClearLabel}
                 </button>
               </div>
             </div>
