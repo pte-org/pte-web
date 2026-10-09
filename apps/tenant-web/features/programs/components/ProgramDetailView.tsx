@@ -2,15 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Alert,
-  Badge,
-  ConfirmDialog,
-  LoadingState,
-  PageHeader,
-  useToast,
-} from "@pte/ui";
-import { AppBackButton } from "@/features/navigation/components/AppBackButton";
+import { Alert, Badge, ConfirmDialog, LoadingState, PageHeader, useToast } from "@pte/ui";
 import { ClassesSection } from "@/features/classes/components";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
@@ -39,7 +31,6 @@ export const ProgramDetailView = ({
     return (
       <div className="flex flex-col gap-4">
         <Alert tone="error">{T.missingOrganization}</Alert>
-        <AppBackButton href="/host/programs" label={T.backToList(labels.program)} />
       </div>
     );
   }
@@ -87,7 +78,6 @@ const ProgramDetailContent = ({
     return (
       <div className="flex flex-col gap-4">
         <Alert tone="error">{errorMessage(error, T.loadFailed)}</Alert>
-        <AppBackButton href="/host/programs" label={T.backToList(programLabel)} />
       </div>
     );
   }
@@ -117,8 +107,6 @@ const ProgramDetailContent = ({
 
   return (
     <div className="flex flex-col gap-5">
-      <AppBackButton href="/host/programs" label={T.back(programLabel)} />
-
       <PageHeader
         title={program.name}
         actions={
@@ -135,7 +123,9 @@ const ProgramDetailContent = ({
                     onSuccess: () =>
                       showToast(T.activateSuccess(programLabel), { tone: "success" }),
                     onError: (err) =>
-                      showToast(errorMessage(err) ?? T.activateFailed(programLabel), { tone: "error" }),
+                      showToast(errorMessage(err) ?? T.activateFailed(programLabel), {
+                        tone: "error",
+                      }),
                   })
                 }
                 className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"
@@ -149,10 +139,11 @@ const ProgramDetailContent = ({
                 disabled={lifecyclePending}
                 onClick={() =>
                   statusMutations.suspend.mutate(undefined, {
-                    onSuccess: () =>
-                      showToast(T.suspendSuccess(programLabel), { tone: "success" }),
+                    onSuccess: () => showToast(T.suspendSuccess(programLabel), { tone: "success" }),
                     onError: (err) =>
-                      showToast(errorMessage(err) ?? T.suspendFailed(programLabel), { tone: "error" }),
+                      showToast(errorMessage(err) ?? T.suspendFailed(programLabel), {
+                        tone: "error",
+                      }),
                   })
                 }
                 className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60"

@@ -7,10 +7,10 @@ import {
   ActionMenu,
   Alert,
   BanIcon,
+  Button,
   ConfirmDialog,
   DataTable,
   EyeIcon,
-  PageHeader,
   PaginationControls,
   useToast,
   type DataTableColumn,
@@ -96,27 +96,15 @@ export const SupportTicketsView = (): ReactElement => {
     {
       key: "createdAt",
       header: H.SUBMITTED,
+      filterType: "date-range",
       filterAccessor: (t) => t.createdAt,
+      filterPlaceholder: "Date range",
       cell: (t) => new Date(t.createdAt).toLocaleDateString(),
     },
   ];
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title={T.TITLE}
-        subtitle={T.SUBTITLE}
-        actions={
-          <button
-            type="button"
-            onClick={() => setCreateOpen(true)}
-            className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover"
-          >
-            + {T.CREATE_BUTTON}
-          </button>
-        }
-      />
-
       {isError && <Alert tone="error">Failed to load support tickets.</Alert>}
 
       <DataTable
@@ -127,6 +115,12 @@ export const SupportTicketsView = (): ReactElement => {
         emptyTitle={T.EMPTY_TITLE}
         emptyDescription={T.EMPTY_TEXT}
         rowActionsHeader={H.ACTIONS}
+        clientSidePagination={false}
+        toolbarActions={
+          <Button type="button" onClick={() => setCreateOpen(true)}>
+            + {T.CREATE_BUTTON}
+          </Button>
+        }
         rowActions={(t) => (
           <ActionMenu
             label={A.ACTIONS}
@@ -166,7 +160,10 @@ export const SupportTicketsView = (): ReactElement => {
 
       <CreateTicketModal
         open={createOpen}
-        onClose={() => { setCreateOpen(false); submit.reset(); }}
+        onClose={() => {
+          setCreateOpen(false);
+          submit.reset();
+        }}
         onSubmit={handleCreate}
         error={submit.error?.message}
         isSubmitting={submit.isPending}

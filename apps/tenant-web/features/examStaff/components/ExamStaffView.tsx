@@ -10,7 +10,6 @@ import {
   ConfirmDialog,
   EyeIcon,
   MailIcon,
-  PageHeader,
   StatusBadge,
   Button,
 } from "@pte/ui";
@@ -116,15 +115,6 @@ export const ExamStaffView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title={EXAM_STAFF_TEXT.title}
-        actions={
-          <Button variant="primary" appearance="fill" size="md" onClick={() => setAddOpen(true)}>
-            {EXAM_STAFF_TEXT.addButton}
-          </Button>
-        }
-      />
-
       {queryError && <Alert tone="error">{queryError || EXAM_STAFF_TEXT.loadFailed}</Alert>}
       {mutationError && <Alert tone="error">{mutationError}</Alert>}
       {staff.isFetching && staff.data && <Alert tone="info">{EXAM_STAFF_TEXT.syncing}</Alert>}
@@ -137,6 +127,11 @@ export const ExamStaffView = (): ReactElement => {
         emptyTitle={EXAM_STAFF_TEXT.emptyTitle}
         emptyDescription={EXAM_STAFF_TEXT.emptyDescription}
         rowActionsHeader={EXAM_STAFF_TEXT.actions}
+        toolbarActions={
+          <Button variant="primary" appearance="fill" size="md" onClick={() => setAddOpen(true)}>
+            {EXAM_STAFF_TEXT.addButton}
+          </Button>
+        }
         rowActions={(user) => (
           <ActionMenu
             label={`${EXAM_STAFF_TEXT.actions}: ${user.fullName}`}
@@ -170,7 +165,6 @@ export const ExamStaffView = (): ReactElement => {
             ]}
           />
         )}
-        pageSizeLabel="Per page"
       />
 
       <ConfirmDialog

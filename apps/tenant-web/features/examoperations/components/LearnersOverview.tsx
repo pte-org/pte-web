@@ -86,6 +86,7 @@ export const LearnersOverview = (): ReactElement => {
         isLoading={studentsQuery.isLoading}
         emptyTitle={T.EMPTY_TITLE}
         emptyDescription={T.EMPTY_TEXT}
+        clientSidePagination={false}
         pagination={
           studentsQuery.data ? (
             <PaginationControls

@@ -8,17 +8,19 @@ import { useQueryClient } from "@tanstack/react-query";
 import {
   LocaleSwitcher,
   Breadcrumbs,
+  LogoutIcon,
   SidebarNav as SharedSidebarNav,
   Skeleton,
+  ThemeToggle,
+  UserMenu,
   cn,
   useLocale,
   useTokenManager,
+  type DropdownItem,
   type SessionRole,
 } from "@pte/ui";
 import CommonDashboardLayout from "@/components/common/dashboard-layout";
 import SearchBar from "@/components/common/header/searchbar";
-import ThemeToggle from "@/components/common/header/theme-toggle";
-import { UserProfileButton } from "@/components/common/header/user-profile";
 import { NotificationBellContainer } from "@/features/notifications";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
@@ -56,37 +58,41 @@ interface DashboardChromeProps {
 
 const BRAND_NAME = "PTE Prep";
 const BRAND_SUBTITLE = "School Portal";
-const DISCLAIMER = "PTE mock exam platform. Not affiliated with Pearson.";
 
 const HEADER_TEXT = {
   ACCOUNT: "Account",
+  LOGOUT: "Log out",
 } as const;
 
 const SidebarBrand = ({ collapsed = false }: { collapsed?: boolean }): ReactElement => {
   const { t } = useLocale();
-  return <Link
-    href="/"
-    aria-label={`${BRAND_NAME} home`}
-    className={cn(
-      "flex items-center rounded-md p-1 transition-colors hover:bg-background-gray-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500",
-      collapsed ? "justify-center" : "gap-2",
-    )}
-  >
-    <Image
-      src="/logo.png"
-      alt={`${BRAND_NAME} logo`}
-      width={40}
-      height={40}
-      priority
-      className="h-10 w-10 rounded-md object-contain shadow-sm"
-    />
-    {!collapsed && (
-      <div className="leading-tight">
-        <p className="text-sm font-semibold text-text-primary">{BRAND_NAME}</p>
-        <p className="text-xs text-text-tertiary">{t("brand.schoolSubtitle", BRAND_SUBTITLE)}</p>
-      </div>
-    )}
-  </Link>
+  return (
+    <Link
+      href="/"
+      aria-label={`${BRAND_NAME} home`}
+      className={cn(
+        "flex items-center rounded-md p-1 transition-colors hover:bg-[var(--surface-subtle)]",
+        collapsed ? "justify-center" : "gap-2",
+      )}
+    >
+      <Image
+        src="/logo.png"
+        alt={`${BRAND_NAME} logo`}
+        width={40}
+        height={40}
+        priority
+        className="h-10 w-10 rounded-md object-contain shadow-sm"
+      />
+      {!collapsed && (
+        <div className="leading-tight">
+          <p className="text-sm font-semibold text-[var(--ink-primary)]">{BRAND_NAME}</p>
+          <p className="text-xs text-[var(--ink-muted)]">
+            {t("brand.schoolSubtitle", BRAND_SUBTITLE)}
+          </p>
+        </div>
+      )}
+    </Link>
+  );
 };
 
 // Active-state rules:
@@ -105,16 +111,14 @@ const SidebarBrand = ({ collapsed = false }: { collapsed?: boolean }): ReactElem
 //   (`/host/programs/{id}`) still highlight normally because they have
 //   no `/classes/` sub-segment.
 const HOST_NAV_DEACTIVATES: Readonly<Record<string, (pathname: string) => boolean>> = {
-  "/host/programs": (pathname) =>
-    pathname.includes("/classes/") || pathname.endsWith("/classes"),
+  "/host/programs": (pathname) => pathname.includes("/classes/") || pathname.endsWith("/classes"),
 };
 
 const HOST_NAV_ACTIVATES: Readonly<Record<string, (pathname: string) => boolean>> = {
   // The Classes section owns the class-detail page even though the URL
   // sits under `/host/programs/.../classes/...`. Force Classes active
   // whenever we navigate into a class.
-  "/host/classes": (pathname) =>
-    pathname.includes("/classes/") || pathname.endsWith("/classes"),
+  "/host/classes": (pathname) => pathname.includes("/classes/") || pathname.endsWith("/classes"),
 };
 
 const isActive = (pathname: string | null, href: string): boolean => {
@@ -148,9 +152,7 @@ const SidebarNav = ({
     label: item.labelKey ? t(item.labelKey, item.label) : item.label,
     href: item.href,
     icon: item.icon,
-    section: item.sectionKey
-      ? t(item.sectionKey, item.section ?? "Pages")
-      : item.section,
+    section: item.sectionKey ? t(item.sectionKey, item.section ?? "Pages") : item.section,
     isActive: isActive(pathname, item.href),
   }));
 
@@ -197,18 +199,26 @@ const HeaderActions = (): ReactElement => {
     router.replace(AUTH_ROUTES.login);
   };
 
+  const userMenuItems: DropdownItem[] = [
+    {
+      label: t("common.logout", HEADER_TEXT.LOGOUT),
+      onSelect: logout,
+      icon: LogoutIcon,
+    },
+  ];
+
   return (
     <>
       <LocaleSwitcher />
       <ThemeToggle />
       <NotificationBellContainer />
       {isLoading ? (
-        <Skeleton className="h-10 w-28 rounded-lg" />
+        <Skeleton className="h-10 w-10 rounded-lg sm:w-28" />
       ) : (
-        <UserProfileButton
+        <UserMenu
           name={user?.fullName ?? t("common.account", HEADER_TEXT.ACCOUNT)}
           email={user?.email}
-          onLogout={logout}
+          items={userMenuItems}
         />
       )}
     </>
@@ -222,12 +232,15 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
   const { t } = useLocale();
   const searchItems = navItems
     .filter(
-      (item) => !item.requiredRoles || item.requiredRoles.some((role) => user?.roles.includes(role)),
+      (item) =>
+        !item.requiredRoles || item.requiredRoles.some((role) => user?.roles.includes(role)),
     )
     .map((item) => ({
       id: item.href,
       title: item.labelKey ? t(item.labelKey, item.label) : item.label,
-      section: item.sectionKey ? t(item.sectionKey, item.section ?? "Pages") : item.section ?? "Pages",
+      section: item.sectionKey
+        ? t(item.sectionKey, item.section ?? "Pages")
+        : (item.section ?? "Pages"),
       url: item.href,
       icon: item.icon,
     }));
@@ -264,23 +277,14 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
     <CommonDashboardLayout
       brand={({ isSidebarOpen }) => <SidebarBrand collapsed={!isSidebarOpen} />}
       sidebar={({ isSidebarOpen, onItemClick }) => (
-        <SidebarNav
-          navItems={navItems}
-          isSidebarOpen={isSidebarOpen}
-          onItemClick={onItemClick}
-        />
+        <SidebarNav navItems={navItems} isSidebarOpen={isSidebarOpen} onItemClick={onItemClick} />
       )}
-      headerBrand={<span className="text-lg font-bold text-brand-500">{BRAND_NAME}</span>}
       headerSearch={
-        <SearchBar
-          items={searchItems}
-          placeholder={t("common.searchPages", "Tìm kiếm trang...")}
-        />
+        <SearchBar items={searchItems} placeholder={t("common.searchPages", "Tìm kiếm trang...")} />
       }
       breadcrumbs={breadcrumbs}
       headerActions={<HeaderActions />}
       navigationKey={`${pathname}?${searchParams.toString()}`}
-      footer={t("common.disclaimer", DISCLAIMER)}
     >
       {children}
     </CommonDashboardLayout>

@@ -18,7 +18,6 @@ export const EXAM_STAFF_TEXT = {
   nameDesc: "Full name: Z–A",
   emailAsc: "Email: A–Z",
   emailDesc: "Email: Z–A",
-  pageSizeLabel: "Rows per page",
   firstPage: "First",
   lastPage: "Last",
   totalItems: (count: number) => `${count} staff account(s)`,

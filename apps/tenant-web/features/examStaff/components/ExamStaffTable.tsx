@@ -19,7 +19,7 @@ interface ExamStaffTableProps<TRow> {
   emptyDescription?: string;
   rowActions?: (row: TRow) => ReactNode;
   rowActionsHeader?: ReactNode;
-  pageSizeLabel?: string;
+  toolbarActions?: ReactNode;
 }
 
 export function ExamStaffTable<TRow>({
@@ -31,7 +31,7 @@ export function ExamStaffTable<TRow>({
   emptyDescription,
   rowActions,
   rowActionsHeader,
-  pageSizeLabel = "Per page",
+  toolbarActions,
 }: ExamStaffTableProps<TRow>): ReactElement {
   return (
     <DataTable
@@ -43,10 +43,10 @@ export function ExamStaffTable<TRow>({
       emptyDescription={emptyDescription}
       rowActions={rowActions}
       rowActionsHeader={rowActionsHeader}
+      toolbarActions={toolbarActions}
       showSearch
       clientSidePagination
       initialPageSize={DEFAULT_PAGE_SIZE}
-      pageSizeLabel={pageSizeLabel}
       renderMobileRow={(row) => (
         <article className="space-y-3 px-4 py-4">
           <div className="flex items-start justify-between gap-4">

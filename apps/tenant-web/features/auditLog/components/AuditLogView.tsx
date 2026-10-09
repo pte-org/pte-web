@@ -5,7 +5,6 @@ import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
 import {
   Alert,
   DataTable,
-  PageHeader,
   PaginationControls,
   type DataTableColumn,
 } from "@pte/ui";
@@ -49,8 +48,6 @@ export const AuditLogView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={AUDIT_LOG_TEXT.title} subtitle={AUDIT_LOG_TEXT.subtitle} />
-
       <Alert tone="info">{AUDIT_LOG_TEXT.scopeNote(labels.program, labels.class)}</Alert>
 
       {isError && <Alert tone="error">{errorMessage(error, AUDIT_LOG_TEXT.loadFailed)}</Alert>}
@@ -62,6 +59,7 @@ export const AuditLogView = (): ReactElement => {
         isLoading={isLoading}
         emptyTitle={AUDIT_LOG_TEXT.emptyTitle}
         emptyDescription={AUDIT_LOG_TEXT.emptyText}
+        clientSidePagination={false}
         pagination={
           data ? (
             <PaginationControls
@@ -73,7 +71,6 @@ export const AuditLogView = (): ReactElement => {
                 setSize(nextSize);
                 setPage(0);
               }}
-              totalItemsLabel={AUDIT_LOG_TEXT.totalItems(data.meta.totalElements)}
             />
           ) : undefined
         }

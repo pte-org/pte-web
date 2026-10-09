@@ -48,7 +48,9 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
       key: "attemptNumber",
       header: ANSWER_TABLE_HEADERS.ATTEMPT,
       cell: (row) => (
-        <span className="font-medium text-[var(--ink-primary)]">{T.ATTEMPT_VALUE(row.attemptNumber)}</span>
+        <span className="font-medium text-[var(--ink-primary)]">
+          {T.ATTEMPT_VALUE(row.attemptNumber)}
+        </span>
       ),
     },
     {
@@ -80,6 +82,9 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
     {
       key: "createdAt",
       header: ANSWER_TABLE_HEADERS.SUBMITTED_AT,
+      filterType: "date-range",
+      filterAccessor: (row) => row.createdAt,
+      filterPlaceholder: "Date range",
       cell: (row) => formatDateTime(row.createdAt),
     },
   ];
@@ -93,8 +98,9 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
         isLoading={isLoading}
         emptyTitle={T.EMPTY_TITLE}
         rowActionsHeader={ANSWER_TABLE_HEADERS.ACTIONS}
+        clientSidePagination={false}
         pagination={
-          data && data.totalPages > 1 ? (
+          data ? (
             <PaginationControls
               meta={data}
               onPageChange={setPage}

@@ -19,6 +19,13 @@ export const ATTEMPT_STATUS_LABELS: Record<AttemptStatus, string> = {
   COMPLETED: "Completed",
 };
 
+export const ATTEMPT_STATUS_FILTER_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "PENDING", label: ATTEMPT_STATUS_LABELS.PENDING },
+  { value: "IN_PROGRESS", label: ATTEMPT_STATUS_LABELS.IN_PROGRESS },
+  { value: "COMPLETED", label: ATTEMPT_STATUS_LABELS.COMPLETED },
+] as const;
+
 export const AUDIT_ACTION_LABELS: Record<ProctorAuditAction, string> = {
   FORCE_SUBMIT: "Force submit",
   FLAG_VIOLATION: "Flag violation",
