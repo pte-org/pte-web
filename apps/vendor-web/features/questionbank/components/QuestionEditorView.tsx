@@ -4,10 +4,15 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactElement } from "react";
 import { Alert, LoadingState, PageHeader } from "@pte/ui";
 import { useCreateQuestionRevision, useQuestion } from "../api";
-import { QUESTION_EDITOR_ERRORS as E, QUESTION_EDITOR_TEXT as T } from "../constants";
+import {
+  QUESTION_EDITOR_ERRORS as RAW_QUESTION_EDITOR_ERRORS,
+  QUESTION_EDITOR_TEXT as RAW_QUESTION_EDITOR_TEXT,
+} from "../constants";
 import { QuestionEditorForm } from "./QuestionEditorForm";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 export const NewQuestionView = (): ReactElement => {
+  const T = useAdminCopy(RAW_QUESTION_EDITOR_TEXT);
   const router = useRouter();
   return (
     <div className="space-y-5">
@@ -21,6 +26,8 @@ export const NewQuestionView = (): ReactElement => {
 };
 
 export const EditQuestionView = ({ publicId }: { publicId: string }): ReactElement => {
+  const T = useAdminCopy(RAW_QUESTION_EDITOR_TEXT);
+  const E = useAdminCopy(RAW_QUESTION_EDITOR_ERRORS);
   const router = useRouter();
   const { data: question, isLoading, isError } = useQuestion(publicId);
   const revisionMutation = useCreateQuestionRevision();

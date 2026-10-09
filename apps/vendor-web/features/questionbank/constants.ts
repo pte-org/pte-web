@@ -160,7 +160,6 @@ export const QUESTION_EDITOR_ERRORS = {
 } as const;
 
 export const QUESTION_TABLE_HEADERS = {
-  CODE: "Question Code",
   SKILL: "Skill",
   CONTENT: "Content",
   STATUS: "Status",

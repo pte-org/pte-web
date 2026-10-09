@@ -2,7 +2,8 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Button, Modal, Textarea } from "@pte/ui";
-import { QUESTIONBANK_TEXT as T } from "../constants";
+import { QUESTIONBANK_TEXT as RAW_QUESTIONBANK_TEXT } from "../constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 interface RejectQuestionModalProps {
   open: boolean;
@@ -19,6 +20,7 @@ export const RejectQuestionModal = ({
   onClose,
   onConfirm,
 }: RejectQuestionModalProps): ReactElement => {
+  const T = useAdminCopy(RAW_QUESTIONBANK_TEXT);
   const [reason, setReason] = useState<string>(T.REJECTION_REASON_DEFAULT);
   const [error, setError] = useState<string | undefined>();
 
