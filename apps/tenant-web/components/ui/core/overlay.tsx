@@ -6,13 +6,13 @@ import {
   type ModalOverlayProps as AriaModalOverlayProps
 } from "react-aria-components";
 
-export interface OverlayWrapperProps extends AriaDialogTriggerProps {}
+export type OverlayWrapperProps = AriaDialogTriggerProps;
 
 export function OverlayWrapper({ ...props }: OverlayWrapperProps) {
   return <AriaDialogTrigger {...props} />;
 }
 
-export interface BackdropProps extends AriaModalOverlayProps {}
+export type BackdropProps = AriaModalOverlayProps;
 
 export function Backdrop({
   className,

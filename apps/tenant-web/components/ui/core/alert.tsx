@@ -74,7 +74,7 @@ const indicatorStyles = cva(
   },
 );
 
-export interface AlertIndicatorProps extends React.ComponentProps<"span"> {}
+export type AlertIndicatorProps = React.ComponentProps<"span">;
 
 export function AlertIndicator({ className, children, ...props }: AlertIndicatorProps) {
   const { status } = use(AlertContext);
@@ -111,7 +111,7 @@ AlertIndicator.displayName = "AlertIndicator";
 
 // Alert Content
 
-export interface AlertContentProps extends React.ComponentProps<"div"> {}
+export type AlertContentProps = React.ComponentProps<"div">;
 
 export function AlertContent({ className, ...props }: AlertContentProps) {
   return (
@@ -142,7 +142,7 @@ const titleStyles = cva("leading-6 font-semibold tracking-[-0.2px]", {
   },
 });
 
-export interface AlertTitleProps extends HeadingProps {}
+export type AlertTitleProps = HeadingProps;
 
 export function AlertTitle({ className, children, level = 4, ...props }: AlertTitleProps) {
   const { status } = use(AlertContext);
@@ -164,7 +164,7 @@ AlertTitle.displayName = "AlertTitle";
 
 // Alert Description
 
-export interface AlertDescriptionProps extends React.ComponentProps<"div"> {}
+export type AlertDescriptionProps = React.ComponentProps<"div">;
 
 export function AlertDescription({ className, children, ...props }: AlertDescriptionProps) {
   const { status } = use(AlertContext);

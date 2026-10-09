@@ -3,7 +3,7 @@
 import { cn } from "@/utils/cn";
 import { Text, TextProps } from "react-aria-components";
 
-export interface DescriptionProps extends Omit<TextProps, "slot"> {}
+export type DescriptionProps = Omit<TextProps, "slot">;
 
 export function Description({ className, ...props }: DescriptionProps) {
   return (

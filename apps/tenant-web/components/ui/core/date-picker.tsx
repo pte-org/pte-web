@@ -46,7 +46,7 @@ export function DatePicker<T extends DateValue>({
   );
 }
 
-interface DatePickerGroupProps extends AriaGroupProps {}
+type DatePickerGroupProps = AriaGroupProps;
 
 export function DatePickerGroup({
   className,
@@ -60,7 +60,7 @@ export function DatePickerGroup({
   );
 }
 
-interface DatePickerTriggerProps extends AriaButtonProps {}
+type DatePickerTriggerProps = AriaButtonProps;
 
 export function DatePickerTrigger({
   className,
@@ -81,7 +81,7 @@ export function DatePickerTrigger({
   );
 }
 
-export interface DatePickerPopoverProps extends AriaPopoverProps {}
+export type DatePickerPopoverProps = AriaPopoverProps;
 
 export function DatePickerPopover({
   className,

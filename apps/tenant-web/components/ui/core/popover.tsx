@@ -8,7 +8,7 @@ import {
   type PopoverProps as AriaPopoverProps,
 } from "react-aria-components";
 
-export interface PopoverProps extends AriaPopoverProps {}
+export type PopoverProps = AriaPopoverProps;
 
 export function Popover({ className, ...props }: PopoverProps) {
   return (
@@ -22,7 +22,7 @@ export function Popover({ className, ...props }: PopoverProps) {
   );
 }
 
-export interface PopoverArrowProps extends AriaOverlayArrowProps {}
+export type PopoverArrowProps = AriaOverlayArrowProps;
 
 export function PopoverArrow({ className, ...props }: PopoverArrowProps) {
   return (

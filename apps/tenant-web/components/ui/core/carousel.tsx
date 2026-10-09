@@ -93,6 +93,8 @@ function Carousel({
   React.useEffect(() => {
     if (!api) return;
 
+    // Embla is an external store; initialize the controlled carousel state from it.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     onSelect(api);
     api.on("reInit", onSelect);
     api.on("select", onSelect);

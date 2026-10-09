@@ -40,6 +40,8 @@ export default function OtpInput({
     if (value !== undefined) {
       const digits = value.split("").slice(0, digitLength);
       const paddedDigits = [...digits, ...Array(digitLength - digits.length).fill("")];
+      // This effect intentionally mirrors the controlled value into editable slots.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setOtp((prev) => {
         if (prev.join("") === paddedDigits.join("")) {
           return prev;

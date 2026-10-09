@@ -21,6 +21,9 @@ import {
 } from "@floating-ui/react";
 import * as React from "react";
 
+/* Floating UI requires refs during render to calculate positioning and attach its arrow. */
+/* eslint-disable react-hooks/refs */
+
 interface TooltipOptions {
   initialOpen?: boolean;
   placement?: Placement;
