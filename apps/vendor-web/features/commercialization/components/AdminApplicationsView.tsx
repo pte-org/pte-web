@@ -2,25 +2,27 @@
 
 import { type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import {
-  ActionMenu,
-  Alert,
-  DataTable,
-  EyeIcon,
-} from "@pte/ui";
+import { ActionMenu, Alert, DataTable, EyeIcon } from "@pte/ui";
 import { useApplicationsQuery } from "../api";
 import type { TenantApplicationResponse } from "@pte/api-client";
-import { ADMIN_APPLICATIONS_TEXT as T } from "../constants";
+import { ADMIN_APPLICATIONS_TEXT as RAW_ADMIN_APPLICATIONS_TEXT } from "../constants";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
-
-const STATUS_OPTIONS = [
-  { label: T.ALL_STATUSES, value: "" },
-  { label: T.PENDING, value: "PENDING" },
-  { label: T.APPROVED, value: "APPROVED" },
-  { label: T.REJECTED, value: "REJECTED" },
-];
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 export const AdminApplicationsView = (): ReactElement => {
+  const T = useAdminCopy(RAW_ADMIN_APPLICATIONS_TEXT);
+  const statusOptions = useAdminCopy([
+    { label: "All statuses", value: "" },
+    { label: "Pending", value: "PENDING" },
+    { label: "Approved", value: "APPROVED" },
+    { label: "Rejected", value: "REJECTED" },
+  ]);
+  const organizationTypeLabels = useAdminCopy({
+    SCHOOL: "School",
+    UNIVERSITY: "University",
+    TRAINING_CENTER: "Training Center",
+    CORPORATE: "Corporate",
+  });
   const router = useRouter();
   const { data: applications = [], isLoading, isError, refetch } = useApplicationsQuery();
   const columns = [
@@ -38,7 +40,8 @@ export const AdminApplicationsView = (): ReactElement => {
     {
       key: "contact",
       header: T.COLUMN_CONTACT,
-      filterAccessor: (row: TenantApplicationResponse) => `${row.contactEmail} ${row.contactPhone ?? ""}`,
+      filterAccessor: (row: TenantApplicationResponse) =>
+        `${row.contactEmail} ${row.contactPhone ?? ""}`,
       cell: (row: TenantApplicationResponse) => (
         <div>
           <p>{row.contactEmail}</p>
@@ -50,7 +53,8 @@ export const AdminApplicationsView = (): ReactElement => {
       key: "type",
       header: T.COLUMN_TYPE,
       filterAccessor: (row: TenantApplicationResponse) => row.orgType,
-      cell: (row: TenantApplicationResponse) => row.orgType,
+      cell: (row: TenantApplicationResponse) =>
+        organizationTypeLabels[row.orgType as keyof typeof organizationTypeLabels] ?? row.orgType,
     },
     {
       key: "taxCode",
@@ -63,7 +67,7 @@ export const AdminApplicationsView = (): ReactElement => {
     {
       key: "status",
       header: T.COLUMN_STATUS,
-      filterOptions: STATUS_OPTIONS,
+      filterOptions: statusOptions,
       filterAccessor: (row: TenantApplicationResponse) => row.status,
       cell: (row: TenantApplicationResponse) => <CommercialStatusBadge status={row.status} />,
     },
@@ -75,7 +79,11 @@ export const AdminApplicationsView = (): ReactElement => {
         <Alert tone="error">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span>{T.LOAD_ERROR}</span>
-            <button type="button" className="font-semibold underline" onClick={() => void refetch()}>
+            <button
+              type="button"
+              className="font-semibold underline"
+              onClick={() => void refetch()}
+            >
               {T.RETRY}
             </button>
           </div>

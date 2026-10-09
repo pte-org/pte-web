@@ -17,22 +17,13 @@ import {
   Select,
   useToast,
 } from "@pte/ui";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 import {
   useMarkAllNotificationsRead,
   useMarkNotificationRead,
   useNotificationCenter,
   useNotificationHistory,
 } from "../api";
-
-const CATEGORY_OPTIONS = [
-  { label: "All categories", value: "" },
-  { label: "System notice", value: "SYSTEM_NOTICE" },
-  { label: "Maintenance", value: "MAINTENANCE" },
-  { label: "Session", value: "SESSION" },
-  { label: "Application", value: "APPLICATION" },
-  { label: "Billing", value: "BILLING" },
-  { label: "Support", value: "SUPPORT" },
-];
 
 function targetHref(item: InboxItemResponse): string {
   if (item.targetType === "APPLICATION") return `/admin/applications/${item.targetPublicId}`;
@@ -43,6 +34,23 @@ function targetHref(item: InboxItemResponse): string {
 }
 
 function NotificationHistoryContent(): ReactElement {
+  const T = useAdminCopy({
+    TITLE: "Notifications",
+    FILTER_ARIA: "Notification filter",
+    CATEGORY_ARIA: "Notification category",
+    ALL_NOTIFICATIONS: "All notifications",
+    UNREAD_ONLY: "Unread only",
+    MARK_ALL_READ: "Mark all read",
+  });
+  const categoryOptions = useAdminCopy([
+    { label: "All categories", value: "" },
+    { label: "System notice", value: "SYSTEM_NOTICE" },
+    { label: "Maintenance", value: "MAINTENANCE" },
+    { label: "Session", value: "SESSION" },
+    { label: "Application", value: "APPLICATION" },
+    { label: "Billing", value: "BILLING" },
+    { label: "Support", value: "SUPPORT" },
+  ]);
   const router = useRouter();
   const { showToast } = useToast();
   const [filter, setFilter] = useState<InboxReadFilter>("ALL");
@@ -71,15 +79,15 @@ function NotificationHistoryContent(): ReactElement {
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
-        title="Notifications"
+        title={T.TITLE}
         actions={
           <>
             <Select
               id="notification-filter"
-              aria-label="Notification filter"
+              aria-label={T.FILTER_ARIA}
               options={[
-                { label: "All notifications", value: "ALL" },
-                { label: "Unread only", value: "UNREAD" },
+                { label: T.ALL_NOTIFICATIONS, value: "ALL" },
+                { label: T.UNREAD_ONLY, value: "UNREAD" },
               ]}
               value={filter}
               onChange={(event) => {
@@ -90,8 +98,8 @@ function NotificationHistoryContent(): ReactElement {
             />
             <Select
               id="notification-category"
-              aria-label="Notification category"
-              options={CATEGORY_OPTIONS}
+              aria-label={T.CATEGORY_ARIA}
+              options={categoryOptions}
               value={category ?? ""}
               onChange={(event) => {
                 setCategory((event.target.value || undefined) as InboxCategory | undefined);
@@ -100,7 +108,7 @@ function NotificationHistoryContent(): ReactElement {
               }}
             />
             <Button variant="secondary" onClick={markAll} isLoading={markAllRead.isPending}>
-              Mark all read
+              {T.MARK_ALL_READ}
             </Button>
           </>
         }

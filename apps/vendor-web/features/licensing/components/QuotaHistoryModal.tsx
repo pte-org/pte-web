@@ -4,10 +4,11 @@ import { type ReactElement } from "react";
 import type { QuotaTransactionResponse } from "@pte/api-client";
 import { DataTable, Modal } from "@pte/ui";
 import {
-  QUOTA_ACTION_TYPE_LABELS,
-  QUOTA_HISTORY_TABLE_HEADERS,
-  QUOTA_HISTORY_TEXT,
+  QUOTA_ACTION_TYPE_LABELS as RAW_QUOTA_ACTION_TYPE_LABELS,
+  QUOTA_HISTORY_TABLE_HEADERS as RAW_QUOTA_HISTORY_TABLE_HEADERS,
+  QUOTA_HISTORY_TEXT as RAW_QUOTA_HISTORY_TEXT,
 } from "../constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useQuotaHistory } from "../api";
 
 interface QuotaHistoryModalProps {
@@ -16,7 +17,6 @@ interface QuotaHistoryModalProps {
   onClose: () => void;
 }
 
-const T = QUOTA_HISTORY_TEXT;
 const formatDate = (value: string): string => {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("en-GB").format(date);
@@ -29,6 +29,14 @@ export const QuotaHistoryModal = ({
   tenantName,
   onClose,
 }: QuotaHistoryModalProps): ReactElement => {
+  const T = useAdminCopy(RAW_QUOTA_HISTORY_TEXT);
+  const H = useAdminCopy(RAW_QUOTA_HISTORY_TABLE_HEADERS);
+  const actionLabels = useAdminCopy(RAW_QUOTA_ACTION_TYPE_LABELS);
+  const dateRangeLabel = useAdminCopy("Date range");
+  const actionFilterOptions = useAdminCopy([
+    { value: "", label: "All actions" },
+    ...Object.entries(RAW_QUOTA_ACTION_TYPE_LABELS).map(([value, label]) => ({ value, label })),
+  ]);
   const { data: transactions, isLoading } = useQuotaHistory(tenantPublicId ?? "");
 
   return (
@@ -51,36 +59,32 @@ export const QuotaHistoryModal = ({
         columns={[
           {
             key: "date",
-            label: QUOTA_HISTORY_TABLE_HEADERS.DATE,
-            header: QUOTA_HISTORY_TABLE_HEADERS.DATE,
+            label: H.DATE,
+            header: H.DATE,
             filterType: "date-range",
             filterAccessor: (transaction: QuotaTransactionResponse) => transaction.createdAt,
-            filterPlaceholder: "Date range",
+            filterPlaceholder: dateRangeLabel,
             cell: (transaction: QuotaTransactionResponse) => formatDate(transaction.createdAt),
           },
           {
             key: "action",
-            label: QUOTA_HISTORY_TABLE_HEADERS.ACTION,
-            header: QUOTA_HISTORY_TABLE_HEADERS.ACTION,
-            filterOptions: [
-              { value: "", label: "All actions" },
-              ...Object.entries(QUOTA_ACTION_TYPE_LABELS).map(([value, label]) => ({ value, label })),
-            ],
+            label: H.ACTION,
+            header: H.ACTION,
+            filterOptions: actionFilterOptions,
             filterAccessor: (transaction: QuotaTransactionResponse) => transaction.actionType,
-            cell: (transaction: QuotaTransactionResponse) =>
-              QUOTA_ACTION_TYPE_LABELS[transaction.actionType],
+            cell: (transaction: QuotaTransactionResponse) => actionLabels[transaction.actionType],
           },
           {
             key: "package",
-            label: QUOTA_HISTORY_TABLE_HEADERS.PACKAGE,
-            header: QUOTA_HISTORY_TABLE_HEADERS.PACKAGE,
+            label: H.PACKAGE,
+            header: H.PACKAGE,
             filterAccessor: (transaction: QuotaTransactionResponse) => transaction.packageName,
             cell: (transaction: QuotaTransactionResponse) => transaction.packageName,
           },
           {
             key: "amount",
-            label: QUOTA_HISTORY_TABLE_HEADERS.AMOUNT,
-            header: QUOTA_HISTORY_TABLE_HEADERS.AMOUNT,
+            label: H.AMOUNT,
+            header: H.AMOUNT,
             filterAccessor: (transaction: QuotaTransactionResponse) => transaction.amount,
             cell: (transaction: QuotaTransactionResponse) => (
               <span className="font-medium">{formatAmount(transaction.amount)}</span>
@@ -88,8 +92,8 @@ export const QuotaHistoryModal = ({
           },
           {
             key: "note",
-            label: QUOTA_HISTORY_TABLE_HEADERS.NOTE,
-            header: QUOTA_HISTORY_TABLE_HEADERS.NOTE,
+            label: H.NOTE,
+            header: H.NOTE,
             filterAccessor: (transaction: QuotaTransactionResponse) => transaction.note,
             cell: (transaction: QuotaTransactionResponse) => transaction.note ?? T.EMPTY_VALUE,
           },

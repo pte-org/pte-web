@@ -14,6 +14,7 @@ export const LICENSING_TEXT = {
   STAT_ACTIVE: "Active",
   STAT_SUSPENDED: "Suspended",
   STAT_TOTAL_SEATS: "Total student seats",
+  EMPTY_TITLE: "No licenses found",
   EMPTY_VALUE: "—",
 } as const;
 

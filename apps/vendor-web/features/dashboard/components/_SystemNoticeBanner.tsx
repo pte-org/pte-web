@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
-import { DASHBOARD_TEXT } from "../constants";
+import { DASHBOARD_TEXT as RAW_DASHBOARD_TEXT } from "../constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 const InfoIcon = (): ReactElement => (
   <svg
@@ -15,12 +16,16 @@ const InfoIcon = (): ReactElement => (
   </svg>
 );
 
-export const SystemNoticeBanner = (): ReactElement => (
-  <div className="flex items-start gap-3 rounded-lg bg-sky-50 p-4 shadow-card">
-    <InfoIcon />
-    <div>
-      <p className="text-sm font-semibold text-blue-900">{DASHBOARD_TEXT.NOTICE_TITLE}</p>
-      <p className="mt-0.5 text-sm text-blue-700">{DASHBOARD_TEXT.NOTICE_TEXT}</p>
+export const SystemNoticeBanner = (): ReactElement => {
+  const T = useAdminCopy(RAW_DASHBOARD_TEXT);
+
+  return (
+    <div className="flex items-start gap-3 rounded-lg bg-sky-50 p-4 shadow-card">
+      <InfoIcon />
+      <div>
+        <p className="text-sm font-semibold text-blue-900">{T.NOTICE_TITLE}</p>
+        <p className="mt-0.5 text-sm text-blue-700">{T.NOTICE_TEXT}</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};

@@ -4,14 +4,22 @@ import { useState, type FormEvent, type ReactElement } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { EyeIcon, LockIcon, MailIcon, Select, normalizeSessionRoles, useSessionManager } from "@pte/ui";
+import {
+  EyeIcon,
+  LockIcon,
+  MailIcon,
+  Select,
+  normalizeSessionRoles,
+  useSessionManager,
+} from "@pte/ui";
 import {
   decodeAccessTokenClaims,
   type LoginOrganizationOption,
   type JwtTokenResponse,
 } from "@pte/api-client";
 import { useLoginAdmin, useLoginHost, useLoginOrganizationOptions } from "../api";
-import { ADMIN_ROLES, AUTH_ROUTES, AUTH_TEXT, HOST_ROLES } from "../constants";
+import { ADMIN_ROLES, AUTH_ROUTES, AUTH_TEXT as RAW_AUTH_TEXT, HOST_ROLES } from "../constants";
+import { useAdminCopy } from "../../i18n/adminCopy";
 import { hasAnyRole } from "../permissions";
 import type { VendorRole } from "../types";
 import { getLoginErrorMessage } from "../loginError";
@@ -27,6 +35,7 @@ const INPUT_CLASS = "w-full bg-transparent py-2.5 text-sm outline-none";
 const LABEL_CLASS = "text-xs font-semibold uppercase tracking-wide text-gray-500";
 
 export const LoginView = (): ReactElement => {
+  const T = useAdminCopy(RAW_AUTH_TEXT);
   const router = useRouter();
   const searchParams = useSearchParams();
   const role = resolveRole(searchParams.get("role"));
@@ -49,13 +58,13 @@ export const LoginView = (): ReactElement => {
     const claims = decodeAccessTokenClaims(data.accessToken);
     const roles = claims ? normalizeSessionRoles(claims.roles) : [];
     if (!claims || roles.length === 0) {
-      setErrorMessage(AUTH_TEXT.GENERIC_ERROR);
+      setErrorMessage(T.GENERIC_ERROR);
       return;
     }
     const isAdminRole = hasAnyRole(roles, ADMIN_ROLES);
     const isHostRole = roles.some((role) => HOST_ROLES.includes(role));
     if (!isAdminRole && !isHostRole) {
-      setErrorMessage(AUTH_TEXT.UNSUPPORTED_ROLE);
+      setErrorMessage(T.UNSUPPORTED_ROLE);
       return;
     }
     saveSession({
@@ -71,11 +80,11 @@ export const LoginView = (): ReactElement => {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     if (!username.trim() || !password) {
-      setErrorMessage(AUTH_TEXT.EMPTY_FIELDS);
+      setErrorMessage(T.EMPTY_FIELDS);
       return;
     }
     if (organizationOptions.length > 0 && !organizationId) {
-      setErrorMessage(AUTH_TEXT.ORGANIZATION_REQUIRED);
+      setErrorMessage(T.ORGANIZATION_REQUIRED);
       return;
     }
     setErrorMessage(undefined);
@@ -117,11 +126,11 @@ export const LoginView = (): ReactElement => {
               height={32}
               className="h-8 w-8 rounded-md object-contain"
             />
-            <span className="text-lg font-bold">{AUTH_TEXT.BRAND}</span>
+            <span className="text-lg font-bold">{T.BRAND}</span>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{AUTH_TEXT.WELCOME_TITLE}</h1>
-            <p className="mt-1 text-sm text-gray-500">{AUTH_TEXT.WELCOME_SUBTITLE}</p>
+            <h1 className="text-2xl font-bold text-gray-900">{T.WELCOME_TITLE}</h1>
+            <p className="mt-1 text-sm text-gray-500">{T.WELCOME_SUBTITLE}</p>
           </div>
 
           {errorMessage && (
@@ -133,7 +142,7 @@ export const LoginView = (): ReactElement => {
           <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
             <div className="flex flex-col gap-1">
               <label htmlFor="username" className={LABEL_CLASS}>
-                {AUTH_TEXT.USERNAME_LABEL}
+                {T.USERNAME_LABEL}
               </label>
               <div className={FIELD_WRAP_CLASS}>
                 <MailIcon className="h-4 w-4 text-gray-400" />
@@ -150,7 +159,7 @@ export const LoginView = (): ReactElement => {
                     setOrganizationOptions([]);
                     setOrganizationId("");
                   }}
-                  placeholder={AUTH_TEXT.USERNAME_PLACEHOLDER}
+                  placeholder={T.USERNAME_PLACEHOLDER}
                   className={INPUT_CLASS}
                 />
               </div>
@@ -159,10 +168,10 @@ export const LoginView = (): ReactElement => {
             <div className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
                 <label htmlFor="password" className={LABEL_CLASS}>
-                  {AUTH_TEXT.PASSWORD_LABEL}
+                  {T.PASSWORD_LABEL}
                 </label>
                 <Link href="#" className="text-xs font-medium text-blue-700 hover:underline">
-                  {AUTH_TEXT.FORGOT}
+                  {T.FORGOT}
                 </Link>
               </div>
               <div className={FIELD_WRAP_CLASS}>
@@ -182,7 +191,7 @@ export const LoginView = (): ReactElement => {
                 <button
                   type="button"
                   onClick={() => setShowPassword((value) => !value)}
-                  aria-label={showPassword ? AUTH_TEXT.HIDE_PASSWORD : AUTH_TEXT.SHOW_PASSWORD}
+                  aria-label={showPassword ? T.HIDE_PASSWORD : T.SHOW_PASSWORD}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <EyeIcon closed={showPassword} className="h-4 w-4" />
@@ -193,13 +202,13 @@ export const LoginView = (): ReactElement => {
             {organizationOptions.length > 0 && (
               <div className="flex flex-col gap-1">
                 <label htmlFor="organization" className={LABEL_CLASS}>
-                  {AUTH_TEXT.ORGANIZATION_LABEL}
+                  {T.ORGANIZATION_LABEL}
                 </label>
                 <Select
                   id="organization"
                   value={organizationId}
                   onChange={(event) => setOrganizationId(event.target.value)}
-                  placeholder={AUTH_TEXT.ORGANIZATION_PLACEHOLDER}
+                  placeholder={T.ORGANIZATION_PLACEHOLDER}
                   options={organizationOptions.map((option) => ({
                     value: option.tenantId,
                     label: `${option.organizationName} (${option.tenantCode})`,
@@ -213,9 +222,7 @@ export const LoginView = (): ReactElement => {
               disabled={mutation.isPending || organizationMutation.isPending}
               className="rounded-md bg-action py-2.5 text-sm font-medium text-white shadow-sm shadow-action/25 transition-colors hover:bg-action-hover disabled:opacity-60"
             >
-              {mutation.isPending || organizationMutation.isPending
-                ? AUTH_TEXT.LOGGING_IN
-                : AUTH_TEXT.LOGIN_BUTTON}
+              {mutation.isPending || organizationMutation.isPending ? T.LOGGING_IN : T.LOGIN_BUTTON}
             </button>
           </form>
         </div>

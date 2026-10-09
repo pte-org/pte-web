@@ -32,8 +32,9 @@ import {
 } from "../api";
 import {
   PLATFORM_ASSIGNABLE_ROLE_OPTIONS,
-  PLATFORM_USER_TEXT as T,
+  PLATFORM_USER_TEXT as RAW_PLATFORM_USER_TEXT,
 } from "../constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 const PAGE_SIZE = 100;
 type CreateDraft = {
@@ -50,17 +51,28 @@ const INITIAL_CREATE: CreateDraft = {
   role: "PLATFORM_MANAGER",
 };
 
-const roleOptions = PLATFORM_ASSIGNABLE_ROLE_OPTIONS.map((option) => ({
-  value: option.value,
-  label: option.label,
-}));
-
 const roleValues = (user: UserResponse): PlatformAssignableRole[] =>
   user.roles.filter((role): role is PlatformAssignableRole =>
     PLATFORM_ASSIGNABLE_ROLE_OPTIONS.some((option) => option.value === role),
   );
 
 export const PlatformUsersView = (): ReactElement => {
+  const T = useAdminCopy(RAW_PLATFORM_USER_TEXT);
+  const roleOptions = useAdminCopy(PLATFORM_ASSIGNABLE_ROLE_OPTIONS);
+  const statusOptions = useAdminCopy([
+    { value: "", label: "All statuses" },
+    { value: "ACTIVE", label: "Active" },
+    { value: "SUSPENDED", label: "Suspended" },
+  ]);
+  const statusLabels = useAdminCopy({ ACTIVE: "Active", SUSPENDED: "Suspended" });
+  const roleLabels = useAdminCopy({
+    PLATFORM_ADMIN: "Platform administrator",
+    PLATFORM_MANAGER: "Platform manager",
+    ACADEMIC_MANAGER: "Academic manager",
+    ACADEMIC_STAFF: "Academic staff",
+  });
+  const getRoleLabel = (role: string): string =>
+    roleLabels[role as keyof typeof roleLabels] ?? roleLabel(role);
   const { data: currentUser } = useCurrentUser();
   const { showToast } = useToast();
   const [page, setPage] = useState(0);
@@ -131,7 +143,8 @@ export const PlatformUsersView = (): ReactElement => {
     }
   };
 
-  const error = users.error ?? create.error ?? updateRoles.error ?? suspend.error ?? reactivate.error;
+  const error =
+    users.error ?? create.error ?? updateRoles.error ?? suspend.error ?? reactivate.error;
   const rows = users.data?.data ?? [];
 
   return (
@@ -153,25 +166,18 @@ export const PlatformUsersView = (): ReactElement => {
           {
             key: "roles",
             header: T.ROLE,
-            filterOptions: [
-              { value: "", label: T.ALL_ROLES },
-              ...PLATFORM_ASSIGNABLE_ROLE_OPTIONS,
-            ],
+            filterOptions: [{ value: "", label: T.ALL_ROLES }, ...roleOptions],
             filterAccessor: (user: UserResponse) => user.roles.join(" "),
-            cell: (user: UserResponse) => user.roles.map(roleLabel).join(", "),
+            cell: (user: UserResponse) => user.roles.map(getRoleLabel).join(", "),
           },
           {
             key: "status",
             header: T.STATUS,
-            filterOptions: [
-              { value: "", label: T.ALL_STATUSES },
-              { value: "ACTIVE", label: "Active" },
-              { value: "SUSPENDED", label: "Suspended" },
-            ],
+            filterOptions: statusOptions,
             filterAccessor: (user: UserResponse) => user.status,
             cell: (user: UserResponse) => (
               <Badge variant={user.status === "ACTIVE" ? "success" : "neutral"}>
-                {user.status}
+                {statusLabels[user.status as "ACTIVE" | "SUSPENDED"] ?? user.status}
               </Badge>
             ),
           },
@@ -223,19 +229,29 @@ export const PlatformUsersView = (): ReactElement => {
         onClose={() => {
           if (!create.isPending) setCreateOpen(false);
         }}
-        footer={(
+        footer={
           <>
-            <Button variant="ghost" onClick={() => setCreateOpen(false)} disabled={create.isPending}>
+            <Button
+              variant="ghost"
+              onClick={() => setCreateOpen(false)}
+              disabled={create.isPending}
+            >
               {T.CANCEL}
             </Button>
             <Button type="submit" form="platform-user-create" isLoading={create.isPending}>
               {T.CREATE}
             </Button>
           </>
-        )}
+        }
       >
-        <form id="platform-user-create" className="space-y-4" onSubmit={(event) => void createUser(event)}>
-          {Boolean(create.error) && <Alert tone="error">{getUserFacingApiErrorMessage(create.error, T.FORM_ERROR)}</Alert>}
+        <form
+          id="platform-user-create"
+          className="space-y-4"
+          onSubmit={(event) => void createUser(event)}
+        >
+          {Boolean(create.error) && (
+            <Alert tone="error">{getUserFacingApiErrorMessage(create.error, T.FORM_ERROR)}</Alert>
+          )}
           <Input
             id="platform-user-full-name"
             label={T.FULL_NAME}
@@ -266,7 +282,9 @@ export const PlatformUsersView = (): ReactElement => {
             label={T.ROLE}
             options={roleOptions}
             value={createDraft.role}
-            onChange={(event) => setCreateDraft({ ...createDraft, role: event.target.value as PlatformAssignableRole })}
+            onChange={(event) =>
+              setCreateDraft({ ...createDraft, role: event.target.value as PlatformAssignableRole })
+            }
           />
         </form>
       </Modal>
@@ -277,18 +295,26 @@ export const PlatformUsersView = (): ReactElement => {
         onClose={() => {
           if (!updateRoles.isPending) setEditing(null);
         }}
-        footer={(
+        footer={
           <>
-            <Button variant="ghost" onClick={() => setEditing(null)} disabled={updateRoles.isPending}>
+            <Button
+              variant="ghost"
+              onClick={() => setEditing(null)}
+              disabled={updateRoles.isPending}
+            >
               {T.CANCEL}
             </Button>
             <Button onClick={() => void saveRoles()} isLoading={updateRoles.isPending}>
               {T.SAVE}
             </Button>
           </>
-        )}
+        }
       >
-        {Boolean(updateRoles.error) && <Alert tone="error">{getUserFacingApiErrorMessage(updateRoles.error, T.FORM_ERROR)}</Alert>}
+        {Boolean(updateRoles.error) && (
+          <Alert tone="error">
+            {getUserFacingApiErrorMessage(updateRoles.error, T.FORM_ERROR)}
+          </Alert>
+        )}
         <p className="mb-4 text-sm text-slate-600">{editing?.email}</p>
         <Select
           id="platform-user-edit-role"
@@ -305,9 +331,11 @@ export const PlatformUsersView = (): ReactElement => {
         onClose={() => {
           if (!suspend.isPending && !reactivate.isPending) setSuspendTarget(null);
         }}
-        footer={(
+        footer={
           <>
-            <Button variant="ghost" onClick={() => setSuspendTarget(null)}>{T.CANCEL}</Button>
+            <Button variant="ghost" onClick={() => setSuspendTarget(null)}>
+              {T.CANCEL}
+            </Button>
             <Button
               variant={suspendTarget?.status === "ACTIVE" ? "danger" : "primary"}
               onClick={() => void toggleSuspension()}
@@ -316,10 +344,12 @@ export const PlatformUsersView = (): ReactElement => {
               {suspendTarget?.status === "ACTIVE" ? T.SUSPEND : T.REACTIVATE}
             </Button>
           </>
-        )}
+        }
       >
         <p className="text-sm text-slate-600">
-          {suspendTarget?.status === "ACTIVE" ? T.SUSPEND_CONFIRM : `${T.REACTIVATE}: ${suspendTarget?.fullName ?? ""}`}
+          {suspendTarget?.status === "ACTIVE"
+            ? T.SUSPEND_CONFIRM
+            : `${T.REACTIVATE}: ${suspendTarget?.fullName ?? ""}`}
         </p>
       </Modal>
     </div>

@@ -2,14 +2,13 @@
 
 import type { ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Button, useTokenManager } from "@pte/ui";
+import { Button, useLocale, useTokenManager } from "@pte/ui";
 import { AUTH_ROUTES } from "../constants";
-
-const LOGOUT_LABEL = "Log out";
 
 export const LogoutButton = (): ReactElement => {
   const router = useRouter();
   const { clearToken } = useTokenManager();
+  const { t } = useLocale();
 
   const handleLogout = (): void => {
     clearToken();
@@ -18,7 +17,7 @@ export const LogoutButton = (): ReactElement => {
 
   return (
     <Button variant="ghost" size="sm" onClick={handleLogout}>
-      {LOGOUT_LABEL}
+      {t("common.logout", "Log out")}
     </Button>
   );
 };

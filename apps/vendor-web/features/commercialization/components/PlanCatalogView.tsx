@@ -31,9 +31,10 @@ import {
   usePlansQuery,
   useUpdatePlan,
 } from "../api";
-import { PLAN_CATALOG_TEXT as T } from "../constants";
+import { PLAN_CATALOG_TEXT as RAW_PLAN_CATALOG_TEXT } from "../constants";
 import { CommercialPanel } from "./CommercialPanel";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 type PlanFormState = {
   name: string;
@@ -101,7 +102,7 @@ const parseIntegerField = (raw: string, max: number): number | null => {
   return Number.isSafeInteger(parsed) && parsed >= 1 && parsed <= max ? parsed : null;
 };
 
-const validateForm = (form: PlanFormState): PlanFormErrors => {
+const validateForm = (form: PlanFormState, T: typeof RAW_PLAN_CATALOG_TEXT): PlanFormErrors => {
   const errors: PlanFormErrors = {};
   const name = form.name.trim();
   const description = form.description.trim();
@@ -141,16 +142,24 @@ const toPayload = (form: PlanFormState): PlanRequest => ({
   price: form.price.trim(),
   currency: form.currency.trim().toUpperCase(),
   durationDays:
-    form.type === "EXAM_PACKAGE" ? parseIntegerField(form.durationDays, MAX_EXAM_DURATION_DAYS) : null,
+    form.type === "EXAM_PACKAGE"
+      ? parseIntegerField(form.durationDays, MAX_EXAM_DURATION_DAYS)
+      : null,
   maxStudentsPerSession:
     form.type === "EXAM_PACKAGE"
       ? parseIntegerField(form.maxStudentsPerSession, MAX_STUDENT_COUNT)
       : null,
   extraStudentSlots:
-    form.type === "STUDENT_CAPACITY" ? parseIntegerField(form.extraStudentSlots, MAX_STUDENT_COUNT) : null,
+    form.type === "STUDENT_CAPACITY"
+      ? parseIntegerField(form.extraStudentSlots, MAX_STUDENT_COUNT)
+      : null,
 });
 
-const serverSummary = (plan: PlanResponse): ReactElement => (
+const serverSummary = (
+  plan: PlanResponse,
+  T: typeof RAW_PLAN_CATALOG_TEXT,
+  statusLabels: Record<string, string>,
+): ReactElement => (
   <dl className="mt-3 grid gap-x-4 gap-y-1 text-xs text-slate-700 sm:grid-cols-2">
     <div>
       <dt className="text-slate-500">{T.PLAN_NAME}</dt>
@@ -162,7 +171,7 @@ const serverSummary = (plan: PlanResponse): ReactElement => (
     </div>
     <div>
       <dt className="text-slate-500">{T.TABLE_STATUS}</dt>
-      <dd className="font-medium">{plan.status}</dd>
+      <dd className="font-medium">{statusLabels[plan.status] ?? plan.status}</dd>
     </div>
     <div>
       <dt className="text-slate-500">{T.VERSION_LABEL}</dt>
@@ -174,6 +183,13 @@ const serverSummary = (plan: PlanResponse): ReactElement => (
 const PLAN_FORM_ID = "plan-catalog-form";
 
 export const PlanCatalogView = (): ReactElement => {
+  const T = useAdminCopy(RAW_PLAN_CATALOG_TEXT);
+  const statusFilterOptions = useAdminCopy(PLAN_STATUS_FILTER_OPTIONS);
+  const statusLabels = useAdminCopy({
+    DRAFT: "Draft",
+    ACTIVE: "Active",
+    ARCHIVED: "Archived",
+  });
   const { data: plans = [], isLoading, isError } = usePlansQuery();
   const createPlan = useCreatePlan();
   const updatePlan = useUpdatePlan();
@@ -196,7 +212,7 @@ export const PlanCatalogView = (): ReactElement => {
     deletePlan.isPending;
   const { showToast } = useToast();
   const latestServerPlan = editing
-    ? plans.find((plan) => plan.publicId === editing.publicId) ?? null
+    ? (plans.find((plan) => plan.publicId === editing.publicId) ?? null)
     : null;
   const actionError =
     lastAction === "create"
@@ -256,7 +272,7 @@ export const PlanCatalogView = (): ReactElement => {
     event.preventDefault();
     if (isBusy) return;
     clearErrors();
-    const nextErrors = validateForm(form);
+    const nextErrors = validateForm(form, T);
     if (Object.keys(nextErrors).length > 0) {
       setFormErrors(nextErrors);
       return;
@@ -287,7 +303,10 @@ export const PlanCatalogView = (): ReactElement => {
     try {
       if (plan.status === "DRAFT") {
         setLastAction("activate");
-        await activatePlan.mutateAsync({ publicId: plan.publicId, payload: { expectedVersion: plan.version } });
+        await activatePlan.mutateAsync({
+          publicId: plan.publicId,
+          payload: { expectedVersion: plan.version },
+        });
         showToast(T.ACTIVATED, { tone: "success" });
         return;
       }
@@ -369,12 +388,25 @@ export const PlanCatalogView = (): ReactElement => {
           {versionConflict && (
             <Alert tone="warning" title={T.STALE_VERSION_TITLE}>
               <p>{T.STALE_VERSION_DESCRIPTION}</p>
-              {latestServerPlan ? serverSummary(latestServerPlan) : <p className="mt-2">{T.ERROR}</p>}
+              {latestServerPlan ? (
+                serverSummary(latestServerPlan, T, statusLabels)
+              ) : (
+                <p className="mt-2">{T.ERROR}</p>
+              )}
               <div className="mt-4 flex flex-wrap gap-2">
-                <Button type="button" onClick={reloadServerValues} disabled={!latestServerPlan || isBusy}>
+                <Button
+                  type="button"
+                  onClick={reloadServerValues}
+                  disabled={!latestServerPlan || isBusy}
+                >
                   {T.RELOAD_SERVER}
                 </Button>
-                <Button type="button" variant="secondary" onClick={() => setVersionConflict(false)} disabled={isBusy}>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setVersionConflict(false)}
+                  disabled={isBusy}
+                >
                   {T.KEEP_MY_CHANGES}
                 </Button>
               </div>
@@ -436,7 +468,9 @@ export const PlanCatalogView = (): ReactElement => {
                 maxLength={3}
                 value={form.currency}
                 error={formErrors.currency}
-                onChange={(event) => setForm({ ...form, currency: event.target.value.toUpperCase() })}
+                onChange={(event) =>
+                  setForm({ ...form, currency: event.target.value.toUpperCase() })
+                }
                 required
               />
             </div>
@@ -461,7 +495,9 @@ export const PlanCatalogView = (): ReactElement => {
                   maxLength={4}
                   value={form.maxStudentsPerSession}
                   error={formErrors.maxStudentsPerSession}
-                  onChange={(event) => setForm({ ...form, maxStudentsPerSession: event.target.value })}
+                  onChange={(event) =>
+                    setForm({ ...form, maxStudentsPerSession: event.target.value })
+                  }
                 />
               </div>
             ) : (
@@ -504,7 +540,9 @@ export const PlanCatalogView = (): ReactElement => {
               key: "price",
               header: T.TABLE_PRICE,
               filterAccessor: (row: PlanResponse) => formatMoney(row),
-              cell: (row: PlanResponse) => <span className="font-semibold">{formatMoney(row)}</span>,
+              cell: (row: PlanResponse) => (
+                <span className="font-semibold">{formatMoney(row)}</span>
+              ),
             },
             {
               key: "type",
@@ -541,7 +579,7 @@ export const PlanCatalogView = (): ReactElement => {
             {
               key: "status",
               header: T.TABLE_STATUS,
-              filterOptions: PLAN_STATUS_FILTER_OPTIONS,
+              filterOptions: statusFilterOptions,
               filterAccessor: (row: PlanResponse) => row.status,
               cell: (row: PlanResponse) => <CommercialStatusBadge status={row.status} />,
             },

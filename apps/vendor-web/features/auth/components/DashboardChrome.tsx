@@ -25,6 +25,7 @@ import { hasAnyRole, roleLabel } from "../permissions";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
 import { AUTH_ROUTES } from "../constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 export interface NavItem {
   label: string;
@@ -150,6 +151,7 @@ const HeaderActions = (): ReactElement => {
   const { clearToken } = useTokenManager();
   const { data: user, isLoading } = useCurrentUser();
   const { t } = useLocale();
+  const localizedRoleLabels = useAdminCopy(user?.roles.map(roleLabel) ?? []);
 
   const logout = (): void => {
     queryClient.clear();
@@ -158,8 +160,8 @@ const HeaderActions = (): ReactElement => {
   };
 
   const userMenuItems: DropdownItem[] = [
-    ...(user?.roles.map((role) => ({
-      label: roleLabel(role),
+    ...(user?.roles.map((role, index) => ({
+      label: localizedRoleLabels[index] ?? roleLabel(role),
       disabled: true,
       onSelect: () => undefined,
     })) ?? []),

@@ -43,16 +43,25 @@ import {
   usePlansQuery,
   useRevokeLicenseCode,
 } from "../api";
-import { LICENSE_CODES_TEXT as T } from "../constants";
+import { LICENSE_CODES_TEXT as RAW_LICENSE_CODES_TEXT } from "../constants";
 import { CommercialPanel } from "./CommercialPanel";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
 import { isPlatformAdmin } from "@/features/auth/permissions";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_REVEAL_MS = 60_000;
 
+const LICENSE_STATUS_FILTER_OPTIONS = [
+  { label: "All statuses", value: "" },
+  { label: "Issued", value: "ISSUED" },
+  { label: "Redeemed", value: "REDEEMED" },
+  { label: "Expired", value: "EXPIRED" },
+  { label: "Revoked", value: "REVOKED" },
+] as const;
+
 const formatDate = (value: string | null): string =>
-  value ? new Date(value).toLocaleString() : T.EMPTY_VALUE;
+  value ? new Date(value).toLocaleString() : "—";
 
 type IssueIntent = { idempotencyKey: string; payload: IssueLicenseCodeRequest };
 type StatusFilter = LicenseCodeStatus | "";
@@ -69,14 +78,6 @@ const SAFE_NEW_INTENT_ERROR_CODES = new Set([
   "PLAN_NOT_FOUND",
 ]);
 
-const STATUS_OPTIONS = [
-  { label: T.ALL_STATUSES, value: "" },
-  { label: "Issued", value: "ISSUED" },
-  { label: "Redeemed", value: "REDEEMED" },
-  { label: "Expired", value: "EXPIRED" },
-  { label: "Revoked", value: "REVOKED" },
-];
-
 const subscribeRecovery = (notify: () => void): (() => void) => {
   window.addEventListener("storage", notify);
   window.addEventListener("license-issue-intent", notify);
@@ -89,11 +90,19 @@ const subscribeRecovery = (notify: () => void): (() => void) => {
 const parseRecovery = (stored: string | null): IssueIntent | null => {
   try {
     const value: unknown = stored ? JSON.parse(stored) : null;
-    if (typeof value !== "object" || value === null || !("idempotencyKey" in value)
-        || typeof value.idempotencyKey !== "string" || !("payload" in value)
-        || typeof value.payload !== "object" || value.payload === null || !("planId" in value.payload)
-        || typeof value.payload.planId !== "string" || !("codeExpiresAt" in value.payload)
-        || (value.payload.codeExpiresAt !== null && typeof value.payload.codeExpiresAt !== "string")) {
+    if (
+      typeof value !== "object" ||
+      value === null ||
+      !("idempotencyKey" in value) ||
+      typeof value.idempotencyKey !== "string" ||
+      !("payload" in value) ||
+      typeof value.payload !== "object" ||
+      value.payload === null ||
+      !("planId" in value.payload) ||
+      typeof value.payload.planId !== "string" ||
+      !("codeExpiresAt" in value.payload) ||
+      (value.payload.codeExpiresAt !== null && typeof value.payload.codeExpiresAt !== "string")
+    ) {
       return null;
     }
     return {
@@ -109,6 +118,11 @@ const safeOperationMessage = (error: unknown, fallback: string): string =>
   getUserFacingApiErrorMessage(error, fallback);
 
 export const LicenseCodesView = (): ReactElement => {
+  const T = useAdminCopy(RAW_LICENSE_CODES_TEXT);
+  const statusOptions = useAdminCopy(LICENSE_STATUS_FILTER_OPTIONS);
+  const dateRangeLabel = useAdminCopy("Date range");
+  const impactLabel = useAdminCopy("Impact");
+  const previewValidUntilLabel = useAdminCopy("Preview valid until");
   const { session, isReady } = useSessionManager();
   const canUseSensitiveActions = isPlatformAdmin(session?.roles);
   const actorId = session ? decodeAccessTokenClaims(session.accessToken)?.sub : undefined;
@@ -128,7 +142,12 @@ export const LicenseCodesView = (): ReactElement => {
     planId: filters.planId || undefined,
     tenantId: filters.tenantId || undefined,
   });
-  const { data: plans = [], refetch: refreshPlans, isLoading: plansLoading, isError: plansError } = usePlansQuery();
+  const {
+    data: plans = [],
+    refetch: refreshPlans,
+    isLoading: plansLoading,
+    isError: plansError,
+  } = usePlansQuery();
   const issue = useIssueLicenseCode();
   const revokePreviewRequest = useLicenseCodeRevokePreview();
   const revoke = useRevokeLicenseCode();
@@ -142,7 +161,10 @@ export const LicenseCodesView = (): ReactElement => {
   const [cancelScheduledScope, setCancelScheduledScope] = useState(false);
   const [preserveOpenClosed, setPreserveOpenClosed] = useState(false);
   const [message, setMessage] = useState("");
-  const [memoryRecovery, setMemoryRecovery] = useState<{ owner: string; intent: IssueIntent | null } | null>(null);
+  const [memoryRecovery, setMemoryRecovery] = useState<{
+    owner: string;
+    intent: IssueIntent | null;
+  } | null>(null);
   const [localError, setLocalError] = useState("");
   const [confirmNewIntent, setConfirmNewIntent] = useState(false);
 
@@ -156,26 +178,33 @@ export const LicenseCodesView = (): ReactElement => {
   const [revealError, setRevealError] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const storedIntent = useSyncExternalStore(subscribeRecovery, () => {
-    try {
-      return recoveryKey ? window.sessionStorage.getItem(recoveryKey) : null;
-    } catch {
-      return null;
-    }
-  }, () => null);
-  const intent = memoryRecovery?.owner === recoveryKey ? memoryRecovery.intent : parseRecovery(storedIntent);
+  const storedIntent = useSyncExternalStore(
+    subscribeRecovery,
+    () => {
+      try {
+        return recoveryKey ? window.sessionStorage.getItem(recoveryKey) : null;
+      } catch {
+        return null;
+      }
+    },
+    () => null,
+  );
+  const intent =
+    memoryRecovery?.owner === recoveryKey ? memoryRecovery.intent : parseRecovery(storedIntent);
   const issueErrorCode = issue.error instanceof ApiError ? issue.error.code : undefined;
   const rejected = issueErrorCode !== undefined && SAFE_NEW_INTENT_ERROR_CODES.has(issueErrorCode);
-  const activePlans = plans.filter((plan) => plan.type === "EXAM_PACKAGE" && plan.status === "ACTIVE");
+  const activePlans = plans.filter(
+    (plan) => plan.type === "EXAM_PACKAGE" && plan.status === "ACTIVE",
+  );
   const codes = codePageQuery.data?.data ?? [];
   const isFiltered = Boolean(filters.status || filters.planId || filters.tenantId);
   const error = issue.error ?? revoke.error ?? revokePreviewRequest.error ?? codePageQuery.error;
-  const errorMessage = localError || (error
-    ? safeOperationMessage(error, T.ERROR)
-    : codePageQuery.isError ? T.ERROR : undefined);
+  const errorMessage =
+    localError ||
+    (error ? safeOperationMessage(error, T.ERROR) : codePageQuery.isError ? T.ERROR : undefined);
   const expiryDate = expiresAt ? new Date(expiresAt) : null;
-  const utcPreview = expiryDate && !Number.isNaN(expiryDate.getTime())
-    ? expiryDate.toISOString() : T.EMPTY_VALUE;
+  const utcPreview =
+    expiryDate && !Number.isNaN(expiryDate.getTime()) ? expiryDate.toISOString() : T.EMPTY_VALUE;
 
   const saveRecovery = (next: IssueIntent | null): void => {
     if (!recoveryKey) return;
@@ -197,23 +226,27 @@ export const LicenseCodesView = (): ReactElement => {
     setRevealBusy(false);
   };
 
-  useEffect(() => subscribeSessionLifecycle(() => {
-    // Actor changes are the boundary; the bearer is never retained across it.
-    setRevealTarget(null);
-    setRevealedCode(null);
-    setRevealError("");
-    setCopied(false);
-    setRevealBusy(false);
-    setLookupResult(null);
-    setLookupInput("");
-    setLookupError("");
-    setMessage("");
-    setLocalError("");
-    setMemoryRecovery(null);
-    setConfirmNewIntent(false);
-    setCodeToRevoke(null);
-    setRevokePreview(null);
-  }), []);
+  useEffect(
+    () =>
+      subscribeSessionLifecycle(() => {
+        // Actor changes are the boundary; the bearer is never retained across it.
+        setRevealTarget(null);
+        setRevealedCode(null);
+        setRevealError("");
+        setCopied(false);
+        setRevealBusy(false);
+        setLookupResult(null);
+        setLookupInput("");
+        setLookupError("");
+        setMessage("");
+        setLocalError("");
+        setMemoryRecovery(null);
+        setConfirmNewIntent(false);
+        setCodeToRevoke(null);
+        setRevokePreview(null);
+      }),
+    [],
+  );
 
   useEffect(() => {
     if (!revealedCode) return undefined;
@@ -243,8 +276,13 @@ export const LicenseCodesView = (): ReactElement => {
     setLocalError("");
     setMessage("");
     const submittedExpiry = expiresAt ? new Date(expiresAt) : null;
-    if (!intent && (!planId || (submittedExpiry
-      && (Number.isNaN(submittedExpiry.getTime()) || submittedExpiry.getTime() <= new Date().getTime())))) {
+    if (
+      !intent &&
+      (!planId ||
+        (submittedExpiry &&
+          (Number.isNaN(submittedExpiry.getTime()) ||
+            submittedExpiry.getTime() <= new Date().getTime())))
+    ) {
       setLocalError(T.INVALID_EXPIRY);
       return;
     }
@@ -255,7 +293,9 @@ export const LicenseCodesView = (): ReactElement => {
     saveRecovery(next);
     try {
       const result = await issue.mutateAsync(next);
-      setMessage(result.replayed ? T.RECOVERED_SUCCESS(result.publicId) : T.ISSUED_SUCCESS(result.publicId));
+      setMessage(
+        result.replayed ? T.RECOVERED_SUCCESS(result.publicId) : T.ISSUED_SUCCESS(result.publicId),
+      );
       saveRecovery(null);
       setPlanId("");
       setExpiresAt("");
@@ -292,8 +332,14 @@ export const LicenseCodesView = (): ReactElement => {
   };
 
   const confirmRevoke = async (): Promise<void> => {
-    if (!codeToRevoke || !revokePreview || !cancelScheduledScope || !preserveOpenClosed
-        || (revokePreview.subscriptionPublicId !== null && !cancelSubscription)) return;
+    if (
+      !codeToRevoke ||
+      !revokePreview ||
+      !cancelScheduledScope ||
+      !preserveOpenClosed ||
+      (revokePreview.subscriptionPublicId !== null && !cancelSubscription)
+    )
+      return;
     const payload: ConfirmLicenseRevokeRequest = {
       reason: revokeReason,
       scopeDigest: revokePreview.scopeDigest,
@@ -312,12 +358,16 @@ export const LicenseCodesView = (): ReactElement => {
       setCodeToRevoke(null);
       setRevokePreview(null);
     } catch (caught) {
-      if (caught instanceof ApiError && (
-        caught.code === "LICENSE_CODE_REVOKE_SCOPE_CHANGED"
-        || caught.code === "LICENSE_CODE_REVOKE_PREVIEW_EXPIRED"
-      )) {
-        setLocalError(caught.code === "LICENSE_CODE_REVOKE_PREVIEW_EXPIRED"
-          ? T.REVOKE_PREVIEW_EXPIRED : T.REVOKE_SCOPE_CHANGED);
+      if (
+        caught instanceof ApiError &&
+        (caught.code === "LICENSE_CODE_REVOKE_SCOPE_CHANGED" ||
+          caught.code === "LICENSE_CODE_REVOKE_PREVIEW_EXPIRED")
+      ) {
+        setLocalError(
+          caught.code === "LICENSE_CODE_REVOKE_PREVIEW_EXPIRED"
+            ? T.REVOKE_PREVIEW_EXPIRED
+            : T.REVOKE_SCOPE_CHANGED,
+        );
         void loadRevokePreview(codeToRevoke.publicId);
       }
       // Keep confirmation open; a lost response must not blindly resubmit.
@@ -351,8 +401,11 @@ export const LicenseCodesView = (): ReactElement => {
       setLookupResult(await lookupAdminLicenseCode(submittedCode));
       setLookupInput("");
     } catch (caught) {
-      setLookupError(caught instanceof ApiError && caught.status === 404
-        ? T.LOOKUP_NOT_FOUND : safeOperationMessage(caught, T.ERROR));
+      setLookupError(
+        caught instanceof ApiError && caught.status === 404
+          ? T.LOOKUP_NOT_FOUND
+          : safeOperationMessage(caught, T.ERROR),
+      );
     } finally {
       setLookupBusy(false);
     }
@@ -381,13 +434,16 @@ export const LicenseCodesView = (): ReactElement => {
       {codePageQuery.isFetching && codePageQuery.data && <Alert tone="info">{T.STALE_DATA}</Alert>}
       {intent && (
         <Alert tone="warning">
-          {issue.isPending ? T.ISSUE_PENDING : rejected ? T.ISSUE_REJECTED : T.UNCERTAIN}
-          {" "}{intent.payload.planId} · {intent.payload.codeExpiresAt ?? T.EMPTY_VALUE}
+          {issue.isPending ? T.ISSUE_PENDING : rejected ? T.ISSUE_REJECTED : T.UNCERTAIN}{" "}
+          {intent.payload.planId} · {intent.payload.codeExpiresAt ?? T.EMPTY_VALUE}
         </Alert>
       )}
 
       <CommercialPanel title={T.ISSUE_TITLE}>
-        <form className="grid gap-4 sm:grid-cols-[1fr_220px_auto] sm:items-end" onSubmit={(event) => void issueCode(event)}>
+        <form
+          className="grid gap-4 sm:grid-cols-[1fr_220px_auto] sm:items-end"
+          onSubmit={(event) => void issueCode(event)}
+        >
           <Select
             id="license-plan"
             label={T.PLAN_LABEL}
@@ -406,19 +462,38 @@ export const LicenseCodesView = (): ReactElement => {
             onChange={(event) => setExpiresAt(event.target.value)}
             disabled={intent !== null || issue.isPending}
           />
-          <Button type="submit" isLoading={issue.isPending} disabled={!isReady || !actorId || (!planId && !intent)}>
+          <Button
+            type="submit"
+            isLoading={issue.isPending}
+            disabled={!isReady || !actorId || (!planId && !intent)}
+          >
             {intent ? T.RETRY_ISSUE : T.ISSUE}
           </Button>
         </form>
         {plansError && <Alert tone="error">{T.PLAN_LOAD_ERROR}</Alert>}
-        {!plansError && !plansLoading && activePlans.length === 0 && <Alert tone="info">{T.PLAN_LOAD_ERROR}</Alert>}
+        {!plansError && !plansLoading && activePlans.length === 0 && (
+          <Alert tone="info">{T.PLAN_LOAD_ERROR}</Alert>
+        )}
         <p className="mt-3 text-xs text-slate-600">{T.EXPIRY_HELP(zone, utcPreview)}</p>
-        <Button type="button" disabled={issue.isPending} onClick={() => void refreshPlans()}>{T.REFRESH_PLANS}</Button>
-        {intent && <Button type="button" disabled={issue.isPending} onClick={() => setConfirmNewIntent(true)}>{T.NEW_ISSUE}</Button>}
+        <Button type="button" disabled={issue.isPending} onClick={() => void refreshPlans()}>
+          {T.REFRESH_PLANS}
+        </Button>
+        {intent && (
+          <Button
+            type="button"
+            disabled={issue.isPending}
+            onClick={() => setConfirmNewIntent(true)}
+          >
+            {T.NEW_ISSUE}
+          </Button>
+        )}
       </CommercialPanel>
 
       <CommercialPanel title={T.LOOKUP_TITLE}>
-        <form className="flex flex-col gap-3 sm:flex-row sm:items-end" onSubmit={(event) => void lookupCode(event)}>
+        <form
+          className="flex flex-col gap-3 sm:flex-row sm:items-end"
+          onSubmit={(event) => void lookupCode(event)}
+        >
           <Input
             id="license-code-lookup"
             label={T.LOOKUP_LABEL}
@@ -427,25 +502,39 @@ export const LicenseCodesView = (): ReactElement => {
             autoComplete="off"
             disabled={lookupBusy}
           />
-          <Button type="submit" isLoading={lookupBusy} disabled={!lookupInput.trim()}>{T.LOOKUP}</Button>
+          <Button type="submit" isLoading={lookupBusy} disabled={!lookupInput.trim()}>
+            {T.LOOKUP}
+          </Button>
         </form>
         {lookupError && <Alert tone="error">{lookupError}</Alert>}
         {lookupResult && (
           <div className="mt-4 rounded-md border border-slate-200 bg-slate-50 p-3 text-sm">
             <p className="font-medium text-slate-900">{T.LOOKUP_RESULT}</p>
             <p className="mt-1 font-mono text-xs text-slate-600">{lookupResult.publicId}</p>
-            <p className="mt-2 text-slate-700">{lookupResult.planName} · {lookupResult.effectiveStatus} · {lookupResult.maskedCode}</p>
+            <p className="mt-2 text-slate-700">
+              {lookupResult.planName} · {lookupResult.effectiveStatus} · {lookupResult.maskedCode}
+            </p>
           </div>
         )}
       </CommercialPanel>
 
       <CommercialPanel
         title={T.ISSUED_TITLE}
-        actions={<Button type="button" variant="secondary" onClick={refreshLicenseCodes}>{T.REFRESH_LIST}</Button>}
+        actions={
+          <Button type="button" variant="secondary" onClick={refreshLicenseCodes}>
+            {T.REFRESH_LIST}
+          </Button>
+        }
       >
         <div className="mb-5 rounded-md border border-slate-200 bg-slate-50 p-3">
           <div className="grid gap-3 md:grid-cols-[180px_1fr_1fr_auto_auto] md:items-end">
-            <Select id="license-status-filter" label={T.STATUS_FILTER} options={STATUS_OPTIONS} value={draftStatus} onChange={(event) => setDraftStatus(event.target.value as StatusFilter)} />
+            <Select
+              id="license-status-filter"
+              label={T.STATUS_FILTER}
+              options={statusOptions}
+              value={draftStatus}
+              onChange={(event) => setDraftStatus(event.target.value as StatusFilter)}
+            />
             <Select
               id="license-plan-filter"
               label={T.PLAN_ID}
@@ -462,8 +551,12 @@ export const LicenseCodesView = (): ReactElement => {
               onChange={(event) => setDraftTenantId(event.target.value)}
               aria-describedby="license-tenant-filter-help"
             />
-            <Button type="button" onClick={applyFilters}>{T.APPLY_FILTERS}</Button>
-            <Button type="button" variant="ghost" onClick={resetFilters}>{T.RESET_FILTERS}</Button>
+            <Button type="button" onClick={applyFilters}>
+              {T.APPLY_FILTERS}
+            </Button>
+            <Button type="button" variant="ghost" onClick={resetFilters}>
+              {T.RESET_FILTERS}
+            </Button>
             <p id="license-tenant-filter-help" className="text-xs text-slate-500 md:col-start-3">
               {T.TENANT_FILTER_HELP}
             </p>
@@ -476,7 +569,9 @@ export const LicenseCodesView = (): ReactElement => {
               header: T.CODE,
               cell: (row: AdminLicenseCodeSummary) => (
                 <div>
-                  <span className="font-mono text-xs font-semibold text-slate-900">{row.maskedCode}</span>
+                  <span className="font-mono text-xs font-semibold text-slate-900">
+                    {row.maskedCode}
+                  </span>
                   <p className="mt-1 font-mono text-[11px] text-slate-500">{row.publicId}</p>
                 </div>
               ),
@@ -494,19 +589,24 @@ export const LicenseCodesView = (): ReactElement => {
             {
               key: "recipient",
               header: T.RECIPIENT,
-              cell: (row: AdminLicenseCodeSummary) => row.recipientPublicId ? (
-                <div>
-                  <p>{row.recipientName ?? T.EMPTY_VALUE}</p>
-                  <p className="mt-1 font-mono text-[11px] text-slate-500">{row.recipientPublicId}</p>
-                </div>
-              ) : T.EMPTY_VALUE,
+              cell: (row: AdminLicenseCodeSummary) =>
+                row.recipientPublicId ? (
+                  <div>
+                    <p>{row.recipientName ?? T.EMPTY_VALUE}</p>
+                    <p className="mt-1 font-mono text-[11px] text-slate-500">
+                      {row.recipientPublicId}
+                    </p>
+                  </div>
+                ) : (
+                  T.EMPTY_VALUE
+                ),
             },
             {
               key: "issued",
               header: T.ISSUED,
               filterType: "date-range",
               filterAccessor: (row: AdminLicenseCodeSummary) => row.issuedAt,
-              filterPlaceholder: "Date range",
+              filterPlaceholder: dateRangeLabel,
               cell: (row: AdminLicenseCodeSummary) => formatDate(row.issuedAt),
             },
             {
@@ -514,15 +614,17 @@ export const LicenseCodesView = (): ReactElement => {
               header: T.EXPIRES,
               filterType: "date-range",
               filterAccessor: (row: AdminLicenseCodeSummary) => row.codeExpiresAt,
-              filterPlaceholder: "Date range",
+              filterPlaceholder: dateRangeLabel,
               cell: (row: AdminLicenseCodeSummary) => formatDate(row.codeExpiresAt),
             },
             {
               key: "status",
               header: T.STATUS,
-              filterOptions: STATUS_OPTIONS,
+              filterOptions: statusOptions,
               filterAccessor: (row: AdminLicenseCodeSummary) => row.effectiveStatus,
-              cell: (row: AdminLicenseCodeSummary) => <CommercialStatusBadge status={row.effectiveStatus} />,
+              cell: (row: AdminLicenseCodeSummary) => (
+                <CommercialStatusBadge status={row.effectiveStatus} />
+              ),
             },
           ]}
           rows={codes}
@@ -534,8 +636,17 @@ export const LicenseCodesView = (): ReactElement => {
                 ...(canUseSensitiveActions
                   ? [{ label: T.REVEAL, icon: EyeIcon, onSelect: () => void revealCode(row) }]
                   : []),
-                ...(canUseSensitiveActions && (row.effectiveStatus === "ISSUED" || (row.effectiveStatus === "REDEEMED" && row.subscriptionPublicId !== null))
-                  ? [{ label: T.REVOKE, icon: BanIcon, danger: true, onSelect: () => beginRevoke(row) }]
+                ...(canUseSensitiveActions &&
+                (row.effectiveStatus === "ISSUED" ||
+                  (row.effectiveStatus === "REDEEMED" && row.subscriptionPublicId !== null))
+                  ? [
+                      {
+                        label: T.REVOKE,
+                        icon: BanIcon,
+                        danger: true,
+                        onSelect: () => beginRevoke(row),
+                      },
+                    ]
                   : []),
               ]}
             />
@@ -587,21 +698,33 @@ export const LicenseCodesView = (): ReactElement => {
         onClose={() => {
           if (!revealBusy) clearReveal();
         }}
-        footer={(
+        footer={
           <>
-            <Button variant="ghost" disabled={revealBusy} onClick={clearReveal}>{T.CLOSE}</Button>
-            <Button leftIcon={<CopyIcon className="h-4 w-4" />} disabled={!revealedCode || revealBusy} onClick={() => void copyRevealedCode()}>
+            <Button variant="ghost" disabled={revealBusy} onClick={clearReveal}>
+              {T.CLOSE}
+            </Button>
+            <Button
+              leftIcon={<CopyIcon className="h-4 w-4" />}
+              disabled={!revealedCode || revealBusy}
+              onClick={() => void copyRevealedCode()}
+            >
               {copied ? T.COPIED : T.COPY}
             </Button>
           </>
-        )}
+        }
       >
         <div className="flex flex-col gap-3">
           <p className="text-sm text-slate-600">{T.REVEAL_DESCRIPTION}</p>
-          {revealTarget && <p className="font-mono text-xs text-slate-500">{revealTarget.publicId}</p>}
+          {revealTarget && (
+            <p className="font-mono text-xs text-slate-500">{revealTarget.publicId}</p>
+          )}
           {revealBusy && <p className="text-sm text-slate-600">{T.REVEAL}...</p>}
           {revealError && <Alert tone="error">{revealError}</Alert>}
-          {revealedCode && <div className="rounded-md border border-amber-200 bg-amber-50 p-3 font-mono text-sm font-semibold text-slate-900">{revealedCode}</div>}
+          {revealedCode && (
+            <div className="rounded-md border border-amber-200 bg-amber-50 p-3 font-mono text-sm font-semibold text-slate-900">
+              {revealedCode}
+            </div>
+          )}
           {revealedCode && <p className="text-xs text-slate-600">{T.REVEALED}</p>}
         </div>
       </Modal>
@@ -617,7 +740,7 @@ export const LicenseCodesView = (): ReactElement => {
           setRevokePreview(null);
           setLocalError("");
         }}
-        footer={(
+        footer={
           <>
             <Button
               variant="ghost"
@@ -627,43 +750,112 @@ export const LicenseCodesView = (): ReactElement => {
                 setRevokePreview(null);
               }}
             >
-              Cancel
+              {T.CLOSE}
             </Button>
             <Button
               variant="danger"
               isLoading={revoke.isPending}
-              disabled={!revokePreview || !cancelScheduledScope || !preserveOpenClosed
-                || (revokePreview?.subscriptionPublicId !== null && !cancelSubscription)}
+              disabled={
+                !revokePreview ||
+                !cancelScheduledScope ||
+                !preserveOpenClosed ||
+                (revokePreview?.subscriptionPublicId !== null && !cancelSubscription)
+              }
               onClick={() => void confirmRevoke()}
             >
               {T.REVOKE_CONFIRM}
             </Button>
           </>
-        )}
+        }
       >
         <div className="flex flex-col gap-4">
           <p className="text-sm text-gray-600">{T.REVOKE_DESCRIPTION}</p>
-          {revokePreviewRequest.isPending && <p className="text-sm text-gray-600">{T.REVOKE_PREVIEW_LOADING}</p>}
+          {revokePreviewRequest.isPending && (
+            <p className="text-sm text-gray-600">{T.REVOKE_PREVIEW_LOADING}</p>
+          )}
           {!revokePreviewRequest.isPending && !revokePreview && (
             <div className="flex items-center justify-between gap-3 rounded-md bg-red-50 p-3 text-sm text-red-800">
               <span>{T.REVOKE_PREVIEW_ERROR}</span>
-              {codeToRevoke && <Button variant="ghost" onClick={() => void loadRevokePreview(codeToRevoke.publicId)}>{T.REVOKE_PREVIEW_RETRY}</Button>}
+              {codeToRevoke && (
+                <Button
+                  variant="ghost"
+                  onClick={() => void loadRevokePreview(codeToRevoke.publicId)}
+                >
+                  {T.REVOKE_PREVIEW_RETRY}
+                </Button>
+              )}
             </div>
           )}
           {revokePreview && (
             <>
               <div className="grid gap-3 rounded-md border border-gray-200 bg-gray-50 p-3 text-sm sm:grid-cols-2">
-                <div><span className="text-gray-500">Impact</span><div className="font-medium text-gray-900">{revokePreview.impactCategory === "EXAM_SUBSCRIPTION" ? T.REVOKE_IMPACT_EXAM : T.REVOKE_IMPACT_CODE_ONLY}</div></div>
-                <div><span className="text-gray-500">{T.REVOKE_SUBSCRIPTION}</span><div className="font-medium text-gray-900">{revokePreview.subscriptionStatus ?? T.EMPTY_VALUE}</div></div>
-                <div><span className="text-gray-500">{T.REVOKE_SCHEDULED}</span><div className="font-medium text-gray-900">{revokePreview.scheduledCount || T.REVOKE_NO_SCHEDULED}</div></div>
-                <div><span className="text-gray-500">{T.REVOKE_OPEN}</span><div className="font-medium text-gray-900">{revokePreview.openCount}</div></div>
-                <div><span className="text-gray-500">{T.REVOKE_CLOSED}</span><div className="font-medium text-gray-900">{revokePreview.closedCount}</div></div>
-                <div><span className="text-gray-500">Preview valid until</span><div className="font-medium text-gray-900">{formatDate(revokePreview.previewExpiresAt)}</div></div>
+                <div>
+                  <span className="text-gray-500">{impactLabel}</span>
+                  <div className="font-medium text-gray-900">
+                    {revokePreview.impactCategory === "EXAM_SUBSCRIPTION"
+                      ? T.REVOKE_IMPACT_EXAM
+                      : T.REVOKE_IMPACT_CODE_ONLY}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-gray-500">{T.REVOKE_SUBSCRIPTION}</span>
+                  <div className="font-medium text-gray-900">
+                    {revokePreview.subscriptionStatus ?? T.EMPTY_VALUE}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-gray-500">{T.REVOKE_SCHEDULED}</span>
+                  <div className="font-medium text-gray-900">
+                    {revokePreview.scheduledCount || T.REVOKE_NO_SCHEDULED}
+                  </div>
+                </div>
+                <div>
+                  <span className="text-gray-500">{T.REVOKE_OPEN}</span>
+                  <div className="font-medium text-gray-900">{revokePreview.openCount}</div>
+                </div>
+                <div>
+                  <span className="text-gray-500">{T.REVOKE_CLOSED}</span>
+                  <div className="font-medium text-gray-900">{revokePreview.closedCount}</div>
+                </div>
+                <div>
+                  <span className="text-gray-500">{previewValidUntilLabel}</span>
+                  <div className="font-medium text-gray-900">
+                    {formatDate(revokePreview.previewExpiresAt)}
+                  </div>
+                </div>
               </div>
-              <Input id="license-revoke-reason" label={T.REVOKE_REASON} value={revokeReason} maxLength={255} onChange={(event) => setRevokeReason(event.target.value)} helperText={T.REVOKE_REASON_HELP} disabled={revoke.isPending} />
-              {revokePreview.subscriptionPublicId && <Checkbox id="license-revoke-subscription" label={T.REVOKE_ACK_SUBSCRIPTION} checked={cancelSubscription} onChange={(event) => setCancelSubscription(event.target.checked)} disabled={revoke.isPending} />}
-              <Checkbox id="license-revoke-scheduled" label={T.REVOKE_ACK_SCHEDULED} checked={cancelScheduledScope} onChange={(event) => setCancelScheduledScope(event.target.checked)} disabled={revoke.isPending} />
-              <Checkbox id="license-revoke-open-closed" label={T.REVOKE_ACK_OPEN_CLOSED} checked={preserveOpenClosed} onChange={(event) => setPreserveOpenClosed(event.target.checked)} disabled={revoke.isPending} />
+              <Input
+                id="license-revoke-reason"
+                label={T.REVOKE_REASON}
+                value={revokeReason}
+                maxLength={255}
+                onChange={(event) => setRevokeReason(event.target.value)}
+                helperText={T.REVOKE_REASON_HELP}
+                disabled={revoke.isPending}
+              />
+              {revokePreview.subscriptionPublicId && (
+                <Checkbox
+                  id="license-revoke-subscription"
+                  label={T.REVOKE_ACK_SUBSCRIPTION}
+                  checked={cancelSubscription}
+                  onChange={(event) => setCancelSubscription(event.target.checked)}
+                  disabled={revoke.isPending}
+                />
+              )}
+              <Checkbox
+                id="license-revoke-scheduled"
+                label={T.REVOKE_ACK_SCHEDULED}
+                checked={cancelScheduledScope}
+                onChange={(event) => setCancelScheduledScope(event.target.checked)}
+                disabled={revoke.isPending}
+              />
+              <Checkbox
+                id="license-revoke-open-closed"
+                label={T.REVOKE_ACK_OPEN_CLOSED}
+                checked={preserveOpenClosed}
+                onChange={(event) => setPreserveOpenClosed(event.target.checked)}
+                disabled={revoke.isPending}
+              />
             </>
           )}
         </div>
