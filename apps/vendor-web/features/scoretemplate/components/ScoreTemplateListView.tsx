@@ -22,6 +22,7 @@ import {
   type ActionMenuItem,
 } from "@pte/ui";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
 import {
@@ -34,11 +35,11 @@ import {
   useSubmitScoreTemplateApproval,
 } from "../api";
 import {
-  SCORE_TEMPLATE_LIST_HEADERS,
-  SCORE_TEMPLATE_STATUS_LABELS,
+  SCORE_TEMPLATE_LIST_HEADERS as RAW_SCORE_TEMPLATE_LIST_HEADERS,
+  SCORE_TEMPLATE_STATUS_LABELS as RAW_SCORE_TEMPLATE_STATUS_LABELS,
   SCORE_TEMPLATE_STATUS_VARIANT,
-  SCORE_TEMPLATE_POLICY_LABELS,
-  SCORE_TEMPLATE_TEXT,
+  SCORE_TEMPLATE_POLICY_LABELS as RAW_SCORE_TEMPLATE_POLICY_LABELS,
+  SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
   EXAM_TEMPLATE_BASE_PATH,
 } from "../constants";
 import type {
@@ -55,6 +56,19 @@ function detailHref(template: ScoreTemplateResponse): string {
 }
 
 export const ScoreTemplateListView = (): ReactElement => {
+  const T = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
+  const H = useAdminCopy(RAW_SCORE_TEMPLATE_LIST_HEADERS);
+  const statusLabels = useAdminCopy(RAW_SCORE_TEMPLATE_STATUS_LABELS);
+  const policyLabels = useAdminCopy(RAW_SCORE_TEMPLATE_POLICY_LABELS);
+  const statusFilterOptions = useAdminCopy([
+    { value: "", label: "All statuses" },
+    ...Object.entries(RAW_SCORE_TEMPLATE_STATUS_LABELS).map(([value, label]) => ({ value, label })),
+  ]);
+  const policyFilterOptions = useAdminCopy([
+    { value: "", label: "All policies" },
+    ...Object.entries(RAW_SCORE_TEMPLATE_POLICY_LABELS).map(([value, label]) => ({ value, label })),
+  ]);
+  const emptyTitle = useAdminCopy("No exam templates found");
   const router = useRouter();
   const { data: templates, isLoading, isError } = useScoreTemplates();
   const cloneMutation = useCloneScoreTemplate();
@@ -96,21 +110,21 @@ export const ScoreTemplateListView = (): ReactElement => {
       setCreatePolicy("STANDARD_PTE");
       router.push(`${EXAM_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`);
     } catch (error) {
-      setCreateError(getScoreTemplateErrorMessage(error, SCORE_TEMPLATE_TEXT.CREATE_ERROR));
+      setCreateError(getScoreTemplateErrorMessage(error, T.CREATE_ERROR));
     }
   };
 
   const handleSubmitApproval = (publicId: string): void => {
     setNotice(null);
     submitApprovalMutation.mutate(publicId, {
-      onSuccess: () => setNotice(SCORE_TEMPLATE_TEXT.APPROVAL_SUBMITTED),
+      onSuccess: () => setNotice(T.APPROVAL_SUBMITTED),
     });
   };
 
   const handleApprove = (publicId: string): void => {
     setNotice(null);
     approveMutation.mutate(publicId, {
-      onSuccess: () => setNotice(SCORE_TEMPLATE_TEXT.APPROVAL_APPROVED),
+      onSuccess: () => setNotice(T.APPROVAL_APPROVED),
     });
   };
 
@@ -119,7 +133,7 @@ export const ScoreTemplateListView = (): ReactElement => {
     if (!rejectTarget) return;
     const reason = rejectReason.trim();
     if (!reason) {
-      setRejectError(SCORE_TEMPLATE_TEXT.REJECT_REASON_REQUIRED);
+      setRejectError(T.REJECT_REASON_REQUIRED);
       return;
     }
     setRejectError(null);
@@ -129,14 +143,14 @@ export const ScoreTemplateListView = (): ReactElement => {
         onSuccess: () => {
           setRejectTarget(null);
           setRejectReason("");
-          setNotice(SCORE_TEMPLATE_TEXT.APPROVAL_REJECTED);
+          setNotice(T.APPROVAL_REJECTED);
         },
       },
     );
   };
 
   const handleDelete = (template: ScoreTemplateResponse): void => {
-    if (template.status !== "DRAFT" || !window.confirm(SCORE_TEMPLATE_TEXT.DELETE_CONFIRM)) return;
+    if (template.status !== "DRAFT" || !window.confirm(T.DELETE_CONFIRM)) return;
     deleteMutation.mutate(template.publicId);
   };
 
@@ -150,12 +164,12 @@ export const ScoreTemplateListView = (): ReactElement => {
     const isDraft = template.status === "DRAFT";
     const actions: ActionMenuItem[] = [
       {
-        label: isDraft ? SCORE_TEMPLATE_TEXT.EDIT_ACTION : SCORE_TEMPLATE_TEXT.VIEW_ACTION,
+        label: isDraft ? T.EDIT_ACTION : T.VIEW_ACTION,
         icon: isDraft ? PencilIcon : EyeIcon,
         onSelect: () => router.push(detailHref(template)),
       },
       {
-        label: SCORE_TEMPLATE_TEXT.EXPORT_ACTION,
+        label: T.EXPORT_ACTION,
         icon: DocumentIcon,
         onSelect: () => downloadScoreTemplateJson(template),
       },
@@ -163,7 +177,7 @@ export const ScoreTemplateListView = (): ReactElement => {
 
     if (!isDraft) {
       actions.push({
-        label: SCORE_TEMPLATE_TEXT.CLONE_ACTION,
+        label: T.CLONE_ACTION,
         icon: CopyIcon,
         disabled: cloneMutation.isPending && cloneMutation.variables === template.publicId,
         onSelect: () => handleClone(template.publicId),
@@ -172,7 +186,7 @@ export const ScoreTemplateListView = (): ReactElement => {
 
     if (isDraft) {
       actions.push({
-        label: SCORE_TEMPLATE_TEXT.SUBMIT_APPROVAL_ACTION,
+        label: T.SUBMIT_APPROVAL_ACTION,
         icon: UploadIcon,
         disabled:
           submitApprovalMutation.isPending &&
@@ -180,7 +194,7 @@ export const ScoreTemplateListView = (): ReactElement => {
         onSelect: () => handleSubmitApproval(template.publicId),
       });
       actions.push({
-        label: SCORE_TEMPLATE_TEXT.DELETE_ACTION,
+        label: T.DELETE_ACTION,
         icon: TrashIcon,
         danger: true,
         disabled: deleteMutation.isPending && deleteMutation.variables === template.publicId,
@@ -190,13 +204,13 @@ export const ScoreTemplateListView = (): ReactElement => {
 
     if (template.status === "PENDING_APPROVAL" && canReview) {
       actions.push({
-        label: SCORE_TEMPLATE_TEXT.APPROVE_ACTION,
+        label: T.APPROVE_ACTION,
         icon: CheckCircleIcon,
         disabled: approveMutation.isPending && approveMutation.variables === template.publicId,
         onSelect: () => handleApprove(template.publicId),
       });
       actions.push({
-        label: SCORE_TEMPLATE_TEXT.REJECT_ACTION,
+        label: T.REJECT_ACTION,
         icon: BanIcon,
         disabled: rejectMutation.isPending,
         onSelect: () => {
@@ -213,45 +227,36 @@ export const ScoreTemplateListView = (): ReactElement => {
   return (
     <div className="space-y-6">
       {notice && <Alert tone="success">{notice}</Alert>}
-      {isError && <Alert tone="error">{SCORE_TEMPLATE_TEXT.LOAD_ERROR}</Alert>}
+      {isError && <Alert tone="error">{T.LOAD_ERROR}</Alert>}
       {createError && <Alert tone="error">{createError}</Alert>}
       {createMutation.isError && !createError && (
         <Alert tone="error">
-          {getScoreTemplateErrorMessage(createMutation.error, SCORE_TEMPLATE_TEXT.CREATE_ERROR)}
+          {getScoreTemplateErrorMessage(createMutation.error, T.CREATE_ERROR)}
         </Alert>
       )}
       {deleteMutation.isError && (
         <Alert tone="error">
-          {getScoreTemplateErrorMessage(deleteMutation.error, SCORE_TEMPLATE_TEXT.DELETE_ERROR)}
+          {getScoreTemplateErrorMessage(deleteMutation.error, T.DELETE_ERROR)}
         </Alert>
       )}
       {cloneMutation.isError && (
         <Alert tone="error">
-          {getScoreTemplateErrorMessage(cloneMutation.error, SCORE_TEMPLATE_TEXT.CLONE_ERROR)}
+          {getScoreTemplateErrorMessage(cloneMutation.error, T.CLONE_ERROR)}
         </Alert>
       )}
       {submitApprovalMutation.isError && (
         <Alert tone="error">
-          {getScoreTemplateErrorMessage(
-            submitApprovalMutation.error,
-            SCORE_TEMPLATE_TEXT.NOT_DRAFT_ERROR,
-          )}
+          {getScoreTemplateErrorMessage(submitApprovalMutation.error, T.NOT_DRAFT_ERROR)}
         </Alert>
       )}
       {approveMutation.isError && (
         <Alert tone="error">
-          {getScoreTemplateErrorMessage(
-            approveMutation.error,
-            SCORE_TEMPLATE_TEXT.CONCURRENT_MODIFICATION_ERROR,
-          )}
+          {getScoreTemplateErrorMessage(approveMutation.error, T.CONCURRENT_MODIFICATION_ERROR)}
         </Alert>
       )}
       {rejectMutation.isError && (
         <Alert tone="error">
-          {getScoreTemplateErrorMessage(
-            rejectMutation.error,
-            SCORE_TEMPLATE_TEXT.CONCURRENT_MODIFICATION_ERROR,
-          )}
+          {getScoreTemplateErrorMessage(rejectMutation.error, T.CONCURRENT_MODIFICATION_ERROR)}
         </Alert>
       )}
 
@@ -259,8 +264,8 @@ export const ScoreTemplateListView = (): ReactElement => {
         columns={[
           {
             key: "code",
-            label: SCORE_TEMPLATE_LIST_HEADERS.CODE,
-            header: SCORE_TEMPLATE_LIST_HEADERS.CODE,
+            label: H.CODE,
+            header: H.CODE,
             filterAccessor: (template: ScoreTemplateResponse) => template.code,
             cell: (template: ScoreTemplateResponse) => (
               <span className="font-mono text-xs">{template.code}</span>
@@ -268,84 +273,69 @@ export const ScoreTemplateListView = (): ReactElement => {
           },
           {
             key: "version",
-            label: SCORE_TEMPLATE_LIST_HEADERS.VERSION,
-            header: SCORE_TEMPLATE_LIST_HEADERS.VERSION,
+            label: H.VERSION,
+            header: H.VERSION,
             filterAccessor: (template: ScoreTemplateResponse) => template.version,
             cell: (template: ScoreTemplateResponse) => template.version,
           },
           {
             key: "name",
-            label: SCORE_TEMPLATE_LIST_HEADERS.NAME,
-            header: SCORE_TEMPLATE_LIST_HEADERS.NAME,
+            label: H.NAME,
+            header: H.NAME,
             filterAccessor: (template: ScoreTemplateResponse) => template.name,
             cell: (template: ScoreTemplateResponse) => template.name,
           },
           {
             key: "status",
-            label: SCORE_TEMPLATE_LIST_HEADERS.STATUS,
-            header: SCORE_TEMPLATE_LIST_HEADERS.STATUS,
-            filterOptions: [
-              { value: "", label: "All statuses" },
-              ...Object.entries(SCORE_TEMPLATE_STATUS_LABELS).map(([value, label]) => ({
-                value,
-                label,
-              })),
-            ],
+            label: H.STATUS,
+            header: H.STATUS,
+            filterOptions: statusFilterOptions,
             filterAccessor: (template: ScoreTemplateResponse) => template.status,
             cell: (template: ScoreTemplateResponse) => {
               const status = template.status as ScoreTemplateStatusFilter;
               return (
                 <Badge variant={SCORE_TEMPLATE_STATUS_VARIANT[status] ?? "neutral"}>
-                  {SCORE_TEMPLATE_STATUS_LABELS[status] ?? template.status}
+                  {statusLabels[status] ?? template.status}
                 </Badge>
               );
             },
           },
           {
             key: "items",
-            label: SCORE_TEMPLATE_LIST_HEADERS.ITEMS,
-            header: SCORE_TEMPLATE_LIST_HEADERS.ITEMS,
+            label: H.ITEMS,
+            header: H.ITEMS,
             filterAccessor: (template: ScoreTemplateResponse) => template.items.length,
             cell: (template: ScoreTemplateResponse) => template.items.length,
           },
           {
             key: "policy",
-            label: SCORE_TEMPLATE_LIST_HEADERS.POLICY,
-            header: SCORE_TEMPLATE_LIST_HEADERS.POLICY,
-            filterOptions: [
-              { value: "", label: "All policies" },
-              ...Object.entries(SCORE_TEMPLATE_POLICY_LABELS).map(([value, label]) => ({
-                value,
-                label,
-              })),
-            ],
+            label: H.POLICY,
+            header: H.POLICY,
+            filterOptions: policyFilterOptions,
             filterAccessor: (template: ScoreTemplateResponse) => template.templatePolicy,
             cell: (template: ScoreTemplateResponse) =>
-              SCORE_TEMPLATE_POLICY_LABELS[
-                template.templatePolicy as keyof typeof SCORE_TEMPLATE_POLICY_LABELS
-              ] ?? template.templatePolicy,
+              policyLabels[template.templatePolicy as keyof typeof policyLabels] ??
+              template.templatePolicy,
           },
         ]}
         rows={templates ?? []}
         getRowKey={(template) => template.publicId}
         isLoading={isLoading}
-        emptyTitle="No exam templates found"
-        toolbarActions={
-          <Button onClick={() => setIsCreateOpen(true)}>{SCORE_TEMPLATE_TEXT.CREATE_ACTION}</Button>
-        }
+        emptyTitle={emptyTitle}
+        toolbarActions={<Button onClick={() => setIsCreateOpen(true)}>{T.CREATE_ACTION}</Button>}
         tableClassName="min-w-[720px]"
-        rowActionsHeader={SCORE_TEMPLATE_LIST_HEADERS.ACTIONS}
+        rowActionsHeader={H.ACTIONS}
         rowActions={(template) => <ActionMenu items={buildActions(template)} />}
       />
 
       <Modal
         open={isCreateOpen}
         onClose={closeCreate}
-        title={SCORE_TEMPLATE_TEXT.CREATE_MODAL_TITLE}
+        title={T.CREATE_MODAL_TITLE}
         footer={
           <>
             <Button variant="ghost" onClick={closeCreate} disabled={createMutation.isPending}>
-              {SCORE_TEMPLATE_TEXT.CANCEL_ACTION}
+              {T.CANCEL_ACTION}
             </Button>
             <Button
               variant="primary"
@@ -353,7 +343,7 @@ export const ScoreTemplateListView = (): ReactElement => {
               form="create-exam-template-form"
               isLoading={createMutation.isPending}
             >
-              {SCORE_TEMPLATE_TEXT.CREATE_ACTION}
+              {T.CREATE_ACTION}
             </Button>
           </>
         }
@@ -365,7 +355,7 @@ export const ScoreTemplateListView = (): ReactElement => {
         >
           <Input
             id="create-exam-template-code"
-            label={SCORE_TEMPLATE_TEXT.CODE_LABEL}
+            label={T.CODE_LABEL}
             value={createCode}
             onChange={(event) => setCreateCode(event.target.value)}
             required
@@ -373,7 +363,7 @@ export const ScoreTemplateListView = (): ReactElement => {
           />
           <Input
             id="create-exam-template-name"
-            label={SCORE_TEMPLATE_TEXT.NAME_LABEL}
+            label={T.NAME_LABEL}
             value={createName}
             onChange={(event) => setCreateName(event.target.value)}
             required
@@ -382,18 +372,16 @@ export const ScoreTemplateListView = (): ReactElement => {
           <div>
             <Select
               id="create-exam-template-policy"
-              label={SCORE_TEMPLATE_TEXT.POLICY_LABEL}
+              label={T.POLICY_LABEL}
               value={createPolicy}
               onChange={(event) => setCreatePolicy(event.target.value as ScoreTemplatePolicy)}
               options={[
-                { value: "STANDARD_PTE", label: SCORE_TEMPLATE_TEXT.STANDARD_POLICY },
-                { value: "CUSTOM", label: SCORE_TEMPLATE_TEXT.CUSTOM_POLICY },
+                { value: "STANDARD_PTE", label: T.STANDARD_POLICY },
+                { value: "CUSTOM", label: T.CUSTOM_POLICY },
               ]}
             />
             {createPolicy === "CUSTOM" && (
-              <p className="mt-1 text-xs text-gray-500">
-                {SCORE_TEMPLATE_TEXT.CUSTOM_POLICY_NOTICE}
-              </p>
+              <p className="mt-1 text-xs text-gray-500">{T.CUSTOM_POLICY_NOTICE}</p>
             )}
           </div>
           {createError && <Alert tone="error">{createError}</Alert>}
@@ -405,7 +393,7 @@ export const ScoreTemplateListView = (): ReactElement => {
         onClose={() => {
           if (!rejectMutation.isPending) setRejectTarget(null);
         }}
-        title={SCORE_TEMPLATE_TEXT.REJECT_MODAL_TITLE}
+        title={T.REJECT_MODAL_TITLE}
         footer={
           <>
             <Button
@@ -413,7 +401,7 @@ export const ScoreTemplateListView = (): ReactElement => {
               onClick={() => setRejectTarget(null)}
               disabled={rejectMutation.isPending}
             >
-              {SCORE_TEMPLATE_TEXT.REJECT_CANCEL}
+              {T.REJECT_CANCEL}
             </Button>
             <Button
               variant="primary"
@@ -421,15 +409,15 @@ export const ScoreTemplateListView = (): ReactElement => {
               form="reject-score-template-form"
               isLoading={rejectMutation.isPending}
             >
-              {SCORE_TEMPLATE_TEXT.REJECT_CONFIRM}
+              {T.REJECT_CONFIRM}
             </Button>
           </>
         }
       >
         <form id="reject-score-template-form" className="space-y-4" onSubmit={handleReject}>
           <Input
-            label={SCORE_TEMPLATE_TEXT.REJECT_REASON_LABEL}
-            placeholder={SCORE_TEMPLATE_TEXT.REJECT_REASON_PLACEHOLDER}
+            label={T.REJECT_REASON_LABEL}
+            placeholder={T.REJECT_REASON_PLACEHOLDER}
             value={rejectReason}
             error={rejectError ?? undefined}
             onChange={(event) => setRejectReason(event.target.value)}

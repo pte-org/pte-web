@@ -9,18 +9,19 @@ import type {
   TaskTypeCapabilityResponse,
   UpdateTaskTypeRequest,
 } from "@pte/api-client";
+import { useCreateTaskType, useTaskTypeAvailability, useUpdateTaskType } from "../api";
 import {
-  useCreateTaskType,
-  useTaskTypeAvailability,
-  useUpdateTaskType,
-} from "../api";
-import { QUESTION_TYPE_SECTIONS, QUESTION_TYPE_EDITOR_TEXT, QUESTION_TYPE_TEXT } from "../constants";
+  QUESTION_TYPE_SECTIONS,
+  QUESTION_TYPE_EDITOR_TEXT as RAW_QUESTION_TYPE_EDITOR_TEXT,
+  QUESTION_TYPE_TEXT as RAW_QUESTION_TYPE_TEXT,
+} from "../constants";
 import { getQuestionTypeErrorMessage } from "../errorMessage";
 import {
   QuestionTypeEditorFields,
   type EditorMode,
   type QuestionTypeFormDraft,
 } from "./_QuestionTypeEditorFields";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 interface QuestionTypeEditorModalProps {
   mode: EditorMode;
@@ -68,6 +69,8 @@ export const QuestionTypeEditorModal = ({
   onClose,
   onSuccess,
 }: QuestionTypeEditorModalProps): ReactElement => {
+  const T = useAdminCopy(RAW_QUESTION_TYPE_TEXT);
+  const E = useAdminCopy(RAW_QUESTION_TYPE_EDITOR_TEXT);
   const createMutation = useCreateTaskType();
   const updateMutation = useUpdateTaskType();
   const [draft, setDraft] = useState<QuestionTypeFormDraft>(() =>
@@ -108,7 +111,7 @@ export const QuestionTypeEditorModal = ({
           active: draft.active,
         };
         await createMutation.mutateAsync({ payload });
-        onSuccess(QUESTION_TYPE_TEXT.CREATE_SUCCESS);
+        onSuccess(T.CREATE_SUCCESS);
       } else if (editing) {
         const payload: UpdateTaskTypeRequest = {
           displayName: draft.displayName.trim(),
@@ -124,7 +127,7 @@ export const QuestionTypeEditorModal = ({
               }),
         };
         await updateMutation.mutateAsync({ publicId: editing.publicId, payload });
-        onSuccess(QUESTION_TYPE_TEXT.UPDATE_SUCCESS);
+        onSuccess(T.UPDATE_SUCCESS);
       }
     } catch {
       // The mutation error is rendered in the modal below.
@@ -139,19 +142,28 @@ export const QuestionTypeEditorModal = ({
   const hasMutationError = createMutation.isError || updateMutation.isError;
   const canSave = Boolean(
     draft.taskTypeKey &&
-      !invalidKey &&
-      !availabilityKeyConflict &&
-      !availabilityNameConflict &&
-      draft.displayName.trim() &&
-      draft.shortName.trim() &&
-      draft.section &&
-      draft.screenKey &&
-      draft.contractVersion > 0,
+    !invalidKey &&
+    !availabilityKeyConflict &&
+    !availabilityNameConflict &&
+    draft.displayName.trim() &&
+    draft.shortName.trim() &&
+    draft.section &&
+    draft.screenKey &&
+    draft.contractVersion > 0,
   );
-  const sectionOptions = QUESTION_TYPE_SECTIONS.map((section) => ({
-    label: section,
-    value: section,
-  }));
+  const sectionOptions = useAdminCopy(
+    QUESTION_TYPE_SECTIONS.map((section) => ({
+      label: (
+        {
+          SPEAKING: "Speaking",
+          WRITING: "Writing",
+          READING: "Reading",
+          LISTENING: "Listening",
+        } as const
+      )[section],
+      value: section,
+    })),
+  );
 
   return (
     <Modal
@@ -159,17 +171,22 @@ export const QuestionTypeEditorModal = ({
       onClose={closeEditor}
       title={
         mode === "create"
-          ? QUESTION_TYPE_TEXT.CREATE_TITLE
-          : `${QUESTION_TYPE_TEXT.EDIT_TITLE}: ${editing?.taskTypeKey ?? editing?.code ?? ""}`
+          ? T.CREATE_TITLE
+          : `${T.EDIT_TITLE}: ${editing?.taskTypeKey ?? editing?.code ?? ""}`
       }
       size="xl"
       footer={
         <>
           <Button variant="ghost" onClick={closeEditor} disabled={isSaving}>
-            {QUESTION_TYPE_TEXT.CANCEL}
+            {T.CANCEL}
           </Button>
-          <Button variant="primary" onClick={() => void save()} isLoading={isSaving} disabled={!canSave}>
-            {mode === "create" ? QUESTION_TYPE_TEXT.CREATE : QUESTION_TYPE_TEXT.SAVE}
+          <Button
+            variant="primary"
+            onClick={() => void save()}
+            isLoading={isSaving}
+            disabled={!canSave}
+          >
+            {mode === "create" ? T.CREATE : T.SAVE}
           </Button>
         </>
       }
@@ -177,25 +194,21 @@ export const QuestionTypeEditorModal = ({
       <div className="space-y-4">
         <Alert tone="info">
           {mode === "create"
-            ? QUESTION_TYPE_EDITOR_TEXT.CREATE_NOTICE
+            ? E.CREATE_NOTICE
             : runtimeLocked
-              ? QUESTION_TYPE_EDITOR_TEXT.RUNTIME_LOCKED_NOTICE
-              : QUESTION_TYPE_EDITOR_TEXT.EDIT_NOTICE}
+              ? E.RUNTIME_LOCKED_NOTICE
+              : E.EDIT_NOTICE}
         </Alert>
         {invalidKey && draft.taskTypeKey.length > 0 && (
-          <Alert tone="warning">{QUESTION_TYPE_EDITOR_TEXT.INVALID_KEY_FORMAT}</Alert>
+          <Alert tone="warning">{E.INVALID_KEY_FORMAT}</Alert>
         )}
-        {availabilityKeyConflict && (
-          <Alert tone="warning">{QUESTION_TYPE_EDITOR_TEXT.KEY_ALREADY_USED}</Alert>
-        )}
-        {availabilityNameConflict && (
-          <Alert tone="warning">{QUESTION_TYPE_EDITOR_TEXT.DISPLAY_NAME_ALREADY_USED}</Alert>
-        )}
+        {availabilityKeyConflict && <Alert tone="warning">{E.KEY_ALREADY_USED}</Alert>}
+        {availabilityNameConflict && <Alert tone="warning">{E.DISPLAY_NAME_ALREADY_USED}</Alert>}
         {hasMutationError && (
           <Alert tone="error">
             {getQuestionTypeErrorMessage(
               mutationError,
-              mode === "create" ? QUESTION_TYPE_TEXT.CREATE_ERROR : QUESTION_TYPE_TEXT.SAVE_ERROR,
+              mode === "create" ? T.CREATE_ERROR : T.SAVE_ERROR,
             )}
           </Alert>
         )}

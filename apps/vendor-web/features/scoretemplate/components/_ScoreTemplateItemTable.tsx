@@ -3,17 +3,21 @@
 import type { ReactElement } from "react";
 import { Button, DataTable, Select, type DataTableColumn } from "@pte/ui";
 import type { QuestionTypeResponse } from "@pte/api-client";
-import { SCORE_TEMPLATE_ITEM_HEADERS, SCORE_TEMPLATE_TEXT } from "../constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
+import {
+  SCORE_TEMPLATE_ITEM_HEADERS as RAW_SCORE_TEMPLATE_ITEM_HEADERS,
+  SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
+} from "../constants";
 import type { ScoreTemplateItemDraft, ScoreTemplateItemResponse } from "../types";
 
 const INPUT_CLASS =
   "w-20 rounded border border-gray-300 px-2 py-1 text-sm outline-none focus:border-blue-500";
 
-const SECTION_OPTIONS = [
-  { value: "SPEAKING", label: "SPEAKING" },
-  { value: "WRITING", label: "WRITING" },
-  { value: "READING", label: "READING" },
-  { value: "LISTENING", label: "LISTENING" },
+const RAW_SECTION_OPTIONS = [
+  { value: "SPEAKING", label: "Speaking" },
+  { value: "WRITING", label: "Writing" },
+  { value: "READING", label: "Reading" },
+  { value: "LISTENING", label: "Listening" },
 ];
 
 type ReadOnlyProps = {
@@ -34,19 +38,6 @@ type ScoreTemplateItemTableProps = ReadOnlyProps | EditableProps;
 type ScoreTemplateItem = ScoreTemplateItemDraft | ScoreTemplateItemResponse;
 type ScoreTemplateTableRow = { item: ScoreTemplateItem; index: number };
 
-// overallWeight is deliberately not here — it is backend-derived and stays a
-// read-only cell in the editor. The other numeric fields are editable drafts.
-const NUMERIC_FIELDS: { field: keyof ScoreTemplateItemDraft; header: string }[] = [
-  { field: "minCount", header: SCORE_TEMPLATE_ITEM_HEADERS.MIN_COUNT },
-  { field: "maxCount", header: SCORE_TEMPLATE_ITEM_HEADERS.MAX_COUNT },
-  { field: "prepSeconds", header: SCORE_TEMPLATE_ITEM_HEADERS.PREP_SECONDS },
-  { field: "responseSeconds", header: SCORE_TEMPLATE_ITEM_HEADERS.RESPONSE_SECONDS },
-  { field: "speakingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.SPEAKING_WEIGHT },
-  { field: "writingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.WRITING_WEIGHT },
-  { field: "readingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.READING_WEIGHT },
-  { field: "listeningWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.LISTENING_WEIGHT },
-];
-
 function fieldValue(item: ScoreTemplateItem, field: keyof ScoreTemplateItemDraft): string {
   const value = item[field as keyof ScoreTemplateItem];
   return value === null || value === undefined ? "" : String(value);
@@ -56,6 +47,29 @@ function fieldValue(item: ScoreTemplateItem, field: keyof ScoreTemplateItemDraft
  * the common DataTable shell, search, per-column filters and responsive rules;
  * only the editable cell controls differ. */
 export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): ReactElement => {
+  const SCORE_TEMPLATE_ITEM_HEADERS = useAdminCopy(RAW_SCORE_TEMPLATE_ITEM_HEADERS);
+  const SCORE_TEMPLATE_TEXT = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
+  const SECTION_OPTIONS = useAdminCopy(RAW_SECTION_OPTIONS);
+  const sectionLabels = useAdminCopy({
+    SPEAKING: "Speaking",
+    WRITING: "Writing",
+    READING: "Reading",
+    LISTENING: "Listening",
+  });
+  const getSectionLabel = (section: string): string =>
+    sectionLabels[section as keyof typeof sectionLabels] ?? section;
+  const allSectionsLabel = useAdminCopy("All sections");
+  const emptyTitle = useAdminCopy("No score template items");
+  const numericFields: { field: keyof ScoreTemplateItemDraft; header: string }[] = [
+    { field: "minCount", header: SCORE_TEMPLATE_ITEM_HEADERS.MIN_COUNT },
+    { field: "maxCount", header: SCORE_TEMPLATE_ITEM_HEADERS.MAX_COUNT },
+    { field: "prepSeconds", header: SCORE_TEMPLATE_ITEM_HEADERS.PREP_SECONDS },
+    { field: "responseSeconds", header: SCORE_TEMPLATE_ITEM_HEADERS.RESPONSE_SECONDS },
+    { field: "speakingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.SPEAKING_WEIGHT },
+    { field: "writingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.WRITING_WEIGHT },
+    { field: "readingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.READING_WEIGHT },
+    { field: "listeningWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.LISTENING_WEIGHT },
+  ];
   const rows: ScoreTemplateTableRow[] = props.items.map((item, index) => ({ item, index }));
   const columns: DataTableColumn<ScoreTemplateTableRow>[] = [
     {
@@ -67,10 +81,10 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
     {
       key: "section",
       header: SCORE_TEMPLATE_ITEM_HEADERS.SECTION,
-      filterOptions: [{ value: "", label: "All sections" }, ...SECTION_OPTIONS],
+      filterOptions: [{ value: "", label: allSectionsLabel }, ...SECTION_OPTIONS],
       filterAccessor: (row) => row.item.section,
       cell: (row) => {
-        if (!props.editable) return row.item.section;
+        if (!props.editable) return getSectionLabel(row.item.section);
         const item = row.item as ScoreTemplateItemDraft;
         return (
           <Select
@@ -89,7 +103,9 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
       cell: (row) => {
         if (!props.editable) {
           const item = row.item as ScoreTemplateItemResponse;
-          return <span className="font-mono text-xs">{item.taskTypeKey ?? item.taskType ?? "—"}</span>;
+          return (
+            <span className="font-mono text-xs">{item.taskTypeKey ?? item.taskType ?? "—"}</span>
+          );
         }
 
         const item = row.item as ScoreTemplateItemDraft;
@@ -122,7 +138,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
         );
       },
     },
-    ...NUMERIC_FIELDS.slice(0, 4).map(({ field, header }) => ({
+    ...numericFields.slice(0, 4).map(({ field, header }) => ({
       key: field,
       header,
       filterAccessor: (row: ScoreTemplateTableRow) => fieldValue(row.item, field),
@@ -144,7 +160,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
       filterAccessor: (row) => fieldValue(row.item, "overallWeight"),
       cell: (row) => fieldValue(row.item, "overallWeight"),
     },
-    ...NUMERIC_FIELDS.slice(4).map(({ field, header }) => ({
+    ...numericFields.slice(4).map(({ field, header }) => ({
       key: field,
       header,
       filterAccessor: (row: ScoreTemplateTableRow) => fieldValue(row.item, field),
@@ -168,7 +184,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
       columns={columns}
       rows={rows}
       getRowKey={(row) => `${row.item.taskTypeKey}-${row.index}`}
-      emptyTitle="No score template items"
+      emptyTitle={emptyTitle}
       tableClassName="min-w-[1100px]"
     />
   );
