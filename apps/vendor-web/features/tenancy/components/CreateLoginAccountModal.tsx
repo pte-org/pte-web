@@ -2,7 +2,11 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Modal } from "@pte/ui";
-import { CREATE_LOGIN_ACCOUNT_TEXT, EMPTY_CREATE_LOGIN_ACCOUNT } from "../constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
+import {
+  CREATE_LOGIN_ACCOUNT_TEXT as RAW_CREATE_LOGIN_ACCOUNT_TEXT,
+  EMPTY_CREATE_LOGIN_ACCOUNT,
+} from "../constants";
 import { validateCreateLoginAccount } from "../utils/validateCreateLoginAccount";
 import type { CreateLoginAccountErrors, CreateLoginAccountInput } from "../types";
 import { TenantFormField, fieldInputClass } from "./_TenantFormField";
@@ -15,7 +19,6 @@ interface CreateLoginAccountModalProps {
   isSubmitting?: boolean;
 }
 
-const T = CREATE_LOGIN_ACCOUNT_TEXT;
 const FORM_ID = "create-login-account-form";
 
 export const CreateLoginAccountModal = ({
@@ -25,8 +28,11 @@ export const CreateLoginAccountModal = ({
   error,
   isSubmitting = false,
 }: CreateLoginAccountModalProps): ReactElement => {
+  const T = useAdminCopy(RAW_CREATE_LOGIN_ACCOUNT_TEXT);
+  const creatingLabel = useAdminCopy("Creating...");
   const [form, setForm] = useState<CreateLoginAccountInput>(EMPTY_CREATE_LOGIN_ACCOUNT);
   const [errors, setErrors] = useState<CreateLoginAccountErrors>({});
+  const localizedErrors = useAdminCopy(errors);
 
   const handleChange = (field: keyof CreateLoginAccountInput, value: string): void =>
     setForm((previous) => ({ ...previous, [field]: value }));
@@ -58,7 +64,7 @@ export const CreateLoginAccountModal = ({
             disabled={isSubmitting}
             className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? "Creating..." : T.SUBMIT}
+            {isSubmitting ? creatingLabel : T.SUBMIT}
           </button>
         </>
       }
@@ -69,7 +75,12 @@ export const CreateLoginAccountModal = ({
         </div>
       )}
       <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-        <TenantFormField label={T.EMAIL_LABEL} htmlFor="login-email" required error={errors.email}>
+        <TenantFormField
+          label={T.EMAIL_LABEL}
+          htmlFor="login-email"
+          required
+          error={localizedErrors.email}
+        >
           <input
             id="login-email"
             type="email"
@@ -84,7 +95,7 @@ export const CreateLoginAccountModal = ({
           label={T.FULL_NAME_LABEL}
           htmlFor="login-full-name"
           required
-          error={errors.fullName}
+          error={localizedErrors.fullName}
         >
           <input
             id="login-full-name"
@@ -101,7 +112,7 @@ export const CreateLoginAccountModal = ({
           htmlFor="login-password"
           required
           helper={T.PASSWORD_HELPER}
-          error={errors.password}
+          error={localizedErrors.password}
         >
           <input
             id="login-password"

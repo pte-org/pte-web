@@ -12,13 +12,14 @@ import {
   LicenseIcon,
   type DataTableColumn,
 } from "@pte/ui";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 import {
-  ORGANIZATION_TYPE_OPTIONS,
-  TENANCY_TEXT,
-  TENANT_PLAN_LABELS,
-  TENANT_STATUS_LABELS,
+  ORGANIZATION_TYPE_OPTIONS as RAW_ORGANIZATION_TYPE_OPTIONS,
+  TENANCY_TEXT as RAW_TENANCY_TEXT,
+  TENANT_PLAN_LABELS as RAW_TENANT_PLAN_LABELS,
+  TENANT_STATUS_LABELS as RAW_TENANT_STATUS_LABELS,
   TENANT_STATUS_VARIANT,
-  TENANT_TABLE_HEADERS,
+  TENANT_TABLE_HEADERS as RAW_TENANT_TABLE_HEADERS,
 } from "../constants";
 import type { Tenant } from "../types";
 
@@ -30,24 +31,6 @@ interface TenantTableProps {
   onViewQuotaHistory?: (tenant: Tenant) => void;
 }
 
-const organizationTypeLabel = (value: string): string =>
-  ORGANIZATION_TYPE_OPTIONS.find((option) => option.value === value)?.label ?? value;
-
-const ORGANIZATION_TYPE_FILTER_OPTIONS = [
-  { value: "", label: "All organization types" },
-  ...ORGANIZATION_TYPE_OPTIONS.map((option) => ({ value: option.value, label: option.label })),
-] as const;
-
-const PLAN_FILTER_OPTIONS = [
-  { value: "", label: "All plans" },
-  ...Object.entries(TENANT_PLAN_LABELS).map(([value, label]) => ({ value, label })),
-] as const;
-
-const STATUS_FILTER_OPTIONS = [
-  { value: "", label: "All statuses" },
-  ...Object.entries(TENANT_STATUS_LABELS).map(([value, label]) => ({ value, label })),
-] as const;
-
 export const TenantTable = ({
   tenants,
   onSuspend,
@@ -55,12 +38,34 @@ export const TenantTable = ({
   onGrantQuota,
   onViewQuotaHistory,
 }: TenantTableProps): ReactElement => {
+  const H = useAdminCopy(RAW_TENANT_TABLE_HEADERS);
+  const T = useAdminCopy(RAW_TENANCY_TEXT);
+  const organizationTypeOptions = useAdminCopy(RAW_ORGANIZATION_TYPE_OPTIONS);
+  const planLabels = useAdminCopy(RAW_TENANT_PLAN_LABELS);
+  const statusLabels = useAdminCopy(RAW_TENANT_STATUS_LABELS);
+  const organizationTypeFilterOptions = useAdminCopy([
+    { value: "", label: "All organization types" },
+    ...RAW_ORGANIZATION_TYPE_OPTIONS.map((option) => ({
+      value: option.value,
+      label: option.label,
+    })),
+  ]);
+  const planFilterOptions = useAdminCopy([
+    { value: "", label: "All plans" },
+    ...Object.entries(RAW_TENANT_PLAN_LABELS).map(([value, label]) => ({ value, label })),
+  ]);
+  const statusFilterOptions = useAdminCopy([
+    { value: "", label: "All statuses" },
+    ...Object.entries(RAW_TENANT_STATUS_LABELS).map(([value, label]) => ({ value, label })),
+  ]);
+  const organizationTypeLabel = (value: string): string =>
+    organizationTypeOptions.find((option) => option.value === value)?.label ?? value;
   const router = useRouter();
 
   const columns: DataTableColumn<Tenant>[] = [
     {
       key: "name",
-      header: TENANT_TABLE_HEADERS.NAME,
+      header: H.NAME,
       filterAccessor: (tenant) => `${tenant.name} ${tenant.code}`,
       cell: (tenant) => (
         <div className="min-w-48">
@@ -71,36 +76,34 @@ export const TenantTable = ({
     },
     {
       key: "organizationType",
-      header: TENANT_TABLE_HEADERS.TYPE,
-      filterOptions: ORGANIZATION_TYPE_FILTER_OPTIONS,
+      header: H.TYPE,
+      filterOptions: organizationTypeFilterOptions,
       filterAccessor: (tenant) => tenant.organizationType,
       cell: (tenant) => organizationTypeLabel(tenant.organizationType),
       className: "whitespace-nowrap text-slate-500",
     },
     {
       key: "taxCode",
-      header: TENANT_TABLE_HEADERS.TAX_CODE,
+      header: H.TAX_CODE,
       filterAccessor: (tenant) => tenant.taxCode,
-      cell: (tenant) => tenant.taxCode ?? TENANCY_TEXT.EMPTY_VALUE,
+      cell: (tenant) => tenant.taxCode ?? T.EMPTY_VALUE,
       className: "whitespace-nowrap font-mono text-xs text-slate-500",
     },
     {
       key: "plan",
-      header: TENANT_TABLE_HEADERS.PLAN,
-      filterOptions: PLAN_FILTER_OPTIONS,
+      header: H.PLAN,
+      filterOptions: planFilterOptions,
       filterAccessor: (tenant) => tenant.plan,
-      cell: (tenant) => TENANT_PLAN_LABELS[tenant.plan],
+      cell: (tenant) => planLabels[tenant.plan],
       className: "whitespace-nowrap",
     },
     {
       key: "status",
-      header: TENANT_TABLE_HEADERS.STATUS,
-      filterOptions: STATUS_FILTER_OPTIONS,
+      header: H.STATUS,
+      filterOptions: statusFilterOptions,
       filterAccessor: (tenant) => tenant.status,
       cell: (tenant) => (
-        <Badge variant={TENANT_STATUS_VARIANT[tenant.status]}>
-          {TENANT_STATUS_LABELS[tenant.status]}
-        </Badge>
+        <Badge variant={TENANT_STATUS_VARIANT[tenant.status]}>{statusLabels[tenant.status]}</Badge>
       ),
       className: "whitespace-nowrap",
     },
@@ -112,7 +115,7 @@ export const TenantTable = ({
       rows={tenants}
       getRowKey={(tenant) => tenant.id}
       tableClassName="min-w-[860px]"
-      rowActionsHeader={TENANT_TABLE_HEADERS.ACTIONS}
+      rowActionsHeader={H.ACTIONS}
       rowActions={(tenant) => {
         const isSuspended = tenant.status === "suspended";
 
@@ -120,32 +123,36 @@ export const TenantTable = ({
           <ActionMenu
             items={[
               {
-                label: TENANCY_TEXT.ACTION_VIEW_DETAILS,
+                label: T.ACTION_VIEW_DETAILS,
                 icon: EyeIcon,
                 onSelect: () => router.push(`/admin/tenants/${tenant.id}`),
               },
               ...(onGrantQuota
-                ? [{
-                    label: TENANCY_TEXT.ACTION_GRANT_QUOTA,
-                    icon: LicenseIcon,
-                    onSelect: () => onGrantQuota(tenant),
-                  }]
+                ? [
+                    {
+                      label: T.ACTION_GRANT_QUOTA,
+                      icon: LicenseIcon,
+                      onSelect: () => onGrantQuota(tenant),
+                    },
+                  ]
                 : []),
               ...(onViewQuotaHistory
-                ? [{
-                    label: TENANCY_TEXT.ACTION_VIEW_QUOTA_HISTORY,
-                    icon: LicenseIcon,
-                    onSelect: () => onViewQuotaHistory(tenant),
-                  }]
+                ? [
+                    {
+                      label: T.ACTION_VIEW_QUOTA_HISTORY,
+                      icon: LicenseIcon,
+                      onSelect: () => onViewQuotaHistory(tenant),
+                    },
+                  ]
                 : []),
               isSuspended
                 ? {
-                    label: TENANCY_TEXT.ACTION_REACTIVATE,
+                    label: T.ACTION_REACTIVATE,
                     icon: CheckCircleIcon,
                     onSelect: () => onReactivate(tenant),
                   }
                 : {
-                    label: TENANCY_TEXT.ACTION_SUSPEND,
+                    label: T.ACTION_SUSPEND,
                     icon: BanIcon,
                     danger: true,
                     onSelect: () => onSuspend(tenant),

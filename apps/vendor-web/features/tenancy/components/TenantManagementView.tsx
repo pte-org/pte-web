@@ -2,15 +2,9 @@
 
 import { useState, type ReactElement } from "react";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
-import {
-  Alert,
-  Button,
-  DashboardLoadingState,
-  MotionReveal,
-  PageHeader,
-  useToast,
-} from "@pte/ui";
-import { TENANCY_TEXT } from "../constants";
+import { Alert, Button, DashboardLoadingState, MotionReveal, PageHeader, useToast } from "@pte/ui";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { TENANCY_TEXT as RAW_TENANCY_TEXT } from "../constants";
 import { useReactivateTenant, useSuspendTenant, useTenants } from "../api";
 import { useCreateTenantFlow } from "../hooks/useCreateTenantFlow";
 import type { Tenant } from "../types";
@@ -19,7 +13,7 @@ import { useCurrentUser } from "@/features/auth/api";
 import { isPlatformAdmin } from "@/features/auth/permissions";
 import { GrantQuotaModal } from "../../licensing/components/GrantQuotaModal";
 import { QuotaHistoryModal } from "../../licensing/components/QuotaHistoryModal";
-import { GRANT_QUOTA_TEXT } from "../../licensing/constants";
+import { GRANT_QUOTA_TEXT as RAW_GRANT_QUOTA_TEXT } from "../../licensing/constants";
 import type { GrantQuotaInput } from "../../licensing/types";
 import { TenantTable } from "./_TenantTable";
 import { TenantEmptyState } from "./_TenantEmptyState";
@@ -33,6 +27,8 @@ function lifecycleErrorMessage(error: unknown): string | undefined {
 }
 
 export const TenantManagementView = (): ReactElement => {
+  const T = useAdminCopy(RAW_TENANCY_TEXT);
+  const grantText = useAdminCopy(RAW_GRANT_QUOTA_TEXT);
   const { data: currentUser } = useCurrentUser();
   const canManageQuota = isPlatformAdmin(currentUser?.roles);
   const { data: tenants, isLoading } = useTenants();
@@ -40,7 +36,7 @@ export const TenantManagementView = (): ReactElement => {
   const reactivate = useReactivateTenant();
   const { showToast } = useToast();
   const createFlow = useCreateTenantFlow({
-    onCreated: () => showToast(TENANCY_TEXT.CREATE_SUCCESS, { tone: "success" }),
+    onCreated: () => showToast(T.CREATE_SUCCESS, { tone: "success" }),
   });
 
   const [suspendTarget, setSuspendTarget] = useState<Tenant | null>(null);
@@ -54,7 +50,7 @@ export const TenantManagementView = (): ReactElement => {
   const confirmSuspend = (tenant: Tenant): void => {
     setLifecycleError(undefined);
     suspend.mutate(tenant.id, {
-      onSuccess: () => showToast(TENANCY_TEXT.SUSPEND_SUCCESS, { tone: "success" }),
+      onSuccess: () => showToast(T.SUSPEND_SUCCESS, { tone: "success" }),
       onError: (error) => setLifecycleError(lifecycleErrorMessage(error)),
     });
     setSuspendTarget(null);
@@ -63,7 +59,7 @@ export const TenantManagementView = (): ReactElement => {
   const confirmReactivate = (tenant: Tenant): void => {
     setLifecycleError(undefined);
     reactivate.mutate(tenant.id, {
-      onSuccess: () => showToast(TENANCY_TEXT.REACTIVATE_SUCCESS, { tone: "success" }),
+      onSuccess: () => showToast(T.REACTIVATE_SUCCESS, { tone: "success" }),
       onError: (error) => setLifecycleError(lifecycleErrorMessage(error)),
     });
   };
@@ -81,7 +77,7 @@ export const TenantManagementView = (): ReactElement => {
   const quotaErrorMessage = (error: unknown): string | undefined => {
     if (!error) return undefined;
     if (error instanceof ApiError && error.kind === "conflict") {
-      return getUserFacingApiErrorMessage(error, GRANT_QUOTA_TEXT.CONFLICT);
+      return getUserFacingApiErrorMessage(error, grantText.CONFLICT);
     }
     return getUserFacingApiErrorMessage(error);
   };
@@ -91,13 +87,10 @@ export const TenantManagementView = (): ReactElement => {
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
-        title={TENANCY_TEXT.TITLE}
+        title={T.TITLE}
         actions={
-          <Button
-            type="button"
-            onClick={createFlow.openModal}
-          >
-            + {TENANCY_TEXT.ADD_TENANT}
+          <Button type="button" onClick={createFlow.openModal}>
+            + {T.ADD_TENANT}
           </Button>
         }
       />
@@ -140,7 +133,10 @@ export const TenantManagementView = (): ReactElement => {
         isSubmitting={createFlow.isSubmitting}
       />
 
-      <TenantCreatedModal tenant={createFlow.createdTenant} onClose={createFlow.closeCreatedModal} />
+      <TenantCreatedModal
+        tenant={createFlow.createdTenant}
+        onClose={createFlow.closeCreatedModal}
+      />
 
       <GrantQuotaModal
         key={grantTarget?.id ?? "grant-quota-closed"}

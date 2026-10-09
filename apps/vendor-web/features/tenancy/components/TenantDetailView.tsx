@@ -12,18 +12,19 @@ import {
   Tabs,
   useLocale,
 } from "@pte/ui";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useCurrentUser } from "@/features/auth/api";
 import { isPlatformAdmin } from "@/features/auth/permissions";
 import {
-  CREATE_LOGIN_ACCOUNT_TEXT,
-  CREATE_TENANT_CONFLICT_TEXT,
-  LOGIN_ACCOUNT_STATUS_LABELS,
+  CREATE_LOGIN_ACCOUNT_TEXT as RAW_CREATE_LOGIN_ACCOUNT_TEXT,
+  CREATE_TENANT_CONFLICT_TEXT as RAW_CREATE_TENANT_CONFLICT_TEXT,
+  LOGIN_ACCOUNT_STATUS_LABELS as RAW_LOGIN_ACCOUNT_STATUS_LABELS,
   LOGIN_ACCOUNT_STATUS_VARIANT,
-  LOGIN_ACCOUNT_TEXT,
-  ORGANIZATION_TYPE_OPTIONS,
-  TENANT_DETAIL_TEXT,
-  TENANT_PLAN_LABELS,
-  TENANT_STATUS_LABELS,
+  LOGIN_ACCOUNT_TEXT as RAW_LOGIN_ACCOUNT_TEXT,
+  ORGANIZATION_TYPE_OPTIONS as RAW_ORGANIZATION_TYPE_OPTIONS,
+  TENANT_DETAIL_TEXT as RAW_TENANT_DETAIL_TEXT,
+  TENANT_PLAN_LABELS as RAW_TENANT_PLAN_LABELS,
+  TENANT_STATUS_LABELS as RAW_TENANT_STATUS_LABELS,
   TENANT_STATUS_VARIANT,
 } from "../constants";
 import {
@@ -48,33 +49,31 @@ import { OrganizationTable } from "./_OrganizationTable";
 import { ResetPasswordModal } from "./ResetPasswordModal";
 import { TenantEmptyState } from "./_TenantEmptyState";
 
-const T = TENANT_DETAIL_TEXT;
-const L = LOGIN_ACCOUNT_TEXT;
-
-const organizationTypeLabel = (value: string): string =>
-  ORGANIZATION_TYPE_OPTIONS.find((option) => option.value === value)?.label ?? value;
-
-function mutationErrorMessage(error: unknown): string | undefined {
+function mutationErrorMessage(error: unknown, conflictMessage: string): string | undefined {
   if (!error) return undefined;
   if (error instanceof ApiError && error.kind === "conflict") {
-    return getUserFacingApiErrorMessage(error, CREATE_TENANT_CONFLICT_TEXT.CONFLICT);
+    return getUserFacingApiErrorMessage(error, conflictMessage);
   }
   return getUserFacingApiErrorMessage(error);
 }
 
-function loginAccountErrorMessage(error: unknown): string | undefined {
+function loginAccountErrorMessage(error: unknown, conflictMessage: string): string | undefined {
   if (!error) return undefined;
   if (error instanceof ApiError && error.kind === "conflict") {
-    return getUserFacingApiErrorMessage(error, CREATE_LOGIN_ACCOUNT_TEXT.CONFLICT);
+    return getUserFacingApiErrorMessage(error, conflictMessage);
   }
   return getUserFacingApiErrorMessage(error);
 }
 
-function resetPasswordErrorMessage(error: unknown): string | undefined {
+function resetPasswordErrorMessage(
+  error: unknown,
+  uncertainMessage: string,
+  conflictMessage: string,
+): string | undefined {
   if (error instanceof ApiError && (error.kind === "network" || error.kind === "server")) {
-    return LOGIN_ACCOUNT_TEXT.RESET_UNCERTAIN;
+    return uncertainMessage;
   }
-  return mutationErrorMessage(error);
+  return mutationErrorMessage(error, conflictMessage);
 }
 
 interface TenantDetailViewProps {
@@ -82,6 +81,26 @@ interface TenantDetailViewProps {
 }
 
 export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): ReactElement => {
+  const T = useAdminCopy(RAW_TENANT_DETAIL_TEXT);
+  const L = useAdminCopy(RAW_LOGIN_ACCOUNT_TEXT);
+  const createLoginText = useAdminCopy(RAW_CREATE_LOGIN_ACCOUNT_TEXT);
+  const tenantConflictText = useAdminCopy(RAW_CREATE_TENANT_CONFLICT_TEXT);
+  const organizationTypeOptions = useAdminCopy(RAW_ORGANIZATION_TYPE_OPTIONS);
+  const tenantPlanLabels = useAdminCopy(RAW_TENANT_PLAN_LABELS);
+  const tenantStatusLabels = useAdminCopy(RAW_TENANT_STATUS_LABELS);
+  const loginAccountStatusLabels = useAdminCopy(RAW_LOGIN_ACCOUNT_STATUS_LABELS);
+  const loginRoleLabels = useAdminCopy({
+    HOST_ADMIN: "Host admin",
+    PLATFORM_ADMIN: "Platform administrator",
+    PLATFORM_MANAGER: "Platform manager",
+    ACADEMIC_MANAGER: "Academic manager",
+    ACADEMIC_STAFF: "Academic staff",
+    EXAMINER: "Examiner",
+    PROCTOR: "Proctor",
+    STUDENT: "Student",
+  });
+  const organizationTypeLabel = (value: string): string =>
+    organizationTypeOptions.find((option) => option.value === value)?.label ?? value;
   const { data: currentUser } = useCurrentUser();
   const canManageTenantAccount = isPlatformAdmin(currentUser?.roles);
   const tenantQuery = useTenant(tenantPublicId);
@@ -161,14 +180,9 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
         title={tenant.name}
         actions={
           <Badge variant={TENANT_STATUS_VARIANT[tenant.status]}>
-            {TENANT_STATUS_LABELS[tenant.status]}
+            {tenantStatusLabels[tenant.status]}
           </Badge>
         }
-        subtitle={T.SUMMARY_SUBTITLE(
-          organizationTypeLabel(tenant.organizationType),
-          TENANT_PLAN_LABELS[tenant.plan],
-          tenant.seatsTotal,
-        )}
       />
 
       <Tabs
@@ -223,7 +237,7 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
               <DetailGroup
                 title={T.GROUP_PLAN}
                 items={[
-                  { label: T.PLAN_LABEL, value: TENANT_PLAN_LABELS[tenant.plan] },
+                  { label: T.PLAN_LABEL, value: tenantPlanLabels[tenant.plan] },
                   { label: T.STUDENT_LIMIT_LABEL, value: tenant.seatsTotal },
                 ]}
               />
@@ -234,7 +248,7 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
               tenant={tenant}
               onSubmit={submitBranding}
               isSubmitting={updateBranding.isPending}
-              error={mutationErrorMessage(updateBranding.error)}
+              error={mutationErrorMessage(updateBranding.error, tenantConflictText.CONFLICT)}
               saved={brandingSaved}
             />
           </>
@@ -266,7 +280,10 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
             ) : loginAccountQuery.error ? (
               <Alert tone="error">
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <span>{loginAccountErrorMessage(loginAccountQuery.error) ?? L.LOAD_ERROR}</span>
+                  <span>
+                    {loginAccountErrorMessage(loginAccountQuery.error, createLoginText.CONFLICT) ??
+                      L.LOAD_ERROR}
+                  </span>
                   <button
                     type="button"
                     className="font-semibold underline"
@@ -296,14 +313,19 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
                       label: L.ROLES_LABEL,
                       value:
                         loginAccount.roles.length > 0
-                          ? loginAccount.roles.join(", ")
+                          ? loginAccount.roles
+                              .map(
+                                (role) =>
+                                  loginRoleLabels[role as keyof typeof loginRoleLabels] ?? role,
+                              )
+                              .join(", ")
                           : L.EMPTY_VALUE,
                     },
                     {
                       label: T.STATUS_LABEL,
                       value: (
                         <Badge variant={LOGIN_ACCOUNT_STATUS_VARIANT[loginAccount.status]}>
-                          {LOGIN_ACCOUNT_STATUS_LABELS[loginAccount.status]}
+                          {loginAccountStatusLabels[loginAccount.status]}
                         </Badge>
                       ),
                     },
@@ -358,7 +380,10 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
 
             {suspendOrganization.error || reactivateOrganization.error ? (
               <Alert tone="error">
-                {mutationErrorMessage(suspendOrganization.error ?? reactivateOrganization.error)}
+                {mutationErrorMessage(
+                  suspendOrganization.error ?? reactivateOrganization.error,
+                  tenantConflictText.CONFLICT,
+                )}
               </Alert>
             ) : null}
 
@@ -386,7 +411,7 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
           setCreateLoginOpen(false);
         }}
         onSubmit={confirmCreateLoginAccount}
-        error={loginAccountErrorMessage(createLoginAccount.error)}
+        error={loginAccountErrorMessage(createLoginAccount.error, createLoginText.CONFLICT)}
         isSubmitting={createLoginAccount.isPending}
       />
 
@@ -402,7 +427,11 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
           setResetPasswordOpen(false);
         }}
         onSubmit={confirmResetPassword}
-        error={resetPasswordErrorMessage(resetPassword.error)}
+        error={resetPasswordErrorMessage(
+          resetPassword.error,
+          L.RESET_UNCERTAIN,
+          tenantConflictText.CONFLICT,
+        )}
         isSubmitting={resetPassword.isPending}
         tenantName={tenant.name}
         targetName={loginAccount?.fullName ?? ""}

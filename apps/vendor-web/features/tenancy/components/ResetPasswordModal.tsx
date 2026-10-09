@@ -2,7 +2,8 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Modal } from "@pte/ui";
-import { EMPTY_RESET_PASSWORD, RESET_PASSWORD_TEXT } from "../constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { EMPTY_RESET_PASSWORD, RESET_PASSWORD_TEXT as RAW_RESET_PASSWORD_TEXT } from "../constants";
 import { validateResetPassword } from "../utils/validateResetPassword";
 import type { ResetPasswordErrors, ResetPasswordInput } from "../types";
 import { TenantFormField, fieldInputClass } from "./_TenantFormField";
@@ -19,7 +20,6 @@ interface ResetPasswordModalProps {
   targetRoles: string[];
 }
 
-const T = RESET_PASSWORD_TEXT;
 const FORM_ID = "reset-password-form";
 
 export const ResetPasswordModal = ({
@@ -33,8 +33,10 @@ export const ResetPasswordModal = ({
   targetUsername,
   targetRoles,
 }: ResetPasswordModalProps): ReactElement => {
+  const T = useAdminCopy(RAW_RESET_PASSWORD_TEXT);
   const [form, setForm] = useState<ResetPasswordInput>(EMPTY_RESET_PASSWORD);
   const [errors, setErrors] = useState<ResetPasswordErrors>({});
+  const localizedErrors = useAdminCopy(errors);
   const [confirmed, setConfirmed] = useState(false);
   const [confirmationError, setConfirmationError] = useState<string>();
   const roleLabel = targetRoles.length > 0 ? targetRoles.join(", ") : T.EMPTY_VALUE;
@@ -113,7 +115,7 @@ export const ResetPasswordModal = ({
           htmlFor="reset-password"
           required
           helper={T.PASSWORD_HELPER}
-          error={errors.newPassword}
+          error={localizedErrors.newPassword}
         >
           <input
             id="reset-password"

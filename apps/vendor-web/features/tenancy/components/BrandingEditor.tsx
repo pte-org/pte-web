@@ -2,7 +2,8 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert } from "@pte/ui";
-import { TENANT_DETAIL_TEXT } from "../constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { TENANT_DETAIL_TEXT as RAW_TENANT_DETAIL_TEXT } from "../constants";
 import { validateBranding, type BrandingErrors } from "../utils/validateBranding";
 import type { BrandingInput, Tenant } from "../types";
 import { fieldInputClass } from "./_TenantFormField";
@@ -15,8 +16,6 @@ interface BrandingEditorProps {
   saved?: boolean;
 }
 
-const T = TENANT_DETAIL_TEXT;
-
 export const BrandingEditor = ({
   tenant,
   onSubmit,
@@ -24,6 +23,8 @@ export const BrandingEditor = ({
   error,
   saved = false,
 }: BrandingEditorProps): ReactElement => {
+  const T = useAdminCopy(RAW_TENANT_DETAIL_TEXT);
+  const savingLabel = useAdminCopy("Saving...");
   const [form, setForm] = useState<BrandingInput>({
     logoUrl: tenant.logoUrl ?? "",
     primaryColor: tenant.primaryColor ?? "",
@@ -93,7 +94,7 @@ export const BrandingEditor = ({
             disabled={isSubmitting}
             className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? "Saving..." : T.SAVE_BRANDING}
+            {isSubmitting ? savingLabel : T.SAVE_BRANDING}
           </button>
         </div>
       </form>

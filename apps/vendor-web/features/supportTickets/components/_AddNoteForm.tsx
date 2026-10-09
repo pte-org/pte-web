@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { ADMIN_TICKET_DETAIL_TEXT as T } from "../constants";
+import { ADMIN_TICKET_DETAIL_TEXT as RAW_ADMIN_TICKET_DETAIL_TEXT } from "../constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 interface AddNoteFormProps {
   onSubmit: (content: string) => void;
@@ -9,6 +10,7 @@ interface AddNoteFormProps {
 }
 
 export const AddNoteForm = ({ onSubmit, isSubmitting }: AddNoteFormProps): ReactElement => {
+  const T = useAdminCopy(RAW_ADMIN_TICKET_DETAIL_TEXT);
   const [content, setContent] = useState("");
 
   const handleSubmit = (): void => {

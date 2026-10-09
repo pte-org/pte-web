@@ -1,5 +1,8 @@
+"use client";
+
 import type { ReactElement } from "react";
-import { TENANCY_TEXT } from "../constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { TENANCY_TEXT as RAW_TENANCY_TEXT } from "../constants";
 
 const EmptyIllustration = (): ReactElement => (
   <svg viewBox="0 0 120 120" className="h-32 w-32" fill="none" aria-hidden="true">
@@ -20,22 +23,25 @@ interface TenantEmptyStateProps {
 
 export const TenantEmptyState = ({
   onAdd,
-  title = TENANCY_TEXT.EMPTY_TITLE,
-  text = TENANCY_TEXT.EMPTY_TEXT,
-  addLabel = TENANCY_TEXT.ADD_TENANT,
-}: TenantEmptyStateProps): ReactElement => (
-  <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-gray-200 bg-white px-6 py-16 text-center shadow-card">
-    <EmptyIllustration />
-    <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-    <p className="max-w-md text-sm text-gray-500">{text}</p>
-    {onAdd && (
-      <button
-        type="button"
-        onClick={onAdd}
-        className="mt-2 rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover"
-      >
-        + {addLabel}
-      </button>
-    )}
-  </div>
-);
+  title,
+  text,
+  addLabel,
+}: TenantEmptyStateProps): ReactElement => {
+  const T = useAdminCopy(RAW_TENANCY_TEXT);
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-gray-200 bg-white px-6 py-16 text-center shadow-card">
+      <EmptyIllustration />
+      <h3 className="text-lg font-semibold text-gray-900">{title ?? T.EMPTY_TITLE}</h3>
+      <p className="max-w-md text-sm text-gray-500">{text ?? T.EMPTY_TEXT}</p>
+      {onAdd && (
+        <button
+          type="button"
+          onClick={onAdd}
+          className="mt-2 rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover"
+        >
+          + {addLabel ?? T.ADD_TENANT}
+        </button>
+      )}
+    </div>
+  );
+};
