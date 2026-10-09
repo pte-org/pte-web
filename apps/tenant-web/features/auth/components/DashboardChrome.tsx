@@ -20,7 +20,6 @@ import {
   type SessionRole,
 } from "@pte/ui";
 import CommonDashboardLayout from "@/components/common/dashboard-layout";
-import SearchBar from "@/components/common/header/searchbar";
 import { NotificationBellContainer } from "@/features/notifications";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
@@ -227,6 +226,7 @@ const HeaderActions = (): ReactElement => {
 
 const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactElement => {
   const pathname = usePathname();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { data: user } = useCurrentUser();
   const { t } = useLocale();
@@ -279,9 +279,9 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
       sidebar={({ isSidebarOpen, onItemClick }) => (
         <SidebarNav navItems={navItems} isSidebarOpen={isSidebarOpen} onItemClick={onItemClick} />
       )}
-      headerSearch={
-        <SearchBar items={searchItems} placeholder={t("common.searchPages", "Tìm kiếm trang...")} />
-      }
+      headerSearchItems={searchItems}
+      headerSearchPlaceholder={t("common.searchPages", "Tìm kiếm trang...")}
+      onHeaderSearchNavigate={(url) => router.push(url)}
       breadcrumbs={breadcrumbs}
       headerActions={<HeaderActions />}
       navigationKey={`${pathname}?${searchParams.toString()}`}

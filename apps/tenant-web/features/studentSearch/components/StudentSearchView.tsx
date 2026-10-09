@@ -17,6 +17,7 @@ import {
   LockIcon,
   PaginationControls,
   StatusBadge,
+  useLocale,
   type DataTableColumn,
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
@@ -48,6 +49,90 @@ import type { AccountDetails, GeneratedCredentials } from "@/features/userManage
 
 export const StudentSearchView = (): ReactElement => {
   const labels = useOrgLabels();
+  const { t } = useLocale();
+  const text = {
+    add: t("tenant.students.add", STUDENT_SEARCH_ACTIONS_TEXT.add),
+    import: t("tenant.students.import", STUDENT_SEARCH_ACTIONS_TEXT.import),
+    fullName: t("tenant.students.fullName", STUDENT_SEARCH_TABLE_HEADERS.NAME),
+    account: t("tenant.students.account", STUDENT_SEARCH_TABLE_HEADERS.ACCOUNT),
+    studentCode: t("tenant.students.studentCode", STUDENT_SEARCH_TABLE_HEADERS.CODE),
+    email: t("tenant.students.email", STUDENT_SEARCH_TABLE_HEADERS.EMAIL),
+    phone: t("tenant.students.phone", STUDENT_SEARCH_TABLE_HEADERS.PHONE),
+    class: t("tenant.students.class", labels.class),
+    program: t("tenant.students.program", labels.program),
+    status: t("tenant.students.status", STUDENT_SEARCH_TABLE_HEADERS.STATUS),
+    active: t("tenant.students.active", STUDENT_STATUS_LABELS.ACTIVE),
+    suspended: t("tenant.students.suspended", STUDENT_STATUS_LABELS.SUSPENDED),
+    unassigned: t("tenant.students.unassigned", STUDENT_SEARCH_TEXT.unassigned),
+    actions: t("tenant.students.actions", STUDENT_ROSTER_FILTER_TEXT.actions),
+    viewDetails: t("tenant.students.viewDetails", STUDENT_ROSTER_FILTER_TEXT.viewDetails),
+    generatePassword: t(
+      "tenant.students.generatePassword",
+      STUDENT_ROSTER_FILTER_TEXT.generatePassword,
+    ),
+    suspend: t("tenant.students.suspend", STUDENT_ROSTER_FILTER_TEXT.suspend),
+    reactivate: t("tenant.students.reactivate", STUDENT_ROSTER_FILTER_TEXT.reactivate),
+    emptyTitle: t("tenant.students.empty", STUDENT_SEARCH_TEXT.emptyTitle),
+    emptyDescription: t(
+      "tenant.students.emptyDescription",
+      STUDENT_ROSTER_FILTER_TEXT.emptyDescription,
+    ),
+    searchPlaceholder: t(
+      "tenant.students.searchPlaceholder",
+      STUDENT_ROSTER_FILTER_TEXT.searchPlaceholder,
+    ),
+    noClassesTitle: t("tenant.students.noClassesTitle", ADD_STUDENT_GUARD_TEXT.title),
+    noClassesBody: t("tenant.students.noClassesBody", ADD_STUDENT_GUARD_TEXT.body),
+    goToClasses: t("tenant.students.goToClasses", ADD_STUDENT_GUARD_TEXT.cta),
+    dismiss: t("tenant.students.dismiss", ADD_STUDENT_GUARD_TEXT.dismiss),
+    syncing: t("tenant.students.syncing", STUDENT_ROSTER_FILTER_TEXT.syncing),
+    confirmSuspendTitle: t(
+      "tenant.students.confirmSuspendTitle",
+      STUDENT_ROSTER_FILTER_TEXT.confirmSuspendTitle,
+    ),
+    confirmSuspendDescription: (name: string) =>
+      t(
+        "tenant.students.confirmSuspendDescription",
+        STUDENT_ROSTER_FILTER_TEXT.confirmSuspendDescription(name),
+        { name },
+      ),
+    confirm: t("tenant.students.confirmSuspend", STUDENT_ROSTER_FILTER_TEXT.confirm),
+    cancel: t("tenant.students.cancel", STUDENT_ROSTER_FILTER_TEXT.cancel),
+    generatePasswordConfirmTitle: t(
+      "tenant.students.generatePasswordConfirmTitle",
+      STUDENT_ROSTER_FILTER_TEXT.generatePasswordConfirmTitle,
+    ),
+    generatePasswordConfirmDescription: (name: string) =>
+      t(
+        "tenant.students.generatePasswordConfirmDescription",
+        STUDENT_ROSTER_FILTER_TEXT.generatePasswordConfirmDescription(name),
+        { name },
+      ),
+    generatePasswordConfirm: t(
+      "tenant.students.generatePasswordConfirm",
+      STUDENT_ROSTER_FILTER_TEXT.generatePasswordConfirm,
+    ),
+    classBlocked: (status: string, name: string) =>
+      t("tenant.students.classBlocked", ASSIGN_DEEPLINK_TEXT.classBlocked(status, name), {
+        status,
+        name,
+      }),
+    lockedFilterBanner: (name: string) =>
+      t("tenant.students.lockedFilterBanner", ASSIGN_DEEPLINK_TEXT.lockedFilterBanner(name), {
+        name,
+      }),
+    clearFilter: t("tenant.students.clearFilter", ASSIGN_DEEPLINK_TEXT.clearFilter),
+    loadFailed: t("tenant.students.loadFailed", STUDENT_ROSTER_FILTER_TEXT.loadFailed),
+    noPrograms: t("tenant.students.noPrograms", STUDENT_ROSTER_FILTER_TEXT.noPrograms),
+    noClasses: t("tenant.students.noClasses", STUDENT_ROSTER_FILTER_TEXT.noClasses),
+    allStatuses: t("tenant.students.allStatuses", "All statuses"),
+  };
+  const statusLabels = { ACTIVE: text.active, SUSPENDED: text.suspended };
+  const statusFilterOptions = [
+    { value: "", label: text.allStatuses },
+    { value: "ACTIVE", label: text.active },
+    { value: "SUSPENDED", label: text.suspended },
+  ];
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
   const [manageMode, setManageMode] = useState<"add" | "import" | null>(null);
@@ -162,39 +247,39 @@ export const StudentSearchView = (): ReactElement => {
   const columns: DataTableColumn<StudentRosterRow>[] = [
     {
       key: "name",
-      header: STUDENT_SEARCH_TABLE_HEADERS.NAME,
+      header: text.fullName,
       cell: (row) => <span className="font-medium text-gray-900">{row.fullName}</span>,
     },
-    { key: "account", header: STUDENT_SEARCH_TABLE_HEADERS.ACCOUNT, cell: (row) => row.username },
+    { key: "account", header: text.account, cell: (row) => row.username },
     {
       key: "code",
-      header: STUDENT_SEARCH_TABLE_HEADERS.CODE,
+      header: text.studentCode,
       cell: (row) => row.studentCode ?? STUDENT_SEARCH_TEXT.emptyValue,
     },
-    { key: "email", header: STUDENT_SEARCH_TABLE_HEADERS.EMAIL, cell: (row) => row.email },
+    { key: "email", header: text.email, cell: (row) => row.email },
     {
       key: "phone",
-      header: STUDENT_SEARCH_TABLE_HEADERS.PHONE,
+      header: text.phone,
       cell: (row) => row.phone ?? STUDENT_SEARCH_TEXT.emptyValue,
     },
     {
       key: "class",
-      header: labels.class,
-      cell: (row) => row.className ?? STUDENT_SEARCH_TEXT.unassigned,
+      header: text.class,
+      cell: (row) => row.className ?? text.unassigned,
     },
     {
       key: "program",
-      header: labels.program,
+      header: text.program,
       cell: (row) => row.programName ?? STUDENT_SEARCH_TEXT.emptyValue,
     },
     {
       key: "status",
-      header: STUDENT_SEARCH_TABLE_HEADERS.STATUS,
-      filterOptions: STUDENT_STATUS_FILTER_OPTIONS,
+      header: text.status,
+      filterOptions: statusFilterOptions,
       filterAccessor: (row) => row.status,
       cell: (row) => (
         <StatusBadge
-          label={STUDENT_STATUS_LABELS[row.status]}
+          label={statusLabels[row.status] ?? row.status}
           variant={STUDENT_STATUS_VARIANT[row.status]}
         />
       ),
@@ -207,39 +292,35 @@ export const StudentSearchView = (): ReactElement => {
         <ClassBlockedAlert
           status={deeplink.classBlockedReason}
           className={deeplink.prefilledClassName}
-          classBlockedLabel={ASSIGN_DEEPLINK_TEXT.classBlocked}
+          classBlockedLabel={text.classBlocked}
         />
       )}
       {deeplink.classFilterLocked && deeplink.prefilledClassName && (
         <LockedFilterBanner
           className={deeplink.prefilledClassName}
           onClearFilter={clearLockedFilter}
-          clearFilterLabel={ASSIGN_DEEPLINK_TEXT.clearFilter}
-          lockedFilterBannerLabel={ASSIGN_DEEPLINK_TEXT.lockedFilterBanner}
+          clearFilterLabel={text.clearFilter}
+          lockedFilterBannerLabel={text.lockedFilterBanner}
         />
       )}
 
-      {queryError && (
-        <Alert tone="error">{queryError || STUDENT_ROSTER_FILTER_TEXT.loadFailed}</Alert>
-      )}
+      {queryError && <Alert tone="error">{queryError || text.loadFailed}</Alert>}
       {mutationError && <Alert tone="error">{mutationError}</Alert>}
-      {roster.isFetching && visibleResult && (
-        <Alert tone="info">{STUDENT_ROSTER_FILTER_TEXT.syncing}</Alert>
-      )}
+      {roster.isFetching && visibleResult && <Alert tone="info">{text.syncing}</Alert>}
       {guardOpen && (
         <div className="flex items-start justify-between gap-3 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           <div className="flex flex-col gap-2">
-            <p className="font-semibold">{ADD_STUDENT_GUARD_TEXT.title}</p>
-            <p>{ADD_STUDENT_GUARD_TEXT.body}</p>
+            <p className="font-semibold">{text.noClassesTitle}</p>
+            <p>{text.noClassesBody}</p>
             <Link href="/host/classes" className="font-medium text-blue-700 hover:underline">
-              {ADD_STUDENT_GUARD_TEXT.cta} →
+              {text.goToClasses} →
             </Link>
           </div>
           <button
             type="button"
             onClick={() => setGuardOpen(false)}
             className="text-amber-900 hover:underline"
-            aria-label={ADD_STUDENT_GUARD_TEXT.dismiss}
+            aria-label={text.dismiss}
           >
             ×
           </button>
@@ -251,10 +332,10 @@ export const StudentSearchView = (): ReactElement => {
         rows={rows}
         getRowKey={(row) => row.studentPublicId}
         isLoading={roster.isLoading || (roster.isFetching && !visibleResult)}
-        emptyTitle={STUDENT_SEARCH_TEXT.emptyTitle}
-        emptyDescription={STUDENT_ROSTER_FILTER_TEXT.emptyDescription}
-        rowActionsHeader={STUDENT_ROSTER_FILTER_TEXT.actions}
-        searchPlaceholder={STUDENT_ROSTER_FILTER_TEXT.searchPlaceholder}
+        emptyTitle={text.emptyTitle}
+        emptyDescription={text.emptyDescription}
+        rowActionsHeader={text.actions}
+        searchPlaceholder={text.searchPlaceholder}
         clientSidePagination={false}
         toolbarActions={
           <>
@@ -263,10 +344,10 @@ export const StudentSearchView = (): ReactElement => {
               onClick={() => trySetManageMode("import")}
               disabled={tenantClassesLoading}
             >
-              {STUDENT_SEARCH_ACTIONS_TEXT.import}
+              {text.import}
             </Button>
             <Button onClick={() => trySetManageMode("add")} disabled={tenantClassesLoading}>
-              {STUDENT_SEARCH_ACTIONS_TEXT.add}
+              {text.add}
             </Button>
           </>
         }
@@ -286,29 +367,29 @@ export const StudentSearchView = (): ReactElement => {
         }
         rowActions={(row) => (
           <ActionMenu
-            label={`${STUDENT_ROSTER_FILTER_TEXT.actions}: ${row.fullName}`}
+            label={`${text.actions}: ${row.fullName}`}
             items={[
               {
-                label: STUDENT_ROSTER_FILTER_TEXT.viewDetails,
+                label: text.viewDetails,
                 icon: EyeIcon,
                 onSelect: () => setDetailsTarget(row),
               },
               { separator: true },
               {
-                label: STUDENT_ROSTER_FILTER_TEXT.generatePassword,
+                label: text.generatePassword,
                 icon: LockIcon,
                 disabled: generateCredentials.isPending,
                 onSelect: () => setPasswordTarget(row),
               },
               row.status === "SUSPENDED"
                 ? {
-                    label: STUDENT_ROSTER_FILTER_TEXT.reactivate,
+                    label: text.reactivate,
                     icon: CheckCircleIcon,
                     disabled: reactivate.isPending || suspend.isPending,
                     onSelect: () => reactivate.mutate(row.studentPublicId),
                   }
                 : {
-                    label: STUDENT_ROSTER_FILTER_TEXT.suspend,
+                    label: text.suspend,
                     icon: BanIcon,
                     danger: true,
                     disabled: reactivate.isPending || suspend.isPending,
@@ -321,14 +402,12 @@ export const StudentSearchView = (): ReactElement => {
 
       <ConfirmDialog
         open={studentToSuspend !== null}
-        title={STUDENT_ROSTER_FILTER_TEXT.confirmSuspendTitle}
+        title={text.confirmSuspendTitle}
         description={
-          studentToSuspend
-            ? STUDENT_ROSTER_FILTER_TEXT.confirmSuspendDescription(studentToSuspend.fullName)
-            : ""
+          studentToSuspend ? text.confirmSuspendDescription(studentToSuspend.fullName) : ""
         }
-        confirmLabel={STUDENT_ROSTER_FILTER_TEXT.confirm}
-        cancelLabel={STUDENT_ROSTER_FILTER_TEXT.cancel}
+        confirmLabel={text.confirm}
+        cancelLabel={text.cancel}
         tone="danger"
         isConfirming={suspend.isPending}
         onConfirm={() => {
@@ -342,14 +421,12 @@ export const StudentSearchView = (): ReactElement => {
 
       <ConfirmDialog
         open={passwordTarget !== null}
-        title={STUDENT_ROSTER_FILTER_TEXT.generatePasswordConfirmTitle}
+        title={text.generatePasswordConfirmTitle}
         description={
-          passwordTarget
-            ? STUDENT_ROSTER_FILTER_TEXT.generatePasswordConfirmDescription(passwordTarget.fullName)
-            : ""
+          passwordTarget ? text.generatePasswordConfirmDescription(passwordTarget.fullName) : ""
         }
-        confirmLabel={STUDENT_ROSTER_FILTER_TEXT.generatePasswordConfirm}
-        cancelLabel={STUDENT_ROSTER_FILTER_TEXT.cancel}
+        confirmLabel={text.generatePasswordConfirm}
+        cancelLabel={text.cancel}
         isConfirming={generateCredentials.isPending}
         onConfirm={() => {
           if (!passwordTarget) return;

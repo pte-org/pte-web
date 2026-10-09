@@ -2,20 +2,12 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import {
-  Alert,
-  Badge,
-  Button,
-  DataTable,
-  Select,
-  type DataTableColumn,
-} from "@pte/ui";
+import { Alert, Badge, Button, DataTable, Select, useLocale, type DataTableColumn } from "@pte/ui";
 import type { ProgramResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import {
   PROGRAM_STATUS_LABELS,
-  PROGRAM_STATUS_FILTER_OPTIONS,
   PROGRAM_STATUS_VARIANT,
   PROGRAM_TABLE_HEADERS,
   PROGRAMS_TEXT,
@@ -46,6 +38,45 @@ function formatDateRange(startDate: string | null, endDate: string | null): stri
 
 export const ProgramsListView = (): ReactElement => {
   const labels = useOrgLabels();
+  const { t } = useLocale();
+  const programLabel = t("nav.program", labels.program);
+  const text = {
+    subtitle: t("tenant.programs.subtitle", PROGRAMS_TEXT.subtitle(labels.program), {
+      program: programLabel.toLowerCase(),
+    }),
+    create: t("tenant.programs.create", PROGRAMS_TEXT.addButton),
+    name: t("tenant.programs.name", PROGRAM_TABLE_HEADERS.NAME),
+    status: t("tenant.programs.status", PROGRAM_TABLE_HEADERS.STATUS),
+    dates: t("tenant.programs.dates", PROGRAM_TABLE_HEADERS.DATES),
+    actions: t("tenant.programs.actions", PROGRAM_TABLE_HEADERS.ACTIONS),
+    allStatuses: t("tenant.programs.allStatuses", "All statuses"),
+    dateRange: t("tenant.programs.dateRange", "Start date range"),
+    empty: t("tenant.programs.empty", PROGRAMS_TEXT.emptyTitle(labels.program)),
+    emptyDescription: t(
+      "tenant.programs.emptyDescription",
+      PROGRAMS_TEXT.emptyText(labels.program),
+    ),
+    organization: t("tenant.programs.organization", PROGRAMS_TEXT.organizationLabel),
+    organizationPlaceholder: t(
+      "tenant.programs.organizationPlaceholder",
+      PROGRAMS_TEXT.organizationPlaceholder,
+    ),
+    viewDetails: t("tenant.programs.viewDetails", PROGRAMS_TEXT.viewDetails),
+    active: t("tenant.programs.active", PROGRAM_STATUS_LABELS.ACTIVE),
+    inactive: t("tenant.programs.inactive", PROGRAM_STATUS_LABELS.INACTIVE),
+    suspended: t("tenant.programs.suspended", PROGRAM_STATUS_LABELS.SUSPENDED),
+  };
+  const statusLabels = {
+    ACTIVE: text.active,
+    INACTIVE: text.inactive,
+    SUSPENDED: text.suspended,
+  };
+  const statusFilterOptions = [
+    { value: "", label: text.allStatuses },
+    { value: "ACTIVE", label: text.active },
+    { value: "INACTIVE", label: text.inactive },
+    { value: "SUSPENDED", label: text.suspended },
+  ];
   const { data: organizations, isLoading: organizationsLoading } = useMyOrganizations();
   // User's explicit pick, if any — otherwise falls back to the first loaded
   // Organization. Derived at render time (not synced via an effect) so
@@ -74,39 +105,37 @@ export const ProgramsListView = (): ReactElement => {
   const columns: DataTableColumn<ProgramResponse>[] = [
     {
       key: "name",
-      header: PROGRAM_TABLE_HEADERS.NAME,
-      cell: (program) => (
-        <span className="font-medium text-gray-900">{program.name}</span>
-      ),
+      header: text.name,
+      cell: (program) => <span className="font-medium text-gray-900">{program.name}</span>,
     },
     {
       key: "status",
-      header: PROGRAM_TABLE_HEADERS.STATUS,
-      filterOptions: PROGRAM_STATUS_FILTER_OPTIONS,
+      header: text.status,
+      filterOptions: statusFilterOptions,
       filterAccessor: (program) => program.status,
       cell: (program) => (
         <Badge variant={PROGRAM_STATUS_VARIANT[program.status]}>
-          {PROGRAM_STATUS_LABELS[program.status]}
+          {statusLabels[program.status] ?? program.status}
         </Badge>
       ),
     },
     {
       key: "dates",
-      header: PROGRAM_TABLE_HEADERS.DATES,
+      header: text.dates,
       filterType: "date-range",
       filterAccessor: (program) => program.startDate,
-      filterPlaceholder: "Start date range",
+      filterPlaceholder: text.dateRange,
       cell: (program) => formatDateRange(program.startDate, program.endDate),
     },
     {
       key: "actions",
-      header: PROGRAM_TABLE_HEADERS.ACTIONS,
+      header: text.actions,
       cell: (program) => (
         <Link
           href={`/host/programs/${program.publicId}?organizationPublicId=${organizationPublicId}`}
           className="text-sm font-medium text-blue-700 hover:underline"
         >
-          {PROGRAMS_TEXT.viewDetails}
+          {text.viewDetails}
         </Link>
       ),
     },
@@ -114,12 +143,12 @@ export const ProgramsListView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <p className="text-gray-600">{PROGRAMS_TEXT.subtitle(labels.program)}</p>
+      <p className="text-gray-600">{text.subtitle}</p>
 
       {organizations && organizations.length > 1 && (
         <Select
-          label={PROGRAMS_TEXT.organizationLabel}
-          placeholder={PROGRAMS_TEXT.organizationPlaceholder}
+          label={text.organization}
+          placeholder={text.organizationPlaceholder}
           options={organizations.map((organization) => ({
             label: organization.name,
             value: organization.publicId,
@@ -136,15 +165,15 @@ export const ProgramsListView = (): ReactElement => {
         rows={programs ?? []}
         getRowKey={(program) => program.publicId}
         isLoading={organizationsLoading || programsLoading}
-        emptyTitle={PROGRAMS_TEXT.emptyTitle(labels.program)}
-        emptyDescription={PROGRAMS_TEXT.emptyText(labels.program)}
+        emptyTitle={text.empty}
+        emptyDescription={text.emptyDescription}
         toolbarActions={
           <Button
             type="button"
             onClick={() => setCreateOpen(true)}
             disabled={!organizationPublicId}
           >
-            {PROGRAMS_TEXT.addButton}
+            {text.create}
           </Button>
         }
       />
@@ -159,7 +188,7 @@ export const ProgramsListView = (): ReactElement => {
         onSubmit={confirmCreate}
         error={createErrorMessage}
         isSubmitting={create.isPending}
-        programLabel={labels.program}
+        programLabel={programLabel}
       />
     </div>
   );

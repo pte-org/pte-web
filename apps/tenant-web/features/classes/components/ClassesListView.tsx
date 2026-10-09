@@ -11,6 +11,7 @@ import {
   Dropdown,
   FolderPlusIcon,
   Select,
+  useLocale,
   type DataTableColumn,
   type DropdownItem,
 } from "@pte/ui";
@@ -56,20 +57,28 @@ interface ClassRowActionsProps {
 }
 
 const ClassRowActions = ({ option, onAssignStudents }: ClassRowActionsProps): ReactElement => {
+  const { t } = useLocale();
   const router = useRouter();
   const isActive = option.status === "ACTIVE";
   const assignDisabled = !isActive;
+  const actions = t("tenant.classes.actions", CLASS_ROW_ACTIONS_TEXT.actions);
+  const viewDetail = t("tenant.classes.viewDetail", CLASS_ROW_ACTIONS_TEXT.viewDetail);
+  const assignStudents = t("tenant.classes.assignStudents", CLASS_ROW_ACTIONS_TEXT.assignStudents);
+  const assignStudentsDisabled = t(
+    "tenant.classes.assignStudentsDisabled",
+    CLASS_ROW_ACTIONS_TEXT.assignStudentsDisabledTitle,
+  );
 
   const items: DropdownItem[] = [
     {
-      label: CLASS_ROW_ACTIONS_TEXT.viewDetail,
+      label: viewDetail,
       onSelect: () =>
         router.push(
           `/host/programs/${option.programPublicId}/classes/${option.classPublicId}?organizationPublicId=${option.organizationPublicId}`,
         ),
     },
     {
-      label: CLASS_ROW_ACTIONS_TEXT.assignStudents,
+      label: assignStudents,
       onSelect: () =>
         onAssignStudents({
           organizationPublicId: option.organizationPublicId,
@@ -78,18 +87,12 @@ const ClassRowActions = ({ option, onAssignStudents }: ClassRowActionsProps): Re
         }),
       disabled: assignDisabled,
       ...(assignDisabled && {
-        title: CLASS_ROW_ACTIONS_TEXT.assignStudentsDisabledTitle,
+        title: assignStudentsDisabled,
       }),
     },
   ];
 
-  return (
-    <Dropdown
-      items={items}
-      label={CLASS_ROW_ACTIONS_TEXT.actions}
-      align="right"
-    />
-  );
+  return <Dropdown items={items} label={actions} align="right" />;
 };
 
 export const ClassesListView = ({
@@ -101,6 +104,59 @@ export const ClassesListView = ({
   onRequestAssignStudents,
 }: ClassesListViewProps): ReactElement => {
   const labels = useOrgLabels();
+  const { t } = useLocale();
+  const classLabel = t("nav.class", labels.class);
+  const programLabel = t("nav.program", labels.program);
+  const text = {
+    create: t("tenant.classes.create", CLASSES_LIST_TEXT.createClassButton),
+    noProgramsTitle: t(
+      "tenant.classes.noProgramsTitle",
+      CLASSES_LIST_TEXT.emptyNoProgramsTitle(labels.program),
+    ),
+    noProgramsDescription: t(
+      "tenant.classes.noProgramsDescription",
+      CLASSES_LIST_TEXT.emptyNoProgramsDescription(labels.program, labels.class),
+    ),
+    noProgramsCta: t(
+      "tenant.classes.noProgramsCta",
+      CLASSES_LIST_TEXT.emptyNoProgramsCta(labels.program),
+    ),
+    noClassesTitle: t(
+      "tenant.classes.noClassesTitle",
+      CLASSES_LIST_TEXT.emptyNoClassesTitle(labels.class),
+    ),
+    noClassesDescription: t(
+      "tenant.classes.noClassesDescription",
+      CLASSES_LIST_TEXT.subtitle(labels.class, labels.program),
+    ),
+    name: t("tenant.classes.name", CLASS_TABLE_HEADERS.NAME),
+    program: t("tenant.classes.program", CLASS_TABLE_HEADERS.PROGRAM),
+    status: t("tenant.classes.status", CLASS_TABLE_HEADERS.STATUS),
+    actions: t("tenant.classes.actions", CLASS_TABLE_HEADERS.ACTIONS),
+    allStatuses: t("tenant.classes.allStatuses", "All statuses"),
+    active: t("tenant.classes.active", CLASS_STATUS_LABELS.ACTIVE),
+    inactive: t("tenant.classes.inactive", CLASS_STATUS_LABELS.INACTIVE),
+    suspended: t("tenant.classes.suspended", CLASS_STATUS_LABELS.SUSPENDED),
+    subtitle: t(
+      "tenant.classes.subtitle",
+      CLASSES_LIST_TEXT.subtitle(labels.class, labels.program),
+    ),
+    subtitleScoped: t(
+      "tenant.classes.subtitleScoped",
+      CLASSES_LIST_TEXT.subtitleScoped(labels.class, labels.program),
+    ),
+    filterByProgram: t("tenant.classes.filterByProgram", "Filter by Program"),
+    allPrograms: t("tenant.classes.allPrograms", "All Programs"),
+    count: (count: number) =>
+      t("tenant.classes.count", CLASSES_LIST_TEXT.countLabel(count, labels.class), { count }),
+  };
+  const statusLabels = { ACTIVE: text.active, INACTIVE: text.inactive, SUSPENDED: text.suspended };
+  const statusFilterOptions = [
+    { value: "", label: text.allStatuses },
+    { value: "ACTIVE", label: text.active },
+    { value: "INACTIVE", label: text.inactive },
+    { value: "SUSPENDED", label: text.suspended },
+  ];
   const { data: classes, isLoading, isError, error } = useAllTenantClasses();
   const [programFilter, setProgramFilter] = useState<string>(ALL_FILTER);
 
@@ -126,7 +182,7 @@ export const ClassesListView = ({
   if (isError) {
     return (
       <Alert tone="error">
-        {errorMessage(error) ?? `Couldn't load ${pluralize(labels.class.toLowerCase())}.`}
+        {errorMessage(error) ?? `Không thể tải ${pluralize(classLabel.toLowerCase())}.`}
       </Alert>
     );
   }
@@ -141,15 +197,11 @@ export const ClassesListView = ({
       <div className="flex min-h-[60vh] items-center justify-center bg-slate-50 p-6">
         <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-2xl bg-white px-8 py-10 text-center shadow-card">
           <FolderPlusIcon className="h-12 w-12 text-action" />
-          <h2 className="text-xl font-semibold text-slate-900">
-            {CLASSES_LIST_TEXT.emptyNoProgramsTitle(labels.program)}
-          </h2>
-          <p className="text-sm text-slate-500">
-            {CLASSES_LIST_TEXT.emptyNoProgramsDescription(labels.program, labels.class)}
-          </p>
+          <h2 className="text-xl font-semibold text-slate-900">{text.noProgramsTitle}</h2>
+          <p className="text-sm text-slate-500">{text.noProgramsDescription}</p>
           <Link href="/host/programs" className="mt-2">
             <Button variant="primary" size="lg">
-              {CLASSES_LIST_TEXT.emptyNoProgramsCta(labels.program)}
+              {text.noProgramsCta}
             </Button>
           </Link>
         </div>
@@ -173,28 +225,28 @@ export const ClassesListView = ({
   const columns: DataTableColumn<TenantClassOption>[] = [
     {
       key: "name",
-      header: CLASS_TABLE_HEADERS.NAME,
+      header: text.name,
       cell: (option) => <span className="font-medium text-slate-900">{option.className}</span>,
     },
     {
       key: "program",
-      header: CLASS_TABLE_HEADERS.PROGRAM,
+      header: text.program,
       cell: (option) => option.programName,
     },
     {
       key: "status",
-      header: CLASS_TABLE_HEADERS.STATUS,
-      filterOptions: CLASS_STATUS_FILTER_OPTIONS,
+      header: text.status,
+      filterOptions: statusFilterOptions,
       filterAccessor: (option) => option.status,
       cell: (option) => (
         <Badge variant={CLASS_STATUS_VARIANT[option.status]}>
-          {CLASS_STATUS_LABELS[option.status]}
+          {statusLabels[option.status] ?? option.status}
         </Badge>
       ),
     },
     {
       key: "actions",
-      header: CLASS_TABLE_HEADERS.ACTIONS,
+      header: text.actions,
       cell: (option) => (
         <ClassRowActions option={option} onAssignStudents={onRequestAssignStudents} />
       ),
@@ -204,14 +256,12 @@ export const ClassesListView = ({
   return (
     <div className="flex flex-col gap-5">
       <p className="text-gray-600">
-        {organizationOptions.length > 1
-          ? CLASSES_LIST_TEXT.subtitleScoped(labels.class, labels.program)
-          : CLASSES_LIST_TEXT.subtitle(labels.class, labels.program)}
+        {organizationOptions.length > 1 ? text.subtitleScoped : text.subtitle}
       </p>
 
       {organizationOptions.length > 1 && (
         <Select
-          label={CLASSES_LIST_TEXT.createClassPickerLabel(labels.program)}
+          label={programLabel}
           options={organizationOptions}
           value={selectedOrganizationPublicId}
           onChange={(event) => onOrganizationChange(event.target.value)}
@@ -220,27 +270,22 @@ export const ClassesListView = ({
 
       {programsWithClasses.length >= 2 && (
         <Select
-          label={CLASSES_LIST_TEXT.programFilterLabel(labels.program)}
-          options={[
-            { value: ALL_FILTER, label: CLASSES_LIST_TEXT.programFilterAll(labels.program) },
-            ...programsWithClasses,
-          ]}
+          label={text.filterByProgram}
+          options={[{ value: ALL_FILTER, label: text.allPrograms }, ...programsWithClasses]}
           value={programFilter}
           onChange={(event) => setProgramFilter(event.target.value)}
         />
       )}
 
-      <p className="text-sm text-gray-500">
-        {CLASSES_LIST_TEXT.countLabel(filteredClasses.length, labels.class)}
-      </p>
+      <p className="text-sm text-gray-500">{text.count(filteredClasses.length)}</p>
 
       <DataTable
         columns={columns}
         rows={filteredClasses}
         getRowKey={(option) => option.classPublicId}
         isLoading={isLoading}
-        emptyTitle={CLASSES_LIST_TEXT.emptyNoClassesTitle(labels.class)}
-        emptyDescription={CLASSES_LIST_TEXT.subtitle(labels.class, labels.program)}
+        emptyTitle={text.noClassesTitle}
+        emptyDescription={text.noClassesDescription}
       />
     </div>
   );

@@ -12,9 +12,10 @@ import {
   MailIcon,
   StatusBadge,
   Button,
+  useLocale,
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
-import { EXAM_STAFF_ROLE_OPTIONS, EXAM_STAFF_TEXT } from "../constants";
+import { EXAM_STAFF_TEXT } from "../constants";
 import { useAllExamStaff, useReactivateExamStaff, useSuspendExamStaff } from "../api";
 import { AddExamStaffModal } from "./AddExamStaffModal";
 import { ExamStaffTable, type ExamStaffTableColumn } from "./ExamStaffTable";
@@ -25,32 +26,73 @@ import {
 } from "@/features/userManagement";
 import type { AccountDetails, GeneratedCredentials } from "@/features/userManagement";
 
-const ROLE_LABELS: Record<string, string> = {
-  PROCTOR: EXAM_STAFF_TEXT.proctor,
-  EXAMINER: EXAM_STAFF_TEXT.examiner,
-};
-
-const ROLE_FILTER_OPTIONS = [
-  { label: EXAM_STAFF_TEXT.allRoles, value: "" },
-  ...EXAM_STAFF_ROLE_OPTIONS.map((option) => ({ ...option })),
-];
-
-const STATUS_OPTIONS = [
-  { label: EXAM_STAFF_TEXT.allStatuses, value: "" },
-  { label: EXAM_STAFF_TEXT.active, value: "ACTIVE" },
-  { label: EXAM_STAFF_TEXT.suspended, value: "SUSPENDED" },
-];
-
-function roleLabel(user: UserResponse): string {
+function roleLabel(user: UserResponse, roleLabels: Record<string, string>): string {
   return (
     user.roles
-      .filter((role) => ROLE_LABELS[role])
-      .map((role) => ROLE_LABELS[role])
+      .filter((role) => roleLabels[role])
+      .map((role) => roleLabels[role])
       .join(", ") || "—"
   );
 }
 
 export const ExamStaffView = (): ReactElement => {
+  const { t } = useLocale();
+  const text = {
+    addButton: t("tenant.examStaff.add", EXAM_STAFF_TEXT.addButton),
+    fullName: t("tenant.examStaff.fullName", EXAM_STAFF_TEXT.fullName),
+    account: t("tenant.examStaff.account", EXAM_STAFF_TEXT.account),
+    email: t("tenant.examStaff.email", EXAM_STAFF_TEXT.email),
+    role: t("tenant.examStaff.role", EXAM_STAFF_TEXT.role),
+    status: t("tenant.examStaff.status", EXAM_STAFF_TEXT.status),
+    actions: t("tenant.examStaff.actions", EXAM_STAFF_TEXT.actions),
+    allRoles: t("tenant.examStaff.allRoles", EXAM_STAFF_TEXT.allRoles),
+    allStatuses: t("tenant.examStaff.allStatuses", EXAM_STAFF_TEXT.allStatuses),
+    proctor: t("tenant.examStaff.proctor", EXAM_STAFF_TEXT.proctor),
+    examiner: t("tenant.examStaff.examiner", EXAM_STAFF_TEXT.examiner),
+    active: t("tenant.examStaff.active", EXAM_STAFF_TEXT.active),
+    suspended: t("tenant.examStaff.suspended", EXAM_STAFF_TEXT.suspended),
+    viewDetails: t("tenant.examStaff.viewDetails", EXAM_STAFF_TEXT.viewDetails),
+    sendEmail: t("tenant.examStaff.sendEmail", EXAM_STAFF_TEXT.sendEmail),
+    reactivate: t("tenant.examStaff.reactivate", EXAM_STAFF_TEXT.reactivate),
+    suspend: t("tenant.examStaff.suspend", EXAM_STAFF_TEXT.suspend),
+    emptyTitle: t("tenant.examStaff.empty", EXAM_STAFF_TEXT.emptyTitle),
+    emptyDescription: t("tenant.examStaff.emptyDescription", EXAM_STAFF_TEXT.emptyDescription),
+    syncing: t("tenant.examStaff.syncing", EXAM_STAFF_TEXT.syncing),
+    confirmSuspendTitle: t(
+      "tenant.examStaff.confirmSuspendTitle",
+      EXAM_STAFF_TEXT.confirmSuspendTitle,
+    ),
+    confirmSuspendDescription: (name: string) =>
+      t(
+        "tenant.examStaff.confirmSuspendDescription",
+        EXAM_STAFF_TEXT.confirmSuspendDescription(name),
+        { name },
+      ),
+    confirm: t("tenant.examStaff.confirmSuspend", EXAM_STAFF_TEXT.confirm),
+    cancel: t("tenant.examStaff.cancel", EXAM_STAFF_TEXT.cancel),
+    sendEmailConfirmTitle: t(
+      "tenant.examStaff.sendEmailConfirmTitle",
+      EXAM_STAFF_TEXT.sendEmailConfirmTitle,
+    ),
+    sendEmailConfirmDescription: (name: string) =>
+      t(
+        "tenant.examStaff.sendEmailConfirmDescription",
+        EXAM_STAFF_TEXT.sendEmailConfirmDescription(name),
+        { name },
+      ),
+    sendEmailConfirm: t("tenant.examStaff.sendEmailConfirm", EXAM_STAFF_TEXT.sendEmailConfirm),
+  };
+  const roleLabels = { PROCTOR: text.proctor, EXAMINER: text.examiner };
+  const roleFilterOptions = [
+    { label: text.allRoles, value: "" },
+    { label: text.proctor, value: "PROCTOR" },
+    { label: text.examiner, value: "EXAMINER" },
+  ];
+  const statusOptions = [
+    { label: text.allStatuses, value: "" },
+    { label: text.active, value: "ACTIVE" },
+    { label: text.suspended, value: "SUSPENDED" },
+  ];
   const [addOpen, setAddOpen] = useState(false);
   const [suspendTarget, setSuspendTarget] = useState<UserResponse | null>(null);
   const [detailsTarget, setDetailsTarget] = useState<UserResponse | null>(null);
@@ -69,44 +111,44 @@ export const ExamStaffView = (): ReactElement => {
   const columns: ExamStaffTableColumn<UserResponse>[] = [
     {
       key: "fullName",
-      label: EXAM_STAFF_TEXT.fullName,
-      header: EXAM_STAFF_TEXT.fullName,
+      label: text.fullName,
+      header: text.fullName,
       filterAccessor: (user) => user.fullName,
       cell: (user) => <span className="font-medium text-text-primary">{user.fullName}</span>,
     },
     {
       key: "account",
-      label: EXAM_STAFF_TEXT.account,
-      header: EXAM_STAFF_TEXT.account,
+      label: text.account,
+      header: text.account,
       filterAccessor: (user) => user.username,
       cell: (user) => user.username,
       cellClassName: "whitespace-nowrap",
     },
     {
       key: "email",
-      label: EXAM_STAFF_TEXT.email,
-      header: EXAM_STAFF_TEXT.email,
+      label: text.email,
+      header: text.email,
       filterAccessor: (user) => user.email,
       cell: (user) => user.email,
       cellClassName: "whitespace-nowrap",
     },
     {
       key: "role",
-      label: EXAM_STAFF_TEXT.role,
-      header: EXAM_STAFF_TEXT.role,
-      filterOptions: ROLE_FILTER_OPTIONS,
-      filterAccessor: roleLabel,
-      cell: roleLabel,
+      label: text.role,
+      header: text.role,
+      filterOptions: roleFilterOptions,
+      filterAccessor: (user) => roleLabel(user, roleLabels),
+      cell: (user) => roleLabel(user, roleLabels),
     },
     {
       key: "status",
-      label: EXAM_STAFF_TEXT.status,
-      header: EXAM_STAFF_TEXT.status,
-      filterOptions: STATUS_OPTIONS,
+      label: text.status,
+      header: text.status,
+      filterOptions: statusOptions,
       filterAccessor: (user) => user.status,
       cell: (user) => (
         <StatusBadge
-          label={user.status === "ACTIVE" ? EXAM_STAFF_TEXT.active : EXAM_STAFF_TEXT.suspended}
+          label={user.status === "ACTIVE" ? text.active : text.suspended}
           variant={user.status === "ACTIVE" ? "success" : "warning"}
         />
       ),
@@ -117,46 +159,46 @@ export const ExamStaffView = (): ReactElement => {
     <div className="flex flex-col gap-6">
       {queryError && <Alert tone="error">{queryError || EXAM_STAFF_TEXT.loadFailed}</Alert>}
       {mutationError && <Alert tone="error">{mutationError}</Alert>}
-      {staff.isFetching && staff.data && <Alert tone="info">{EXAM_STAFF_TEXT.syncing}</Alert>}
+      {staff.isFetching && staff.data && <Alert tone="info">{text.syncing}</Alert>}
 
       <ExamStaffTable
         columns={columns}
         rows={rows}
         getRowKey={(user) => user.publicId}
         isLoading={staff.isLoading}
-        emptyTitle={EXAM_STAFF_TEXT.emptyTitle}
-        emptyDescription={EXAM_STAFF_TEXT.emptyDescription}
-        rowActionsHeader={EXAM_STAFF_TEXT.actions}
+        emptyTitle={text.emptyTitle}
+        emptyDescription={text.emptyDescription}
+        rowActionsHeader={text.actions}
         toolbarActions={
           <Button variant="primary" appearance="fill" size="md" onClick={() => setAddOpen(true)}>
-            {EXAM_STAFF_TEXT.addButton}
+            {text.addButton}
           </Button>
         }
         rowActions={(user) => (
           <ActionMenu
-            label={`${EXAM_STAFF_TEXT.actions}: ${user.fullName}`}
+            label={`${text.actions}: ${user.fullName}`}
             items={[
               {
-                label: EXAM_STAFF_TEXT.viewDetails,
+                label: text.viewDetails,
                 icon: EyeIcon,
                 onSelect: () => setDetailsTarget(user),
               },
               { separator: true },
               {
-                label: EXAM_STAFF_TEXT.sendEmail,
+                label: text.sendEmail,
                 icon: MailIcon,
                 disabled: !user.email || sendCredentials.isPending,
                 onSelect: () => setEmailTarget(user),
               },
               user.status === "SUSPENDED"
                 ? {
-                    label: EXAM_STAFF_TEXT.reactivate,
+                    label: text.reactivate,
                     icon: CheckCircleIcon,
                     disabled: reactivate.isPending || suspend.isPending,
                     onSelect: () => reactivate.mutate(user.publicId),
                   }
                 : {
-                    label: EXAM_STAFF_TEXT.suspend,
+                    label: text.suspend,
                     icon: BanIcon,
                     danger: true,
                     disabled: reactivate.isPending || suspend.isPending,
@@ -169,12 +211,10 @@ export const ExamStaffView = (): ReactElement => {
 
       <ConfirmDialog
         open={suspendTarget !== null}
-        title={EXAM_STAFF_TEXT.confirmSuspendTitle}
-        description={
-          suspendTarget ? EXAM_STAFF_TEXT.confirmSuspendDescription(suspendTarget.fullName) : ""
-        }
-        confirmLabel={EXAM_STAFF_TEXT.confirm}
-        cancelLabel={EXAM_STAFF_TEXT.cancel}
+        title={text.confirmSuspendTitle}
+        description={suspendTarget ? text.confirmSuspendDescription(suspendTarget.fullName) : ""}
+        confirmLabel={text.confirm}
+        cancelLabel={text.cancel}
         tone="danger"
         isConfirming={suspend.isPending}
         onConfirm={() => {
@@ -186,12 +226,10 @@ export const ExamStaffView = (): ReactElement => {
 
       <ConfirmDialog
         open={emailTarget !== null}
-        title={EXAM_STAFF_TEXT.sendEmailConfirmTitle}
-        description={
-          emailTarget ? EXAM_STAFF_TEXT.sendEmailConfirmDescription(emailTarget.fullName) : ""
-        }
-        confirmLabel={EXAM_STAFF_TEXT.sendEmailConfirm}
-        cancelLabel={EXAM_STAFF_TEXT.cancel}
+        title={text.sendEmailConfirmTitle}
+        description={emailTarget ? text.sendEmailConfirmDescription(emailTarget.fullName) : ""}
+        confirmLabel={text.sendEmailConfirm}
+        cancelLabel={text.cancel}
         isConfirming={sendCredentials.isPending}
         onConfirm={() => {
           if (!emailTarget) return;
