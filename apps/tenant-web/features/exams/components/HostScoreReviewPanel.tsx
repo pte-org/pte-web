@@ -8,7 +8,7 @@ import type {
   ScoreSourceSelectionScope,
   SelectScoreSourceRequest,
 } from "@pte/api-client";
-import { Alert, Button, Select } from "@pte/ui";
+import { Alert, Button, ConfirmDialog, Select } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
   useActiveExaminers,
@@ -46,6 +46,7 @@ export const HostScoreReviewPanel = ({
   const [source, setSource] = useState<ScoreSource>("AI");
   const [preview, setPreview] = useState<ScoreSourceSelectionPreviewResponse | null>(null);
   const [request, setRequest] = useState<SelectScoreSourceRequest | null>(null);
+  const [pendingApply, setPendingApply] = useState<SelectScoreSourceRequest | null>(null);
 
   const review = useHostScoreReview(sessionPublicId);
   const audits = useScoreSourceSelectionAudits(sessionPublicId);
@@ -97,18 +98,21 @@ export const HostScoreReviewPanel = ({
 
   const apply = (): void => {
     if (!request || !preview?.canApply) return;
-    const nextRequest: SelectScoreSourceRequest = request.requestPublicId
-      ? { ...request, expectedReviewVersion: preview.reviewVersion }
-      : {
-          ...request,
-          expectedReviewVersion: preview.reviewVersion,
-          requestPublicId: crypto.randomUUID(),
-        };
-    const confirmed = window.confirm(
-      `Apply ${nextRequest.selectedSource} to ${preview.matchedAnswerCount} matching answers? ` +
-        `${preview.unavailableAnswerCount} unavailable answers will prevent the entire change.`,
+    setPendingApply(
+      request.requestPublicId
+        ? { ...request, expectedReviewVersion: preview.reviewVersion }
+        : {
+            ...request,
+            expectedReviewVersion: preview.reviewVersion,
+            requestPublicId: crypto.randomUUID(),
+          },
     );
-    if (!confirmed) return;
+  };
+
+  const confirmApply = (): void => {
+    if (!pendingApply) return;
+    const nextRequest = pendingApply;
+    setPendingApply(null);
     setRequest(nextRequest);
     applyMutation.mutate(nextRequest, {
       onSuccess: () => {
@@ -341,6 +345,14 @@ export const HostScoreReviewPanel = ({
           </p>
         ) : null}
       </details>
+      <ConfirmDialog
+        open={pendingApply !== null}
+        title="Apply score source?"
+        description={`${pendingApply?.selectedSource ?? ""} scores will be applied to ${preview?.matchedAnswerCount ?? 0} matching answers. ${preview?.unavailableAnswerCount ?? 0} unavailable answers will prevent the entire change.`}
+        confirmLabel="Apply selection"
+        onConfirm={confirmApply}
+        onClose={() => setPendingApply(null)}
+      />
     </div>
   );
 };

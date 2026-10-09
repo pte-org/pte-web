@@ -9,6 +9,7 @@ import {
   BanIcon,
   Button,
   CheckCircleIcon,
+  ConfirmDialog,
   CopyIcon,
   DocumentIcon,
   EyeIcon,
@@ -71,6 +72,7 @@ export const ScoreTemplateListView = (): ReactElement => {
   const { data: currentUser } = useCurrentUser();
   const canReview = canReviewAcademic(currentUser?.roles);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<ScoreTemplateResponse | null>(null);
   const [createCode, setCreateCode] = useState("");
   const [createName, setCreateName] = useState("");
   const [createPolicy, setCreatePolicy] = useState<ScoreTemplatePolicy>("STANDARD_PTE");
@@ -141,8 +143,12 @@ export const ScoreTemplateListView = (): ReactElement => {
   };
 
   const handleDelete = (template: ScoreTemplateResponse): void => {
-    if (template.status !== "DRAFT" || !window.confirm(SCORE_TEMPLATE_TEXT.DELETE_CONFIRM)) return;
-    deleteMutation.mutate(template.publicId);
+    if (template.status === "DRAFT") setDeleteTarget(template);
+  };
+
+  const confirmDelete = (): void => {
+    if (!deleteTarget) return;
+    deleteMutation.mutate(deleteTarget.publicId, { onSettled: () => setDeleteTarget(null) });
   };
 
   const handleClone = (publicId: string): void => {
@@ -422,6 +428,18 @@ export const ScoreTemplateListView = (): ReactElement => {
           />
         </form>
       </Modal>
+
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title={SCORE_TEMPLATE_TEXT.DELETE_MODAL_TITLE}
+        description={SCORE_TEMPLATE_TEXT.DELETE_CONFIRM}
+        confirmLabel={SCORE_TEMPLATE_TEXT.DELETE_ACTION}
+        cancelLabel={SCORE_TEMPLATE_TEXT.DELETE_CANCEL}
+        tone="danger"
+        isConfirming={deleteMutation.isPending}
+        onConfirm={confirmDelete}
+        onClose={() => setDeleteTarget(null)}
+      />
     </div>
   );
 };

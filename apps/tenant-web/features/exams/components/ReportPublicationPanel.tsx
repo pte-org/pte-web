@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { ApiError, type ReportPublicationBlockerResponse } from "@pte/api-client";
-import { Alert, Button } from "@pte/ui";
+import { Alert, Button, ConfirmDialog } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
   useHostScoreReview,
@@ -21,6 +21,7 @@ export const ReportPublicationPanel = ({
   sessionStatus,
 }: ReportPublicationPanelProps): ReactElement => {
   const [checked, setChecked] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const review = useHostScoreReview(sessionPublicId);
   const preflight = useReportPublicationPreflight(sessionPublicId, checked);
   const publish = usePublishSessionReports(sessionPublicId);
@@ -98,18 +99,7 @@ export const ReportPublicationPanel = ({
           {preflight.isFetching ? "Checking…" : "Check readiness"}
         </Button>
         {canPublish && (
-          <Button
-            type="button"
-            disabled={publish.isPending}
-            onClick={() => {
-              const count = preflight.data?.submittedAttemptCount ?? 0;
-              if (
-                window.confirm(`Publish immutable reports for all ${count} submitted attempts?`)
-              ) {
-                publish.mutate();
-              }
-            }}
-          >
+          <Button type="button" disabled={publish.isPending} onClick={() => setConfirmOpen(true)}>
             {publish.isPending ? "Publishing…" : "Approve and publish"}
           </Button>
         )}
@@ -134,6 +124,15 @@ export const ReportPublicationPanel = ({
           {preflight.data.blockers.length > 20 && <p>Showing first 20 blockers.</p>}
         </div>
       )}
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Publish reports?"
+        description={`Reports for all ${preflight.data?.submittedAttemptCount ?? 0} submitted attempts will be published and cannot be changed afterwards.`}
+        confirmLabel="Approve and publish"
+        isConfirming={publish.isPending}
+        onConfirm={() => publish.mutate(undefined, { onSettled: () => setConfirmOpen(false) })}
+        onClose={() => setConfirmOpen(false)}
+      />
     </section>
   );
 };
