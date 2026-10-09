@@ -41,9 +41,6 @@ export const ProgramsListView = (): ReactElement => {
   const { t } = useLocale();
   const programLabel = t("nav.program", labels.program);
   const text = {
-    subtitle: t("tenant.programs.subtitle", PROGRAMS_TEXT.subtitle(labels.program), {
-      program: programLabel.toLowerCase(),
-    }),
     create: t("tenant.programs.create", PROGRAMS_TEXT.addButton),
     name: t("tenant.programs.name", PROGRAM_TABLE_HEADERS.NAME),
     status: t("tenant.programs.status", PROGRAM_TABLE_HEADERS.STATUS),
@@ -143,8 +140,6 @@ export const ProgramsListView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <p className="text-gray-600">{text.subtitle}</p>
-
       {organizations && organizations.length > 1 && (
         <Select
           label={text.organization}

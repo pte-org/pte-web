@@ -137,14 +137,6 @@ export const ClassesListView = ({
     active: t("tenant.classes.active", CLASS_STATUS_LABELS.ACTIVE),
     inactive: t("tenant.classes.inactive", CLASS_STATUS_LABELS.INACTIVE),
     suspended: t("tenant.classes.suspended", CLASS_STATUS_LABELS.SUSPENDED),
-    subtitle: t(
-      "tenant.classes.subtitle",
-      CLASSES_LIST_TEXT.subtitle(labels.class, labels.program),
-    ),
-    subtitleScoped: t(
-      "tenant.classes.subtitleScoped",
-      CLASSES_LIST_TEXT.subtitleScoped(labels.class, labels.program),
-    ),
     filterByProgram: t("tenant.classes.filterByProgram", "Filter by Program"),
     allPrograms: t("tenant.classes.allPrograms", "All Programs"),
     count: (count: number) =>
@@ -255,10 +247,6 @@ export const ClassesListView = ({
 
   return (
     <div className="flex flex-col gap-5">
-      <p className="text-gray-600">
-        {organizationOptions.length > 1 ? text.subtitleScoped : text.subtitle}
-      </p>
-
       {organizationOptions.length > 1 && (
         <Select
           label={programLabel}
