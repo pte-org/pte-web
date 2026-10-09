@@ -16,6 +16,7 @@ import {
   ConfirmDialog,
   CopyIcon,
   DataTable,
+  DateTimeInput,
   EyeIcon,
   Input,
   Modal,
@@ -454,10 +455,9 @@ export const LicenseCodesView = (): ReactElement => {
             required
             disabled={intent !== null || issue.isPending || plansLoading || plansError}
           />
-          <Input
+          <DateTimeInput
             id="license-expires"
             label={T.EXPIRY_LABEL}
-            type="datetime-local"
             value={expiresAt}
             onChange={(event) => setExpiresAt(event.target.value)}
             disabled={intent !== null || issue.isPending}

@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import type { AnnouncementCreateRequest, AnnouncementResponse } from "@pte/api-client";
-import { Button, FormActions, Input, Modal, Select, Textarea } from "@pte/ui";
+import { Button, DateTimeInput, FormActions, Input, Modal, Select, Textarea } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 interface AnnouncementFormModalProps {
@@ -132,17 +132,15 @@ export function AnnouncementFormModal({
               setImportance(event.target.value as AnnouncementCreateRequest["importance"])
             }
           />
-          <Input
+          <DateTimeInput
             id="announcement-affected-from"
             label={T.AFFECTED_FROM}
-            type="datetime-local"
             value={affectedFrom}
             onChange={(event) => setAffectedFrom(event.target.value)}
           />
-          <Input
+          <DateTimeInput
             id="announcement-affected-until"
             label={T.AFFECTED_UNTIL}
-            type="datetime-local"
             value={affectedUntil}
             onChange={(event) => setAffectedUntil(event.target.value)}
           />
