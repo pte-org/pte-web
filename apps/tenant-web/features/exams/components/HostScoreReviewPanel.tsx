@@ -3,12 +3,13 @@
 import { useMemo, useState, type ReactElement } from "react";
 import type {
   HostScoreReviewResponse,
+  ScoreSourceAuditResponse,
   ScoreSource,
   ScoreSourceSelectionPreviewResponse,
   ScoreSourceSelectionScope,
   SelectScoreSourceRequest,
 } from "@pte/api-client";
-import { Alert, Button, Select } from "@pte/ui";
+import { Alert, Button, DataTable, Select, type DataTableColumn } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
   useActiveExaminers,
@@ -32,6 +33,7 @@ const SOURCE_OPTIONS = [
   { label: "Examiner score", value: "EXAMINER" },
 ];
 const EMPTY_ANSWERS: HostScoreReviewResponse["answers"] = [];
+const EMPTY_AUDITS: ScoreSourceAuditResponse[] = [];
 
 function displayScore(value: number | null): string {
   return value === null ? "—" : String(value);
@@ -119,6 +121,126 @@ export const HostScoreReviewPanel = ({
   };
 
   const error = errorMessage(review.error ?? previewMutation.error ?? applyMutation.error);
+
+  const answerColumns: DataTableColumn<HostScoreReviewResponse["answers"][number]>[] = [
+    {
+      key: "sectionTask",
+      header: "Section / task",
+      filterAccessor: (answer) => `${answer.section ?? ""} ${answer.taskType}`,
+      cell: (answer) => (
+        <div>
+          <div className="font-medium">{answer.section ?? "—"}</div>
+          <div className="text-[var(--ink-muted)]">{answer.taskType}</div>
+        </div>
+      ),
+    },
+    {
+      key: "ai",
+      header: "AI",
+      filterAccessor: (answer) =>
+        `${displayScore(answer.aiRawScore)} ${answer.aiProviderCategory ?? "No provenance"} ${
+          answer.aiProvider ?? ""
+        } ${answer.aiAvailable ? "available" : "unavailable"}`,
+      cell: (answer) => (
+        <>
+          {displayScore(answer.aiRawScore)}
+          <div className="text-xs text-[var(--ink-muted)]">
+            {answer.aiProviderCategory ?? "No provenance"}
+            {answer.aiProvider ? ` · ${answer.aiProvider}` : ""}
+            {answer.aiAvailable ? " · available" : " · unavailable"}
+          </div>
+        </>
+      ),
+    },
+    {
+      key: "examiner",
+      header: "Examiner",
+      filterAccessor: (answer) => `${displayScore(answer.examinerScore)} ${answer.examinerStatus}`,
+      cell: (answer) => (
+        <>
+          {displayScore(answer.examinerScore)}
+          <div className="text-xs text-[var(--ink-muted)]">{answer.examinerStatus}</div>
+        </>
+      ),
+    },
+    {
+      key: "selected",
+      header: "Selected",
+      filterOptions: [
+        { label: "All", value: "" },
+        { label: "AI", value: "AI" },
+        { label: "Examiner", value: "EXAMINER" },
+      ],
+      filterAccessor: (answer) => answer.selectedScoreSource ?? "",
+      cell: (answer) => answer.selectedScoreSource ?? "Not selected",
+    },
+    {
+      key: "assignment",
+      header: "Assignment",
+      filterAccessor: (answer) => {
+        if (!answer.assignedExaminerPublicId) return "Unassigned";
+        return (
+          examinerDirectory.data?.find(
+            (examiner) => examiner.publicId === answer.assignedExaminerPublicId,
+          )?.fullName ?? answer.assignedExaminerPublicId
+        );
+      },
+      cell: (answer) => (
+        <span title={answer.assignedExaminerPublicId ?? undefined}>
+          {answer.assignedExaminerPublicId
+            ? (examinerDirectory.data?.find(
+                (examiner) => examiner.publicId === answer.assignedExaminerPublicId,
+              )?.fullName ?? `Assigned (${answer.assignedExaminerPublicId.slice(0, 8)})`)
+            : "Unassigned"}
+        </span>
+      ),
+    },
+    {
+      key: "legacyHost",
+      header: "Legacy Host",
+      filterAccessor: (answer) => displayScore(answer.teacherScore),
+      cell: (answer) => displayScore(answer.teacherScore),
+    },
+  ];
+
+  const auditColumns: DataTableColumn<ScoreSourceAuditResponse>[] = [
+    {
+      key: "whenActor",
+      header: "When / actor",
+      filterAccessor: (audit) => `${audit.occurredAt} ${audit.actorPublicId}`,
+      cell: (audit) => (
+        <div>
+          <div>
+            {new Intl.DateTimeFormat("en-GB", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            }).format(new Date(audit.occurredAt))}
+          </div>
+          <div className="text-[var(--ink-muted)]">{audit.actorPublicId.slice(0, 8)}</div>
+        </div>
+      ),
+    },
+    {
+      key: "scope",
+      header: "Scope",
+      filterAccessor: (audit) => `${audit.scope} ${audit.scopeValue ?? ""}`,
+      cell: (audit) => `${audit.scope}${audit.scopeValue ? ` · ${audit.scopeValue}` : ""}`,
+    },
+    {
+      key: "decision",
+      header: "Decision",
+      filterAccessor: (audit) => `${audit.selectedSource} ${audit.affectedAnswerCount}`,
+      cell: (audit) => `${audit.selectedSource} · ${audit.affectedAnswerCount} answers`,
+    },
+    {
+      key: "previousCounts",
+      header: "Previous AI / Examiner / unset",
+      filterAccessor: (audit) =>
+        `${audit.previousAiCount} ${audit.previousExaminerCount} ${audit.previousUnselectedCount}`,
+      cell: (audit) =>
+        `${audit.previousAiCount} / ${audit.previousExaminerCount} / ${audit.previousUnselectedCount}`,
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5">
@@ -230,58 +352,13 @@ export const HostScoreReviewPanel = ({
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-md border border-[var(--shell-border)]">
-        <table className="min-w-full divide-y divide-[var(--divider)] text-left text-sm">
-          <thead className="bg-[var(--surface-subtle)] text-xs uppercase text-[var(--ink-secondary)]">
-            <tr>
-              <th className="px-3 py-2">Section / task</th>
-              <th className="px-3 py-2">AI</th>
-              <th className="px-3 py-2">Examiner</th>
-              <th className="px-3 py-2">Selected</th>
-              <th className="px-3 py-2">Assignment</th>
-              <th className="px-3 py-2">Legacy Host</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--divider)]">
-            {answers.map((answer) => (
-              <tr key={answer.answerPublicId}>
-                <td className="px-3 py-2">
-                  <div className="font-medium">{answer.section ?? "—"}</div>
-                  <div className="text-[var(--ink-muted)]">{answer.taskType}</div>
-                </td>
-                <td className="px-3 py-2">
-                  {displayScore(answer.aiRawScore)}
-                  <div className="text-xs text-[var(--ink-muted)]">
-                    {answer.aiProviderCategory ?? "No provenance"}
-                    {answer.aiProvider ? ` · ${answer.aiProvider}` : ""}
-                    {answer.aiAvailable ? " · available" : " · unavailable"}
-                  </div>
-                </td>
-                <td className="px-3 py-2">
-                  {displayScore(answer.examinerScore)}
-                  <div className="text-xs text-[var(--ink-muted)]">{answer.examinerStatus}</div>
-                </td>
-                <td className="px-3 py-2">{answer.selectedScoreSource ?? "Not selected"}</td>
-                <td className="px-3 py-2" title={answer.assignedExaminerPublicId ?? undefined}>
-                  {answer.assignedExaminerPublicId
-                    ? (examinerDirectory.data?.find(
-                        (examiner) => examiner.publicId === answer.assignedExaminerPublicId,
-                      )?.fullName ?? `Assigned (${answer.assignedExaminerPublicId.slice(0, 8)})`)
-                    : "Unassigned"}
-                </td>
-                <td className="px-3 py-2">{displayScore(answer.teacherScore)}</td>
-              </tr>
-            ))}
-            {answers.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-3 py-6 text-center text-[var(--ink-secondary)]">
-                  No answer scores are available yet.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <DataTable
+        columns={answerColumns}
+        rows={answers}
+        getRowKey={(answer) => answer.answerPublicId}
+        isLoading={review.isLoading}
+        emptyTitle="No answer scores are available yet."
+      />
 
       <details className="rounded-md border border-[var(--shell-border)] p-4">
         <summary className="cursor-pointer text-sm font-medium text-[var(--ink-primary)]">
@@ -295,51 +372,15 @@ export const HostScoreReviewPanel = ({
             Unable to load score-source history.
           </Alert>
         ) : null}
-        {!audits.isLoading && !audits.error && audits.data?.length ? (
-          <div className="mt-3 overflow-x-auto">
-            <table className="min-w-full divide-y divide-[var(--divider)] text-left text-xs">
-              <thead className="bg-[var(--surface-subtle)] uppercase text-[var(--ink-secondary)]">
-                <tr>
-                  <th className="px-3 py-2">When / actor</th>
-                  <th className="px-3 py-2">Scope</th>
-                  <th className="px-3 py-2">Decision</th>
-                  <th className="px-3 py-2">Previous AI / Examiner / unset</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--divider)]">
-                {audits.data.map((audit) => (
-                  <tr key={audit.auditPublicId}>
-                    <td className="px-3 py-2">
-                      <div>
-                        {new Intl.DateTimeFormat("en-GB", {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        }).format(new Date(audit.occurredAt))}
-                      </div>
-                      <div className="text-[var(--ink-muted)]">{audit.actorPublicId.slice(0, 8)}</div>
-                    </td>
-                    <td className="px-3 py-2">
-                      {audit.scope}
-                      {audit.scopeValue ? ` · ${audit.scopeValue}` : ""}
-                    </td>
-                    <td className="px-3 py-2">
-                      {audit.selectedSource} · {audit.affectedAnswerCount} answers
-                    </td>
-                    <td className="px-3 py-2">
-                      {audit.previousAiCount} / {audit.previousExaminerCount} /{" "}
-                      {audit.previousUnselectedCount}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : null}
-        {!audits.isLoading && !audits.error && audits.data?.length === 0 ? (
-          <p className="mt-3 text-sm text-[var(--ink-secondary)]">
-            No source changes have been recorded for this exam.
-          </p>
-        ) : null}
+        <div className="mt-3">
+          <DataTable
+            columns={auditColumns}
+            rows={audits.data ?? EMPTY_AUDITS}
+            getRowKey={(audit) => audit.auditPublicId}
+            isLoading={audits.isLoading}
+            emptyTitle="No source changes have been recorded for this exam."
+          />
+        </div>
       </details>
     </div>
   );

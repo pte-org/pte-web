@@ -7,15 +7,13 @@ import {
   BookOpenIcon,
   ChevronRightIcon,
   ClipboardIcon,
-  CollapsibleSection,
   DocumentIcon,
   LicenseIcon,
   PageHeader,
-  StatCard,
   UsersIcon,
 } from "@pte/ui";
 import type { PlanResponse } from "@pte/api-client";
-import { useStudentQuotaQuery, useSubscriptionsQuery, useTenantPlansQuery } from "../api";
+import { useTenantPlansQuery } from "../api";
 import { BILLING_TEXT as T } from "../constants";
 import { BillingPanel } from "./BillingPanel";
 
@@ -24,8 +22,6 @@ const money = (plan: PlanResponse): string =>
 
 export const PlanCatalogView = (): ReactElement => {
   const { data: plans = [], isLoading, isError } = useTenantPlansQuery();
-  const { data: quota } = useStudentQuotaQuery();
-  const { data: subscriptions = [] } = useSubscriptionsQuery();
   const activePlans = plans.filter((plan) => plan.status === "ACTIVE");
   const examPlans = activePlans.filter((plan) => plan.type === "EXAM_PACKAGE");
   const capacityPlans = activePlans.filter((plan) => plan.type === "STUDENT_CAPACITY");
@@ -34,30 +30,6 @@ export const PlanCatalogView = (): ReactElement => {
     <div className="flex flex-col gap-5">
       <PageHeader title={T.PLANS_TITLE} subtitle={T.PLANS_SUBTITLE} />
       {isError && <Alert tone="error">{T.PLANS_LOAD_ERROR}</Alert>}
-      <CollapsibleSection
-        title={T.BILLING_OVERVIEW}
-        subtitle={T.BILLING_OVERVIEW_SUBTITLE}
-        contentClassName="grid gap-4 sm:grid-cols-3"
-      >
-        <StatCard
-          label={T.STUDENT_LIMIT}
-          value={quota ? `${quota.current} / ${quota.limit}` : T.EMPTY_VALUE}
-          footnote={T.CURRENT_ROSTER_USAGE_LABEL}
-          accent="blue"
-        />
-        <StatCard
-          label={T.ACTIVE_SUBSCRIPTIONS}
-          value={String(subscriptions.length)}
-          footnote={T.LOADED_FROM_API}
-          accent="mint"
-        />
-        <StatCard
-          label={T.AVAILABLE_PLANS}
-          value={String(activePlans.length)}
-          footnote={T.ACTIVE_CATALOG_ENTRIES}
-          accent="cream"
-        />
-      </CollapsibleSection>
       <BillingPanel title={T.EXAM_PACKAGES} subtitle={T.EXAM_PACKAGES_SUBTITLE}>
         {isLoading ? (
           <p className="text-sm text-slate-500">{T.LOADING_PLANS}</p>

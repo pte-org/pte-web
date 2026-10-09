@@ -80,21 +80,24 @@ export const OrdersView = (): ReactElement => {
             />
           )}
           rowActionsHeader=""
-          emptyTitle={isLoading ? T.LOADING_ORDERS : T.NO_ORDERS}
+          isLoading={isLoading}
+          emptyTitle={T.NO_ORDERS}
+          pagination={
+            data ? (
+              <PaginationControls
+                meta={data.meta}
+                onPageChange={setPage}
+                disabled={isLoading}
+                showPageSizeInput
+                onPageSizeChange={(nextSize) => {
+                  setSize(nextSize);
+                  setPage(0);
+                }}
+                totalItemsLabel={T.TOTAL_ORDERS(data.meta.totalElements)}
+              />
+            ) : undefined
+          }
         />
-        {data && (
-          <PaginationControls
-            meta={data.meta}
-            onPageChange={setPage}
-            disabled={isLoading}
-            showPageSizeInput
-            onPageSizeChange={(nextSize) => {
-              setSize(nextSize);
-              setPage(0);
-            }}
-            totalItemsLabel={T.TOTAL_ORDERS(data.meta.totalElements)}
-          />
-        )}
       </BillingPanel>
     </div>
   );

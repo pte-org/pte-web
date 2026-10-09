@@ -2,7 +2,55 @@
 @import url("./css/dark.css");
 @import "tailwindcss";
 
+/* Generate the same shared primitive styles used by vendor/admin. */
+@source "../../../packages/ui/src";
+
+/* Compatibility aliases for the remaining @pte/ui primitives during migration. */
+:root {
+  --surface-card: var(--card-background);
+  --surface-subtle: var(--background-gray-secondary);
+  --shell-canvas: var(--background-gray-primary);
+  --shell-frame: var(--background-white-secondary);
+  --shell-border: var(--card-border);
+  --ink-primary: var(--text-primary);
+  --ink-secondary: var(--text-secondary);
+  --ink-muted: var(--text-tertiary);
+  --divider: var(--border-secondary);
+  --control-border: var(--input-border);
+  --brand-soft: var(--brand-400);
+  --brand: var(--brand-500);
+  --brand-hover: var(--brand-600);
+  --brand-deep: var(--brand-600);
+  --brand-tint: var(--brand-100);
+  --brand-ink: var(--brand-600);
+  /* Keep tenant actions aligned with the shared vendor/admin blue palette. */
+  --action: #0b5fae;
+  --action-hover: #095394;
+  --action-active: #08467c;
+  --action-tint: #e8f2f9;
+  --action-tint-hover: #d9eaf5;
+  --action-foreground: #ffffff;
+}
+
+[data-theme="dark"] {
+  --action: #4e9be1;
+  --action-hover: #70b2ed;
+  --action-active: #2e80c6;
+  --action-tint: #163859;
+  --action-tint-hover: #204a70;
+  --action-foreground: #07111d;
+}
+
 @theme {
+  --font-sans: var(--font-plus-jakarta);
+  --font-mono: var(--font-geist-mono);
+
+  --color-action: var(--action);
+  --color-action-hover: var(--action-hover);
+  --color-action-active: var(--action-active);
+  --color-action-tint: var(--action-tint);
+  --color-action-tint-hover: var(--action-tint-hover);
+
   --color-primary-50: var(--primary-50);
   --color-primary-100: var(--primary-100);
   --color-primary-200: var(--primary-200);
@@ -553,6 +601,10 @@
 }
 
 @layer base {
+  body {
+    font-family: var(--font-plus-jakarta), Helvetica, Arial, sans-serif;
+  }
+
   button:not(:disabled),
   [role="button"]:not(:disabled) {
     cursor: pointer;

@@ -5,12 +5,9 @@ import Link from "next/link";
 import {
   Alert,
   Button,
-  CollapsibleSection,
   Input,
   PageHeader,
   ProgressBar,
-  StatCard,
-  UsersIcon,
 } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useStudentImportPreview, useStudentQuotaQuery } from "../api";
@@ -49,32 +46,6 @@ export const QuotaView = (): ReactElement => {
       {isLoading && <p className="text-sm text-slate-500">{T.LOADING_QUOTA}</p>}
       {quota && (
         <>
-          <CollapsibleSection
-            title={T.CAPACITY_OVERVIEW}
-            subtitle={T.CAPACITY_OVERVIEW_SUBTITLE}
-            contentClassName="grid gap-4 sm:grid-cols-3"
-          >
-            <StatCard
-              label={T.STUDENTS_IN_TENANT}
-              value={String(quota.current)}
-              footnote={T.CURRENT_ROSTER_USAGE(quota.limit)}
-              icon={<UsersIcon />}
-              progress={usedPercentage}
-              accent="blue"
-            />
-            <StatCard
-              label={T.REMAINING_CAPACITY}
-              value={String(quota.remaining)}
-              footnote={T.STUDENTS_AVAILABLE}
-              accent="mint"
-            />
-            <StatCard
-              label={T.LAST_PREVIEW}
-              value={preview.data ? String(preview.data.adding) : T.EMPTY_VALUE}
-              footnote={T.STUDENTS_TO_ADD}
-              accent="sky"
-            />
-          </CollapsibleSection>
           <BillingPanel title={T.CURRENT_CAPACITY} subtitle={T.CURRENT_CAPACITY_SUBTITLE}>
             <div className="flex items-center justify-between text-sm">
               <span className="font-semibold text-slate-900">

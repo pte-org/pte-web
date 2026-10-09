@@ -86,6 +86,21 @@ export const LearnersOverview = (): ReactElement => {
         isLoading={studentsQuery.isLoading}
         emptyTitle={T.EMPTY_TITLE}
         emptyDescription={T.EMPTY_TEXT}
+        pagination={
+          studentsQuery.data ? (
+            <PaginationControls
+              meta={studentsQuery.data.meta}
+              onPageChange={setPage}
+              disabled={studentsQuery.isFetching}
+              showPageSizeInput
+              onPageSizeChange={(nextSize) => {
+                setSize(nextSize);
+                setPage(0);
+              }}
+              totalItemsLabel={T.TOTAL_ITEMS(studentsQuery.data.meta.totalElements)}
+            />
+          ) : undefined
+        }
         rowActions={(student) => (
           <ActionMenu
             items={[
@@ -98,20 +113,6 @@ export const LearnersOverview = (): ReactElement => {
           />
         )}
       />
-
-      {studentsQuery.data && (
-        <PaginationControls
-          meta={studentsQuery.data.meta}
-          onPageChange={setPage}
-          disabled={studentsQuery.isFetching}
-          showPageSizeInput
-          onPageSizeChange={(nextSize) => {
-            setSize(nextSize);
-            setPage(0);
-          }}
-          totalItemsLabel={T.TOTAL_ITEMS(studentsQuery.data.meta.totalElements)}
-        />
-      )}
 
       <ResetStudentPasswordModal
         key={resetTarget ? `reset-${resetTarget.studentPublicId}` : "reset-closed"}

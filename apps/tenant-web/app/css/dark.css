@@ -1,19 +1,19 @@
 [data-theme="dark"] {
   /* Primary */
-  --primary-50: #eff3ff;
-  --primary-100: #dae2ff;
-  --primary-200: #becdff;
-  --primary-300: #91aeff;
-  --primary-400: #5e84fc;
-  --primary-500: #3758f9;
-  --primary-600: #2237ee;
-  --primary-700: #1a25db;
-  --primary-800: #1c20b1;
-  --primary-900: #1c228c;
-  --primary-950: #161755;
+  --primary-50: #1d315e;
+  --primary-100: #243b6f;
+  --primary-200: #36568f;
+  --primary-300: #5277bd;
+  --primary-400: #8aa7ff;
+  --primary-500: #6d8cff;
+  --primary-600: #8aa7ff;
+  --primary-700: #b6c6ff;
+  --primary-800: #b6c6ff;
+  --primary-900: #d4ddff;
+  --primary-950: #eef2ff;
 
   --primary-text: white;
-  --neutral-brand-color: #7592ff;
+  --neutral-brand-color: #8aa7ff;
 
   /* Text Color */
   --title-50: #ffffffcc;
@@ -69,10 +69,10 @@
   /* ======== Button Color For Dark =========*/
 
   /* Button Primary Color */
-  --button-primary-background: #5750f1;
-  --button-primary-hover-background: #3c35d8;
-  --button-primary-text: #ffffff;
-  --button-primary-focus-ring: rgba(87, 80, 241, 0.2);
+  --button-primary-background: #4e9be1;
+  --button-primary-hover-background: #70b2ed;
+  --button-primary-text: #07111d;
+  --button-primary-focus-ring: rgba(78, 155, 225, 0.25);
 
   /* Outline Dark */
   --button-outline-background: #111827;
@@ -129,8 +129,8 @@
 
   /* Button Group Primary */
   --button-group-primary-background: #ffffff00;
-  --button-group-primary-hover-background: #5750f1;
-  --button-group-primary-text: #5750f1;
+  --button-group-primary-hover-background: #4e9be1;
+  --button-group-primary-text: #8aa7ff;
   --button-group-primary-hover-text: #ffffff;
 
   /* Button Group Secondary */
@@ -145,9 +145,9 @@
   --badge-neutral-icon-color: #e5e7eb;
 
   /* Badge Primary */
-  --badge-primary-background: #3758f926;
-  --badge-primary-text: #5e84fc;
-  --badge-primary-icon-color: #5e84fc;
+  --badge-primary-background: #163859;
+  --badge-primary-text: #8aa7ff;
+  --badge-primary-icon-color: #8aa7ff;
 
   /* Badge Error */
   --badge-error-background: #ef444426;
@@ -217,14 +217,14 @@
   --sidebar-nav-hover-background: #ffffff00;
   --sidebar-nav-secondary-hover-background: #ffffff0d;
   --sidebar-nav-hover-text: #d1d5db;
-  --sidebar-nav-active-text: #5e84fc;
-  --sidebar-nav-active-background: #3758f91f;
-  --sidebar-nav-focused-background: #3758f91f;
+  --sidebar-nav-active-text: #8aa7ff;
+  --sidebar-nav-active-background: #163859;
+  --sidebar-nav-focused-background: #163859;
   --sidebar-nav-default-text: #d1d5db;
   --sidebar-nav-icon: #9ca3af;
 
   /* Sidebar Badge */
-  --sidebar-badge-background: #3758f9;
+  --sidebar-badge-background: #4e9be1;
   --sidebar-badge-text: #ffffff;
 
   /* Sidebar Footer */
@@ -301,7 +301,7 @@
   --input-disabled-background: rgba(255, 255, 255, 0.03);
   --input-disabled-border: rgba(255, 255, 255, 0.05);
   --input-placeholder-text: #6b7280;
-  --input-primary-focus-border: #5750f1;
+  --input-primary-focus-border: #4e9be1;
   --input-error-focus-border: #b91c1c;
   --input-success-focus-border: #15803d;
   --input-error: #dc2626;
@@ -310,12 +310,12 @@
   /* ======== Tab Color For Dark =========*/
   --tab-background: rgba(0, 0, 0, 0.5);
   --tab-active-background: #27272a;
-  --tab-secondary-active-background: #7592ff33;
+  --tab-secondary-active-background: #163859;
 
   /* ======== Checkbox Color For Dark =========*/
   --checkbox-background: #ffffff00;
-  --checkbox-checked-border: #5750f1;
-  --checkbox-checked-background: #5750f1;
+  --checkbox-checked-border: #4e9be1;
+  --checkbox-checked-background: #4e9be1;
   --checkbox-checked-icon-color: #ffffff;
 
   /* ======== Scrollbar Color For Dark =========*/
@@ -323,7 +323,7 @@
 
   /* ======== Datepicker Color For Dark =========*/
   --datepicker-background: #1f2937;
-  --datepicker-selected-background: #3758f9;
+  --datepicker-selected-background: #4e9be1;
   --datepicker-selected-hover-background: #ffffff0d;
 
   /* ======== Dropdowns Color For Dark =========*/
@@ -333,8 +333,8 @@
   --dropdown-divider: #353c49;
 
   /* ======== Calendar Color For Dark =========*/
-  --calendar-primary-badge: #3758f9;
-  --calendar-primary-background: #dae2ff;
+  --calendar-primary-badge: #4e9be1;
+  --calendar-primary-background: #1d315e;
   --calendar-success-badge: #22c55e;
   --calendar-success-background: #dcfce7;
   --calendar-warning-badge: #f97316;
@@ -427,7 +427,7 @@
   --toggle-default-background: #52525b;
   --toggle-disabled-foreground: #ffffff66;
   --toggle-disabled-background: #1f2937;
-  --toggle-active-background: #5750f1;
+  --toggle-active-background: #4e9be1;
 
   /* ======== Map Color For Dark =========*/
   --map-fill: #6b7280;
@@ -487,12 +487,12 @@
   --background-gray-quaternary: #3f3f46;
 
   /* general color */
-  --brand-100: #e0e7ff;
-  --brand-200: #c7d2fe;
-  --brand-300: #a5b4fc;
-  --brand-400: #818cf8;
-  --brand-500: #5750f1;
-  --brand-600: #3c35d8;
+  --brand-100: #1d315e;
+  --brand-200: #294574;
+  --brand-300: #5277bd;
+  --brand-400: #8aa7ff;
+  --brand-500: #6d8cff;
+  --brand-600: #b6c6ff;
   --base-white: #ffffff;
   --green-600: #16a34a;
   --red-600: #dc2626;

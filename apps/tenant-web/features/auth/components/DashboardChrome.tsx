@@ -7,6 +7,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   LocaleSwitcher,
+  Breadcrumbs,
+  SidebarNav as SharedSidebarNav,
   Skeleton,
   cn,
   useLocale,
@@ -17,7 +19,6 @@ import CommonDashboardLayout from "@/components/common/dashboard-layout";
 import SearchBar from "@/components/common/header/searchbar";
 import ThemeToggle from "@/components/common/header/theme-toggle";
 import { UserProfileButton } from "@/components/common/header/user-profile";
-import { Breadcrumbs } from "@/components/ui/core/breadcrumbs";
 import { NotificationBellContainer } from "@/features/notifications";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
@@ -142,52 +143,44 @@ const SidebarNav = ({
   const visibleItems = navItems.filter(
     (item) => !item.requiredRoles || item.requiredRoles.some((role) => user?.roles.includes(role)),
   );
-  return (
-    <>
-      {visibleItems.map((item, index) => {
-        const label = item.labelKey ? t(item.labelKey, item.label) : item.label;
-        const isSectionStart = index === 0 || item.section !== visibleItems[index - 1]?.section;
 
-        return (
-          <div key={item.href} className="flex flex-col gap-1">
-            {isSectionStart && item.section && (
-              isSidebarOpen ? (
-                <span className="mt-6 mb-4 px-3 text-xs uppercase text-text-tertiary">
-                  {item.sectionKey ? t(item.sectionKey, item.section) : item.section}
-                </span>
-              ) : (
-                <span className="mx-2 my-3 block h-px bg-card-border" aria-hidden="true" />
-              )
-            )}
-            <Link
-              href={item.href}
-              onClick={onItemClick}
-              aria-label={label}
-              title={isSidebarOpen ? undefined : label}
+  const sidebarItems = visibleItems.map((item) => ({
+    label: item.labelKey ? t(item.labelKey, item.label) : item.label,
+    href: item.href,
+    icon: item.icon,
+    section: item.sectionKey
+      ? t(item.sectionKey, item.section ?? "Pages")
+      : item.section,
+    isActive: isActive(pathname, item.href),
+  }));
+
+  return (
+    <SharedSidebarNav
+      items={sidebarItems}
+      isOpen={isSidebarOpen}
+      renderLink={(item, className) => (
+        <Link
+          href={item.href}
+          onClick={onItemClick}
+          aria-label={item.label}
+          aria-current={item.isActive ? "page" : undefined}
+          title={isSidebarOpen ? undefined : item.label}
+          className={className}
+        >
+          {item.icon && (
+            <span
               className={cn(
-                "flex min-h-10 items-center rounded-lg text-sm font-medium transition-colors duration-200",
-                isSidebarOpen ? "w-full gap-3 px-3 py-2" : "mx-auto h-10 w-10 justify-center px-2 py-2.5",
-                isActive(pathname, item.href)
-                  ? "bg-sidebar-navigation-nav-item-nav-hover-background text-text-primary"
-                  : "text-text-secondary hover:bg-sidebar-navigation-nav-item-nav-hover-background hover:text-text-primary",
+                "flex shrink-0 items-center justify-center [&>svg]:h-[18px] [&>svg]:w-[18px]",
+                item.isActive ? "text-[var(--ink-primary)]" : "text-[var(--ink-muted)]",
               )}
             >
-              {item.icon && (
-                <span
-                  className={cn(
-                    "shrink-0 [&>svg]:h-5 [&>svg]:w-5",
-                    isActive(pathname, item.href) ? "text-icon-primary" : "text-icon-tertiary",
-                  )}
-                >
-                  {item.icon}
-                </span>
-              )}
-              {isSidebarOpen && <span className="truncate">{label}</span>}
-            </Link>
-          </div>
-        );
-      })}
-    </>
+              {item.icon}
+            </span>
+          )}
+          {isSidebarOpen && <span className="truncate">{item.label}</span>}
+        </Link>
+      )}
+    />
   );
 };
 
@@ -242,6 +235,15 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
   const breadcrumbs = activeItem ? (
     <Breadcrumbs
       dividerType="chevron"
+      renderLink={(item) => (
+        <Link
+          href={item.href ?? "/"}
+          className="flex items-center gap-1 font-medium text-[var(--ink-secondary)] transition-colors hover:text-[var(--ink-primary)]"
+        >
+          {item.icon}
+          {item.label}
+        </Link>
+      )}
       items={[
         { href: "/", label: t("nav.home", "Trang chủ") },
         ...(activeItem.href === "/"

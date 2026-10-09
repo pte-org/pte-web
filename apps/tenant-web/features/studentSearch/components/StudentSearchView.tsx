@@ -432,6 +432,25 @@ export const StudentSearchView = (): ReactElement => {
         emptyTitle={STUDENT_SEARCH_TEXT.emptyTitle}
         emptyDescription={STUDENT_ROSTER_FILTER_TEXT.emptyDescription}
         rowActionsHeader={STUDENT_ROSTER_FILTER_TEXT.actions}
+        pagination={
+          visibleResult ? (
+            <PaginationControls
+              meta={visibleResult.meta}
+              onPageChange={handlePageChange}
+              disabled={roster.isFetching}
+              showPageSizeInput
+              onPageSizeChange={(nextSize) => {
+                setSize(nextSize);
+                resetPage();
+              }}
+              showFirstLast
+              pageSizeLabel={STUDENT_ROSTER_FILTER_TEXT.pageSizeLabel}
+              firstLabel={STUDENT_ROSTER_FILTER_TEXT.firstPage}
+              lastLabel={STUDENT_ROSTER_FILTER_TEXT.lastPage}
+              totalItemsLabel={STUDENT_ROSTER_FILTER_TEXT.totalItems(visibleResult.meta.totalElements)}
+            />
+          ) : undefined
+        }
         rowActions={(row) => (
           <ActionMenu
             label={`${STUDENT_ROSTER_FILTER_TEXT.actions}: ${row.fullName}`}
@@ -466,24 +485,6 @@ export const StudentSearchView = (): ReactElement => {
           />
         )}
       />
-
-      {visibleResult && (
-        <PaginationControls
-          meta={visibleResult.meta}
-          onPageChange={handlePageChange}
-          disabled={roster.isFetching}
-          showPageSizeInput
-          onPageSizeChange={(nextSize) => {
-            setSize(nextSize);
-            resetPage();
-          }}
-          showFirstLast
-          pageSizeLabel={STUDENT_ROSTER_FILTER_TEXT.pageSizeLabel}
-          firstLabel={STUDENT_ROSTER_FILTER_TEXT.firstPage}
-          lastLabel={STUDENT_ROSTER_FILTER_TEXT.lastPage}
-          totalItemsLabel={STUDENT_ROSTER_FILTER_TEXT.totalItems(visibleResult.meta.totalElements)}
-        />
-      )}
 
       <ConfirmDialog
         open={studentToSuspend !== null}

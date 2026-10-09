@@ -38,6 +38,7 @@ type PropsType = {
   className?: string;
   variant?: "default" | "compact";
   sideLayout?: "full" | "label" | "icon";
+  grouped?: boolean;
 };
 
 const MAX_PAGES_SHOWN = 6;
@@ -49,6 +50,7 @@ export function Pagination({
   className,
   variant = "default",
   sideLayout = "full",
+  grouped = false,
 }: PropsType) {
   return (
     <nav
@@ -57,7 +59,7 @@ export function Pagination({
       className="w-full text-sm font-medium text-text-50"
     >
       <ul className={cn(wrapperStyles({ variant }), className)}>
-        <li className="mr-auto">
+        <li className={cn(!grouped && "mr-auto")}>
           <Button
             appearance="outline"
             size="sm"
@@ -139,7 +141,7 @@ export function Pagination({
           );
         })}
 
-        <li className="ml-auto">
+        <li className={cn(!grouped && "ml-auto")}>
           <Button
             size="sm"
             appearance="outline"

@@ -1,35 +1,25 @@
 "use client";
 
-import { useEffect, useState, type ReactElement } from "react";
-import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
-import type {
-  ExamStaffRoleFilter,
-  UserListDirection,
-  UserListSort,
-  UserResponse,
-  UserStatusFilter,
-} from "@pte/api-client";
+import { useMemo, useState, type ReactElement } from "react";
+import type { UserResponse } from "@pte/api-client";
 import {
   Alert,
   ActionMenu,
   BanIcon,
-  Button,
   CheckCircleIcon,
   ConfirmDialog,
-  DataTable,
   EyeIcon,
-  Input,
   MailIcon,
   PageHeader,
-  PaginationControls,
-  Select,
   StatusBadge,
-  type DataTableColumn,
+  Button,
 } from "@pte/ui";
+import { ChevronBothDirection } from "@tailgrids/icons";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { EXAM_STAFF_ROLE_OPTIONS, EXAM_STAFF_SORT_OPTIONS, EXAM_STAFF_TEXT } from "../constants";
-import { useExamStaff, useReactivateExamStaff, useSuspendExamStaff } from "../api";
+import { useAllExamStaff, useReactivateExamStaff, useSuspendExamStaff } from "../api";
 import { AddExamStaffModal } from "./AddExamStaffModal";
+import { ExamStaffTable, type ExamStaffTableColumn } from "./ExamStaffTable";
 import {
   AccountDetailsModal,
   GeneratedCredentialsModal,
@@ -37,9 +27,8 @@ import {
 } from "@/features/userManagement";
 import type { AccountDetails, GeneratedCredentials } from "@/features/userManagement";
 
-const DEBOUNCE_MS = 250;
-
 type SortOptionValue = (typeof EXAM_STAFF_SORT_OPTIONS)[number]["value"];
+type ColumnSort = "FULL_NAME" | "EMAIL";
 
 const ROLE_LABELS: Record<string, string> = {
   PROCTOR: EXAM_STAFF_TEXT.proctor,
@@ -47,12 +36,12 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 const ROLE_FILTER_OPTIONS = [
-  { label: EXAM_STAFF_TEXT.allRoles, value: "ALL" },
+  { label: EXAM_STAFF_TEXT.allRoles, value: "" },
   ...EXAM_STAFF_ROLE_OPTIONS.map((option) => ({ ...option })),
 ];
 
 const STATUS_OPTIONS = [
-  { label: EXAM_STAFF_TEXT.allStatuses, value: "ALL" },
+  { label: EXAM_STAFF_TEXT.allStatuses, value: "" },
   { label: EXAM_STAFF_TEXT.active, value: "ACTIVE" },
   { label: EXAM_STAFF_TEXT.suspended, value: "SUSPENDED" },
 ];
@@ -72,66 +61,109 @@ function roleLabel(user: UserResponse): string {
   );
 }
 
+function SortHeader({ label, onSort }: { label: string; onSort?: () => void }): ReactElement {
+  const content = (
+    <>
+      <span>{label}</span>
+      <ChevronBothDirection className="size-3.5 text-text-100" aria-hidden="true" />
+    </>
+  );
+
+  if (!onSort) {
+    return <span className="inline-flex items-center gap-1.5">{content}</span>;
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={onSort}
+      className="inline-flex items-center gap-1.5 rounded-sm outline-none transition-colors hover:text-text-primary focus-visible:ring-2 focus-visible:ring-input-primary-focus-border"
+    >
+      {content}
+    </button>
+  );
+}
+
 export const ExamStaffView = (): ReactElement => {
-  const [input, setInput] = useState("");
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(0);
-  const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
-  const [role, setRole] = useState<ExamStaffRoleFilter>("ALL");
-  const [status, setStatus] = useState<UserStatusFilter>("ALL");
   const [sortOption, setSortOption] = useState<SortOptionValue>("CREATED_AT_DESC");
   const [addOpen, setAddOpen] = useState(false);
   const [suspendTarget, setSuspendTarget] = useState<UserResponse | null>(null);
   const [detailsTarget, setDetailsTarget] = useState<UserResponse | null>(null);
   const [emailTarget, setEmailTarget] = useState<UserResponse | null>(null);
   const [credentials, setCredentials] = useState<GeneratedCredentials | null>(null);
-  const [keepPreviousRows, setKeepPreviousRows] = useState(false);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setSearch(input);
-      setPage(0);
-      setKeepPreviousRows(false);
-    }, DEBOUNCE_MS);
-    return () => clearTimeout(timeout);
-  }, [input]);
 
   const selectedSort = sortOptionFor(sortOption);
-  const staff = useExamStaff({
-    page,
-    size,
-    search,
-    role,
-    status,
-    sort: selectedSort.sort as UserListSort,
-    direction: selectedSort.direction as UserListDirection,
-  });
+  const staff = useAllExamStaff();
   const suspend = useSuspendExamStaff();
   const reactivate = useReactivateExamStaff();
   const sendCredentials = useSendUserCredentials();
-  const isNewFilterPending = staff.isPlaceholderData && !keepPreviousRows;
-  const visibleResult = isNewFilterPending ? undefined : staff.data;
-  const rows = visibleResult?.data ?? [];
+
+  const rows = useMemo(() => {
+    const nextRows = [...(staff.data ?? [])];
+    if (sortOption === "CREATED_AT_DESC") return nextRows;
+
+    const sortByEmail = sortOption.startsWith("EMAIL");
+    const descending = sortOption.endsWith("_DESC");
+    return nextRows.sort((left, right) => {
+      const leftValue = sortByEmail ? left.email : left.fullName;
+      const rightValue = sortByEmail ? right.email : right.fullName;
+      const comparison = leftValue.localeCompare(rightValue, undefined, { sensitivity: "base" });
+      return descending ? -comparison : comparison;
+    });
+  }, [sortOption, staff.data]);
   const queryError = errorMessage(staff.error);
   const mutationError = errorMessage(suspend.error ?? reactivate.error ?? sendCredentials.error);
 
-  const resetPage = (): void => {
-    setPage(0);
-    setKeepPreviousRows(false);
+  const setColumnSort = (sort: ColumnSort): void => {
+    const current = selectedSort.sort === sort ? selectedSort.direction : undefined;
+    const nextDirection = current === "ASC" ? "DESC" : "ASC";
+    const nextOption = EXAM_STAFF_SORT_OPTIONS.find(
+      (option) => option.sort === sort && option.direction === nextDirection,
+    );
+    if (!nextOption) return;
+    setSortOption(nextOption.value);
   };
 
-  const columns: DataTableColumn<UserResponse>[] = [
+  const columns: ExamStaffTableColumn<UserResponse>[] = [
     {
       key: "fullName",
-      header: EXAM_STAFF_TEXT.fullName,
-      cell: (user) => <span className="font-medium text-gray-900">{user.fullName}</span>,
+      label: EXAM_STAFF_TEXT.fullName,
+      header: (
+        <SortHeader label={EXAM_STAFF_TEXT.fullName} onSort={() => setColumnSort("FULL_NAME")} />
+      ),
+      filterAccessor: (user) => user.fullName,
+      cell: (user) => <span className="font-medium text-text-primary">{user.fullName}</span>,
     },
-    { key: "account", header: EXAM_STAFF_TEXT.account, cell: (user) => user.username },
-    { key: "email", header: EXAM_STAFF_TEXT.email, cell: (user) => user.email },
-    { key: "role", header: EXAM_STAFF_TEXT.role, cell: roleLabel },
+    {
+      key: "account",
+      label: EXAM_STAFF_TEXT.account,
+      header: <SortHeader label={EXAM_STAFF_TEXT.account} onSort={() => setColumnSort("EMAIL")} />,
+      filterAccessor: (user) => user.username,
+      cell: (user) => user.username,
+      cellClassName: "whitespace-nowrap",
+    },
+    {
+      key: "email",
+      label: EXAM_STAFF_TEXT.email,
+      header: <SortHeader label={EXAM_STAFF_TEXT.email} onSort={() => setColumnSort("EMAIL")} />,
+      filterAccessor: (user) => user.email,
+      cell: (user) => user.email,
+      cellClassName: "whitespace-nowrap",
+    },
+    {
+      key: "role",
+      label: EXAM_STAFF_TEXT.role,
+      header: <SortHeader label={EXAM_STAFF_TEXT.role} />,
+      filterOptions: ROLE_FILTER_OPTIONS,
+      filterAccessor: roleLabel,
+      cell: roleLabel,
+    },
     {
       key: "status",
-      header: EXAM_STAFF_TEXT.status,
+      label: EXAM_STAFF_TEXT.status,
+      header: <SortHeader label={EXAM_STAFF_TEXT.status} />,
+      filterOptions: STATUS_OPTIONS,
+      filterAccessor: (user) => user.status,
       cell: (user) => (
         <StatusBadge
           label={user.status === "ACTIVE" ? EXAM_STAFF_TEXT.active : EXAM_STAFF_TEXT.suspended}
@@ -142,63 +174,25 @@ export const ExamStaffView = (): ReactElement => {
   ];
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-6">
       <PageHeader
         title={EXAM_STAFF_TEXT.title}
-        subtitle={EXAM_STAFF_TEXT.subtitle}
-        actions={<Button onClick={() => setAddOpen(true)}>{EXAM_STAFF_TEXT.addButton}</Button>}
+        actions={
+          <Button variant="primary" appearance="fill" size="md" onClick={() => setAddOpen(true)}>
+            {EXAM_STAFF_TEXT.addButton}
+          </Button>
+        }
       />
-
-      <div className="grid gap-3 lg:grid-cols-4">
-        <div className="lg:pt-5">
-          <Input
-            aria-label={EXAM_STAFF_TEXT.searchPlaceholder}
-            placeholder={EXAM_STAFF_TEXT.searchPlaceholder}
-            value={input}
-            onChange={(event) => setInput(event.target.value)}
-          />
-        </div>
-        <Select
-          label={EXAM_STAFF_TEXT.roleLabel}
-          options={ROLE_FILTER_OPTIONS}
-          value={role}
-          onChange={(event) => {
-            setRole(event.target.value as ExamStaffRoleFilter);
-            resetPage();
-          }}
-        />
-        <Select
-          label={EXAM_STAFF_TEXT.statusLabel}
-          options={STATUS_OPTIONS}
-          value={status}
-          onChange={(event) => {
-            setStatus(event.target.value as UserStatusFilter);
-            resetPage();
-          }}
-        />
-        <Select
-          label={EXAM_STAFF_TEXT.sortLabel}
-          options={EXAM_STAFF_SORT_OPTIONS.map((option) => ({
-            label: option.label,
-            value: option.value,
-          }))}
-          value={sortOption}
-          onChange={(event) => {
-            setSortOption(event.target.value as SortOptionValue);
-            resetPage();
-          }}
-        />
-      </div>
 
       {queryError && <Alert tone="error">{queryError || EXAM_STAFF_TEXT.loadFailed}</Alert>}
       {mutationError && <Alert tone="error">{mutationError}</Alert>}
-      {staff.isFetching && visibleResult && <Alert tone="info">{EXAM_STAFF_TEXT.syncing}</Alert>}
+      {staff.isFetching && staff.data && <Alert tone="info">{EXAM_STAFF_TEXT.syncing}</Alert>}
 
-      <DataTable
+      <ExamStaffTable
         columns={columns}
         rows={rows}
         getRowKey={(user) => user.publicId}
-        isLoading={staff.isLoading || (staff.isFetching && !visibleResult)}
+        isLoading={staff.isLoading}
         emptyTitle={EXAM_STAFF_TEXT.emptyTitle}
         emptyDescription={EXAM_STAFF_TEXT.emptyDescription}
         rowActionsHeader={EXAM_STAFF_TEXT.actions}
@@ -235,28 +229,8 @@ export const ExamStaffView = (): ReactElement => {
             ]}
           />
         )}
+        pageSizeLabel="Per page"
       />
-
-      {visibleResult && (
-        <PaginationControls
-          meta={visibleResult.meta}
-          onPageChange={(nextPage) => {
-            setKeepPreviousRows(true);
-            setPage(nextPage);
-          }}
-          disabled={staff.isFetching}
-          showPageSizeInput
-          onPageSizeChange={(nextSize) => {
-            setSize(nextSize);
-            resetPage();
-          }}
-          showFirstLast
-          pageSizeLabel={EXAM_STAFF_TEXT.pageSizeLabel}
-          firstLabel={EXAM_STAFF_TEXT.firstPage}
-          lastLabel={EXAM_STAFF_TEXT.lastPage}
-          totalItemsLabel={EXAM_STAFF_TEXT.totalItems(visibleResult.meta.totalElements)}
-        />
-      )}
 
       <ConfirmDialog
         open={suspendTarget !== null}
