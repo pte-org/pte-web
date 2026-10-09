@@ -1,7 +1,9 @@
 export { Button } from "./Button";
 export type { ButtonAppearance, ButtonProps, ButtonVariant, ButtonSize } from "./Button";
 export { FormField } from "./FormField";
-export { Input, TextInput, DateInput, NumberInput } from "./Input";
+export { Input, TextInput, DateInput, DateTimeInput, NumberInput } from "./Input";
+export { DatePicker, DateTimePicker } from "./DatePicker";
+export type { DatePickerChangeEvent, DatePickerProps } from "./DatePicker";
 export { PasswordInput } from "./PasswordInput";
 export { Textarea } from "./Textarea";
 export { Select } from "./Select";

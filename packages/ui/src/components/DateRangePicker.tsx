@@ -1,10 +1,11 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useRef, useState, type ChangeEvent, type ReactElement } from "react";
+import { useEffect, useRef, useState, type ReactElement } from "react";
 import { cn } from "../utils/cn";
 import { ChevronDownIcon } from "./icons";
 import { useLocale } from "../i18n";
+import { DatePicker } from "./DatePicker";
 
 export interface DateRangeValue {
   from: string;
@@ -113,12 +114,6 @@ export const DateRangePicker = ({
     };
   }, [isOpen]);
 
-  const updateRange =
-    (key: keyof DateRangeValue) =>
-    (event: ChangeEvent<HTMLInputElement>): void => {
-      onChange({ ...value, [key]: event.target.value });
-    };
-
   const triggerLabel =
     value.from && value.to
       ? `${formatDisplayDate(value.from)} – ${formatDisplayDate(value.to)}`
@@ -195,48 +190,36 @@ export const DateRangePicker = ({
               }}
             >
               <div className="grid gap-3 sm:grid-cols-2">
-                <label
+                <div
                   className={cn(
                     "flex min-w-0 flex-col gap-1.5 text-xs font-medium",
                     isTable ? "text-[var(--table-muted-text)]" : "text-[var(--ink-secondary)]",
                   )}
                 >
                   <span>{resolvedFromLabel}</span>
-                  <input
-                    type="date"
+                  <DatePicker
                     aria-label={`${ariaLabel} ${resolvedFromLabel}`}
                     value={value.from}
                     max={value.to || undefined}
-                    onChange={updateRange("from")}
-                    className={cn(
-                      "h-9 min-w-0 rounded-md border px-2 text-sm font-normal outline-none transition-[border-color,box-shadow] focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20",
-                      isTable
-                        ? "border-[var(--table-control-border)] bg-[var(--table-control-background)] text-[var(--table-body-text)]"
-                        : "border-[var(--control-border)] bg-[var(--surface-card)] text-[var(--ink-primary)]",
-                    )}
+                    variant={isTable ? "table" : "default"}
+                    onChange={(event) => onChange({ ...value, from: event.target.value })}
                   />
-                </label>
-                <label
+                </div>
+                <div
                   className={cn(
                     "flex min-w-0 flex-col gap-1.5 text-xs font-medium",
                     isTable ? "text-[var(--table-muted-text)]" : "text-[var(--ink-secondary)]",
                   )}
                 >
                   <span>{resolvedToLabel}</span>
-                  <input
-                    type="date"
+                  <DatePicker
                     aria-label={`${ariaLabel} ${resolvedToLabel}`}
                     value={value.to}
                     min={value.from || undefined}
-                    onChange={updateRange("to")}
-                    className={cn(
-                      "h-9 min-w-0 rounded-md border px-2 text-sm font-normal outline-none transition-[border-color,box-shadow] focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20",
-                      isTable
-                        ? "border-[var(--table-control-border)] bg-[var(--table-control-background)] text-[var(--table-body-text)]"
-                        : "border-[var(--control-border)] bg-[var(--surface-card)] text-[var(--ink-primary)]",
-                    )}
+                    variant={isTable ? "table" : "default"}
+                    onChange={(event) => onChange({ ...value, to: event.target.value })}
                   />
-                </label>
+                </div>
               </div>
               <div
                 className={cn(
