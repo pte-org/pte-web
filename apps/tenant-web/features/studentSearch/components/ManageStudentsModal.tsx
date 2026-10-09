@@ -1,7 +1,16 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Button, CredentialDisplay, FileDropzone, Input, Modal, cn } from "@pte/ui";
+import {
+  Alert,
+  Button,
+  CredentialDisplay,
+  DateInput,
+  FileDropzone,
+  Input,
+  Modal,
+  cn,
+} from "@pte/ui";
 import { SkippedRowsReport } from "@/features/examoperations/components/SkippedRowsReport";
 import { downloadCredentials } from "@/features/examoperations/downloadCredentials";
 import { errorMessage } from "@/features/examoperations/errorMessage";
@@ -154,8 +163,7 @@ export const ManageStudentsModal = ({
                 value={form.phone}
                 onChange={(event) => handleFormChange("phone", event.target.value)}
               />
-              <Input
-                type="date"
+              <DateInput
                 label={MANAGE_STUDENTS_TEXT.dateOfBirthLabel}
                 value={form.dateOfBirth}
                 onChange={(event) => handleFormChange("dateOfBirth", event.target.value)}

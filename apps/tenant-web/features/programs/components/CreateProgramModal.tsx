@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Input, Modal } from "@pte/ui";
+import { Alert, DateInput, Input, Modal } from "@pte/ui";
 import { CREATE_PROGRAM_ERRORS, CREATE_PROGRAM_TEXT, EMPTY_CREATE_PROGRAM } from "../constants";
 import { validateCreateProgram } from "../utils/validateCreateProgram";
 import type { CreateProgramErrors, CreateProgramInput } from "../types";
@@ -107,15 +107,13 @@ export const CreateProgramModal = ({
           value={form.description}
           onChange={(event) => handleChange("description", event.target.value)}
         />
-        <Input
-          type="date"
+        <DateInput
           label={T.startDateLabel}
           value={form.startDate}
           error={shownErrors.startDate}
           onChange={(event) => handleChange("startDate", event.target.value)}
         />
-        <Input
-          type="date"
+        <DateInput
           label={T.endDateLabel}
           value={form.endDate}
           error={shownErrors.endDate}

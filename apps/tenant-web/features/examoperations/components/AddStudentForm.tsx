@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Button, Input } from "@pte/ui";
+import { Alert, Button, DateInput, Input } from "@pte/ui";
 import { ADD_STUDENT_TEXT } from "./constants";
 import { PendingImportBanner } from "./PendingImportBanner";
 import {
@@ -105,8 +105,7 @@ export const AddStudentForm = ({ sessionPublicId }: AddStudentFormProps): ReactE
             value={form.phone}
             onChange={(event) => handleChange("phone", event.target.value)}
           />
-          <Input
-            type="date"
+          <DateInput
             label={T.DOB_LABEL}
             value={form.dateOfBirth}
             onChange={(event) => handleChange("dateOfBirth", event.target.value)}
