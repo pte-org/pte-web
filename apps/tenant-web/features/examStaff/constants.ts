@@ -2,7 +2,6 @@ export const EXAM_STAFF_QUERY_KEY = ["examStaff"] as const;
 
 export const EXAM_STAFF_TEXT = {
   title: "Exam Staff",
-  subtitle: "Manage the Proctor and Examiner accounts in your organization.",
   addButton: "Add Exam Staff",
   searchPlaceholder: "Search by name or email",
   roleLabel: "Role",
@@ -19,7 +18,6 @@ export const EXAM_STAFF_TEXT = {
   nameDesc: "Full name: Z–A",
   emailAsc: "Email: A–Z",
   emailDesc: "Email: Z–A",
-  pageSizeLabel: "Rows per page",
   firstPage: "First",
   lastPage: "Last",
   totalItems: (count: number) => `${count} staff account(s)`,

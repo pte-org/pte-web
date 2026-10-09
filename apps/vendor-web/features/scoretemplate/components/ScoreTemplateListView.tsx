@@ -11,12 +11,11 @@ import {
   CheckCircleIcon,
   ConfirmDialog,
   CopyIcon,
+  DataTable,
   DocumentIcon,
   EyeIcon,
   Input,
-  LoadingState,
   Modal,
-  PageHeader,
   PencilIcon,
   Select,
   TrashIcon,
@@ -49,10 +48,6 @@ import type {
   ScoreTemplateStatusFilter,
 } from "../types";
 import { downloadScoreTemplateJson } from "../serialization";
-
-const HEADER_CLASS =
-  "px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
-const CELL_CLASS = "px-5 py-4 text-sm text-gray-700 align-middle";
 
 function detailHref(template: ScoreTemplateResponse): string {
   return template.status === "DRAFT"
@@ -223,15 +218,6 @@ export const ScoreTemplateListView = (): ReactElement => {
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={SCORE_TEMPLATE_TEXT.LIST_TITLE}
-        actions={
-          <Button variant="secondary" onClick={() => setIsCreateOpen(true)}>
-            {SCORE_TEMPLATE_TEXT.CREATE_ACTION}
-          </Button>
-        }
-      />
-
       {notice && <Alert tone="success">{notice}</Alert>}
       {isError && <Alert tone="error">{SCORE_TEMPLATE_TEXT.LOAD_ERROR}</Alert>}
       {createError && <Alert tone="error">{createError}</Alert>}
@@ -275,58 +261,88 @@ export const ScoreTemplateListView = (): ReactElement => {
         </Alert>
       )}
 
-      {isLoading ? (
-        <LoadingState rows={4} />
-      ) : (
-        <div className="overflow-hidden rounded-lg bg-white shadow-card">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] border-collapse">
-              <thead className="bg-slate-50">
-                <tr>
-                  <th className={HEADER_CLASS}>{SCORE_TEMPLATE_LIST_HEADERS.CODE}</th>
-                  <th className={HEADER_CLASS}>{SCORE_TEMPLATE_LIST_HEADERS.VERSION}</th>
-                  <th className={HEADER_CLASS}>{SCORE_TEMPLATE_LIST_HEADERS.NAME}</th>
-                  <th className={HEADER_CLASS}>{SCORE_TEMPLATE_LIST_HEADERS.STATUS}</th>
-                  <th className={HEADER_CLASS}>{SCORE_TEMPLATE_LIST_HEADERS.ITEMS}</th>
-                  <th className={HEADER_CLASS}>{SCORE_TEMPLATE_LIST_HEADERS.POLICY}</th>
-                  <th className={HEADER_CLASS}>{SCORE_TEMPLATE_LIST_HEADERS.ACTIONS}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(templates ?? []).map((template) => {
-                  const status = template.status as ScoreTemplateStatusFilter;
-                  return (
-                    <tr
-                      key={template.publicId}
-                      className="border-t border-gray-100 hover:bg-[var(--surface-row-hover)]"
-                    >
-                      <td className={`${CELL_CLASS} font-mono text-xs text-gray-900`}>
-                        {template.code}
-                      </td>
-                      <td className={CELL_CLASS}>{template.version}</td>
-                      <td className={CELL_CLASS}>{template.name}</td>
-                      <td className={CELL_CLASS}>
-                        <Badge variant={SCORE_TEMPLATE_STATUS_VARIANT[status] ?? "neutral"}>
-                          {SCORE_TEMPLATE_STATUS_LABELS[status] ?? template.status}
-                        </Badge>
-                      </td>
-                      <td className={CELL_CLASS}>{template.items.length}</td>
-                      <td className={CELL_CLASS}>
-                        {SCORE_TEMPLATE_POLICY_LABELS[
-                          template.templatePolicy as keyof typeof SCORE_TEMPLATE_POLICY_LABELS
-                        ] ?? template.templatePolicy}
-                      </td>
-                      <td className={CELL_CLASS}>
-                        <ActionMenu items={buildActions(template)} />
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      <DataTable
+        columns={[
+          {
+            key: "code",
+            label: SCORE_TEMPLATE_LIST_HEADERS.CODE,
+            header: SCORE_TEMPLATE_LIST_HEADERS.CODE,
+            filterAccessor: (template: ScoreTemplateResponse) => template.code,
+            cell: (template: ScoreTemplateResponse) => (
+              <span className="font-mono text-xs">{template.code}</span>
+            ),
+          },
+          {
+            key: "version",
+            label: SCORE_TEMPLATE_LIST_HEADERS.VERSION,
+            header: SCORE_TEMPLATE_LIST_HEADERS.VERSION,
+            filterAccessor: (template: ScoreTemplateResponse) => template.version,
+            cell: (template: ScoreTemplateResponse) => template.version,
+          },
+          {
+            key: "name",
+            label: SCORE_TEMPLATE_LIST_HEADERS.NAME,
+            header: SCORE_TEMPLATE_LIST_HEADERS.NAME,
+            filterAccessor: (template: ScoreTemplateResponse) => template.name,
+            cell: (template: ScoreTemplateResponse) => template.name,
+          },
+          {
+            key: "status",
+            label: SCORE_TEMPLATE_LIST_HEADERS.STATUS,
+            header: SCORE_TEMPLATE_LIST_HEADERS.STATUS,
+            filterOptions: [
+              { value: "", label: "All statuses" },
+              ...Object.entries(SCORE_TEMPLATE_STATUS_LABELS).map(([value, label]) => ({
+                value,
+                label,
+              })),
+            ],
+            filterAccessor: (template: ScoreTemplateResponse) => template.status,
+            cell: (template: ScoreTemplateResponse) => {
+              const status = template.status as ScoreTemplateStatusFilter;
+              return (
+                <Badge variant={SCORE_TEMPLATE_STATUS_VARIANT[status] ?? "neutral"}>
+                  {SCORE_TEMPLATE_STATUS_LABELS[status] ?? template.status}
+                </Badge>
+              );
+            },
+          },
+          {
+            key: "items",
+            label: SCORE_TEMPLATE_LIST_HEADERS.ITEMS,
+            header: SCORE_TEMPLATE_LIST_HEADERS.ITEMS,
+            filterAccessor: (template: ScoreTemplateResponse) => template.items.length,
+            cell: (template: ScoreTemplateResponse) => template.items.length,
+          },
+          {
+            key: "policy",
+            label: SCORE_TEMPLATE_LIST_HEADERS.POLICY,
+            header: SCORE_TEMPLATE_LIST_HEADERS.POLICY,
+            filterOptions: [
+              { value: "", label: "All policies" },
+              ...Object.entries(SCORE_TEMPLATE_POLICY_LABELS).map(([value, label]) => ({
+                value,
+                label,
+              })),
+            ],
+            filterAccessor: (template: ScoreTemplateResponse) => template.templatePolicy,
+            cell: (template: ScoreTemplateResponse) =>
+              SCORE_TEMPLATE_POLICY_LABELS[
+                template.templatePolicy as keyof typeof SCORE_TEMPLATE_POLICY_LABELS
+              ] ?? template.templatePolicy,
+          },
+        ]}
+        rows={templates ?? []}
+        getRowKey={(template) => template.publicId}
+        isLoading={isLoading}
+        emptyTitle="No exam templates found"
+        toolbarActions={
+          <Button onClick={() => setIsCreateOpen(true)}>{SCORE_TEMPLATE_TEXT.CREATE_ACTION}</Button>
+        }
+        tableClassName="min-w-[720px]"
+        rowActionsHeader={SCORE_TEMPLATE_LIST_HEADERS.ACTIONS}
+        rowActions={(template) => <ActionMenu items={buildActions(template)} />}
+      />
 
       <Modal
         open={isCreateOpen}

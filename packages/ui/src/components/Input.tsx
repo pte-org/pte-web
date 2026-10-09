@@ -33,7 +33,7 @@ export const Input = ({
     >
       <div
         className={cn(
-          "flex items-center gap-2 rounded-md border bg-[var(--surface-card)] px-3 transition-colors focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]/20",
+          "flex min-h-10 items-center gap-2 rounded-lg border bg-[var(--surface-card)] px-3 transition-[border-color,box-shadow] focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]/20",
           error ? "border-[var(--blush-action)]" : "border-[var(--control-border)]",
         )}
       >

@@ -15,7 +15,6 @@ import {
   CheckCircleIcon,
   DataTable,
   EyeIcon,
-  PageHeader,
   PaginationControls,
   PencilIcon,
   TrashIcon,
@@ -32,6 +31,12 @@ import {
 import { AnnouncementFormModal } from "./AnnouncementFormModal";
 
 type Confirmation = { kind: "publish" | "delete"; announcement: AnnouncementResponse } | null;
+
+const ANNOUNCEMENT_STATUS_FILTER_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "PUBLISHED", label: "Published" },
+  { value: "DRAFT", label: "Draft" },
+] as const;
 
 export function AnnouncementsView(): ReactElement {
   const router = useRouter();
@@ -103,10 +108,6 @@ export function AnnouncementsView(): ReactElement {
   const rows = announcements.data?.data ?? [];
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title="Announcements"
-        actions={<Button onClick={() => setComposer(null)}>New announcement</Button>}
-      />
       {announcements.error && (
         <Alert tone="error">{getUserFacingApiErrorMessage(announcements.error)}</Alert>
       )}
@@ -145,6 +146,8 @@ export function AnnouncementsView(): ReactElement {
           {
             key: "status",
             header: "Status",
+            filterOptions: ANNOUNCEMENT_STATUS_FILTER_OPTIONS,
+            filterAccessor: (row: AnnouncementResponse) => (row.published ? "PUBLISHED" : "DRAFT"),
             cell: (row: AnnouncementResponse) =>
               row.published ? (
                 <span className="text-green-700">Published</span>
@@ -163,6 +166,9 @@ export function AnnouncementsView(): ReactElement {
           {
             key: "updated",
             header: "Updated",
+            filterType: "date-range",
+            filterAccessor: (row: AnnouncementResponse) => row.updatedAt,
+            filterPlaceholder: "Date range",
             cell: (row: AnnouncementResponse) => new Date(row.updatedAt).toLocaleString(),
           },
         ]}
@@ -171,6 +177,7 @@ export function AnnouncementsView(): ReactElement {
         isLoading={announcements.isLoading}
         emptyTitle="No announcement drafts"
         emptyDescription="Create a draft when the platform needs to communicate a global notice."
+        toolbarActions={<Button onClick={() => setComposer(null)}>New announcement</Button>}
         rowActions={(row) => (
           <ActionMenu
             items={[
@@ -210,14 +217,17 @@ export function AnnouncementsView(): ReactElement {
           />
         )}
         rowActionsHeader=""
+        clientSidePagination={false}
+        pagination={
+          announcements.data ? (
+            <PaginationControls
+              meta={announcements.data.meta}
+              onPageChange={setPage}
+              disabled={announcements.isFetching}
+            />
+          ) : undefined
+        }
       />
-      {announcements.data && (
-        <PaginationControls
-          meta={announcements.data.meta}
-          onPageChange={setPage}
-          disabled={announcements.isFetching}
-        />
-      )}
       <AnnouncementFormModal
         key={composer?.publicId ?? (composer === null ? "new" : "closed")}
         open={composer !== undefined}

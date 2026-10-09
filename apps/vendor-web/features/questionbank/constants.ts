@@ -18,7 +18,6 @@ export const QUESTIONBANK_TEXT = {
   TOTAL_QUESTIONS: (count: number) => `${count} questions`,
   LOAD_ERROR: "Could not load the question bank. Please try again.",
   SYNCING: "Updating question bank...",
-  PAGE_SIZE: "Rows per page",
   FIRST_PAGE: "First",
   LAST_PAGE: "Last",
   STAT_TOTAL: "Total questions",
@@ -34,9 +33,11 @@ export const QUESTIONBANK_TEXT = {
   ROW_ARCHIVE: "Archive",
   ROW_DELETE_DRAFT: "Delete draft",
   DELETE_CONFIRM_TITLE: "Delete this draft?",
-  DELETE_CONFIRM_DESCRIPTION: "This draft will be removed from authoring. Audit history and media are retained, but it cannot be restored from this UI.",
+  DELETE_CONFIRM_DESCRIPTION:
+    "This draft will be removed from authoring. Audit history and media are retained, but it cannot be restored from this UI.",
   DELETE_SUCCESS: "Question draft deleted.",
-  DELETE_BLOCKED: "Draft cleanup is unavailable because publication or revision history is protected or unknown.",
+  DELETE_BLOCKED:
+    "Draft cleanup is unavailable because publication or revision history is protected or unknown.",
   ARCHIVE_CONFIRM_TITLE: "Archive this question?",
   ARCHIVE_CONFIRM_DESCRIPTION:
     "This question will be excluded from new exam generation. Existing exam snapshots and publication history are retained.",
@@ -48,7 +49,8 @@ export const QUESTIONBANK_TEXT = {
   EMPTY_VALUE: "—",
   EMPTY_TITLE: "No questions found",
   EMPTY_DESCRIPTION_FILTERED: "No questions match your search or filters. Try adjusting them.",
-  EMPTY_DESCRIPTION_UNFILTERED: "The question bank is empty. Add your first question to get started.",
+  EMPTY_DESCRIPTION_UNFILTERED:
+    "The question bank is empty. Add your first question to get started.",
   EMPTY_CLEAR_FILTERS: "Clear filters",
   REJECTION_REASON_DEFAULT: "Please revise this question.",
   REJECT_MODAL_TITLE: "Reject this question?",

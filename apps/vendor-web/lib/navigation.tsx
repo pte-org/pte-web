@@ -10,7 +10,7 @@ import {
   NavSupportTicketIcon,
   NavTaskTypeIcon,
   NavTenantIcon,
-  UsersIcon,
+  NavUserGroupIcon,
 } from "@pte/ui";
 import type { NavItem } from "@/features/auth/components";
 import {
@@ -36,7 +36,7 @@ export const ADMIN_NAV: NavItem[] = [
     label: T.PLATFORM_USERS,
     labelKey: "nav.platformUsers",
     href: "/admin/platform-users",
-    icon: <UsersIcon />,
+    icon: <NavUserGroupIcon />,
     section: T.TENANTS_SECTION,
     sectionKey: "nav.tenants",
     requiredRoles: PLATFORM_ADMIN_ONLY,

@@ -5,8 +5,8 @@ import Link from "next/link";
 import {
   Alert,
   Badge,
+  Button,
   DataTable,
-  PageHeader,
   Select,
   type DataTableColumn,
 } from "@pte/ui";
@@ -15,6 +15,7 @@ import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import {
   PROGRAM_STATUS_LABELS,
+  PROGRAM_STATUS_FILTER_OPTIONS,
   PROGRAM_STATUS_VARIANT,
   PROGRAM_TABLE_HEADERS,
   PROGRAMS_TEXT,
@@ -81,6 +82,8 @@ export const ProgramsListView = (): ReactElement => {
     {
       key: "status",
       header: PROGRAM_TABLE_HEADERS.STATUS,
+      filterOptions: PROGRAM_STATUS_FILTER_OPTIONS,
+      filterAccessor: (program) => program.status,
       cell: (program) => (
         <Badge variant={PROGRAM_STATUS_VARIANT[program.status]}>
           {PROGRAM_STATUS_LABELS[program.status]}
@@ -90,6 +93,9 @@ export const ProgramsListView = (): ReactElement => {
     {
       key: "dates",
       header: PROGRAM_TABLE_HEADERS.DATES,
+      filterType: "date-range",
+      filterAccessor: (program) => program.startDate,
+      filterPlaceholder: "Start date range",
       cell: (program) => formatDateRange(program.startDate, program.endDate),
     },
     {
@@ -108,19 +114,6 @@ export const ProgramsListView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title={labels.program}
-        actions={
-          <button
-            type="button"
-            onClick={() => setCreateOpen(true)}
-            disabled={!organizationPublicId}
-            className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {PROGRAMS_TEXT.addButton}
-          </button>
-        }
-      />
       <p className="text-gray-600">{PROGRAMS_TEXT.subtitle(labels.program)}</p>
 
       {organizations && organizations.length > 1 && (
@@ -145,6 +138,15 @@ export const ProgramsListView = (): ReactElement => {
         isLoading={organizationsLoading || programsLoading}
         emptyTitle={PROGRAMS_TEXT.emptyTitle(labels.program)}
         emptyDescription={PROGRAMS_TEXT.emptyText(labels.program)}
+        toolbarActions={
+          <Button
+            type="button"
+            onClick={() => setCreateOpen(true)}
+            disabled={!organizationPublicId}
+          >
+            {PROGRAMS_TEXT.addButton}
+          </Button>
+        }
       />
 
       <CreateProgramModal

@@ -4,7 +4,6 @@ import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Modal, Select, Textarea } from "@pte/ui";
 import {
   CATEGORY_OPTIONS,
-  CREATE_TICKET_ERRORS as E,
   CREATE_TICKET_TEXT as T,
   EMPTY_CREATE_TICKET,
 } from "../constants";

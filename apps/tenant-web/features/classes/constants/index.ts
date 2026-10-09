@@ -9,6 +9,13 @@ export const CLASS_STATUS_LABELS = {
   SUSPENDED: "Suspended",
 } as const;
 
+export const CLASS_STATUS_FILTER_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "ACTIVE", label: CLASS_STATUS_LABELS.ACTIVE },
+  { value: "INACTIVE", label: CLASS_STATUS_LABELS.INACTIVE },
+  { value: "SUSPENDED", label: CLASS_STATUS_LABELS.SUSPENDED },
+] as const;
+
 export const CLASS_STATUS_VARIANT = {
   ACTIVE: "success",
   INACTIVE: "neutral",
@@ -176,7 +183,7 @@ export const LECTURER_SECTION_TEXT = {
 export const LECTURER_TABLE_HEADERS = {
   FULL_NAME: "Full name",
   EMAIL: "Email",
-  ACTIONS: "Action",
+  ACTIONS: "Actions",
 } as const;
 
 export const ASSIGN_LECTURER_TEXT = {

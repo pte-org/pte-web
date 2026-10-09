@@ -114,11 +114,6 @@ export function AnnouncementDetailView({ publicId }: { publicId: string }): Reac
       <PageHeader
         title={item.title}
         subtitle={item.published ? "Published announcement" : `Draft version ${item.version}`}
-        actions={
-          <Button variant="secondary" onClick={() => router.push("/admin/announcements")}>
-            Back
-          </Button>
-        }
       />
       {conflict && (
         <Alert tone="warning" title="Draft changed elsewhere">

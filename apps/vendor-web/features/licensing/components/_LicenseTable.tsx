@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { ActionMenu, Badge } from "@pte/ui";
+import { ActionMenu, Badge, DataTable } from "@pte/ui";
 import { TENANT_PLAN_LABELS } from "../../tenancy/constants";
 import {
   LICENSE_STATUS_LABELS,
@@ -15,63 +15,74 @@ interface LicenseTableProps {
   onViewHistory: (license: License) => void;
 }
 
-const HEADER_CLASS =
-  "px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
-const CELL_CLASS = "px-5 py-4 text-sm text-gray-700 align-middle";
+const STATUS_FILTER_OPTIONS = [
+  { value: "", label: "All statuses" },
+  ...Object.entries(LICENSE_STATUS_LABELS).map(([value, label]) => ({ value, label })),
+] as const;
 
 export const LicenseTable = ({
   licenses,
   onGrant,
   onViewHistory,
 }: LicenseTableProps): ReactElement => (
-  <div className="overflow-hidden rounded-lg bg-white shadow-card">
-    <div className="overflow-x-auto">
-      <table className="min-w-[650px] w-full border-collapse">
-        <thead className="bg-slate-50">
-          <tr>
-            <th className={HEADER_CLASS}>{LICENSE_TABLE_HEADERS.TENANT}</th>
-            <th className={HEADER_CLASS}>{LICENSE_TABLE_HEADERS.PLAN}</th>
-            <th className={HEADER_CLASS}>{LICENSE_TABLE_HEADERS.STATUS}</th>
-            <th className={HEADER_CLASS}>{LICENSE_TABLE_HEADERS.SEATS}</th>
-            <th className={HEADER_CLASS}>{LICENSE_TABLE_HEADERS.ACTIONS}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {licenses.map((license) => (
-            <tr
-              key={license.tenantId}
-              className="border-t border-gray-100 hover:bg-[var(--surface-row-hover)]"
-            >
-              <td className={`${CELL_CLASS} font-medium text-gray-900`}>{license.tenantName}</td>
-              <td className={CELL_CLASS}>{TENANT_PLAN_LABELS[license.plan]}</td>
-              <td className={CELL_CLASS}>
-                <Badge variant={LICENSE_STATUS_VARIANT[license.status]}>
-                  {LICENSE_STATUS_LABELS[license.status]}
-                </Badge>
-              </td>
-              <td className={`${CELL_CLASS} text-gray-500`}>{license.seatsTotal}</td>
-              <td className={CELL_CLASS}>
-                <ActionMenu
-                  items={[
-                    {
-                      label: LICENSING_TEXT.ACTION_RENEW,
-                      onSelect: () => onGrant(license),
-                    },
-                    {
-                      label: LICENSING_TEXT.ACTION_HISTORY,
-                      onSelect: () => onViewHistory(license),
-                    },
-                    {
-                      label: LICENSING_TEXT.ACTION_EXPORT_PDF,
-                      onSelect: () => undefined,
-                    },
-                  ]}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
+  <DataTable
+    columns={[
+      {
+        key: "tenant",
+        label: LICENSE_TABLE_HEADERS.TENANT,
+        header: LICENSE_TABLE_HEADERS.TENANT,
+        filterAccessor: (license: License) => license.tenantName,
+        cell: (license: License) => <span className="font-medium">{license.tenantName}</span>,
+      },
+      {
+        key: "plan",
+        label: LICENSE_TABLE_HEADERS.PLAN,
+        header: LICENSE_TABLE_HEADERS.PLAN,
+        filterAccessor: (license: License) => TENANT_PLAN_LABELS[license.plan],
+        cell: (license: License) => TENANT_PLAN_LABELS[license.plan],
+      },
+      {
+        key: "status",
+        label: LICENSE_TABLE_HEADERS.STATUS,
+        header: LICENSE_TABLE_HEADERS.STATUS,
+        filterOptions: STATUS_FILTER_OPTIONS,
+        filterAccessor: (license: License) => license.status,
+        cell: (license: License) => (
+          <Badge variant={LICENSE_STATUS_VARIANT[license.status]}>
+            {LICENSE_STATUS_LABELS[license.status]}
+          </Badge>
+        ),
+      },
+      {
+        key: "seats",
+        label: LICENSE_TABLE_HEADERS.SEATS,
+        header: LICENSE_TABLE_HEADERS.SEATS,
+        filterAccessor: (license: License) => license.seatsTotal,
+        cell: (license: License) => license.seatsTotal,
+      },
+    ]}
+    rows={licenses}
+    getRowKey={(license) => license.tenantId}
+    emptyTitle="No licenses found"
+    tableClassName="min-w-[650px]"
+    rowActionsHeader={LICENSE_TABLE_HEADERS.ACTIONS}
+    rowActions={(license) => (
+      <ActionMenu
+        items={[
+          {
+            label: LICENSING_TEXT.ACTION_RENEW,
+            onSelect: () => onGrant(license),
+          },
+          {
+            label: LICENSING_TEXT.ACTION_HISTORY,
+            onSelect: () => onViewHistory(license),
+          },
+          {
+            label: LICENSING_TEXT.ACTION_EXPORT_PDF,
+            onSelect: () => undefined,
+          },
+        ]}
+      />
+    )}
+  />
 );

@@ -22,17 +22,20 @@ export const FormField = ({
 }: FormFieldProps): ReactElement => (
   <div className={cn("flex flex-col gap-1", className)}>
     {label && (
-      <label htmlFor={id} className="text-xs font-semibold uppercase tracking-wide text-gray-600">
+      <label
+        htmlFor={id}
+        className="text-xs font-medium uppercase tracking-wide text-[var(--ink-secondary)]"
+      >
         {label}
         {required && (
-          <span aria-hidden="true" className="ml-1 text-red-600">
+          <span aria-hidden="true" className="ml-1 text-[var(--blush-action)]">
             *
           </span>
         )}
       </label>
     )}
     {children}
-    {helperText && !error && <span className="text-xs text-gray-500">{helperText}</span>}
-    {error && <span className="text-xs text-red-600">{error}</span>}
+    {helperText && !error && <span className="text-xs text-[var(--ink-muted)]">{helperText}</span>}
+    {error && <span className="text-xs text-[var(--blush-action)]">{error}</span>}
   </div>
 );

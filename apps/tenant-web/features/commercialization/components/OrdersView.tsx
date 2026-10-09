@@ -2,11 +2,11 @@
 
 import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { ActionMenu, Alert, DataTable, EyeIcon, PageHeader, PaginationControls } from "@pte/ui";
+import { ActionMenu, Alert, DataTable, EyeIcon, PaginationControls } from "@pte/ui";
 import { DEFAULT_PAGE_SIZE, type OrderResponse } from "@pte/api-client";
-import { AppBackButton } from "@/features/navigation/components/AppBackButton";
 import { useOrdersPage } from "../api";
 import { BILLING_TEXT as T } from "../constants";
+import { BILLING_STATUS_FILTER_OPTIONS } from "../statusConstants";
 import { BillingPanel } from "./BillingPanel";
 import { BillingStatusBadge } from "./BillingStatusBadge";
 
@@ -21,12 +21,6 @@ export const OrdersView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <AppBackButton href="/host/billing" label={T.BACK_TO_PLANS} />
-
-      <PageHeader
-        title={T.ORDERS_TITLE}
-        subtitle={T.ORDERS_SUBTITLE}
-      />
       {isError && <Alert tone="error">{T.ORDERS_LOAD_ERROR}</Alert>}
       <BillingPanel title={T.ORDERS_PANEL_TITLE} subtitle={T.ORDERS_PANEL_SUBTITLE}>
         <DataTable
@@ -57,11 +51,16 @@ export const OrdersView = (): ReactElement => {
             {
               key: "date",
               header: T.DATE_COLUMN,
+              filterType: "date-range",
+              filterAccessor: (row: OrderResponse) => row.createdAt,
+              filterPlaceholder: "Date range",
               cell: (row: OrderResponse) => formatDate(row.createdAt),
             },
             {
               key: "status",
               header: T.STATUS_COLUMN,
+              filterOptions: BILLING_STATUS_FILTER_OPTIONS,
+              filterAccessor: (row: OrderResponse) => row.status,
               cell: (row: OrderResponse) => <BillingStatusBadge status={row.status} />,
             },
           ]}
@@ -80,21 +79,25 @@ export const OrdersView = (): ReactElement => {
             />
           )}
           rowActionsHeader=""
-          emptyTitle={isLoading ? T.LOADING_ORDERS : T.NO_ORDERS}
+          isLoading={isLoading}
+          emptyTitle={T.NO_ORDERS}
+          clientSidePagination={false}
+          pagination={
+            data ? (
+              <PaginationControls
+                meta={data.meta}
+                onPageChange={setPage}
+                disabled={isLoading}
+                showPageSizeInput
+                onPageSizeChange={(nextSize) => {
+                  setSize(nextSize);
+                  setPage(0);
+                }}
+                totalItemsLabel={T.TOTAL_ORDERS(data.meta.totalElements)}
+              />
+            ) : undefined
+          }
         />
-        {data && (
-          <PaginationControls
-            meta={data.meta}
-            onPageChange={setPage}
-            disabled={isLoading}
-            showPageSizeInput
-            onPageSizeChange={(nextSize) => {
-              setSize(nextSize);
-              setPage(0);
-            }}
-            totalItemsLabel={T.TOTAL_ORDERS(data.meta.totalElements)}
-          />
-        )}
       </BillingPanel>
     </div>
   );

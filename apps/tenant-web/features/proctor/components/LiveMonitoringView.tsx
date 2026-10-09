@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useState, type ReactElement } from "react";
 import { Button, DataTable, PageHeader, type DataTableColumn } from "@pte/ui";
 import { useProctorLiveAttempts } from "../api";
 import {
+  ATTEMPT_STATUS_FILTER_OPTIONS,
   ATTEMPT_STATUS_LABELS,
   PROCTOR_LIVE_TEXT as T,
 } from "../constants";
@@ -25,9 +25,7 @@ function formatTimestamp(value: string | null): string {
   return new Intl.DateTimeFormat("en-GB", { dateStyle: "short", timeStyle: "medium" }).format(date);
 }
 
-export const LiveMonitoringView = ({
-  sessionPublicId,
-}: LiveMonitoringViewProps): ReactElement => {
+export const LiveMonitoringView = ({ sessionPublicId }: LiveMonitoringViewProps): ReactElement => {
   const attempts = useProctorLiveAttempts(sessionPublicId);
   const [selectedAttemptPublicId, setSelectedAttemptPublicId] = useState<string | null>(null);
 
@@ -45,11 +43,16 @@ export const LiveMonitoringView = ({
     {
       key: "status",
       header: T.COL_STATUS,
+      filterOptions: ATTEMPT_STATUS_FILTER_OPTIONS,
+      filterAccessor: (row) => row.status,
       cell: (row) => ATTEMPT_STATUS_LABELS[row.status],
     },
     {
       key: "lastHeartbeatAt",
       header: T.COL_LAST_HEARTBEAT,
+      filterType: "date-range",
+      filterAccessor: (row) => row.lastHeartbeatAt,
+      filterPlaceholder: "Date range",
       cell: (row) => formatTimestamp(row.lastHeartbeatAt),
     },
     {
@@ -65,7 +68,9 @@ export const LiveMonitoringView = ({
   ];
 
   const list = attempts.data ?? [];
-  const selectedExists = selectedAttemptPublicId !== null && list.some((row) => row.attemptPublicId === selectedAttemptPublicId);
+  const selectedExists =
+    selectedAttemptPublicId !== null &&
+    list.some((row) => row.attemptPublicId === selectedAttemptPublicId);
   const isActionDisabled = !selectedExists;
 
   return (
@@ -74,14 +79,9 @@ export const LiveMonitoringView = ({
 
       <section className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
         <span>
-          {T.SESSION_ID_LABEL}: <code className="font-mono text-xs">#{shortId(sessionPublicId)}</code>
+          {T.SESSION_ID_LABEL}:{" "}
+          <code className="font-mono text-xs">#{shortId(sessionPublicId)}</code>
         </span>
-        <Link
-          href="/proctor/profile"
-          className="text-sm font-medium text-blue-700 hover:text-blue-800"
-        >
-          {T.BACK_TO_PROFILE}
-        </Link>
       </section>
 
       <DataTable<ProctorLiveAttempt>
