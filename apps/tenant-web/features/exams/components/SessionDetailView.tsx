@@ -3,6 +3,7 @@
 import { useState, type ReactElement } from "react";
 import { ConfirmDialog, LoadingState, PageHeader, useLocale } from "@pte/ui";
 import { errorMessage as mutationErrorMessage } from "@/features/examoperations/errorMessage";
+import { AppBackButton } from "@/features/navigation/components/AppBackButton";
 import { useCancelSession, useCloseSession, useOpenSession, useSession } from "../api";
 import { ExamDetailTabs } from "./ExamDetailTabs";
 
@@ -32,6 +33,7 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
 
   return (
     <div className="flex flex-col gap-5">
+      <AppBackButton href="/host/exams" label={t("tenant.examOverview.back", "Back to exams")} />
       <PageHeader title={session.name} />
 
       <ExamDetailTabs
