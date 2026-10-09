@@ -4,10 +4,16 @@ import type { ReactElement } from "react";
 import { Select } from "@pte/ui";
 import {
   QUESTIONBANK_TEXT,
+  QUESTION_POOL_FILTER_OPTIONS,
   QUESTION_STATUS_FILTER_OPTIONS,
   SKILL_FILTER_OPTIONS,
 } from "../constants";
-import type { QuestionFilter, QuestionSkillFilter, QuestionStatusFilter } from "../types";
+import type {
+  QuestionFilter,
+  QuestionPoolFilter,
+  QuestionSkillFilter,
+  QuestionStatusFilter,
+} from "../types";
 
 interface QuestionFiltersProps {
   filter: QuestionFilter;
@@ -41,6 +47,14 @@ export const QuestionFilters = ({ filter, onChange }: QuestionFiltersProps): Rea
           ...filter,
           status: event.target.value as QuestionStatusFilter,
         })
+      }
+    />
+    <Select
+      aria-label={QUESTION_POOL_FILTER_OPTIONS[0].label}
+      value={filter.pool}
+      options={QUESTION_POOL_FILTER_OPTIONS}
+      onChange={(event) =>
+        onChange({ ...filter, pool: event.target.value as QuestionPoolFilter })
       }
     />
   </div>

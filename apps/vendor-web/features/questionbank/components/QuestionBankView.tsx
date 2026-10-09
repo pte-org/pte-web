@@ -6,7 +6,12 @@ import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
 import { Alert, PageHeader, PaginationControls } from "@pte/ui";
 import { QUESTIONBANK_TEXT } from "../constants";
 import { useQuestionStats, useQuestions } from "../api";
-import type { QuestionFilter, QuestionSkillFilter, QuestionStatusFilter } from "../types";
+import type {
+  QuestionFilter,
+  QuestionPoolFilter,
+  QuestionSkillFilter,
+  QuestionStatusFilter,
+} from "../types";
 import { QuestionStatGrid } from "./_QuestionStatGrid";
 import { QuestionFilters } from "./_QuestionFilters";
 import { QuestionTable } from "./_QuestionTable";
@@ -15,6 +20,7 @@ const INITIAL_FILTER: QuestionFilter = {
   query: "",
   skill: "all",
   status: "all",
+  pool: "all",
 };
 
 const SECTION_BY_SKILL: Record<Exclude<QuestionSkillFilter, "all">, string> = {
@@ -29,6 +35,11 @@ const STATUS_BY_FILTER: Record<Exclude<QuestionStatusFilter, "all">, string> = {
   pending_approval: "PENDING_APPROVAL",
   published: "APPROVED",
   archived: "ARCHIVED",
+};
+
+const POOL_BY_FILTER: Record<Exclude<QuestionPoolFilter, "all">, string> = {
+  exam: "EXAM",
+  practice: "PRACTICE",
 };
 
 export const QuestionBankView = (): ReactElement => {
@@ -49,6 +60,7 @@ export const QuestionBankView = (): ReactElement => {
       q: debouncedQuery.trim() || undefined,
       section: filter.skill === "all" ? undefined : SECTION_BY_SKILL[filter.skill],
       status: filter.status === "all" ? undefined : STATUS_BY_FILTER[filter.status],
+      pool: filter.pool === "all" ? undefined : POOL_BY_FILTER[filter.pool],
     },
     page,
     size,
@@ -61,7 +73,10 @@ export const QuestionBankView = (): ReactElement => {
 
   const questions = questionPage?.data ?? [];
   const isFiltered =
-    filter.query.trim() !== "" || filter.skill !== "all" || filter.status !== "all";
+    filter.query.trim() !== "" ||
+    filter.skill !== "all" ||
+    filter.status !== "all" ||
+    filter.pool !== "all";
 
   return (
     <div className="flex flex-col gap-5">

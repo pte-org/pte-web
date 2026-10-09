@@ -2,12 +2,15 @@ export type QuestionSkill = "listening" | "reading" | "writing" | "speaking";
 
 export type QuestionStatus = "draft" | "pending_approval" | "published" | "archived";
 
+export type QuestionPool = "exam" | "practice";
+
 export interface Question {
   id: string;
   skill: QuestionSkill;
   taskType: string;
   content: string;
   status: QuestionStatus;
+  pool: QuestionPool;
   rejectionReason?: string | null;
   canDeleteDraft?: boolean;
   canArchive?: boolean;
@@ -31,9 +34,11 @@ export interface QuestionStats {
 
 export type QuestionSkillFilter = QuestionSkill | "all";
 export type QuestionStatusFilter = QuestionStatus | "all";
+export type QuestionPoolFilter = QuestionPool | "all";
 
 export interface QuestionFilter {
   query: string;
   skill: QuestionSkillFilter;
   status: QuestionStatusFilter;
+  pool: QuestionPoolFilter;
 }

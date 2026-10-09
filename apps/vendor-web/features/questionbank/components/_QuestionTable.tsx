@@ -26,6 +26,7 @@ import {
 } from "../api";
 import {
   QUESTIONBANK_TEXT,
+  QUESTION_POOL_LABELS,
   QUESTION_SKILL_LABELS,
   QUESTION_STATUS_LABELS,
   QUESTION_STATUS_VARIANT,
@@ -201,6 +202,7 @@ export const QuestionTable = ({
                 <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.CODE}</th>
                 <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.SKILL}</th>
                 <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.CONTENT}</th>
+                <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.POOL}</th>
                 <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.STATUS}</th>
                 <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.ACTIONS}</th>
               </tr>
@@ -216,6 +218,7 @@ export const QuestionTable = ({
                   <td className={`${CELL_CLASS} max-w-xs`}>
                     <span className="line-clamp-1">{question.content}</span>
                   </td>
+                  <td className={CELL_CLASS}>{QUESTION_POOL_LABELS[question.pool]}</td>
                   <td className={CELL_CLASS}>
                     <Badge variant={QUESTION_STATUS_VARIANT[question.status]}>
                       {QUESTION_STATUS_LABELS[question.status]}

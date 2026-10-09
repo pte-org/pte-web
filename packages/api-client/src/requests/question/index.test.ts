@@ -16,13 +16,13 @@ describe("question requests", () => {
 
     await listQuestions(
       client,
-      { section: "READING", status: "APPROVED", q: " Packet " },
+      { section: "READING", status: "APPROVED", pool: "PRACTICE", q: " Packet " },
       2,
       25,
     );
 
     expect(client.request).toHaveBeenCalledWith(
-      "/api/v1/questions?page=2&size=25&section=READING&status=APPROVED&q=+Packet+",
+      "/api/v1/questions?page=2&size=25&section=READING&status=APPROVED&pool=PRACTICE&q=+Packet+",
     );
   });
 
