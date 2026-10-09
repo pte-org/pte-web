@@ -169,6 +169,14 @@ export const DotsVerticalIcon = ({ className }: IconProps): ReactElement => (
   </svg>
 );
 
+export const DotsHorizontalIcon = ({ className }: IconProps): ReactElement => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true">
+    <circle cx="5" cy="12" r="1.6" />
+    <circle cx="12" cy="12" r="1.6" />
+    <circle cx="19" cy="12" r="1.6" />
+  </svg>
+);
+
 export const XIcon = ({ className }: IconProps): ReactElement => (
   <svg {...base} className={className}>
     <path d="M18 6 6 18M6 6l12 12" />
@@ -260,6 +268,44 @@ export const NavDashboardIcon = ({ className }: IconProps): ReactElement => (
     <rect x="10.5" y="2.5" width="5" height="5" rx="1.25" />
     <rect x="2.5" y="10.5" width="5" height="5" rx="1.25" />
     <rect x="10.5" y="10.5" width="5" height="5" rx="1.25" />
+  </svg>
+);
+
+export const NavUserGroupIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <circle cx="9" cy="5.25" r="2.5" />
+    <path d="M4.25 15.75c.35-2.35 1.8-3.75 4.75-3.75s4.4 1.4 4.75 3.75" />
+    <path d="M3.25 7.5a2.25 2.25 0 0 0 0 4.25M14.75 7.5a2.25 2.25 0 0 1 0 4.25" />
+  </svg>
+);
+
+export const NavUserIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <circle cx="9" cy="5.25" r="2.5" />
+    <path d="M4.25 15.75c.35-2.35 1.8-3.75 4.75-3.75s4.4 1.4 4.75 3.75" />
+  </svg>
+);
+
+export const NavClassIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <rect x="2.5" y="2.5" width="5" height="5" rx="1" />
+    <rect x="10.5" y="2.5" width="5" height="5" rx="1" />
+    <rect x="2.5" y="10.5" width="5" height="5" rx="1" />
+    <path d="M10.5 10.5h5v5h-5zM13 12v2M12 13h2" />
+  </svg>
+);
+
+export const NavAuditLogIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <rect x="3" y="2.5" width="12" height="13" rx="1.5" />
+    <path d="M6 6h.01M8.5 6h4M6 9h.01M8.5 9h4M6 12h.01M8.5 12h2.5" />
+  </svg>
+);
+
+export const NavBillingIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <rect x="2.5" y="4" width="13" height="10" rx="1.5" />
+    <path d="M2.5 7.25h13M5.5 11h2.25" />
   </svg>
 );
 

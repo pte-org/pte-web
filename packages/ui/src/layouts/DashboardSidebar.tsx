@@ -1,62 +1,102 @@
 import type { ReactElement, ReactNode } from "react";
-import { ChevronLeftIcon, XIcon } from "../components/icons";
+import { ChevronLeftIcon, ChevronRightIcon, XIcon } from "../components/icons";
 import { useLocale } from "../i18n";
 import { cn } from "../utils/cn";
 
+export interface DashboardSidebarRenderContext {
+  isSidebarOpen: boolean;
+  isMobile: boolean;
+  onItemClick?: () => void;
+}
+
+type DashboardSidebarSlot =
+  | ReactNode
+  | ((context: DashboardSidebarRenderContext) => ReactNode);
+
 export interface DashboardSidebarProps {
-  brand?: ReactNode;
-  children: ReactNode;
+  brand?: DashboardSidebarSlot;
+  children: DashboardSidebarSlot;
   isMobile?: boolean;
+  isCollapsed?: boolean;
   onToggle?: () => void;
   onItemClick?: () => void;
 }
+
+const renderSlot = (
+  slot: DashboardSidebarSlot | undefined,
+  context: DashboardSidebarRenderContext,
+): ReactNode => (typeof slot === "function" ? slot(context) : slot);
 
 export const DashboardSidebar = ({
   brand,
   children,
   isMobile = false,
+  isCollapsed = false,
   onToggle,
   onItemClick,
 }: DashboardSidebarProps): ReactElement => {
   const { t } = useLocale();
+  const isSidebarOpen = isMobile || !isCollapsed;
+  const context: DashboardSidebarRenderContext = {
+    isSidebarOpen,
+    isMobile,
+    onItemClick,
+  };
   const closeLabel = isMobile
     ? t("common.closeMenu", "Close menu")
-    : t("common.collapseNavigation", "Collapse navigation");
+    : isSidebarOpen
+      ? t("common.collapseNavigation", "Collapse navigation")
+      : t("common.expandNavigation", "Expand navigation");
 
   return (
     <aside
       className={cn(
         "flex h-full flex-col overflow-hidden text-[var(--ink-secondary)]",
         isMobile
-          ? "w-[270px] max-w-[85vw] bg-[var(--shell-frame)] shadow-sidebar"
+          ? "w-[270px] max-w-[85vw] bg-[var(--shell-canvas)] shadow-sidebar"
           : "w-full border-r border-[var(--shell-border)] bg-[var(--shell-canvas)]",
       )}
     >
       <div
         className={cn(
-          "flex items-center px-4 pt-6 text-[var(--ink-primary)]",
-          isMobile ? "min-h-[70px] justify-between" : "min-h-[88px] justify-between",
+          "flex shrink-0 items-center text-[var(--ink-primary)]",
+          isSidebarOpen
+            ? "min-h-[82px] justify-between gap-3 px-4 pb-2 pt-5"
+            : "flex-col justify-center gap-3 px-2 pb-3 pt-5",
         )}
       >
-        <div className="min-w-0 flex-1">{brand}</div>
+        <div className={cn("min-w-0", isSidebarOpen ? "flex-1" : "w-full")}>
+          {renderSlot(brand, context)}
+        </div>
         {onToggle && (
           <button
             type="button"
             aria-label={closeLabel}
             title={closeLabel}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-[var(--ink-secondary)] transition-colors hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)]"
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-md text-[var(--ink-secondary)] transition-colors hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)]"
             onClick={() => {
               onToggle();
               if (isMobile) onItemClick?.();
             }}
           >
-            {isMobile ? <XIcon className="h-5 w-5" /> : <ChevronLeftIcon className="h-4 w-4" />}
+            {isMobile ? (
+              <XIcon className="h-[18px] w-[18px]" />
+            ) : isSidebarOpen ? (
+              <ChevronLeftIcon className="h-[18px] w-[18px]" />
+            ) : (
+              <ChevronRightIcon className="h-[18px] w-[18px]" />
+            )}
           </button>
         )}
       </div>
 
-      <nav className="scrollbar-thin flex flex-1 flex-col gap-1 overflow-y-auto px-4 pb-4 pt-3">
-        {children}
+      <nav
+        className={cn(
+          "scrollbar-thin flex flex-1 flex-col overflow-y-auto pb-4",
+          isSidebarOpen ? "px-4 pt-2" : "px-2 pt-1",
+        )}
+      >
+        {renderSlot(children, context)}
       </nav>
     </aside>
   );

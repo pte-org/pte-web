@@ -16,13 +16,13 @@ interface SelectChangeEvent {
   target: { value: string; name?: string };
 }
 
-interface SelectProps {
+export interface SelectProps {
   id?: string;
   name?: string;
   label?: string;
   error?: string;
   helperText?: string;
-  options: SelectOption[];
+  options: readonly SelectOption[];
   placeholder?: string;
   value?: string;
   onChange?: (event: SelectChangeEvent) => void;
@@ -30,6 +30,7 @@ interface SelectProps {
   disabled?: boolean;
   className?: string;
   title?: string;
+  size?: "sm" | "md";
   "aria-label"?: string;
 }
 
@@ -41,12 +42,13 @@ interface ListPosition {
 
 const GAP_PX = 4;
 const VIEWPORT_PADDING_PX = 8;
+const SELECT_BACKDROP_Z_INDEX = 55;
+const SELECT_LIST_Z_INDEX = 60;
 
 /**
- * Custom listbox, not a native `<select>` — the browser renders the native popup itself, so its
- * size/colors can't be themed. The list is portaled to `document.body` and positioned with fixed
- * coordinates (same pattern as `Dropdown`) so it can't be clipped by an `overflow-x-auto` ancestor
- * such as a scrollable table wrapper.
+ * Shared listbox select. It keeps the native form-facing API used by both
+ * apps, while rendering the menu in a portal so it is not clipped by tables,
+ * dialogs, or scrollable layout regions.
  */
 export const Select = ({
   id,
@@ -62,13 +64,28 @@ export const Select = ({
   disabled,
   className,
   title,
+  size = "md",
   "aria-label": ariaLabel,
 }: SelectProps): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
   const [listPosition, setListPosition] = useState<ListPosition | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   const selectedOption = options.find((option) => option.value === value);
+  const selectedIndex = options.findIndex((option) => option.value === value);
+  const listId = `${id ?? name ?? "select"}-options`;
+
+  const firstEnabledIndex = (fromIndex: number, direction: 1 | -1): number => {
+    if (options.length === 0) return -1;
+
+    for (let offset = 0; offset < options.length; offset += 1) {
+      const index = (fromIndex + offset * direction + options.length) % options.length;
+      if (!options[index]?.disabled) return index;
+    }
+
+    return -1;
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -112,17 +129,66 @@ export const Select = ({
 
   useEffect(() => {
     if (!isOpen) return;
-    const closeOnEscape = (event: KeyboardEvent): void => {
-      if (event.key === "Escape") setIsOpen(false);
-    };
-    document.addEventListener("keydown", closeOnEscape);
-    return () => document.removeEventListener("keydown", closeOnEscape);
-  }, [isOpen]);
+    const nextIndex = selectedIndex >= 0 ? selectedIndex : firstEnabledIndex(0, 1);
+    setActiveIndex(nextIndex >= 0 ? nextIndex : 0);
+  }, [isOpen, selectedIndex]);
+
+  const openList = (nextIndex?: number): void => {
+    setListPosition(null);
+    if (nextIndex !== undefined) setActiveIndex(nextIndex);
+    setIsOpen(true);
+  };
+
+  const closeList = (): void => {
+    setIsOpen(false);
+    buttonRef.current?.focus();
+  };
 
   const selectOption = (option: SelectOption): void => {
     if (option.disabled) return;
     onChange?.({ target: { value: option.value, name } });
-    setIsOpen(false);
+    closeList();
+  };
+
+  const moveActive = (direction: 1 | -1): void => {
+    const nextIndex = firstEnabledIndex(activeIndex + direction, direction);
+    if (nextIndex >= 0) setActiveIndex(nextIndex);
+  };
+
+  const handleButtonKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>): void => {
+    if (disabled) return;
+
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      if (!isOpen) {
+        openList(
+          event.key === "ArrowDown"
+            ? firstEnabledIndex(0, 1)
+            : firstEnabledIndex(options.length - 1, -1),
+        );
+      } else {
+        moveActive(event.key === "ArrowDown" ? 1 : -1);
+      }
+      return;
+    }
+
+    if ((event.key === "Enter" || event.key === " ") && !isOpen) {
+      event.preventDefault();
+      openList();
+      return;
+    }
+
+    if ((event.key === "Enter" || event.key === " ") && isOpen) {
+      event.preventDefault();
+      const option = options[activeIndex];
+      if (option) selectOption(option);
+      return;
+    }
+
+    if (event.key === "Escape" && isOpen) {
+      event.preventDefault();
+      closeList();
+    }
   };
 
   return (
@@ -135,14 +201,15 @@ export const Select = ({
         title={title}
         aria-label={ariaLabel ?? label}
         aria-haspopup="listbox"
+        aria-controls={isOpen ? listId : undefined}
         aria-expanded={isOpen}
+        aria-activedescendant={isOpen ? `${listId}-${activeIndex}` : undefined}
         aria-invalid={error ? true : undefined}
-        onClick={() => {
-          setListPosition(null);
-          setIsOpen((open) => !open);
-        }}
+        onClick={() => (isOpen ? closeList() : openList())}
+        onKeyDown={handleButtonKeyDown}
         className={cn(
-          "flex w-full items-center justify-between gap-2 rounded-md border bg-[var(--surface-card)] px-3 py-2.5 text-left text-sm text-[var(--ink-primary)] outline-none transition-colors focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-subtle)] disabled:text-[var(--ink-muted)]",
+          "flex w-full items-center justify-between gap-2 rounded-lg border bg-[var(--surface-card)] px-3 text-left text-sm text-[var(--ink-primary)] outline-none transition-[background-color,border-color,box-shadow] focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-subtle)] disabled:text-[var(--ink-muted)]",
+          size === "sm" ? "h-8 py-1.5 text-xs" : "h-10 py-2.5",
           error ? "border-[var(--blush-action)]" : "border-[var(--control-border)]",
           className,
         )}
@@ -166,37 +233,42 @@ export const Select = ({
               type="button"
               aria-hidden="true"
               tabIndex={-1}
-              onClick={() => setIsOpen(false)}
-              className="fixed inset-0 z-[55] cursor-default"
+              onClick={closeList}
+              className="fixed inset-0 cursor-default"
+              style={{ zIndex: SELECT_BACKDROP_Z_INDEX }}
             />
             <ul
               ref={listRef}
+              id={listId}
               role="listbox"
               aria-label={ariaLabel ?? label}
-              className="fixed z-[60] max-h-60 max-w-[calc(100vw-1rem)] overflow-auto rounded-md border border-[var(--shell-border)] bg-[var(--surface-card)] py-1 text-sm shadow-lg"
+              className="fixed max-h-60 max-w-[calc(100vw-1rem)] overflow-auto rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] py-1 text-sm shadow-[var(--popover-shadow)] motion-safe:animate-pte-dropdown-in"
               style={{
                 top: listPosition?.top ?? 0,
                 left: listPosition?.left ?? 0,
                 minWidth: listPosition?.minWidth,
                 visibility: listPosition ? "visible" : "hidden",
+                zIndex: SELECT_LIST_Z_INDEX,
               }}
             >
-              {options.map((option) => (
+              {options.map((option, index) => (
                 <li
                   key={option.value}
+                  id={`${listId}-${index}`}
                   role="option"
                   aria-selected={option.value === value}
+                  aria-disabled={option.disabled || undefined}
+                  onMouseEnter={() => setActiveIndex(index)}
                   onClick={() => selectOption(option)}
                   className={cn(
-                    "truncate px-3 py-1.5",
+                    "mx-1 truncate rounded-md px-3 py-2 transition-colors",
                     option.disabled
                       ? "cursor-not-allowed text-[var(--ink-muted)]"
-                      : cn(
-                          "cursor-pointer",
-                          option.value === value
-                            ? "bg-[var(--action)] text-white"
-                            : "text-[var(--ink-secondary)] hover:bg-[var(--brand-tint)]",
-                        ),
+                      : option.value === value
+                        ? "cursor-pointer bg-[var(--action)] text-[var(--action-foreground)]"
+                        : index === activeIndex
+                          ? "cursor-pointer bg-[var(--surface-subtle)] text-[var(--ink-primary)]"
+                          : "cursor-pointer text-[var(--ink-secondary)] hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)]",
                   )}
                 >
                   {option.label}

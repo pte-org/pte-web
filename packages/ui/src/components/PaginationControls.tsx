@@ -55,7 +55,7 @@ export const PaginationControls = ({
   };
 
   return (
-    <div className="flex flex-col items-center justify-between gap-3 text-sm text-gray-600 sm:flex-row">
+    <div className="flex flex-col items-center justify-between gap-3 text-sm text-[var(--ink-secondary)] sm:flex-row">
       <div className="flex flex-wrap items-center justify-center gap-3">
         <span>
           {PAGE_LABEL} {meta.page + 1} / {Math.max(meta.totalPages, 1)}
@@ -82,7 +82,7 @@ export const PaginationControls = ({
                   event.currentTarget.blur();
                 }
               }}
-              className="w-16 rounded-md border border-gray-300 bg-white px-2 py-1.5 text-center text-sm text-gray-700 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/20"
+              className="h-10 w-16 rounded-lg border border-[var(--control-border)] bg-[var(--surface-card)] px-2 text-center text-sm text-[var(--ink-primary)] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
             />
           </label>
         )}

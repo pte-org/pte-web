@@ -2,16 +2,24 @@
 
 import { useEffect, useState, type MouseEvent, type ReactElement, type ReactNode } from "react";
 import { cn } from "../utils/cn";
-import { ChevronLeftIcon, ChevronRightIcon } from "../components/icons";
 import { useLocale } from "../i18n";
 import { DashboardHeader } from "./DashboardHeader";
-import { DashboardSidebar } from "./DashboardSidebar";
+import {
+  DashboardSidebar,
+  type DashboardSidebarRenderContext,
+} from "./DashboardSidebar";
 
-interface DashboardShellProps {
-  brand?: ReactNode;
-  sidebar: ReactNode;
+type DashboardShellSlot =
+  | ReactNode
+  | ((context: DashboardSidebarRenderContext) => ReactNode);
+
+export interface DashboardShellProps {
+  brand?: DashboardShellSlot;
+  sidebar: DashboardShellSlot;
   headerBrand?: ReactNode;
+  headerSearch?: ReactNode;
   headerActions?: ReactNode;
+  breadcrumbs?: ReactNode;
   footer?: ReactNode;
   navigationKey?: string | null;
   children: ReactNode;
@@ -21,7 +29,9 @@ export const DashboardShell = ({
   brand,
   sidebar,
   headerBrand,
+  headerSearch,
   headerActions,
+  breadcrumbs,
   footer,
   navigationKey,
   children,
@@ -30,9 +40,6 @@ export const DashboardShell = ({
   const [isDesktopOpen, setIsDesktopOpen] = useState(true);
   const [isNavigating, setIsNavigating] = useState(false);
   const { t } = useLocale();
-  const navigationLabel = isDesktopOpen
-    ? t("common.collapseNavigation", "Collapse navigation")
-    : t("common.expandNavigation", "Expand navigation");
 
   useEffect(() => {
     setIsNavigating(false);
@@ -82,26 +89,20 @@ export const DashboardShell = ({
           <div className="h-full w-1/3 bg-[var(--action)] motion-safe:animate-pte-progress motion-reduce:w-1/2" />
         </div>
       )}
-      <button
-        type="button"
-        aria-label={navigationLabel}
-        title={navigationLabel}
-        className={cn(
-          "fixed top-[21px] z-50 hidden h-7 w-7 items-center justify-center rounded-full border border-[var(--shell-border)] bg-[var(--surface-card)] text-[var(--ink-secondary)] shadow-md transition-all duration-300 ease-in-out hover:scale-110 hover:border-[var(--brand)] hover:bg-[var(--brand-tint)] hover:text-[var(--brand-ink)] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] active:scale-95 md:flex",
-          isDesktopOpen ? "left-[256px]" : "left-3.5",
-        )}
-        onClick={() => setIsDesktopOpen((prev) => !prev)}
-      >
-        {isDesktopOpen ? <ChevronLeftIcon className="h-4 w-4" /> : <ChevronRightIcon className="h-4 w-4" />}
-      </button>
-
       <aside
+        style={{
+          width: isDesktopOpen ? "270px" : "72px",
+          minWidth: isDesktopOpen ? "270px" : "72px",
+        }}
         className={cn(
-          "fixed inset-y-0 left-0 z-40 hidden w-[270px] shrink-0 flex-col border-r border-[var(--shell-border)] bg-[var(--shell-canvas)] text-[var(--ink-secondary)] transition-transform duration-300 ease-in-out motion-safe:animate-pte-fade-in md:flex",
-          isDesktopOpen ? "translate-x-0" : "-translate-x-full",
+          "fixed inset-y-0 left-0 z-40 hidden shrink-0 flex-col text-[var(--ink-secondary)] transition-[width,min-width] duration-300 ease-in-out motion-safe:animate-pte-fade-in md:flex",
         )}
       >
-        <DashboardSidebar brand={brand} onToggle={() => setIsDesktopOpen((prev) => !prev)}>
+        <DashboardSidebar
+          brand={brand}
+          isCollapsed={!isDesktopOpen}
+          onToggle={() => setIsDesktopOpen((prev) => !prev)}
+        >
           {sidebar}
         </DashboardSidebar>
       </aside>
@@ -131,16 +132,20 @@ export const DashboardShell = ({
         className={cn(
           "flex min-w-0 flex-1 flex-col overflow-hidden transition-all duration-300 ease-in-out md:my-4 md:pr-4",
           "md:rounded-2xl md:border md:border-[var(--shell-border)] md:bg-[var(--shell-frame)] md:shadow-shell",
-          isDesktopOpen ? "md:pl-[270px]" : "md:pl-0",
+          isDesktopOpen ? "md:pl-[270px]" : "md:pl-[72px]",
         )}
       >
         <DashboardHeader
           brand={headerBrand}
+          search={headerSearch}
           actions={headerActions}
           onMenuClick={() => setIsSidebarOpen((prev) => !prev)}
         />
         <main className="flex-1 bg-[var(--shell-frame)] px-4 py-6 md:px-8 md:py-7">
-          <div className="w-full">{children}</div>
+          <div className="w-full">
+            {breadcrumbs && <div className="mb-5 flex justify-start">{breadcrumbs}</div>}
+            {children}
+          </div>
         </main>
         {footer && (
           <footer className="border-t border-[var(--shell-border)] bg-[var(--shell-frame)] px-6 py-4 text-center text-xs text-[var(--ink-muted)]">

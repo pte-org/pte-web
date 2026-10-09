@@ -7,12 +7,14 @@ import { cn } from "../utils/cn";
 
 export interface DashboardHeaderProps {
   brand?: ReactNode;
+  search?: ReactNode;
   actions?: ReactNode;
   onMenuClick?: () => void;
 }
 
 export const DashboardHeader = ({
   brand,
+  search,
   actions,
   onMenuClick,
 }: DashboardHeaderProps): ReactElement => {
@@ -51,8 +53,9 @@ export const DashboardHeader = ({
           </div>
         </div>
 
-        <div className="hidden min-h-[72px] items-center justify-between gap-4 md:flex">
-          <div className="min-w-0">{brand}</div>
+        <div className="hidden min-h-[72px] items-center gap-4 md:flex">
+          <div className="min-w-0 shrink-0">{brand}</div>
+          {search && <div className="min-w-0 flex-1">{search}</div>}
           <div className="flex shrink-0 items-center gap-2.5">{actions}</div>
         </div>
       </header>
