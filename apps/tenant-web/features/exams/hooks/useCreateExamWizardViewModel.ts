@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo } from "react";
-import { resolveExamLockdownMode, type ScoreTemplateResponse } from "@pte/api-client";
+import type { ScoreTemplateResponse } from "@pte/api-client";
 import { useLocale } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import type { AudienceStepProps } from "../components/create-exam/AudienceStep";
@@ -12,7 +12,6 @@ import {
   AUDIENCE_SOURCE_OPTIONS,
   CREATE_EXAM_WIZARD_ERRORS,
   CREATE_EXAM_WIZARD_TEXT as DEFAULT_CREATE_EXAM_WIZARD_TEXT,
-  EXAM_MODE_OPTIONS,
   EXAM_SKILL_OPTIONS,
   REUSE_POLICY_OPTIONS,
 } from "../constants";
@@ -61,8 +60,8 @@ export function useCreateExamWizardViewModel({
     [activeTemplate?.items],
   );
   const initialForm = useMemo(
-    () => createEmptyExamWorkflow(activeTemplate?.publicId, templateSkills),
-    [activeTemplate?.publicId, templateSkills],
+    () => createEmptyExamWorkflow(activeTemplate?.publicId),
+    [activeTemplate?.publicId],
   );
   const wizardText = useMemo(
     () =>
@@ -73,14 +72,6 @@ export function useCreateExamWizardViewModel({
         ]),
       ) as WizardText,
     [t],
-  );
-  const localizedModeOptions = useMemo(
-    () =>
-      EXAM_MODE_OPTIONS.map((option) => ({
-        ...option,
-        label: option.value === "PRACTICE" ? wizardText.MODE_PRACTICE : wizardText.MODE_REAL,
-      })),
-    [wizardText],
   );
   const localizedSkillOptions = useMemo(
     () =>
@@ -127,7 +118,6 @@ export function useCreateExamWizardViewModel({
   const wizardForm = useCreateExamWizardForm({
     initialForm,
     activeTemplatePublicId: activeTemplate?.publicId,
-    templateSkills,
   });
   const {
     form,
@@ -136,7 +126,6 @@ export function useCreateExamWizardViewModel({
     errors,
     sources,
     update,
-    changeExamMode,
     onSourcesChange,
     setFieldError,
     validate,
@@ -161,25 +150,6 @@ export function useCreateExamWizardViewModel({
     ? errorMessage(templateError, wizardText.NO_TEMPLATE)
     : undefined;
   const submitMessage = error ? errorMessage(error) : undefined;
-  const effectiveLockdownMode = useMemo(
-    () => resolveExamLockdownMode(effectiveForm.examMode, effectiveForm.practiceAntiCheatEnabled),
-    [effectiveForm.examMode, effectiveForm.practiceAntiCheatEnabled],
-  );
-  const localizedPolicyLabel = useMemo(() => {
-    if (effectiveLockdownMode === null || effectiveLockdownMode === undefined) {
-      return wizardText.POLICY_LEGACY;
-    }
-    if (effectiveForm.examMode === "PRACTICE" && effectiveLockdownMode === "NONE") {
-      return wizardText.POLICY_PRACTICE_UNRESTRICTED;
-    }
-    if (effectiveForm.examMode === "PRACTICE" && effectiveLockdownMode === "STANDARD") {
-      return wizardText.POLICY_PRACTICE_CONTROLLED;
-    }
-    if (effectiveForm.examMode === "OFFICIAL_EXAM" && effectiveLockdownMode === "STRICT") {
-      return wizardText.POLICY_OFFICIAL_STRICT;
-    }
-    return wizardText.POLICY_UNAVAILABLE;
-  }, [effectiveForm.examMode, effectiveLockdownMode, wizardText]);
 
   const fieldStepProps: SchedulePolicyStepProps = {
     form,
@@ -190,14 +160,12 @@ export function useCreateExamWizardViewModel({
   };
   const detailsStepProps: ExamDetailsStepProps = {
     ...fieldStepProps,
-    localizedModeOptions,
     localizedSkillOptions,
     templateSkills,
     activeSubscriptions: audience.activeSubscriptions,
     subscriptionsLoading: audience.subscriptionsLoading,
     planNameById: audience.planNameById,
     templateMessage,
-    onChangeExamMode: changeExamMode,
   };
   const audienceStepProps: AudienceStepProps = {
     sources,
@@ -222,10 +190,9 @@ export function useCreateExamWizardViewModel({
     form: effectiveForm,
     activeTemplate,
     wizardText,
-    localizedModeOptions,
     localizedSkillOptions,
+    templateSkills,
     localizedReusePolicyOptions,
-    localizedPolicyLabel,
     audienceCount: sources.length,
   };
 
