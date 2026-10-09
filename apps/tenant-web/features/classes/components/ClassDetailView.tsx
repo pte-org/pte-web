@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, BackButton, Badge, LoadingState, PageHeader } from "@pte/ui";
+import { Alert, Badge, LoadingState, PageHeader } from "@pte/ui";
+import { AppBackButton } from "@/features/navigation/components/AppBackButton";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import {
@@ -32,7 +33,7 @@ export const ClassDetailView = ({
     return (
       <div className="flex flex-col gap-4">
         <Alert tone="error">{CLASS_ROSTER_TEXT.missingContext}</Alert>
-        <BackButton href="/host/programs" label={CLASS_ROSTER_TEXT.back(labels.program)} />
+        <AppBackButton href="/host/programs" label={CLASS_ROSTER_TEXT.back(labels.program)} />
       </div>
     );
   }
@@ -98,7 +99,7 @@ const ClassDetailContent = ({
     // user came to do (manage the class roster) sits at the top of the
     // fold on small screens.
     <div className="flex flex-col gap-4 sm:gap-5">
-      <BackButton href={backHref} label={backLabel} />
+      <AppBackButton href={backHref} label={backLabel} />
 
       <PageHeader
         title={studentClass.name}

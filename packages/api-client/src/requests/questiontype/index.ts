@@ -141,6 +141,26 @@ export function updateTaskType(
   });
 }
 
+export function submitTaskTypeApproval(
+  client: ApiClient,
+  publicId: string,
+): Promise<QuestionTypeResponse> {
+  return client.request<QuestionTypeResponse>(
+    `${TASK_TYPE_ENDPOINTS.type(publicId)}/submit-approval`,
+    { method: "POST" },
+  );
+}
+
+export function approveTaskType(
+  client: ApiClient,
+  publicId: string,
+): Promise<QuestionTypeResponse> {
+  return client.request<QuestionTypeResponse>(
+    `${TASK_TYPE_ENDPOINTS.type(publicId)}/approve`,
+    { method: "POST" },
+  );
+}
+
 export function deleteTaskType(client: ApiClient, publicId: string): Promise<void> {
   return client.request<void>(TASK_TYPE_ENDPOINTS.type(publicId), { method: "DELETE" });
 }

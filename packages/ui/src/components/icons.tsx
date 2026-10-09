@@ -89,6 +89,19 @@ export const GlobeIcon = ({ className }: IconProps): ReactElement => (
   </svg>
 );
 
+export const SunIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...base} className={className}>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.65 6.35l1.42-1.42" />
+  </svg>
+);
+
+export const MoonIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...base} className={className}>
+    <path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5 8.5 8.5 0 1 0 20.5 15.2z" />
+  </svg>
+);
+
 export const BellIcon = ({ className }: IconProps): ReactElement => (
   <svg {...base} className={className}>
     <path d="M6 9a6 6 0 0 1 12 0c0 4.5 1.8 5.6 1.8 5.6H4.2S6 13.5 6 9z" />
@@ -228,5 +241,101 @@ export const FolderPlusIcon = ({ className }: IconProps): ReactElement => (
   <svg {...base} className={className}>
     <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
     <path d="M12 11v6M9 14h6" />
+  </svg>
+);
+
+const softNavigationBase = {
+  viewBox: "0 0 18 18",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.5,
+  strokeLinecap: "round" as const,
+  strokeLinejoin: "round" as const,
+  "aria-hidden": true,
+};
+
+export const NavDashboardIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <rect x="2.5" y="2.5" width="5" height="5" rx="1.25" />
+    <rect x="10.5" y="2.5" width="5" height="5" rx="1.25" />
+    <rect x="2.5" y="10.5" width="5" height="5" rx="1.25" />
+    <rect x="10.5" y="10.5" width="5" height="5" rx="1.25" />
+  </svg>
+);
+
+export const NavTenantIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <path d="M2.75 15.75h12.5" />
+    <path d="M4.25 15.75V3.5a.75.75 0 0 1 .75-.75h4.5a.75.75 0 0 1 .75.75v12.25" />
+    <path d="M10.25 7h2.75a.75.75 0 0 1 .75.75v8" />
+    <path d="M6.25 6.25h.01M8.25 6.25h.01M6.25 9h.01M8.25 9h.01M6.25 11.75h.01M8.25 11.75h.01" />
+  </svg>
+);
+
+export const NavApplicationIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <path d="M4.25 2.25h5.5l3.5 3.5v9.5a.5.5 0 0 1-.5.5h-8.5a.5.5 0 0 1-.5-.5v-12.5a.5.5 0 0 1 .5-.5Z" />
+    <path d="M9.75 2.25v3.5h3.5" />
+    <path d="m6.25 10 1.25 1.25 2.75-2.75" />
+  </svg>
+);
+
+export const NavPlanCatalogIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <path d="m9 2.25 6 3.25-6 3.25-6-3.25 6-3.25Z" />
+    <path d="m3 9 6 3.25L15 9" />
+    <path d="m3 12.75 6 3.25 6-3.25" />
+  </svg>
+);
+
+export const NavLicenseCodeIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <circle cx="5.25" cy="9" r="2.25" />
+    <path d="m6.9 10.6 8.1-8.1" />
+    <path d="m10.75 6.75 1.75 1.75M12.5 5l1.75 1.75" />
+  </svg>
+);
+
+export const NavSettingsIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <circle cx="9" cy="9" r="2.25" />
+    <path d="M9 1.75v1.5M9 14.75v1.5M1.75 9h1.5M14.75 9h1.5M3.87 3.87l1.06 1.06M13.07 13.07l1.06 1.06M14.13 3.87l-1.06 1.06M4.93 13.07l-1.06 1.06" />
+  </svg>
+);
+
+export const NavAnnouncementIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <path d="m2.25 8.25 11.25-3.75v9L2.25 9.75a.75.75 0 0 1 0-1.5Z" />
+    <path d="M13.5 7h1.5a1.5 1.5 0 0 1 1.5 1.5v1a1.5 1.5 0 0 1-1.5 1.5h-1.5" />
+    <path d="m4.25 10.5 1.5 4.5h1.5L6 10.25" />
+  </svg>
+);
+
+export const NavQuestionBankIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <path d="M9 4.25v11.5" />
+    <path d="M9 4.25C7.3 2.9 4.6 2.9 2.5 3.7v10.8c2.1-.8 4.8-.8 6.5.5 1.7-1.3 4.4-1.3 6.5-.5V3.7c-2.1-.8-4.8-.8-6.5.55Z" />
+  </svg>
+);
+
+export const NavTaskTypeIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <rect x="2.5" y="2.5" width="13" height="13" rx="2" />
+    <path d="m5 6 1 1 1.75-2M9.5 6h3.5M5 10l1 1 1.75-2M9.5 10h3.5M5 14l1 1 1.75-2M9.5 14h3.5" />
+  </svg>
+);
+
+export const NavExamTemplateIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <rect x="2.25" y="3.5" width="13.5" height="12.25" rx="1.5" />
+    <path d="M5.25 2.25v2.5M12.75 2.25v2.5M2.25 7h13.5" />
+    <path d="M5.25 10h.01M9 10h.01M12.75 10h.01M5.25 13h.01M9 13h.01" />
+  </svg>
+);
+
+export const NavSupportTicketIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...softNavigationBase} className={className}>
+    <path d="M3 3.75h12a1.5 1.5 0 0 1 1.5 1.5v7.5a1.5 1.5 0 0 1-1.5 1.5H9l-3.5 2.5v-2.5H3a1.5 1.5 0 0 1-1.5-1.5v-7.5A1.5 1.5 0 0 1 3 3.75Z" />
+    <path d="M6 8.75h.01M9 8.75h.01M12 8.75h.01" />
   </svg>
 );

@@ -1,25 +1,21 @@
 "use client";
 
-import { useState, type ReactElement, type ReactNode } from "react";
+import { useEffect, useState, type MouseEvent, type ReactElement, type ReactNode } from "react";
 import { cn } from "../utils/cn";
-import { ChevronLeftIcon, ChevronRightIcon, MenuIcon, XIcon } from "../components/icons";
+import { ChevronLeftIcon, ChevronRightIcon } from "../components/icons";
+import { useLocale } from "../i18n";
+import { DashboardHeader } from "./DashboardHeader";
+import { DashboardSidebar } from "./DashboardSidebar";
 
 interface DashboardShellProps {
-  /** Brand block pinned to the top of the sidebar. */
   brand?: ReactNode;
-  /** Sidebar navigation. Apps compose links and pass the result in. */
   sidebar: ReactNode;
-  /** Brand shown on the left of the top header bar. */
   headerBrand?: ReactNode;
-  /** Actions on the right of the top header bar. */
   headerActions?: ReactNode;
-  /** Disclaimer / footer shown under the page content. */
   footer?: ReactNode;
+  navigationKey?: string | null;
   children: ReactNode;
 }
-
-const MENU_LABEL = "Mo menu";
-const CLOSE_LABEL = "Dong menu";
 
 export const DashboardShell = ({
   brand,
@@ -27,103 +23,127 @@ export const DashboardShell = ({
   headerBrand,
   headerActions,
   footer,
+  navigationKey,
   children,
 }: DashboardShellProps): ReactElement => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isDesktopOpen, setIsDesktopOpen] = useState(true);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const { t } = useLocale();
+  const navigationLabel = isDesktopOpen
+    ? t("common.collapseNavigation", "Collapse navigation")
+    : t("common.expandNavigation", "Expand navigation");
+
+  useEffect(() => {
+    setIsNavigating(false);
+  }, [navigationKey]);
+
+  const handleNavigationClick = (event: MouseEvent<HTMLDivElement>): void => {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    ) {
+      return;
+    }
+
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const link = target.closest("a");
+    if (!link || link.target === "_blank" || link.hasAttribute("download")) return;
+
+    const href = link.getAttribute("href");
+    if (!href || href.startsWith("#")) return;
+
+    const nextUrl = new URL(href, window.location.href);
+    const currentUrl = `${window.location.pathname}${window.location.search}`;
+    if (nextUrl.origin !== window.location.origin || nextUrl.pathname + nextUrl.search === currentUrl) {
+      return;
+    }
+
+    window.setTimeout(() => {
+      if (!event.defaultPrevented) setIsNavigating(true);
+    }, 0);
+  };
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
-      {/* Desktop Floating Edge Toggle Button (Notion / Linear style) */}
+    <div
+      className="relative flex min-h-screen bg-[var(--shell-canvas)] text-[var(--ink-primary)]"
+      onClickCapture={handleNavigationClick}
+    >
+      {isNavigating && (
+        <div
+          className="pointer-events-none fixed inset-x-0 top-0 z-[100] h-0.5 overflow-hidden bg-transparent"
+          role="progressbar"
+          aria-label={t("common.loading", "Loading")}
+        >
+          <div className="h-full w-1/3 bg-[var(--action)] motion-safe:animate-pte-progress motion-reduce:w-1/2" />
+        </div>
+      )}
       <button
         type="button"
-        aria-label={isDesktopOpen ? CLOSE_LABEL : MENU_LABEL}
-        title={isDesktopOpen ? "Thu gọn thanh điều hướng" : "Mở rộng thanh điều hướng"}
+        aria-label={navigationLabel}
+        title={navigationLabel}
         className={cn(
-          "fixed top-[21px] z-50 hidden h-7 w-7 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-md transition-all duration-300 ease-in-out hover:scale-110 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-600 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 active:scale-95 md:flex",
+          "fixed top-[21px] z-50 hidden h-7 w-7 items-center justify-center rounded-full border border-[var(--shell-border)] bg-[var(--surface-card)] text-[var(--ink-secondary)] shadow-md transition-all duration-300 ease-in-out hover:scale-110 hover:border-[var(--brand)] hover:bg-[var(--brand-tint)] hover:text-[var(--brand-ink)] hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)] active:scale-95 md:flex",
           isDesktopOpen ? "left-[256px]" : "left-3.5",
         )}
         onClick={() => setIsDesktopOpen((prev) => !prev)}
       >
-        {isDesktopOpen ? (
-          <ChevronLeftIcon className="h-4 w-4" />
-        ) : (
-          <ChevronRightIcon className="h-4 w-4" />
-        )}
+        {isDesktopOpen ? <ChevronLeftIcon className="h-4 w-4" /> : <ChevronRightIcon className="h-4 w-4" />}
       </button>
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 hidden w-[270px] shrink-0 flex-col bg-white text-slate-700 shadow-sidebar transition-transform duration-300 ease-in-out md:flex",
+          "fixed inset-y-0 left-0 z-40 hidden w-[270px] shrink-0 flex-col border-r border-[var(--shell-border)] bg-[var(--shell-canvas)] text-[var(--ink-secondary)] transition-transform duration-300 ease-in-out motion-safe:animate-pte-fade-in md:flex",
           isDesktopOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        {brand && (
-          <div className="flex min-h-[70px] items-center px-4 sm:px-6">
-            <div className="min-w-0 flex-1">{brand}</div>
-          </div>
-        )}
-        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-3">{sidebar}</nav>
+        <DashboardSidebar brand={brand} onToggle={() => setIsDesktopOpen((prev) => !prev)}>
+          {sidebar}
+        </DashboardSidebar>
       </aside>
 
       {isSidebarOpen && (
         <div className="fixed inset-0 z-40 md:hidden">
           <button
             type="button"
-            aria-label={CLOSE_LABEL}
-            className="absolute inset-0 bg-slate-900/40"
+            aria-label={t("common.closeMenu", "Close menu")}
+            className="absolute inset-0 bg-slate-950/40"
             onClick={() => setIsSidebarOpen(false)}
           />
-          <aside className="relative z-10 flex h-full w-[270px] max-w-[85vw] flex-col bg-white text-slate-700 shadow-sidebar">
-            <div className="flex min-h-[70px] items-center justify-between px-6">
-              <div>{brand}</div>
-              <button
-                type="button"
-                aria-label={CLOSE_LABEL}
-                className="grid h-10 w-10 place-items-center rounded-md text-slate-500 transition-colors hover:bg-blue-50 hover:text-blue-700"
-                onClick={() => setIsSidebarOpen(false)}
-              >
-                <XIcon className="h-5 w-5" />
-              </button>
-            </div>
-            <nav className="flex flex-1 flex-col gap-1 overflow-y-auto px-4 py-3">{sidebar}</nav>
+          <aside className="relative z-10 h-full motion-safe:animate-pte-fade-in">
+            <DashboardSidebar
+              brand={brand}
+              isMobile
+              onToggle={() => setIsSidebarOpen(false)}
+              onItemClick={() => setIsSidebarOpen(false)}
+            >
+              {sidebar}
+            </DashboardSidebar>
           </aside>
         </div>
       )}
 
       <div
         className={cn(
-          "flex min-w-0 flex-1 flex-col transition-all duration-300 ease-in-out",
+          "flex min-w-0 flex-1 flex-col overflow-hidden transition-all duration-300 ease-in-out md:my-4 md:pr-4",
+          "md:rounded-2xl md:border md:border-[var(--shell-border)] md:bg-[var(--shell-frame)] md:shadow-shell",
           isDesktopOpen ? "md:pl-[270px]" : "md:pl-0",
         )}
       >
-        <header
-          className={cn(
-            "sticky top-0 z-30 flex min-h-[70px] items-center justify-between gap-3 bg-white/95 px-4 shadow-[0_1px_8px_rgba(145,158,171,0.12)] backdrop-blur-xl transition-all duration-300 ease-in-out",
-            isDesktopOpen ? "md:px-8" : "md:pl-14 md:pr-8",
-          )}
-        >
-          <div className="flex min-w-0 items-center gap-3">
-            <button
-              type="button"
-              aria-label={MENU_LABEL}
-              title={MENU_LABEL}
-              className="grid h-10 w-10 place-items-center rounded-md text-gray-600 transition-colors hover:bg-blue-50 hover:text-blue-700 md:hidden"
-              onClick={() => setIsSidebarOpen((prev) => !prev)}
-            >
-              <MenuIcon className="h-6 w-6" />
-            </button>
-            <div className="min-w-0">{headerBrand}</div>
-          </div>
-          <div className={cn("flex shrink-0 items-center gap-3", !headerActions && "hidden")}>
-            {headerActions}
-          </div>
-        </header>
-        <main className="flex-1 bg-slate-100 px-4 py-6 md:px-8 md:py-7">
+        <DashboardHeader
+          brand={headerBrand}
+          actions={headerActions}
+          onMenuClick={() => setIsSidebarOpen((prev) => !prev)}
+        />
+        <main className="flex-1 bg-[var(--shell-frame)] px-4 py-6 md:px-8 md:py-7">
           <div className="w-full">{children}</div>
         </main>
         {footer && (
-          <footer className="border-t border-gray-200 bg-white px-6 py-4 text-center text-xs text-gray-400">
+          <footer className="border-t border-[var(--shell-border)] bg-[var(--shell-frame)] px-6 py-4 text-center text-xs text-[var(--ink-muted)]">
             {footer}
           </footer>
         )}

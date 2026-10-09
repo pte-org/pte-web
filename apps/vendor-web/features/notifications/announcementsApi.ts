@@ -18,6 +18,7 @@ import {
 } from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
 import { useCurrentUser } from "@/features/auth/api";
+import { canManagePlatformOperations } from "@/features/auth/permissions";
 
 async function requestWithProtectedCache<T>(
   request: () => Promise<T>,
@@ -49,7 +50,7 @@ export function useAnnouncementsQuery(page: number) {
         () => listAnnouncements(apiClient, { page, size: 20 }),
         queryClient,
       ),
-    enabled: user?.roles.includes("PLATFORM_ADMIN") ?? false,
+    enabled: canManagePlatformOperations(user?.roles),
     retry: false,
   });
 }
@@ -62,7 +63,7 @@ export function useAnnouncementQuery(publicId: string) {
     queryKey: announcementKeys.detail(userId, publicId),
     queryFn: () =>
       requestWithProtectedCache(() => getAnnouncement(apiClient, publicId), queryClient),
-    enabled: Boolean(publicId) && (user?.roles.includes("PLATFORM_ADMIN") ?? false),
+    enabled: Boolean(publicId) && canManagePlatformOperations(user?.roles),
     retry: false,
   });
 }
@@ -141,7 +142,7 @@ export function useAnnouncementAudiencePreview(publicId: string) {
         () => previewAnnouncementAudience(apiClient, publicId),
         queryClient,
       ),
-    enabled: Boolean(publicId) && (user?.roles.includes("PLATFORM_ADMIN") ?? false),
+    enabled: Boolean(publicId) && canManagePlatformOperations(user?.roles),
     retry: false,
   });
 }

@@ -4,7 +4,6 @@ import { useState, type FormEvent, type ReactElement } from "react";
 import Link from "next/link";
 import {
   Alert,
-  BackButton,
   Button,
   ChevronRightIcon,
   Input,
@@ -12,6 +11,7 @@ import {
   PageHeader,
 } from "@pte/ui";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
+import { AppBackButton } from "@/features/navigation/components/AppBackButton";
 import { useRedeemLicense } from "../api";
 import { BILLING_TEXT as T, REDEEM_ERROR_MESSAGES } from "../constants";
 import { BillingPanel } from "./BillingPanel";
@@ -38,7 +38,7 @@ export const RedeemLicenseView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <BackButton href="/host/billing" label={T.BACK_TO_PLANS} />
+      <AppBackButton href="/host/billing" label={T.BACK_TO_PLANS} />
 
       <PageHeader title={T.REDEEM_TITLE} subtitle={T.REDEEM_SUBTITLE} />
       {redeem.isSuccess && redeem.data && (

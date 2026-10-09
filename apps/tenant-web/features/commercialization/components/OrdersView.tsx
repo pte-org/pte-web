@@ -2,8 +2,9 @@
 
 import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { ActionMenu, Alert, BackButton, DataTable, EyeIcon, PageHeader, PaginationControls } from "@pte/ui";
+import { ActionMenu, Alert, DataTable, EyeIcon, PageHeader, PaginationControls } from "@pte/ui";
 import { DEFAULT_PAGE_SIZE, type OrderResponse } from "@pte/api-client";
+import { AppBackButton } from "@/features/navigation/components/AppBackButton";
 import { useOrdersPage } from "../api";
 import { BILLING_TEXT as T } from "../constants";
 import { BillingPanel } from "./BillingPanel";
@@ -20,7 +21,7 @@ export const OrdersView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <BackButton href="/host/billing" label={T.BACK_TO_PLANS} />
+      <AppBackButton href="/host/billing" label={T.BACK_TO_PLANS} />
 
       <PageHeader
         title={T.ORDERS_TITLE}

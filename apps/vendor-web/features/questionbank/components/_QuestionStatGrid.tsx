@@ -2,7 +2,6 @@ import type { ReactElement } from "react";
 import {
   BookOpenIcon,
   ClipboardIcon,
-  CollapsibleSection,
   DocumentIcon,
   HeadphoneIcon,
   MicIcon,
@@ -17,12 +16,7 @@ interface QuestionStatGridProps {
 }
 
 export const QuestionStatGrid = ({ stats }: QuestionStatGridProps): ReactElement => (
-  <CollapsibleSection
-    title={QUESTIONBANK_OVERVIEW_TEXT.TITLE}
-    subtitle={QUESTIONBANK_OVERVIEW_TEXT.SUBTITLE}
-    className="lg:mx-10"
-    contentClassName="grid gap-3 sm:grid-cols-2 lg:grid-cols-3"
-  >
+  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:mx-10">
     <StatCard
       compact
       label={QUESTIONBANK_TEXT.STAT_TOTAL}
@@ -66,5 +60,5 @@ export const QuestionStatGrid = ({ stats }: QuestionStatGridProps): ReactElement
       footnote={stats?.speakingNote}
       icon={<MicIcon />}
     />
-  </CollapsibleSection>
+  </div>
 );

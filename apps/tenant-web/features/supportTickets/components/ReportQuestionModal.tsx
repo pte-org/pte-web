@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Modal, Textarea } from "@pte/ui";
-import { REPORT_QUESTION_TEXT as T } from "../constants";
+import { Alert, Modal, Textarea, useLocale } from "@pte/ui";
 import { useReportQuestion } from "../api";
 
 interface ReportQuestionModalProps {
@@ -20,6 +19,7 @@ export const ReportQuestionModal = ({
   onClose,
   onSuccess,
 }: ReportQuestionModalProps): ReactElement => {
+  const { t } = useLocale();
   const [description, setDescription] = useState("");
   const report = useReportQuestion(questionPublicId);
 
@@ -45,24 +45,26 @@ export const ReportQuestionModal = ({
     <Modal
       open={open}
       onClose={handleClose}
-      title={T.TITLE}
+      title={t("tenant.support.reportQuestion.title", "Report question issue")}
       size="lg"
       footer={
         <>
           <button
             type="button"
             onClick={handleClose}
-            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="rounded-lg border border-[var(--shell-border)] px-4 py-2 text-sm font-medium text-[var(--ink-primary)] transition-colors hover:bg-[var(--surface-subtle)]"
           >
-            {T.CANCEL}
+            {t("tenant.support.reportQuestion.cancel", "Cancel")}
           </button>
           <button
             type="submit"
             form={FORM_ID}
             disabled={report.isPending || !description.trim() || description.length > 2000}
-            className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:opacity-50"
+            className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-[var(--action-foreground)] hover:bg-action-hover disabled:opacity-50"
           >
-            {report.isPending ? "Submitting…" : T.SUBMIT}
+            {report.isPending
+              ? t("tenant.support.reportQuestion.submitting", "Submitting...")
+              : t("tenant.support.reportQuestion.submit", "Submit report")}
           </button>
         </>
       }
@@ -71,18 +73,24 @@ export const ReportQuestionModal = ({
         {report.isError && <Alert tone="error">{report.error.message}</Alert>}
 
         <div className="flex flex-col gap-1">
-          <label className="text-sm font-medium text-gray-700" htmlFor="report-description">
-            {T.DESCRIPTION_LABEL}
+          <label
+            className="text-sm font-medium text-[var(--ink-primary)]"
+            htmlFor="report-description"
+          >
+            {t("tenant.support.reportQuestion.description", "Describe the issue")}
           </label>
           <Textarea
             id="report-description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder={T.DESCRIPTION_PLACEHOLDER}
+            placeholder={t(
+              "tenant.support.reportQuestion.placeholder",
+              "Describe the issue with this question",
+            )}
             rows={5}
           />
           <div className="flex justify-end">
-            <span className="text-xs text-gray-400">{description.length} / 2000</span>
+            <span className="text-xs text-[var(--ink-muted)]">{description.length} / 2000</span>
           </div>
         </div>
       </form>

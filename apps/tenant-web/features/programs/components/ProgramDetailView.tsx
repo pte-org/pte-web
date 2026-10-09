@@ -4,13 +4,13 @@ import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import {
   Alert,
-  BackButton,
   Badge,
   ConfirmDialog,
   LoadingState,
   PageHeader,
   useToast,
 } from "@pte/ui";
+import { AppBackButton } from "@/features/navigation/components/AppBackButton";
 import { ClassesSection } from "@/features/classes/components";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
@@ -39,7 +39,7 @@ export const ProgramDetailView = ({
     return (
       <div className="flex flex-col gap-4">
         <Alert tone="error">{T.missingOrganization}</Alert>
-        <BackButton href="/host/programs" label={T.backToList(labels.program)} />
+        <AppBackButton href="/host/programs" label={T.backToList(labels.program)} />
       </div>
     );
   }
@@ -87,7 +87,7 @@ const ProgramDetailContent = ({
     return (
       <div className="flex flex-col gap-4">
         <Alert tone="error">{errorMessage(error, T.loadFailed)}</Alert>
-        <BackButton href="/host/programs" label={T.backToList(programLabel)} />
+        <AppBackButton href="/host/programs" label={T.backToList(programLabel)} />
       </div>
     );
   }
@@ -117,7 +117,7 @@ const ProgramDetailContent = ({
 
   return (
     <div className="flex flex-col gap-5">
-      <BackButton href="/host/programs" label={T.back(programLabel)} />
+      <AppBackButton href="/host/programs" label={T.back(programLabel)} />
 
       <PageHeader
         title={program.name}

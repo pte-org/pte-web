@@ -4,32 +4,18 @@ import { useState, type FormEvent, type ReactElement } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { EyeIcon, LockIcon, MailIcon, Select, useSessionManager, type SessionRole } from "@pte/ui";
+import { EyeIcon, LockIcon, MailIcon, Select, normalizeSessionRoles, useSessionManager } from "@pte/ui";
 import {
   decodeAccessTokenClaims,
   type LoginOrganizationOption,
   type JwtTokenResponse,
 } from "@pte/api-client";
 import { useLoginAdmin, useLoginHost, useLoginOrganizationOptions } from "../api";
-import { AUTH_ROUTES, AUTH_TEXT, HOST_ROLES } from "../constants";
+import { ADMIN_ROLES, AUTH_ROUTES, AUTH_TEXT, HOST_ROLES } from "../constants";
+import { hasAnyRole } from "../permissions";
 import type { VendorRole } from "../types";
 import { getLoginErrorMessage } from "../loginError";
 import { AuthBrandPanel } from "./_AuthBrandPanel";
-
-const SESSION_ROLES: readonly SessionRole[] = [
-  "PLATFORM_ADMIN",
-  "PLATFORM_AUTHOR",
-  "HOST_ADMIN",
-  "EXAMINER",
-  "PROCTOR",
-  "STUDENT",
-];
-
-function toSessionRoles(rawRoles: string[]): SessionRole[] {
-  return rawRoles.filter((role): role is SessionRole =>
-    (SESSION_ROLES as readonly string[]).includes(role),
-  );
-}
 
 function resolveRole(raw: string | null): VendorRole {
   return raw === "host" ? "host" : "admin";
@@ -58,13 +44,18 @@ export const LoginView = (): ReactElement => {
   const isHost = role === "host";
   const mutation = isHost ? hostMutation : adminMutation;
   const organizationMutation = useLoginOrganizationOptions();
-  const dashboard = isHost ? AUTH_ROUTES.hostDashboard : AUTH_ROUTES.adminDashboard;
 
   const handleLoginSuccess = (data: JwtTokenResponse): void => {
     const claims = decodeAccessTokenClaims(data.accessToken);
-    const roles = claims ? toSessionRoles(claims.roles) : [];
+    const roles = claims ? normalizeSessionRoles(claims.roles) : [];
     if (!claims || roles.length === 0) {
       setErrorMessage(AUTH_TEXT.GENERIC_ERROR);
+      return;
+    }
+    const isAdminRole = hasAnyRole(roles, ADMIN_ROLES);
+    const isHostRole = roles.some((role) => HOST_ROLES.includes(role));
+    if (!isAdminRole && !isHostRole) {
+      setErrorMessage(AUTH_TEXT.UNSUPPORTED_ROLE);
       return;
     }
     saveSession({
@@ -74,8 +65,7 @@ export const LoginView = (): ReactElement => {
       tenantId: claims.tenantId,
       expiresAt: claims.expiresAt || Date.now() + data.expiresInSeconds * 1000,
     });
-    const isHostRole = roles.some((role) => HOST_ROLES.includes(role));
-    router.replace(isHostRole ? AUTH_ROUTES.hostDashboard : dashboard);
+    router.replace(isAdminRole ? AUTH_ROUTES.adminDashboard : AUTH_ROUTES.hostDashboard);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {

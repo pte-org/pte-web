@@ -105,7 +105,6 @@ export function AnnouncementsView(): ReactElement {
     <div className="flex flex-col gap-5">
       <PageHeader
         title="Announcements"
-        subtitle="Create and publish global maintenance and platform notices to hosts."
         actions={<Button onClick={() => setComposer(null)}>New announcement</Button>}
       />
       {announcements.error && (

@@ -47,12 +47,14 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
     {
       key: "attemptNumber",
       header: ANSWER_TABLE_HEADERS.ATTEMPT,
-      cell: (row) => <span className="font-medium text-gray-700">{T.ATTEMPT_VALUE(row.attemptNumber)}</span>,
+      cell: (row) => (
+        <span className="font-medium text-[var(--ink-primary)]">{T.ATTEMPT_VALUE(row.attemptNumber)}</span>
+      ),
     },
     {
       key: "taskType",
       header: ANSWER_TABLE_HEADERS.TASK_TYPE,
-      cell: (row) => <span className="font-medium text-gray-900">{row.taskType}</span>,
+      cell: (row) => <span className="font-medium text-[var(--ink-primary)]">{row.taskType}</span>,
     },
     {
       key: "status",
@@ -108,7 +110,7 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
           <button
             type="button"
             onClick={() => setSelectedAnswerId(row.answerPublicId)}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="rounded-lg border border-[var(--shell-border)] px-3 py-1.5 text-sm font-medium text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)]"
           >
             {T.VIEW}
           </button>

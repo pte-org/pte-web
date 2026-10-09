@@ -3,14 +3,11 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@pte/ui";
-import { DashboardChrome } from "@/features/auth/components";
-import { HOST_ROLES } from "@/features/auth/constants";
 import { ClassesListView } from "@/features/classes/components";
 import { CreateClassModal } from "@/features/classes/components/CreateClassModal";
 import { buildAssignStudentsUrl } from "@/features/classes/utils/assignStudentsUrl";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
-import { buildHostNav } from "@/lib/navigation";
 import { useMyOrganizations, usePrograms } from "@/features/programs/api";
 import { useCreateClass } from "@/features/classes/api";
 import { CLASSES_LIST_TEXT } from "@/features/classes/constants";
@@ -82,8 +79,7 @@ export default function ClassesPage() {
   };
 
   return (
-    <DashboardChrome navItems={buildHostNav(labels)} allowedRoles={HOST_ROLES}>
-      <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-5">
         <PageHeader
           title={labels.class}
           actions={
@@ -134,7 +130,6 @@ export default function ClassesPage() {
           selectedProgramPublicId={selectedProgramPublicId}
           onProgramChange={setSelectedProgramPublicId}
         />
-      </div>
-    </DashboardChrome>
+    </div>
   );
 }

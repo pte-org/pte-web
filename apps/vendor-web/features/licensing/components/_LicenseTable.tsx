@@ -38,7 +38,10 @@ export const LicenseTable = ({
         </thead>
         <tbody>
           {licenses.map((license) => (
-            <tr key={license.tenantId} className="border-t border-gray-100 hover:bg-slate-50/70">
+            <tr
+              key={license.tenantId}
+              className="border-t border-gray-100 hover:bg-[var(--surface-row-hover)]"
+            >
               <td className={`${CELL_CLASS} font-medium text-gray-900`}>{license.tenantName}</td>
               <td className={CELL_CLASS}>{TENANT_PLAN_LABELS[license.plan]}</td>
               <td className={CELL_CLASS}>

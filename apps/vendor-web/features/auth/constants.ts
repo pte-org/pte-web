@@ -1,4 +1,9 @@
 import type { SessionRole } from "@pte/ui";
+import {
+  ACADEMIC_AUTHOR_ROLES,
+  PLATFORM_ADMIN_ROLES,
+  PLATFORM_OPERATION_ROLES,
+} from "./permissions";
 
 export const CURRENT_USER_QUERY_KEY = ["currentUser"] as const;
 
@@ -12,8 +17,14 @@ export const VENDOR_ROLES = ["admin", "host"] as const;
  * `LoginView.tsx`'s post-login redirect decision, so the two can never
  * silently disagree about which roles belong on which side.
  */
-export const ADMIN_ROLES: SessionRole[] = ["PLATFORM_ADMIN", "PLATFORM_AUTHOR"];
-export const PLATFORM_ADMIN_ONLY: SessionRole[] = ["PLATFORM_ADMIN"];
+export const ADMIN_ROLES: SessionRole[] = [
+  ...PLATFORM_OPERATION_ROLES,
+  "ACADEMIC_MANAGER",
+  "ACADEMIC_STAFF",
+];
+export const PLATFORM_ADMIN_ONLY: SessionRole[] = PLATFORM_ADMIN_ROLES;
+export const PLATFORM_OPERATIONS_ROLES: SessionRole[] = PLATFORM_OPERATION_ROLES;
+export const ACADEMIC_ROLES: SessionRole[] = ACADEMIC_AUTHOR_ROLES;
 export const HOST_ROLES: SessionRole[] = ["HOST_ADMIN"];
 
 export const AUTH_ROUTES = {
@@ -47,5 +58,6 @@ export const AUTH_TEXT = {
   HIDE_PASSWORD: "Hide password",
   EMPTY_FIELDS: "Please enter username and password.",
   INVALID_CREDENTIALS: "Username or password is incorrect.",
+  UNSUPPORTED_ROLE: "This account is not allowed to use the vendor portal.",
   GENERIC_ERROR: "Login failed. Please try again.",
 } as const;

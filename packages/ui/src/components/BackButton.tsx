@@ -1,6 +1,14 @@
-import type { ReactElement, ReactNode } from "react";
+import type { MouseEventHandler, ReactElement, ReactNode } from "react";
 import { cn } from "../utils/cn";
 import { ChevronLeftIcon } from "./icons";
+
+export interface BackButtonLinkProps {
+  href: string;
+  className: string;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+  "aria-label": string;
+  children: ReactNode;
+}
 
 export interface BackButtonProps {
   /** Destination URL used by the underlying anchor. */
@@ -12,7 +20,9 @@ export interface BackButtonProps {
   /** Visually hide the label while keeping it accessible to screen readers. */
   iconOnly?: boolean;
   /** Optional click handler. Useful when a parent wants to short-circuit navigation. */
-  onClick?: () => void;
+  onClick?: MouseEventHandler<HTMLAnchorElement>;
+  /** Optional app-router adapter for framework-owned client navigation. */
+  renderLink?: (props: BackButtonLinkProps) => ReactElement;
   /** Extra classes appended to the root element. */
   className?: string;
   /**
@@ -43,9 +53,9 @@ const BASE_CLASSES =
  * (which can eject the user out of the app when the page is opened directly
  * via URL).
  *
- * Implementation note: rendered as a native `<a>` (not `next/link`) so the
- * `@pte/ui` package stays framework-agnostic. Next.js intercepts same-origin
- * anchor clicks and performs client-side navigation automatically.
+ * By default this renders a native `<a>` so the shared package stays
+ * framework-agnostic. Next.js app shells should pass a `renderLink` adapter
+ * when client-side navigation is required.
  */
 export const BackButton = ({
   href,
@@ -53,6 +63,7 @@ export const BackButton = ({
   icon,
   iconOnly = false,
   onClick,
+  renderLink,
   className,
   ariaLabel,
 }: BackButtonProps): ReactElement => {
@@ -71,14 +82,13 @@ export const BackButton = ({
     </>
   );
 
-  return (
-    <a
-      href={href}
-      onClick={onClick}
-      aria-label={ariaLabel ?? label}
-      className={cn(BASE_CLASSES, iconOnly && "h-9 w-9 justify-center p-0", className)}
-    >
-      {content}
-    </a>
-  );
+  const linkProps: BackButtonLinkProps = {
+    href,
+    onClick,
+    "aria-label": ariaLabel ?? label,
+    className: cn(BASE_CLASSES, iconOnly && "h-9 w-9 justify-center p-0", className),
+    children: content,
+  };
+
+  return renderLink ? renderLink(linkProps) : <a {...linkProps} />;
 };

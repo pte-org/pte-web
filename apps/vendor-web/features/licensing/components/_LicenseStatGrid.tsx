@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
-import { AlertTriangleIcon, CheckCircleIcon, CollapsibleSection, DocumentIcon, StatCard, UsersIcon } from "@pte/ui";
-import { LICENSING_OVERVIEW_TEXT, LICENSING_TEXT } from "../constants";
+import { AlertTriangleIcon, CheckCircleIcon, DocumentIcon, StatCard, UsersIcon } from "@pte/ui";
+import { LICENSING_TEXT } from "../constants";
 import type { LicenseStats } from "../types";
 
 interface LicenseStatGridProps {
@@ -8,11 +8,7 @@ interface LicenseStatGridProps {
 }
 
 export const LicenseStatGrid = ({ stats }: LicenseStatGridProps): ReactElement => (
-  <CollapsibleSection
-    title={LICENSING_OVERVIEW_TEXT.TITLE}
-    subtitle={LICENSING_OVERVIEW_TEXT.SUBTITLE}
-    contentClassName="grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
-  >
+  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
     <StatCard
       label={LICENSING_TEXT.STAT_TOTAL}
       value={stats?.total ?? LICENSING_TEXT.EMPTY_VALUE}
@@ -34,5 +30,5 @@ export const LicenseStatGrid = ({ stats }: LicenseStatGridProps): ReactElement =
       value={stats?.totalSeats ?? LICENSING_TEXT.EMPTY_VALUE}
       icon={<UsersIcon />}
     />
-  </CollapsibleSection>
+  </div>
 );

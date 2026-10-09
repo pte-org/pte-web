@@ -1,7 +1,6 @@
-import { DashboardChrome } from "@/features/auth/components";
+import { RequireAuth } from "@/features/auth/components";
 import { PLATFORM_ADMIN_ONLY } from "@/features/auth/constants";
 import { NotificationDetailView } from "@/features/notifications/components/NotificationDetailView";
-import { ADMIN_NAV } from "@/lib/navigation";
 
 export default async function AdminNotificationDetailPage({
   params,
@@ -10,8 +9,8 @@ export default async function AdminNotificationDetailPage({
 }) {
   const { publicId } = await params;
   return (
-    <DashboardChrome navItems={ADMIN_NAV} allowedRoles={PLATFORM_ADMIN_ONLY}>
+    <RequireAuth allowedRoles={PLATFORM_ADMIN_ONLY}>
       <NotificationDetailView publicId={publicId} />
-    </DashboardChrome>
+    </RequireAuth>
   );
 }

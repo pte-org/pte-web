@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { BackButton } from "@pte/ui";
+import { AppBackButton } from "@/features/navigation/components/AppBackButton";
 
 interface BreadcrumbBackToClassProps {
   className: string;
@@ -23,7 +23,7 @@ export const BreadcrumbBackToClass = ({
   classPublicId,
   organizationPublicId,
 }: BreadcrumbBackToClassProps): ReactElement => (
-  <BackButton
+  <AppBackButton
     href={`/host/programs/${programPublicId}/classes/${classPublicId}?organizationPublicId=${organizationPublicId}`}
     label={`Back to ${className}`}
   />

@@ -2,6 +2,7 @@ export const ADMIN_NAV_TEXT = {
   OVERVIEW: "Overview",
   TENANTS: "Tenants",
   APPLICATIONS: "Applications",
+  PLATFORM_USERS: "Platform users",
   PLAN_CATALOG: "Plan catalog",
   LICENSE_CODES: "License codes",
   PLATFORM_SETTINGS: "Platform settings",

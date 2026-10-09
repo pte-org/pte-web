@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
+import { DashboardCard } from "@pte/ui";
 import {
   ORGANIZATION_TYPE_FILTER_OPTIONS,
   PLAN_FILTER_OPTIONS,
@@ -30,8 +31,8 @@ const SearchIcon = (): ReactElement => (
 );
 
 export const TenantFilters = ({ filter, onChange }: TenantFiltersProps): ReactElement => (
-  <div className="grid gap-3 rounded-lg bg-white p-4 shadow-card md:grid-cols-2 xl:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
-    <div className="flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 shadow-sm focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-100 md:col-span-2 xl:col-span-1">
+  <DashboardCard className="grid gap-3 p-5 shadow-none transition-[border-color,box-shadow] duration-200 hover:border-slate-300 hover:shadow-card md:grid-cols-2 xl:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]">
+    <div className="flex min-h-10 items-center gap-2 rounded-md border border-gray-300 bg-white px-3 shadow-sm transition-[border-color,box-shadow] duration-150 focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-100 md:col-span-2 xl:col-span-1">
       <SearchIcon />
       <input
         type="search"
@@ -39,7 +40,7 @@ export const TenantFilters = ({ filter, onChange }: TenantFiltersProps): ReactEl
         placeholder={TENANCY_TEXT.SEARCH_PLACEHOLDER}
         value={filter.query}
         onChange={(event) => onChange({ ...filter, query: event.target.value })}
-        className="w-full appearance-none bg-transparent py-2 text-sm outline-none"
+        className="w-full appearance-none bg-transparent py-2 text-sm outline-none placeholder:text-slate-400"
       />
     </div>
     <FilterSelect
@@ -60,5 +61,5 @@ export const TenantFilters = ({ filter, onChange }: TenantFiltersProps): ReactEl
       options={ORGANIZATION_TYPE_FILTER_OPTIONS}
       onChange={(value) => onChange({ ...filter, organizationType: value })}
     />
-  </div>
+  </DashboardCard>
 );
