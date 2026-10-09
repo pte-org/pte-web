@@ -9,9 +9,7 @@ export interface DashboardSidebarRenderContext {
   onItemClick?: () => void;
 }
 
-type DashboardSidebarSlot =
-  | ReactNode
-  | ((context: DashboardSidebarRenderContext) => ReactNode);
+type DashboardSidebarSlot = ReactNode | ((context: DashboardSidebarRenderContext) => ReactNode);
 
 export interface DashboardSidebarProps {
   brand?: DashboardSidebarSlot;
@@ -53,8 +51,8 @@ export const DashboardSidebar = ({
       className={cn(
         "flex h-full flex-col overflow-hidden text-[var(--ink-secondary)]",
         isMobile
-          ? "w-[270px] max-w-[85vw] bg-[var(--shell-canvas)] shadow-sidebar"
-          : "w-full border-r border-[var(--shell-border)] bg-[var(--shell-canvas)]",
+          ? "w-[270px] max-w-[85vw] bg-[var(--shell-frame)] shadow-sidebar"
+          : "w-full bg-[var(--shell-canvas)]",
       )}
     >
       <div

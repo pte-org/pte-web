@@ -4,14 +4,9 @@ import { useEffect, useState, type MouseEvent, type ReactElement, type ReactNode
 import { cn } from "../utils/cn";
 import { useLocale } from "../i18n";
 import { DashboardHeader } from "./DashboardHeader";
-import {
-  DashboardSidebar,
-  type DashboardSidebarRenderContext,
-} from "./DashboardSidebar";
+import { DashboardSidebar, type DashboardSidebarRenderContext } from "./DashboardSidebar";
 
-type DashboardShellSlot =
-  | ReactNode
-  | ((context: DashboardSidebarRenderContext) => ReactNode);
+type DashboardShellSlot = ReactNode | ((context: DashboardSidebarRenderContext) => ReactNode);
 
 export interface DashboardShellProps {
   brand?: DashboardShellSlot;
@@ -46,13 +41,7 @@ export const DashboardShell = ({
   }, [navigationKey]);
 
   const handleNavigationClick = (event: MouseEvent<HTMLDivElement>): void => {
-    if (
-      event.button !== 0 ||
-      event.metaKey ||
-      event.ctrlKey ||
-      event.shiftKey ||
-      event.altKey
-    ) {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
       return;
     }
 
@@ -66,7 +55,10 @@ export const DashboardShell = ({
 
     const nextUrl = new URL(href, window.location.href);
     const currentUrl = `${window.location.pathname}${window.location.search}`;
-    if (nextUrl.origin !== window.location.origin || nextUrl.pathname + nextUrl.search === currentUrl) {
+    if (
+      nextUrl.origin !== window.location.origin ||
+      nextUrl.pathname + nextUrl.search === currentUrl
+    ) {
       return;
     }
 
@@ -77,7 +69,7 @@ export const DashboardShell = ({
 
   return (
     <div
-      className="relative flex min-h-screen bg-[var(--shell-canvas)] text-[var(--ink-primary)]"
+      className="relative flex h-screen overflow-hidden bg-[var(--shell-canvas)] text-[var(--ink-primary)]"
       onClickCapture={handleNavigationClick}
     >
       {isNavigating && (
@@ -130,28 +122,29 @@ export const DashboardShell = ({
 
       <div
         className={cn(
-          "flex min-w-0 flex-1 flex-col overflow-hidden transition-all duration-300 ease-in-out md:my-4 md:pr-4",
-          "md:rounded-2xl md:border md:border-[var(--shell-border)] md:bg-[var(--shell-frame)] md:shadow-shell",
-          isDesktopOpen ? "md:pl-[270px]" : "md:pl-[72px]",
+          "min-h-0 min-w-0 flex-1 transition-all duration-300 ease-in-out md:py-4 md:pr-4",
+          isDesktopOpen ? "md:pl-[286px]" : "md:pl-[88px]",
         )}
       >
-        <DashboardHeader
-          brand={headerBrand}
-          search={headerSearch}
-          actions={headerActions}
-          onMenuClick={() => setIsSidebarOpen((prev) => !prev)}
-        />
-        <main className="flex-1 bg-[var(--shell-frame)] px-4 py-6 md:px-8 md:py-7">
-          <div className="w-full">
-            {breadcrumbs && <div className="mb-5 flex justify-start">{breadcrumbs}</div>}
-            {children}
-          </div>
-        </main>
-        {footer && (
-          <footer className="border-t border-[var(--shell-border)] bg-[var(--shell-frame)] px-6 py-4 text-center text-xs text-[var(--ink-muted)]">
-            {footer}
-          </footer>
-        )}
+        <div className="flex h-full min-h-0 flex-col overflow-hidden md:rounded-2xl md:border-[0.5px] md:border-[var(--shell-surface-border)] md:bg-[var(--shell-frame)] md:shadow-shell">
+          <DashboardHeader
+            brand={headerBrand}
+            search={headerSearch}
+            actions={headerActions}
+            onMenuClick={() => setIsSidebarOpen((prev) => !prev)}
+          />
+          <main className="min-h-0 flex-1 overflow-y-auto bg-[var(--shell-frame)] px-4 py-6 md:px-8 md:py-7">
+            <div className="w-full">
+              {breadcrumbs && <div className="mb-5 flex justify-start">{breadcrumbs}</div>}
+              {children}
+            </div>
+          </main>
+          {footer && (
+            <footer className="border-t border-[var(--shell-border)] bg-[var(--shell-frame)] px-6 py-4 text-center text-xs text-[var(--ink-muted)]">
+              {footer}
+            </footer>
+          )}
+        </div>
       </div>
     </div>
   );

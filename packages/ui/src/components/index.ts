@@ -44,13 +44,17 @@ export type { AlertTone } from "./Alert";
 export { DataTable } from "./DataTable";
 export type {
   DataTableColumn,
+  DataTableFilterType,
+  DataTableFilterValue,
   DataTableProps,
   DataTableSortDirection,
   DataTableSortState,
   DataTableSortValue,
 } from "./DataTable";
-export { PaginationControls } from "./PaginationControls";
-export type { PageMeta } from "./PaginationControls";
+export { DateRangePicker } from "./DateRangePicker";
+export type { DateRangePickerProps, DateRangeValue } from "./DateRangePicker";
+export { PaginationControls, PaginationPageSizeSelect } from "./PaginationControls";
+export type { PageMeta, PaginationPageSizeSelectProps } from "./PaginationControls";
 export { Pagination } from "./Pagination";
 export type { PaginationProps } from "./Pagination";
 export { TableFilterInput, TableSearchControl } from "./TableFilters";
@@ -67,6 +71,7 @@ export { TopBar } from "./TopBar";
 export { Breadcrumbs } from "./Breadcrumbs";
 export type { BreadcrumbItem } from "./Breadcrumbs";
 export { UserMenu } from "./UserMenu";
+export type { UserMenuProps } from "./UserMenu";
 export { Avatar } from "./Avatar";
 export { Dropdown } from "./Dropdown";
 export type {

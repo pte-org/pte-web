@@ -12,6 +12,9 @@ import { cn } from "../utils/cn";
 import { EmptyState } from "./EmptyState";
 import { LoadingState } from "./LoadingState";
 import { Pagination } from "./Pagination";
+import { PaginationPageSizeSelect } from "./PaginationControls";
+import { DateRangePicker, type DateRangeValue } from "./DateRangePicker";
+import { NextAdminAltArrowDownIcon, NextAdminAltArrowUpIcon } from "./nextAdminIcons";
 import { Select, type SelectOption } from "./Select";
 import { TableFilterInput, TableSearchControl } from "./TableFilters";
 
@@ -27,19 +30,25 @@ export interface DataTableColumn<TRow> {
   /** A custom control rendered in the common filter row. */
   filter?: ReactNode;
   /** Value used by the common browser-side filter when no custom control is supplied. */
-  filterAccessor?: (row: TRow) => string | number | null | undefined;
+  filterAccessor?: (row: TRow) => string | number | Date | null | undefined;
   /** Renders a shared select filter instead of a text input for this column. */
   filterOptions?: readonly SelectOption[];
+  /** Renders the shared date-range filter and compares the accessor as a date. */
+  filterType?: DataTableFilterType;
   filterPlaceholder?: string;
   filterable?: boolean;
   headerClassName?: string;
+  /** Extra styles for body cells only. Use headerClassName for header/filter cells. */
   cellClassName?: string;
+  /** Legacy alias for body-cell styling; it is not applied to the table header. */
   className?: string;
 }
 
 export type DataTableSortDirection = "asc" | "desc";
 
 export type DataTableSortValue = string | number | boolean | Date | null | undefined;
+export type DataTableFilterType = "text" | "select" | "date-range";
+export type DataTableFilterValue = string | DateRangeValue;
 
 export interface DataTableSortState {
   key: string;
@@ -65,6 +74,8 @@ export interface DataTableProps<TRow> {
   showSearch?: boolean;
   searchPlaceholder?: string;
   searchAriaLabel?: string;
+  /** Actions rendered on the right side of the common table toolbar. */
+  toolbarActions?: ReactNode;
   /** Apply the common search and column filters to the rows in the browser. */
   clientSideFiltering?: boolean;
   /** Apply the common column sort to the rows in the browser. */
@@ -74,7 +85,6 @@ export interface DataTableProps<TRow> {
   /** Let the common table own page size, page slicing and footer pagination. */
   clientSidePagination?: boolean;
   initialPageSize?: number;
-  pageSizeLabel?: string;
   mobileToolbar?: ReactNode;
   pagination?: ReactNode;
   renderMobileRow?: (row: TRow) => ReactNode;
@@ -105,12 +115,12 @@ export function DataTable<TRow>({
   showSearch = true,
   searchPlaceholder = "Search",
   searchAriaLabel = "Search table",
+  toolbarActions,
   clientSideFiltering = true,
   clientSideSorting = true,
   initialSort = null,
-  clientSidePagination = false,
+  clientSidePagination = true,
   initialPageSize = 10,
-  pageSizeLabel = "Per page",
   mobileToolbar,
   pagination,
   renderMobileRow,
@@ -124,7 +134,9 @@ export function DataTable<TRow>({
 }: DataTableProps<TRow>): ReactElement {
   const selection = selectedKeys ?? new Set<string | number>();
   const [globalSearch, setGlobalSearch] = useState("");
-  const [columnFilterValues, setColumnFilterValues] = useState<Record<string, string>>({});
+  const [columnFilterValues, setColumnFilterValues] = useState<
+    Record<string, DataTableFilterValue>
+  >({});
   const [sort, setSort] = useState<DataTableSortState | null>(initialSort);
   const [pageSize, setPageSize] = useState(Math.max(initialPageSize, 1));
   const [currentPage, setCurrentPage] = useState(1);
@@ -146,10 +158,9 @@ export function DataTable<TRow>({
 
       if (!matchesGlobal) return false;
 
-      return filterableColumns.every((column) => {
-        const query = columnFilterValues[column.key]?.trim().toLocaleLowerCase();
-        return !query || getFilterText(column, row).toLocaleLowerCase().includes(query);
-      });
+      return filterableColumns.every((column) =>
+        matchesColumnFilter(column, columnFilterValues[column.key], row),
+      );
     });
   }, [clientSideFiltering, columnFilterValues, filterableColumns, globalSearch, rows]);
 
@@ -186,7 +197,9 @@ export function DataTable<TRow>({
     ? sortedRows.slice((safeCurrentPage - 1) * pageSize, safeCurrentPage * pageSize)
     : sortedRows;
   const allSelected =
-    selectable && visibleRows.length > 0 && visibleRows.every((row) => selection.has(getRowKey(row)));
+    selectable &&
+    visibleRows.length > 0 &&
+    visibleRows.every((row) => selection.has(getRowKey(row)));
 
   useEffect(() => {
     setCurrentPage(1);
@@ -217,18 +230,20 @@ export function DataTable<TRow>({
     setCurrentPage(1);
   };
 
-  const cellPadding = "px-3 py-3 sm:px-5 sm:py-3.5";
-  const cellPaddingBody = "px-3 py-3 sm:px-5 sm:py-4";
+  const cellPadding = "px-4 py-2.5 sm:px-6";
+  const filterCellPadding = "px-4 pt-0 pb-2.5 sm:px-6";
+  const cellPaddingBody = "px-4 py-3 sm:px-6 sm:py-3.5";
   const shellClassName =
-    "overflow-hidden rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] shadow-none motion-safe:animate-pte-fade-up";
+    "overflow-hidden rounded-xl border-[0.5px] border-[var(--table-border)] bg-[var(--table-surface-background)] shadow-none motion-safe:animate-pte-fade-up";
   const hasBuiltInSearch = showSearch && !toolbar;
-  const hasPageSizeControl = clientSidePagination;
-  const hasToolbar = Boolean(toolbar || filters || hasBuiltInSearch || hasPageSizeControl);
+  const hasPageSizeControl = clientSidePagination && filteredRows.length > 10;
+  const hasToolbar = Boolean(toolbar || filters || hasBuiltInSearch || toolbarActions);
+  const actionsHeader = rowActionsHeader || "Actions";
 
   return (
     <div className={shellClassName}>
       {hasToolbar && (
-        <div className="flex flex-col gap-3 border-b border-[var(--divider)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div className="flex flex-col gap-3 border-b border-[var(--table-border)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
           <div className="min-w-0 flex-1">
             {toolbar ??
               (hasBuiltInSearch ? (
@@ -237,34 +252,22 @@ export function DataTable<TRow>({
                   placeholder={searchPlaceholder}
                   value={globalSearch}
                   onChange={setGlobalSearch}
+                  variant="table"
                   className="w-full sm:max-w-[280px]"
                 />
               ) : null)}
           </div>
           <div className="flex flex-wrap items-center gap-3 sm:justify-end">
             {filters}
-            {hasPageSizeControl && (
-              <label className="flex items-center gap-2 text-sm text-[var(--ink-primary)]">
-                <span>{pageSizeLabel}</span>
-                <Select
-                  aria-label={pageSizeLabel}
-                  options={buildPageSizeOptions(pageSize)}
-                  value={String(pageSize)}
-                  onChange={(event) => {
-                    setPageSize(Number(event.target.value));
-                    setCurrentPage(1);
-                  }}
-                  size="sm"
-                  className="w-[64px]"
-                />
-              </label>
-            )}
+            {toolbarActions}
           </div>
         </div>
       )}
 
       {mobileToolbar && (
-        <div className="border-b border-[var(--divider)] px-4 py-4 sm:hidden">{mobileToolbar}</div>
+        <div className="border-b border-[var(--table-border)] px-4 py-4 sm:hidden">
+          {mobileToolbar}
+        </div>
       )}
 
       {isLoading ? (
@@ -279,8 +282,8 @@ export function DataTable<TRow>({
                   tableClassName,
                 )}
               >
-                <thead className="bg-[var(--surface-card)] text-left text-xs font-semibold tracking-wide text-[var(--ink-secondary)]">
-                  <tr>
+                <thead className="bg-[var(--table-surface-background)] text-left text-xs leading-4 font-semibold tracking-normal text-[var(--table-header-text)]">
+                  <tr className="bg-[var(--table-surface-background)]">
                     {selectable && (
                       <th scope="col" className={cn("w-10", cellPadding)}>
                         <input
@@ -288,7 +291,7 @@ export function DataTable<TRow>({
                           aria-label={selectAllLabel}
                           checked={allSelected}
                           onChange={toggleAll}
-                          className="h-4 w-4 rounded border-[var(--control-border)] text-[var(--action)] focus:ring-[var(--brand)]"
+                          className="h-4 w-4 rounded border-[var(--table-control-border)] text-[var(--action)] focus:ring-[var(--brand)]"
                         />
                       </th>
                     )}
@@ -307,9 +310,8 @@ export function DataTable<TRow>({
                         }
                         className={cn(
                           cellPadding,
-                          "border-b border-[var(--divider)]",
+                          !hasColumnFilters && "border-b border-[var(--table-border)]",
                           column.headerClassName,
-                          column.className,
                         )}
                       >
                         {renderColumnHeader({ column, sort, onSort: toggleSort })}
@@ -319,19 +321,20 @@ export function DataTable<TRow>({
                       <th
                         scope="col"
                         className={cn(
-                          "w-12 border-b border-[var(--divider)] text-right",
+                          "w-12 text-right",
+                          !hasColumnFilters && "border-b border-[var(--table-border)]",
                           cellPadding,
                         )}
                       >
-                        {rowActionsHeader}
+                        {actionsHeader}
                       </th>
                     )}
                   </tr>
                   {hasColumnFilters && (
-                    <tr>
+                    <tr className="bg-[var(--table-surface-background)]">
                       {selectable && (
                         <th
-                          className={cn("border-b border-[var(--divider)]", cellPadding)}
+                          className={cn("border-b border-[var(--table-border)]", filterCellPadding)}
                           aria-hidden="true"
                         />
                       )}
@@ -340,15 +343,16 @@ export function DataTable<TRow>({
                           key={`${column.key}-filter`}
                           scope="col"
                           className={cn(
-                            cellPadding,
-                            "border-b border-[var(--divider)] font-normal normal-case tracking-normal text-[var(--ink-primary)]",
+                            filterCellPadding,
+                            "border-b border-[var(--table-border)] font-normal normal-case tracking-normal text-[var(--table-body-text)]",
                             column.headerClassName,
-                            column.className,
                           )}
                         >
                           {renderColumnFilter({
                             column,
-                            value: columnFilterValues[column.key] ?? "",
+                            value:
+                              columnFilterValues[column.key] ??
+                              (column.filterType === "date-range" ? EMPTY_DATE_RANGE : ""),
                             onChange: (value) =>
                               setColumnFilterValues((current) => ({
                                 ...current,
@@ -359,14 +363,17 @@ export function DataTable<TRow>({
                       ))}
                       {rowActions && (
                         <th
-                          className={cn("w-12 border-b border-[var(--divider)]", cellPadding)}
+                          className={cn(
+                            "w-12 border-b border-[var(--table-border)]",
+                            filterCellPadding,
+                          )}
                           aria-hidden="true"
                         />
                       )}
                     </tr>
                   )}
                 </thead>
-                <tbody className="divide-y divide-[var(--divider)] bg-[var(--surface-card)] text-[var(--ink-primary)]">
+                <tbody className="bg-[var(--table-surface-background)] text-[var(--table-body-text)]">
                   {visibleRows.length === 0 ? (
                     <tr>
                       <td
@@ -386,7 +393,7 @@ export function DataTable<TRow>({
                       return (
                         <tr
                           key={key}
-                          className="transition-colors duration-150 hover:bg-[var(--surface-row-hover)]"
+                          className="not-last:*:border-[var(--table-border)] not-last:[&>td]:border-b not-last:[&>th]:border-b transition-colors duration-150 hover:bg-[var(--table-row-hover)]"
                         >
                           {selectable && (
                             <td className={cellPaddingBody}>
@@ -395,7 +402,7 @@ export function DataTable<TRow>({
                                 aria-label={selectRowLabel(row)}
                                 checked={selection.has(key)}
                                 onChange={() => toggleRow(key)}
-                                className="h-4 w-4 rounded border-[var(--control-border)] text-[var(--action)] focus:ring-[var(--brand)]"
+                                className="h-4 w-4 rounded border-[var(--table-control-border)] text-[var(--action)] focus:ring-[var(--brand)]"
                               />
                             </td>
                           )}
@@ -424,7 +431,7 @@ export function DataTable<TRow>({
           </div>
 
           {renderMobileRow && (
-            <div className="divide-y divide-[var(--divider)] sm:hidden">
+            <div className="divide-y divide-[var(--table-border)] sm:hidden">
               {visibleRows.length === 0 ? (
                 <EmptyState
                   title={emptyTitle}
@@ -440,22 +447,34 @@ export function DataTable<TRow>({
       )}
 
       {clientSidePagination ? (
-        <div className="flex flex-col gap-3 border-t border-[var(--divider)] px-4 py-3 text-sm text-[var(--ink-secondary)] sm:flex-row sm:items-center sm:justify-between sm:px-5">
-          <span>
-            Showing {filteredRows.length === 0 ? 0 : (safeCurrentPage - 1) * pageSize + 1} to{" "}
-            {Math.min(safeCurrentPage * pageSize, filteredRows.length)} of {filteredRows.length} records
-          </span>
-          <Pagination
-            currentPage={safeCurrentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            sideLayout="icon"
-            grouped
-            className="!mx-0 !w-auto !justify-end gap-1"
-          />
+        <div className="flex flex-col gap-3 border-t border-[var(--table-border)] px-4 py-3 text-sm text-[var(--table-muted-text)] sm:flex-row sm:items-center sm:justify-between sm:px-5">
+          <div className="flex w-full items-center gap-3 sm:w-auto">
+            <Pagination
+              currentPage={safeCurrentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              sideLayout="icon"
+              grouped
+              className="!mx-0 !w-auto !justify-end gap-1"
+            />
+            {hasPageSizeControl && (
+              <PaginationPageSizeSelect
+                value={pageSize}
+                onChange={(nextPageSize) => {
+                  setPageSize(nextPageSize);
+                  setCurrentPage(1);
+                }}
+              />
+            )}
+          </div>
+          <span>Total {filteredRows.length} records</span>
         </div>
       ) : (
-        pagination && <div className="border-t border-[var(--divider)] px-4 py-3 sm:px-5">{pagination}</div>
+        pagination && (
+          <div className="border-t border-[var(--table-border)] px-4 py-3 sm:px-5">
+            {pagination}
+          </div>
+        )
       )}
     </div>
   );
@@ -467,20 +486,35 @@ function renderColumnFilter<TRow>({
   onChange,
 }: {
   column: DataTableColumn<TRow>;
-  value: string;
-  onChange: (value: string) => void;
+  value: DataTableFilterValue;
+  onChange: (value: DataTableFilterValue) => void;
 }): ReactNode {
   if (column.filter !== undefined) return column.filter;
   if (column.filterable === false || column.key.toLowerCase() === "actions") return null;
 
+  if (column.filterType === "date-range") {
+    return (
+      <DateRangePicker
+        ariaLabel={`${getColumnLabel(column)} filter`}
+        value={isDateRangeValue(value) ? value : EMPTY_DATE_RANGE}
+        onChange={onChange}
+        placeholder={column.filterPlaceholder ?? "Date range"}
+        variant="table"
+      />
+    );
+  }
+
+  const textValue = typeof value === "string" ? value : "";
+
   if (column.filterOptions) {
     return (
       <Select
-        aria-label={`${column.label ?? "Column"} filter`}
+        aria-label={`${getColumnLabel(column)} filter`}
         options={column.filterOptions}
-        value={value}
+        value={textValue}
         onChange={(event) => onChange(event.target.value)}
         size="sm"
+        variant="table"
         className="min-w-[120px]"
       />
     );
@@ -488,12 +522,88 @@ function renderColumnFilter<TRow>({
 
   return (
     <TableFilterInput
-      ariaLabel={`${column.label ?? "Column"} filter`}
+      ariaLabel={`${getColumnLabel(column)} filter`}
       placeholder={column.filterPlaceholder}
-      value={value}
+      value={textValue}
       onChange={onChange}
+      variant="table"
     />
   );
+}
+
+function getColumnLabel<TRow>(column: DataTableColumn<TRow>): string {
+  return column.label ?? (typeof column.header === "string" ? column.header : column.key);
+}
+
+const EMPTY_DATE_RANGE: DateRangeValue = { from: "", to: "" };
+
+function isDateRangeValue(value: DataTableFilterValue | undefined): value is DateRangeValue {
+  return typeof value === "object" && value !== null && "from" in value && "to" in value;
+}
+
+function matchesColumnFilter<TRow>(
+  column: DataTableColumn<TRow>,
+  value: DataTableFilterValue | undefined,
+  row: TRow,
+): boolean {
+  if (column.filterType === "date-range") {
+    return matchesDateRange(column, isDateRangeValue(value) ? value : EMPTY_DATE_RANGE, row);
+  }
+
+  const query = typeof value === "string" ? value.trim().toLocaleLowerCase() : "";
+  return !query || getFilterText(column, row).toLocaleLowerCase().includes(query);
+}
+
+function matchesDateRange<TRow>(
+  column: DataTableColumn<TRow>,
+  range: DateRangeValue,
+  row: TRow,
+): boolean {
+  if (!range.from && !range.to) return true;
+
+  const from = range.from ? parseDateBoundary(range.from, false) : null;
+  const to = range.to ? parseDateBoundary(range.to, true) : null;
+  if ((range.from && from === null) || (range.to && to === null)) return false;
+  if (from !== null && to !== null && from > to) return true;
+
+  const value = column.filterAccessor?.(row) ?? getFilterText(column, row);
+  const timestamp = toDateTimestamp(value);
+  if (timestamp === null) return false;
+  if (from !== null && timestamp < from) return false;
+  if (to !== null && timestamp > to) return false;
+  return true;
+}
+
+function parseDateBoundary(value: string, endOfDay: boolean): number | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return null;
+
+  const [, year, month, day] = match;
+  const date = new Date(
+    Number(year),
+    Number(month) - 1,
+    Number(day),
+    endOfDay ? 23 : 0,
+    endOfDay ? 59 : 0,
+    endOfDay ? 59 : 0,
+    endOfDay ? 999 : 0,
+  );
+  return date.getFullYear() === Number(year) &&
+    date.getMonth() === Number(month) - 1 &&
+    date.getDate() === Number(day)
+    ? date.getTime()
+    : null;
+}
+
+function toDateTimestamp(value: string | number | Date | null | undefined): number | null {
+  if (value === null || value === undefined) return null;
+  if (value instanceof Date) return Number.isFinite(value.getTime()) ? value.getTime() : null;
+  if (typeof value === "number") return Number.isFinite(value) ? value : null;
+
+  const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.test(value)
+    ? parseDateBoundary(value, false)
+    : Date.parse(value);
+  return dateOnly !== null && Number.isFinite(dateOnly) ? dateOnly : null;
 }
 
 function renderColumnHeader<TRow>({
@@ -517,7 +627,7 @@ function renderColumnHeader<TRow>({
       type="button"
       aria-label={`Sort by ${label}`}
       onClick={() => onSort(column.key)}
-      className="inline-flex items-center gap-1.5 rounded-sm text-inherit outline-none transition-colors hover:text-[var(--ink-primary)] focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35"
+      className="inline-flex items-center gap-1 rounded-sm text-inherit outline-none transition-colors hover:text-[var(--table-body-text)] focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35"
     >
       <span>{column.header}</span>
       <SortIndicator direction={direction} />
@@ -527,25 +637,23 @@ function renderColumnHeader<TRow>({
 
 function SortIndicator({ direction }: { direction: DataTableSortDirection | null }): ReactElement {
   return (
-    <svg
-      viewBox="0 0 10 14"
-      className="h-3.5 w-2.5 shrink-0"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.4"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+    <span
       aria-hidden="true"
+      className="inline-flex shrink-0 flex-col items-center justify-center -space-y-1"
     >
-      <path
-        d="m2 5 3-3 3 3"
-        className={direction === "asc" ? "text-[var(--action)]" : "text-[var(--ink-muted)]"}
+      <NextAdminAltArrowUpIcon
+        className={cn(
+          "h-2.5 w-2.5",
+          direction === "asc" ? "text-[var(--action)]" : "text-[var(--table-muted-text)]",
+        )}
       />
-      <path
-        d="m2 9 3 3 3-3"
-        className={direction === "desc" ? "text-[var(--action)]" : "text-[var(--ink-muted)]"}
+      <NextAdminAltArrowDownIcon
+        className={cn(
+          "h-2.5 w-2.5",
+          direction === "desc" ? "text-[var(--action)]" : "text-[var(--table-muted-text)]",
+        )}
       />
-    </svg>
+    </span>
   );
 }
 
@@ -589,12 +697,4 @@ function reactNodeToText(node: ReactNode): string {
     return reactNodeToText(props.children);
   }
   return "";
-}
-
-function buildPageSizeOptions(currentPageSize: number): SelectOption[] {
-  const values = [10, 25, 50, 100];
-  if (!values.includes(currentPageSize)) values.push(currentPageSize);
-  return values
-    .sort((left, right) => left - right)
-    .map((value) => ({ label: String(value), value: String(value) }));
 }

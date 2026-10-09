@@ -23,7 +23,7 @@ export const DashboardHeader = ({
 
   return (
     <>
-      <header className="sticky top-0 z-30 border-b border-[var(--shell-border)] bg-[var(--shell-frame)] px-4 backdrop-blur-xl md:px-8">
+      <header className="sticky top-0 z-30 border-b-[0.5px] border-[var(--shell-border)] bg-[var(--shell-frame)] px-4 backdrop-blur-xl md:px-8">
         <div className="flex min-h-[72px] items-center md:hidden">
           <div className="flex flex-1 justify-start">
             <button
@@ -56,7 +56,7 @@ export const DashboardHeader = ({
         <div className="hidden min-h-[72px] items-center gap-4 md:flex">
           <div className="min-w-0 shrink-0">{brand}</div>
           {search && <div className="min-w-0 flex-1">{search}</div>}
-          <div className="flex shrink-0 items-center gap-2.5">{actions}</div>
+          <div className="ml-auto flex shrink-0 items-center gap-2.5">{actions}</div>
         </div>
       </header>
 

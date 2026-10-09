@@ -12,8 +12,8 @@ export function TableRoot({ className, fullBleed = false, ...props }: TableRootP
         className={cn(
           "min-w-full border-separate border-spacing-0 text-left",
           fullBleed
-            ? "border-y border-[var(--shell-border)]"
-            : "rounded-xl border border-[var(--shell-border)]",
+            ? "border-y border-[var(--table-border)]"
+            : "rounded-xl border border-[var(--table-border)]",
           className,
         )}
         {...props}
@@ -26,7 +26,7 @@ export function TableHeader({ className, ...props }: ComponentProps<"thead">) {
   return (
     <thead
       className={cn(
-        "text-[var(--ink-secondary)] [&_th]:border-b [&_th]:border-[var(--divider)] [&_th]:text-xs",
+        "bg-[var(--table-surface-background)] text-[var(--table-header-text)] [&_tr]:bg-[var(--table-surface-background)] [&_tr:not(:last-child)_th]:!border-b-0 [&_th]:border-b [&_th]:border-[var(--table-border)] [&_th]:text-xs",
         className,
       )}
       {...props}
@@ -35,13 +35,16 @@ export function TableHeader({ className, ...props }: ComponentProps<"thead">) {
 }
 
 export function TableBody({ className, ...props }: ComponentProps<"tbody">) {
-  return <tbody className={cn("bg-[var(--surface-card)]", className)} {...props} />;
+  return <tbody className={cn("bg-[var(--table-surface-background)]", className)} {...props} />;
 }
 
 export function TableHead({ className, ...props }: ComponentProps<"th">) {
   return (
     <th
-      className={cn("px-5 py-3.5 font-medium text-[var(--ink-secondary)]", className)}
+      className={cn(
+        "px-4 py-2.5 text-xs leading-4 font-semibold text-[var(--table-header-text)] sm:px-6",
+        className,
+      )}
       {...props}
     />
   );
@@ -51,7 +54,7 @@ export function TableRow({ className, ...props }: ComponentProps<"tr">) {
   return (
     <tr
       className={cn(
-        "not-last:*:border-[var(--divider)] not-last:[&>td]:border-b not-last:[&>th]:border-b",
+        "not-last:*:border-[var(--table-border)] not-last:[&>td]:border-b not-last:[&>th]:border-b",
         className,
       )}
       {...props}
@@ -62,7 +65,10 @@ export function TableRow({ className, ...props }: ComponentProps<"tr">) {
 export function TableCell({ className, ...props }: ComponentProps<"td">) {
   return (
     <td
-      className={cn("px-5 py-3.5 text-sm text-[var(--ink-primary)]", className)}
+      className={cn(
+        "px-4 py-3.5 text-sm leading-5 tracking-[-0.15px] text-[var(--table-body-text)] sm:px-6",
+        className,
+      )}
       {...props}
     />
   );

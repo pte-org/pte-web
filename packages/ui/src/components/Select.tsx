@@ -31,6 +31,7 @@ export interface SelectProps {
   className?: string;
   title?: string;
   size?: "sm" | "md";
+  variant?: "default" | "table";
   "aria-label"?: string;
 }
 
@@ -65,6 +66,7 @@ export const Select = ({
   className,
   title,
   size = "md",
+  variant = "default",
   "aria-label": ariaLabel,
 }: SelectProps): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
@@ -74,6 +76,7 @@ export const Select = ({
   const listRef = useRef<HTMLUListElement>(null);
   const selectedOption = options.find((option) => option.value === value);
   const selectedIndex = options.findIndex((option) => option.value === value);
+  const isTable = variant === "table";
   const listId = `${id ?? name ?? "select"}-options`;
 
   const firstEnabledIndex = (fromIndex: number, direction: 1 | -1): number => {
@@ -208,9 +211,12 @@ export const Select = ({
         onClick={() => (isOpen ? closeList() : openList())}
         onKeyDown={handleButtonKeyDown}
         className={cn(
-          "flex w-full items-center justify-between gap-2 rounded-lg border bg-[var(--surface-card)] px-3 text-left text-sm text-[var(--ink-primary)] outline-none transition-[background-color,border-color,box-shadow] focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20 disabled:cursor-not-allowed disabled:bg-[var(--surface-subtle)] disabled:text-[var(--ink-muted)]",
+          "flex w-full items-center justify-between gap-2 rounded-lg border px-3 text-left text-sm outline-none transition-[background-color,border-color,box-shadow] focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20 disabled:cursor-not-allowed disabled:text-[var(--ink-muted)]",
+          isTable
+            ? "border-[var(--table-control-border)] bg-[var(--table-control-background)] text-[var(--table-body-text)] disabled:bg-[var(--table-control-hover)]"
+            : "border-[var(--control-border)] bg-[var(--surface-card)] text-[var(--ink-primary)] disabled:bg-[var(--surface-subtle)]",
           size === "sm" ? "h-8 py-1.5 text-xs" : "h-10 py-2.5",
-          error ? "border-[var(--blush-action)]" : "border-[var(--control-border)]",
+          error && "border-[var(--blush-action)]",
           className,
         )}
       >
@@ -219,7 +225,8 @@ export const Select = ({
         </span>
         <ChevronDownIcon
           className={cn(
-            "h-4 w-4 shrink-0 text-[var(--ink-muted)] transition-transform duration-150",
+            "h-4 w-4 shrink-0 transition-transform duration-150",
+            isTable ? "text-[var(--table-muted-text)]" : "text-[var(--ink-muted)]",
             isOpen && "-rotate-180",
           )}
         />
@@ -242,7 +249,12 @@ export const Select = ({
               id={listId}
               role="listbox"
               aria-label={ariaLabel ?? label}
-              className="fixed max-h-60 max-w-[calc(100vw-1rem)] overflow-auto rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] py-1 text-sm shadow-[var(--popover-shadow)] motion-safe:animate-pte-dropdown-in"
+              className={cn(
+                "fixed max-h-60 max-w-[calc(100vw-1rem)] overflow-auto rounded-lg border py-1 text-sm shadow-[var(--popover-shadow)] motion-safe:animate-pte-dropdown-in",
+                isTable
+                  ? "border-[var(--table-border)] bg-[var(--table-surface-background)]"
+                  : "border-[var(--shell-border)] bg-[var(--surface-card)]",
+              )}
               style={{
                 top: listPosition?.top ?? 0,
                 left: listPosition?.left ?? 0,
@@ -263,12 +275,31 @@ export const Select = ({
                   className={cn(
                     "mx-1 truncate rounded-md px-3 py-2 transition-colors",
                     option.disabled
-                      ? "cursor-not-allowed text-[var(--ink-muted)]"
+                      ? cn(
+                          "cursor-not-allowed",
+                          isTable ? "text-[var(--table-muted-text)]" : "text-[var(--ink-muted)]",
+                        )
                       : option.value === value
                         ? "cursor-pointer bg-[var(--action)] text-[var(--action-foreground)]"
                         : index === activeIndex
-                          ? "cursor-pointer bg-[var(--surface-subtle)] text-[var(--ink-primary)]"
-                          : "cursor-pointer text-[var(--ink-secondary)] hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)]",
+                          ? cn(
+                              "cursor-pointer",
+                              isTable
+                                ? "text-[var(--table-body-text)]"
+                                : "text-[var(--ink-primary)]",
+                              isTable
+                                ? "bg-[var(--table-control-hover)]"
+                                : "bg-[var(--surface-subtle)]",
+                            )
+                          : cn(
+                              "cursor-pointer hover:text-[var(--ink-primary)]",
+                              isTable
+                                ? "text-[var(--table-muted-text)] hover:text-[var(--table-body-text)]"
+                                : "text-[var(--ink-secondary)]",
+                              isTable
+                                ? "hover:bg-[var(--table-control-hover)]"
+                                : "hover:bg-[var(--surface-subtle)]",
+                            ),
                   )}
                 >
                   {option.label}

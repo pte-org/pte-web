@@ -7,6 +7,7 @@ export interface TableSearchControlProps {
   placeholder: string;
   value: string;
   onChange: (value: string) => void;
+  variant?: "default" | "table";
   className?: string;
 }
 
@@ -15,23 +16,39 @@ export function TableSearchControl({
   placeholder,
   value,
   onChange,
+  variant = "default",
   className,
 }: TableSearchControlProps): ReactElement {
+  const isTable = variant === "table";
+
   return (
     <div
       className={cn(
-        "flex h-10 w-full items-center gap-2 rounded-lg border border-[var(--control-border)] bg-[var(--surface-card)] px-3 transition-[border-color,box-shadow] focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]/20",
+        "flex h-10 w-full items-center gap-2 rounded-lg border px-3 transition-[border-color,box-shadow] focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]/20",
+        isTable
+          ? "border-[var(--table-control-border)] bg-[var(--table-control-background)]"
+          : "border-[var(--control-border)] bg-[var(--surface-card)]",
         className,
       )}
     >
-      <SearchIcon className="h-4 w-4 shrink-0 text-[var(--ink-muted)]" />
+      <SearchIcon
+        className={cn(
+          "h-4 w-4 shrink-0",
+          isTable ? "text-[var(--table-muted-text)]" : "text-[var(--ink-muted)]",
+        )}
+      />
       <input
         type="search"
         aria-label={ariaLabel}
         placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="min-w-0 flex-1 bg-transparent text-sm text-[var(--ink-primary)] outline-none placeholder:text-[var(--ink-muted)]"
+        className={cn(
+          "min-w-0 flex-1 bg-transparent text-sm outline-none",
+          isTable
+            ? "text-[var(--table-body-text)] placeholder:text-[var(--table-muted-text)]"
+            : "text-[var(--ink-primary)] placeholder:text-[var(--ink-muted)]",
+        )}
       />
     </div>
   );
@@ -42,6 +59,7 @@ export interface TableFilterInputProps {
   value: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  variant?: "default" | "table";
   className?: string;
 }
 
@@ -50,8 +68,10 @@ export function TableFilterInput({
   value,
   onChange,
   placeholder,
+  variant = "default",
   className,
 }: TableFilterInputProps): ReactElement {
+  const isTable = variant === "table";
   const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
     onChange(event.target.value);
   };
@@ -64,7 +84,11 @@ export function TableFilterInput({
       value={value}
       onChange={handleChange}
       className={cn(
-        "h-9 w-full min-w-0 rounded-lg border border-[var(--control-border)] bg-[var(--surface-card)] px-3 text-sm text-[var(--ink-primary)] outline-none transition-[border-color,box-shadow] placeholder:text-[var(--ink-muted)] focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20",
+        "w-full min-w-0 rounded-lg border px-3 text-sm outline-none transition-[border-color,box-shadow] focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20",
+        isTable ? "h-8" : "h-9",
+        isTable
+          ? "border-[var(--table-control-border)] bg-[var(--table-control-background)] text-[var(--table-body-text)] placeholder:text-[var(--table-muted-text)]"
+          : "border-[var(--control-border)] bg-[var(--surface-card)] text-[var(--ink-primary)] placeholder:text-[var(--ink-muted)]",
         className,
       )}
     />

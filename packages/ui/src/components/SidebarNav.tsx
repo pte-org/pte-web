@@ -24,11 +24,7 @@ export interface SidebarNavProps {
  * keeps this package independent from Next.js while keeping the sidebar
  * identical across tenant and vendor.
  */
-export const SidebarNav = ({
-  items,
-  isOpen = true,
-  renderLink,
-}: SidebarNavProps): ReactElement => {
+export const SidebarNav = ({ items, isOpen = true, renderLink }: SidebarNavProps): ReactElement => {
   return (
     <div className={cn("flex flex-col", isOpen ? "gap-1" : "gap-1.5")}>
       {items.map((item, index) => {
@@ -36,11 +32,12 @@ export const SidebarNav = ({
 
         return (
           <div key={item.href} className="flex flex-col gap-1">
-            {isSectionStart && item.section && (
-              isOpen ? (
+            {isSectionStart &&
+              item.section &&
+              (isOpen ? (
                 <p
                   className={cn(
-                    "mb-2 px-3 text-[11px] font-medium uppercase tracking-[0.04em] text-[var(--ink-muted)]",
+                    "mb-2 px-3 text-xs font-medium uppercase tracking-[0.04em] text-[var(--ink-muted)]",
                     index === 0 ? "mt-1" : "mt-5",
                   )}
                 >
@@ -53,8 +50,7 @@ export const SidebarNav = ({
                 >
                   <DotsHorizontalIcon className="h-3.5 w-3.5" />
                 </span>
-              )
-            )}
+              ))}
 
             {renderLink(
               item,
@@ -62,8 +58,8 @@ export const SidebarNav = ({
                 "flex min-h-9 items-center rounded-md text-sm font-medium transition-colors duration-150",
                 isOpen ? "w-full gap-3 px-3 py-2" : "mx-auto h-9 w-9 justify-center px-2 py-2",
                 item.isActive
-                  ? "bg-[var(--surface-subtle)] text-[var(--ink-primary)]"
-                  : "text-[var(--ink-secondary)] hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)]",
+                  ? "bg-[var(--sidebar-nav-hover-background)] text-[var(--ink-primary)]"
+                  : "text-[var(--ink-secondary)] hover:bg-[var(--sidebar-nav-hover-background)] hover:text-[var(--ink-primary)]",
               ),
             )}
           </div>

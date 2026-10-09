@@ -1,12 +1,18 @@
 "use client";
 
-import { useEffect, useState, type ReactElement, type ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { DEFAULT_PAGE_SIZE, type PageMeta as ApiPageMeta } from "@pte/api-client";
-import { Button } from "./Button";
-import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
+import { Pagination } from "./Pagination";
+import { Select } from "./Select";
 
 /** The pagination controls only need this structural subset of the API meta. */
 export type PageMeta = Pick<ApiPageMeta, "page" | "size" | "totalElements" | "totalPages">;
+
+export interface PaginationPageSizeSelectProps {
+  value: number;
+  onChange: (size: number) => void;
+  disabled?: boolean;
+}
 
 interface PaginationControlsProps {
   meta: PageMeta;
@@ -14,14 +20,14 @@ interface PaginationControlsProps {
   disabled?: boolean;
   onPageSizeChange?: (size: number) => void;
   showPageSizeInput?: boolean;
+  /** @deprecated The common pagination no longer renders separate first/last buttons. */
   showFirstLast?: boolean;
-  pageSizeLabel?: string;
+  /** @deprecated The common pagination no longer renders separate first/last buttons. */
   firstLabel?: string;
+  /** @deprecated The common pagination no longer renders separate first/last buttons. */
   lastLabel?: string;
   totalItemsLabel?: ReactNode;
 }
-
-const PAGE_LABEL = "Page";
 
 export const PaginationControls = ({
   meta,
@@ -29,104 +35,60 @@ export const PaginationControls = ({
   disabled = false,
   onPageSizeChange,
   showPageSizeInput = false,
-  showFirstLast = false,
-  pageSizeLabel = "Rows per page",
-  firstLabel = "First",
-  lastLabel = "Last",
-  totalItemsLabel,
 }: PaginationControlsProps): ReactElement => {
   const currentPageSize = meta.size > 0 ? meta.size : DEFAULT_PAGE_SIZE;
-  const [pageSizeInput, setPageSizeInput] = useState(String(currentPageSize));
-  const isFirst = meta.page <= 0;
-  const isLast = meta.page >= meta.totalPages - 1;
-
-  useEffect(() => {
-    setPageSizeInput(String(currentPageSize));
-  }, [currentPageSize]);
-
-  const commitPageSize = (): void => {
-    const nextPageSize = Number(pageSizeInput);
-    if (!Number.isInteger(nextPageSize) || nextPageSize < 1) {
-      setPageSizeInput(String(currentPageSize));
-      return;
-    }
-
-    if (nextPageSize !== currentPageSize) onPageSizeChange?.(nextPageSize);
-  };
+  const totalItems = Math.max(meta.totalElements, 0);
 
   return (
-    <div className="flex flex-col items-center justify-between gap-3 text-sm text-[var(--ink-secondary)] sm:flex-row">
-      <div className="flex flex-wrap items-center justify-center gap-3">
-        <span>
-          {PAGE_LABEL} {meta.page + 1} / {Math.max(meta.totalPages, 1)}
-        </span>
-        {totalItemsLabel}
-      </div>
-      <div className="flex flex-wrap items-center justify-center gap-2">
+    <div className="flex flex-col items-center justify-between gap-3 text-sm text-[var(--table-muted-text)] sm:flex-row">
+      <div className="flex w-full items-center gap-3 sm:w-auto">
+        <Pagination
+          currentPage={meta.page + 1}
+          totalPages={meta.totalPages}
+          disabled={disabled}
+          onPageChange={(nextPage) => onPageChange(nextPage - 1)}
+          sideLayout="icon"
+          grouped
+          className="!mx-0 !w-auto !justify-end gap-1"
+        />
         {showPageSizeInput && onPageSizeChange && (
-          <label className="flex items-center gap-2">
-            <span>{pageSizeLabel}</span>
-            <input
-              type="number"
-              min={1}
-              step={1}
-              inputMode="numeric"
-              aria-label={pageSizeLabel}
-              value={pageSizeInput}
-              disabled={disabled}
-              onChange={(event) => setPageSizeInput(event.target.value)}
-              onBlur={commitPageSize}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  event.currentTarget.blur();
-                }
-              }}
-              className="h-10 w-16 rounded-lg border border-[var(--control-border)] bg-[var(--surface-card)] px-2 text-center text-sm text-[var(--ink-primary)] outline-none focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20"
-            />
-          </label>
+          <PaginationPageSizeSelect
+            value={currentPageSize}
+            onChange={onPageSizeChange}
+            disabled={disabled}
+          />
         )}
-        {showFirstLast && (
-          <>
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={disabled || isFirst}
-              onClick={() => onPageChange(0)}
-            >
-              {firstLabel}
-            </Button>
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={disabled || isLast}
-              onClick={() => onPageChange(Math.max(meta.totalPages - 1, 0))}
-            >
-              {lastLabel}
-            </Button>
-          </>
-        )}
-        <div className="flex items-center gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={disabled || isFirst}
-            leftIcon={<ChevronLeftIcon className="h-4 w-4" />}
-            onClick={() => onPageChange(meta.page - 1)}
-          >
-            Previous
-          </Button>
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={disabled || isLast}
-            rightIcon={<ChevronRightIcon className="h-4 w-4" />}
-            onClick={() => onPageChange(meta.page + 1)}
-          >
-            Next
-          </Button>
-        </div>
       </div>
+      <span className="tabular-nums">Total {totalItems} records</span>
     </div>
+  );
+};
+
+const PAGE_SIZE_OPTIONS = [5, 10, 15, 20] as const;
+
+export const PaginationPageSizeSelect = ({
+  value,
+  onChange,
+  disabled = false,
+}: PaginationPageSizeSelectProps): ReactElement => {
+  const currentPageSize = Math.max(Math.trunc(value) || DEFAULT_PAGE_SIZE, 1);
+  const options = [...PAGE_SIZE_OPTIONS, currentPageSize]
+    .filter((option, index, values) => values.indexOf(option) === index)
+    .map((option) => ({ label: String(option), value: String(option) }));
+
+  return (
+    <label className="flex items-center gap-2 whitespace-nowrap text-[var(--table-muted-text)]">
+      <span>Per page</span>
+      <Select
+        aria-label="Per page"
+        options={options}
+        value={String(currentPageSize)}
+        onChange={(event) => onChange(Number(event.target.value))}
+        disabled={disabled}
+        size="sm"
+        variant="table"
+        className="w-[64px]"
+      />
+    </label>
   );
 };
