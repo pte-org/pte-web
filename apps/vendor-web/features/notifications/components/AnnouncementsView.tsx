@@ -210,14 +210,16 @@ export function AnnouncementsView(): ReactElement {
           />
         )}
         rowActionsHeader=""
+        pagination={
+          announcements.data ? (
+            <PaginationControls
+              meta={announcements.data.meta}
+              onPageChange={setPage}
+              disabled={announcements.isFetching}
+            />
+          ) : undefined
+        }
       />
-      {announcements.data && (
-        <PaginationControls
-          meta={announcements.data.meta}
-          onPageChange={setPage}
-          disabled={announcements.isFetching}
-        />
-      )}
       <AnnouncementFormModal
         key={composer?.publicId ?? (composer === null ? "new" : "closed")}
         open={composer !== undefined}

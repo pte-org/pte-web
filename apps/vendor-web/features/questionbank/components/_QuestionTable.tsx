@@ -3,13 +3,12 @@ import { useRouter } from "next/navigation";
 import {
   ActionMenu,
   Alert,
-  Badge,
   BanIcon,
-  Button,
+  Badge,
   CheckCircleIcon,
   ConfirmDialog,
+  DataTable,
   DocumentIcon,
-  EmptyState,
   PencilIcon,
   TrashIcon,
   UploadIcon,
@@ -39,18 +38,28 @@ import { canReviewAcademic } from "@/features/auth/permissions";
 
 interface QuestionTableProps {
   questions: Question[];
-  isFiltered?: boolean;
-  onClearFilters?: () => void;
+  isLoading?: boolean;
 }
 
-const HEADER_CLASS =
-  "px-5 py-3.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
-const CELL_CLASS = "px-5 py-4 text-sm text-gray-700 align-middle";
+const QUESTION_SKILL_FILTER_OPTIONS = [
+  { value: "", label: "All skills" },
+  { value: "listening", label: "Listening" },
+  { value: "reading", label: "Reading" },
+  { value: "writing", label: "Writing" },
+  { value: "speaking", label: "Speaking" },
+] as const;
+
+const QUESTION_STATUS_FILTER_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "draft", label: "Draft" },
+  { value: "pending_approval", label: "Pending approval" },
+  { value: "published", label: "Published" },
+  { value: "archived", label: "Archived" },
+] as const;
 
 export const QuestionTable = ({
   questions,
-  isFiltered = false,
-  onClearFilters,
+  isLoading = false,
 }: QuestionTableProps): ReactElement => {
   const router = useRouter();
   const { data: currentUser } = useCurrentUser();
@@ -167,69 +176,64 @@ export const QuestionTable = ({
     );
   };
 
-  if (questions.length === 0) {
-    return (
-      <div className="space-y-4">
-        {hasMutationError && <Alert tone="error">{QUESTIONBANK_TEXT.STATUS_UPDATE_ERROR}</Alert>}
-        <EmptyState
-          title={QUESTIONBANK_TEXT.EMPTY_TITLE}
-          description={
-            isFiltered
-              ? QUESTIONBANK_TEXT.EMPTY_DESCRIPTION_FILTERED
-              : QUESTIONBANK_TEXT.EMPTY_DESCRIPTION_UNFILTERED
-          }
-          action={
-            isFiltered && onClearFilters ? (
-              <Button type="button" variant="secondary" onClick={onClearFilters}>
-                {QUESTIONBANK_TEXT.EMPTY_CLEAR_FILTERS}
-              </Button>
-            ) : undefined
-          }
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
       {hasMutationError && <Alert tone="error">{QUESTIONBANK_TEXT.STATUS_UPDATE_ERROR}</Alert>}
-      <div className="overflow-hidden rounded-lg bg-white shadow-card">
-        <div className="overflow-x-auto">
-          <table className="min-w-[900px] w-full border-collapse">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.CODE}</th>
-                <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.SKILL}</th>
-                <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.CONTENT}</th>
-                <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.STATUS}</th>
-                <th className={HEADER_CLASS}>{QUESTION_TABLE_HEADERS.ACTIONS}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {questions.map((question) => (
-                <tr
-                  key={question.id}
-                  className="border-t border-gray-100 hover:bg-[var(--surface-row-hover)]"
-                >
-                  <td className={`${CELL_CLASS} font-mono text-xs text-gray-900`}>{question.id}</td>
-                  <td className={CELL_CLASS}>{QUESTION_SKILL_LABELS[question.skill]}</td>
-                  <td className={`${CELL_CLASS} max-w-xs`}>
-                    <span className="line-clamp-1">{question.content}</span>
-                  </td>
-                  <td className={CELL_CLASS}>
-                    <Badge variant={QUESTION_STATUS_VARIANT[question.status]}>
-                      {QUESTION_STATUS_LABELS[question.status]}
-                    </Badge>
-                  </td>
-                  <td className={CELL_CLASS}>
-                    <ActionMenu items={buildActions(question)} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DataTable
+        columns={[
+          {
+            key: "code",
+            label: QUESTION_TABLE_HEADERS.CODE,
+            header: QUESTION_TABLE_HEADERS.CODE,
+            filterAccessor: (question) => question.id,
+            cell: (question) => (
+              <span className="font-mono text-xs text-[var(--ink-primary)]">{question.id}</span>
+            ),
+          },
+          {
+            key: "skill",
+            label: QUESTION_TABLE_HEADERS.SKILL,
+            header: QUESTION_TABLE_HEADERS.SKILL,
+            filterOptions: QUESTION_SKILL_FILTER_OPTIONS,
+            filterAccessor: (question) => question.skill,
+            cell: (question) => QUESTION_SKILL_LABELS[question.skill],
+          },
+          {
+            key: "content",
+            label: QUESTION_TABLE_HEADERS.CONTENT,
+            header: QUESTION_TABLE_HEADERS.CONTENT,
+            filterAccessor: (question) => question.content,
+            cell: (question) => (
+              <span className="line-clamp-1 max-w-xl">{question.content}</span>
+            ),
+          },
+          {
+            key: "status",
+            label: QUESTION_TABLE_HEADERS.STATUS,
+            header: QUESTION_TABLE_HEADERS.STATUS,
+            filterOptions: QUESTION_STATUS_FILTER_OPTIONS,
+            filterAccessor: (question) => question.status,
+            cell: (question) => (
+              <Badge variant={QUESTION_STATUS_VARIANT[question.status]}>
+                {QUESTION_STATUS_LABELS[question.status]}
+              </Badge>
+            ),
+          },
+        ]}
+        rows={questions}
+        getRowKey={(question) => question.id}
+        isLoading={isLoading}
+        emptyTitle={QUESTIONBANK_TEXT.EMPTY_TITLE}
+        emptyDescription={QUESTIONBANK_TEXT.EMPTY_DESCRIPTION_FILTERED}
+        searchPlaceholder={QUESTIONBANK_TEXT.SEARCH_PLACEHOLDER}
+        searchAriaLabel={QUESTIONBANK_TEXT.SEARCH_PLACEHOLDER}
+        clientSidePagination
+        initialPageSize={10}
+        pageSizeLabel={QUESTIONBANK_TEXT.PAGE_SIZE}
+        tableClassName="min-w-[900px]"
+        rowActionsHeader={QUESTION_TABLE_HEADERS.ACTIONS}
+        rowActions={(question) => <ActionMenu items={buildActions(question)} />}
+      />
       <ConfirmDialog
         open={questionToArchive !== null}
         title={QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_TITLE}

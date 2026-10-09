@@ -1,10 +1,9 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
+import { type ReactElement } from "react";
 import type { QuotaTransactionResponse } from "@pte/api-client";
-import { Modal, Select } from "@pte/ui";
+import { DataTable, Modal } from "@pte/ui";
 import {
-  QUOTA_ACTION_TYPE_FILTER_OPTIONS,
   QUOTA_ACTION_TYPE_LABELS,
   QUOTA_HISTORY_TABLE_HEADERS,
   QUOTA_HISTORY_TEXT,
@@ -18,10 +17,6 @@ interface QuotaHistoryModalProps {
 }
 
 const T = QUOTA_HISTORY_TEXT;
-const HEADER_CLASS =
-  "px-4 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500";
-const CELL_CLASS = "px-4 py-3 text-sm text-gray-700 align-middle";
-
 const formatDate = (value: string): string => {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat("en-GB").format(date);
@@ -34,12 +29,7 @@ export const QuotaHistoryModal = ({
   tenantName,
   onClose,
 }: QuotaHistoryModalProps): ReactElement => {
-  const [actionFilter, setActionFilter] = useState("all");
-  const { data: transactions } = useQuotaHistory(tenantPublicId ?? "");
-
-  const visible = (transactions ?? []).filter(
-    (transaction) => actionFilter === "all" || transaction.actionType === actionFilter,
-  );
+  const { data: transactions, isLoading } = useQuotaHistory(tenantPublicId ?? "");
 
   return (
     <Modal
@@ -57,49 +47,57 @@ export const QuotaHistoryModal = ({
         </button>
       }
     >
-      <div className="mb-3 flex justify-end">
-        <Select
-          aria-label={QUOTA_ACTION_TYPE_FILTER_OPTIONS[0].label}
-          value={actionFilter}
-          onChange={(event) => setActionFilter(event.target.value)}
-          options={QUOTA_ACTION_TYPE_FILTER_OPTIONS}
-        />
-      </div>
-
-      {visible.length > 0 ? (
-        <div className="overflow-x-auto rounded-lg border border-gray-200">
-          <table className="w-full border-collapse">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className={HEADER_CLASS}>{QUOTA_HISTORY_TABLE_HEADERS.DATE}</th>
-                <th className={HEADER_CLASS}>{QUOTA_HISTORY_TABLE_HEADERS.ACTION}</th>
-                <th className={HEADER_CLASS}>{QUOTA_HISTORY_TABLE_HEADERS.PACKAGE}</th>
-                <th className={HEADER_CLASS}>{QUOTA_HISTORY_TABLE_HEADERS.AMOUNT}</th>
-                <th className={HEADER_CLASS}>{QUOTA_HISTORY_TABLE_HEADERS.NOTE}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visible.map((transaction: QuotaTransactionResponse) => (
-                <tr key={transaction.publicId} className="border-t border-gray-100">
-                  <td className={`${CELL_CLASS} text-gray-500`}>
-                    {formatDate(transaction.createdAt)}
-                  </td>
-                  <td className={CELL_CLASS}>{QUOTA_ACTION_TYPE_LABELS[transaction.actionType]}</td>
-                  <td className={CELL_CLASS}>{transaction.packageName}</td>
-                  <td className={`${CELL_CLASS} font-medium text-gray-900`}>
-                    {formatAmount(transaction.amount)}
-                  </td>
-                  <td className={`${CELL_CLASS} text-gray-500`}>
-                    {transaction.note ?? T.EMPTY_VALUE}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="py-8 text-center text-sm text-gray-500">{T.EMPTY}</p>
-      )}
+      <DataTable
+        columns={[
+          {
+            key: "date",
+            label: QUOTA_HISTORY_TABLE_HEADERS.DATE,
+            header: QUOTA_HISTORY_TABLE_HEADERS.DATE,
+            filterAccessor: (transaction: QuotaTransactionResponse) => transaction.createdAt,
+            cell: (transaction: QuotaTransactionResponse) => formatDate(transaction.createdAt),
+          },
+          {
+            key: "action",
+            label: QUOTA_HISTORY_TABLE_HEADERS.ACTION,
+            header: QUOTA_HISTORY_TABLE_HEADERS.ACTION,
+            filterOptions: [
+              { value: "", label: "All actions" },
+              ...Object.entries(QUOTA_ACTION_TYPE_LABELS).map(([value, label]) => ({ value, label })),
+            ],
+            filterAccessor: (transaction: QuotaTransactionResponse) => transaction.actionType,
+            cell: (transaction: QuotaTransactionResponse) =>
+              QUOTA_ACTION_TYPE_LABELS[transaction.actionType],
+          },
+          {
+            key: "package",
+            label: QUOTA_HISTORY_TABLE_HEADERS.PACKAGE,
+            header: QUOTA_HISTORY_TABLE_HEADERS.PACKAGE,
+            filterAccessor: (transaction: QuotaTransactionResponse) => transaction.packageName,
+            cell: (transaction: QuotaTransactionResponse) => transaction.packageName,
+          },
+          {
+            key: "amount",
+            label: QUOTA_HISTORY_TABLE_HEADERS.AMOUNT,
+            header: QUOTA_HISTORY_TABLE_HEADERS.AMOUNT,
+            filterAccessor: (transaction: QuotaTransactionResponse) => transaction.amount,
+            cell: (transaction: QuotaTransactionResponse) => (
+              <span className="font-medium">{formatAmount(transaction.amount)}</span>
+            ),
+          },
+          {
+            key: "note",
+            label: QUOTA_HISTORY_TABLE_HEADERS.NOTE,
+            header: QUOTA_HISTORY_TABLE_HEADERS.NOTE,
+            filterAccessor: (transaction: QuotaTransactionResponse) => transaction.note,
+            cell: (transaction: QuotaTransactionResponse) => transaction.note ?? T.EMPTY_VALUE,
+          },
+        ]}
+        rows={transactions ?? []}
+        getRowKey={(transaction) => transaction.publicId}
+        isLoading={isLoading}
+        emptyTitle={T.EMPTY}
+        tableClassName="min-w-[650px]"
+      />
     </Modal>
   );
 };

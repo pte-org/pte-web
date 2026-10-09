@@ -1,17 +1,13 @@
 "use client";
 
-import { useMemo, useState, type ReactElement } from "react";
+import { type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import {
   ActionMenu,
   Alert,
-  BuildingIcon,
   DataTable,
   EyeIcon,
   PageHeader,
-  Select,
-  StatCard,
-  UsersIcon,
 } from "@pte/ui";
 import { useApplicationsQuery } from "../api";
 import type { TenantApplicationResponse } from "@pte/api-client";
@@ -19,7 +15,7 @@ import { ADMIN_APPLICATIONS_TEXT as T } from "../constants";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
 
 const STATUS_OPTIONS = [
-  { label: T.ALL_STATUSES, value: "ALL" },
+  { label: T.ALL_STATUSES, value: "" },
   { label: T.PENDING, value: "PENDING" },
   { label: T.APPROVED, value: "APPROVED" },
   { label: T.REJECTED, value: "REJECTED" },
@@ -27,19 +23,12 @@ const STATUS_OPTIONS = [
 
 export const AdminApplicationsView = (): ReactElement => {
   const router = useRouter();
-  const [status, setStatus] = useState("ALL");
   const { data: applications = [], isLoading, isError, refetch } = useApplicationsQuery();
-  const visibleApplications = useMemo(
-    () => applications.filter((application) => status === "ALL" || application.status === status),
-    [applications, status],
-  );
-  const pendingCount = applications.filter((item) => item.status === "PENDING").length;
-  const approvedCount = applications.filter((item) => item.status === "APPROVED").length;
-
   const columns = [
     {
       key: "organization",
       header: T.COLUMN_ORGANIZATION,
+      filterAccessor: (row: TenantApplicationResponse) => `${row.orgName} ${row.requestedCode}`,
       cell: (row: TenantApplicationResponse) => (
         <div>
           <p className="font-medium text-slate-900">{row.orgName}</p>
@@ -50,6 +39,7 @@ export const AdminApplicationsView = (): ReactElement => {
     {
       key: "contact",
       header: T.COLUMN_CONTACT,
+      filterAccessor: (row: TenantApplicationResponse) => `${row.contactEmail} ${row.contactPhone ?? ""}`,
       cell: (row: TenantApplicationResponse) => (
         <div>
           <p>{row.contactEmail}</p>
@@ -57,10 +47,16 @@ export const AdminApplicationsView = (): ReactElement => {
         </div>
       ),
     },
-    { key: "type", header: T.COLUMN_TYPE, cell: (row: TenantApplicationResponse) => row.orgType },
+    {
+      key: "type",
+      header: T.COLUMN_TYPE,
+      filterAccessor: (row: TenantApplicationResponse) => row.orgType,
+      cell: (row: TenantApplicationResponse) => row.orgType,
+    },
     {
       key: "taxCode",
       header: T.COLUMN_TAX_CODE,
+      filterAccessor: (row: TenantApplicationResponse) => row.taxCode,
       cell: (row: TenantApplicationResponse) => (
         <span className="font-mono text-xs">{row.taxCode ?? T.EMPTY_VALUE}</span>
       ),
@@ -68,6 +64,8 @@ export const AdminApplicationsView = (): ReactElement => {
     {
       key: "status",
       header: T.COLUMN_STATUS,
+      filterOptions: STATUS_OPTIONS,
+      filterAccessor: (row: TenantApplicationResponse) => row.status,
       cell: (row: TenantApplicationResponse) => <CommercialStatusBadge status={row.status} />,
     },
   ];
@@ -76,16 +74,6 @@ export const AdminApplicationsView = (): ReactElement => {
     <div className="flex flex-col gap-5">
       <PageHeader
         title={T.TITLE}
-        actions={
-          <Select
-            id="application-status"
-            aria-label={T.FILTER_ARIA_LABEL}
-            options={STATUS_OPTIONS}
-            value={status}
-            onChange={(event) => setStatus(event.target.value)}
-            className="min-w-36"
-          />
-        }
       />
       {isError && (
         <Alert tone="error">
@@ -97,31 +85,11 @@ export const AdminApplicationsView = (): ReactElement => {
           </div>
         </Alert>
       )}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard
-          label={T.TOTAL}
-          value={isLoading || isError ? T.EMPTY_VALUE : String(applications.length)}
-          icon={<BuildingIcon />}
-          accent="blue"
-        />
-        <StatCard
-          label={T.NEEDS_REVIEW}
-          value={isLoading || isError ? T.EMPTY_VALUE : String(pendingCount)}
-          icon={<UsersIcon />}
-          accent="cream"
-          highlight
-        />
-        <StatCard
-          label={T.APPROVED_COUNT}
-          value={isLoading || isError ? T.EMPTY_VALUE : String(approvedCount)}
-          icon={<BuildingIcon />}
-          accent="mint"
-        />
-      </div>
       <DataTable
         columns={columns}
-        rows={visibleApplications}
+        rows={applications}
         getRowKey={(row) => row.publicId}
+        isLoading={isLoading}
         rowActions={(row) => (
           <ActionMenu
             items={[

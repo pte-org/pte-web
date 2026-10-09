@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, type FormEvent, type ReactElement } from "react";
+import { useState, type FormEvent, type ReactElement } from "react";
 import {
   Alert,
   ActionMenu,
@@ -11,7 +11,6 @@ import {
   Modal,
   PageHeader,
   Select,
-  StatCard,
   CheckCircleIcon,
   PencilIcon,
   TrashIcon,
@@ -166,7 +165,6 @@ const serverSummary = (plan: PlanResponse): ReactElement => (
   </dl>
 );
 
-type CatalogFilter = PlanType | "ALL";
 const PLAN_FORM_ID = "plan-catalog-form";
 
 export const PlanCatalogView = (): ReactElement => {
@@ -176,7 +174,6 @@ export const PlanCatalogView = (): ReactElement => {
   const activatePlan = useActivatePlan();
   const archivePlan = useArchivePlan();
   const deletePlan = useDeletePlan();
-  const [catalogFilter, setCatalogFilter] = useState<CatalogFilter>("ALL");
   const [form, setForm] = useState<PlanFormState>({ ...INITIAL_FORM });
   const [formErrors, setFormErrors] = useState<PlanFormErrors>({});
   const [editing, setEditing] = useState<PlanResponse | null>(null);
@@ -192,11 +189,6 @@ export const PlanCatalogView = (): ReactElement => {
     archivePlan.isPending ||
     deletePlan.isPending;
   const { showToast } = useToast();
-  const visiblePlans = useMemo(
-    () => (catalogFilter === "ALL" ? plans : plans.filter((plan) => plan.type === catalogFilter)),
-    [catalogFilter, plans],
-  );
-  const activeCount = plans.filter((plan) => plan.status === "ACTIVE").length;
   const latestServerPlan = editing
     ? plans.find((plan) => plan.publicId === editing.publicId) ?? null
     : null;
@@ -349,15 +341,6 @@ export const PlanCatalogView = (): ReactElement => {
         }
       />
       {!isFormOpen && errorMessage && <Alert tone="error">{errorMessage}</Alert>}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <StatCard label={T.TOTAL} value={isLoading || isError ? T.EMPTY_VALUE : String(plans.length)} accent="blue" />
-        <StatCard label={T.ACTIVE} value={isLoading || isError ? T.EMPTY_VALUE : String(activeCount)} accent="mint" />
-        <StatCard
-          label={T.DRAFT}
-          value={isLoading || isError ? T.EMPTY_VALUE : String(plans.filter((plan) => plan.status === "DRAFT").length)}
-          accent="cream"
-        />
-      </div>
       <Modal
         open={isFormOpen}
         onClose={resetForm}
@@ -499,27 +482,14 @@ export const PlanCatalogView = (): ReactElement => {
           </section>
         </form>
       </Modal>
-      <CommercialPanel
-        title={T.CATALOG_TITLE}
-        actions={
-          <Select
-            id="catalog-type"
-            aria-label={T.FILTER_ARIA_LABEL}
-            options={[
-              { label: T.ALL, value: "ALL" },
-              { label: T.EXAM_PACKAGE, value: "EXAM_PACKAGE" },
-              { label: T.CAPACITY_ADD_ONS, value: "STUDENT_CAPACITY" },
-            ]}
-            value={catalogFilter}
-            onChange={(event) => setCatalogFilter(event.target.value as CatalogFilter)}
-          />
-        }
-      >
+      <CommercialPanel title={T.CATALOG_TITLE}>
         <DataTable
+          isLoading={isLoading}
           columns={[
             {
               key: "name",
               header: T.TABLE_PLAN,
+              filterAccessor: (row: PlanResponse) => `${row.name} ${row.description ?? ""}`,
               cell: (row: PlanResponse) => (
                 <div>
                   <p className="font-medium text-slate-900">{row.name}</p>
@@ -530,17 +500,36 @@ export const PlanCatalogView = (): ReactElement => {
             {
               key: "price",
               header: T.TABLE_PRICE,
+              filterAccessor: (row: PlanResponse) => formatMoney(row),
               cell: (row: PlanResponse) => <span className="font-semibold">{formatMoney(row)}</span>,
+            },
+            {
+              key: "type",
+              header: T.TABLE_TYPE,
+              filterOptions: [
+                { label: T.ALL, value: "" },
+                { label: T.EXAM_PACKAGE, value: "EXAM_PACKAGE" },
+                { label: T.CAPACITY_ADD_ONS, value: "STUDENT_CAPACITY" },
+              ],
+              filterAccessor: (row: PlanResponse) => row.type,
+              cell: (row: PlanResponse) =>
+                row.type === "EXAM_PACKAGE" ? T.EXAM_PACKAGE : T.CAPACITY_ADD_ONS,
             },
             {
               key: "term",
               header: T.TABLE_TERM,
+              filterAccessor: (row: PlanResponse) =>
+                row.durationDays !== null ? T.DAYS(row.durationDays) : T.PERMANENT,
               cell: (row: PlanResponse) =>
                 row.durationDays !== null ? T.DAYS(row.durationDays) : T.PERMANENT,
             },
             {
               key: "capacity",
               header: T.TABLE_CAPACITY,
+              filterAccessor: (row: PlanResponse) =>
+                row.type === "EXAM_PACKAGE"
+                  ? T.SESSION_CAPACITY(row.maxStudentsPerSession ?? T.EMPTY_VALUE)
+                  : T.EXTRA_STUDENTS(row.extraStudentSlots ?? T.EMPTY_VALUE),
               cell: (row: PlanResponse) =>
                 row.type === "EXAM_PACKAGE"
                   ? T.SESSION_CAPACITY(row.maxStudentsPerSession ?? T.EMPTY_VALUE)
@@ -549,10 +538,11 @@ export const PlanCatalogView = (): ReactElement => {
             {
               key: "status",
               header: T.TABLE_STATUS,
+              filterAccessor: (row: PlanResponse) => row.status,
               cell: (row: PlanResponse) => <CommercialStatusBadge status={row.status} />,
             },
           ]}
-          rows={visiblePlans}
+          rows={plans}
           getRowKey={(row) => row.publicId}
           rowActions={(row) =>
             row.status === "ARCHIVED" ? null : (

@@ -7,9 +7,11 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Avatar,
+  Breadcrumbs,
   DashboardShell,
   Dropdown,
   LocaleSwitcher,
+  SidebarNav as SharedSidebarNav,
   Skeleton,
   ThemeToggle,
   cn,
@@ -54,60 +56,91 @@ const HEADER_TEXT = {
   LOGOUT: "Log out",
 } as const;
 
-const SidebarBrand = (): ReactElement => {
+const SidebarBrand = ({ collapsed = false }: { collapsed?: boolean }): ReactElement => {
   const { t } = useLocale();
   return (
-    <div className="flex items-center gap-2">
-    <Image
-      src="/logo.png"
-      alt={`${BRAND_NAME} logo`}
-      width={40}
-      height={40}
-      priority
-      className="h-10 w-10 rounded-md object-contain shadow-sm"
-    />
-    <div className="leading-tight">
-      <p className="text-sm font-semibold text-[var(--ink-primary)]">{BRAND_NAME}</p>
-      <p className="text-xs text-[var(--ink-muted)]">{t("brand.adminSubtitle", BRAND_SUBTITLE)}</p>
-    </div>
-    </div>
+    <Link
+      href="/"
+      aria-label={`${BRAND_NAME} home`}
+      className={cn(
+        "flex items-center rounded-md p-1 transition-colors hover:bg-[var(--surface-subtle)]",
+        collapsed ? "justify-center" : "gap-2",
+      )}
+    >
+      <Image
+        src="/logo.png"
+        alt={`${BRAND_NAME} logo`}
+        width={40}
+        height={40}
+        priority
+        className="h-10 w-10 rounded-md object-contain shadow-sm"
+      />
+      {!collapsed && (
+        <div className="leading-tight">
+          <p className="text-sm font-semibold text-[var(--ink-primary)]">{BRAND_NAME}</p>
+          <p className="text-xs text-[var(--ink-muted)]">{t("brand.adminSubtitle", BRAND_SUBTITLE)}</p>
+        </div>
+      )}
+    </Link>
   );
 };
 
 const isActive = (pathname: string | null, href: string): boolean =>
   href === "/admin" ? pathname === "/admin" : Boolean(pathname?.startsWith(href));
 
-const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
+const SidebarNav = ({
+  navItems,
+  isSidebarOpen,
+  onItemClick,
+}: {
+  navItems: NavItem[];
+  isSidebarOpen: boolean;
+  onItemClick?: () => void;
+}): ReactElement => {
   const pathname = usePathname();
   const { data: user } = useCurrentUser();
   const { t } = useLocale();
   const visibleItems = navItems.filter(
     (item) => !item.requiredRoles || hasAnyRole(user?.roles, item.requiredRoles),
   );
+
+  const sidebarItems = visibleItems.map((item) => ({
+    label: item.labelKey ? t(item.labelKey, item.label) : item.label,
+    href: item.href,
+    icon: item.icon,
+    section: item.sectionKey
+      ? t(item.sectionKey, item.section ?? "Pages")
+      : item.section,
+    isActive: isActive(pathname, item.href),
+  }));
+
   return (
-    <>
-      {visibleItems.map((item, index) => (
-        <div key={item.href} className="flex flex-col gap-1">
-          {(index === 0 || item.section !== visibleItems[index - 1]?.section) && item.section && (
-            <span className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-[var(--ink-muted)] first:pt-1">
-              {item.sectionKey ? t(item.sectionKey, item.section) : item.section}
+    <SharedSidebarNav
+      items={sidebarItems}
+      isOpen={isSidebarOpen}
+      renderLink={(item, className) => (
+        <Link
+          href={item.href}
+          onClick={onItemClick}
+          aria-label={item.label}
+          aria-current={item.isActive ? "page" : undefined}
+          title={isSidebarOpen ? undefined : item.label}
+          className={className}
+        >
+          {item.icon && (
+            <span
+              className={cn(
+                "flex shrink-0 items-center justify-center [&>svg]:h-[18px] [&>svg]:w-[18px]",
+                item.isActive ? "text-[var(--ink-primary)]" : "text-[var(--ink-muted)]",
+              )}
+            >
+              {item.icon}
             </span>
           )}
-          <Link
-            href={item.href}
-            className={cn(
-              "flex min-h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors",
-              isActive(pathname, item.href)
-                ? "bg-[var(--brand-tint)] font-medium text-[var(--brand-ink)]"
-                : "text-[var(--ink-secondary)] hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)]",
-            )}
-          >
-            {item.icon && <span className="[&>svg]:h-[18px] [&>svg]:w-[18px]">{item.icon}</span>}
-            <span>{item.labelKey ? t(item.labelKey, item.label) : item.label}</span>
-          </Link>
-        </div>
-      ))}
-    </>
+          {isSidebarOpen && <span className="truncate">{item.label}</span>}
+        </Link>
+      )}
+    />
   );
 };
 
@@ -153,12 +186,41 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const { t } = useLocale();
+  const activeItem = navItems.find((item) => isActive(pathname, item.href));
+  const breadcrumbs = activeItem ? (
+    <Breadcrumbs
+      dividerType="chevron"
+      renderLink={(item) => (
+        <Link
+          href={item.href ?? "/"}
+          className="flex items-center gap-1 font-medium text-[var(--ink-secondary)] transition-colors hover:text-[var(--ink-primary)]"
+        >
+          {item.icon}
+          {item.label}
+        </Link>
+      )}
+      items={[
+        { href: "/", label: t("nav.home", "Home") },
+        ...(activeItem.href === "/"
+          ? []
+          : [{ href: activeItem.href, label: activeItem.labelKey ? t(activeItem.labelKey, activeItem.label) : activeItem.label }]),
+      ]}
+    />
+  ) : null;
+
   return (
     <DashboardShell
-      brand={<SidebarBrand />}
-      sidebar={<SidebarNav navItems={navItems} />}
+      brand={({ isSidebarOpen }) => <SidebarBrand collapsed={!isSidebarOpen} />}
+      sidebar={({ isSidebarOpen, onItemClick }) => (
+        <SidebarNav
+          navItems={navItems}
+          isSidebarOpen={isSidebarOpen}
+          onItemClick={onItemClick}
+        />
+      )}
       headerBrand={<span className="text-lg font-medium text-[var(--brand-ink)]">{BRAND_NAME}</span>}
       headerActions={<HeaderActions />}
+      breadcrumbs={breadcrumbs}
       navigationKey={`${pathname}?${searchParams.toString()}`}
       footer={t("common.disclaimer", DISCLAIMER)}
     >

@@ -524,26 +524,26 @@ export const LicenseCodesView = (): ReactElement => {
           )}
           rowActionsHeader=""
           emptyTitle={codePageQuery.isLoading ? T.LOADING : isFiltered ? T.FILTER_EMPTY : T.EMPTY}
+          pagination={
+            codePageQuery.data ? (
+              <PaginationControls
+                meta={codePageQuery.data.meta}
+                onPageChange={(nextPage) => {
+                  clearReveal();
+                  setPage(nextPage);
+                }}
+                disabled={codePageQuery.isFetching}
+                showPageSizeInput
+                onPageSizeChange={(nextSize) => {
+                  clearReveal();
+                  setSize(nextSize);
+                  setPage(0);
+                }}
+                totalItemsLabel={T.TOTAL_CODES(codePageQuery.data.meta.totalElements)}
+              />
+            ) : undefined
+          }
         />
-        {codePageQuery.data && (
-          <div className="mt-4">
-            <PaginationControls
-              meta={codePageQuery.data.meta}
-              onPageChange={(nextPage) => {
-                clearReveal();
-                setPage(nextPage);
-              }}
-              disabled={codePageQuery.isFetching}
-              showPageSizeInput
-              onPageSizeChange={(nextSize) => {
-                clearReveal();
-                setSize(nextSize);
-                setPage(0);
-              }}
-              totalItemsLabel={T.TOTAL_CODES(codePageQuery.data.meta.totalElements)}
-            />
-          </div>
-        )}
       </CommercialPanel>
 
       <ConfirmDialog

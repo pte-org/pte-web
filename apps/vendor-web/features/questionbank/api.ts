@@ -49,6 +49,8 @@ const STATUS_MAP: Record<string, QuestionStatus> = {
   ARCHIVED: "archived",
 };
 
+const SERVER_PAGE_SIZE = 100;
+
 function mapStatus(value: QuestionResponse["status"]): QuestionStatus {
   return STATUS_MAP[value] ?? "draft";
 }
@@ -78,6 +80,31 @@ async function fetchQuestions(
   page: number,
   size: number,
 ): Promise<PagedResult<Question>> {
+  if (size >= 1000) {
+    const firstPage = await listQuestions(apiClient, filters, 0, SERVER_PAGE_SIZE);
+    const remainingPages = await Promise.all(
+      Array.from({ length: Math.max(firstPage.meta.totalPages - 1, 0) }, (_, index) =>
+        listQuestions(apiClient, filters, index + 1, SERVER_PAGE_SIZE),
+      ),
+    );
+    const data = [firstPage, ...remainingPages].flatMap((result) => result.data.map(mapQuestion));
+
+    return {
+      data,
+      meta: {
+        ...firstPage.meta,
+        page: 0,
+        size: data.length,
+        totalElements: data.length,
+        totalPages: 1,
+        first: true,
+        last: true,
+        hasNext: false,
+        hasPrevious: false,
+      },
+    };
+  }
+
   const result = await listQuestions(apiClient, filters, page, size);
   return {
     ...result,
