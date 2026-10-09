@@ -334,7 +334,7 @@ export function DataTable<TRow>({
                       <th
                         scope="col"
                         className={cn(
-                          "w-12 text-right",
+                          "w-20 min-w-[4.5rem] whitespace-nowrap text-right",
                           !hasColumnFilters && "border-b border-[var(--table-border)]",
                           cellPadding,
                         )}
@@ -379,7 +379,7 @@ export function DataTable<TRow>({
                       {rowActions && (
                         <th
                           className={cn(
-                            "w-12 border-b border-[var(--table-border)]",
+                            "w-20 min-w-[4.5rem] border-b border-[var(--table-border)]",
                             filterCellPadding,
                           )}
                           aria-hidden="true"

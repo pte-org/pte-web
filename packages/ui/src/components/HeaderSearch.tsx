@@ -3,6 +3,7 @@
 import { Command } from "cmdk";
 import { useEffect, useMemo, useState, type ReactElement, type ReactNode } from "react";
 import { cn } from "../utils/cn";
+import { useLocale } from "../i18n";
 import { SearchIcon } from "./icons";
 
 export interface HeaderSearchItem {
@@ -31,10 +32,12 @@ const KeyboardHint = ({ children }: { children: ReactNode }): ReactElement => (
 
 export const HeaderSearch = ({
   items = [],
-  placeholder = "Search pages...",
+  placeholder,
   onNavigate,
 }: HeaderSearchProps): ReactElement => {
   const [open, setOpen] = useState(false);
+  const { t } = useLocale();
+  const resolvedPlaceholder = placeholder ?? t("common.searchPages", "Search pages...");
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent): void => {
@@ -74,7 +77,7 @@ export const HeaderSearch = ({
     <>
       <button
         type="button"
-        aria-label="Open search"
+        aria-label={t("common.openSearch", "Open search")}
         onClick={() => setOpen(true)}
         className="flex size-10 items-center justify-center rounded-lg border border-[var(--control-border)] bg-[var(--surface-card)] text-[var(--ink-primary)] shadow-xs transition-colors outline-none hover:bg-[var(--surface-subtle)] focus-visible:border-[var(--brand)] focus-visible:ring-4 focus-visible:ring-[var(--brand)]/20 md:hidden"
       >
@@ -84,14 +87,14 @@ export const HeaderSearch = ({
       <div className="hidden md:block">
         <button
           type="button"
-          aria-label={placeholder}
+          aria-label={resolvedPlaceholder}
           onClick={() => setOpen(true)}
           className="w-full text-left outline-none focus:outline-none"
         >
           <div className={cn(searchFieldClassName, "cursor-pointer")}>
             <SearchIcon className="size-4 shrink-0 text-[var(--ink-muted)]" />
             <span className="min-w-0 flex-1 truncate pl-1 text-sm text-[var(--ink-muted)]">
-              {placeholder}
+              {resolvedPlaceholder}
             </span>
             <KeyboardHint>
               <span className="font-medium">⌘</span> K
@@ -103,7 +106,7 @@ export const HeaderSearch = ({
       <Command.Dialog
         open={open}
         onOpenChange={setOpen}
-        label="Global Search"
+        label={t("common.globalSearch", "Global Search")}
         overlayClassName="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs transition-opacity duration-200"
         contentClassName="fixed top-1/2 left-1/2 z-50 w-full max-w-xl -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] text-[var(--ink-primary)] shadow-2xl outline-none max-sm:max-w-[calc(100%-2rem)]"
       >
@@ -112,7 +115,7 @@ export const HeaderSearch = ({
             <SearchIcon className="size-4 shrink-0 text-[var(--ink-muted)]" />
             <Command.Input
               autoFocus
-              placeholder={placeholder}
+              placeholder={resolvedPlaceholder}
               className="w-full min-w-0 flex-1 border-none bg-transparent pl-1 text-sm text-[var(--ink-primary)] outline-none placeholder:text-[var(--ink-muted)] focus:ring-0 focus:outline-none"
             />
             <KeyboardHint>ESC</KeyboardHint>
@@ -121,7 +124,7 @@ export const HeaderSearch = ({
 
         <Command.List className="scrollbar-thin max-h-96 overflow-y-auto p-2">
           <Command.Empty className="py-8 text-center text-sm text-[var(--ink-muted)]">
-            No pages found matching your search.
+            {t("common.noPagesFound", "No pages found matching your search.")}
           </Command.Empty>
 
           {Object.entries(itemsBySection).map(([section, sectionItems]) => (
@@ -170,20 +173,20 @@ export const HeaderSearch = ({
               <kbd className="rounded border border-[var(--shell-border)] bg-[var(--surface-card)] px-1 py-0.5 font-mono text-[10px] shadow-xs">
                 ↓
               </kbd>
-              <span>Navigate</span>
+              <span>{t("common.navigate", "Navigate")}</span>
             </span>
             <span className="flex items-center gap-1">
               <kbd className="rounded border border-[var(--shell-border)] bg-[var(--surface-card)] px-1.5 py-0.5 font-mono text-[10px] shadow-xs">
                 ↵
               </kbd>
-              <span>Select</span>
+              <span>{t("common.select", "Select")}</span>
             </span>
           </div>
           <span className="flex items-center gap-1">
             <kbd className="rounded border border-[var(--shell-border)] bg-[var(--surface-card)] px-1.5 py-0.5 font-mono text-[10px] shadow-xs">
               ESC
             </kbd>
-            <span>Close</span>
+            <span>{t("common.close", "Close")}</span>
           </span>
         </div>
       </Command.Dialog>

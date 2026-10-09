@@ -8,7 +8,7 @@ interface PageHeaderProps {
   className?: string;
 }
 
-export const PageHeader = ({ title, subtitle, actions, className }: PageHeaderProps): ReactElement => (
+export const PageHeader = ({ title, actions, className }: PageHeaderProps): ReactElement => (
   <div
     className={cn(
       "flex flex-col gap-4 motion-safe:animate-pte-fade-up sm:flex-row sm:items-end sm:justify-between",
@@ -19,7 +19,9 @@ export const PageHeader = ({ title, subtitle, actions, className }: PageHeaderPr
       <h1 className="text-[28px] font-medium leading-8 tracking-[-0.025em] text-[var(--ink-primary)]">
         {title}
       </h1>
-      {subtitle && <p className="mt-1 text-sm leading-5 text-[var(--ink-secondary)]">{subtitle}</p>}
+      {/* Page-level explanatory subtitles are intentionally omitted. Keep the
+          prop for compatibility with existing screens; descriptions belong
+          inside the relevant panel or form where they are actionable. */}
     </div>
     {actions && <div className="flex flex-wrap items-center gap-2 sm:shrink-0">{actions}</div>}
   </div>

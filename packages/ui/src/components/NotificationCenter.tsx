@@ -44,6 +44,15 @@ const displayCount = (count: number): string => (count > 99 ? "99+" : String(cou
 const importanceVariant = (importance: InboxItemResponse["importance"]): "info" | "warning" =>
   importance === "IMPORTANT" ? "warning" : "info";
 
+const NOTIFICATION_CATEGORY_KEYS: Record<string, string> = {
+  SYSTEM_NOTICE: "common.notificationCategorySystem",
+  MAINTENANCE: "common.notificationCategoryMaintenance",
+  SESSION: "common.notificationCategorySession",
+  APPLICATION: "common.notificationCategoryApplication",
+  BILLING: "common.notificationCategoryBilling",
+  SUPPORT: "common.notificationCategorySupport",
+};
+
 const NotificationRows = ({
   items,
   onSelectItem,
@@ -52,40 +61,46 @@ const NotificationRows = ({
   items: InboxItemResponse[];
   onSelectItem: (item: InboxItemResponse) => void;
   compact?: boolean;
-}): ReactElement => (
-  <div
-    className={cn("divide-y divide-[var(--shell-border)]", compact && "max-h-80 overflow-y-auto")}
-  >
-    {items.map((item) => (
-      <button
-        key={item.publicId}
-        type="button"
-        onClick={() => onSelectItem(item)}
-        className={cn(
-          "block w-full px-4 py-3 text-left transition-colors hover:bg-[var(--surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand)]",
-          item.readAt === null && "bg-[var(--brand-tint)]/50",
-        )}
-        aria-label={`${item.readAt === null ? "Unread: " : ""}${item.title}`}
-      >
-        <div className="flex items-start justify-between gap-3">
-          <span className="min-w-0 flex-1 text-sm font-semibold text-[var(--ink-primary)]">
-            {item.title}
-          </span>
-          {item.readAt === null && (
-            <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-action" />
+}): ReactElement => {
+  const { t } = useLocale();
+
+  return (
+    <div
+      className={cn("divide-y divide-[var(--shell-border)]", compact && "max-h-80 overflow-y-auto")}
+    >
+      {items.map((item) => (
+        <button
+          key={item.publicId}
+          type="button"
+          onClick={() => onSelectItem(item)}
+          className={cn(
+            "block w-full px-4 py-3 text-left transition-colors hover:bg-[var(--surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand)]",
+            item.readAt === null && "bg-[var(--brand-tint)]/50",
           )}
-        </div>
-        <p className="mt-1 line-clamp-2 text-sm text-[var(--ink-secondary)]">{item.body}</p>
-        <div className="mt-2 flex items-center justify-between gap-2 text-xs text-[var(--ink-muted)]">
-          <Badge variant={importanceVariant(item.importance)}>
-            {item.category.replaceAll("_", " ")}
-          </Badge>
-          <time dateTime={item.deliveredAt}>{formatDate(item.deliveredAt)}</time>
-        </div>
-      </button>
-    ))}
-  </div>
-);
+          aria-label={`${item.readAt === null ? `${t("common.unread", "Unread")}: ` : ""}${item.title}`}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <span className="min-w-0 flex-1 text-sm font-semibold text-[var(--ink-primary)]">
+              {item.title}
+            </span>
+            {item.readAt === null && (
+              <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-action" />
+            )}
+          </div>
+          <p className="mt-1 line-clamp-2 text-sm text-[var(--ink-secondary)]">{item.body}</p>
+          <div className="mt-2 flex items-center justify-between gap-2 text-xs text-[var(--ink-muted)]">
+            <Badge variant={importanceVariant(item.importance)}>
+              {NOTIFICATION_CATEGORY_KEYS[item.category]
+                ? t(NOTIFICATION_CATEGORY_KEYS[item.category], item.category.replaceAll("_", " "))
+                : item.category.replaceAll("_", " ")}
+            </Badge>
+            <time dateTime={item.deliveredAt}>{formatDate(item.deliveredAt)}</time>
+          </div>
+        </button>
+      ))}
+    </div>
+  );
+};
 
 export const NotificationBell = ({
   items,
@@ -101,7 +116,7 @@ export const NotificationBell = ({
   onMarkAllRead,
   onViewAll,
 }: NotificationBellProps): ReactElement => {
-  const { locale, t } = useLocale();
+  const { t } = useLocale();
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -137,7 +152,7 @@ export const NotificationBell = ({
       <button
         ref={triggerRef}
         type="button"
-        aria-label={`${t("common.notifications", "Notifications")}${unreadCount > 0 ? `, ${displayCount(unreadCount)} ${locale === "vi" ? "chưa đọc" : "unread"}` : ""}`}
+        aria-label={`${t("common.notifications", "Notifications")}${unreadCount > 0 ? `, ${displayCount(unreadCount)} ${t("common.unread", "unread")}` : ""}`}
         aria-expanded={isOpen}
         aria-controls="notification-panel"
         onClick={onToggle}
@@ -165,9 +180,7 @@ export const NotificationBell = ({
                 {t("common.notifications", "Notifications")}
               </h2>
               <p className="mt-0.5 text-xs text-[var(--ink-secondary)]">
-                {locale === "vi"
-                  ? "Cập nhật mới cho tài khoản của bạn"
-                  : "Recent updates for your account"}
+                {t("common.recentUpdates", "Recent updates for your account")}
               </p>
             </div>
             <Button
@@ -202,11 +215,10 @@ export const NotificationBell = ({
             <div className="p-4">
               <EmptyState
                 title={t("common.allCaughtUp", "You are all caught up")}
-                description={
-                  locale === "vi"
-                    ? "Cập nhật nền tảng và kỳ thi sẽ hiển thị tại đây."
-                    : "New platform and exam updates will appear here."
-                }
+                description={t(
+                  "common.platformExamUpdates",
+                  "New platform and exam updates will appear here.",
+                )}
               />
             </div>
           ) : (
@@ -251,7 +263,10 @@ export const NotificationHistory = ({
     return (
       <EmptyState
         title={t("common.noNotifications", "No notifications")}
-        description={t("common.noNotifications", "There are no notifications in this view.")}
+        description={t(
+          "common.noNotificationsDescription",
+          "There are no notifications in this view.",
+        )}
       />
     );
   }
