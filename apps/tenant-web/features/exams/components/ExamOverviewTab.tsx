@@ -53,15 +53,32 @@ export const ExamOverviewTab = ({ session, lifecycle }: ExamOverviewTabProps): R
     }
   };
 
-  const modeLabel = session.examMode ? EXAM_MODE_LABELS[session.examMode] : T.LEGACY_MODE;
+  const modeLabel = session.examMode
+    ? t(
+        session.examMode === "PRACTICE"
+          ? "tenant.createExam.MODE_PRACTICE"
+          : "tenant.createExam.MODE_REAL",
+        EXAM_MODE_LABELS[session.examMode],
+      )
+    : t("tenant.examDetails.legacyMode", T.LEGACY_MODE);
   const skillsLabel =
     session.selectedSkills.length > 0
       ? session.selectedSkills
-          .map(
-            (skill) => EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label ?? skill,
-          )
+          .map((skill) => {
+            const fallback =
+              EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label ?? skill;
+            return t(`tenant.createExam.skill.${skill}`, fallback);
+          })
           .join(", ")
-      : T.LEGACY_SKILLS;
+      : t("tenant.examDetails.legacySkills", T.LEGACY_SKILLS);
+  const retries = session.maxRetriesPerStudent;
+  const totalAttempts = retries + 1;
+  const retriesLabel = t("tenant.examDetails.totalAttempts", T.TOTAL_ATTEMPTS(retries), {
+    retries,
+    total: totalAttempts,
+    retriesLabel: retries === 1 ? "retry" : "retries",
+    attemptLabel: totalAttempts === 1 ? "attempt" : "attempts",
+  });
   const statusLabel = t(`tenant.examStatus.${session.status.toLowerCase()}`, session.status);
   const hasLifecycleActions = lifecycle.canOpen || lifecycle.canClose || lifecycle.canCancel;
 
@@ -72,24 +89,24 @@ export const ExamOverviewTab = ({ session, lifecycle }: ExamOverviewTabProps): R
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">
-                {T.SESSION_CODE_SECTION}
+                {t("tenant.examDetails.examCode", T.SESSION_CODE_SECTION)}
               </p>
               <code className="mt-3 block break-all rounded-lg bg-[var(--surface-subtle)] px-3 py-2 text-sm text-[var(--ink-primary)]">
                 {session.sessionCode}
               </code>
             </div>
             <Button size="sm" variant="secondary" onClick={() => void copySessionCode()}>
-              {T.COPY_SESSION_CODE}
+              {t("tenant.examDetails.copyCode", T.COPY_SESSION_CODE)}
             </Button>
           </div>
           {copyState === "copied" && (
             <p role="status" className="mt-3 text-xs text-[var(--mint-action)]">
-              {T.SESSION_CODE_COPIED}
+              {t("tenant.examDetails.codeCopied", T.SESSION_CODE_COPIED)}
             </p>
           )}
           {copyState === "failed" && (
             <p role="alert" className="mt-3 text-xs text-[var(--blush-action)]">
-              {T.SESSION_CODE_COPY_FAILED}
+              {t("tenant.examDetails.codeCopyFailed", T.SESSION_CODE_COPY_FAILED)}
             </p>
           )}
         </DashboardCard>
@@ -100,7 +117,9 @@ export const ExamOverviewTab = ({ session, lifecycle }: ExamOverviewTabProps): R
               <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">
                 {t("tenant.examOverview.status", "Status")}
               </p>
-              <p className="mt-2 text-sm text-[var(--ink-secondary)]">{T.MODE_LABEL}</p>
+              <p className="mt-2 text-sm text-[var(--ink-secondary)]">
+                {t("tenant.examDetails.mode", T.MODE_LABEL)}
+              </p>
               <p className="mt-1 text-base font-semibold text-[var(--ink-primary)]">{modeLabel}</p>
             </div>
             <Badge variant={SESSION_STATUS_VARIANT[session.status]}>{statusLabel}</Badge>
@@ -164,17 +183,15 @@ export const ExamOverviewTab = ({ session, lifecycle }: ExamOverviewTabProps): R
         <dl className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
           <div>
             <dt className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">
-              {T.SKILLS_LABEL}
+              {t("tenant.examDetails.skillsIncluded", T.SKILLS_LABEL)}
             </dt>
             <dd className="mt-2 text-sm font-medium text-[var(--ink-primary)]">{skillsLabel}</dd>
           </div>
           <div>
             <dt className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">
-              {T.RETRIES_LABEL}
+              {t("tenant.examDetails.retriesPerStudent", T.RETRIES_LABEL)}
             </dt>
-            <dd className="mt-2 text-sm font-medium text-[var(--ink-primary)]">
-              {T.TOTAL_ATTEMPTS(session.maxRetriesPerStudent)}
-            </dd>
+            <dd className="mt-2 text-sm font-medium text-[var(--ink-primary)]">{retriesLabel}</dd>
           </div>
           <div>
             <dt className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">
@@ -186,10 +203,10 @@ export const ExamOverviewTab = ({ session, lifecycle }: ExamOverviewTabProps): R
           </div>
           <div>
             <dt className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">
-              {T.SECURITY_POLICY_LABEL}
+              {t("tenant.examDetails.securityPolicy", T.SECURITY_POLICY_LABEL)}
             </dt>
             <dd className="mt-2 text-sm font-medium text-[var(--ink-primary)]">
-              {getExamPolicyLabel(session.examMode, session.policy?.lockdownMode)}
+              {getExamPolicyLabel(session.examMode, session.policy?.lockdownMode, t)}
             </dd>
           </div>
         </dl>

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { Alert, Button, CollapsibleSection } from "@pte/ui";
+import { Alert, Button, CollapsibleSection, useLocale } from "@pte/ui";
 import { StudentRosterTable } from "@/features/examoperations/components";
 import { SESSION_DETAIL_TEXT } from "../constants";
 import type { ExamSession } from "../types";
@@ -23,12 +23,14 @@ export const ExamParticipantsTab = ({
   onOpenStudentAssignment,
   onOpenStudentImport,
 }: ExamParticipantsTabProps): ReactElement => {
+  const { t } = useLocale();
   const audienceLocked = session.status !== "SCHEDULED";
+  const lockedNotice = t("tenant.participants.lockedNotice", T.AUDIENCE_NOT_SCHEDULED_NOTICE);
 
   return (
     <div className="flex flex-col gap-5">
       <CollapsibleSection
-        title={T.CLASSES_SECTION}
+        title={t("tenant.participants.classes", T.CLASSES_SECTION)}
         className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5"
         contentClassName="flex flex-col gap-3"
       >
@@ -39,7 +41,7 @@ export const ExamParticipantsTab = ({
       </CollapsibleSection>
 
       <CollapsibleSection
-        title={T.STUDENTS_SECTION}
+        title={t("tenant.participants.students", T.STUDENTS_SECTION)}
         className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5"
         contentClassName="flex flex-col gap-5"
         actions={
@@ -48,23 +50,23 @@ export const ExamParticipantsTab = ({
               size="sm"
               onClick={onOpenStudentAssignment}
               disabled={audienceLocked}
-              title={audienceLocked ? T.AUDIENCE_NOT_SCHEDULED_NOTICE : undefined}
+              title={audienceLocked ? lockedNotice : undefined}
             >
-              {T.ADD_EXISTING_STUDENTS}
+              {t("tenant.participants.addStudents", T.ADD_EXISTING_STUDENTS)}
             </Button>
             <Button
               size="sm"
               variant="secondary"
               onClick={onOpenStudentImport}
               disabled={audienceLocked}
-              title={audienceLocked ? T.AUDIENCE_NOT_SCHEDULED_NOTICE : undefined}
+              title={audienceLocked ? lockedNotice : undefined}
             >
-              {T.IMPORT_EXISTING_STUDENTS}
+              {t("tenant.participants.importStudents", T.IMPORT_EXISTING_STUDENTS)}
             </Button>
           </div>
         }
       >
-        {audienceLocked && <Alert tone="warning">{T.AUDIENCE_NOT_SCHEDULED_NOTICE}</Alert>}
+        {audienceLocked && <Alert tone="warning">{lockedNotice}</Alert>}
         <StudentRosterTable sessionPublicId={sessionPublicId} />
       </CollapsibleSection>
 

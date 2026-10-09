@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { DEFAULT_PAGE_SIZE, type AnswerListItemResponse } from "@pte/api-client";
-import { Badge, DataTable, PaginationControls, type DataTableColumn } from "@pte/ui";
+import { Badge, DataTable, PaginationControls, useLocale, type DataTableColumn } from "@pte/ui";
 import {
   ANSWER_STATUS_LABELS,
   ANSWER_STATUS_VARIANT,
@@ -18,18 +18,13 @@ interface AnswersSectionProps {
 
 const T = ANSWERS_SECTION_TEXT;
 
-const STATUS_OPTIONS = [
-  { label: T.STATUS_FILTER_ALL, value: "" },
-  { label: ANSWER_STATUS_LABELS.PENDING, value: "PENDING" },
-  { label: ANSWER_STATUS_LABELS.AI_SCORING, value: "AI_SCORING" },
-  { label: ANSWER_STATUS_LABELS.SCORING_FAILED, value: "SCORING_FAILED" },
-  { label: ANSWER_STATUS_LABELS.SCORED, value: "SCORED" },
-];
-
-function formatDateTime(value: string): string {
+function formatDateTime(value: string, locale: "vi" | "en"): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(date);
+  return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-GB", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
 }
 
 function formatScore(score: number | null): string {
@@ -37,55 +32,78 @@ function formatScore(score: number | null): string {
 }
 
 export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactElement => {
+  const { locale, t } = useLocale();
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
   const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
+
+  const statusLabel = (status: string): string => {
+    const keyByStatus: Record<string, string> = {
+      PENDING: "tenant.answers.pending",
+      AI_SCORING: "tenant.answers.aiScoring",
+      SCORING_FAILED: "tenant.answers.scoringFailed",
+      SCORED: "tenant.answers.scored",
+    };
+    return t(
+      keyByStatus[status] ?? "tenant.answers.status",
+      ANSWER_STATUS_LABELS[status] ?? status,
+    );
+  };
+  const attemptLabel = (attemptNumber: number | null): string =>
+    attemptNumber === null
+      ? t("tenant.answers.unavailable", "Unavailable")
+      : t("tenant.answers.attempt", `Attempt ${attemptNumber}`, { number: attemptNumber });
+  const statusOptions = [
+    { label: t("tenant.answers.allStatuses", T.STATUS_FILTER_ALL), value: "" },
+    ...["PENDING", "AI_SCORING", "SCORING_FAILED", "SCORED"].map((status) => ({
+      label: statusLabel(status),
+      value: status,
+    })),
+  ];
 
   const { data, isLoading } = useAnswers(sessionPublicId, "", page, size);
 
   const columns: DataTableColumn<AnswerListItemResponse>[] = [
     {
       key: "attemptNumber",
-      header: ANSWER_TABLE_HEADERS.ATTEMPT,
+      header: t("tenant.answers.attemptHeader", ANSWER_TABLE_HEADERS.ATTEMPT),
       cell: (row) => (
         <span className="font-medium text-[var(--ink-primary)]">
-          {T.ATTEMPT_VALUE(row.attemptNumber)}
+          {attemptLabel(row.attemptNumber)}
         </span>
       ),
     },
     {
       key: "taskType",
-      header: ANSWER_TABLE_HEADERS.TASK_TYPE,
+      header: t("tenant.answers.taskType", ANSWER_TABLE_HEADERS.TASK_TYPE),
       cell: (row) => <span className="font-medium text-[var(--ink-primary)]">{row.taskType}</span>,
     },
     {
       key: "status",
-      header: ANSWER_TABLE_HEADERS.STATUS,
-      filterOptions: STATUS_OPTIONS,
+      header: t("tenant.answers.status", ANSWER_TABLE_HEADERS.STATUS),
+      filterOptions: statusOptions,
       filterAccessor: (row) => row.status,
       cell: (row) => (
-        <Badge variant={ANSWER_STATUS_VARIANT[row.status]}>
-          {ANSWER_STATUS_LABELS[row.status]}
-        </Badge>
+        <Badge variant={ANSWER_STATUS_VARIANT[row.status]}>{statusLabel(row.status)}</Badge>
       ),
     },
     {
       key: "rawScore",
-      header: ANSWER_TABLE_HEADERS.AI_SCORE,
+      header: t("tenant.answers.aiScore", ANSWER_TABLE_HEADERS.AI_SCORE),
       cell: (row) => formatScore(row.rawScore),
     },
     {
       key: "teacherScore",
-      header: ANSWER_TABLE_HEADERS.TEACHER_SCORE,
+      header: t("tenant.answers.teacherScore", ANSWER_TABLE_HEADERS.TEACHER_SCORE),
       cell: (row) => formatScore(row.teacherScore),
     },
     {
       key: "createdAt",
-      header: ANSWER_TABLE_HEADERS.SUBMITTED_AT,
+      header: t("tenant.answers.submitted", ANSWER_TABLE_HEADERS.SUBMITTED_AT),
       filterType: "date-range",
       filterAccessor: (row) => row.createdAt,
-      filterPlaceholder: "Date range",
-      cell: (row) => formatDateTime(row.createdAt),
+      filterPlaceholder: t("tenant.examList.dateRange", "Date range"),
+      cell: (row) => formatDateTime(row.createdAt, locale),
     },
   ];
 
@@ -96,8 +114,8 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
         rows={data?.items ?? []}
         getRowKey={(row) => row.answerPublicId}
         isLoading={isLoading}
-        emptyTitle={T.EMPTY_TITLE}
-        rowActionsHeader={ANSWER_TABLE_HEADERS.ACTIONS}
+        emptyTitle={t("tenant.answers.empty", T.EMPTY_TITLE)}
+        rowActionsHeader={t("tenant.answers.actions", ANSWER_TABLE_HEADERS.ACTIONS)}
         clientSidePagination={false}
         pagination={
           data ? (
@@ -119,7 +137,7 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
             onClick={() => setSelectedAnswerId(row.answerPublicId)}
             className="rounded-lg border border-[var(--shell-border)] px-3 py-1.5 text-sm font-medium text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)]"
           >
-            {T.VIEW}
+            {t("tenant.answers.view", T.VIEW)}
           </button>
         )}
       />

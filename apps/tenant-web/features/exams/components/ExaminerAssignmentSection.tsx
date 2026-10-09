@@ -15,6 +15,7 @@ import {
   DataTable,
   PaginationControls,
   Select,
+  useLocale,
   type DataTableColumn,
 } from "@pte/ui";
 import { useAllTenantClasses, type TenantClassOption } from "@/features/classes/api";
@@ -38,55 +39,45 @@ interface ScopeDraft {
   examinerPublicId: string;
 }
 
-const SCOPE_TYPES: { value: AssignmentScopeType; label: string }[] = [
-  { value: "CLASS", label: T.SCOPE_TYPE_CLASS },
-  { value: "PROGRAM", label: T.SCOPE_TYPE_PROGRAM },
-];
 const EMPTY_CLASSES: TenantClassOption[] = [];
 const EMPTY_USERS: UserResponse[] = [];
 type AssignmentBatch = ExaminerAssignmentOverviewResponse["batches"][number];
-
-const BATCH_STATUS_FILTER_OPTIONS = [
-  { value: "", label: "All statuses" },
-  { value: "PREVIEWED", label: "Previewed" },
-  { value: "COMMITTED", label: "Committed" },
-  { value: "EXPIRED", label: "Expired" },
-  { value: "STALE", label: "Stale" },
-  { value: "INVALID", label: "Invalid" },
-] as const;
 
 function examinerName(examiner: UserResponse): string {
   return examiner.fullName?.trim() || examiner.email || examiner.username;
 }
 
-function formatDate(value: string | null): string {
+function formatDate(value: string | null, locale: "vi" | "en"): string {
   if (!value) return "—";
   const date = new Date(value);
   return Number.isNaN(date.getTime())
     ? value
-    : new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(date);
+    : new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-GB", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(date);
 }
 
 function scopeLabel(
   type: AssignmentScopeType,
   publicId: string,
   classes: TenantClassOption[],
+  labels: { classLabel: string; programLabel: string },
 ): string {
   if (type === "CLASS") {
     const option = classes.find((item) => item.classPublicId === publicId);
-    return option
-      ? `${T.SCOPE_TYPE_CLASS} ${option.className}`
-      : `${T.SCOPE_TYPE_CLASS} ${publicId}`;
+    return option ? `${labels.classLabel} ${option.className}` : `${labels.classLabel} ${publicId}`;
   }
   const option = classes.find((item) => item.programPublicId === publicId);
   return option
-    ? `${T.SCOPE_TYPE_PROGRAM} ${option.programName}`
-    : `${T.SCOPE_TYPE_PROGRAM} ${publicId}`;
+    ? `${labels.programLabel} ${option.programName}`
+    : `${labels.programLabel} ${publicId}`;
 }
 
 export const ExaminerAssignmentSection = ({
   sessionPublicId,
 }: ExaminerAssignmentSectionProps): ReactElement => {
+  const { locale, t } = useLocale();
   const [mode, setMode] = useState<ExaminerAssignmentMode>("RANDOM");
   const [scopes, setScopes] = useState<ScopeDraft[]>([]);
   const [selectedExaminerIds, setSelectedExaminerIds] = useState<string[]>([]);
@@ -101,6 +92,74 @@ export const ExaminerAssignmentSection = ({
   const confirmPreview = useConfirmExaminerAssignmentPreview(sessionPublicId);
   const classesLoading = classesQuery.isLoading;
   const examinersLoading = examinersQuery.isLoading;
+
+  const text = {
+    mode: t("tenant.examinerAssignment.mode", T.MODE_LABEL),
+    randomMode: t("tenant.examinerAssignment.randomMode", T.RANDOM_MODE),
+    manualMode: t("tenant.examinerAssignment.manualMode", T.MANUAL_MODE),
+    scope: t("tenant.examinerAssignment.scope", T.SCOPE_LABEL),
+    classLabel: t("tenant.examinerAssignment.class", T.SCOPE_TYPE_CLASS),
+    programLabel: t("tenant.examinerAssignment.program", T.SCOPE_TYPE_PROGRAM),
+    scopePlaceholder: t("tenant.examinerAssignment.scopePlaceholder", T.SCOPE_PLACEHOLDER),
+    addScope: t("tenant.examinerAssignment.addScope", T.ADD_SCOPE),
+    remove: t("tenant.examinerAssignment.remove", T.REMOVE_SCOPE),
+    examiners: t("tenant.examinerAssignment.examiners", T.EXAMINERS_LABEL),
+    examiner: t("tenant.examinerAssignment.examiner", T.EXAMINER_LABEL),
+    examinerPlaceholder: t("tenant.examinerAssignment.examinerPlaceholder", T.EXAMINER_PLACEHOLDER),
+    noExaminers: t("tenant.examinerAssignment.noExaminers", T.NO_EXAMINERS),
+    noActiveScopes: t("tenant.examinerAssignment.noActiveScopes", T.NO_ACTIVE_SCOPES),
+    noScopes: t("tenant.examinerAssignment.noScopes", T.NO_SCOPES),
+    loading: t("tenant.examinerAssignment.loading", "Loading..."),
+    preview: t("tenant.examinerAssignment.preview", T.PREVIEW),
+    previewing: t("tenant.examinerAssignment.previewing", T.PREVIEWING),
+    previewValid: t("tenant.examinerAssignment.previewValid", T.PREVIEW_VALID),
+    previewInvalid: t("tenant.examinerAssignment.previewInvalid", T.PREVIEW_INVALID),
+    conflicts: t("tenant.examinerAssignment.conflicts", T.CONFLICTS),
+    attempt: t("tenant.examinerAssignment.attempt", T.ATTEMPT),
+    conflictingScopes: t("tenant.examinerAssignment.conflictingScopes", T.CONFLICTING_SCOPES),
+    attempts: t("tenant.examinerAssignment.attempts", T.ATTEMPT_COUNT),
+    eligibleAnswers: t("tenant.examinerAssignment.eligibleAnswers", T.ANSWER_COUNT),
+    loads: t("tenant.examinerAssignment.loads", T.LOADS),
+    confirm: t("tenant.examinerAssignment.confirm", T.CONFIRM),
+    confirming: t("tenant.examinerAssignment.confirming", T.CONFIRMING),
+    confirmed: t("tenant.examinerAssignment.confirmed", T.CONFIRMED),
+    expired: t("tenant.examinerAssignment.expired", T.EXPIRED),
+    stale: t("tenant.examinerAssignment.stale", T.STALE),
+    retry: t("tenant.examinerAssignment.retry", T.RETRY),
+    batches: t("tenant.examinerAssignment.batches", T.BATCHES),
+    noBatches: t("tenant.examinerAssignment.noBatches", T.NO_BATCHES),
+    assignedTotal: (count: number) =>
+      t("tenant.examinerAssignment.assignedTotal", T.ASSIGNED_TOTAL(count), { count }),
+    created: t("tenant.examinerAssignment.created", T.CREATED),
+    status: t("tenant.examinerAssignment.status", T.STATUS),
+    actions: t("tenant.examinerAssignment.actions", T.ACTIONS),
+    dateRange: t("tenant.examinerAssignment.dateRange", "Date range"),
+    allStatuses: t("tenant.examinerAssignment.allStatuses", "All statuses"),
+    previewedStatus: t("tenant.examinerAssignment.previewed", "Previewed"),
+    committedStatus: t("tenant.examinerAssignment.committed", "Committed"),
+    expiredStatus: t("tenant.examinerAssignment.expiredStatus", "Expired"),
+    staleStatus: t("tenant.examinerAssignment.staleStatus", "Stale"),
+    invalidStatus: t("tenant.examinerAssignment.invalid", "Invalid"),
+  };
+  const scopeTypes: { value: AssignmentScopeType; label: string }[] = [
+    { value: "CLASS", label: text.classLabel },
+    { value: "PROGRAM", label: text.programLabel },
+  ];
+  const batchStatusFilterOptions = [
+    { value: "", label: text.allStatuses },
+    { value: "PREVIEWED", label: text.previewedStatus },
+    { value: "COMMITTED", label: text.committedStatus },
+    { value: "EXPIRED", label: text.expiredStatus },
+    { value: "STALE", label: text.staleStatus },
+    { value: "INVALID", label: text.invalidStatus },
+  ] as const;
+  const batchStatusLabels: Record<string, string> = {
+    PREVIEWED: text.previewedStatus,
+    COMMITTED: text.committedStatus,
+    EXPIRED: text.expiredStatus,
+    STALE: text.staleStatus,
+    INVALID: text.invalidStatus,
+  };
 
   const resetAssignmentFeedback = (): void => {
     createPreview.reset();
@@ -207,48 +266,50 @@ export const ExaminerAssignmentSection = ({
   const batchColumns: DataTableColumn<AssignmentBatch>[] = [
     {
       key: "status",
-      header: T.STATUS,
-      filterOptions: BATCH_STATUS_FILTER_OPTIONS,
+      header: text.status,
+      filterOptions: batchStatusFilterOptions,
       filterAccessor: (batch) =>
         batch.status === "PREVIEWED" && Date.parse(batch.previewExpiresAt) <= currentTime
           ? "EXPIRED"
           : batch.status,
       cell: (batch) =>
-        batch.status === "PREVIEWED" && Date.parse(batch.previewExpiresAt) <= currentTime
-          ? "EXPIRED"
-          : batch.status,
+        batchStatusLabels[
+          batch.status === "PREVIEWED" && Date.parse(batch.previewExpiresAt) <= currentTime
+            ? "EXPIRED"
+            : batch.status
+        ] ?? batch.status,
     },
     {
       key: "mode",
-      header: T.MODE_LABEL,
-      filterAccessor: (batch) => (batch.mode === "RANDOM" ? T.RANDOM_MODE : T.MANUAL_MODE),
-      cell: (batch) => (batch.mode === "RANDOM" ? T.RANDOM_MODE : T.MANUAL_MODE),
+      header: text.mode,
+      filterAccessor: (batch) => (batch.mode === "RANDOM" ? text.randomMode : text.manualMode),
+      cell: (batch) => (batch.mode === "RANDOM" ? text.randomMode : text.manualMode),
     },
     {
       key: "attemptCount",
-      header: T.ATTEMPT_COUNT,
+      header: text.attempts,
       filterAccessor: (batch) => batch.attemptCount,
       cell: (batch) => batch.attemptCount,
     },
     {
       key: "answerCount",
-      header: T.ANSWER_COUNT,
+      header: text.eligibleAnswers,
       filterAccessor: (batch) => batch.eligibleAnswerCount,
       cell: (batch) => batch.eligibleAnswerCount,
     },
     {
       key: "created",
-      header: T.CREATED,
+      header: text.created,
       filterType: "date-range",
       filterAccessor: (batch) => batch.createdAt,
-      filterPlaceholder: "Date range",
-      cell: (batch) => formatDate(batch.createdAt),
+      filterPlaceholder: text.dateRange,
+      cell: (batch) => formatDate(batch.createdAt, locale),
     },
   ];
 
   return (
     <CollapsibleSection
-      title={SESSION_DETAIL_TEXT.EXAMINER_ASSIGNMENTS_SECTION}
+      title={t("tenant.examinerAssignment.title", SESSION_DETAIL_TEXT.EXAMINER_ASSIGNMENTS_SECTION)}
       className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5"
       contentClassName="flex flex-col gap-5"
     >
@@ -262,22 +323,22 @@ export const ExaminerAssignmentSection = ({
         <div className="max-w-md">
           <Select
             id="examiner-assignment-mode"
-            label={T.MODE_LABEL}
+            label={text.mode}
             value={mode}
             onChange={(event) => {
               resetAssignmentFeedback();
               setMode(event.target.value as ExaminerAssignmentMode);
             }}
             options={[
-              { value: "RANDOM", label: T.RANDOM_MODE },
-              { value: "MANUAL", label: T.MANUAL_MODE },
+              { value: "RANDOM", label: text.randomMode },
+              { value: "MANUAL", label: text.manualMode },
             ]}
           />
         </div>
 
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-3">
-            <h4 className="text-sm font-semibold text-[var(--ink-primary)]">{T.SCOPE_LABEL}</h4>
+            <h4 className="text-sm font-semibold text-[var(--ink-primary)]">{text.scope}</h4>
             <button
               type="button"
               onClick={() => {
@@ -294,18 +355,18 @@ export const ExaminerAssignmentSection = ({
               }}
               className="rounded-lg border border-[var(--shell-border)] px-3 py-1.5 text-sm text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)]"
             >
-              + {T.ADD_SCOPE}
+              + {text.addScope}
             </button>
           </div>
 
           {scopes.length === 0 && (
-            <p className="text-sm text-[var(--ink-secondary)]">{T.NO_SCOPES}</p>
+            <p className="text-sm text-[var(--ink-secondary)]">{text.noScopes}</p>
           )}
           {scopes.length === 0 &&
             !classesLoading &&
             !classesQuery.isError &&
             activeClasses.length === 0 && (
-              <p className="text-sm text-[var(--ink-secondary)]">{T.NO_ACTIVE_SCOPES}</p>
+              <p className="text-sm text-[var(--ink-secondary)]">{text.noActiveScopes}</p>
             )}
           {scopes.map((scope) => {
             const selectedKeys = new Set(
@@ -327,24 +388,24 @@ export const ExaminerAssignmentSection = ({
               >
                 <Select
                   id={`scope-type-${scope.key}`}
-                  label={`${T.SCOPE_TYPE_CLASS} / ${T.SCOPE_TYPE_PROGRAM}`}
+                  label={`${text.classLabel} / ${text.programLabel}`}
                   value={scope.type}
                   onChange={(event) =>
                     updateScope(scope.key, {
                       type: event.target.value as AssignmentScopeType,
                     })
                   }
-                  options={SCOPE_TYPES}
+                  options={scopeTypes}
                 />
                 <Select
                   id={`scope-value-${scope.key}`}
-                  label={T.SCOPE_LABEL}
+                  label={text.scope}
                   value={scope.scopePublicId}
                   onChange={(event) =>
                     updateScope(scope.key, { scopePublicId: event.target.value })
                   }
                   disabled={classesLoading || classesQuery.isError}
-                  placeholder={classesLoading ? "Loading..." : T.SCOPE_PLACEHOLDER}
+                  placeholder={classesLoading ? text.loading : text.scopePlaceholder}
                   options={options
                     .filter(
                       (option) =>
@@ -356,13 +417,13 @@ export const ExaminerAssignmentSection = ({
                 {mode === "MANUAL" ? (
                   <Select
                     id={`scope-examiner-${scope.key}`}
-                    label={T.EXAMINER_LABEL}
+                    label={text.examiner}
                     value={scope.examinerPublicId}
                     onChange={(event) =>
                       updateScope(scope.key, { examinerPublicId: event.target.value })
                     }
                     disabled={examinersLoading || examinersQuery.isError || examiners.length === 0}
-                    placeholder={T.EXAMINER_PLACEHOLDER}
+                    placeholder={text.examinerPlaceholder}
                     options={examiners.map((examiner) => ({
                       value: examiner.publicId,
                       label: examinerName(examiner),
@@ -379,7 +440,7 @@ export const ExaminerAssignmentSection = ({
                   }}
                   className="self-end rounded-md px-2 py-2 text-sm text-red-700 hover:bg-red-50"
                 >
-                  {T.REMOVE_SCOPE}
+                  {text.remove}
                 </button>
               </div>
             );
@@ -389,14 +450,14 @@ export const ExaminerAssignmentSection = ({
         {mode === "RANDOM" && (
           <fieldset className="flex flex-col gap-2 rounded-md border border-[var(--shell-border)] p-3">
             <legend className="px-1 text-sm font-semibold text-[var(--ink-primary)]">
-              {T.EXAMINERS_LABEL}
+              {text.examiners}
             </legend>
             {examinersLoading ? (
-              <p className="text-sm text-[var(--ink-secondary)]">Loading...</p>
+              <p className="text-sm text-[var(--ink-secondary)]">{text.loading}</p>
             ) : examinersQuery.isError ? (
               <p className="text-sm text-red-700">{examinersError}</p>
             ) : examiners.length === 0 ? (
-              <p className="text-sm text-[var(--ink-secondary)]">{T.NO_EXAMINERS}</p>
+              <p className="text-sm text-[var(--ink-secondary)]">{text.noExaminers}</p>
             ) : (
               examiners.map((examiner) => (
                 <label
@@ -425,7 +486,7 @@ export const ExaminerAssignmentSection = ({
           }}
           className="self-start rounded-md bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {createPreview.isPending ? T.PREVIEWING : T.PREVIEW}
+          {createPreview.isPending ? text.previewing : text.preview}
         </button>
       </div>
 
@@ -440,43 +501,48 @@ export const ExaminerAssignmentSection = ({
           >
             {currentPreviewCommitted ? (
               <>
-                {T.CONFIRMED} <code>{preview.batchPublicId}</code>
+                {text.confirmed} <code>{preview.batchPublicId}</code>
               </>
             ) : currentPreviewExpired ? (
               <>
-                {T.EXPIRED} <code>{preview.batchPublicId}</code>
+                {text.expired} <code>{preview.batchPublicId}</code>
               </>
             ) : currentPreviewStale ? (
               <>
-                {T.STALE} <code>{preview.batchPublicId}</code>
+                {text.stale} <code>{preview.batchPublicId}</code>
               </>
             ) : preview.valid ? (
-              T.PREVIEW_VALID
+              text.previewValid
             ) : (
-              T.PREVIEW_INVALID
+              text.previewInvalid
             )}
           </Alert>
           <p className="text-sm text-[var(--ink-primary)]">
-            {T.ATTEMPT_COUNT}: <strong>{preview.attemptCount}</strong>
+            {text.attempts}: <strong>{preview.attemptCount}</strong>
             <span className="px-2">·</span>
-            {T.ANSWER_COUNT}: <strong>{preview.eligibleAnswerCount}</strong>
+            {text.eligibleAnswers}: <strong>{preview.eligibleAnswerCount}</strong>
           </p>
-          <LoadTable loads={preview.examinerLoads} examiners={examiners} />
+          <LoadTable loads={preview.examinerLoads} examiners={examiners} labels={text} />
           {preview.conflicts.length > 0 && (
             <div className="flex flex-col gap-2">
-              <h4 className="text-sm font-semibold text-red-800">{T.CONFLICTS}</h4>
+              <h4 className="text-sm font-semibold text-red-800">{text.conflicts}</h4>
               {preview.conflicts.map((conflict) => (
                 <div
                   key={conflict.attemptPublicId}
                   className="rounded border border-[var(--blush-action)] bg-[var(--surface-card)] p-2 text-sm text-[var(--ink-primary)]"
                 >
                   <p>
-                    {T.ATTEMPT}: <code>{conflict.attemptPublicId}</code>
+                    {text.attempt}: <code>{conflict.attemptPublicId}</code>
                   </p>
                   <p>
-                    {T.CONFLICTING_SCOPES}:{" "}
+                    {text.conflictingScopes}:{" "}
                     {conflict.conflictingScopes
-                      .map((scope) => scopeLabel(scope.type, scope.scopePublicId, classes))
+                      .map((scope) =>
+                        scopeLabel(scope.type, scope.scopePublicId, classes, {
+                          classLabel: text.classLabel,
+                          programLabel: text.programLabel,
+                        }),
+                      )
                       .join(", ")}
                   </p>
                 </div>
@@ -495,7 +561,7 @@ export const ExaminerAssignmentSection = ({
                 onClick={() => confirmPreview.mutate(preview.batchPublicId as string)}
                 className="self-start rounded-md bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:opacity-50"
               >
-                {confirmPreview.isPending ? T.CONFIRMING : T.CONFIRM}
+                {confirmPreview.isPending ? text.confirming : text.confirm}
               </button>
             )}
         </div>
@@ -503,25 +569,25 @@ export const ExaminerAssignmentSection = ({
 
       {confirmPreview.data?.status === "COMMITTED" && !confirmationMatchesPreview && (
         <Alert tone="success">
-          {T.CONFIRMED} <code>{confirmPreview.data.batchPublicId}</code>
+          {text.confirmed} <code>{confirmPreview.data.batchPublicId}</code>
         </Alert>
       )}
       {confirmPreview.data?.status === "EXPIRED" && !confirmationMatchesPreview && (
         <Alert tone="warning">
-          {T.EXPIRED} <code>{confirmPreview.data.batchPublicId}</code>
+          {text.expired} <code>{confirmPreview.data.batchPublicId}</code>
         </Alert>
       )}
       {confirmPreview.data?.status === "STALE" && !confirmationMatchesPreview && (
         <Alert tone="warning">
-          {T.STALE} <code>{confirmPreview.data.batchPublicId}</code>
+          {text.stale} <code>{confirmPreview.data.batchPublicId}</code>
         </Alert>
       )}
 
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h4 className="text-sm font-semibold text-[var(--ink-primary)]">{T.BATCHES}</h4>
+          <h4 className="text-sm font-semibold text-[var(--ink-primary)]">{text.batches}</h4>
           <span className="text-sm text-[var(--ink-secondary)]">
-            {T.ASSIGNED_TOTAL(assignedAttemptCount)}
+            {text.assignedTotal(assignedAttemptCount)}
           </span>
         </div>
         {overview.isError ? (
@@ -530,7 +596,7 @@ export const ExaminerAssignmentSection = ({
             onClick={() => void overview.refetch()}
             className="self-start rounded-lg border border-[var(--shell-border)] px-3 py-1.5 text-sm text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)]"
           >
-            {T.RETRY}
+            {text.retry}
           </button>
         ) : (
           <DataTable
@@ -538,8 +604,8 @@ export const ExaminerAssignmentSection = ({
             rows={overview.data?.batches ?? []}
             getRowKey={(batch) => batch.batchPublicId}
             isLoading={overview.isLoading}
-            emptyTitle={T.NO_BATCHES}
-            rowActionsHeader={T.ACTIONS}
+            emptyTitle={text.noBatches}
+            rowActionsHeader={text.actions}
             clientSidePagination={false}
             rowActions={(batch) =>
               batch.status === "PREVIEWED" &&
@@ -551,7 +617,7 @@ export const ExaminerAssignmentSection = ({
                   onClick={() => confirmPreview.mutate(batch.batchPublicId)}
                   className="text-action hover:underline disabled:opacity-50"
                 >
-                  {T.CONFIRM}
+                  {text.confirm}
                 </button>
               ) : null
             }
@@ -575,6 +641,7 @@ export const ExaminerAssignmentSection = ({
       <LoadTable
         loads={overview.isError ? [] : (overview.data?.committedExaminerLoads ?? [])}
         examiners={examiners}
+        labels={text}
       />
     </CollapsibleSection>
   );
@@ -583,20 +650,27 @@ export const ExaminerAssignmentSection = ({
 interface LoadTableProps {
   loads: { examinerPublicId: string; attemptCount: number; eligibleAnswerCount: number }[];
   examiners: UserResponse[];
+  labels: {
+    examiner: string;
+    attempts: string;
+    eligibleAnswers: string;
+    loads: string;
+    noBatches: string;
+  };
 }
 
-function LoadTable({ loads, examiners }: LoadTableProps): ReactElement | null {
+function LoadTable({ loads, examiners, labels }: LoadTableProps): ReactElement | null {
   if (loads.length === 0) return null;
   const byId = new Map(examiners.map((examiner) => [examiner.publicId, examiner]));
   return (
     <div className="flex flex-col gap-2">
-      <h4 className="text-sm font-semibold text-[var(--ink-primary)]">{T.LOADS}</h4>
+      <h4 className="text-sm font-semibold text-[var(--ink-primary)]">{labels.loads}</h4>
       <DataTable
         columns={
           [
             {
               key: "examiner",
-              header: T.EXAMINER_LABEL,
+              header: labels.examiner,
               filterAccessor: (load) => {
                 const examiner = byId.get(load.examinerPublicId);
                 return examiner
@@ -610,13 +684,13 @@ function LoadTable({ loads, examiners }: LoadTableProps): ReactElement | null {
             },
             {
               key: "attemptCount",
-              header: T.ATTEMPT_COUNT,
+              header: labels.attempts,
               filterAccessor: (load) => load.attemptCount,
               cell: (load) => load.attemptCount,
             },
             {
               key: "answerCount",
-              header: T.ANSWER_COUNT,
+              header: labels.eligibleAnswers,
               filterAccessor: (load) => load.eligibleAnswerCount,
               cell: (load) => load.eligibleAnswerCount,
             },
@@ -624,7 +698,7 @@ function LoadTable({ loads, examiners }: LoadTableProps): ReactElement | null {
         }
         rows={loads}
         getRowKey={(load) => load.examinerPublicId}
-        emptyTitle={T.NO_BATCHES}
+        emptyTitle={labels.noBatches}
       />
     </div>
   );

@@ -2,14 +2,13 @@
 
 import type { ReactElement, ReactNode } from "react";
 import Link from "next/link";
-import { Badge, DataTable, type DataTableColumn } from "@pte/ui";
+import { Badge, DataTable, useLocale, type DataTableColumn } from "@pte/ui";
 import {
   EXAM_TABLE_HEADERS,
   EXAM_MODE_LABELS,
   EXAM_SKILL_OPTIONS,
   EXAMS_TEXT,
   SESSION_DETAIL_TEXT,
-  SESSION_STATUS_FILTER_OPTIONS,
   SESSION_STATUS_LABELS,
   SESSION_STATUS_VARIANT,
 } from "../constants";
@@ -21,10 +20,13 @@ interface SessionTableProps {
   toolbarActions?: ReactNode;
 }
 
-function formatDateTime(value: string): string {
+function formatDateTime(value: string, locale: "vi" | "en"): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(date);
+  return new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-GB", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date);
 }
 
 export const SessionTable = ({
@@ -32,10 +34,41 @@ export const SessionTable = ({
   isLoading,
   toolbarActions,
 }: SessionTableProps): ReactElement => {
+  const { locale, t } = useLocale();
+  const statusLabel = (status: string): string =>
+    t(
+      `tenant.examStatus.${status.toLowerCase()}`,
+      SESSION_STATUS_LABELS[status as keyof typeof SESSION_STATUS_LABELS] ?? status,
+    );
+  const modeLabel = (session: ExamSession): string =>
+    session.examMode
+      ? t(
+          session.examMode === "PRACTICE"
+            ? "tenant.createExam.MODE_PRACTICE"
+            : "tenant.createExam.MODE_REAL",
+          EXAM_MODE_LABELS[session.examMode],
+        )
+      : t("tenant.examDetails.legacyMode", SESSION_DETAIL_TEXT.LEGACY_MODE);
+  const skillLabel = (skill: string): string => {
+    const fallback = EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label ?? skill;
+    return t(`tenant.createExam.skill.${skill}`, fallback);
+  };
+  const retrySummary = (retries: number): string =>
+    t("tenant.examDetails.retrySummary", SESSION_DETAIL_TEXT.RETRIES_SUMMARY(retries), {
+      retries,
+      retriesLabel: retries === 1 ? "retry" : "retries",
+    });
+  const statusFilterOptions = [
+    { value: "", label: t("tenant.examList.allStatuses", "All statuses") },
+    ...Object.keys(SESSION_STATUS_LABELS).map((key) => ({
+      value: key,
+      label: statusLabel(key),
+    })),
+  ];
   const columns: DataTableColumn<ExamSession>[] = [
     {
       key: "name",
-      header: EXAM_TABLE_HEADERS.NAME,
+      header: t("tenant.examList.name", EXAM_TABLE_HEADERS.NAME),
       cell: (session) => (
         <Link
           href={`/host/exams/${session.id}`}
@@ -47,7 +80,7 @@ export const SessionTable = ({
     },
     {
       key: "sessionCode",
-      header: EXAM_TABLE_HEADERS.CODE,
+      header: t("tenant.examList.code", EXAM_TABLE_HEADERS.CODE),
       className: "whitespace-nowrap",
       cell: (session) => (
         <code className="whitespace-nowrap text-xs text-gray-700">{session.sessionCode}</code>
@@ -55,55 +88,46 @@ export const SessionTable = ({
     },
     {
       key: "configuration",
-      header: EXAM_TABLE_HEADERS.CONFIGURATION,
+      header: t("tenant.examList.configuration", EXAM_TABLE_HEADERS.CONFIGURATION),
       cell: (session) => (
         <div className="text-sm">
-          <div className="font-medium text-gray-800">
-            {session.examMode
-              ? EXAM_MODE_LABELS[session.examMode]
-              : SESSION_DETAIL_TEXT.LEGACY_MODE}
-          </div>
+          <div className="font-medium text-gray-800">{modeLabel(session)}</div>
           <div className="text-gray-500">
             {session.selectedSkills.length > 0
-              ? session.selectedSkills
-                  .map(
-                    (skill) =>
-                      EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label ?? skill,
-                  )
-                  .join(", ")
-              : SESSION_DETAIL_TEXT.LEGACY_SKILLS}
+              ? session.selectedSkills.map((skill) => skillLabel(skill)).join(", ")
+              : t("tenant.examDetails.legacySkills", SESSION_DETAIL_TEXT.LEGACY_SKILLS)}
             {" · "}
-            {SESSION_DETAIL_TEXT.RETRIES_SUMMARY(session.maxRetriesPerStudent)}
+            {retrySummary(session.maxRetriesPerStudent)}
           </div>
         </div>
       ),
     },
     {
       key: "status",
-      header: EXAM_TABLE_HEADERS.STATUS,
-      filterOptions: SESSION_STATUS_FILTER_OPTIONS,
+      header: t("tenant.examList.status", EXAM_TABLE_HEADERS.STATUS),
+      filterOptions: statusFilterOptions,
       filterAccessor: (session) => session.status,
       cell: (session) => (
         <Badge variant={SESSION_STATUS_VARIANT[session.status]}>
-          {SESSION_STATUS_LABELS[session.status]}
+          {statusLabel(session.status)}
         </Badge>
       ),
     },
     {
       key: "opensAt",
-      header: EXAM_TABLE_HEADERS.OPENS_AT,
+      header: t("tenant.examList.opens", EXAM_TABLE_HEADERS.OPENS_AT),
       filterType: "date-range",
       filterAccessor: (session) => session.opensAt,
-      filterPlaceholder: "Date range",
-      cell: (session) => formatDateTime(session.opensAt),
+      filterPlaceholder: t("tenant.examList.dateRange", "Date range"),
+      cell: (session) => formatDateTime(session.opensAt, locale),
     },
     {
       key: "closesAt",
-      header: EXAM_TABLE_HEADERS.CLOSES_AT,
+      header: t("tenant.examList.closes", EXAM_TABLE_HEADERS.CLOSES_AT),
       filterType: "date-range",
       filterAccessor: (session) => session.closesAt,
-      filterPlaceholder: "Date range",
-      cell: (session) => formatDateTime(session.closesAt),
+      filterPlaceholder: t("tenant.examList.dateRange", "Date range"),
+      cell: (session) => formatDateTime(session.closesAt, locale),
     },
   ];
 
@@ -113,8 +137,8 @@ export const SessionTable = ({
       rows={sessions}
       getRowKey={(session) => session.id}
       isLoading={isLoading}
-      emptyTitle={EXAMS_TEXT.EMPTY_TITLE}
-      emptyDescription={EXAMS_TEXT.EMPTY_TEXT}
+      emptyTitle={t("tenant.examList.emptyTitle", EXAMS_TEXT.EMPTY_TITLE)}
+      emptyDescription={t("tenant.examList.emptyDescription", EXAMS_TEXT.EMPTY_TEXT)}
       toolbarActions={toolbarActions}
     />
   );

@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { ActionMenu, Alert, DataTable, LockIcon, XIcon, type DataTableColumn } from "@pte/ui";
+import {
+  ActionMenu,
+  Alert,
+  DataTable,
+  LockIcon,
+  useLocale,
+  XIcon,
+  type DataTableColumn,
+} from "@pte/ui";
 import { useResetStudentPassword, useSessionRoster, useUnenroll, type RosterEntry } from "../api";
 import { errorMessage } from "../errorMessage";
 import { ResetStudentPasswordModal } from "./ResetStudentPasswordModal";
@@ -16,29 +24,43 @@ interface StudentRosterTableProps {
 }
 
 export const StudentRosterTable = ({ sessionPublicId }: StudentRosterTableProps): ReactElement => {
+  const { t } = useLocale();
   const { data: roster, isLoading } = useSessionRoster(sessionPublicId);
   const unenrollMutation = useUnenroll(sessionPublicId);
   const [resetTarget, setResetTarget] = useState<RosterEntry | null>(null);
   const resetPassword = useResetStudentPassword(resetTarget?.student.publicId ?? "");
+  const text = {
+    fullName: t("tenant.studentRoster.fullName", STUDENT_TABLE_HEADERS.FULL_NAME),
+    email: t("tenant.studentRoster.email", STUDENT_TABLE_HEADERS.EMAIL),
+    studentCode: t("tenant.studentRoster.studentCode", STUDENT_TABLE_HEADERS.STUDENT_CODE),
+    className: t("tenant.studentRoster.class", STUDENT_TABLE_HEADERS.CLASS_NAME),
+    emptyTitle: t("tenant.studentRoster.empty", STUDENT_ROSTER_TABLE_TEXT.EMPTY_TITLE),
+    emptyValue: t("common.emptyValue", STUDENT_ROSTER_TABLE_TEXT.EMPTY_VALUE),
+    resetPassword: t("tenant.studentRoster.resetPassword", STUDENT_ROW_ACTIONS_TEXT.RESET_PASSWORD),
+    removeFromExam: t(
+      "tenant.studentRoster.removeFromExam",
+      STUDENT_ROW_ACTIONS_TEXT.REMOVE_FROM_EXAM,
+    ),
+  };
 
   const columns: DataTableColumn<RosterEntry>[] = [
     {
       key: "fullName",
-      header: STUDENT_TABLE_HEADERS.FULL_NAME,
+      header: text.fullName,
       cell: (entry) => (
         <span className="font-medium text-[var(--ink-primary)]">{entry.student.fullName}</span>
       ),
     },
-    { key: "email", header: STUDENT_TABLE_HEADERS.EMAIL, cell: (entry) => entry.student.email },
+    { key: "email", header: text.email, cell: (entry) => entry.student.email },
     {
       key: "studentCode",
-      header: STUDENT_TABLE_HEADERS.STUDENT_CODE,
-      cell: (entry) => entry.student.studentCode ?? STUDENT_ROSTER_TABLE_TEXT.EMPTY_VALUE,
+      header: text.studentCode,
+      cell: (entry) => entry.student.studentCode ?? text.emptyValue,
     },
     {
       key: "className",
-      header: STUDENT_TABLE_HEADERS.CLASS_NAME,
-      cell: (entry) => entry.student.className ?? STUDENT_ROSTER_TABLE_TEXT.EMPTY_VALUE,
+      header: text.className,
+      cell: (entry) => entry.student.className ?? text.emptyValue,
     },
   ];
 
@@ -52,17 +74,17 @@ export const StudentRosterTable = ({ sessionPublicId }: StudentRosterTableProps)
         rows={roster ?? []}
         getRowKey={(entry) => entry.enrollmentPublicId}
         isLoading={isLoading}
-        emptyTitle={STUDENT_ROSTER_TABLE_TEXT.EMPTY_TITLE}
+        emptyTitle={text.emptyTitle}
         rowActions={(entry) => (
           <ActionMenu
             items={[
               {
-                label: STUDENT_ROW_ACTIONS_TEXT.RESET_PASSWORD,
+                label: text.resetPassword,
                 icon: LockIcon,
                 onSelect: () => setResetTarget(entry),
               },
               {
-                label: STUDENT_ROW_ACTIONS_TEXT.REMOVE_FROM_EXAM,
+                label: text.removeFromExam,
                 icon: XIcon,
                 danger: true,
                 onSelect: () => unenrollMutation.mutate(entry.enrollmentPublicId),

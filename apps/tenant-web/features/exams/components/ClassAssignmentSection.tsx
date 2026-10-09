@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Button, DataTable, Select, TrashIcon, type DataTableColumn } from "@pte/ui";
+import {
+  Alert,
+  Button,
+  DataTable,
+  Select,
+  TrashIcon,
+  useLocale,
+  type DataTableColumn,
+} from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useAllTenantClasses } from "@/features/classes/api";
 import { CLASS_ASSIGNMENT_TEXT } from "../constants";
@@ -20,11 +28,23 @@ export const ClassAssignmentSection = ({
   sessionPublicId,
   canModify,
 }: ClassAssignmentSectionProps): ReactElement => {
+  const { t } = useLocale();
   const { data: assignedClasses, isLoading } = useAssignedClasses(sessionPublicId);
   const { data: tenantClasses, isLoading: tenantClassesLoading } = useAllTenantClasses();
   const assign = useAssignClass(sessionPublicId);
   const unassign = useUnassignClass(sessionPublicId);
   const [selectedClassPublicId, setSelectedClassPublicId] = useState("");
+  const text = {
+    empty: t("tenant.classAssignment.empty", T.EMPTY_TITLE),
+    label: t("tenant.classAssignment.label", T.ASSIGN_LABEL),
+    placeholder: t("tenant.classAssignment.placeholder", T.ASSIGN_PLACEHOLDER),
+    assign: t("tenant.classAssignment.assign", T.ASSIGN),
+    assigning: t("tenant.classAssignment.assigning", T.ASSIGNING),
+    sourceLocked: t("tenant.classAssignment.sourceLocked", T.SOURCE_LOCKED),
+    unassign: t("tenant.classAssignment.unassign", T.UNASSIGN),
+    actions: t("tenant.classAssignment.actions", T.ACTIONS),
+    notScheduled: t("tenant.classAssignment.notScheduled", T.NOT_SCHEDULED_NOTICE),
+  };
 
   const assignedIds = new Set((assignedClasses ?? []).map((entry) => entry.classPublicId));
   const availableOptions = (tenantClasses ?? [])
@@ -42,10 +62,11 @@ export const ClassAssignmentSection = ({
   const columns: DataTableColumn<AssignedClass>[] = [
     {
       key: "className",
-      header: T.ASSIGN_LABEL,
+      header: text.label,
       cell: (entry) => (
         <span className="font-medium text-[var(--ink-primary)]">
-          {entry.className} <span className="text-[var(--ink-secondary)]">({entry.programName})</span>
+          {entry.className}{" "}
+          <span className="text-[var(--ink-secondary)]">({entry.programName})</span>
         </span>
       ),
     },
@@ -53,15 +74,15 @@ export const ClassAssignmentSection = ({
 
   return (
     <div className="flex flex-col gap-3">
-      {!canModify && <Alert tone="warning">{T.NOT_SCHEDULED_NOTICE}</Alert>}
+      {!canModify && <Alert tone="warning">{text.notScheduled}</Alert>}
       {errorMessage(assign.error) && <Alert tone="error">{errorMessage(assign.error)}</Alert>}
       {errorMessage(unassign.error) && <Alert tone="error">{errorMessage(unassign.error)}</Alert>}
 
       <div className="flex items-end gap-3">
         <div className="flex-1">
           <Select
-            label={T.ASSIGN_LABEL}
-            placeholder={T.ASSIGN_PLACEHOLDER}
+            label={text.label}
+            placeholder={text.placeholder}
             options={availableOptions}
             value={selectedClassPublicId}
             disabled={!canModify || tenantClassesLoading}
@@ -73,10 +94,10 @@ export const ClassAssignmentSection = ({
           onClick={handleAssign}
           disabled={!canModify || !selectedClassPublicId || assign.isPending}
           isLoading={assign.isPending}
-          loadingText={T.ASSIGNING}
-          title={!canModify ? T.SOURCE_LOCKED : undefined}
+          loadingText={text.assigning}
+          title={!canModify ? text.sourceLocked : undefined}
         >
-          {T.ASSIGN}
+          {text.assign}
         </Button>
       </div>
 
@@ -85,16 +106,16 @@ export const ClassAssignmentSection = ({
         rows={assignedClasses ?? []}
         getRowKey={(entry) => entry.classPublicId}
         isLoading={isLoading}
-        emptyTitle={T.EMPTY_TITLE}
-        rowActionsHeader={canModify ? T.ACTIONS : undefined}
+        emptyTitle={text.empty}
+        rowActionsHeader={canModify ? text.actions : undefined}
         rowActions={
           canModify
             ? (entry) => (
                 <button
                   type="button"
                   onClick={() => unassign.mutate(entry.classPublicId)}
-                  title={T.UNASSIGN}
-                  aria-label={T.UNASSIGN}
+                  title={text.unassign}
+                  aria-label={text.unassign}
                   className="rounded-full p-1.5 text-[var(--blush-action)] transition-colors hover:bg-[var(--blush-tint)] hover:text-[var(--blush-action)]"
                 >
                   <TrashIcon className="h-4 w-4" />

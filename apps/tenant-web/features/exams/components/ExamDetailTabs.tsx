@@ -52,7 +52,7 @@ export const ExamDetailTabs = ({
   sessionPublicId,
   lifecycle,
 }: ExamDetailTabsProps): ReactElement => {
-  const { locale, t } = useLocale();
+  const { t } = useLocale();
   const searchParams = useSearchParams();
   const initialTab = parseTab(searchParams.get("tab"));
   const [activeTab, setActiveTab] = useState<ExamDetailTab>(initialTab);
@@ -107,10 +107,7 @@ export const ExamDetailTabs = ({
     { id: "settings", label: t("tenant.examTabs.settings", "Exam settings") },
     { id: "participants", label: t("tenant.examTabs.participants", "Participants & proctors") },
     { id: "submissions", label: t("tenant.examTabs.submissions", "Submissions") },
-    {
-      id: "examiner",
-      label: locale === "vi" ? "Phân công chấm điểm" : t("tenant.examTabs.examiner", "Examiner"),
-    },
+    { id: "examiner", label: t("tenant.examTabs.examiner", "Examiner") },
     { id: "results", label: t("tenant.examTabs.results", "Results & publication") },
   ];
 
@@ -120,6 +117,7 @@ export const ExamDetailTabs = ({
         id="exam-detail-tabs"
         items={items}
         value={activeTab}
+        variant="default"
         onChange={(value) => {
           if (isExamDetailTab(value)) selectTab(value);
         }}
