@@ -32,7 +32,8 @@ export const PLATFORM_USER_ENDPOINTS = {
   user: (publicId: string) => `/api/v1/platform-users/${encodeURIComponent(publicId)}`,
   roles: (publicId: string) => `/api/v1/platform-users/${encodeURIComponent(publicId)}/roles`,
   suspend: (publicId: string) => `/api/v1/platform-users/${encodeURIComponent(publicId)}/suspend`,
-  reactivate: (publicId: string) => `/api/v1/platform-users/${encodeURIComponent(publicId)}/reactivate`,
+  reactivate: (publicId: string) =>
+    `/api/v1/platform-users/${encodeURIComponent(publicId)}/reactivate`,
 } as const;
 
 export function createUser(client: ApiClient, payload: CreateUserRequest): Promise<UserResponse> {
@@ -163,6 +164,7 @@ export function listPlatformUsers(
     page: String(params.page ?? 0),
     size: String(params.size ?? 20),
   });
+  if (params.search?.trim()) query.set("search", params.search.trim());
   if (params.role) query.set("role", params.role);
   if (params.status) query.set("status", params.status);
   return client.request<PlatformUserPage>(`${PLATFORM_USER_ENDPOINTS.users}?${query.toString()}`);
@@ -194,7 +196,9 @@ export function updatePlatformUserRoles(
 }
 
 export function suspendPlatformUser(client: ApiClient, publicId: string): Promise<UserResponse> {
-  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.suspend(publicId), { method: "POST" });
+  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.suspend(publicId), {
+    method: "POST",
+  });
 }
 
 export function reactivatePlatformUser(client: ApiClient, publicId: string): Promise<UserResponse> {

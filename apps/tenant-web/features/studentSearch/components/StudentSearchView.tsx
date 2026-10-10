@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
@@ -16,6 +16,7 @@ import {
   EyeIcon,
   LockIcon,
   PaginationControls,
+  Select,
   StatusBadge,
   useLocale,
   type DataTableColumn,
@@ -23,7 +24,7 @@ import {
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import { useClasses, useAllTenantClasses } from "@/features/classes/api";
-import { useMyOrganizations } from "@/features/programs/api";
+import { useMyOrganizations, usePrograms } from "@/features/programs/api";
 import {
   ADD_STUDENT_GUARD_TEXT,
   ASSIGN_DEEPLINK_TEXT,
@@ -31,7 +32,6 @@ import {
   STUDENT_SEARCH_ACTIONS_TEXT,
   STUDENT_SEARCH_TABLE_HEADERS,
   STUDENT_SEARCH_TEXT,
-  STUDENT_STATUS_FILTER_OPTIONS,
   STUDENT_STATUS_LABELS,
   STUDENT_STATUS_VARIANT,
 } from "../constants";
@@ -47,6 +47,8 @@ import {
 } from "@/features/userManagement";
 import type { AccountDetails, GeneratedCredentials } from "@/features/userManagement";
 
+type StudentStatusFilter = "" | "ACTIVE" | "SUSPENDED";
+
 export const StudentSearchView = (): ReactElement => {
   const labels = useOrgLabels();
   const { t } = useLocale();
@@ -54,10 +56,7 @@ export const StudentSearchView = (): ReactElement => {
     add: t("tenant.students.add", STUDENT_SEARCH_ACTIONS_TEXT.add),
     import: t("tenant.students.import", STUDENT_SEARCH_ACTIONS_TEXT.import),
     fullName: t("tenant.students.fullName", STUDENT_SEARCH_TABLE_HEADERS.NAME),
-    account: t("tenant.students.account", STUDENT_SEARCH_TABLE_HEADERS.ACCOUNT),
-    studentCode: t("tenant.students.studentCode", STUDENT_SEARCH_TABLE_HEADERS.CODE),
     email: t("tenant.students.email", STUDENT_SEARCH_TABLE_HEADERS.EMAIL),
-    phone: t("tenant.students.phone", STUDENT_SEARCH_TABLE_HEADERS.PHONE),
     class: t("tenant.students.class", labels.class),
     program: t("tenant.students.program", labels.program),
     status: t("tenant.students.status", STUDENT_SEARCH_TABLE_HEADERS.STATUS),
@@ -125,6 +124,7 @@ export const StudentSearchView = (): ReactElement => {
     loadFailed: t("tenant.students.loadFailed", STUDENT_ROSTER_FILTER_TEXT.loadFailed),
     noPrograms: t("tenant.students.noPrograms", STUDENT_ROSTER_FILTER_TEXT.noPrograms),
     noClasses: t("tenant.students.noClasses", STUDENT_ROSTER_FILTER_TEXT.noClasses),
+    allPrograms: t("tenant.students.allPrograms", STUDENT_ROSTER_FILTER_TEXT.programPlaceholder),
     allStatuses: t("tenant.students.allStatuses", "All statuses"),
   };
   const statusLabels = { ACTIVE: text.active, SUSPENDED: text.suspended };
@@ -135,6 +135,9 @@ export const StudentSearchView = (): ReactElement => {
   ];
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<StudentStatusFilter>("");
   const [manageMode, setManageMode] = useState<"add" | "import" | null>(null);
   const [guardOpen, setGuardOpen] = useState(false);
   const [studentToSuspend, setStudentToSuspend] = useState<StudentRosterRow | null>(null);
@@ -159,6 +162,7 @@ export const StudentSearchView = (): ReactElement => {
 
   const { data: organizations } = useMyOrganizations();
   const organizationPublicId = paramOrg || organizations?.[0]?.publicId || "";
+  const { data: programs, isLoading: programsLoading } = usePrograms(organizationPublicId);
   const { data: classes } = useClasses(organizationPublicId, programPublicId);
 
   const deeplink = useAssignStudentsDeeplink(
@@ -187,11 +191,22 @@ export const StudentSearchView = (): ReactElement => {
   // warm caches.
   const { data: tenantClasses, isLoading: tenantClassesLoading } = useAllTenantClasses();
   const hasAnyClass = (tenantClasses?.length ?? 0) > 0;
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => window.clearTimeout(timeout);
+  }, [search]);
+
+  const programFilterOptions = [
+    { value: "", label: text.allPrograms },
+    ...(programs ?? []).map((program) => ({ value: program.publicId, label: program.name })),
+  ];
   const rosterQuery = {
     page,
     size,
+    search: debouncedSearch || undefined,
     programPublicId: programPublicId || undefined,
     classPublicId: classPublicId || undefined,
+    status: statusFilter || undefined,
   };
   const roster = useStudentRoster(rosterQuery);
   const suspend = useSuspendStudent();
@@ -208,6 +223,29 @@ export const StudentSearchView = (): ReactElement => {
   const resetPage = (): void => {
     setKeepPreviousRows(false);
     setPage(0);
+  };
+
+  const handleSearchChange = (value: string): void => {
+    setSearch(value);
+    resetPage();
+  };
+
+  const handleProgramFilterChange = (value: string): void => {
+    if (paramOrg || paramProgram || paramClass || paramModal) {
+      deeplink.setClassFilterLocked(false);
+      deeplink.setPersistedClassName(null);
+      deeplink.setPersistedBlockedReason(null);
+      deeplink.setWasPrefilledByDeeplink(false);
+      router.replace("/host/students");
+    }
+    setProgramPublicId(value);
+    setClassPublicId("");
+    resetPage();
+  };
+
+  const handleStatusFilterChange = (value: StudentStatusFilter): void => {
+    setStatusFilter(value);
+    resetPage();
   };
 
   const trySetManageMode = (nextMode: "add" | "import"): void => {
@@ -248,19 +286,24 @@ export const StudentSearchView = (): ReactElement => {
     {
       key: "name",
       header: text.fullName,
-      cell: (row) => <span className="font-medium text-gray-900">{row.fullName}</span>,
+      headerClassName: "w-[220px] min-w-[220px]",
+      cellClassName: "w-[220px] min-w-[220px] align-top",
+      cell: (row) => (
+        <div>
+          <p className="font-medium text-gray-900">{row.fullName}</p>
+          {row.studentCode && <p className="mt-1 text-xs text-gray-500">{row.studentCode}</p>}
+        </div>
+      ),
     },
-    { key: "account", header: text.account, cell: (row) => row.username },
     {
-      key: "code",
-      header: text.studentCode,
-      cell: (row) => row.studentCode ?? STUDENT_SEARCH_TEXT.emptyValue,
-    },
-    { key: "email", header: text.email, cell: (row) => row.email },
-    {
-      key: "phone",
-      header: text.phone,
-      cell: (row) => row.phone ?? STUDENT_SEARCH_TEXT.emptyValue,
+      key: "email",
+      header: text.email,
+      cell: (row) => (
+        <div>
+          <p className="text-gray-900">{row.email}</p>
+          {row.phone && <p className="mt-1 text-xs text-gray-500">{row.phone}</p>}
+        </div>
+      ),
     },
     {
       key: "class",
@@ -275,8 +318,6 @@ export const StudentSearchView = (): ReactElement => {
     {
       key: "status",
       header: text.status,
-      filterOptions: statusFilterOptions,
-      filterAccessor: (row) => row.status,
       cell: (row) => (
         <StatusBadge
           label={statusLabels[row.status] ?? row.status}
@@ -336,6 +377,36 @@ export const StudentSearchView = (): ReactElement => {
         emptyDescription={text.emptyDescription}
         rowActionsHeader={text.actions}
         searchPlaceholder={text.searchPlaceholder}
+        searchValue={search}
+        onSearchChange={handleSearchChange}
+        filters={
+          <>
+            <div className="w-full sm:w-auto sm:min-w-[180px]">
+              <Select
+                id="student-program-filter"
+                aria-label={text.program}
+                options={programFilterOptions}
+                value={programPublicId}
+                variant="table"
+                disabled={programsLoading || deeplink.classFilterLocked}
+                onChange={(event) => handleProgramFilterChange(event.target.value)}
+              />
+            </div>
+            <div className="w-full sm:w-auto sm:min-w-[150px]">
+              <Select
+                id="student-status-filter"
+                aria-label={text.status}
+                options={statusFilterOptions}
+                value={statusFilter}
+                variant="table"
+                onChange={(event) =>
+                  handleStatusFilterChange(event.target.value as StudentStatusFilter)
+                }
+              />
+            </div>
+          </>
+        }
+        clientSideFiltering={false}
         clientSidePagination={false}
         toolbarActions={
           <>

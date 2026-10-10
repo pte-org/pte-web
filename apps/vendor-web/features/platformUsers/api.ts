@@ -28,10 +28,18 @@ export function usePlatformUsers(
   size: number,
   role?: PlatformAssignableRole,
   status?: UserResponse["status"],
+  search?: string,
 ): UseQueryResult<PlatformUserPage> {
   return useQuery({
-    queryKey: [...PLATFORM_USERS_QUERY_KEY, page, size, role ?? "ALL", status ?? "ALL"],
-    queryFn: () => listPlatformUsers(apiClient, { page, size, role, status }),
+    queryKey: [
+      ...PLATFORM_USERS_QUERY_KEY,
+      page,
+      size,
+      search ?? "",
+      role ?? "ALL",
+      status ?? "ALL",
+    ],
+    queryFn: () => listPlatformUsers(apiClient, { page, size, search, role, status }),
     placeholderData: (previous) => previous,
   });
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent, type ReactElement } from "react";
+import { useEffect, useState, type FormEvent, type ReactElement } from "react";
 import {
   ActionMenu,
   Alert,
@@ -60,7 +60,7 @@ export const PlatformUsersView = (): ReactElement => {
   const T = useAdminCopy(RAW_PLATFORM_USER_TEXT);
   const roleOptions = useAdminCopy(PLATFORM_ASSIGNABLE_ROLE_OPTIONS);
   const statusOptions = useAdminCopy([
-    { value: "", label: "All statuses" },
+    { value: "", label: RAW_PLATFORM_USER_TEXT.ALL_STATUSES },
     { value: "ACTIVE", label: "Active" },
     { value: "SUSPENDED", label: "Suspended" },
   ]);
@@ -76,12 +76,42 @@ export const PlatformUsersView = (): ReactElement => {
   const { data: currentUser } = useCurrentUser();
   const { showToast } = useToast();
   const [page, setPage] = useState(0);
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState<PlatformAssignableRole | "">("");
+  const [statusFilter, setStatusFilter] = useState<UserResponse["status"] | "">("");
   const [createOpen, setCreateOpen] = useState(false);
   const [createDraft, setCreateDraft] = useState<CreateDraft>({ ...INITIAL_CREATE });
   const [editing, setEditing] = useState<UserResponse | null>(null);
   const [editRole, setEditRole] = useState<PlatformAssignableRole>("PLATFORM_MANAGER");
   const [suspendTarget, setSuspendTarget] = useState<UserResponse | null>(null);
-  const users = usePlatformUsers(page, PAGE_SIZE);
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => window.clearTimeout(timeout);
+  }, [search]);
+
+  const handleSearchChange = (value: string): void => {
+    setSearch(value);
+    setPage(0);
+  };
+
+  const handleRoleFilterChange = (value: PlatformAssignableRole | ""): void => {
+    setRoleFilter(value);
+    setPage(0);
+  };
+
+  const handleStatusFilterChange = (value: UserResponse["status"] | ""): void => {
+    setStatusFilter(value);
+    setPage(0);
+  };
+
+  const users = usePlatformUsers(
+    page,
+    PAGE_SIZE,
+    roleFilter || undefined,
+    statusFilter || undefined,
+    debouncedSearch,
+  );
   const create = useCreatePlatformUser();
   const updateRoles = useUpdatePlatformUserRoles();
   const suspend = useSuspendPlatformUser();
@@ -155,7 +185,6 @@ export const PlatformUsersView = (): ReactElement => {
           {
             key: "identity",
             header: T.FULL_NAME,
-            filterAccessor: (user: UserResponse) => `${user.fullName} ${user.email}`,
             cell: (user: UserResponse) => (
               <div>
                 <p className="font-medium text-slate-900">{user.fullName}</p>
@@ -166,15 +195,11 @@ export const PlatformUsersView = (): ReactElement => {
           {
             key: "roles",
             header: T.ROLE,
-            filterOptions: [{ value: "", label: T.ALL_ROLES }, ...roleOptions],
-            filterAccessor: (user: UserResponse) => user.roles.join(" "),
             cell: (user: UserResponse) => user.roles.map(getRoleLabel).join(", "),
           },
           {
             key: "status",
             header: T.STATUS,
-            filterOptions: statusOptions,
-            filterAccessor: (user: UserResponse) => user.status,
             cell: (user: UserResponse) => (
               <Badge variant={user.status === "ACTIVE" ? "success" : "neutral"}>
                 {statusLabels[user.status as "ACTIVE" | "SUSPENDED"] ?? user.status}
@@ -186,6 +211,39 @@ export const PlatformUsersView = (): ReactElement => {
         getRowKey={(user) => user.publicId}
         isLoading={users.isLoading}
         emptyTitle={users.isLoading ? T.LOADING : T.EMPTY}
+        searchPlaceholder={T.SEARCH_PLACEHOLDER}
+        searchAriaLabel={T.SEARCH_PLACEHOLDER}
+        searchValue={search}
+        onSearchChange={handleSearchChange}
+        filters={
+          <>
+            <div className="w-full sm:w-auto sm:min-w-[150px]">
+              <Select
+                id="platform-user-role-filter"
+                aria-label={T.FILTER_ROLE}
+                options={[{ value: "", label: T.ALL_ROLES }, ...roleOptions]}
+                value={roleFilter}
+                variant="table"
+                onChange={(event) =>
+                  handleRoleFilterChange(event.target.value as PlatformAssignableRole | "")
+                }
+              />
+            </div>
+            <div className="w-full sm:w-auto sm:min-w-[150px]">
+              <Select
+                id="platform-user-status-filter"
+                aria-label={T.FILTER_STATUS}
+                options={statusOptions}
+                value={statusFilter}
+                variant="table"
+                onChange={(event) =>
+                  handleStatusFilterChange(event.target.value as UserResponse["status"] | "")
+                }
+              />
+            </div>
+          </>
+        }
+        clientSideFiltering={false}
         toolbarActions={<Button onClick={() => setCreateOpen(true)}>{T.CREATE}</Button>}
         rowActions={(user) => {
           const isSelf = user.publicId === currentUser?.publicId;

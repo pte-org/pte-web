@@ -78,6 +78,7 @@ export function useStudentRoster(
       query.size,
       query.programPublicId ?? "",
       query.classPublicId ?? "",
+      query.status ?? "ALL",
       query.assignmentStatus ?? "ALL",
       query.sort ?? "CREATED_AT",
       query.direction ?? "DESC",

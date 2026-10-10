@@ -117,6 +117,7 @@ export interface PlatformUserRoleUpdateRequest {
 export interface PlatformUserListParams {
   page?: number;
   size?: number;
+  search?: string;
   role?: PlatformAssignableRole | "PLATFORM_ADMIN" | "PLATFORM_AUTHOR";
   status?: "ACTIVE" | "SUSPENDED";
 }

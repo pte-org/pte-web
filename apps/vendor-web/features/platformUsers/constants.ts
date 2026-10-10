@@ -7,6 +7,7 @@ export const PLATFORM_USER_TEXT = {
   EMAIL: "Email",
   FULL_NAME: "Full name",
   PASSWORD: "Temporary password",
+  SEARCH_PLACEHOLDER: "Search by name or email",
   ROLE: "Role",
   STATUS: "Status",
   FILTER_ROLE: "Filter by role",

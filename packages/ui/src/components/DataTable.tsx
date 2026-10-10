@@ -17,7 +17,7 @@ import { PaginationPageSizeSelect } from "./PaginationControls";
 import { DateRangePicker, type DateRangeValue } from "./DateRangePicker";
 import { NextAdminAltArrowDownIcon, NextAdminAltArrowUpIcon } from "./nextAdminIcons";
 import { Select, type SelectOption } from "./Select";
-import { TableFilterInput, TableSearchControl } from "./TableFilters";
+import { TableSearchControl } from "./TableFilters";
 
 export interface DataTableColumn<TRow> {
   key: string;
@@ -28,7 +28,7 @@ export interface DataTableColumn<TRow> {
   sortable?: boolean;
   /** Value used by the common browser-side sort when no custom value is supplied. */
   sortAccessor?: (row: TRow) => DataTableSortValue;
-  /** A custom control rendered in the common filter row. */
+  /** A custom control rendered in the common filter row or toolbar. */
   filter?: ReactNode;
   /** Value used by the common browser-side filter when no custom control is supplied. */
   filterAccessor?: (row: TRow) => string | number | Date | null | undefined;
@@ -75,6 +75,10 @@ export interface DataTableProps<TRow> {
   showSearch?: boolean;
   searchPlaceholder?: string;
   searchAriaLabel?: string;
+  /** Controlled value for server-side search tables. */
+  searchValue?: string;
+  /** Receives search changes when the caller owns the server-side query state. */
+  onSearchChange?: (value: string) => void;
   /** Actions rendered on the right side of the common table toolbar. */
   toolbarActions?: ReactNode;
   /** Apply the common search and column filters to the rows in the browser. */
@@ -116,6 +120,8 @@ export function DataTable<TRow>({
   showSearch = true,
   searchPlaceholder,
   searchAriaLabel,
+  searchValue,
+  onSearchChange,
   toolbarActions,
   clientSideFiltering = true,
   clientSideSorting = true,
@@ -135,13 +141,15 @@ export function DataTable<TRow>({
 }: DataTableProps<TRow>): ReactElement {
   const { t } = useLocale();
   const resolvedEmptyTitle = emptyTitle ?? t("common.noData", "No data");
-  const resolvedSearchPlaceholder = searchPlaceholder ?? t("common.search", "Search");
+  const resolvedSearchPlaceholder =
+    searchPlaceholder ?? t("common.searchTable", "Search this table");
   const resolvedSearchAriaLabel = searchAriaLabel ?? t("common.searchTable", "Search table");
   const resolvedSelectAllLabel = selectAllLabel ?? t("common.selectAllRows", "Select all rows");
   const resolvedSelectRowLabel = selectRowLabel ?? (() => t("common.selectRow", "Select row"));
   const resolvedDateRangePlaceholder = t("common.dateRange", "Date range");
   const selection = selectedKeys ?? new Set<string | number>();
   const [globalSearch, setGlobalSearch] = useState("");
+  const resolvedGlobalSearch = searchValue ?? globalSearch;
   const [columnFilterValues, setColumnFilterValues] = useState<
     Record<string, DataTableFilterValue>
   >({});
@@ -151,12 +159,14 @@ export function DataTable<TRow>({
   const filterableColumns = columns.filter(
     (column) => column.filterable !== false && column.key.toLowerCase() !== "actions",
   );
-  const hasColumnFilters = filterableColumns.length > 0;
+  const toolbarFilterColumns = filterableColumns.filter((column) =>
+    hasDedicatedToolbarFilter(column),
+  );
 
   const filteredRows = useMemo(() => {
     if (!clientSideFiltering) return rows;
 
-    const normalizedGlobalSearch = globalSearch.trim().toLocaleLowerCase();
+    const normalizedGlobalSearch = resolvedGlobalSearch.trim().toLocaleLowerCase();
     return rows.filter((row) => {
       const matchesGlobal =
         !normalizedGlobalSearch ||
@@ -170,7 +180,7 @@ export function DataTable<TRow>({
         matchesColumnFilter(column, columnFilterValues[column.key], row),
       );
     });
-  }, [clientSideFiltering, columnFilterValues, filterableColumns, globalSearch, rows]);
+  }, [clientSideFiltering, columnFilterValues, filterableColumns, resolvedGlobalSearch, rows]);
 
   const sortedRows = useMemo(() => {
     if (!clientSideSorting || !sort) return filteredRows;
@@ -211,7 +221,7 @@ export function DataTable<TRow>({
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [columnFilterValues, globalSearch, rows.length]);
+  }, [columnFilterValues, resolvedGlobalSearch, rows.length]);
 
   useEffect(() => {
     if (currentPage > totalPages) setCurrentPage(totalPages);
@@ -239,34 +249,55 @@ export function DataTable<TRow>({
   };
 
   const cellPadding = "px-4 py-2.5 sm:px-6";
-  const filterCellPadding = "px-4 pt-0 pb-2.5 sm:px-6";
   const cellPaddingBody = "px-4 py-3 sm:px-6 sm:py-3.5";
   const shellClassName =
     "overflow-hidden rounded-xl border-[0.5px] border-[var(--table-border)] bg-[var(--table-surface-background)] shadow-none motion-safe:animate-pte-fade-up";
   const hasBuiltInSearch = showSearch && !toolbar;
   const hasPageSizeControl = clientSidePagination && filteredRows.length > 10;
-  const hasToolbar = Boolean(toolbar || filters || hasBuiltInSearch || toolbarActions);
+  const hasToolbar = Boolean(
+    toolbar || filters || hasBuiltInSearch || toolbarFilterColumns.length > 0 || toolbarActions,
+  );
   const actionsHeader = rowActionsHeader || t("common.actions", "Actions");
 
   return (
     <div className={shellClassName}>
       {hasToolbar && (
         <div className="flex flex-col gap-3 border-b border-[var(--table-border)] px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
-          <div className="min-w-0 flex-1">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3">
             {toolbar ??
               (hasBuiltInSearch ? (
                 <TableSearchControl
                   ariaLabel={resolvedSearchAriaLabel}
                   placeholder={resolvedSearchPlaceholder}
-                  value={globalSearch}
-                  onChange={setGlobalSearch}
+                  value={resolvedGlobalSearch}
+                  onChange={onSearchChange ?? setGlobalSearch}
                   variant="table"
-                  className="w-full sm:max-w-[280px]"
+                  className="w-full sm:max-w-[400px]"
                 />
               ) : null)}
-          </div>
-          <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+            {toolbarFilterColumns.map((column) => (
+              <div
+                key={`${column.key}-toolbar-filter`}
+                className="w-full sm:w-auto sm:min-w-[150px]"
+              >
+                {renderColumnFilter({
+                  column,
+                  value:
+                    columnFilterValues[column.key] ??
+                    (column.filterType === "date-range" ? EMPTY_DATE_RANGE : ""),
+                  onChange: (value) =>
+                    setColumnFilterValues((current) => ({
+                      ...current,
+                      [column.key]: value,
+                    })),
+                  filterLabel: t("common.filter", "filter"),
+                  dateRangePlaceholder: resolvedDateRangePlaceholder,
+                })}
+              </div>
+            ))}
             {filters}
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-3 sm:justify-end">
             {toolbarActions}
           </div>
         </div>
@@ -318,7 +349,7 @@ export function DataTable<TRow>({
                         }
                         className={cn(
                           cellPadding,
-                          !hasColumnFilters && "border-b border-[var(--table-border)]",
+                          "border-b border-[var(--table-border)]",
                           column.headerClassName,
                         )}
                       >
@@ -335,7 +366,7 @@ export function DataTable<TRow>({
                         scope="col"
                         className={cn(
                           "w-20 min-w-[4.5rem] whitespace-nowrap text-right",
-                          !hasColumnFilters && "border-b border-[var(--table-border)]",
+                          "border-b border-[var(--table-border)]",
                           cellPadding,
                         )}
                       >
@@ -343,52 +374,8 @@ export function DataTable<TRow>({
                       </th>
                     )}
                   </tr>
-                  {hasColumnFilters && (
-                    <tr className="bg-[var(--table-surface-background)]">
-                      {selectable && (
-                        <th
-                          className={cn("border-b border-[var(--table-border)]", filterCellPadding)}
-                          aria-hidden="true"
-                        />
-                      )}
-                      {columns.map((column) => (
-                        <th
-                          key={`${column.key}-filter`}
-                          scope="col"
-                          className={cn(
-                            filterCellPadding,
-                            "border-b border-[var(--table-border)] font-normal normal-case tracking-normal text-[var(--table-body-text)]",
-                            column.headerClassName,
-                          )}
-                        >
-                          {renderColumnFilter({
-                            column,
-                            value:
-                              columnFilterValues[column.key] ??
-                              (column.filterType === "date-range" ? EMPTY_DATE_RANGE : ""),
-                            onChange: (value) =>
-                              setColumnFilterValues((current) => ({
-                                ...current,
-                                [column.key]: value,
-                              })),
-                            filterLabel: t("common.filter", "filter"),
-                            dateRangePlaceholder: resolvedDateRangePlaceholder,
-                          })}
-                        </th>
-                      ))}
-                      {rowActions && (
-                        <th
-                          className={cn(
-                            "w-20 min-w-[4.5rem] border-b border-[var(--table-border)]",
-                            filterCellPadding,
-                          )}
-                          aria-hidden="true"
-                        />
-                      )}
-                    </tr>
-                  )}
                 </thead>
-                <tbody className="bg-[var(--table-surface-background)] text-[var(--table-body-text)]">
+                <tbody className="bg-[var(--table-surface-background)] text-[13px] text-[var(--table-body-text)]">
                   {visibleRows.length === 0 ? (
                     <tr>
                       <td
@@ -521,6 +508,7 @@ function renderColumnFilter<TRow>({
         onChange={onChange}
         placeholder={column.filterPlaceholder ?? dateRangePlaceholder}
         variant="table"
+        className="h-10"
       />
     );
   }
@@ -534,21 +522,21 @@ function renderColumnFilter<TRow>({
         options={column.filterOptions}
         value={textValue}
         onChange={(event) => onChange(event.target.value)}
-        size="sm"
+        size="md"
         variant="table"
-        className="min-w-[120px]"
+        className="min-w-[150px]"
       />
     );
   }
 
+  return null;
+}
+
+function hasDedicatedToolbarFilter<TRow>(column: DataTableColumn<TRow>): boolean {
   return (
-    <TableFilterInput
-      ariaLabel={`${getColumnLabel(column)} ${filterLabel}`}
-      placeholder={column.filterPlaceholder}
-      value={textValue}
-      onChange={onChange}
-      variant="table"
-    />
+    column.filter !== undefined ||
+    column.filterOptions !== undefined ||
+    column.filterType === "date-range"
   );
 }
 

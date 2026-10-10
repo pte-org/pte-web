@@ -25,6 +25,7 @@ export interface StudentRosterQuery {
   search?: string;
   programPublicId?: string;
   classPublicId?: string;
+  status?: "ALL" | "ACTIVE" | "SUSPENDED";
   assignmentStatus?: StudentRosterAssignmentStatus;
   sort?: StudentRosterSort;
   direction?: StudentRosterDirection;

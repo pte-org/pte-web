@@ -249,6 +249,7 @@ const ADMIN_VI: Record<string, string> = {
   Email: "Email",
   "Full name": "Họ và tên",
   "Temporary password": "Mật khẩu tạm thời",
+  "Search by name or email": "Tìm theo họ tên hoặc email",
   Role: "Vai trò",
   "Filter by role": "Lọc theo vai trò",
   "Filter by status": "Lọc theo trạng thái",
