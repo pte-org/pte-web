@@ -41,11 +41,10 @@ import { LockedFilterBanner } from "./LockedFilterBanner";
 import { ClassBlockedAlert } from "./ClassBlockedAlert";
 import { useAssignStudentsDeeplink } from "./useAssignStudentsDeeplink";
 import {
-  AccountDetailsModal,
   GeneratedCredentialsModal,
   useGenerateStudentCredentials,
 } from "@/features/userManagement";
-import type { AccountDetails, GeneratedCredentials } from "@/features/userManagement";
+import type { GeneratedCredentials } from "@/features/userManagement";
 
 type StudentStatusFilter = "" | "ACTIVE" | "SUSPENDED";
 
@@ -141,7 +140,6 @@ export const StudentSearchView = (): ReactElement => {
   const [manageMode, setManageMode] = useState<"add" | "import" | null>(null);
   const [guardOpen, setGuardOpen] = useState(false);
   const [studentToSuspend, setStudentToSuspend] = useState<StudentRosterRow | null>(null);
-  const [detailsTarget, setDetailsTarget] = useState<StudentRosterRow | null>(null);
   const [passwordTarget, setPasswordTarget] = useState<StudentRosterRow | null>(null);
   const [credentials, setCredentials] = useState<GeneratedCredentials | null>(null);
   const [keepPreviousRows, setKeepPreviousRows] = useState(false);
@@ -443,7 +441,8 @@ export const StudentSearchView = (): ReactElement => {
               {
                 label: text.viewDetails,
                 icon: EyeIcon,
-                onSelect: () => setDetailsTarget(row),
+                onSelect: () =>
+                  router.push(`/host/students/${encodeURIComponent(row.studentPublicId)}`),
               },
               { separator: true },
               {
@@ -511,12 +510,6 @@ export const StudentSearchView = (): ReactElement => {
         onClose={() => setPasswordTarget(null)}
       />
 
-      <AccountDetailsModal
-        open={detailsTarget !== null}
-        account={detailsTarget ? toAccountDetails(detailsTarget) : null}
-        onClose={() => setDetailsTarget(null)}
-      />
-
       <GeneratedCredentialsModal
         open={credentials !== null}
         credentials={credentials}
@@ -540,18 +533,3 @@ export const StudentSearchView = (): ReactElement => {
     </div>
   );
 };
-
-function toAccountDetails(row: StudentRosterRow): AccountDetails {
-  return {
-    publicId: row.studentPublicId,
-    username: row.username,
-    email: row.email,
-    fullName: row.fullName,
-    roles: ["STUDENT"],
-    status: row.status,
-    mustChangePassword: row.mustChangePassword,
-    studentCode: row.studentCode,
-    className: row.className,
-    phone: row.phone,
-  };
-}
