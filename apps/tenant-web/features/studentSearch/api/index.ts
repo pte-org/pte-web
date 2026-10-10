@@ -2,14 +2,12 @@
 
 import {
   bulkCreateUsers,
-  importStudentRoster,
   listClassMemberships,
   listStudentRoster,
   reactivateUser,
   suspendUser,
   type BulkCreateUsersResponse,
   type ClassMembershipResponse,
-  type DownloadResponse,
   type PagedResult,
   type StudentRosterQuery,
   type StudentRosterRow,
@@ -60,19 +58,6 @@ export function useCreateTenantStudents(): UseMutationResult<
         })),
         tenantId: null,
       }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
-      void queryClient.invalidateQueries({ queryKey: STUDENT_ROSTER_QUERY_KEY });
-    },
-  });
-}
-
-/** Uploads the original roster file and receives it back with credentials appended. */
-export function useImportStudentRoster(): UseMutationResult<DownloadResponse, unknown, File> {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (file) => importStudentRoster(apiClient, file),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: STUDENT_ROSTER_QUERY_KEY });

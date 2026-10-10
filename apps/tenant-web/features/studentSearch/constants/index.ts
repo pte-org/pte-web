@@ -38,11 +38,12 @@ export const MANAGE_STUDENTS_TEXT = {
   addSubmit: "Add student",
   adding: "Adding...",
   fileLabel: "Student roster (.xlsx)",
-  fileDescription: "Upload any .xlsx roster. Its columns are preserved in the downloaded result.",
+  fileDescription: "Upload the filled-in system template (.xlsx).",
+  reviewFile: "Review file",
+  reviewing: "Reading file...",
+  rowsFound: (count: number) => `${count} row(s) found`,
   importAccounts: "Import students",
   importingAccounts: "Importing students...",
-  importSuccess:
-    "Students created. The original file was downloaded with account and password columns.",
   accountsCreated: (count: number) => `${count} student account(s) created.`,
   credentialsTitle: "Student login credentials",
   credentialsDescription:
