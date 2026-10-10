@@ -14,7 +14,11 @@ import { DotsVerticalIcon } from "./icons";
 
 export interface DropdownActionItem {
   label: string;
-  onSelect: () => void;
+  onSelect?: () => void;
+  /** Optional native link behavior for actions that should support new tabs/context menus. */
+  href?: string;
+  target?: string;
+  rel?: string;
   danger?: boolean;
   icon?: ComponentType<{ className?: string }>;
   disabled?: boolean;
@@ -156,6 +160,38 @@ export const Dropdown = ({
                     );
                   }
                   const Icon = item.icon;
+                  const itemClassName = cn(
+                    "flex min-h-10 w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors hover:bg-[var(--surface-subtle)] focus-visible:bg-[var(--surface-subtle)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+                    item.danger ? "text-[var(--blush-action)]" : "text-[var(--ink-secondary)]",
+                  );
+                  const content = (
+                    <>
+                      {Icon ? <Icon className="h-4 w-4 shrink-0" /> : null}
+                      {item.label}
+                    </>
+                  );
+                  if (item.href) {
+                    return (
+                      <a
+                        key={item.label}
+                        href={item.href}
+                        target={item.target}
+                        rel={item.rel}
+                        role="menuitem"
+                        aria-disabled={item.disabled || undefined}
+                        onClick={(event) => {
+                          if (item.disabled) {
+                            event.preventDefault();
+                            return;
+                          }
+                          setOpen(false);
+                        }}
+                        className={itemClassName}
+                      >
+                        {content}
+                      </a>
+                    );
+                  }
                   return (
                     <button
                       key={item.label}
@@ -164,16 +200,12 @@ export const Dropdown = ({
                       disabled={item.disabled}
                       onClick={() => {
                         if (item.disabled) return;
-                        item.onSelect();
+                        item.onSelect?.();
                         setOpen(false);
                       }}
-                      className={cn(
-                        "flex min-h-10 w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors hover:bg-[var(--surface-subtle)] focus-visible:bg-[var(--surface-subtle)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
-                        item.danger ? "text-[var(--blush-action)]" : "text-[var(--ink-secondary)]",
-                      )}
+                      className={itemClassName}
                     >
-                      {Icon ? <Icon className="h-4 w-4 shrink-0" /> : null}
-                      {item.label}
+                      {content}
                     </button>
                   );
                 })}
