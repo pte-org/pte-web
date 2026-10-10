@@ -8,9 +8,26 @@ export interface RosterRow {
   dateOfBirth?: string;
 }
 
+export interface RosterTemplateColumn {
+  field: keyof RosterRow;
+  header: string;
+  required: boolean;
+  format: string;
+  example: string;
+}
+
 export interface RosterFileResult {
   fileName: string;
   rows: RosterRow[];
+  /** Header cells in the file that are not part of the system template. */
+  ignoredColumns: string[];
+  /** Required template columns the file does not have. */
+  missingColumns: string[];
+}
+
+export interface RosterColumnIssues {
+  ignoredColumns: string[];
+  missingColumns: string[];
 }
 
 export interface CreatedAccount {
