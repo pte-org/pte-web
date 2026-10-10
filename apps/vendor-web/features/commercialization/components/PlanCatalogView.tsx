@@ -1,18 +1,15 @@
 "use client";
 
-import { useMemo, useState, type FormEvent, type ReactElement } from "react";
+import { useState, type FormEvent, type ReactElement } from "react";
 import {
   Alert,
   ActionMenu,
   Button,
-  CollapsibleSection,
   ConfirmDialog,
   DataTable,
   Input,
   Modal,
-  PageHeader,
   Select,
-  StatCard,
   CheckCircleIcon,
   PencilIcon,
   TrashIcon,
@@ -65,6 +62,13 @@ const INITIAL_FORM: PlanFormState = {
 
 const MAX_STUDENT_COUNT = 2_000;
 const MAX_EXAM_DURATION_DAYS = 3_650;
+
+const PLAN_STATUS_FILTER_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "DRAFT", label: "Draft" },
+  { value: "ACTIVE", label: "Active" },
+  { value: "ARCHIVED", label: "Archived" },
+] as const;
 
 const formatMoney = (plan: PlanResponse): string => {
   const [integerPart, fractionPart] = String(plan.price).split(".");
@@ -167,7 +171,6 @@ const serverSummary = (plan: PlanResponse): ReactElement => (
   </dl>
 );
 
-type CatalogFilter = PlanType | "ALL";
 const PLAN_FORM_ID = "plan-catalog-form";
 
 export const PlanCatalogView = (): ReactElement => {
@@ -177,7 +180,6 @@ export const PlanCatalogView = (): ReactElement => {
   const activatePlan = useActivatePlan();
   const archivePlan = useArchivePlan();
   const deletePlan = useDeletePlan();
-  const [catalogFilter, setCatalogFilter] = useState<CatalogFilter>("ALL");
   const [form, setForm] = useState<PlanFormState>({ ...INITIAL_FORM });
   const [formErrors, setFormErrors] = useState<PlanFormErrors>({});
   const [editing, setEditing] = useState<PlanResponse | null>(null);
@@ -193,11 +195,6 @@ export const PlanCatalogView = (): ReactElement => {
     archivePlan.isPending ||
     deletePlan.isPending;
   const { showToast } = useToast();
-  const visiblePlans = useMemo(
-    () => (catalogFilter === "ALL" ? plans : plans.filter((plan) => plan.type === catalogFilter)),
-    [catalogFilter, plans],
-  );
-  const activeCount = plans.filter((plan) => plan.status === "ACTIVE").length;
   const latestServerPlan = editing
     ? plans.find((plan) => plan.publicId === editing.publicId) ?? null
     : null;
@@ -341,29 +338,7 @@ export const PlanCatalogView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title={T.TITLE}
-        subtitle={T.SUBTITLE}
-        actions={
-          <Button type="button" onClick={beginCreate} disabled={isBusy}>
-            {T.ADD}
-          </Button>
-        }
-      />
       {!isFormOpen && errorMessage && <Alert tone="error">{errorMessage}</Alert>}
-      <CollapsibleSection
-        title={T.OVERVIEW_TITLE}
-        subtitle={T.OVERVIEW_SUBTITLE}
-        contentClassName="grid gap-4 sm:grid-cols-3"
-      >
-        <StatCard label={T.TOTAL} value={isLoading || isError ? T.EMPTY_VALUE : String(plans.length)} accent="blue" />
-        <StatCard label={T.ACTIVE} value={isLoading || isError ? T.EMPTY_VALUE : String(activeCount)} accent="mint" />
-        <StatCard
-          label={T.DRAFT}
-          value={isLoading || isError ? T.EMPTY_VALUE : String(plans.filter((plan) => plan.status === "DRAFT").length)}
-          accent="cream"
-        />
-      </CollapsibleSection>
       <Modal
         open={isFormOpen}
         onClose={resetForm}
@@ -443,7 +418,6 @@ export const PlanCatalogView = (): ReactElement => {
             <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-400">
               {T.SECTION_PRICING}
             </h3>
-            <p className="-mt-2 text-xs text-gray-500">{T.FORM_SUBTITLE}</p>
             <div className="grid gap-4 sm:grid-cols-2">
               <Input
                 id="plan-price"
@@ -506,28 +480,19 @@ export const PlanCatalogView = (): ReactElement => {
           </section>
         </form>
       </Modal>
-      <CommercialPanel
-        title={T.CATALOG_TITLE}
-        subtitle={T.CATALOG_SUBTITLE}
-        actions={
-          <Select
-            id="catalog-type"
-            aria-label={T.FILTER_ARIA_LABEL}
-            options={[
-              { label: T.ALL, value: "ALL" },
-              { label: T.EXAM_PACKAGE, value: "EXAM_PACKAGE" },
-              { label: T.CAPACITY_ADD_ONS, value: "STUDENT_CAPACITY" },
-            ]}
-            value={catalogFilter}
-            onChange={(event) => setCatalogFilter(event.target.value as CatalogFilter)}
-          />
-        }
-      >
+      <CommercialPanel title={T.CATALOG_TITLE}>
         <DataTable
+          toolbarActions={
+            <Button type="button" onClick={beginCreate} disabled={isBusy}>
+              {T.ADD}
+            </Button>
+          }
+          isLoading={isLoading}
           columns={[
             {
               key: "name",
               header: T.TABLE_PLAN,
+              filterAccessor: (row: PlanResponse) => `${row.name} ${row.description ?? ""}`,
               cell: (row: PlanResponse) => (
                 <div>
                   <p className="font-medium text-slate-900">{row.name}</p>
@@ -538,17 +503,36 @@ export const PlanCatalogView = (): ReactElement => {
             {
               key: "price",
               header: T.TABLE_PRICE,
+              filterAccessor: (row: PlanResponse) => formatMoney(row),
               cell: (row: PlanResponse) => <span className="font-semibold">{formatMoney(row)}</span>,
+            },
+            {
+              key: "type",
+              header: T.TABLE_TYPE,
+              filterOptions: [
+                { label: T.ALL, value: "" },
+                { label: T.EXAM_PACKAGE, value: "EXAM_PACKAGE" },
+                { label: T.CAPACITY_ADD_ONS, value: "STUDENT_CAPACITY" },
+              ],
+              filterAccessor: (row: PlanResponse) => row.type,
+              cell: (row: PlanResponse) =>
+                row.type === "EXAM_PACKAGE" ? T.EXAM_PACKAGE : T.CAPACITY_ADD_ONS,
             },
             {
               key: "term",
               header: T.TABLE_TERM,
+              filterAccessor: (row: PlanResponse) =>
+                row.durationDays !== null ? T.DAYS(row.durationDays) : T.PERMANENT,
               cell: (row: PlanResponse) =>
                 row.durationDays !== null ? T.DAYS(row.durationDays) : T.PERMANENT,
             },
             {
               key: "capacity",
               header: T.TABLE_CAPACITY,
+              filterAccessor: (row: PlanResponse) =>
+                row.type === "EXAM_PACKAGE"
+                  ? T.SESSION_CAPACITY(row.maxStudentsPerSession ?? T.EMPTY_VALUE)
+                  : T.EXTRA_STUDENTS(row.extraStudentSlots ?? T.EMPTY_VALUE),
               cell: (row: PlanResponse) =>
                 row.type === "EXAM_PACKAGE"
                   ? T.SESSION_CAPACITY(row.maxStudentsPerSession ?? T.EMPTY_VALUE)
@@ -557,10 +541,12 @@ export const PlanCatalogView = (): ReactElement => {
             {
               key: "status",
               header: T.TABLE_STATUS,
+              filterOptions: PLAN_STATUS_FILTER_OPTIONS,
+              filterAccessor: (row: PlanResponse) => row.status,
               cell: (row: PlanResponse) => <CommercialStatusBadge status={row.status} />,
             },
           ]}
-          rows={visiblePlans}
+          rows={plans}
           getRowKey={(row) => row.publicId}
           rowActions={(row) =>
             row.status === "ARCHIVED" ? null : (

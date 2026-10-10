@@ -22,7 +22,6 @@ export const LOGIN_ACCOUNT_QUERY_KEY = ["loginAccount"] as const;
 
 export const TENANCY_TEXT = {
   TITLE: "Tenants",
-  SUBTITLE: "Manage tenant identity, access, plans, licenses, and student capacity.",
   ADD_TENANT: "Add Tenant",
   SEARCH_PLACEHOLDER: "Search by tenant name, code, or tax code",
   ACTION_VIEW_DETAILS: "View details",
@@ -152,11 +151,6 @@ export const TENANT_STATS_TEXT = {
   STUDENT_SEATS: "Total student seats",
 } as const;
 
-export const TENANT_OVERVIEW_TEXT = {
-  TITLE: "Tenant overview",
-  SUBTITLE: "Tenant status and capacity at a glance.",
-} as const;
-
 export const TENANT_CREATED_TEXT = {
   TITLE: "Tenant Created Successfully",
   SUBTITLE: "The new tenant has been added to the platform.",
@@ -237,7 +231,6 @@ export const TENANT_DETAIL_TEXT = {
   STUDENT_LIMIT_LABEL: "Student limit",
   STATUS_LABEL: "Status",
   BRANDING_TITLE: "White-Label Branding",
-  BRANDING_SUBTITLE: "Shown to this tenant's users across the platform.",
   LOGO_URL_LABEL: "Logo URL",
   LOGO_URL_PLACEHOLDER: "https://example.com/logo.png",
   LOGO_URL_HELPER: "Paste a link to an already-hosted image. File upload isn't available yet.",
@@ -247,7 +240,6 @@ export const TENANT_DETAIL_TEXT = {
   SAVE_BRANDING: "Save Branding",
   BRANDING_SAVED: "Branding saved.",
   ORGANIZATIONS_TITLE: "Organization",
-  ORGANIZATIONS_SUBTITLE: "The organization assigned to this tenant.",
   EMPTY_ORGANIZATIONS_TITLE: "Organization not provisioned",
   EMPTY_ORGANIZATIONS_TEXT: "A default organization is created automatically with the tenant.",
 } as const;
@@ -278,7 +270,6 @@ export const ORGANIZATION_STATUS_VARIANT: Record<OrganizationStatus, BadgeVarian
 
 export const LOGIN_ACCOUNT_TEXT = {
   TITLE: "Login Account",
-  SUBTITLE: "The Host's own login for this tenant.",
   EMPTY_TITLE: "No login account yet",
   EMPTY_TEXT: "Create the Host's first login so they can sign in.",
   LOADING: "Verifying the tenant's Host account...",

@@ -4,38 +4,28 @@ import { useState, type ReactElement } from "react";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import {
   Alert,
-  AlertTriangleIcon,
-  CheckCircleIcon,
-  CollapsibleSection,
-  DocumentIcon,
+  Button,
+  DashboardLoadingState,
+  MotionReveal,
   PageHeader,
-  StatCard,
-  UsersIcon,
   useToast,
 } from "@pte/ui";
-import { TENANCY_TEXT, TENANT_OVERVIEW_TEXT, TENANT_STATS_TEXT } from "../constants";
-import { filterTenants } from "../utils/filterTenants";
+import { TENANCY_TEXT } from "../constants";
 import { useReactivateTenant, useSuspendTenant, useTenants } from "../api";
 import { useCreateTenantFlow } from "../hooks/useCreateTenantFlow";
-import type { Tenant, TenantFilter } from "../types";
+import type { Tenant } from "../types";
 import { useGrantQuota } from "../../licensing/api";
+import { useCurrentUser } from "@/features/auth/api";
+import { isPlatformAdmin } from "@/features/auth/permissions";
 import { GrantQuotaModal } from "../../licensing/components/GrantQuotaModal";
 import { QuotaHistoryModal } from "../../licensing/components/QuotaHistoryModal";
 import { GRANT_QUOTA_TEXT } from "../../licensing/constants";
 import type { GrantQuotaInput } from "../../licensing/types";
-import { TenantFilters } from "./_TenantFilters";
 import { TenantTable } from "./_TenantTable";
 import { TenantEmptyState } from "./_TenantEmptyState";
 import { SuspendTenantModal } from "./SuspendTenantModal";
 import { CreateTenantModal } from "./CreateTenantModal";
 import { TenantCreatedModal } from "./TenantCreatedModal";
-
-const INITIAL_FILTER: TenantFilter = {
-  query: "",
-  status: "all",
-  plan: "all",
-  organizationType: "all",
-};
 
 function lifecycleErrorMessage(error: unknown): string | undefined {
   if (!error) return undefined;
@@ -43,7 +33,9 @@ function lifecycleErrorMessage(error: unknown): string | undefined {
 }
 
 export const TenantManagementView = (): ReactElement => {
-  const { data: tenants } = useTenants();
+  const { data: currentUser } = useCurrentUser();
+  const canManageQuota = isPlatformAdmin(currentUser?.roles);
+  const { data: tenants, isLoading } = useTenants();
   const suspend = useSuspendTenant();
   const reactivate = useReactivateTenant();
   const { showToast } = useToast();
@@ -51,7 +43,6 @@ export const TenantManagementView = (): ReactElement => {
     onCreated: () => showToast(TENANCY_TEXT.CREATE_SUCCESS, { tone: "success" }),
   });
 
-  const [filter, setFilter] = useState<TenantFilter>(INITIAL_FILTER);
   const [suspendTarget, setSuspendTarget] = useState<Tenant | null>(null);
   const [lifecycleError, setLifecycleError] = useState<string | undefined>();
   const [grantTarget, setGrantTarget] = useState<Tenant | null>(null);
@@ -59,8 +50,6 @@ export const TenantManagementView = (): ReactElement => {
   const grantQuota = useGrantQuota(grantTarget?.id ?? "");
 
   const allTenants = tenants ?? [];
-  const visibleTenants = filterTenants(allTenants, filter);
-  const totalSeats = allTenants.reduce((total, tenant) => total + tenant.seatsTotal, 0);
 
   const confirmSuspend = (tenant: Tenant): void => {
     setLifecycleError(undefined);
@@ -97,67 +86,42 @@ export const TenantManagementView = (): ReactElement => {
     return getUserFacingApiErrorMessage(error);
   };
 
+  if (isLoading) return <DashboardLoadingState />;
+
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
         title={TENANCY_TEXT.TITLE}
-        subtitle={TENANCY_TEXT.SUBTITLE}
         actions={
-          <button
+          <Button
             type="button"
             onClick={createFlow.openModal}
-            className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover"
           >
             + {TENANCY_TEXT.ADD_TENANT}
-          </button>
+          </Button>
         }
       />
 
-      <CollapsibleSection
-        title={TENANT_OVERVIEW_TEXT.TITLE}
-        subtitle={TENANT_OVERVIEW_TEXT.SUBTITLE}
-        contentClassName="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
-      >
-        <StatCard
-          label={TENANT_STATS_TEXT.TOTAL}
-          value={String(allTenants.length)}
-          icon={<DocumentIcon />}
-          accent="blue"
-        />
-        <StatCard
-          label={TENANT_STATS_TEXT.ACTIVE}
-          value={String(allTenants.filter((tenant) => tenant.status === "active").length)}
-          icon={<CheckCircleIcon />}
-          accent="mint"
-        />
-        <StatCard
-          label={TENANT_STATS_TEXT.SUSPENDED}
-          value={String(allTenants.filter((tenant) => tenant.status === "suspended").length)}
-          icon={<AlertTriangleIcon />}
-          accent="cream"
-        />
-        <StatCard
-          label={TENANT_STATS_TEXT.STUDENT_SEATS}
-          value={String(totalSeats)}
-          icon={<UsersIcon />}
-          accent="sky"
-        />
-      </CollapsibleSection>
+      {lifecycleError && (
+        <MotionReveal delayMs={100}>
+          <Alert tone="error">{lifecycleError}</Alert>
+        </MotionReveal>
+      )}
 
-      <TenantFilters filter={filter} onChange={setFilter} />
-
-      {lifecycleError && <Alert tone="error">{lifecycleError}</Alert>}
-
-      {visibleTenants.length > 0 ? (
-        <TenantTable
-          tenants={visibleTenants}
-          onSuspend={setSuspendTarget}
-          onReactivate={confirmReactivate}
-          onGrantQuota={setGrantTarget}
-          onViewQuotaHistory={setHistoryTarget}
-        />
+      {allTenants.length > 0 ? (
+        <MotionReveal delayMs={120}>
+          <TenantTable
+            tenants={allTenants}
+            onSuspend={setSuspendTarget}
+            onReactivate={confirmReactivate}
+            onGrantQuota={canManageQuota ? setGrantTarget : undefined}
+            onViewQuotaHistory={canManageQuota ? setHistoryTarget : undefined}
+          />
+        </MotionReveal>
       ) : (
-        <TenantEmptyState onAdd={createFlow.openModal} />
+        <MotionReveal delayMs={120}>
+          <TenantEmptyState onAdd={createFlow.openModal} />
+        </MotionReveal>
       )}
 
       <SuspendTenantModal

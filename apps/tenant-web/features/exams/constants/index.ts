@@ -21,7 +21,6 @@ export const REPORT_PUBLICATION_SUMMARY_QUERY_KEY = ["reportPublicationSummary"]
 
 export const EXAMS_TEXT = {
   TITLE: "Exams",
-  SUBTITLE: "Manage exam sessions, rosters, and proctors.",
   ADD_EXAM: "Create Exam",
   EMPTY_TITLE: "No exams yet",
   EMPTY_TEXT: "Create your first exam session to start adding students.",
@@ -46,6 +45,17 @@ export const SESSION_STATUS_LABELS = {
   CANCELLED: "Cancelled",
 } as const;
 
+export const SESSION_STATUS_FILTER_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "DRAFT", label: SESSION_STATUS_LABELS.DRAFT },
+  { value: "PREPARING", label: SESSION_STATUS_LABELS.PREPARING },
+  { value: "READY", label: SESSION_STATUS_LABELS.READY },
+  { value: "SCHEDULED", label: SESSION_STATUS_LABELS.SCHEDULED },
+  { value: "OPEN", label: SESSION_STATUS_LABELS.OPEN },
+  { value: "CLOSED", label: SESSION_STATUS_LABELS.CLOSED },
+  { value: "CANCELLED", label: SESSION_STATUS_LABELS.CANCELLED },
+] as const;
+
 export const SESSION_STATUS_VARIANT = {
   DRAFT: "neutral",
   PREPARING: "info",
@@ -63,14 +73,11 @@ export const CREATE_SESSION_TEXT = {
   NAME_PLACEHOLDER: "e.g. Mid-term PTE Mock Test",
   SUBSCRIPTION_LABEL: "Subscription",
   SUBSCRIPTION_PLACEHOLDER: "Select an active subscription",
-  SUBSCRIPTION_HELPER: "The exam's window and capacity must fit within this subscription.",
   PLAN_FALLBACK: "Plan",
   SUBSCRIPTION_OPTION: (planName: string, licenseKey: string) => `${planName} — ${licenseKey}`,
   NO_ACTIVE_SUBSCRIPTIONS:
     "No active subscription yet — redeem a license or purchase a plan first.",
   SKILLS_LABEL: "Skills",
-  SKILLS_HELPER:
-    "The system randomly generates the exam from the question bank for the skills you pick (1 to 4).",
   OPENS_AT_LABEL: "Opens at",
   CLOSES_AT_LABEL: "Closes at",
   CAPACITY_LABEL: "Capacity",
@@ -82,39 +89,27 @@ export const CREATE_SESSION_TEXT = {
 
 export const CREATE_EXAM_WIZARD_TEXT = {
   TITLE: "Create exam",
-  STEP_BASIC: "1. Exam details",
-  STEP_AUDIENCE: "2. Audience and generation",
+  STEP_DETAILS: "Exam details",
+  STEP_SCHEDULE_POLICY: "Schedule & policy",
+  STEP_AUDIENCE: "Audience",
+  STEP_REVIEW: "Review & create",
   NAME_LABEL: "Exam name",
   NAME_PLACEHOLDER: "e.g. Semester 1 mock exam",
   TEMPLATE_LABEL: "Exam template",
   TEMPLATE_PLACEHOLDER: "Select an active template",
   PLAN_FALLBACK: "Plan",
-  TEMPLATE_HELPER:
-    "The active platform template determines the exam structure and question requirements.",
   SUBSCRIPTION_LABEL: "Subscription",
   SUBSCRIPTION_PLACEHOLDER: "Select an active subscription",
   OPENS_AT_LABEL: "Opens at",
   CLOSES_AT_LABEL: "Closes at",
   CAPACITY_LABEL: "Maximum students",
-  MODE_LABEL: "Exam mode",
-  PRACTICE_ANTI_CHEAT_LABEL: "Controlled desktop practice",
-  PRACTICE_ANTI_CHEAT_CONTROL: "Enable anti-cheat controls for this Practice exam",
-  PRACTICE_ANTI_CHEAT_HELPER:
-    "Enable fullscreen and the existing desktop checks. Violations warn and are audited; Practice is not auto-submitted.",
-  SKILLS_LABEL: "Skills included",
-  SKILLS_HELPER:
-    "Choose one or more of the four skills for Practice. A skill must be included in the active template to be selectable.",
-  SKILL_UNAVAILABLE: "Not included in the active template",
   FULL_TEMPLATE_SCOPE: "Full template scope",
   RETRIES_LABEL: "Allowed retries per student",
-  RETRIES_HELPER: "Retries are additional submissions after the first attempt. Choose 0 to disable retries (maximum 9).",
   FORM_MODE_LABEL: "Question form",
   REUSE_POLICY_LABEL: "Student reuse rule",
   SERIES_LABEL: "Exam series",
   SERIES_PLACEHOLDER: "e.g. 2026-HK1",
   SOURCES_TITLE: "Audience sources",
-  SOURCES_HELPER:
-    "Select existing students, classes, or programs. Duplicate students are automatically removed.",
   SOURCE_TYPE_LABEL: "Source type",
   SOURCE_OPTION_LABEL: "Existing source",
   SOURCE_SEARCH_LABEL: "Search existing sources",
@@ -122,7 +117,6 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   SOURCE_PLACEHOLDER: "Select an existing source",
   SOURCE_LOADING: "Loading existing sources...",
   SOURCE_EMPTY: "No existing sources match your search.",
-  SOURCE_HELPER: "Only existing records from this organization can be selected.",
   MANAGE_CLASSES: "Manage classes",
   ADD_SOURCE: "Add source",
   REMOVE_SOURCE: "Remove",
@@ -132,7 +126,6 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   NO_ACTIVE_SUBSCRIPTIONS: "No active subscription is available for this exam.",
   REVIEW_TITLE: "Review before generation",
   REVIEW_TEMPLATE: "Template",
-  REVIEW_MODE: "Exam mode",
   REVIEW_SECURITY_POLICY: "Security policy",
   REVIEW_SKILLS: "Included skills",
   REVIEW_RETRIES: "Retries per student",
@@ -143,7 +136,8 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   TEMPLATE_READY: "The template has enough published questions.",
   TEMPLATE_NOT_READY: "The question bank does not yet have enough questions for this template.",
   BACK: "Back",
-  NEXT: "Review audience",
+  NEXT: "Continue",
+  REVIEW_AND_CREATE: "Review & create",
   CANCEL: "Cancel",
   SUBMIT: "Generate and publish",
   SUBMITTING: "Preparing exam...",
@@ -163,11 +157,7 @@ export const CREATE_EXAM_WIZARD_TEXT = {
       "The audience is larger than the capacity allowed by the subscription.",
   } as Record<string, string>,
   SUCCESS: "Exam generated and scheduled successfully.",
-  MODE_PRACTICE: "Practice",
-  MODE_MOCK: "Mock exam",
   MODE_REAL: "Official exam",
-  POLICY_PRACTICE_UNRESTRICTED: "Practice — unrestricted",
-  POLICY_PRACTICE_CONTROLLED: "Practice — controlled desktop",
   POLICY_OFFICIAL_STRICT: "Official — strict",
   POLICY_LEGACY: "Previously created exam",
   POLICY_UNAVAILABLE: "Security policy unavailable — review required",
@@ -192,26 +182,16 @@ export const CREATE_EXAM_WIZARD_ERRORS = {
   SOURCE_DUPLICATE: "This audience source has already been added.",
   AUDIENCE_REQUIRED: "Add at least one audience source.",
   OPEN_FUTURE: "Choose an opening time in the future.",
-  SKILLS_REQUIRED: "Choose at least one skill included in the selected template.",
-  FULL_SCOPE_REQUIRED: "Mock and Official exams must include every skill in the selected template.",
   RETRIES_INVALID: "Enter a whole number of retries from 0 to 9.",
   POLICY_MISMATCH:
     "The server returned a different security policy. Refresh the exam settings and try again.",
 } as const;
 
-export const EXAM_POLICY_LABELS: Record<LockdownMode, string> = {
-  NONE: CREATE_EXAM_WIZARD_TEXT.POLICY_PRACTICE_UNRESTRICTED,
-  STANDARD: CREATE_EXAM_WIZARD_TEXT.POLICY_PRACTICE_CONTROLLED,
-  STRICT: CREATE_EXAM_WIZARD_TEXT.POLICY_OFFICIAL_STRICT,
-};
-
-export const EXAM_MODE_OPTIONS: { value: ExamMode; label: string }[] = [
-  { value: "PRACTICE", label: CREATE_EXAM_WIZARD_TEXT.MODE_PRACTICE },
-  { value: "OFFICIAL_EXAM", label: CREATE_EXAM_WIZARD_TEXT.MODE_REAL },
-];
+/** Every host-created exam is official; the server enforces STRICT lockdown for it. */
+export const OFFICIAL_EXAM_MODE: ExamMode = "OFFICIAL_EXAM";
+export const OFFICIAL_EXAM_LOCKDOWN_MODE: LockdownMode = "STRICT";
 
 export const EXAM_MODE_LABELS: Record<ExamMode, string> = {
-  PRACTICE: CREATE_EXAM_WIZARD_TEXT.MODE_PRACTICE,
   OFFICIAL_EXAM: CREATE_EXAM_WIZARD_TEXT.MODE_REAL,
 };
 
@@ -264,7 +244,6 @@ export const EMPTY_CREATE_SESSION: CreateSessionInput = {
 export const SESSION_DETAIL_TEXT = {
   BACK: "Back to Exams",
   SESSION_CODE_SECTION: "Exam code",
-  SESSION_CODE_HELPER: "Share this code with students so they can open this exam in the PTE app.",
   COPY_SESSION_CODE: "Copy code",
   SESSION_CODE_COPIED: "Exam code copied.",
   SESSION_CODE_COPY_FAILED: "Could not copy the exam code. Select the code and copy it manually.",
@@ -388,7 +367,7 @@ export const ANSWER_TABLE_HEADERS = {
   AI_SCORE: "AI Score",
   TEACHER_SCORE: "Teacher Score",
   SUBMITTED_AT: "Submitted",
-  ACTIONS: "Action",
+  ACTIONS: "Actions",
 } as const;
 
 export const ANSWER_STATUS_LABELS: Record<string, string> = {
@@ -418,8 +397,6 @@ export const ANSWER_DETAIL_TEXT = {
   UNRECOGNIZED_NOTICE:
     "This answer's format could not be decoded automatically. Showing the raw submitted value below.",
   TEACHER_SCORE_TITLE: "Teacher Score",
-  TEACHER_SCORE_HELPER:
-    "Recorded independently of the AI score, 0-100. Does not affect the official result.",
   TEACHER_SCORE_LABEL: "Score (0-100)",
   SUBMIT: "Save Score",
   SUBMITTING: "Saving...",
@@ -438,7 +415,7 @@ export const PROCTOR_TABLE_HEADERS = {
   FULL_NAME: "Full name",
   EMAIL: "Email",
   ROLE: "Role",
-  ACTIONS: "Action",
+  ACTIONS: "Actions",
 } as const;
 
 export const DEFAULT_PROCTOR_ROLE: ProctorRole = "ASSISTANT_PROCTOR";

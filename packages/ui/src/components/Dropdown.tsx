@@ -35,6 +35,9 @@ export interface DropdownProps {
   /** Custom trigger content; defaults to a kebab icon. */
   trigger?: ReactNode;
   triggerClassName?: string;
+  /** Optional content rendered above the action items. */
+  menuHeader?: ReactNode;
+  menuClassName?: string;
   align?: "left" | "right";
 }
 
@@ -43,6 +46,8 @@ export const Dropdown = ({
   label = "Options",
   trigger,
   triggerClassName,
+  menuHeader,
+  menuClassName,
   align = "right",
 }: DropdownProps): ReactElement => {
   const [open, setOpen] = useState(false);
@@ -105,7 +110,7 @@ export const Dropdown = ({
           setOpen((value) => !value);
         }}
         className={cn(
-          "grid h-10 w-10 place-items-center rounded-md text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-700",
+          "grid h-10 w-10 place-items-center rounded-lg text-[var(--ink-secondary)] transition-colors hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35",
           triggerClassName,
         )}
       >
@@ -126,13 +131,18 @@ export const Dropdown = ({
             <div
               ref={menuRef}
               role="menu"
-              className="fixed z-[60] min-w-44 max-w-[calc(100vw-1rem)] rounded-md bg-white py-1 shadow-card"
+              className={cn(
+                "fixed z-[60] min-w-44 max-w-[calc(100vw-1rem)] origin-top-right overflow-hidden rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] py-1 text-[var(--ink-primary)] shadow-[var(--popover-shadow)] motion-safe:animate-pte-dropdown-in",
+                menuClassName,
+              )}
               style={{
                 top: menuPosition?.top ?? 0,
                 left: menuPosition?.left ?? 0,
                 visibility: menuPosition ? "visible" : "hidden",
               }}
             >
+              {menuHeader}
+              {menuHeader && <div className="border-b border-[var(--shell-border)]" />}
               {items
                 .filter((item) => !("hidden" in item && item.hidden))
                 .map((item, index) => {
@@ -141,7 +151,7 @@ export const Dropdown = ({
                       <div
                         key={item.key ?? `separator-${index}`}
                         role="separator"
-                        className="my-1 border-t border-gray-100"
+                        className="my-1 border-t border-[var(--shell-border)]"
                       />
                     );
                   }
@@ -158,8 +168,8 @@ export const Dropdown = ({
                         setOpen(false);
                       }}
                       className={cn(
-                        "flex min-h-10 w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors hover:bg-blue-50 disabled:cursor-not-allowed disabled:opacity-50",
-                        item.danger ? "text-red-600" : "text-gray-700",
+                        "flex min-h-10 w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors hover:bg-[var(--surface-subtle)] focus-visible:bg-[var(--surface-subtle)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
+                        item.danger ? "text-[var(--blush-action)]" : "text-[var(--ink-secondary)]",
                       )}
                     >
                       {Icon ? <Icon className="h-4 w-4 shrink-0" /> : null}

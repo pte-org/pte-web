@@ -1,7 +1,6 @@
-import { DashboardChrome } from "@/features/auth/components";
-import { ADMIN_ROLES } from "@/features/auth/constants";
+import { RequireAuth } from "@/features/auth/components";
+import { ACADEMIC_ROLES } from "@/features/auth/constants";
 import { ScoreTemplateEditorView } from "@/features/scoretemplate/components";
-import { ADMIN_NAV } from "@/lib/navigation";
 
 interface ScoreTemplateEditPageProps {
   params: Promise<{ publicId: string }>;
@@ -11,8 +10,8 @@ export default async function ScoreTemplateEditPage({ params }: ScoreTemplateEdi
   const { publicId } = await params;
 
   return (
-    <DashboardChrome navItems={ADMIN_NAV} allowedRoles={ADMIN_ROLES}>
+    <RequireAuth allowedRoles={ACADEMIC_ROLES}>
       <ScoreTemplateEditorView publicId={publicId} />
-    </DashboardChrome>
+    </RequireAuth>
   );
 }

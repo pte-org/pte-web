@@ -1,5 +1,6 @@
 import type { BadgeVariant } from "@pte/ui";
 import type {
+  QuestionPool,
   QuestionSkill,
   QuestionSkillFilter,
   QuestionStatus,
@@ -11,13 +12,11 @@ export const QUESTION_STATS_QUERY_KEY = ["questionStats"] as const;
 
 export const QUESTIONBANK_TEXT = {
   TITLE: "Question Bank",
-  SUBTITLE: "Manage and update the PTE question database.",
   ADD: "Add question",
   SEARCH_PLACEHOLDER: "Enter a code or question content...",
   TOTAL_QUESTIONS: (count: number) => `${count} questions`,
   LOAD_ERROR: "Could not load the question bank. Please try again.",
   SYNCING: "Updating question bank...",
-  PAGE_SIZE: "Rows per page",
   FIRST_PAGE: "First",
   LAST_PAGE: "Last",
   STAT_TOTAL: "Total questions",
@@ -33,9 +32,11 @@ export const QUESTIONBANK_TEXT = {
   ROW_ARCHIVE: "Archive",
   ROW_DELETE_DRAFT: "Delete draft",
   DELETE_CONFIRM_TITLE: "Delete this draft?",
-  DELETE_CONFIRM_DESCRIPTION: "This draft will be removed from authoring. Audit history and media are retained, but it cannot be restored from this UI.",
+  DELETE_CONFIRM_DESCRIPTION:
+    "This draft will be removed from authoring. Audit history and media are retained, but it cannot be restored from this UI.",
   DELETE_SUCCESS: "Question draft deleted.",
-  DELETE_BLOCKED: "Draft cleanup is unavailable because publication or revision history is protected or unknown.",
+  DELETE_BLOCKED:
+    "Draft cleanup is unavailable because publication or revision history is protected or unknown.",
   ARCHIVE_CONFIRM_TITLE: "Archive this question?",
   ARCHIVE_CONFIRM_DESCRIPTION:
     "This question will be excluded from new exam generation. Existing exam snapshots and publication history are retained.",
@@ -47,7 +48,8 @@ export const QUESTIONBANK_TEXT = {
   EMPTY_VALUE: "—",
   EMPTY_TITLE: "No questions found",
   EMPTY_DESCRIPTION_FILTERED: "No questions match your search or filters. Try adjusting them.",
-  EMPTY_DESCRIPTION_UNFILTERED: "The question bank is empty. Add your first question to get started.",
+  EMPTY_DESCRIPTION_UNFILTERED:
+    "The question bank is empty. Add your first question to get started.",
   EMPTY_CLEAR_FILTERS: "Clear filters",
   REJECTION_REASON_DEFAULT: "Please revise this question.",
   REJECT_MODAL_TITLE: "Reject this question?",
@@ -67,7 +69,6 @@ export const QUESTIONBANK_TEXT = {
 
 export const QUESTION_DETAIL_TEXT = {
   BACK: "← Back to Question Bank",
-  SUBTITLE: (taskType: string) => `Review the content and media attached to ${taskType}.`,
   EDIT: "Edit question",
   INFORMATION_TITLE: "Question information",
   GROUP_IDENTITY: "Identity",
@@ -76,6 +77,7 @@ export const QUESTION_DETAIL_TEXT = {
   TASK_TYPE: "Task type",
   SECTION: "Section",
   VISIBILITY: "Visibility",
+  POOL: "Question pool",
   REVISION: "Revision",
   WORD_COUNT: "Word count",
   WORD_COUNT_RANGE: (min: number, max: number) => `${min}–${max} words`,
@@ -104,20 +106,20 @@ export const QUESTION_DETAIL_TEXT = {
 } as const;
 
 export const QUESTIONBANK_OVERVIEW_TEXT = {
-  TITLE: "Overview",
-  SUBTITLE: "Question inventory at a glance.",
   EMPTY_VALUE: "—",
 } as const;
 
 export const QUESTION_EDITOR_TEXT = {
   NEW_TITLE: "New question",
-  NEW_SUBTITLE: "Create a draft question for Admin approval.",
   EDIT_TITLE: "Edit question",
-  EDIT_SUBTITLE: "Save changes as a draft revision.",
   FORM_EDIT_TITLE: "Edit Question Revision",
   FORM_CREATE_TITLE: "Create PTE Question",
   TASK_TYPE: "Task type",
   LOADING_TASK_TYPES: "Loading task types...",
+  POOL: "Question pool",
+  POOL_HELPER_CREATE:
+    "Exam questions can be drawn into exams; practice questions are only used for practice. This cannot be changed later.",
+  POOL_HELPER_EDIT: "The pool is fixed when a question is created.",
   TITLE: "Title",
   PROMPT_TEXT: "Prompt text",
   AUDIO_PROMPT: "Audio prompt",
@@ -167,6 +169,7 @@ export const QUESTION_TABLE_HEADERS = {
   CODE: "Question Code",
   SKILL: "Skill",
   CONTENT: "Content",
+  POOL: "Pool",
   STATUS: "Status",
   ACTIONS: "Actions",
 } as const;
@@ -176,6 +179,11 @@ export const QUESTION_SKILL_LABELS: Record<QuestionSkill, string> = {
   reading: "Reading",
   writing: "Writing",
   speaking: "Speaking",
+};
+
+export const QUESTION_POOL_LABELS: Record<QuestionPool, string> = {
+  exam: "Exam",
+  practice: "Practice",
 };
 
 export const QUESTION_STATUS_LABELS: Record<QuestionStatus, string> = {

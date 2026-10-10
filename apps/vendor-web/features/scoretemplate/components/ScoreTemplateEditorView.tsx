@@ -11,6 +11,7 @@ import {
   useScoreTemplateFeasibility,
 } from "../api";
 import { useCurrentUser } from "@/features/auth/api";
+import { canReviewAcademic } from "@/features/auth/permissions";
 import { useTaskTypes } from "@/features/questiontemplate/api";
 import { EXAM_TEMPLATE_BASE_PATH, EXAM_TEMPLATE_SECTIONS, SCORE_TEMPLATE_TEXT } from "../constants";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
@@ -105,7 +106,7 @@ const ScoreTemplateEditorForm = ({
   const { data: currentUser } = useCurrentUser();
   const replaceItemsMutation = useReplaceScoreTemplateItems();
   const activateMutation = useActivateScoreTemplate();
-  const isPlatformAdmin = currentUser?.roles.includes("PLATFORM_ADMIN") ?? false;
+  const canActivate = canReviewAcademic(currentUser?.roles);
   const [name, setName] = useState(template.name);
   const [templatePolicy, setTemplatePolicy] = useState<ScoreTemplatePolicy>(
     template.templatePolicy === "CUSTOM" ? "CUSTOM" : "STANDARD_PTE",
@@ -243,9 +244,15 @@ const ScoreTemplateEditorForm = ({
   // taskType (never accepted as admin input), and timingMode no longer
   // exists at all (column dropped) — see ScoreTemplateItemDraft.
   const handleAddType = (): void => {
-    const type = selectableQuestionTypes.find((candidate) => taskTypeKey(candidate) === newTypeCode);
+    const type = selectableQuestionTypes.find(
+      (candidate) => taskTypeKey(candidate) === newTypeCode,
+    );
     const selectedKey = type ? taskTypeKey(type) : "";
-    if (!type || type.section !== newSection || items.some((item) => item.taskTypeKey === selectedKey))
+    if (
+      !type ||
+      type.section !== newSection ||
+      items.some((item) => item.taskTypeKey === selectedKey)
+    )
       return;
 
     setItems((current) => [
@@ -280,8 +287,7 @@ const ScoreTemplateEditorForm = ({
 
   const availableTypes = selectableQuestionTypes.filter(
     (type) =>
-      type.section === newSection &&
-      !items.some((item) => item.taskTypeKey === taskTypeKey(type)),
+      type.section === newSection && !items.some((item) => item.taskTypeKey === taskTypeKey(type)),
   );
   const activeCatalogTypes = questionTypes.filter((type) => type.active);
   const selectedTypeUnavailable =
@@ -289,8 +295,7 @@ const ScoreTemplateEditorForm = ({
       (item) =>
         !questionTypes.some((type) => taskTypeKey(type) === item.taskTypeKey) ||
         !questionTypes.some((type) => taskTypeKey(type) === item.taskTypeKey && type.active),
-    ) ||
-    hasUnreadyTaskType(items, questionTypes);
+    ) || hasUnreadyTaskType(items, questionTypes);
   const canActivateFromCatalog =
     items.length > 0 &&
     activeCatalogTypes.length > 0 &&
@@ -329,7 +334,7 @@ const ScoreTemplateEditorForm = ({
             >
               {SCORE_TEMPLATE_TEXT.SAVE_DRAFT}
             </Button>
-            {isPlatformAdmin && (
+            {canActivate && (
               <Button
                 variant="primary"
                 onClick={handleOpenActivate}
@@ -338,9 +343,6 @@ const ScoreTemplateEditorForm = ({
                 {SCORE_TEMPLATE_TEXT.ACTIVATE_ACTION}
               </Button>
             )}
-            <Button variant="ghost" onClick={() => router.push(EXAM_TEMPLATE_BASE_PATH)}>
-              {SCORE_TEMPLATE_TEXT.DETAIL_BACK}
-            </Button>
           </>
         }
       />

@@ -1,17 +1,12 @@
 "use client";
 
 import { type ReactElement } from "react";
-import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { getTenant } from "@pte/api-client";
 import { Alert, LoadingState, PageHeader, useToast } from "@pte/ui";
 import { apiClient } from "@/lib/apiClient";
 import { ADMIN_TICKET_DETAIL_TEXT as T, CATEGORY_LABELS } from "../constants";
-import {
-  useAdminSupportTicket,
-  useAddTicketNote,
-  useUpdateTicketStatus,
-} from "../api";
+import { useAdminSupportTicket, useAddTicketNote, useUpdateTicketStatus } from "../api";
 import type { TicketStatus } from "../types";
 import { AddNoteForm } from "./_AddNoteForm";
 import { NoteThread } from "./_NoteThread";
@@ -25,7 +20,6 @@ interface AdminSupportTicketDetailViewProps {
 export const AdminSupportTicketDetailView = ({
   ticketPublicId,
 }: AdminSupportTicketDetailViewProps): ReactElement => {
-  const router = useRouter();
   const { showToast } = useToast();
 
   const { data: ticket, isLoading, isError } = useAdminSupportTicket(ticketPublicId);
@@ -61,20 +55,7 @@ export const AdminSupportTicketDetailView = ({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={() => router.push("/admin/support-tickets")}
-          className="text-sm font-medium text-action hover:underline"
-        >
-          {T.BACK}
-        </button>
-      </div>
-
-      <PageHeader
-        title={T.TICKET_TITLE}
-        subtitle={CATEGORY_LABELS[ticket.category]}
-      />
+      <PageHeader title={T.TICKET_TITLE} subtitle={CATEGORY_LABELS[ticket.category]} />
 
       <StatusPanel
         status={ticket.status}

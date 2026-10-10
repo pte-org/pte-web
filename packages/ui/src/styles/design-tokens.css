@@ -1,12 +1,33 @@
 :root {
-  --surface-page: #f2f6fa;
+  --font-interface: var(--font-inter, "Inter"), ui-sans-serif, system-ui, sans-serif;
+  /* Neutral surfaces and type colors are copied from NextAdmin's
+     src/app/css/default.css and dark.css. */
+  --surface-page: #f4f4f5;
   --surface-card: #ffffff;
-  --surface-subtle: #eaeff4;
-  --ink-primary: #2a3547;
-  --ink-secondary: #5a6a85;
-  --ink-muted: #7c8fac;
-  --divider: #e5eaef;
-  --control-border: #7c8fac;
+  --surface-subtle: #f4f4f5;
+  --shell-canvas: #f4f4f5;
+  --shell-frame: #fcfcfd;
+  --shell-border: #e8e8e8;
+  --shell-surface-border: #e5e5e5;
+  --sidebar-nav-hover-background: rgba(0, 0, 0, 0.05);
+  --ink-primary: #18181b;
+  --ink-secondary: #52525b;
+  --ink-muted: #71717a;
+  --divider: #e8e8e8;
+  --control-border: #d4d4d8;
+  --popover-shadow: 0px 5px 5px -2px rgba(16, 24, 40, 0.04);
+  /* Data tables use NextAdmin's card/input tokens. Brand blue is reserved
+     for focus and active actions, not idle table chrome. */
+  --table-header-background: var(--table-surface-background);
+  --table-surface-background: #ffffff;
+  --table-header-text: #52525b;
+  --table-body-text: #18181b;
+  --table-muted-text: #71717a;
+  --table-border: #e8e8e8;
+  --table-control-background: #ffffff;
+  --table-control-border: #d4d4d8;
+  --table-control-hover: #f4f4f5;
+  --table-row-hover: #fafafa;
   --brand-soft: #5d87ff;
   --brand: #4169e8;
   --brand-hover: #3359d2;
@@ -18,6 +39,7 @@
   --action-active: #08467c;
   --action-tint: #e8f2f9;
   --action-tint-hover: #d9eaf5;
+  --action-foreground: #ffffff;
   --sky-tint: #e8f7ff;
   --sky-action: #0e729f;
   --mint-tint: #e6fffa;
@@ -26,27 +48,208 @@
   --cream-action: #9c6400;
   --blush-tint: #fdede8;
   --blush-action: #be452b;
+  --blush-foreground: #ffffff;
   /* Stitch data/state colors retained for later semantic adoption. */
   --chart-blue: #2a78d6;
   --chart-orange: #eb6834;
   --skeleton-base: #eef2f6;
+  --skeleton-highlight: rgba(255, 255, 255, 0.72);
   --surface-row-hover: #f8fafc;
-  --card-shadow:
-    rgba(145, 158, 171, 0.3) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px;
-  --sidebar-shadow:
-    rgba(145, 158, 171, 0.2) 0px 0px 2px 0px, rgba(145, 158, 171, 0.08) 0px 12px 24px -4px;
+  --card-shadow: 0 3px 6px -2px rgba(16, 24, 40, 0.02), 0 1px 1px 0 rgba(16, 24, 40, 0.04);
+  --sidebar-shadow: 0 32px 64px -12px rgba(16, 24, 40, 0.14);
+  --motion-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-duration-fast: 160ms;
+  --motion-duration-normal: 280ms;
   --background: var(--surface-page);
   --foreground: var(--ink-primary);
   color-scheme: light;
 }
 
+html,
+body {
+  font-family: var(--font-interface);
+}
+
+[data-theme="dark"] {
+  /* Exact NextAdmin dark neutral palette. */
+  --surface-page: #09090b;
+  --surface-card: #171718;
+  --surface-subtle: #18181b;
+  --shell-canvas: #09090b;
+  --shell-frame: #0f0f0f;
+  --shell-border: #2b2c2e;
+  --shell-surface-border: #1d1d1f;
+  --sidebar-nav-hover-background: rgba(255, 255, 255, 0.05);
+  --ink-primary: rgba(255, 255, 255, 0.9);
+  --ink-secondary: #a1a1aa;
+  --ink-muted: #a1a1aa;
+  --divider: #2b2c2e;
+  --control-border: rgba(255, 255, 255, 0.05);
+  --popover-shadow: 0px 5px 5px -2px rgba(16, 24, 40, 0.04);
+  --table-header-background: var(--table-surface-background);
+  --table-surface-background: #171718;
+  --table-header-text: #a1a1aa;
+  --table-body-text: rgba(255, 255, 255, 0.9);
+  --table-muted-text: #a1a1aa;
+  --table-border: #2b2c2e;
+  --table-control-background: rgba(255, 255, 255, 0.05);
+  --table-control-border: rgba(255, 255, 255, 0.05);
+  --table-control-hover: #27272a;
+  --table-row-hover: #18181b;
+  --brand-soft: #8aa7ff;
+  --brand: #6d8cff;
+  --brand-hover: #8aa7ff;
+  --brand-deep: #b6c6ff;
+  --brand-tint: #1d315e;
+  --brand-ink: #b6c6ff;
+  --action: #4e9be1;
+  --action-hover: #70b2ed;
+  --action-active: #2e80c6;
+  --action-tint: #163859;
+  --action-tint-hover: #204a70;
+  --action-foreground: #07111d;
+  --sky-tint: #123a52;
+  --sky-action: #6bc8ef;
+  --mint-tint: #123f3a;
+  --mint-action: #63d6b8;
+  --cream-tint: #4a3515;
+  --cream-action: #f4c86c;
+  --blush-tint: #4b292b;
+  --blush-action: #ff9a83;
+  --blush-foreground: #24110f;
+  --chart-blue: #70a8ff;
+  --chart-orange: #ff9a70;
+  --skeleton-base: #1a2940;
+  --skeleton-highlight: rgba(255, 255, 255, 0.08);
+  --surface-row-hover: #18181b;
+  --card-shadow: 0 3px 6px -2px rgba(0, 0, 0, 0.02), 0 1px 1px 0 rgba(0, 0, 0, 0.04);
+  --sidebar-shadow: 0 32px 64px -12px rgba(16, 24, 40, 0.14);
+  --background: var(--surface-page);
+  --foreground: var(--ink-primary);
+  color-scheme: dark;
+}
+
+/* Compatibility bridge for existing feature utilities during the phased
+ * migration. New components should use semantic variables directly. */
+@layer utilities {
+  [data-theme="dark"] .bg-white {
+    background-color: var(--surface-card);
+  }
+
+  [data-theme="dark"] .bg-gray-50,
+  [data-theme="dark"] .bg-slate-50,
+  [data-theme="dark"] .bg-gray-100,
+  [data-theme="dark"] .bg-slate-100 {
+    background-color: var(--surface-subtle);
+  }
+
+  [data-theme="dark"] .bg-gray-200,
+  [data-theme="dark"] .bg-slate-200 {
+    background-color: var(--divider);
+  }
+
+  [data-theme="dark"] .text-gray-900,
+  [data-theme="dark"] .text-gray-800,
+  [data-theme="dark"] .text-slate-950,
+  [data-theme="dark"] .text-slate-900,
+  [data-theme="dark"] .text-slate-800 {
+    color: var(--ink-primary);
+  }
+
+  [data-theme="dark"] .text-gray-700,
+  [data-theme="dark"] .text-gray-600,
+  [data-theme="dark"] .text-slate-700,
+  [data-theme="dark"] .text-slate-600 {
+    color: var(--ink-secondary);
+  }
+
+  [data-theme="dark"] .text-gray-500,
+  [data-theme="dark"] .text-gray-400,
+  [data-theme="dark"] .text-slate-500,
+  [data-theme="dark"] .text-slate-400 {
+    color: var(--ink-muted);
+  }
+
+  [data-theme="dark"] .border-gray-100,
+  [data-theme="dark"] .border-gray-200,
+  [data-theme="dark"] .border-slate-100,
+  [data-theme="dark"] .border-slate-200,
+  [data-theme="dark"] .border-slate-300 {
+    border-color: var(--shell-border);
+  }
+
+  [data-theme="dark"] .divide-gray-100 > :not(:last-child),
+  [data-theme="dark"] .divide-slate-100 > :not(:last-child) {
+    border-color: var(--divider);
+  }
+
+  [data-theme="dark"] .bg-blue-50,
+  [data-theme="dark"] .bg-indigo-50 {
+    background-color: var(--brand-tint);
+  }
+
+  [data-theme="dark"] .bg-sky-50 {
+    background-color: var(--sky-tint);
+  }
+
+  [data-theme="dark"] .bg-green-50,
+  [data-theme="dark"] .bg-emerald-50 {
+    background-color: var(--mint-tint);
+  }
+
+  [data-theme="dark"] .bg-amber-50,
+  [data-theme="dark"] .bg-yellow-50 {
+    background-color: var(--cream-tint);
+  }
+
+  [data-theme="dark"] .bg-red-50,
+  [data-theme="dark"] .bg-rose-50 {
+    background-color: var(--blush-tint);
+  }
+
+  [data-theme="dark"] .text-blue-700,
+  [data-theme="dark"] .text-indigo-700,
+  [data-theme="dark"] .text-blue-600 {
+    color: var(--brand-ink);
+  }
+
+  [data-theme="dark"] .text-sky-700,
+  [data-theme="dark"] .text-sky-600 {
+    color: var(--sky-action);
+  }
+
+  [data-theme="dark"] .text-green-700,
+  [data-theme="dark"] .text-emerald-700 {
+    color: var(--mint-action);
+  }
+
+  [data-theme="dark"] .text-amber-700,
+  [data-theme="dark"] .text-yellow-700 {
+    color: var(--cream-action);
+  }
+
+  [data-theme="dark"] .text-red-700,
+  [data-theme="dark"] .text-rose-700 {
+    color: var(--blush-action);
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-plus-jakarta);
+  --font-sans: var(--font-interface);
   --font-mono: var(--font-geist-mono);
   --shadow-card: var(--card-shadow);
   --shadow-sidebar: var(--sidebar-shadow);
+  --shadow-shell: 0 3px 6px -2px rgba(0, 0, 0, 0.02), 0 1px 1px 0 rgba(0, 0, 0, 0.04);
+  --color-shell-canvas: var(--shell-canvas);
+  --color-shell-frame: var(--shell-frame);
+  --color-shell-border: var(--shell-border);
+  --animate-pte-fade-in: pte-fade-in 280ms ease-out both;
+  --animate-pte-fade-up: pte-fade-up 420ms var(--motion-ease-out) both;
+  --animate-pte-scale-in: pte-scale-in 320ms var(--motion-ease-out) both;
+  --animate-pte-dropdown-in: pte-dropdown-in 140ms ease-out both;
+  --animate-pte-progress: pte-progress 1.1s ease-in-out infinite;
 
   /* Keep existing feature classes on the shared Academic Swiss palette. */
   --color-blue-50: var(--brand-tint);
@@ -117,6 +320,98 @@
   --color-rose-500: var(--blush-action);
 }
 
+@keyframes pte-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pte-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pte-scale-in {
+  from {
+    opacity: 0;
+    transform: translateY(5px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pte-dropdown-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes pte-skeleton-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+
+  to {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes pte-progress {
+  0% {
+    transform: translateX(-110%);
+  }
+
+  100% {
+    transform: translateX(330%);
+  }
+}
+
+.pte-skeleton {
+  position: relative;
+  overflow: hidden;
+}
+
+.pte-skeleton::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--skeleton-highlight) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: pte-skeleton-shimmer 1.6s var(--motion-ease-out) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pte-skeleton::after {
+    animation: none;
+    transform: none;
+  }
+}
+
 /*
  * Layered (not plain global CSS) so a component's own Tailwind utilities
  * (e.g. `outline-none` on a custom `focus-within`-styled field) can still
@@ -138,7 +433,7 @@
   body {
     background: var(--background);
     color: var(--foreground);
-    font-family: var(--font-plus-jakarta), Helvetica, Arial, sans-serif;
+    font-family: var(--font-interface);
     font-size: 14px;
     line-height: 1.43;
   }

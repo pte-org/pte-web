@@ -1,7 +1,12 @@
 export { useTokenManager } from "./useTokenManager";
 export type { TokenManager } from "./useTokenManager";
 export { tokenStorage } from "./tokenStorage";
-export { sessionStorage } from "./sessionStorage";
+export {
+  normalizeSessionRole,
+  normalizeSessionRoles,
+  sessionStorage,
+  SESSION_ROLES,
+} from "./sessionStorage";
 export type { PteSession, SessionRole } from "./sessionStorage";
 export { useSessionManager } from "./useSessionManager";
 export type { SessionManager } from "./useSessionManager";

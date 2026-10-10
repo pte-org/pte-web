@@ -29,10 +29,10 @@ export const PlatformSettingsView = (): ReactElement => {
   };
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={T.TITLE} subtitle={T.SUBTITLE} />
+      <PageHeader title={T.TITLE} />
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       {saved && <Alert tone="success">{T.SAVED(saved)}</Alert>}
-      <CommercialPanel title={T.PANEL_TITLE} subtitle={T.PANEL_SUBTITLE}>
+      <CommercialPanel title={T.PANEL_TITLE}>
         {isLoading && <p className="text-sm text-slate-500">{T.LOADING}</p>}
         <div className="space-y-5">
           {settings.filter((setting) => SETTING_KEYS.includes(setting.key as (typeof SETTING_KEYS)[number])).map((setting) => (

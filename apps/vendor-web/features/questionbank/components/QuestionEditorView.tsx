@@ -11,7 +11,7 @@ export const NewQuestionView = (): ReactElement => {
   const router = useRouter();
   return (
     <div className="space-y-5">
-      <PageHeader title={T.NEW_TITLE} subtitle={T.NEW_SUBTITLE} />
+      <PageHeader title={T.NEW_TITLE} />
       <QuestionEditorForm
         onSaved={() => router.push("/admin/questions")}
         onCancel={() => router.push("/admin/questions")}
@@ -45,7 +45,7 @@ export const EditQuestionView = ({ publicId }: { publicId: string }): ReactEleme
   if (!editableQuestion || revisionMutation.isPending) return <LoadingState rows={8} />;
   return (
     <div className="space-y-5">
-      <PageHeader title={T.EDIT_TITLE} subtitle={T.EDIT_SUBTITLE} />
+      <PageHeader title={T.EDIT_TITLE} />
       <QuestionEditorForm
         question={editableQuestion}
         onSaved={() => router.push("/admin/questions")}

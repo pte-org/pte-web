@@ -1,19 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Alert,
-  Badge,
-  CopyableId,
-  DetailGroup,
-  LoadingState,
-  PageHeader,
-  cn,
-} from "@pte/ui";
+import { Alert, Badge, CopyableId, DetailGroup, LoadingState, PageHeader, cn } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
-import { useMediaPreview, useQuestion } from "../api";
+import { useCurrentUser } from "@/features/auth/api";
+import { canReviewAcademic } from "@/features/auth/permissions";
+import { mapPool, useMediaPreview, useQuestion } from "../api";
 import {
   QUESTION_DETAIL_TEXT as T,
+  QUESTION_POOL_LABELS,
   QUESTION_STATUS_LABELS,
   QUESTION_STATUS_VARIANT,
 } from "../constants";
@@ -73,6 +68,7 @@ const MediaPreview = ({ kind, publicId }: MediaPreviewProps) => {
 
 export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
   const { data: question, isLoading, isError } = useQuestion(publicId);
+  const { data: currentUser } = useCurrentUser();
 
   if (isLoading) return <LoadingState rows={8} />;
   if (isError) return <Alert tone="error">{T.LOAD_ERROR}</Alert>;
@@ -81,16 +77,13 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
   const currentStatus = statusKey(String(question.status));
   const taskType = question.taskTypeKey ?? question.pteTaskType ?? T.EMPTY_VALUE;
   const canEdit = question.status === "DRAFT" || question.status === "APPROVED";
+  const showAnswerKey = canReviewAcademic(currentUser?.roles);
   const hasMedia = Boolean(question.audioPromptRef || question.imagePromptRef);
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href="/admin/questions" className="text-sm font-medium text-action hover:underline">
-        {T.BACK}
-      </Link>
       <PageHeader
         title={question.title}
-        subtitle={T.SUBTITLE(taskType)}
         actions={
           <>
             {currentStatus && (
@@ -122,6 +115,7 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
             { label: T.TASK_TYPE, value: taskType },
             { label: T.SECTION, value: valueOrEmpty(question.section) },
             { label: T.VISIBILITY, value: valueOrEmpty(question.visibility) },
+            { label: T.POOL, value: QUESTION_POOL_LABELS[mapPool(question.pool)] },
             { label: T.REVISION, value: String(question.revisionNumber ?? T.EMPTY_VALUE) },
             {
               label: T.WORD_COUNT,
@@ -192,7 +186,7 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
                     key={option.publicId}
                     className={cn(
                       "flex items-center gap-3 rounded-md border px-3 py-2 text-sm",
-                      option.correct
+                      showAnswerKey && option.correct
                         ? "border-green-200 bg-green-50"
                         : "border-slate-200 bg-white",
                     )}
@@ -200,7 +194,7 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
                     <span
                       className={cn(
                         "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
-                        option.correct
+                        showAnswerKey && option.correct
                           ? "bg-green-600 text-white"
                           : "bg-slate-100 text-slate-500",
                       )}
@@ -208,21 +202,24 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
                       {index + 1}
                     </span>
                     <span className="flex-1 text-gray-800">{option.text}</span>
-                    {option.correct && <Badge variant="success">{T.CORRECT}</Badge>}
+                    {showAnswerKey && option.correct && (
+                      <Badge variant="success">{T.CORRECT}</Badge>
+                    )}
                   </li>
                 ))}
             </ol>
           </div>
         )}
-        {(question.referenceAnswerText?.trim() || question.correctAnswerText?.trim()) && (
-          <DetailGroup
-            title={T.GROUP_ANSWER_KEY}
-            items={[
-              { label: T.REFERENCE_ANSWER, value: valueOrEmpty(question.referenceAnswerText) },
-              { label: T.CORRECT_ANSWER, value: valueOrEmpty(question.correctAnswerText) },
-            ]}
-          />
-        )}
+        {showAnswerKey &&
+          (question.referenceAnswerText?.trim() || question.correctAnswerText?.trim()) && (
+            <DetailGroup
+              title={T.GROUP_ANSWER_KEY}
+              items={[
+                { label: T.REFERENCE_ANSWER, value: valueOrEmpty(question.referenceAnswerText) },
+                { label: T.CORRECT_ANSWER, value: valueOrEmpty(question.correctAnswerText) },
+              ]}
+            />
+          )}
       </section>
     </div>
   );

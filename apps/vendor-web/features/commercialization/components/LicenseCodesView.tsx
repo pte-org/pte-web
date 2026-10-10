@@ -19,7 +19,6 @@ import {
   EyeIcon,
   Input,
   Modal,
-  PageHeader,
   PaginationControls,
   Select,
   subscribeSessionLifecycle,
@@ -47,6 +46,7 @@ import {
 import { LICENSE_CODES_TEXT as T } from "../constants";
 import { CommercialPanel } from "./CommercialPanel";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
+import { isPlatformAdmin } from "@/features/auth/permissions";
 
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_REVEAL_MS = 60_000;
@@ -110,6 +110,7 @@ const safeOperationMessage = (error: unknown, fallback: string): string =>
 
 export const LicenseCodesView = (): ReactElement => {
   const { session, isReady } = useSessionManager();
+  const canUseSensitiveActions = isPlatformAdmin(session?.roles);
   const actorId = session ? decodeAccessTokenClaims(session.accessToken)?.sub : undefined;
   const recoveryKey = actorId ? `pte-license-issue:${actorId}` : null;
   const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -375,7 +376,6 @@ export const LicenseCodesView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={T.TITLE} subtitle={T.SUBTITLE} />
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       {message && <Alert tone="success">{message}</Alert>}
       {codePageQuery.isFetching && codePageQuery.data && <Alert tone="info">{T.STALE_DATA}</Alert>}
@@ -386,7 +386,7 @@ export const LicenseCodesView = (): ReactElement => {
         </Alert>
       )}
 
-      <CommercialPanel title={T.ISSUE_TITLE} subtitle={T.ISSUE_SUBTITLE}>
+      <CommercialPanel title={T.ISSUE_TITLE}>
         <form className="grid gap-4 sm:grid-cols-[1fr_220px_auto] sm:items-end" onSubmit={(event) => void issueCode(event)}>
           <Select
             id="license-plan"
@@ -417,7 +417,7 @@ export const LicenseCodesView = (): ReactElement => {
         {intent && <Button type="button" disabled={issue.isPending} onClick={() => setConfirmNewIntent(true)}>{T.NEW_ISSUE}</Button>}
       </CommercialPanel>
 
-      <CommercialPanel title={T.LOOKUP_TITLE} subtitle={T.LOOKUP_SUBTITLE}>
+      <CommercialPanel title={T.LOOKUP_TITLE}>
         <form className="flex flex-col gap-3 sm:flex-row sm:items-end" onSubmit={(event) => void lookupCode(event)}>
           <Input
             id="license-code-lookup"
@@ -441,7 +441,6 @@ export const LicenseCodesView = (): ReactElement => {
 
       <CommercialPanel
         title={T.ISSUED_TITLE}
-        subtitle={T.ISSUED_SUBTITLE}
         actions={<Button type="button" variant="secondary" onClick={refreshLicenseCodes}>{T.REFRESH_LIST}</Button>}
       >
         <div className="mb-5 rounded-md border border-slate-200 bg-slate-50 p-3">
@@ -502,9 +501,29 @@ export const LicenseCodesView = (): ReactElement => {
                 </div>
               ) : T.EMPTY_VALUE,
             },
-            { key: "issued", header: T.ISSUED, cell: (row: AdminLicenseCodeSummary) => formatDate(row.issuedAt) },
-            { key: "expires", header: T.EXPIRES, cell: (row: AdminLicenseCodeSummary) => formatDate(row.codeExpiresAt) },
-            { key: "status", header: T.STATUS, cell: (row: AdminLicenseCodeSummary) => <CommercialStatusBadge status={row.effectiveStatus} /> },
+            {
+              key: "issued",
+              header: T.ISSUED,
+              filterType: "date-range",
+              filterAccessor: (row: AdminLicenseCodeSummary) => row.issuedAt,
+              filterPlaceholder: "Date range",
+              cell: (row: AdminLicenseCodeSummary) => formatDate(row.issuedAt),
+            },
+            {
+              key: "expires",
+              header: T.EXPIRES,
+              filterType: "date-range",
+              filterAccessor: (row: AdminLicenseCodeSummary) => row.codeExpiresAt,
+              filterPlaceholder: "Date range",
+              cell: (row: AdminLicenseCodeSummary) => formatDate(row.codeExpiresAt),
+            },
+            {
+              key: "status",
+              header: T.STATUS,
+              filterOptions: STATUS_OPTIONS,
+              filterAccessor: (row: AdminLicenseCodeSummary) => row.effectiveStatus,
+              cell: (row: AdminLicenseCodeSummary) => <CommercialStatusBadge status={row.effectiveStatus} />,
+            },
           ]}
           rows={codes}
           getRowKey={(row) => row.publicId}
@@ -512,8 +531,10 @@ export const LicenseCodesView = (): ReactElement => {
           rowActions={(row) => (
             <ActionMenu
               items={[
-                { label: T.REVEAL, icon: EyeIcon, onSelect: () => void revealCode(row) },
-                ...((row.effectiveStatus === "ISSUED" || (row.effectiveStatus === "REDEEMED" && row.subscriptionPublicId !== null))
+                ...(canUseSensitiveActions
+                  ? [{ label: T.REVEAL, icon: EyeIcon, onSelect: () => void revealCode(row) }]
+                  : []),
+                ...(canUseSensitiveActions && (row.effectiveStatus === "ISSUED" || (row.effectiveStatus === "REDEEMED" && row.subscriptionPublicId !== null))
                   ? [{ label: T.REVOKE, icon: BanIcon, danger: true, onSelect: () => beginRevoke(row) }]
                   : []),
               ]}
@@ -521,26 +542,27 @@ export const LicenseCodesView = (): ReactElement => {
           )}
           rowActionsHeader=""
           emptyTitle={codePageQuery.isLoading ? T.LOADING : isFiltered ? T.FILTER_EMPTY : T.EMPTY}
+          clientSidePagination={false}
+          pagination={
+            codePageQuery.data ? (
+              <PaginationControls
+                meta={codePageQuery.data.meta}
+                onPageChange={(nextPage) => {
+                  clearReveal();
+                  setPage(nextPage);
+                }}
+                disabled={codePageQuery.isFetching}
+                showPageSizeInput
+                onPageSizeChange={(nextSize) => {
+                  clearReveal();
+                  setSize(nextSize);
+                  setPage(0);
+                }}
+                totalItemsLabel={T.TOTAL_CODES(codePageQuery.data.meta.totalElements)}
+              />
+            ) : undefined
+          }
         />
-        {codePageQuery.data && (
-          <div className="mt-4">
-            <PaginationControls
-              meta={codePageQuery.data.meta}
-              onPageChange={(nextPage) => {
-                clearReveal();
-                setPage(nextPage);
-              }}
-              disabled={codePageQuery.isFetching}
-              showPageSizeInput
-              onPageSizeChange={(nextSize) => {
-                clearReveal();
-                setSize(nextSize);
-                setPage(0);
-              }}
-              totalItemsLabel={T.TOTAL_CODES(codePageQuery.data.meta.totalElements)}
-            />
-          </div>
-        )}
       </CommercialPanel>
 
       <ConfirmDialog

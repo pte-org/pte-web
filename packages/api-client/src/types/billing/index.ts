@@ -231,6 +231,30 @@ export interface PlatformSettingRequest {
   description?: string;
 }
 
+export interface PlatformOrderResponse {
+  publicId: string;
+  tenantId: string;
+  planId: string;
+  orderCode: number;
+  amount: string | number;
+  currency: string;
+  status: OrderStatus;
+  paidAt: string | null;
+  createdAt: string;
+}
+
+export interface PlatformSubscriptionResponse {
+  publicId: string;
+  tenantId: string;
+  planId: string;
+  maskedLicenseKey: string | null;
+  startsAt: string | null;
+  expiresAt: string | null;
+  maxStudentsPerSession: number | null;
+  status: SubscriptionStatus;
+  activationSource: ActivationSource;
+}
+
 export interface StudentQuotaResponse {
   current: number;
   limit: number;

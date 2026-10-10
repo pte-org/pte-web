@@ -10,11 +10,11 @@ interface BadgeProps {
 }
 
 const VARIANT_CLASS: Record<BadgeVariant, string> = {
-  success: "bg-green-50 text-green-700",
-  warning: "bg-amber-50 text-amber-700",
-  danger: "bg-red-50 text-red-700",
-  info: "bg-sky-50 text-sky-700",
-  neutral: "bg-gray-100 text-gray-600",
+  success: "bg-[var(--mint-tint)] text-[var(--mint-action)]",
+  warning: "bg-[var(--cream-tint)] text-[var(--cream-action)]",
+  danger: "bg-[var(--blush-tint)] text-[var(--blush-action)]",
+  info: "bg-[var(--sky-tint)] text-[var(--sky-action)]",
+  neutral: "bg-[var(--surface-subtle)] text-[var(--ink-secondary)]",
 };
 
 export const Badge = ({ variant = "neutral", children, className }: BadgeProps): ReactElement => (

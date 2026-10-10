@@ -3,6 +3,7 @@
 import { useEffect, useRef, type ReactElement } from "react";
 import type { InboxItemResponse } from "@pte/api-client";
 import { cn } from "../utils/cn";
+import { useLocale } from "../i18n";
 import { Badge } from "./Badge";
 import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
@@ -52,26 +53,30 @@ const NotificationRows = ({
   onSelectItem: (item: InboxItemResponse) => void;
   compact?: boolean;
 }): ReactElement => (
-  <div className={cn("divide-y divide-slate-100", compact && "max-h-80 overflow-y-auto")}>
+  <div
+    className={cn("divide-y divide-[var(--shell-border)]", compact && "max-h-80 overflow-y-auto")}
+  >
     {items.map((item) => (
       <button
         key={item.publicId}
         type="button"
         onClick={() => onSelectItem(item)}
         className={cn(
-          "block w-full px-4 py-3 text-left transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-action",
-          item.readAt === null && "bg-blue-50/50",
+          "block w-full px-4 py-3 text-left transition-colors hover:bg-[var(--surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand)]",
+          item.readAt === null && "bg-[var(--brand-tint)]/50",
         )}
         aria-label={`${item.readAt === null ? "Unread: " : ""}${item.title}`}
       >
         <div className="flex items-start justify-between gap-3">
-          <span className="min-w-0 flex-1 text-sm font-semibold text-slate-900">{item.title}</span>
+          <span className="min-w-0 flex-1 text-sm font-semibold text-[var(--ink-primary)]">
+            {item.title}
+          </span>
           {item.readAt === null && (
             <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-action" />
           )}
         </div>
-        <p className="mt-1 line-clamp-2 text-sm text-slate-600">{item.body}</p>
-        <div className="mt-2 flex items-center justify-between gap-2 text-xs text-slate-400">
+        <p className="mt-1 line-clamp-2 text-sm text-[var(--ink-secondary)]">{item.body}</p>
+        <div className="mt-2 flex items-center justify-between gap-2 text-xs text-[var(--ink-muted)]">
           <Badge variant={importanceVariant(item.importance)}>
             {item.category.replaceAll("_", " ")}
           </Badge>
@@ -96,6 +101,7 @@ export const NotificationBell = ({
   onMarkAllRead,
   onViewAll,
 }: NotificationBellProps): ReactElement => {
+  const { locale, t } = useLocale();
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -131,15 +137,15 @@ export const NotificationBell = ({
       <button
         ref={triggerRef}
         type="button"
-        aria-label={`Notifications${unreadCount > 0 ? `, ${displayCount(unreadCount)} unread` : ""}`}
+        aria-label={`${t("common.notifications", "Notifications")}${unreadCount > 0 ? `, ${displayCount(unreadCount)} ${locale === "vi" ? "chưa đọc" : "unread"}` : ""}`}
         aria-expanded={isOpen}
         aria-controls="notification-panel"
         onClick={onToggle}
-        className="relative grid h-10 w-10 place-items-center rounded-md text-slate-500 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action"
+        className="relative grid h-10 w-10 place-items-center rounded-lg border border-[var(--shell-border)] bg-[var(--shell-frame)] text-[var(--ink-primary)] shadow-xs transition-colors hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35 focus-visible:ring-offset-1"
       >
         <BellIcon className="h-5 w-5" />
         {unreadCount > 0 && (
-          <span className="absolute -right-1 -top-1 min-w-4 rounded-full bg-rose-500 px-1 text-[10px] font-semibold leading-4 text-white ring-2 ring-white">
+          <span className="absolute -right-1 -top-1 min-w-4 rounded-full bg-[var(--blush-action)] px-1 text-[10px] font-semibold leading-4 text-white ring-2 ring-[var(--surface-card)]">
             {displayCount(unreadCount)}
           </span>
         )}
@@ -150,13 +156,19 @@ export const NotificationBell = ({
           ref={panelRef}
           tabIndex={-1}
           role="dialog"
-          aria-label="Notification center"
-          className="absolute right-0 top-12 z-40 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-slate-200 bg-white shadow-xl outline-none"
+          aria-label={t("common.notifications", "Notification center")}
+          className="absolute right-0 top-12 z-40 w-[min(24rem,calc(100vw-2rem))] overflow-hidden rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] shadow-xl outline-none"
         >
-          <div className="flex items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+          <div className="flex items-center justify-between gap-3 border-b border-[var(--shell-border)] px-4 py-3">
             <div>
-              <h2 className="text-sm font-semibold text-slate-900">Notifications</h2>
-              <p className="mt-0.5 text-xs text-slate-500">Recent updates for your account</p>
+              <h2 className="text-sm font-semibold text-[var(--ink-primary)]">
+                {t("common.notifications", "Notifications")}
+              </h2>
+              <p className="mt-0.5 text-xs text-[var(--ink-secondary)]">
+                {locale === "vi"
+                  ? "Cập nhật mới cho tài khoản của bạn"
+                  : "Recent updates for your account"}
+              </p>
             </div>
             <Button
               variant="ghost"
@@ -165,18 +177,18 @@ export const NotificationBell = ({
               isLoading={isMarkingAllRead}
               onClick={onMarkAllRead}
             >
-              Mark all read
+              {t("common.markAllRead", "Mark all read")}
             </Button>
           </div>
           {errorMessage ? (
             <div className="p-4">
               <ErrorState
-                title="Notifications unavailable"
+                title={t("common.notificationsUnavailable", "Notifications unavailable")}
                 description={errorMessage}
                 action={
                   onRetry && (
                     <Button size="sm" variant="secondary" onClick={onRetry}>
-                      Retry
+                      {t("common.retry", "Retry")}
                     </Button>
                   )
                 }
@@ -189,16 +201,20 @@ export const NotificationBell = ({
           ) : items.length === 0 ? (
             <div className="p-4">
               <EmptyState
-                title="You are all caught up"
-                description="New platform and exam updates will appear here."
+                title={t("common.allCaughtUp", "You are all caught up")}
+                description={
+                  locale === "vi"
+                    ? "Cập nhật nền tảng và kỳ thi sẽ hiển thị tại đây."
+                    : "New platform and exam updates will appear here."
+                }
               />
             </div>
           ) : (
             <NotificationRows items={items} onSelectItem={onSelectItem} compact />
           )}
-          <div className="border-t border-slate-100 p-2">
+          <div className="border-t border-[var(--shell-border)] p-2">
             <Button variant="ghost" size="sm" fullWidth onClick={onViewAll}>
-              View all notifications
+              {t("common.viewAllNotifications", "View all notifications")}
             </Button>
           </div>
         </div>
@@ -214,15 +230,16 @@ export const NotificationHistory = ({
   onRetry,
   onSelectItem,
 }: NotificationHistoryProps): ReactElement => {
+  const { t } = useLocale();
   if (errorMessage) {
     return (
       <ErrorState
-        title="Notifications unavailable"
+        title={t("common.notificationsUnavailable", "Notifications unavailable")}
         description={errorMessage}
         action={
           onRetry && (
             <Button size="sm" variant="secondary" onClick={onRetry}>
-              Retry
+              {t("common.retry", "Retry")}
             </Button>
           )
         }
@@ -232,11 +249,14 @@ export const NotificationHistory = ({
   if (isLoading) return <LoadingState rows={5} />;
   if (items.length === 0) {
     return (
-      <EmptyState title="No notifications" description="There are no notifications in this view." />
+      <EmptyState
+        title={t("common.noNotifications", "No notifications")}
+        description={t("common.noNotifications", "There are no notifications in this view.")}
+      />
     );
   }
   return (
-    <div className="overflow-hidden rounded-lg bg-white shadow-card">
+    <div className="overflow-hidden rounded-lg bg-[var(--surface-card)] shadow-card">
       <NotificationRows items={items} onSelectItem={onSelectItem} />
     </div>
   );

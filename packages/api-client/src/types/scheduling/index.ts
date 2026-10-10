@@ -76,7 +76,7 @@ export interface ExamPreviewOption {
   text: string;
 }
 
-export type ExamMode = "PRACTICE" | "OFFICIAL_EXAM";
+export type ExamMode = "OFFICIAL_EXAM";
 export type LockdownMode = "NONE" | "STANDARD" | "STRICT";
 export type FormMode = "SHARED_FORM" | "UNIQUE_FORM_PER_STUDENT";
 export type ReusePolicy =
@@ -84,15 +84,6 @@ export type ReusePolicy =
   | "EXCLUDE_STARTED_IN_SERIES"
   | "EXCLUDE_ASSIGNED_IN_SERIES"
   | "BLOCK_ON_SCHEDULE_OVERLAP";
-
-/** Canonical mapping used by tenant form boundaries and shared request tests. */
-export function resolveExamLockdownMode(
-  examMode: ExamMode,
-  practiceAntiCheatEnabled: boolean,
-): LockdownMode {
-  if (examMode === "OFFICIAL_EXAM") return "STRICT";
-  return practiceAntiCheatEnabled ? "STANDARD" : "NONE";
-}
 
 /**
  * Matches scheduling's real `CreateSessionRequest` record exactly (Plan B,

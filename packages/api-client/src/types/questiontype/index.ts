@@ -75,6 +75,7 @@ export interface QuestionTypeResponse {
   runtime?: TaskRuntimeProfileDescriptor | null;
   readiness?: TaskRuntimeReadiness | null;
   editability?: TaskTypeEditability | null;
+  lifecycleStatus?: "DRAFT" | "PENDING_APPROVAL" | "ACTIVE" | "RETIRED" | string;
 }
 
 /** Terminology aliases for the catalog migration; old names remain valid. */

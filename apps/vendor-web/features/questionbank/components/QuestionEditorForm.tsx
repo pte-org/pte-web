@@ -8,13 +8,18 @@ import {
   getUserFacingApiErrorMessage,
   requestCloudinaryUpload,
   type CreateQuestionRequest,
+  type QuestionPool,
   type QuestionResponse,
   type UpdateQuestionRequest,
 } from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
 import { useQuestionTypes } from "@/features/questiontemplate/api";
 import { useCreateQuestion, useUpdateQuestion } from "../api";
-import { QUESTION_EDITOR_ERRORS as E, QUESTION_EDITOR_TEXT as T } from "../constants";
+import {
+  QUESTION_EDITOR_ERRORS as E,
+  QUESTION_EDITOR_TEXT as T,
+  QUESTION_POOL_LABELS,
+} from "../constants";
 
 interface DraftOption {
   text: string;
@@ -29,6 +34,11 @@ interface QuestionEditorFormProps {
   onSaved?: (question: QuestionResponse) => void;
   onCancel?: () => void;
 }
+
+const POOL_OPTIONS: { value: QuestionPool; label: string }[] = [
+  { value: "EXAM", label: QUESTION_POOL_LABELS.exam },
+  { value: "PRACTICE", label: QUESTION_POOL_LABELS.practice },
+];
 
 const fieldClass =
   "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100";
@@ -47,6 +57,9 @@ export const QuestionEditorForm = ({
     isError: questionTypesError,
   } = useQuestionTypes(!question);
   const [taskType, setTaskType] = useState<string>(question?.pteTaskType ?? "");
+  const [pool, setPool] = useState<QuestionPool>(
+    question?.pool === "PRACTICE" ? "PRACTICE" : "EXAM",
+  );
   const [title, setTitle] = useState(question?.title ?? "");
   const [promptText, setPromptText] = useState(question?.promptText ?? "");
   const [referenceAnswerText, setReferenceAnswerText] = useState(
@@ -190,7 +203,7 @@ export const QuestionEditorForm = ({
         },
       );
     } else {
-      const payload: CreateQuestionRequest = { pteTaskType: selectedTaskType, ...content };
+      const payload: CreateQuestionRequest = { pteTaskType: selectedTaskType, pool, ...content };
       createMutation.mutate(payload, {
         onSuccess: (saved) => {
           showToast(T.CREATE_SUCCESS);
@@ -232,6 +245,15 @@ export const QuestionEditorForm = ({
             ? [{ value: selectedTaskType, label: selectedTaskType }]
             : []),
         ]}
+      />
+      <Select
+        id="question-pool"
+        label={T.POOL}
+        value={pool}
+        disabled={Boolean(question)}
+        onChange={(event) => setPool(event.target.value as QuestionPool)}
+        options={POOL_OPTIONS}
+        helperText={question ? T.POOL_HELPER_EDIT : T.POOL_HELPER_CREATE}
       />
       <Input label={T.TITLE} value={title} onChange={(event) => setTitle(event.target.value)} />
       <label className="text-sm font-medium text-gray-700">

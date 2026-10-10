@@ -1,6 +1,5 @@
 export const DASHBOARD_TEXT = {
   GREETING: "Good morning, Administrator",
-  GREETING_SUBTITLE: "Here is today's system activity overview.",
   ADD_TENANT: "Add Tenant",
   NOTICE_TITLE: "System Notice",
   NOTICE_TEXT:
@@ -15,14 +14,11 @@ export const DASHBOARD_TEXT = {
 } as const;
 
 export const DASHBOARD_OVERVIEW_TEXT = {
-  TITLE: "Overview",
-  SUBTITLE: "Platform activity at a glance.",
   EMPTY_VALUE: "—",
 } as const;
 
 export const DASHBOARD_MAP_TEXT = {
   TITLE: "Tenant Distribution",
-  SUBTITLE: "Locations of active tenants across Vietnam.",
   MAPPED_LABEL: "Mapped",
   EMPTY:
     "New tenants will appear on the map after a province or city is selected in the tenant creation form.",

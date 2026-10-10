@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { DEFAULT_PAGE_SIZE, type AnswerListItemResponse } from "@pte/api-client";
-import { Badge, DataTable, PaginationControls, Select, type DataTableColumn } from "@pte/ui";
+import { Badge, DataTable, PaginationControls, type DataTableColumn } from "@pte/ui";
 import {
   ANSWER_STATUS_LABELS,
   ANSWER_STATUS_VARIANT,
@@ -19,6 +19,7 @@ interface AnswersSectionProps {
 const T = ANSWERS_SECTION_TEXT;
 
 const STATUS_OPTIONS = [
+  { label: T.STATUS_FILTER_ALL, value: "" },
   { label: ANSWER_STATUS_LABELS.PENDING, value: "PENDING" },
   { label: ANSWER_STATUS_LABELS.AI_SCORING, value: "AI_SCORING" },
   { label: ANSWER_STATUS_LABELS.SCORING_FAILED, value: "SCORING_FAILED" },
@@ -36,27 +37,32 @@ function formatScore(score: number | null): string {
 }
 
 export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactElement => {
-  const [statusFilter, setStatusFilter] = useState("");
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
   const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
 
-  const { data, isLoading } = useAnswers(sessionPublicId, statusFilter, page, size);
+  const { data, isLoading } = useAnswers(sessionPublicId, "", page, size);
 
   const columns: DataTableColumn<AnswerListItemResponse>[] = [
     {
       key: "attemptNumber",
       header: ANSWER_TABLE_HEADERS.ATTEMPT,
-      cell: (row) => <span className="font-medium text-gray-700">{T.ATTEMPT_VALUE(row.attemptNumber)}</span>,
+      cell: (row) => (
+        <span className="font-medium text-[var(--ink-primary)]">
+          {T.ATTEMPT_VALUE(row.attemptNumber)}
+        </span>
+      ),
     },
     {
       key: "taskType",
       header: ANSWER_TABLE_HEADERS.TASK_TYPE,
-      cell: (row) => <span className="font-medium text-gray-900">{row.taskType}</span>,
+      cell: (row) => <span className="font-medium text-[var(--ink-primary)]">{row.taskType}</span>,
     },
     {
       key: "status",
       header: ANSWER_TABLE_HEADERS.STATUS,
+      filterOptions: STATUS_OPTIONS,
+      filterAccessor: (row) => row.status,
       cell: (row) => (
         <Badge variant={ANSWER_STATUS_VARIANT[row.status]}>
           {ANSWER_STATUS_LABELS[row.status]}
@@ -76,27 +82,15 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
     {
       key: "createdAt",
       header: ANSWER_TABLE_HEADERS.SUBMITTED_AT,
+      filterType: "date-range",
+      filterAccessor: (row) => row.createdAt,
+      filterPlaceholder: "Date range",
       cell: (row) => formatDateTime(row.createdAt),
     },
   ];
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between gap-3">
-        <div className="w-56">
-          <Select
-            label={T.STATUS_FILTER_LABEL}
-            placeholder={T.STATUS_FILTER_ALL}
-            value={statusFilter}
-            onChange={(event) => {
-              setStatusFilter(event.target.value);
-              setPage(0);
-            }}
-            options={STATUS_OPTIONS}
-          />
-        </div>
-      </div>
-
       <DataTable
         columns={columns}
         rows={data?.items ?? []}
@@ -104,29 +98,31 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
         isLoading={isLoading}
         emptyTitle={T.EMPTY_TITLE}
         rowActionsHeader={ANSWER_TABLE_HEADERS.ACTIONS}
+        clientSidePagination={false}
+        pagination={
+          data ? (
+            <PaginationControls
+              meta={data}
+              onPageChange={setPage}
+              disabled={isLoading}
+              showPageSizeInput
+              onPageSizeChange={(nextSize) => {
+                setSize(nextSize);
+                setPage(0);
+              }}
+            />
+          ) : undefined
+        }
         rowActions={(row) => (
           <button
             type="button"
             onClick={() => setSelectedAnswerId(row.answerPublicId)}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+            className="rounded-lg border border-[var(--shell-border)] px-3 py-1.5 text-sm font-medium text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)]"
           >
             {T.VIEW}
           </button>
         )}
       />
-
-      {data && data.totalPages > 1 && (
-        <PaginationControls
-          meta={data}
-          onPageChange={setPage}
-          disabled={isLoading}
-          showPageSizeInput
-          onPageSizeChange={(nextSize) => {
-            setSize(nextSize);
-            setPage(0);
-          }}
-        />
-      )}
 
       <AnswerDetailModal
         key={selectedAnswerId ?? "answer-detail-closed"}

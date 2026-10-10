@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, BackButton, Badge, LoadingState, PageHeader } from "@pte/ui";
+import { Alert, Badge, LoadingState, PageHeader } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import {
@@ -32,7 +32,6 @@ export const ClassDetailView = ({
     return (
       <div className="flex flex-col gap-4">
         <Alert tone="error">{CLASS_ROSTER_TEXT.missingContext}</Alert>
-        <BackButton href="/host/programs" label={CLASS_ROSTER_TEXT.back(labels.program)} />
       </div>
     );
   }
@@ -71,17 +70,6 @@ const ClassDetailContent = ({
     error,
   } = useClasses(organizationPublicId, programPublicId);
   const studentClass = classes?.find((candidate) => candidate.publicId === classPublicId);
-  // Back from a Class detail page should land on the Classes list page,
-  // not on the Program detail page. The Classes list page is the
-  // sidebar-level entry point (`/host/classes`) and shows every class
-  // across the current organization; the Program detail page is one
-  // navigation level too high — landing there would force the user to
-  // scroll back to the Classes section to continue managing classes.
-  // Label it as "Back to {classLabel}" so it always matches the entity
-  // we're returning to. While the page is loading the Class list, fall
-  // back to a neutral "Back" so the label is always accurate.
-  const backLabel = studentClass ? `Back to ${classLabel}` : "Back";
-  const backHref = `/host/classes?organizationPublicId=${organizationPublicId}`;
 
   if (isError) {
     return <Alert tone="error">{errorMessage(error, CLASS_ROSTER_TEXT.loadFailed)}</Alert>;
@@ -92,14 +80,7 @@ const ClassDetailContent = ({
   }
 
   return (
-    // `gap-4` on mobile keeps the page dense; `sm:gap-5` adds breathing
-    // room once there's real horizontal space. Stacking order is
-    // intentionally: BackButton → Roster → Lecturer — the action the
-    // user came to do (manage the class roster) sits at the top of the
-    // fold on small screens.
     <div className="flex flex-col gap-4 sm:gap-5">
-      <BackButton href={backHref} label={backLabel} />
-
       <PageHeader
         title={studentClass.name}
         actions={

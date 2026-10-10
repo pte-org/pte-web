@@ -33,16 +33,16 @@ export const Input = ({
     >
       <div
         className={cn(
-          "flex items-center gap-2 rounded-md border bg-white px-3 transition-colors focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-600/20",
-          error ? "border-red-500" : "border-gray-300",
+          "flex min-h-10 items-center gap-2 rounded-lg border bg-[var(--surface-card)] px-3 transition-[border-color,box-shadow] focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]/20",
+          error ? "border-[var(--blush-action)]" : "border-[var(--control-border)]",
         )}
       >
-        {leftIcon && <span className="text-gray-400">{leftIcon}</span>}
+        {leftIcon && <span className="text-[var(--ink-muted)]">{leftIcon}</span>}
         <input
           id={controlId}
           required={required}
           className={cn(
-            "min-w-0 flex-1 bg-transparent py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400",
+            "min-w-0 flex-1 bg-transparent py-2.5 text-sm text-[var(--ink-primary)] outline-none placeholder:text-[var(--ink-muted)]",
             className,
           )}
           aria-invalid={error ? true : undefined}

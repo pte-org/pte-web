@@ -84,7 +84,6 @@ export const STUDENT_ROSTER_FILTER_TEXT = {
   directionLabel: "Direction",
   ascending: "A–Z / oldest",
   descending: "Z–A / newest",
-  pageSizeLabel: "Rows per page",
   firstPage: "First",
   lastPage: "Last",
   totalItems: (count: number) => `${count} student(s)`,
@@ -133,6 +132,12 @@ export const STUDENT_STATUS_LABELS = {
   ACTIVE: "Active",
   SUSPENDED: "Suspended",
 } as const;
+
+export const STUDENT_STATUS_FILTER_OPTIONS = [
+  { value: "", label: "All statuses" },
+  { value: "ACTIVE", label: STUDENT_STATUS_LABELS.ACTIVE },
+  { value: "SUSPENDED", label: STUDENT_STATUS_LABELS.SUSPENDED },
+] as const;
 
 export const STUDENT_STATUS_VARIANT = {
   ACTIVE: "success",

@@ -1,16 +1,14 @@
 "use client";
 
 import { useEffect, useRef, type ReactElement } from "react";
-import { useRouter } from "next/navigation";
 import { getUserFacingApiErrorMessage, getInboxItem } from "@pte/api-client";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, Badge, Button, LoadingState, PageHeader, useToast } from "@pte/ui";
+import { Alert, Badge, LoadingState, PageHeader, useToast } from "@pte/ui";
 import { apiClient } from "@/lib/apiClient";
 import { useCurrentUser } from "@/features/auth/api";
 import { useMarkNotificationRead } from "../api";
 
 export function NotificationDetailView({ publicId }: { publicId: string }): ReactElement {
-  const router = useRouter();
   const { showToast } = useToast();
   const { data: user } = useCurrentUser();
   const readRequested = useRef(false);
@@ -44,15 +42,7 @@ export function NotificationDetailView({ publicId }: { publicId: string }): Reac
   const item = detail.data;
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title={item.title}
-        subtitle={new Date(item.deliveredAt).toLocaleString()}
-        actions={
-          <Button variant="secondary" onClick={() => router.push("/admin/notifications")}>
-            Back to notifications
-          </Button>
-        }
-      />
+      <PageHeader title={item.title} subtitle={new Date(item.deliveredAt).toLocaleString()} />
       <article className="rounded-lg bg-white p-6 shadow-card">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={item.importance === "IMPORTANT" ? "warning" : "info"}>

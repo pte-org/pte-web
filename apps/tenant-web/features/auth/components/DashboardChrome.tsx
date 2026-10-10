@@ -3,18 +3,24 @@
 import type { ReactElement, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  Avatar,
-  DashboardShell,
-  Dropdown,
-  GlobeIcon,
+  LocaleSwitcher,
+  Breadcrumbs,
+  LogoutIcon,
+  SidebarNav as SharedSidebarNav,
   Skeleton,
+  ThemeToggle,
+  UserMenu,
   cn,
+  useLocale,
   useTokenManager,
+  type DropdownItem,
   type SessionRole,
 } from "@pte/ui";
+import CommonDashboardLayout from "@/components/common/dashboard-layout";
+import SearchBar from "@/components/common/header/searchbar";
 import { NotificationBellContainer } from "@/features/notifications";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
@@ -22,9 +28,11 @@ import { AUTH_ROUTES } from "../constants";
 
 export interface NavItem {
   label: string;
+  labelKey?: string;
   href: string;
   icon?: ReactNode;
   section?: string;
+  sectionKey?: string;
   /** If set, only rendered for a caller whose roles include at least one of these — see `buildHostNav`'s "Audit Log" entry. */
   requiredRoles?: SessionRole[];
 }
@@ -50,35 +58,42 @@ interface DashboardChromeProps {
 
 const BRAND_NAME = "PTE Prep";
 const BRAND_SUBTITLE = "School Portal";
-const DISCLAIMER = "PTE mock exam platform. Not affiliated with Pearson.";
 
 const HEADER_TEXT = {
-  LANGUAGE: "Language",
-  NOTIFICATIONS: "Notifications",
   ACCOUNT: "Account",
   LOGOUT: "Log out",
 } as const;
 
-const SidebarBrand = (): ReactElement => (
-  <Link
-    href="/"
-    aria-label={`${BRAND_NAME} home`}
-    className="flex items-center gap-2 rounded-md p-1 transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
-  >
-    <Image
-      src="/logo.png"
-      alt={`${BRAND_NAME} logo`}
-      width={40}
-      height={40}
-      priority
-      className="h-10 w-10 rounded-md object-contain shadow-sm"
-    />
-    <div className="leading-tight">
-      <p className="text-sm font-semibold text-gray-900">{BRAND_NAME}</p>
-      <p className="text-xs text-gray-500">{BRAND_SUBTITLE}</p>
-    </div>
-  </Link>
-);
+const SidebarBrand = ({ collapsed = false }: { collapsed?: boolean }): ReactElement => {
+  const { t } = useLocale();
+  return (
+    <Link
+      href="/"
+      aria-label={`${BRAND_NAME} home`}
+      className={cn(
+        "flex items-center rounded-md p-1 transition-colors hover:bg-[var(--surface-subtle)]",
+        collapsed ? "justify-center" : "gap-2",
+      )}
+    >
+      <Image
+        src="/logo.png"
+        alt={`${BRAND_NAME} logo`}
+        width={40}
+        height={40}
+        priority
+        className="h-10 w-10 rounded-md object-contain shadow-sm"
+      />
+      {!collapsed && (
+        <div className="leading-tight">
+          <p className="text-sm font-semibold text-[var(--ink-primary)]">{BRAND_NAME}</p>
+          <p className="text-xs text-[var(--ink-muted)]">
+            {t("brand.schoolSubtitle", BRAND_SUBTITLE)}
+          </p>
+        </div>
+      )}
+    </Link>
+  );
+};
 
 // Active-state rules:
 // - An exact match always wins.
@@ -96,16 +111,14 @@ const SidebarBrand = (): ReactElement => (
 //   (`/host/programs/{id}`) still highlight normally because they have
 //   no `/classes/` sub-segment.
 const HOST_NAV_DEACTIVATES: Readonly<Record<string, (pathname: string) => boolean>> = {
-  "/host/programs": (pathname) =>
-    pathname.includes("/classes/") || pathname.endsWith("/classes"),
+  "/host/programs": (pathname) => pathname.includes("/classes/") || pathname.endsWith("/classes"),
 };
 
 const HOST_NAV_ACTIVATES: Readonly<Record<string, (pathname: string) => boolean>> = {
   // The Classes section owns the class-detail page even though the URL
   // sits under `/host/programs/.../classes/...`. Force Classes active
   // whenever we navigate into a class.
-  "/host/classes": (pathname) =>
-    pathname.includes("/classes/") || pathname.endsWith("/classes"),
+  "/host/classes": (pathname) => pathname.includes("/classes/") || pathname.endsWith("/classes"),
 };
 
 const isActive = (pathname: string | null, href: string): boolean => {
@@ -119,36 +132,57 @@ const isActive = (pathname: string | null, href: string): boolean => {
   return true;
 };
 
-const SidebarNav = ({ navItems }: { navItems: NavItem[] }): ReactElement => {
+const SidebarNav = ({
+  navItems,
+  isSidebarOpen,
+  onItemClick,
+}: {
+  navItems: NavItem[];
+  isSidebarOpen: boolean;
+  onItemClick?: () => void;
+}): ReactElement => {
   const pathname = usePathname();
   const { data: user } = useCurrentUser();
+  const { t } = useLocale();
   const visibleItems = navItems.filter(
     (item) => !item.requiredRoles || item.requiredRoles.some((role) => user?.roles.includes(role)),
   );
+
+  const sidebarItems = visibleItems.map((item) => ({
+    label: item.labelKey ? t(item.labelKey, item.label) : item.label,
+    href: item.href,
+    icon: item.icon,
+    section: item.sectionKey ? t(item.sectionKey, item.section ?? "Pages") : item.section,
+    isActive: isActive(pathname, item.href),
+  }));
+
   return (
-    <>
-      {visibleItems.map((item, index) => (
-        <div key={item.href} className="flex flex-col gap-1">
-          {(index === 0 || item.section !== visibleItems[index - 1]?.section) && item.section && (
-            <span className="px-3 pb-1 pt-4 text-[11px] font-semibold uppercase tracking-wider text-gray-400 first:pt-1">
-              {item.section}
+    <SharedSidebarNav
+      items={sidebarItems}
+      isOpen={isSidebarOpen}
+      renderLink={(item, className) => (
+        <Link
+          href={item.href}
+          onClick={onItemClick}
+          aria-label={item.label}
+          aria-current={item.isActive ? "page" : undefined}
+          title={isSidebarOpen ? undefined : item.label}
+          className={className}
+        >
+          {item.icon && (
+            <span
+              className={cn(
+                "flex shrink-0 items-center justify-center [&>svg]:h-[18px] [&>svg]:w-[18px]",
+                item.isActive ? "text-[var(--ink-primary)]" : "text-[var(--ink-muted)]",
+              )}
+            >
+              {item.icon}
             </span>
           )}
-          <Link
-            href={item.href}
-            className={cn(
-              "flex min-h-10 items-center gap-3 rounded-md px-3 text-sm transition-colors",
-              isActive(pathname, item.href)
-                ? "bg-action font-medium text-white shadow-[0px_4px_10px_rgba(11,95,174,0.25)]"
-                : "text-gray-600 hover:bg-blue-50 hover:text-blue-700",
-            )}
-          >
-            {item.icon && <span className="[&>svg]:h-5 [&>svg]:w-5">{item.icon}</span>}
-            {item.label}
-          </Link>
-        </div>
-      ))}
-    </>
+          {isSidebarOpen && <span className="truncate">{item.label}</span>}
+        </Link>
+      )}
+    />
   );
 };
 
@@ -157,6 +191,7 @@ const HeaderActions = (): ReactElement => {
   const queryClient = useQueryClient();
   const { clearToken } = useTokenManager();
   const { data: user, isLoading } = useCurrentUser();
+  const { t } = useLocale();
 
   const logout = (): void => {
     queryClient.clear();
@@ -164,40 +199,97 @@ const HeaderActions = (): ReactElement => {
     router.replace(AUTH_ROUTES.login);
   };
 
+  const userMenuItems: DropdownItem[] = [
+    {
+      label: t("common.logout", HEADER_TEXT.LOGOUT),
+      onSelect: logout,
+      icon: LogoutIcon,
+    },
+  ];
+
   return (
     <>
-      <button
-        type="button"
-        aria-label={HEADER_TEXT.LANGUAGE}
-        className="grid h-10 w-10 place-items-center rounded-md text-gray-500 transition-colors hover:bg-blue-50 hover:text-blue-700"
-      >
-        <GlobeIcon className="h-5 w-5" />
-      </button>
+      <LocaleSwitcher />
+      <ThemeToggle />
       <NotificationBellContainer />
       {isLoading ? (
-        <Skeleton className="h-8 w-8 rounded-full" />
+        <Skeleton className="h-10 w-10 rounded-lg sm:w-28" />
       ) : (
-        <Dropdown
-          label={user?.fullName ?? HEADER_TEXT.ACCOUNT}
-          trigger={<Avatar name={user?.fullName} />}
-          items={[{ label: HEADER_TEXT.LOGOUT, onSelect: logout }]}
+        <UserMenu
+          name={user?.fullName ?? t("common.account", HEADER_TEXT.ACCOUNT)}
+          email={user?.email}
+          items={userMenuItems}
         />
       )}
     </>
   );
 };
 
-const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactElement => (
-  <DashboardShell
-    brand={<SidebarBrand />}
-    sidebar={<SidebarNav navItems={navItems} />}
-    headerBrand={<span className="text-lg font-bold text-blue-700">{BRAND_NAME}</span>}
-    headerActions={<HeaderActions />}
-    footer={DISCLAIMER}
-  >
-    {children}
-  </DashboardShell>
-);
+const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactElement => {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const { data: user } = useCurrentUser();
+  const { t } = useLocale();
+  const searchItems = navItems
+    .filter(
+      (item) =>
+        !item.requiredRoles || item.requiredRoles.some((role) => user?.roles.includes(role)),
+    )
+    .map((item) => ({
+      id: item.href,
+      title: item.labelKey ? t(item.labelKey, item.label) : item.label,
+      section: item.sectionKey
+        ? t(item.sectionKey, item.section ?? "Pages")
+        : (item.section ?? "Pages"),
+      url: item.href,
+      icon: item.icon,
+    }));
+  const activeItem = navItems.find((item) => isActive(pathname, item.href));
+  const breadcrumbs = activeItem ? (
+    <Breadcrumbs
+      dividerType="chevron"
+      renderLink={(item) => (
+        <Link
+          href={item.href ?? "/"}
+          className="flex items-center gap-1 font-medium text-[var(--ink-secondary)] transition-colors hover:text-[var(--ink-primary)]"
+        >
+          {item.icon}
+          {item.label}
+        </Link>
+      )}
+      items={[
+        { href: "/", label: t("nav.home", "Trang chủ") },
+        ...(activeItem.href === "/"
+          ? []
+          : [
+              {
+                href: activeItem.href,
+                label: activeItem.labelKey
+                  ? t(activeItem.labelKey, activeItem.label)
+                  : activeItem.label,
+              },
+            ]),
+      ]}
+    />
+  ) : null;
+
+  return (
+    <CommonDashboardLayout
+      brand={({ isSidebarOpen }) => <SidebarBrand collapsed={!isSidebarOpen} />}
+      sidebar={({ isSidebarOpen, onItemClick }) => (
+        <SidebarNav navItems={navItems} isSidebarOpen={isSidebarOpen} onItemClick={onItemClick} />
+      )}
+      headerSearch={
+        <SearchBar items={searchItems} placeholder={t("common.searchPages", "Tìm kiếm trang...")} />
+      }
+      breadcrumbs={breadcrumbs}
+      headerActions={<HeaderActions />}
+      navigationKey={`${pathname}?${searchParams.toString()}`}
+    >
+      {children}
+    </CommonDashboardLayout>
+  );
+};
 
 export const DashboardChrome = (props: DashboardChromeProps): ReactElement => (
   <RequireAuth allowedRoles={props.allowedRoles}>

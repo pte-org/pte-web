@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import Link from "next/link";
 import { Badge, DataTable, type DataTableColumn } from "@pte/ui";
 import {
@@ -9,6 +9,7 @@ import {
   EXAM_SKILL_OPTIONS,
   EXAMS_TEXT,
   SESSION_DETAIL_TEXT,
+  SESSION_STATUS_FILTER_OPTIONS,
   SESSION_STATUS_LABELS,
   SESSION_STATUS_VARIANT,
 } from "../constants";
@@ -17,6 +18,7 @@ import type { ExamSession } from "../types";
 interface SessionTableProps {
   sessions: ExamSession[];
   isLoading?: boolean;
+  toolbarActions?: ReactNode;
 }
 
 function formatDateTime(value: string): string {
@@ -25,7 +27,11 @@ function formatDateTime(value: string): string {
   return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(date);
 }
 
-export const SessionTable = ({ sessions, isLoading }: SessionTableProps): ReactElement => {
+export const SessionTable = ({
+  sessions,
+  isLoading,
+  toolbarActions,
+}: SessionTableProps): ReactElement => {
   const columns: DataTableColumn<ExamSession>[] = [
     {
       key: "name",
@@ -53,12 +59,17 @@ export const SessionTable = ({ sessions, isLoading }: SessionTableProps): ReactE
       cell: (session) => (
         <div className="text-sm">
           <div className="font-medium text-gray-800">
-            {session.examMode ? EXAM_MODE_LABELS[session.examMode] : SESSION_DETAIL_TEXT.LEGACY_MODE}
+            {session.examMode
+              ? EXAM_MODE_LABELS[session.examMode]
+              : SESSION_DETAIL_TEXT.LEGACY_MODE}
           </div>
           <div className="text-gray-500">
             {session.selectedSkills.length > 0
               ? session.selectedSkills
-                  .map((skill) => EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label ?? skill)
+                  .map(
+                    (skill) =>
+                      EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label ?? skill,
+                  )
                   .join(", ")
               : SESSION_DETAIL_TEXT.LEGACY_SKILLS}
             {" · "}
@@ -70,6 +81,8 @@ export const SessionTable = ({ sessions, isLoading }: SessionTableProps): ReactE
     {
       key: "status",
       header: EXAM_TABLE_HEADERS.STATUS,
+      filterOptions: SESSION_STATUS_FILTER_OPTIONS,
+      filterAccessor: (session) => session.status,
       cell: (session) => (
         <Badge variant={SESSION_STATUS_VARIANT[session.status]}>
           {SESSION_STATUS_LABELS[session.status]}
@@ -79,11 +92,17 @@ export const SessionTable = ({ sessions, isLoading }: SessionTableProps): ReactE
     {
       key: "opensAt",
       header: EXAM_TABLE_HEADERS.OPENS_AT,
+      filterType: "date-range",
+      filterAccessor: (session) => session.opensAt,
+      filterPlaceholder: "Date range",
       cell: (session) => formatDateTime(session.opensAt),
     },
     {
       key: "closesAt",
       header: EXAM_TABLE_HEADERS.CLOSES_AT,
+      filterType: "date-range",
+      filterAccessor: (session) => session.closesAt,
+      filterPlaceholder: "Date range",
       cell: (session) => formatDateTime(session.closesAt),
     },
   ];
@@ -96,6 +115,7 @@ export const SessionTable = ({ sessions, isLoading }: SessionTableProps): ReactE
       isLoading={isLoading}
       emptyTitle={EXAMS_TEXT.EMPTY_TITLE}
       emptyDescription={EXAMS_TEXT.EMPTY_TEXT}
+      toolbarActions={toolbarActions}
     />
   );
 };

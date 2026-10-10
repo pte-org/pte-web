@@ -30,8 +30,10 @@ interface ProctorAssignmentSectionProps {
 const T = PROCTOR_SECTION_TEXT;
 
 const ROLE_SELECT_CLASS: Record<ProctorRole, string> = {
-  LEAD_PROCTOR: "border-blue-200 bg-blue-50 text-blue-700 focus:ring-blue-500",
-  ASSISTANT_PROCTOR: "border-gray-200 bg-white text-gray-700 focus:ring-blue-500",
+  LEAD_PROCTOR:
+    "border-[var(--brand-soft)] bg-[var(--brand-tint)] text-[var(--brand-ink)] focus:ring-[var(--brand)]",
+  ASSISTANT_PROCTOR:
+    "border-[var(--shell-border)] bg-[var(--surface-card)] text-[var(--ink-primary)] focus:ring-[var(--brand)]",
 };
 
 export const ProctorAssignmentSection = ({
@@ -49,7 +51,9 @@ export const ProctorAssignmentSection = ({
     {
       key: "fullName",
       header: PROCTOR_TABLE_HEADERS.FULL_NAME,
-      cell: (entry) => <span className="font-medium text-gray-900">{entry.proctor.fullName}</span>,
+      cell: (entry) => (
+        <span className="font-medium text-[var(--ink-primary)]">{entry.proctor.fullName}</span>
+      ),
     },
     { key: "email", header: PROCTOR_TABLE_HEADERS.EMAIL, cell: (entry) => entry.proctor.email },
     {
@@ -76,11 +80,11 @@ export const ProctorAssignmentSection = ({
     <>
       <CollapsibleSection
         title={SESSION_DETAIL_TEXT.PROCTORS_SECTION}
-        className="rounded-lg border border-gray-200 bg-white p-5"
+        className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5"
         contentClassName="flex flex-col gap-3"
         actions={
           <div className="flex flex-wrap items-center justify-end gap-2">
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-[var(--ink-secondary)]">
               {T.ASSIGNED_COUNT.replace("{count}", String((assignments ?? []).length))}
             </span>
             <button
@@ -109,7 +113,7 @@ export const ProctorAssignmentSection = ({
               onClick={() => unassign.mutate(entry.assignmentPublicId)}
               title={T.UNASSIGN}
               aria-label={T.UNASSIGN}
-              className="rounded-full p-1.5 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
+              className="rounded-full p-1.5 text-[var(--blush-action)] transition-colors hover:bg-[var(--blush-tint)] hover:text-[var(--blush-action)]"
             >
               <TrashIcon className="h-4 w-4" />
             </button>

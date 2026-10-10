@@ -2,15 +2,7 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import Link from "next/link";
-import {
-  Alert,
-  BackButton,
-  Button,
-  ChevronRightIcon,
-  Input,
-  LicenseIcon,
-  PageHeader,
-} from "@pte/ui";
+import { Alert, Button, ChevronRightIcon, Input, LicenseIcon, PageHeader } from "@pte/ui";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useRedeemLicense } from "../api";
 import { BILLING_TEXT as T, REDEEM_ERROR_MESSAGES } from "../constants";
@@ -27,19 +19,18 @@ export const RedeemLicenseView = (): ReactElement => {
   };
 
   const error = redeem.error;
-  const errorMessage = error instanceof ApiError
-    ? error.status === 429
-      ? T.TOO_MANY_REDEMPTIONS
-      : (error.code ? REDEEM_ERROR_MESSAGES[error.code] : undefined) ??
-        getUserFacingApiErrorMessage(error, T.REDEEM_ERROR)
-    : error
-      ? T.REDEEM_ERROR
-      : undefined;
+  const errorMessage =
+    error instanceof ApiError
+      ? error.status === 429
+        ? T.TOO_MANY_REDEMPTIONS
+        : ((error.code ? REDEEM_ERROR_MESSAGES[error.code] : undefined) ??
+          getUserFacingApiErrorMessage(error, T.REDEEM_ERROR))
+      : error
+        ? T.REDEEM_ERROR
+        : undefined;
 
   return (
     <div className="flex flex-col gap-5">
-      <BackButton href="/host/billing" label={T.BACK_TO_PLANS} />
-
       <PageHeader title={T.REDEEM_TITLE} subtitle={T.REDEEM_SUBTITLE} />
       {redeem.isSuccess && redeem.data && (
         <Alert tone="success" title={T.REDEEM_SUCCESS_TITLE}>
@@ -80,9 +71,7 @@ export const RedeemLicenseView = (): ReactElement => {
             <p className="text-sm font-semibold text-slate-800 transition-colors group-hover:text-blue-700">
               {T.VIEW_ACTIVE_ACCESS}
             </p>
-            <p className="mt-0.5 text-xs text-slate-500">
-              {T.ACTIVE_ACCESS_SUBTITLE}
-            </p>
+            <p className="mt-0.5 text-xs text-slate-500">{T.ACTIVE_ACCESS_SUBTITLE}</p>
           </div>
           <ChevronRightIcon className="ml-3 h-4 w-4 text-slate-400 transition-all group-hover:translate-x-0.5 group-hover:text-blue-600" />
         </Link>

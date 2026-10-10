@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactElement } from "react";
-import Link from "next/link";
 import { Alert, LoadingState, PageHeader } from "@pte/ui";
 import { SUPPORT_TICKETS_TEXT as T } from "../constants";
 import { useSupportTicket } from "../api";
@@ -25,17 +24,7 @@ export const SupportTicketDetailView = ({
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        title={T.TICKET_DETAILS}
-        actions={
-          <Link
-            href="/host/support-tickets"
-            className="text-sm font-medium text-action hover:underline"
-          >
-            ← {T.BACK}
-          </Link>
-        }
-      />
+      <PageHeader title={T.TICKET_DETAILS} />
 
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-card">
         <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">

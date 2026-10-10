@@ -6,8 +6,7 @@ import type {
   ExaminerQueueItemResponse,
   ExaminerQueueStatus,
 } from "@pte/api-client";
-import { PageHeader, Select } from "@pte/ui";
-import { ChevronLeftIcon } from "@pte/ui";
+import { ChevronLeftIcon, PageHeader, Pagination, Select } from "@pte/ui";
 import { EXAMINER_QUEUE_STATUSES, EXAMINER_WORK_TEXT as T } from "./constants";
 import { useExaminerAttempt, useExaminerQueue, useSubmitExaminerScore } from "./api";
 
@@ -278,6 +277,9 @@ export const ExaminerWorkView = (): ReactElement => {
     attemptPublicId: string;
   } | null>(null);
   const queue = useExaminerQueue(status, page);
+  const queuePage = queue.data?.page ?? page;
+  const queueTotalItems = queue.data?.totalItems ?? queue.data?.items.length ?? 0;
+  const queueTotalPages = Math.max(queue.data?.totalPages ?? 1, 1);
 
   const chooseStatus = (next: ExaminerQueueStatus): void => {
     setStatus(next);
@@ -287,7 +289,7 @@ export const ExaminerWorkView = (): ReactElement => {
 
   return (
     <div className="mx-auto w-full max-w-6xl p-5 sm:p-8">
-      <PageHeader title={T.TITLE} subtitle={T.SUBTITLE} />
+      <PageHeader title={T.TITLE} />
       <div className="mt-6 flex flex-col gap-2 sm:max-w-xs">
         <label htmlFor="examiner-queue-status" className="text-sm font-medium text-slate-700">
           {T.FILTER_LABEL}
@@ -330,28 +332,18 @@ export const ExaminerWorkView = (): ReactElement => {
                   />
                 ))}
               </ul>
-              <div className="flex items-center justify-between border-t border-slate-100 px-4 py-3 text-sm text-slate-600">
-                <span>
-                  Page {(queue.data?.page ?? 0) + 1} of {Math.max(1, queue.data?.totalPages ?? 1)}
+              <div className="flex flex-col gap-3 border-t border-slate-100 px-4 py-3 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
+                <span className="tabular-nums">
+                  Total {queueTotalItems} records
                 </span>
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    disabled={!queue.data || queue.data.page <= 0}
-                    onClick={() => setPage((value) => Math.max(0, value - 1))}
-                    className="rounded-md border border-slate-300 px-3 py-1.5 disabled:opacity-50"
-                  >
-                    Previous
-                  </button>
-                  <button
-                    type="button"
-                    disabled={!queue.data || queue.data.page + 1 >= queue.data.totalPages}
-                    onClick={() => setPage((value) => value + 1)}
-                    className="rounded-md border border-slate-300 px-3 py-1.5 disabled:opacity-50"
-                  >
-                    Next
-                  </button>
-                </div>
+                <Pagination
+                  currentPage={queuePage + 1}
+                  totalPages={queueTotalPages}
+                  onPageChange={(nextPage) => setPage(nextPage - 1)}
+                  sideLayout="icon"
+                  grouped
+                  className="!mx-0 !w-auto !justify-end gap-1"
+                />
               </div>
             </>
           )}
