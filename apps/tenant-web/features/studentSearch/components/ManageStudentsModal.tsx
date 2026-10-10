@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-<<<<<<< HEAD
 import { Alert, Button, CredentialDisplay, DateInput, Input, Modal, cn } from "@pte/ui";
 import { SkippedRowsReport } from "@/features/examoperations/components/SkippedRowsReport";
 import { downloadCredentials } from "@/features/examoperations/downloadCredentials";
