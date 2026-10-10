@@ -13,6 +13,7 @@ import type {
   PlatformUserPage,
   PlatformUserRoleUpdateRequest,
   PlatformUserListParams,
+  UpdateStudentProfileRequest,
 } from "../../types/user";
 
 export const USER_ENDPOINTS = {
@@ -154,6 +155,17 @@ export function suspendUser(client: ApiClient, publicId: string): Promise<UserRe
 
 export function reactivateUser(client: ApiClient, publicId: string): Promise<UserResponse> {
   return client.request<UserResponse>(USER_ENDPOINTS.reactivate(publicId), { method: "POST" });
+}
+
+export function updateStudentProfile(
+  client: ApiClient,
+  publicId: string,
+  payload: UpdateStudentProfileRequest,
+): Promise<UserResponse> {
+  return client.request<UserResponse>(`${USER_ENDPOINTS.users}/${encodeURIComponent(publicId)}`, {
+    method: "PATCH",
+    body: payload,
+  });
 }
 
 export function listPlatformUsers(

@@ -18,10 +18,11 @@ export function useSendUserCredentials(): UseMutationResult<
 
   return useMutation({
     mutationFn: (publicId) => sendCredentialsEmail(apiClient, publicId),
-    onSuccess: () => {
+    onSuccess: (_result, publicId) => {
       void queryClient.invalidateQueries({ queryKey: ["examStaff"] });
       void queryClient.invalidateQueries({ queryKey: ["studentRoster"] });
       void queryClient.invalidateQueries({ queryKey: ["tenantUsers"] });
+      void queryClient.invalidateQueries({ queryKey: ["studentDetail", publicId] });
     },
   });
 }
@@ -36,9 +37,10 @@ export function useGenerateStudentCredentials(): UseMutationResult<
 
   return useMutation({
     mutationFn: (publicId) => generateStudentCredentials(apiClient, publicId),
-    onSuccess: () => {
+    onSuccess: (_result, publicId) => {
       void queryClient.invalidateQueries({ queryKey: ["studentRoster"] });
       void queryClient.invalidateQueries({ queryKey: ["tenantUsers"] });
+      void queryClient.invalidateQueries({ queryKey: ["studentDetail", publicId] });
     },
   });
 }
