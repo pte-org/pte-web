@@ -5,6 +5,8 @@ import { Alert, Button } from "@pte/ui";
 import { RosterDropzone } from "./_RosterDropzone";
 import { SkippedRowsReport } from "./SkippedRowsReport";
 import { PendingImportBanner } from "./PendingImportBanner";
+import { RosterColumnWarnings } from "./RosterColumnWarnings";
+import { RosterTemplateButton } from "./RosterTemplateButton";
 import { ROSTER_REVIEW_TABLE_HEADERS, ROSTER_TEXT } from "./constants";
 import {
   clearPendingImport,
@@ -15,7 +17,7 @@ import {
 import { errorMessage } from "../errorMessage";
 import { downloadCredentials } from "../downloadCredentials";
 import { parseRosterFile } from "../cleanRosterFile";
-import type { CreatedAccount, RosterRow, SkippedRow } from "../types";
+import type { CreatedAccount, RosterColumnIssues, RosterRow, SkippedRow } from "../types";
 
 interface RosterImportProps {
   sessionPublicId: string;
@@ -24,6 +26,7 @@ interface RosterImportProps {
 export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactElement => {
   const [file, setFile] = useState<File | null>(null);
   const [rows, setRows] = useState<RosterRow[] | null>(null);
+  const [columnIssues, setColumnIssues] = useState<RosterColumnIssues | null>(null);
   const [parseError, setParseError] = useState<string | undefined>();
   const [created, setCreated] = useState<CreatedAccount[] | null>(null);
   const [skipped, setSkipped] = useState<SkippedRow[]>([]);
@@ -43,6 +46,7 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
     try {
       const result = await parseRosterFile(file);
       setRows(result.rows);
+      setColumnIssues(result);
     } catch (error) {
       setParseError(errorMessage(error));
     }
@@ -65,6 +69,7 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
         setPending(null);
         setFile(null);
         setRows(null);
+        setColumnIssues(null);
         setCreated(null);
         setSkipped([]);
       },
@@ -90,11 +95,14 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
 
       <h2 className="text-xl font-semibold text-gray-900">{ROSTER_TEXT.HEADING}</h2>
 
+      <RosterTemplateButton />
+
       <RosterDropzone
         fileName={file?.name}
         onFileSelected={(selected) => {
           setFile(selected);
           setRows(null);
+          setColumnIssues(null);
           setCreated(null);
         }}
       />
@@ -112,6 +120,7 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
           <p className="text-sm text-gray-700">
             {ROSTER_TEXT.REVIEW_ROWS}: {rows.length}
           </p>
+          <RosterColumnWarnings issues={columnIssues} />
           <div className="overflow-x-auto">
             <table className="w-full min-w-max border-collapse text-sm">
               <thead>
