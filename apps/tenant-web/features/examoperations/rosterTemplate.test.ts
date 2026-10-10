@@ -1,7 +1,12 @@
 import * as XLSX from "xlsx";
 import { describe, expect, it } from "vitest";
 import { parseRosterFile, resolveRosterField } from "./cleanRosterFile";
-import { ROSTER_FILE_ERRORS, ROSTER_TEMPLATE_COLUMNS, ROSTER_TEMPLATE_SHEETS } from "./constants";
+import {
+  ROSTER_FILE_ERRORS,
+  ROSTER_TEMPLATE_COLUMNS,
+  ROSTER_TEMPLATE_FORMATTED_ROWS,
+  ROSTER_TEMPLATE_SHEETS,
+} from "./constants";
 import { buildRosterTemplateWorkbook } from "./rosterTemplate";
 
 function toXlsxFile(workbook: XLSX.WorkBook, fileName = "template.xlsx"): File {
@@ -50,9 +55,36 @@ describe("buildRosterTemplateWorkbook", () => {
     const studentsSheet = workbook.Sheets[ROSTER_TEMPLATE_SHEETS.STUDENTS];
     if (!studentsSheet) throw new Error("Students sheet is missing");
 
-    const rows = XLSX.utils.sheet_to_json<unknown[]>(studentsSheet, { header: 1 });
+    const rows = XLSX.utils.sheet_to_json<unknown[]>(studentsSheet, {
+      header: 1,
+      blankrows: false,
+    });
 
-    expect(rows).toEqual([ROSTER_TEMPLATE_COLUMNS.map((column) => column.header)]);
+    const rowsWithValues = rows.filter((row) => row.some((cell) => cell !== ""));
+
+    expect(rowsWithValues).toEqual([ROSTER_TEMPLATE_COLUMNS.map((column) => column.header)]);
+  });
+
+  it("writes the Text number format into the Phone and Student Code cells of the file", () => {
+    const bytes: ArrayBuffer = XLSX.write(buildRosterTemplateWorkbook(), {
+      type: "array",
+      bookType: "xlsx",
+    });
+    const reloaded = XLSX.read(bytes, { type: "array", cellNF: true });
+    const sheet = reloaded.Sheets[ROSTER_TEMPLATE_SHEETS.STUDENTS];
+    if (!sheet) throw new Error("Students sheet is missing");
+
+    const textColumns = ROSTER_TEMPLATE_COLUMNS.map((column, index) => ({ column, index })).filter(
+      ({ column }) => column.forceText,
+    );
+    expect(textColumns.map(({ column }) => column.field)).toEqual(["studentCode", "phone"]);
+    textColumns.forEach(({ index }) => {
+      const firstRow = sheet[XLSX.utils.encode_cell({ r: 1, c: index })];
+      const lastRow =
+        sheet[XLSX.utils.encode_cell({ r: ROSTER_TEMPLATE_FORMATTED_ROWS, c: index })];
+      expect(firstRow?.z).toBe("@");
+      expect(lastRow?.z).toBe("@");
+    });
   });
 
   it("is rejected as empty, not parsed from the Instructions sheet, when uploaded untouched", async () => {

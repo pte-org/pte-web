@@ -2,15 +2,40 @@ import * as XLSX from "xlsx";
 import {
   ROSTER_TEMPLATE_COLUMNS,
   ROSTER_TEMPLATE_FILE_NAME,
+  ROSTER_TEMPLATE_FORMATTED_ROWS,
   ROSTER_TEMPLATE_SHEETS,
   ROSTER_TEMPLATE_TEXT as T,
 } from "./constants";
 
 const MIN_COLUMN_WIDTH = 14;
 const HEADER_WIDTH_PADDING = 4;
+/** Excel's built-in "Text" number format code. */
+const TEXT_NUMBER_FORMAT = "@";
 const NOTES_COLUMN_WIDTH = 60;
 const FORMAT_COLUMN_WIDTH = 36;
 const EXAMPLE_COLUMN_WIDTH = 24;
+
+/**
+ * SheetJS community edition cannot style a whole column, so the cells under the Text
+ * columns are written as empty text cells with the Text number format. Excel keeps what
+ * is typed there as text, so a leading zero in a phone number or student code survives.
+ */
+function applyTextFormat(sheet: XLSX.WorkSheet): void {
+  ROSTER_TEMPLATE_COLUMNS.forEach((column, columnIndex) => {
+    if (!column.forceText) return;
+    for (let row = 1; row <= ROSTER_TEMPLATE_FORMATTED_ROWS; row += 1) {
+      sheet[XLSX.utils.encode_cell({ r: row, c: columnIndex })] = {
+        t: "s",
+        v: "",
+        z: TEXT_NUMBER_FORMAT,
+      };
+    }
+  });
+  sheet["!ref"] = XLSX.utils.encode_range({
+    s: { r: 0, c: 0 },
+    e: { r: ROSTER_TEMPLATE_FORMATTED_ROWS, c: ROSTER_TEMPLATE_COLUMNS.length - 1 },
+  });
+}
 
 function buildStudentsSheet(): XLSX.WorkSheet {
   const headers = ROSTER_TEMPLATE_COLUMNS.map((column) => column.header);
@@ -18,6 +43,7 @@ function buildStudentsSheet(): XLSX.WorkSheet {
   sheet["!cols"] = headers.map((header) => ({
     wch: Math.max(header.length + HEADER_WIDTH_PADDING, MIN_COLUMN_WIDTH),
   }));
+  applyTextFormat(sheet);
   return sheet;
 }
 

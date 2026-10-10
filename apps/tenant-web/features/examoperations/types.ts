@@ -12,6 +12,8 @@ export interface RosterTemplateColumn {
   field: keyof RosterRow;
   header: string;
   required: boolean;
+  /** Pre-format this column's template cells as Text (Excel drops leading zeros of numbers). */
+  forceText: boolean;
   format: string;
   example: string;
 }

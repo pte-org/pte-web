@@ -5,8 +5,8 @@ export const BYTES_PER_MEGABYTE = 1024 * 1024;
 /** A roster of a few thousand rows fits well under this. */
 export const ROSTER_MAX_FILE_SIZE_BYTES = 5 * BYTES_PER_MEGABYTE;
 
-/** Excel turns a typed 0901234567 into the number 901234567, so these columns must be Text. */
-const TEXT_COLUMN_FORMAT = "Text (format the column as Text so leading zeros are kept)";
+/** Excel turns a typed 0901234567 into the number 901234567, so these columns are pre-formatted as Text. */
+const TEXT_COLUMN_FORMAT = "Text (pre-formatted as Text so leading zeros are kept)";
 
 /**
  * Single source of truth for the downloadable template: the header text of each
@@ -18,6 +18,7 @@ export const ROSTER_TEMPLATE_COLUMNS: readonly RosterTemplateColumn[] = [
     field: "fullName",
     header: "Full Name",
     required: true,
+    forceText: false,
     format: "Text",
     example: "Nguyen Van A",
   },
@@ -25,6 +26,7 @@ export const ROSTER_TEMPLATE_COLUMNS: readonly RosterTemplateColumn[] = [
     field: "email",
     header: "Email",
     required: false,
+    forceText: false,
     format: "A valid email address",
     example: "a.nguyen@example.com",
   },
@@ -32,6 +34,7 @@ export const ROSTER_TEMPLATE_COLUMNS: readonly RosterTemplateColumn[] = [
     field: "studentCode",
     header: "Student Code",
     required: false,
+    forceText: true,
     format: TEXT_COLUMN_FORMAT,
     example: "SE123456",
   },
@@ -39,6 +42,7 @@ export const ROSTER_TEMPLATE_COLUMNS: readonly RosterTemplateColumn[] = [
     field: "className",
     header: "Class Name",
     required: false,
+    forceText: false,
     format: "Text",
     example: "PTE-Morning-01",
   },
@@ -46,6 +50,7 @@ export const ROSTER_TEMPLATE_COLUMNS: readonly RosterTemplateColumn[] = [
     field: "phone",
     header: "Phone",
     required: false,
+    forceText: true,
     format: TEXT_COLUMN_FORMAT,
     example: "0901234567",
   },
@@ -53,10 +58,14 @@ export const ROSTER_TEMPLATE_COLUMNS: readonly RosterTemplateColumn[] = [
     field: "dateOfBirth",
     header: "Date of Birth",
     required: false,
+    forceText: false,
     format: "yyyy-mm-dd, or an Excel date cell",
     example: "2008-01-15",
   },
 ];
+
+/** Rows of the Students sheet that carry the Text format, i.e. how many students fit before formatting ends. */
+export const ROSTER_TEMPLATE_FORMATTED_ROWS = 1000;
 
 export const ROSTER_TEMPLATE_FILE_NAME = "student-import-template.xlsx";
 
