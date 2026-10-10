@@ -2,11 +2,20 @@
 
 import { useState, type ReactElement } from "react";
 import { Alert, Button } from "@pte/ui";
-import { SkippedRowsReport } from "@/features/examoperations/components";
+import {
+  RosterColumnWarnings,
+  RosterTemplateButton,
+  SkippedRowsReport,
+} from "@/features/examoperations/components";
 import { downloadCredentials } from "@/features/examoperations/downloadCredentials";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { parseRosterFile } from "@/features/examoperations/cleanRosterFile";
-import type { CreatedAccount, RosterRow, SkippedRow } from "@/features/examoperations/types";
+import type {
+  CreatedAccount,
+  RosterColumnIssues,
+  RosterRow,
+  SkippedRow,
+} from "@/features/examoperations/types";
 import { useBulkAssignStudents, useCreateRosterAccountsForClass } from "../api";
 import { IMPORT_HELP, IMPORT_OR_ASSIGN_TEXT } from "../constants";
 import { RosterDropzone } from "./_RosterDropzone";
@@ -38,6 +47,7 @@ export const ImportExcelTab = ({
 }: ImportExcelTabProps): ReactElement => {
   const [file, setFile] = useState<File | null>(null);
   const [rows, setRows] = useState<RosterRow[] | null>(null);
+  const [columnIssues, setColumnIssues] = useState<RosterColumnIssues | null>(null);
   const [parseError, setParseError] = useState<string | undefined>();
   const [lastResult, setLastResult] = useState<{
     created: CreatedAccount[];
@@ -53,6 +63,7 @@ export const ImportExcelTab = ({
     try {
       const result = await parseRosterFile(file);
       setRows(result.rows);
+      setColumnIssues(result);
     } catch (error) {
       setParseError(errorMessage(error));
     }
@@ -66,6 +77,7 @@ export const ImportExcelTab = ({
         onCreated(response.created);
         setFile(null);
         setRows(null);
+        setColumnIssues(null);
         if (response.created.length > 0) {
           bulkAssign.mutate(
             response.created.map((account) => account.publicId),
@@ -80,6 +92,8 @@ export const ImportExcelTab = ({
     <div className="flex flex-col gap-4">
       <h4 className="text-sm font-semibold text-gray-900">{T.importHeading}</h4>
 
+      <RosterTemplateButton />
+
       <RosterDropzone
         fileName={file?.name}
         dropPrompt={T.dropPrompt}
@@ -88,6 +102,7 @@ export const ImportExcelTab = ({
         onFileSelected={(selected) => {
           setFile(selected);
           setRows(null);
+          setColumnIssues(null);
           setLastResult(null);
         }}
       />
@@ -107,6 +122,7 @@ export const ImportExcelTab = ({
           <p className="text-sm text-gray-700">
             {T.reviewRows}: {rows.length}
           </p>
+          <RosterColumnWarnings issues={columnIssues} />
           {!!createAccounts.error && (
             <Alert tone="error">{errorMessage(createAccounts.error)}</Alert>
           )}
