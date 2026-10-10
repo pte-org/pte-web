@@ -47,7 +47,10 @@ export const Breadcrumbs = ({
                 </a>
               )
             ) : (
-              <span className="flex items-center gap-1 font-medium text-[var(--ink-primary)]">
+              <span
+                aria-current={isLast ? "page" : undefined}
+                className="flex items-center gap-1 font-medium text-[var(--ink-primary)]"
+              >
                 {content}
               </span>
             )}

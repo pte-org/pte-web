@@ -7,6 +7,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Breadcrumbs,
+  DashboardBreadcrumbProvider,
+  useDashboardBreadcrumbItems,
   DashboardShell,
   LocaleSwitcher,
   LogoutIcon,
@@ -208,34 +210,35 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
       url: item.href,
       icon: item.icon,
     }));
-  const activeItem = navItems.find((item) => isActive(pathname, item.href));
-  const breadcrumbs = activeItem ? (
-    <Breadcrumbs
-      dividerType="chevron"
-      renderLink={(item) => (
-        <Link
-          href={item.href ?? "/"}
-          className="flex items-center gap-1 font-medium text-[var(--ink-secondary)] transition-colors hover:text-[var(--ink-primary)]"
-        >
-          {item.icon}
-          {item.label}
-        </Link>
-      )}
-      items={[
-        { href: "/", label: t("nav.home", "Home") },
-        ...(activeItem.href === "/"
-          ? []
-          : [
-              {
-                href: activeItem.href,
-                label: activeItem.labelKey
-                  ? t(activeItem.labelKey, activeItem.label)
-                  : activeItem.label,
-              },
-            ]),
-      ]}
-    />
-  ) : null;
+  const activeItem = navItems
+    .filter((item) => isActive(pathname, item.href))
+    .sort((a, b) => b.href.length - a.href.length)[0];
+  const breadcrumbItems = useDashboardBreadcrumbItems(
+    pathname,
+    activeItem
+      ? {
+          href: activeItem.href,
+          label: activeItem.labelKey ? t(activeItem.labelKey, activeItem.label) : activeItem.label,
+        }
+      : undefined,
+    t("common.breadcrumbDetails", "Details"),
+  );
+  const breadcrumbs =
+    breadcrumbItems.length > 0 ? (
+      <Breadcrumbs
+        dividerType="chevron"
+        renderLink={(item) => (
+          <Link
+            href={item.href ?? "/"}
+            className="flex items-center gap-1 font-medium text-[var(--ink-secondary)] transition-colors hover:text-[var(--ink-primary)]"
+          >
+            {item.icon}
+            {item.label}
+          </Link>
+        )}
+        items={breadcrumbItems}
+      />
+    ) : null;
 
   return (
     <DashboardShell
@@ -257,6 +260,8 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
 
 export const DashboardChrome = (props: DashboardChromeProps): ReactElement => (
   <RequireAuth allowedRoles={props.allowedRoles}>
-    <ChromeContent {...props} />
+    <DashboardBreadcrumbProvider>
+      <ChromeContent {...props} />
+    </DashboardBreadcrumbProvider>
   </RequireAuth>
 );
