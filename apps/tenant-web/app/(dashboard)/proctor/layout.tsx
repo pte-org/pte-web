@@ -1,32 +1,34 @@
 import type { ReactElement, ReactNode } from "react";
-import { notFound } from "next/navigation";
 import { DashboardChrome } from "@/features/auth/components";
 import { PROCTOR_ROLES } from "@/features/auth/constants";
 import { buildProctorNav } from "@/lib/navigation";
+import { ProctorUnavailableView } from "@/features/proctor/components/ProctorUnavailableView";
 
 /**
  * Proctor workspace layout.
  *
  * Gates the entire `/proctor/**` route segment behind the
  * `NEXT_PUBLIC_PROCTOR_UI_ENABLED` env var. When the flag is "false"
- * (default in production) every `/proctor/*` route 404s. Set the flag
- * to "true" in `.env.local` to opt in during development.
+ * (default in production) every direct navigation to `/proctor/*` displays
+ * `ProctorUnavailableView` without dispatching background API or socket calls.
  *
- * When the flag is "true", wraps every proctor page in `DashboardChrome`
- * with the proctor sidebar nav and `PROCTOR_ROLES` role guard (any
- * non-PROCTOR caller is bounced to login by `RequireAuth`).
- *
- * Mirrors the safety posture of the rest of the proctor workspace:
- * flag is OFF by default so production users never see partial UI.
+ * Set the flag to "true" in `.env.local` to opt in during development or pilot.
  */
 export default function ProctorLayout({
   children,
 }: {
   children: ReactNode;
 }): ReactElement {
-  if (process.env.NEXT_PUBLIC_PROCTOR_UI_ENABLED !== "true") {
-    notFound();
+  const isEnabled = process.env.NEXT_PUBLIC_PROCTOR_UI_ENABLED === "true";
+
+  if (!isEnabled) {
+    return (
+      <DashboardChrome navItems={[]} allowedRoles={PROCTOR_ROLES}>
+        <ProctorUnavailableView />
+      </DashboardChrome>
+    );
   }
+
   return (
     <DashboardChrome navItems={buildProctorNav()} allowedRoles={PROCTOR_ROLES}>
       {children}
