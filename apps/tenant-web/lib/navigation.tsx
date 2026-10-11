@@ -122,12 +122,28 @@ export function buildStudentNav(): NavItem[] {
  * `/proctor/sessions/{publicId}` (the live monitoring view).
  */
 export function buildProctorNav(): NavItem[] {
-  return [
-    {
-      label: PROCTOR_NAV_TEXT.PROFILE,
-      href: "/proctor/profile",
-      icon: <ShieldIcon />,
+  const isEnabled = process.env.NEXT_PUBLIC_PROCTOR_UI_ENABLED === "true";
+  const items: NavItem[] = [];
+
+  if (isEnabled) {
+    items.push({
+      label: "Assigned Sessions",
+      labelKey: "nav.proctorSessions",
+      href: "/proctor/sessions",
+      icon: <NavExamTemplateIcon />,
       section: PROCTOR_NAV_TEXT.SECTION,
-    },
-  ];
+      sectionKey: "nav.proctor",
+    });
+  }
+
+  items.push({
+    label: PROCTOR_NAV_TEXT.PROFILE,
+    labelKey: "nav.proctorProfile",
+    href: "/proctor/profile",
+    icon: <ShieldIcon />,
+    section: PROCTOR_NAV_TEXT.SECTION,
+    sectionKey: "nav.proctor",
+  });
+
+  return items;
 }
