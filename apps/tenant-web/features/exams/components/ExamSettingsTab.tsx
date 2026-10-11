@@ -24,10 +24,8 @@ function formatDateTime(value: string, locale: "vi" | "en"): string {
 export const ExamSettingsTab = ({ session }: ExamSettingsTabProps): ReactElement => {
   const { locale, t } = useLocale();
   const modeLabel = session.examMode
-    ? t(
-        session.examMode === "PRACTICE"
-          ? "tenant.createExam.MODE_PRACTICE"
-          : "tenant.createExam.MODE_REAL",
+      ? t(
+        "tenant.createExam.MODE_REAL",
         EXAM_MODE_LABELS[session.examMode],
       )
     : t("tenant.examDetails.legacyMode", T.LEGACY_MODE);

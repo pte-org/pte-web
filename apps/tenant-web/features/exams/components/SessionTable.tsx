@@ -43,9 +43,7 @@ export const SessionTable = ({
   const modeLabel = (session: ExamSession): string =>
     session.examMode
       ? t(
-          session.examMode === "PRACTICE"
-            ? "tenant.createExam.MODE_PRACTICE"
-            : "tenant.createExam.MODE_REAL",
+          "tenant.createExam.MODE_REAL",
           EXAM_MODE_LABELS[session.examMode],
         )
       : t("tenant.examDetails.legacyMode", SESSION_DETAIL_TEXT.LEGACY_MODE);

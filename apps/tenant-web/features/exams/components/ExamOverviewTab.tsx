@@ -54,10 +54,8 @@ export const ExamOverviewTab = ({ session, lifecycle }: ExamOverviewTabProps): R
   };
 
   const modeLabel = session.examMode
-    ? t(
-        session.examMode === "PRACTICE"
-          ? "tenant.createExam.MODE_PRACTICE"
-          : "tenant.createExam.MODE_REAL",
+      ? t(
+        "tenant.createExam.MODE_REAL",
         EXAM_MODE_LABELS[session.examMode],
       )
     : t("tenant.examDetails.legacyMode", T.LEGACY_MODE);
