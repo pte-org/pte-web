@@ -1,8 +1,15 @@
 "use client";
 
-import type { ReactElement, ReactNode } from "react";
+import { useMemo, useState, type ReactElement, type ReactNode } from "react";
 import Link from "next/link";
-import { Badge, DataTable, useLocale, type DataTableColumn } from "@pte/ui";
+import {
+  Badge,
+  DataTable,
+  DateRangePicker,
+  useLocale,
+  type DataTableColumn,
+  type DateRangeValue,
+} from "@pte/ui";
 import {
   EXAM_TABLE_HEADERS,
   EXAM_MODE_LABELS,
@@ -20,6 +27,20 @@ interface SessionTableProps {
   toolbarActions?: ReactNode;
 }
 
+const EMPTY_DATE_RANGE: DateRangeValue = { from: "", to: "" };
+
+function matchesSessionDateRange(session: ExamSession, range: DateRangeValue): boolean {
+  if (!range.from && !range.to) return true;
+
+  const sessionStart = Date.parse(session.opensAt);
+  const sessionEnd = Date.parse(session.closesAt);
+  if (!Number.isFinite(sessionStart) || !Number.isFinite(sessionEnd)) return false;
+
+  const rangeStart = range.from ? Date.parse(`${range.from}T00:00:00`) : -Infinity;
+  const rangeEnd = range.to ? Date.parse(`${range.to}T23:59:59.999`) : Infinity;
+  return sessionEnd >= rangeStart && sessionStart <= rangeEnd;
+}
+
 function formatDateTime(value: string, locale: "vi" | "en"): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
@@ -35,6 +56,12 @@ export const SessionTable = ({
   toolbarActions,
 }: SessionTableProps): ReactElement => {
   const { locale, t } = useLocale();
+  const [dateRange, setDateRange] = useState<DateRangeValue>(EMPTY_DATE_RANGE);
+  const dateRangeLabel = t("tenant.examList.dateRange", "Date range");
+  const filteredSessions = useMemo(
+    () => sessions.filter((session) => matchesSessionDateRange(session, dateRange)),
+    [dateRange, sessions],
+  );
   const statusLabel = (status: string): string =>
     t(
       `tenant.examStatus.${status.toLowerCase()}`,
@@ -114,17 +141,11 @@ export const SessionTable = ({
     {
       key: "opensAt",
       header: t("tenant.examList.opens", EXAM_TABLE_HEADERS.OPENS_AT),
-      filterType: "date-range",
-      filterAccessor: (session) => session.opensAt,
-      filterPlaceholder: t("tenant.examList.dateRange", "Date range"),
       cell: (session) => formatDateTime(session.opensAt, locale),
     },
     {
       key: "closesAt",
       header: t("tenant.examList.closes", EXAM_TABLE_HEADERS.CLOSES_AT),
-      filterType: "date-range",
-      filterAccessor: (session) => session.closesAt,
-      filterPlaceholder: t("tenant.examList.dateRange", "Date range"),
       cell: (session) => formatDateTime(session.closesAt, locale),
     },
   ];
@@ -132,11 +153,19 @@ export const SessionTable = ({
   return (
     <DataTable
       columns={columns}
-      rows={sessions}
+      rows={filteredSessions}
       getRowKey={(session) => session.id}
       isLoading={isLoading}
       emptyTitle={t("tenant.examList.emptyTitle", EXAMS_TEXT.EMPTY_TITLE)}
       emptyDescription={t("tenant.examList.emptyDescription", EXAMS_TEXT.EMPTY_TEXT)}
+      filters={
+        <DateRangePicker
+          ariaLabel={dateRangeLabel}
+          value={dateRange}
+          onChange={setDateRange}
+          placeholder={dateRangeLabel}
+        />
+      }
       toolbarActions={toolbarActions}
     />
   );

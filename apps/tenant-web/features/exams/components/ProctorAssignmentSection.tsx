@@ -2,6 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import {
+  ActionMenu,
   Alert,
   CollapsibleSection,
   DataTable,
@@ -133,15 +134,17 @@ export const ProctorAssignmentSection = ({
           emptyTitle={text.empty}
           rowActionsHeader={text.actions}
           rowActions={(entry) => (
-            <button
-              type="button"
-              onClick={() => unassign.mutate(entry.assignmentPublicId)}
-              title={text.unassign}
-              aria-label={text.unassign}
-              className="rounded-full p-1.5 text-[var(--blush-action)] transition-colors hover:bg-[var(--blush-tint)] hover:text-[var(--blush-action)]"
-            >
-              <TrashIcon className="h-4 w-4" />
-            </button>
+            <ActionMenu
+              label={`${text.actions}: ${entry.proctor.fullName}`}
+              items={[
+                {
+                  label: text.unassign,
+                  icon: TrashIcon,
+                  danger: true,
+                  onSelect: () => unassign.mutate(entry.assignmentPublicId),
+                },
+              ]}
+            />
           )}
         />
       </CollapsibleSection>

@@ -10,6 +10,7 @@ import type {
   UserResponse,
 } from "@pte/api-client";
 import {
+  ActionMenu,
   Alert,
   CollapsibleSection,
   DataTable,
@@ -611,14 +612,16 @@ export const ExaminerAssignmentSection = ({
               batch.status === "PREVIEWED" &&
               Date.parse(batch.previewExpiresAt) > currentTime &&
               confirmPreview.data?.batchPublicId !== batch.batchPublicId ? (
-                <button
-                  type="button"
-                  disabled={confirmPreview.isPending}
-                  onClick={() => confirmPreview.mutate(batch.batchPublicId)}
-                  className="text-action hover:underline disabled:opacity-50"
-                >
-                  {text.confirm}
-                </button>
+                <ActionMenu
+                  label={text.actions}
+                  items={[
+                    {
+                      label: text.confirm,
+                      disabled: confirmPreview.isPending,
+                      onSelect: () => confirmPreview.mutate(batch.batchPublicId),
+                    },
+                  ]}
+                />
               ) : null
             }
             pagination={

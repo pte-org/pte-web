@@ -2,7 +2,15 @@
 
 import { useState, type ReactElement } from "react";
 import { DEFAULT_PAGE_SIZE, type AnswerListItemResponse } from "@pte/api-client";
-import { Badge, DataTable, PaginationControls, useLocale, type DataTableColumn } from "@pte/ui";
+import {
+  ActionMenu,
+  Badge,
+  DataTable,
+  EyeIcon,
+  PaginationControls,
+  useLocale,
+  type DataTableColumn,
+} from "@pte/ui";
 import {
   ANSWER_STATUS_LABELS,
   ANSWER_STATUS_VARIANT,
@@ -132,13 +140,16 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
           ) : undefined
         }
         rowActions={(row) => (
-          <button
-            type="button"
-            onClick={() => setSelectedAnswerId(row.answerPublicId)}
-            className="rounded-lg border border-[var(--shell-border)] px-3 py-1.5 text-sm font-medium text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)]"
-          >
-            {t("tenant.answers.view", T.VIEW)}
-          </button>
+          <ActionMenu
+            label={t("tenant.answers.actions", ANSWER_TABLE_HEADERS.ACTIONS)}
+            items={[
+              {
+                label: t("tenant.answers.view", T.VIEW),
+                icon: EyeIcon,
+                onSelect: () => setSelectedAnswerId(row.answerPublicId),
+              },
+            ]}
+          />
         )}
       />
 
