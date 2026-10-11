@@ -23,6 +23,7 @@ import CommonDashboardLayout from "@/components/common/dashboard-layout";
 import SearchBar from "@/components/common/header/searchbar";
 import { NotificationBellContainer } from "@/features/notifications";
 import { RequireAuth } from "./RequireAuth";
+import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 import { useCurrentUser } from "../api";
 import { AUTH_ROUTES } from "../constants";
 
@@ -209,6 +210,7 @@ const HeaderActions = (): ReactElement => {
 
   return (
     <>
+      <WorkspaceSwitcher />
       <LocaleSwitcher />
       <ThemeToggle />
       <NotificationBellContainer />

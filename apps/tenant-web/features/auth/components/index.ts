@@ -7,3 +7,4 @@ export { DashboardChrome } from "./DashboardChrome";
 export type { NavItem } from "./DashboardChrome";
 export { TenantDashboardLayoutChrome } from "./TenantDashboardLayoutChrome";
 export type { TenantDashboardArea } from "./TenantDashboardLayoutChrome";
+export { WorkspaceSwitcher } from "./WorkspaceSwitcher";
