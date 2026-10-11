@@ -4,11 +4,11 @@ import { useMemo, useState, type ReactElement } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  ActionMenu,
   Alert,
   Badge,
   Button,
   DataTable,
-  Dropdown,
   FolderPlusIcon,
   Select,
   useLocale,
@@ -91,7 +91,7 @@ const ClassRowActions = ({ option, onAssignStudents }: ClassRowActionsProps): Re
     },
   ];
 
-  return <Dropdown items={items} label={actions} align="right" />;
+  return <ActionMenu items={items} label={actions} align="right" />;
 };
 
 export const ClassesListView = ({
@@ -235,13 +235,6 @@ export const ClassesListView = ({
         </Badge>
       ),
     },
-    {
-      key: "actions",
-      header: text.actions,
-      cell: (option) => (
-        <ClassRowActions option={option} onAssignStudents={onRequestAssignStudents} />
-      ),
-    },
   ];
 
   return (
@@ -273,6 +266,10 @@ export const ClassesListView = ({
         isLoading={isLoading}
         emptyTitle={text.noClassesTitle}
         emptyDescription={text.noClassesDescription}
+        rowActionsHeader={text.actions}
+        rowActions={(option) => (
+          <ClassRowActions option={option} onAssignStudents={onRequestAssignStudents} />
+        )}
       />
     </div>
   );

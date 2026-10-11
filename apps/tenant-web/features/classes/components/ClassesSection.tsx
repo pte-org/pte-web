@@ -76,20 +76,6 @@ export const ClassesSection = ({
         </Badge>
       ),
     },
-    {
-      key: "actions",
-      header: CLASS_TABLE_HEADERS.ACTIONS,
-      cell: (studentClass) => (
-        <ClassRowActions
-          organizationPublicId={organizationPublicId}
-          programPublicId={programPublicId}
-          studentCount={studentCountByClassPublicId?.get(studentClass.publicId) ?? 0}
-          classLabel={classLabel}
-          studentClass={studentClass}
-          onEdit={() => setEditingClass(studentClass)}
-        />
-      ),
-    },
   ];
 
   return (
@@ -143,6 +129,17 @@ export const ClassesSection = ({
         isLoading={isLoading}
         emptyTitle={CLASSES_SECTION_TEXT.emptyInlineTitle(classLabel)}
         emptyDescription={CLASSES_SECTION_TEXT.emptyInlineDescription(classLabel)}
+        rowActionsHeader={CLASS_TABLE_HEADERS.ACTIONS}
+        rowActions={(studentClass) => (
+          <ClassRowActions
+            organizationPublicId={organizationPublicId}
+            programPublicId={programPublicId}
+            studentCount={studentCountByClassPublicId?.get(studentClass.publicId) ?? 0}
+            classLabel={classLabel}
+            studentClass={studentClass}
+            onEdit={() => setEditingClass(studentClass)}
+          />
+        )}
         selectable={mergeMode}
         selectedKeys={selectedKeys}
         onSelectionChange={setSelectedKeys}
