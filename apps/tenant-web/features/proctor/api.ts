@@ -2,32 +2,132 @@
 
 import {
   useInfiniteQuery,
+  useMutation,
   useQuery,
+  type InfiniteData,
   type UseInfiniteQueryResult,
+  type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
-import type { InfiniteData } from "@tanstack/react-query";
-import { usePollingInterval } from "./hooks/usePollingInterval";
 import {
-  POLL_INTERVAL_MS,
-  PROCTOR_AUDIT_LOG_QUERY_KEY,
-  PROCTOR_AUDIT_SECURITY_QUERY_KEY,
-  PROCTOR_LIVE_ATTEMPTS_QUERY_KEY,
-} from "./constants";
+  closeProctorSession,
+  getMonitoringSnapshot,
+  getProctorSecurityAudit,
+  getStudentAttemptHistory,
+  listAssignedProctorSessions,
+  listViolations,
+  type AssignedProctorSessionPage,
+  type MonitoringAttemptHistoryPage,
+  type MonitoringSnapshotResponse,
+  type ViolationEventResponse,
+} from "@pte/api-client";
+import { apiClient } from "@/lib/apiClient";
+import { usePollingInterval } from "./hooks/usePollingInterval";
+import { POLL_INTERVAL_MS } from "./constants";
+import { PROCTOR_QUERY_KEYS } from "./queryKeys";
 import type {
   ProctorAuditLogEntry,
   ProctorLiveAttempt,
   ProctorSecurityAuditEntry,
 } from "./types";
 
+export interface ProctorSecurityAuditPage {
+  items: ProctorSecurityAuditEntry[];
+  cursor: string | null;
+  hasNext: boolean;
+}
+
+export function useAssignedProctorSessions(
+  page = 0,
+  size = 20,
+): UseQueryResult<AssignedProctorSessionPage> {
+  return useQuery<AssignedProctorSessionPage>({
+    queryKey: PROCTOR_QUERY_KEYS.myAssignments(page, size),
+    queryFn: () => listAssignedProctorSessions(apiClient, page, size),
+    staleTime: 10_000,
+  });
+}
+
+export function useMonitoringSnapshot(
+  sessionPublicId: string,
+  page = 0,
+  size = 50,
+  options?: { poll?: boolean },
+): UseQueryResult<MonitoringSnapshotResponse> {
+  const { refetchInterval, refetchIntervalInBackground } = usePollingInterval({
+    intervalMs: options?.poll ? POLL_INTERVAL_MS : 0,
+  });
+
+  return useQuery<MonitoringSnapshotResponse>({
+    queryKey: PROCTOR_QUERY_KEYS.monitoringSnapshot(sessionPublicId, page, size),
+    queryFn: () => getMonitoringSnapshot(apiClient, sessionPublicId, page, size),
+    enabled: Boolean(sessionPublicId),
+    refetchInterval,
+    refetchIntervalInBackground,
+  });
+}
+
+export function useStudentAttemptHistory(
+  sessionPublicId: string,
+  studentPublicId: string,
+  page = 0,
+  size = 20,
+): UseQueryResult<MonitoringAttemptHistoryPage> {
+  return useQuery<MonitoringAttemptHistoryPage>({
+    queryKey: PROCTOR_QUERY_KEYS.studentAttempts(sessionPublicId, studentPublicId, page, size),
+    queryFn: () =>
+      getStudentAttemptHistory(apiClient, sessionPublicId, studentPublicId, page, size),
+    enabled: Boolean(sessionPublicId && studentPublicId),
+  });
+}
+
+export function useProctorViolations(
+  sessionPublicId: string,
+): UseQueryResult<ViolationEventResponse[]> {
+  return useQuery<ViolationEventResponse[]>({
+    queryKey: PROCTOR_QUERY_KEYS.violations(sessionPublicId),
+    queryFn: () => listViolations(apiClient, sessionPublicId),
+    enabled: Boolean(sessionPublicId),
+  });
+}
+
+export function useProctorSecurityAudit(
+  sessionPublicId: string,
+  limit = 20,
+): UseInfiniteQueryResult<InfiniteData<ProctorSecurityAuditPage, unknown>> {
+  return useInfiniteQuery<ProctorSecurityAuditPage, Error, InfiniteData<ProctorSecurityAuditPage, unknown>, readonly unknown[], string | undefined>({
+    queryKey: PROCTOR_QUERY_KEYS.securityAudit(sessionPublicId, limit),
+    initialPageParam: undefined,
+    queryFn: async ({ pageParam }) => {
+      const resp = await getProctorSecurityAudit(apiClient, sessionPublicId, limit, pageParam);
+      const list = resp.entries ?? resp.items ?? [];
+      return {
+        items: list.map((it, idx) => ({
+          publicId: it.publicId,
+          recordedAt: it.detectedAt,
+          eventType: it.violationType,
+          hashPosition: idx + 1,
+          description: it.detail ?? `${it.source} - ${it.severity}`,
+        })),
+        cursor: resp.nextCursor,
+        hasNext: Boolean(resp.nextCursor),
+      };
+    },
+    getNextPageParam: (lastPage) => lastPage.cursor ?? undefined,
+    enabled: Boolean(sessionPublicId),
+  });
+}
+
+export function useCloseProctorSession(): UseMutationResult<void, Error, string> {
+  return useMutation<void, Error, string>({
+    mutationFn: (proctorSessionPublicId: string) =>
+      closeProctorSession(apiClient, proctorSessionPublicId),
+  });
+}
+
 /**
- * Live attempt list for a single session.
- *
- * STUB: the backend endpoint `GET /api/v1/exam-sessions/{id}/attempts`
- * does not exist on `hung/fix-ui-first`. We return `[]` so the view
- * renders with a clean empty state. When the endpoint ships, replace
- * the `queryFn` body with a real fetch (no caller-side changes
- * required).
+ * Adapter hook for existing LiveMonitoringView component.
+ * Maps live snapshot roster students to ProctorLiveAttempt shapes.
  */
 export function useProctorLiveAttempts(
   sessionPublicId: string,
@@ -35,12 +135,29 @@ export function useProctorLiveAttempts(
   const { refetchInterval, refetchIntervalInBackground } = usePollingInterval({
     intervalMs: POLL_INTERVAL_MS,
   });
-  return useQuery<ProctorLiveAttempt[]>({
-    queryKey: [...PROCTOR_LIVE_ATTEMPTS_QUERY_KEY, sessionPublicId],
-    enabled: sessionPublicId.length > 0,
+
+  return useQuery<MonitoringSnapshotResponse, Error, ProctorLiveAttempt[]>({
+    queryKey: PROCTOR_QUERY_KEYS.monitoringSnapshot(sessionPublicId, 0, 50),
+    queryFn: () => getMonitoringSnapshot(apiClient, sessionPublicId, 0, 50),
+    enabled: Boolean(sessionPublicId),
     refetchInterval,
     refetchIntervalInBackground,
-    queryFn: async () => [] as ProctorLiveAttempt[],
+    select: (snapshot) =>
+      (snapshot.students.data ?? []).map((s) => ({
+        attemptPublicId: s.attemptPublicId ?? s.studentPublicId,
+        studentPublicId: s.studentPublicId,
+        studentName: s.displayName,
+        status:
+          s.status === "SUBMITTED"
+            ? "COMPLETED"
+            : s.status === "IN_PROGRESS"
+              ? "IN_PROGRESS"
+              : "PENDING",
+        startedAt: s.startedAt,
+        lastHeartbeatAt: s.lastSeenAt,
+        flagged: s.manualViolationCount > 0,
+        notesCount: s.attemptCount,
+      })),
   });
 }
 
@@ -53,58 +170,33 @@ export interface ProctorAuditLogPage {
 }
 
 /**
- * Proctor audit log for a single session.
- *
- * STUB: the backend endpoint `GET /api/v1/proctor/audit?...` does not
- * exist on `hung/fix-ui-first`. We return an empty page so the view
- * renders a clean empty state. When the endpoint ships, replace the
- * `queryFn` body with a real fetch.
+ * Adapter hook for existing AuditLogView component violations tab.
  */
 export function useProctorAuditLog(
   sessionPublicId: string,
 ): UseQueryResult<ProctorAuditLogPage> {
-  return useQuery<ProctorAuditLogPage>({
-    queryKey: [...PROCTOR_AUDIT_LOG_QUERY_KEY, sessionPublicId],
-    enabled: sessionPublicId.length > 0,
-    queryFn: async () => ({
-      items: [] as ProctorAuditLogEntry[],
+  return useQuery<ViolationEventResponse[], Error, ProctorAuditLogPage>({
+    queryKey: PROCTOR_QUERY_KEYS.violations(sessionPublicId),
+    queryFn: () => listViolations(apiClient, sessionPublicId),
+    enabled: Boolean(sessionPublicId),
+    select: (violations) => ({
+      items: violations.map((v) => ({
+        publicId: v.publicId,
+        action: "FLAG_VIOLATION" as const,
+        sessionPublicId: v.sessionPublicId ?? sessionPublicId,
+        attemptPublicId: v.attemptPublicId,
+        note: v.detail ?? v.note ?? "",
+        createdAt: v.detectedAt ?? v.createdAt ?? new Date().toISOString(),
+        performedBy: {
+          publicId: v.proctorPublicId ?? "",
+          fullName: "",
+          email: "",
+        },
+      })),
       page: 0,
-      size: 20,
-      totalPages: 0,
-      totalItems: 0,
+      size: 50,
+      totalPages: 1,
+      totalItems: violations.length,
     }),
-  });
-}
-
-export interface ProctorSecurityAuditPage {
-  items: ProctorSecurityAuditEntry[];
-  cursor: string | null;
-  hasNext: boolean;
-}
-
-/**
- * Cursor-paginated security audit feed for a single session.
- *
- * STUB: the backend endpoint does not exist on `hung/fix-ui-first`.
- * We return an empty first page with `hasNext: false`, so the
- * "Load more" button is permanently disabled. When the endpoint
- * ships, replace the `queryFn` body and `getNextPageParam` to
- * read `cursor` from the response and forward it on subsequent
- * pages.
- */
-export function useProctorSecurityAudit(
-  sessionPublicId: string,
-  limit = 20,
-): UseInfiniteQueryResult<InfiniteData<ProctorSecurityAuditPage, unknown>> {
-  return useInfiniteQuery<ProctorSecurityAuditPage>({
-    queryKey: [...PROCTOR_AUDIT_SECURITY_QUERY_KEY, sessionPublicId, limit],
-    initialPageParam: undefined as string | undefined,
-    queryFn: async () => ({
-      items: [] as ProctorSecurityAuditEntry[],
-      cursor: null,
-      hasNext: false,
-    }),
-    getNextPageParam: () => undefined,
-    enabled: sessionPublicId.length > 0,
   });
 }
