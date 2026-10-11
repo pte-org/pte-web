@@ -174,7 +174,7 @@ const SidebarNav = ({
             <span
               className={cn(
                 "flex shrink-0 items-center justify-center [&>svg]:h-[18px] [&>svg]:w-[18px]",
-                item.isActive ? "text-[var(--ink-primary)]" : "text-[var(--ink-muted)]",
+                item.isActive ? "text-[var(--action-foreground)]" : "text-[var(--ink-muted)]",
               )}
             >
               {item.icon}
