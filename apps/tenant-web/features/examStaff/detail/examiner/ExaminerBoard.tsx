@@ -1,12 +1,12 @@
 import type { ReactElement } from "react";
-import type { StaffWorkspaceQuery, StaffWorkStatus } from "@pte/api-client";
-import { Alert, Board } from "@pte/ui";
-import { STAFF_BOARD_STATUSES } from "../constants";
+import type { StaffWorkspaceQuery } from "@pte/api-client";
+import { Board } from "@pte/ui";
+import { STAFF_BOARD_STATUSES, type StaffVisibleWorkStatus } from "../constants";
 import type { StaffDetailText } from "../hooks/useStaffDetailText";
 import { ExaminerWorkColumn } from "./ExaminerWorkColumn";
 
 interface ExaminerBoardProps {
-  publicId: string; filters: StaffWorkspaceQuery; status: StaffWorkStatus | "ALL";
+  publicId: string; filters: StaffWorkspaceQuery; status: StaffVisibleWorkStatus | "ALL";
   text: StaffDetailText; active: boolean;
 }
 
@@ -19,10 +19,5 @@ export const ExaminerBoard = ({ publicId, filters, status, text, active }: Exami
       {columns.map((value) => <ExaminerWorkColumn key={`${key}-${value}`} publicId={publicId}
         filters={filters} status={value} text={text} active={active} />)}
     </Board>}
-    {(status === "ALL" || status === "UNAVAILABLE") && <>
-      <Alert tone="warning">{text.exceptionsDescription}</Alert>
-      <ExaminerWorkColumn key={`${key}-UNAVAILABLE`} publicId={publicId} filters={filters}
-        status="UNAVAILABLE" text={text} active={active} />
-    </>}
   </div>;
 };

@@ -1,7 +1,6 @@
 import { useState, type ReactElement } from "react";
-import type { StaffWorkStatus } from "@pte/api-client";
-import { Alert, Select } from "@pte/ui";
-import { STAFF_WORK_STATUSES } from "../constants";
+import { Select } from "@pte/ui";
+import { STAFF_WORK_STATUSES, type StaffVisibleWorkStatus } from "../constants";
 import { useStaffWorkspaceFilters } from "../hooks/useStaffWorkspaceFilters";
 import type { StaffDetailText } from "../hooks/useStaffDetailText";
 import { StaffFilterToolbar } from "../filters/StaffFilterToolbar";
@@ -13,13 +12,10 @@ interface ExaminerTrackingTabProps { publicId: string; text: StaffDetailText; ac
 export const ExaminerTrackingTab = ({ publicId, text, active }: ExaminerTrackingTabProps): ReactElement => {
   const filters = useStaffWorkspaceFilters();
   const [board, setBoard] = useState(true);
-  const [status, setStatus] = useState<StaffWorkStatus | "ALL">("ALL");
+  const [status, setStatus] = useState<StaffVisibleWorkStatus | "ALL">("ALL");
   const key = JSON.stringify([filters.applied, filters.revision, status]);
   return <div className="flex flex-col gap-5">
-    <Alert tone="info">{text.readOnly}</Alert>
-    <StaffFilterToolbar active={active} examiner text={text} filters={{ ...filters,
-      clear: () => { filters.clear(); setStatus("ALL"); },
-    }} />
+    <StaffFilterToolbar active={active} examiner text={text} filters={filters} />
     <div className="flex flex-wrap gap-3">
       <Select label={text.display} value={board ? "board" : "table"}
         options={[{ value: "board", label: text.board }, { value: "table", label: text.table }]}

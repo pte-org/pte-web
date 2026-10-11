@@ -16,9 +16,11 @@ export const useStaffWorkspaceFilters = (): StaffFilterState => {
   const [page, setPage] = useState(0);
   const [revision, setRevision] = useState(0);
   const [invalidDates, setInvalidDates] = useState(false);
-  const apply = (): void => {
+  const change = (patch: Partial<StaffFilterDraft>): void => {
+    const nextDraft = { ...draft, ...patch };
+    setDraft(nextDraft);
     try {
-      setApplied(staffFilterQuery(draft));
+      setApplied(staffFilterQuery(nextDraft));
       setInvalidDates(false);
       setPage(0);
       setRevision((value) => value + 1);
@@ -26,15 +28,7 @@ export const useStaffWorkspaceFilters = (): StaffFilterState => {
       setInvalidDates(true);
     }
   };
-  const clear = (): void => {
-    setDraft(EMPTY_FILTER);
-    setApplied({});
-    setInvalidDates(false);
-    setPage(0);
-    setRevision((value) => value + 1);
-  };
   return {
-    draft, applied, page, revision, invalidDates, apply, clear, setPage,
-    change: (patch) => setDraft((current) => ({ ...current, ...patch })),
+    draft, applied, page, revision, invalidDates, setPage, change,
   };
 };

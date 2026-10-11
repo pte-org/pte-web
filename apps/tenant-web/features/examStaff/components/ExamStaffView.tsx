@@ -17,7 +17,8 @@ export const ExamStaffView = (): ReactElement => {
   const [query, setQuery] = useState<ExamStaffQuery>({ page: 0, size: DEFAULT_PAGE_SIZE });
   const staff = useExamStaff(query);
   const columns = useExamStaffListColumns(text).map((column) => ({
-    ...column, sortable: false, filterable: false,
+    ...column,
+    filterable: false,
   }));
   const changeFilters = (patch: Partial<ExamStaffQuery>): void =>
     setQuery((current) => ({ ...current, ...patch, page: 0 }));
@@ -26,7 +27,7 @@ export const ExamStaffView = (): ReactElement => {
     {staff.isFetching && staff.data && <Alert tone="info">{text.syncing}</Alert>}
     <DataTable columns={columns} rows={staff.data?.data ?? []} getRowKey={(row) => row.publicId}
       isLoading={staff.isLoading} emptyTitle={text.emptyTitle} emptyDescription={text.emptyDescription}
-      clientSideFiltering={false} clientSideSorting={false} clientSidePagination={false}
+      clientSideFiltering={false} clientSidePagination={false}
       showSearch searchValue={query.search ?? ""} onSearchChange={(search) => changeFilters({ search })}
       searchPlaceholder={t("tenant.examStaff.searchPlaceholder", EXAM_STAFF_TEXT.searchPlaceholder)}
       filters={<>
@@ -48,7 +49,8 @@ export const ExamStaffView = (): ReactElement => {
       rowActionsHeader={text.actions} rowActions={(user) => <ExamStaffRowActions user={user} text={text} />}
       toolbarActions={<Button onClick={() => setAddOpen(true)}>{text.addButton}</Button>}
       pagination={staff.data && <PaginationControls meta={staff.data.meta}
-        disabled={staff.isFetching} onPageChange={(page) => setQuery((current) => ({ ...current, page }))} />}
+        disabled={staff.isFetching} onPageChange={(page) => setQuery((current) => ({ ...current, page }))}
+        showPageSizeInput onPageSizeChange={(size) => setQuery((current) => ({ ...current, size, page: 0 }))} />}
     />
     <AddExamStaffModal key={addOpen ? "exam-staff-open" : "exam-staff-closed"} open={addOpen}
       onClose={() => setAddOpen(false)} />

@@ -24,7 +24,5 @@ export interface StaffFilterState {
   revision: number;
   invalidDates: boolean;
   change: (patch: Partial<StaffFilterDraft>) => void;
-  apply: () => void;
-  clear: () => void;
   setPage: (page: number) => void;
 }

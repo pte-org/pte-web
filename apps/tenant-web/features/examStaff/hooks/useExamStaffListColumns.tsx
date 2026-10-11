@@ -31,16 +31,10 @@ export const useExamStaffListColumns = (text: ReturnType<typeof useExamStaffList
       key: "fullName",
       label: text.fullName,
       header: text.fullName,
+      headerClassName: "w-[220px] min-w-[220px]",
+      cellClassName: "w-[220px] min-w-[220px]",
       filterAccessor: (user) => user.fullName,
       cell: (user) => user.fullName,
-    },
-    {
-      key: "account",
-      label: text.account,
-      header: text.account,
-      filterAccessor: (user) => user.username,
-      cell: (user) => user.username,
-      cellClassName: "whitespace-nowrap",
     },
     {
       key: "email",

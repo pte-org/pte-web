@@ -5,7 +5,6 @@ import { EXAM_STAFF_TEXT } from "../constants";
 export interface ExamStaffListText {
   addButton: string;
   fullName: string;
-  account: string;
   email: string;
   role: string;
   status: string;
@@ -37,7 +36,6 @@ export const useExamStaffListText = (): ExamStaffListText => {
   return {
     addButton: t("tenant.examStaff.add", EXAM_STAFF_TEXT.addButton),
     fullName: t("tenant.examStaff.fullName", EXAM_STAFF_TEXT.fullName),
-    account: t("tenant.examStaff.account", EXAM_STAFF_TEXT.account),
     email: t("tenant.examStaff.email", EXAM_STAFF_TEXT.email),
     role: t("tenant.examStaff.role", EXAM_STAFF_TEXT.role),
     status: t("tenant.examStaff.status", EXAM_STAFF_TEXT.status),
