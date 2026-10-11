@@ -24,8 +24,8 @@ export function createSession(
   });
 }
 
-export function listSessions(client: ApiClient): Promise<SessionResponse[]> {
-  return client.request<SessionResponse[]>(SESSION_ENDPOINTS.sessions);
+export function listSessions(client: ApiClient, signal?: AbortSignal): Promise<SessionResponse[]> {
+  return client.request<SessionResponse[]>(SESSION_ENDPOINTS.sessions, { signal });
 }
 
 export function getSession(client: ApiClient, publicId: string): Promise<SessionResponse> {
