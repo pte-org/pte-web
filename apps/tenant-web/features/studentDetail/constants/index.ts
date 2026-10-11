@@ -2,6 +2,8 @@ import type { StudentAttemptStatus } from "@pte/api-client";
 
 export type StudentDetailTab = "account" | "overview" | "history";
 
+export const STUDENT_SCORE_MAX = 90;
+
 export const STUDENT_DETAIL_TEXT = {
   backToStudents: "← Students",
   profileLoadFailed: "Unable to load student details.",
@@ -54,6 +56,9 @@ export const STUDENT_DETAIL_TEXT = {
     noProgram: "No program",
   },
   overview: {
+    dateRange: "Performance period",
+    dateRangeAriaLabel: "Filter performance by date range",
+    dateRangeDescription: "Filter published performance by the attempt date.",
     attemptCount: "Exam attempts",
     averageOverall: "Overall average",
     averageFromPublished: "Based on published reports",
@@ -63,6 +68,7 @@ export const STUDENT_DETAIL_TEXT = {
     skillDescription: "Only published reports with an immutable snapshot are included.",
     insufficientData: "Not enough data",
     noScoredAttempt: "No attempt has enough scored data yet.",
+    scoreScale: "out of 90",
     progressLabel: (skill: string): string => `${skill} score`,
     reportCount: (count: number): string => `${count} valid report(s)`,
   },

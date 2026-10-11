@@ -6,11 +6,13 @@ import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import {
   Badge,
   DataTable,
-  Input,
+  DateRangePicker,
   PaginationControls,
   Select,
   StatusBadge,
+  useLocale,
   type DataTableColumn,
+  type DateRangeValue,
 } from "@pte/ui";
 import { useStudentAttempts } from "../api";
 import type { StudentDetailText } from "../hooks/useStudentDetailText";
@@ -28,12 +30,18 @@ export const StudentHistoryTab = ({
   active,
   text,
 }: StudentHistoryTabProps): ReactElement => {
+  const { t } = useLocale();
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
+  const [dateRange, setDateRange] = useState<DateRangeValue>({ from: "", to: "" });
   const [status, setStatus] = useState<StudentAttemptStatus | "ALL">("ALL");
-  const query = { page, size, from: from || undefined, to: to || undefined, status };
+  const query = {
+    page,
+    size,
+    from: dateRange.from || undefined,
+    to: dateRange.to || undefined,
+    status,
+  };
   const history = useStudentAttempts(studentPublicId, query, active);
 
   const columns = useMemo<DataTableColumn<StudentAttemptHistoryRow>[]>(
@@ -104,26 +112,18 @@ export const StudentHistoryTab = ({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-end gap-3 rounded-lg bg-[var(--surface-subtle)] p-3">
-        <Input
-          label={text.history.from}
-          type="date"
-          value={from}
-          onChange={(event) => {
-            setFrom(event.target.value);
+        <DateRangePicker
+          ariaLabel={t("common.filterDateRange", "Filter by a date range")}
+          value={dateRange}
+          onChange={(value) => {
+            setDateRange(value);
             setPage(0);
           }}
-        />
-        <Input
-          label={text.history.to}
-          type="date"
-          value={to}
-          onChange={(event) => {
-            setTo(event.target.value);
-            setPage(0);
-          }}
+          fromLabel={text.history.from}
+          toLabel={text.history.to}
+          placeholder={t("common.dateRange", "Date range")}
         />
         <Select
-          label={text.history.status}
           options={text.history.statusOptions}
           value={status}
           onChange={(event) => {

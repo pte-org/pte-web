@@ -63,6 +63,9 @@ export interface StudentDetailText {
     noProgram: string;
   };
   overview: {
+    dateRange: string;
+    dateRangeAriaLabel: string;
+    dateRangeDescription: string;
     attemptCount: string;
     averageOverall: string;
     averageFromPublished: string;
@@ -72,6 +75,7 @@ export interface StudentDetailText {
     skillDescription: string;
     insufficientData: string;
     noScoredAttempt: string;
+    scoreScale: string;
     progressLabel: (skill: string) => string;
     reportCount: (count: number) => string;
   };
@@ -189,6 +193,17 @@ const buildText = (t: Translate, locale: Locale): StudentDetailText => {
       noProgram: translate(t, "tenant.studentDetail.account.noProgram", text.account.noProgram),
     },
     overview: {
+      dateRange: translate(t, "tenant.studentDetail.overview.dateRange", text.overview.dateRange),
+      dateRangeAriaLabel: translate(
+        t,
+        "tenant.studentDetail.overview.dateRangeAriaLabel",
+        text.overview.dateRangeAriaLabel,
+      ),
+      dateRangeDescription: translate(
+        t,
+        "tenant.studentDetail.overview.dateRangeDescription",
+        text.overview.dateRangeDescription,
+      ),
       attemptCount: translate(
         t,
         "tenant.studentDetail.overview.attemptCount",
@@ -233,6 +248,11 @@ const buildText = (t: Translate, locale: Locale): StudentDetailText => {
         t,
         "tenant.studentDetail.overview.noScoredAttempt",
         text.overview.noScoredAttempt,
+      ),
+      scoreScale: translate(
+        t,
+        "tenant.studentDetail.overview.scoreScale",
+        text.overview.scoreScale,
       ),
       progressLabel: (skill) =>
         t("tenant.studentDetail.overview.progressLabel", text.overview.progressLabel(skill), {
