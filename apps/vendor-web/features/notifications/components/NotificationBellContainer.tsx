@@ -21,7 +21,18 @@ function targetHref(item: InboxItemResponse): string {
 export function NotificationBellContainer() {
   const router = useRouter();
   const { showToast } = useToast();
-  const { isOpen, setIsOpen, unread, recent, markRead, markAllRead } = useNotificationCenter();
+  const {
+    isOpen,
+    setIsOpen,
+    unread,
+    recent,
+    markRead,
+    markAllRead,
+    hasMoreRecent,
+    isLoadingMore,
+    loadMoreRecent,
+    collapseRecent,
+  } = useNotificationCenter();
   const unreadCount = unread.data?.unreadCount ?? 0;
 
   const selectItem = async (item: InboxItemResponse): Promise<void> => {
@@ -53,10 +64,10 @@ export function NotificationBellContainer() {
       onRetry={() => void recent.refetch()}
       onSelectItem={(item) => void selectItem(item)}
       onMarkAllRead={markAll}
-      onViewAll={() => {
-        setIsOpen(false);
-        router.push("/admin/notifications");
-      }}
+      hasMore={hasMoreRecent}
+      isLoadingMore={isLoadingMore}
+      onLoadMore={loadMoreRecent}
+      onCollapse={collapseRecent}
     />
   );
 }
