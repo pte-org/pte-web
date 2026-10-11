@@ -22,7 +22,6 @@ import { useAllTenantClasses, type TenantClassOption } from "../api";
 import {
   CLASSES_LIST_TEXT,
   CLASS_ROW_ACTIONS_TEXT,
-  CLASS_STATUS_FILTER_OPTIONS,
   CLASS_STATUS_LABELS,
   CLASS_STATUS_VARIANT,
   CLASS_TABLE_HEADERS,
