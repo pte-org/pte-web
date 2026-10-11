@@ -10,6 +10,8 @@
   --shell-border: #e8e8e8;
   --shell-surface-border: #e5e5e5;
   --sidebar-nav-hover-background: rgba(0, 0, 0, 0.05);
+  --sidebar-nav-active-background: var(--action);
+  --sidebar-nav-active-text: var(--action-foreground);
   --ink-primary: #18181b;
   --ink-secondary: #52525b;
   --ink-muted: #71717a;
@@ -37,6 +39,9 @@
   --action: #0d6fbe;
   --action-hover: #0b61a8;
   --action-active: #09538c;
+  --action-gradient-start: #0e82d0;
+  --action-gradient-mid: #0b70c0;
+  --action-gradient-end: #168bd8;
   --action-tint: #e8f2f9;
   --action-tint-hover: #d9eaf5;
   --action-foreground: #ffffff;
@@ -80,6 +85,8 @@ body {
   --shell-border: #2b2c2e;
   --shell-surface-border: #1d1d1f;
   --sidebar-nav-hover-background: rgba(255, 255, 255, 0.05);
+  --sidebar-nav-active-background: var(--action);
+  --sidebar-nav-active-text: var(--action-foreground);
   --ink-primary: rgba(255, 255, 255, 0.9);
   --ink-secondary: #a1a1aa;
   --ink-muted: #a1a1aa;
@@ -105,6 +112,9 @@ body {
   --action: #5aa9e8;
   --action-hover: #75b8ee;
   --action-active: #4596d3;
+  --action-gradient-start: #70d0ff;
+  --action-gradient-mid: #2999e5;
+  --action-gradient-end: #5abafa;
   --action-tint: #163859;
   --action-tint-hover: #204a70;
   --action-foreground: #07111d;
@@ -268,6 +278,9 @@ body {
   --color-action: var(--action);
   --color-action-hover: var(--action-hover);
   --color-action-active: var(--action-active);
+  --color-action-gradient-start: var(--action-gradient-start);
+  --color-action-gradient-mid: var(--action-gradient-mid);
+  --color-action-gradient-end: var(--action-gradient-end);
   --color-action-tint: var(--action-tint);
   --color-action-tint-hover: var(--action-tint-hover);
   --color-sky-50: var(--sky-tint);
