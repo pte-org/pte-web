@@ -1,0 +1,99 @@
+import { DEFAULT_PAGE_SIZE, type ApiClient, type PagedResult } from "../client/client";
+import type {
+  AssignedProctorSessionResponse,
+  MonitoringAttemptSummaryView,
+  MonitoringSnapshotResponse,
+  SecurityAuditPageResponse,
+  ViolationEventResponse,
+} from "../types/proctoring";
+
+export const PROCTORING_ENDPOINTS = {
+  myAssignments: "/api/v1/proctor-assignments/mine",
+  monitoringSnapshot: (sessionPublicId: string) =>
+    `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/monitoring`,
+  studentAttempts: (sessionPublicId: string, studentPublicId: string) =>
+    `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/monitoring/students/${encodeURIComponent(studentPublicId)}/attempts`,
+  securityAudit: (sessionPublicId: string) =>
+    `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/security-audit`,
+  violations: (sessionPublicId: string) =>
+    `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/violations`,
+  closeSession: (proctorSessionPublicId: string) =>
+    `/api/v1/proctor-sessions/${encodeURIComponent(proctorSessionPublicId)}/close`,
+} as const;
+
+export function listAssignedProctorSessions(
+  client: ApiClient,
+  page = 0,
+  size = DEFAULT_PAGE_SIZE,
+): Promise<PagedResult<AssignedProctorSessionResponse>> {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("size", String(size));
+  return client.request<PagedResult<AssignedProctorSessionResponse>>(
+    `${PROCTORING_ENDPOINTS.myAssignments}?${params.toString()}`,
+  );
+}
+
+export function getMonitoringSnapshot(
+  client: ApiClient,
+  sessionPublicId: string,
+  page = 0,
+  size = 25,
+): Promise<MonitoringSnapshotResponse> {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("size", String(size));
+  return client.request<MonitoringSnapshotResponse>(
+    `${PROCTORING_ENDPOINTS.monitoringSnapshot(sessionPublicId)}?${params.toString()}`,
+  );
+}
+
+export function getStudentAttemptHistory(
+  client: ApiClient,
+  sessionPublicId: string,
+  studentPublicId: string,
+  page = 0,
+  size = DEFAULT_PAGE_SIZE,
+): Promise<PagedResult<MonitoringAttemptSummaryView>> {
+  const params = new URLSearchParams();
+  params.set("page", String(page));
+  params.set("size", String(size));
+  return client.request<PagedResult<MonitoringAttemptSummaryView>>(
+    `${PROCTORING_ENDPOINTS.studentAttempts(sessionPublicId, studentPublicId)}?${params.toString()}`,
+  );
+}
+
+export function getProctorSecurityAudit(
+  client: ApiClient,
+  sessionPublicId: string,
+  limit = 25,
+  cursor?: string | null,
+): Promise<SecurityAuditPageResponse> {
+  const params = new URLSearchParams();
+  params.set("limit", String(limit));
+  if (cursor) {
+    params.set("cursor", cursor);
+  }
+  return client.request<SecurityAuditPageResponse>(
+    `${PROCTORING_ENDPOINTS.securityAudit(sessionPublicId)}?${params.toString()}`,
+  );
+}
+
+export function closeProctorSession(
+  client: ApiClient,
+  proctorSessionPublicId: string,
+): Promise<void> {
+  return client.request<void>(
+    PROCTORING_ENDPOINTS.closeSession(proctorSessionPublicId),
+    { method: "POST" },
+  );
+}
+
+export function listViolations(
+  client: ApiClient,
+  sessionPublicId: string,
+): Promise<ViolationEventResponse[]> {
+  return client.request<ViolationEventResponse[]>(
+    PROCTORING_ENDPOINTS.violations(sessionPublicId),
+  );
+}
