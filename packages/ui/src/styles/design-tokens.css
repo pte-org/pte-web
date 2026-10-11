@@ -34,9 +34,9 @@
   --brand-deep: #2f52c4;
   --brand-tint: #ecf2ff;
   --brand-ink: #3359d2;
-  --action: #0b5fae;
-  --action-hover: #095394;
-  --action-active: #08467c;
+  --action: #0d6fbe;
+  --action-hover: #0b61a8;
+  --action-active: #09538c;
   --action-tint: #e8f2f9;
   --action-tint-hover: #d9eaf5;
   --action-foreground: #ffffff;
@@ -102,9 +102,9 @@ body {
   --brand-deep: #b6c6ff;
   --brand-tint: #1d315e;
   --brand-ink: #b6c6ff;
-  --action: #4e9be1;
-  --action-hover: #70b2ed;
-  --action-active: #2e80c6;
+  --action: #5aa9e8;
+  --action-hover: #75b8ee;
+  --action-active: #4596d3;
   --action-tint: #163859;
   --action-tint-hover: #204a70;
   --action-foreground: #07111d;
