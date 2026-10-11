@@ -1,8 +1,18 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import Link from "next/link";
-import { Alert, Badge, Button, DataTable, Select, useLocale, type DataTableColumn } from "@pte/ui";
+import { useRouter } from "next/navigation";
+import {
+  ActionMenu,
+  Alert,
+  Badge,
+  Button,
+  DataTable,
+  EyeIcon,
+  Select,
+  useLocale,
+  type DataTableColumn,
+} from "@pte/ui";
 import type { ProgramResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
@@ -39,6 +49,7 @@ function formatDateRange(startDate: string | null, endDate: string | null): stri
 export const ProgramsListView = (): ReactElement => {
   const labels = useOrgLabels();
   const { t } = useLocale();
+  const router = useRouter();
   const programLabel = t("nav.program", labels.program);
   const text = {
     create: t("tenant.programs.create", PROGRAMS_TEXT.addButton),
@@ -124,18 +135,6 @@ export const ProgramsListView = (): ReactElement => {
       filterPlaceholder: text.dateRange,
       cell: (program) => formatDateRange(program.startDate, program.endDate),
     },
-    {
-      key: "actions",
-      header: text.actions,
-      cell: (program) => (
-        <Link
-          href={`/host/programs/${program.publicId}?organizationPublicId=${organizationPublicId}`}
-          className="text-sm font-medium text-blue-700 hover:underline"
-        >
-          {text.viewDetails}
-        </Link>
-      ),
-    },
   ];
 
   return (
@@ -162,6 +161,22 @@ export const ProgramsListView = (): ReactElement => {
         isLoading={organizationsLoading || programsLoading}
         emptyTitle={text.empty}
         emptyDescription={text.emptyDescription}
+        rowActionsHeader={text.actions}
+        rowActions={(program) => (
+          <ActionMenu
+            label={`${text.actions}: ${program.name}`}
+            items={[
+              {
+                label: text.viewDetails,
+                icon: EyeIcon,
+                onSelect: () =>
+                  router.push(
+                    `/host/programs/${program.publicId}?organizationPublicId=${organizationPublicId}`,
+                  ),
+              },
+            ]}
+          />
+        )}
         toolbarActions={
           <Button
             type="button"
