@@ -75,6 +75,12 @@ export type { BreadcrumbItem } from "./Breadcrumbs";
 export { UserMenu } from "./UserMenu";
 export type { UserMenuProps } from "./UserMenu";
 export { Avatar } from "./Avatar";
+export { ProfileHeader } from "./ProfileHeader";
+export type { ProfileHeaderProps } from "./ProfileHeader";
+export { ProfileLayout } from "./ProfileLayout";
+export type { ProfileLayoutProps } from "./ProfileLayout";
+export { ProfileAccountPanel } from "./ProfileAccountPanel";
+export type { ProfileAccountPanelProps } from "./ProfileAccountPanel";
 export { Dropdown } from "./Dropdown";
 export type {
   DropdownActionItem,
@@ -96,4 +102,6 @@ export { DEFAULT_TOAST_DURATION_MS, ToastProvider, useToast } from "./Toast";
 export type { ShowToastOptions, ToastTone } from "./Toast";
 export * from "./icons";
 export { Mascot } from "./Mascot";
+export { Board, BoardColumn } from "./Board";
+export type { BoardProps, BoardColumnProps } from "./Board";
 export { MailIcon, LockIcon, GradCapIcon, EyeIcon } from "./AuthIcons";
