@@ -2,10 +2,8 @@ import type { ReactElement } from "react";
 import type { StudentDetailResponse } from "@pte/api-client";
 import {
   ActionMenu,
-  Avatar,
   CopyableId,
-  DashboardCard,
-  PageHeader,
+  ProfileHeader,
   StatusBadge,
   type DropdownItem,
 } from "@pte/ui";
@@ -26,19 +24,16 @@ export const StudentDetailHeader = ({
   const isSuspended = account.status === "SUSPENDED";
 
   return (
-    <DashboardCard>
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex min-w-0 items-center gap-4">
-          <Avatar name={displayName} />
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <PageHeader title={displayName} />
+    <ProfileHeader
+      name={displayName}
+      status={
               <StatusBadge
                 label={isSuspended ? text.status.suspended : text.status.active}
                 variant={isSuspended ? "warning" : "success"}
               />
-            </div>
-            <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-[var(--ink-secondary)]">
+      }
+      metadata={
+        <>
               {account.studentCode ? (
                 <CopyableId value={account.studentCode} />
               ) : (
@@ -48,11 +43,9 @@ export const StudentDetailHeader = ({
                 •
               </span>
               <span className="break-all">{account.email || account.username}</span>
-            </div>
-          </div>
-        </div>
-        <ActionMenu items={actionItems} label={text.actions.menuLabel} />
-      </div>
-    </DashboardCard>
+        </>
+      }
+      actions={<ActionMenu items={actionItems} label={text.actions.menuLabel} />}
+    />
   );
 };

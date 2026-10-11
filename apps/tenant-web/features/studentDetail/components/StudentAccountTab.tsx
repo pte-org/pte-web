@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactElement } from "react";
 import type { StudentDetailResponse } from "@pte/api-client";
-import { Alert, Button, Input, PencilIcon } from "@pte/ui";
+import { Alert, Button, Input, PencilIcon, ProfileAccountPanel } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useUpdateStudentProfile } from "../api";
 import type { StudentDetailText } from "../hooks/useStudentDetailText";
@@ -46,15 +46,10 @@ export const StudentAccountTab = ({
   };
 
   return (
-    <article className="overflow-hidden rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)]">
-      <div className="flex flex-col gap-3 border-b border-[var(--divider)] p-4 sm:flex-row sm:items-start sm:justify-between sm:p-5">
-        <div>
-          <h2 className="text-base font-semibold text-[var(--ink-primary)]">
-            {text.account.title}
-          </h2>
-          <p className="mt-1 text-sm text-[var(--ink-secondary)]">{text.account.subtitle}</p>
-        </div>
-        {!editing && (
+    <ProfileAccountPanel
+      title={text.account.title}
+      description={text.account.subtitle}
+      actions={!editing && (
           <Button
             variant="secondary"
             size="sm"
@@ -63,10 +58,8 @@ export const StudentAccountTab = ({
           >
             {text.account.edit}
           </Button>
-        )}
-      </div>
-
-      <div className="flex flex-col gap-5 p-4 sm:p-5">
+      )}
+    >
         {error && <Alert tone="error">{error}</Alert>}
         {saved && <Alert tone="success">{text.account.saved}</Alert>}
 
@@ -128,7 +121,6 @@ export const StudentAccountTab = ({
         ) : (
           <StudentAccountDescription account={account} text={text} />
         )}
-      </div>
-    </article>
+    </ProfileAccountPanel>
   );
 };
