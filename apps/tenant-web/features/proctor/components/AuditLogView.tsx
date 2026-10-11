@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
+import Link from "next/link";
 import { Button, DataTable, PageHeader, type DataTableColumn } from "@pte/ui";
 import { useProctorAuditLog, useProctorSecurityAudit, type ProctorSecurityAuditPage } from "../api";
 import { AUDIT_ACTION_LABELS, PROCTOR_AUDIT_TEXT as T } from "../constants";
@@ -50,7 +51,7 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
     {
       key: "performedBy",
       header: T.COL_PROCTOR,
-      cell: (row) => row.performedBy.fullName || shortId(row.performedBy.publicId),
+      cell: (row) => row.performedBy.fullName || (row.performedBy.publicId ? shortId(row.performedBy.publicId) : "—"),
     },
     {
       key: "note",
@@ -99,6 +100,18 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
         <span>
           {T.COL_PROCTOR}: <code className="font-mono text-xs">#{shortId(sessionPublicId)}</code>
         </span>
+        <div className="flex items-center gap-2">
+          <Link href={`/proctor/sessions/${sessionPublicId}`}>
+            <Button variant="secondary" size="sm">
+              Vào giám sát
+            </Button>
+          </Link>
+          <Link href="/proctor/sessions">
+            <Button variant="secondary" size="sm">
+              Danh sách ca thi
+            </Button>
+          </Link>
+        </div>
       </section>
 
       <div
