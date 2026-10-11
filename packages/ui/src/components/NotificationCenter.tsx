@@ -1,15 +1,15 @@
 "use client";
 
-import { useEffect, useRef, type ReactElement } from "react";
+import { useEffect, useRef, useState, type ReactElement } from "react";
 import type { InboxItemResponse } from "@pte/api-client";
-import { cn } from "../utils/cn";
 import { useLocale } from "../i18n";
-import { Badge } from "./Badge";
 import { Button } from "./Button";
 import { EmptyState } from "./EmptyState";
 import { ErrorState } from "./ErrorState";
 import { BellIcon } from "./icons";
 import { LoadingState } from "./LoadingState";
+import { NotificationFooter } from "./NotificationFooter";
+import { NotificationRows } from "./NotificationRows";
 
 export interface NotificationBellProps {
   items: InboxItemResponse[];
@@ -23,7 +23,10 @@ export interface NotificationBellProps {
   onRetry?: () => void;
   onSelectItem: (item: InboxItemResponse) => void;
   onMarkAllRead: () => void;
-  onViewAll: () => void;
+  hasMore?: boolean;
+  isLoadingMore?: boolean;
+  onLoadMore?: () => void;
+  onCollapse?: () => void;
 }
 
 export interface NotificationHistoryProps {
@@ -34,73 +37,7 @@ export interface NotificationHistoryProps {
   onSelectItem: (item: InboxItemResponse) => void;
 }
 
-const formatDate = (value: string): string =>
-  new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(
-    new Date(value),
-  );
-
 const displayCount = (count: number): string => (count > 99 ? "99+" : String(count));
-
-const importanceVariant = (importance: InboxItemResponse["importance"]): "info" | "warning" =>
-  importance === "IMPORTANT" ? "warning" : "info";
-
-const NOTIFICATION_CATEGORY_KEYS: Record<string, string> = {
-  SYSTEM_NOTICE: "common.notificationCategorySystem",
-  MAINTENANCE: "common.notificationCategoryMaintenance",
-  SESSION: "common.notificationCategorySession",
-  APPLICATION: "common.notificationCategoryApplication",
-  BILLING: "common.notificationCategoryBilling",
-  SUPPORT: "common.notificationCategorySupport",
-};
-
-const NotificationRows = ({
-  items,
-  onSelectItem,
-  compact = false,
-}: {
-  items: InboxItemResponse[];
-  onSelectItem: (item: InboxItemResponse) => void;
-  compact?: boolean;
-}): ReactElement => {
-  const { t } = useLocale();
-
-  return (
-    <div
-      className={cn("divide-y divide-[var(--shell-border)]", compact && "max-h-80 overflow-y-auto")}
-    >
-      {items.map((item) => (
-        <button
-          key={item.publicId}
-          type="button"
-          onClick={() => onSelectItem(item)}
-          className={cn(
-            "block w-full px-4 py-3 text-left transition-colors hover:bg-[var(--surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand)]",
-            item.readAt === null && "bg-[var(--brand-tint)]/50",
-          )}
-          aria-label={`${item.readAt === null ? `${t("common.unread", "Unread")}: ` : ""}${item.title}`}
-        >
-          <div className="flex items-start justify-between gap-3">
-            <span className="min-w-0 flex-1 text-sm font-semibold text-[var(--ink-primary)]">
-              {item.title}
-            </span>
-            {item.readAt === null && (
-              <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-action" />
-            )}
-          </div>
-          <p className="mt-1 line-clamp-2 text-sm text-[var(--ink-secondary)]">{item.body}</p>
-          <div className="mt-2 flex items-center justify-between gap-2 text-xs text-[var(--ink-muted)]">
-            <Badge variant={importanceVariant(item.importance)}>
-              {NOTIFICATION_CATEGORY_KEYS[item.category]
-                ? t(NOTIFICATION_CATEGORY_KEYS[item.category], item.category.replaceAll("_", " "))
-                : item.category.replaceAll("_", " ")}
-            </Badge>
-            <time dateTime={item.deliveredAt}>{formatDate(item.deliveredAt)}</time>
-          </div>
-        </button>
-      ))}
-    </div>
-  );
-};
 
 export const NotificationBell = ({
   items,
@@ -114,13 +51,21 @@ export const NotificationBell = ({
   onRetry,
   onSelectItem,
   onMarkAllRead,
-  onViewAll,
+  hasMore = false,
+  isLoadingMore = false,
+  onLoadMore,
+  onCollapse,
 }: NotificationBellProps): ReactElement => {
   const { t } = useLocale();
+  const [isExpanded, setIsExpanded] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const wasOpenRef = useRef(false);
+
+  useEffect(() => {
+    if (!isOpen) setIsExpanded(false);
+  }, [isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -222,13 +167,34 @@ export const NotificationBell = ({
               />
             </div>
           ) : (
-            <NotificationRows items={items} onSelectItem={onSelectItem} compact />
+            <NotificationRows
+              items={items}
+              onSelectItem={onSelectItem}
+              compact={!isExpanded}
+              expanded={isExpanded}
+            />
           )}
-          <div className="border-t border-[var(--shell-border)] p-2">
-            <Button variant="ghost" size="sm" fullWidth onClick={onViewAll}>
-              {t("common.viewAllNotifications", "View all notifications")}
-            </Button>
-          </div>
+          <NotificationFooter
+            isExpanded={isExpanded}
+            hasMore={hasMore}
+            isLoadingMore={isLoadingMore}
+            onLoadMore={
+              onLoadMore
+                ? () => {
+                    setIsExpanded(true);
+                    onLoadMore();
+                  }
+                : undefined
+            }
+            onCollapse={
+              onCollapse
+                ? () => {
+                    setIsExpanded(false);
+                    onCollapse();
+                  }
+                : undefined
+            }
+          />
         </div>
       )}
     </div>

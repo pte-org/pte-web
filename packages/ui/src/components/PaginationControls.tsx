@@ -42,8 +42,11 @@ export const PaginationControls = ({
   const totalItems = Math.max(meta.totalElements, 0);
 
   return (
-    <div className="flex flex-col items-center justify-between gap-3 text-sm text-[var(--table-muted-text)] sm:flex-row">
-      <div className="flex w-full items-center gap-3 sm:w-auto">
+    <div className="flex flex-col items-start justify-between gap-3 text-sm text-[var(--table-muted-text)] sm:flex-row sm:items-center">
+      <span className="tabular-nums">
+        {t("common.totalRecords", "Total {count} records", { count: totalItems })}
+      </span>
+      <div className="flex w-full items-center justify-end gap-3 sm:w-auto">
         <Pagination
           currentPage={meta.page + 1}
           totalPages={meta.totalPages}
@@ -61,9 +64,6 @@ export const PaginationControls = ({
           />
         )}
       </div>
-      <span className="tabular-nums">
-        {t("common.totalRecords", "Total {count} records", { count: totalItems })}
-      </span>
     </div>
   );
 };

@@ -450,7 +450,10 @@ export function DataTable<TRow>({
 
       {clientSidePagination ? (
         <div className="flex flex-col gap-3 border-t border-[var(--table-border)] px-4 py-3 text-sm text-[var(--table-muted-text)] sm:flex-row sm:items-center sm:justify-between sm:px-5">
-          <div className="flex w-full items-center gap-3 sm:w-auto">
+          <span className="tabular-nums">
+            {t("common.totalRecords", "Total {count} records", { count: filteredRows.length })}
+          </span>
+          <div className="flex w-full items-center justify-end gap-3 sm:w-auto">
             <Pagination
               currentPage={safeCurrentPage}
               totalPages={totalPages}
@@ -469,9 +472,6 @@ export function DataTable<TRow>({
               />
             )}
           </div>
-          <span>
-            {t("common.totalRecords", "Total {count} records", { count: filteredRows.length })}
-          </span>
         </div>
       ) : (
         pagination && (

@@ -1,11 +1,13 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useRef, useState, type ReactElement } from "react";
+import { useEffect, useId, useRef, useState, type ReactElement } from "react";
 import { cn } from "../utils/cn";
 import { ChevronDownIcon } from "./icons";
 import { useLocale } from "../i18n";
 import { DatePicker } from "./DatePicker";
+import { FormField } from "./FormField";
+import { NextAdminCalendarIcon } from "./nextAdminIcons";
 
 export interface DateRangeValue {
   from: string;
@@ -13,6 +15,8 @@ export interface DateRangeValue {
 }
 
 export interface DateRangePickerProps {
+  id?: string;
+  label?: string;
   ariaLabel: string;
   value: DateRangeValue;
   onChange: (value: DateRangeValue) => void;
@@ -43,6 +47,8 @@ function formatDisplayDate(value: string): string {
 }
 
 export const DateRangePicker = ({
+  id,
+  label,
   ariaLabel,
   value,
   onChange,
@@ -54,9 +60,11 @@ export const DateRangePicker = ({
   clearLabel,
 }: DateRangePickerProps): ReactElement => {
   const { t } = useLocale();
+  const generatedId = useId().replace(/:/g, "");
+  const controlId = id ?? `date-range-${generatedId}`;
   const resolvedPlaceholder = placeholder ?? t("common.dateRange", "Date range");
-  const resolvedFromLabel = fromLabel ?? t("common.from", "From");
-  const resolvedToLabel = toLabel ?? t("common.until", "Until");
+  const resolvedFromLabel = fromLabel ?? t("common.fromDate", "From date");
+  const resolvedToLabel = toLabel ?? t("common.toDate", "To date");
   const resolvedClearLabel = clearLabel ?? t("common.clear", "Clear");
   const [isOpen, setIsOpen] = useState(false);
   const [panelPosition, setPanelPosition] = useState<PanelPosition | null>(null);
@@ -124,9 +132,10 @@ export const DateRangePicker = ({
           : resolvedPlaceholder;
 
   return (
-    <>
+    <FormField id={controlId} label={label}>
       <button
         ref={buttonRef}
+        id={controlId}
         type="button"
         aria-label={ariaLabel}
         aria-haspopup="dialog"
@@ -138,7 +147,7 @@ export const DateRangePicker = ({
         }}
         className={cn(
           "flex w-full min-w-[170px] items-center justify-between gap-2 rounded-lg border px-3 text-left text-sm outline-none transition-[background-color,border-color,box-shadow] focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20",
-          isTable ? "h-8" : "h-9",
+          isTable ? "h-8" : "h-10 py-2.5",
           isTable
             ? "border-[var(--table-control-border)] bg-[var(--table-control-background)]"
             : "border-[var(--control-border)] bg-[var(--surface-card)]",
@@ -147,6 +156,12 @@ export const DateRangePicker = ({
           className,
         )}
       >
+        <NextAdminCalendarIcon
+          className={cn(
+            "h-4 w-4 shrink-0",
+            isTable ? "text-[var(--table-muted-text)]" : "text-[var(--ink-muted)]",
+          )}
+        />
         <span className="truncate">{triggerLabel}</span>
         <ChevronDownIcon
           className={cn(
@@ -257,6 +272,6 @@ export const DateRangePicker = ({
           </>,
           document.body,
         )}
-    </>
+    </FormField>
   );
 };
