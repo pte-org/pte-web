@@ -9,6 +9,8 @@ import { getSessionGeneration } from "./sessionLifecycle";
  * future change to the refresh contract is made once, not drifted across
  * both apps. Each app still supplies its own `baseUrl`.
  */
+import { noteTokenRefreshed } from "./sessionTokenLifecycle";
+
 export function createSessionApiClient(baseUrl: string): ApiClient {
   return createApiClient({
     baseUrl,
@@ -24,6 +26,7 @@ export function createSessionApiClient(baseUrl: string): ApiClient {
         refreshToken: tokens.refreshToken,
         expiresAt: Date.now() + tokens.expiresInSeconds * 1000,
       });
+      noteTokenRefreshed(tokens.accessToken);
     },
     onUnauthorized: () => sessionStorage.clear(),
     getSessionGeneration,
