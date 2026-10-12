@@ -37,22 +37,9 @@ export const ExaminerQueueView = (): ReactElement => {
   const searchParams = useSearchParams();
   const text = useExaminerWorkspaceText();
 
-  const urlStatus = searchParams?.get("status");
-  const urlPage = searchParams?.get("page");
-
-  const [status, setStatus] = useState<ExaminerQueueStatus>(parseStatus(urlStatus));
-  const [page, setPage] = useState<number>(urlPage ? Math.max(0, parseInt(urlPage, 10) || 0) : 0);
-
-  useEffect(() => {
-    if (urlStatus !== null) {
-      const parsed = parseStatus(urlStatus);
-      if (parsed !== status) setStatus(parsed);
-    }
-    if (urlPage !== null) {
-      const parsed = Math.max(0, parseInt(urlPage, 10) || 0);
-      if (parsed !== page) setPage(parsed);
-    }
-  }, [urlStatus, urlPage]);
+  const status = parseStatus(searchParams?.get("status"));
+  const rawPage = parseInt(searchParams?.get("page") ?? "0", 10);
+  const page = Number.isInteger(rawPage) && rawPage >= 0 ? rawPage : 0;
 
   const overview = useExaminerOverview();
   const queue = useExaminerQueue(status, page);
@@ -63,19 +50,31 @@ export const ExaminerQueueView = (): ReactElement => {
 
   const updateUrl = useCallback(
     (nextStatus: ExaminerQueueStatus, nextPage: number): void => {
-      const params = new URLSearchParams();
-      if (nextStatus !== "ALL") params.set("status", nextStatus);
-      if (nextPage > 0) params.set("page", String(nextPage));
+      const params = new URLSearchParams(searchParams?.toString() ?? "");
+      if (nextStatus === "ALL") {
+        params.delete("status");
+      } else {
+        params.set("status", nextStatus);
+      }
+      if (nextPage === 0) {
+        params.delete("page");
+      } else {
+        params.set("page", String(nextPage));
+      }
       const qs = params.toString();
       router.replace(qs ? `/examiner/work?${qs}` : "/examiner/work");
     },
-    [router],
+    [router, searchParams],
   );
+
+  useEffect(() => {
+    if (queue.data && queueTotalItems > 0 && page >= queueTotalPages) {
+      updateUrl(status, Math.max(0, queueTotalPages - 1));
+    }
+  }, [page, queue.data, queueTotalItems, queueTotalPages, status, updateUrl]);
 
   const chooseStatus = useCallback(
     (next: ExaminerQueueStatus): void => {
-      setStatus(next);
-      setPage(0);
       updateUrl(next, 0);
     },
     [updateUrl],
@@ -83,7 +82,6 @@ export const ExaminerQueueView = (): ReactElement => {
 
   const choosePage = useCallback(
     (nextPage: number): void => {
-      setPage(nextPage);
       updateUrl(status, nextPage);
     },
     [status, updateUrl],
@@ -141,7 +139,7 @@ export const ExaminerQueueView = (): ReactElement => {
 
       {/* Priority Work Preview */}
       <ExaminerPriorityWork
-        items={overview.data?.priorityQueue ?? []}
+        items={overview.data?.priorityItems ?? overview.data?.priorityQueue ?? []}
         isLoading={overview.isLoading}
         onOpenAttempt={handleOpenAttempt}
       />

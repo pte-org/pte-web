@@ -74,7 +74,7 @@ export function ExaminerWorkspaceOverview({
     {
       status: "PENDING",
       title: text.cardPendingTitle,
-      count: counts?.unstartedCount,
+      count: counts?.pending ?? counts?.unstartedCount,
       description: text.cardPendingDescription,
       borderActiveClass: "border-slate-800 bg-slate-50/50 ring-1 ring-slate-800",
       accentClass: "text-slate-800",
@@ -82,7 +82,7 @@ export function ExaminerWorkspaceOverview({
     {
       status: "IN_PROGRESS",
       title: text.cardInProgressTitle,
-      count: counts?.inProgressCount,
+      count: counts?.inProgress ?? counts?.inProgressCount,
       description: text.cardInProgressDescription,
       borderActiveClass: "border-amber-500 bg-amber-50/40 ring-1 ring-amber-500",
       accentClass: "text-amber-700",
@@ -90,16 +90,16 @@ export function ExaminerWorkspaceOverview({
     {
       status: "COMPLETED",
       title: text.cardCompletedTitle,
-      count: counts?.finalizedCount,
+      count: counts?.completed ?? counts?.finalizedCount,
       description: text.cardCompletedDescription,
       borderActiveClass: "border-emerald-500 bg-emerald-50/40 ring-1 ring-emerald-500",
       accentClass: "text-emerald-700",
     },
   ];
 
-  const totalUnits = progress?.totalUnits ?? 0;
-  const completedUnits = progress?.completedUnits ?? 0;
-  const percentComplete = progress?.percentComplete ?? 0;
+  const totalUnits = progress?.eligibleAnswerTotal ?? progress?.totalUnits ?? 0;
+  const completedUnits = progress?.finalizedAnswerTotal ?? progress?.completedUnits ?? 0;
+  const percentComplete = totalUnits > 0 ? Math.min(100, Math.max(0, (completedUnits / totalUnits) * 100)) : 0;
 
   return (
     <div className="flex flex-col gap-5">
