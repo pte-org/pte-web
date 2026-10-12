@@ -3,12 +3,15 @@ import type {
   AssignedProctorSessionResponse,
   MonitoringAttemptSummaryView,
   MonitoringSnapshotResponse,
+  ProctorScope,
+  ProctorWorkspaceOverviewResponse,
   SecurityAuditPageResponse,
   ViolationEventResponse,
 } from "../types/proctoring";
 
 export const PROCTORING_ENDPOINTS = {
   myAssignments: "/api/v1/proctor-assignments/mine",
+  myOverview: "/api/v1/proctor-assignments/mine/overview",
   monitoringSnapshot: (sessionPublicId: string) =>
     `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/monitoring`,
   studentAttempts: (sessionPublicId: string, studentPublicId: string) =>
@@ -21,16 +24,37 @@ export const PROCTORING_ENDPOINTS = {
     `/api/v1/proctor-sessions/${encodeURIComponent(proctorSessionPublicId)}/close`,
 } as const;
 
+export interface ListAssignedProctorSessionsOptions {
+  scope?: ProctorScope;
+  sort?: string;
+  timezone?: string;
+}
+
 export function listAssignedProctorSessions(
   client: ApiClient,
   page = 0,
   size = DEFAULT_PAGE_SIZE,
+  options?: ListAssignedProctorSessionsOptions,
 ): Promise<PagedResult<AssignedProctorSessionResponse>> {
   const params = new URLSearchParams();
   params.set("page", String(page));
   params.set("size", String(size));
+  if (options?.scope) params.set("scope", options.scope);
+  if (options?.sort) params.set("sort", options.sort);
+  if (options?.timezone) params.set("timezone", options.timezone);
   return client.request<PagedResult<AssignedProctorSessionResponse>>(
     `${PROCTORING_ENDPOINTS.myAssignments}?${params.toString()}`,
+  );
+}
+
+export function getProctorWorkspaceOverview(
+  client: ApiClient,
+  timezone: string,
+): Promise<ProctorWorkspaceOverviewResponse> {
+  const params = new URLSearchParams();
+  params.set("timezone", timezone);
+  return client.request<ProctorWorkspaceOverviewResponse>(
+    `${PROCTORING_ENDPOINTS.myOverview}?${params.toString()}`,
   );
 }
 

@@ -41,6 +41,29 @@ export interface ExaminerQueueItemResponse {
   eligibleAnswerCount: number;
   submittedAnswerCount: number;
   status: Exclude<ExaminerQueueStatus, "ALL">;
+  canFinalize?: boolean;
+  blockingReason?: string | null;
+  hasOutstandingAnswers?: boolean;
+}
+
+export interface ExaminerOverviewCounts {
+  unstartedCount: number;
+  inProgressCount: number;
+  finalizedCount: number;
+  priorityCount: number;
+}
+
+export interface ExaminerOverviewProgress {
+  completedUnits: number;
+  totalUnits: number;
+  percentComplete: number;
+}
+
+export interface ExaminerWorkspaceOverviewResponse {
+  counts: ExaminerOverviewCounts;
+  progress: ExaminerOverviewProgress;
+  priorityQueue: ExaminerQueueItemResponse[];
+  asOf: string;
 }
 
 export interface ExaminerQueueResponse {

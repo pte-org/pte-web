@@ -4,15 +4,25 @@ import type {
   ExaminerQueueResponse,
   ExaminerQueueStatus,
   ExaminerScoreSubmissionResponse,
+  ExaminerWorkspaceOverviewResponse,
   SubmitExaminerScoreRequest,
 } from "../../types/scoring";
 
 export const EXAMINER_WORK_ENDPOINTS = {
   queue: "/api/v1/examiner/work",
+  overview: "/api/v1/examiner/work/overview",
   attempt: (sessionPublicId: string, attemptPublicId: string) =>
     `/api/v1/examiner/work/${sessionPublicId}/${attemptPublicId}`,
   score: (answerPublicId: string) => `/api/v1/examiner/work/answers/${answerPublicId}/score`,
 } as const;
+
+export function getExaminerWorkspaceOverview(
+  client: ApiClient,
+): Promise<ExaminerWorkspaceOverviewResponse> {
+  return client.request<ExaminerWorkspaceOverviewResponse>(
+    EXAMINER_WORK_ENDPOINTS.overview,
+  );
+}
 
 export interface ListExaminerWorkParams {
   status?: ExaminerQueueStatus;

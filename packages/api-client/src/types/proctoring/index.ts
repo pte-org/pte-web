@@ -16,9 +16,50 @@ export interface AssignedProctorSessionResponse {
   assignmentRole: string;
   sessionPublicId?: string;
   role?: ProctorRole | string;
+  canMonitor?: boolean;
+  monitoringBlockingReason?: string | null;
 }
 
 export type AssignedProctorSessionPage = PagedResult<AssignedProctorSessionResponse>;
+
+export type ProctorScope = "ALL" | "ACCESSIBLE" | "UPCOMING" | "TODAY";
+
+export interface ProctorWorkspaceSessionResponse {
+  assignmentPublicId: string;
+  examSessionPublicId: string;
+  name: string;
+  sessionCode?: string | null;
+  status: SessionStatus | string;
+  opensAt: string;
+  closesAt: string;
+  assignmentRole: string;
+  canMonitor: boolean;
+  monitoringBlockingReason: string | null;
+}
+
+export interface ProctorOverviewCounts {
+  accessibleCount: number;
+  upcomingCount: number;
+  todayCount: number;
+  priorityCount: number;
+}
+
+export interface ProctorWorkspaceOverviewResponse {
+  counts: ProctorOverviewCounts;
+  prioritySessions: ProctorWorkspaceSessionResponse[];
+  asOf: string;
+  timezone: string;
+  dayStart: string;
+  dayEnd: string;
+}
+
+export interface ProctorAssignedSessionsPageResponse {
+  items: ProctorWorkspaceSessionResponse[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}
 
 export interface ProctorMonitoringSessionView {
   sessionPublicId: string;

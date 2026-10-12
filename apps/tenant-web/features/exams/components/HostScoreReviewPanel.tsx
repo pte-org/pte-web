@@ -408,7 +408,7 @@ export const HostScoreReviewPanel = ({
           {t(
             "tenant.scoreReview.pendingExaminerCount",
             `${review.data?.pendingExaminerAnswerCount} examiner answer(s) are still pending submission before publication.`,
-            { count: review.data?.pendingExaminerAnswerCount },
+            { count: review.data?.pendingExaminerAnswerCount ?? 0 },
           )}
         </Alert>
       )}
@@ -420,7 +420,7 @@ export const HostScoreReviewPanel = ({
           {t(
             "tenant.scoreReview.unavailableScoresCount",
             `${review.data?.unavailableSelectedAnswerCount} answer(s) have selected scores that are unavailable.`,
-            { count: review.data?.unavailableSelectedAnswerCount },
+            { count: review.data?.unavailableSelectedAnswerCount ?? 0 },
           )}
         </Alert>
       )}
