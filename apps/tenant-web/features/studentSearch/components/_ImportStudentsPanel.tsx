@@ -64,7 +64,7 @@ export const ImportStudentsPanel = ({ onCreated }: ImportStudentsPanelProps): Re
 
   return (
     <div className="flex flex-col gap-4">
-      <RosterTemplateButton />
+      <RosterTemplateButton showHint={false} />
       <FileDropzone
         id="student-roster-file"
         label={T.fileLabel}
