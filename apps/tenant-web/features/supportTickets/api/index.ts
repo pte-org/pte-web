@@ -29,10 +29,11 @@ export function useSupportTickets(
   category?: TicketCategory,
   page = 0,
   size = DEFAULT_PAGE_SIZE,
+  search = "",
 ): UseQueryResult<PagedResult<SupportTicketSummaryResponse>> {
   return useQuery({
-    queryKey: [...SUPPORT_TICKETS_QUERY_KEY, status ?? "ALL", category ?? "ALL", page, size],
-    queryFn: () => listTickets(apiClient, { status, category, page, size }),
+    queryKey: [...SUPPORT_TICKETS_QUERY_KEY, status ?? "ALL", category ?? "ALL", search, page, size],
+    queryFn: () => listTickets(apiClient, { status, category, search, page, size }),
     placeholderData: keepPreviousData,
   });
 }

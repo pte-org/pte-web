@@ -60,10 +60,11 @@ export function useOrdersQuery(
 export function useOrdersPage(
   page: number,
   size: number,
+  search = "",
 ): UseQueryResult<PagedResult<OrderResponse>> {
   return useQuery({
-    queryKey: [...ORDERS_QUERY_KEY, page, size],
-    queryFn: () => listOrders(apiClient, page, size),
+    queryKey: [...ORDERS_QUERY_KEY, search, page, size],
+    queryFn: () => listOrders(apiClient, page, size, search),
   });
 }
 

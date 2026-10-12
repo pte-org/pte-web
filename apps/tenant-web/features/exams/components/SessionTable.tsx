@@ -20,6 +20,7 @@ import {
   SESSION_STATUS_VARIANT,
 } from "../constants";
 import type { ExamSession } from "../types";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 
 interface SessionTableProps {
   sessions: ExamSession[];
@@ -56,6 +57,7 @@ export const SessionTable = ({
   toolbarActions,
 }: SessionTableProps): ReactElement => {
   const { locale, t } = useLocale();
+  const searchText = useTenantSearchText("sessions");
   const [dateRange, setDateRange] = useState<DateRangeValue>(EMPTY_DATE_RANGE);
   const dateRangeLabel = t("tenant.examList.dateRange", "Date range");
   const filteredSessions = useMemo(
@@ -158,6 +160,8 @@ export const SessionTable = ({
       isLoading={isLoading}
       emptyTitle={t("tenant.examList.emptyTitle", EXAMS_TEXT.EMPTY_TITLE)}
       emptyDescription={t("tenant.examList.emptyDescription", EXAMS_TEXT.EMPTY_TEXT)}
+      searchPlaceholder={searchText.placeholder}
+      searchAriaLabel={searchText.ariaLabel}
       filters={
         <DateRangePicker
           ariaLabel={dateRangeLabel}

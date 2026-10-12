@@ -16,6 +16,7 @@ import {
 import type { ProgramResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import {
   PROGRAM_STATUS_LABELS,
   PROGRAM_STATUS_VARIANT,
@@ -49,6 +50,7 @@ function formatDateRange(startDate: string | null, endDate: string | null): stri
 export const ProgramsListView = (): ReactElement => {
   const labels = useOrgLabels();
   const { t } = useLocale();
+  const searchText = useTenantSearchText("programs");
   const router = useRouter();
   const programLabel = t("nav.program", labels.program);
   const text = {
@@ -161,6 +163,8 @@ export const ProgramsListView = (): ReactElement => {
         isLoading={organizationsLoading || programsLoading}
         emptyTitle={text.empty}
         emptyDescription={text.emptyDescription}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
         rowActionsHeader={text.actions}
         rowActions={(program) => (
           <ActionMenu

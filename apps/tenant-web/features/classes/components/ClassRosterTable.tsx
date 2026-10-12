@@ -3,6 +3,7 @@
 import { useState, type ReactElement } from "react";
 import { ActionMenu, Alert, ConfirmDialog, DataTable, type DataTableColumn } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import {
   CLASS_ROSTER_ROW_ACTIONS_TEXT,
   CLASS_ROSTER_TABLE_HEADERS,
@@ -107,6 +108,7 @@ export const ClassRosterTable = ({
   classLabel,
   className,
 }: ClassRosterTableProps): ReactElement => {
+  const searchText = useTenantSearchText("roster");
   const {
     data: roster,
     isLoading,
@@ -206,6 +208,8 @@ export const ClassRosterTable = ({
         isLoading={isLoading}
         emptyTitle={CLASS_ROSTER_TEXT.emptyTitle}
         emptyDescription={CLASS_ROSTER_TEXT.emptyText}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
         rowActionsHeader={CLASS_ROSTER_TABLE_HEADERS.ACTIONS}
         rowActions={(entry) => (
           <RowActions

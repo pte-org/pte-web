@@ -17,6 +17,7 @@ import {
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { pluralize } from "@/features/orgLabels/constants";
 import { useAllTenantClasses, type TenantClassOption } from "../api";
 import {
@@ -104,6 +105,7 @@ export const ClassesListView = ({
 }: ClassesListViewProps): ReactElement => {
   const labels = useOrgLabels();
   const { t } = useLocale();
+  const searchText = useTenantSearchText("classes");
   const classLabel = t("nav.class", labels.class);
   const programLabel = t("nav.program", labels.program);
   const text = {
@@ -266,6 +268,8 @@ export const ClassesListView = ({
         isLoading={isLoading}
         emptyTitle={text.noClassesTitle}
         emptyDescription={text.noClassesDescription}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
         rowActionsHeader={text.actions}
         rowActions={(option) => (
           <ClassRowActions option={option} onAssignStudents={onRequestAssignStudents} />

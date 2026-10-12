@@ -13,6 +13,7 @@ import {
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useAllTenantClasses } from "@/features/classes/api";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { CLASS_ASSIGNMENT_TEXT } from "../constants";
 import { useAssignClass, useAssignedClasses, useUnassignClass } from "../api";
 import type { AssignedClass } from "../types";
@@ -30,6 +31,7 @@ export const ClassAssignmentSection = ({
   canModify,
 }: ClassAssignmentSectionProps): ReactElement => {
   const { t } = useLocale();
+  const searchText = useTenantSearchText("classAssignment");
   const { data: assignedClasses, isLoading } = useAssignedClasses(sessionPublicId);
   const { data: tenantClasses, isLoading: tenantClassesLoading } = useAllTenantClasses();
   const assign = useAssignClass(sessionPublicId);
@@ -108,6 +110,8 @@ export const ClassAssignmentSection = ({
         getRowKey={(entry) => entry.classPublicId}
         isLoading={isLoading}
         emptyTitle={text.empty}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
         rowActionsHeader={canModify ? text.actions : undefined}
         rowActions={
           canModify

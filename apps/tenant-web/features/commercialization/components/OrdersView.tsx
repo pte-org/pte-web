@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { ActionMenu, Alert, DataTable, EyeIcon, PaginationControls } from "@pte/ui";
 import { DEFAULT_PAGE_SIZE, type OrderResponse } from "@pte/api-client";
 import { useOrdersPage } from "../api";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
+import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
 import { BILLING_TEXT as T } from "../constants";
 import { BILLING_STATUS_FILTER_OPTIONS } from "../statusConstants";
 import { BillingPanel } from "./BillingPanel";
@@ -14,9 +16,12 @@ const formatDate = (value: string): string => new Date(value).toLocaleString();
 
 export const OrdersView = (): ReactElement => {
   const router = useRouter();
+  const searchText = useTenantSearchText("orders");
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
-  const { data, isLoading, isError } = useOrdersPage(page, size);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(search);
+  const { data, isLoading, isError } = useOrdersPage(page, size, debouncedSearch);
   const orders = data?.data ?? [];
 
   return (
@@ -81,6 +86,14 @@ export const OrdersView = (): ReactElement => {
           rowActionsHeader=""
           isLoading={isLoading}
           emptyTitle={T.NO_ORDERS}
+          searchPlaceholder={searchText.placeholder}
+          searchAriaLabel={searchText.ariaLabel}
+          searchValue={search}
+          onSearchChange={(value) => {
+            setSearch(value);
+            setPage(0);
+          }}
+          clientSideFiltering={false}
           clientSidePagination={false}
           pagination={
             data ? (

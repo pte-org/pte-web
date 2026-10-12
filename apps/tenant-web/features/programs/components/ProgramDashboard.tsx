@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 import { Alert, CollapsibleSection, DataTable, LoadingState, type DataTableColumn } from "@pte/ui";
 import type { ProgramDashboardResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { PROGRAM_DASHBOARD_TABLE_HEADERS, PROGRAM_DASHBOARD_TEXT } from "../constants";
 import { useProgramDashboard } from "../api";
 
@@ -18,6 +19,7 @@ export const ProgramDashboard = ({
   programPublicId,
   classLabel,
 }: ProgramDashboardProps): ReactElement => {
+  const searchText = useTenantSearchText("className");
   const {
     data: dashboard,
     isLoading,
@@ -68,6 +70,8 @@ export const ProgramDashboard = ({
             columns={columns}
             rows={dashboard.classes}
             getRowKey={(row) => row.classPublicId}
+            searchPlaceholder={searchText.placeholder}
+            searchAriaLabel={searchText.ariaLabel}
           />
         </div>
       )}

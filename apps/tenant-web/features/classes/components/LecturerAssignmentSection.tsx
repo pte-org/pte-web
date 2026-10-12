@@ -3,6 +3,7 @@
 import { useState, type ReactElement } from "react";
 import { ActionMenu, Alert, DataTable, TrashIcon, type DataTableColumn } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { LECTURER_SECTION_TEXT, LECTURER_TABLE_HEADERS } from "../constants";
 import { useLecturerAssignments, useUnassignLecturer } from "../api";
 import type { LecturerAssignmentEntry } from "../types";
@@ -21,6 +22,7 @@ export const LecturerAssignmentSection = ({
   programPublicId,
   classPublicId,
 }: LecturerAssignmentSectionProps): ReactElement => {
+  const searchText = useTenantSearchText("lecturers");
   const { data: assignments, isLoading } = useLecturerAssignments(
     organizationPublicId,
     programPublicId,
@@ -61,6 +63,8 @@ export const LecturerAssignmentSection = ({
         getRowKey={(entry) => entry.assignmentPublicId}
         isLoading={isLoading}
         emptyTitle={T.emptyTitle}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
         rowActionsHeader={LECTURER_TABLE_HEADERS.ACTIONS}
         rowActions={(entry) => (
           <ActionMenu

@@ -4,6 +4,7 @@ import { useState, type ReactElement } from "react";
 import { Alert, Badge, DataTable, type DataTableColumn } from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import {
   CLASS_STATUS_LABELS,
   CLASS_STATUS_FILTER_OPTIONS,
@@ -35,6 +36,7 @@ export const ClassesSection = ({
   classLabel,
   studentCountByClassPublicId,
 }: ClassesSectionProps): ReactElement => {
+  const searchText = useTenantSearchText("classSection");
   const { data: classes, isLoading } = useClasses(organizationPublicId, programPublicId);
   const [editingClass, setEditingClass] = useState<ClassResponse | null>(null);
   const update = useUpdateClass(
@@ -129,6 +131,8 @@ export const ClassesSection = ({
         isLoading={isLoading}
         emptyTitle={CLASSES_SECTION_TEXT.emptyInlineTitle(classLabel)}
         emptyDescription={CLASSES_SECTION_TEXT.emptyInlineDescription(classLabel)}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
         rowActionsHeader={CLASS_TABLE_HEADERS.ACTIONS}
         rowActions={(studentClass) => (
           <ClassRowActions

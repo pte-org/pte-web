@@ -282,10 +282,11 @@ export function useCancelSession(publicId: string): UseMutationResult<ExamSessio
 export function useExaminerAssignmentOverview(
   sessionPublicId: string,
   page: number,
+  search = "",
 ): UseQueryResult<ExaminerAssignmentOverviewResponse> {
   return useQuery({
-    queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId, page],
-    queryFn: () => getExaminerAssignmentOverview(apiClient, sessionPublicId, page, 20),
+    queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId, search, page],
+    queryFn: () => getExaminerAssignmentOverview(apiClient, sessionPublicId, page, 20, search),
     enabled: sessionPublicId.length > 0,
   });
 }
@@ -457,13 +458,15 @@ export function useAnswers(
   statusFilter: string,
   page: number,
   size = DEFAULT_PAGE_SIZE,
+  search = "",
 ): UseQueryResult<AnswerListResponse> {
   return useQuery({
-    queryKey: [...ANSWERS_QUERY_KEY, sessionPublicId, statusFilter, page, size],
+    queryKey: [...ANSWERS_QUERY_KEY, sessionPublicId, statusFilter, search, page, size],
     queryFn: () =>
       listAnswers(apiClient, {
         sessionPublicId,
         status: statusFilter || undefined,
+        search,
         page,
         size,
       }),

@@ -484,6 +484,7 @@ export const HostScoreReviewPanel = ({
       )}
 
       <DataTable
+        showSearch={false}
         columns={answerColumns}
         rows={answers}
         getRowKey={(answer) => answer.answerPublicId}
@@ -505,6 +506,7 @@ export const HostScoreReviewPanel = ({
         ) : null}
         <div className="mt-3">
           <DataTable
+            showSearch={false}
             columns={auditColumns}
             rows={audits.data ?? EMPTY_AUDITS}
             getRowKey={(audit) => audit.auditPublicId}

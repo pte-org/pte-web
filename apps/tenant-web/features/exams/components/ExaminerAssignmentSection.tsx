@@ -21,6 +21,8 @@ import {
 } from "@pte/ui";
 import { useAllTenantClasses, type TenantClassOption } from "@/features/classes/api";
 import { errorMessage } from "@/features/examoperations/errorMessage";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
+import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
 import { EXAMINER_ASSIGNMENT_TEXT as T, SESSION_DETAIL_TEXT } from "../constants";
 import {
   useActiveExaminers,
@@ -79,16 +81,19 @@ export const ExaminerAssignmentSection = ({
   sessionPublicId,
 }: ExaminerAssignmentSectionProps): ReactElement => {
   const { locale, t } = useLocale();
+  const searchText = useTenantSearchText("examinerBatches");
   const [mode, setMode] = useState<ExaminerAssignmentMode>("RANDOM");
   const [scopes, setScopes] = useState<ScopeDraft[]>([]);
   const [selectedExaminerIds, setSelectedExaminerIds] = useState<string[]>([]);
   const [batchPage, setBatchPage] = useState(0);
+  const [batchSearch, setBatchSearch] = useState("");
+  const debouncedBatchSearch = useDebouncedSearch(batchSearch);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
   const classesQuery = useAllTenantClasses();
   const classes = classesQuery.data ?? EMPTY_CLASSES;
   const examinersQuery = useActiveExaminers();
   const examiners = examinersQuery.data ?? EMPTY_USERS;
-  const overview = useExaminerAssignmentOverview(sessionPublicId, batchPage);
+  const overview = useExaminerAssignmentOverview(sessionPublicId, batchPage, debouncedBatchSearch);
   const createPreview = useCreateExaminerAssignmentPreview(sessionPublicId);
   const confirmPreview = useConfirmExaminerAssignmentPreview(sessionPublicId);
   const classesLoading = classesQuery.isLoading;
@@ -606,7 +611,15 @@ export const ExaminerAssignmentSection = ({
             getRowKey={(batch) => batch.batchPublicId}
             isLoading={overview.isLoading}
             emptyTitle={text.noBatches}
+            searchPlaceholder={searchText.placeholder}
+            searchAriaLabel={searchText.ariaLabel}
+            searchValue={batchSearch}
+            onSearchChange={(value) => {
+              setBatchSearch(value);
+              setBatchPage(0);
+            }}
             rowActionsHeader={text.actions}
+            clientSideFiltering={false}
             clientSidePagination={false}
             rowActions={(batch) =>
               batch.status === "PREVIEWED" &&
@@ -669,6 +682,7 @@ function LoadTable({ loads, examiners, labels }: LoadTableProps): ReactElement |
     <div className="flex flex-col gap-2">
       <h4 className="text-sm font-semibold text-[var(--ink-primary)]">{labels.loads}</h4>
       <DataTable
+        showSearch={false}
         columns={
           [
             {
