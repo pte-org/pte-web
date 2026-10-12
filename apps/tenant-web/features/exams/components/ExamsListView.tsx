@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Button } from "@pte/ui";
+import { Alert, Button, useLocale } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { EXAMS_TEXT } from "../constants";
 import { useActiveScoreTemplate, useCreateExamWorkflow, useSessions } from "../api";
@@ -9,6 +9,7 @@ import { SessionTable } from "./SessionTable";
 import { CreateExamWizard } from "./CreateExamWizard";
 
 export const ExamsListView = (): ReactElement => {
+  const { t } = useLocale();
   const { data: sessions, isLoading } = useSessions();
   const create = useCreateExamWorkflow();
   const activeTemplate = useActiveScoreTemplate();
@@ -31,7 +32,9 @@ export const ExamsListView = (): ReactElement => {
         sessions={sessions ?? []}
         isLoading={isLoading}
         toolbarActions={
-          <Button onClick={() => setCreateOpen(true)}>+ {EXAMS_TEXT.ADD_EXAM}</Button>
+          <Button onClick={() => setCreateOpen(true)}>
+            + {t("tenant.createExam.TITLE", EXAMS_TEXT.ADD_EXAM)}
+          </Button>
         }
       />
 

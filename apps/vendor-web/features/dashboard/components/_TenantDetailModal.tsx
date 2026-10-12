@@ -7,7 +7,8 @@ import {
   TENANT_STATUS_VARIANT,
 } from "../../tenancy/constants";
 import type { Tenant } from "../../tenancy/types";
-import { DASHBOARD_TENANT_DETAIL_TEXT } from "../constants";
+import { DASHBOARD_TENANT_DETAIL_TEXT as RAW_DASHBOARD_TENANT_DETAIL_TEXT } from "../constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 interface TenantDetailModalProps {
   tenant: Tenant | null;
@@ -22,8 +23,7 @@ interface DetailItemProps {
 const DETAIL_GRID_CLASS = "grid gap-4 md:grid-cols-2";
 const DETAIL_ITEM_CLASS = "rounded-lg border border-slate-100 bg-slate-50 p-4";
 
-const getDisplayValue = (value: string | null): string =>
-  value?.trim() || DASHBOARD_TENANT_DETAIL_TEXT.EMPTY_VALUE;
+const getDisplayValue = (value: string | null): string => value?.trim() || "—";
 
 const getLocationLabel = (location: string | null): string => {
   const option = TENANT_LOCATION_OPTIONS.find((item) => item.value === location);
@@ -37,49 +37,43 @@ const DetailItem = ({ label, value }: DetailItemProps): ReactElement => (
   </div>
 );
 
-export const TenantDetailModal = ({ tenant, onClose }: TenantDetailModalProps): ReactElement => (
-  <Modal
-    open={tenant !== null}
-    onClose={onClose}
-    title={DASHBOARD_TENANT_DETAIL_TEXT.TITLE}
-    size="xl"
-    footer={
-      <Button variant="secondary" onClick={onClose}>
-        {DASHBOARD_TENANT_DETAIL_TEXT.CLOSE}
-      </Button>
-    }
-  >
-    {tenant && (
-      <div className={DETAIL_GRID_CLASS}>
-        <DetailItem label={DASHBOARD_TENANT_DETAIL_TEXT.NAME} value={tenant.name} />
-        <DetailItem label={DASHBOARD_TENANT_DETAIL_TEXT.SLUG} value={tenant.slug} />
-        <DetailItem
-          label={DASHBOARD_TENANT_DETAIL_TEXT.LOGIN_EMAIL}
-          value={getDisplayValue(tenant.contactEmail)}
-        />
-        <DetailItem
-          label={DASHBOARD_TENANT_DETAIL_TEXT.PLAN}
-          value={TENANT_PLAN_LABELS[tenant.plan]}
-        />
-        <DetailItem
-          label={DASHBOARD_TENANT_DETAIL_TEXT.STATUS}
-          value={
-            <Badge variant={TENANT_STATUS_VARIANT[tenant.status]}>
-              {TENANT_STATUS_LABELS[tenant.status]}
-            </Badge>
-          }
-        />
-        <DetailItem
-          label={DASHBOARD_TENANT_DETAIL_TEXT.SEATS}
-          value={`${tenant.seatsUsed} / ${tenant.seatsTotal}`}
-        />
-        <DetailItem label={DASHBOARD_TENANT_DETAIL_TEXT.ACTIVATED} value={tenant.activatedAt} />
-        <DetailItem label={DASHBOARD_TENANT_DETAIL_TEXT.EXPIRES} value={tenant.expiresAt} />
-        <DetailItem
-          label={DASHBOARD_TENANT_DETAIL_TEXT.LOCATION}
-          value={getLocationLabel(tenant.location)}
-        />
-      </div>
-    )}
-  </Modal>
-);
+export const TenantDetailModal = ({ tenant, onClose }: TenantDetailModalProps): ReactElement => {
+  const T = useAdminCopy(RAW_DASHBOARD_TENANT_DETAIL_TEXT);
+  const planLabels = useAdminCopy(TENANT_PLAN_LABELS);
+  const statusLabels = useAdminCopy(TENANT_STATUS_LABELS);
+
+  return (
+    <Modal
+      open={tenant !== null}
+      onClose={onClose}
+      title={T.TITLE}
+      size="xl"
+      footer={
+        <Button variant="secondary" onClick={onClose}>
+          {T.CLOSE}
+        </Button>
+      }
+    >
+      {tenant && (
+        <div className={DETAIL_GRID_CLASS}>
+          <DetailItem label={T.NAME} value={tenant.name} />
+          <DetailItem label={T.SLUG} value={tenant.slug} />
+          <DetailItem label={T.LOGIN_EMAIL} value={getDisplayValue(tenant.contactEmail)} />
+          <DetailItem label={T.PLAN} value={planLabels[tenant.plan]} />
+          <DetailItem
+            label={T.STATUS}
+            value={
+              <Badge variant={TENANT_STATUS_VARIANT[tenant.status]}>
+                {statusLabels[tenant.status]}
+              </Badge>
+            }
+          />
+          <DetailItem label={T.SEATS} value={`${tenant.seatsUsed} / ${tenant.seatsTotal}`} />
+          <DetailItem label={T.ACTIVATED} value={tenant.activatedAt} />
+          <DetailItem label={T.EXPIRES} value={tenant.expiresAt} />
+          <DetailItem label={T.LOCATION} value={getLocationLabel(tenant.location)} />
+        </div>
+      )}
+    </Modal>
+  );
+};

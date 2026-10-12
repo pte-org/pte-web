@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
-import { SYSTEM_HEALTH_TEXT } from "../constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { SYSTEM_HEALTH_TEXT as RAW_SYSTEM_HEALTH_TEXT } from "../constants";
 import type { SystemHealth } from "../types";
 
 interface SystemHealthPanelProps {
@@ -24,32 +25,32 @@ const Metric = ({
   </div>
 );
 
-export const SystemHealthPanel = ({ health }: SystemHealthPanelProps): ReactElement => (
-  <aside className="flex flex-col gap-3">
-    <h2 className="text-sm font-semibold text-gray-700">{SYSTEM_HEALTH_TEXT.TITLE}</h2>
-    <Metric
-      label={SYSTEM_HEALTH_TEXT.API_ERROR_RATE}
-      value={health?.apiErrorRate ?? SYSTEM_HEALTH_TEXT.EMPTY_VALUE}
-    />
-    <Metric
-      label={SYSTEM_HEALTH_TEXT.AI_QUEUE}
-      value={String(health?.aiQueueDepth ?? SYSTEM_HEALTH_TEXT.EMPTY_VALUE)}
-      unit={SYSTEM_HEALTH_TEXT.AI_QUEUE_UNIT}
-    />
-    <Metric
-      label={SYSTEM_HEALTH_TEXT.DELIVERY_ERRORS}
-      value={String(health?.deliveryErrors ?? SYSTEM_HEALTH_TEXT.EMPTY_VALUE)}
-      unit={SYSTEM_HEALTH_TEXT.DELIVERY_ERRORS_UNIT}
-    />
-    <div className="rounded-xl bg-blue-700 p-4 text-white">
-      <p className="text-sm font-semibold">{SYSTEM_HEALTH_TEXT.SERVER_STATUS}</p>
-      <p className="mt-1 text-xs text-blue-100">{SYSTEM_HEALTH_TEXT.OPERATIONAL}</p>
-      <button
-        type="button"
-        className="mt-3 rounded-md bg-white/15 px-3 py-1.5 text-xs font-medium hover:bg-white/25"
-      >
-        {SYSTEM_HEALTH_TEXT.VIEW_LOGS}
-      </button>
-    </div>
-  </aside>
-);
+export const SystemHealthPanel = ({ health }: SystemHealthPanelProps): ReactElement => {
+  const T = useAdminCopy(RAW_SYSTEM_HEALTH_TEXT);
+  return (
+    <aside className="flex flex-col gap-3">
+      <h2 className="text-sm font-semibold text-gray-700">{T.TITLE}</h2>
+      <Metric label={T.API_ERROR_RATE} value={health?.apiErrorRate ?? T.EMPTY_VALUE} />
+      <Metric
+        label={T.AI_QUEUE}
+        value={String(health?.aiQueueDepth ?? T.EMPTY_VALUE)}
+        unit={T.AI_QUEUE_UNIT}
+      />
+      <Metric
+        label={T.DELIVERY_ERRORS}
+        value={String(health?.deliveryErrors ?? T.EMPTY_VALUE)}
+        unit={T.DELIVERY_ERRORS_UNIT}
+      />
+      <div className="rounded-xl bg-blue-700 p-4 text-white">
+        <p className="text-sm font-semibold">{T.SERVER_STATUS}</p>
+        <p className="mt-1 text-xs text-blue-100">{T.OPERATIONAL}</p>
+        <button
+          type="button"
+          className="mt-3 rounded-md bg-white/15 px-3 py-1.5 text-xs font-medium hover:bg-white/25"
+        >
+          {T.VIEW_LOGS}
+        </button>
+      </div>
+    </aside>
+  );
+};

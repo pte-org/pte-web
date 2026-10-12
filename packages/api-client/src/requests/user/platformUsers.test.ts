@@ -20,21 +20,20 @@ describe("platform user request contract", () => {
   it("lists bounded platform users with page parameters", async () => {
     const client = fakeClient();
     await listPlatformUsers(client, { page: 2, size: 50 });
-    expect(client.request).toHaveBeenCalledWith(
-      `${PLATFORM_USER_ENDPOINTS.users}?page=2&size=50`,
-    );
+    expect(client.request).toHaveBeenCalledWith(`${PLATFORM_USER_ENDPOINTS.users}?page=2&size=50`);
   });
 
-  it("sends role and status filters to the platform-user endpoint", async () => {
+  it("sends search, role, and status filters to the platform-user endpoint", async () => {
     const client = fakeClient();
     await listPlatformUsers(client, {
       page: 0,
       size: 100,
+      search: "  Academic staff  ",
       role: "ACADEMIC_STAFF",
       status: "SUSPENDED",
     });
     expect(client.request).toHaveBeenCalledWith(
-      `${PLATFORM_USER_ENDPOINTS.users}?page=0&size=100&role=ACADEMIC_STAFF&status=SUSPENDED`,
+      `${PLATFORM_USER_ENDPOINTS.users}?page=0&size=100&search=Academic+staff&role=ACADEMIC_STAFF&status=SUSPENDED`,
     );
   });
 

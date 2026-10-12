@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactElement, type ReactNode } from "react";
+import { HeaderSearch, type HeaderSearchItem } from "../components/HeaderSearch";
 import { DotsVerticalIcon, MenuIcon } from "../components/icons";
 import { useLocale } from "../i18n";
 import { cn } from "../utils/cn";
@@ -8,6 +9,9 @@ import { cn } from "../utils/cn";
 export interface DashboardHeaderProps {
   brand?: ReactNode;
   search?: ReactNode;
+  searchItems?: readonly HeaderSearchItem[];
+  searchPlaceholder?: string;
+  onSearchNavigate?: (url: string) => void;
   actions?: ReactNode;
   onMenuClick?: () => void;
 }
@@ -15,11 +19,24 @@ export interface DashboardHeaderProps {
 export const DashboardHeader = ({
   brand,
   search,
+  searchItems,
+  searchPlaceholder,
+  onSearchNavigate,
   actions,
   onMenuClick,
 }: DashboardHeaderProps): ReactElement => {
   const [isQuickActionsOpen, setIsQuickActionsOpen] = useState(false);
   const { t } = useLocale();
+  const resolvedSearch =
+    searchItems !== undefined ? (
+      <HeaderSearch
+        items={searchItems}
+        placeholder={searchPlaceholder}
+        onNavigate={onSearchNavigate}
+      />
+    ) : (
+      search
+    );
 
   return (
     <>
@@ -55,7 +72,7 @@ export const DashboardHeader = ({
 
         <div className="hidden min-h-[72px] items-center gap-4 md:flex">
           <div className="min-w-0 shrink-0">{brand}</div>
-          {search && <div className="min-w-0 flex-1">{search}</div>}
+          {resolvedSearch && <div className="min-w-0 max-w-xs flex-1">{resolvedSearch}</div>}
           <div className="ml-auto flex shrink-0 items-center gap-2.5">{actions}</div>
         </div>
       </header>

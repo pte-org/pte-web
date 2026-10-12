@@ -1,4 +1,5 @@
 export const EXAM_STAFF_QUERY_KEY = ["examStaff"] as const;
+export const EXAM_STAFF_EMPTY_VALUE = "—";
 
 export const EXAM_STAFF_TEXT = {
   title: "Exam Staff",
@@ -27,7 +28,6 @@ export const EXAM_STAFF_TEXT = {
   syncing: "Updating the list…",
   email: "Email",
   fullName: "Full name",
-  account: "Account",
   role: "Role",
   status: "Status",
   actions: "Actions",

@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { Input } from "@pte/ui";
+import { DateTimeInput, Input } from "@pte/ui";
 import { CREATE_EXAM_WIZARD_TEXT } from "../../constants";
 import type { CreateExamWorkflowInput } from "../../types";
 import type { CreateExamWorkflowErrors } from "../../utils/validateCreateExamWorkflow";
@@ -31,15 +31,13 @@ export function SchedulePolicyStep({
         {wizardText.STEP_SCHEDULE_POLICY}
       </div>
       <div className="grid gap-4 rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5 sm:grid-cols-2">
-        <Input
-          type="datetime-local"
+        <DateTimeInput
           label={wizardText.OPENS_AT_LABEL}
           value={form.opensAt}
           error={localizeError(errors.opensAt)}
           onChange={(event) => onUpdate("opensAt", event.target.value)}
         />
-        <Input
-          type="datetime-local"
+        <DateTimeInput
           label={wizardText.CLOSES_AT_LABEL}
           value={form.closesAt}
           error={localizeError(errors.closesAt)}

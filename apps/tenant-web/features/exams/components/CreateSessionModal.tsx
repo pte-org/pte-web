@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Checkbox, Input, Modal, Select } from "@pte/ui";
+import { Alert, Checkbox, DateTimeInput, Input, Modal, Select } from "@pte/ui";
 import { useSubscriptionsQuery, useTenantPlansQuery } from "@/features/commercialization/api";
 import { CREATE_SESSION_TEXT, EMPTY_CREATE_SESSION, EXAM_SKILL_OPTIONS } from "../constants";
 import { validateCreateSession } from "../utils/validateCreateSession";
@@ -30,7 +30,9 @@ export const CreateSessionModal = ({
 
   const { data: subscriptions = [], isLoading: subscriptionsLoading } = useSubscriptionsQuery();
   const { data: plans = [] } = useTenantPlansQuery();
-  const activeSubscriptions = subscriptions.filter((subscription) => subscription.status === "ACTIVE");
+  const activeSubscriptions = subscriptions.filter(
+    (subscription) => subscription.status === "ACTIVE",
+  );
   const planNameById = new Map(plans.map((plan) => [plan.publicId, plan.name]));
 
   const handleChange = (
@@ -125,15 +127,13 @@ export const CreateSessionModal = ({
           </div>
           {errors.skills && <span className="text-sm text-red-600">{errors.skills}</span>}
         </div>
-        <Input
-          type="datetime-local"
+        <DateTimeInput
           label={T.OPENS_AT_LABEL}
           value={form.opensAt}
           error={errors.opensAt}
           onChange={(event) => handleChange("opensAt", event.target.value)}
         />
-        <Input
-          type="datetime-local"
+        <DateTimeInput
           label={T.CLOSES_AT_LABEL}
           value={form.closesAt}
           error={errors.closesAt}
