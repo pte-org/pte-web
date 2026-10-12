@@ -1,6 +1,8 @@
 import type { ExamMode, FormMode, LockdownMode, ProctorRole, ReusePolicy } from "@pte/api-client";
 import type { CreateSessionInput, ExamSkill } from "../types";
 
+export * from "./answers";
+
 // react-query cache-key roots — named constants per this repo's established
 // convention (avoids raw-string query-key drift/collisions).
 export const SESSIONS_QUERY_KEY = ["sessions"] as const;
@@ -8,8 +10,6 @@ export const SESSION_QUERY_KEY = ["session"] as const;
 export const ENROLLMENTS_QUERY_KEY = ["enrollments"] as const;
 export const PROCTOR_ASSIGNMENTS_QUERY_KEY = ["proctorAssignments"] as const;
 export const TENANT_USERS_QUERY_KEY = ["tenantUsers"] as const;
-export const ANSWERS_QUERY_KEY = ["answers"] as const;
-export const ANSWER_QUERY_KEY = ["answer"] as const;
 export const EXAM_PREVIEW_QUERY_KEY = ["examPreview"] as const;
 export const ASSIGNED_CLASSES_QUERY_KEY = ["assignedClasses"] as const;
 export const EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY = ["examinerAssignmentOverview"] as const;
@@ -349,59 +349,6 @@ export const CLASS_ASSIGNMENT_TEXT = {
   UNASSIGN: "Unassign",
   ACTIONS: "Actions",
   NOT_SCHEDULED_NOTICE: "Classes can only be assigned or unassigned while this exam is Scheduled.",
-} as const;
-
-export const ANSWERS_SECTION_TEXT = {
-  EMPTY_TITLE: "No answers submitted yet",
-  STATUS_FILTER_LABEL: "Status",
-  STATUS_FILTER_ALL: "All statuses",
-  VIEW: "View",
-  ATTEMPT_VALUE: (attemptNumber: number | null) =>
-    attemptNumber === null ? "Unavailable" : `Attempt ${attemptNumber}`,
-} as const;
-
-export const ANSWER_TABLE_HEADERS = {
-  ATTEMPT: "Attempt",
-  TASK_TYPE: "Task Type",
-  STATUS: "Status",
-  AI_SCORE: "AI Score",
-  TEACHER_SCORE: "Teacher Score",
-  SUBMITTED_AT: "Submitted",
-  ACTIONS: "Actions",
-} as const;
-
-export const ANSWER_STATUS_LABELS: Record<string, string> = {
-  PENDING: "Pending",
-  AI_SCORING: "AI Scoring",
-  SCORING_FAILED: "Scoring Failed",
-  SCORED: "Scored",
-};
-
-export const ANSWER_STATUS_VARIANT: Record<string, "info" | "success" | "neutral" | "danger"> = {
-  PENDING: "neutral",
-  AI_SCORING: "info",
-  SCORING_FAILED: "danger",
-  SCORED: "success",
-};
-
-export const ANSWER_DETAIL_TEXT = {
-  TITLE: "Submitted Answer",
-  TASK_TYPE_LABEL: "Task type",
-  STATUS_LABEL: "Status",
-  AI_SCORE_LABEL: "AI score",
-  NOT_SCORED: "Not scored yet",
-  OPTIONS_TITLE: "Options",
-  SELECTED_BADGE: "Selected",
-  CORRECT_BADGE: "Correct",
-  AUDIO_UNAVAILABLE: "Audio recording is not available right now.",
-  UNRECOGNIZED_NOTICE:
-    "This answer's format could not be decoded automatically. Showing the raw submitted value below.",
-  TEACHER_SCORE_TITLE: "Teacher Score",
-  TEACHER_SCORE_LABEL: "Score (0-100)",
-  SUBMIT: "Save Score",
-  SUBMITTING: "Saving...",
-  SAVED: "Score saved.",
-  CLOSE: "Close",
 } as const;
 
 export const PROCTOR_SECTION_TEXT = {

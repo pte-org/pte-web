@@ -457,12 +457,21 @@ export function useAnswers(
   statusFilter: string,
   page: number,
   size = DEFAULT_PAGE_SIZE,
+  attemptPublicId?: string,
 ): UseQueryResult<AnswerListResponse> {
   return useQuery({
-    queryKey: [...ANSWERS_QUERY_KEY, sessionPublicId, statusFilter, page, size],
+    queryKey: [
+      ...ANSWERS_QUERY_KEY,
+      sessionPublicId,
+      attemptPublicId ?? "",
+      statusFilter,
+      page,
+      size,
+    ],
     queryFn: () =>
       listAnswers(apiClient, {
         sessionPublicId,
+        attemptPublicId,
         status: statusFilter || undefined,
         page,
         size,

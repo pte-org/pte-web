@@ -3,7 +3,8 @@
 import type { ReactElement } from "react";
 import { DashboardCard } from "@pte/ui";
 import { SESSION_DETAIL_TEXT } from "../constants";
-import { AnswersSection } from "./AnswersSection";
+import { AttemptsSection } from "./AttemptsSection";
+import { StartAiScoringButton } from "./StartAiScoringButton";
 
 interface ExamSubmissionsTabProps {
   sessionPublicId: string;
@@ -15,7 +16,8 @@ export const ExamSubmissionsTab = ({ sessionPublicId }: ExamSubmissionsTabProps)
       {SESSION_DETAIL_TEXT.ANSWERS_SECTION}
     </h2>
     <div className="mt-5">
-      <AnswersSection sessionPublicId={sessionPublicId} />
+      <StartAiScoringButton sessionPublicId={sessionPublicId} />
+      <AttemptsSection sessionPublicId={sessionPublicId} />
     </div>
   </DashboardCard>
 );

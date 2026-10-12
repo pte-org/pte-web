@@ -17,6 +17,7 @@ import {
   Select,
   type DataTableColumn,
 } from "@pte/ui";
+import { AI_SCORE_TEXT, AiScoreCell, aiGapRowClass, isAiScoringMethod } from "@/features/aiScore";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
   useActiveExaminers,
@@ -25,6 +26,9 @@ import {
   usePreviewScoreSourceSelection,
   useScoreSourceSelectionAudits,
 } from "../api";
+import { ANSWER_TABLE_HEADERS, ANSWERS_SECTION_TEXT } from "../constants";
+import { AnswerDetailModal } from "./AnswerDetailModal";
+import { RescoreAiButton } from "./RescoreAiButton";
 
 interface HostScoreReviewPanelProps {
   sessionPublicId: string;
@@ -56,6 +60,7 @@ export const HostScoreReviewPanel = ({
   const [preview, setPreview] = useState<ScoreSourceSelectionPreviewResponse | null>(null);
   const [request, setRequest] = useState<SelectScoreSourceRequest | null>(null);
   const [pendingApply, setPendingApply] = useState<SelectScoreSourceRequest | null>(null);
+  const [detailAnswerId, setDetailAnswerId] = useState<string | null>(null);
 
   const review = useHostScoreReview(sessionPublicId);
   const audits = useScoreSourceSelectionAudits(sessionPublicId);
@@ -76,9 +81,7 @@ export const HostScoreReviewPanel = ({
       ...new Set(
         answers
           .filter((answer) => !section || answer.section === section)
-          .filter(
-            (answer) => answer.scoringMethod === "AI_SPEECH" || answer.scoringMethod === "AI_TEXT",
-          )
+          .filter((answer) => isAiScoringMethod(answer.scoringMethod))
           .map((answer) => answer.taskType),
       ),
     ],
@@ -147,19 +150,24 @@ export const HostScoreReviewPanel = ({
     },
     {
       key: "ai",
-      header: "AI",
+      header: AI_SCORE_TEXT.LABEL,
       filterAccessor: (answer) =>
         `${displayScore(answer.aiRawScore)} ${answer.aiProviderCategory ?? "No provenance"} ${
           answer.aiProvider ?? ""
         } ${answer.aiAvailable ? "available" : "unavailable"}`,
       cell: (answer) => (
         <>
-          {displayScore(answer.aiRawScore)}
+          <AiScoreCell score={displayScore(answer.aiRawScore)} fallback={answer.aiFallback} />
           <div className="text-xs text-[var(--ink-muted)]">
             {answer.aiProviderCategory ?? "No provenance"}
             {answer.aiProvider ? ` · ${answer.aiProvider}` : ""}
             {answer.aiAvailable ? " · available" : " · unavailable"}
           </div>
+          {answer.aiFailureReason && (
+            <div className="text-xs text-[var(--blush-action)]">
+              {AI_SCORE_TEXT.FAILURE_REASON(answer.aiFailureReason)}
+            </div>
+          )}
         </>
       ),
     },
@@ -363,12 +371,36 @@ export const HostScoreReviewPanel = ({
         </div>
       )}
 
+      {review.data && (
+        <RescoreAiButton
+          sessionPublicId={sessionPublicId}
+          rescorableCount={review.data.rescorableAnswerCount}
+          publicationLocked={review.data.publicationLocked}
+        />
+      )}
+
       <DataTable
         columns={answerColumns}
         rows={answers}
         getRowKey={(answer) => answer.answerPublicId}
         isLoading={review.isLoading}
         emptyTitle="No answer scores are available yet."
+        rowClassName={(answer) =>
+          isAiScoringMethod(answer.scoringMethod)
+            ? aiGapRowClass(answer.aiRawScore, answer.examinerScore)
+            : undefined
+        }
+        rowActionsHeader={ANSWER_TABLE_HEADERS.ACTIONS}
+        rowActions={(answer) => (
+          <Button type="button" onClick={() => setDetailAnswerId(answer.answerPublicId)}>
+            {ANSWERS_SECTION_TEXT.VIEW}
+          </Button>
+        )}
+      />
+      <AnswerDetailModal
+        key={detailAnswerId ?? "answer-detail-closed"}
+        answerPublicId={detailAnswerId}
+        onClose={() => setDetailAnswerId(null)}
       />
 
       <details className="rounded-md border border-[var(--shell-border)] p-4">

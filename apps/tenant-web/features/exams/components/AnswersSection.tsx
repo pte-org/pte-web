@@ -9,11 +9,14 @@ import {
   ANSWER_TABLE_HEADERS,
   ANSWERS_SECTION_TEXT,
 } from "../constants";
+import { AI_SCORE_TEXT, AiScoreCell, aiGapRowClass } from "@/features/aiScore";
 import { useAnswers } from "../api";
 import { AnswerDetailModal } from "./AnswerDetailModal";
 
 interface AnswersSectionProps {
   sessionPublicId: string;
+  /** The answers of one attempt (student) of the session. */
+  attemptPublicId: string;
 }
 
 const T = ANSWERS_SECTION_TEXT;
@@ -36,23 +39,17 @@ function formatScore(score: number | null): string {
   return score === null ? "—" : String(score);
 }
 
-export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactElement => {
+export const AnswersSection = ({
+  sessionPublicId,
+  attemptPublicId,
+}: AnswersSectionProps): ReactElement => {
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
   const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
 
-  const { data, isLoading } = useAnswers(sessionPublicId, "", page, size);
+  const { data, isLoading } = useAnswers(sessionPublicId, "", page, size, attemptPublicId);
 
   const columns: DataTableColumn<AnswerListItemResponse>[] = [
-    {
-      key: "attemptNumber",
-      header: ANSWER_TABLE_HEADERS.ATTEMPT,
-      cell: (row) => (
-        <span className="font-medium text-[var(--ink-primary)]">
-          {T.ATTEMPT_VALUE(row.attemptNumber)}
-        </span>
-      ),
-    },
     {
       key: "taskType",
       header: ANSWER_TABLE_HEADERS.TASK_TYPE,
@@ -71,8 +68,13 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
     },
     {
       key: "rawScore",
-      header: ANSWER_TABLE_HEADERS.AI_SCORE,
-      cell: (row) => formatScore(row.rawScore),
+      header: AI_SCORE_TEXT.LABEL,
+      cell: (row) =>
+        row.aiScored ? (
+          <AiScoreCell score={formatScore(row.rawScore)} fallback={row.aiFallback} />
+        ) : (
+          formatScore(null)
+        ),
     },
     {
       key: "teacherScore",
@@ -98,6 +100,9 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
         isLoading={isLoading}
         emptyTitle={T.EMPTY_TITLE}
         rowActionsHeader={ANSWER_TABLE_HEADERS.ACTIONS}
+        rowClassName={(row) =>
+          row.aiScored ? aiGapRowClass(row.rawScore, row.teacherScore) : undefined
+        }
         clientSidePagination={false}
         pagination={
           data ? (

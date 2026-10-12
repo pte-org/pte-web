@@ -7,6 +7,7 @@ import type {
   ExaminerQueueStatus,
 } from "@pte/api-client";
 import { ChevronLeftIcon, PageHeader, Pagination, Select } from "@pte/ui";
+import { AiScoreDetail } from "@/features/aiScore";
 import { EXAMINER_QUEUE_STATUSES, EXAMINER_WORK_TEXT as T } from "./constants";
 import { useExaminerAttempt, useExaminerQueue, useSubmitExaminerScore } from "./api";
 
@@ -163,6 +164,12 @@ const AnswerCard = ({
           </p>
         )}
       </section>
+
+      {answer.ai && (
+        <div className="mt-4">
+          <AiScoreDetail ai={answer.ai} />
+        </div>
+      )}
 
       <div className="mt-5 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-end">
         <label className="flex flex-col gap-1 text-sm font-medium text-slate-700">

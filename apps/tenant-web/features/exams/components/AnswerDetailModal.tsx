@@ -3,6 +3,7 @@
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Badge, LoadingState, Modal, NumberInput, cn } from "@pte/ui";
 import type { AnswerOptionView } from "@pte/api-client";
+import { AiScoreDetail } from "@/features/aiScore";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { ANSWER_DETAIL_TEXT, ANSWER_STATUS_LABELS, ANSWER_STATUS_VARIANT } from "../constants";
 import { useAnswer, useSubmitTeacherScore } from "../api";
@@ -67,12 +68,14 @@ export const AnswerDetailModal = ({
                 </Badge>
               </dd>
             </div>
-            <div>
-              <dt className="text-[var(--ink-secondary)]">{T.AI_SCORE_LABEL}</dt>
-              <dd className="font-medium text-[var(--ink-primary)]">
-                {answer.rawScore === null ? T.NOT_SCORED : answer.rawScore}
-              </dd>
-            </div>
+            {answer.ai === null && (
+              <div>
+                <dt className="text-[var(--ink-secondary)]">{T.SCORE_LABEL}</dt>
+                <dd className="font-medium text-[var(--ink-primary)]">
+                  {answer.rawScore === null ? T.NOT_SCORED : answer.rawScore}
+                </dd>
+              </div>
+            )}
           </dl>
 
           <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4">
@@ -107,6 +110,8 @@ export const AnswerDetailModal = ({
               </div>
             )}
           </div>
+
+          {answer.ai && <AiScoreDetail ai={answer.ai} />}
 
           <form
             onSubmit={handleSubmit}
