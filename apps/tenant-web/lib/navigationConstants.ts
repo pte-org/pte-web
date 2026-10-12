@@ -20,6 +20,8 @@ export const EXAMINER_NAV_TEXT = {
   IN_PROGRESS: "In Progress",
   COMPLETED: "Completed",
   QUEUE: "Marking queue",
+  HOME_SECTION: "Home",
+  QUEUE_SECTION: "Marking queue",
   SECTION: "Examiner",
 } as const;
 
@@ -35,5 +37,9 @@ export const PROCTOR_NAV_TEXT = {
   INCIDENTS: "Incidents",
   AUDIT_LOG: "Audit Log",
   PROFILE: "Profile",
+  HOME_SECTION: "Home",
+  SUPERVISION_SECTION: "Supervision",
+  DATA_SECTION: "Data",
+  ACCOUNT_SECTION: "Account",
   SECTION: "Proctor",
 } as const;
