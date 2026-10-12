@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Button, Input, PageHeader } from "@pte/ui";
+import { Alert, Button, Input, PageHeader, useToast } from "@pte/ui";
 import { getUserFacingApiErrorMessage, type PlatformSettingResponse } from "@pte/api-client";
 import { usePlatformSettingsQuery, useUpdatePlatformSetting } from "../api";
 import { PLATFORM_SETTINGS_TEXT as RAW_PLATFORM_SETTINGS_TEXT } from "../constants";
@@ -12,11 +12,11 @@ const SETTING_KEYS = ["free_student_limit", "suspension_default_days"] as const;
 
 export const PlatformSettingsView = (): ReactElement => {
   const T = useAdminCopy(RAW_PLATFORM_SETTINGS_TEXT);
+  const { showToast } = useToast();
   const { data: settings = [], isLoading, isError } = usePlatformSettingsQuery();
   const update = useUpdatePlatformSetting();
   const error = update.error;
   const [values, setValues] = useState<Record<string, string>>({});
-  const [saved, setSaved] = useState("");
 
   const errorMessage = error
     ? getUserFacingApiErrorMessage(error, T.ERROR)
@@ -36,13 +36,12 @@ export const PlatformSettingsView = (): ReactElement => {
         description: setting.description ?? undefined,
       },
     });
-    setSaved(setting.key);
+    showToast(T.SAVED(setting.key), { tone: "success" });
   };
   return (
     <div className="flex flex-col gap-5">
       <PageHeader title={T.TITLE} />
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
-      {saved && <Alert tone="success">{T.SAVED(saved)}</Alert>}
       <CommercialPanel title={T.PANEL_TITLE}>
         {isLoading && <p className="text-sm text-slate-500">{T.LOADING}</p>}
         <div className="space-y-5">

@@ -24,6 +24,7 @@ import {
   Select,
   subscribeSessionLifecycle,
   useSessionManager,
+  useToast,
 } from "@pte/ui";
 import {
   ApiError,
@@ -128,6 +129,7 @@ export const LicenseCodesView = (): ReactElement => {
   const impactLabel = useAdminCopy("Impact");
   const previewValidUntilLabel = useAdminCopy("Preview valid until");
   const { session, isReady } = useSessionManager();
+  const { showToast } = useToast();
   const canUseSensitiveActions = isPlatformAdmin(session?.roles);
   const actorId = session ? decodeAccessTokenClaims(session.accessToken)?.sub : undefined;
   const recoveryKey = actorId ? `pte-license-issue:${actorId}` : null;
@@ -167,7 +169,6 @@ export const LicenseCodesView = (): ReactElement => {
   const [cancelSubscription, setCancelSubscription] = useState(false);
   const [cancelScheduledScope, setCancelScheduledScope] = useState(false);
   const [preserveOpenClosed, setPreserveOpenClosed] = useState(false);
-  const [message, setMessage] = useState("");
   const [memoryRecovery, setMemoryRecovery] = useState<{
     owner: string;
     intent: IssueIntent | null;
@@ -245,7 +246,6 @@ export const LicenseCodesView = (): ReactElement => {
         setLookupResult(null);
         setLookupInput("");
         setLookupError("");
-        setMessage("");
         setLocalError("");
         setMemoryRecovery(null);
         setConfirmNewIntent(false);
@@ -281,7 +281,6 @@ export const LicenseCodesView = (): ReactElement => {
     if (issue.isPending || !recoveryKey) return;
     clearReveal();
     setLocalError("");
-    setMessage("");
     const submittedExpiry = expiresAt ? new Date(expiresAt) : null;
     if (
       !intent &&
@@ -300,8 +299,9 @@ export const LicenseCodesView = (): ReactElement => {
     saveRecovery(next);
     try {
       const result = await issue.mutateAsync(next);
-      setMessage(
+      showToast(
         result.replayed ? T.RECOVERED_SUCCESS(result.publicId) : T.ISSUED_SUCCESS(result.publicId),
+        { tone: "success" },
       );
       saveRecovery(null);
       setPlanId("");
@@ -361,7 +361,7 @@ export const LicenseCodesView = (): ReactElement => {
     };
     try {
       await revoke.mutateAsync({ publicId: codeToRevoke.publicId, payload });
-      setMessage(T.REVOKED_SUCCESS(codeToRevoke.publicId));
+      showToast(T.REVOKED_SUCCESS(codeToRevoke.publicId), { tone: "success" });
       setCodeToRevoke(null);
       setRevokePreview(null);
     } catch (caught) {
@@ -388,7 +388,6 @@ export const LicenseCodesView = (): ReactElement => {
     try {
       const result = await revealAdminLicenseCode(row.publicId);
       setRevealedCode(result.code);
-      setMessage("");
     } catch (caught) {
       setRevealError(safeOperationMessage(caught, T.REVEAL_ERROR));
     } finally {
@@ -423,7 +422,7 @@ export const LicenseCodesView = (): ReactElement => {
     try {
       await navigator.clipboard.writeText(revealedCode);
       setCopied(true);
-      setMessage(T.COPIED);
+      showToast(T.COPIED, { tone: "success" });
     } catch {
       setRevealError(T.REVEAL_ERROR);
     }
@@ -437,7 +436,6 @@ export const LicenseCodesView = (): ReactElement => {
   return (
     <div className="flex flex-col gap-5">
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
-      {message && <Alert tone="success">{message}</Alert>}
       {codePageQuery.isFetching && codePageQuery.data && <Alert tone="info">{T.STALE_DATA}</Alert>}
       {intent && (
         <Alert tone="warning">

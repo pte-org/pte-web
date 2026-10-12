@@ -11,6 +11,7 @@ import {
   PageHeader,
   Tabs,
   useLocale,
+  useToast,
 } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useCurrentUser } from "@/features/auth/api";
@@ -115,12 +116,11 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
   const createLoginAccount = useCreateLoginAccount(tenantPublicId);
   const resetPassword = useResetPassword(loginAccount?.id ?? "");
 
-  const [brandingSaved, setBrandingSaved] = useState(false);
   const [createLoginOpen, setCreateLoginOpen] = useState(false);
   const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
-  const [resetSucceeded, setResetSucceeded] = useState(false);
   const [activeSection, setActiveSection] = useState("summary");
   const { t } = useLocale();
+  const { showToast } = useToast();
 
   const confirmCreateLoginAccount = (input: CreateLoginAccountInput): void => {
     createLoginAccount.mutate(input, {
@@ -129,11 +129,10 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
   };
 
   const confirmResetPassword = (input: ResetPasswordInput): void => {
-    setResetSucceeded(false);
     resetPassword.mutate(input, {
       onSuccess: () => {
         setResetPasswordOpen(false);
-        setResetSucceeded(true);
+        showToast(L.RESET_SUCCESS, { tone: "success" });
       },
     });
   };
@@ -147,9 +146,8 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
   };
 
   const submitBranding = (input: BrandingInput): void => {
-    setBrandingSaved(false);
     updateBranding.mutate(input, {
-      onSuccess: () => setBrandingSaved(true),
+      onSuccess: () => showToast(T.BRANDING_SAVED, { tone: "success" }),
     });
   };
 
@@ -249,7 +247,6 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
               onSubmit={submitBranding}
               isSubmitting={updateBranding.isPending}
               error={mutationErrorMessage(updateBranding.error, tenantConflictText.CONFLICT)}
-              saved={brandingSaved}
             />
           </>
         )}
@@ -270,8 +267,6 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
                 </button>
               )}
             </div>
-
-            {resetSucceeded && <Alert tone="success">{L.RESET_SUCCESS}</Alert>}
 
             {loginAccountQuery.isLoading ? (
               <div className="rounded-lg border border-gray-200 bg-white p-5 text-sm text-gray-500">

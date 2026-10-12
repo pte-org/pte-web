@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Button, DescriptionList, Input, PageHeader } from "@pte/ui";
+import { Alert, Button, DescriptionList, Input, PageHeader, useToast } from "@pte/ui";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useApplicationQuery, useApproveApplication, useRejectApplication } from "../api";
 import { ADMIN_APPLICATION_DETAIL_TEXT as RAW_ADMIN_APPLICATION_DETAIL_TEXT } from "../constants";
@@ -26,10 +26,10 @@ const AdminApplicationDetailContent = ({
     CORPORATE: "Corporate",
   });
   const applicationQuery = useApplicationQuery(applicationId);
+  const { showToast } = useToast();
   const approve = useApproveApplication();
   const reject = useRejectApplication();
   const [rejectionReason, setRejectionReason] = useState("");
-  const [approvalSent, setApprovalSent] = useState(false);
   const [lastAction, setLastAction] = useState<ReviewAction | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [refreshFailed, setRefreshFailed] = useState(false);
@@ -115,7 +115,7 @@ const AdminApplicationDetailContent = ({
     if (nextStatus === "APPROVED") {
       setLastAction("approve");
       approve.mutate(application.publicId, {
-        onSuccess: () => setApprovalSent(true),
+        onSuccess: () => showToast(T.APPROVED, { tone: "success" }),
         onError: (error) => handleReviewError(error, "approve"),
       });
       return;
@@ -138,7 +138,6 @@ const AdminApplicationDetailContent = ({
       />
       {refreshFailed && <Alert tone="error">{T.REFRESH_ERROR}</Alert>}
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
-      {approvalSent && <Alert tone="success">{T.APPROVED}</Alert>}
       <div className="grid gap-5 lg:grid-cols-[1.35fr_1fr]">
         <CommercialPanel title={T.DETAILS_TITLE}>
           <DescriptionList

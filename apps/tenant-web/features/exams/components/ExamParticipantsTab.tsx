@@ -1,7 +1,7 @@
 "use client";
 
-import type { ReactElement } from "react";
-import { Alert, Button, CollapsibleSection, useLocale } from "@pte/ui";
+import { useEffect, type ReactElement } from "react";
+import { Button, CollapsibleSection, useLocale, useToast } from "@pte/ui";
 import { StudentRosterTable } from "@/features/examoperations/components";
 import { SESSION_DETAIL_TEXT } from "../constants";
 import type { ExamSession } from "../types";
@@ -24,8 +24,15 @@ export const ExamParticipantsTab = ({
   onOpenStudentImport,
 }: ExamParticipantsTabProps): ReactElement => {
   const { t } = useLocale();
+  const { showToast } = useToast();
   const audienceLocked = session.status !== "SCHEDULED";
   const lockedNotice = t("tenant.participants.lockedNotice", T.AUDIENCE_NOT_SCHEDULED_NOTICE);
+
+  useEffect(() => {
+    if (audienceLocked) {
+      showToast(lockedNotice, { tone: "warning", durationMs: 6000 });
+    }
+  }, [audienceLocked, lockedNotice, showToast]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -66,7 +73,6 @@ export const ExamParticipantsTab = ({
           </div>
         }
       >
-        {audienceLocked && <Alert tone="warning">{lockedNotice}</Alert>}
         <StudentRosterTable sessionPublicId={sessionPublicId} />
       </CollapsibleSection>
 

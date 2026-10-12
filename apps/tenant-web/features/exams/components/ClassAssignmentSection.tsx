@@ -46,7 +46,6 @@ export const ClassAssignmentSection = ({
     sourceLocked: t("tenant.classAssignment.sourceLocked", T.SOURCE_LOCKED),
     unassign: t("tenant.classAssignment.unassign", T.UNASSIGN),
     actions: t("tenant.classAssignment.actions", T.ACTIONS),
-    notScheduled: t("tenant.classAssignment.notScheduled", T.NOT_SCHEDULED_NOTICE),
   };
 
   const assignedIds = new Set((assignedClasses ?? []).map((entry) => entry.classPublicId));
@@ -77,7 +76,6 @@ export const ClassAssignmentSection = ({
 
   return (
     <div className="flex flex-col gap-3">
-      {!canModify && <Alert tone="warning">{text.notScheduled}</Alert>}
       {errorMessage(assign.error) && <Alert tone="error">{errorMessage(assign.error)}</Alert>}
       {errorMessage(unassign.error) && <Alert tone="error">{errorMessage(unassign.error)}</Alert>}
 

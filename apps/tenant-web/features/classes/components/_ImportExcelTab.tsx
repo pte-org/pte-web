@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Button } from "@pte/ui";
+import { Alert, Button, useToast } from "@pte/ui";
 import {
   RosterColumnWarnings,
   RosterTemplateButton,
@@ -45,6 +45,7 @@ export const ImportExcelTab = ({
   onCreated,
   onAssigned,
 }: ImportExcelTabProps): ReactElement => {
+  const { showToast } = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [rows, setRows] = useState<RosterRow[] | null>(null);
   const [columnIssues, setColumnIssues] = useState<RosterColumnIssues | null>(null);
@@ -73,6 +74,9 @@ export const ImportExcelTab = ({
     if (!rows) return;
     createAccounts.mutate(rows, {
       onSuccess: (response) => {
+        showToast(T.accountsCreated.replace("{count}", String(response.created.length)), {
+          tone: "success",
+        });
         setLastResult({ created: response.created, skipped: response.skipped });
         onCreated(response.created);
         setFile(null);
@@ -141,9 +145,6 @@ export const ImportExcelTab = ({
 
       {lastResult && (
         <div className="flex flex-col gap-4">
-          <Alert tone="success">
-            {T.accountsCreated.replace("{count}", String(lastResult.created.length))}
-          </Alert>
           <SkippedRowsReport rows={lastResult.skipped} />
           <div>
             <Button

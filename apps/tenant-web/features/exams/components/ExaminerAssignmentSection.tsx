@@ -17,6 +17,7 @@ import {
   PaginationControls,
   Select,
   useLocale,
+  useToast,
   type DataTableColumn,
 } from "@pte/ui";
 import { useAllTenantClasses, type TenantClassOption } from "@/features/classes/api";
@@ -81,6 +82,7 @@ export const ExaminerAssignmentSection = ({
   sessionPublicId,
 }: ExaminerAssignmentSectionProps): ReactElement => {
   const { locale, t } = useLocale();
+  const { showToast } = useToast();
   const searchText = useTenantSearchText("examinerBatches");
   const [mode, setMode] = useState<ExaminerAssignmentMode>("RANDOM");
   const [scopes, setScopes] = useState<ScopeDraft[]>([]);
@@ -268,6 +270,20 @@ export const ExaminerAssignmentSection = ({
       preview.previewExpiresAt !== null &&
       Date.parse(preview.previewExpiresAt) <= currentTime);
   const currentPreviewStale = confirmationMatchesPreview && confirmPreview.data?.status === "STALE";
+
+  const confirmAssignment = (batchPublicId: string): void => {
+    confirmPreview.mutate(batchPublicId, {
+      onSuccess: (result) => {
+        if (result.status === "COMMITTED") {
+          showToast(`${text.confirmed} ${result.batchPublicId}`, { tone: "success" });
+        } else if (result.status === "EXPIRED") {
+          showToast(`${text.expired} ${result.batchPublicId}`, { tone: "warning" });
+        } else if (result.status === "STALE") {
+          showToast(`${text.stale} ${result.batchPublicId}`, { tone: "warning" });
+        }
+      },
+    });
+  };
 
   const batchColumns: DataTableColumn<AssignmentBatch>[] = [
     {
@@ -564,29 +580,13 @@ export const ExaminerAssignmentSection = ({
               <button
                 type="button"
                 disabled={confirmPreview.isPending}
-                onClick={() => confirmPreview.mutate(preview.batchPublicId as string)}
+                onClick={() => confirmAssignment(preview.batchPublicId as string)}
                 className="self-start rounded-md bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:opacity-50"
               >
                 {confirmPreview.isPending ? text.confirming : text.confirm}
               </button>
             )}
         </div>
-      )}
-
-      {confirmPreview.data?.status === "COMMITTED" && !confirmationMatchesPreview && (
-        <Alert tone="success">
-          {text.confirmed} <code>{confirmPreview.data.batchPublicId}</code>
-        </Alert>
-      )}
-      {confirmPreview.data?.status === "EXPIRED" && !confirmationMatchesPreview && (
-        <Alert tone="warning">
-          {text.expired} <code>{confirmPreview.data.batchPublicId}</code>
-        </Alert>
-      )}
-      {confirmPreview.data?.status === "STALE" && !confirmationMatchesPreview && (
-        <Alert tone="warning">
-          {text.stale} <code>{confirmPreview.data.batchPublicId}</code>
-        </Alert>
       )}
 
       <div className="flex flex-col gap-3">
@@ -631,7 +631,7 @@ export const ExaminerAssignmentSection = ({
                     {
                       label: text.confirm,
                       disabled: confirmPreview.isPending,
-                      onSelect: () => confirmPreview.mutate(batch.batchPublicId),
+                      onSelect: () => confirmAssignment(batch.batchPublicId),
                     },
                   ]}
                 />
