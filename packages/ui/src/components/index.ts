@@ -64,7 +64,7 @@ export type { TableFilterInputProps, TableSearchControlProps } from "./TableFilt
 export { TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow } from "./Table";
 export type { TableRootProps } from "./Table";
 export { DescriptionList } from "./DescriptionList";
-export type { DescriptionItem } from "./DescriptionList";
+export type { DescriptionItem, DescriptionListVariant } from "./DescriptionList";
 export { DetailGroup } from "./DetailGroup";
 export { CopyableId } from "./CopyableId";
 export { SidebarNav } from "./SidebarNav";

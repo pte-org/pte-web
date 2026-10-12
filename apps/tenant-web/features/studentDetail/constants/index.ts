@@ -36,6 +36,11 @@ export const STUDENT_DETAIL_TEXT = {
   account: {
     title: "Account information",
     subtitle: "Student identity and contact information.",
+    sections: {
+      identity: "Identity & contact",
+      access: "Account & access",
+      learning: "Learning profile",
+    },
     edit: "Edit",
     save: "Save information",
     saved: "Student information updated.",

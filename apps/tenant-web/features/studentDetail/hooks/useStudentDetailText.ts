@@ -43,6 +43,11 @@ export interface StudentDetailText {
   account: {
     title: string;
     subtitle: string;
+    sections: {
+      identity: string;
+      access: string;
+      learning: string;
+    };
     edit: string;
     save: string;
     saved: string;
@@ -161,6 +166,23 @@ const buildText = (t: Translate, locale: Locale): StudentDetailText => {
     account: {
       title: translate(t, "tenant.studentDetail.account.title", text.account.title),
       subtitle: translate(t, "tenant.studentDetail.account.subtitle", text.account.subtitle),
+      sections: {
+        identity: translate(
+          t,
+          "tenant.studentDetail.account.sections.identity",
+          text.account.sections.identity,
+        ),
+        access: translate(
+          t,
+          "tenant.studentDetail.account.sections.access",
+          text.account.sections.access,
+        ),
+        learning: translate(
+          t,
+          "tenant.studentDetail.account.sections.learning",
+          text.account.sections.learning,
+        ),
+      },
       edit: translate(t, "tenant.studentDetail.account.edit", text.account.edit),
       save: translate(t, "tenant.studentDetail.account.save", text.account.save),
       saved: translate(t, "tenant.studentDetail.account.saved", text.account.saved),
