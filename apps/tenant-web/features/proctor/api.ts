@@ -21,10 +21,12 @@ import {
   listViolations,
   getAttendanceRoster,
   recordAttendance,
+  recordIdentityVerification,
   getAttendanceReceipt,
   getAttendanceHistory,
   getHostAttendanceRoster,
   recordHostAttendance,
+  recordHostIdentityVerification,
   getHostAttendanceHistory,
   createIncident,
   getIncident,
@@ -45,7 +47,9 @@ import {
   type MonitoringSnapshotResponse,
   type ProctorScope,
   type ProctorWorkspaceOverviewResponse,
+  type AttendanceRowResponse,
   type RecordAttendanceRequest,
+  type RecordIdentityVerificationRequest,
   type ViolationEventResponse,
 } from "@pte/api-client";
 import { useSessionManager } from "@pte/ui";
@@ -315,6 +319,23 @@ export function useRecordAttendanceMutation(sessionPublicId: string) {
   });
 }
 
+export function useRecordIdentityVerificationMutation(sessionPublicId: string) {
+  const queryClient = useQueryClient();
+  return useMutation<
+    AttendanceRowResponse,
+    Error,
+    { studentPublicId: string; request: RecordIdentityVerificationRequest }
+  >({
+    mutationFn: ({ studentPublicId, request }) =>
+      recordIdentityVerification(apiClient, sessionPublicId, studentPublicId, request),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: PROCTOR_QUERY_KEYS.attendanceRosterPrefix(sessionPublicId),
+      });
+    },
+  });
+}
+
 export function useAttendanceHistory(
   sessionPublicId: string,
   studentPublicId: string,
@@ -348,6 +369,23 @@ export function useRecordHostAttendanceMutation(sessionPublicId: string) {
   >({
     mutationFn: ({ studentPublicId, request }) =>
       recordHostAttendance(apiClient, sessionPublicId, studentPublicId, request),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["host", "attendance", sessionPublicId],
+      });
+    },
+  });
+}
+
+export function useRecordHostIdentityVerificationMutation(sessionPublicId: string) {
+  const queryClient = useQueryClient();
+  return useMutation<
+    AttendanceRowResponse,
+    Error,
+    { studentPublicId: string; request: RecordIdentityVerificationRequest }
+  >({
+    mutationFn: ({ studentPublicId, request }) =>
+      recordHostIdentityVerification(apiClient, sessionPublicId, studentPublicId, request),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["host", "attendance", sessionPublicId],

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Alert, BackButton, Button, PageHeader, PaginationControls } from "@pte/ui";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
-import { useAttendanceRoster } from "../api";
+import { useAttendanceRoster, useRecordIdentityVerificationMutation } from "../api";
 import { AttendanceSummaryCards } from "./AttendanceSummaryCards";
 import { AttendanceFilterToolbar } from "./AttendanceFilterToolbar";
 import { AttendanceRosterTable } from "./AttendanceRosterTable";
@@ -46,6 +46,8 @@ export function ProctorAttendanceView({
     page: currentPage,
     size: 20,
   });
+
+  const identityMutation = useRecordIdentityVerificationMutation(sessionPublicId);
 
   const updateQueryParams = useCallback(
     (updates: { status?: string; search?: string; page?: number }) => {
@@ -173,13 +175,19 @@ export function ProctorAttendanceView({
         onClose={() => setActiveVerification(null)}
         row={activeVerification}
         sessionPublicId={sessionPublicId}
-        onConfirmVerification={({ studentPublicId, status, note }) => {
-          // Update row optimistically or refetch
+        onConfirmVerification={async ({ studentPublicId, status, note }) => {
           const target = rows.find((r) => r.studentPublicId === studentPublicId);
-          if (target) {
-            target.identityStatus = status;
-            target.identityNote = note;
-          }
+          await identityMutation.mutateAsync({
+            studentPublicId,
+            request: {
+              status,
+              enrollmentPublicId: target?.enrollmentPublicId ?? "",
+              expectedVersion: target?.version ?? 0,
+              requestPublicId: crypto.randomUUID(),
+              note: note || undefined,
+            },
+          });
+          refetch();
         }}
       />
     </div>

@@ -4,7 +4,9 @@ import type {
   AttendanceHistoryResponse,
   AttendancePageResponse,
   AttendanceRosterParams,
+  AttendanceRowResponse,
   RecordAttendanceRequest,
+  RecordIdentityVerificationRequest,
 } from "../types/attendance";
 
 export const ATTENDANCE_ENDPOINTS = {
@@ -12,6 +14,8 @@ export const ATTENDANCE_ENDPOINTS = {
     `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance`,
   proctorRecord: (sessionPublicId: string, studentPublicId: string) =>
     `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance/students/${encodeURIComponent(studentPublicId)}`,
+  proctorIdentity: (sessionPublicId: string, studentPublicId: string) =>
+    `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance/students/${encodeURIComponent(studentPublicId)}/identity`,
   proctorReceipt: (sessionPublicId: string, requestPublicId: string) =>
     `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance/receipts/${encodeURIComponent(requestPublicId)}`,
   proctorHistory: (sessionPublicId: string, studentPublicId: string) =>
@@ -21,6 +25,8 @@ export const ATTENDANCE_ENDPOINTS = {
     `/api/v1/host/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance`,
   hostRecord: (sessionPublicId: string, studentPublicId: string) =>
     `/api/v1/host/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance/students/${encodeURIComponent(studentPublicId)}`,
+  hostIdentity: (sessionPublicId: string, studentPublicId: string) =>
+    `/api/v1/host/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance/students/${encodeURIComponent(studentPublicId)}/identity`,
   hostReceipt: (sessionPublicId: string, requestPublicId: string) =>
     `/api/v1/host/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance/receipts/${encodeURIComponent(requestPublicId)}`,
   hostHistory: (sessionPublicId: string, studentPublicId: string) =>
@@ -132,3 +138,34 @@ export function getHostAttendanceHistory(
     `${ATTENDANCE_ENDPOINTS.hostHistory(sessionPublicId, studentPublicId)}?${query.toString()}`,
   );
 }
+
+export function recordIdentityVerification(
+  client: ApiClient,
+  sessionPublicId: string,
+  studentPublicId: string,
+  request: RecordIdentityVerificationRequest,
+): Promise<AttendanceRowResponse> {
+  return client.request<AttendanceRowResponse>(
+    ATTENDANCE_ENDPOINTS.proctorIdentity(sessionPublicId, studentPublicId),
+    {
+      method: "PATCH",
+      body: request,
+    },
+  );
+}
+
+export function recordHostIdentityVerification(
+  client: ApiClient,
+  sessionPublicId: string,
+  studentPublicId: string,
+  request: RecordIdentityVerificationRequest,
+): Promise<AttendanceRowResponse> {
+  return client.request<AttendanceRowResponse>(
+    ATTENDANCE_ENDPOINTS.hostIdentity(sessionPublicId, studentPublicId),
+    {
+      method: "PATCH",
+      body: request,
+    },
+  );
+}
+

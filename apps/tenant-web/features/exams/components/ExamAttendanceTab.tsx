@@ -3,7 +3,7 @@
 import { useEffect, useState, type ReactElement } from "react";
 import { Alert, Button, PaginationControls } from "@pte/ui";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
-import { useHostAttendanceRoster } from "@/features/proctor/api";
+import { useHostAttendanceRoster, useRecordHostIdentityVerificationMutation } from "@/features/proctor/api";
 import { AttendanceSummaryCards } from "@/features/proctor/components/AttendanceSummaryCards";
 import { AttendanceFilterToolbar } from "@/features/proctor/components/AttendanceFilterToolbar";
 import { AttendanceRosterTable } from "@/features/proctor/components/AttendanceRosterTable";
@@ -37,6 +37,8 @@ export function ExamAttendanceTab({
     page,
     size: 20,
   });
+
+  const hostIdentityMutation = useRecordHostIdentityVerificationMutation(sessionPublicId);
 
   useEffect(() => {
     if (data && data.meta.totalPages > 0 && page >= data.meta.totalPages) {
@@ -125,12 +127,19 @@ export function ExamAttendanceTab({
         onClose={() => setActiveVerification(null)}
         row={activeVerification}
         sessionPublicId={sessionPublicId}
-        onConfirmVerification={({ studentPublicId, status, note }) => {
+        onConfirmVerification={async ({ studentPublicId, status, note }) => {
           const target = rows.find((r) => r.studentPublicId === studentPublicId);
-          if (target) {
-            target.identityStatus = status;
-            target.identityNote = note;
-          }
+          await hostIdentityMutation.mutateAsync({
+            studentPublicId,
+            request: {
+              status,
+              enrollmentPublicId: target?.enrollmentPublicId ?? "",
+              expectedVersion: target?.version ?? 0,
+              requestPublicId: crypto.randomUUID(),
+              note: note || undefined,
+            },
+          });
+          refetch();
         }}
       />
     </div>

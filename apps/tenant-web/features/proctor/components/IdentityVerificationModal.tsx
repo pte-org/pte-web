@@ -14,7 +14,7 @@ interface IdentityVerificationModalProps {
     studentPublicId: string;
     status: IdentityVerificationStatus;
     note: string;
-  }) => void;
+  }) => Promise<void> | void;
 }
 
 function getVerificationBadgeProps(status: IdentityVerificationStatus): {
@@ -42,12 +42,14 @@ export function IdentityVerificationModal({
   const [targetStatus, setTargetStatus] = useState<IdentityVerificationStatus>("VERIFIED");
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (open && row) {
       setTargetStatus(row.identityStatus === "VERIFIED" ? "VERIFIED" : row.identityStatus === "FAILED" ? "FAILED" : "VERIFIED");
       setNote(row.identityNote ?? "");
       setError(null);
+      setIsSubmitting(false);
     }
   }, [open, row]);
 
@@ -56,7 +58,7 @@ export function IdentityVerificationModal({
   const currentStatus = row.identityStatus ?? "UNVERIFIED";
   const { label: currentLabel, variant: currentVariant } = getVerificationBadgeProps(currentStatus);
 
-  const handleSubmit = (e: FormEvent): void => {
+  const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
     if (targetStatus === "FAILED" && !note.trim()) {
       setError("Vui lòng nhập mô tả hoặc lý do không xác minh được danh tính.");
@@ -64,32 +66,42 @@ export function IdentityVerificationModal({
     }
     setError(null);
     if (onConfirmVerification) {
-      onConfirmVerification({
-        studentPublicId: row.studentPublicId,
-        status: targetStatus,
-        note: note.trim(),
-      });
+      try {
+        setIsSubmitting(true);
+        await onConfirmVerification({
+          studentPublicId: row.studentPublicId,
+          status: targetStatus,
+          note: note.trim(),
+        });
+        onClose();
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : "Không thể lưu xác minh danh tính. Vui lòng thử lại.");
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      onClose();
     }
-    onClose();
   };
 
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={isSubmitting ? () => {} : onClose}
       title="Xác minh danh tính thí sinh"
       size="md"
       footer={
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose}>
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
             Đóng
           </Button>
           <Button
             type="button"
             variant="primary"
+            disabled={isSubmitting}
             onClick={(e) => handleSubmit(e as unknown as FormEvent)}
           >
-            Lưu xác minh
+            {isSubmitting ? "Đang lưu..." : "Lưu xác minh"}
           </Button>
         </div>
       }
