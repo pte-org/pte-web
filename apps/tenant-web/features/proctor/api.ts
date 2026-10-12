@@ -25,13 +25,22 @@ import {
   getAttendanceHistory,
   getHostAttendanceRoster,
   recordHostAttendance,
-  getHostAttendanceReceipt,
   getHostAttendanceHistory,
+  createIncident,
+  getIncident,
+  getIncidentHistory,
+  listIncidents,
+  updateIncidentStatus,
   type AssignedProctorSessionPage,
   type AttendanceCommandReceiptResponse,
   type AttendanceHistoryResponse,
   type AttendancePageResponse,
   type AttendanceRosterParams,
+  type CreateIncidentRequest,
+  type IncidentHistoryItemResponse,
+  type IncidentPageResponse,
+  type IncidentResponse,
+  type UpdateIncidentStatusRequest,
   type MonitoringAttemptHistoryPage,
   type MonitoringSnapshotResponse,
   type ProctorScope,
@@ -359,3 +368,71 @@ export function useHostAttendanceHistory(
     enabled: Boolean(sessionPublicId && studentPublicId),
   });
 }
+
+export function useIncidentsList(
+  sessionPublicId: string,
+  params?: { status?: string; page?: number; size?: number },
+): UseQueryResult<IncidentPageResponse> {
+  return useQuery<IncidentPageResponse>({
+    queryKey: PROCTOR_QUERY_KEYS.incidentsList(sessionPublicId, params),
+    queryFn: () => listIncidents(apiClient, sessionPublicId, params),
+    enabled: Boolean(sessionPublicId),
+  });
+}
+
+export function useIncidentDetail(
+  sessionPublicId: string,
+  incidentPublicId: string,
+): UseQueryResult<IncidentResponse> {
+  return useQuery<IncidentResponse>({
+    queryKey: PROCTOR_QUERY_KEYS.incidentDetail(sessionPublicId, incidentPublicId),
+    queryFn: () => getIncident(apiClient, sessionPublicId, incidentPublicId),
+    enabled: Boolean(sessionPublicId && incidentPublicId),
+  });
+}
+
+export function useIncidentHistory(
+  sessionPublicId: string,
+  incidentPublicId: string,
+): UseQueryResult<IncidentHistoryItemResponse[]> {
+  return useQuery<IncidentHistoryItemResponse[]>({
+    queryKey: PROCTOR_QUERY_KEYS.incidentHistory(sessionPublicId, incidentPublicId),
+    queryFn: () => getIncidentHistory(apiClient, sessionPublicId, incidentPublicId),
+    enabled: Boolean(sessionPublicId && incidentPublicId),
+  });
+}
+
+export function useCreateIncidentMutation(sessionPublicId: string) {
+  const queryClient = useQueryClient();
+  return useMutation<IncidentResponse, Error, CreateIncidentRequest>({
+    mutationFn: (request) => createIncident(apiClient, sessionPublicId, request),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: PROCTOR_QUERY_KEYS.incidentsListPrefix(sessionPublicId),
+      });
+    },
+  });
+}
+
+export function useUpdateIncidentStatusMutation(
+  sessionPublicId: string,
+  incidentPublicId: string,
+) {
+  const queryClient = useQueryClient();
+  return useMutation<IncidentResponse, Error, UpdateIncidentStatusRequest>({
+    mutationFn: (request) =>
+      updateIncidentStatus(apiClient, sessionPublicId, incidentPublicId, request),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: PROCTOR_QUERY_KEYS.incidentDetail(sessionPublicId, incidentPublicId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: PROCTOR_QUERY_KEYS.incidentHistory(sessionPublicId, incidentPublicId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: PROCTOR_QUERY_KEYS.incidentsListPrefix(sessionPublicId),
+      });
+    },
+  });
+}
+

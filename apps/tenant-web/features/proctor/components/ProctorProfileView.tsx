@@ -8,15 +8,15 @@ import { PROCTOR_PROFILE_TEXT as T } from "../constants";
 function Field({ label, children }: { label: string; children: ReactNode }): ReactElement {
   return (
     <div className="flex flex-col gap-1">
-      <dt className="text-xs font-medium uppercase tracking-wide text-slate-500">{label}</dt>
-      <dd className="text-sm text-slate-900">{children}</dd>
+      <dt className="text-xs font-medium uppercase tracking-wide text-[var(--ink-muted)]">{label}</dt>
+      <dd className="text-sm font-medium text-[var(--ink-primary)]">{children}</dd>
     </div>
   );
 }
 
 function ProfileSkeleton(): ReactElement {
   return (
-    <div className="space-y-6 p-8">
+    <div className="space-y-6 p-5 sm:p-8">
       <Skeleton className="h-8 w-64" />
       <Skeleton className="h-32 w-full" />
     </div>
@@ -25,9 +25,9 @@ function ProfileSkeleton(): ReactElement {
 
 function ProfileError({ onRetry }: { onRetry: () => void }): ReactElement {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
-      <h1 className="text-xl font-semibold text-gray-900">{T.ERROR_TITLE}</h1>
-      <p className="max-w-md text-sm text-gray-600">{T.ERROR_DESCRIPTION}</p>
+    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 p-8 text-center">
+      <h1 className="text-xl font-semibold text-[var(--ink-primary)]">{T.ERROR_TITLE}</h1>
+      <p className="max-w-md text-sm text-[var(--ink-secondary)]">{T.ERROR_DESCRIPTION}</p>
       <Button onClick={onRetry}>{T.RETRY}</Button>
     </div>
   );
@@ -46,10 +46,20 @@ export const ProctorProfileView = (): ReactElement => {
   const tenant = data.tenantId ?? T.EMPTY_TENANT;
 
   return (
-    <div className="flex flex-col gap-6 p-8">
-      <PageHeader title={T.TITLE} subtitle={T.SUBTITLE} />
+    <div className="flex flex-col gap-6 p-5 sm:p-8">
+      <PageHeader
+        title={T.TITLE}
+        subtitle={T.SUBTITLE}
+        actions={
+          <a href="/proctor/sessions">
+            <Button variant="secondary" size="sm">
+              Xem ca thi được phân công
+            </Button>
+          </a>
+        }
+      />
 
-      <dl className="grid grid-cols-1 gap-5 rounded-lg border border-slate-200 bg-white p-6 sm:grid-cols-2">
+      <dl className="grid grid-cols-1 gap-5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-6 shadow-sm sm:grid-cols-2">
         <Field label={T.FULL_NAME_LABEL}>{data.fullName || T.EMPTY_FULL_NAME}</Field>
         <Field label={T.EMAIL_LABEL}>{data.email}</Field>
         <Field label={T.ROLES_LABEL}>{roles}</Field>

@@ -19,6 +19,8 @@ const getStatusBadgeVariant = (status: AttendanceStatus) => {
   switch (status) {
     case "PRESENT":
       return "success";
+    case "LATE":
+      return "warning";
     case "ABSENT":
       return "danger";
     case "UNMARKED":
@@ -31,6 +33,8 @@ const getStatusLabel = (status: AttendanceStatus) => {
   switch (status) {
     case "PRESENT":
       return "Có mặt";
+    case "LATE":
+      return "Đến trễ";
     case "ABSENT":
       return "Vắng mặt";
     case "UNMARKED":

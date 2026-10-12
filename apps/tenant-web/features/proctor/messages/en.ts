@@ -48,6 +48,18 @@ export const PROCTOR_WORKSPACE_EN = {
   prevPage: "Previous",
   nextPage: "Next",
   pageIndicator: "Page {page} of {totalPages}",
+  overviewTitle: "Proctor Workspace Overview",
+  overviewSubtitle: "Summary of your proctoring responsibilities and daily schedule",
+  quickActions: "Quick Access",
+  viewMonitoring: "Assigned Sessions",
+  viewAttendance: "Attendance Roster",
+  viewIncidents: "Incidents & Escalations",
+  viewAuditLog: "Audit Trail",
+  incidentsTitle: "Exam Incidents",
+  incidentsSubtitle: "Select an assigned session to manage and track exam incidents",
+  actionRecordAttendance: "Take Attendance",
+  actionViewAudit: "View Audit Log",
+  actionViewIncidents: "View Incidents",
 };
 
 export type ProctorWorkspaceMessageKey = keyof typeof PROCTOR_WORKSPACE_EN;

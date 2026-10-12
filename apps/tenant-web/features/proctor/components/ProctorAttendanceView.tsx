@@ -10,6 +10,7 @@ import { AttendanceFilterToolbar } from "./AttendanceFilterToolbar";
 import { AttendanceRosterTable } from "./AttendanceRosterTable";
 import { RecordAttendanceModal } from "./RecordAttendanceModal";
 import { AttendanceHistoryModal } from "./AttendanceHistoryModal";
+import { IdentityVerificationModal } from "./IdentityVerificationModal";
 
 interface ProctorAttendanceViewProps {
   sessionPublicId: string;
@@ -24,7 +25,7 @@ export function ProctorAttendanceView({
 
   const currentStatusParam = searchParams.get("status") ?? "ALL";
   const currentStatus = (
-    ["ALL", "UNMARKED", "PRESENT", "ABSENT"].includes(currentStatusParam)
+    ["ALL", "UNMARKED", "PRESENT", "ABSENT", "LATE"].includes(currentStatusParam)
       ? currentStatusParam
       : "ALL"
   ) as AttendanceStatus | "ALL";
@@ -37,6 +38,7 @@ export function ProctorAttendanceView({
     targetStatus: AttendanceStatus;
   } | null>(null);
   const [activeHistory, setActiveHistory] = useState<AttendanceRowResponse | null>(null);
+  const [activeVerification, setActiveVerification] = useState<AttendanceRowResponse | null>(null);
 
   const { data, isLoading, isError, refetch } = useAttendanceRoster(sessionPublicId, {
     status: currentStatus,
@@ -138,6 +140,7 @@ export function ProctorAttendanceView({
         canEditSession={canEditSession}
         onRecordAttendance={(row, targetStatus) => setActiveAction({ row, targetStatus })}
         onViewHistory={(row) => setActiveHistory(row)}
+        onVerifyIdentity={(row) => setActiveVerification(row)}
       />
 
       {meta && meta.totalPages > 1 && (
@@ -163,6 +166,21 @@ export function ProctorAttendanceView({
         studentPublicId={activeHistory?.studentPublicId ?? null}
         studentName={activeHistory?.displayName}
         studentEmail={activeHistory?.email}
+      />
+
+      <IdentityVerificationModal
+        open={Boolean(activeVerification)}
+        onClose={() => setActiveVerification(null)}
+        row={activeVerification}
+        sessionPublicId={sessionPublicId}
+        onConfirmVerification={({ studentPublicId, status, note }) => {
+          // Update row optimistically or refetch
+          const target = rows.find((r) => r.studentPublicId === studentPublicId);
+          if (target) {
+            target.identityStatus = status;
+            target.identityNote = note;
+          }
+        }}
       />
     </div>
   );

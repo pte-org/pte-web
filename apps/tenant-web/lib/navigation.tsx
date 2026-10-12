@@ -196,6 +196,14 @@ export function buildProctorNav(): NavItem[] {
         sectionKey: "nav.proctor",
       },
       {
+        label: PROCTOR_NAV_TEXT.INCIDENTS,
+        labelKey: "nav.proctorIncidents",
+        href: "/proctor/incidents",
+        icon: <NavSupportTicketIcon />,
+        section: PROCTOR_NAV_TEXT.SECTION,
+        sectionKey: "nav.proctor",
+      },
+      {
         label: PROCTOR_NAV_TEXT.AUDIT_LOG,
         labelKey: "nav.proctorAuditLog",
         href: "/proctor/audit-log",

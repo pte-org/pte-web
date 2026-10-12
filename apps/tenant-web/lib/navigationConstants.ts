@@ -32,6 +32,7 @@ export const PROCTOR_NAV_TEXT = {
   OVERVIEW: "Overview",
   MONITORING: "Monitoring",
   ATTENDANCE: "Attendance",
+  INCIDENTS: "Incidents",
   AUDIT_LOG: "Audit Log",
   PROFILE: "Profile",
   SECTION: "Proctor",

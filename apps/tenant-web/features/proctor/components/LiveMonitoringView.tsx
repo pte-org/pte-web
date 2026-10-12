@@ -49,8 +49,8 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
   const session = snapshot?.session;
   const summary = snapshot?.summary;
   const students = snapshot?.students.data ?? [];
-  const totalItems = snapshot?.students.meta?.totalElements ?? snapshot?.session.totalEnrolled ?? students.length;
-  const totalPages = snapshot?.students.meta?.totalPages ?? Math.max(1, Math.ceil(totalItems / size));
+  const meta = snapshot?.students.meta;
+  const totalItems = meta?.totalElements ?? snapshot?.session.totalEnrolled ?? students.length;
 
   const handleForceSubmitConfirm = async (reason: string): Promise<void> => {
     if (!forceSubmitTarget?.attemptPublicId || room.connectionStatus !== "CONNECTED") return;
@@ -143,7 +143,7 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
   };
 
   return (
-    <div className="flex flex-col gap-6 p-8">
+    <div className="flex flex-col gap-6 p-5 sm:p-8">
       {/* Page Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
@@ -152,7 +152,7 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
             subtitle={`Mã phòng: #${sessionPublicId.slice(0, 8).toUpperCase()}`}
           />
           {session && (
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-[var(--ink-muted)]">
               Mở: {formatDateTime(session.opensAt)} — Đóng: {formatDateTime(session.closesAt)}
               {session.timeLimitMinutes && ` (${session.timeLimitMinutes} phút)`}
             </p>
@@ -228,33 +228,30 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
 
       {/* Roster statistics summary cards */}
       {summary && (
-        <section
-          aria-label="Thống kê phòng thi"
-          className="grid grid-cols-2 gap-4 sm:grid-cols-4"
-        >
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <span className="text-xs font-medium text-slate-500">Đã đăng ký</span>
-            <div className="mt-1 text-2xl font-bold text-slate-900">{summary.registeredCount}</div>
+        <section aria-label="Thống kê phòng thi" className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">
+            <span className="text-xs font-medium text-[var(--ink-muted)]">Đã đăng ký</span>
+            <div className="mt-1 text-2xl font-bold text-[var(--ink-primary)]">{summary.registeredCount}</div>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <span className="text-xs font-medium text-slate-500">Chưa bắt đầu</span>
-            <div className="mt-1 text-2xl font-bold text-slate-600">{summary.notStartedCount}</div>
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">
+            <span className="text-xs font-medium text-[var(--ink-muted)]">Chưa bắt đầu</span>
+            <div className="mt-1 text-2xl font-bold text-[var(--ink-secondary)]">{summary.notStartedCount}</div>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">
             <span className="text-xs font-medium text-blue-600">Đang làm bài</span>
             <div className="mt-1 text-2xl font-bold text-blue-700">{summary.inProgressCount}</div>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-            <span className="text-xs font-medium text-green-600">Đã nộp bài</span>
-            <div className="mt-1 text-2xl font-bold text-green-700">{summary.submittedCount}</div>
+          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">
+            <span className="text-xs font-medium text-emerald-600">Đã nộp bài</span>
+            <div className="mt-1 text-2xl font-bold text-emerald-700">{summary.submittedCount}</div>
           </div>
         </section>
       )}
 
       {/* Roster student table */}
-      <section aria-label="Danh sách thí sinh">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-slate-900">
+      <section aria-label="Danh sách thí sinh" className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-base font-semibold text-[var(--ink-primary)]">
             Danh sách thí sinh ({totalItems})
           </h2>
           <div className="flex items-center gap-3">
@@ -265,14 +262,14 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
                 setPage(0);
               }}
               aria-label="Số thí sinh mỗi trang"
-              className="rounded-lg border border-slate-200 bg-white px-2 py-1 text-xs text-slate-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-default)] px-2 py-1 text-xs text-[var(--ink-primary)] focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value={25}>25 / trang</option>
               <option value={50}>50 / trang</option>
               <option value={100}>100 / trang</option>
             </select>
             {snapshotQuery.isFetching && (
-              <span className="text-xs text-slate-400">Đang cập nhật...</span>
+              <span className="text-xs text-[var(--ink-muted)]">Đang cập nhật...</span>
             )}
           </div>
         </div>
@@ -281,37 +278,10 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
           students={students}
           selectedStudentPublicId={selectedStudent?.studentPublicId}
           onSelectStudent={(student) => setSelectedStudent(student)}
+          isLoading={snapshotQuery.isLoading}
+          meta={meta}
+          onPageChange={(p) => setPage(p)}
         />
-
-        {/* Pagination controls */}
-        {totalPages > 1 && (
-          <div className="mt-4 flex items-center justify-between border-t border-slate-200 pt-3 text-xs text-slate-600">
-            <div>
-              Hiển thị thí sinh {page * size + 1} – {Math.min((page + 1) * size, totalItems)} trên tổng số {totalItems}
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="secondary"
-                size="sm"
-                disabled={page <= 0 || snapshotQuery.isFetching}
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-              >
-                Trang trước
-              </Button>
-              <span className="px-2 font-medium">
-                {page + 1} / {totalPages}
-              </span>
-              <Button
-                variant="secondary"
-                size="sm"
-                disabled={page >= totalPages - 1 || snapshotQuery.isFetching}
-                onClick={() => setPage((p) => p + 1)}
-              >
-                Trang sau
-              </Button>
-            </div>
-          </div>
-        )}
       </section>
 
       {/* Drawer Panel */}

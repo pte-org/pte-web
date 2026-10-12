@@ -1,17 +1,39 @@
 "use client";
 
-import { useCallback, type ReactElement } from "react";
+import { useCallback, useMemo, type ReactElement } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Button, PageHeader, Skeleton } from "@pte/ui";
+import type { AssignedProctorSessionResponse } from "@pte/api-client";
+import {
+  Button,
+  DataTable,
+  PageHeader,
+  PaginationControls,
+  StatusBadge,
+  type DataTableColumn,
+} from "@pte/ui";
 import { useAssignedProctorSessions } from "../api";
 import { useClientTimezone } from "../hooks/useClientTimezone";
 import { useProctorWorkspaceText } from "../hooks/useProctorWorkspaceText";
 
 interface AssignedSessionPickerProps {
-  mode: "attendance" | "audit-log";
+  mode: "attendance" | "audit-log" | "incidents";
   title: string;
   subtitle: string;
+}
+
+function getStatusBadgeVariant(status: string): "success" | "info" | "neutral" | "danger" {
+  switch (status) {
+    case "OPEN":
+      return "success";
+    case "SCHEDULED":
+      return "info";
+    case "CANCELLED":
+      return "danger";
+    case "CLOSED":
+    default:
+      return "neutral";
+  }
 }
 
 export function AssignedSessionPicker({
@@ -52,121 +74,136 @@ export function AssignedSessionPicker({
 
   const sessions = data?.data ?? [];
   const meta = data?.meta;
-  const totalPages = meta?.totalPages ?? 1;
 
-  const getTargetUrl = (sessionPublicId: string): string => {
-    return mode === "attendance"
-      ? `/proctor/attendance/${sessionPublicId}`
-      : `/proctor/audit-log/${sessionPublicId}`;
-  };
+  const getTargetUrl = useCallback(
+    (sessionPublicId: string): string => {
+      if (mode === "attendance") {
+        return `/proctor/attendance/${sessionPublicId}`;
+      }
+      if (mode === "incidents") {
+        return `/proctor/incidents/${sessionPublicId}`;
+      }
+      return `/proctor/audit-log/${sessionPublicId}`;
+    },
+    [mode],
+  );
 
-  const getActionLabel = (): string => {
-    return mode === "attendance" ? "Điểm danh" : "Xem nhật ký";
-  };
+  const getActionLabel = useCallback((): string => {
+    if (mode === "attendance") {
+      return text.actionRecordAttendance;
+    }
+    if (mode === "incidents") {
+      return text.actionViewIncidents;
+    }
+    return text.actionViewAudit;
+  }, [mode, text]);
+
+  const formatDateTime = useCallback(
+    (iso: string): string => {
+      const date = new Date(iso);
+      if (Number.isNaN(date.getTime())) return iso;
+      return new Intl.DateTimeFormat(text.locale === "vi" ? "vi-VN" : "en-US", {
+        dateStyle: "short",
+        timeStyle: "short",
+      }).format(date);
+    },
+    [text.locale],
+  );
+
+  const columns: DataTableColumn<AssignedProctorSessionResponse>[] = useMemo(
+    () => [
+      {
+        key: "name",
+        header: text.tableColName,
+        cell: (row) => {
+          const sessionId = row.sessionPublicId ?? row.examSessionPublicId ?? "";
+          return (
+            <div>
+              <div className="font-medium text-[var(--ink-primary)]">{row.name}</div>
+              <div className="font-mono text-xs text-[var(--ink-muted)]">
+                #{sessionId ? sessionId.slice(0, 8).toUpperCase() : "—"}
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        key: "status",
+        header: text.tableColStatus,
+        cell: (row) => (
+          <StatusBadge
+            label={row.status}
+            variant={getStatusBadgeVariant(row.status)}
+          />
+        ),
+      },
+      {
+        key: "opensAt",
+        header: text.tableColOpensAt,
+        cell: (row) => (
+          <span className="text-xs text-[var(--ink-secondary)]">{formatDateTime(row.opensAt)}</span>
+        ),
+      },
+      {
+        key: "closesAt",
+        header: text.tableColClosesAt,
+        cell: (row) => (
+          <span className="text-xs text-[var(--ink-secondary)]">{formatDateTime(row.closesAt)}</span>
+        ),
+      },
+    ],
+    [formatDateTime, text],
+  );
+
+  const renderRowActions = useCallback(
+    (row: AssignedProctorSessionResponse) => {
+      const sessionId = row.sessionPublicId ?? row.examSessionPublicId ?? "";
+      return (
+        <div className="flex justify-end">
+          <Link href={getTargetUrl(sessionId)}>
+            <Button variant="primary" size="sm">
+              {getActionLabel()}
+            </Button>
+          </Link>
+        </div>
+      );
+    },
+    [getActionLabel, getTargetUrl],
+  );
 
   return (
     <div className="space-y-6">
       <PageHeader title={title} subtitle={subtitle} />
 
-      {isLoading && (
-        <div className="space-y-3">
-          <Skeleton className="h-12 w-full rounded-lg" />
-          <Skeleton className="h-16 w-full rounded-lg" />
-          <Skeleton className="h-16 w-full rounded-lg" />
-        </div>
-      )}
-
-      {isError && (
+      {isError ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-red-700">
           <p className="font-medium">{text.error}</p>
           <Button variant="secondary" size="sm" className="mt-4" onClick={() => void refetch()}>
             {text.retry}
           </Button>
         </div>
-      )}
-
-      {!isLoading && !isError && sessions.length === 0 && (
-        <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-8 text-center text-[var(--ink-muted)]">
-          <p className="text-base font-medium">{text.empty}</p>
-          <p className="mt-1 text-sm">Bạn chưa được phân công phụ trách ca thi nào.</p>
-        </div>
-      )}
-
-      {!isLoading && !isError && sessions.length > 0 && (
-        <div className="overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-[var(--border-subtle)] bg-[var(--surface-subtle)] text-xs font-semibold text-[var(--ink-secondary)] uppercase">
-                <tr>
-                  <th className="px-6 py-4">{text.tableColName}</th>
-                  <th className="px-6 py-4">{text.tableColStatus}</th>
-                  <th className="px-6 py-4">{text.tableColOpensAt}</th>
-                  <th className="px-6 py-4">{text.tableColClosesAt}</th>
-                  <th className="px-6 py-4 text-right">{text.tableColActions}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--ink-primary)]">
-                {sessions.map((session) => {
-                  const sessionId = session.sessionPublicId ?? session.examSessionPublicId;
-                  return (
-                    <tr key={sessionId} className="transition-colors hover:bg-[var(--surface-subtle)]">
-                      <td className="px-6 py-4 font-medium">
-                        <div>{session.name}</div>
-                        <div className="text-xs text-[var(--ink-muted)]">
-                          Mã: {sessionId.slice(0, 8)}…
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-medium bg-blue-50 text-blue-700">
-                          {session.status}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-xs text-[var(--ink-secondary)]">
-                        {session.opensAt ? new Date(session.opensAt).toLocaleString() : "—"}
-                      </td>
-                      <td className="px-6 py-4 text-xs text-[var(--ink-secondary)]">
-                        {session.closesAt ? new Date(session.closesAt).toLocaleString() : "—"}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        <Link href={getTargetUrl(sessionId)}>
-                          <Button variant="primary" size="sm">
-                            {getActionLabel()}
-                          </Button>
-                        </Link>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between border-t border-[var(--border-subtle)] px-6 py-4">
-              <Button
-                variant="secondary"
-                size="sm"
-                disabled={page <= 0}
-                onClick={() => setPage(page - 1)}
-              >
-                {text.prevPage}
-              </Button>
-              <span className="text-sm text-[var(--ink-muted)]">
-                {text.pageIndicator
-                  .replace("{page}", String(page + 1))
-                  .replace("{totalPages}", String(totalPages))}
-              </span>
-              <Button
-                variant="secondary"
-                size="sm"
-                disabled={page >= totalPages - 1}
-                onClick={() => setPage(page + 1)}
-              >
-                {text.nextPage}
-              </Button>
-            </div>
-          )}
-        </div>
+      ) : (
+        <DataTable
+          columns={columns}
+          rows={sessions}
+          getRowKey={(row) => row.assignmentPublicId || row.sessionPublicId || row.examSessionPublicId || ""}
+          isLoading={isLoading}
+          emptyTitle={text.empty}
+          rowActions={renderRowActions}
+          clientSideFiltering={false}
+          clientSideSorting={false}
+          clientSidePagination={false}
+          showSearch={false}
+          pagination={
+            meta && meta.totalPages > 1 ? (
+              <PaginationControls
+                meta={meta}
+                onPageChange={setPage}
+                disabled={isLoading}
+              />
+            ) : null
+          }
+        />
       )}
     </div>
   );

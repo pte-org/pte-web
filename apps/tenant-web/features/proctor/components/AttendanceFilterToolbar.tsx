@@ -23,12 +23,13 @@ export function AttendanceFilterToolbar({
 }: AttendanceFilterToolbarProps): ReactElement {
   const [searchInput, setSearchInput] = useState(currentSearch);
 
-  const tabs = [
+  const tabs: Array<{ id: AttendanceStatus | "ALL"; label: string; count: number | undefined }> = [
     { id: "ALL", label: "Tất cả", count: summary?.totalEnrollments },
     { id: "UNMARKED", label: "Chưa điểm danh", count: summary?.unmarkedCount },
     { id: "PRESENT", label: "Có mặt", count: summary?.presentCount },
+    { id: "LATE", label: "Đến trễ", count: summary?.lateCount },
     { id: "ABSENT", label: "Vắng mặt", count: summary?.absentCount },
-  ] as const;
+  ];
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

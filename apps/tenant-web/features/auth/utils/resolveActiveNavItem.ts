@@ -19,6 +19,11 @@ export function resolveActiveNavItem(
     if (attendanceItem) return attendanceItem.href;
   }
 
+  if (pathname.startsWith("/proctor/incidents")) {
+    const incidentsItem = navItems.find((item) => item.href === "/proctor/incidents");
+    if (incidentsItem) return incidentsItem.href;
+  }
+
   if (pathname.startsWith("/proctor/audit-log")) {
     const auditItem = navItems.find((item) => item.href === "/proctor/audit-log");
     if (auditItem) return auditItem.href;

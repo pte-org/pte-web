@@ -96,9 +96,9 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
     <div className="flex flex-col gap-6 p-8">
       <PageHeader title={T.TITLE} subtitle={T.SUBTITLE} />
 
-      <section className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+      <section className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3 text-sm text-[var(--ink-secondary)]">
         <span>
-          {T.COL_PROCTOR}: <code className="font-mono text-xs">#{shortId(sessionPublicId)}</code>
+          {T.COL_PROCTOR}: <code className="font-mono text-xs text-[var(--ink-primary)]">#{shortId(sessionPublicId)}</code>
         </span>
         <div className="flex items-center gap-2">
           <Link href={`/proctor/sessions/${sessionPublicId}`}>
@@ -117,7 +117,7 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
       <div
         role="tablist"
         aria-label="Audit log tabs"
-        className="flex gap-1 border-b border-slate-200"
+        className="flex gap-1 border-b border-[var(--border-subtle)]"
       >
         {TABS.map((tab) => {
           const isActive = activeTab === tab.key;
@@ -131,8 +131,8 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
               className={
                 "border-b-2 px-4 py-2 text-sm font-medium transition-colors " +
                 (isActive
-                  ? "border-blue-600 text-blue-700"
-                  : "border-transparent text-slate-600 hover:text-slate-900")
+                  ? "border-blue-600 text-[var(--ink-primary)] font-semibold"
+                  : "border-transparent text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]")
               }
             >
               {tab.label}

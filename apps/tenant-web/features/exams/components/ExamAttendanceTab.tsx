@@ -9,6 +9,7 @@ import { AttendanceFilterToolbar } from "@/features/proctor/components/Attendanc
 import { AttendanceRosterTable } from "@/features/proctor/components/AttendanceRosterTable";
 import { RecordAttendanceModal } from "@/features/proctor/components/RecordAttendanceModal";
 import { AttendanceHistoryModal } from "@/features/proctor/components/AttendanceHistoryModal";
+import { IdentityVerificationModal } from "@/features/proctor/components/IdentityVerificationModal";
 
 interface ExamAttendanceTabProps {
   sessionPublicId: string;
@@ -28,6 +29,7 @@ export function ExamAttendanceTab({
     targetStatus: AttendanceStatus;
   } | null>(null);
   const [activeHistory, setActiveHistory] = useState<AttendanceRowResponse | null>(null);
+  const [activeVerification, setActiveVerification] = useState<AttendanceRowResponse | null>(null);
 
   const { data, isLoading, isError, refetch } = useHostAttendanceRoster(sessionPublicId, {
     status: currentStatus,
@@ -91,6 +93,7 @@ export function ExamAttendanceTab({
         canEditSession={canEditSession}
         onRecordAttendance={(row, targetStatus) => setActiveAction({ row, targetStatus })}
         onViewHistory={(row) => setActiveHistory(row)}
+        onVerifyIdentity={(row) => setActiveVerification(row)}
       />
 
       {meta && meta.totalPages > 1 && (
@@ -115,6 +118,20 @@ export function ExamAttendanceTab({
         studentName={activeHistory?.displayName}
         studentEmail={activeHistory?.email}
         isHost={true}
+      />
+
+      <IdentityVerificationModal
+        open={Boolean(activeVerification)}
+        onClose={() => setActiveVerification(null)}
+        row={activeVerification}
+        sessionPublicId={sessionPublicId}
+        onConfirmVerification={({ studentPublicId, status, note }) => {
+          const target = rows.find((r) => r.studentPublicId === studentPublicId);
+          if (target) {
+            target.identityStatus = status;
+            target.identityNote = note;
+          }
+        }}
       />
     </div>
   );

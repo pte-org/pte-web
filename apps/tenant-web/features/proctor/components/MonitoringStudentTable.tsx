@@ -1,13 +1,23 @@
 "use client";
 
-import type { ReactElement } from "react";
-import { Button } from "@pte/ui";
-import type { MonitoringStudentResponse } from "@pte/api-client";
+import { useMemo, type ReactElement } from "react";
+import type { MonitoringStudentResponse, PageMeta } from "@pte/api-client";
+import {
+  Badge,
+  Button,
+  DataTable,
+  PaginationControls,
+  StatusBadge,
+  type DataTableColumn,
+} from "@pte/ui";
 
 interface MonitoringStudentTableProps {
   students: MonitoringStudentResponse[];
   selectedStudentPublicId?: string | null;
   onSelectStudent: (student: MonitoringStudentResponse) => void;
+  isLoading?: boolean;
+  meta?: PageMeta;
+  onPageChange?: (page: number) => void;
 }
 
 function formatTime(iso: string | null): string {
@@ -19,102 +29,122 @@ function formatTime(iso: string | null): string {
   }).format(date);
 }
 
+function getStatusBadgeProps(status: string | null | undefined): { label: string; variant: "info" | "success" | "warning" | "neutral" } {
+  switch (status) {
+    case "IN_PROGRESS":
+      return { label: "Đang thi", variant: "info" };
+    case "SUBMITTED":
+      return { label: "Đã nộp", variant: "success" };
+    case "ABANDONED":
+      return { label: "Bỏ dở", variant: "warning" };
+    default:
+      return { label: "Chưa thi", variant: "neutral" };
+  }
+}
+
 export function MonitoringStudentTable({
   students,
   selectedStudentPublicId,
   onSelectStudent,
+  isLoading = false,
+  meta,
+  onPageChange,
 }: MonitoringStudentTableProps): ReactElement {
-  if (students.length === 0) {
-    return (
-      <div className="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
-        Không có thí sinh nào trong danh sách phòng thi.
-      </div>
-    );
-  }
+  const columns: DataTableColumn<MonitoringStudentResponse>[] = useMemo(
+    () => [
+      {
+        key: "student",
+        header: "Thí sinh",
+        cell: (row) => {
+          const isSelected = selectedStudentPublicId === row.studentPublicId;
+          return (
+            <div>
+              <div className={`font-medium ${isSelected ? "text-blue-600 font-semibold" : "text-[var(--ink-primary)]"}`}>
+                {row.displayName}
+              </div>
+              <div className="text-xs text-[var(--ink-muted)]">
+                {row.email ?? "—"}
+              </div>
+            </div>
+          );
+        },
+      },
+      {
+        key: "attempt",
+        header: "Lượt thi",
+        cell: (row) => (
+          <span className="font-mono text-xs text-[var(--ink-secondary)]">
+            {row.attemptNumber ? `#${row.attemptNumber}` : "—"}
+          </span>
+        ),
+      },
+      {
+        key: "status",
+        header: "Trạng thái",
+        cell: (row) => {
+          const { label, variant } = getStatusBadgeProps(row.status);
+          return <StatusBadge label={label} variant={variant} />;
+        },
+      },
+      {
+        key: "startedAt",
+        header: "Bắt đầu",
+        cell: (row) => (
+          <span className="text-xs text-[var(--ink-secondary)]">{formatTime(row.startedAt)}</span>
+        ),
+      },
+      {
+        key: "lastSeenAt",
+        header: "Tín hiệu cuối",
+        cell: (row) => (
+          <span className="text-xs text-[var(--ink-secondary)]">{formatTime(row.lastSeenAt)}</span>
+        ),
+      },
+      {
+        key: "violations",
+        header: "Vi phạm",
+        cell: (row) =>
+          row.manualViolationCount > 0 ? (
+            <Badge variant="danger">{row.manualViolationCount}</Badge>
+          ) : (
+            <span className="text-[var(--ink-muted)] text-xs">—</span>
+          ),
+      },
+    ],
+    [selectedStudentPublicId],
+  );
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-      <table className="w-full text-left text-sm text-slate-700">
-        <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wider text-slate-500">
-          <tr>
-            <th scope="col" className="px-4 py-3">Thí sinh</th>
-            <th scope="col" className="px-4 py-3">Lượt thi</th>
-            <th scope="col" className="px-4 py-3">Trạng thái</th>
-            <th scope="col" className="px-4 py-3">Bắt đầu</th>
-            <th scope="col" className="px-4 py-3">Tín hiệu cuối</th>
-            <th scope="col" className="px-4 py-3 text-center">Vi phạm</th>
-            <th scope="col" className="px-4 py-3 text-right">Thao tác</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-slate-100">
-          {students.map((student) => {
-            const isSelected = selectedStudentPublicId === student.studentPublicId;
-            return (
-              <tr
-                key={student.studentPublicId}
-                className={
-                  "transition-colors hover:bg-slate-50 " +
-                  (isSelected ? "bg-blue-50/50" : "")
-                }
-              >
-                <td className="px-4 py-3">
-                  <div className="font-medium text-slate-900">{student.displayName}</div>
-                  <div className="text-xs text-slate-500">{student.email ?? "—"}</div>
-                </td>
-                <td className="px-4 py-3 font-mono text-xs text-slate-600">
-                  {student.attemptNumber ? `#${student.attemptNumber}` : "—"}
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={
-                      "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium " +
-                      (student.status === "IN_PROGRESS"
-                        ? "bg-blue-100 text-blue-800"
-                        : student.status === "SUBMITTED"
-                          ? "bg-green-100 text-green-800"
-                          : student.status === "ABANDONED"
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-slate-100 text-slate-700")
-                    }
-                  >
-                    {student.status === "IN_PROGRESS"
-                      ? "Đang thi"
-                      : student.status === "SUBMITTED"
-                        ? "Đã nộp"
-                        : student.status === "ABANDONED"
-                          ? "Bỏ dở"
-                          : "Chưa thi"}
-                  </span>
-                </td>
-                <td className="px-4 py-3 text-xs text-slate-600">
-                  {formatTime(student.startedAt)}
-                </td>
-                <td className="px-4 py-3 text-xs text-slate-600">
-                  {formatTime(student.lastSeenAt)}
-                </td>
-                <td className="px-4 py-3 text-center">
-                  {student.manualViolationCount > 0 ? (
-                    <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-red-100 text-xs font-bold text-red-700">
-                      {student.manualViolationCount}
-                    </span>
-                  ) : (
-                    <span className="text-slate-400">—</span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => onSelectStudent(student)}
-                  >
-                    Chi tiết
-                  </Button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+    <DataTable
+      columns={columns}
+      rows={students}
+      getRowKey={(row) => row.studentPublicId}
+      isLoading={isLoading}
+      emptyTitle="Không có thí sinh nào trong danh sách phòng thi."
+      clientSideFiltering={false}
+      clientSideSorting={false}
+      clientSidePagination={false}
+      showSearch={false}
+      rowActions={(row) => (
+        <div className="flex justify-end">
+          <Button
+            variant={selectedStudentPublicId === row.studentPublicId ? "primary" : "secondary"}
+            size="sm"
+            onClick={() => onSelectStudent(row)}
+          >
+            Chi tiết
+          </Button>
+        </div>
+      )}
+      pagination={
+        meta && meta.totalPages > 1 && onPageChange ? (
+          <PaginationControls
+            meta={meta}
+            onPageChange={onPageChange}
+            disabled={isLoading}
+          />
+        ) : null
+      }
+    />
   );
 }

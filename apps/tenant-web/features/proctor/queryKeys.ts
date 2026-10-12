@@ -72,4 +72,18 @@ export const PROCTOR_QUERY_KEYS = {
     if (page === undefined && size === undefined) return base;
     return [...base, { page, size }] as const;
   },
+  incidentsListPrefix: (sessionPublicId: string) =>
+    [...PROCTOR_QUERY_KEYS.all, "incidents", sessionPublicId] as const,
+  incidentsList: (
+    sessionPublicId: string,
+    params?: { status?: string; page?: number; size?: number },
+  ) => {
+    const base = PROCTOR_QUERY_KEYS.incidentsListPrefix(sessionPublicId);
+    if (!params) return base;
+    return [...base, params] as const;
+  },
+  incidentDetail: (sessionPublicId: string, incidentPublicId: string) =>
+    [...PROCTOR_QUERY_KEYS.all, "incidents", sessionPublicId, incidentPublicId] as const,
+  incidentHistory: (sessionPublicId: string, incidentPublicId: string) =>
+    [...PROCTOR_QUERY_KEYS.all, "incidents", sessionPublicId, incidentPublicId, "history"] as const,
 } as const;

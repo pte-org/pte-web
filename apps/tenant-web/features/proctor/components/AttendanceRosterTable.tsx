@@ -1,8 +1,8 @@
 "use client";
 
-import type { ReactElement } from "react";
-import { Badge, Button, Skeleton, StatusBadge } from "@pte/ui";
-import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
+import { useMemo, type ReactElement } from "react";
+import { ActionMenu, Badge, Button, DataTable, StatusBadge, type DataTableColumn } from "@pte/ui";
+import type { AttendanceRowResponse, AttendanceStatus, IdentityVerificationStatus } from "@pte/api-client";
 
 interface AttendanceRosterTableProps {
   rows: AttendanceRowResponse[];
@@ -10,12 +10,15 @@ interface AttendanceRosterTableProps {
   canEditSession: boolean;
   onRecordAttendance: (row: AttendanceRowResponse, targetStatus: AttendanceStatus) => void;
   onViewHistory: (row: AttendanceRowResponse) => void;
+  onVerifyIdentity?: (row: AttendanceRowResponse) => void;
 }
 
-const getStatusBadgeVariant = (status: AttendanceStatus) => {
+const getAttendanceBadgeVariant = (status: AttendanceStatus): "success" | "warning" | "danger" | "neutral" => {
   switch (status) {
     case "PRESENT":
       return "success";
+    case "LATE":
+      return "warning";
     case "ABSENT":
       return "danger";
     case "UNMARKED":
@@ -24,15 +27,32 @@ const getStatusBadgeVariant = (status: AttendanceStatus) => {
   }
 };
 
-const getStatusLabel = (status: AttendanceStatus) => {
+const getAttendanceLabel = (status: AttendanceStatus): string => {
   switch (status) {
     case "PRESENT":
       return "Có mặt";
+    case "LATE":
+      return "Đến trễ";
     case "ABSENT":
       return "Vắng mặt";
     case "UNMARKED":
     default:
       return "Chưa điểm danh";
+  }
+};
+
+const getIdentityBadgeProps = (status: IdentityVerificationStatus = "UNVERIFIED"): {
+  label: string;
+  variant: "success" | "danger" | "neutral";
+} => {
+  switch (status) {
+    case "VERIFIED":
+      return { label: "Đã xác minh", variant: "success" };
+    case "FAILED":
+      return { label: "Nghi vấn", variant: "danger" };
+    case "UNVERIFIED":
+    default:
+      return { label: "Chưa xác minh", variant: "neutral" };
   }
 };
 
@@ -42,147 +62,177 @@ export function AttendanceRosterTable({
   canEditSession,
   onRecordAttendance,
   onViewHistory,
+  onVerifyIdentity,
 }: AttendanceRosterTableProps): ReactElement {
-  if (isLoading) {
-    return (
-      <div className="space-y-3 p-4">
-        <Skeleton className="h-12 w-full rounded-lg" />
-        <Skeleton className="h-12 w-full rounded-lg" />
-        <Skeleton className="h-12 w-full rounded-lg" />
-      </div>
-    );
-  }
+  const columns: DataTableColumn<AttendanceRowResponse>[] = useMemo(
+    () => [
+      {
+        key: "student",
+        header: "Thí sinh",
+        cell: (row) => (
+          <div>
+            <div className="font-medium text-[var(--ink-primary)]">
+              {row.displayName || row.studentPublicId}
+            </div>
+            {row.email && (
+              <div className="text-xs text-[var(--ink-muted)]">{row.email}</div>
+            )}
+          </div>
+        ),
+      },
+      {
+        key: "attendance",
+        header: "Điểm danh",
+        cell: (row) => {
+          const canEditRow = canEditSession && row.canEdit;
+          return (
+            <div>
+              <StatusBadge
+                label={getAttendanceLabel(row.status)}
+                variant={getAttendanceBadgeVariant(row.status)}
+              />
+              {!canEditRow && row.blockingReason && (
+                <div className="mt-1 text-[11px] text-[var(--ink-muted)]">
+                  {row.blockingReason}
+                </div>
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        key: "identity",
+        header: "Xác minh danh tính",
+        cell: (row) => {
+          const { label, variant } = getIdentityBadgeProps(row.identityStatus);
+          return (
+            <div>
+              <StatusBadge label={label} variant={variant} />
+              {row.identityNote && (
+                <div className="mt-0.5 max-w-[160px] truncate text-[11px] text-[var(--ink-muted)]" title={row.identityNote}>
+                  {row.identityNote}
+                </div>
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        key: "activity",
+        header: "Hoạt động bài thi",
+        cell: (row) =>
+          row.latestAttemptActivityStatus ? (
+            <div>
+              <Badge variant="info">{row.latestAttemptActivityStatus}</Badge>
+              {row.latestAttemptActivityAt && (
+                <div className="mt-1 text-[11px] text-[var(--ink-muted)]">
+                  {new Date(row.latestAttemptActivityAt).toLocaleTimeString("vi-VN")}
+                </div>
+              )}
+            </div>
+          ) : (
+            <span className="text-xs text-[var(--ink-muted)]">Chưa bắt đầu</span>
+          ),
+      },
+      {
+        key: "lastAction",
+        header: "Cập nhật gần nhất",
+        cell: (row) =>
+          row.lastActionAt ? (
+            <div className="text-xs text-[var(--ink-secondary)]">
+              <div>{new Date(row.lastActionAt).toLocaleString("vi-VN")}</div>
+              {row.lastActorRole && (
+                <div className="text-[11px] text-[var(--ink-muted)]">
+                  Bởi: {row.lastActorRole}
+                </div>
+              )}
+            </div>
+          ) : (
+            <span className="text-xs text-[var(--ink-muted)]">—</span>
+          ),
+      },
+    ],
+    [canEditSession],
+  );
 
-  if (rows.length === 0) {
+  const renderRowActions = (row: AttendanceRowResponse) => {
+    const canEditRow = canEditSession && row.canEdit;
+
+    const actionItems = [];
+    if (canEditRow && row.status !== "PRESENT") {
+      actionItems.push({
+        label: "Có mặt",
+        onClick: () => onRecordAttendance(row, "PRESENT"),
+      });
+    }
+    if (canEditRow && row.status !== "LATE") {
+      actionItems.push({
+        label: "Đến trễ",
+        onClick: () => onRecordAttendance(row, "LATE"),
+      });
+    }
+    if (canEditRow && row.status !== "ABSENT") {
+      actionItems.push({
+        label: "Vắng mặt",
+        onClick: () => onRecordAttendance(row, "ABSENT"),
+      });
+    }
+    if (canEditRow && row.status !== "UNMARKED") {
+      actionItems.push({
+        label: "Đặt lại",
+        onClick: () => onRecordAttendance(row, "UNMARKED"),
+      });
+    }
+    if (onVerifyIdentity) {
+      actionItems.push({
+        label: "Xác minh danh tính",
+        onClick: () => onVerifyIdentity(row),
+      });
+    }
+    actionItems.push({
+      label: "Lịch sử điểm danh",
+      onClick: () => onViewHistory(row),
+    });
+
     return (
-      <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-8 text-center text-[var(--ink-muted)]">
-        Không có dữ liệu thí sinh phù hợp.
+      <div className="flex items-center justify-end gap-1.5">
+        {canEditRow && row.status !== "PRESENT" && (
+          <Button
+            variant="secondary"
+            size="sm"
+            className="text-xs text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+            onClick={() => onRecordAttendance(row, "PRESENT")}
+          >
+            Có mặt
+          </Button>
+        )}
+        {canEditRow && row.status !== "LATE" && (
+          <Button
+            variant="secondary"
+            size="sm"
+            className="text-xs text-amber-700 hover:bg-amber-50 hover:text-amber-800"
+            onClick={() => onRecordAttendance(row, "LATE")}
+          >
+            Đến trễ
+          </Button>
+        )}
+        <ActionMenu items={actionItems} label="Thao tác điểm danh" />
       </div>
     );
-  }
+  };
 
   return (
-    <div className="overflow-hidden rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-[var(--border-subtle)] bg-[var(--surface-subtle)] text-xs font-semibold text-[var(--ink-secondary)] uppercase">
-            <tr>
-              <th className="px-4 py-3">Thí sinh</th>
-              <th className="px-4 py-3">Điểm danh</th>
-              <th className="px-4 py-3">Hoạt động bài thi</th>
-              <th className="px-4 py-3">Cập nhật gần nhất</th>
-              <th className="px-4 py-3 text-right">Thao tác</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[var(--border-subtle)]">
-            {rows.map((row) => {
-              const canEditRow = canEditSession && row.canEdit;
-
-              return (
-                <tr key={row.studentPublicId} className="hover:bg-[var(--surface-subtle)]">
-                  <td className="px-4 py-3">
-                    <div className="font-medium text-[var(--ink-primary)]">
-                      {row.displayName || row.studentPublicId}
-                    </div>
-                    {row.email && (
-                      <div className="text-xs text-[var(--ink-secondary)]">{row.email}</div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <StatusBadge
-                      label={getStatusLabel(row.status)}
-                      variant={getStatusBadgeVariant(row.status)}
-                    />
-                    {!canEditRow && row.blockingReason && (
-                      <div className="mt-1 text-[11px] text-[var(--ink-muted)]">
-                        {row.blockingReason}
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    {row.latestAttemptActivityStatus ? (
-                      <div>
-                        <Badge variant="info">{row.latestAttemptActivityStatus}</Badge>
-                        {row.latestAttemptActivityAt && (
-                          <div className="mt-1 text-[11px] text-[var(--ink-muted)]">
-                            {new Date(row.latestAttemptActivityAt).toLocaleTimeString("vi-VN")}
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-xs text-[var(--ink-muted)]">Chưa bắt đầu</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-[var(--ink-secondary)]">
-                    {row.lastActionAt ? (
-                      <div>
-                        <div>{new Date(row.lastActionAt).toLocaleString("vi-VN")}</div>
-                        {row.lastActorRole && (
-                          <div className="text-[11px] text-[var(--ink-muted)]">
-                            Bởi: {row.lastActorRole}
-                          </div>
-                        )}
-                        {row.lastReasonOrNote && (
-                          <div
-                            className="mt-0.5 max-w-xs truncate text-[11px] text-[var(--ink-muted)]"
-                            title={row.lastReasonOrNote}
-                          >
-                            &ldquo;{row.lastReasonOrNote}&rdquo;
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      {canEditRow && row.status !== "PRESENT" && (
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          className="text-xs text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
-                          onClick={() => onRecordAttendance(row, "PRESENT")}
-                        >
-                          Có mặt
-                        </Button>
-                      )}
-                      {canEditRow && row.status !== "ABSENT" && (
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          className="text-xs text-red-700 hover:bg-red-50 hover:text-red-800"
-                          onClick={() => onRecordAttendance(row, "ABSENT")}
-                        >
-                          Vắng mặt
-                        </Button>
-                      )}
-                      {canEditRow && row.status !== "UNMARKED" && (
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          className="text-xs text-[var(--ink-muted)] hover:bg-[var(--surface-subtle)]"
-                          onClick={() => onRecordAttendance(row, "UNMARKED")}
-                        >
-                          Đặt lại
-                        </Button>
-                      )}
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        className="text-xs"
-                        onClick={() => onViewHistory(row)}
-                      >
-                        Lịch sử
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <DataTable
+      columns={columns}
+      rows={rows}
+      getRowKey={(row) => row.studentPublicId}
+      isLoading={isLoading}
+      emptyTitle="Không có dữ liệu thí sinh phù hợp."
+      rowActions={renderRowActions}
+      clientSideFiltering={false}
+      clientSideSorting={false}
+      clientSidePagination={false}
+      showSearch={false}
+    />
   );
 }

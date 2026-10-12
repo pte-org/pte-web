@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Button } from "@pte/ui";
+import { Button, Modal } from "@pte/ui";
 
 interface ViolationFormProps {
   isOpen: boolean;
@@ -35,8 +35,6 @@ export function ViolationForm({
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  if (!isOpen) return null;
-
   const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
     if (!attemptPublicId) {
@@ -54,23 +52,36 @@ export function ViolationForm({
   };
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="violation-form-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+    <Modal
+      open={isOpen}
+      onClose={onClose}
+      title="Ghi nhận vi phạm quy chế thi"
+      size="md"
+      isDismissDisabled={isLoading}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+            Hủy bỏ
+          </Button>
+          <Button
+            type="button"
+            variant="danger"
+            disabled={isLoading || disabled}
+            onClick={(e) => void handleSubmit(e as unknown as FormEvent)}
+          >
+            {isLoading ? "Đang xử lý..." : "Lưu biên bản vi phạm"}
+          </Button>
+        </div>
+      }
     >
-      <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-        <h2 id="violation-form-title" className="text-lg font-semibold text-slate-900">
-          Ghi nhận vi phạm quy chế thi
-        </h2>
+      <div className="space-y-4">
         {studentName && (
-          <p className="mt-1 text-sm text-slate-600">
-            Thí sinh: <strong className="text-slate-900">{studentName}</strong>
+          <p className="text-sm text-[var(--ink-secondary)]">
+            Thí sinh: <strong className="text-[var(--ink-primary)]">{studentName}</strong>
             {attemptPublicId && (
               <>
                 {" "}(Bài thi:{" "}
-                <code className="rounded bg-slate-100 px-1 py-0.5 font-mono text-xs">
+                <code className="rounded bg-[var(--surface-subtle)] px-1.5 py-0.5 font-mono text-xs text-[var(--ink-primary)]">
                   {attemptPublicId.slice(0, 8).toUpperCase()}
                 </code>
                 )
@@ -80,61 +91,45 @@ export function ViolationForm({
         )}
 
         {error && (
-          <div className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
             {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
-          <div>
-            <label htmlFor="violation-type" className="block text-xs font-medium text-slate-700">
-              Loại vi phạm *
-            </label>
-            <select
-              id="violation-type"
-              value={violationType}
-              onChange={(e) => setViolationType(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-slate-300 p-2 text-sm text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-              disabled={isLoading}
-            >
-              {VIOLATION_TYPES.map((t) => (
-                <option key={t.value} value={t.value}>
-                  {t.label}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <label htmlFor="violation-type" className="block text-xs font-medium text-[var(--ink-secondary)]">
+            Loại vi phạm *
+          </label>
+          <select
+            id="violation-type"
+            value={violationType}
+            onChange={(e) => setViolationType(e.target.value)}
+            className="mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-default)] p-2 text-sm text-[var(--ink-primary)] focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+            disabled={isLoading}
+          >
+            {VIOLATION_TYPES.map((t) => (
+              <option key={t.value} value={t.value}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div>
-            <label htmlFor="violation-note" className="block text-xs font-medium text-slate-700">
-              Mô tả chi tiết vi phạm
-            </label>
-            <textarea
-              id="violation-note"
-              rows={3}
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="Ghi chú chi tiết diễn biến vi phạm..."
-              className="mt-1 w-full rounded-lg border border-slate-300 p-2 text-sm text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-              disabled={isLoading}
-            />
-          </div>
-
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
-              Hủy
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              disabled={isLoading || disabled}
-              title={disabled ? "Không khả dụng khi mất kết nối" : undefined}
-            >
-              {isLoading ? "Đang lưu..." : "Ghi nhận vi phạm"}
-            </Button>
-          </div>
-        </form>
+        <div>
+          <label htmlFor="violation-note" className="block text-xs font-medium text-[var(--ink-secondary)]">
+            Mô tả chi tiết vi phạm
+          </label>
+          <textarea
+            id="violation-note"
+            rows={3}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Mô tả cụ thể thời điểm, hành vi quan sát thấy..."
+            className="mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-default)] p-2 text-sm text-[var(--ink-primary)] focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+            disabled={isLoading}
+          />
+        </div>
       </div>
-    </div>
+    </Modal>
   );
 }
