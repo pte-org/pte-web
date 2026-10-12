@@ -90,6 +90,8 @@ export interface DataTableProps<TRow> {
   renderMobileRow?: (row: TRow) => ReactNode;
   tableClassName?: string;
   tableWrapperClassName?: string;
+  /** Extra classes for one body row, e.g. to highlight rows that need attention. */
+  rowClassName?: (row: TRow) => string | undefined;
   /**
    * Multi-row checkbox selection. Selection state stays controlled by the
    * caller so filtering and mutations can decide what a selected key means.
@@ -126,6 +128,7 @@ export function DataTable<TRow>({
   renderMobileRow,
   tableClassName,
   tableWrapperClassName,
+  rowClassName,
   selectable = false,
   selectedKeys,
   onSelectionChange,
@@ -393,7 +396,10 @@ export function DataTable<TRow>({
                       return (
                         <tr
                           key={key}
-                          className="not-last:*:border-[var(--table-border)] not-last:[&>td]:border-b not-last:[&>th]:border-b transition-colors duration-150 hover:bg-[var(--table-row-hover)]"
+                          className={cn(
+                            "not-last:*:border-[var(--table-border)] not-last:[&>td]:border-b not-last:[&>th]:border-b transition-colors duration-150 hover:bg-[var(--table-row-hover)]",
+                            rowClassName?.(row),
+                          )}
                         >
                           {selectable && (
                             <td className={cellPaddingBody}>
