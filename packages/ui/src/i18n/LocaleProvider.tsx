@@ -334,7 +334,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.studentRoster.submitting": "Đang đặt lại...",
     "tenant.studentRoster.passwordMinLength": "Mật khẩu phải có ít nhất {minLength} ký tự.",
     "tenant.students.add": "Thêm học viên",
-    "tenant.students.import": "Nhập học viên",
+    "tenant.students.import": "Thêm hàng loạt",
     "tenant.students.fullName": "Họ và tên",
     "tenant.students.account": "Tài khoản",
     "tenant.students.studentCode": "Mã học viên",
