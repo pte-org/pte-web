@@ -1,6 +1,7 @@
 import type { PageMeta } from "../../client/client";
 
-export type AttendanceStatus = "UNMARKED" | "PRESENT" | "ABSENT";
+export type AttendanceStatus = "UNMARKED" | "PRESENT" | "ABSENT" | "LATE";
+export type IdentityVerificationStatus = "UNVERIFIED" | "VERIFIED" | "FAILED";
 
 export interface AttendanceRowResponse {
   studentPublicId: string;
@@ -17,6 +18,8 @@ export interface AttendanceRowResponse {
   blockingReason: string | null;
   latestAttemptActivityStatus: string | null;
   latestAttemptActivityAt: string | null;
+  identityStatus?: IdentityVerificationStatus;
+  identityNote?: string | null;
 }
 
 export interface AttendanceSummaryResponse {
@@ -24,6 +27,7 @@ export interface AttendanceSummaryResponse {
   unmarkedCount: number;
   presentCount: number;
   absentCount: number;
+  lateCount?: number;
 }
 
 export interface AttendancePageResponse {
@@ -45,6 +49,14 @@ export interface RecordAttendanceRequest {
   expectedVersion: number;
   requestPublicId: string;
   reasonOrNote?: string | null;
+}
+
+export interface RecordIdentityVerificationRequest {
+  status: IdentityVerificationStatus;
+  enrollmentPublicId: string;
+  expectedVersion: number;
+  requestPublicId: string;
+  note?: string | null;
 }
 
 export interface AttendanceCommandReceiptResponse {

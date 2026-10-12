@@ -22,3 +22,4 @@ export * from "./notification";
 export * from "./support";
 export * from "./proctoring";
 export * from "./attendance";
+export * from "./incidents";
