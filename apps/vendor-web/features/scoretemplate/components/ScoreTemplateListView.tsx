@@ -24,6 +24,7 @@ import {
 } from "@pte/ui";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
 import {
@@ -58,6 +59,7 @@ function detailHref(template: ScoreTemplateResponse): string {
 
 export const ScoreTemplateListView = (): ReactElement => {
   const T = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
+  const searchText = useAdminSearchText("scoreTemplates");
   const H = useAdminCopy(RAW_SCORE_TEMPLATE_LIST_HEADERS);
   const statusLabels = useAdminCopy(RAW_SCORE_TEMPLATE_STATUS_LABELS);
   const policyLabels = useAdminCopy(RAW_SCORE_TEMPLATE_POLICY_LABELS);
@@ -267,6 +269,8 @@ export const ScoreTemplateListView = (): ReactElement => {
       )}
 
       <DataTable
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
         columns={[
           {
             key: "code",

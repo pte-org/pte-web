@@ -34,20 +34,21 @@ async function requestWithProtectedCache<T>(
 
 const announcementKeys = {
   root: ["announcements"] as const,
-  list: (userId: string, page: number) => ["announcements", "list", userId, page] as const,
+  list: (userId: string, page: number, search: string) =>
+    ["announcements", "list", userId, page, search] as const,
   detail: (userId: string, publicId: string) =>
     ["announcements", "detail", userId, publicId] as const,
 };
 
-export function useAnnouncementsQuery(page: number) {
+export function useAnnouncementsQuery(page: number, search = "") {
   const queryClient = useQueryClient();
   const { data: user } = useCurrentUser();
   const userId = user?.publicId ?? "anonymous";
   return useQuery({
-    queryKey: announcementKeys.list(userId, page),
+    queryKey: announcementKeys.list(userId, page, search),
     queryFn: () =>
       requestWithProtectedCache(
-        () => listAnnouncements(apiClient, { page, size: 20 }),
+        () => listAnnouncements(apiClient, { page, size: 20, search }),
         queryClient,
       ),
     enabled: canManagePlatformOperations(user?.roles),

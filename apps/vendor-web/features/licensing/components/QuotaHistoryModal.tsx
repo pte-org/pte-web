@@ -56,6 +56,7 @@ export const QuotaHistoryModal = ({
       }
     >
       <DataTable
+        showSearch={false}
         columns={[
           {
             key: "date",

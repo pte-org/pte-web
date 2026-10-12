@@ -49,6 +49,8 @@ import { CommercialPanel } from "./CommercialPanel";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
 import { isPlatformAdmin } from "@/features/auth/permissions";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
+import { useDebouncedSearch } from "@/features/i18n/useDebouncedSearch";
 
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_REVEAL_MS = 60_000;
@@ -120,6 +122,7 @@ const safeOperationMessage = (error: unknown, fallback: string): string =>
 
 export const LicenseCodesView = (): ReactElement => {
   const T = useAdminCopy(RAW_LICENSE_CODES_TEXT);
+  const searchText = useAdminSearchText("licenseCodes");
   const statusOptions = useAdminCopy(LICENSE_STATUS_FILTER_OPTIONS);
   const dateRangeLabel = useAdminCopy("Date range");
   const impactLabel = useAdminCopy("Impact");
@@ -132,6 +135,8 @@ export const LicenseCodesView = (): ReactElement => {
 
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(search);
   const [draftStatus, setDraftStatus] = useState<StatusFilter>("");
   const [draftPlanId, setDraftPlanId] = useState("");
   const [draftTenantId, setDraftTenantId] = useState("");
@@ -142,6 +147,7 @@ export const LicenseCodesView = (): ReactElement => {
     status: filters.status || undefined,
     planId: filters.planId || undefined,
     tenantId: filters.tenantId || undefined,
+    search: debouncedSearch,
   });
   const {
     data: plans = [],
@@ -198,7 +204,7 @@ export const LicenseCodesView = (): ReactElement => {
     (plan) => plan.type === "EXAM_PACKAGE" && plan.status === "ACTIVE",
   );
   const codes = codePageQuery.data?.data ?? [];
-  const isFiltered = Boolean(filters.status || filters.planId || filters.tenantId);
+  const isFiltered = Boolean(filters.status || filters.planId || filters.tenantId || search.trim());
   const error = issue.error ?? revoke.error ?? revokePreviewRequest.error ?? codePageQuery.error;
   const errorMessage =
     localError ||
@@ -563,6 +569,14 @@ export const LicenseCodesView = (): ReactElement => {
           </div>
         </div>
         <DataTable
+          searchPlaceholder={searchText.placeholder}
+          searchAriaLabel={searchText.ariaLabel}
+          searchValue={search}
+          onSearchChange={(value) => {
+            clearReveal();
+            setSearch(value);
+            setPage(0);
+          }}
           columns={[
             {
               key: "code",
@@ -653,6 +667,7 @@ export const LicenseCodesView = (): ReactElement => {
           )}
           rowActionsHeader=""
           emptyTitle={codePageQuery.isLoading ? T.LOADING : isFiltered ? T.FILTER_EMPTY : T.EMPTY}
+          clientSideFiltering={false}
           clientSidePagination={false}
           pagination={
             codePageQuery.data ? (

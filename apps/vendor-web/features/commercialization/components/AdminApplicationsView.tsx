@@ -8,9 +8,11 @@ import type { TenantApplicationResponse } from "@pte/api-client";
 import { ADMIN_APPLICATIONS_TEXT as RAW_ADMIN_APPLICATIONS_TEXT } from "../constants";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
 
 export const AdminApplicationsView = (): ReactElement => {
   const T = useAdminCopy(RAW_ADMIN_APPLICATIONS_TEXT);
+  const searchText = useAdminSearchText("applications");
   const statusOptions = useAdminCopy([
     { label: "All statuses", value: "" },
     { label: "Pending", value: "PENDING" },
@@ -94,6 +96,8 @@ export const AdminApplicationsView = (): ReactElement => {
         rows={applications}
         getRowKey={(row) => row.publicId}
         isLoading={isLoading}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
         rowActions={(row) => (
           <ActionMenu
             items={[
