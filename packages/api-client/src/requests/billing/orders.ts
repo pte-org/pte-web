@@ -14,9 +14,13 @@ export function listOrders(
   client: ApiClient,
   page = 0,
   size = DEFAULT_PAGE_SIZE,
+  search?: string,
 ): Promise<PagedResult<OrderResponse>> {
+  const params = new URLSearchParams({ page: String(page), size: String(size) });
+  const normalizedSearch = search?.trim();
+  if (normalizedSearch) params.set("search", normalizedSearch);
   return client.request<PagedResult<OrderResponse>>(
-    `${ORDER_ENDPOINTS.orders}?page=${page}&size=${size}`,
+    `${ORDER_ENDPOINTS.orders}?${params.toString()}`,
   );
 }
 
