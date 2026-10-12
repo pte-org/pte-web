@@ -1,5 +1,7 @@
 export const EXAMINER_WORKSPACE_EN = {
   title: "Examiner Marking Queue",
+  overviewTitle: "Examiner Marking Workspace",
+  overviewSubtitle: "Manage assigned marking tasks, monitor completion progress, and jump directly into active attempts.",
   filterLabel: "Queue status",
   statusAll: "All assignments",
   statusPending: "Not started",

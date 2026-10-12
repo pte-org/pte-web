@@ -23,4 +23,26 @@ export const EXAMINER_QUERY_KEYS = {
       sessionPublicId,
       attemptPublicId,
     ] as const,
+  history: (tenantId: string, actorId: string, sessionPublicId: string, attemptPublicId: string, page: number, size: number) =>
+    [
+      ...EXAMINER_QUERY_KEYS.actorScope(tenantId, actorId),
+      "history",
+      sessionPublicId,
+      attemptPublicId,
+      { page, size },
+    ] as const,
+  guidelines: (tenantId: string, actorId: string, sessionPublicId: string, attemptPublicId: string) =>
+    [
+      ...EXAMINER_QUERY_KEYS.actorScope(tenantId, actorId),
+      "guidelines",
+      sessionPublicId,
+      attemptPublicId,
+    ] as const,
+  issues: (tenantId: string, actorId: string, sessionPublicId: string, attemptPublicId: string) =>
+    [
+      ...EXAMINER_QUERY_KEYS.actorScope(tenantId, actorId),
+      "issues",
+      sessionPublicId,
+      attemptPublicId,
+    ] as const,
 } as const;

@@ -1,23 +1,16 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
+import type { ReactElement } from "react";
+import { useSearchParams } from "next/navigation";
+import { ExaminerOverviewView } from "./ExaminerOverviewView";
 import { ExaminerQueueView } from "./ExaminerQueueView";
-import { ExaminerAttemptDetailView } from "./ExaminerAttemptDetailView";
 
 export const ExaminerWorkView = (): ReactElement => {
-  const [selected, setSelected] = useState<{
-    sessionPublicId: string;
-    attemptPublicId: string;
-  } | null>(null);
+  const searchParams = useSearchParams();
+  const status = searchParams?.get("status");
 
-  if (selected) {
-    return (
-      <ExaminerAttemptDetailView
-        sessionPublicId={selected.sessionPublicId}
-        attemptPublicId={selected.attemptPublicId}
-        onBack={() => setSelected(null)}
-      />
-    );
+  if (!status) {
+    return <ExaminerOverviewView />;
   }
 
   return <ExaminerQueueView />;

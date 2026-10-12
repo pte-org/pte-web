@@ -12,13 +12,18 @@ import { ConfirmDecisionDialog } from "./ConfirmDecisionDialog";
 interface DecisionPanelProps {
   answer: ExaminerAnswerDetailResponse;
   draftScore: string;
+  draftComment?: string;
+  draftSavedAt?: string | null;
   decisionKind: ExaminerDecisionKind;
   isStale: boolean;
   isMediaBroken?: boolean;
   isSubmitting: boolean;
+  isSavingDraft?: boolean;
   isReconciling?: boolean;
   submitError: string | null;
   onScoreChange: (score: string) => void;
+  onCommentChange?: (comment: string) => void;
+  onSaveDraft?: () => void;
   onSubmit: (score: number, kind: ExaminerDecisionKind, requestPublicId: string, expectedReviewVersion: string) => void;
   onRetryIdentical?: () => void;
   onReconcileServer?: () => void;
@@ -35,13 +40,18 @@ interface FrozenConfirmation {
 export const DecisionPanel = ({
   answer,
   draftScore,
+  draftComment = "",
+  draftSavedAt,
   decisionKind,
   isStale,
   isMediaBroken = false,
   isSubmitting,
+  isSavingDraft = false,
   isReconciling = false,
   submitError,
   onScoreChange,
+  onCommentChange,
+  onSaveDraft,
   onSubmit,
   onRetryIdentical,
   onReconcileServer,
@@ -169,46 +179,81 @@ export const DecisionPanel = ({
         </div>
       )}
 
-      <div className="flex flex-wrap items-end gap-4">
-        <div className="w-40">
-          <label htmlFor="examiner-score-input" className="block text-xs font-medium text-slate-700 mb-1">
-            {T.SCORE_LABEL}
-          </label>
-          <Input
-            id="examiner-score-input"
-            type="number"
-            min={0}
-            max={100}
-            step={1}
-            value={draftScore}
-            disabled={!answer.canFinalize || isSubmitting || isMediaBroken || isReconciling}
-            onChange={(e) => onScoreChange(e.target.value)}
-            placeholder="0–100"
-          />
-        </div>
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-end gap-4">
+          <div className="w-40">
+            <label htmlFor="examiner-score-input" className="block text-xs font-medium text-slate-700 mb-1">
+              {T.SCORE_LABEL}
+            </label>
+            <Input
+              id="examiner-score-input"
+              type="number"
+              min={0}
+              max={100}
+              step={1}
+              value={draftScore}
+              disabled={!answer.canFinalize || isSubmitting || isMediaBroken || isReconciling}
+              onChange={(e) => onScoreChange(e.target.value)}
+              placeholder="0–100"
+            />
+          </div>
 
-        <div className="flex items-center gap-2 pb-1">
-          <Badge variant={decisionKind === "CONFIRM_AI" ? "neutral" : "info"}>
-            {decisionKind === "CONFIRM_AI" ? T.DECISION_CONFIRM_AI : T.DECISION_MANUAL}
-          </Badge>
-          {diff !== null && (
-            <span
-              className={`text-xs font-semibold ${
-                diff > 0 ? "text-emerald-700" : diff < 0 ? "text-amber-700" : "text-slate-600"
-              }`}
+          <div className="flex items-center gap-2 pb-1">
+            <Badge variant={decisionKind === "CONFIRM_AI" ? "neutral" : "info"}>
+              {decisionKind === "CONFIRM_AI" ? T.DECISION_CONFIRM_AI : T.DECISION_MANUAL}
+            </Badge>
+            {diff !== null && (
+              <span
+                className={`text-xs font-semibold ${
+                  diff > 0 ? "text-emerald-700" : diff < 0 ? "text-amber-700" : "text-slate-600"
+                }`}
+              >
+                {T.DIFF_FROM_AI}: {diff > 0 ? `+${diff}` : diff}
+              </span>
+            )}
+          </div>
+
+          {onSaveDraft && (
+            <Button
+              variant="secondary"
+              disabled={!scoreIsValid || isSavingDraft || isSubmitting}
+              onClick={onSaveDraft}
             >
-              {T.DIFF_FROM_AI}: {diff > 0 ? `+${diff}` : diff}
-            </span>
+              {isSavingDraft ? T.SAVING_DRAFT : T.SAVE_DRAFT}
+            </Button>
           )}
+
+          <Button
+            variant="primary"
+            disabled={!canSubmit}
+            onClick={handleOpenConfirm}
+          >
+            {isSubmitting ? T.SUBMITTING : T.SUBMIT_SCORE}
+          </Button>
         </div>
 
-        <Button
-          variant="primary"
-          disabled={!canSubmit}
-          onClick={handleOpenConfirm}
-        >
-          {isSubmitting ? T.SUBMITTING : T.SUBMIT_SCORE}
-        </Button>
+        {onCommentChange && (
+          <div>
+            <label htmlFor="examiner-comment-input" className="block text-xs font-medium text-slate-700 mb-1">
+              {T.COMMENT_LABEL}
+            </label>
+            <textarea
+              id="examiner-comment-input"
+              rows={2}
+              maxLength={2000}
+              value={draftComment}
+              onChange={(e) => onCommentChange(e.target.value)}
+              placeholder={T.COMMENT_PLACEHOLDER}
+              className="w-full rounded-md border border-slate-300 p-2 text-xs focus:border-slate-800 focus:outline-none"
+            />
+          </div>
+        )}
+
+        {draftSavedAt && (
+          <p className="text-xs text-slate-500">
+            {T.DRAFT_SAVED}: {new Date(draftSavedAt).toLocaleTimeString()}
+          </p>
+        )}
       </div>
 
       {!scoreIsValid && draftScore.length > 0 && (

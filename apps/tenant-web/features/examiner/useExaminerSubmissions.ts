@@ -11,9 +11,13 @@ import type { useSubmitExaminerScore } from "./api";
 
 export interface DraftEntry {
   score: string;
+  comment?: string;
   decisionKind: ExaminerDecisionKind;
   reviewedAiVersion: string | null;
   initialReviewVersion: string | null;
+  draftVersion?: number;
+  savedAt?: string | null;
+  isDirty?: boolean;
 }
 
 export interface RetainedSubmission {
@@ -24,6 +28,9 @@ export interface RetainedSubmission {
 interface UseExaminerSubmissionsParams {
   answers: ExaminerAnswerDetailResponse[];
   currentAnswer: ExaminerAnswerDetailResponse | null;
+  workflow?: import("@pte/api-client").ExaminerWorkflowView | null;
+  sessionPublicId: string;
+  attemptPublicId: string;
   refetchAttempt: () => Promise<unknown>;
   submitMutation: ReturnType<typeof useSubmitExaminerScore>;
 }
@@ -49,15 +56,43 @@ function isStaleReviewVersionError(err: unknown): boolean {
 export const useExaminerSubmissions = ({
   answers,
   currentAnswer,
+  workflow,
+  sessionPublicId,
+  attemptPublicId,
   refetchAttempt,
   submitMutation,
 }: UseExaminerSubmissionsParams) => {
   const [drafts, setDrafts] = useState<Record<string, DraftEntry>>({});
   const [unresolvedSubmissions, setUnresolvedSubmissions] = useState<Record<string, RetainedSubmission>>({});
   const [submittingAnswerPublicId, setSubmittingAnswerPublicId] = useState<string | null>(null);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
+  const [isFinalizing, setIsFinalizing] = useState(false);
+
+  // Sync server drafts into local state
+  useEffect(() => {
+    if (!workflow?.drafts || workflow.drafts.length === 0) return;
+    setDrafts((prev) => {
+      const next = { ...prev };
+      for (const d of workflow.drafts) {
+        if (!next[d.answerPublicId] || !next[d.answerPublicId].isDirty) {
+          next[d.answerPublicId] = {
+            score: d.score !== null ? String(d.score) : "",
+            comment: d.comment ?? "",
+            decisionKind: d.decisionKind ?? "MANUAL",
+            reviewedAiVersion: d.reviewedAiVersion,
+            initialReviewVersion: d.expectedReviewVersion,
+            draftVersion: d.draftVersion,
+            savedAt: d.savedAt,
+            isDirty: false,
+          };
+        }
+      }
+      return next;
+    });
+  }, [workflow?.drafts]);
 
   const hasUnsaved =
-    Object.values(drafts).some((d) => d.score.trim() !== "") ||
+    Object.values(drafts).some((d) => d.isDirty && d.score.trim() !== "") ||
     Object.keys(unresolvedSubmissions).length > 0;
 
   useEffect(() => {
@@ -84,22 +119,18 @@ export const useExaminerSubmissions = ({
       for (const id of keysToRemove) delete next[id];
       return next;
     });
-
-    setDrafts((prev) => {
-      const keysToRemove = Object.keys(prev).filter((id) => answeredIds.has(id));
-      if (keysToRemove.length === 0) return prev;
-      const next = { ...prev };
-      for (const id of keysToRemove) delete next[id];
-      return next;
-    });
   }, [answers]);
 
   const activeDraft: DraftEntry | null = currentAnswer
     ? drafts[currentAnswer.answerPublicId] ?? {
         score: currentAnswer.myScore !== null ? String(currentAnswer.myScore) : "",
+        comment: "",
         decisionKind: currentAnswer.decision?.decisionKind ?? currentAnswer.decision?.kind ?? "MANUAL",
         reviewedAiVersion: currentAnswer.aiReference?.version ?? null,
         initialReviewVersion: currentAnswer.reviewVersion ?? null,
+        draftVersion: 0,
+        savedAt: null,
+        isDirty: false,
       }
     : null;
 
@@ -111,9 +142,31 @@ export const useExaminerSubmissions = ({
       ...prev,
       [answerId]: {
         score,
-        decisionKind: "MANUAL",
+        comment: prev[answerId]?.comment ?? "",
+        decisionKind: prev[answerId]?.decisionKind ?? "MANUAL",
         reviewedAiVersion: prev[answerId]?.reviewedAiVersion ?? currentAnswer.aiReference?.version ?? null,
         initialReviewVersion: prev[answerId]?.initialReviewVersion ?? currentAnswer.reviewVersion ?? null,
+        draftVersion: prev[answerId]?.draftVersion ?? 0,
+        savedAt: prev[answerId]?.savedAt ?? null,
+        isDirty: true,
+      },
+    }));
+  };
+
+  const handleCommentChange = (comment: string): void => {
+    if (!currentAnswer) return;
+    const answerId = currentAnswer.answerPublicId;
+    setDrafts((prev) => ({
+      ...prev,
+      [answerId]: {
+        score: prev[answerId]?.score ?? "",
+        comment,
+        decisionKind: prev[answerId]?.decisionKind ?? "MANUAL",
+        reviewedAiVersion: prev[answerId]?.reviewedAiVersion ?? currentAnswer.aiReference?.version ?? null,
+        initialReviewVersion: prev[answerId]?.initialReviewVersion ?? currentAnswer.reviewVersion ?? null,
+        draftVersion: prev[answerId]?.draftVersion ?? 0,
+        savedAt: prev[answerId]?.savedAt ?? null,
+        isDirty: true,
       },
     }));
   };
@@ -126,9 +179,13 @@ export const useExaminerSubmissions = ({
       ...prev,
       [answerId]: {
         score: String(aiScore),
+        comment: prev[answerId]?.comment ?? "",
         decisionKind: "CONFIRM_AI",
         reviewedAiVersion: version,
         initialReviewVersion: currentAnswer.reviewVersion ?? null,
+        draftVersion: prev[answerId]?.draftVersion ?? 0,
+        savedAt: prev[answerId]?.savedAt ?? null,
+        isDirty: true,
       },
     }));
   };
@@ -140,9 +197,13 @@ export const useExaminerSubmissions = ({
       ...prev,
       [answerId]: {
         score: activeDraft?.score ?? "",
+        comment: activeDraft?.comment ?? "",
         decisionKind: activeDraft?.decisionKind ?? "MANUAL",
         reviewedAiVersion: currentAnswer.aiReference?.version ?? null,
         initialReviewVersion: currentAnswer.reviewVersion ?? null,
+        draftVersion: activeDraft?.draftVersion ?? 0,
+        savedAt: activeDraft?.savedAt ?? null,
+        isDirty: true,
       },
     }));
   };
@@ -280,6 +341,81 @@ export const useExaminerSubmissions = ({
     submittingAnswerPublicId === currentAnswer?.answerPublicId;
   const isCurrentReconciling = Boolean(currentUnresolved) && !isCurrentSubmitting;
 
+  const handleSaveDraft = async (answerIdToSave?: string): Promise<boolean> => {
+    const targetAnswer = answerIdToSave ? answers.find((a) => a.answerPublicId === answerIdToSave) : currentAnswer;
+    if (!targetAnswer) return false;
+    const answerId = targetAnswer.answerPublicId;
+    const draft = drafts[answerId];
+    if (!draft) return false;
+
+    const parsedScore = draft.score.trim() === "" ? null : Number(draft.score);
+    if (parsedScore !== null && (!Number.isInteger(parsedScore) || parsedScore < 0 || parsedScore > 100)) {
+      return false;
+    }
+
+    try {
+      setIsSavingDraft(true);
+      const { saveExaminerDraft } = await import("@pte/api-client");
+      const { apiClient } = await import("@/lib/apiClient");
+      const res = await saveExaminerDraft(apiClient, sessionPublicId, attemptPublicId, answerId, {
+        requestPublicId: crypto.randomUUID(),
+        expectedWorkVersion: workflow?.workVersion ?? 0,
+        expectedDraftVersion: draft.draftVersion ?? 0,
+        score: parsedScore,
+        comment: draft.comment || null,
+        decisionKind: draft.decisionKind,
+        expectedReviewVersion: targetAnswer.reviewVersion,
+        reviewedAiVersion: draft.reviewedAiVersion,
+      });
+
+      setDrafts((prev) => ({
+        ...prev,
+        [answerId]: {
+          ...draft,
+          draftVersion: res.draft?.draftVersion ?? (draft.draftVersion ?? 0) + 1,
+          savedAt: res.draft?.savedAt ?? new Date().toISOString(),
+          isDirty: false,
+        },
+      }));
+      return true;
+    } catch {
+      return false;
+    } finally {
+      setIsSavingDraft(false);
+    }
+  };
+
+  const handleFinalizeAttempt = async (): Promise<boolean> => {
+    try {
+      setIsFinalizing(true);
+      const { finalizeExaminerWork } = await import("@pte/api-client");
+      const { apiClient } = await import("@/lib/apiClient");
+
+      const items = answers.map((a) => {
+        const d = drafts[a.answerPublicId];
+        return {
+          answerPublicId: a.answerPublicId,
+          expectedDraftVersion: d?.draftVersion ?? 0,
+          expectedReviewVersion: a.reviewVersion,
+          reviewedAiVersion: d?.reviewedAiVersion ?? null,
+        };
+      });
+
+      await finalizeExaminerWork(apiClient, sessionPublicId, attemptPublicId, {
+        requestPublicId: crypto.randomUUID(),
+        expectedWorkVersion: workflow?.workVersion ?? 0,
+        answers: items,
+      });
+
+      await refetchAttempt();
+      return true;
+    } catch {
+      return false;
+    } finally {
+      setIsFinalizing(false);
+    }
+  };
+
   return {
     drafts,
     unresolvedSubmissions,
@@ -288,9 +424,14 @@ export const useExaminerSubmissions = ({
     isStale,
     isCurrentReconciling,
     isCurrentSubmitting,
+    isSavingDraft,
+    isFinalizing,
     handleScoreChange,
+    handleCommentChange,
     handleApplyAiScore,
     handleAcknowledgeStale,
+    handleSaveDraft,
+    handleFinalizeAttempt,
     handleSubmit,
     handleRetryIdentical,
     handleReconcileServer,

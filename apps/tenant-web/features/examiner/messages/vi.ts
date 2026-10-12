@@ -2,6 +2,8 @@ import type { ExaminerWorkspaceMessages } from "./en";
 
 export const EXAMINER_WORKSPACE_VI: ExaminerWorkspaceMessages = {
   title: "Hàng đợi chấm điểm",
+  overviewTitle: "Không gian làm việc Giám khảo chấm thi",
+  overviewSubtitle: "Quản lý bài thi được phân công, theo dõi tiến độ chấm và tiếp tục các bài thi đang dở dang.",
   filterLabel: "Trạng thái",
   statusAll: "Tất cả bài thi",
   statusPending: "Chưa bắt đầu",
