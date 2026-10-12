@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PageHeader } from "@pte/ui";
+import { PageHeader, useLocale } from "@pte/ui";
 import { ClassesListView } from "@/features/classes/components";
 import { CreateClassModal } from "@/features/classes/components/CreateClassModal";
 import { buildAssignStudentsUrl } from "@/features/classes/utils/assignStudentsUrl";
@@ -14,6 +14,9 @@ import { CLASSES_LIST_TEXT } from "@/features/classes/constants";
 
 export default function ClassesPage() {
   const labels = useOrgLabels();
+  const { t } = useLocale();
+  const classLabel = t("nav.class", labels.class);
+  const programLabel = t("nav.program", labels.program);
   const router = useRouter();
   const { data: organizations } = useMyOrganizations();
 
@@ -80,56 +83,59 @@ export default function ClassesPage() {
 
   return (
     <div className="flex flex-col gap-5">
-        <PageHeader
-          title={labels.class}
-          actions={
-            <button
-              type="button"
-              onClick={() => {
-                create.reset();
-                setCreateOpen(true);
-              }}
-              disabled={programOptions.length === 0}
-              title={
-                programOptions.length === 0
-                  ? CLASSES_LIST_TEXT.createClassButtonTitle
-                  : undefined
-              }
-              className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {CLASSES_LIST_TEXT.createClassButton}
-            </button>
-          }
-        />
+      <PageHeader
+        title={classLabel}
+        actions={
+          <button
+            type="button"
+            onClick={() => {
+              create.reset();
+              setCreateOpen(true);
+            }}
+            disabled={programOptions.length === 0}
+            title={
+              programOptions.length === 0
+                ? t(
+                    "tenant.classes.createClassButtonTitle",
+                    CLASSES_LIST_TEXT.createClassButtonTitle,
+                  )
+                : undefined
+            }
+            className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {t("tenant.classes.create", CLASSES_LIST_TEXT.createClassButton)}
+          </button>
+        }
+      />
 
-        <ClassesListView
-          organizationOptions={(organizations ?? []).map((organization) => ({
-            value: organization.publicId,
-            label: organization.name,
-          }))}
-          selectedOrganizationPublicId={organizationPublicId}
-          onOrganizationChange={onOrgChange}
-          allPrograms={programOptions}
-          onRequestCreateClass={onRequestCreateClass}
-          onRequestAssignStudents={onRequestAssignStudents}
-        />
+      <ClassesListView
+        organizationOptions={(organizations ?? []).map((organization) => ({
+          value: organization.publicId,
+          label: organization.name,
+        }))}
+        selectedOrganizationPublicId={organizationPublicId}
+        onOrganizationChange={onOrgChange}
+        allPrograms={programOptions}
+        onRequestCreateClass={onRequestCreateClass}
+        onRequestAssignStudents={onRequestAssignStudents}
+      />
 
-        <CreateClassModal
-          key={createOpen ? "createClass-open" : "createClass-closed"}
-          open={createOpen}
-          onClose={() => {
-            create.reset();
-            setCreateOpen(false);
-          }}
-          onSubmit={onConfirmCreate}
-          error={errorMessage(create.error)}
-          isSubmitting={create.isPending}
-          classLabel={labels.class}
-          programs={programOptions}
-          programLabel={CLASSES_LIST_TEXT.createClassPickerLabel(labels.program)}
-          selectedProgramPublicId={selectedProgramPublicId}
-          onProgramChange={setSelectedProgramPublicId}
-        />
+      <CreateClassModal
+        key={createOpen ? "createClass-open" : "createClass-closed"}
+        open={createOpen}
+        onClose={() => {
+          create.reset();
+          setCreateOpen(false);
+        }}
+        onSubmit={onConfirmCreate}
+        error={errorMessage(create.error)}
+        isSubmitting={create.isPending}
+        classLabel={classLabel}
+        programs={programOptions}
+        programLabel={programLabel}
+        selectedProgramPublicId={selectedProgramPublicId}
+        onProgramChange={setSelectedProgramPublicId}
+      />
     </div>
   );
 }

@@ -7,12 +7,13 @@ import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
 import { mapPool, useMediaPreview, useQuestion } from "../api";
 import {
-  QUESTION_DETAIL_TEXT as T,
-  QUESTION_POOL_LABELS,
-  QUESTION_STATUS_LABELS,
+  QUESTION_DETAIL_TEXT as RAW_QUESTION_DETAIL_TEXT,
+  QUESTION_POOL_LABELS as RAW_QUESTION_POOL_LABELS,
+  QUESTION_STATUS_LABELS as RAW_QUESTION_STATUS_LABELS,
   QUESTION_STATUS_VARIANT,
 } from "../constants";
 import type { QuestionStatus } from "../types";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 interface QuestionDetailViewProps {
   publicId: string;
@@ -20,11 +21,11 @@ interface QuestionDetailViewProps {
 
 function statusKey(value: string): QuestionStatus | null {
   const normalized = value.toLowerCase() as QuestionStatus;
-  return normalized in QUESTION_STATUS_LABELS ? normalized : null;
+  return normalized in RAW_QUESTION_STATUS_LABELS ? normalized : null;
 }
 
 function valueOrEmpty(value: string | null | undefined): string {
-  return value?.trim() ? value : T.EMPTY_VALUE;
+  return value?.trim() ? value : "—";
 }
 
 interface MediaPreviewProps {
@@ -33,6 +34,7 @@ interface MediaPreviewProps {
 }
 
 const MediaPreview = ({ kind, publicId }: MediaPreviewProps) => {
+  const T = useAdminCopy(RAW_QUESTION_DETAIL_TEXT);
   const { data, isLoading, isError, error } = useMediaPreview(publicId);
 
   if (isLoading) return <p className="text-sm text-slate-500">{T.MEDIA_LOADING}</p>;
@@ -67,6 +69,19 @@ const MediaPreview = ({ kind, publicId }: MediaPreviewProps) => {
 };
 
 export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
+  const T = useAdminCopy(RAW_QUESTION_DETAIL_TEXT);
+  const statusLabels = useAdminCopy(RAW_QUESTION_STATUS_LABELS);
+  const poolLabels = useAdminCopy(RAW_QUESTION_POOL_LABELS);
+  const sectionLabels = useAdminCopy({
+    SPEAKING: "Speaking",
+    WRITING: "Writing",
+    READING: "Reading",
+    LISTENING: "Listening",
+  });
+  const visibilityLabels = useAdminCopy({
+    PUBLIC: "Public",
+    PRIVATE: "Private",
+  });
   const { data: question, isLoading, isError } = useQuestion(publicId);
   const { data: currentUser } = useCurrentUser();
 
@@ -79,6 +94,13 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
   const canEdit = question.status === "DRAFT" || question.status === "APPROVED";
   const showAnswerKey = canReviewAcademic(currentUser?.roles);
   const hasMedia = Boolean(question.audioPromptRef || question.imagePromptRef);
+  const section = question.section
+    ? (sectionLabels[question.section as keyof typeof sectionLabels] ?? question.section)
+    : T.EMPTY_VALUE;
+  const visibility = question.visibility
+    ? (visibilityLabels[question.visibility as keyof typeof visibilityLabels] ??
+      question.visibility)
+    : T.EMPTY_VALUE;
 
   return (
     <div className="flex flex-col gap-5">
@@ -88,7 +110,7 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
           <>
             {currentStatus && (
               <Badge variant={QUESTION_STATUS_VARIANT[currentStatus]}>
-                {QUESTION_STATUS_LABELS[currentStatus]}
+                {statusLabels[currentStatus]}
               </Badge>
             )}
             {canEdit && (
@@ -113,9 +135,9 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
           title={T.GROUP_CLASSIFICATION}
           items={[
             { label: T.TASK_TYPE, value: taskType },
-            { label: T.SECTION, value: valueOrEmpty(question.section) },
-            { label: T.VISIBILITY, value: valueOrEmpty(question.visibility) },
-            { label: T.POOL, value: QUESTION_POOL_LABELS[mapPool(question.pool)] },
+            { label: T.SECTION, value: section },
+            { label: T.VISIBILITY, value: visibility },
+            { label: T.POOL, value: poolLabels[mapPool(question.pool)] },
             { label: T.REVISION, value: String(question.revisionNumber ?? T.EMPTY_VALUE) },
             {
               label: T.WORD_COUNT,

@@ -4,11 +4,21 @@ import { useEffect, useRef, type ReactElement } from "react";
 import { getUserFacingApiErrorMessage, getInboxItem } from "@pte/api-client";
 import { useQuery } from "@tanstack/react-query";
 import { Alert, Badge, LoadingState, PageHeader, useToast } from "@pte/ui";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { apiClient } from "@/lib/apiClient";
 import { useCurrentUser } from "@/features/auth/api";
 import { useMarkNotificationRead } from "../api";
 
 export function NotificationDetailView({ publicId }: { publicId: string }): ReactElement {
+  const T = useAdminCopy({ NOT_AVAILABLE: "This notification is no longer available." });
+  const categoryLabels = useAdminCopy({
+    SYSTEM_NOTICE: "System notice",
+    MAINTENANCE: "Maintenance",
+    SESSION: "Session",
+    APPLICATION: "Application",
+    BILLING: "Billing",
+    SUPPORT: "Support",
+  });
   const { showToast } = useToast();
   const { data: user } = useCurrentUser();
   const readRequested = useRef(false);
@@ -37,7 +47,7 @@ export function NotificationDetailView({ publicId }: { publicId: string }): Reac
 
   if (detail.isLoading) return <LoadingState rows={4} />;
   if (detail.error) return <Alert tone="error">{getUserFacingApiErrorMessage(detail.error)}</Alert>;
-  if (!detail.data) return <Alert tone="warning">This notification is no longer available.</Alert>;
+  if (!detail.data) return <Alert tone="warning">{T.NOT_AVAILABLE}</Alert>;
 
   const item = detail.data;
   return (
@@ -46,7 +56,7 @@ export function NotificationDetailView({ publicId }: { publicId: string }): Reac
       <article className="rounded-lg bg-white p-6 shadow-card">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={item.importance === "IMPORTANT" ? "warning" : "info"}>
-            {item.category.replaceAll("_", " ")}
+            {categoryLabels[item.category as keyof typeof categoryLabels] ?? item.category}
           </Badge>
           <span className="text-xs text-slate-500">
             {item.notificationType.replaceAll("_", " ")}

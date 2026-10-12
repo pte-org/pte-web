@@ -12,6 +12,7 @@ function queryString(query: StudentRosterQuery): string {
   if (query.search?.trim()) params.set("search", query.search.trim());
   if (query.programPublicId) params.set("programPublicId", query.programPublicId);
   if (query.classPublicId) params.set("classPublicId", query.classPublicId);
+  if (query.status) params.set("status", query.status);
   if (query.assignmentStatus) params.set("assignmentStatus", query.assignmentStatus);
   if (query.sort) params.set("sort", query.sort);
   if (query.direction) params.set("direction", query.direction);

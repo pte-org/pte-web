@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Dropdown, type DropdownItem } from "@pte/ui";
+import { ActionMenu, type DropdownItem } from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { CLASS_ROW_ACTIONS_TEXT } from "../constants";
@@ -124,7 +124,7 @@ export const ClassRowActions = ({
 
   return (
     <div className="flex flex-col gap-1">
-      <Dropdown
+      <ActionMenu
         items={items}
         label={CLASS_ROW_ACTIONS_TEXT.actions}
         align="right"

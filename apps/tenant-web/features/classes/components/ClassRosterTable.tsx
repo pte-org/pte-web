@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, ConfirmDialog, DataTable, type DataTableColumn } from "@pte/ui";
+import { ActionMenu, Alert, ConfirmDialog, DataTable, type DataTableColumn } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
   CLASS_ROSTER_ROW_ACTIONS_TEXT,
@@ -56,23 +56,22 @@ const RowActions = ({
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-3 text-sm">
-        <button
-          type="button"
-          onClick={() => setTransferOpen(true)}
-          className="text-blue-700 hover:underline"
-        >
-          {CLASS_ROSTER_ROW_ACTIONS_TEXT.transfer}
-        </button>
-        <button
-          type="button"
-          disabled={unassign.isPending}
-          onClick={() => setUnassignConfirmOpen(true)}
-          className="text-red-600 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {CLASS_ROSTER_ROW_ACTIONS_TEXT.unassign}
-        </button>
-      </div>
+      <ActionMenu
+        label={`${CLASS_ROSTER_TABLE_HEADERS.ACTIONS}: ${entry.student.fullName}`}
+        items={[
+          {
+            label: CLASS_ROSTER_ROW_ACTIONS_TEXT.transfer,
+            onSelect: () => setTransferOpen(true),
+          },
+          { separator: true, key: "roster-danger-divider" },
+          {
+            label: CLASS_ROSTER_ROW_ACTIONS_TEXT.unassign,
+            danger: true,
+            disabled: unassign.isPending,
+            onSelect: () => setUnassignConfirmOpen(true),
+          },
+        ]}
+      />
       {unassignError && <p className="text-xs text-red-600">{unassignError}</p>}
 
       <TransferStudentModal
@@ -147,20 +146,6 @@ export const ClassRosterTable = ({
       header: CLASS_ROSTER_TABLE_HEADERS.PHONE,
       cell: (entry) => entry.student.phone ?? CLASS_ROSTER_TEXT.emptyValue,
     },
-    {
-      key: "actions",
-      header: CLASS_ROSTER_TABLE_HEADERS.ACTIONS,
-      cell: (entry) => (
-        <RowActions
-          organizationPublicId={organizationPublicId}
-          programPublicId={programPublicId}
-          classPublicId={classPublicId}
-          classLabel={classLabel}
-          className={className}
-          entry={entry}
-        />
-      ),
-    },
   ];
 
   return (
@@ -221,6 +206,17 @@ export const ClassRosterTable = ({
         isLoading={isLoading}
         emptyTitle={CLASS_ROSTER_TEXT.emptyTitle}
         emptyDescription={CLASS_ROSTER_TEXT.emptyText}
+        rowActionsHeader={CLASS_ROSTER_TABLE_HEADERS.ACTIONS}
+        rowActions={(entry) => (
+          <RowActions
+            organizationPublicId={organizationPublicId}
+            programPublicId={programPublicId}
+            classPublicId={classPublicId}
+            classLabel={classLabel}
+            className={className}
+            entry={entry}
+          />
+        )}
         selectable={splitMode}
         selectedKeys={selectedKeys}
         onSelectionChange={setSelectedKeys}

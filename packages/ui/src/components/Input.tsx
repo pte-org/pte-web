@@ -1,5 +1,6 @@
 import type { InputHTMLAttributes, ReactElement, ReactNode } from "react";
 import { cn } from "../utils/cn";
+import { DatePicker, DateTimePicker, type DatePickerProps } from "./DatePicker";
 import { FormField } from "./FormField";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -56,8 +57,10 @@ export const Input = ({
 
 export const TextInput = Input;
 
-export const DateInput = (props: Omit<InputProps, "type">): ReactElement => (
-  <Input {...props} type="date" />
+export const DateInput = (props: DatePickerProps): ReactElement => <DatePicker {...props} />;
+
+export const DateTimeInput = (props: Omit<DatePickerProps, "includeTime">): ReactElement => (
+  <DateTimePicker {...props} />
 );
 
 export const NumberInput = (props: Omit<InputProps, "type">): ReactElement => (

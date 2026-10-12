@@ -2,12 +2,13 @@
 
 import type { ReactElement } from "react";
 import { ActionMenu, Badge, DataTable } from "@pte/ui";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 import {
-  FACILITY_TYPE_LABELS,
-  ORGANIZATION_STATUS_LABELS,
+  FACILITY_TYPE_LABELS as RAW_FACILITY_TYPE_LABELS,
+  ORGANIZATION_STATUS_LABELS as RAW_ORGANIZATION_STATUS_LABELS,
   ORGANIZATION_STATUS_VARIANT,
-  ORGANIZATION_TABLE_HEADERS,
-  TENANCY_TEXT,
+  ORGANIZATION_TABLE_HEADERS as RAW_ORGANIZATION_TABLE_HEADERS,
+  TENANCY_TEXT as RAW_TENANCY_TEXT,
 } from "../constants";
 import type { Organization } from "../types";
 
@@ -17,84 +18,90 @@ interface OrganizationTableProps {
   onReactivate: (organization: Organization) => void;
 }
 
-const FACILITY_FILTER_OPTIONS = [
-  { value: "", label: "All facility types" },
-  ...Object.entries(FACILITY_TYPE_LABELS).map(([value, label]) => ({ value, label })),
-] as const;
-
-const STATUS_FILTER_OPTIONS = [
-  { value: "", label: "All statuses" },
-  ...Object.entries(ORGANIZATION_STATUS_LABELS).map(([value, label]) => ({ value, label })),
-] as const;
-
 export const OrganizationTable = ({
   organizations,
   onSuspend,
   onReactivate,
-}: OrganizationTableProps): ReactElement => (
-  <DataTable
-    columns={[
-      {
-        key: "name",
-        label: ORGANIZATION_TABLE_HEADERS.NAME,
-        header: ORGANIZATION_TABLE_HEADERS.NAME,
-        filterAccessor: (organization: Organization) => organization.name,
-        cell: (organization: Organization) => (
-          <span className="font-medium">{organization.name}</span>
-        ),
-      },
-      {
-        key: "facilityType",
-        label: ORGANIZATION_TABLE_HEADERS.FACILITY_TYPE,
-        header: ORGANIZATION_TABLE_HEADERS.FACILITY_TYPE,
-        filterOptions: FACILITY_FILTER_OPTIONS,
-        filterAccessor: (organization: Organization) => organization.facilityType,
-        cell: (organization: Organization) => FACILITY_TYPE_LABELS[organization.facilityType],
-      },
-      {
-        key: "address",
-        label: ORGANIZATION_TABLE_HEADERS.ADDRESS,
-        header: ORGANIZATION_TABLE_HEADERS.ADDRESS,
-        filterAccessor: (organization: Organization) => organization.address,
-        cell: (organization: Organization) => (
-          <span className="text-[var(--ink-secondary)]">
-            {organization.address ?? TENANCY_TEXT.EMPTY_VALUE}
-          </span>
-        ),
-      },
-      {
-        key: "status",
-        label: ORGANIZATION_TABLE_HEADERS.STATUS,
-        header: ORGANIZATION_TABLE_HEADERS.STATUS,
-        filterOptions: STATUS_FILTER_OPTIONS,
-        filterAccessor: (organization: Organization) => organization.status,
-        cell: (organization: Organization) => (
-          <Badge variant={ORGANIZATION_STATUS_VARIANT[organization.status]}>
-            {ORGANIZATION_STATUS_LABELS[organization.status]}
-          </Badge>
-        ),
-      },
-    ]}
-    rows={organizations}
-    getRowKey={(organization) => organization.id}
-    emptyTitle="No organizations found"
-    tableClassName="min-w-[680px]"
-    rowActionsHeader={ORGANIZATION_TABLE_HEADERS.ACTIONS}
-    rowActions={(organization) => (
-      <ActionMenu
-        items={[
-          organization.status === "suspended"
-            ? {
-                label: TENANCY_TEXT.ACTION_REACTIVATE,
-                onSelect: () => onReactivate(organization),
-              }
-            : {
-                label: TENANCY_TEXT.ACTION_SUSPEND,
-                danger: true,
-                onSelect: () => onSuspend(organization),
-              },
-        ]}
-      />
-    )}
-  />
-);
+}: OrganizationTableProps): ReactElement => {
+  const H = useAdminCopy(RAW_ORGANIZATION_TABLE_HEADERS);
+  const T = useAdminCopy(RAW_TENANCY_TEXT);
+  const emptyTitle = useAdminCopy("No organizations found");
+  const facilityLabels = useAdminCopy(RAW_FACILITY_TYPE_LABELS);
+  const statusLabels = useAdminCopy(RAW_ORGANIZATION_STATUS_LABELS);
+  const facilityFilterOptions = useAdminCopy([
+    { value: "", label: "All facility types" },
+    ...Object.entries(RAW_FACILITY_TYPE_LABELS).map(([value, label]) => ({ value, label })),
+  ]);
+  const statusFilterOptions = useAdminCopy([
+    { value: "", label: "All statuses" },
+    ...Object.entries(RAW_ORGANIZATION_STATUS_LABELS).map(([value, label]) => ({ value, label })),
+  ]);
+
+  return (
+    <DataTable
+      columns={[
+        {
+          key: "name",
+          label: H.NAME,
+          header: H.NAME,
+          filterAccessor: (organization: Organization) => organization.name,
+          cell: (organization: Organization) => (
+            <span className="font-medium">{organization.name}</span>
+          ),
+        },
+        {
+          key: "facilityType",
+          label: H.FACILITY_TYPE,
+          header: H.FACILITY_TYPE,
+          filterOptions: facilityFilterOptions,
+          filterAccessor: (organization: Organization) => organization.facilityType,
+          cell: (organization: Organization) => facilityLabels[organization.facilityType],
+        },
+        {
+          key: "address",
+          label: H.ADDRESS,
+          header: H.ADDRESS,
+          filterAccessor: (organization: Organization) => organization.address,
+          cell: (organization: Organization) => (
+            <span className="text-[var(--ink-secondary)]">
+              {organization.address ?? T.EMPTY_VALUE}
+            </span>
+          ),
+        },
+        {
+          key: "status",
+          label: H.STATUS,
+          header: H.STATUS,
+          filterOptions: statusFilterOptions,
+          filterAccessor: (organization: Organization) => organization.status,
+          cell: (organization: Organization) => (
+            <Badge variant={ORGANIZATION_STATUS_VARIANT[organization.status]}>
+              {statusLabels[organization.status]}
+            </Badge>
+          ),
+        },
+      ]}
+      rows={organizations}
+      getRowKey={(organization) => organization.id}
+      emptyTitle={emptyTitle}
+      tableClassName="min-w-[680px]"
+      rowActionsHeader={H.ACTIONS}
+      rowActions={(organization) => (
+        <ActionMenu
+          items={[
+            organization.status === "suspended"
+              ? {
+                  label: T.ACTION_REACTIVATE,
+                  onSelect: () => onReactivate(organization),
+                }
+              : {
+                  label: T.ACTION_SUSPEND,
+                  danger: true,
+                  onSelect: () => onSuspend(organization),
+                },
+          ]}
+        />
+      )}
+    />
+  );
+};

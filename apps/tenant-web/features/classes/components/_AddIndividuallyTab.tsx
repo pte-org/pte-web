@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Button, Input } from "@pte/ui";
+import { Alert, Button, DateInput, Input } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useCreateStudent } from "@/features/examoperations/api";
 import type { CreatedAccount } from "@/features/examoperations/types";
@@ -118,8 +118,7 @@ export const AddIndividuallyTab = ({
           value={form.phone}
           onChange={(event) => handleChange("phone", event.target.value)}
         />
-        <Input
-          type="date"
+        <DateInput
           label={T.dobLabel}
           value={form.dateOfBirth}
           onChange={(event) => handleChange("dateOfBirth", event.target.value)}

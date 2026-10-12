@@ -15,7 +15,9 @@
     "react-dom": "^19"
   },
   "dependencies": {
-    "@pte/api-client": "workspace:*"
+    "@pte/api-client": "workspace:*",
+    "cmdk": "1.1.1",
+    "recharts": "3.8.1"
   },
   "devDependencies": {
     "@types/react": "^19.2.17",

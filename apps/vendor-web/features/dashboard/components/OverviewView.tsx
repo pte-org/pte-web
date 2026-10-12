@@ -4,7 +4,7 @@ import { useState } from "react";
 import type { ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { PageHeader } from "@pte/ui";
-import { DASHBOARD_TEXT } from "../constants";
+import { DASHBOARD_TEXT as RAW_DASHBOARD_TEXT } from "../constants";
 import { useTenants } from "../../tenancy/api";
 import { useCreateTenantFlow } from "../../tenancy/hooks/useCreateTenantFlow";
 import { CreateTenantModal } from "../../tenancy/components/CreateTenantModal";
@@ -16,11 +16,13 @@ import { AdminStatGrid } from "./_AdminStatGrid";
 import { RecentTenantsTable } from "./_RecentTenantsTable";
 import { TenantDetailModal } from "./_TenantDetailModal";
 import { VietnamTenantMap } from "./_VietnamTenantMap";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 const RECENT_TENANT_LIMIT = 5;
 const TENANTS_ROUTE = "/admin/tenants";
 
 export const OverviewView = (): ReactElement => {
+  const T = useAdminCopy(RAW_DASHBOARD_TEXT);
   const router = useRouter();
   const { data: allTenants } = useTenants();
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
@@ -48,14 +50,14 @@ export const OverviewView = (): ReactElement => {
   return (
     <div className="flex flex-col gap-5">
       <PageHeader
-        title={DASHBOARD_TEXT.GREETING}
+        title={T.GREETING}
         actions={
           <button
             type="button"
             onClick={createFlow.openModal}
             className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover"
           >
-            + {DASHBOARD_TEXT.ADD_TENANT}
+            + {T.ADD_TENANT}
           </button>
         }
       />
@@ -78,7 +80,10 @@ export const OverviewView = (): ReactElement => {
         isSubmitting={createFlow.isSubmitting}
       />
 
-      <TenantCreatedModal tenant={createFlow.createdTenant} onClose={createFlow.closeCreatedModal} />
+      <TenantCreatedModal
+        tenant={createFlow.createdTenant}
+        onClose={createFlow.closeCreatedModal}
+      />
     </div>
   );
 };

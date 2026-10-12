@@ -5,13 +5,14 @@ import { useQuery } from "@tanstack/react-query";
 import { getTenant } from "@pte/api-client";
 import { Alert, LoadingState, PageHeader, useToast } from "@pte/ui";
 import { apiClient } from "@/lib/apiClient";
-import { ADMIN_TICKET_DETAIL_TEXT as T, CATEGORY_LABELS } from "../constants";
+import { ADMIN_TICKET_DETAIL_TEXT as RAW_ADMIN_TICKET_DETAIL_TEXT } from "../constants";
 import { useAdminSupportTicket, useAddTicketNote, useUpdateTicketStatus } from "../api";
 import type { TicketStatus } from "../types";
 import { AddNoteForm } from "./_AddNoteForm";
 import { NoteThread } from "./_NoteThread";
 import { StatusPanel } from "./_StatusPanel";
 import { TicketCategoryBadge } from "./_TicketCategoryBadge";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 interface AdminSupportTicketDetailViewProps {
   ticketPublicId: string;
@@ -20,6 +21,7 @@ interface AdminSupportTicketDetailViewProps {
 export const AdminSupportTicketDetailView = ({
   ticketPublicId,
 }: AdminSupportTicketDetailViewProps): ReactElement => {
+  const T = useAdminCopy(RAW_ADMIN_TICKET_DETAIL_TEXT);
   const { showToast } = useToast();
 
   const { data: ticket, isLoading, isError } = useAdminSupportTicket(ticketPublicId);
@@ -55,7 +57,7 @@ export const AdminSupportTicketDetailView = ({
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title={T.TICKET_TITLE} subtitle={CATEGORY_LABELS[ticket.category]} />
+      <PageHeader title={T.TICKET_TITLE} />
 
       <StatusPanel
         status={ticket.status}

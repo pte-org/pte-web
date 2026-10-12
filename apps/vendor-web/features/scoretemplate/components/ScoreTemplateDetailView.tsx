@@ -3,13 +3,14 @@
 import type { ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { Alert, Badge, Button, LoadingState, PageHeader } from "@pte/ui";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
 import { useCloneScoreTemplate, useScoreTemplate } from "../api";
 import {
   EXAM_TEMPLATE_BASE_PATH,
-  SCORE_TEMPLATE_STATUS_LABELS,
+  SCORE_TEMPLATE_STATUS_LABELS as RAW_SCORE_TEMPLATE_STATUS_LABELS,
   SCORE_TEMPLATE_STATUS_VARIANT,
-  SCORE_TEMPLATE_TEXT,
+  SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
 } from "../constants";
 import type { ScoreTemplateStatusFilter } from "../types";
 import { ScoreTemplateItemTable } from "./_ScoreTemplateItemTable";
@@ -22,6 +23,8 @@ interface ScoreTemplateDetailViewProps {
 export const ScoreTemplateDetailView = ({
   publicId,
 }: ScoreTemplateDetailViewProps): ReactElement => {
+  const SCORE_TEMPLATE_TEXT = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
+  const SCORE_TEMPLATE_STATUS_LABELS = useAdminCopy(RAW_SCORE_TEMPLATE_STATUS_LABELS);
   const router = useRouter();
   const { data: template, isLoading, isError, error } = useScoreTemplate(publicId);
   const cloneMutation = useCloneScoreTemplate();
