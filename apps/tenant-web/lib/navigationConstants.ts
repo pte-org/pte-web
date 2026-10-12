@@ -15,6 +15,10 @@ export const HOST_NAV_TEXT = {
 } as const;
 
 export const EXAMINER_NAV_TEXT = {
+  OVERVIEW: "Overview",
+  PENDING: "Pending",
+  IN_PROGRESS: "In Progress",
+  COMPLETED: "Completed",
   QUEUE: "Marking queue",
   SECTION: "Examiner",
 } as const;
@@ -25,6 +29,10 @@ export const STUDENT_NAV_TEXT = {
 } as const;
 
 export const PROCTOR_NAV_TEXT = {
+  OVERVIEW: "Overview",
+  MONITORING: "Monitoring",
+  ATTENDANCE: "Attendance",
+  AUDIT_LOG: "Audit Log",
   PROFILE: "Profile",
   SECTION: "Proctor",
 } as const;
