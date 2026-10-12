@@ -18,3 +18,4 @@ export { ClassAssignmentSection } from "./ClassAssignmentSection";
 export { ExaminerAssignmentSection } from "./ExaminerAssignmentSection";
 export { HostScoreReviewPanel } from "./HostScoreReviewPanel";
 export { ReportPublicationPanel } from "./ReportPublicationPanel";
+export { ExamAttendanceTab } from "./ExamAttendanceTab";

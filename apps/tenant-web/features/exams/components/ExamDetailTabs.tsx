@@ -11,19 +11,28 @@ import type { ExamSession } from "../types";
 import { ExaminerTab } from "./ExaminerTab";
 import { ExamOverviewTab, type ExamOverviewLifecycle } from "./ExamOverviewTab";
 import { ExamParticipantsTab } from "./ExamParticipantsTab";
+import { ExamAttendanceTab } from "./ExamAttendanceTab";
 import { ExamQuestionsTab } from "./ExamQuestionsTab";
 import { ExamResultsTab } from "./ExamResultsTab";
 import { ExamSettingsTab } from "./ExamSettingsTab";
 import { ExamSubmissionsTab } from "./ExamSubmissionsTab";
 
 type ExamDetailTab =
-  "overview" | "questions" | "settings" | "participants" | "submissions" | "examiner" | "results";
+  | "overview"
+  | "questions"
+  | "settings"
+  | "participants"
+  | "attendance"
+  | "submissions"
+  | "examiner"
+  | "results";
 
 const TAB_IDS: readonly ExamDetailTab[] = [
   "overview",
   "questions",
   "settings",
   "participants",
+  "attendance",
   "submissions",
   "examiner",
   "results",
@@ -99,13 +108,18 @@ export const ExamDetailTabs = ({
 
   const keepPanelMounted = (tab: ExamDetailTab): boolean =>
     tab === "overview" ||
-    (visitedTabs.has(tab) && (tab === "questions" || tab === "submissions" || tab === "examiner"));
+    (visitedTabs.has(tab) &&
+      (tab === "questions" ||
+        tab === "submissions" ||
+        tab === "examiner" ||
+        tab === "attendance"));
 
   const items: TabItem[] = [
     { id: "overview", label: t("tenant.examTabs.overview", "Overview") },
     { id: "questions", label: t("tenant.examTabs.questions", "Questions") },
     { id: "settings", label: t("tenant.examTabs.settings", "Exam settings") },
     { id: "participants", label: t("tenant.examTabs.participants", "Participants & proctors") },
+    { id: "attendance", label: t("tenant.examTabs.attendance", "Attendance") },
     { id: "submissions", label: t("tenant.examTabs.submissions", "Submissions") },
     { id: "examiner", label: t("tenant.examTabs.examiner", "Examiner") },
     { id: "results", label: t("tenant.examTabs.results", "Results & publication") },
@@ -164,6 +178,15 @@ export const ExamDetailTabs = ({
           onOpenStudentAssignment={() => setStudentAssignmentOpen(true)}
           onOpenStudentImport={() => setStudentImportOpen(true)}
         />
+      </TabPanel>
+      <TabPanel
+        id="exam-detail-tabs-panel-attendance"
+        labelledBy="exam-detail-tabs-tab-attendance"
+        active={activeTab === "attendance"}
+        keepMounted={keepPanelMounted("attendance")}
+        className="mt-5"
+      >
+        <ExamAttendanceTab sessionPublicId={sessionPublicId} sessionStatus={session.status} />
       </TabPanel>
       <TabPanel
         id="exam-detail-tabs-panel-submissions"
