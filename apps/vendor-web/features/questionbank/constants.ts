@@ -152,6 +152,8 @@ export const QUESTION_EDITOR_ERRORS = {
   IMAGE_REQUIRED: "An image prompt is required for this task.",
   WORD_COUNTS_REQUIRED: "Minimum and maximum word counts are required for this task.",
   CORRECT_ANSWER_REQUIRED: "A correct answer is required for this task.",
+  REFERENCE_ANSWER_REQUIRED:
+    "Repeat Sentence needs the sentence the student must repeat in the reference answer.",
   OPTION_TEXT_REQUIRED: "Every option must contain text.",
   CORRECT_OPTION_REQUIRED: "Select at least one correct option.",
   SINGLE_CORRECT_REQUIRED: "Single-choice tasks require exactly one correct option.",
