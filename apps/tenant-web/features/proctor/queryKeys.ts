@@ -48,4 +48,28 @@ export const PROCTOR_QUERY_KEYS = {
     limit !== undefined
       ? ([...PROCTOR_QUERY_KEYS.securityAuditPrefix(sessionPublicId), { limit }] as const)
       : PROCTOR_QUERY_KEYS.securityAuditPrefix(sessionPublicId),
+  attendanceRosterPrefix: (sessionPublicId: string) =>
+    [...PROCTOR_QUERY_KEYS.all, "attendance", sessionPublicId] as const,
+  attendanceRoster: (
+    sessionPublicId: string,
+    params?: { status?: string; search?: string; page?: number; size?: number },
+  ) => {
+    const base = PROCTOR_QUERY_KEYS.attendanceRosterPrefix(sessionPublicId);
+    if (!params) return base;
+    return [...base, params] as const;
+  },
+  attendanceReceipt: (sessionPublicId: string, requestPublicId: string) =>
+    [...PROCTOR_QUERY_KEYS.all, "attendance", sessionPublicId, "receipt", requestPublicId] as const,
+  attendanceHistoryPrefix: (sessionPublicId: string, studentPublicId: string) =>
+    [...PROCTOR_QUERY_KEYS.all, "attendance", sessionPublicId, "history", studentPublicId] as const,
+  attendanceHistory: (
+    sessionPublicId: string,
+    studentPublicId: string,
+    page?: number,
+    size?: number,
+  ) => {
+    const base = PROCTOR_QUERY_KEYS.attendanceHistoryPrefix(sessionPublicId, studentPublicId);
+    if (page === undefined && size === undefined) return base;
+    return [...base, { page, size }] as const;
+  },
 } as const;

@@ -4,6 +4,7 @@ import {
   useInfiniteQuery,
   useMutation,
   useQuery,
+  useQueryClient,
   type InfiniteData,
   type UseInfiniteQueryResult,
   type UseMutationResult,
@@ -18,11 +19,24 @@ import {
   getStudentAttemptHistory,
   listAssignedProctorSessions,
   listViolations,
+  getAttendanceRoster,
+  recordAttendance,
+  getAttendanceReceipt,
+  getAttendanceHistory,
+  getHostAttendanceRoster,
+  recordHostAttendance,
+  getHostAttendanceReceipt,
+  getHostAttendanceHistory,
   type AssignedProctorSessionPage,
+  type AttendanceCommandReceiptResponse,
+  type AttendanceHistoryResponse,
+  type AttendancePageResponse,
+  type AttendanceRosterParams,
   type MonitoringAttemptHistoryPage,
   type MonitoringSnapshotResponse,
   type ProctorScope,
   type ProctorWorkspaceOverviewResponse,
+  type RecordAttendanceRequest,
   type ViolationEventResponse,
 } from "@pte/api-client";
 import { useSessionManager } from "@pte/ui";
@@ -261,5 +275,87 @@ export function useProctorAuditLog(
       totalPages: 1,
       totalItems: violations.length,
     }),
+  });
+}
+
+export function useAttendanceRoster(
+  sessionPublicId: string,
+  params?: AttendanceRosterParams,
+): UseQueryResult<AttendancePageResponse> {
+  return useQuery<AttendancePageResponse>({
+    queryKey: PROCTOR_QUERY_KEYS.attendanceRoster(sessionPublicId, params),
+    queryFn: () => getAttendanceRoster(apiClient, sessionPublicId, params),
+    enabled: Boolean(sessionPublicId),
+  });
+}
+
+export function useRecordAttendanceMutation(sessionPublicId: string) {
+  const queryClient = useQueryClient();
+  return useMutation<
+    AttendanceCommandReceiptResponse,
+    Error,
+    { studentPublicId: string; request: RecordAttendanceRequest }
+  >({
+    mutationFn: ({ studentPublicId, request }) =>
+      recordAttendance(apiClient, sessionPublicId, studentPublicId, request),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: PROCTOR_QUERY_KEYS.attendanceRosterPrefix(sessionPublicId),
+      });
+    },
+  });
+}
+
+export function useAttendanceHistory(
+  sessionPublicId: string,
+  studentPublicId: string,
+  page = 0,
+  size = 20,
+): UseQueryResult<AttendanceHistoryResponse> {
+  return useQuery<AttendanceHistoryResponse>({
+    queryKey: PROCTOR_QUERY_KEYS.attendanceHistory(sessionPublicId, studentPublicId, page, size),
+    queryFn: () => getAttendanceHistory(apiClient, sessionPublicId, studentPublicId, page, size),
+    enabled: Boolean(sessionPublicId && studentPublicId),
+  });
+}
+
+export function useHostAttendanceRoster(
+  sessionPublicId: string,
+  params?: AttendanceRosterParams,
+): UseQueryResult<AttendancePageResponse> {
+  return useQuery<AttendancePageResponse>({
+    queryKey: ["host", "attendance", sessionPublicId, params],
+    queryFn: () => getHostAttendanceRoster(apiClient, sessionPublicId, params),
+    enabled: Boolean(sessionPublicId),
+  });
+}
+
+export function useRecordHostAttendanceMutation(sessionPublicId: string) {
+  const queryClient = useQueryClient();
+  return useMutation<
+    AttendanceCommandReceiptResponse,
+    Error,
+    { studentPublicId: string; request: RecordAttendanceRequest }
+  >({
+    mutationFn: ({ studentPublicId, request }) =>
+      recordHostAttendance(apiClient, sessionPublicId, studentPublicId, request),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["host", "attendance", sessionPublicId],
+      });
+    },
+  });
+}
+
+export function useHostAttendanceHistory(
+  sessionPublicId: string,
+  studentPublicId: string,
+  page = 0,
+  size = 20,
+): UseQueryResult<AttendanceHistoryResponse> {
+  return useQuery<AttendanceHistoryResponse>({
+    queryKey: ["host", "attendance", sessionPublicId, "history", studentPublicId, page, size],
+    queryFn: () => getHostAttendanceHistory(apiClient, sessionPublicId, studentPublicId, page, size),
+    enabled: Boolean(sessionPublicId && studentPublicId),
   });
 }
