@@ -20,7 +20,7 @@ export interface AssignedProctorSessionResponse {
   monitoringBlockingReason?: string | null;
 }
 
-export type AssignedProctorSessionPage = PagedResult<AssignedProctorSessionResponse>;
+export type AssignedProctorSessionPage = ProctorAssignedSessionsPageResponse;
 
 export type ProctorScope = "ALL" | "ACCESSIBLE" | "UPCOMING" | "TODAY";
 
@@ -38,10 +38,14 @@ export interface ProctorWorkspaceSessionResponse {
 }
 
 export interface ProctorOverviewCounts {
-  accessibleCount: number;
-  upcomingCount: number;
-  todayCount: number;
-  priorityCount: number;
+  accessible: number;
+  upcoming: number;
+  today: number;
+  /** Backward compatibility aliases */
+  accessibleCount?: number;
+  upcomingCount?: number;
+  todayCount?: number;
+  priorityCount?: number;
 }
 
 export interface ProctorWorkspaceOverviewResponse {
@@ -53,12 +57,11 @@ export interface ProctorWorkspaceOverviewResponse {
   dayEnd: string;
 }
 
-export interface ProctorAssignedSessionsPageResponse {
-  items: ProctorWorkspaceSessionResponse[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
+export interface ProctorAssignedSessionsPageResponse extends PagedResult<AssignedProctorSessionResponse> {
+  asOf?: string;
+  timezone?: string;
+  dayStart?: string;
+  dayEnd?: string;
 }
 
 export interface ProctorMonitoringSessionView {

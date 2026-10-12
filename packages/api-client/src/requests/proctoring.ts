@@ -3,6 +3,7 @@ import type {
   AssignedProctorSessionResponse,
   MonitoringAttemptSummaryView,
   MonitoringSnapshotResponse,
+  ProctorAssignedSessionsPageResponse,
   ProctorScope,
   ProctorWorkspaceOverviewResponse,
   SecurityAuditPageResponse,
@@ -35,14 +36,14 @@ export function listAssignedProctorSessions(
   page = 0,
   size = DEFAULT_PAGE_SIZE,
   options?: ListAssignedProctorSessionsOptions,
-): Promise<PagedResult<AssignedProctorSessionResponse>> {
+): Promise<ProctorAssignedSessionsPageResponse> {
   const params = new URLSearchParams();
   params.set("page", String(page));
   params.set("size", String(size));
   if (options?.scope) params.set("scope", options.scope);
   if (options?.sort) params.set("sort", options.sort);
   if (options?.timezone) params.set("timezone", options.timezone);
-  return client.request<PagedResult<AssignedProctorSessionResponse>>(
+  return client.request<ProctorAssignedSessionsPageResponse>(
     `${PROCTORING_ENDPOINTS.myAssignments}?${params.toString()}`,
   );
 }

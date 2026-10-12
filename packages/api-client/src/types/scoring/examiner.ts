@@ -47,23 +47,32 @@ export interface ExaminerQueueItemResponse {
 }
 
 export interface ExaminerOverviewCounts {
-  unstartedCount: number;
-  inProgressCount: number;
-  finalizedCount: number;
-  priorityCount: number;
+  pending: number;
+  inProgress: number;
+  completed: number;
+  /** Backward compatibility aliases */
+  unstartedCount?: number;
+  inProgressCount?: number;
+  finalizedCount?: number;
 }
 
 export interface ExaminerOverviewProgress {
-  completedUnits: number;
-  totalUnits: number;
-  percentComplete: number;
+  eligibleAnswerTotal: number;
+  finalizedAnswerTotal: number;
+  /** Computed / backward compatibility aliases */
+  completedUnits?: number;
+  totalUnits?: number;
+  percentComplete?: number;
 }
 
 export interface ExaminerWorkspaceOverviewResponse {
   counts: ExaminerOverviewCounts;
   progress: ExaminerOverviewProgress;
-  priorityQueue: ExaminerQueueItemResponse[];
+  priorityItems: ExaminerQueueItemResponse[];
+  /** Backward compatibility alias */
+  priorityQueue?: ExaminerQueueItemResponse[];
   asOf: string;
+  scope?: string;
 }
 
 export interface ExaminerQueueResponse {
