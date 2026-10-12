@@ -108,3 +108,17 @@ export const EXAMINER_QUEUE_STATUSES: { value: ExaminerQueueStatus; label: strin
   { value: "IN_PROGRESS", label: EXAMINER_WORK_TEXT.STATUS_IN_PROGRESS },
   { value: "COMPLETED", label: EXAMINER_WORK_TEXT.STATUS_COMPLETED },
 ];
+
+export const VALID_EXAMINER_QUEUE_STATUSES: readonly ExaminerQueueStatus[] = [
+  "ALL",
+  "PENDING",
+  "IN_PROGRESS",
+  "COMPLETED",
+] as const;
+
+export function parseExaminerQueueStatus(val: string | null | undefined): ExaminerQueueStatus {
+  if (val && VALID_EXAMINER_QUEUE_STATUSES.includes(val as ExaminerQueueStatus)) {
+    return val as ExaminerQueueStatus;
+  }
+  return "ALL";
+}

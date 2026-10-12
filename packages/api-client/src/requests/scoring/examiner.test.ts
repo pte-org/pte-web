@@ -52,4 +52,28 @@ describe("examiner work requests", () => {
 
     expect(client.request).toHaveBeenCalledWith(EXAMINER_WORK_ENDPOINTS.queue);
   });
+
+  it("builds queue requests with status, sort, and search filters", async () => {
+    const client = fakeClient();
+    await listExaminerWork(client, {
+      status: "IN_PROGRESS",
+      sort: "ASSIGNED_ASC",
+      search: "att-123",
+      page: 0,
+      size: 20,
+    });
+
+    expect(client.request).toHaveBeenCalledWith(
+      `${EXAMINER_WORK_ENDPOINTS.queue}?status=IN_PROGRESS&search=att-123&sort=ASSIGNED_ASC&page=0&size=20`,
+    );
+
+    await listExaminerWork(client, {
+      status: "COMPLETED",
+      sort: "ASSIGNED_DESC",
+    });
+
+    expect(client.request).toHaveBeenCalledWith(
+      `${EXAMINER_WORK_ENDPOINTS.queue}?status=COMPLETED&sort=ASSIGNED_DESC`,
+    );
+  });
 });

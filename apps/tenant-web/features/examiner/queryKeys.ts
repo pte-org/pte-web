@@ -10,7 +10,14 @@ export const EXAMINER_QUERY_KEYS = {
   queue: (
     tenantId: string,
     actorId: string,
-    params?: { status?: string; page?: number; size?: number; sessionPublicId?: string },
+    params?: {
+      status?: string;
+      page?: number;
+      size?: number;
+      sessionPublicId?: string;
+      search?: string;
+      sort?: string;
+    },
   ) =>
     params
       ? ([...EXAMINER_QUERY_KEYS.queuePrefix(tenantId, actorId), params] as const)

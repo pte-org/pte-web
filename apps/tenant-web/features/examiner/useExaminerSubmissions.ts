@@ -368,15 +368,20 @@ export const useExaminerSubmissions = ({
         reviewedAiVersion: draft.reviewedAiVersion,
       });
 
-      setDrafts((prev) => ({
-        ...prev,
-        [answerId]: {
-          ...draft,
-          draftVersion: res.draft?.draftVersion ?? (draft.draftVersion ?? 0) + 1,
-          savedAt: res.draft?.savedAt ?? new Date().toISOString(),
-          isDirty: false,
-        },
-      }));
+      setDrafts((prev) => {
+        const current = prev[answerId];
+        if (!current) return prev;
+        const hasUnsavedChanges = current.score !== draft.score || current.comment !== draft.comment;
+        return {
+          ...prev,
+          [answerId]: {
+            ...current,
+            draftVersion: res.draft?.draftVersion ?? (draft.draftVersion ?? 0) + 1,
+            savedAt: res.draft?.savedAt ?? new Date().toISOString(),
+            isDirty: hasUnsavedChanges,
+          },
+        };
+      });
       return true;
     } catch {
       return false;

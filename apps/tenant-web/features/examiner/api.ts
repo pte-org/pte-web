@@ -72,6 +72,7 @@ export function useExaminerQueue(
     queryFn: () => listExaminerWork(apiClient, params),
     enabled: isReady,
     staleTime: 30_000,
+    retry: 1,
   });
 }
 

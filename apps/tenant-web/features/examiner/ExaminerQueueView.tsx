@@ -5,17 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { ExaminerQueueItemResponse, ExaminerQueueStatus } from "@pte/api-client";
 import { Badge, Button, Input, PageHeader, Pagination, Select } from "@pte/ui";
 import { useExaminerQueue, useStartExaminerWork } from "./api";
-import { EXAMINER_WORK_TEXT as T } from "./constants";
+import { EXAMINER_WORK_TEXT as T, parseExaminerQueueStatus } from "./constants";
 import { useExaminerWorkspaceText } from "./hooks/useExaminerWorkspaceText";
-
-const VALID_STATUSES: ExaminerQueueStatus[] = ["ALL", "PENDING", "IN_PROGRESS", "COMPLETED"];
-
-function parseStatus(val: string | null): ExaminerQueueStatus {
-  if (val && VALID_STATUSES.includes(val as ExaminerQueueStatus)) {
-    return val as ExaminerQueueStatus;
-  }
-  return "ALL";
-}
 
 function formatDate(value: string, locale: string): string {
   const date = new Date(value);
@@ -36,7 +27,7 @@ export const ExaminerQueueView = (): ReactElement => {
   const searchParams = useSearchParams();
   const text = useExaminerWorkspaceText();
 
-  const status = parseStatus(searchParams?.get("status"));
+  const status = parseExaminerQueueStatus(searchParams?.get("status"));
   const rawPage = parseInt(searchParams?.get("page") ?? "0", 10);
   const page = Number.isInteger(rawPage) && rawPage >= 0 ? rawPage : 0;
   const searchParam = searchParams?.get("search") ?? "";
@@ -208,17 +199,24 @@ export const ExaminerQueueView = (): ReactElement => {
         {queue.isLoading ? (
           <p className="p-5 text-sm text-slate-600">{text.loadingQueue}</p>
         ) : queue.isError ? (
-          <div className="p-5 text-sm text-red-800" role="alert">
-            {text.queueError}{" "}
-            <button
+          <div
+            className="m-4 flex flex-col gap-3 rounded-lg border border-red-200 bg-red-50 p-4 sm:flex-row sm:items-center sm:justify-between text-red-800"
+            role="alert"
+          >
+            <div>
+              <p className="font-semibold text-sm">{text.queueError}</p>
+            </div>
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
+              disabled={queue.isFetching}
               onClick={() => void queue.refetch()}
-              className="font-semibold underline"
             >
               {text.retry}
-            </button>
+            </Button>
           </div>
-        ) : queue.data?.items?.length === 0 ? (
+        ) : !queue.data || queue.data.items?.length === 0 ? (
           <p className="p-5 text-sm text-slate-600">{text.emptyQueue}</p>
         ) : (
           <>
