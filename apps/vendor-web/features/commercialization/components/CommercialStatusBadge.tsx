@@ -1,6 +1,9 @@
+"use client";
+
 import type { ReactElement } from "react";
 import { Badge, type BadgeVariant } from "@pte/ui";
-import { COMMERCIAL_STATUS_LABELS } from "../statusConstants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { COMMERCIAL_STATUS_LABELS as RAW_COMMERCIAL_STATUS_LABELS } from "../statusConstants";
 
 const VARIANTS: Record<string, BadgeVariant> = {
   PENDING: "warning",
@@ -15,8 +18,8 @@ const VARIANTS: Record<string, BadgeVariant> = {
   EXPIRED: "warning",
 };
 
-export const CommercialStatusBadge = ({ status }: { status: string }): ReactElement => (
-  <Badge variant={VARIANTS[status] ?? "neutral"}>
-    {COMMERCIAL_STATUS_LABELS[status] ?? status}
-  </Badge>
-);
+export const CommercialStatusBadge = ({ status }: { status: string }): ReactElement => {
+  const labels = useAdminCopy(RAW_COMMERCIAL_STATUS_LABELS);
+
+  return <Badge variant={VARIANTS[status] ?? "neutral"}>{labels[status] ?? status}</Badge>;
+};

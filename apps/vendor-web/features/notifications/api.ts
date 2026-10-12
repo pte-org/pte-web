@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  keepPreviousData,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   ApiError,
   getInboxUnreadCount,
@@ -17,13 +22,15 @@ import { apiClient } from "@/lib/apiClient";
 import { useCurrentUser } from "@/features/auth/api";
 
 const POLL_MS = 30_000;
+const INITIAL_RECENT_SIZE = 5;
+const RECENT_SIZE_STEP = 5;
 
 export const notificationQueryKeys = {
   root: ["notifications"] as const,
   unread: (userId: string, tenantId: string | null) =>
     ["notifications", "unread", userId, tenantId ?? "platform"] as const,
-  recent: (userId: string, tenantId: string | null) =>
-    ["notifications", "recent", userId, tenantId ?? "platform"] as const,
+  recent: (userId: string, tenantId: string | null, size: number) =>
+    ["notifications", "recent", userId, tenantId ?? "platform", size] as const,
 };
 
 async function requestWithProtectedCache<T>(
@@ -46,6 +53,7 @@ export function useNotificationCenter() {
   const queryClient = useQueryClient();
   const { data: user } = useCurrentUser();
   const [isOpen, setIsOpen] = useState(false);
+  const [recentSize, setRecentSize] = useState(INITIAL_RECENT_SIZE);
   const identity = user ? `${user.publicId}:${user.tenantId ?? "platform"}` : "anonymous";
   const previousIdentity = useRef(identity);
   const enabled = Boolean(
@@ -54,7 +62,7 @@ export function useNotificationCenter() {
   const userId = user?.publicId ?? "anonymous";
   const tenantId = user?.tenantId ?? null;
   const unreadKey = notificationQueryKeys.unread(userId, tenantId);
-  const recentKey = notificationQueryKeys.recent(userId, tenantId);
+  const recentKey = notificationQueryKeys.recent(userId, tenantId, recentSize);
 
   useEffect(() => {
     if (previousIdentity.current !== identity) {
@@ -76,10 +84,11 @@ export function useNotificationCenter() {
     queryKey: recentKey,
     queryFn: () =>
       requestWithProtectedCache(
-        () => listInbox(apiClient, { page: 0, size: 5, filter: "ALL" }),
+        () => listInbox(apiClient, { page: 0, size: recentSize, filter: "ALL" }),
         queryClient,
       ),
     enabled: enabled && isOpen,
+    placeholderData: keepPreviousData,
     refetchOnWindowFocus: true,
     refetchInterval: () => (isOpen && visibleTab() ? POLL_MS : false),
     retry: false,
@@ -114,6 +123,15 @@ export function useNotificationCenter() {
     },
   });
 
+  const loadMoreRecent = (): void => {
+    if (recent.isFetching || !recent.data?.page.meta.hasNext) return;
+    setRecentSize((current) => current + RECENT_SIZE_STEP);
+  };
+
+  const collapseRecent = (): void => {
+    setRecentSize(INITIAL_RECENT_SIZE);
+  };
+
   return {
     isOpen,
     setIsOpen,
@@ -121,6 +139,10 @@ export function useNotificationCenter() {
     recent,
     markRead,
     markAllRead,
+    hasMoreRecent: recent.data?.page.meta.hasNext ?? false,
+    isLoadingMore: recent.isFetching && Boolean(recent.data),
+    loadMoreRecent,
+    collapseRecent,
   };
 }
 

@@ -12,6 +12,7 @@ import {
   DataTable,
   EyeIcon,
   PaginationControls,
+  useLocale,
   useToast,
   type DataTableColumn,
 } from "@pte/ui";
@@ -32,7 +33,49 @@ import { CreateTicketModal } from "./CreateTicketModal";
 
 export const SupportTicketsView = (): ReactElement => {
   const router = useRouter();
+  const { locale, t } = useLocale();
   const { showToast } = useToast();
+  const text = {
+    category: t("tenant.support.category", H.CATEGORY),
+    status: t("tenant.support.status", H.STATUS),
+    description: t("tenant.support.description", H.DESCRIPTION),
+    submitted: t("tenant.support.submitted", H.SUBMITTED),
+    actions: t("tenant.support.actions", H.ACTIONS),
+    allCategories: t("tenant.support.allCategories", T.FILTER_ALL_CATEGORY),
+    allStatuses: t("tenant.support.allStatuses", T.FILTER_ALL_STATUS),
+    dateRange: t("tenant.support.dateRange", "Date range"),
+    empty: t("tenant.support.empty", T.EMPTY_TITLE),
+    emptyDescription: t("tenant.support.emptyDescription", T.EMPTY_TEXT),
+    newTicket: t("tenant.support.new", T.CREATE_BUTTON),
+    ticketActions: t("tenant.support.ticketActions", A.ACTIONS),
+    viewDetail: t("tenant.support.viewDetail", A.VIEW_DETAIL),
+    close: t("tenant.support.close", A.CLOSE),
+    closeConfirmTitle: t("tenant.support.closeConfirmTitle", A.CONFIRM_CLOSE_TITLE),
+    closeConfirmDescription: t(
+      "tenant.support.closeConfirmDescription",
+      A.CONFIRM_CLOSE_DESCRIPTION,
+    ),
+    cancel: t("tenant.support.cancel", A.CANCEL),
+    closeSuccess: t("tenant.support.closeSuccess", A.CLOSE_SUCCESS_TOAST),
+    loadFailed: t("tenant.support.loadFailed", "Failed to load support tickets."),
+  };
+  const categoryLabels = {
+    BUG: t("tenant.support.category.bug", CATEGORY_LABELS.BUG),
+    CONTENT_COMPLAINT: t(
+      "tenant.support.category.contentComplaint",
+      CATEGORY_LABELS.CONTENT_COMPLAINT,
+    ),
+    GENERAL_FEEDBACK: t(
+      "tenant.support.category.generalFeedback",
+      CATEGORY_LABELS.GENERAL_FEEDBACK,
+    ),
+  };
+  const statusLabels = {
+    OPEN: t("tenant.support.status.open", STATUS_LABELS.OPEN),
+    IN_PROGRESS: t("tenant.support.status.inProgress", STATUS_LABELS.IN_PROGRESS),
+    RESOLVED: t("tenant.support.status.resolved", STATUS_LABELS.RESOLVED),
+    CLOSED: t("tenant.support.status.closed", STATUS_LABELS.CLOSED),
+  };
 
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
@@ -48,7 +91,9 @@ export const SupportTicketsView = (): ReactElement => {
       onSuccess: () => {
         setCreateOpen(false);
         submit.reset();
-        showToast(CREATE_TICKET_TEXT.SUCCESS_TOAST, { tone: "success" });
+        showToast(t("tenant.support.createSuccess", CREATE_TICKET_TEXT.SUCCESS_TOAST), {
+          tone: "success",
+        });
       },
     });
   };
@@ -56,8 +101,11 @@ export const SupportTicketsView = (): ReactElement => {
   const handleClose = (): void => {
     if (!closeTarget) return;
     close.mutate(closeTarget.publicId, {
-      onSuccess: () => showToast(A.CLOSE_SUCCESS_TOAST, { tone: "success" }),
-      onError: (err) => showToast(errorMessage(err) ?? A.CLOSE_FAILED, { tone: "error" }),
+      onSuccess: () => showToast(text.closeSuccess, { tone: "success" }),
+      onError: (err) =>
+        showToast(errorMessage(err) ?? t("tenant.support.closeFailed", A.CLOSE_FAILED), {
+          tone: "error",
+        }),
       onSettled: () => setCloseTarget(null),
     });
   };
@@ -65,27 +113,27 @@ export const SupportTicketsView = (): ReactElement => {
   const columns: DataTableColumn<SupportTicket>[] = [
     {
       key: "category",
-      header: H.CATEGORY,
+      header: text.category,
       filterOptions: [
-        { value: "", label: T.FILTER_ALL_CATEGORY },
-        ...Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label })),
+        { value: "", label: text.allCategories },
+        ...Object.entries(categoryLabels).map(([value, label]) => ({ value, label })),
       ],
       filterAccessor: (t) => t.category,
       cell: (t) => <TicketCategoryBadge category={t.category} />,
     },
     {
       key: "status",
-      header: H.STATUS,
+      header: text.status,
       filterOptions: [
-        { value: "", label: T.FILTER_ALL_STATUS },
-        ...Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label })),
+        { value: "", label: text.allStatuses },
+        ...Object.entries(statusLabels).map(([value, label]) => ({ value, label })),
       ],
       filterAccessor: (t) => t.status,
       cell: (t) => <TicketStatusBadge status={t.status} />,
     },
     {
       key: "description",
-      header: H.DESCRIPTION,
+      header: text.description,
       filterAccessor: (t) => t.description,
       cell: (t) => (
         <span className="text-gray-700">
@@ -95,43 +143,46 @@ export const SupportTicketsView = (): ReactElement => {
     },
     {
       key: "createdAt",
-      header: H.SUBMITTED,
+      header: text.submitted,
       filterType: "date-range",
       filterAccessor: (t) => t.createdAt,
-      filterPlaceholder: "Date range",
-      cell: (t) => new Date(t.createdAt).toLocaleDateString(),
+      filterPlaceholder: text.dateRange,
+      cell: (ticket) =>
+        new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-GB").format(
+          new Date(ticket.createdAt),
+        ),
     },
   ];
 
   return (
     <div className="flex flex-col gap-5">
-      {isError && <Alert tone="error">Failed to load support tickets.</Alert>}
+      {isError && <Alert tone="error">{text.loadFailed}</Alert>}
 
       <DataTable
         columns={columns}
         rows={data?.data ?? []}
         getRowKey={(t) => t.publicId}
         isLoading={isLoading}
-        emptyTitle={T.EMPTY_TITLE}
-        emptyDescription={T.EMPTY_TEXT}
-        rowActionsHeader={H.ACTIONS}
+        emptyTitle={text.empty}
+        emptyDescription={text.emptyDescription}
+        rowActionsHeader={text.actions}
         clientSidePagination={false}
         toolbarActions={
           <Button type="button" onClick={() => setCreateOpen(true)}>
-            + {T.CREATE_BUTTON}
+            + {text.newTicket}
           </Button>
         }
         rowActions={(t) => (
           <ActionMenu
-            label={A.ACTIONS}
+            label={text.ticketActions}
             items={[
               {
-                label: A.VIEW_DETAIL,
+                label: text.viewDetail,
                 icon: EyeIcon,
                 onSelect: () => router.push(`/host/support-tickets/${t.publicId}`),
               },
               {
-                label: A.CLOSE,
+                label: text.close,
                 icon: BanIcon,
                 danger: true,
                 // Only an OPEN ticket can be withdrawn; once an admin picks it up it stays.
@@ -171,10 +222,10 @@ export const SupportTicketsView = (): ReactElement => {
 
       <ConfirmDialog
         open={closeTarget !== null}
-        title={A.CONFIRM_CLOSE_TITLE}
-        description={A.CONFIRM_CLOSE_DESCRIPTION}
-        confirmLabel={A.CLOSE}
-        cancelLabel={A.CANCEL}
+        title={text.closeConfirmTitle}
+        description={text.closeConfirmDescription}
+        confirmLabel={text.close}
+        cancelLabel={text.cancel}
         tone="danger"
         isConfirming={close.isPending}
         onConfirm={handleClose}

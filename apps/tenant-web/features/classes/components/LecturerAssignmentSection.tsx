@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, DataTable, TrashIcon, type DataTableColumn } from "@pte/ui";
+import { ActionMenu, Alert, DataTable, TrashIcon, type DataTableColumn } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { LECTURER_SECTION_TEXT, LECTURER_TABLE_HEADERS } from "../constants";
 import { useLecturerAssignments, useUnassignLecturer } from "../api";
@@ -63,15 +63,17 @@ export const LecturerAssignmentSection = ({
         emptyTitle={T.emptyTitle}
         rowActionsHeader={LECTURER_TABLE_HEADERS.ACTIONS}
         rowActions={(entry) => (
-          <button
-            type="button"
-            onClick={() => unassign.mutate(entry.assignmentPublicId)}
-            title={T.unassign}
-            aria-label={T.unassign}
-            className="rounded-full p-1.5 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
-          >
-            <TrashIcon className="h-4 w-4" />
-          </button>
+          <ActionMenu
+            label={`${LECTURER_TABLE_HEADERS.ACTIONS}: ${entry.lecturer.fullName}`}
+            items={[
+              {
+                label: T.unassign,
+                icon: TrashIcon,
+                danger: true,
+                onSelect: () => unassign.mutate(entry.assignmentPublicId),
+              },
+            ]}
+          />
         )}
       />
 

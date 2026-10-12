@@ -2,9 +2,14 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Modal, Select } from "@pte/ui";
-import { PLAN_SELECT_OPTIONS } from "../../tenancy/constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { PLAN_SELECT_OPTIONS as RAW_PLAN_SELECT_OPTIONS } from "../../tenancy/constants";
 import { TenantFormField, fieldInputClass } from "../../tenancy/components/_TenantFormField";
-import { EMPTY_GRANT_QUOTA, GRANT_QUOTA_ERRORS, GRANT_QUOTA_TEXT } from "../constants";
+import {
+  EMPTY_GRANT_QUOTA,
+  GRANT_QUOTA_ERRORS as RAW_GRANT_QUOTA_ERRORS,
+  GRANT_QUOTA_TEXT as RAW_GRANT_QUOTA_TEXT,
+} from "../constants";
 import type { GrantQuotaErrors, GrantQuotaInput } from "../types";
 
 interface GrantQuotaModalProps {
@@ -16,20 +21,8 @@ interface GrantQuotaModalProps {
   isSubmitting?: boolean;
 }
 
-const T = GRANT_QUOTA_TEXT;
 const FORM_ID = "grant-quota-form";
 const AMOUNT_PATTERN = /^[1-9]\d*$/;
-
-function validate(input: GrantQuotaInput): GrantQuotaErrors {
-  const errors: GrantQuotaErrors = {};
-  if (!input.packageName) errors.packageName = GRANT_QUOTA_ERRORS.REQUIRED;
-  if (!input.amount.trim()) {
-    errors.amount = GRANT_QUOTA_ERRORS.REQUIRED;
-  } else if (!AMOUNT_PATTERN.test(input.amount.trim())) {
-    errors.amount = GRANT_QUOTA_ERRORS.AMOUNT_INVALID;
-  }
-  return errors;
-}
 
 export const GrantQuotaModal = ({
   open,
@@ -39,12 +32,22 @@ export const GrantQuotaModal = ({
   error,
   isSubmitting = false,
 }: GrantQuotaModalProps): ReactElement => {
+  const T = useAdminCopy(RAW_GRANT_QUOTA_TEXT);
+  const E = useAdminCopy(RAW_GRANT_QUOTA_ERRORS);
+  const planOptions = useAdminCopy(RAW_PLAN_SELECT_OPTIONS);
+  const grantingLabel = useAdminCopy("Granting...");
   const [form, setForm] = useState<GrantQuotaInput>(EMPTY_GRANT_QUOTA);
   const [errors, setErrors] = useState<GrantQuotaErrors>({});
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    const nextErrors = validate(form);
+    const nextErrors: GrantQuotaErrors = {};
+    if (!form.packageName) nextErrors.packageName = E.REQUIRED;
+    if (!form.amount.trim()) {
+      nextErrors.amount = E.REQUIRED;
+    } else if (!AMOUNT_PATTERN.test(form.amount.trim())) {
+      nextErrors.amount = E.AMOUNT_INVALID;
+    }
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length === 0) onSubmit(form);
   };
@@ -69,7 +72,7 @@ export const GrantQuotaModal = ({
             disabled={isSubmitting}
             className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? "Granting..." : T.SUBMIT}
+            {isSubmitting ? grantingLabel : T.SUBMIT}
           </button>
         </>
       }
@@ -96,7 +99,7 @@ export const GrantQuotaModal = ({
               }))
             }
             placeholder={T.PACKAGE_PLACEHOLDER}
-            options={PLAN_SELECT_OPTIONS}
+            options={planOptions}
             className={errors.packageName ? "!border-red-300 !bg-red-50/40" : undefined}
           />
         </TenantFormField>

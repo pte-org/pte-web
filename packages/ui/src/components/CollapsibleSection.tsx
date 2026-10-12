@@ -9,6 +9,7 @@ interface CollapsibleSectionProps {
   subtitle?: string;
   actions?: ReactNode;
   children: ReactNode;
+  collapsible?: boolean;
   defaultExpanded?: boolean;
   className?: string;
   contentClassName?: string;
@@ -19,6 +20,7 @@ export const CollapsibleSection = ({
   subtitle,
   actions,
   children,
+  collapsible = true,
   defaultExpanded = true,
   className,
   contentClassName,
@@ -41,24 +43,28 @@ export const CollapsibleSection = ({
           </h2>
           {subtitle && <p className="mt-1 text-xs text-[var(--ink-secondary)]">{subtitle}</p>}
         </div>
-        <div className="flex flex-wrap items-center justify-end gap-2">
-          {actions}
-          <button
-            type="button"
-            aria-expanded={isExpanded}
-            aria-controls={contentId}
-            className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] px-3 text-sm font-medium text-[var(--ink-primary)] shadow-none transition-[background-color,border-color,box-shadow,transform] duration-150 hover:-translate-y-px hover:bg-[var(--surface-subtle)] hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--action)] focus-visible:ring-offset-2 active:translate-y-0"
-            onClick={() => setIsExpanded((current) => !current)}
-          >
-            {isExpanded ? t("common.collapse", "Collapse") : t("common.expand", "Expand")}
-            <span aria-hidden="true" className="text-base leading-none">
-              {isExpanded ? "−" : "+"}
-            </span>
-          </button>
-        </div>
+        {(actions || collapsible) && (
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {actions}
+            {collapsible && (
+              <button
+                type="button"
+                aria-expanded={isExpanded}
+                aria-controls={contentId}
+                className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] px-3 text-sm font-medium text-[var(--ink-primary)] shadow-none transition-[background-color,border-color,box-shadow,transform] duration-150 hover:-translate-y-px hover:bg-[var(--surface-subtle)] hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--action)] focus-visible:ring-offset-2 active:translate-y-0"
+                onClick={() => setIsExpanded((current) => !current)}
+              >
+                {isExpanded ? t("common.collapse", "Collapse") : t("common.expand", "Expand")}
+                <span aria-hidden="true" className="text-base leading-none">
+                  {isExpanded ? "−" : "+"}
+                </span>
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
-      {isExpanded && (
+      {(!collapsible || isExpanded) && (
         <div id={contentId} className={contentClassName}>
           {children}
         </div>

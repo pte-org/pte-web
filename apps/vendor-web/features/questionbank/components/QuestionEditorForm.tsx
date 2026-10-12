@@ -13,11 +13,12 @@ import {
   type UpdateQuestionRequest,
 } from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useQuestionTypes } from "@/features/questiontemplate/api";
 import { useCreateQuestion, useUpdateQuestion } from "../api";
 import {
-  QUESTION_EDITOR_ERRORS as E,
-  QUESTION_EDITOR_TEXT as T,
+  QUESTION_EDITOR_ERRORS as RAW_QUESTION_EDITOR_ERRORS,
+  QUESTION_EDITOR_TEXT as RAW_QUESTION_EDITOR_TEXT,
   QUESTION_POOL_LABELS,
 } from "../constants";
 
@@ -48,6 +49,8 @@ export const QuestionEditorForm = ({
   onSaved,
   onCancel,
 }: QuestionEditorFormProps): ReactElement => {
+  const T = useAdminCopy(RAW_QUESTION_EDITOR_TEXT);
+  const E = useAdminCopy(RAW_QUESTION_EDITOR_ERRORS);
   const createMutation = useCreateQuestion();
   const updateMutation = useUpdateQuestion();
   const { showToast } = useToast();

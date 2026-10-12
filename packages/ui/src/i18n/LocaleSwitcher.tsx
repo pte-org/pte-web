@@ -1,24 +1,32 @@
 "use client";
 
 import type { ReactElement } from "react";
+import { Dropdown, type DropdownItem } from "../components/Dropdown";
+import { ChevronDownIcon } from "../components/icons";
 import { cn } from "../utils/cn";
-import { useLocale, type Locale } from "./LocaleProvider";
+import { useLocale } from "./LocaleProvider";
 
 export const LocaleSwitcher = ({ className }: { className?: string }): ReactElement => {
   const { locale, setLocale, t } = useLocale();
+  const items: DropdownItem[] = [
+    { label: "VI", onSelect: () => setLocale("vi") },
+    { label: "EN", onSelect: () => setLocale("en") },
+  ];
 
   return (
-    <label className={cn("relative inline-flex items-center", className)}>
-      <span className="sr-only">{t("common.language", "Language")}</span>
-      <select
-        aria-label={t("common.language", "Language")}
-        value={locale}
-        onChange={(event) => setLocale(event.target.value as Locale)}
-        className="h-10 appearance-none rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] py-2 pl-3 pr-8 text-xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)] outline-none transition-colors hover:border-[var(--brand)] focus-visible:ring-2 focus-visible:ring-[var(--brand)]"
-      >
-        <option value="vi">VI</option>
-        <option value="en">EN</option>
-      </select>
-    </label>
+    <div className={cn("inline-flex items-center", className)}>
+      <Dropdown
+        items={items}
+        label={t("common.language", "Language")}
+        menuClassName="!w-[62px] !min-w-[62px]"
+        triggerClassName="!flex !h-10 !w-auto !min-w-[62px] items-center justify-between gap-2 border border-[var(--control-border)] bg-[var(--surface-card)] px-3 text-xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)] hover:border-[var(--brand)] hover:bg-[var(--surface-subtle)]"
+        trigger={
+          <>
+            <span>{locale.toUpperCase()}</span>
+            <ChevronDownIcon className="h-4 w-4 text-[var(--ink-muted)]" />
+          </>
+        }
+      />
+    </div>
   );
 };

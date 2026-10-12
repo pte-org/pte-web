@@ -4,9 +4,10 @@ import { useState, type ReactElement } from "react";
 import { Alert, Button, DescriptionList, Input, PageHeader } from "@pte/ui";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useApplicationQuery, useApproveApplication, useRejectApplication } from "../api";
-import { ADMIN_APPLICATION_DETAIL_TEXT as T } from "../constants";
+import { ADMIN_APPLICATION_DETAIL_TEXT as RAW_ADMIN_APPLICATION_DETAIL_TEXT } from "../constants";
 import { CommercialPanel } from "./CommercialPanel";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 interface AdminApplicationDetailViewProps {
   applicationId: string;
@@ -17,6 +18,13 @@ type ReviewAction = "approve" | "reject";
 const AdminApplicationDetailContent = ({
   applicationId,
 }: AdminApplicationDetailViewProps): ReactElement => {
+  const T = useAdminCopy(RAW_ADMIN_APPLICATION_DETAIL_TEXT);
+  const organizationTypeLabels = useAdminCopy({
+    SCHOOL: "School",
+    UNIVERSITY: "University",
+    TRAINING_CENTER: "Training Center",
+    CORPORATE: "Corporate",
+  });
   const applicationQuery = useApplicationQuery(applicationId);
   const approve = useApproveApplication();
   const reject = useRejectApplication();
@@ -135,7 +143,13 @@ const AdminApplicationDetailContent = ({
         <CommercialPanel title={T.DETAILS_TITLE}>
           <DescriptionList
             items={[
-              { label: T.ORGANIZATION_TYPE, value: application.orgType },
+              {
+                label: T.ORGANIZATION_TYPE,
+                value:
+                  organizationTypeLabels[
+                    application.orgType as keyof typeof organizationTypeLabels
+                  ] ?? application.orgType,
+              },
               { label: T.REQUESTED_TENANT_CODE, value: application.requestedCode },
               { label: T.WORK_EMAIL, value: application.contactEmail },
               { label: T.PHONE, value: application.contactPhone ?? T.EMPTY_VALUE },
