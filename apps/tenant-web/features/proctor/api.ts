@@ -11,16 +11,21 @@ import {
 } from "@tanstack/react-query";
 import {
   closeProctorSession,
+  decodeAccessTokenClaims,
   getMonitoringSnapshot,
   getProctorSecurityAudit,
+  getProctorWorkspaceOverview,
   getStudentAttemptHistory,
   listAssignedProctorSessions,
   listViolations,
   type AssignedProctorSessionPage,
   type MonitoringAttemptHistoryPage,
   type MonitoringSnapshotResponse,
+  type ProctorScope,
+  type ProctorWorkspaceOverviewResponse,
   type ViolationEventResponse,
 } from "@pte/api-client";
+import { useSessionManager } from "@pte/ui";
 import { apiClient } from "@/lib/apiClient";
 import { usePollingInterval } from "./hooks/usePollingInterval";
 import { POLL_INTERVAL_MS } from "./constants";
@@ -37,14 +42,72 @@ export interface ProctorSecurityAuditPage {
   hasNext: boolean;
 }
 
+export interface UseAssignedProctorSessionsOptions {
+  page?: number;
+  size?: number;
+  scope?: ProctorScope;
+  sort?: string;
+  timezone?: string | null;
+}
+
+export function useProctorWorkspaceOverview(
+  timezone: string | null,
+): UseQueryResult<ProctorWorkspaceOverviewResponse> {
+  const { session } = useSessionManager();
+  const tenantId = session?.tenantId;
+  const actorId = session ? decodeAccessTokenClaims(session.accessToken)?.sub : undefined;
+  const isReady = Boolean(tenantId && actorId && timezone);
+
+  return useQuery<ProctorWorkspaceOverviewResponse>({
+    queryKey: isReady
+      ? PROCTOR_QUERY_KEYS.overview(tenantId!, actorId!, timezone!)
+      : (["proctor", "unauthenticated", "overview"] as const),
+    queryFn: () => getProctorWorkspaceOverview(apiClient, timezone!),
+    enabled: isReady,
+    staleTime: 30_000,
+  });
+}
+
 export function useAssignedProctorSessions(
-  page = 0,
-  size = 20,
+  optionsOrPage: UseAssignedProctorSessionsOptions | number = 0,
+  legacySize = 20,
 ): UseQueryResult<AssignedProctorSessionPage> {
+  const options: UseAssignedProctorSessionsOptions =
+    typeof optionsOrPage === "number"
+      ? { page: optionsOrPage, size: legacySize }
+      : optionsOrPage;
+
+  const page = options.page ?? 0;
+  const size = options.size ?? 20;
+  const scope = options.scope;
+  const sort = options.sort;
+  const timezone = options.timezone;
+
+  const { session } = useSessionManager();
+  const tenantId = session?.tenantId;
+  const actorId = session ? decodeAccessTokenClaims(session.accessToken)?.sub : undefined;
+
+  const timezoneReady = scope === "TODAY" ? Boolean(timezone) : true;
+  const isReady = Boolean(tenantId && actorId && timezoneReady);
+
   return useQuery<AssignedProctorSessionPage>({
-    queryKey: PROCTOR_QUERY_KEYS.myAssignments(page, size),
-    queryFn: () => listAssignedProctorSessions(apiClient, page, size),
-    staleTime: 10_000,
+    queryKey: isReady
+      ? PROCTOR_QUERY_KEYS.myAssignments(tenantId!, actorId!, {
+          page,
+          size,
+          scope,
+          sort,
+          timezone: timezone ?? undefined,
+        })
+      : (["proctor", "unauthenticated", "assignments"] as const),
+    queryFn: () =>
+      listAssignedProctorSessions(apiClient, page, size, {
+        scope,
+        sort,
+        timezone: timezone ?? undefined,
+      }),
+    enabled: isReady,
+    staleTime: 30_000,
   });
 }
 
