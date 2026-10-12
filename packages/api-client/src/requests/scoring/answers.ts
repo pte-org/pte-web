@@ -2,18 +2,22 @@ import { DEFAULT_PAGE_SIZE, type ApiClient } from "../../client/client";
 import type {
   AnswerListResponse,
   AnswerReviewDetailResponse,
+  AttemptReviewItemResponse,
   ScoringAnswerResponse,
   SubmitTeacherScoreRequest,
 } from "../../types/scoring";
 
 export const SCORING_ANSWER_ENDPOINTS = {
   answers: "/api/v1/answers",
+  attempts: (sessionPublicId: string) =>
+    `/api/v1/scoring/sessions/${encodeURIComponent(sessionPublicId)}/attempts`,
   answer: (publicId: string) => `/api/v1/answers/${publicId}`,
   teacherScore: (publicId: string) => `/api/v1/answers/${publicId}/teacher-score`,
 } as const;
 
 export interface ListAnswersParams {
   sessionPublicId?: string;
+  attemptPublicId?: string;
   status?: string;
   page?: number;
   size?: number;
@@ -25,6 +29,7 @@ export function listAnswers(
 ): Promise<AnswerListResponse> {
   const query = new URLSearchParams();
   if (params.sessionPublicId) query.set("sessionPublicId", params.sessionPublicId);
+  if (params.attemptPublicId) query.set("attemptPublicId", params.attemptPublicId);
   if (params.status) query.set("status", params.status);
   if (params.page !== undefined) query.set("page", String(params.page));
   if (params.size !== undefined || params.page !== undefined) {
@@ -33,6 +38,16 @@ export function listAnswers(
   const qs = query.toString();
   return client.request<AnswerListResponse>(
     `${SCORING_ANSWER_ENDPOINTS.answers}${qs ? `?${qs}` : ""}`,
+  );
+}
+
+/** One row per attempt (student) of a session, with how far its answers got through scoring. */
+export function listAttemptReviews(
+  client: ApiClient,
+  sessionPublicId: string,
+): Promise<AttemptReviewItemResponse[]> {
+  return client.request<AttemptReviewItemResponse[]>(
+    SCORING_ANSWER_ENDPOINTS.attempts(sessionPublicId),
   );
 }
 

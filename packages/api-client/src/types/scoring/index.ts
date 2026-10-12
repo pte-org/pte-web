@@ -1,6 +1,23 @@
 /** Matches scoring's real `ScoringAnswerStatus` enum exactly. */
 export type ScoringAnswerStatus = "PENDING" | "AI_SCORING" | "SCORING_FAILED" | "SCORED";
 
+export type AiScoreStatus = "PENDING" | "SCORING" | "FAILED" | "SCORED";
+
+/**
+ * Matches scoring's real `AiScoreDetailResponse` record. Host and assigned examiner only;
+ * student and reporting responses never carry it. `score` is an estimate, not the final score.
+ */
+export interface AiScoreDetailResponse {
+  status: AiScoreStatus;
+  score: number | null;
+  criteria: Record<string, number>;
+  feedback: string | null;
+  transcript: string | null;
+  detail: Record<string, unknown>;
+  fallback: boolean;
+  failureReason: string | null;
+}
+
 /** Matches scoring's real `AnswerListItemResponse` record exactly. */
 export interface AnswerListItemResponse {
   answerPublicId: string;
@@ -12,6 +29,24 @@ export interface AnswerListItemResponse {
   teacherScore: number | null;
   createdAt: string;
   attemptNumber: number | null;
+  aiFallback: boolean;
+  /** False for objective answers, whose rawScore is not an AI estimate. */
+  aiScored: boolean;
+}
+
+/** Matches scoring's real `AttemptReviewItemResponse` record exactly. */
+export interface AttemptReviewItemResponse {
+  attemptPublicId: string;
+  /** Null only when the attempt can no longer be resolved. */
+  studentPublicId: string | null;
+  /** Null when the student can no longer be resolved. */
+  studentName: string | null;
+  attemptNumber: number | null;
+  answerCount: number;
+  scoredCount: number;
+  pendingCount: number;
+  aiScoringCount: number;
+  failedCount: number;
 }
 
 /** Matches scoring's real `AnswerListResponse` record exactly. */
@@ -54,6 +89,7 @@ export interface AnswerReviewDetailResponse {
   teacherScore: number | null;
   createdAt: string;
   payload: DecodedAnswerPayload;
+  ai: AiScoreDetailResponse | null;
 }
 
 /** Matches scoring's real `SubmitTeacherScoreRequest` record exactly. */
@@ -84,6 +120,8 @@ export interface HostScoreReviewView {
   teacherScore: number | null;
   selectedScoreSource: ScoreSource | null;
   lockVersion: number;
+  aiFallback: boolean;
+  aiFailureReason: string | null;
 }
 
 export interface HostScoreReviewResponse {
@@ -94,6 +132,7 @@ export interface HostScoreReviewResponse {
   unassignedAttemptCount: number;
   pendingExaminerAnswerCount: number;
   unavailableSelectedAnswerCount: number;
+  rescorableAnswerCount: number;
   answers: HostScoreReviewView[];
 }
 
@@ -286,6 +325,7 @@ export interface ExaminerAnswerDetailResponse {
   status: "PENDING" | "SUBMITTED";
   myScore: number | null;
   submittedAt: string | null;
+  ai: AiScoreDetailResponse | null;
 }
 
 export interface ExaminerAttemptDetailResponse {
