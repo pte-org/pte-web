@@ -70,7 +70,7 @@ export function ProctorWorkspaceOverview({
     {
       scope: "ACCESSIBLE",
       title: text.cardAccessibleTitle,
-      count: counts?.accessibleCount,
+      count: counts?.accessible ?? counts?.accessibleCount,
       description: text.cardAccessibleDescription,
       borderActiveClass: "border-emerald-500 bg-emerald-50/40 ring-1 ring-emerald-500",
       accentClass: "text-emerald-700",
@@ -78,7 +78,7 @@ export function ProctorWorkspaceOverview({
     {
       scope: "UPCOMING",
       title: text.cardUpcomingTitle,
-      count: counts?.upcomingCount,
+      count: counts?.upcoming ?? counts?.upcomingCount,
       description: text.cardUpcomingDescription,
       borderActiveClass: "border-blue-500 bg-blue-50/40 ring-1 ring-blue-500",
       accentClass: "text-blue-700",
@@ -86,7 +86,7 @@ export function ProctorWorkspaceOverview({
     {
       scope: "TODAY",
       title: text.cardTodayTitle,
-      count: counts?.todayCount,
+      count: counts?.today ?? counts?.todayCount,
       description: text.cardTodayDescription,
       borderActiveClass: "border-indigo-500 bg-indigo-50/40 ring-1 ring-indigo-500",
       accentClass: "text-indigo-700",

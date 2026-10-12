@@ -52,22 +52,26 @@ export function useMidnightBoundaryRefresh({
     if (!dayEnd || !timezone) return;
 
     const targetTime = new Date(dayEnd).getTime();
+    if (Number.isNaN(targetTime)) return;
+
     const now = Date.now();
     const delay = targetTime - now + 1000;
 
-    if (delay <= 0 || delay > 86_400_000 + 60_000) {
-      return;
+    let fired = false;
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    // Up to 26 hours to safely handle 25-hour DST transition days
+    if (delay > 0 && delay <= 26 * 3600 * 1000) {
+      timeoutId = setTimeout(() => {
+        fired = true;
+        if (typeof document !== "undefined" && document.visibilityState === "visible") {
+          onMidnight();
+        }
+      }, delay);
     }
 
-    let fired = false;
-    const timeoutId = setTimeout(() => {
-      fired = true;
-      if (typeof document !== "undefined" && document.visibilityState === "visible") {
-        onMidnight();
-      }
-    }, delay);
-
     const handleVisibilityOrFocus = (): void => {
+      // If boundary already elapsed or timer fired while hidden, trigger onMidnight upon focus/visibility
       if (fired || Date.now() >= targetTime) {
         onMidnight();
       }
@@ -77,7 +81,9 @@ export function useMidnightBoundaryRefresh({
     document.addEventListener("visibilitychange", handleVisibilityOrFocus);
 
     return () => {
-      clearTimeout(timeoutId);
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       window.removeEventListener("focus", handleVisibilityOrFocus);
       document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
     };

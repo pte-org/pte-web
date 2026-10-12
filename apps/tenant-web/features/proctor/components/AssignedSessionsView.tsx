@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, type ReactElement } from "react";
+import { useCallback, useEffect, useMemo, type ReactElement } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
@@ -80,13 +80,14 @@ export function AssignedSessionsView(): ReactElement {
     timezone,
   });
 
-  // Midnight boundary refresh
+  // Midnight boundary refresh using overview dayEnd or list dayEnd context
+  const dayEnd = overviewQuery.data?.dayEnd ?? listQuery.data?.dayEnd;
   const handleMidnight = useCallback(() => {
     void queryClient.invalidateQueries({ queryKey: PROCTOR_QUERY_KEYS.all });
   }, [queryClient]);
 
   useMidnightBoundaryRefresh({
-    dayEnd: overviewQuery.data?.dayEnd,
+    dayEnd,
     timezone,
     onMidnight: handleMidnight,
   });
@@ -99,6 +100,14 @@ export function AssignedSessionsView(): ReactElement {
   const sessions = listQuery.data?.data ?? [];
   const meta = listQuery.data?.meta;
   const totalPages = meta?.totalPages ?? 1;
+  const totalElements = meta?.totalElements ?? 0;
+  const isOutOfRange = Boolean(meta && totalElements > 0 && page >= totalPages);
+
+  useEffect(() => {
+    if (isOutOfRange) {
+      updateUrl(scope, Math.max(0, totalPages - 1));
+    }
+  }, [isOutOfRange, page, scope, totalPages, updateUrl]);
 
   const formatDateTime = useCallback(
     (iso: string): string => {
@@ -214,18 +223,41 @@ export function AssignedSessionsView(): ReactElement {
           </div>
         ) : sessions.length === 0 ? (
           <div className="rounded-xl border border-dashed border-slate-300 bg-white p-12 text-center">
-            <h3 className="text-base font-semibold text-slate-900">
-              {scope === "ALL" ? text.empty : text.emptyInScope}
-            </h3>
-            {scope !== "ALL" && (
-              <Button
-                variant="secondary"
-                size="sm"
-                className="mt-3"
-                onClick={() => updateUrl("ALL", 0)}
-              >
-                {text.filterAll}
-              </Button>
+            {isOutOfRange || (meta && totalElements > 0) ? (
+              <>
+                <h3 className="text-base font-semibold text-slate-900">
+                  {text.locale === "vi" ? "Trang này không có ca thi nào" : "This page has no sessions"}
+                </h3>
+                <p className="mt-1 text-sm text-slate-500">
+                  {text.locale === "vi"
+                    ? `Danh mục có ${totalElements} ca thi nhưng trang ${page + 1} vượt quá tổng số trang (${totalPages}).`
+                    : `Category has ${totalElements} sessions, but page ${page + 1} exceeds total pages (${totalPages}).`}
+                </p>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="mt-3"
+                  onClick={() => updateUrl(scope, 0)}
+                >
+                  {text.locale === "vi" ? "Về trang đầu" : "Go to first page"}
+                </Button>
+              </>
+            ) : (
+              <>
+                <h3 className="text-base font-semibold text-slate-900">
+                  {scope === "ALL" ? text.empty : text.emptyInScope}
+                </h3>
+                {scope !== "ALL" && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="mt-3"
+                    onClick={() => updateUrl("ALL", 0)}
+                  >
+                    {text.filterAll}
+                  </Button>
+                )}
+              </>
             )}
           </div>
         ) : (
