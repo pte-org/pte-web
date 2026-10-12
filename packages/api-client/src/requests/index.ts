@@ -43,3 +43,4 @@ export * from "./notification";
 export * from "./scoring/gradingCohort";
 export * from "./support/tickets";
 export * from "./proctoring";
+export * from "./attendance";
