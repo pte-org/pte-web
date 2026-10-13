@@ -20,6 +20,7 @@ import { ExaminerAttemptHeader } from "./components/ExaminerAttemptHeader";
 import { ConfirmAttemptFinalizeDialog } from "./components/ConfirmAttemptFinalizeDialog";
 import { ReportIssueDialog } from "./components/ReportIssueDialog";
 import { ExaminerGuidelinesDialog } from "./components/ExaminerGuidelinesDialog";
+import { ExaminerGradingHistoryDialog } from "./components/ExaminerGradingHistoryDialog";
 import { useExaminerSubmissions } from "./useExaminerSubmissions";
 
 export const ExaminerAttemptDetailView = ({
@@ -48,6 +49,7 @@ export const ExaminerAttemptDetailView = ({
   const [finalizeOpen, setFinalizeOpen] = useState(false);
   const [reportIssueOpen, setReportIssueOpen] = useState(false);
   const [guidelinesOpen, setGuidelinesOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [promptMediaBroken, setPromptMediaBroken] = useState(false);
   const [responseMediaBroken, setResponseMediaBroken] = useState(false);
 
@@ -160,6 +162,9 @@ export const ExaminerAttemptDetailView = ({
           <>
             <Button variant="secondary" size="sm" onClick={() => setGuidelinesOpen(true)}>
               {T.GUIDELINES}
+            </Button>
+            <Button variant="secondary" size="sm" onClick={() => setHistoryOpen(true)}>
+              {T.HISTORY_AUDIT}
             </Button>
             <Button variant="secondary" size="sm" onClick={() => setReportIssueOpen(true)}>
               {T.REPORT_ISSUE}
@@ -306,6 +311,13 @@ export const ExaminerAttemptDetailView = ({
         guidelines={guidelinesQuery.data}
         isLoading={guidelinesQuery.isLoading}
         onClose={() => setGuidelinesOpen(false)}
+      />
+
+      <ExaminerGradingHistoryDialog
+        open={historyOpen}
+        sessionPublicId={sessionPublicId}
+        attemptPublicId={attemptPublicId}
+        onClose={() => setHistoryOpen(false)}
       />
     </div>
   );

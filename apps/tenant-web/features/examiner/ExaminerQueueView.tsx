@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactElement } from "re
 import { useRouter, useSearchParams } from "next/navigation";
 import type { ExaminerQueueItemResponse, ExaminerQueueStatus } from "@pte/api-client";
 import { Badge, Button, Input, PageHeader, Pagination, Select } from "@pte/ui";
-import { useExaminerQueue, useStartExaminerWork } from "./api";
+import { useExaminerQueue } from "./api";
 import { EXAMINER_WORK_TEXT as T, parseExaminerQueueStatus } from "./constants";
 import { useExaminerWorkspaceText } from "./hooks/useExaminerWorkspaceText";
 

@@ -94,6 +94,7 @@ export const EXAMINER_WORK_TEXT = {
   SUBMIT_ISSUE: "Submit issue",
   GUIDELINES: "Marking guidelines",
   GUIDELINES_TITLE: "Examiner scoring guidelines",
+  HISTORY_AUDIT: "Grading History & Audit",
   BACK_TO_OVERVIEW: "Back to overview",
   SEARCH_PLACEHOLDER: "Search by attempt or session ID…",
   SORT_LABEL: "Sort order",
