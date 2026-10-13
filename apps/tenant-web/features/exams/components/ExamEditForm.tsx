@@ -2,20 +2,11 @@
 
 import { useMemo, useState, type FormEvent, type ReactElement } from "react";
 import {
-  getUserFacingApiErrorMessage,
   type PatchExamDraftRequest,
   type PatchExamPolicyRequest,
   type PatchExamScheduleRequest,
 } from "@pte/api-client";
-import {
-  Alert,
-  Button,
-  ConfirmDialog,
-  DescriptionList,
-  Select,
-  useLocale,
-  useToast,
-} from "@pte/ui";
+import { Button, DescriptionList, Select, useLocale, useToast } from "@pte/ui";
 import {
   useTransitionExamStatus,
   useUpdateExamDraft,
@@ -23,12 +14,23 @@ import {
   useUpdateExamSchedule,
   type ExamStatusTransitionTarget,
 } from "../api";
-import { EXAM_EDITOR_TEXT, SESSION_STATUS_LABELS, SESSION_STATUS_TRANSITIONS } from "../constants";
+import {
+  EXAM_EDITOR_TEXT,
+  OFFICIAL_EXAM_LOCKDOWN_MODE,
+  SESSION_STATUS_LABELS,
+  SESSION_STATUS_TRANSITIONS,
+} from "../constants";
 import { useExamEditTimingWarning } from "../hooks/useExamEditTimingWarning";
+import { useExamMutationErrorToast } from "../hooks/useExamMutationErrorToast";
 import type { ExamSession } from "../types";
+import { getExamScheduleTimingState } from "../utils/examScheduleTiming";
 import { ExamDraftFields } from "./ExamDraftFields";
 import { ExamPolicyFields } from "./ExamPolicyFields";
 import { ExamScheduleFields } from "./ExamScheduleFields";
+import {
+  ExamScheduleTimingGuard,
+  type ExamScheduleTimingConfirmation,
+} from "./ExamScheduleTimingGuard";
 import {
   draftFormFromSession,
   policyFormFromSession,
@@ -58,7 +60,8 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
   const [scheduleForm, setScheduleForm] = useState(() => scheduleFormFromSession(session));
   const [selectedStatus, setSelectedStatus] = useState<ExamSession["status"]>(session.status);
   const [submitted, setSubmitted] = useState(false);
-  const [confirmCloseReminder, setConfirmCloseReminder] = useState(false);
+  const [closeTimeConfirmation, setCloseTimeConfirmation] =
+    useState<ExamScheduleTimingConfirmation>(null);
   useExamEditTimingWarning(session);
 
   const isPending =
@@ -68,15 +71,15 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
     statusUpdate.isPending;
   const mutationError =
     draftUpdate.error ?? policyUpdate.error ?? scheduleUpdate.error ?? statusUpdate.error;
-  const error = mutationError
-    ? getUserFacingApiErrorMessage(
-        mutationError,
-        t("tenant.examDetails.saveFailed", EXAM_EDITOR_TEXT.SAVE_FAILED),
-      )
-    : null;
+  useExamMutationErrorToast(mutationError);
   const draftInitial = useMemo(() => draftFormFromSession(session), [session]);
   const policyInitial = useMemo(() => policyFormFromSession(session), [session]);
   const scheduleInitial = useMemo(() => scheduleFormFromSession(session), [session]);
+  const scheduleTimingState = getExamScheduleTimingState(
+    session,
+    scheduleInitial.closesAt,
+    scheduleForm.closesAt,
+  );
   const draftDirty = JSON.stringify(draftForm) !== JSON.stringify(draftInitial);
   const policyDirty = JSON.stringify(policyForm) !== JSON.stringify(policyInitial);
   const scheduleDirty = JSON.stringify(scheduleForm) !== JSON.stringify(scheduleInitial);
@@ -127,6 +130,18 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
   };
 
   const commitSave = async (): Promise<void> => {
+    const currentTimingState = getExamScheduleTimingState(
+      session,
+      scheduleInitial.closesAt,
+      scheduleForm.closesAt,
+    );
+    if (
+      currentTimingState === "CLOSE_TIME_SHORTENED" ||
+      currentTimingState === "CLOSE_TIME_NOT_IN_FUTURE"
+    ) {
+      return;
+    }
+
     if (isDraft) {
       const valid = Boolean(
         draftForm.name.trim() &&
@@ -149,6 +164,7 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
         selectedSkills: draftForm.selectedSkills,
         expectedVersion: session.draftVersion,
         seriesKey: draftForm.seriesKey.trim() || null,
+        lockdownMode: OFFICIAL_EXAM_LOCKDOWN_MODE,
       };
       if (session.formMode !== null) payload.formMode = draftForm.formMode || undefined;
       if (session.reusePolicy !== null) payload.reusePolicy = draftForm.reusePolicy || undefined;
@@ -187,16 +203,29 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
     setSubmitted(true);
     if (isDraft && !draftForm.name.trim()) return;
     if (!isDraft && !validSchedule()) return;
-    const closeTimeNotExtended =
-      !isDraft &&
-      selectedStatus !== "CLOSED" &&
-      selectedStatus !== "CANCELLED" &&
-      scheduleForm.closesAt <= scheduleInitial.closesAt &&
-      (session.status === "OPEN" || new Date(session.opensAt).getTime() <= Date.now());
-    if (closeTimeNotExtended) {
-      setConfirmCloseReminder(true);
+
+    const currentTimingState = getExamScheduleTimingState(
+      session,
+      scheduleInitial.closesAt,
+      scheduleForm.closesAt,
+    );
+    if (
+      currentTimingState === "CLOSE_TIME_SHORTENED" ||
+      currentTimingState === "CLOSE_TIME_NOT_IN_FUTURE"
+    ) {
       return;
     }
+
+    const shouldConfirmTiming = selectedStatus !== "CLOSED" && selectedStatus !== "CANCELLED";
+    if (shouldConfirmTiming && currentTimingState === "CLOSE_TIME_EXTENDED") {
+      setCloseTimeConfirmation("EXTENDED");
+      return;
+    }
+    if (shouldConfirmTiming && currentTimingState === "CLOSE_TIME_UNCHANGED") {
+      setCloseTimeConfirmation("UNCHANGED");
+      return;
+    }
+
     try {
       await commitSave();
     } catch {
@@ -207,7 +236,18 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
   return (
     <>
       <form className="flex flex-col gap-5" onSubmit={save} noValidate>
-        {error && <Alert tone="error">{error}</Alert>}
+        <ExamScheduleTimingGuard
+          state={scheduleTimingState}
+          confirmation={closeTimeConfirmation}
+          previousClosesAt={scheduleInitial.closesAt}
+          nextClosesAt={scheduleForm.closesAt}
+          isConfirming={isPending}
+          onConfirm={() => {
+            setCloseTimeConfirmation(null);
+            void commitSave().catch(() => undefined);
+          }}
+          onClose={() => setCloseTimeConfirmation(null)}
+        />
         <div className="max-w-sm">
           <Select
             label={t("tenant.examDetails.status", EXAM_EDITOR_TEXT.STATUS)}
@@ -254,31 +294,6 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
           </Button>
         </div>
       </form>
-      <ConfirmDialog
-        open={confirmCloseReminder}
-        title={t(
-          "tenant.examDetails.closeTimeReminderTitle",
-          EXAM_EDITOR_TEXT.CLOSE_TIME_REMINDER_TITLE,
-        )}
-        description={t(
-          "tenant.examDetails.closeTimeReminderDescription",
-          EXAM_EDITOR_TEXT.CLOSE_TIME_REMINDER_DESCRIPTION,
-        )}
-        confirmLabel={t(
-          "tenant.examDetails.closeTimeReminderConfirm",
-          EXAM_EDITOR_TEXT.CLOSE_TIME_REMINDER_CONFIRM,
-        )}
-        cancelLabel={t(
-          "tenant.examDetails.closeTimeReminderCancel",
-          EXAM_EDITOR_TEXT.CLOSE_TIME_REMINDER_CANCEL,
-        )}
-        isConfirming={isPending}
-        onConfirm={() => {
-          setConfirmCloseReminder(false);
-          void commitSave().catch(() => undefined);
-        }}
-        onClose={() => setConfirmCloseReminder(false)}
-      />
     </>
   );
 };

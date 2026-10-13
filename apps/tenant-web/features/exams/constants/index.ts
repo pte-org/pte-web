@@ -355,17 +355,32 @@ export const EXAM_EDITOR_TEXT = {
   RETRIES_INVALID: "Enter a whole number of retries from 0 to 9.",
   SKILLS_REQUIRED: "Select at least one skill.",
   REPLAY_LIMIT_REQUIRED: "Enter a positive replay limit.",
+  TEMPLATE_NOT_ACTIVE:
+    "The selected exam template is not active. Choose an active template and try again.",
+  LOCKDOWN_MODE_INVALID: "The selected security policy is not compatible with this exam mode.",
+  LOCKDOWN_MODE_REQUIRED:
+    "The exam security policy could not be resolved. Refresh the exam and try again.",
+  CLOSE_TIME_NOT_EXTENDED: "The exam has started. Choose a later close time.",
   START_SOON_TITLE: "The exam is about to start",
-  START_SOON_DESCRIPTION:
-    "The exam starts within 10 minutes. Do you want to continue editing it?",
+  START_SOON_DESCRIPTION: "The exam starts within 10 minutes. Do you want to continue editing it?",
   START_SOON_CONFIRM: "Continue editing",
   START_SOON_CANCEL: "Go back",
   START_SOON_TOAST: "The exam starts within 10 minutes. Review the schedule before saving.",
   CLOSE_TIME_REMINDER_TITLE: "Review the close time",
   CLOSE_TIME_REMINDER_DESCRIPTION:
-    "The exam has started. If you need more time, extend the close time before saving.",
-  CLOSE_TIME_REMINDER_CONFIRM: "Save without extending",
+    "The exam has started. You have not changed the close time. If you need more time, extend it before saving.",
+  CLOSE_TIME_REMINDER_CONFIRM: "Save current changes",
   CLOSE_TIME_REMINDER_CANCEL: "Review changes",
+  CLOSE_TIME_EXTENSION_TITLE: "Confirm close time extension",
+  CLOSE_TIME_EXTENSION_DESCRIPTION:
+    "The close time will move from {previous} to {next}. Do you want to continue saving this extension?",
+  CLOSE_TIME_EXTENSION_CONFIRM: "Extend and save",
+  CLOSE_TIME_SHORTENED_TITLE: "Cannot shorten the exam",
+  CLOSE_TIME_SHORTENED_DESCRIPTION:
+    "This exam has started, so its close time cannot move from {previous} to {next}. Choose a close time later than {previous}.",
+  CLOSE_TIME_NOT_IN_FUTURE_TITLE: "Invalid close time",
+  CLOSE_TIME_NOT_IN_FUTURE_DESCRIPTION:
+    "The new close time must be after the current time. Choose a later time if the exam needs more time.",
 } as const;
 
 export const EXAMINER_ASSIGNMENT_TEXT = {

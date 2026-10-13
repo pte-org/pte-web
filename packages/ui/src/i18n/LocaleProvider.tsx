@@ -162,6 +162,14 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examDetails.retriesInvalid": "Nhập số lần thi lại từ 0 đến 9.",
     "tenant.examDetails.skillsRequired": "Vui lòng chọn ít nhất một kỹ năng.",
     "tenant.examDetails.replayLimitRequired": "Vui lòng nhập giới hạn thi lại dương.",
+    "tenant.examDetails.templateNotActive":
+      "Mẫu đề đã chọn chưa hoạt động. Hãy chọn một mẫu đề đang hoạt động rồi thử lại.",
+    "tenant.examDetails.lockdownModeInvalid":
+      "Chính sách bảo mật đã chọn không tương thích với chế độ kỳ thi này.",
+    "tenant.examDetails.lockdownModeRequired":
+      "Không thể xác định chính sách bảo mật của kỳ thi. Hãy tải lại kỳ thi và thử lại.",
+    "tenant.examDetails.closeTimeNotExtended":
+      "Kỳ thi đã bắt đầu. Hãy chọn thời gian kết thúc muộn hơn.",
     "tenant.examDetails.startSoonToast":
       "Kỳ thi sẽ bắt đầu trong vòng 10 phút. Hãy kiểm tra lại lịch trước khi lưu.",
     "tenant.examDetails.startSoonTitle": "Kỳ thi sắp bắt đầu",
@@ -171,9 +179,19 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examDetails.startSoonCancel": "Quay lại",
     "tenant.examDetails.closeTimeReminderTitle": "Kiểm tra thời gian kết thúc",
     "tenant.examDetails.closeTimeReminderDescription":
-      "Kỳ thi đã bắt đầu. Nếu cần thêm thời gian, hãy gia hạn thời gian kết thúc trước khi lưu.",
-    "tenant.examDetails.closeTimeReminderConfirm": "Lưu không gia hạn",
+      "Kỳ thi đã bắt đầu. Bạn chưa thay đổi thời gian kết thúc. Nếu cần thêm thời gian, hãy gia hạn trước khi lưu.",
+    "tenant.examDetails.closeTimeReminderConfirm": "Lưu thay đổi hiện tại",
     "tenant.examDetails.closeTimeReminderCancel": "Xem lại thay đổi",
+    "tenant.examDetails.closeTimeExtensionTitle": "Xác nhận gia hạn thời gian kết thúc",
+    "tenant.examDetails.closeTimeExtensionDescription":
+      "Thời gian kết thúc sẽ được đổi từ {previous} sang {next}. Bạn có muốn tiếp tục lưu việc gia hạn này không?",
+    "tenant.examDetails.closeTimeExtensionConfirm": "Gia hạn và lưu",
+    "tenant.examDetails.closeTimeShortenedTitle": "Không thể rút ngắn thời gian thi",
+    "tenant.examDetails.closeTimeShortenedDescription":
+      "Kỳ thi đã bắt đầu nên không thể rút ngắn thời gian kết thúc từ {previous} xuống {next}. Hãy chọn thời gian kết thúc muộn hơn {previous}.",
+    "tenant.examDetails.closeTimeNotInFutureTitle": "Thời gian kết thúc không hợp lệ",
+    "tenant.examDetails.closeTimeNotInFutureDescription":
+      "Thời gian kết thúc mới phải sau thời điểm hiện tại. Nếu cần thêm thời gian, hãy chọn thời điểm kết thúc muộn hơn.",
     "tenant.examList.name": "Tên kỳ thi",
     "tenant.examList.code": "Mã",
     "tenant.examList.configuration": "Cấu hình",
@@ -1031,6 +1049,13 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examDetails.retriesInvalid": "Enter a whole number of retries from 0 to 9.",
     "tenant.examDetails.skillsRequired": "Select at least one skill.",
     "tenant.examDetails.replayLimitRequired": "Enter a positive replay limit.",
+    "tenant.examDetails.templateNotActive":
+      "The selected exam template is not active. Choose an active template and try again.",
+    "tenant.examDetails.lockdownModeInvalid":
+      "The selected security policy is not compatible with this exam mode.",
+    "tenant.examDetails.lockdownModeRequired":
+      "The exam security policy could not be resolved. Refresh the exam and try again.",
+    "tenant.examDetails.closeTimeNotExtended": "The exam has started. Choose a later close time.",
     "tenant.examDetails.startSoonToast":
       "The exam starts within 10 minutes. Review the schedule before saving.",
     "tenant.examDetails.startSoonTitle": "The exam is about to start",
@@ -1040,9 +1065,19 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examDetails.startSoonCancel": "Go back",
     "tenant.examDetails.closeTimeReminderTitle": "Review the close time",
     "tenant.examDetails.closeTimeReminderDescription":
-      "The exam has started. If you need more time, extend the close time before saving.",
-    "tenant.examDetails.closeTimeReminderConfirm": "Save without extending",
+      "The exam has started. You have not changed the close time. If you need more time, extend it before saving.",
+    "tenant.examDetails.closeTimeReminderConfirm": "Save current changes",
     "tenant.examDetails.closeTimeReminderCancel": "Review changes",
+    "tenant.examDetails.closeTimeExtensionTitle": "Confirm close time extension",
+    "tenant.examDetails.closeTimeExtensionDescription":
+      "The close time will move from {previous} to {next}. Do you want to continue saving this extension?",
+    "tenant.examDetails.closeTimeExtensionConfirm": "Extend and save",
+    "tenant.examDetails.closeTimeShortenedTitle": "Cannot shorten the exam",
+    "tenant.examDetails.closeTimeShortenedDescription":
+      "This exam has started, so its close time cannot move from {previous} to {next}. Choose a close time later than {previous}.",
+    "tenant.examDetails.closeTimeNotInFutureTitle": "Invalid close time",
+    "tenant.examDetails.closeTimeNotInFutureDescription":
+      "The new close time must be after the current time. Choose a later time if the exam needs more time.",
     "tenant.examList.name": "Exam Name",
     "tenant.examList.code": "Code",
     "tenant.examList.configuration": "Configuration",

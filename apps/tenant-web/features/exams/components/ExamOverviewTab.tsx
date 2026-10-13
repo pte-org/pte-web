@@ -50,6 +50,7 @@ export const ExamOverviewTab = ({ session, lifecycle }: ExamOverviewTabProps): R
       />
       <ConfirmDialog
         open={confirmStartSoon}
+        tone="warning"
         title={t("tenant.examDetails.startSoonTitle", EXAM_EDITOR_TEXT.START_SOON_TITLE)}
         description={t(
           "tenant.examDetails.startSoonDescription",
