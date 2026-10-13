@@ -7,6 +7,7 @@ import type {
   ExaminerHistoryResponse,
   ExaminerQueueResponse,
   ExaminerQueueStatus,
+  ExaminerReportsResponse,
   ExaminerScoreSubmissionResponse,
   ExaminerWorkspaceOverviewResponse,
   FinalizeExaminerWorkRequest,
@@ -20,6 +21,7 @@ import type {
 export const EXAMINER_WORK_ENDPOINTS = {
   queue: "/api/v1/examiner/work",
   overview: "/api/v1/examiner/work/overview",
+  reports: "/api/v1/examiner/work/reports",
   attempt: (sessionPublicId: string, attemptPublicId: string) =>
     `/api/v1/examiner/work/${sessionPublicId}/${attemptPublicId}`,
   start: (sessionPublicId: string, attemptPublicId: string) =>
@@ -46,6 +48,30 @@ export function getExaminerWorkspaceOverview(
 ): Promise<ExaminerWorkspaceOverviewResponse> {
   return client.request<ExaminerWorkspaceOverviewResponse>(
     EXAMINER_WORK_ENDPOINTS.overview,
+  );
+}
+
+export interface GetExaminerReportsParams {
+  fromDate?: string;
+  toDate?: string;
+  taskType?: string;
+  status?: string;
+  sessionPublicId?: string;
+}
+
+export function getExaminerReports(
+  client: ApiClient,
+  params: GetExaminerReportsParams = {},
+): Promise<ExaminerReportsResponse> {
+  const query = new URLSearchParams();
+  if (params.fromDate) query.set("fromDate", params.fromDate);
+  if (params.toDate) query.set("toDate", params.toDate);
+  if (params.taskType) query.set("taskType", params.taskType);
+  if (params.status && params.status !== "ALL") query.set("status", params.status);
+  if (params.sessionPublicId) query.set("sessionPublicId", params.sessionPublicId);
+  const qs = query.toString();
+  return client.request<ExaminerReportsResponse>(
+    qs ? `${EXAMINER_WORK_ENDPOINTS.reports}?${qs}` : EXAMINER_WORK_ENDPOINTS.reports,
   );
 }
 

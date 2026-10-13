@@ -138,7 +138,10 @@ export type ExaminerWorkflowStatus = "PENDING" | "IN_PROGRESS" | "COMPLETED";
 export type ExaminerGradingOperation =
   | "START"
   | "SAVE_DRAFT"
+  | "SCORE_CHANGE"
   | "FINALIZE"
+  | "REOPEN"
+  | "REGRADE"
   | "REPORT_ISSUE"
   | "RESOLVE_ISSUE";
 
@@ -276,6 +279,44 @@ export interface ExaminerHistoryItemResponse {
   occurredAt: string;
   workVersion: number;
   draftVersion: number | null;
+  actorPublicId?: string | null;
+  actorRole?: string | null;
+  assignmentPublicId?: string | null;
+  previousScore?: number | null;
+  newScore?: number | null;
+  rubricVersion?: number | null;
+  reason?: string | null;
+}
+
+export interface ExaminerReportSummary {
+  finalizedCount: number;
+  inProgressCount: number;
+  pendingCount: number;
+  totalAssignedCount: number;
+  avgGradingDurationMinutes: number;
+  regradeCount: number;
+}
+
+export interface ExaminerReportTaskTypeBreakdown {
+  taskType: string;
+  totalQuestions: number;
+  scoredQuestions: number;
+  averageScore: number | null;
+}
+
+export interface ExaminerReportRecentItem {
+  attemptPublicId: string;
+  sessionPublicId: string;
+  finalizedAt: string;
+  scoreCount: number;
+  averageScore: number | null;
+  workVersion: number;
+}
+
+export interface ExaminerReportsResponse {
+  summary: ExaminerReportSummary;
+  taskTypeBreakdowns: ExaminerReportTaskTypeBreakdown[];
+  recentFinalizedItems: ExaminerReportRecentItem[];
 }
 
 export interface ExaminerHistoryResponse {
