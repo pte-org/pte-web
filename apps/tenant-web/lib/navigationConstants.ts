@@ -20,8 +20,10 @@ export const EXAMINER_NAV_TEXT = {
   IN_PROGRESS: "In Progress",
   COMPLETED: "Completed",
   QUEUE: "Marking queue",
+  REPORTS: "My Reports",
   HOME_SECTION: "Home",
   QUEUE_SECTION: "Marking queue",
+  REPORTS_SECTION: "Reports",
   SECTION: "Examiner",
 } as const;
 

@@ -7,15 +7,19 @@ import {
   getExaminerGuidelines,
   getExaminerHistory,
   getExaminerIssues,
+  getExaminerReports,
   getExaminerWorkspaceOverview,
   listExaminerWork,
   reportExaminerIssue,
   saveExaminerDraft,
   startExaminerWork,
   submitExaminerScore,
+  type ExaminerHistoryResponse,
   type ExaminerQueueStatus,
+  type ExaminerReportsResponse,
   type ExaminerWorkspaceOverviewResponse,
   type FinalizeExaminerWorkRequest,
+  type GetExaminerReportsParams,
   type ReportGradingIssueRequest,
   type SaveExaminerDraftRequest,
   type StartExaminerWorkRequest,
@@ -39,6 +43,43 @@ export function useExaminerOverview(): UseQueryResult<ExaminerWorkspaceOverviewR
     queryFn: () => getExaminerWorkspaceOverview(apiClient),
     enabled: isReady,
     staleTime: 30_000,
+  });
+}
+
+export function useExaminerReports(params: GetExaminerReportsParams = {}): UseQueryResult<ExaminerReportsResponse> {
+  const { session } = useSessionManager();
+  const tenantId = session?.tenantId;
+  const actorId = session ? decodeAccessTokenClaims(session.accessToken)?.sub : undefined;
+  const isReady = Boolean(tenantId && actorId);
+
+  return useQuery<ExaminerReportsResponse>({
+    queryKey: isReady
+      ? EXAMINER_QUERY_KEYS.reports(tenantId!, actorId!, params)
+      : (["examiner", "unauthenticated", "reports"] as const),
+    queryFn: () => getExaminerReports(apiClient, params),
+    enabled: isReady,
+    staleTime: 30_000,
+  });
+}
+
+export function useExaminerHistory(
+  sessionPublicId: string,
+  attemptPublicId: string,
+  page = 0,
+  size = 20,
+): UseQueryResult<ExaminerHistoryResponse> {
+  const { session } = useSessionManager();
+  const tenantId = session?.tenantId;
+  const actorId = session ? decodeAccessTokenClaims(session.accessToken)?.sub : undefined;
+  const isReady = Boolean(tenantId && actorId && sessionPublicId && attemptPublicId);
+
+  return useQuery<ExaminerHistoryResponse>({
+    queryKey: isReady
+      ? EXAMINER_QUERY_KEYS.history(tenantId!, actorId!, sessionPublicId, attemptPublicId, page, size)
+      : (["examiner", "unauthenticated", "history"] as const),
+    queryFn: () => getExaminerHistory(apiClient, sessionPublicId, attemptPublicId, page, size),
+    enabled: isReady,
+    staleTime: 10_000,
   });
 }
 
@@ -168,21 +209,6 @@ export function useFinalizeExaminerWork(sessionPublicId: string, attemptPublicId
         ]);
       }
     },
-  });
-}
-
-export function useExaminerHistory(sessionPublicId: string, attemptPublicId: string, page = 0, size = 20) {
-  const { session } = useSessionManager();
-  const tenantId = session?.tenantId;
-  const actorId = session ? decodeAccessTokenClaims(session.accessToken)?.sub : undefined;
-  const isReady = Boolean(tenantId && actorId && sessionPublicId && attemptPublicId);
-
-  return useQuery({
-    queryKey: isReady
-      ? EXAMINER_QUERY_KEYS.history(tenantId!, actorId!, sessionPublicId, attemptPublicId, page, size)
-      : (["examiner", "unauthenticated", "history"] as const),
-    queryFn: () => getExaminerHistory(apiClient, sessionPublicId, attemptPublicId, page, size),
-    enabled: isReady,
   });
 }
 

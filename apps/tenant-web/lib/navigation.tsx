@@ -145,6 +145,14 @@ export function buildExaminerNav(): NavItem[] {
       section: EXAMINER_NAV_TEXT.QUEUE_SECTION,
       sectionKey: "nav.markingQueue",
     },
+    {
+      label: EXAMINER_NAV_TEXT.REPORTS,
+      labelKey: "nav.examinerReports",
+      href: "/examiner/reports",
+      icon: <NavAuditLogIcon />,
+      section: EXAMINER_NAV_TEXT.REPORTS_SECTION,
+      sectionKey: "nav.reports",
+    },
   ];
 }
 

@@ -5,6 +5,22 @@ export const EXAMINER_QUERY_KEYS = {
     [...EXAMINER_QUERY_KEYS.tenantScope(tenantId), actorId] as const,
   overview: (tenantId: string, actorId: string) =>
     [...EXAMINER_QUERY_KEYS.actorScope(tenantId, actorId), "overview"] as const,
+  reportsPrefix: (tenantId: string, actorId: string) =>
+    [...EXAMINER_QUERY_KEYS.actorScope(tenantId, actorId), "reports"] as const,
+  reports: (
+    tenantId: string,
+    actorId: string,
+    params?: {
+      fromDate?: string;
+      toDate?: string;
+      taskType?: string;
+      status?: string;
+      sessionPublicId?: string;
+    },
+  ) =>
+    params
+      ? ([...EXAMINER_QUERY_KEYS.reportsPrefix(tenantId, actorId), params] as const)
+      : EXAMINER_QUERY_KEYS.reportsPrefix(tenantId, actorId),
   queuePrefix: (tenantId: string, actorId: string) =>
     [...EXAMINER_QUERY_KEYS.actorScope(tenantId, actorId), "queue"] as const,
   queue: (
