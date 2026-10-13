@@ -1,9 +1,9 @@
 import { createElement, type ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { LocaleProvider } from "@pte/ui";
-import { vi } from "vitest";
+import { afterAll, afterEach, beforeAll, vi } from "vitest";
 import { HOST_DASHBOARD_ROUTES } from "../constants";
-import { environment, type TestOrgLabels } from "./environment";
+import { environment, type RecordedButton, type RecordedPanel, type TestOrgLabels } from "./environment";
 
 /** Locale / organisation-noun switches of the test environment. */
 export function useTestLocale(locale: "en" | "vi"): void {
@@ -18,6 +18,17 @@ export function resetTestEnvironment(): void {
   environment.locale = "en";
   environment.labels = { program: "Program", class: "Class", isLoading: false };
   environment.push.mockClear();
+  environment.buttons.length = 0;
+  environment.panels.length = 0;
+}
+
+/** Recorded retry handlers of the last renders (see `environment.ts`). */
+export function recordedButtons(label: string): RecordedButton[] {
+  return environment.buttons.filter((button) => button.label === label);
+}
+
+export function recordedPanel(title: string): RecordedPanel | undefined {
+  return environment.panels.find((panel) => panel.title === title);
 }
 
 const RECHARTS_SIZE_WARNING = "of chart should be greater than 0";
@@ -36,6 +47,16 @@ export function muteRechartsSizeWarning(): () => void {
     warn.mockRestore();
     error.mockRestore();
   };
+}
+
+/** Registers the per-file hooks every component test needs (quiet recharts, clean environment). */
+export function installRenderHooks(): void {
+  let restore: () => void = () => undefined;
+  beforeAll(() => {
+    restore = muteRechartsSizeWarning();
+  });
+  afterAll(() => restore());
+  afterEach(() => resetTestEnvironment());
 }
 
 /** Static HTML of an element inside the real LocaleProvider the @pte/ui components require. */
@@ -68,6 +89,36 @@ export function hrefsOf(html: string): string[] {
 export function countOf(html: string, pattern: RegExp): number {
   const flags = pattern.flags.includes("g") ? pattern.flags : `${pattern.flags}g`;
   return (html.match(new RegExp(pattern.source, flags)) ?? []).length;
+}
+
+const DIV_TOKEN = /<div\b|<\/div>/g;
+
+/**
+ * HTML of the panel (`role="region"`) whose `<h2>` heading is `title`, found by balancing the
+ * `<div>` tags from the region's opening tag. Undefined when no such panel is rendered.
+ */
+export function regionOf(html: string, title: string): string | undefined {
+  const heading = new RegExp(`<h2 id="([^"]+)"[^>]*>${title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</h2>`).exec(html);
+  if (!heading) return undefined;
+  const start = html.lastIndexOf(`<div role="region" aria-labelledby="${heading[1]}"`, heading.index);
+  if (start < 0) return undefined;
+  let depth = 0;
+  DIV_TOKEN.lastIndex = start;
+  for (let token = DIV_TOKEN.exec(html); token; token = DIV_TOKEN.exec(html)) {
+    depth += token[0] === "</div>" ? -1 : 1;
+    if (depth === 0) return html.slice(start, DIV_TOKEN.lastIndex);
+  }
+  return undefined;
+}
+
+/** `<h2>` titles in document order. */
+export function panelTitles(html: string): string[] {
+  return [...html.matchAll(/<h2 [^>]*>([^<]*)<\/h2>/g)].map((match) => match[1]);
+}
+
+/** Text of every aria-label / title attribute (screen-reader copy that textOf cannot see). */
+export function attributeText(html: string): string[] {
+  return [...html.matchAll(/\s(?:aria-label|title)="([^"]*)"/g)].map((match) => match[1]);
 }
 
 /** Index of the first occurrence of `needle`; fails loudly instead of returning -1 silently. */
