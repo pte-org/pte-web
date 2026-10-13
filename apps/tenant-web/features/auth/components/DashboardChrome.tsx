@@ -9,6 +9,7 @@ import {
   LocaleSwitcher,
   Breadcrumbs,
   DashboardBreadcrumbProvider,
+  DashboardShell,
   useDashboardBreadcrumbItems,
   LogoutIcon,
   SidebarNav as SharedSidebarNav,
@@ -21,7 +22,6 @@ import {
   type DropdownItem,
   type SessionRole,
 } from "@pte/ui";
-import CommonDashboardLayout from "@/components/common/dashboard-layout";
 import { NotificationBellContainer } from "@/features/notifications";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
@@ -277,7 +277,7 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
     ) : null;
 
   return (
-    <CommonDashboardLayout
+    <DashboardShell
       brand={({ isSidebarOpen }) => <SidebarBrand collapsed={!isSidebarOpen} />}
       sidebar={({ isSidebarOpen, onItemClick }) => (
         <SidebarNav navItems={navItems} isSidebarOpen={isSidebarOpen} onItemClick={onItemClick} />
@@ -290,7 +290,7 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
       navigationKey={`${pathname}?${searchParams.toString()}`}
     >
       {children}
-    </CommonDashboardLayout>
+    </DashboardShell>
   );
 };
 
