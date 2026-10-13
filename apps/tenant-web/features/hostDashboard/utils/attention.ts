@@ -1,7 +1,7 @@
 import type { HostDashboardResponse } from "@pte/api-client";
 import { HOST_DASHBOARD_ROUTES, SEAT_NEAR_LIMIT_PERCENT } from "../constants";
 import type { AttentionItem, AttentionResult } from "../types";
-import { sectionAvailability } from "./sections";
+import { sectionAvailability, sectionData } from "./sections";
 import { buildSeatUsage } from "./usage";
 
 const SEVERITY_RANK: Record<AttentionItem["tone"], number> = {
@@ -15,18 +15,23 @@ const SEVERITY_RANK: Record<AttentionItem["tone"], number> = {
 /**
  * "Needs attention" list derived from the counts of other sections. An item exists only when its
  * source section is OK and the count is above zero; a failed or forbidden source contributes
- * nothing, and failures are counted so the panel can say the list may be incomplete. Items are
- * ordered by severity, then by their declaration order.
+ * nothing, and failures are counted so the panel can say the list may be incomplete. A missing
+ * section (payload drift) is treated like a forbidden one. Items are ordered by severity, then by
+ * their declaration order.
  */
 export function deriveAttention(
   dashboard: HostDashboardResponse,
   thresholdPercent: number = SEAT_NEAR_LIMIT_PERCENT,
 ): AttentionResult {
-  const { grading, subscription, quota, support, billing } = dashboard;
+  const grading = sectionData(dashboard.grading);
+  const subscription = sectionData(dashboard.subscription);
+  const quota = sectionData(dashboard.quota);
+  const support = sectionData(dashboard.support);
+  const billing = sectionData(dashboard.billing);
   const items: AttentionItem[] = [];
 
-  if (grading.status === "OK") {
-    const { failedAnswers, pendingAnswers, aiScoringAnswers } = grading.data;
+  if (grading) {
+    const { failedAnswers, pendingAnswers, aiScoringAnswers } = grading;
     if (failedAnswers > 0) {
       items.push({
         kind: "gradingFailed",
@@ -45,19 +50,19 @@ export function deriveAttention(
         href: HOST_DASHBOARD_ROUTES.exams,
       });
     }
-    if (grading.data.closedSessionsAwaitingFinalisation > 0) {
+    if (grading.closedSessionsAwaitingFinalisation > 0) {
       items.push({
         kind: "awaitingFinalisation",
-        count: grading.data.closedSessionsAwaitingFinalisation,
+        count: grading.closedSessionsAwaitingFinalisation,
         unit: "count",
         tone: "warning",
         href: HOST_DASHBOARD_ROUTES.exams,
       });
     }
-    if (grading.data.reportsAwaitingPublication > 0) {
+    if (grading.reportsAwaitingPublication > 0) {
       items.push({
         kind: "reportsAwaitingPublication",
-        count: grading.data.reportsAwaitingPublication,
+        count: grading.reportsAwaitingPublication,
         unit: "count",
         tone: "info",
         href: HOST_DASHBOARD_ROUTES.exams,
@@ -65,18 +70,18 @@ export function deriveAttention(
     }
   }
 
-  if (subscription.status === "OK" && subscription.data.expiringSoon) {
+  if (subscription?.expiringSoon) {
     items.push({
       kind: "subscriptionExpiring",
-      count: Math.max(subscription.data.daysToExpiry ?? 0, 0),
+      count: Math.max(subscription.daysToExpiry ?? 0, 0),
       unit: "days",
       tone: "warning",
       href: HOST_DASHBOARD_ROUTES.billing,
     });
   }
 
-  if (quota.status === "OK") {
-    const seats = buildSeatUsage(quota.data, thresholdPercent);
+  if (quota) {
+    const seats = buildSeatUsage(quota, thresholdPercent);
     if (seats.nearLimit && seats.percent !== null) {
       items.push({
         kind: "seatsNearLimit",
@@ -88,27 +93,33 @@ export function deriveAttention(
     }
   }
 
-  if (support.status === "OK" && support.data.open > 0) {
+  if (support && support.open > 0) {
     items.push({
       kind: "openTickets",
-      count: support.data.open,
+      count: support.open,
       unit: "count",
       tone: "info",
       href: HOST_DASHBOARD_ROUTES.supportTickets,
     });
   }
 
-  if (billing.status === "OK" && billing.data.pendingOrders > 0) {
+  if (billing && billing.pendingOrders > 0) {
     items.push({
       kind: "pendingOrders",
-      count: billing.data.pendingOrders,
+      count: billing.pendingOrders,
       unit: "count",
       tone: "warning",
       href: HOST_DASHBOARD_ROUTES.orders,
     });
   }
 
-  const sources = [grading, subscription, quota, support, billing].map(sectionAvailability);
+  const sources = [
+    dashboard.grading,
+    dashboard.subscription,
+    dashboard.quota,
+    dashboard.support,
+    dashboard.billing,
+  ].map(sectionAvailability);
   return {
     // Array.prototype.sort is stable, so equal severities keep their declaration order.
     items: items.sort((a, b) => SEVERITY_RANK[a.tone] - SEVERITY_RANK[b.tone]),

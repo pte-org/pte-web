@@ -3,7 +3,7 @@ import type { Locale } from "@pte/ui";
 import { PERCENT_SCALE, SEAT_NEAR_LIMIT_PERCENT } from "../constants";
 import type { HostDashboardMessageKey } from "../messages/en";
 import type { ExpiryState, SeatUsage, SubscriptionRow } from "../types";
-import { formatDate, type MessageValues } from "./format";
+import { formatDate, keyForCount, type MessageValues } from "./format";
 
 /**
  * Seat usage against the limit. With no limit there is no percentage and no warning (the panel
@@ -42,7 +42,7 @@ export function expiryMessage(state: ExpiryState): { key: HostDashboardMessageKe
     case "today":
       return { key: "expiryToday" };
     case "days":
-      return { key: "expiryDays", values: { days: state.days } };
+      return { key: keyForCount(state.days, "expiryDay", "expiryDays"), values: { days: state.days } };
   }
 }
 

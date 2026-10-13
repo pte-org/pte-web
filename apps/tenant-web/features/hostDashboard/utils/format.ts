@@ -1,5 +1,6 @@
 import type { Locale } from "@pte/ui";
 import { PERCENT_SCALE } from "../constants";
+import type { HostDashboardMessageKey } from "../messages/en";
 
 const LOCALE_TAGS: Record<Locale, string> = { vi: "vi-VN", en: "en-US" };
 const MONTH_KEY_PATTERN = /^(\d{4})-(\d{2})$/;
@@ -7,6 +8,7 @@ const UTC_ZONE = "UTC";
 const MAX_PERCENT_FRACTION_DIGITS = 1;
 const MIN_MONTH = 1;
 const MAX_MONTH = 12;
+const SINGULAR_COUNT = 1;
 
 export type MessageValues = Readonly<Record<string, string | number>>;
 
@@ -17,6 +19,18 @@ export function formatMessage(template: string, values?: MessageValues): string 
     const value = values[name];
     return value === undefined ? placeholder : String(value);
   });
+}
+
+/**
+ * Picks the singular catalog key for exactly one, otherwise the plural one. Vietnamese has no
+ * plural, so its singular and plural entries carry the same wording.
+ */
+export function keyForCount(
+  count: number,
+  singular: HostDashboardMessageKey,
+  plural: HostDashboardMessageKey,
+): HostDashboardMessageKey {
+  return count === SINGULAR_COUNT ? singular : plural;
 }
 
 export function formatNumber(value: number, locale: Locale): string {
