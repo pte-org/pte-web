@@ -24,6 +24,21 @@ export { Badge } from "./Badge";
 export type { BadgeVariant } from "./Badge";
 export { StatusBadge } from "./StatusBadge";
 export { StatCard } from "./StatCard";
+export type { StatCardDeltaDirection, StatCardDeltaTone } from "./StatCardDelta";
+export { DashboardPanel } from "./DashboardPanel";
+export type {
+  DashboardPanelEmptyProps,
+  DashboardPanelErrorProps,
+  DashboardPanelProps,
+  DashboardPanelStatus,
+} from "./DashboardPanel";
+export { ActivityList } from "./ActivityList";
+export type {
+  ActivityListItem,
+  ActivityListLinkProps,
+  ActivityListProps,
+  ActivityListVariant,
+} from "./ActivityList";
 export { CollapsibleSection } from "./CollapsibleSection";
 export { ProgressBar } from "./ProgressBar";
 export type { ProgressTone } from "./ProgressBar";
@@ -101,6 +116,7 @@ export type { HeaderSearchItem, HeaderSearchProps } from "./HeaderSearch";
 export { DEFAULT_TOAST_DURATION_MS, ToastProvider, useToast } from "./Toast";
 export type { ShowToastOptions, ToastTone } from "./Toast";
 export * from "./icons";
+export * from "./dashboardIcons";
 export { Mascot } from "./Mascot";
 export { Board, BoardColumn } from "./Board";
 export type { BoardProps, BoardColumnProps } from "./Board";
@@ -108,4 +124,10 @@ export { CircularProgressChart } from "./CircularProgressChart";
 export type { CircularProgressChartProps, CircularProgressTone } from "./CircularProgressChart";
 export { StatusDonutChart } from "./StatusDonutChart";
 export type { StatusDonutChartProps, StatusDonutItem, StatusDonutTone } from "./StatusDonutChart";
+export type { ChartTone } from "./chartTones";
+export { TrendBarChart } from "./TrendBarChart";
+export type { TrendBarChartProps } from "./TrendBarChart";
+export { TrendLineChart } from "./TrendLineChart";
+export type { TrendLineChartProps } from "./TrendLineChart";
+export type { TrendChartBaseProps, TrendChartDatum, TrendChartSeries } from "./trendChartShared";
 export { MailIcon, LockIcon, GradCapIcon, EyeIcon } from "./AuthIcons";

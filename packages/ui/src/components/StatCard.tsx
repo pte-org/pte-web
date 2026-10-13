@@ -1,6 +1,13 @@
 import type { ReactElement, ReactNode } from "react";
 import { cn } from "../utils/cn";
 import { DashboardCard } from "./DashboardCard";
+import {
+  hasStatCardDelta,
+  StatCardDelta,
+  type StatCardDeltaDirection,
+  type StatCardDeltaProps,
+  type StatCardDeltaTone,
+} from "./StatCardDelta";
 
 interface StatCardProps {
   label: string;
@@ -19,6 +26,24 @@ interface StatCardProps {
   progress?: number;
   /** Semantic pastel wash used by the design system for the icon tile. */
   accent?: "blue" | "sky" | "mint" | "cream" | "blush";
+  /**
+   * Period-over-period delta line (additive; independent of `trend`). Supply any of the
+   * `change*` props to show it; `change={null}` renders a dash for "no comparable period".
+   * Pass already formatted text such as "+12.5%".
+   */
+  change?: StatCardDeltaProps["change"];
+  changeDirection?: StatCardDeltaDirection;
+  /** Visual only (color): the good/bad meaning must also be written in `changeDirectionLabel`. */
+  changeTone?: StatCardDeltaTone;
+  /** Comparison caption, e.g. "vs previous 30 days". */
+  changePeriodLabel?: string;
+  /**
+   * Screen-reader word for the direction, e.g. "Increase". `changeTone` is colour only, so
+   * put the evaluative meaning here too (for example "Increase, worse") when it matters.
+   */
+  changeDirectionLabel?: string;
+  /** Screen-reader text for the dash shown when `change` is null. */
+  changeEmptyLabel?: string;
 }
 
 const ACCENT_CLASSES: Record<NonNullable<StatCardProps["accent"]>, string> = {
@@ -41,7 +66,21 @@ export const StatCard = ({
   highlight = false,
   progress,
   accent,
+  change,
+  changeDirection,
+  changeTone,
+  changePeriodLabel,
+  changeDirectionLabel,
+  changeEmptyLabel,
 }: StatCardProps): ReactElement => {
+  const delta: StatCardDeltaProps = {
+    change,
+    direction: changeDirection,
+    tone: changeTone,
+    periodLabel: changePeriodLabel,
+    directionLabel: changeDirectionLabel,
+    emptyLabel: changeEmptyLabel,
+  };
   const progressValue = progress === undefined ? undefined : Math.min(Math.max(progress, 0), 100);
   const progressTone = highlight
     ? "[&::-webkit-progress-value]:bg-amber-500 [&::-moz-progress-bar]:bg-amber-500"
@@ -94,6 +133,7 @@ export const StatCard = ({
               {value}
             </span>
           </div>
+          {hasStatCardDelta(delta) && <StatCardDelta {...delta} />}
         </div>
 
         {trend && <span className="text-sm font-normal text-[var(--ink-muted)]">{trend}</span>}

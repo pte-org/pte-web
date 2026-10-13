@@ -3,8 +3,9 @@
 import type { ReactElement } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { cn } from "../utils/cn";
+import { CHART_TONE_COLORS, CHART_TONE_DOT_CLASSES, type ChartTone } from "./chartTones";
 
-export type StatusDonutTone = "brand" | "info" | "success" | "warning" | "danger" | "neutral";
+export type StatusDonutTone = ChartTone;
 
 export interface StatusDonutItem {
   key: string;
@@ -20,24 +21,6 @@ export interface StatusDonutChartProps {
   ariaLabel: string;
   className?: string;
 }
-
-const TONE_COLORS: Record<StatusDonutTone, string> = {
-  brand: "var(--action)",
-  info: "var(--sky-action)",
-  success: "var(--mint-action)",
-  warning: "var(--cream-action)",
-  danger: "var(--blush-action)",
-  neutral: "var(--ink-muted)",
-};
-
-const TONE_DOT_CLASSES: Record<StatusDonutTone, string> = {
-  brand: "bg-[var(--action)]",
-  info: "bg-[var(--sky-action)]",
-  success: "bg-[var(--mint-action)]",
-  warning: "bg-[var(--cream-action)]",
-  danger: "bg-[var(--blush-action)]",
-  neutral: "bg-[var(--ink-muted)]",
-};
 
 const normalizeValue = (value: number): number =>
   Number.isFinite(value) ? Math.max(value, 0) : 0;
@@ -96,7 +79,7 @@ export const StatusDonutChart = ({
               isAnimationActive={false}
             >
               {chartItems.map((item) => (
-                <Cell key={item.key} fill={TONE_COLORS[item.tone ?? "neutral"]} />
+                <Cell key={item.key} fill={CHART_TONE_COLORS[item.tone ?? "neutral"]} />
               ))}
             </Pie>
           </PieChart>
@@ -116,7 +99,7 @@ export const StatusDonutChart = ({
             <li key={item.key} className="flex items-center justify-between gap-3 text-sm">
               <span className="flex min-w-0 items-center gap-2 text-[var(--ink-secondary)]">
                 <span
-                  className={cn("h-2.5 w-2.5 shrink-0 rounded-full", TONE_DOT_CLASSES[tone])}
+                  className={cn("h-2.5 w-2.5 shrink-0 rounded-full", CHART_TONE_DOT_CLASSES[tone])}
                   aria-hidden="true"
                 />
                 <span className="truncate">{item.label}</span>
