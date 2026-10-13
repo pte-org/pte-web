@@ -52,6 +52,8 @@ const TONE_ICON_CLASS: Record<ToastTone, string> = {
   error: "text-[var(--blush-action)]",
 };
 
+const TONE_TEXT_CLASS: Record<ToastTone, string> = TONE_ICON_CLASS;
+
 const TONE_ICON: Record<ToastTone, ComponentType<{ className?: string }>> = {
   info: InfoIcon,
   success: CheckCircleIcon,
@@ -131,7 +133,7 @@ export const ToastProvider = ({ children }: { children: ReactNode }): ReactEleme
                   key={toast.id}
                   role={toast.tone === "error" ? "alert" : "status"}
                   className={cn(
-                    "flex w-full max-w-md items-start gap-3 rounded-2xl border border-[var(--shell-border)] bg-[var(--surface-card)] py-3 pl-4 pr-3 text-sm text-[var(--ink-primary)] shadow-[var(--popover-shadow)] motion-safe:animate-pte-fade-up sm:w-auto sm:min-w-72",
+                    "flex w-full max-w-md items-start gap-3 rounded-2xl border border-[var(--shell-border)] bg-[var(--surface-card)] py-3 pl-4 pr-3 text-sm shadow-[var(--popover-shadow)] motion-safe:animate-pte-fade-up sm:w-auto sm:min-w-72",
                   )}
                 >
                   <span
@@ -142,9 +144,11 @@ export const ToastProvider = ({ children }: { children: ReactNode }): ReactEleme
                   </span>
                   <div className="min-w-0 flex-1 text-pretty">
                     {toast.title && (
-                      <p className="font-semibold text-[var(--ink-primary)]">{toast.title}</p>
+                      <p className={cn("font-semibold", TONE_TEXT_CLASS[toast.tone])}>
+                        {toast.title}
+                      </p>
                     )}
-                    <p className={cn(toast.title && "mt-0.5", "text-[var(--ink-secondary)]")}>
+                    <p className={cn(toast.title && "mt-0.5", TONE_TEXT_CLASS[toast.tone])}>
                       {toast.message}
                     </p>
                   </div>
