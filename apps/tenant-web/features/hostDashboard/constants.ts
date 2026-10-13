@@ -22,7 +22,6 @@ export const SYSTEM_ACTOR_ID = "00000000-0000-0000-0000-000000000000";
 /** Routes verified to exist under `app/(dashboard)/host`. */
 export const HOST_DASHBOARD_ROUTES = {
   students: "/host/students",
-  classes: "/host/classes",
   programs: "/host/programs",
   exams: "/host/exams",
   examStaff: "/host/exam-staff",
@@ -159,5 +158,3 @@ export const DASHBOARD_SLOT_CLASS = {
   grading: "md:order-9 xl:order-9 xl:col-span-6",
   compact: "md:order-10 md:col-span-2 xl:order-10 xl:col-span-6",
 } as const;
-
-export type DashboardSlot = keyof typeof DASHBOARD_SLOT_CLASS;

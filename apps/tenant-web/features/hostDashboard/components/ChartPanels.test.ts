@@ -124,7 +124,7 @@ describe("SessionStatusPanel (donut)", () => {
     useTestLocale("vi");
     const text = textOf(render(byStatus({})));
     expect(text).toContain("Đã đóng");
-    expect(text).toContain("14 ca thi");
+    expect(text).toContain("14 kỳ thi");
   });
 
   it("failed section shows its error; forbidden is hidden", () => {
@@ -198,7 +198,7 @@ describe("GradingPipelinePanel", () => {
     expect(html).toContain('aria-label="AI scoring in progress: 30% of the backlog"');
     expect(html).toContain('aria-label="Failed to score: 20% of the backlog"');
     expect(countOf(html, /<progress /)).toBe(3);
-    expect(textOf(html)).toContain("Closed sessions awaiting finalisation 1 Reports awaiting publication 4");
+    expect(textOf(html)).toContain("Closed sessions awaiting finalization 1 Reports awaiting publication 4");
   });
 
   it("colours failures red and keeps the follow-up counts outside the backlog bars", () => {
@@ -212,14 +212,14 @@ describe("GradingPipelinePanel", () => {
     const html = render(grading(0, 0, 0, 0, 0));
     expect(textOf(html)).toContain("There is no grading backlog.");
     expect(html).not.toContain("<progress");
-    expect(textOf(html)).toContain("Closed sessions awaiting finalisation 0 Reports awaiting publication 0");
+    expect(textOf(html)).toContain("Closed sessions awaiting finalization 0 Reports awaiting publication 0");
     expect(textOf(html)).not.toMatch(/NaN/);
   });
 
   it("shows follow-up work even when the answer backlog is empty", () => {
     const text = textOf(render(grading(0, 0, 0, 3, 7)));
     expect(text).toContain("There is no grading backlog.");
-    expect(text).toContain("Closed sessions awaiting finalisation 3 Reports awaiting publication 7");
+    expect(text).toContain("Closed sessions awaiting finalization 3 Reports awaiting publication 7");
   });
 
   it("formats counts with the locale and speaks Vietnamese", () => {

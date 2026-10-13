@@ -178,7 +178,7 @@ describe("HostDashboardHeader", () => {
     const text = textOf(renderHtml(createElement(HostDashboardHeader)));
     expect(text).toContain("Tổng quan");
     expect(text).toContain("Thêm học viên");
-    expect(text).toContain("Tạo ca thi");
+    expect(text).toContain("Tạo kỳ thi");
     expect(text).toContain("Gói & thanh toán");
   });
 });

@@ -12,7 +12,7 @@ export interface MetricRow {
 
 interface CompactMetricPanelProps<T> {
   title: string;
-  section: DashboardSection<T>;
+  section: DashboardSection<T> | undefined;
   onRetry: () => void;
   rows: (data: T) => MetricRow[];
   href: string;

@@ -93,6 +93,15 @@ describe("feature sources", () => {
     }
   });
 
+  it("compose no user-facing text in code: no template literal joins values with a separator", () => {
+    for (const path of COMPONENTS) {
+      const text = code(path);
+      expect(text, name(path)).not.toMatch(/`[^`]*\$\{[^}]*\}[^`$]*?\s[·/:|-]\s[^`]*`/);
+      expect(text, name(path)).not.toMatch(/`\s[·/:|-]\s[^`]*\$\{/);
+      expect(text, name(path)).not.toMatch(/`[^`$]*\s[·/:|-]\s\$\{/);
+    }
+  });
+
   it("use framework primitives: no raw anchors, images or fetch calls", () => {
     for (const path of SOURCES) {
       const text = code(path);

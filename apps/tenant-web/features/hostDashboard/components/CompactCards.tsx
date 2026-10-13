@@ -5,6 +5,7 @@ import type { HostDashboardResponse } from "@pte/api-client";
 import { HOST_DASHBOARD_ROUTES } from "../constants";
 import { useHostDashboardText } from "../hooks/useHostDashboardText";
 import { formatNumber } from "../utils/format";
+import { sectionAvailability } from "../utils/sections";
 import { CompactMetricPanel } from "./CompactMetricPanel";
 
 interface CompactCardsProps {
@@ -17,9 +18,13 @@ interface CompactCardsProps {
  * P3 cards: staff coverage, academic structure, the tenant's own support tickets and pending
  * orders. Orders show a count and link to the orders screen; no payment link exists in the data.
  */
-export const CompactCards = ({ dashboard, onRetry, className }: CompactCardsProps): ReactElement => {
+export const CompactCards = ({ dashboard, onRetry, className }: CompactCardsProps): ReactElement | null => {
   const { locale, messages } = useHostDashboardText();
   const count = (value: number): string => formatNumber(value, locale);
+  const allHidden = [dashboard.staff, dashboard.academics, dashboard.support, dashboard.billing].every(
+    (section) => sectionAvailability(section) === "forbidden",
+  );
+  if (allHidden) return null;
 
   return (
     <div className={className}>
