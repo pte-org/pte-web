@@ -1,78 +1,28 @@
 "use client";
 
-import type { ReactElement } from "react";
-import { Alert, CollapsibleSection, DataTable, LoadingState, type DataTableColumn } from "@pte/ui";
-import type { ProgramDashboardResponse } from "@pte/api-client";
-import { errorMessage } from "@/features/examoperations/errorMessage";
-import { useTenantSearchText } from "@/features/search/useTenantSearchText";
-import { PROGRAM_DASHBOARD_TABLE_HEADERS, PROGRAM_DASHBOARD_TEXT } from "../constants";
+import { Alert, Button, LoadingState, StatCard } from "@pte/ui";
 import { useProgramDashboard } from "../api";
+import { useProgramDetailText } from "../hooks/useProgramDetailText";
 
 interface ProgramDashboardProps {
   organizationPublicId: string;
   programPublicId: string;
-  classLabel: string;
 }
 
-export const ProgramDashboard = ({
-  organizationPublicId,
-  programPublicId,
-  classLabel,
-}: ProgramDashboardProps): ReactElement => {
-  const searchText = useTenantSearchText("className");
-  const {
-    data: dashboard,
-    isLoading,
-    isError,
-    error,
-  } = useProgramDashboard(organizationPublicId, programPublicId);
-
-  if (isError) {
-    return <Alert tone="error">{errorMessage(error, PROGRAM_DASHBOARD_TEXT.loadFailed)}</Alert>;
-  }
-
-  if (isLoading || !dashboard) {
-    return <LoadingState rows={2} />;
-  }
-
-  const columns: DataTableColumn<ProgramDashboardResponse["classes"][number]>[] = [
-    { key: "name", header: PROGRAM_DASHBOARD_TABLE_HEADERS.NAME, cell: (row) => row.className },
-    {
-      key: "students",
-      header: PROGRAM_DASHBOARD_TABLE_HEADERS.STUDENTS,
-      cell: (row) => row.studentCount,
-    },
-  ];
-
+export const ProgramDashboard = ({ organizationPublicId, programPublicId }: ProgramDashboardProps) => {
+  const text = useProgramDetailText();
+  const query = useProgramDashboard(organizationPublicId, programPublicId);
   return (
-    <div className="flex flex-col gap-4">
-      <CollapsibleSection
-        title={PROGRAM_DASHBOARD_TEXT.overviewTitle}
-        subtitle={PROGRAM_DASHBOARD_TEXT.overviewSubtitle}
-        contentClassName="grid grid-cols-2 gap-4 sm:grid-cols-2"
-      >
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-2xl font-semibold text-gray-900">{dashboard.classCount}</p>
-          <p className="text-sm text-gray-500">{PROGRAM_DASHBOARD_TEXT.classCount(classLabel)}</p>
+    <div className="flex flex-col gap-5">
+      {query.isError ? <Alert tone="error">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <span>{text.overviewFailed}</span>
+          <Button variant="secondary" onClick={() => void query.refetch()}>{text.retry}</Button>
         </div>
-        <div className="rounded-lg border border-gray-200 bg-white p-4">
-          <p className="text-2xl font-semibold text-gray-900">{dashboard.studentCount}</p>
-          <p className="text-sm text-gray-500">{PROGRAM_DASHBOARD_TEXT.studentCount}</p>
-        </div>
-      </CollapsibleSection>
-
-      {dashboard.classes.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <h4 className="text-sm font-semibold text-gray-900">
-            {PROGRAM_DASHBOARD_TEXT.tableHeading(classLabel)}
-          </h4>
-          <DataTable
-            columns={columns}
-            rows={dashboard.classes}
-            getRowKey={(row) => row.classPublicId}
-            searchPlaceholder={searchText.placeholder}
-            searchAriaLabel={searchText.ariaLabel}
-          />
+      </Alert> : !query.data ? <LoadingState rows={2} /> : (
+        <div className="grid grid-cols-2 gap-4">
+          <StatCard label={text.classes} value={String(query.data.classCount)} compact />
+          <StatCard label={text.students} value={String(query.data.studentCount)} compact />
         </div>
       )}
     </div>

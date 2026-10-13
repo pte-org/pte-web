@@ -1,7 +1,9 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import { useState, type ReactElement } from "react";
-import { Alert, Button, DescriptionList, Input, PageHeader, useToast } from "@pte/ui";
+import { Alert, Button, DescriptionList, Input, useToast, useDashboardBreadcrumbLabel } from "@pte/ui";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useApplicationQuery, useApproveApplication, useRejectApplication } from "../api";
 import { ADMIN_APPLICATION_DETAIL_TEXT as RAW_ADMIN_APPLICATION_DETAIL_TEXT } from "../constants";
@@ -26,6 +28,8 @@ const AdminApplicationDetailContent = ({
     CORPORATE: "Corporate",
   });
   const applicationQuery = useApplicationQuery(applicationId);
+  const pathname = usePathname();
+  useDashboardBreadcrumbLabel(pathname, applicationQuery.data?.orgName);
   const { showToast } = useToast();
   const approve = useApproveApplication();
   const reject = useRejectApplication();
@@ -131,11 +135,6 @@ const AdminApplicationDetailContent = ({
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title={application.orgName}
-        subtitle={T.REQUESTED_CODE(application.requestedCode)}
-        actions={<CommercialStatusBadge status={application.status} />}
-      />
       {refreshFailed && <Alert tone="error">{T.REFRESH_ERROR}</Alert>}
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       <div className="grid gap-5 lg:grid-cols-[1.35fr_1fr]">

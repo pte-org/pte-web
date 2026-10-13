@@ -1,26 +1,31 @@
 "use client";
 
 import { useMemo, useState, type ReactElement, type ReactNode } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
+  ActionMenu,
   Badge,
+  ConfirmDialog,
   DataTable,
   DateRangePicker,
+  EyeIcon,
+  TrashIcon,
   useLocale,
+  useToast,
   type DataTableColumn,
   type DateRangeValue,
 } from "@pte/ui";
+import { errorMessage } from "@/features/examoperations/errorMessage";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
+import { useDeleteSession } from "../api";
 import {
   EXAM_TABLE_HEADERS,
-  EXAM_MODE_LABELS,
-  EXAM_SKILL_OPTIONS,
+  EXAM_ROW_ACTIONS_TEXT,
   EXAMS_TEXT,
-  SESSION_DETAIL_TEXT,
   SESSION_STATUS_LABELS,
   SESSION_STATUS_VARIANT,
 } from "../constants";
 import type { ExamSession } from "../types";
-import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 
 interface SessionTableProps {
   sessions: ExamSession[];
@@ -57,8 +62,12 @@ export const SessionTable = ({
   toolbarActions,
 }: SessionTableProps): ReactElement => {
   const { locale, t } = useLocale();
+  const { showToast } = useToast();
+  const router = useRouter();
   const searchText = useTenantSearchText("sessions");
   const [dateRange, setDateRange] = useState<DateRangeValue>(EMPTY_DATE_RANGE);
+  const [deleteTarget, setDeleteTarget] = useState<ExamSession | null>(null);
+  const deleteSession = useDeleteSession();
   const dateRangeLabel = t("tenant.examList.dateRange", "Date range");
   const filteredSessions = useMemo(
     () => sessions.filter((session) => matchesSessionDateRange(session, dateRange)),
@@ -69,22 +78,32 @@ export const SessionTable = ({
       `tenant.examStatus.${status.toLowerCase()}`,
       SESSION_STATUS_LABELS[status as keyof typeof SESSION_STATUS_LABELS] ?? status,
     );
-  const modeLabel = (session: ExamSession): string =>
-    session.examMode
-      ? t(
-          "tenant.createExam.MODE_REAL",
-          EXAM_MODE_LABELS[session.examMode],
-        )
-      : t("tenant.examDetails.legacyMode", SESSION_DETAIL_TEXT.LEGACY_MODE);
-  const skillLabel = (skill: string): string => {
-    const fallback = EXAM_SKILL_OPTIONS.find((option) => option.value === skill)?.label ?? skill;
-    return t(`tenant.createExam.skill.${skill}`, fallback);
+  const actionText = {
+    actions: t("tenant.examList.actions", EXAM_TABLE_HEADERS.ACTIONS),
+    view: t("tenant.examList.view", EXAM_ROW_ACTIONS_TEXT.VIEW),
+    delete: t("tenant.examList.delete", EXAM_ROW_ACTIONS_TEXT.DELETE),
+    deleteTitle: t("tenant.examList.deleteTitle", EXAM_ROW_ACTIONS_TEXT.DELETE_TITLE),
+    deleteDescription: (name: string): string =>
+      t("tenant.examList.deleteDescription", EXAM_ROW_ACTIONS_TEXT.DELETE_DESCRIPTION(name), {
+        name,
+      }),
+    deleteConfirm: t("tenant.examList.deleteConfirm", EXAM_ROW_ACTIONS_TEXT.DELETE_CONFIRM),
+    cancel: t("tenant.examList.cancel", EXAM_ROW_ACTIONS_TEXT.CANCEL),
+    deleteSuccess: t("tenant.examList.deleteSuccess", EXAM_ROW_ACTIONS_TEXT.DELETE_SUCCESS),
+    deleteFailed: t("tenant.examList.deleteFailed", EXAM_ROW_ACTIONS_TEXT.DELETE_FAILED),
   };
-  const retrySummary = (retries: number): string =>
-    t("tenant.examDetails.retrySummary", SESSION_DETAIL_TEXT.RETRIES_SUMMARY(retries), {
-      retries,
-      retriesLabel: retries === 1 ? "retry" : "retries",
+  const confirmDelete = (): void => {
+    if (!deleteTarget) return;
+    deleteSession.mutate(deleteTarget.id, {
+      onSuccess: () => {
+        showToast(actionText.deleteSuccess, { tone: "success" });
+        setDeleteTarget(null);
+      },
+      onError: (error) => {
+        showToast(errorMessage(error) ?? actionText.deleteFailed, { tone: "error" });
+      },
     });
+  };
   const statusFilterOptions = [
     { value: "", label: t("tenant.examList.allStatuses", "All statuses") },
     ...Object.keys(SESSION_STATUS_LABELS).map((key) => ({
@@ -96,14 +115,7 @@ export const SessionTable = ({
     {
       key: "name",
       header: t("tenant.examList.name", EXAM_TABLE_HEADERS.NAME),
-      cell: (session) => (
-        <Link
-          href={`/host/exams/${session.id}`}
-          className="font-medium text-blue-700 hover:underline"
-        >
-          {session.name}
-        </Link>
-      ),
+      cell: (session) => <span className="font-medium text-gray-900">{session.name}</span>,
     },
     {
       key: "sessionCode",
@@ -111,22 +123,6 @@ export const SessionTable = ({
       className: "whitespace-nowrap",
       cell: (session) => (
         <code className="whitespace-nowrap text-xs text-gray-700">{session.sessionCode}</code>
-      ),
-    },
-    {
-      key: "configuration",
-      header: t("tenant.examList.configuration", EXAM_TABLE_HEADERS.CONFIGURATION),
-      cell: (session) => (
-        <div className="text-sm">
-          <div className="font-medium text-gray-800">{modeLabel(session)}</div>
-          <div className="text-gray-500">
-            {session.selectedSkills.length > 0
-              ? session.selectedSkills.map((skill) => skillLabel(skill)).join(", ")
-              : t("tenant.examDetails.legacySkills", SESSION_DETAIL_TEXT.LEGACY_SKILLS)}
-            {" · "}
-            {retrySummary(session.maxRetriesPerStudent)}
-          </div>
-        </div>
       ),
     },
     {
@@ -153,24 +149,65 @@ export const SessionTable = ({
   ];
 
   return (
-    <DataTable
-      columns={columns}
-      rows={filteredSessions}
-      getRowKey={(session) => session.id}
-      isLoading={isLoading}
-      emptyTitle={t("tenant.examList.emptyTitle", EXAMS_TEXT.EMPTY_TITLE)}
-      emptyDescription={t("tenant.examList.emptyDescription", EXAMS_TEXT.EMPTY_TEXT)}
-      searchPlaceholder={searchText.placeholder}
-      searchAriaLabel={searchText.ariaLabel}
-      filters={
-        <DateRangePicker
-          ariaLabel={dateRangeLabel}
-          value={dateRange}
-          onChange={setDateRange}
-          placeholder={dateRangeLabel}
-        />
-      }
-      toolbarActions={toolbarActions}
-    />
+    <div className="flex flex-col gap-5">
+      <DataTable
+        columns={columns}
+        rows={filteredSessions}
+        getRowKey={(session) => session.id}
+        isLoading={isLoading}
+        emptyTitle={t("tenant.examList.emptyTitle", EXAMS_TEXT.EMPTY_TITLE)}
+        emptyDescription={t("tenant.examList.emptyDescription", EXAMS_TEXT.EMPTY_TEXT)}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
+        filters={
+          <DateRangePicker
+            ariaLabel={dateRangeLabel}
+            value={dateRange}
+            onChange={setDateRange}
+            placeholder={dateRangeLabel}
+          />
+        }
+        rowActionsHeader={actionText.actions}
+        rowActions={(session) => (
+          <ActionMenu
+            label={`${actionText.actions}: ${session.name}`}
+            items={[
+              {
+                label: actionText.view,
+                icon: EyeIcon,
+                onSelect: () => router.push(`/host/exams/${session.id}`),
+              },
+              {
+                label: actionText.delete,
+                icon: TrashIcon,
+                danger: true,
+                hidden: session.status !== "DRAFT",
+                onSelect: () => {
+                  deleteSession.reset();
+                  setDeleteTarget(session);
+                },
+              },
+            ]}
+          />
+        )}
+        toolbarActions={toolbarActions}
+      />
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title={actionText.deleteTitle}
+        description={deleteTarget ? actionText.deleteDescription(deleteTarget.name) : ""}
+        confirmLabel={actionText.deleteConfirm}
+        cancelLabel={actionText.cancel}
+        tone="danger"
+        isConfirming={deleteSession.isPending}
+        onConfirm={confirmDelete}
+        onClose={() => {
+          if (!deleteSession.isPending) {
+            deleteSession.reset();
+            setDeleteTarget(null);
+          }
+        }}
+      />
+    </div>
   );
 };

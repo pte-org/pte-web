@@ -1,5 +1,7 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import { useState, type ReactElement } from "react";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import {
@@ -8,10 +10,10 @@ import {
   CopyableId,
   DetailGroup,
   LoadingState,
-  PageHeader,
   Tabs,
   useLocale,
   useToast,
+  useDashboardBreadcrumbLabel,
 } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useCurrentUser } from "@/features/auth/api";
@@ -106,6 +108,8 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
   const canManageTenantAccount = isPlatformAdmin(currentUser?.roles);
   const tenantQuery = useTenant(tenantPublicId);
   const { data: tenant, isLoading } = tenantQuery;
+  const pathname = usePathname();
+  useDashboardBreadcrumbLabel(pathname, tenant?.name);
   const { data: organizations } = useOrganizations(tenantPublicId, canManageTenantAccount);
   const loginAccountQuery = useLoginAccount(tenantPublicId, canManageTenantAccount);
   const loginAccount = loginAccountQuery.data?.account ?? null;
@@ -174,15 +178,6 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title={tenant.name}
-        actions={
-          <Badge variant={TENANT_STATUS_VARIANT[tenant.status]}>
-            {tenantStatusLabels[tenant.status]}
-          </Badge>
-        }
-      />
-
       <Tabs
         id="tenant-detail-tabs"
         value={activeSection}
@@ -221,6 +216,14 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
                 title={T.GROUP_ORGANIZATION}
                 items={[
                   { label: T.NAME_LABEL, value: tenant.name },
+                  {
+                    label: T.STATUS_LABEL,
+                    value: (
+                      <Badge variant={TENANT_STATUS_VARIANT[tenant.status]}>
+                        {tenantStatusLabels[tenant.status]}
+                      </Badge>
+                    ),
+                  },
                   {
                     label: T.ORGANIZATION_TYPE_LABEL,
                     value: organizationTypeLabel(tenant.organizationType),

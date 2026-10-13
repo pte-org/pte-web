@@ -5,11 +5,9 @@ import { Alert, Button, Select } from "@pte/ui";
 import { useTenantStudents } from "@/features/examoperations/api";
 import { useClassMemberships } from "@/features/studentSearch/api";
 import { useAssignStudent } from "../api";
-import { IMPORT_OR_ASSIGN_TEXT } from "../constants";
+import { useStudentImportText } from "../hooks/useStudentImportText";
 import { assignErrorMessage } from "./assignErrorMessage";
 import type { TabScopeProps } from "./tabScopeProps";
-
-const T = IMPORT_OR_ASSIGN_TEXT;
 
 interface ExistingStudentTabProps extends TabScopeProps {
   onAssigned: () => void;
@@ -26,6 +24,7 @@ export const ExistingStudentTab = ({
   classPublicId,
   onAssigned,
 }: ExistingStudentTabProps): ReactElement => {
+  const text = useStudentImportText();
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const { data: students, isLoading: studentsLoading } = useTenantStudents();
   const { data: memberships, isLoading: membershipsLoading } = useClassMemberships();
@@ -50,11 +49,11 @@ export const ExistingStudentTab = ({
       )}
 
       {unassignedStudents.length === 0 && !loading ? (
-        <p className="text-sm text-gray-500">{T.noExisting}</p>
+        <p className="text-sm text-gray-500">{text.noExisting}</p>
       ) : (
         <Select
-          label={T.existingLabel}
-          placeholder={T.existingPlaceholder}
+          label={text.existingLabel}
+          placeholder={text.existingPlaceholder}
           value={selectedStudentId}
           disabled={loading}
           onChange={(event) => setSelectedStudentId(event.target.value)}
@@ -70,9 +69,9 @@ export const ExistingStudentTab = ({
           type="submit"
           disabled={!selectedStudentId}
           isLoading={assignStudent.isPending}
-          loadingText={T.assigning}
+          loadingText={text.assigning}
         >
-          {T.assign}
+          {text.assign}
         </Button>
       </div>
     </form>

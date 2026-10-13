@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { Alert, Badge, CopyableId, DetailGroup, LoadingState, PageHeader, cn } from "@pte/ui";
+import { usePathname, useRouter } from "next/navigation";
+
+import { Alert, Badge, Button, CopyableId, DetailGroup, LoadingState, cn, useDashboardBreadcrumbLabel } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
@@ -83,6 +84,9 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
     PRIVATE: "Private",
   });
   const { data: question, isLoading, isError } = useQuestion(publicId);
+  const pathname = usePathname();
+  const router = useRouter();
+  useDashboardBreadcrumbLabel(pathname, question?.title);
   const { data: currentUser } = useCurrentUser();
 
   if (isLoading) return <LoadingState rows={8} />;
@@ -104,29 +108,22 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title={question.title}
-        actions={
-          <>
+      <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-base font-semibold text-gray-900">{T.INFORMATION_TITLE}</h2>
+          <div className="flex flex-wrap items-center gap-2">
             {currentStatus && (
               <Badge variant={QUESTION_STATUS_VARIANT[currentStatus]}>
                 {statusLabels[currentStatus]}
               </Badge>
             )}
             {canEdit && (
-              <Link
-                href={`/admin/questions/${question.publicId}/edit`}
-                className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover"
-              >
+              <Button onClick={() => router.push(`/admin/questions/${question.publicId}/edit`)}>
                 {T.EDIT}
-              </Link>
+              </Button>
             )}
-          </>
-        }
-      />
-
-      <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
-        <h2 className="text-base font-semibold text-gray-900">{T.INFORMATION_TITLE}</h2>
+          </div>
+        </div>
         <DetailGroup
           title={T.GROUP_IDENTITY}
           items={[{ label: T.QUESTION_CODE, value: <CopyableId value={question.publicId} /> }]}

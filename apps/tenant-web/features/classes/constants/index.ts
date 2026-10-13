@@ -23,6 +23,7 @@ export const CLASS_STATUS_VARIANT = {
 } as const;
 
 export const CLASSES_SECTION_TEXT = {
+  loadFailed: "Couldn't load classes. Please try again.",
   countLabel: (count: number, label: string) => pluralize(label.toLowerCase(), count),
   emptyInlineTitle: (label: string) => `No ${pluralize(label.toLowerCase())} in this Program yet`,
   emptyInlineDescription: (label: string) =>

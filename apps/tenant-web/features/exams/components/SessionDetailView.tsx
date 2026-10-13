@@ -1,9 +1,16 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import { useState, type ReactElement } from "react";
-import { ConfirmDialog, LoadingState, PageHeader, useLocale } from "@pte/ui";
+import {
+  ConfirmDialog,
+  LoadingState,
+  useLocale,
+  useDashboardBreadcrumbLabel,
+  useToast,
+} from "@pte/ui";
 import { errorMessage as mutationErrorMessage } from "@/features/examoperations/errorMessage";
-import { AppBackButton } from "@/features/navigation/components/AppBackButton";
 import { useCancelSession, useCloseSession, useOpenSession, useSession } from "../api";
 import { ExamDetailTabs } from "./ExamDetailTabs";
 
@@ -13,7 +20,10 @@ interface SessionDetailViewProps {
 
 export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): ReactElement => {
   const { t } = useLocale();
+  const { showToast } = useToast();
   const { data: session, isLoading } = useSession(sessionPublicId);
+  const pathname = usePathname();
+  useDashboardBreadcrumbLabel(pathname, session?.name);
   const open = useOpenSession(sessionPublicId);
   const close = useCloseSession(sessionPublicId);
   const cancel = useCancelSession(sessionPublicId);
@@ -29,19 +39,22 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
   );
   const canOpen = session.status === "SCHEDULED";
   const canClose = session.status === "OPEN";
-  const canCancel = ["DRAFT", "PREPARING", "READY", "SCHEDULED"].includes(session.status);
+  const canCancel = ["PREPARING", "READY", "SCHEDULED"].includes(session.status);
 
   return (
     <div className="flex flex-col gap-5">
-      <AppBackButton href="/host/exams" label={t("tenant.examOverview.back", "Back to exams")} />
-      <PageHeader title={session.name} />
-
       <ExamDetailTabs
         session={session}
         sessionPublicId={sessionPublicId}
         lifecycle={{
           lifecycleError,
-          onOpen: () => open.mutate(),
+          onOpen: () =>
+            open.mutate(undefined, {
+              onSuccess: () =>
+                showToast(t("tenant.examOverview.openSuccess", "Exam opened."), {
+                  tone: "success",
+                }),
+            }),
           onClose: () => setPendingAction("close"),
           onCancel: () => setPendingAction("cancel"),
           canOpen,
@@ -64,7 +77,13 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
         cancelLabel={t("tenant.examOverview.keepExam", "Go back")}
         tone="danger"
         isConfirming={close.isPending}
-        onConfirm={() => close.mutate(undefined, { onSettled: () => setPendingAction(null) })}
+        onConfirm={() =>
+          close.mutate(undefined, {
+            onSuccess: () =>
+              showToast(t("tenant.examOverview.closeSuccess", "Exam closed."), { tone: "success" }),
+            onSettled: () => setPendingAction(null),
+          })
+        }
         onClose={() => setPendingAction(null)}
       />
       <ConfirmDialog
@@ -78,7 +97,15 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
         cancelLabel={t("tenant.examOverview.keepExam", "Go back")}
         tone="danger"
         isConfirming={cancel.isPending}
-        onConfirm={() => cancel.mutate(undefined, { onSettled: () => setPendingAction(null) })}
+        onConfirm={() =>
+          cancel.mutate(undefined, {
+            onSuccess: () =>
+              showToast(t("tenant.examOverview.cancelSuccess", "Exam cancelled."), {
+                tone: "success",
+              }),
+            onSettled: () => setPendingAction(null),
+          })
+        }
         onClose={() => setPendingAction(null)}
       />
     </div>

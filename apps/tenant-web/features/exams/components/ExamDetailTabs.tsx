@@ -13,16 +13,14 @@ import { ExamOverviewTab, type ExamOverviewLifecycle } from "./ExamOverviewTab";
 import { ExamParticipantsTab } from "./ExamParticipantsTab";
 import { ExamQuestionsTab } from "./ExamQuestionsTab";
 import { ExamResultsTab } from "./ExamResultsTab";
-import { ExamSettingsTab } from "./ExamSettingsTab";
 import { ExamSubmissionsTab } from "./ExamSubmissionsTab";
 
 type ExamDetailTab =
-  "overview" | "questions" | "settings" | "participants" | "submissions" | "examiner" | "results";
+  "overview" | "questions" | "participants" | "submissions" | "examiner" | "results";
 
 const TAB_IDS: readonly ExamDetailTab[] = [
   "overview",
   "questions",
-  "settings",
   "participants",
   "submissions",
   "examiner",
@@ -104,7 +102,6 @@ export const ExamDetailTabs = ({
   const items: TabItem[] = [
     { id: "overview", label: t("tenant.examTabs.overview", "Overview") },
     { id: "questions", label: t("tenant.examTabs.questions", "Questions") },
-    { id: "settings", label: t("tenant.examTabs.settings", "Exam settings") },
     { id: "participants", label: t("tenant.examTabs.participants", "Participants & proctors") },
     { id: "submissions", label: t("tenant.examTabs.submissions", "Submissions") },
     { id: "examiner", label: t("tenant.examTabs.examiner", "Examiner") },
@@ -141,15 +138,6 @@ export const ExamDetailTabs = ({
         className="mt-5 min-w-0"
       >
         <ExamQuestionsTab session={session} sessionPublicId={sessionPublicId} />
-      </TabPanel>
-      <TabPanel
-        id="exam-detail-tabs-panel-settings"
-        labelledBy="exam-detail-tabs-tab-settings"
-        active={activeTab === "settings"}
-        keepMounted={keepPanelMounted("settings")}
-        className="mt-5"
-      >
-        <ExamSettingsTab session={session} />
       </TabPanel>
       <TabPanel
         id="exam-detail-tabs-panel-participants"

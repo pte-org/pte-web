@@ -1,11 +1,13 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import { type ReactElement } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getTenant } from "@pte/api-client";
-import { Alert, LoadingState, PageHeader, useToast } from "@pte/ui";
+import { Alert, LoadingState, useToast, useDashboardBreadcrumbLabel, useLocale } from "@pte/ui";
 import { apiClient } from "@/lib/apiClient";
-import { ADMIN_TICKET_DETAIL_TEXT as RAW_ADMIN_TICKET_DETAIL_TEXT } from "../constants";
+import { ADMIN_TICKET_DETAIL_TEXT as RAW_ADMIN_TICKET_DETAIL_TEXT, SUPPORT_TICKET_BREADCRUMB_ID_LENGTH } from "../constants";
 import { useAdminSupportTicket, useAddTicketNote, useUpdateTicketStatus } from "../api";
 import type { TicketStatus } from "../types";
 import { AddNoteForm } from "./_AddNoteForm";
@@ -25,6 +27,10 @@ export const AdminSupportTicketDetailView = ({
   const { showToast } = useToast();
 
   const { data: ticket, isLoading, isError } = useAdminSupportTicket(ticketPublicId);
+  const pathname = usePathname();
+  const { t } = useLocale();
+  useDashboardBreadcrumbLabel(pathname, ticket ? t("common.supportTicketBreadcrumb", undefined,
+    { id: ticket.publicId.slice(0, SUPPORT_TICKET_BREADCRUMB_ID_LENGTH).toUpperCase() }) : undefined);
   const updateStatus = useUpdateTicketStatus(ticketPublicId);
   const addNote = useAddTicketNote(ticketPublicId);
 
@@ -57,8 +63,6 @@ export const AdminSupportTicketDetailView = ({
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title={T.TICKET_TITLE} />
-
       <StatusPanel
         status={ticket.status}
         onTransition={handleTransition}

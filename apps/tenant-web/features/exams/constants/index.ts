@@ -1,4 +1,11 @@
-import type { ExamMode, FormMode, LockdownMode, ProctorRole, ReusePolicy } from "@pte/api-client";
+import type {
+  ExamMode,
+  FormMode,
+  LockdownMode,
+  ProctorRole,
+  ReusePolicy,
+  SessionStatus,
+} from "@pte/api-client";
 import type { CreateSessionInput, ExamSkill } from "../types";
 
 // react-query cache-key roots — named constants per this repo's established
@@ -33,6 +40,19 @@ export const EXAM_TABLE_HEADERS = {
   STATUS: "Status",
   OPENS_AT: "Opens",
   CLOSES_AT: "Closes",
+  ACTIONS: "Actions",
+} as const;
+
+export const EXAM_ROW_ACTIONS_TEXT = {
+  VIEW: "View details",
+  DELETE: "Delete exam",
+  DELETE_TITLE: "Delete this exam draft?",
+  DELETE_DESCRIPTION: (name: string) =>
+    `The draft “${name}” will be deleted and cannot be recovered.`,
+  DELETE_CONFIRM: "Delete exam",
+  CANCEL: "Cancel",
+  DELETE_SUCCESS: "Exam draft deleted.",
+  DELETE_FAILED: "Unable to delete the exam draft. Please try again.",
 } as const;
 
 export const SESSION_STATUS_LABELS = {
@@ -40,10 +60,24 @@ export const SESSION_STATUS_LABELS = {
   PREPARING: "Preparing",
   READY: "Ready to publish",
   SCHEDULED: "Scheduled",
-  OPEN: "Open",
+  OPEN: "In progress",
   CLOSED: "Closed",
   CANCELLED: "Cancelled",
 } as const;
+
+/**
+ * Statuses exposed by the edit form. Transitions are backed by the exam
+ * orchestration/lifecycle commands, not by an arbitrary status PATCH.
+ */
+export const SESSION_STATUS_TRANSITIONS = {
+  DRAFT: ["DRAFT", "READY", "SCHEDULED"],
+  PREPARING: ["PREPARING", "DRAFT"],
+  READY: ["READY", "SCHEDULED", "CANCELLED"],
+  SCHEDULED: ["SCHEDULED", "OPEN", "CANCELLED"],
+  OPEN: ["OPEN", "CLOSED"],
+  CLOSED: ["CLOSED"],
+  CANCELLED: ["CANCELLED"],
+} as const satisfies Record<SessionStatus, readonly SessionStatus[]>;
 
 export const SESSION_STATUS_FILTER_OPTIONS = [
   { value: "", label: "All statuses" },
@@ -57,7 +91,7 @@ export const SESSION_STATUS_FILTER_OPTIONS = [
 ] as const;
 
 export const SESSION_STATUS_VARIANT = {
-  DRAFT: "neutral",
+  DRAFT: "warning",
   PREPARING: "info",
   READY: "success",
   SCHEDULED: "info",
@@ -275,6 +309,63 @@ export const SESSION_DETAIL_TEXT = {
   RETRIES_SUMMARY: (retries: number) => `${retries} ${retries === 1 ? "retry" : "retries"}`,
   LEGACY_POLICY: CREATE_EXAM_WIZARD_TEXT.POLICY_LEGACY,
   POLICY_UNAVAILABLE: CREATE_EXAM_WIZARD_TEXT.POLICY_UNAVAILABLE,
+} as const;
+
+export const EXAM_EDITOR_TEXT = {
+  INFORMATION_TITLE: "Exam information",
+  INFORMATION_DESCRIPTION: "Identity, schedule, configuration, and access policy for this exam.",
+  ACTIONS: "Exam actions",
+  EDIT: "Edit",
+  SAVE: "Save information",
+  CANCEL: "Cancel",
+  SAVED: "Exam information saved.",
+  SAVE_FAILED: "Unable to save exam information. Please try again.",
+  NO_ACTIONS: "No actions available",
+  NAME: "Exam name",
+  STATUS: "Status",
+  CODE: "Exam code",
+  MODE: "Mode",
+  OPENS_AT: "Opens at",
+  CLOSES_AT: "Closes at",
+  SKILLS: "Skills included",
+  RETRIES: "Retries per student",
+  CAPACITY: "Capacity",
+  SECURITY_POLICY: "Security policy",
+  SUBSCRIPTION: "Subscription",
+  FORM_MODE: "Question form",
+  REUSE_POLICY: "Student reuse rule",
+  SERIES: "Exam series",
+  REPLAY_POLICY: "Replay policy",
+  REPLAY_UNLIMITED: "Unlimited",
+  REPLAY_LIMITED: "Limited",
+  REPLAY_LIMIT: "Replay limit",
+  DEVICE_CHECK: "Require device check",
+  PROCTOR_REQUIRED: "Require proctor",
+  ANSWER_INTEGRITY: "Answer integrity",
+  ANSWER_STANDARD: "Standard",
+  ANSWER_STRICT: "Strict",
+  LOCKDOWN: "Lockdown mode",
+  LOCKDOWN_STRICT: "Strict",
+  READ_ONLY_HELP: "This exam is read-only in its current status.",
+  NAME_REQUIRED: "Enter an exam name.",
+  OPEN_REQUIRED: "Choose when the exam opens.",
+  CLOSE_REQUIRED: "Choose when the exam closes.",
+  CLOSE_AFTER_OPEN: "The close time must be after the open time.",
+  CAPACITY_INVALID: "Enter a positive whole-number capacity.",
+  RETRIES_INVALID: "Enter a whole number of retries from 0 to 9.",
+  SKILLS_REQUIRED: "Select at least one skill.",
+  REPLAY_LIMIT_REQUIRED: "Enter a positive replay limit.",
+  START_SOON_TITLE: "The exam is about to start",
+  START_SOON_DESCRIPTION:
+    "The exam starts within 10 minutes. Do you want to continue editing it?",
+  START_SOON_CONFIRM: "Continue editing",
+  START_SOON_CANCEL: "Go back",
+  START_SOON_TOAST: "The exam starts within 10 minutes. Review the schedule before saving.",
+  CLOSE_TIME_REMINDER_TITLE: "Review the close time",
+  CLOSE_TIME_REMINDER_DESCRIPTION:
+    "The exam has started. If you need more time, extend the close time before saving.",
+  CLOSE_TIME_REMINDER_CONFIRM: "Save without extending",
+  CLOSE_TIME_REMINDER_CANCEL: "Review changes",
 } as const;
 
 export const EXAMINER_ASSIGNMENT_TEXT = {
