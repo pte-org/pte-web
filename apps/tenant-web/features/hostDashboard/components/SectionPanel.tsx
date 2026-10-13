@@ -4,12 +4,14 @@ import type { ReactElement, ReactNode } from "react";
 import type { DashboardSection } from "@pte/api-client";
 import { DashboardPanel, type DashboardPanelEmptyProps } from "@pte/ui";
 import { useHostDashboardText } from "../hooks/useHostDashboardText";
+import { sectionAvailability, sectionData } from "../utils/sections";
 
 interface SectionPanelProps<T> {
   title: string;
   subtitle?: string;
   actions?: ReactNode;
-  section: DashboardSection<T>;
+  /** Typed as present by the contract; `undefined` (payload drift) is hidden like FORBIDDEN. */
+  section: DashboardSection<T> | undefined;
   /** Refetches the single dashboard query. */
   onRetry: () => void;
   className?: string;
@@ -34,8 +36,10 @@ export const SectionPanel = <T,>({
 }: SectionPanelProps<T>): ReactElement | null => {
   const { messages } = useHostDashboardText();
 
-  if (section.status !== "OK") {
-    if (section.status === "FORBIDDEN") return null;
+  const availability = sectionAvailability(section);
+  if (availability === "forbidden") return null;
+  const data = sectionData(section);
+  if (availability === "error" || data === undefined) {
     return (
       <DashboardPanel
         title={title}
@@ -52,7 +56,7 @@ export const SectionPanel = <T,>({
     );
   }
 
-  const empty = emptyWhen?.(section.data) ?? null;
+  const empty = emptyWhen?.(data) ?? null;
   return (
     <DashboardPanel
       title={title}
@@ -62,7 +66,7 @@ export const SectionPanel = <T,>({
       status={empty ? "empty" : "content"}
       empty={empty ?? undefined}
     >
-      {children(section.data)}
+      {children(data)}
     </DashboardPanel>
   );
 };

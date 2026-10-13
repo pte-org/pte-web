@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 import type { HostDashboardResponse } from "@pte/api-client";
 import { ProgressBar } from "@pte/ui";
+import { PERCENT_SCALE } from "../constants";
 import { useHostDashboardText } from "../hooks/useHostDashboardText";
 import { buildGradingRows } from "../utils/charts";
 import { formatNumber } from "../utils/format";
@@ -13,8 +14,6 @@ interface GradingPipelinePanelProps {
   onRetry: () => void;
   className?: string;
 }
-
-const PERCENT_MAX = 100;
 
 /**
  * Where the unfinished answers are in the grading pipeline (waiting, AI scoring, failed), each as
@@ -52,9 +51,12 @@ export const GradingPipelinePanel = ({
                     </div>
                     <ProgressBar
                       value={row.share}
-                      max={PERCENT_MAX}
+                      max={PERCENT_SCALE}
                       tone={row.tone}
-                      label={`${messages[row.labelKey]}: ${format("gradingShare", { percent: row.share })}`}
+                      label={format("gradingShareLabel", {
+                        label: messages[row.labelKey],
+                        share: format("gradingShare", { percent: row.share }),
+                      })}
                     />
                   </li>
                 ))}

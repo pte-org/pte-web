@@ -3,13 +3,11 @@
 import type { ReactElement } from "react";
 import type { HostQuotaData } from "@pte/api-client";
 import { Alert, ProgressBar } from "@pte/ui";
-import { HOST_DASHBOARD_ROUTES } from "../constants";
+import { HOST_DASHBOARD_ROUTES, PERCENT_SCALE } from "../constants";
 import { useHostDashboardText } from "../hooks/useHostDashboardText";
 import { buildSeatUsage } from "../utils/usage";
 import { formatNumber } from "../utils/format";
 import { PanelLink } from "./PanelLink";
-
-const FULL_PERCENT = 100;
 
 export const SeatUsageBlock = ({ quota }: { quota: HostQuotaData }): ReactElement => {
   const { locale, messages, format } = useHostDashboardText();
@@ -35,7 +33,7 @@ export const SeatUsageBlock = ({ quota }: { quota: HostQuotaData }): ReactElemen
       <ProgressBar
         value={Math.min(seats.used, seats.limit)}
         max={seats.limit}
-        tone={seats.percent >= FULL_PERCENT ? "danger" : seats.nearLimit ? "warning" : "success"}
+        tone={seats.percent >= PERCENT_SCALE ? "danger" : seats.nearLimit ? "warning" : "success"}
         label={messages.usageSeatsLabel}
       />
       <p className="text-xs text-[var(--ink-muted)]">

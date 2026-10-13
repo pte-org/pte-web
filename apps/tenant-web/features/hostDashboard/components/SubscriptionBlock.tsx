@@ -9,6 +9,7 @@ import {
   SUBSCRIPTION_STATUS_MESSAGE_KEYS,
 } from "../constants";
 import { useHostDashboardText } from "../hooks/useHostDashboardText";
+import type { SubscriptionRow } from "../types";
 import { buildSubscriptionRows, describeExpiry, expiryMessage } from "../utils/usage";
 
 interface SubscriptionBlockProps {
@@ -20,6 +21,11 @@ export const SubscriptionBlock = ({ subscription, timeZone }: SubscriptionBlockP
   const { locale, messages, format } = useHostDashboardText();
   const rows = buildSubscriptionRows(subscription.current, locale, timeZone);
   const expiry = expiryMessage(describeExpiry(subscription.daysToExpiry));
+  const planMeta = (row: SubscriptionRow): string => {
+    const type = row.planType ? messages[PLAN_TYPE_MESSAGE_KEYS[row.planType]] : messages.planTypeUnknown;
+    if (!row.expiresOn) return type;
+    return format("usagePlanMeta", { type, expires: format("usageExpiresOn", { date: row.expiresOn }) });
+  };
 
   return (
     <div className="flex flex-col gap-3">
@@ -38,8 +44,7 @@ export const SubscriptionBlock = ({ subscription, timeZone }: SubscriptionBlockP
                     {row.planName ?? messages.planNameFallback}
                   </span>
                   <span className="block text-xs text-[var(--ink-secondary)]">
-                    {row.planType ? messages[PLAN_TYPE_MESSAGE_KEYS[row.planType]] : messages.planTypeUnknown}
-                    {row.expiresOn && ` · ${format("usageExpiresOn", { date: row.expiresOn })}`}
+                    {planMeta(row)}
                   </span>
                 </span>
                 <Badge variant={SUBSCRIPTION_STATUS_BADGE_VARIANT[row.status]}>

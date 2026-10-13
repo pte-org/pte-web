@@ -8,7 +8,7 @@ import { ATTENTION_MESSAGE_KEYS } from "../constants";
 import { useHostDashboardText } from "../hooks/useHostDashboardText";
 import type { AttentionItem } from "../types";
 import { deriveAttention } from "../utils/attention";
-import { formatNumber, formatPercent } from "../utils/format";
+import { formatNumber, formatPercent, keyForCount } from "../utils/format";
 
 interface NeedsAttentionPanelProps {
   dashboard: HostDashboardResponse;
@@ -30,7 +30,9 @@ export const NeedsAttentionPanel = ({
   if (available === 0 && failed === 0) return null;
 
   const countText = (item: AttentionItem): string => {
-    if (item.unit === "days") return format("attentionUnitDays", { count: item.count });
+    if (item.unit === "days") {
+      return format(keyForCount(item.count, "attentionUnitDay", "attentionUnitDays"), { count: item.count });
+    }
     if (item.unit === "percent") return formatPercent(item.count, locale);
     return formatNumber(item.count, locale);
   };
@@ -67,7 +69,7 @@ export const NeedsAttentionPanel = ({
           variant="actions"
           items={listItems}
           ariaLabel={messages.attentionAria}
-          emptyLabel={messages.attentionEmpty}
+          emptyLabel={failed > 0 ? messages.attentionPartialEmpty : messages.attentionEmpty}
           renderLink={(props) => <Link {...props} />}
         />
         {failed > 0 && <p className="text-xs text-[var(--ink-muted)]">{messages.attentionPartial}</p>}

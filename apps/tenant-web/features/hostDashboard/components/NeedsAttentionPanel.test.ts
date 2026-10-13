@@ -52,7 +52,7 @@ describe("NeedsAttentionPanel items", () => {
     expect(itemsOf(render(richDashboard()))).toEqual([
       { title: "Answers that failed to score", count: "2", href: "/host/exams" },
       { title: "Answers waiting to be graded", count: "6", href: "/host/exams" },
-      { title: "Closed sessions awaiting finalisation", count: "1", href: "/host/exams" },
+      { title: "Closed sessions awaiting finalization", count: "1", href: "/host/exams" },
       { title: "Subscription expiring soon", count: "7 days", href: "/host/billing" },
       { title: "Seat limit almost reached", count: "95%", href: "/host/billing" },
       { title: "Orders awaiting payment", count: "1", href: "/host/orders" },
@@ -78,9 +78,9 @@ describe("NeedsAttentionPanel items", () => {
       expected: [{ title: "Answers waiting to be graded", count: "7" }],
     },
     {
-      source: "sessions awaiting finalisation",
+      source: "sessions awaiting finalization",
       patch: { grading: ok({ pendingAnswers: 0, aiScoringAnswers: 0, failedAnswers: 0, closedSessionsAwaitingFinalisation: 2, reportsAwaitingPublication: 0 }) },
-      expected: [{ title: "Closed sessions awaiting finalisation", count: "2" }],
+      expected: [{ title: "Closed sessions awaiting finalization", count: "2" }],
     },
     {
       source: "reports awaiting publication",
@@ -135,11 +135,24 @@ describe("NeedsAttentionPanel items", () => {
     expect(items.find((item) => item.href === "/host/billing")?.count).toBe("7 ngày");
     expect(textOf(render(richDashboard()))).not.toContain("Needs attention");
   });
+
+  it.each([
+    { days: 1, en: "1 day", vi: "1 ngày" },
+    { days: 2, en: "2 days", vi: "2 ngày" },
+  ])("writes the expiry unit for $days day(s) in the right number in both locales", ({ days, en, vi: viText }) => {
+    const dashboard = {
+      ...quiet(),
+      subscription: ok({ current: [], nearestExpiryAt: null, daysToExpiry: days, expiringSoon: true }),
+    };
+    expect(itemsOf(render(dashboard))[0].count).toBe(en);
+    useTestLocale("vi");
+    expect(itemsOf(render(dashboard))[0].count).toBe(viText);
+  });
 });
 
 describe("NeedsAttentionPanel with unavailable sources", () => {
   const SOURCES = [
-    { source: "grading", hidden: ["Answers that failed to score", "Answers waiting to be graded", "Closed sessions awaiting finalisation", "Reports awaiting publication"] },
+    { source: "grading", hidden: ["Answers that failed to score", "Answers waiting to be graded", "Closed sessions awaiting finalization", "Reports awaiting publication"] },
     { source: "subscription", hidden: ["Subscription expiring soon"] },
     { source: "quota", hidden: ["Seat limit almost reached"] },
     { source: "support", hidden: ["Open support tickets"] },
@@ -202,5 +215,28 @@ describe("NeedsAttentionPanel with unavailable sources", () => {
     const html = render({ ...quiet(), grading: failed() });
     expect(itemsOf(html)).toEqual([]);
     expect(textOf(html)).toContain("Some checks could not be loaded.");
+  });
+
+  it("never claims nothing needs attention while a source failed and nothing else is listed", () => {
+    const html = render({ ...quiet(), grading: failed() });
+    expect(textOf(html)).not.toContain("Nothing needs your attention right now.");
+    expect(textOf(html)).toContain("Nothing to show from the checks that did load.");
+    useTestLocale("vi");
+    const vietnamese = textOf(render({ ...quiet(), grading: failed() }));
+    expect(vietnamese).not.toContain("Hiện chưa có việc nào cần xử lý.");
+    expect(vietnamese).toContain("Một số mục kiểm tra chưa tải được.");
+  });
+
+  it("still says nothing needs attention when every visible source loaded and a hidden one is forbidden", () => {
+    const html = render({ ...quiet(), grading: forbidden() });
+    expect(textOf(html)).toContain("Nothing needs your attention right now.");
+    expect(textOf(html)).not.toContain("Some checks could not be loaded.");
+  });
+
+  it("treats a section missing from the payload like a forbidden one instead of throwing", () => {
+    const drifted = { ...quiet(), grading: undefined } as unknown as HostDashboardResponse;
+    const html = render(drifted);
+    expect(textOf(html)).toContain("Nothing needs your attention right now.");
+    expect(textOf(html)).not.toContain("Some checks could not be loaded.");
   });
 });

@@ -107,7 +107,7 @@ describe("a tenant without data shows zeros and empty states, never blanks", () 
 
   it("shows zero counts in the grading and compact cards", () => {
     expect(text).toContain("There is no grading backlog.");
-    expect(text).toMatch(/Closed sessions awaiting finalisation 0 Reports awaiting publication 0/);
+    expect(text).toMatch(/Closed sessions awaiting finalization 0 Reports awaiting publication 0/);
     expect(text).toMatch(/Proctors 0 Examiners 0/);
     expect(text).toMatch(/Organizations 0 Programs 0 Active Classes 0/);
     expect(text).toMatch(/Open 0 In progress 0 Resolved, awaiting close 0/);
@@ -125,9 +125,9 @@ describe("locale and organisation labels", () => {
       "Chỉ số chính",
       "Chỗ học viên và gói đăng ký",
       "Lượt thi đã nộp",
-      "Ca thi sắp tới",
+      "Kỳ thi sắp tới",
       "Hoạt động gần đây",
-      "Ca thi theo trạng thái",
+      "Kỳ thi theo trạng thái",
       "Phân lớp học viên",
       "Tiến trình chấm điểm",
       "Nhân sự coi thi và chấm thi",
