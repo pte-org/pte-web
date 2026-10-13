@@ -27,7 +27,7 @@ export const UpcomingSessionsPanel = ({
   onRetry,
   className,
 }: UpcomingSessionsPanelProps): ReactElement | null => {
-  const { locale, messages } = useHostDashboardText();
+  const { locale, messages, format } = useHostDashboardText();
   const dash = messages.emptyValue;
 
   const columns: DataTableColumn<UpcomingSessionRow>[] = [
@@ -55,9 +55,10 @@ export const UpcomingSessionsPanel = ({
       key: "enrolled",
       header: messages.columnEnrolled,
       cell: (row) =>
-        row.capacity === null
-          ? `${formatNumber(row.enrolled, locale)} / ${dash}`
-          : `${formatNumber(row.enrolled, locale)} / ${formatNumber(row.capacity, locale)}`,
+        format("enrolledOfCapacity", {
+          enrolled: formatNumber(row.enrolled, locale),
+          capacity: row.capacity === null ? dash : formatNumber(row.capacity, locale),
+        }),
     },
   ];
 

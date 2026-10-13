@@ -5,7 +5,7 @@ import type { HostDashboardResponse } from "@pte/api-client";
 import { Button, DashboardPanel, ErrorState } from "@pte/ui";
 import { HOST_DASHBOARD_ROUTES } from "../constants";
 import { useHostDashboardText } from "../hooks/useHostDashboardText";
-import { sectionData } from "../utils/sections";
+import { sectionAvailability, sectionData } from "../utils/sections";
 import { PanelLink } from "./PanelLink";
 import { SeatUsageBlock } from "./SeatUsageBlock";
 import { SubscriptionBlock } from "./SubscriptionBlock";
@@ -22,12 +22,14 @@ interface UsagePanelProps {
  */
 export const UsagePanel = ({ dashboard, onRetry, className }: UsagePanelProps): ReactElement | null => {
   const { messages } = useHostDashboardText();
-  const { quota, subscription, meta } = dashboard;
-  if (quota.status === "FORBIDDEN" && subscription.status === "FORBIDDEN") return null;
+  const { meta } = dashboard;
+  const quotaState = sectionAvailability(dashboard.quota);
+  const subscriptionState = sectionAvailability(dashboard.subscription);
+  if (quotaState === "forbidden" && subscriptionState === "forbidden") return null;
 
-  const quotaData = sectionData(quota);
-  const subscriptionData = sectionData(subscription);
-  const bothFailed = quota.status !== "OK" && subscription.status !== "OK";
+  const quotaData = sectionData(dashboard.quota);
+  const subscriptionData = sectionData(dashboard.subscription);
+  const bothFailed = quotaState !== "ok" && subscriptionState !== "ok";
 
   const sectionError = (
     <ErrorState
@@ -56,11 +58,11 @@ export const UsagePanel = ({ dashboard, onRetry, className }: UsagePanelProps): 
       }}
     >
       <div className="flex flex-col gap-5">
-        {quotaData ? <SeatUsageBlock quota={quotaData} /> : quota.status === "ERROR" && sectionError}
+        {quotaData ? <SeatUsageBlock quota={quotaData} /> : quotaState === "error" && sectionError}
         {subscriptionData ? (
           <SubscriptionBlock subscription={subscriptionData} timeZone={meta.zone} />
         ) : (
-          subscription.status === "ERROR" && sectionError
+          subscriptionState === "error" && sectionError
         )}
       </div>
     </DashboardPanel>

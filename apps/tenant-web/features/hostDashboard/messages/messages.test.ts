@@ -36,7 +36,8 @@ describe("host dashboard catalogs", () => {
     const copied = englishKeys.filter(
       (key) =>
         HOST_DASHBOARD_VI[key as keyof typeof HOST_DASHBOARD_VI] === HOST_DASHBOARD_EN[key as keyof typeof HOST_DASHBOARD_EN] &&
-        /[a-z]{4,}/i.test(HOST_DASHBOARD_EN[key as keyof typeof HOST_DASHBOARD_EN]),
+        // Placeholder names are not words: "{enrolled} / {capacity}" is a pure-symbol template.
+        /[a-z]{4,}/i.test(HOST_DASHBOARD_EN[key as keyof typeof HOST_DASHBOARD_EN].replace(/\{[^}]*\}/g, "")),
     );
     expect(copied).toEqual([]);
   });

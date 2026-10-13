@@ -4,7 +4,20 @@ import { HOST_DASHBOARD_VI } from "./vi";
 
 const ORGANISATION_NOUNS = ["program", "programs", "class", "classes", "classLower"];
 /** Run-time values the components pass to `format`; any other token is a typo. */
-const RUNTIME_PLACEHOLDERS = ["count", "days", "used", "limit", "percent", "date"];
+const RUNTIME_PLACEHOLDERS = [
+  "count",
+  "days",
+  "used",
+  "limit",
+  "percent",
+  "date",
+  "enrolled",
+  "capacity",
+  "type",
+  "expires",
+  "label",
+  "share",
+];
 
 const KEYS = Object.keys(HOST_DASHBOARD_EN) as HostDashboardMessageKey[];
 const BOTH = [
@@ -76,6 +89,27 @@ describe("copy never contains machine strings", () => {
 
   it("translates every key (Vietnamese differs from English except for pure symbols)", () => {
     const same = KEYS.filter((key) => HOST_DASHBOARD_VI[key] === HOST_DASHBOARD_EN[key]);
-    expect(same.filter((key) => /[A-Za-z]{3,}/.test(HOST_DASHBOARD_EN[key]))).toEqual([]);
+    // Placeholder names are not words: "{enrolled} / {capacity}" is a pure-symbol template.
+    const words = (text: string): string => text.replace(/\{[^}]*\}/g, "");
+    expect(same.filter((key) => /[A-Za-z]{3,}/.test(words(HOST_DASHBOARD_EN[key])))).toEqual([]);
+  });
+
+  it("has a singular entry next to every plural day-count entry, and Vietnamese keeps one wording", () => {
+    const PAIRS = [
+      ["expiryDay", "expiryDays"],
+      ["attentionUnitDay", "attentionUnitDays"],
+    ] as const;
+    for (const [singular, plural] of PAIRS) {
+      expect(HOST_DASHBOARD_EN[singular], singular).not.toBe(HOST_DASHBOARD_EN[plural]);
+      expect(HOST_DASHBOARD_EN[singular], singular).toMatch(/ day\b/);
+      expect(HOST_DASHBOARD_EN[plural], plural).toMatch(/ days\b/);
+      expect(HOST_DASHBOARD_VI[singular], singular).toBe(HOST_DASHBOARD_VI[plural]);
+    }
+  });
+
+  it("no longer carries the removed quick-actions label and uses the product spelling", () => {
+    expect(Object.keys(HOST_DASHBOARD_EN)).not.toContain("quickActionsLabel");
+    expect(Object.keys(HOST_DASHBOARD_VI)).not.toContain("quickActionsLabel");
+    for (const key of KEYS) expect(HOST_DASHBOARD_EN[key], key).not.toMatch(/finalisation/i);
   });
 });

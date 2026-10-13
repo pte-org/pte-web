@@ -55,7 +55,7 @@ describe("UpcomingSessionsPanel table", () => {
   it("has exactly the five columns and no Branch column (Vietnamese)", () => {
     useTestLocale("vi");
     const html = render(withSessions([session()]));
-    expect(headers(html)).toEqual(["Ca thi", "Trạng thái", "Mở lúc", "Đóng lúc", "Đã ghi danh / sức chứa"]);
+    expect(headers(html)).toEqual(["Kỳ thi", "Trạng thái", "Mở lúc", "Đóng lúc", "Đã ghi danh / sức chứa"]);
     expect(textOf(html)).not.toMatch(/chi nhánh|branch/i);
   });
 
