@@ -19,6 +19,7 @@ import {
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import { ENROLLMENTS_QUERY_KEY, TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
+import { HOST_DASHBOARD_QUERY_KEY } from "@/features/hostDashboard/constants";
 import { UserFacingError } from "./errorMessage";
 import type { CreatedAccount, RosterRow } from "./types";
 
@@ -60,6 +61,8 @@ export function clearPendingImport(sessionPublicId: string): void {
 export function useCreateRosterAccounts(
   sessionPublicId: string,
 ): UseMutationResult<BulkCreateUsersResponse, unknown, RosterRow[]> {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (rows) =>
       bulkCreateUsers(apiClient, {
@@ -73,7 +76,10 @@ export function useCreateRosterAccounts(
         })),
         tenantId: null,
       }),
-    onSuccess: (response) => savePendingImport(sessionPublicId, response.created),
+    onSuccess: (response) => {
+      savePendingImport(sessionPublicId, response.created);
+      void queryClient.invalidateQueries({ queryKey: HOST_DASHBOARD_QUERY_KEY });
+    },
   });
 }
 
@@ -136,6 +142,8 @@ export interface AddStudentInput {
  * write-once `generatedPassword` with no recovery path.
  */
 export function useCreateStudent(): UseMutationResult<CreatedAccount, unknown, AddStudentInput> {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (input) => {
       const response = await bulkCreateUsers(apiClient, {
@@ -157,6 +165,9 @@ export function useCreateStudent(): UseMutationResult<CreatedAccount, unknown, A
         throw new UserFacingError(skipped ? skipped.reason : "Unable to create account");
       }
       return created;
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: HOST_DASHBOARD_QUERY_KEY });
     },
   });
 }

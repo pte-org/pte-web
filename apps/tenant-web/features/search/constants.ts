@@ -1,7 +1,7 @@
 export const TENANT_SEARCH_TEXT = {
   auditLog: {
-    placeholder: "Search by action, object ID, or summary",
-    ariaLabel: "Search audit log by action, object ID, or summary",
+    placeholder: "Search by resource name, code, action, or summary",
+    ariaLabel: "Search system log by resource name, code, action, or summary",
   },
   supportTickets: {
     placeholder: "Search by ticket ID, description, category, or status",

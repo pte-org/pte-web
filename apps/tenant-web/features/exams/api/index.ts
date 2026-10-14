@@ -75,6 +75,7 @@ import {
 import { apiClient } from "@/lib/apiClient";
 import { UserFacingError } from "@/features/examoperations/errorMessage";
 import { useAllTenantClasses } from "@/features/classes/api";
+import { HOST_DASHBOARD_QUERY_KEY } from "@/features/hostDashboard/constants";
 import {
   CREATE_EXAM_WIZARD_TEXT,
   CREATE_EXAM_WIZARD_ERRORS,
@@ -263,6 +264,7 @@ export function useCreateSession(): UseMutationResult<ExamSession, unknown, Crea
         ...previous.filter((existing) => existing.id !== session.id),
       ]);
       void queryClient.invalidateQueries({ queryKey: SESSIONS_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: HOST_DASHBOARD_QUERY_KEY });
     },
   });
 }
@@ -317,6 +319,7 @@ export function useCreateExamWorkflow(): UseMutationResult<
         ...previous.filter((existing) => existing.id !== session.id),
       ]);
       void queryClient.invalidateQueries({ queryKey: SESSIONS_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: HOST_DASHBOARD_QUERY_KEY });
     },
   });
 }

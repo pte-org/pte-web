@@ -23,7 +23,7 @@ import {
 
 /**
  * Non-label entries stay static; the Program entry's label is org-type-driven.
- * "Audit Log" carries `requiredRoles: ["HOST_ADMIN"]` — its page is gated
+ * "System log" carries `requiredRoles: ["HOST_ADMIN"]` — its page is gated
  * `HOST_ADMIN`-only (mirroring the backend's `AuditLogController`), so
  * without this a non-administrator tenant role would see the link, click it, and be
  * silently bounced to the login screen by `RequireAuth` (which has no
@@ -90,19 +90,19 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       requiredRoles: ["HOST_ADMIN"],
     },
     {
-      label: T.AUDIT_LOG,
-      labelKey: "nav.auditLog",
-      href: "/host/audit-log",
-      icon: <NavAuditLogIcon />,
+      label: T.SUPPORT_TICKETS,
+      labelKey: "nav.supportTickets",
+      href: "/host/support-tickets",
+      icon: <NavSupportTicketIcon />,
       section: T.DATA_SECTION,
       sectionKey: "nav.data",
       requiredRoles: ["HOST_ADMIN"],
     },
     {
-      label: T.SUPPORT_TICKETS,
-      labelKey: "nav.supportTickets",
-      href: "/host/support-tickets",
-      icon: <NavSupportTicketIcon />,
+      label: T.AUDIT_LOG,
+      labelKey: "nav.auditLog",
+      href: "/host/audit-log",
+      icon: <NavAuditLogIcon />,
       section: T.DATA_SECTION,
       sectionKey: "nav.data",
       requiredRoles: ["HOST_ADMIN"],

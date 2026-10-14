@@ -1,0 +1,72 @@
+"use client";
+
+import type { ReactElement, ReactNode } from "react";
+import type { DashboardSection } from "@pte/api-client";
+import { DashboardPanel } from "@pte/ui";
+import { useAdminDashboardText } from "../hooks/useAdminDashboardText";
+import { sectionAvailability, sectionData } from "../utils/sections";
+
+export interface SectionPanelProps<T> {
+  title: string;
+  subtitle?: string;
+  actions?: ReactNode;
+  footerAction?: ReactNode;
+  section: DashboardSection<T> | null | undefined;
+  onRetry: () => void;
+  className?: string;
+  contentClassName?: string;
+  emptyWhen?: (data: T) => { title: string; description?: string } | null;
+  children: (data: T) => ReactNode;
+}
+
+export function SectionPanel<T>({
+  title,
+  subtitle,
+  actions,
+  footerAction,
+  section,
+  onRetry,
+  className,
+  contentClassName,
+  emptyWhen,
+  children,
+}: SectionPanelProps<T>): ReactElement | null {
+  const { messages } = useAdminDashboardText();
+
+  const availability = sectionAvailability(section);
+  if (availability === "forbidden") return null;
+
+  const data = sectionData(section);
+  if (availability === "error" || data === undefined) {
+    return (
+      <DashboardPanel
+        title={title}
+        subtitle={subtitle}
+        className={className}
+        status="error"
+        error={{
+          title: messages.sectionErrorTitle,
+          description: messages.sectionErrorDescription,
+          retryLabel: messages.retry,
+          onRetry,
+        }}
+      />
+    );
+  }
+
+  const empty = emptyWhen?.(data) ?? undefined;
+  return (
+    <DashboardPanel
+      title={title}
+      subtitle={subtitle}
+      actions={actions}
+      footerAction={footerAction}
+      className={className}
+      contentClassName={contentClassName ?? (empty ? "flex-1 flex flex-col justify-center" : undefined)}
+      status={empty ? "empty" : "content"}
+      empty={empty}
+    >
+      {children(data)}
+    </DashboardPanel>
+  );
+}

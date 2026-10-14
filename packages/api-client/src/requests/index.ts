@@ -42,3 +42,4 @@ export * from "./billing/quota";
 export * from "./notification";
 export * from "./scoring/gradingCohort";
 export * from "./support/tickets";
+export * from "./dashboard";
