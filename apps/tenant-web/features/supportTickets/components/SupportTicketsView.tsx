@@ -17,6 +17,8 @@ import {
   type DataTableColumn,
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
+import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
 import {
   SUPPORT_TICKET_TABLE_HEADERS as H,
   SUPPORT_TICKETS_TEXT as T,
@@ -34,6 +36,7 @@ import { CreateTicketModal } from "./CreateTicketModal";
 export const SupportTicketsView = (): ReactElement => {
   const router = useRouter();
   const { locale, t } = useLocale();
+  const searchText = useTenantSearchText("supportTickets");
   const { showToast } = useToast();
   const text = {
     category: t("tenant.support.category", H.CATEGORY),
@@ -79,10 +82,18 @@ export const SupportTicketsView = (): ReactElement => {
 
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(search);
   const [createOpen, setCreateOpen] = useState(false);
   const [closeTarget, setCloseTarget] = useState<SupportTicket | null>(null);
 
-  const { data, isLoading, isError } = useSupportTickets(undefined, undefined, page, size);
+  const { data, isLoading, isError } = useSupportTickets(
+    undefined,
+    undefined,
+    page,
+    size,
+    debouncedSearch,
+  );
   const submit = useSubmitTicket();
   const close = useCloseTicket();
 
@@ -165,7 +176,15 @@ export const SupportTicketsView = (): ReactElement => {
         isLoading={isLoading}
         emptyTitle={text.empty}
         emptyDescription={text.emptyDescription}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
+        searchValue={search}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(0);
+        }}
         rowActionsHeader={text.actions}
+        clientSideFiltering={false}
         clientSidePagination={false}
         toolbarActions={
           <Button type="button" onClick={() => setCreateOpen(true)}>

@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { usePathname } from "next/navigation";
 import { ApiError } from "@pte/api-client";
-import { Alert, ConfirmDialog, DashboardLoadingState, ProfileLayout, TabPanel, useDashboardBreadcrumbLabel } from "@pte/ui";
+import { Alert, ConfirmDialog, DashboardLoadingState, ProfileLayout, TabPanel, useDashboardBreadcrumbLabel, useToast } from "@pte/ui";
 import { useStaffDetail } from "../api";
 import { useStaffAccountActions } from "../hooks/useStaffAccountActions";
 import { useStaffDetailText } from "../hooks/useStaffDetailText";
@@ -26,6 +26,7 @@ export const StaffDetailView = ({ staffPublicId }: StaffDetailViewProps): ReactE
   const pathname = usePathname();
   useDashboardBreadcrumbLabel(pathname, account?.fullName || account?.username);
   const actions = useStaffAccountActions(account, text);
+  const { showToast } = useToast();
   const [tab, setTab] = useState<StaffDetailTab>("overview");
   const [editState, setEditState] = useState({ dirty: false, pending: false });
   const [editVersion, setEditVersion] = useState(0);
@@ -34,6 +35,7 @@ export const StaffDetailView = ({ staffPublicId }: StaffDetailViewProps): ReactE
       ? previous : { dirty, pending });
   }, []);
   const guard = useStaffEditGuard(editState.dirty, editState.pending);
+  useEffect(() => { if (actions.sent) showToast(text.sent, { tone: "success" }); }, [actions.sent, showToast, text.sent]);
   if (query.isPending) return <DashboardLoadingState variant="detail" />;
   const accessRevoked = query.error instanceof ApiError && [401, 403, 404].includes(query.error.status);
   if (accessRevoked || !account) return <StaffWorkspaceError error={query.error} text={text}
@@ -48,7 +50,6 @@ export const StaffDetailView = ({ staffPublicId }: StaffDetailViewProps): ReactE
     {query.isError && <StaffWorkspaceError error={query.error} text={text}
       retry={() => { void query.refetch(); }} />}
     {actions.error && actions.command === null && <Alert tone="error">{actions.error}</Alert>}
-    {actions.sent && <Alert tone="success">{text.sent}</Alert>}
     <StaffProfileHeader account={account} text={text}
       items={actions.items.map((item) => "separator" in item ? item : { ...item,
         disabled: item.disabled || editState.pending, onSelect: () => guard.request(() => {

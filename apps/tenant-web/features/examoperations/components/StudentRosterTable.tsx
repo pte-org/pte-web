@@ -12,6 +12,7 @@ import {
 } from "@pte/ui";
 import { useResetStudentPassword, useSessionRoster, useUnenroll, type RosterEntry } from "../api";
 import { errorMessage } from "../errorMessage";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { ResetStudentPasswordModal } from "./ResetStudentPasswordModal";
 import {
   STUDENT_ROSTER_TABLE_TEXT,
@@ -25,6 +26,7 @@ interface StudentRosterTableProps {
 
 export const StudentRosterTable = ({ sessionPublicId }: StudentRosterTableProps): ReactElement => {
   const { t } = useLocale();
+  const searchText = useTenantSearchText("roster");
   const { data: roster, isLoading } = useSessionRoster(sessionPublicId);
   const unenrollMutation = useUnenroll(sessionPublicId);
   const [resetTarget, setResetTarget] = useState<RosterEntry | null>(null);
@@ -75,6 +77,8 @@ export const StudentRosterTable = ({ sessionPublicId }: StudentRosterTableProps)
         getRowKey={(entry) => entry.enrollmentPublicId}
         isLoading={isLoading}
         emptyTitle={text.emptyTitle}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
         rowActions={(entry) => (
           <ActionMenu
             items={[

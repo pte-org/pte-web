@@ -13,6 +13,7 @@ import {
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useAllTenantClasses } from "@/features/classes/api";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { CLASS_ASSIGNMENT_TEXT } from "../constants";
 import { useAssignClass, useAssignedClasses, useUnassignClass } from "../api";
 import type { AssignedClass } from "../types";
@@ -30,6 +31,7 @@ export const ClassAssignmentSection = ({
   canModify,
 }: ClassAssignmentSectionProps): ReactElement => {
   const { t } = useLocale();
+  const searchText = useTenantSearchText("classAssignment");
   const { data: assignedClasses, isLoading } = useAssignedClasses(sessionPublicId);
   const { data: tenantClasses, isLoading: tenantClassesLoading } = useAllTenantClasses();
   const assign = useAssignClass(sessionPublicId);
@@ -44,7 +46,6 @@ export const ClassAssignmentSection = ({
     sourceLocked: t("tenant.classAssignment.sourceLocked", T.SOURCE_LOCKED),
     unassign: t("tenant.classAssignment.unassign", T.UNASSIGN),
     actions: t("tenant.classAssignment.actions", T.ACTIONS),
-    notScheduled: t("tenant.classAssignment.notScheduled", T.NOT_SCHEDULED_NOTICE),
   };
 
   const assignedIds = new Set((assignedClasses ?? []).map((entry) => entry.classPublicId));
@@ -75,7 +76,6 @@ export const ClassAssignmentSection = ({
 
   return (
     <div className="flex flex-col gap-3">
-      {!canModify && <Alert tone="warning">{text.notScheduled}</Alert>}
       {errorMessage(assign.error) && <Alert tone="error">{errorMessage(assign.error)}</Alert>}
       {errorMessage(unassign.error) && <Alert tone="error">{errorMessage(unassign.error)}</Alert>}
 
@@ -108,6 +108,8 @@ export const ClassAssignmentSection = ({
         getRowKey={(entry) => entry.classPublicId}
         isLoading={isLoading}
         emptyTitle={text.empty}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
         rowActionsHeader={canModify ? text.actions : undefined}
         rowActions={
           canModify

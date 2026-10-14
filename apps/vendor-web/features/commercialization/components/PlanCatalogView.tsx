@@ -35,6 +35,7 @@ import { PLAN_CATALOG_TEXT as RAW_PLAN_CATALOG_TEXT } from "../constants";
 import { CommercialPanel } from "./CommercialPanel";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
 
 type PlanFormState = {
   name: string;
@@ -184,6 +185,7 @@ const PLAN_FORM_ID = "plan-catalog-form";
 
 export const PlanCatalogView = (): ReactElement => {
   const T = useAdminCopy(RAW_PLAN_CATALOG_TEXT);
+  const searchText = useAdminSearchText("plans");
   const statusFilterOptions = useAdminCopy(PLAN_STATUS_FILTER_OPTIONS);
   const statusLabels = useAdminCopy({
     DRAFT: "Draft",
@@ -524,6 +526,8 @@ export const PlanCatalogView = (): ReactElement => {
             </Button>
           }
           isLoading={isLoading}
+          searchPlaceholder={searchText.placeholder}
+          searchAriaLabel={searchText.ariaLabel}
           columns={[
             {
               key: "name",

@@ -2,20 +2,29 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import Link from "next/link";
-import { Alert, Button, ChevronRightIcon, Input, LicenseIcon, PageHeader } from "@pte/ui";
+import { Alert, Button, ChevronRightIcon, Input, LicenseIcon, PageHeader, useToast } from "@pte/ui";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useRedeemLicense } from "../api";
 import { BILLING_TEXT as T, REDEEM_ERROR_MESSAGES } from "../constants";
 import { BillingPanel } from "./BillingPanel";
 
 export const RedeemLicenseView = (): ReactElement => {
+  const { showToast } = useToast();
   const [code, setCode] = useState("");
   const redeem = useRedeemLicense();
 
   const submit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     if (!code.trim()) return;
-    await redeem.mutateAsync({ code: code.trim().toUpperCase() });
+    const result = await redeem.mutateAsync({ code: code.trim().toUpperCase() });
+    showToast(
+      result.kind === "STUDENT_CAPACITY"
+        ? T.STUDENT_SLOTS_ADDED(result.grantedStudentSlots ?? 0)
+        : T.EXAM_PACKAGE_ACTIVATED(
+            result.expiresAt ? new Date(result.expiresAt).toLocaleDateString() : undefined,
+          ),
+      { tone: "success", title: T.REDEEM_SUCCESS_TITLE },
+    );
   };
 
   const error = redeem.error;
@@ -32,17 +41,6 @@ export const RedeemLicenseView = (): ReactElement => {
   return (
     <div className="flex flex-col gap-5">
       <PageHeader title={T.REDEEM_TITLE} subtitle={T.REDEEM_SUBTITLE} />
-      {redeem.isSuccess && redeem.data && (
-        <Alert tone="success" title={T.REDEEM_SUCCESS_TITLE}>
-          {redeem.data.kind === "STUDENT_CAPACITY"
-            ? T.STUDENT_SLOTS_ADDED(redeem.data.grantedStudentSlots ?? 0)
-            : T.EXAM_PACKAGE_ACTIVATED(
-                redeem.data.expiresAt
-                  ? new Date(redeem.data.expiresAt).toLocaleDateString()
-                  : undefined,
-              )}
-        </Alert>
-      )}
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       <BillingPanel title={T.LICENSE_CODE_PANEL} subtitle={T.LICENSE_CODE_SUBTITLE}>
         <form className="max-w-xl space-y-4" onSubmit={(event) => void submit(event)}>

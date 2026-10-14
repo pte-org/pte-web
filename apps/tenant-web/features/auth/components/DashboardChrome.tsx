@@ -1,5 +1,7 @@
 "use client";
 
+import { BREADCRUMB_PARENT_ROUTES } from "@/lib/breadcrumbRoutes";
+
 import type { ReactElement, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,6 +11,7 @@ import {
   LocaleSwitcher,
   Breadcrumbs,
   DashboardBreadcrumbProvider,
+  DashboardShell,
   useDashboardBreadcrumbItems,
   LogoutIcon,
   SidebarNav as SharedSidebarNav,
@@ -21,7 +24,6 @@ import {
   type DropdownItem,
   type SessionRole,
 } from "@pte/ui";
-import CommonDashboardLayout from "@/components/common/dashboard-layout";
 import { NotificationBellContainer } from "@/features/notifications";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
@@ -249,9 +251,10 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
   const activeItem = navItems
     .filter((item) => isActive(pathname, item.href))
     .sort((a, b) => b.href.length - a.href.length)[0];
+  const explicitParent = BREADCRUMB_PARENT_ROUTES.find(route => pathname === route.prefix || pathname?.startsWith(`${route.prefix}/`));
   const breadcrumbItems = useDashboardBreadcrumbItems(
     pathname,
-    activeItem
+    explicitParent ? { href: explicitParent.href, label: t(explicitParent.labelKey) } : activeItem
       ? {
           href: activeItem.href,
           label: activeItem.labelKey ? t(activeItem.labelKey, activeItem.label) : activeItem.label,
@@ -277,7 +280,7 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
     ) : null;
 
   return (
-    <CommonDashboardLayout
+    <DashboardShell
       brand={({ isSidebarOpen }) => <SidebarBrand collapsed={!isSidebarOpen} />}
       sidebar={({ isSidebarOpen, onItemClick }) => (
         <SidebarNav navItems={navItems} isSidebarOpen={isSidebarOpen} onItemClick={onItemClick} />
@@ -290,7 +293,7 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
       navigationKey={`${pathname}?${searchParams.toString()}`}
     >
       {children}
-    </CommonDashboardLayout>
+    </DashboardShell>
   );
 };
 

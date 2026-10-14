@@ -1,9 +1,11 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import { useEffect, useRef, type ReactElement } from "react";
 import { getInboxItem, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, Badge, LoadingState, PageHeader, useToast } from "@pte/ui";
+import { Alert, Badge, LoadingState, useToast, useDashboardBreadcrumbLabel } from "@pte/ui";
 import { apiClient } from "@/lib/apiClient";
 import { useCurrentUser } from "@/features/auth/api";
 import { useMarkNotificationRead } from "../api";
@@ -25,6 +27,8 @@ export function NotificationDetailView({ publicId }: { publicId: string }): Reac
     retry: false,
   });
   const markRead = useMarkNotificationRead();
+  const pathname = usePathname();
+  useDashboardBreadcrumbLabel(pathname, detail.data?.title);
   useEffect(() => {
     if (detail.data?.readAt === null && !readRequested.current) {
       readRequested.current = true;
@@ -39,7 +43,6 @@ export function NotificationDetailView({ publicId }: { publicId: string }): Reac
   const item = detail.data;
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={item.title} subtitle={new Date(item.deliveredAt).toLocaleString()} />
       <article className="rounded-lg bg-white p-6 shadow-card">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={item.importance === "IMPORTANT" ? "warning" : "info"}>

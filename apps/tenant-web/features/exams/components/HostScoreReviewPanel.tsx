@@ -16,6 +16,7 @@ import {
   DataTable,
   Select,
   useLocale,
+  useToast,
   type DataTableColumn,
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
@@ -51,6 +52,7 @@ export const HostScoreReviewPanel = ({
   sessionPublicId,
 }: HostScoreReviewPanelProps): ReactElement => {
   const { locale, t } = useLocale();
+  const { showToast } = useToast();
   const [scope, setScope] = useState<ScoreSourceSelectionScope>("ALL");
   const [section, setSection] = useState("");
   const [taskType, setTaskType] = useState("");
@@ -233,7 +235,16 @@ export const HostScoreReviewPanel = ({
     setPendingApply(null);
     setRequest(nextRequest);
     applyMutation.mutate(nextRequest, {
-      onSuccess: () => {
+      onSuccess: (result) => {
+        showToast(
+          text.applySuccess({
+            count: result.affectedAnswerCount,
+            ai: result.previousAiCount,
+            examiner: result.previousExaminerCount,
+            unselected: result.previousUnselectedCount,
+          }),
+          { tone: "success" },
+        );
         setPreview(null);
         setRequest(null);
       },
@@ -387,16 +398,6 @@ export const HostScoreReviewPanel = ({
 
       {review.data?.publicationLocked && <Alert tone="warning">{text.publicationLocked}</Alert>}
       {error && <Alert tone="error">{error}</Alert>}
-      {applyMutation.isSuccess && (
-        <Alert tone="success">
-          {text.applySuccess({
-            count: applyMutation.data.affectedAnswerCount,
-            ai: applyMutation.data.previousAiCount,
-            examiner: applyMutation.data.previousExaminerCount,
-            unselected: applyMutation.data.previousUnselectedCount,
-          })}
-        </Alert>
-      )}
 
       <div className="grid gap-3 md:grid-cols-4 md:items-end">
         <Select
@@ -484,6 +485,7 @@ export const HostScoreReviewPanel = ({
       )}
 
       <DataTable
+        showSearch={false}
         columns={answerColumns}
         rows={answers}
         getRowKey={(answer) => answer.answerPublicId}
@@ -505,6 +507,7 @@ export const HostScoreReviewPanel = ({
         ) : null}
         <div className="mt-3">
           <DataTable
+            showSearch={false}
             columns={auditColumns}
             rows={audits.data ?? EMPTY_AUDITS}
             getRowKey={(audit) => audit.auditPublicId}

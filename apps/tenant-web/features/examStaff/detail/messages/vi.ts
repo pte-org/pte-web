@@ -9,6 +9,7 @@ export const STAFF_DETAIL_VI: StaffDetailMessages = {
   notRequired: "Không bắt buộc", proctorRole: "Giám thị", examinerRole: "Giám khảo",
   edit: "Chỉnh sửa", save: "Lưu", cancel: "Hủy", saved: "Đã lưu thông tin tài khoản.",
   accountDescription: "Thông tin định danh và liên hệ. Tài khoản và vai trò không thể chỉnh sửa.",
+  identitySection: "Thông tin cá nhân", accessSection: "Tài khoản & quyền",
   actions: "Thao tác tài khoản", sendCredentials: "Tạo và gửi thông tin đăng nhập",
   sendTitle: "Gửi thông tin đăng nhập tạm", sendDescription: "Tạo mật khẩu tạm mới cho {name} và gửi qua email? Mật khẩu hiện tại sẽ không còn sử dụng được.",
   sent: "Đã đưa email thông tin đăng nhập vào hàng đợi.", credentialsFailed: "Không thể tạo hoặc gửi thông tin đăng nhập.",

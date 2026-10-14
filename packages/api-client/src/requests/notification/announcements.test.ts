@@ -32,6 +32,16 @@ describe("admin announcement requests", () => {
     );
   });
 
+  it("encodes announcement title/body search", async () => {
+    const client = fakeClient();
+
+    await listAnnouncements(client, { page: 1, size: 20, search: "  outage & maintenance " });
+
+    expect(client.request).toHaveBeenCalledWith(
+      `${ANNOUNCEMENT_ENDPOINTS.announcements}?page=1&size=20&search=outage+%26+maintenance`,
+    );
+  });
+
   it("uses versioned draft and publication operations", async () => {
     const client = fakeClient();
     const id = "announcement-id";

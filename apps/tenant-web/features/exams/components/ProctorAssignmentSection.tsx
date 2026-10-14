@@ -14,6 +14,7 @@ import {
 } from "@pte/ui";
 import type { ProctorRole } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import {
   PROCTOR_ROLE_DESCRIPTIONS,
   PROCTOR_ROLE_LABELS,
@@ -42,6 +43,7 @@ export const ProctorAssignmentSection = ({
   sessionPublicId,
 }: ProctorAssignmentSectionProps): ReactElement => {
   const { t } = useLocale();
+  const searchText = useTenantSearchText("proctors");
   const { data: assignments, isLoading } = useProctorAssignments(sessionPublicId);
   const unassign = useUnassignProctor(sessionPublicId);
   const updateRole = useUpdateProctorRole(sessionPublicId);
@@ -132,6 +134,8 @@ export const ProctorAssignmentSection = ({
           getRowKey={(entry) => entry.assignmentPublicId}
           isLoading={isLoading}
           emptyTitle={text.empty}
+          searchPlaceholder={searchText.placeholder}
+          searchAriaLabel={searchText.ariaLabel}
           rowActionsHeader={text.actions}
           rowActions={(entry) => (
             <ActionMenu

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Button, Input, Modal } from "@pte/ui";
+import { Alert, Button, Input, Modal, useToast } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { SPLIT_CLASS_ERRORS, SPLIT_CLASS_TEXT } from "../constants";
 import { useSplitClass } from "../api";
@@ -30,6 +30,7 @@ export const SplitClassModal = ({
   classLabel,
   onSplit,
 }: SplitClassModalProps): ReactElement => {
+  const { showToast } = useToast();
   const [newClassName, setNewClassName] = useState("");
   const [nameError, setNameError] = useState<string | undefined>();
   const split = useSplitClass(organizationPublicId, programPublicId, sourceClassPublicId);
@@ -57,7 +58,14 @@ export const SplitClassModal = ({
     setNameError(undefined);
     split.mutate(
       { newClassName: newClassName.trim(), studentPublicIds: selectedStudentPublicIds },
-      { onSuccess: onSplit },
+      {
+        onSuccess: (result) => {
+          showToast(T.successTitle(result.movedStudentPublicIds.length, result.newClass.name), {
+            tone: "success",
+          });
+          onSplit();
+        },
+      },
     );
   };
 
@@ -65,9 +73,6 @@ export const SplitClassModal = ({
     return (
       <Modal open={open} onClose={handleClose} title={T.title(classLabel)}>
         <div className="flex flex-col gap-4">
-          <Alert tone="success">
-            {T.successTitle(split.data.movedStudentPublicIds.length, split.data.newClass.name)}
-          </Alert>
           <Button type="button" onClick={handleClose}>
             {T.done}
           </Button>

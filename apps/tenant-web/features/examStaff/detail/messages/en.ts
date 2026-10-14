@@ -7,6 +7,7 @@ export const STAFF_DETAIL_EN = {
   notRequired: "Not required", proctorRole: "Proctor", examinerRole: "Examiner",
   edit: "Edit", save: "Save", cancel: "Cancel", saved: "Account information saved.",
   accountDescription: "Identity and contact information. Account and roles are read-only.",
+  identitySection: "Identity & contact", accessSection: "Account & access",
   actions: "Account actions", sendCredentials: "Generate and send credentials",
   sendTitle: "Send temporary credentials", sendDescription: "Generate a new temporary password for {name} and send it by email? The current password will stop working.",
   sent: "Credentials email queued.", credentialsFailed: "Unable to generate or send credentials.",

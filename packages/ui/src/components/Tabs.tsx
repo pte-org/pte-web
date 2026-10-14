@@ -7,9 +7,11 @@ import {
   type ReactNode,
 } from "react";
 import { useLocale } from "../i18n";
+import { PRIMARY_ACTION_SURFACE_CLASSES } from "../styles/interactiveClasses";
 import { cn } from "../utils/cn";
 
 export type TabsVariant = "default" | "minimal";
+export type TabsActiveVariant = "surface" | "primary";
 
 export interface TabItem {
   id: string;
@@ -29,6 +31,8 @@ export interface TabsProps {
   ariaLabel?: string;
   /** Mirrors the NextAdmin tabs primitive: card-like tabs or underline tabs. */
   variant?: TabsVariant;
+  /** Controls the selected trigger appearance for default card-like tabs. */
+  activeVariant?: TabsActiveVariant;
 }
 
 const tabRootStyles: Record<TabsVariant, string> = {
@@ -58,6 +62,7 @@ export const Tabs = ({
   id,
   ariaLabel,
   variant = "default",
+  activeVariant = "surface",
 }: TabsProps): ReactElement => {
   const generatedTabsId = useId().replace(/:/g, "");
   const tabsId = id ?? generatedTabsId;
@@ -99,7 +104,9 @@ export const Tabs = ({
             const triggerStyles =
               variant === "default"
                 ? selected
-                  ? "rounded-md bg-[var(--surface-card)] px-3 py-2 text-[var(--ink-primary)] shadow-xs"
+                  ? activeVariant === "primary"
+                    ? `rounded-md px-3 py-2 ${PRIMARY_ACTION_SURFACE_CLASSES}`
+                    : "rounded-md bg-[var(--surface-card)] px-3 py-2 text-[var(--ink-primary)] shadow-xs"
                   : "rounded-md px-3 py-2 text-[var(--ink-secondary)] hover:bg-[var(--surface-card)]/70 hover:text-[var(--ink-primary)]"
                 : selected
                   ? "border-b-2 border-[var(--brand)] px-3 py-3.5 text-[var(--brand-ink)]"

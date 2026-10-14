@@ -17,6 +17,7 @@ import {
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { pluralize } from "@/features/orgLabels/constants";
 import { useAllTenantClasses, type TenantClassOption } from "../api";
 import {
@@ -36,8 +37,9 @@ interface ClassesListViewProps {
   onOrganizationChange: (organizationPublicId: string) => void;
   /** Programs the tenant already owns (loaded from /programs endpoint, not derived from classes). */
   allPrograms: ProgramOption[];
+  initialProgramPublicId?: string;
   /** Open the create-class modal pre-filled with the picked program. */
-  onRequestCreateClass: (programPublicId: string) => void;
+  onRequestCreateClass: (programPublicId?: string) => void;
   /** Open the import/assign modal pre-bound to a specific class. */
   onRequestAssignStudents: (input: {
     organizationPublicId: string;
@@ -99,11 +101,13 @@ export const ClassesListView = ({
   selectedOrganizationPublicId,
   onOrganizationChange,
   allPrograms,
+  initialProgramPublicId = "",
   onRequestCreateClass,
   onRequestAssignStudents,
 }: ClassesListViewProps): ReactElement => {
   const labels = useOrgLabels();
   const { t } = useLocale();
+  const searchText = useTenantSearchText("classes");
   const classLabel = t("nav.class", labels.class);
   const programLabel = t("nav.program", labels.program);
   const text = {
@@ -138,8 +142,6 @@ export const ClassesListView = ({
     suspended: t("tenant.classes.suspended", CLASS_STATUS_LABELS.SUSPENDED),
     filterByProgram: t("tenant.classes.filterByProgram", "Filter by Program"),
     allPrograms: t("tenant.classes.allPrograms", "All Programs"),
-    count: (count: number) =>
-      t("tenant.classes.count", CLASSES_LIST_TEXT.countLabel(count, labels.class), { count }),
   };
   const statusLabels = { ACTIVE: text.active, INACTIVE: text.inactive, SUSPENDED: text.suspended };
   const statusFilterOptions = [
@@ -149,26 +151,28 @@ export const ClassesListView = ({
     { value: "SUSPENDED", label: text.suspended },
   ];
   const { data: classes, isLoading, isError, error } = useAllTenantClasses();
-  const [programFilter, setProgramFilter] = useState<string>(ALL_FILTER);
+  const [programFilter, setProgramFilter] = useState<string>(initialProgramPublicId || ALL_FILTER);
 
-  // Programs that already contain at least one class — used by the in-row
-  // class filter. Distinct from `allPrograms` which is the full owned list,
-  // including programs that have no class yet.
-  const programsWithClasses = useMemo(() => {
+  // Include empty programs so a program-detail link can retain its selected scope.
+  const programFilterOptions = useMemo(() => {
     const seen = new Map<string, string>();
+    for (const program of allPrograms) seen.set(program.value, program.label);
     for (const c of classes ?? []) {
+      if (c.organizationPublicId !== selectedOrganizationPublicId) continue;
       if (!seen.has(c.programPublicId)) seen.set(c.programPublicId, c.programName);
     }
     return Array.from(seen, ([value, label]) => ({ value, label })).sort((a, b) =>
       a.label.localeCompare(b.label),
     );
-  }, [classes]);
+  }, [classes, allPrograms, selectedOrganizationPublicId]);
 
   const filteredClasses = useMemo(() => {
-    const list = classes ?? [];
+    const list = (classes ?? []).filter(
+      (c) => c.organizationPublicId === selectedOrganizationPublicId,
+    );
     if (programFilter === ALL_FILTER) return list;
     return list.filter((c) => c.programPublicId === programFilter);
-  }, [classes, programFilter]);
+  }, [classes, programFilter, selectedOrganizationPublicId]);
 
   if (isError) {
     return (
@@ -202,7 +206,12 @@ export const ClassesListView = ({
 
   // "Tenant owns programs but none of them have any class" — give a per-row
   // Add Class CTA so the host doesn't have to navigate into each Program.
-  if (!isLoading && (classes ?? []).length === 0 && allPrograms.length >= 1) {
+  if (
+    !isLoading &&
+    (classes ?? []).length === 0 &&
+    allPrograms.length >= 1 &&
+    !initialProgramPublicId
+  ) {
     return (
       <PickProgramToAddClass
         programs={allPrograms}
@@ -248,16 +257,14 @@ export const ClassesListView = ({
         />
       )}
 
-      {programsWithClasses.length >= 2 && (
+      {(programFilterOptions.length >= 2 || initialProgramPublicId) && (
         <Select
           label={text.filterByProgram}
-          options={[{ value: ALL_FILTER, label: text.allPrograms }, ...programsWithClasses]}
+          options={[{ value: ALL_FILTER, label: text.allPrograms }, ...programFilterOptions]}
           value={programFilter}
           onChange={(event) => setProgramFilter(event.target.value)}
         />
       )}
-
-      <p className="text-sm text-gray-500">{text.count(filteredClasses.length)}</p>
 
       <DataTable
         columns={columns}
@@ -266,10 +273,21 @@ export const ClassesListView = ({
         isLoading={isLoading}
         emptyTitle={text.noClassesTitle}
         emptyDescription={text.noClassesDescription}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
         rowActionsHeader={text.actions}
         rowActions={(option) => (
           <ClassRowActions option={option} onAssignStudents={onRequestAssignStudents} />
         )}
+        toolbarActions={
+          <Button
+            type="button"
+            onClick={() => onRequestCreateClass()}
+            disabled={isLoading || allPrograms.length === 0}
+          >
+            {text.create}
+          </Button>
+        }
       />
     </div>
   );

@@ -45,14 +45,15 @@ export function useAuditLogs(
   aggregateType?: string,
   page = 0,
   size = DEFAULT_PAGE_SIZE,
+  search = "",
 ): UseQueryResult<PagedResult<AuditLogEntry>> {
   const actors = useAuditActorDirectory();
   const queryClient = useQueryClient();
 
   return useQuery({
-    queryKey: [...AUDIT_LOGS_QUERY_KEY, aggregateType ?? "ALL", page, size],
+    queryKey: [...AUDIT_LOGS_QUERY_KEY, aggregateType ?? "ALL", search, page, size],
     queryFn: async () => {
-      const logs = await listAuditLogs(apiClient, aggregateType, page, size);
+      const logs = await listAuditLogs(apiClient, aggregateType, page, size, search);
       const allActors =
         queryClient.getQueryData<UserDirectoryEntryResponse[]>(AUDIT_LOG_ACTORS_QUERY_KEY) ??
         actors.data ??

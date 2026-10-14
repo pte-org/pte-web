@@ -34,6 +34,8 @@ export interface AdminLicenseCodeListParams {
   status?: LicenseCodeStatus;
   planId?: string;
   tenantId?: string;
+  /** Safe public identifier search only; never pass a bearer license code here. */
+  search?: string;
 }
 
 export function listAdminLicenseCodes(
@@ -47,6 +49,8 @@ export function listAdminLicenseCodes(
   if (params.status) query.set("status", params.status);
   if (params.planId) query.set("planId", params.planId);
   if (params.tenantId) query.set("tenantId", params.tenantId);
+  const search = params.search?.trim();
+  if (search) query.set("search", search);
   return client.request(`${LICENSE_CODE_ENDPOINTS.adminList}?${query.toString()}`);
 }
 

@@ -2,16 +2,10 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import {
-  Alert,
-  Button,
-  Input,
-  PageHeader,
-  ProgressBar,
-} from "@pte/ui";
+import { Alert, Button, Input, PageHeader, ProgressBar } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useStudentImportPreview, useStudentQuotaQuery } from "../api";
-import { BILLING_TEXT as T } from "../constants";
+import { BILLING_TEXT as T, PLANS_HOME_HREF } from "../constants";
 import { BillingPanel } from "./BillingPanel";
 
 export const QuotaView = (): ReactElement => {
@@ -37,7 +31,10 @@ export const QuotaView = (): ReactElement => {
         title={T.QUOTA_TITLE}
         subtitle={T.QUOTA_SUBTITLE}
         actions={
-          <Link href="/host/billing" className="text-sm font-semibold text-action hover:underline">
+          <Link
+            href={PLANS_HOME_HREF}
+            className="text-sm font-semibold text-action hover:underline"
+          >
             {T.ADD_CAPACITY}
           </Link>
         }
@@ -62,7 +59,7 @@ export const QuotaView = (): ReactElement => {
             {usedPercentage >= 80 ? (
               <Alert className="mt-5" tone="warning">
                 {T.CAPACITY_ALMOST_FULL}{" "}
-                <Link href="/host/billing" className="font-semibold underline">
+                <Link href={PLANS_HOME_HREF} className="font-semibold underline">
                   {T.ADD_STUDENT_CAPACITY}
                 </Link>{" "}
                 {T.CAPACITY_WARNING_SUFFIX}

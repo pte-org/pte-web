@@ -24,6 +24,7 @@ import {
   Select,
   subscribeSessionLifecycle,
   useSessionManager,
+  useToast,
 } from "@pte/ui";
 import {
   ApiError,
@@ -49,6 +50,8 @@ import { CommercialPanel } from "./CommercialPanel";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
 import { isPlatformAdmin } from "@/features/auth/permissions";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
+import { useDebouncedSearch } from "@/features/i18n/useDebouncedSearch";
 
 const DEFAULT_PAGE_SIZE = 25;
 const MAX_REVEAL_MS = 60_000;
@@ -120,11 +123,13 @@ const safeOperationMessage = (error: unknown, fallback: string): string =>
 
 export const LicenseCodesView = (): ReactElement => {
   const T = useAdminCopy(RAW_LICENSE_CODES_TEXT);
+  const searchText = useAdminSearchText("licenseCodes");
   const statusOptions = useAdminCopy(LICENSE_STATUS_FILTER_OPTIONS);
   const dateRangeLabel = useAdminCopy("Date range");
   const impactLabel = useAdminCopy("Impact");
   const previewValidUntilLabel = useAdminCopy("Preview valid until");
   const { session, isReady } = useSessionManager();
+  const { showToast } = useToast();
   const canUseSensitiveActions = isPlatformAdmin(session?.roles);
   const actorId = session ? decodeAccessTokenClaims(session.accessToken)?.sub : undefined;
   const recoveryKey = actorId ? `pte-license-issue:${actorId}` : null;
@@ -132,6 +137,8 @@ export const LicenseCodesView = (): ReactElement => {
 
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(search);
   const [draftStatus, setDraftStatus] = useState<StatusFilter>("");
   const [draftPlanId, setDraftPlanId] = useState("");
   const [draftTenantId, setDraftTenantId] = useState("");
@@ -142,6 +149,7 @@ export const LicenseCodesView = (): ReactElement => {
     status: filters.status || undefined,
     planId: filters.planId || undefined,
     tenantId: filters.tenantId || undefined,
+    search: debouncedSearch,
   });
   const {
     data: plans = [],
@@ -161,7 +169,6 @@ export const LicenseCodesView = (): ReactElement => {
   const [cancelSubscription, setCancelSubscription] = useState(false);
   const [cancelScheduledScope, setCancelScheduledScope] = useState(false);
   const [preserveOpenClosed, setPreserveOpenClosed] = useState(false);
-  const [message, setMessage] = useState("");
   const [memoryRecovery, setMemoryRecovery] = useState<{
     owner: string;
     intent: IssueIntent | null;
@@ -198,7 +205,7 @@ export const LicenseCodesView = (): ReactElement => {
     (plan) => plan.type === "EXAM_PACKAGE" && plan.status === "ACTIVE",
   );
   const codes = codePageQuery.data?.data ?? [];
-  const isFiltered = Boolean(filters.status || filters.planId || filters.tenantId);
+  const isFiltered = Boolean(filters.status || filters.planId || filters.tenantId || search.trim());
   const error = issue.error ?? revoke.error ?? revokePreviewRequest.error ?? codePageQuery.error;
   const errorMessage =
     localError ||
@@ -239,7 +246,6 @@ export const LicenseCodesView = (): ReactElement => {
         setLookupResult(null);
         setLookupInput("");
         setLookupError("");
-        setMessage("");
         setLocalError("");
         setMemoryRecovery(null);
         setConfirmNewIntent(false);
@@ -275,7 +281,6 @@ export const LicenseCodesView = (): ReactElement => {
     if (issue.isPending || !recoveryKey) return;
     clearReveal();
     setLocalError("");
-    setMessage("");
     const submittedExpiry = expiresAt ? new Date(expiresAt) : null;
     if (
       !intent &&
@@ -294,8 +299,9 @@ export const LicenseCodesView = (): ReactElement => {
     saveRecovery(next);
     try {
       const result = await issue.mutateAsync(next);
-      setMessage(
+      showToast(
         result.replayed ? T.RECOVERED_SUCCESS(result.publicId) : T.ISSUED_SUCCESS(result.publicId),
+        { tone: "success" },
       );
       saveRecovery(null);
       setPlanId("");
@@ -355,7 +361,7 @@ export const LicenseCodesView = (): ReactElement => {
     };
     try {
       await revoke.mutateAsync({ publicId: codeToRevoke.publicId, payload });
-      setMessage(T.REVOKED_SUCCESS(codeToRevoke.publicId));
+      showToast(T.REVOKED_SUCCESS(codeToRevoke.publicId), { tone: "success" });
       setCodeToRevoke(null);
       setRevokePreview(null);
     } catch (caught) {
@@ -382,7 +388,6 @@ export const LicenseCodesView = (): ReactElement => {
     try {
       const result = await revealAdminLicenseCode(row.publicId);
       setRevealedCode(result.code);
-      setMessage("");
     } catch (caught) {
       setRevealError(safeOperationMessage(caught, T.REVEAL_ERROR));
     } finally {
@@ -417,7 +422,7 @@ export const LicenseCodesView = (): ReactElement => {
     try {
       await navigator.clipboard.writeText(revealedCode);
       setCopied(true);
-      setMessage(T.COPIED);
+      showToast(T.COPIED, { tone: "success" });
     } catch {
       setRevealError(T.REVEAL_ERROR);
     }
@@ -431,7 +436,6 @@ export const LicenseCodesView = (): ReactElement => {
   return (
     <div className="flex flex-col gap-5">
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
-      {message && <Alert tone="success">{message}</Alert>}
       {codePageQuery.isFetching && codePageQuery.data && <Alert tone="info">{T.STALE_DATA}</Alert>}
       {intent && (
         <Alert tone="warning">
@@ -563,6 +567,14 @@ export const LicenseCodesView = (): ReactElement => {
           </div>
         </div>
         <DataTable
+          searchPlaceholder={searchText.placeholder}
+          searchAriaLabel={searchText.ariaLabel}
+          searchValue={search}
+          onSearchChange={(value) => {
+            clearReveal();
+            setSearch(value);
+            setPage(0);
+          }}
           columns={[
             {
               key: "code",
@@ -653,6 +665,7 @@ export const LicenseCodesView = (): ReactElement => {
           )}
           rowActionsHeader=""
           emptyTitle={codePageQuery.isLoading ? T.LOADING : isFiltered ? T.FILTER_EMPTY : T.EMPTY}
+          clientSideFiltering={false}
           clientSidePagination={false}
           pagination={
             codePageQuery.data ? (

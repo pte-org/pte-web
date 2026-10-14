@@ -21,6 +21,8 @@ import {
   useToast,
 } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
+import { useDebouncedSearch } from "@/features/i18n/useDebouncedSearch";
 import {
   useAnnouncementsQuery,
   useCreateAnnouncement,
@@ -34,6 +36,7 @@ import { AnnouncementFormModal } from "./AnnouncementFormModal";
 type Confirmation = { kind: "publish" | "delete"; announcement: AnnouncementResponse } | null;
 
 export function AnnouncementsView(): ReactElement {
+  const searchText = useAdminSearchText("announcements");
   const T = useAdminCopy({
     ALL_STATUSES: "All statuses",
     PUBLISHED: "Published",
@@ -86,10 +89,12 @@ export function AnnouncementsView(): ReactElement {
   const router = useRouter();
   const { showToast } = useToast();
   const [page, setPage] = useState(0);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(search);
   const [composer, setComposer] = useState<AnnouncementResponse | null | undefined>(undefined);
   const [confirmation, setConfirmation] = useState<Confirmation>(null);
   const [conflict, setConflict] = useState<string | null>(null);
-  const announcements = useAnnouncementsQuery(page);
+  const announcements = useAnnouncementsQuery(page, debouncedSearch);
   const create = useCreateAnnouncement();
   const update = useUpdateAnnouncement();
   const publish = usePublishAnnouncement();
@@ -171,6 +176,14 @@ export function AnnouncementsView(): ReactElement {
         </Alert>
       )}
       <DataTable
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
+        searchValue={search}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(0);
+        }}
+        clientSideFiltering={false}
         columns={[
           {
             key: "title",
