@@ -36,7 +36,7 @@ export interface NavItem {
   icon?: ReactNode;
   section?: string;
   sectionKey?: string;
-  /** If set, only rendered for a caller whose roles include at least one of these — see `buildHostNav`'s "Audit Log" entry. */
+  /** If set, only rendered for a caller whose roles include at least one of these — see `buildHostNav`'s "System log" entry. */
   requiredRoles?: SessionRole[];
 }
 

@@ -2,20 +2,58 @@
 
 import { useState, type ReactElement } from "react";
 import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
-import { Alert, DataTable, PaginationControls, useLocale, type DataTableColumn } from "@pte/ui";
+import {
+  Alert,
+  DataTable,
+  PaginationControls,
+  useLocale,
+  type DataTableColumn,
+} from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
-import { AUDIT_LOG_AGGREGATE_TYPES, AUDIT_LOG_TABLE_HEADERS, AUDIT_LOG_TEXT } from "../constants";
+import {
+  AUDIT_LOG_ACTION_LABELS,
+  AUDIT_LOG_AGGREGATE_TYPES,
+  AUDIT_LOG_RESOURCE_TYPES,
+  AUDIT_LOG_TABLE_HEADERS,
+  AUDIT_LOG_TEXT,
+  humanizeAuditCode,
+} from "../constants";
 import { useAuditLogs, type AuditLogEntry } from "../api";
+import { AuditLogFilters } from "./AuditLogFilters";
+
+function createResourceFilterOptions(text: {
+  allActivity: string;
+  program: string;
+  class: string;
+  supportTicket: string;
+  examSession: string;
+}) {
+  return [
+    { value: "", label: text.allActivity },
+    ...AUDIT_LOG_RESOURCE_TYPES.map((option) => ({
+      value: option.value,
+      label:
+        option.value === AUDIT_LOG_AGGREGATE_TYPES.PROGRAM
+          ? text.program
+          : option.value === AUDIT_LOG_AGGREGATE_TYPES.CLASS
+            ? text.class
+            : option.value === "SupportTicket"
+              ? text.supportTicket
+              : option.value === "ExamSession"
+                ? text.examSession
+                : option.label,
+    })),
+  ];
+}
 
 export const AuditLogView = (): ReactElement => {
   const labels = useOrgLabels();
   const { locale, t } = useLocale();
   const searchText = useTenantSearchText("auditLog");
   const text = {
-    scopeNote: t("tenant.audit.scopeNote", AUDIT_LOG_TEXT.scopeNote(labels.program, labels.class)),
     when: t("tenant.audit.when", AUDIT_LOG_TABLE_HEADERS.WHEN),
     resource: t("tenant.audit.resource", AUDIT_LOG_TABLE_HEADERS.AGGREGATE_TYPE),
     actor: t("tenant.audit.actor", AUDIT_LOG_TABLE_HEADERS.ACTOR),
@@ -28,10 +66,8 @@ export const AuditLogView = (): ReactElement => {
     unknownActor: t("tenant.audit.unknownActor", AUDIT_LOG_TEXT.unknownActor),
     program: t("tenant.audit.program", labels.program),
     class: t("tenant.audit.class", labels.class),
-    supportTicket: t("tenant.audit.supportTicket", "SupportTicket"),
-    examSession: t("tenant.audit.examSession", "ExamSession"),
-    ticketSubmitted: t("tenant.audit.ticketSubmitted", "TicketSubmitted"),
-    examPublished: t("tenant.audit.examPublished", "ExamPublished"),
+    supportTicket: t("tenant.audit.supportTicket", "Support ticket"),
+    examSession: t("tenant.audit.examSession", "Exam session"),
   };
   const resourceLabel = (value: string): string =>
     ({
@@ -39,15 +75,28 @@ export const AuditLogView = (): ReactElement => {
       [AUDIT_LOG_AGGREGATE_TYPES.CLASS]: text.class,
       SupportTicket: text.supportTicket,
       ExamSession: text.examSession,
-    })[value] ?? value;
-  const actionLabel = (value: string): string =>
-    ({ TicketSubmitted: text.ticketSubmitted, ExamPublished: text.examPublished })[value] ?? value;
+    })[value] ?? humanizeAuditCode(value);
+  const actionLabel = (value: string): string => {
+    const localized = AUDIT_LOG_ACTION_LABELS[value];
+    if (localized) return locale === "vi" ? localized.vi : localized.en;
+    return humanizeAuditCode(value);
+  };
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
   const [search, setSearch] = useState("");
+  const [aggregateType, setAggregateType] = useState("");
+  const [dateRange, setDateRange] = useState({ from: "", to: "" });
   const debouncedSearch = useDebouncedSearch(search);
-  const { data, isLoading, isError, error } = useAuditLogs(undefined, page, size, debouncedSearch);
+  const { data, isLoading, isError, error } = useAuditLogs(
+    aggregateType || undefined,
+    page,
+    size,
+    debouncedSearch,
+    dateRange.from || undefined,
+    dateRange.to || undefined,
+  );
   const entries = data?.data ?? [];
+  const resourceFilterOptions = createResourceFilterOptions(text);
 
   const columns: DataTableColumn<AuditLogEntry>[] = [
     {
@@ -59,38 +108,36 @@ export const AuditLogView = (): ReactElement => {
           timeStyle: "medium",
         }).format(new Date(entry.log.createdAt)),
     },
+    { key: "action", header: text.action, cell: (entry) => actionLabel(entry.log.action) },
     {
       key: "aggregateType",
       header: text.resource,
-      filterOptions: [
-        { value: "", label: text.allActivity },
-        { value: AUDIT_LOG_AGGREGATE_TYPES.PROGRAM, label: text.program },
-        { value: AUDIT_LOG_AGGREGATE_TYPES.CLASS, label: text.class },
-      ],
-      filterAccessor: (entry) => entry.log.aggregateType,
-      cell: (entry) => resourceLabel(entry.log.aggregateType),
+      cell: (entry) => {
+        const typeLabel = resourceLabel(entry.log.aggregateType);
+        const resourceName = entry.log.resourceName?.trim() || typeLabel;
+        return (
+          <div className="min-w-36">
+            <p className="font-medium">{resourceName}</p>
+            {entry.log.resourceCode && (
+              <p className="mt-1 text-xs text-[var(--table-muted-text)]">
+                {typeLabel} · {entry.log.resourceCode}
+              </p>
+            )}
+          </div>
+        );
+      },
     },
     { key: "actor", header: text.actor, cell: (entry) => entry.actorName ?? text.unknownActor },
-    { key: "action", header: text.action, cell: (entry) => actionLabel(entry.log.action) },
-    {
-      key: "summary",
-      header: text.summary,
-      cell: (entry) =>
-        entry.log.summary
-          .replace("Submitted ticket", "Đã gửi yêu cầu")
-          .replace("Exam published", "Kỳ thi đã phát hành"),
-    },
+    { key: "summary", header: text.summary, cell: (entry) => entry.log.summary },
   ];
 
   return (
     <div className="flex flex-col gap-5">
-      <Alert tone="info">{text.scopeNote}</Alert>
-
       {isError && <Alert tone="error">{errorMessage(error, text.loadFailed)}</Alert>}
 
       <DataTable
         columns={columns}
-        rows={entries ?? []}
+        rows={entries}
         getRowKey={(entry) => entry.log.publicId}
         isLoading={isLoading}
         emptyTitle={text.empty}
@@ -102,6 +149,22 @@ export const AuditLogView = (): ReactElement => {
           setSearch(value);
           setPage(0);
         }}
+        filters={
+          <AuditLogFilters
+            aggregateType={aggregateType}
+            dateRange={dateRange}
+            resourceLabel={text.resource}
+            resourceOptions={resourceFilterOptions}
+            onAggregateTypeChange={(value) => {
+              setAggregateType(value);
+              setPage(0);
+            }}
+            onDateRangeChange={(value) => {
+              setDateRange(value);
+              setPage(0);
+            }}
+          />
+        }
         clientSideFiltering={false}
         clientSidePagination={false}
         pagination={

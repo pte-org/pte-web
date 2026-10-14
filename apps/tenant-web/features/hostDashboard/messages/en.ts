@@ -112,7 +112,7 @@ export const HOST_DASHBOARD_EN = {
   activitySubtitle: "The latest changes in your organization.",
   activityAria: "Recent activity",
   activityEmpty: "No activity has been recorded yet.",
-  activityViewAll: "View audit log",
+  activityViewAll: "View system log",
   actorStaff: "Staff member",
   actorSystem: "System",
   activityGeneric: "Activity recorded",

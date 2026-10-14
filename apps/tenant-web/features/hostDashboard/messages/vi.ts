@@ -109,7 +109,7 @@ export const HOST_DASHBOARD_VI: HostDashboardMessages = {
   activitySubtitle: "Các thay đổi mới nhất trong tổ chức.",
   activityAria: "Hoạt động gần đây",
   activityEmpty: "Chưa ghi nhận hoạt động nào.",
-  activityViewAll: "Xem nhật ký audit",
+  activityViewAll: "Xem nhật ký hệ thống",
   actorStaff: "Nhân sự",
   actorSystem: "Hệ thống",
   activityGeneric: "Đã ghi nhận một hoạt động",
