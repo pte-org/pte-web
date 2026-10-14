@@ -124,7 +124,7 @@ export const ADMIN_DASHBOARD_VI: AdminDashboardMessages = {
   applicationsTitle: "Đơn đăng ký chờ duyệt",
   applicationsSubtitle: "Các đơn đăng ký tham gia nền tảng chờ duyệt lâu nhất.",
   applicationsViewAll: "Xem tất cả đơn",
-  applicationsEmpty: "Không có đơn đăng ký chờ duyệt.",
+  applicationsEmpty: "Chưa có đơn đăng ký cần xét duyệt.",
   applicationWaiting: "Chờ {days} ngày",
 
   // Support Tickets
