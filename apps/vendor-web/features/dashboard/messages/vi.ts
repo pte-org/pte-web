@@ -58,6 +58,11 @@ export const ADMIN_DASHBOARD_VI: AdminDashboardMessages = {
   orgTypeACADEMY: "Học viện",
   orgTypeLANGUAGE_CENTER: "Trung tâm ngoại ngữ",
   orgTypeCORPORATION: "Doanh nghiệp",
+  orgTypeSCHOOL: "Trường học",
+  orgTypeENTERPRISE: "Doanh nghiệp",
+  orgTypeCORPORATE: "Doanh nghiệp",
+  orgTypeTRAINING_CENTER: "Trung tâm đào tạo",
+  orgTypeCENTER: "Trung tâm",
   orgTypeOTHER: "Khác",
 
   // Needs Attention

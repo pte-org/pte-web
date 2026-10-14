@@ -65,9 +65,14 @@ export function buildStatusDonutSlices(
 const ORG_TYPE_TONES: Record<string, ChartTone> = {
   UNIVERSITY: "brand",
   COLLEGE: "info",
-  ACADEMY: "warning",
+  SCHOOL: "info",
+  ACADEMY: "brand",
   LANGUAGE_CENTER: "success",
-  CORPORATION: "neutral",
+  TRAINING_CENTER: "success",
+  CENTER: "success",
+  ENTERPRISE: "warning",
+  CORPORATION: "warning",
+  CORPORATE: "warning",
   OTHER: "neutral",
 };
 

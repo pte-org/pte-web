@@ -56,6 +56,11 @@ export const ADMIN_DASHBOARD_EN = {
   orgTypeACADEMY: "Academy",
   orgTypeLANGUAGE_CENTER: "Language Center",
   orgTypeCORPORATION: "Corporation",
+  orgTypeSCHOOL: "School",
+  orgTypeENTERPRISE: "Enterprise",
+  orgTypeCORPORATE: "Corporate",
+  orgTypeTRAINING_CENTER: "Training Center",
+  orgTypeCENTER: "Training Center",
   orgTypeOTHER: "Other",
 
   // Needs Attention

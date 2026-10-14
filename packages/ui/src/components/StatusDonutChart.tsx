@@ -91,7 +91,7 @@ export const StatusDonutChart = ({
           <span className="mt-0.5 max-w-20 text-[10px] text-[var(--ink-muted)]">{totalLabel}</span>
         </div>
       </div>
-      <ul className="grid gap-3 min-w-0" aria-label={ariaLabel}>
+      <ul className="grid gap-3" aria-label={ariaLabel}>
         {chartItems.map((item) => {
           const percentage = Math.round((item.value / total) * 100);
           const tone = item.tone ?? "neutral";
