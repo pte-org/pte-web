@@ -1,6 +1,8 @@
 import type { BadgeVariant } from "@pte/ui";
 import type { CreateTicketInput, TicketCategory, TicketStatus } from "../types";
 
+export const SUPPORT_TICKET_BREADCRUMB_ID_LENGTH = 8;
+
 export const SUPPORT_TICKETS_QUERY_KEY = ["support-tickets"] as const;
 export const SUPPORT_TICKET_QUERY_KEY = (id: string) => ["support-tickets", id] as const;
 

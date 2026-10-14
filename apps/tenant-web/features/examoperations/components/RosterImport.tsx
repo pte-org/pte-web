@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Button, DataTable } from "@pte/ui";
+import { Alert, Button, DataTable, useToast } from "@pte/ui";
 import { RosterDropzone } from "./_RosterDropzone";
 import { SkippedRowsReport } from "./SkippedRowsReport";
 import { PendingImportBanner } from "./PendingImportBanner";
@@ -24,6 +24,7 @@ interface RosterImportProps {
 }
 
 export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactElement => {
+  const { showToast } = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [rows, setRows] = useState<RosterRow[] | null>(null);
   const [columnIssues, setColumnIssues] = useState<RosterColumnIssues | null>(null);
@@ -56,6 +57,12 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
     if (!rows) return;
     createAccounts.mutate(rows, {
       onSuccess: (response) => {
+        showToast(
+          ROSTER_TEXT.ACCOUNTS_CREATED.replace("{count}", String(response.created.length)),
+          {
+            tone: "success",
+          },
+        );
         setCreated(response.created);
         setSkipped(response.skipped);
         setPending(response.created);
@@ -166,9 +173,6 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
 
       {created && (
         <div className="flex flex-col gap-4">
-          <Alert tone="success">
-            {ROSTER_TEXT.ACCOUNTS_CREATED.replace("{count}", String(created.length))}
-          </Alert>
           <SkippedRowsReport rows={skipped} />
           <div className="flex gap-3">
             <Button type="button" variant="secondary" onClick={() => downloadCredentials(created)}>

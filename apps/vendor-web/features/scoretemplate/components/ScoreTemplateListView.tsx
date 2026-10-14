@@ -20,10 +20,12 @@ import {
   Select,
   TrashIcon,
   UploadIcon,
+  useToast,
   type ActionMenuItem,
 } from "@pte/ui";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
 import {
@@ -58,6 +60,7 @@ function detailHref(template: ScoreTemplateResponse): string {
 
 export const ScoreTemplateListView = (): ReactElement => {
   const T = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
+  const searchText = useAdminSearchText("scoreTemplates");
   const H = useAdminCopy(RAW_SCORE_TEMPLATE_LIST_HEADERS);
   const statusLabels = useAdminCopy(RAW_SCORE_TEMPLATE_STATUS_LABELS);
   const policyLabels = useAdminCopy(RAW_SCORE_TEMPLATE_POLICY_LABELS);
@@ -79,6 +82,7 @@ export const ScoreTemplateListView = (): ReactElement => {
   const approveMutation = useApproveScoreTemplate();
   const rejectMutation = useRejectScoreTemplate();
   const { data: currentUser } = useCurrentUser();
+  const { showToast } = useToast();
   const canReview = canReviewAcademic(currentUser?.roles);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ScoreTemplateResponse | null>(null);
@@ -86,7 +90,6 @@ export const ScoreTemplateListView = (): ReactElement => {
   const [createName, setCreateName] = useState("");
   const [createPolicy, setCreatePolicy] = useState<ScoreTemplatePolicy>("STANDARD_PTE");
   const [createError, setCreateError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<string | null>(null);
   const [rejectTarget, setRejectTarget] = useState<ScoreTemplateResponse | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [rejectError, setRejectError] = useState<string | null>(null);
@@ -117,16 +120,14 @@ export const ScoreTemplateListView = (): ReactElement => {
   };
 
   const handleSubmitApproval = (publicId: string): void => {
-    setNotice(null);
     submitApprovalMutation.mutate(publicId, {
-      onSuccess: () => setNotice(T.APPROVAL_SUBMITTED),
+      onSuccess: () => showToast(T.APPROVAL_SUBMITTED, { tone: "success" }),
     });
   };
 
   const handleApprove = (publicId: string): void => {
-    setNotice(null);
     approveMutation.mutate(publicId, {
-      onSuccess: () => setNotice(T.APPROVAL_APPROVED),
+      onSuccess: () => showToast(T.APPROVAL_APPROVED, { tone: "success" }),
     });
   };
 
@@ -145,7 +146,7 @@ export const ScoreTemplateListView = (): ReactElement => {
         onSuccess: () => {
           setRejectTarget(null);
           setRejectReason("");
-          setNotice(T.APPROVAL_REJECTED);
+          showToast(T.APPROVAL_REJECTED, { tone: "success" });
         },
       },
     );
@@ -232,7 +233,6 @@ export const ScoreTemplateListView = (): ReactElement => {
 
   return (
     <div className="space-y-6">
-      {notice && <Alert tone="success">{notice}</Alert>}
       {isError && <Alert tone="error">{T.LOAD_ERROR}</Alert>}
       {createError && <Alert tone="error">{createError}</Alert>}
       {createMutation.isError && !createError && (
@@ -267,6 +267,8 @@ export const ScoreTemplateListView = (): ReactElement => {
       )}
 
       <DataTable
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
         columns={[
           {
             key: "code",

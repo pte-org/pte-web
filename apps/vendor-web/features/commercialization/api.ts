@@ -183,16 +183,39 @@ export function useUpdatePlatformSetting(): UseMutationResult<
 export function useAdminLicenseCodesQuery(
   params: AdminLicenseCodeListParams,
 ): UseQueryResult<PagedResult<AdminLicenseCodeSummary>> {
+  const rawSearch = params.search?.trim() ?? "";
+  const safeSearch = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(
+    rawSearch,
+  )
+    ? rawSearch
+    : "";
+  const unsupportedSearch = rawSearch.length > 0 && safeSearch.length === 0;
   const normalizedParams = {
     page: params.page ?? 0,
     size: params.size ?? 25,
     status: params.status ?? "",
     planId: params.planId ?? "",
     tenantId: params.tenantId ?? "",
+    search: unsupportedSearch ? "UNSUPPORTED" : safeSearch,
   };
   return useQuery({
     queryKey: LICENSE_CODES_PAGE_QUERY_KEY(normalizedParams),
-    queryFn: () => listAdminLicenseCodes(apiClient, params),
+    queryFn: () =>
+      unsupportedSearch
+        ? Promise.resolve({
+            data: [],
+            meta: {
+              page: normalizedParams.page,
+              size: normalizedParams.size,
+              totalElements: 0,
+              totalPages: 0,
+              first: normalizedParams.page === 0,
+              last: true,
+              hasNext: false,
+              hasPrevious: normalizedParams.page > 0,
+            },
+          })
+        : listAdminLicenseCodes(apiClient, { ...params, search: safeSearch || undefined }),
   });
 }
 

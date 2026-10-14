@@ -940,6 +940,41 @@ const ADMIN_VI: Record<string, string> = {
   "· contributes to scoring": "· tham gia chấm điểm",
   "· not scored": "· không chấm điểm",
   "Authoring requirements": "Yêu cầu biên soạn",
+  "Search by tenant, plan, or license identifier": "Tìm theo tenant, gói hoặc mã bản quyền",
+  "Search licenses by tenant, plan, or license identifier":
+    "Tìm bản quyền theo tenant, gói hoặc mã bản quyền",
+  "Search by tenant, plan, or status": "Tìm theo tenant, gói hoặc trạng thái",
+  "Search licenses by tenant, plan, or status":
+    "Tìm bản quyền theo tenant, gói hoặc trạng thái",
+  "Search by plan name, description, type, or status":
+    "Tìm theo tên gói, mô tả, loại hoặc trạng thái",
+  "Search plans by name, description, type, or status":
+    "Tìm gói theo tên, mô tả, loại hoặc trạng thái",
+  "Search by tenant or license identifier": "Tìm theo tenant hoặc mã bản quyền",
+  "Search license codes by tenant or identifier": "Tìm mã bản quyền theo tenant hoặc mã định danh",
+  "Search by organization, code, email, phone, or tax code":
+    "Tìm theo tổ chức, mã, email, điện thoại hoặc mã số thuế",
+  "Search applications by organization, code, email, phone, or tax code":
+    "Tìm đơn đăng ký theo tổ chức, mã, email, điện thoại hoặc mã số thuế",
+  "Search by announcement title or body": "Tìm theo tiêu đề hoặc nội dung thông báo",
+  "Search announcements by title or body": "Tìm thông báo theo tiêu đề hoặc nội dung",
+  "Search by ticket ID, description, category, or status":
+    "Tìm theo mã yêu cầu, nội dung, danh mục hoặc trạng thái",
+  "Search support tickets by ticket ID, description, category, or status":
+    "Tìm yêu cầu hỗ trợ theo mã, nội dung, danh mục hoặc trạng thái",
+  "Search by ticket, description, requester, or tenant":
+    "Tìm theo ticket, nội dung, người gửi hoặc tenant",
+  "Search support tickets by ticket, description, requester, or tenant":
+    "Tìm yêu cầu hỗ trợ theo ticket, nội dung, người gửi hoặc tenant",
+  "Search by organization name or address": "Tìm theo tên hoặc địa chỉ tổ chức",
+  "Search organizations by name or address": "Tìm tổ chức theo tên hoặc địa chỉ",
+  "Search tenants by name, code, or tax code": "Tìm tenant theo tên, mã hoặc mã số thuế",
+  "Search by tenant name": "Tìm theo tên tenant",
+  "Search recent tenants by name": "Tìm tenant gần đây theo tên",
+  "Search by template name, code, or version": "Tìm theo tên, mã hoặc phiên bản mẫu",
+  "Search score templates by name, code, or version": "Tìm mẫu điểm theo tên, mã hoặc phiên bản",
+  "Search by question content": "Tìm theo nội dung câu hỏi",
+  "Search questions by content": "Tìm câu hỏi theo nội dung",
 };
 
 const translatePattern = (value: string): string | undefined => {

@@ -11,8 +11,14 @@ const VARIANTS: Record<string, BadgeVariant> = {
   EXPIRING: "warning",
 };
 
-export const BillingStatusBadge = ({ status }: { status: string }): ReactElement => (
+export const BillingStatusBadge = ({
+  status,
+  label,
+}: {
+  status: string;
+  label?: string;
+}): ReactElement => (
   <Badge variant={VARIANTS[status] ?? "neutral"}>
-    {BILLING_STATUS_LABELS[status] ?? status}
+    {label ?? BILLING_STATUS_LABELS[status] ?? status}
   </Badge>
 );

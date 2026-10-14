@@ -64,7 +64,7 @@ export type { TableFilterInputProps, TableSearchControlProps } from "./TableFilt
 export { TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow } from "./Table";
 export type { TableRootProps } from "./Table";
 export { DescriptionList } from "./DescriptionList";
-export type { DescriptionItem } from "./DescriptionList";
+export type { DescriptionItem, DescriptionListVariant } from "./DescriptionList";
 export { DetailGroup } from "./DetailGroup";
 export { CopyableId } from "./CopyableId";
 export { SidebarNav } from "./SidebarNav";
@@ -95,7 +95,7 @@ export { ForbiddenState } from "./ForbiddenState";
 export { Stepper } from "./Stepper";
 export type { StepItem } from "./Stepper";
 export { TabPanel, Tabs } from "./Tabs";
-export type { TabItem, TabPanelProps, TabsProps, TabsVariant } from "./Tabs";
+export type { TabItem, TabPanelProps, TabsActiveVariant, TabsProps, TabsVariant } from "./Tabs";
 export { HeaderSearch } from "./HeaderSearch";
 export type { HeaderSearchItem, HeaderSearchProps } from "./HeaderSearch";
 export { DEFAULT_TOAST_DURATION_MS, ToastProvider, useToast } from "./Toast";

@@ -17,10 +17,13 @@ import {
   PaginationControls,
   Select,
   useLocale,
+  useToast,
   type DataTableColumn,
 } from "@pte/ui";
 import { useAllTenantClasses, type TenantClassOption } from "@/features/classes/api";
 import { errorMessage } from "@/features/examoperations/errorMessage";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
+import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
 import { EXAMINER_ASSIGNMENT_TEXT as T, SESSION_DETAIL_TEXT } from "../constants";
 import {
   useActiveExaminers,
@@ -79,16 +82,20 @@ export const ExaminerAssignmentSection = ({
   sessionPublicId,
 }: ExaminerAssignmentSectionProps): ReactElement => {
   const { locale, t } = useLocale();
+  const { showToast } = useToast();
+  const searchText = useTenantSearchText("examinerBatches");
   const [mode, setMode] = useState<ExaminerAssignmentMode>("RANDOM");
   const [scopes, setScopes] = useState<ScopeDraft[]>([]);
   const [selectedExaminerIds, setSelectedExaminerIds] = useState<string[]>([]);
   const [batchPage, setBatchPage] = useState(0);
+  const [batchSearch, setBatchSearch] = useState("");
+  const debouncedBatchSearch = useDebouncedSearch(batchSearch);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
   const classesQuery = useAllTenantClasses();
   const classes = classesQuery.data ?? EMPTY_CLASSES;
   const examinersQuery = useActiveExaminers();
   const examiners = examinersQuery.data ?? EMPTY_USERS;
-  const overview = useExaminerAssignmentOverview(sessionPublicId, batchPage);
+  const overview = useExaminerAssignmentOverview(sessionPublicId, batchPage, debouncedBatchSearch);
   const createPreview = useCreateExaminerAssignmentPreview(sessionPublicId);
   const confirmPreview = useConfirmExaminerAssignmentPreview(sessionPublicId);
   const classesLoading = classesQuery.isLoading;
@@ -263,6 +270,20 @@ export const ExaminerAssignmentSection = ({
       preview.previewExpiresAt !== null &&
       Date.parse(preview.previewExpiresAt) <= currentTime);
   const currentPreviewStale = confirmationMatchesPreview && confirmPreview.data?.status === "STALE";
+
+  const confirmAssignment = (batchPublicId: string): void => {
+    confirmPreview.mutate(batchPublicId, {
+      onSuccess: (result) => {
+        if (result.status === "COMMITTED") {
+          showToast(`${text.confirmed} ${result.batchPublicId}`, { tone: "success" });
+        } else if (result.status === "EXPIRED") {
+          showToast(`${text.expired} ${result.batchPublicId}`, { tone: "warning" });
+        } else if (result.status === "STALE") {
+          showToast(`${text.stale} ${result.batchPublicId}`, { tone: "warning" });
+        }
+      },
+    });
+  };
 
   const batchColumns: DataTableColumn<AssignmentBatch>[] = [
     {
@@ -559,29 +580,13 @@ export const ExaminerAssignmentSection = ({
               <button
                 type="button"
                 disabled={confirmPreview.isPending}
-                onClick={() => confirmPreview.mutate(preview.batchPublicId as string)}
+                onClick={() => confirmAssignment(preview.batchPublicId as string)}
                 className="self-start rounded-md bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:opacity-50"
               >
                 {confirmPreview.isPending ? text.confirming : text.confirm}
               </button>
             )}
         </div>
-      )}
-
-      {confirmPreview.data?.status === "COMMITTED" && !confirmationMatchesPreview && (
-        <Alert tone="success">
-          {text.confirmed} <code>{confirmPreview.data.batchPublicId}</code>
-        </Alert>
-      )}
-      {confirmPreview.data?.status === "EXPIRED" && !confirmationMatchesPreview && (
-        <Alert tone="warning">
-          {text.expired} <code>{confirmPreview.data.batchPublicId}</code>
-        </Alert>
-      )}
-      {confirmPreview.data?.status === "STALE" && !confirmationMatchesPreview && (
-        <Alert tone="warning">
-          {text.stale} <code>{confirmPreview.data.batchPublicId}</code>
-        </Alert>
       )}
 
       <div className="flex flex-col gap-3">
@@ -606,7 +611,15 @@ export const ExaminerAssignmentSection = ({
             getRowKey={(batch) => batch.batchPublicId}
             isLoading={overview.isLoading}
             emptyTitle={text.noBatches}
+            searchPlaceholder={searchText.placeholder}
+            searchAriaLabel={searchText.ariaLabel}
+            searchValue={batchSearch}
+            onSearchChange={(value) => {
+              setBatchSearch(value);
+              setBatchPage(0);
+            }}
             rowActionsHeader={text.actions}
+            clientSideFiltering={false}
             clientSidePagination={false}
             rowActions={(batch) =>
               batch.status === "PREVIEWED" &&
@@ -618,7 +631,7 @@ export const ExaminerAssignmentSection = ({
                     {
                       label: text.confirm,
                       disabled: confirmPreview.isPending,
-                      onSelect: () => confirmPreview.mutate(batch.batchPublicId),
+                      onSelect: () => confirmAssignment(batch.batchPublicId),
                     },
                   ]}
                 />
@@ -669,6 +682,7 @@ function LoadTable({ loads, examiners, labels }: LoadTableProps): ReactElement |
     <div className="flex flex-col gap-2">
       <h4 className="text-sm font-semibold text-[var(--ink-primary)]">{labels.loads}</h4>
       <DataTable
+        showSearch={false}
         columns={
           [
             {

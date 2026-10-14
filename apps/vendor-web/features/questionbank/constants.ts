@@ -13,7 +13,7 @@ export const QUESTION_STATS_QUERY_KEY = ["questionStats"] as const;
 export const QUESTIONBANK_TEXT = {
   TITLE: "Question Bank",
   ADD: "Add question",
-  SEARCH_PLACEHOLDER: "Enter a code or question content...",
+  SEARCH_PLACEHOLDER: "Search by question content...",
   TOTAL_QUESTIONS: (count: number) => `${count} questions`,
   LOAD_ERROR: "Could not load the question bank. Please try again.",
   SYNCING: "Updating question bank...",

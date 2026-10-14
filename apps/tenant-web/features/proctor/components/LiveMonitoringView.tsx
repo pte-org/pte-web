@@ -3,6 +3,7 @@
 import { useState, type ReactElement } from "react";
 import { Button, DataTable, PageHeader, type DataTableColumn } from "@pte/ui";
 import { useProctorLiveAttempts } from "../api";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import {
   ATTEMPT_STATUS_FILTER_OPTIONS,
   ATTEMPT_STATUS_LABELS,
@@ -26,6 +27,7 @@ function formatTimestamp(value: string | null): string {
 }
 
 export const LiveMonitoringView = ({ sessionPublicId }: LiveMonitoringViewProps): ReactElement => {
+  const searchText = useTenantSearchText("liveMonitoring");
   const attempts = useProctorLiveAttempts(sessionPublicId);
   const [selectedAttemptPublicId, setSelectedAttemptPublicId] = useState<string | null>(null);
 
@@ -33,6 +35,7 @@ export const LiveMonitoringView = ({ sessionPublicId }: LiveMonitoringViewProps)
     {
       key: "attemptPublicId",
       header: T.COL_ATTEMPT,
+      filterAccessor: (row) => row.attemptPublicId,
       cell: (row) => `#${shortId(row.attemptPublicId)}`,
     },
     {
@@ -91,6 +94,8 @@ export const LiveMonitoringView = ({ sessionPublicId }: LiveMonitoringViewProps)
         isLoading={attempts.isFetching}
         emptyTitle={T.EMPTY_ATTEMPTS_TITLE}
         emptyDescription={T.EMPTY_ATTEMPTS_DESCRIPTION}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
         selectable
         selectedKeys={selectedAttemptPublicId ? new Set([selectedAttemptPublicId]) : new Set()}
         onSelectionChange={(keys) => {

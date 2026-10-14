@@ -2,6 +2,7 @@
 
 import { createPortal } from "react-dom";
 import { useEffect, useState, type ReactElement, type ReactNode } from "react";
+import { useLocale } from "../i18n";
 import { cn } from "../utils/cn";
 import { XIcon } from "./icons";
 
@@ -12,6 +13,7 @@ interface ModalProps {
   onClose: () => void;
   /** When omitted, the header bar (title + close button) is not rendered. */
   title?: string;
+  titleIcon?: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
   size?: ModalSize;
@@ -39,6 +41,7 @@ export const Modal = ({
   open,
   onClose,
   title,
+  titleIcon,
   children,
   footer,
   size = "md",
@@ -46,6 +49,8 @@ export const Modal = ({
   closeOnBackdropClick = false,
   isDismissDisabled = false,
 }: ModalProps): ReactElement | null => {
+  const { t } = useLocale();
+  const closeLabel = t("common.close", "Close");
   const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
@@ -88,10 +93,13 @@ export const Modal = ({
       >
         {title && (
           <div className="flex items-start justify-between gap-4 border-b border-[var(--shell-border)] px-5 py-4">
-            <h2 className="text-base font-semibold text-[var(--ink-primary)]">{title}</h2>
+            <div className="flex min-w-0 items-center gap-3">
+              {titleIcon}
+              <h2 className="text-base font-semibold text-[var(--ink-primary)]">{title}</h2>
+            </div>
             <button
               type="button"
-              aria-label="Close"
+              aria-label={closeLabel}
               disabled={isDismissDisabled}
               onClick={onClose}
               className="rounded-md p-1 text-[var(--ink-muted)] transition-colors hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35"

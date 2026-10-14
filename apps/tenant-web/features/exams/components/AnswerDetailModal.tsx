@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Badge, LoadingState, Modal, NumberInput, cn, useLocale } from "@pte/ui";
+import { Alert, Badge, LoadingState, Modal, NumberInput, cn, useLocale, useToast } from "@pte/ui";
 import type { AnswerOptionView } from "@pte/api-client";
 import { AiScoreDetail } from "@/features/aiScore";
 import { errorMessage } from "@/features/examoperations/errorMessage";
@@ -47,6 +47,7 @@ export const AnswerDetailModal = ({
   onClose,
 }: AnswerDetailModalProps): ReactElement => {
   const { t } = useLocale();
+  const { showToast } = useToast();
   const { data: answer, isLoading } = useAnswer(answerPublicId);
   const submitScore = useSubmitTeacherScore(answerPublicId ?? "");
   const [scoreInput, setScoreInput] = useState("");
@@ -84,7 +85,9 @@ export const AnswerDetailModal = ({
     event.preventDefault();
     const score = Number(scoreInput);
     if (Number.isNaN(score)) return;
-    submitScore.mutate(score);
+    submitScore.mutate(score, {
+      onSuccess: () => showToast(text.saved, { tone: "success" }),
+    });
   };
 
   return (
@@ -170,7 +173,6 @@ export const AnswerDetailModal = ({
               </h3>
             </div>
             {submitScore.isError && <Alert tone="error">{errorMessage(submitScore.error)}</Alert>}
-            {submitScore.isSuccess && <Alert tone="success">{text.saved}</Alert>}
             <div className="flex items-end gap-3">
               <div className="w-40">
                 <NumberInput

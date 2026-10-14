@@ -21,6 +21,21 @@ describe("Answer review requests", () => {
     );
   });
 
+  it("encodes the optional server-side search parameter", async () => {
+    const client = fakeClient();
+
+    await listAnswers(client, {
+      sessionPublicId: "session-id",
+      page: 0,
+      size: 20,
+      search: "  describe & summarize ",
+    });
+
+    expect(client.request).toHaveBeenCalledWith(
+      "/api/v1/answers?sessionPublicId=session-id&search=describe+%26+summarize&page=0&size=20",
+    );
+  });
+
   it("lists one review row per attempt of a session", async () => {
     const client = fakeClient();
 

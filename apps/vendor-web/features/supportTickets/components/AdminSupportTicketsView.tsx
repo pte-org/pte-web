@@ -15,10 +15,13 @@ import type { SupportTicket } from "../types";
 import { TicketCategoryBadge } from "./_TicketCategoryBadge";
 import { TicketStatusBadge } from "./_TicketStatusBadge";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
+import { useDebouncedSearch } from "@/features/i18n/useDebouncedSearch";
 
 export const AdminSupportTicketsView = (): ReactElement => {
   const H = useAdminCopy(RAW_ADMIN_TICKET_TABLE_HEADERS);
   const T = useAdminCopy(RAW_ADMIN_SUPPORT_TICKETS_TEXT);
+  const searchText = useAdminSearchText("supportTickets");
   const categoryLabels = useAdminCopy(RAW_CATEGORY_LABELS);
   const statusLabels = useAdminCopy(RAW_STATUS_LABELS);
   const dateRangeLabel = useAdminCopy("Date range");
@@ -27,6 +30,8 @@ export const AdminSupportTicketsView = (): ReactElement => {
 
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(search);
 
   const { data, isLoading, isError } = useAdminSupportTickets(
     undefined,
@@ -34,6 +39,7 @@ export const AdminSupportTicketsView = (): ReactElement => {
     undefined,
     page,
     size,
+    debouncedSearch,
   );
 
   const columns: DataTableColumn<SupportTicket>[] = [
@@ -101,6 +107,14 @@ export const AdminSupportTicketsView = (): ReactElement => {
         isLoading={isLoading}
         emptyTitle={T.EMPTY_TITLE}
         emptyDescription={T.EMPTY_TEXT}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
+        searchValue={search}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(0);
+        }}
+        clientSideFiltering={false}
         clientSidePagination={false}
         pagination={
           data ? (

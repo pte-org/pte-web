@@ -48,6 +48,7 @@ export const RecentTenantsTable = ({
         </Link>
       </div>
       <DataTable
+        showSearch={false}
         columns={[
           {
             key: "name",

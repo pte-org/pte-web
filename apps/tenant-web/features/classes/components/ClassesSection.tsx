@@ -1,20 +1,19 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Badge, DataTable, type DataTableColumn } from "@pte/ui";
+import { useRouter } from "next/navigation";
+import { Alert, Button, DataTable, DetailGroup, useLocale } from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
-import { errorMessage } from "@/features/examoperations/errorMessage";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import {
-  CLASS_STATUS_LABELS,
-  CLASS_STATUS_FILTER_OPTIONS,
-  CLASS_STATUS_VARIANT,
   CLASS_TABLE_HEADERS,
+  CLASSES_LIST_TEXT,
   CLASSES_SECTION_TEXT,
   MERGE_CLASSES_SELECTION_TEXT,
 } from "../constants";
-import { useClasses, useUpdateClass } from "../api";
+import { useClasses } from "../api";
+import { useClassSectionColumns } from "../hooks/useClassSectionColumns";
 import { ClassRowActions } from "./ClassRowActions";
-import { EditClassModal } from "./EditClassModal";
 import { MergeClassesModal } from "./MergeClassesModal";
 
 interface ClassesSectionProps {
@@ -35,18 +34,15 @@ export const ClassesSection = ({
   classLabel,
   studentCountByClassPublicId,
 }: ClassesSectionProps): ReactElement => {
-  const { data: classes, isLoading } = useClasses(organizationPublicId, programPublicId);
-  const [editingClass, setEditingClass] = useState<ClassResponse | null>(null);
-  const update = useUpdateClass(
-    organizationPublicId,
-    programPublicId,
-    editingClass?.publicId ?? "",
-  );
+  const router = useRouter();
+  const { t } = useLocale();
+  const columns = useClassSectionColumns(studentCountByClassPublicId);
+  const searchText = useTenantSearchText("classSection");
+  const createLabel = t("tenant.classes.create", CLASSES_LIST_TEXT.createClassButton);
+  const { data: classes, isLoading, isError } = useClasses(organizationPublicId, programPublicId);
   const [mergeMode, setMergeMode] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState<Set<string | number>>(new Set());
   const [mergeModalOpen, setMergeModalOpen] = useState(false);
-
-  const updateErrorMessage = errorMessage(update.error);
 
   const selectedClasses = (classes ?? []).filter((studentClass) =>
     selectedKeys.has(studentClass.publicId),
@@ -57,46 +53,23 @@ export const ClassesSection = ({
     setSelectedKeys(new Set());
   };
 
-  const columns: DataTableColumn<ClassResponse>[] = [
-    {
-      key: "name",
-      header: CLASS_TABLE_HEADERS.NAME,
-      cell: (studentClass) => (
-        <span className="font-medium text-slate-900">{studentClass.name}</span>
-      ),
-    },
-    {
-      key: "status",
-      header: CLASS_TABLE_HEADERS.STATUS,
-      filterOptions: CLASS_STATUS_FILTER_OPTIONS,
-      filterAccessor: (studentClass) => studentClass.status,
-      cell: (studentClass) => (
-        <Badge variant={CLASS_STATUS_VARIANT[studentClass.status]}>
-          {CLASS_STATUS_LABELS[studentClass.status]}
-        </Badge>
-      ),
-    },
-  ];
+  const rowActions = (studentClass: ClassResponse): ReactElement => (
+    <ClassRowActions
+      organizationPublicId={organizationPublicId}
+      programPublicId={programPublicId}
+      studentCount={studentCountByClassPublicId?.get(studentClass.publicId) ?? 0}
+      classLabel={classLabel}
+      studentClass={studentClass}
+    />
+  );
+
+  if (isError)
+    return (
+      <Alert tone="error">{t("tenant.classes.loadFailed", CLASSES_SECTION_TEXT.loadFailed)}</Alert>
+    );
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-500">
-          {CLASSES_SECTION_TEXT.countLabel(classes?.length ?? 0, classLabel)}
-        </p>
-        {!mergeMode && (classes?.length ?? 0) >= 2 && (
-          <button
-            type="button"
-            onClick={() => setMergeMode(true)}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            {MERGE_CLASSES_SELECTION_TEXT.startButton(classLabel)}
-          </button>
-        )}
-      </div>
-
-      {updateErrorMessage && !editingClass && <Alert tone="error">{updateErrorMessage}</Alert>}
-
       {mergeMode && (
         <div className="flex items-center justify-between rounded-md border border-blue-200 bg-blue-50 px-4 py-2">
           <span className="text-sm text-blue-800">
@@ -127,44 +100,61 @@ export const ClassesSection = ({
         rows={classes ?? []}
         getRowKey={(studentClass) => studentClass.publicId}
         isLoading={isLoading}
-        emptyTitle={CLASSES_SECTION_TEXT.emptyInlineTitle(classLabel)}
-        emptyDescription={CLASSES_SECTION_TEXT.emptyInlineDescription(classLabel)}
-        rowActionsHeader={CLASS_TABLE_HEADERS.ACTIONS}
-        rowActions={(studentClass) => (
-          <ClassRowActions
-            organizationPublicId={organizationPublicId}
-            programPublicId={programPublicId}
-            studentCount={studentCountByClassPublicId?.get(studentClass.publicId) ?? 0}
-            classLabel={classLabel}
-            studentClass={studentClass}
-            onEdit={() => setEditingClass(studentClass)}
-          />
+        emptyTitle={t(
+          "tenant.classes.noClassesTitle",
+          CLASSES_SECTION_TEXT.emptyInlineTitle(classLabel),
         )}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
+        rowActionsHeader={t("tenant.classes.actions", CLASS_TABLE_HEADERS.ACTIONS)}
+        rowActions={rowActions}
+        toolbarActions={
+          <div className="flex flex-wrap items-center gap-2">
+            {!mergeMode && (classes?.length ?? 0) >= 2 && (
+              <Button variant="secondary" size="sm" onClick={() => setMergeMode(true)}>
+                {MERGE_CLASSES_SELECTION_TEXT.startButton(classLabel)}
+              </Button>
+            )}
+            <Button
+              onClick={() =>
+                router.push(
+                  `/host/classes?${new URLSearchParams({
+                    organizationPublicId,
+                    programPublicId,
+                    create: "1",
+                  })}`,
+                )
+              }
+            >
+              {createLabel}
+            </Button>
+          </div>
+        }
+        renderMobileRow={
+          mergeMode
+            ? undefined
+            : (studentClass) => (
+                <div className="flex items-start justify-between gap-3 p-4">
+                  <div className="min-w-0 flex-1">
+                    <DetailGroup
+                      title={studentClass.name}
+                      variant="inline"
+                      items={columns
+                        .slice(1)
+                        .map((column) => ({
+                          label: String(column.header),
+                          value: column.cell(studentClass),
+                        }))}
+                    />
+                  </div>
+                  {rowActions(studentClass)}
+                </div>
+              )
+        }
         selectable={mergeMode}
         selectedKeys={selectedKeys}
         onSelectionChange={setSelectedKeys}
         selectRowLabel={(studentClass) => studentClass.name}
-      />
-
-      <EditClassModal
-        key={editingClass?.publicId ?? "editClass-closed"}
-        open={editingClass !== null}
-        onClose={() => {
-          update.reset();
-          setEditingClass(null);
-        }}
-        onSubmit={(name) =>
-          update.mutate(
-            { name },
-            {
-              onSuccess: () => setEditingClass(null),
-            },
-          )
-        }
-        error={updateErrorMessage}
-        isSubmitting={update.isPending}
-        classLabel={classLabel}
-        initialName={editingClass?.name ?? ""}
       />
 
       <MergeClassesModal

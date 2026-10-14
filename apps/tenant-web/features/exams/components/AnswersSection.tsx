@@ -20,6 +20,8 @@ import {
 import { AI_SCORE_TEXT, AiScoreCell, aiGapRowClass } from "@/features/aiScore";
 import { useAnswers } from "../api";
 import { AnswerDetailModal } from "./AnswerDetailModal";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
+import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
 
 interface AnswersSectionProps {
   sessionPublicId: string;
@@ -47,8 +49,11 @@ export const AnswersSection = ({
   attemptPublicId,
 }: AnswersSectionProps): ReactElement => {
   const { locale, t } = useLocale();
+  const searchText = useTenantSearchText("answers");
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(search);
   const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
 
   const statusLabel = (status: string): string => {
@@ -71,7 +76,14 @@ export const AnswersSection = ({
     })),
   ];
 
-  const { data, isLoading } = useAnswers(sessionPublicId, "", page, size, attemptPublicId);
+  const { data, isLoading } = useAnswers(
+    sessionPublicId,
+    "",
+    page,
+    size,
+    attemptPublicId,
+    debouncedSearch,
+  );
 
   const columns: DataTableColumn<AnswerListItemResponse>[] = [
     {
@@ -121,10 +133,18 @@ export const AnswersSection = ({
         getRowKey={(row) => row.answerPublicId}
         isLoading={isLoading}
         emptyTitle={t("tenant.answers.empty", T.EMPTY_TITLE)}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
+        searchValue={search}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(0);
+        }}
         rowActionsHeader={t("tenant.answers.actions", ANSWER_TABLE_HEADERS.ACTIONS)}
         rowClassName={(row) =>
           row.aiScored ? aiGapRowClass(row.rawScore, row.teacherScore) : undefined
         }
+        clientSideFiltering={false}
         clientSidePagination={false}
         pagination={
           data ? (

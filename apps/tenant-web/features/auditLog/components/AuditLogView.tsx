@@ -5,12 +5,15 @@ import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
 import { Alert, DataTable, PaginationControls, useLocale, type DataTableColumn } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
+import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
 import { AUDIT_LOG_AGGREGATE_TYPES, AUDIT_LOG_TABLE_HEADERS, AUDIT_LOG_TEXT } from "../constants";
 import { useAuditLogs, type AuditLogEntry } from "../api";
 
 export const AuditLogView = (): ReactElement => {
   const labels = useOrgLabels();
   const { locale, t } = useLocale();
+  const searchText = useTenantSearchText("auditLog");
   const text = {
     scopeNote: t("tenant.audit.scopeNote", AUDIT_LOG_TEXT.scopeNote(labels.program, labels.class)),
     when: t("tenant.audit.when", AUDIT_LOG_TABLE_HEADERS.WHEN),
@@ -41,7 +44,9 @@ export const AuditLogView = (): ReactElement => {
     ({ TicketSubmitted: text.ticketSubmitted, ExamPublished: text.examPublished })[value] ?? value;
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
-  const { data, isLoading, isError, error } = useAuditLogs(undefined, page, size);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(search);
+  const { data, isLoading, isError, error } = useAuditLogs(undefined, page, size, debouncedSearch);
   const entries = data?.data ?? [];
 
   const columns: DataTableColumn<AuditLogEntry>[] = [
@@ -90,6 +95,14 @@ export const AuditLogView = (): ReactElement => {
         isLoading={isLoading}
         emptyTitle={text.empty}
         emptyDescription={text.emptyDescription}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
+        searchValue={search}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(0);
+        }}
+        clientSideFiltering={false}
         clientSidePagination={false}
         pagination={
           data ? (

@@ -375,6 +375,7 @@ export const StudentSearchView = (): ReactElement => {
         emptyDescription={text.emptyDescription}
         rowActionsHeader={text.actions}
         searchPlaceholder={text.searchPlaceholder}
+        searchAriaLabel={text.searchPlaceholder}
         searchValue={search}
         onSearchChange={handleSearchChange}
         filters={

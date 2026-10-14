@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { ActionMenu, Badge, DataTable } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
 import { TENANT_PLAN_LABELS as RAW_TENANT_PLAN_LABELS } from "../../tenancy/constants";
 import {
   LICENSE_STATUS_LABELS as RAW_LICENSE_STATUS_LABELS,
@@ -23,6 +24,7 @@ export const LicenseTable = ({
 }: LicenseTableProps): ReactElement => {
   const H = useAdminCopy(RAW_LICENSE_TABLE_HEADERS);
   const T = useAdminCopy(RAW_LICENSING_TEXT);
+  const searchText = useAdminSearchText("licenses");
   const planLabels = useAdminCopy(RAW_TENANT_PLAN_LABELS);
   const statusLabels = useAdminCopy(RAW_LICENSE_STATUS_LABELS);
   const statusFilterOptions = useAdminCopy([
@@ -70,6 +72,8 @@ export const LicenseTable = ({
       rows={licenses}
       getRowKey={(license) => license.tenantId}
       emptyTitle={T.EMPTY_TITLE}
+      searchPlaceholder={searchText.placeholder}
+      searchAriaLabel={searchText.ariaLabel}
       tableClassName="min-w-[650px]"
       rowActionsHeader={H.ACTIONS}
       rowActions={(license) => (

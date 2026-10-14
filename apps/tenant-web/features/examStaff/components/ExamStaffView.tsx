@@ -30,6 +30,7 @@ export const ExamStaffView = (): ReactElement => {
       clientSideFiltering={false} clientSidePagination={false}
       showSearch searchValue={query.search ?? ""} onSearchChange={(search) => changeFilters({ search })}
       searchPlaceholder={t("tenant.examStaff.searchPlaceholder", EXAM_STAFF_TEXT.searchPlaceholder)}
+      searchAriaLabel={t("tenant.examStaff.searchPlaceholder", EXAM_STAFF_TEXT.searchPlaceholder)}
       filters={<>
         <Select aria-label={text.role} value={query.role ?? "ALL"} options={[
           { label: text.allRoles, value: "ALL" }, { label: text.proctor, value: "PROCTOR" },
