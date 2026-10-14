@@ -1,17 +1,9 @@
 import type { AdminDashboardMessages } from "./en";
 
 export const ADMIN_DASHBOARD_VI: AdminDashboardMessages = {
-  // Page Header & Greetings
-  greetingMorning: "Chào buổi sáng, {name}",
-  greetingAfternoon: "Chào buổi chiều, {name}",
-  greetingEvening: "Chào buổi tối, {name}",
-  greetingDefault: "Chào mừng trở lại, {name}",
-  greetingFallbackUser: "Quản trị viên",
-  addTenant: "Thêm tổ chức",
-  quickActions: "Thao tác nhanh",
-  quickActionReviewQuestions: "Duyệt câu hỏi",
-  quickActionViewApplications: "Xem đơn đăng ký",
-  quickActionViewTickets: "Yêu cầu hỗ trợ",
+  // Dashboard sections
+  analysisTitle: "Phân tích chi tiết",
+  analysisSubtitle: "Xem thêm xu hướng và sức khỏe nền tảng khi cần.",
 
   // Key Performance Indicators (KPIs)
   kpiTitle: "Chỉ số trọng yếu",

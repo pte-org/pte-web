@@ -78,7 +78,7 @@ export const RecentTenantsPanel = ({
     <SectionPanel
       title={messages.recentTenantsTitle}
       subtitle={messages.recentTenantsSubtitle}
-      actions={
+      footerAction={
         <Link
           href={ADMIN_DASHBOARD_ROUTES.tenants}
           className="text-xs font-semibold text-action hover:underline"

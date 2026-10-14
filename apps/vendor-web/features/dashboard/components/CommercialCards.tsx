@@ -35,7 +35,7 @@ export const CommercialCards = ({
       <SectionPanel
         title={messages.licensesTitle}
         subtitle={messages.licensesSubtitle}
-        actions={
+        footerAction={
           <Link
             href={ADMIN_DASHBOARD_ROUTES.licenses}
             className="text-xs font-semibold text-action hover:underline"
@@ -76,7 +76,7 @@ export const CommercialCards = ({
       <SectionPanel
         title={messages.subscriptionsTitle}
         subtitle={messages.subscriptionsSubtitle}
-        actions={
+        footerAction={
           <Link
             href={ADMIN_DASHBOARD_ROUTES.licenses}
             className="text-xs font-semibold text-action hover:underline"
@@ -117,7 +117,7 @@ export const CommercialCards = ({
       <SectionPanel
         title={messages.plansTitle}
         subtitle={messages.plansSubtitle}
-        actions={
+        footerAction={
           <Link
             href={ADMIN_DASHBOARD_ROUTES.plans}
             className="text-xs font-semibold text-action hover:underline"

@@ -25,7 +25,7 @@ export const ApplicationsPanel = ({
     <SectionPanel
       title={messages.applicationsTitle}
       subtitle={messages.applicationsSubtitle}
-      actions={
+      footerAction={
         <Link
           href={ADMIN_DASHBOARD_ROUTES.applications}
           className="text-xs font-semibold text-action hover:underline"

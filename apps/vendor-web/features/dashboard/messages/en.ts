@@ -1,15 +1,7 @@
 export const ADMIN_DASHBOARD_EN = {
-  // Page Header & Greetings
-  greetingMorning: "Good morning, {name}",
-  greetingAfternoon: "Good afternoon, {name}",
-  greetingEvening: "Good evening, {name}",
-  greetingDefault: "Welcome back, {name}",
-  greetingFallbackUser: "Administrator",
-  addTenant: "Add Tenant",
-  quickActions: "Quick Actions",
-  quickActionReviewQuestions: "Review Questions",
-  quickActionViewApplications: "Review Applications",
-  quickActionViewTickets: "Support Tickets",
+  // Dashboard sections
+  analysisTitle: "Detailed analysis",
+  analysisSubtitle: "Review supporting trends and health signals when you need more context.",
 
   // Key Performance Indicators (KPIs)
   kpiTitle: "Key Performance Indicators",

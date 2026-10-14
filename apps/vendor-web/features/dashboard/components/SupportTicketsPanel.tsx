@@ -26,7 +26,7 @@ export const SupportTicketsPanel = ({
     <SectionPanel
       title={messages.ticketsTitle}
       subtitle={messages.ticketsSubtitle}
-      actions={
+      footerAction={
         <Link
           href={ADMIN_DASHBOARD_ROUTES.supportTickets}
           className="text-xs font-semibold text-action hover:underline"

@@ -45,3 +45,5 @@ export const TENANCY_STATUS_BADGE_VARIANT: Record<string, BadgeVariant> = {
 };
 
 export const DASHBOARD_GRID_CLASS = "grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-12";
+export const DASHBOARD_TWO_COLUMN_GRID_CLASS = "grid grid-cols-1 gap-5 md:grid-cols-2";
+export const DASHBOARD_SINGLE_COLUMN_GRID_CLASS = "grid grid-cols-1 gap-5";

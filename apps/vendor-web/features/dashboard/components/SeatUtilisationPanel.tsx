@@ -26,7 +26,7 @@ export const SeatUtilisationPanel = ({
     <SectionPanel
       title={messages.utilisationTitle}
       subtitle={messages.utilisationSubtitle}
-      actions={
+      footerAction={
         <Link
           href={ADMIN_DASHBOARD_ROUTES.tenants}
           className="text-xs font-semibold text-action hover:underline"

@@ -10,6 +10,7 @@ export interface SectionPanelProps<T> {
   title: string;
   subtitle?: string;
   actions?: ReactNode;
+  footerAction?: ReactNode;
   section: DashboardSection<T> | null | undefined;
   onRetry: () => void;
   className?: string;
@@ -22,6 +23,7 @@ export function SectionPanel<T>({
   title,
   subtitle,
   actions,
+  footerAction,
   section,
   onRetry,
   className,
@@ -58,6 +60,7 @@ export function SectionPanel<T>({
       title={title}
       subtitle={subtitle}
       actions={actions}
+      footerAction={footerAction}
       className={className}
       contentClassName={contentClassName ?? (empty ? "flex-1 flex flex-col justify-center" : undefined)}
       status={empty ? "empty" : "content"}

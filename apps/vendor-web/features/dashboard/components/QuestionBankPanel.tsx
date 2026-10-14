@@ -35,7 +35,7 @@ export const QuestionBankPanel = ({
     <SectionPanel
       title={messages.questionBankTitle}
       subtitle={messages.questionBankSubtitle}
-      actions={
+      footerAction={
         <Link
           href={ADMIN_DASHBOARD_ROUTES.questions}
           className="text-xs font-semibold text-action hover:underline"
