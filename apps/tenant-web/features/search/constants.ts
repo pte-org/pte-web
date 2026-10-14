@@ -40,8 +40,8 @@ export const TENANT_SEARCH_TEXT = {
     ariaLabel: "Search programs by name or status",
   },
   orders: {
-    placeholder: "Search by order code, plan ID, or status",
-    ariaLabel: "Search orders by order code, plan ID, or status",
+    placeholder: "Search by order code, plan name, or status",
+    ariaLabel: "Search orders by order code, plan name, or status",
   },
   answers: {
     placeholder: "Search by answer ID, attempt ID, task type, or status",
