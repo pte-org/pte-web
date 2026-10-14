@@ -1,9 +1,10 @@
 "use client";
 
 import type { ReactElement } from "react";
+import Link from "next/link";
 import type { AdminDashboardResponse } from "@pte/api-client";
 import { ProgressBar, type ProgressTone } from "@pte/ui";
-import { SEAT_NEAR_LIMIT_PERCENT } from "../constants";
+import { ADMIN_DASHBOARD_ROUTES, SEAT_NEAR_LIMIT_PERCENT } from "../constants";
 import { useAdminDashboardText } from "../hooks/useAdminDashboardText";
 import { formatNumber } from "../utils/format";
 import { SectionPanel } from "./SectionPanel";
@@ -25,6 +26,14 @@ export const SeatUtilisationPanel = ({
     <SectionPanel
       title={messages.utilisationTitle}
       subtitle={messages.utilisationSubtitle}
+      actions={
+        <Link
+          href={ADMIN_DASHBOARD_ROUTES.tenants}
+          className="text-xs font-semibold text-action hover:underline"
+        >
+          {messages.utilisationViewAll}
+        </Link>
+      }
       section={section}
       onRetry={onRetry}
       className={className}

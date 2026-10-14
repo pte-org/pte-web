@@ -115,6 +115,7 @@ export const ADMIN_DASHBOARD_EN = {
   utilisationTitle: "Top Seat Utilisation",
   utilisationSubtitle: "Organizations closest to their enrolled student capacity limit.",
   utilisationEmpty: "No seat utilisation data available.",
+  utilisationViewAll: "View all",
   utilisationPctLabel: "{percent}% used",
   utilisationFraction: "{used} of {limit} seats",
 

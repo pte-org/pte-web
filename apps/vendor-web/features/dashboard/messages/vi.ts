@@ -117,6 +117,7 @@ export const ADMIN_DASHBOARD_VI: AdminDashboardMessages = {
   utilisationTitle: "Tỷ lệ sử dụng chỗ cao nhất",
   utilisationSubtitle: "Các tổ chức gần chạm giới hạn sức chứa học viên đã đăng ký.",
   utilisationEmpty: "Không có dữ liệu sử dụng chỗ.",
+  utilisationViewAll: "Xem tất cả",
   utilisationPctLabel: "Đã dùng {percent}%",
   utilisationFraction: "{used} / {limit} chỗ",
 
