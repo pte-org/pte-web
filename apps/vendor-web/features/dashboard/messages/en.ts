@@ -123,6 +123,7 @@ export const ADMIN_DASHBOARD_EN = {
   applicationsSubtitle: "Oldest organization onboarding applications awaiting approval.",
   applicationsViewAll: "View all applications",
   applicationsEmpty: "No applications awaiting review.",
+  applicationsTotalPending: "Total pending",
   applicationWaiting: "Waiting {days} days",
 
   // Support Tickets
@@ -130,6 +131,8 @@ export const ADMIN_DASHBOARD_EN = {
   ticketsSubtitle: "Longest-waiting platform support tickets requiring response.",
   ticketsViewAll: "View all tickets",
   ticketsEmpty: "No open support tickets.",
+  ticketsTotalOpen: "Total open",
+  ticketsInProgress: "In progress",
   ticketCategoryBUG: "Bug report",
   ticketCategoryCONTENT_COMPLAINT: "Content complaint",
   ticketCategoryGENERAL_FEEDBACK: "General feedback",

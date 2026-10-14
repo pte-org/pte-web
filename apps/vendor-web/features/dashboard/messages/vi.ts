@@ -125,6 +125,7 @@ export const ADMIN_DASHBOARD_VI: AdminDashboardMessages = {
   applicationsSubtitle: "Các đơn đăng ký tham gia nền tảng chờ duyệt lâu nhất.",
   applicationsViewAll: "Xem tất cả đơn",
   applicationsEmpty: "Chưa có đơn đăng ký cần xét duyệt.",
+  applicationsTotalPending: "Tổng chờ duyệt",
   applicationWaiting: "Chờ {days} ngày",
 
   // Support Tickets
@@ -132,6 +133,8 @@ export const ADMIN_DASHBOARD_VI: AdminDashboardMessages = {
   ticketsSubtitle: "Các yêu cầu hỗ trợ chờ phản hồi lâu nhất trên hệ thống.",
   ticketsViewAll: "Xem tất cả yêu cầu",
   ticketsEmpty: "Không có yêu cầu hỗ trợ nào đang mở.",
+  ticketsTotalOpen: "Tổng đang mở",
+  ticketsInProgress: "Đang xử lý",
   ticketCategoryBUG: "Báo lỗi phần mềm",
   ticketCategoryCONTENT_COMPLAINT: "Khiếu nại nội dung",
   ticketCategoryGENERAL_FEEDBACK: "Góp ý chung",
