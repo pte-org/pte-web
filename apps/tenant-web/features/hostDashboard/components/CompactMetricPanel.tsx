@@ -28,18 +28,29 @@ export const CompactMetricPanel = <T,>({
   href,
   linkLabel,
 }: CompactMetricPanelProps<T>): ReactElement | null => (
-  <SectionPanel title={title} section={section} onRetry={onRetry} className="h-full">
+  <SectionPanel
+    title={title}
+    section={section}
+    onRetry={onRetry}
+    className="h-full"
+    contentClassName="flex-1 flex flex-col justify-between gap-3"
+  >
     {(data) => (
-      <div className="flex flex-col gap-3">
+      <div className="flex h-full flex-col justify-between gap-3">
         <dl className="flex flex-col gap-2">
           {rows(data).map((row) => (
-            <div key={row.label} className="flex items-baseline justify-between gap-3 text-sm">
+            <div
+              key={row.label}
+              className="flex items-center justify-between gap-3 rounded-lg bg-[var(--surface-subtle)]/60 px-3 py-2 text-sm transition-colors hover:bg-[var(--surface-subtle)]"
+            >
               <dt className="text-[var(--ink-secondary)]">{row.label}</dt>
               <dd className="font-semibold tabular-nums text-[var(--ink-primary)]">{row.value}</dd>
             </div>
           ))}
         </dl>
-        <PanelLink href={href}>{linkLabel}</PanelLink>
+        <div className="mt-auto border-t border-[var(--shell-border)]/50 pt-2.5">
+          <PanelLink href={href}>{linkLabel}</PanelLink>
+        </div>
       </div>
     )}
   </SectionPanel>
