@@ -523,7 +523,7 @@ const ADMIN_VI: Record<string, string> = {
   "Main Campus": "Cơ sở chính",
   Branch: "Chi nhánh",
   "Test Center": "Trung tâm khảo thí",
-  "Login Account": "Tài khoản đăng nhập",
+  "Tenant admin account": "Tài khoản quản trị tenant",
   "No login account yet": "Chưa có tài khoản đăng nhập",
   "Create the Host's first login so they can sign in.":
     "Tạo tài khoản đăng nhập đầu tiên cho Host để họ có thể đăng nhập.",
@@ -535,14 +535,10 @@ const ADMIN_VI: Record<string, string> = {
   "Create Login": "Tạo tài khoản đăng nhập",
   "Reset Password": "Đặt lại mật khẩu",
   Account: "Tài khoản",
-  "Student info": "Thông tin học viên",
+  "Technical details": "Thông tin kỹ thuật",
   Security: "Bảo mật",
   "User ID": "ID người dùng",
   Roles: "Vai trò",
-  "Student code": "Mã học viên",
-  "Class name": "Tên lớp",
-  Phone: "Số điện thoại",
-  "Date of birth": "Ngày sinh",
   "First-login password change": "Đổi mật khẩu lần đầu đăng nhập",
   Required: "Bắt buộc",
   "Not required": "Không bắt buộc",
@@ -880,11 +876,9 @@ const ADMIN_VI: Record<string, string> = {
   "Save draft": "Lưu bản nháp",
   "This notification is no longer available.": "Thông báo này không còn khả dụng.",
   "System Error": "Lỗi hệ thống",
-  "Something went wrong. Please reload the page.":
-    "Đã xảy ra lỗi. Vui lòng tải lại trang.",
+  "Something went wrong. Please reload the page.": "Đã xảy ra lỗi. Vui lòng tải lại trang.",
   "Something went wrong": "Đã xảy ra lỗi",
-  "We could not load this page. Please try again.":
-    "Không thể tải trang này. Vui lòng thử lại.",
+  "We could not load this page. Please try again.": "Không thể tải trang này. Vui lòng thử lại.",
   "Try again": "Thử lại",
 
   // Question bank and task type workflow copy.
@@ -944,8 +938,7 @@ const ADMIN_VI: Record<string, string> = {
   "Search licenses by tenant, plan, or license identifier":
     "Tìm bản quyền theo tenant, gói hoặc mã bản quyền",
   "Search by tenant, plan, or status": "Tìm theo tenant, gói hoặc trạng thái",
-  "Search licenses by tenant, plan, or status":
-    "Tìm bản quyền theo tenant, gói hoặc trạng thái",
+  "Search licenses by tenant, plan, or status": "Tìm bản quyền theo tenant, gói hoặc trạng thái",
   "Search by plan name, description, type, or status":
     "Tìm theo tên gói, mô tả, loại hoặc trạng thái",
   "Search plans by name, description, type, or status":

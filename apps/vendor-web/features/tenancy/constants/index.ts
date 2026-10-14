@@ -143,7 +143,6 @@ export const ORGANIZATION_TYPE_FILTER_OPTIONS: { value: string; label: string }[
   ...ORGANIZATION_TYPE_OPTIONS,
 ];
 
-
 export const TENANT_STATS_TEXT = {
   TOTAL: "Total tenants",
   ACTIVE: "Active tenants",
@@ -173,7 +172,8 @@ export const CREATE_TENANT_ERRORS = {
 export const CREATE_TENANT_CONFLICT_TEXT = {
   DUPLICATE_CODE: "This tenant code already exists. Please use another code.",
   DUPLICATE_NAME: "This tenant name already exists. Please use another name.",
-  DUPLICATE_TAX_CODE: "This tax code is already used by another tenant. Please check and try again.",
+  DUPLICATE_TAX_CODE:
+    "This tax code is already used by another tenant. Please check and try again.",
   TENANT_CONFLICT:
     "The tenant code or name already exists. Please check the information and try again.",
   CONFLICT: "The tenant name already exists. Please check the information and try again.",
@@ -239,7 +239,6 @@ export const TENANT_DETAIL_TEXT = {
   PRIMARY_COLOR_INVALID: "Enter a 6-digit hex color like #1A2B3C.",
   SAVE_BRANDING: "Save Branding",
   BRANDING_SAVED: "Branding saved.",
-  ORGANIZATIONS_TITLE: "Organization",
   EMPTY_ORGANIZATIONS_TITLE: "Organization not provisioned",
   EMPTY_ORGANIZATIONS_TEXT: "A default organization is created automatically with the tenant.",
 } as const;
@@ -269,7 +268,7 @@ export const ORGANIZATION_STATUS_VARIANT: Record<OrganizationStatus, BadgeVarian
 };
 
 export const LOGIN_ACCOUNT_TEXT = {
-  TITLE: "Login Account",
+  TITLE: "Tenant admin account",
   EMPTY_TITLE: "No login account yet",
   EMPTY_TEXT: "Create the Host's first login so they can sign in.",
   LOADING: "Verifying the tenant's Host account...",
@@ -279,20 +278,15 @@ export const LOGIN_ACCOUNT_TEXT = {
     "More than one HOST_ADMIN account is linked to this tenant. Verify the target manually before creating or resetting an account.",
   CREATE_LOGIN: "Create Login",
   RESET_PASSWORD: "Reset Password",
-  GROUP_IDENTITY: "Identity",
   GROUP_ACCOUNT: "Account",
-  GROUP_STUDENT: "Student info",
   GROUP_SECURITY: "Security",
+  GROUP_TECHNICAL: "Technical details",
+  STATUS_LABEL: "Status",
   EMAIL_LABEL: "Email",
   FULL_NAME_LABEL: "Full name",
   USER_ID_LABEL: "User ID",
   USERNAME_LABEL: "Username",
-  TENANT_ID_LABEL: "Tenant ID",
   ROLES_LABEL: "Roles",
-  STUDENT_CODE_LABEL: "Student code",
-  CLASS_NAME_LABEL: "Class name",
-  PHONE_LABEL: "Phone",
-  DATE_OF_BIRTH_LABEL: "Date of birth",
   PASSWORD_STATE_LABEL: "First-login password change",
   PASSWORD_STATE_REQUIRED: "Required",
   PASSWORD_STATE_NOT_REQUIRED: "Not required",
@@ -351,7 +345,8 @@ export const RESET_PASSWORD_TEXT = {
   TARGET_ROLES_LABEL: "Role",
   EMPTY_VALUE: "—",
   TARGET_CONFIRMATION: "I confirm this is the account I intend to reset.",
-  TARGET_CONFIRMATION_REQUIRED: "Confirm the tenant, username, and role before resetting the password.",
+  TARGET_CONFIRMATION_REQUIRED:
+    "Confirm the tenant, username, and role before resetting the password.",
 } as const;
 
 export const RESET_PASSWORD_ERRORS = {
