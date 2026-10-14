@@ -36,7 +36,7 @@ export const PlanCatalogView = (): ReactElement => {
     ),
     loadingPlans: t("tenant.billing.loadingPlans", T.LOADING_PLANS),
     viewOrderHistory: t("tenant.billing.viewOrderHistory", T.VIEW_ORDER_HISTORY),
-    viewActiveAccess: t("tenant.billing.viewActiveAccess", T.VIEW_ACTIVE_ACCESS),
+    viewBilling: t("tenant.billing.accessTitle", T.ACCESS_TITLE),
     redeemLicense: t("tenant.billing.redeemLicense", T.REDEEM_LICENSE),
   };
   const { data: plans = [], isLoading, isError } = useTenantPlansQuery();
@@ -83,7 +83,7 @@ export const PlanCatalogView = (): ReactElement => {
         </Link>
 
         <Link
-          href="/host/subscriptions"
+          href="/host/billing"
           className="group flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-blue-300 hover:shadow-md"
         >
           <div className="flex items-center gap-3">
@@ -91,7 +91,7 @@ export const PlanCatalogView = (): ReactElement => {
               <LicenseIcon className="h-5 w-5" />
             </span>
             <span className="text-sm font-semibold text-slate-800 transition-colors group-hover:text-blue-700">
-              {text.viewActiveAccess}
+              {text.viewBilling}
             </span>
           </div>
           <ChevronRightIcon className="h-4 w-4 text-slate-400 transition-all group-hover:translate-x-0.5 group-hover:text-blue-600" />

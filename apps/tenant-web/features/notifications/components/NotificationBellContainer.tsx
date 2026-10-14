@@ -12,7 +12,7 @@ function targetHref(item: InboxItemResponse): string {
     case "ORDER":
       return `/host/orders?publicId=${encodeURIComponent(item.targetPublicId)}`;
     case "SUBSCRIPTION":
-      return `/host/subscriptions?publicId=${encodeURIComponent(item.targetPublicId)}`;
+      return "/host/billing";
     case "QUOTA":
       return "/host/quota";
     case "SUPPORT_TICKET":

@@ -3,8 +3,9 @@
 import type { ReactElement } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import { cn } from "../utils/cn";
+import { CHART_TONE_COLORS, CHART_TONE_DOT_CLASSES, type ChartTone } from "./chartTones";
 
-export type StatusDonutTone = "brand" | "info" | "success" | "warning" | "danger" | "neutral";
+export type StatusDonutTone = ChartTone;
 
 export interface StatusDonutItem {
   key: string;
@@ -20,24 +21,6 @@ export interface StatusDonutChartProps {
   ariaLabel: string;
   className?: string;
 }
-
-const TONE_COLORS: Record<StatusDonutTone, string> = {
-  brand: "var(--action)",
-  info: "var(--sky-action)",
-  success: "var(--mint-action)",
-  warning: "var(--cream-action)",
-  danger: "var(--blush-action)",
-  neutral: "var(--ink-muted)",
-};
-
-const TONE_DOT_CLASSES: Record<StatusDonutTone, string> = {
-  brand: "bg-[var(--action)]",
-  info: "bg-[var(--sky-action)]",
-  success: "bg-[var(--mint-action)]",
-  warning: "bg-[var(--cream-action)]",
-  danger: "bg-[var(--blush-action)]",
-  neutral: "bg-[var(--ink-muted)]",
-};
 
 const normalizeValue = (value: number): number =>
   Number.isFinite(value) ? Math.max(value, 0) : 0;
@@ -72,12 +55,12 @@ export const StatusDonutChart = ({
   return (
     <div
       className={cn(
-        "grid gap-5 sm:grid-cols-[minmax(8rem,12rem)_minmax(0,1fr)] sm:items-center",
+        "grid gap-4 sm:grid-cols-[8.5rem_minmax(0,1fr)] sm:items-center",
         className,
       )}
       aria-label={ariaLabel}
     >
-      <div className="relative h-44 w-full min-w-0">
+      <div className="relative h-36 w-36 shrink-0 mx-auto sm:mx-0 min-w-0">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie
@@ -86,7 +69,7 @@ export const StatusDonutChart = ({
               nameKey="label"
               cx="50%"
               cy="50%"
-              innerRadius="72%"
+              innerRadius="70%"
               outerRadius="88%"
               startAngle={90}
               endAngle={-270}
@@ -96,7 +79,7 @@ export const StatusDonutChart = ({
               isAnimationActive={false}
             >
               {chartItems.map((item) => (
-                <Cell key={item.key} fill={TONE_COLORS[item.tone ?? "neutral"]} />
+                <Cell key={item.key} fill={CHART_TONE_COLORS[item.tone ?? "neutral"]} />
               ))}
             </Pie>
           </PieChart>
@@ -105,7 +88,7 @@ export const StatusDonutChart = ({
           <span className="text-2xl font-semibold tabular-nums text-[var(--ink-primary)]">
             {total}
           </span>
-          <span className="mt-0.5 max-w-24 text-[10px] text-[var(--ink-muted)]">{totalLabel}</span>
+          <span className="mt-0.5 max-w-20 text-[10px] text-[var(--ink-muted)]">{totalLabel}</span>
         </div>
       </div>
       <ul className="grid gap-3" aria-label={ariaLabel}>
@@ -113,16 +96,16 @@ export const StatusDonutChart = ({
           const percentage = Math.round((item.value / total) * 100);
           const tone = item.tone ?? "neutral";
           return (
-            <li key={item.key} className="flex items-center justify-between gap-3 text-sm">
+            <li key={item.key} className="flex items-center justify-between gap-2 text-sm">
               <span className="flex min-w-0 items-center gap-2 text-[var(--ink-secondary)]">
                 <span
-                  className={cn("h-2.5 w-2.5 shrink-0 rounded-full", TONE_DOT_CLASSES[tone])}
+                  className={cn("h-2.5 w-2.5 shrink-0 rounded-full", CHART_TONE_DOT_CLASSES[tone])}
                   aria-hidden="true"
                 />
-                <span className="truncate">{item.label}</span>
+                <span className="truncate" title={item.label}>{item.label}</span>
               </span>
-              <span className="shrink-0 tabular-nums text-[var(--ink-primary)]">
-                {item.value} <span className="text-xs text-[var(--ink-muted)]">({percentage}%)</span>
+              <span className="shrink-0 tabular-nums text-[var(--ink-primary)] font-medium pl-1">
+                {item.value} <span className="text-xs font-normal text-[var(--ink-muted)]">({percentage}%)</span>
               </span>
             </li>
           );

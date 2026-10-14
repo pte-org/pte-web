@@ -602,8 +602,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.classes.allPrograms": "Tất cả chương trình",
     "tenant.classes.count": "{count} lớp học",
     "tenant.classes.createClassButtonTitle": "Hãy tạo chương trình trước khi thêm lớp học.",
-    "tenant.audit.scopeNote":
-      "Nhật ký này chỉ bao gồm thay đổi chương trình/lớp học/phân công học viên — hoạt động kỳ thi và đăng ký hiện chưa được bao gồm.",
     "tenant.audit.when": "Thời điểm",
     "tenant.audit.resource": "Tài nguyên",
     "tenant.audit.actor": "Người thực hiện",
@@ -612,7 +610,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.audit.allActivity": "Tất cả hoạt động",
     "tenant.audit.empty": "Chưa có hoạt động",
     "tenant.audit.emptyDescription": "Các thay đổi sẽ xuất hiện khi đội ngũ của bạn thao tác.",
-    "tenant.audit.loadFailed": "Không thể tải nhật ký audit.",
+    "tenant.audit.loadFailed": "Không thể tải nhật ký hệ thống.",
     "tenant.audit.unknownActor": "Không xác định",
     "tenant.audit.program": "Chương trình",
     "tenant.audit.class": "Lớp học",
@@ -725,7 +723,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.billing.status.cancelled": "Đã hủy",
     "tenant.billing.status.expired": "Đã hết hạn",
     "tenant.billing.viewOrderHistory": "Xem lịch sử đơn hàng",
-    "tenant.billing.viewActiveAccess": "Xem quyền truy cập hiện tại",
     "tenant.billing.redeemLicense": "Đổi mã giấy phép",
     "tenant.billing.days": "{count} ngày",
     "tenant.billing.permanent": "Vĩnh viễn",
@@ -930,14 +927,16 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.examStaff": "Nhân sự kỳ thi",
     "nav.exams": "Kỳ thi",
     "nav.plansBilling": "Gói và thanh toán",
-    "nav.auditLog": "Nhật ký audit",
+    "nav.auditLog": "Nhật ký hệ thống",
     "nav.examiner": "Examiner",
     "nav.program": "Chương trình",
     "nav.class": "Lớp học",
     "nav.markingQueue": "Hàng đợi chấm",
     "nav.student": "Học viên",
-    "tenant.search.auditLog.placeholder": "Tìm theo hành động, mã đối tượng hoặc nội dung",
-    "tenant.search.auditLog.ariaLabel": "Tìm nhật ký theo hành động, mã đối tượng hoặc nội dung",
+    "tenant.search.auditLog.placeholder":
+      "Tìm nhật ký hệ thống theo tên, mã tài nguyên, thao tác hoặc nội dung",
+    "tenant.search.auditLog.ariaLabel":
+      "Tìm nhật ký hệ thống theo tên, mã tài nguyên, thao tác hoặc nội dung",
     "tenant.search.supportTickets.placeholder":
       "Tìm theo mã yêu cầu, nội dung, danh mục hoặc trạng thái",
     "tenant.search.supportTickets.ariaLabel":
@@ -1563,8 +1562,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.classes.allPrograms": "All Programs",
     "tenant.classes.count": "{count} classes",
     "tenant.classes.createClassButtonTitle": "Create a Program first to add Classes to it.",
-    "tenant.audit.scopeNote":
-      "This log covers Program/Class/student-assignment changes only — exam session and enrollment activity isn't included yet.",
     "tenant.audit.when": "When",
     "tenant.audit.resource": "Resource",
     "tenant.audit.actor": "Actor",
@@ -1573,7 +1570,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.audit.allActivity": "All activity",
     "tenant.audit.empty": "No activity yet",
     "tenant.audit.emptyDescription": "Changes here will appear as your team works.",
-    "tenant.audit.loadFailed": "Couldn't load the audit log.",
+    "tenant.audit.loadFailed": "Couldn't load the system log.",
     "tenant.audit.unknownActor": "Unknown",
     "tenant.audit.program": "Program",
     "tenant.audit.class": "Class",
@@ -1684,7 +1681,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.billing.status.cancelled": "Cancelled",
     "tenant.billing.status.expired": "Expired",
     "tenant.billing.viewOrderHistory": "View order history",
-    "tenant.billing.viewActiveAccess": "View active access",
     "tenant.billing.redeemLicense": "Redeem a license code",
     "tenant.billing.days": "{count} days",
     "tenant.billing.permanent": "Permanent",
@@ -1890,14 +1886,16 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.examStaff": "Exam Staff",
     "nav.exams": "Exams",
     "nav.plansBilling": "Plans & billing",
-    "nav.auditLog": "Audit Log",
+    "nav.auditLog": "System log",
     "nav.examiner": "Examiner",
     "nav.program": "Program",
     "nav.class": "Class",
     "nav.markingQueue": "Marking queue",
     "nav.student": "Student",
-    "tenant.search.auditLog.placeholder": "Search by action, object ID, or summary",
-    "tenant.search.auditLog.ariaLabel": "Search audit log by action, object ID, or summary",
+    "tenant.search.auditLog.placeholder":
+      "Search system log by resource name, code, action, or summary",
+    "tenant.search.auditLog.ariaLabel":
+      "Search system log by resource name, code, action, or summary",
     "tenant.search.supportTickets.placeholder":
       "Search by ticket ID, description, category, or status",
     "tenant.search.supportTickets.ariaLabel":

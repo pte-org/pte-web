@@ -24,6 +24,7 @@ import {
 import { apiClient } from "@/lib/apiClient";
 import { TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
 import type { RosterRow } from "@/features/examoperations/types";
+import { HOST_DASHBOARD_QUERY_KEY } from "@/features/hostDashboard/constants";
 import { CLASS_MEMBERSHIPS_QUERY_KEY, STUDENT_ROSTER_QUERY_KEY } from "../constants";
 
 /**
@@ -61,6 +62,7 @@ export function useCreateTenantStudents(): UseMutationResult<
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: STUDENT_ROSTER_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: HOST_DASHBOARD_QUERY_KEY });
     },
   });
 }
