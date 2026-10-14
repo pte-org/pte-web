@@ -8,7 +8,4 @@ export const BILLING_STATUS_LABELS: Record<string, string> = {
   EXPIRING: "Expiring soon",
 };
 
-export const BILLING_STATUS_FILTER_OPTIONS = [
-  { value: "", label: "All statuses" },
-  ...Object.entries(BILLING_STATUS_LABELS).map(([value, label]) => ({ value, label })),
-] as const;
+export const BILLING_STATUS_VALUES = ["PENDING", "PAID", "CANCELLED", "EXPIRED"] as const;

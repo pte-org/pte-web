@@ -14,6 +14,7 @@ import {
   submitApplication,
   type CreateOrderRequest,
   type LicenseKeyResponse,
+  type OrderListFilters,
   type OrderResponse,
   type PagedResult,
   type PlanResponse,
@@ -61,10 +62,17 @@ export function useOrdersPage(
   page: number,
   size: number,
   search = "",
+  filters: OrderListFilters = {},
 ): UseQueryResult<PagedResult<OrderResponse>> {
+  const { status = "", createdFrom = "", createdTo = "" } = filters;
   return useQuery({
-    queryKey: [...ORDERS_QUERY_KEY, search, page, size],
-    queryFn: () => listOrders(apiClient, page, size, search),
+    queryKey: [...ORDERS_QUERY_KEY, search, status, createdFrom, createdTo, page, size],
+    queryFn: () =>
+      listOrders(apiClient, page, size, search, {
+        ...(status ? { status } : {}),
+        ...(createdFrom ? { createdFrom } : {}),
+        ...(createdTo ? { createdTo } : {}),
+      }),
   });
 }
 
@@ -91,10 +99,11 @@ export function useCreateOrder(): UseMutationResult<OrderResponse, unknown, Crea
   });
 }
 
-export function useSubscriptionsQuery(): UseQueryResult<SubscriptionResponse[]> {
+export function useSubscriptionsQuery(enabled = true): UseQueryResult<SubscriptionResponse[]> {
   return useQuery({
     queryKey: SUBSCRIPTIONS_QUERY_KEY,
     queryFn: () => listSubscriptions(apiClient),
+    enabled,
   });
 }
 
