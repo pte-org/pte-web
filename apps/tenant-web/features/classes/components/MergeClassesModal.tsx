@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Badge, Button, Modal, isTypedConfirmValid } from "@pte/ui";
+import { Alert, Badge, Button, Modal, isTypedConfirmValid, useToast } from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { CLASS_STATUS_LABELS, CLASS_STATUS_VARIANT, MERGE_CLASSES_TEXT } from "../constants";
@@ -32,6 +32,7 @@ export const MergeClassesModal = ({
   classLabel,
   onMerged,
 }: MergeClassesModalProps): ReactElement => {
+  const { showToast } = useToast();
   const [targetClassPublicId, setTargetClassPublicId] = useState(
     selectedClasses[0]?.publicId ?? "",
   );
@@ -65,7 +66,12 @@ export const MergeClassesModal = ({
     if (!typedConfirmSatisfied) return;
     merge.mutate(
       sourceClasses.map((studentClass) => studentClass.publicId),
-      { onSuccess: onMerged },
+      {
+        onSuccess: (result) => {
+          showToast(T.successTitle(result.movedStudentPublicIds.length), { tone: "success" });
+          onMerged();
+        },
+      },
     );
   };
 
@@ -73,7 +79,6 @@ export const MergeClassesModal = ({
     return (
       <Modal open={open} onClose={handleClose} title={T.title(classLabel)}>
         <div className="flex flex-col gap-4">
-          <Alert tone="success">{T.successTitle(merge.data.movedStudentPublicIds.length)}</Alert>
           <Button type="button" onClick={handleClose}>
             {T.done}
           </Button>
@@ -99,9 +104,7 @@ export const MergeClassesModal = ({
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={
-              merge.isPending || sourceClasses.length === 0 || !typedConfirmSatisfied
-            }
+            disabled={merge.isPending || sourceClasses.length === 0 || !typedConfirmSatisfied}
             className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
             {merge.isPending ? T.submitting : T.submit}

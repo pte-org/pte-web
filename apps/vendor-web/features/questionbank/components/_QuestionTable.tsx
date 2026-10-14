@@ -44,6 +44,7 @@ interface QuestionTableProps {
 }
 
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
 
 export const QuestionTable = ({
   questions,
@@ -51,6 +52,7 @@ export const QuestionTable = ({
   toolbarActions,
 }: QuestionTableProps): ReactElement => {
   const T = useAdminCopy(RAW_QUESTIONBANK_TEXT);
+  const searchText = useAdminSearchText("questionContent");
   const H = useAdminCopy(RAW_QUESTION_TABLE_HEADERS);
   const skillLabels = useAdminCopy(RAW_QUESTION_SKILL_LABELS);
   const poolLabels = useAdminCopy(RAW_QUESTION_POOL_LABELS);
@@ -264,8 +266,8 @@ export const QuestionTable = ({
         isLoading={isLoading}
         emptyTitle={T.EMPTY_TITLE}
         emptyDescription={T.EMPTY_DESCRIPTION_FILTERED}
-        searchPlaceholder={T.SEARCH_PLACEHOLDER}
-        searchAriaLabel={T.SEARCH_PLACEHOLDER}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
         clientSidePagination
         initialPageSize={10}
         tableClassName="min-w-[900px]"

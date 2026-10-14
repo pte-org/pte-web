@@ -1,8 +1,10 @@
 "use client";
 
+import { usePathname } from "next/navigation";
+
 import type { ReactElement } from "react";
-import { Alert, LoadingState, PageHeader } from "@pte/ui";
-import { SUPPORT_TICKETS_TEXT as T } from "../constants";
+import { Alert, LoadingState, useDashboardBreadcrumbLabel, useLocale } from "@pte/ui";
+import { SUPPORT_TICKETS_TEXT as T, SUPPORT_TICKET_BREADCRUMB_ID_LENGTH } from "../constants";
 import { useSupportTicket } from "../api";
 import { TicketCategoryBadge } from "./_TicketCategoryBadge";
 import { TicketStatusBadge } from "./_TicketStatusBadge";
@@ -16,6 +18,10 @@ export const SupportTicketDetailView = ({
   ticketPublicId,
 }: SupportTicketDetailViewProps): ReactElement => {
   const { data: ticket, isLoading, isError } = useSupportTicket(ticketPublicId);
+  const pathname = usePathname();
+  const { t } = useLocale();
+  useDashboardBreadcrumbLabel(pathname, ticket ? t("common.supportTicketBreadcrumb", undefined,
+    { id: ticket.publicId.slice(0, SUPPORT_TICKET_BREADCRUMB_ID_LENGTH).toUpperCase() }) : undefined);
 
   if (isLoading) return <LoadingState rows={6} />;
   if (isError || !ticket) {
@@ -24,8 +30,6 @@ export const SupportTicketDetailView = ({
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title={T.TICKET_DETAILS} />
-
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-card">
         <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>

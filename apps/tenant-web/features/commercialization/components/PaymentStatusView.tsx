@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Alert, CheckCircleIcon, PageHeader } from "@pte/ui";
-import { useOrderQuery } from "../api";
+import { useOrderQuery, useTenantPlansQuery } from "../api";
 import { BILLING_TEXT as T, PAYMENT_STATE_MESSAGES } from "../constants";
 import { BillingPanel } from "./BillingPanel";
 import { BillingStatusBadge } from "./BillingStatusBadge";
@@ -13,9 +13,13 @@ export const PaymentStatusView = (): ReactElement => {
   const searchParams = useSearchParams();
   const selectedOrderId = searchParams.get("orderId");
   const exactOrderQuery = useOrderQuery(selectedOrderId, Boolean(selectedOrderId));
+  const { data: plans = [] } = useTenantPlansQuery();
   const order = exactOrderQuery.data;
   const isLoading = exactOrderQuery.isLoading;
   const isError = exactOrderQuery.isError;
+  const planName = order
+    ? (plans.find((plan) => plan.publicId === order.planId)?.name ?? T.EXAM_PACKAGES)
+    : T.EXAM_PACKAGES;
 
   return (
     <div className="flex flex-col gap-5">
@@ -29,7 +33,7 @@ export const PaymentStatusView = (): ReactElement => {
         <BillingPanel
           title={T.ORDER(order.orderCode)}
           subtitle={T.ORDER_PLAN_SUBTITLE(
-            order.planId,
+            planName,
             Number(order.amount).toLocaleString(),
             order.currency,
           )}

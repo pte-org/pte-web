@@ -19,6 +19,8 @@ import {
 } from "../constants";
 import { useAnswers } from "../api";
 import { AnswerDetailModal } from "./AnswerDetailModal";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
+import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
 
 interface AnswersSectionProps {
   sessionPublicId: string;
@@ -41,8 +43,11 @@ function formatScore(score: number | null): string {
 
 export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactElement => {
   const { locale, t } = useLocale();
+  const searchText = useTenantSearchText("answers");
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(search);
   const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
 
   const statusLabel = (status: string): string => {
@@ -69,7 +74,7 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
     })),
   ];
 
-  const { data, isLoading } = useAnswers(sessionPublicId, "", page, size);
+  const { data, isLoading } = useAnswers(sessionPublicId, "", page, size, debouncedSearch);
 
   const columns: DataTableColumn<AnswerListItemResponse>[] = [
     {
@@ -123,7 +128,15 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
         getRowKey={(row) => row.answerPublicId}
         isLoading={isLoading}
         emptyTitle={t("tenant.answers.empty", T.EMPTY_TITLE)}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
+        searchValue={search}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(0);
+        }}
         rowActionsHeader={t("tenant.answers.actions", ANSWER_TABLE_HEADERS.ACTIONS)}
+        clientSideFiltering={false}
         clientSidePagination={false}
         pagination={
           data ? (

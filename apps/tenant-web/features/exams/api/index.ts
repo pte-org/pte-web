@@ -6,6 +6,7 @@ import {
   confirmExaminerAssignmentPreview,
   closeSession,
   cancelExam,
+  deleteSession as deleteSessionRequest,
   addAudienceSource,
   createSession,
   createExamDraft,
@@ -30,6 +31,9 @@ import {
   listSessions,
   listUsers,
   openSession,
+  patchExamDraft,
+  patchExamPolicy,
+  patchExamSchedule,
   preflightExam,
   generateExam,
   publishExam,
@@ -50,8 +54,13 @@ import {
   type ExaminerAssignmentOverviewResponse,
   type ExaminerAssignmentPreviewResponse,
   type ExamPreviewResponse,
+  type ExamPolicyResponse,
   type LockdownMode,
+  type PatchExamDraftRequest,
+  type PatchExamPolicyRequest,
+  type PatchExamScheduleRequest,
   type ProctorRole,
+  type SessionStatus,
   type SessionResponse,
   type ScoreTemplateResponse,
   type UserResponse,
@@ -99,6 +108,8 @@ import type {
 
 const PROCTOR_ROLE = "PROCTOR";
 
+export type ExamStatusTransitionTarget = Exclude<SessionStatus, "PREPARING">;
+
 function sessionResponseToExamSession(response: SessionResponse): ExamSession {
   return {
     id: response.publicId,
@@ -110,6 +121,12 @@ function sessionResponseToExamSession(response: SessionResponse): ExamSession {
     closesAt: response.closesAt,
     status: response.status,
     capacity: response.capacity,
+    templatePublicId: response.templatePublicId,
+    templateVersion: response.templateVersion,
+    formMode: response.formMode,
+    reusePolicy: response.reusePolicy,
+    seriesKey: response.seriesKey,
+    draftVersion: response.draftVersion,
     examMode: response.examMode,
     policy: response.policy ?? null,
     selectedSkills: (response.selectedSkills ?? []) as ExamSkill[],
@@ -133,6 +150,19 @@ function replaceSessionInCache(
   queryClient.setQueryData([...SESSION_QUERY_KEY, updated.id], updated);
 }
 
+function replaceSessionPolicyInCache(
+  queryClient: ReturnType<typeof useQueryClient>,
+  publicId: string,
+  policy: ExamPolicyResponse,
+): void {
+  queryClient.setQueryData<ExamSession[]>(SESSIONS_QUERY_KEY, (previous = []) =>
+    previous.map((session) => (session.id === publicId ? { ...session, policy } : session)),
+  );
+  queryClient.setQueryData<ExamSession>([...SESSION_QUERY_KEY, publicId], (previous) =>
+    previous ? { ...previous, policy } : previous,
+  );
+}
+
 export function useSessions(): UseQueryResult<ExamSession[]> {
   return useQuery({
     queryKey: SESSIONS_QUERY_KEY,
@@ -145,6 +175,54 @@ export function useSession(publicId: string): UseQueryResult<ExamSession> {
     queryKey: [...SESSION_QUERY_KEY, publicId],
     queryFn: async () => sessionResponseToExamSession(await getSession(apiClient, publicId)),
     enabled: publicId.length > 0,
+    refetchInterval: (query) =>
+      query.state.data?.status === "OPEN" || query.state.data?.status === "SCHEDULED"
+        ? 30_000
+        : false,
+  });
+}
+
+export function useUpdateExamDraft(
+  publicId: string,
+): UseMutationResult<ExamSession, unknown, PatchExamDraftRequest> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload) =>
+      sessionResponseToExamSession(await patchExamDraft(apiClient, publicId, payload)),
+    onSuccess: (session) => replaceSessionInCache(queryClient, session),
+    onError: () => {
+      void queryClient.invalidateQueries({ queryKey: [...SESSION_QUERY_KEY, publicId] });
+    },
+  });
+}
+
+export function useUpdateExamPolicy(
+  publicId: string,
+): UseMutationResult<ExamPolicyResponse, unknown, PatchExamPolicyRequest> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload) => patchExamPolicy(apiClient, publicId, payload),
+    onSuccess: (policy) => replaceSessionPolicyInCache(queryClient, publicId, policy),
+    onError: () => {
+      void queryClient.invalidateQueries({ queryKey: [...SESSION_QUERY_KEY, publicId] });
+    },
+  });
+}
+
+export function useUpdateExamSchedule(
+  publicId: string,
+): UseMutationResult<ExamSession, unknown, PatchExamScheduleRequest> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (payload) =>
+      sessionResponseToExamSession(await patchExamSchedule(apiClient, publicId, payload)),
+    onSuccess: (session) => replaceSessionInCache(queryClient, session),
+    onError: () => {
+      void queryClient.invalidateQueries({ queryKey: [...SESSION_QUERY_KEY, publicId] });
+    },
   });
 }
 
@@ -229,16 +307,7 @@ export function useCreateExamWorkflow(): UseMutationResult<
         await addAudienceSource(apiClient, draft.publicId, source);
       }
       const preflight = await preflightExam(apiClient, draft.publicId);
-      if (!preflight.ready) {
-        const details = preflight.issues
-          .map((issue) => CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_ISSUE_MESSAGES[issue])
-          .filter((message): message is string => Boolean(message));
-        throw new UserFacingError(
-          details.length > 0
-            ? `${CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_BLOCKED} ${details.join(" ")}`
-            : CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_BLOCKED,
-        );
-      }
+      assertExamPreflightReady(preflight);
       await generateExam(apiClient, draft.publicId, globalThis.crypto.randomUUID());
       const published = await publishExam(apiClient, draft.publicId);
       assertResolvedPolicy(published, expectedLockdownMode);
@@ -251,6 +320,49 @@ export function useCreateExamWorkflow(): UseMutationResult<
       ]);
       void queryClient.invalidateQueries({ queryKey: SESSIONS_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: HOST_DASHBOARD_QUERY_KEY });
+    },
+  });
+}
+
+function assertExamPreflightReady(preflight: Awaited<ReturnType<typeof preflightExam>>): void {
+  if (preflight.ready) return;
+  const details = preflight.issues
+    .map((issue) => CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_ISSUE_MESSAGES[issue])
+    .filter((message): message is string => Boolean(message));
+  throw new UserFacingError(
+    details.length > 0
+      ? `${CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_BLOCKED} ${details.join(" ")}`
+      : CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_BLOCKED,
+  );
+}
+
+/** Runs the backend-owned command for a selected status rather than patching status directly. */
+export function useTransitionExamStatus(
+  publicId: string,
+): UseMutationResult<ExamSession, unknown, ExamStatusTransitionTarget> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (target) => {
+      if (target === "READY" || target === "SCHEDULED") {
+        assertExamPreflightReady(await preflightExam(apiClient, publicId));
+        await generateExam(apiClient, publicId, globalThis.crypto.randomUUID());
+        if (target === "READY") {
+          return sessionResponseToExamSession(await getSession(apiClient, publicId));
+        }
+        return sessionResponseToExamSession(await publishExam(apiClient, publicId));
+      }
+      if (target === "OPEN") {
+        return sessionResponseToExamSession(await openSession(apiClient, publicId));
+      }
+      if (target === "CLOSED") {
+        return sessionResponseToExamSession(await closeSession(apiClient, publicId));
+      }
+      return sessionResponseToExamSession(await cancelExam(apiClient, publicId));
+    },
+    onSuccess: (session) => replaceSessionInCache(queryClient, session),
+    onError: () => {
+      void queryClient.invalidateQueries({ queryKey: [...SESSION_QUERY_KEY, publicId] });
     },
   });
 }
@@ -282,13 +394,28 @@ export function useCancelSession(publicId: string): UseMutationResult<ExamSessio
   });
 }
 
+export function useDeleteSession(): UseMutationResult<void, unknown, string> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (publicId) => deleteSessionRequest(apiClient, publicId),
+    onSuccess: (_result, publicId) => {
+      queryClient.setQueryData<ExamSession[]>(SESSIONS_QUERY_KEY, (previous = []) =>
+        previous.filter((session) => session.id !== publicId),
+      );
+      queryClient.removeQueries({ queryKey: [...SESSION_QUERY_KEY, publicId] });
+    },
+  });
+}
+
 export function useExaminerAssignmentOverview(
   sessionPublicId: string,
   page: number,
+  search = "",
 ): UseQueryResult<ExaminerAssignmentOverviewResponse> {
   return useQuery({
-    queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId, page],
-    queryFn: () => getExaminerAssignmentOverview(apiClient, sessionPublicId, page, 20),
+    queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId, search, page],
+    queryFn: () => getExaminerAssignmentOverview(apiClient, sessionPublicId, page, 20, search),
     enabled: sessionPublicId.length > 0,
   });
 }
@@ -460,13 +587,15 @@ export function useAnswers(
   statusFilter: string,
   page: number,
   size = DEFAULT_PAGE_SIZE,
+  search = "",
 ): UseQueryResult<AnswerListResponse> {
   return useQuery({
-    queryKey: [...ANSWERS_QUERY_KEY, sessionPublicId, statusFilter, page, size],
+    queryKey: [...ANSWERS_QUERY_KEY, sessionPublicId, statusFilter, search, page, size],
     queryFn: () =>
       listAnswers(apiClient, {
         sessionPublicId,
         status: statusFilter || undefined,
+        search,
         page,
         size,
       }),

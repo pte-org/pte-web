@@ -90,4 +90,23 @@ describe("bounded admin license reads", () => {
     expect(fetchFn.mock.calls[2][1].cache).toBe("no-store");
     expect(new Headers(fetchFn.mock.calls[2][1].headers).get("Cache-Control")).toBe("no-store");
   });
+
+  it("keeps safe identifier search in the admin list request", async () => {
+    const request = vi.fn().mockResolvedValue({});
+    const client = {
+      request,
+      upload: vi.fn(),
+      download: vi.fn(),
+    } as never;
+
+    await listAdminLicenseCodes(client, {
+      page: 0,
+      size: 25,
+      search: "  11111111-2222-4333-8444-555555555555  ",
+    });
+
+    expect(request).toHaveBeenCalledWith(
+      "/api/v1/admin/license-codes?page=0&size=25&search=11111111-2222-4333-8444-555555555555",
+    );
+  });
 });

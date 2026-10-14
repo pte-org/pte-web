@@ -181,6 +181,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
 
   return (
     <DataTable
+      showSearch={false}
       columns={columns}
       rows={rows}
       getRowKey={(row) => `${row.item.taskTypeKey}-${row.index}`}

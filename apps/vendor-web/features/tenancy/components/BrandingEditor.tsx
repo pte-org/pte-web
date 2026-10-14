@@ -13,7 +13,6 @@ interface BrandingEditorProps {
   onSubmit: (input: BrandingInput) => void;
   isSubmitting?: boolean;
   error?: string;
-  saved?: boolean;
 }
 
 export const BrandingEditor = ({
@@ -21,7 +20,6 @@ export const BrandingEditor = ({
   onSubmit,
   isSubmitting = false,
   error,
-  saved = false,
 }: BrandingEditorProps): ReactElement => {
   const T = useAdminCopy(RAW_TENANT_DETAIL_TEXT);
   const savingLabel = useAdminCopy("Saving...");
@@ -47,12 +45,6 @@ export const BrandingEditor = ({
           <Alert tone="error">{error}</Alert>
         </div>
       )}
-      {saved && !error && (
-        <div className="mt-4">
-          <Alert tone="success">{T.BRANDING_SAVED}</Alert>
-        </div>
-      )}
-
       <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="flex flex-col gap-1">
           <label htmlFor="branding-logo-url" className="text-sm font-medium text-gray-700">

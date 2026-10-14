@@ -13,6 +13,7 @@ import {
   type DataTableColumn,
 } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
 import {
   ORGANIZATION_TYPE_OPTIONS as RAW_ORGANIZATION_TYPE_OPTIONS,
   TENANCY_TEXT as RAW_TENANCY_TEXT,
@@ -40,6 +41,7 @@ export const TenantTable = ({
 }: TenantTableProps): ReactElement => {
   const H = useAdminCopy(RAW_TENANT_TABLE_HEADERS);
   const T = useAdminCopy(RAW_TENANCY_TEXT);
+  const searchText = useAdminSearchText("tenants");
   const organizationTypeOptions = useAdminCopy(RAW_ORGANIZATION_TYPE_OPTIONS);
   const planLabels = useAdminCopy(RAW_TENANT_PLAN_LABELS);
   const statusLabels = useAdminCopy(RAW_TENANT_STATUS_LABELS);
@@ -114,6 +116,8 @@ export const TenantTable = ({
       columns={columns}
       rows={tenants}
       getRowKey={(tenant) => tenant.id}
+      searchPlaceholder={searchText.placeholder}
+      searchAriaLabel={searchText.ariaLabel}
       tableClassName="min-w-[860px]"
       rowActionsHeader={H.ACTIONS}
       rowActions={(tenant) => {

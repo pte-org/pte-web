@@ -2,10 +2,9 @@
 
 import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { ActionMenu, type DropdownItem } from "@pte/ui";
+import { ActionMenu, EyeIcon, useToast, type DropdownItem } from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
-import { errorMessage } from "@/features/examoperations/errorMessage";
-import { CLASS_ROW_ACTIONS_TEXT } from "../constants";
+import { useClassActionText } from "../hooks/useClassActionText";
 import { useClassStatusMutations } from "../api";
 import { buildAssignStudentsUrl } from "../utils/assignStudentsUrl";
 import { ClassStatusConfirmDialogs, type ClassStatusAction } from "./ClassStatusConfirmDialogs";
@@ -16,7 +15,9 @@ interface ClassRowActionsProps {
   studentCount: number;
   classLabel: string;
   studentClass: ClassResponse;
-  onEdit: () => void;
+  onEdit?: () => void;
+  showViewDetails?: boolean;
+  onArchived?: () => void;
 }
 
 /**
@@ -36,8 +37,12 @@ export const ClassRowActions = ({
   classLabel,
   studentClass,
   onEdit,
+  showViewDetails = true,
+  onArchived,
 }: ClassRowActionsProps): ReactElement => {
   const router = useRouter();
+  const text = useClassActionText();
+  const { showToast } = useToast();
   const [confirmAction, setConfirmAction] = useState<ClassStatusAction | null>(null);
   const mutations = useClassStatusMutations(
     organizationPublicId,
@@ -49,87 +54,91 @@ export const ClassRowActions = ({
     mutations.deactivate.isPending ||
     mutations.suspend.isPending ||
     mutations.archive.isPending;
-  const rowError = errorMessage(
-    mutations.activate.error ??
-      mutations.deactivate.error ??
-      mutations.suspend.error ??
-      mutations.archive.error,
-  );
 
   const isActive = studentClass.status === "ACTIVE";
   const assignDisabled = pending || !isActive;
 
-  const items: DropdownItem[] = [
-    {
-      label: CLASS_ROW_ACTIONS_TEXT.edit,
-      onSelect: () => onEdit(),
-    },
-    {
-      label: CLASS_ROW_ACTIONS_TEXT.assignStudents,
+  const items: DropdownItem[] = [];
+  if (onEdit) {
+    items.push({ label: text.edit, onSelect: onEdit, disabled: pending });
+    items.push({ separator: true, key: "edit-divider" });
+  }
+  if (showViewDetails) {
+    items.push({
+      label: text.viewDetails,
+      icon: EyeIcon,
       onSelect: () =>
         router.push(
-          buildAssignStudentsUrl("/host/students", {
-            organizationPublicId,
-            programPublicId,
-            classPublicId: studentClass.publicId,
-          }),
+          `/host/programs/${programPublicId}/classes/${studentClass.publicId}?${new URLSearchParams({ organizationPublicId })}`,
         ),
-      disabled: assignDisabled,
-      ...(assignDisabled && {
-        title: CLASS_ROW_ACTIONS_TEXT.assignStudentsDisabledTitle,
-      }),
-    },
+    });
+  }
+  items.push({
+    label: text.assignStudents,
+    onSelect: () =>
+      router.push(
+        buildAssignStudentsUrl("/host/students", {
+          organizationPublicId,
+          programPublicId,
+          classPublicId: studentClass.publicId,
+        }),
+      ),
+    disabled: assignDisabled,
+    ...(assignDisabled && {
+      title: text.assignDisabled,
+    }),
+  });
+  items.push(
     { separator: true, key: "nav-status-divider" },
     {
-      label: CLASS_ROW_ACTIONS_TEXT.activate,
+      label: text.activate,
       onSelect: () => setConfirmAction("activate"),
       hidden: isActive,
     },
     {
-      label: CLASS_ROW_ACTIONS_TEXT.suspend,
+      label: text.suspend,
       onSelect: () => setConfirmAction("suspend"),
       hidden: !isActive,
     },
     {
-      label: CLASS_ROW_ACTIONS_TEXT.deactivate,
+      label: text.deactivate,
       onSelect: () => setConfirmAction("deactivate"),
       hidden: studentClass.status === "INACTIVE",
     },
     { separator: true, key: "danger-divider" },
     {
-      label: CLASS_ROW_ACTIONS_TEXT.archive,
+      label: text.archive,
       onSelect: () => setConfirmAction("archive"),
       danger: true,
     },
-  ];
+  );
+
+  const successMessage = {
+    activate: text.activateSuccess,
+    deactivate: text.deactivateSuccess,
+    suspend: text.suspendSuccess,
+    archive: text.archiveSuccess,
+  } as const;
 
   const handleConfirm = (): void => {
-    switch (confirmAction) {
-      case "activate":
-        mutations.activate.mutate(undefined, { onSettled: () => setConfirmAction(null) });
-        break;
-      case "deactivate":
-        mutations.deactivate.mutate(undefined, { onSettled: () => setConfirmAction(null) });
-        break;
-      case "suspend":
-        mutations.suspend.mutate(undefined, { onSettled: () => setConfirmAction(null) });
-        break;
-      case "archive":
-        mutations.archive.mutate(undefined, { onSettled: () => setConfirmAction(null) });
-        break;
-      case null:
-        break;
-    }
+    if (!confirmAction) return;
+    const action = confirmAction;
+    mutations[action].mutate(undefined, {
+      onSuccess: () => {
+        setConfirmAction(null);
+        showToast(successMessage[action], { tone: "success" });
+        if (action === "archive") onArchived?.();
+      },
+      onError: () => {
+        setConfirmAction(null);
+        showToast(text.actionFailed, { tone: "error" });
+      },
+    });
   };
 
   return (
     <div className="flex flex-col gap-1">
-      <ActionMenu
-        items={items}
-        label={CLASS_ROW_ACTIONS_TEXT.actions}
-        align="right"
-      />
-      {rowError && <p className="text-xs text-red-600">{rowError}</p>}
+      <ActionMenu items={items} label={text.actions} align="right" />
       <ClassStatusConfirmDialogs
         studentClassName={studentClass.name}
         studentCount={studentCount}

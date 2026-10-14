@@ -11,9 +11,12 @@ export function listAuditLogs(
   aggregateType?: string,
   page = 0,
   size = DEFAULT_PAGE_SIZE,
+  search?: string,
 ): Promise<PagedResult<AuditLogResponse>> {
   const params = new URLSearchParams({ page: String(page), size: String(size) });
   if (aggregateType) params.set("aggregateType", aggregateType);
+  const normalizedSearch = search?.trim();
+  if (normalizedSearch) params.set("search", normalizedSearch);
   return client.request<PagedResult<AuditLogResponse>>(
     `${AUDIT_LOG_ENDPOINTS.auditLogs}?${params.toString()}`,
   );

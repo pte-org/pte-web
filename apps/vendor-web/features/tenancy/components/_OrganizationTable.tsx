@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 import { ActionMenu, Badge, DataTable } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
 import {
   FACILITY_TYPE_LABELS as RAW_FACILITY_TYPE_LABELS,
   ORGANIZATION_STATUS_LABELS as RAW_ORGANIZATION_STATUS_LABELS,
@@ -25,6 +26,7 @@ export const OrganizationTable = ({
 }: OrganizationTableProps): ReactElement => {
   const H = useAdminCopy(RAW_ORGANIZATION_TABLE_HEADERS);
   const T = useAdminCopy(RAW_TENANCY_TEXT);
+  const searchText = useAdminSearchText("organizations");
   const emptyTitle = useAdminCopy("No organizations found");
   const facilityLabels = useAdminCopy(RAW_FACILITY_TYPE_LABELS);
   const statusLabels = useAdminCopy(RAW_ORGANIZATION_STATUS_LABELS);
@@ -83,6 +85,8 @@ export const OrganizationTable = ({
       ]}
       rows={organizations}
       getRowKey={(organization) => organization.id}
+      searchPlaceholder={searchText.placeholder}
+      searchAriaLabel={searchText.ariaLabel}
       emptyTitle={emptyTitle}
       tableClassName="min-w-[680px]"
       rowActionsHeader={H.ACTIONS}

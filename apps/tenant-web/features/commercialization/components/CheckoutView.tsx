@@ -2,7 +2,7 @@
 
 import { useMemo, type ReactElement } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Alert, Button, CheckCircleIcon, PageHeader } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useCreateOrder, useOrdersQuery, useTenantPlansQuery } from "../api";
@@ -10,6 +10,7 @@ import { BILLING_TEXT as T } from "../constants";
 import { BillingPanel } from "./BillingPanel";
 
 export const CheckoutView = (): ReactElement => {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const selectedPlanId = searchParams.get("planId") ?? "";
   const { data: plans = [], isLoading } = useTenantPlansQuery();
@@ -19,6 +20,7 @@ export const CheckoutView = (): ReactElement => {
     () => plans.find((item) => item.publicId === selectedPlanId && item.status === "ACTIVE"),
     [plans, selectedPlanId],
   );
+  const isFreePlan = plan ? Number(plan.price) === 0 : false;
   const error = createOrder.error;
   const errorMessage = error ? getUserFacingApiErrorMessage(error, T.ORDER_ERROR) : undefined;
   const pendingOrder = plan
@@ -28,7 +30,11 @@ export const CheckoutView = (): ReactElement => {
   const startPayment = async (): Promise<void> => {
     if (!plan) return;
     const order = await createOrder.mutateAsync({ planId: plan.publicId });
-    if (order.paymentLinkUrl) window.location.assign(order.paymentLinkUrl);
+    if (order.paymentLinkUrl) {
+      window.location.assign(order.paymentLinkUrl);
+      return;
+    }
+    router.push("/host/billing");
   };
 
   return (
@@ -70,15 +76,22 @@ export const CheckoutView = (): ReactElement => {
               </span>
             </div>
           </BillingPanel>
-          <BillingPanel title={T.SECURE_PAYMENT} subtitle={T.POWERED_BY_PAYOS}>
+          <BillingPanel
+            title={isFreePlan ? T.FREE_ACCESS_TITLE : T.SECURE_PAYMENT}
+            subtitle={isFreePlan ? T.FREE_ACCESS_SUBTITLE : T.POWERED_BY_PAYOS}
+          >
             <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
               <div className="flex items-center gap-3">
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-white text-blue-700">
                   <CheckCircleIcon className="h-5 w-5" />
                 </span>
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">{T.PAYOS_CHECKOUT}</p>
-                  <p className="mt-1 text-xs text-slate-600">{T.WEBHOOK_CONFIRMATION}</p>
+                  <p className="text-sm font-semibold text-slate-900">
+                    {isFreePlan ? T.FREE_ACCESS_TITLE : T.PAYOS_CHECKOUT}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-600">
+                    {isFreePlan ? T.FREE_ACCESS_MESSAGE : T.WEBHOOK_CONFIRMATION}
+                  </p>
                 </div>
               </div>
             </div>
@@ -87,10 +100,10 @@ export const CheckoutView = (): ReactElement => {
               fullWidth
               onClick={() => void startPayment()}
               isLoading={createOrder.isPending}
-              loadingText={T.CREATING_ORDER}
+              loadingText={isFreePlan ? T.ACTIVATING_PLAN : T.CREATING_ORDER}
               disabled={pendingOrder !== undefined}
             >
-              {T.CONTINUE_TO_PAYOS}
+              {isFreePlan ? T.ACTIVATE_FREE_PLAN : T.CONTINUE_TO_PAYOS}
             </Button>
             <Link
               href={

@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactElement } from "react";
 import type { StudentDetailResponse } from "@pte/api-client";
-import { Alert, Button, Input, PencilIcon, ProfileAccountPanel } from "@pte/ui";
+import { Alert, Button, Input, PencilIcon, ProfileAccountPanel, useToast } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useUpdateStudentProfile } from "../api";
 import type { StudentDetailText } from "../hooks/useStudentDetailText";
@@ -20,9 +20,9 @@ export const StudentAccountTab = ({
   studentPublicId,
   text,
 }: StudentAccountTabProps): ReactElement => {
+  const { showToast } = useToast();
   const update = useUpdateStudentProfile();
   const [form, setForm] = useState<StudentProfileForm>(() => formFromAccount(account));
-  const [saved, setSaved] = useState(false);
   const [editing, setEditing] = useState(false);
 
   const original = useMemo(() => formFromAccount(account), [account]);
@@ -31,13 +31,11 @@ export const StudentAccountTab = ({
 
   const reset = (): void => {
     setForm(original);
-    setSaved(false);
     setEditing(false);
   };
 
   const startEditing = (): void => {
     setForm(formFromAccount(account));
-    setSaved(false);
     setEditing(true);
   };
 
@@ -61,7 +59,6 @@ export const StudentAccountTab = ({
       )}
     >
         {error && <Alert tone="error">{error}</Alert>}
-        {saved && <Alert tone="success">{text.account.saved}</Alert>}
 
         {editing ? (
           <div className="flex flex-col gap-5">
@@ -102,13 +99,12 @@ export const StudentAccountTab = ({
                 disabled={!isDirty}
                 isLoading={update.isPending}
                 onClick={() => {
-                  setSaved(false);
                   update.mutate(
                     { publicId: studentPublicId, payload: form },
                     {
                       onSuccess: () => {
-                        setSaved(true);
                         setEditing(false);
+                        showToast(text.account.saved, { tone: "success" });
                       },
                     },
                   );

@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactElement } from "react";
+import { type ReactElement } from "react";
 import { Alert, Button, CollapsibleSection, useLocale } from "@pte/ui";
 import { StudentRosterTable } from "@/features/examoperations/components";
 import { SESSION_DETAIL_TEXT } from "../constants";

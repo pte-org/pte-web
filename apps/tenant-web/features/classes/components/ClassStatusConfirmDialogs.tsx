@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import { ConfirmDialog } from "@pte/ui";
-import { CLASS_STATUS_CONFIRM_TEXT } from "../constants/confirmText";
+import { useClassActionText } from "../hooks/useClassActionText";
 
 /** Which lifecycle mutation a row is currently confirming. */
 export type ClassStatusAction = "activate" | "deactivate" | "suspend" | "archive";
@@ -18,7 +18,6 @@ interface ClassStatusConfirmDialogsProps {
   onClose: () => void;
 }
 
-const T = CLASS_STATUS_CONFIRM_TEXT;
 
 /**
  * One dialog per class lifecycle transition, rendered as a sibling of the kebab menu.
@@ -37,13 +36,15 @@ export const ClassStatusConfirmDialogs = ({
   isConfirming,
   onConfirm,
   onClose,
-}: ClassStatusConfirmDialogsProps): ReactElement => (
+}: ClassStatusConfirmDialogsProps): ReactElement => {
+  const T = useClassActionText();
+  return (
   <>
     <ConfirmDialog
       open={action === "activate"}
-      title={T.activateTitle(classLabel)}
-      description={T.activateDescription(classLabel)}
-      confirmLabel={T.confirmButton}
+      title={T.format("activateTitle", { label: classLabel })}
+      description={T.format("activateDescription", { label: classLabel.toLowerCase() })}
+      confirmLabel={T.confirm}
       cancelLabel={T.cancel}
       tone="primary"
       isConfirming={isConfirming}
@@ -52,9 +53,9 @@ export const ClassStatusConfirmDialogs = ({
     />
     <ConfirmDialog
       open={action === "deactivate"}
-      title={T.deactivateTitle(classLabel)}
-      description={T.deactivateDescription(classLabel)}
-      confirmLabel={T.confirmButton}
+      title={T.format("deactivateTitle", { label: classLabel })}
+      description={T.format("deactivateDescription", { label: classLabel.toLowerCase() })}
+      confirmLabel={T.confirm}
       cancelLabel={T.cancel}
       tone="danger"
       isConfirming={isConfirming}
@@ -63,9 +64,9 @@ export const ClassStatusConfirmDialogs = ({
     />
     <ConfirmDialog
       open={action === "suspend"}
-      title={T.suspendTitle(classLabel)}
-      description={T.suspendDescription(classLabel)}
-      confirmLabel={T.confirmButton}
+      title={T.format("suspendTitle", { label: classLabel })}
+      description={T.format("suspendDescription", { label: classLabel.toLowerCase() })}
+      confirmLabel={T.confirm}
       cancelLabel={T.cancel}
       tone="danger"
       isConfirming={isConfirming}
@@ -74,9 +75,9 @@ export const ClassStatusConfirmDialogs = ({
     />
     <ConfirmDialog
       open={action === "archive"}
-      title={T.archiveTitle(classLabel)}
-      description={T.archiveDescription(studentClassName, studentCount)}
-      confirmLabel={CLASS_STATUS_CONFIRM_TEXT.confirmButton}
+      title={T.format("archiveTitle", { label: classLabel })}
+      description={T.format("archiveDescription", { name: studentClassName, count: studentCount })}
+      confirmLabel={T.confirm}
       cancelLabel={T.cancel}
       tone="danger"
       isConfirming={isConfirming}
@@ -84,4 +85,5 @@ export const ClassStatusConfirmDialogs = ({
       onClose={onClose}
     />
   </>
-);
+  );
+};

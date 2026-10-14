@@ -4,7 +4,7 @@ import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { Alert, EyeIcon, PageHeader } from "@pte/ui";
 import { useSubscriptionsQuery } from "../api";
-import { BILLING_TEXT as T } from "../constants";
+import { BILLING_TEXT as T, PLANS_HOME_HREF } from "../constants";
 import { BillingPanel } from "./BillingPanel";
 import { BillingStatusBadge } from "./BillingStatusBadge";
 import { RevealLicenseKeyModal } from "./RevealLicenseKeyModal";
@@ -120,7 +120,7 @@ export const SubscriptionsView = (): ReactElement => {
         {!isLoading && examSubscriptions.length === 0 && (
           <p className="text-sm text-slate-500">
             {T.NO_EXAM_SUBSCRIPTIONS}{" "}
-            <Link href="/host/billing" className="font-semibold text-action hover:underline">
+            <Link href={PLANS_HOME_HREF} className="font-semibold text-action hover:underline">
               {T.BROWSE_PLANS_SENTENCE}
             </Link>
           </p>

@@ -36,6 +36,8 @@ export function listTickets(
   const query = new URLSearchParams();
   if (params.status) query.set("status", params.status);
   if (params.category) query.set("category", params.category);
+  const search = params.search?.trim();
+  if (search) query.set("search", search);
   if (params.page !== undefined) query.set("page", String(params.page));
   if (params.size !== undefined) query.set("size", String(params.size));
   const qs = query.toString();
@@ -69,6 +71,8 @@ export function adminListTickets(
   if (params.status) query.set("status", params.status);
   if (params.category) query.set("category", params.category);
   if (params.tenantId) query.set("tenantId", params.tenantId);
+  const search = params.search?.trim();
+  if (search) query.set("search", search);
   if (params.page !== undefined) query.set("page", String(params.page));
   if (params.size !== undefined) query.set("size", String(params.size));
   const qs = query.toString();

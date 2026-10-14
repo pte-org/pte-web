@@ -19,16 +19,21 @@ import { useResetStudentPassword } from "../api";
 import { errorMessage } from "../errorMessage";
 import { ResetStudentPasswordModal } from "./ResetStudentPasswordModal";
 import { useStudentRoster } from "@/features/studentSearch/api";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
+import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
 
 const T = LEARNERS_OVERVIEW_TEXT;
 
 export const LearnersOverview = (): ReactElement => {
+  const searchText = useTenantSearchText("students");
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(search);
   const studentsQuery = useStudentRoster({
     page,
     size,
-    search: "",
+    search: debouncedSearch,
     assignmentStatus: "ALL",
     sort: "CREATED_AT",
     direction: "DESC",
@@ -86,6 +91,14 @@ export const LearnersOverview = (): ReactElement => {
         isLoading={studentsQuery.isLoading}
         emptyTitle={T.EMPTY_TITLE}
         emptyDescription={T.EMPTY_TEXT}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
+        searchValue={search}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(0);
+        }}
+        clientSideFiltering={false}
         clientSidePagination={false}
         pagination={
           studentsQuery.data ? (

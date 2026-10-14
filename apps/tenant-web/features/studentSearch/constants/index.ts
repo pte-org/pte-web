@@ -28,7 +28,6 @@ export const MANAGE_STUDENTS_TEXT = {
   title: "Add students",
   tabAdd: "Add student",
   tabImport: "Import students",
-  scopeNote: "Students are created in your organization. Assign them to a Class separately.",
   emailLabel: "Email",
   fullNameLabel: "Full name",
   studentCodeLabel: "Student code",

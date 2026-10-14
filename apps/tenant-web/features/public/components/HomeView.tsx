@@ -3,19 +3,32 @@
 import type { ReactElement } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
+  Alert,
+  Badge,
   BookOpenIcon,
   BuildingIcon,
+  Button,
   CheckCircleIcon,
   ChevronRightIcon,
   ClipboardIcon,
+  LoadingState,
   ShieldIcon,
   UsersIcon,
   useSessionManager,
 } from "@pte/ui";
 import { AUTH_ROUTES } from "@/features/auth/constants";
+import { useSubscriptionsQuery, useTenantPlansQuery } from "@/features/commercialization/api";
+import { PUBLIC_TEXT } from "../constants";
 import { PublicShell } from "./PublicShell";
-import { MOCK_HOME_PLANS, type HomePlan } from "./home.mock";
+import { toHomePlan, type HomePlan } from "./homePlanPresentation";
+
+const HOME_PLANS_TEXT = {
+  loading: "Loading plans...",
+  loadError: "Plans could not be loaded. Please try again shortly.",
+  empty: "No active plans are available right now.",
+} as const;
 
 const money = (plan: HomePlan): string =>
   `${Number(plan.price).toLocaleString("en-US")} ${plan.currency}`;
@@ -46,96 +59,65 @@ const ValueRow = ({
 const PlanCard = ({
   plan,
   isOrganizationRegistered,
+  isActive,
 }: {
   plan: HomePlan;
   isOrganizationRegistered: boolean;
+  isActive: boolean;
 }): ReactElement => {
-  const actionHref = isOrganizationRegistered
-    ? `/host/checkout?planId=${encodeURIComponent(plan.publicId)}`
-    : AUTH_ROUTES.register;
+  const router = useRouter();
+  const actionHref = isActive
+    ? "/host/billing"
+    : isOrganizationRegistered
+      ? `/host/checkout?planId=${encodeURIComponent(plan.publicId)}`
+      : AUTH_ROUTES.register;
   const actionLabel = isOrganizationRegistered ? "Choose this plan" : "Register organization";
 
   return (
-    <article
-      className={`relative flex h-full flex-col rounded-2xl border p-6 ${
-        plan.featured
-          ? "border-[#0d2f51] bg-[#0d2f51] text-white"
-          : "border-slate-200 bg-white text-slate-950"
-      }`}
-    >
-      {plan.featured && (
-        <span className="absolute right-5 top-5 rounded-full bg-[#b7f0d7] px-3 py-1 text-[11px] font-bold text-[#0b5e4c]">
-          Recommended
-        </span>
-      )}
-
-      <p
-        className={`pr-24 text-sm font-semibold ${plan.featured ? "text-[#98d6ff]" : "text-action"}`}
-      >
-        {plan.label}
-      </p>
+    <article className="relative flex h-full flex-col rounded-2xl border border-slate-200 bg-white p-6 text-slate-950">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-sm font-semibold text-action">{plan.label}</p>
+        {isActive && <Badge variant="success">{PUBLIC_TEXT.CURRENTLY_USING}</Badge>}
+      </div>
       <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">{plan.name}</h3>
-      <p
-        className={`mt-2 min-h-12 text-sm leading-6 ${plan.featured ? "text-slate-200" : "text-slate-600"}`}
-      >
-        {plan.description}
-      </p>
+      <p className="mt-2 min-h-12 text-sm leading-6 text-slate-600">{plan.description}</p>
 
       <div className="mt-6 flex items-end gap-2">
         <span className="text-3xl font-semibold tracking-[-0.04em]">{money(plan)}</span>
-        <span className={`pb-1 text-xs ${plan.featured ? "text-slate-300" : "text-slate-500"}`}>
-          {planTerm(plan)}
-        </span>
+        <span className="pb-1 text-xs text-slate-500">{planTerm(plan)}</span>
       </div>
 
-      <div
-        className={`mt-5 flex items-center gap-3 rounded-xl p-3 ${
-          plan.featured ? "bg-white/10" : "bg-[#f2f6fa]"
-        }`}
-      >
-        <span
-          className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg ${
-            plan.featured ? "bg-white/10 text-[#b7f0d7]" : "bg-white text-action"
-          }`}
-        >
+      <div className="mt-5 flex items-center gap-3 rounded-xl bg-[#f2f6fa] p-3">
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white text-action">
           {plan.type === "EXAM_PACKAGE" ? (
             <BookOpenIcon className="h-5 w-5" />
           ) : (
             <UsersIcon className="h-5 w-5" />
           )}
         </span>
-        <p className={`text-sm font-semibold ${plan.featured ? "text-white" : "text-slate-800"}`}>
-          {plan.audience}
-        </p>
+        <p className="text-sm font-semibold text-slate-800">{plan.audience}</p>
       </div>
 
       <ul className="mt-6 space-y-3">
         {plan.features.map((feature) => (
-          <li
-            key={feature}
-            className={`flex items-start gap-2 text-sm leading-6 ${
-              plan.featured ? "text-slate-200" : "text-slate-600"
-            }`}
-          >
-            <CheckCircleIcon
-              className={`mt-1 h-4 w-4 shrink-0 ${plan.featured ? "text-[#b7f0d7]" : "text-[#0b8b70]"}`}
-            />
+          <li key={feature} className="flex items-start gap-2 text-sm leading-6 text-slate-600">
+            <CheckCircleIcon className="mt-1 h-4 w-4 shrink-0 text-[#0b8b70]" />
             <span>{feature}</span>
           </li>
         ))}
       </ul>
 
-      <Link
-        href={actionHref}
-        className={`mt-8 inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-[background-color,transform] duration-150 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2 ${
-          plan.featured
-            ? "bg-white text-[#0d2f51] hover:bg-[#e8f2f9] focus-visible:ring-white"
-            : "bg-action text-white hover:bg-action-hover"
-        }`}
+      <Button
+        type="button"
+        variant={isActive ? "secondary" : "primary"}
+        appearance="fill"
+        fullWidth
+        rightIcon={<ChevronRightIcon className="h-4 w-4" />}
+        className="mt-8"
+        onClick={() => router.push(actionHref)}
       >
-        {actionLabel}
-        <ChevronRightIcon className="h-4 w-4" />
-      </Link>
+        {isActive ? PUBLIC_TEXT.CURRENTLY_USING : actionLabel}
+      </Button>
     </article>
   );
 };
@@ -146,12 +128,14 @@ const PlanGroup = ({
   icon,
   plans,
   isOrganizationRegistered,
+  activePlanIds,
 }: {
   title: string;
   description: string;
   icon: ReactElement;
   plans: readonly HomePlan[];
   isOrganizationRegistered: boolean;
+  activePlanIds: ReadonlySet<string>;
 }): ReactElement => (
   <div>
     <div className="flex items-start gap-3">
@@ -169,6 +153,7 @@ const PlanGroup = ({
           key={plan.publicId}
           plan={plan}
           isOrganizationRegistered={isOrganizationRegistered}
+          isActive={activePlanIds.has(plan.publicId)}
         />
       ))}
     </div>
@@ -198,9 +183,19 @@ const WORKFLOW_STEPS = [
 
 export const HomeView = (): ReactElement => {
   const { isReady, session } = useSessionManager();
+  const { data: plans = [], isLoading: plansLoading, isError: plansError } = useTenantPlansQuery();
   const isOrganizationRegistered = isReady && Boolean(session?.tenantId);
-  const examPlans = MOCK_HOME_PLANS.filter((plan) => plan.type === "EXAM_PACKAGE");
-  const capacityPlans = MOCK_HOME_PLANS.filter((plan) => plan.type === "STUDENT_CAPACITY");
+  const { data: subscriptions = [] } = useSubscriptionsQuery(isOrganizationRegistered);
+  const activePlanIds = new Set(
+    isOrganizationRegistered
+      ? subscriptions
+          .filter((subscription) => subscription.status === "ACTIVE")
+          .map((subscription) => subscription.planId)
+      : [],
+  );
+  const activePlans = plans.filter((plan) => plan.status === "ACTIVE").map(toHomePlan);
+  const examPlans = activePlans.filter((plan) => plan.type === "EXAM_PACKAGE");
+  const capacityPlans = activePlans.filter((plan) => plan.type === "STUDENT_CAPACITY");
 
   return (
     <PublicShell>
@@ -389,9 +384,6 @@ export const HomeView = (): ReactElement => {
             <div>
               <div className="flex flex-wrap items-center gap-3">
                 <p className="text-sm font-semibold text-action">Access plans</p>
-                <span className="rounded-full bg-[#fef5e5] px-3 py-1 text-xs font-semibold text-[#8a5700]">
-                  Sample catalog
-                </span>
               </div>
               <h2
                 id="plans-title"
@@ -406,22 +398,46 @@ export const HomeView = (): ReactElement => {
             </p>
           </div>
 
-          <div className="mt-10 grid gap-12 lg:grid-cols-2 lg:gap-16">
-            <PlanGroup
-              title="Exam packages"
-              description="Time-bound access with a clear student cap per exam."
-              icon={<BookOpenIcon className="h-5 w-5" />}
-              plans={examPlans}
-              isOrganizationRegistered={isOrganizationRegistered}
-            />
-            <PlanGroup
-              title="Student capacity"
-              description="Permanent quota add-ons, separate from exam packages."
-              icon={<UsersIcon className="h-5 w-5" />}
-              plans={capacityPlans}
-              isOrganizationRegistered={isOrganizationRegistered}
-            />
-          </div>
+          {plansLoading ? (
+            <div className="mt-10">
+              <LoadingState rows={4} label={HOME_PLANS_TEXT.loading} />
+            </div>
+          ) : plansError ? (
+            <Alert tone="error" className="mt-10">
+              {HOME_PLANS_TEXT.loadError}
+            </Alert>
+          ) : activePlans.length === 0 ? (
+            <Alert tone="info" className="mt-10">
+              {HOME_PLANS_TEXT.empty}
+            </Alert>
+          ) : (
+            <div
+              className={`mt-10 grid gap-12 ${
+                examPlans.length > 0 && capacityPlans.length > 0 ? "lg:grid-cols-2 lg:gap-16" : ""
+              }`}
+            >
+              {examPlans.length > 0 && (
+                <PlanGroup
+                  title="Exam packages"
+                  description="Time-bound access with a clear student cap per exam."
+                  icon={<BookOpenIcon className="h-5 w-5" />}
+                  plans={examPlans}
+                  isOrganizationRegistered={isOrganizationRegistered}
+                  activePlanIds={activePlanIds}
+                />
+              )}
+              {capacityPlans.length > 0 && (
+                <PlanGroup
+                  title="Student capacity"
+                  description="Permanent quota add-ons, separate from exam packages."
+                  icon={<UsersIcon className="h-5 w-5" />}
+                  plans={capacityPlans}
+                  isOrganizationRegistered={isOrganizationRegistered}
+                  activePlanIds={activePlanIds}
+                />
+              )}
+            </div>
+          )}
         </div>
       </section>
 
