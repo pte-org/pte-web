@@ -27,6 +27,8 @@ export interface DashboardPanelProps {
   subtitle?: string;
   /** Header actions such as a link or a select. */
   actions?: ReactNode;
+  /** One primary navigation action shown below the panel content. */
+  footerAction?: ReactNode;
   /** Defaults to "content". Only the matching state object below is read. */
   status?: DashboardPanelStatus;
   /** Screen-reader announcement while `status` is "loading". */
@@ -75,6 +77,7 @@ export const DashboardPanel = ({
   title,
   subtitle,
   actions,
+  footerAction,
   status = "content",
   loadingLabel,
   error,
@@ -108,6 +111,12 @@ export const DashboardPanel = ({
         {status === "empty" && empty && <EmptyState {...empty} />}
         {status === "content" && children}
       </div>
+
+      {footerAction && (
+        <div className="mt-auto border-t border-[var(--shell-border)]/60 pt-3">
+          {footerAction}
+        </div>
+      )}
     </DashboardCard>
   );
 };

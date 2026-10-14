@@ -51,6 +51,12 @@ describe("DashboardPanel structure", () => {
     expect(full).toContain("<button type=\"button\">Export</button>");
   });
 
+  it("renders one primary navigation action in the footer when supplied", () => {
+    const html = renderPanel({ footerAction: <a href="/details">View details</a> });
+    expect(html).toContain('class="mt-auto border-t border-[var(--shell-border)]/60 pt-3"');
+    expect(html).toContain('<a href="/details">View details</a>');
+  });
+
   it("applies className to the surface and contentClassName to the body", () => {
     const html = renderPanel({ className: "xl:col-span-2", contentClassName: "min-h-40" });
     expect(findOpeningTag(html, "div", 'role="region"')).toContain("xl:col-span-2");
