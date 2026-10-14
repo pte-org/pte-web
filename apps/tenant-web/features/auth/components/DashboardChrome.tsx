@@ -14,6 +14,7 @@ import {
   DashboardShell,
   useDashboardBreadcrumbItems,
   LogoutIcon,
+  UserCircleIcon,
   SidebarNav as SharedSidebarNav,
   Skeleton,
   ThemeToggle,
@@ -64,6 +65,7 @@ const BRAND_SUBTITLE = "School Portal";
 
 const HEADER_TEXT = {
   ACCOUNT: "Account",
+  PROFILE: "Profile & organization",
   LOGOUT: "Log out",
 } as const;
 
@@ -202,13 +204,22 @@ const HeaderActions = (): ReactElement => {
     router.replace(AUTH_ROUTES.login);
   };
 
-  const userMenuItems: DropdownItem[] = [
-    {
-      label: t("common.logout", HEADER_TEXT.LOGOUT),
-      onSelect: logout,
-      icon: LogoutIcon,
-    },
-  ];
+  const userMenuItems: DropdownItem[] = [];
+  if (user?.roles.includes("HOST_ADMIN")) {
+    userMenuItems.push(
+      {
+        label: t("common.profileAndOrganization", HEADER_TEXT.PROFILE),
+        href: "/host/profile",
+        icon: UserCircleIcon,
+      },
+      { separator: true, key: "profile-logout" },
+    );
+  }
+  userMenuItems.push({
+    label: t("common.logout", HEADER_TEXT.LOGOUT),
+    onSelect: logout,
+    icon: LogoutIcon,
+  });
 
   return (
     <>
