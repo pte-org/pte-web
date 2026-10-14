@@ -28,6 +28,7 @@ export const SeatUtilisationPanel = ({
       section={section}
       onRetry={onRetry}
       className={className}
+      contentClassName="flex-1 flex flex-col justify-start"
       emptyWhen={(data) =>
         data.topUtilisation.length === 0
           ? { title: messages.utilisationEmpty }
