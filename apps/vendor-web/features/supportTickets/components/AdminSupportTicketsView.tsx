@@ -3,30 +3,44 @@
 import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { DEFAULT_PAGE_SIZE } from "@pte/api-client";
+import { Alert, DataTable, PaginationControls, type DataTableColumn } from "@pte/ui";
 import {
-  Alert,
-  DataTable,
-  PaginationControls,
-  type DataTableColumn,
-} from "@pte/ui";
-import {
-  ADMIN_TICKET_TABLE_HEADERS as H,
-  ADMIN_SUPPORT_TICKETS_TEXT as T,
-  CATEGORY_LABELS,
-  STATUS_LABELS,
+  ADMIN_TICKET_TABLE_HEADERS as RAW_ADMIN_TICKET_TABLE_HEADERS,
+  ADMIN_SUPPORT_TICKETS_TEXT as RAW_ADMIN_SUPPORT_TICKETS_TEXT,
+  CATEGORY_LABELS as RAW_CATEGORY_LABELS,
+  STATUS_LABELS as RAW_STATUS_LABELS,
 } from "../constants";
 import { useAdminSupportTickets } from "../api";
 import type { SupportTicket } from "../types";
 import { TicketCategoryBadge } from "./_TicketCategoryBadge";
 import { TicketStatusBadge } from "./_TicketStatusBadge";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
+import { useDebouncedSearch } from "@/features/i18n/useDebouncedSearch";
 
 export const AdminSupportTicketsView = (): ReactElement => {
+  const H = useAdminCopy(RAW_ADMIN_TICKET_TABLE_HEADERS);
+  const T = useAdminCopy(RAW_ADMIN_SUPPORT_TICKETS_TEXT);
+  const searchText = useAdminSearchText("supportTickets");
+  const categoryLabels = useAdminCopy(RAW_CATEGORY_LABELS);
+  const statusLabels = useAdminCopy(RAW_STATUS_LABELS);
+  const dateRangeLabel = useAdminCopy("Date range");
+  const loadError = useAdminCopy("Failed to load support tickets.");
   const router = useRouter();
 
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(search);
 
-  const { data, isLoading, isError } = useAdminSupportTickets(undefined, undefined, undefined, page, size);
+  const { data, isLoading, isError } = useAdminSupportTickets(
+    undefined,
+    undefined,
+    undefined,
+    page,
+    size,
+    debouncedSearch,
+  );
 
   const columns: DataTableColumn<SupportTicket>[] = [
     {
@@ -34,7 +48,7 @@ export const AdminSupportTicketsView = (): ReactElement => {
       header: H.CATEGORY,
       filterOptions: [
         { value: "", label: T.FILTER_ALL_CATEGORY },
-        ...Object.entries(CATEGORY_LABELS).map(([value, label]) => ({ value, label })),
+        ...Object.entries(categoryLabels).map(([value, label]) => ({ value, label })),
       ],
       filterAccessor: (t) => t.category,
       cell: (t) => <TicketCategoryBadge category={t.category} />,
@@ -44,7 +58,7 @@ export const AdminSupportTicketsView = (): ReactElement => {
       header: H.STATUS,
       filterOptions: [
         { value: "", label: T.FILTER_ALL_STATUS },
-        ...Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label })),
+        ...Object.entries(statusLabels).map(([value, label]) => ({ value, label })),
       ],
       filterAccessor: (t) => t.status,
       cell: (t) => <TicketStatusBadge status={t.status} />,
@@ -64,7 +78,7 @@ export const AdminSupportTicketsView = (): ReactElement => {
       header: H.SUBMITTED,
       filterType: "date-range",
       filterAccessor: (t) => t.createdAt,
-      filterPlaceholder: "Date range",
+      filterPlaceholder: dateRangeLabel,
       cell: (t) => new Date(t.createdAt).toLocaleDateString(),
     },
     {
@@ -84,7 +98,7 @@ export const AdminSupportTicketsView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      {isError && <Alert tone="error">Failed to load support tickets.</Alert>}
+      {isError && <Alert tone="error">{loadError}</Alert>}
 
       <DataTable
         columns={columns}
@@ -93,6 +107,14 @@ export const AdminSupportTicketsView = (): ReactElement => {
         isLoading={isLoading}
         emptyTitle={T.EMPTY_TITLE}
         emptyDescription={T.EMPTY_TEXT}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
+        searchValue={search}
+        onSearchChange={(value) => {
+          setSearch(value);
+          setPage(0);
+        }}
+        clientSideFiltering={false}
         clientSidePagination={false}
         pagination={
           data ? (

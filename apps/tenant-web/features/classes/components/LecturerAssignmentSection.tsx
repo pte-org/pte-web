@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, DataTable, TrashIcon, type DataTableColumn } from "@pte/ui";
+import { ActionMenu, Alert, Button, DataTable, TrashIcon, type DataTableColumn } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
-import { LECTURER_SECTION_TEXT, LECTURER_TABLE_HEADERS } from "../constants";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
+import { useClassActionText } from "../hooks/useClassActionText";
 import { useLecturerAssignments, useUnassignLecturer } from "../api";
 import type { LecturerAssignmentEntry } from "../types";
 import { AssignLecturerModal } from "./AssignLecturerModal";
@@ -14,13 +15,14 @@ interface LecturerAssignmentSectionProps {
   classPublicId: string;
 }
 
-const T = LECTURER_SECTION_TEXT;
 
 export const LecturerAssignmentSection = ({
   organizationPublicId,
   programPublicId,
   classPublicId,
 }: LecturerAssignmentSectionProps): ReactElement => {
+  const T = useClassActionText();
+  const searchText = useTenantSearchText("lecturers");
   const { data: assignments, isLoading } = useLecturerAssignments(
     organizationPublicId,
     programPublicId,
@@ -34,23 +36,17 @@ export const LecturerAssignmentSection = ({
   const columns: DataTableColumn<LecturerAssignmentEntry>[] = [
     {
       key: "fullName",
-      header: LECTURER_TABLE_HEADERS.FULL_NAME,
+      header: T.fullName,
       cell: (entry) => <span className="font-medium text-gray-900">{entry.lecturer.fullName}</span>,
     },
-    { key: "email", header: LECTURER_TABLE_HEADERS.EMAIL, cell: (entry) => entry.lecturer.email },
+    { key: "email", header: T.email, cell: (entry) => entry.lecturer.email },
   ];
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-500">{T.assignedCount((assignments ?? []).length)}</span>
-        <button
-          type="button"
-          onClick={() => setAddOpen(true)}
-          className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover"
-        >
-          {T.addButton}
-        </button>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <span className="text-sm text-[var(--ink-secondary)]">{T.format("assignedLecturers", { count: (assignments ?? []).length })}</span>
+        <Button onClick={() => setAddOpen(true)}>{T.addLecturer}</Button>
       </div>
 
       {unassignError && <Alert tone="error">{unassignError}</Alert>}
@@ -60,18 +56,22 @@ export const LecturerAssignmentSection = ({
         rows={assignments ?? []}
         getRowKey={(entry) => entry.assignmentPublicId}
         isLoading={isLoading}
-        emptyTitle={T.emptyTitle}
-        rowActionsHeader={LECTURER_TABLE_HEADERS.ACTIONS}
+        emptyTitle={T.emptyLecturers}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
+        rowActionsHeader={T.actions}
         rowActions={(entry) => (
-          <button
-            type="button"
-            onClick={() => unassign.mutate(entry.assignmentPublicId)}
-            title={T.unassign}
-            aria-label={T.unassign}
-            className="rounded-full p-1.5 text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
-          >
-            <TrashIcon className="h-4 w-4" />
-          </button>
+          <ActionMenu
+            label={`${T.actions}: ${entry.lecturer.fullName}`}
+            items={[
+              {
+                label: T.unassign,
+                icon: TrashIcon,
+                danger: true,
+                onSelect: () => unassign.mutate(entry.assignmentPublicId),
+              },
+            ]}
+          />
         )}
       />
 

@@ -59,6 +59,13 @@ export interface ResetPasswordRequest {
   newPassword: string;
 }
 
+export interface UpdateStudentProfileRequest {
+  fullName: string;
+  email: string;
+  phone: string;
+  dateOfBirth: string | null;
+}
+
 /** One-time result from the server-generated credential rotation endpoint. */
 export interface GeneratedCredentialsResponse {
   publicId: string;
@@ -117,6 +124,7 @@ export interface PlatformUserRoleUpdateRequest {
 export interface PlatformUserListParams {
   page?: number;
   size?: number;
+  search?: string;
   role?: PlatformAssignableRole | "PLATFORM_ADMIN" | "PLATFORM_AUTHOR";
   status?: "ACTIVE" | "SUSPENDED";
 }

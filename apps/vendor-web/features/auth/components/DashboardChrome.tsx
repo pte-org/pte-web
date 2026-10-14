@@ -1,5 +1,7 @@
 "use client";
 
+import { BREADCRUMB_PARENT_ROUTES } from "@/lib/breadcrumbRoutes";
+
 import type { ReactElement, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -7,6 +9,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Breadcrumbs,
+  DashboardBreadcrumbProvider,
+  useDashboardBreadcrumbItems,
   DashboardShell,
   LocaleSwitcher,
   LogoutIcon,
@@ -25,6 +29,7 @@ import { hasAnyRole, roleLabel } from "../permissions";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
 import { AUTH_ROUTES } from "../constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 export interface NavItem {
   label: string;
@@ -131,7 +136,7 @@ const SidebarNav = ({
             <span
               className={cn(
                 "flex shrink-0 items-center justify-center [&>svg]:h-[18px] [&>svg]:w-[18px]",
-                item.isActive ? "text-[var(--ink-primary)]" : "text-[var(--ink-muted)]",
+                item.isActive ? "text-[var(--action-foreground)]" : "text-[var(--ink-muted)]",
               )}
             >
               {item.icon}
@@ -150,6 +155,7 @@ const HeaderActions = (): ReactElement => {
   const { clearToken } = useTokenManager();
   const { data: user, isLoading } = useCurrentUser();
   const { t } = useLocale();
+  const localizedRoleLabels = useAdminCopy(user?.roles.map(roleLabel) ?? []);
 
   const logout = (): void => {
     queryClient.clear();
@@ -158,8 +164,8 @@ const HeaderActions = (): ReactElement => {
   };
 
   const userMenuItems: DropdownItem[] = [
-    ...(user?.roles.map((role) => ({
-      label: roleLabel(role),
+    ...(user?.roles.map((role, index) => ({
+      label: localizedRoleLabels[index] ?? roleLabel(role),
       disabled: true,
       onSelect: () => undefined,
     })) ?? []),
@@ -192,35 +198,50 @@ const HeaderActions = (): ReactElement => {
 const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactElement => {
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const { data: user } = useCurrentUser();
   const { t } = useLocale();
-  const activeItem = navItems.find((item) => isActive(pathname, item.href));
-  const breadcrumbs = activeItem ? (
-    <Breadcrumbs
-      dividerType="chevron"
-      renderLink={(item) => (
-        <Link
-          href={item.href ?? "/"}
-          className="flex items-center gap-1 font-medium text-[var(--ink-secondary)] transition-colors hover:text-[var(--ink-primary)]"
-        >
-          {item.icon}
-          {item.label}
-        </Link>
-      )}
-      items={[
-        { href: "/", label: t("nav.home", "Home") },
-        ...(activeItem.href === "/"
-          ? []
-          : [
-              {
-                href: activeItem.href,
-                label: activeItem.labelKey
-                  ? t(activeItem.labelKey, activeItem.label)
-                  : activeItem.label,
-              },
-            ]),
-      ]}
-    />
-  ) : null;
+  const searchItems = navItems
+    .filter((item) => !item.requiredRoles || hasAnyRole(user?.roles, item.requiredRoles))
+    .map((item) => ({
+      id: item.href,
+      title: item.labelKey ? t(item.labelKey, item.label) : item.label,
+      section: item.sectionKey
+        ? t(item.sectionKey, item.section ?? "Pages")
+        : (item.section ?? "Pages"),
+      url: item.href,
+      icon: item.icon,
+    }));
+  const activeItem = navItems
+    .filter((item) => isActive(pathname, item.href))
+    .sort((a, b) => b.href.length - a.href.length)[0];
+  const explicitParent = BREADCRUMB_PARENT_ROUTES.find(route => pathname === route.prefix || pathname?.startsWith(`${route.prefix}/`));
+  const breadcrumbItems = useDashboardBreadcrumbItems(
+    pathname,
+    explicitParent ? { href: explicitParent.href, label: t(explicitParent.labelKey) } : activeItem
+      ? {
+          href: activeItem.href,
+          label: activeItem.labelKey ? t(activeItem.labelKey, activeItem.label) : activeItem.label,
+        }
+      : undefined,
+    t("common.breadcrumbDetails", "Details"),
+  );
+  const breadcrumbs =
+    breadcrumbItems.length > 0 ? (
+      <Breadcrumbs
+        dividerType="chevron"
+        renderLink={(item) => (
+          <Link
+            href={item.href ?? "/"}
+            className="flex items-center gap-1 font-medium text-[var(--ink-secondary)] transition-colors hover:text-[var(--ink-primary)]"
+          >
+            {item.icon}
+            {item.label}
+          </Link>
+        )}
+        items={breadcrumbItems}
+      />
+    ) : null;
 
   return (
     <DashboardShell
@@ -228,6 +249,9 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
       sidebar={({ isSidebarOpen, onItemClick }) => (
         <SidebarNav navItems={navItems} isSidebarOpen={isSidebarOpen} onItemClick={onItemClick} />
       )}
+      headerSearchItems={searchItems}
+      headerSearchPlaceholder={t("common.searchPages", "Tìm kiếm trang...")}
+      onHeaderSearchNavigate={(url) => router.push(url)}
       headerActions={<HeaderActions />}
       breadcrumbs={breadcrumbs}
       navigationKey={`${pathname}?${searchParams.toString()}`}
@@ -239,6 +263,8 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
 
 export const DashboardChrome = (props: DashboardChromeProps): ReactElement => (
   <RequireAuth allowedRoles={props.allowedRoles}>
-    <ChromeContent {...props} />
+    <DashboardBreadcrumbProvider>
+      <ChromeContent {...props} />
+    </DashboardBreadcrumbProvider>
   </RequireAuth>
 );

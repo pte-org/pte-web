@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, ConfirmDialog, DataTable, type DataTableColumn } from "@pte/ui";
+import { ActionMenu, Alert, Button, ConfirmDialog, DataTable, type DataTableColumn } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
+import { useTenantSearchText } from "@/features/search/useTenantSearchText";
+import { useClassActionText } from "../hooks/useClassActionText";
 import {
   CLASS_ROSTER_ROW_ACTIONS_TEXT,
   CLASS_ROSTER_TABLE_HEADERS,
@@ -22,6 +24,7 @@ interface ClassRosterTableProps {
   classLabel: string;
   /** Concrete class name, named in the unassign confirmation (AC3). */
   className: string;
+  onAddStudents: () => void;
 }
 
 interface RowActionsProps {
@@ -56,23 +59,22 @@ const RowActions = ({
 
   return (
     <div className="flex flex-col gap-1">
-      <div className="flex items-center gap-3 text-sm">
-        <button
-          type="button"
-          onClick={() => setTransferOpen(true)}
-          className="text-blue-700 hover:underline"
-        >
-          {CLASS_ROSTER_ROW_ACTIONS_TEXT.transfer}
-        </button>
-        <button
-          type="button"
-          disabled={unassign.isPending}
-          onClick={() => setUnassignConfirmOpen(true)}
-          className="text-red-600 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {CLASS_ROSTER_ROW_ACTIONS_TEXT.unassign}
-        </button>
-      </div>
+      <ActionMenu
+        label={`${CLASS_ROSTER_TABLE_HEADERS.ACTIONS}: ${entry.student.fullName}`}
+        items={[
+          {
+            label: CLASS_ROSTER_ROW_ACTIONS_TEXT.transfer,
+            onSelect: () => setTransferOpen(true),
+          },
+          { separator: true, key: "roster-danger-divider" },
+          {
+            label: CLASS_ROSTER_ROW_ACTIONS_TEXT.unassign,
+            danger: true,
+            disabled: unassign.isPending,
+            onSelect: () => setUnassignConfirmOpen(true),
+          },
+        ]}
+      />
       {unassignError && <p className="text-xs text-red-600">{unassignError}</p>}
 
       <TransferStudentModal
@@ -107,7 +109,10 @@ export const ClassRosterTable = ({
   classPublicId,
   classLabel,
   className,
+  onAddStudents,
 }: ClassRosterTableProps): ReactElement => {
+  const text = useClassActionText();
+  const searchText = useTenantSearchText("roster");
   const {
     data: roster,
     isLoading,
@@ -134,61 +139,23 @@ export const ClassRosterTable = ({
   const columns: DataTableColumn<ClassRosterEntry>[] = [
     {
       key: "name",
-      header: CLASS_ROSTER_TABLE_HEADERS.FULL_NAME,
+      header: text.fullName,
       cell: (entry) => entry.student.fullName,
     },
     {
       key: "email",
-      header: CLASS_ROSTER_TABLE_HEADERS.EMAIL,
+      header: text.email,
       cell: (entry) => entry.student.email,
     },
     {
       key: "phone",
-      header: CLASS_ROSTER_TABLE_HEADERS.PHONE,
+      header: text.phone,
       cell: (entry) => entry.student.phone ?? CLASS_ROSTER_TEXT.emptyValue,
-    },
-    {
-      key: "actions",
-      header: CLASS_ROSTER_TABLE_HEADERS.ACTIONS,
-      cell: (entry) => (
-        <RowActions
-          organizationPublicId={organizationPublicId}
-          programPublicId={programPublicId}
-          classPublicId={classPublicId}
-          classLabel={classLabel}
-          className={className}
-          entry={entry}
-        />
-      ),
     },
   ];
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Toolbar: flex-wrap so buttons drop to a new row on narrow screens
-          instead of clipping. Right-align only on `sm+` — on mobile the
-          wrap looks natural at full width, no need to justify-end. */}
-      <div className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
-        {(roster ?? []).length > 0 && (
-          <button
-            type="button"
-            onClick={() => exportClassRosterToExcel(roster ?? [], `${classLabel}-roster`)}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            {CLASS_ROSTER_TEXT.exportButton}
-          </button>
-        )}
-        {!splitMode && (roster ?? []).length > 0 && (
-          <button
-            type="button"
-            onClick={() => setSplitMode(true)}
-            className="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
-          >
-            {SPLIT_CLASS_SELECTION_TEXT.startButton}
-          </button>
-        )}
-      </div>
-
       {splitMode && (
         <div className="flex flex-col gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:px-4">
           <span className="text-sm text-blue-800">
@@ -219,8 +186,42 @@ export const ClassRosterTable = ({
         rows={roster ?? []}
         getRowKey={(entry) => entry.membership.publicId}
         isLoading={isLoading}
-        emptyTitle={CLASS_ROSTER_TEXT.emptyTitle}
-        emptyDescription={CLASS_ROSTER_TEXT.emptyText}
+        emptyTitle={text.rosterEmpty}
+        emptyDescription={text.rosterDescription}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
+        toolbarActions={
+          <>
+            {(roster ?? []).length > 0 && (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => exportClassRosterToExcel(roster ?? [], `${classLabel}-roster`)}
+              >
+                {CLASS_ROSTER_TEXT.exportButton}
+              </Button>
+            )}
+            {!splitMode && (roster ?? []).length > 0 && (
+              <Button type="button" variant="secondary" onClick={() => setSplitMode(true)}>
+                {SPLIT_CLASS_SELECTION_TEXT.startButton}
+              </Button>
+            )}
+            <Button type="button" onClick={onAddStudents}>
+              {text.addStudents}
+            </Button>
+          </>
+        }
+        rowActionsHeader={text.actions}
+        rowActions={(entry) => (
+          <RowActions
+            organizationPublicId={organizationPublicId}
+            programPublicId={programPublicId}
+            classPublicId={classPublicId}
+            classLabel={classLabel}
+            className={className}
+            entry={entry}
+          />
+        )}
         selectable={splitMode}
         selectedKeys={selectedKeys}
         onSelectionChange={setSelectedKeys}

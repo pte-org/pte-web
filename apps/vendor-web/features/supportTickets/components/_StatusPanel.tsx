@@ -3,11 +3,12 @@
 import type { ReactElement } from "react";
 import {
   STATUS_TRANSITIONS,
-  TRANSITION_LABELS,
-  ADMIN_TICKET_DETAIL_TEXT as T,
+  TRANSITION_LABELS as RAW_TRANSITION_LABELS,
+  ADMIN_TICKET_DETAIL_TEXT as RAW_ADMIN_TICKET_DETAIL_TEXT,
 } from "../constants";
 import { TicketStatusBadge } from "./_TicketStatusBadge";
 import type { TicketStatus } from "../types";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 interface StatusPanelProps {
   status: TicketStatus;
@@ -15,7 +16,13 @@ interface StatusPanelProps {
   isLoading: boolean;
 }
 
-export const StatusPanel = ({ status, onTransition, isLoading }: StatusPanelProps): ReactElement => {
+export const StatusPanel = ({
+  status,
+  onTransition,
+  isLoading,
+}: StatusPanelProps): ReactElement => {
+  const T = useAdminCopy(RAW_ADMIN_TICKET_DETAIL_TEXT);
+  const transitionLabels = useAdminCopy(RAW_TRANSITION_LABELS);
   const transitions = STATUS_TRANSITIONS[status];
 
   return (
@@ -30,7 +37,7 @@ export const StatusPanel = ({ status, onTransition, isLoading }: StatusPanelProp
           onClick={() => onTransition(next)}
           className="rounded-md bg-action px-3 py-1.5 text-sm font-medium text-white shadow-sm shadow-action/25 hover:bg-action-hover disabled:opacity-50"
         >
-          {TRANSITION_LABELS[status]}
+          {transitionLabels[status]}
         </button>
       ))}
     </div>

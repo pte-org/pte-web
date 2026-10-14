@@ -10,10 +10,9 @@ import {
   listSubscriptions,
   previewStudentImport,
   redeemLicenseCode,
-  revealLicenseKey,
   submitApplication,
   type CreateOrderRequest,
-  type LicenseKeyResponse,
+  type OrderListFilters,
   type OrderResponse,
   type PagedResult,
   type PlanResponse,
@@ -60,10 +59,18 @@ export function useOrdersQuery(
 export function useOrdersPage(
   page: number,
   size: number,
+  search = "",
+  filters: OrderListFilters = {},
 ): UseQueryResult<PagedResult<OrderResponse>> {
+  const { status = "", createdFrom = "", createdTo = "" } = filters;
   return useQuery({
-    queryKey: [...ORDERS_QUERY_KEY, page, size],
-    queryFn: () => listOrders(apiClient, page, size),
+    queryKey: [...ORDERS_QUERY_KEY, search, status, createdFrom, createdTo, page, size],
+    queryFn: () =>
+      listOrders(apiClient, page, size, search, {
+        ...(status ? { status } : {}),
+        ...(createdFrom ? { createdFrom } : {}),
+        ...(createdTo ? { createdTo } : {}),
+      }),
   });
 }
 
@@ -90,10 +97,11 @@ export function useCreateOrder(): UseMutationResult<OrderResponse, unknown, Crea
   });
 }
 
-export function useSubscriptionsQuery(): UseQueryResult<SubscriptionResponse[]> {
+export function useSubscriptionsQuery(enabled = true): UseQueryResult<SubscriptionResponse[]> {
   return useQuery({
     queryKey: SUBSCRIPTIONS_QUERY_KEY,
     queryFn: () => listSubscriptions(apiClient),
+    enabled,
   });
 }
 
@@ -105,18 +113,6 @@ export function useSubscriptionQuery(
     queryKey: [...SUBSCRIPTIONS_QUERY_KEY, "detail", publicId],
     queryFn: () => getSubscription(apiClient, publicId as string),
     enabled: enabled && Boolean(publicId),
-  });
-}
-
-/** Step-up re-authentication: resolves with the full license key, or rejects on a wrong password. */
-export function useRevealLicenseKey(): UseMutationResult<
-  LicenseKeyResponse,
-  unknown,
-  { subscriptionPublicId: string; password: string }
-> {
-  return useMutation({
-    mutationFn: ({ subscriptionPublicId, password }) =>
-      revealLicenseKey(apiClient, subscriptionPublicId, { password }),
   });
 }
 

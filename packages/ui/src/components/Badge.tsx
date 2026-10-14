@@ -20,7 +20,7 @@ const VARIANT_CLASS: Record<BadgeVariant, string> = {
 export const Badge = ({ variant = "neutral", children, className }: BadgeProps): ReactElement => (
   <span
     className={cn(
-      "before:h-1.5 before:w-1.5 before:shrink-0 before:rounded-full before:bg-current inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
+      "before:h-1.5 before:w-1.5 before:shrink-0 before:rounded-full before:bg-current inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-medium",
       VARIANT_CLASS[variant],
       className,
     )}

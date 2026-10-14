@@ -13,7 +13,7 @@ export const CREATE_EXAM_STEP_FIELDS: Record<
   ValidatableCreateExamStep,
   readonly (keyof CreateExamWorkflowErrors)[]
 > = {
-  1: ["name", "templatePublicId", "subscriptionPublicId", "capacity", "selectedSkills"],
+  1: ["name", "templatePublicId", "subscriptionPublicId", "capacity"],
   2: ["opensAt", "closesAt", "maxRetriesPerStudent", "seriesKey"],
   3: ["sources"],
 };
@@ -28,19 +28,13 @@ export function getTemplateSkills(items?: readonly TemplateItemLike[]): ExamSkil
   ).map((option) => option.value);
 }
 
-export function createEmptyExamWorkflow(
-  templatePublicId = "",
-  selectedSkills: readonly ExamSkill[] = [],
-): CreateExamWorkflowInput {
+export function createEmptyExamWorkflow(templatePublicId = ""): CreateExamWorkflowInput {
   return {
     name: "",
     templatePublicId,
     subscriptionPublicId: "",
     opensAt: "",
     closesAt: "",
-    examMode: "PRACTICE",
-    practiceAntiCheatEnabled: false,
-    selectedSkills: [...selectedSkills],
     maxRetriesPerStudent: "0",
     formMode: "SHARED_FORM",
     reusePolicy: "ALLOW",
@@ -87,23 +81,4 @@ export function localizeOptionLabels<T extends { value: string; label: string }>
     ...option,
     label: translate(`${keyPrefix}.${option.value}`, option.label),
   }));
-}
-
-export function applyExamModeChange(
-  previous: CreateExamWorkflowInput,
-  examMode: CreateExamWorkflowInput["examMode"],
-  templateSkills: readonly ExamSkill[],
-): CreateExamWorkflowInput {
-  const practice = examMode === "PRACTICE";
-
-  return {
-    ...previous,
-    examMode,
-    practiceAntiCheatEnabled: practice ? previous.practiceAntiCheatEnabled : false,
-    selectedSkills: practice ? previous.selectedSkills : [...templateSkills],
-    formMode: "SHARED_FORM",
-    reusePolicy: "ALLOW",
-    seriesKey: "",
-    maxRetriesPerStudent: practice ? previous.maxRetriesPerStudent : "0",
-  };
 }

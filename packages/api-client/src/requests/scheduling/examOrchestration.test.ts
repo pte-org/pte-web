@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ApiClient } from "../../client/client";
-import { resolveExamLockdownMode } from "../../types/scheduling";
 import { createExamDraft, patchExamDraft } from "./examOrchestration";
 
 function fakeClient(): ApiClient & { request: ReturnType<typeof vi.fn> } {
@@ -12,47 +11,37 @@ function fakeClient(): ApiClient & { request: ReturnType<typeof vi.fn> } {
 }
 
 const baseCreatePayload = {
-  name: "Practice security policy test",
+  name: "Official security policy test",
   templatePublicId: "template-1",
   subscriptionPublicId: "subscription-1",
   opensAt: "2026-10-01T10:00:00Z",
   closesAt: "2026-10-01T11:00:00Z",
-  examMode: "PRACTICE" as const,
+  examMode: "OFFICIAL_EXAM" as const,
+  lockdownMode: "STRICT" as const,
   formMode: "SHARED_FORM" as const,
   reusePolicy: "ALLOW" as const,
   seriesKey: null,
   capacity: 1,
-  selectedSkills: ["SPEAKING"],
-  maxRetriesPerStudent: 0,
+  maxRetriesPerStudent: 2,
 };
 
-describe("exam orchestration lockdown policy payloads", () => {
-  it.each([
-    ["PRACTICE", false, "NONE"],
-    ["PRACTICE", true, "STANDARD"],
-    ["OFFICIAL_EXAM", false, "STRICT"],
-    ["OFFICIAL_EXAM", true, "STRICT"],
-  ] as const)("maps %s/%s to %s", (examMode, enabled, expected) => {
-    expect(resolveExamLockdownMode(examMode, enabled)).toBe(expected);
+describe("exam orchestration draft payloads", () => {
+  it("serializes the official strict policy and retries on draft create", async () => {
+    const client = fakeClient();
+
+    await createExamDraft(client, baseCreatePayload);
+
+    expect(client.request).toHaveBeenCalledWith("/api/v1/sessions/drafts", {
+      method: "POST",
+      body: baseCreatePayload,
+    });
+    const [, init] = client.request.mock.calls[0];
+    expect(init.body).not.toHaveProperty("selectedSkills");
   });
-
-  it.each(["NONE", "STANDARD", "STRICT"] as const)(
-    "serializes lockdownMode=%s on draft create",
-    async (lockdownMode) => {
-      const client = fakeClient();
-
-      await createExamDraft(client, { ...baseCreatePayload, lockdownMode });
-
-      expect(client.request).toHaveBeenCalledWith("/api/v1/sessions/drafts", {
-        method: "POST",
-        body: { ...baseCreatePayload, lockdownMode },
-      });
-    },
-  );
 
   it("serializes the policy on draft patch without changing the endpoint contract", async () => {
     const client = fakeClient();
-    const payload = { expectedVersion: 3, lockdownMode: "STANDARD" as const };
+    const payload = { expectedVersion: 3, lockdownMode: "STRICT" as const, maxRetriesPerStudent: 1 };
 
     await patchExamDraft(client, "session-1", payload);
 

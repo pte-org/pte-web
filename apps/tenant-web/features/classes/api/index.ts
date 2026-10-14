@@ -34,6 +34,7 @@ import {
 import { apiClient } from "@/lib/apiClient";
 import { TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
 import { useTenantStudents } from "@/features/examoperations/api";
+import { HOST_DASHBOARD_QUERY_KEY } from "@/features/hostDashboard/constants";
 import { CLASS_MEMBERSHIPS_QUERY_KEY } from "@/features/studentSearch/constants";
 import { ALL_TENANT_CLASSES_QUERY_KEY, CLASSES_QUERY_KEY } from "../constants";
 import { invalidateClassMemberships } from "./shared";
@@ -68,6 +69,7 @@ export function useCreateClass(
       // Also covers the Program dashboard's class count (keyed under CLASS_MEMBERSHIPS_QUERY_KEY —
       // see useProgramDashboard) since creating a Class doesn't touch any membership row itself.
       invalidateClassMemberships(queryClient);
+      void queryClient.invalidateQueries({ queryKey: HOST_DASHBOARD_QUERY_KEY });
     },
   });
 }

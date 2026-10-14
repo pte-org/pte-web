@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactElement, ReactNode } from "react";
 import { cn } from "../utils/cn";
+import { PRIMARY_ACTION_SURFACE_CLASSES } from "../styles/interactiveClasses";
 
 export type ButtonVariant = "primary" | "secondary" | "danger" | "ghost";
 export type ButtonSize = "sm" | "md" | "lg";
@@ -22,7 +23,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 const VARIANT_CLASSES: Record<ButtonVariant, Record<ButtonAppearance, string>> = {
   primary: {
-    fill: "border border-transparent bg-action text-[var(--action-foreground)] hover:bg-action-hover active:bg-action-active",
+    fill: `border border-transparent ${PRIMARY_ACTION_SURFACE_CLASSES} disabled:bg-none disabled:brightness-100 disabled:shadow-none`,
     outline:
       "border border-[var(--control-border)] bg-[var(--surface-card)] text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)]",
     ghost: "border border-transparent bg-transparent text-[var(--action)] hover:bg-[var(--action-tint)]",

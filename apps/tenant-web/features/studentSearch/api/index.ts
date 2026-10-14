@@ -2,14 +2,12 @@
 
 import {
   bulkCreateUsers,
-  importStudentRoster,
   listClassMemberships,
   listStudentRoster,
   reactivateUser,
   suspendUser,
   type BulkCreateUsersResponse,
   type ClassMembershipResponse,
-  type DownloadResponse,
   type PagedResult,
   type StudentRosterQuery,
   type StudentRosterRow,
@@ -26,6 +24,7 @@ import {
 import { apiClient } from "@/lib/apiClient";
 import { TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
 import type { RosterRow } from "@/features/examoperations/types";
+import { HOST_DASHBOARD_QUERY_KEY } from "@/features/hostDashboard/constants";
 import { CLASS_MEMBERSHIPS_QUERY_KEY, STUDENT_ROSTER_QUERY_KEY } from "../constants";
 
 /**
@@ -63,19 +62,7 @@ export function useCreateTenantStudents(): UseMutationResult<
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: STUDENT_ROSTER_QUERY_KEY });
-    },
-  });
-}
-
-/** Uploads the original roster file and receives it back with credentials appended. */
-export function useImportStudentRoster(): UseMutationResult<DownloadResponse, unknown, File> {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (file) => importStudentRoster(apiClient, file),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
-      void queryClient.invalidateQueries({ queryKey: STUDENT_ROSTER_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: HOST_DASHBOARD_QUERY_KEY });
     },
   });
 }
@@ -93,6 +80,7 @@ export function useStudentRoster(
       query.size,
       query.programPublicId ?? "",
       query.classPublicId ?? "",
+      query.status ?? "ALL",
       query.assignmentStatus ?? "ALL",
       query.sort ?? "CREATED_AT",
       query.direction ?? "DESC",

@@ -1,14 +1,23 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Button, CredentialDisplay, FileDropzone, Input, Modal, cn } from "@pte/ui";
+import {
+  Alert,
+  Button,
+  CredentialDisplay,
+  DateInput,
+  Input,
+  Modal,
+  Tabs,
+  type TabItem,
+} from "@pte/ui";
 import { SkippedRowsReport } from "@/features/examoperations/components/SkippedRowsReport";
 import { downloadCredentials } from "@/features/examoperations/downloadCredentials";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import type { CreatedAccount, RosterRow, SkippedRow } from "@/features/examoperations/types";
 import { MANAGE_STUDENTS_TEXT } from "../constants";
-import { useCreateTenantStudents, useImportStudentRoster } from "../api";
-import { downloadRoster } from "../downloadRoster";
+import { useCreateTenantStudents } from "../api";
+import { ImportStudentsPanel } from "./_ImportStudentsPanel";
 
 type ManageStudentsMode = "add" | "import";
 
@@ -29,11 +38,13 @@ const EMPTY_FORM: AddStudentFormState = {
   dateOfBirth: "",
 };
 
-const TAB_CLASS = (active: boolean): string =>
-  cn(
-    "rounded-md px-3 py-1.5 text-sm font-medium",
-    active ? "bg-blue-100 text-blue-700" : "text-gray-500 hover:bg-gray-100",
-  );
+const MODE_TABS: readonly TabItem[] = [
+  { id: "add", label: MANAGE_STUDENTS_TEXT.tabAdd },
+  { id: "import", label: MANAGE_STUDENTS_TEXT.tabImport },
+];
+
+const isManageStudentsMode = (value: string): value is ManageStudentsMode =>
+  value === "add" || value === "import";
 
 export const ManageStudentsModal = ({
   open,
@@ -42,14 +53,18 @@ export const ManageStudentsModal = ({
 }: ManageStudentsModalProps): ReactElement => {
   const [mode, setMode] = useState<ManageStudentsMode>(initialMode);
   const [form, setForm] = useState<AddStudentFormState>(EMPTY_FORM);
-  const [file, setFile] = useState<File | null>(null);
   const [result, setResult] = useState<CreationResultData>();
-  const [importCompleted, setImportCompleted] = useState(false);
   const createStudents = useCreateTenantStudents();
-  const importStudents = useImportStudentRoster();
 
   const handleFormChange = (field: keyof AddStudentFormState, value: string): void => {
     setForm((previous) => ({ ...previous, [field]: value }));
+  };
+
+  const handleModeChange = (nextMode: string): void => {
+    if (!isManageStudentsMode(nextMode)) return;
+    setMode(nextMode);
+    createStudents.reset();
+    setResult(undefined);
   };
 
   const handleAdd = (event: FormEvent<HTMLFormElement>): void => {
@@ -59,19 +74,6 @@ export const ManageStudentsModal = ({
       onSuccess: (response) => {
         setResult({ created: response.created, skipped: response.skipped });
         setForm(EMPTY_FORM);
-      },
-    });
-  };
-
-  const handleImport = (): void => {
-    if (!file) return;
-    setResult(undefined);
-    setImportCompleted(false);
-    importStudents.mutate(file, {
-      onSuccess: (response) => {
-        downloadRoster(response);
-        setFile(null);
-        setImportCompleted(true);
       },
     });
   };
@@ -89,40 +91,16 @@ export const ManageStudentsModal = ({
       }
     >
       <div className="flex flex-col gap-4">
-        <div className="flex gap-2 rounded-lg bg-gray-50 p-1">
-          <button
-            type="button"
-            className={TAB_CLASS(mode === "add")}
-            aria-pressed={mode === "add"}
-            onClick={() => {
-              setMode("add");
-              createStudents.reset();
-              importStudents.reset();
-              setResult(undefined);
-              setImportCompleted(false);
-            }}
-          >
-            {MANAGE_STUDENTS_TEXT.tabAdd}
-          </button>
-          <button
-            type="button"
-            className={TAB_CLASS(mode === "import")}
-            aria-pressed={mode === "import"}
-            onClick={() => {
-              setMode("import");
-              createStudents.reset();
-              importStudents.reset();
-              setResult(undefined);
-              setImportCompleted(false);
-            }}
-          >
-            {MANAGE_STUDENTS_TEXT.tabImport}
-          </button>
-        </div>
-
-        <p className="text-sm text-gray-600">{MANAGE_STUDENTS_TEXT.scopeNote}</p>
-        {!!(createStudents.error || importStudents.error) && (
-          <Alert tone="error">{errorMessage(createStudents.error ?? importStudents.error)}</Alert>
+        <Tabs
+          id="manage-students-tabs"
+          items={MODE_TABS}
+          value={mode}
+          onChange={handleModeChange}
+          ariaLabel={MANAGE_STUDENTS_TEXT.title}
+          activeVariant="primary"
+        />
+        {!!createStudents.error && mode === "add" && (
+          <Alert tone="error">{errorMessage(createStudents.error)}</Alert>
         )}
 
         {mode === "add" ? (
@@ -154,8 +132,7 @@ export const ManageStudentsModal = ({
                 value={form.phone}
                 onChange={(event) => handleFormChange("phone", event.target.value)}
               />
-              <Input
-                type="date"
+              <DateInput
                 label={MANAGE_STUDENTS_TEXT.dateOfBirthLabel}
                 value={form.dateOfBirth}
                 onChange={(event) => handleFormChange("dateOfBirth", event.target.value)}
@@ -172,63 +149,14 @@ export const ManageStudentsModal = ({
             </div>
           </form>
         ) : (
-          <ImportStudentsPanel
-            file={file}
-            isCreating={importStudents.isPending}
-            onFileSelected={(selectedFile) => {
-              setFile(selectedFile);
-              setResult(undefined);
-              setImportCompleted(false);
-              importStudents.reset();
-            }}
-            onImport={handleImport}
-          />
+          <ImportStudentsPanel onCreated={(created, skipped) => setResult({ created, skipped })} />
         )}
 
-        {importCompleted && <Alert tone="success">{MANAGE_STUDENTS_TEXT.importSuccess}</Alert>}
         {result && <CreationResult result={result} />}
       </div>
     </Modal>
   );
 };
-
-interface ImportStudentsPanelProps {
-  file: File | null;
-  isCreating: boolean;
-  onFileSelected: (file: File) => void;
-  onImport: () => void;
-}
-
-const ImportStudentsPanel = ({
-  file,
-  isCreating,
-  onFileSelected,
-  onImport,
-}: ImportStudentsPanelProps): ReactElement => (
-  <div className="flex flex-col gap-4">
-    <FileDropzone
-      id="student-roster-file"
-      label={MANAGE_STUDENTS_TEXT.fileLabel}
-      description={MANAGE_STUDENTS_TEXT.fileDescription}
-      accept=".xlsx"
-      file={file}
-      disabled={isCreating}
-      onFileSelect={onFileSelected}
-    />
-
-    <div>
-      <Button
-        type="button"
-        onClick={onImport}
-        isLoading={isCreating}
-        loadingText={MANAGE_STUDENTS_TEXT.importingAccounts}
-        disabled={!file || isCreating}
-      >
-        {MANAGE_STUDENTS_TEXT.importAccounts}
-      </Button>
-    </div>
-  </div>
-);
 
 interface CreationResultData {
   created: CreatedAccount[];

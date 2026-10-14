@@ -1,4 +1,11 @@
-import type { ExamMode, FormMode, LockdownMode, ProctorRole, ReusePolicy } from "@pte/api-client";
+import type {
+  ExamMode,
+  FormMode,
+  LockdownMode,
+  ProctorRole,
+  ReusePolicy,
+  SessionStatus,
+} from "@pte/api-client";
 import type { CreateSessionInput, ExamSkill } from "../types";
 
 // react-query cache-key roots — named constants per this repo's established
@@ -33,6 +40,19 @@ export const EXAM_TABLE_HEADERS = {
   STATUS: "Status",
   OPENS_AT: "Opens",
   CLOSES_AT: "Closes",
+  ACTIONS: "Actions",
+} as const;
+
+export const EXAM_ROW_ACTIONS_TEXT = {
+  VIEW: "View details",
+  DELETE: "Delete exam",
+  DELETE_TITLE: "Delete this exam draft?",
+  DELETE_DESCRIPTION: (name: string) =>
+    `The draft “${name}” will be deleted and cannot be recovered.`,
+  DELETE_CONFIRM: "Delete exam",
+  CANCEL: "Cancel",
+  DELETE_SUCCESS: "Exam draft deleted.",
+  DELETE_FAILED: "Unable to delete the exam draft. Please try again.",
 } as const;
 
 export const SESSION_STATUS_LABELS = {
@@ -40,10 +60,24 @@ export const SESSION_STATUS_LABELS = {
   PREPARING: "Preparing",
   READY: "Ready to publish",
   SCHEDULED: "Scheduled",
-  OPEN: "Open",
+  OPEN: "In progress",
   CLOSED: "Closed",
   CANCELLED: "Cancelled",
 } as const;
+
+/**
+ * Statuses exposed by the edit form. Transitions are backed by the exam
+ * orchestration/lifecycle commands, not by an arbitrary status PATCH.
+ */
+export const SESSION_STATUS_TRANSITIONS = {
+  DRAFT: ["DRAFT", "READY", "SCHEDULED"],
+  PREPARING: ["PREPARING", "DRAFT"],
+  READY: ["READY", "SCHEDULED", "CANCELLED"],
+  SCHEDULED: ["SCHEDULED", "OPEN", "CANCELLED"],
+  OPEN: ["OPEN", "CLOSED"],
+  CLOSED: ["CLOSED"],
+  CANCELLED: ["CANCELLED"],
+} as const satisfies Record<SessionStatus, readonly SessionStatus[]>;
 
 export const SESSION_STATUS_FILTER_OPTIONS = [
   { value: "", label: "All statuses" },
@@ -57,7 +91,7 @@ export const SESSION_STATUS_FILTER_OPTIONS = [
 ] as const;
 
 export const SESSION_STATUS_VARIANT = {
-  DRAFT: "neutral",
+  DRAFT: "warning",
   PREPARING: "info",
   READY: "success",
   SCHEDULED: "info",
@@ -103,11 +137,6 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   OPENS_AT_LABEL: "Opens at",
   CLOSES_AT_LABEL: "Closes at",
   CAPACITY_LABEL: "Maximum students",
-  MODE_LABEL: "Exam mode",
-  PRACTICE_ANTI_CHEAT_LABEL: "Controlled desktop practice",
-  PRACTICE_ANTI_CHEAT_CONTROL: "Enable anti-cheat controls for this Practice exam",
-  SKILLS_LABEL: "Skills included",
-  SKILL_UNAVAILABLE: "Not included in the active template",
   FULL_TEMPLATE_SCOPE: "Full template scope",
   RETRIES_LABEL: "Allowed retries per student",
   FORM_MODE_LABEL: "Question form",
@@ -131,7 +160,6 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   NO_ACTIVE_SUBSCRIPTIONS: "No active subscription is available for this exam.",
   REVIEW_TITLE: "Review before generation",
   REVIEW_TEMPLATE: "Template",
-  REVIEW_MODE: "Exam mode",
   REVIEW_SECURITY_POLICY: "Security policy",
   REVIEW_SKILLS: "Included skills",
   REVIEW_RETRIES: "Retries per student",
@@ -163,11 +191,7 @@ export const CREATE_EXAM_WIZARD_TEXT = {
       "The audience is larger than the capacity allowed by the subscription.",
   } as Record<string, string>,
   SUCCESS: "Exam generated and scheduled successfully.",
-  MODE_PRACTICE: "Practice",
-  MODE_MOCK: "Mock exam",
   MODE_REAL: "Official exam",
-  POLICY_PRACTICE_UNRESTRICTED: "Practice — unrestricted",
-  POLICY_PRACTICE_CONTROLLED: "Practice — controlled desktop",
   POLICY_OFFICIAL_STRICT: "Official — strict",
   POLICY_LEGACY: "Previously created exam",
   POLICY_UNAVAILABLE: "Security policy unavailable — review required",
@@ -192,26 +216,16 @@ export const CREATE_EXAM_WIZARD_ERRORS = {
   SOURCE_DUPLICATE: "This audience source has already been added.",
   AUDIENCE_REQUIRED: "Add at least one audience source.",
   OPEN_FUTURE: "Choose an opening time in the future.",
-  SKILLS_REQUIRED: "Choose at least one skill included in the selected template.",
-  FULL_SCOPE_REQUIRED: "Mock and Official exams must include every skill in the selected template.",
   RETRIES_INVALID: "Enter a whole number of retries from 0 to 9.",
   POLICY_MISMATCH:
     "The server returned a different security policy. Refresh the exam settings and try again.",
 } as const;
 
-export const EXAM_POLICY_LABELS: Record<LockdownMode, string> = {
-  NONE: CREATE_EXAM_WIZARD_TEXT.POLICY_PRACTICE_UNRESTRICTED,
-  STANDARD: CREATE_EXAM_WIZARD_TEXT.POLICY_PRACTICE_CONTROLLED,
-  STRICT: CREATE_EXAM_WIZARD_TEXT.POLICY_OFFICIAL_STRICT,
-};
-
-export const EXAM_MODE_OPTIONS: { value: ExamMode; label: string }[] = [
-  { value: "PRACTICE", label: CREATE_EXAM_WIZARD_TEXT.MODE_PRACTICE },
-  { value: "OFFICIAL_EXAM", label: CREATE_EXAM_WIZARD_TEXT.MODE_REAL },
-];
+/** Every host-created exam is official; the server enforces STRICT lockdown for it. */
+export const OFFICIAL_EXAM_MODE: ExamMode = "OFFICIAL_EXAM";
+export const OFFICIAL_EXAM_LOCKDOWN_MODE: LockdownMode = "STRICT";
 
 export const EXAM_MODE_LABELS: Record<ExamMode, string> = {
-  PRACTICE: CREATE_EXAM_WIZARD_TEXT.MODE_PRACTICE,
   OFFICIAL_EXAM: CREATE_EXAM_WIZARD_TEXT.MODE_REAL,
 };
 
@@ -295,6 +309,78 @@ export const SESSION_DETAIL_TEXT = {
   RETRIES_SUMMARY: (retries: number) => `${retries} ${retries === 1 ? "retry" : "retries"}`,
   LEGACY_POLICY: CREATE_EXAM_WIZARD_TEXT.POLICY_LEGACY,
   POLICY_UNAVAILABLE: CREATE_EXAM_WIZARD_TEXT.POLICY_UNAVAILABLE,
+} as const;
+
+export const EXAM_EDITOR_TEXT = {
+  INFORMATION_TITLE: "Exam information",
+  INFORMATION_DESCRIPTION: "Identity, schedule, configuration, and access policy for this exam.",
+  ACTIONS: "Exam actions",
+  EDIT: "Edit",
+  SAVE: "Save information",
+  CANCEL: "Cancel",
+  SAVED: "Exam information saved.",
+  SAVE_FAILED: "Unable to save exam information. Please try again.",
+  NO_ACTIONS: "No actions available",
+  NAME: "Exam name",
+  STATUS: "Status",
+  CODE: "Exam code",
+  MODE: "Mode",
+  OPENS_AT: "Opens at",
+  CLOSES_AT: "Closes at",
+  SKILLS: "Skills included",
+  RETRIES: "Retries per student",
+  CAPACITY: "Capacity",
+  SECURITY_POLICY: "Security policy",
+  SUBSCRIPTION: "Subscription",
+  FORM_MODE: "Question form",
+  REUSE_POLICY: "Student reuse rule",
+  SERIES: "Exam series",
+  REPLAY_POLICY: "Replay policy",
+  REPLAY_UNLIMITED: "Unlimited",
+  REPLAY_LIMITED: "Limited",
+  REPLAY_LIMIT: "Replay limit",
+  DEVICE_CHECK: "Require device check",
+  PROCTOR_REQUIRED: "Require proctor",
+  ANSWER_INTEGRITY: "Answer integrity",
+  ANSWER_STANDARD: "Standard",
+  ANSWER_STRICT: "Strict",
+  LOCKDOWN: "Lockdown mode",
+  LOCKDOWN_STRICT: "Strict",
+  READ_ONLY_HELP: "This exam is read-only in its current status.",
+  NAME_REQUIRED: "Enter an exam name.",
+  OPEN_REQUIRED: "Choose when the exam opens.",
+  CLOSE_REQUIRED: "Choose when the exam closes.",
+  CLOSE_AFTER_OPEN: "The close time must be after the open time.",
+  CAPACITY_INVALID: "Enter a positive whole-number capacity.",
+  RETRIES_INVALID: "Enter a whole number of retries from 0 to 9.",
+  SKILLS_REQUIRED: "Select at least one skill.",
+  REPLAY_LIMIT_REQUIRED: "Enter a positive replay limit.",
+  TEMPLATE_NOT_ACTIVE:
+    "The selected exam template is not active. Choose an active template and try again.",
+  LOCKDOWN_MODE_INVALID: "The selected security policy is not compatible with this exam mode.",
+  LOCKDOWN_MODE_REQUIRED:
+    "The exam security policy could not be resolved. Refresh the exam and try again.",
+  CLOSE_TIME_NOT_EXTENDED: "The exam has started. Choose a later close time.",
+  START_SOON_TITLE: "The exam is about to start",
+  START_SOON_DESCRIPTION: "The exam starts within 10 minutes. Do you want to continue editing it?",
+  START_SOON_CONFIRM: "Continue editing",
+  START_SOON_CANCEL: "Go back",
+  START_SOON_TOAST: "The exam starts within 10 minutes. Review the schedule before saving.",
+  CLOSE_TIME_REMINDER_TITLE: "Review the close time",
+  CLOSE_TIME_REMINDER_DESCRIPTION:
+    "The exam has started. You have not changed the close time. If you need more time, extend it before saving.",
+  CLOSE_TIME_REMINDER_CONFIRM: "Save current changes",
+  CLOSE_TIME_REMINDER_CANCEL: "Review changes",
+  CLOSE_TIME_EXTENSION_TITLE: "Confirm close time extension",
+  CLOSE_TIME_EXTENSION_DESCRIPTION:
+    "The close time will move from {previous} to {next}. Do you want to continue saving this extension?",
+  CLOSE_TIME_EXTENSION_CONFIRM: "Extend and save",
+  CLOSE_TIME_SHORTENED_TITLE: "Cannot shorten the exam",
+  CLOSE_TIME_SHORTENED_DESCRIPTION:
+    "This exam has started, so its close time cannot move from {previous} to {next}. Choose a close time later than {previous}.",
+  CLOSE_TIME_NOT_IN_FUTURE_TITLE: "Invalid close time",
+  CLOSE_TIME_NOT_IN_FUTURE_DESCRIPTION:
+    "The new close time must be after the current time. Choose a later time if the exam needs more time.",
 } as const;
 
 export const EXAMINER_ASSIGNMENT_TEXT = {

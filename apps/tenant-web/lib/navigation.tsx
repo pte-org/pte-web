@@ -23,7 +23,7 @@ import {
 
 /**
  * Non-label entries stay static; the Program entry's label is org-type-driven.
- * "Audit Log" carries `requiredRoles: ["HOST_ADMIN"]` — its page is gated
+ * "System log" carries `requiredRoles: ["HOST_ADMIN"]` — its page is gated
  * `HOST_ADMIN`-only (mirroring the backend's `AuditLogController`), so
  * without this a non-administrator tenant role would see the link, click it, and be
  * silently bounced to the login screen by `RequireAuth` (which has no
@@ -32,8 +32,22 @@ import {
  */
 export function buildHostNav(labels: OrgLabels): NavItem[] {
   return [
-    { label: T.OVERVIEW, labelKey: "nav.overview", href: "/host/dashboard", icon: <NavDashboardIcon />, section: T.HOME_SECTION, sectionKey: "nav.home" },
-    { label: T.LEARNERS, labelKey: "nav.learners", href: "/host/students", icon: <NavUserIcon />, section: T.USERS_SECTION, sectionKey: "nav.users" },
+    {
+      label: T.OVERVIEW,
+      labelKey: "nav.overview",
+      href: "/host/dashboard",
+      icon: <NavDashboardIcon />,
+      section: T.HOME_SECTION,
+      sectionKey: "nav.home",
+    },
+    {
+      label: T.LEARNERS,
+      labelKey: "nav.learners",
+      href: "/host/students",
+      icon: <NavUserIcon />,
+      section: T.USERS_SECTION,
+      sectionKey: "nav.users",
+    },
     {
       label: T.EXAM_STAFF,
       labelKey: "nav.examStaff",
@@ -44,6 +58,7 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
     },
     {
       label: labels.program,
+      labelKey: "nav.program",
       href: "/host/programs",
       icon: <NavQuestionBankIcon />,
       section: T.DELIVERY_SECTION,
@@ -51,12 +66,20 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
     },
     {
       label: labels.class,
+      labelKey: "nav.class",
       href: "/host/classes",
       icon: <NavClassIcon />,
       section: T.DELIVERY_SECTION,
       sectionKey: "nav.delivery",
     },
-    { label: T.EXAMS, labelKey: "nav.exams", href: "/host/exams", icon: <NavExamTemplateIcon />, section: T.DELIVERY_SECTION, sectionKey: "nav.delivery" },
+    {
+      label: T.EXAMS,
+      labelKey: "nav.exams",
+      href: "/host/exams",
+      icon: <NavExamTemplateIcon />,
+      section: T.DELIVERY_SECTION,
+      sectionKey: "nav.delivery",
+    },
     {
       label: T.PLANS_AND_BILLING,
       labelKey: "nav.plansBilling",
@@ -67,19 +90,19 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       requiredRoles: ["HOST_ADMIN"],
     },
     {
-      label: T.AUDIT_LOG,
-      labelKey: "nav.auditLog",
-      href: "/host/audit-log",
-      icon: <NavAuditLogIcon />,
+      label: T.SUPPORT_TICKETS,
+      labelKey: "nav.supportTickets",
+      href: "/host/support-tickets",
+      icon: <NavSupportTicketIcon />,
       section: T.DATA_SECTION,
       sectionKey: "nav.data",
       requiredRoles: ["HOST_ADMIN"],
     },
     {
-      label: T.SUPPORT_TICKETS,
-      labelKey: "nav.supportTickets",
-      href: "/host/support-tickets",
-      icon: <NavSupportTicketIcon />,
+      label: T.AUDIT_LOG,
+      labelKey: "nav.auditLog",
+      href: "/host/audit-log",
+      icon: <NavAuditLogIcon />,
       section: T.DATA_SECTION,
       sectionKey: "nav.data",
       requiredRoles: ["HOST_ADMIN"],

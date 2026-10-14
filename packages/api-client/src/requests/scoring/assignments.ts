@@ -6,8 +6,12 @@ import type {
 } from "../../types/scoring";
 
 export const EXAMINER_ASSIGNMENT_ENDPOINTS = {
-  overview: (sessionPublicId: string, page = 0, size = 20) =>
-    `/api/v1/sessions/${sessionPublicId}/examiner-assignments?page=${page}&size=${size}`,
+  overview: (sessionPublicId: string, page = 0, size = 20, search?: string) => {
+    const params = new URLSearchParams({ page: String(page), size: String(size) });
+    const normalizedSearch = search?.trim();
+    if (normalizedSearch) params.set("search", normalizedSearch);
+    return `/api/v1/sessions/${sessionPublicId}/examiner-assignments?${params.toString()}`;
+  },
   previews: (sessionPublicId: string) =>
     `/api/v1/sessions/${sessionPublicId}/examiner-assignments/previews`,
   confirm: (sessionPublicId: string, batchPublicId: string) =>
@@ -19,9 +23,10 @@ export function getExaminerAssignmentOverview(
   sessionPublicId: string,
   page = 0,
   size = 20,
+  search?: string,
 ): Promise<ExaminerAssignmentOverviewResponse> {
   return client.request<ExaminerAssignmentOverviewResponse>(
-    EXAMINER_ASSIGNMENT_ENDPOINTS.overview(sessionPublicId, page, size),
+    EXAMINER_ASSIGNMENT_ENDPOINTS.overview(sessionPublicId, page, size, search),
   );
 }
 

@@ -1,5 +1,5 @@
 import { CREATE_EXAM_WIZARD_ERRORS } from "../constants";
-import type { CreateExamWorkflowInput, ExamSkill } from "../types";
+import type { CreateExamWorkflowInput } from "../types";
 
 export interface CreateExamWorkflowErrors {
   name?: string;
@@ -9,7 +9,6 @@ export interface CreateExamWorkflowErrors {
   closesAt?: string;
   capacity?: string;
   seriesKey?: string;
-  selectedSkills?: string;
   maxRetriesPerStudent?: string;
   sources?: string;
 }
@@ -18,7 +17,6 @@ export function validateCreateExamWorkflow(
   input: CreateExamWorkflowInput,
   now = Date.now(),
   requireAudience = true,
-  templateSkills: readonly ExamSkill[] = ["SPEAKING", "WRITING", "READING", "LISTENING"],
   requireSeriesKey = true,
 ): CreateExamWorkflowErrors {
   const errors: CreateExamWorkflowErrors = {};
@@ -60,20 +58,6 @@ export function validateCreateExamWorkflow(
     retryCount > 9
   ) {
     errors.maxRetriesPerStudent = CREATE_EXAM_WIZARD_ERRORS.RETRIES_INVALID;
-  }
-  if (
-    input.selectedSkills.length === 0 ||
-    new Set(input.selectedSkills).size !== input.selectedSkills.length ||
-    input.selectedSkills.some((skill) => !templateSkills.includes(skill))
-  ) {
-    errors.selectedSkills = CREATE_EXAM_WIZARD_ERRORS.SKILLS_REQUIRED;
-  }
-  if (
-    input.examMode !== "PRACTICE" &&
-    (input.selectedSkills.length !== templateSkills.length ||
-      templateSkills.some((skill) => !input.selectedSkills.includes(skill)))
-  ) {
-    errors.selectedSkills = CREATE_EXAM_WIZARD_ERRORS.FULL_SCOPE_REQUIRED;
   }
   if (requireAudience && input.sources.length === 0) {
     errors.sources = CREATE_EXAM_WIZARD_ERRORS.AUDIENCE_REQUIRED;

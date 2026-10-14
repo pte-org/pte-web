@@ -22,6 +22,7 @@ export const PUBLIC_TEXT = {
   EXTRA_STUDENTS: (count: number | string) => `+${count} students`,
   NO_DESCRIPTION: "No description provided.",
   BUY_NOW: "Buy now",
+  CURRENTLY_USING: "Currently using",
   ARROW: "→",
   LOADING_PLANS: "Loading available plans...",
   PLANS_LOAD_ERROR: "Plans could not be loaded. Try again shortly.",

@@ -1,7 +1,9 @@
 export { Button } from "./Button";
 export type { ButtonAppearance, ButtonProps, ButtonVariant, ButtonSize } from "./Button";
 export { FormField } from "./FormField";
-export { Input, TextInput, DateInput, NumberInput } from "./Input";
+export { Input, TextInput, DateInput, DateTimeInput, NumberInput } from "./Input";
+export { DatePicker, DateTimePicker } from "./DatePicker";
+export type { DatePickerChangeEvent, DatePickerProps } from "./DatePicker";
 export { PasswordInput } from "./PasswordInput";
 export { Textarea } from "./Textarea";
 export { Select } from "./Select";
@@ -22,6 +24,21 @@ export { Badge } from "./Badge";
 export type { BadgeVariant } from "./Badge";
 export { StatusBadge } from "./StatusBadge";
 export { StatCard } from "./StatCard";
+export type { StatCardDeltaDirection, StatCardDeltaTone } from "./StatCardDelta";
+export { DashboardPanel } from "./DashboardPanel";
+export type {
+  DashboardPanelEmptyProps,
+  DashboardPanelErrorProps,
+  DashboardPanelProps,
+  DashboardPanelStatus,
+} from "./DashboardPanel";
+export { ActivityList } from "./ActivityList";
+export type {
+  ActivityListItem,
+  ActivityListLinkProps,
+  ActivityListProps,
+  ActivityListVariant,
+} from "./ActivityList";
 export { CollapsibleSection } from "./CollapsibleSection";
 export { ProgressBar } from "./ProgressBar";
 export type { ProgressTone } from "./ProgressBar";
@@ -62,7 +79,7 @@ export type { TableFilterInputProps, TableSearchControlProps } from "./TableFilt
 export { TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow } from "./Table";
 export type { TableRootProps } from "./Table";
 export { DescriptionList } from "./DescriptionList";
-export type { DescriptionItem } from "./DescriptionList";
+export type { DescriptionItem, DescriptionListVariant } from "./DescriptionList";
 export { DetailGroup } from "./DetailGroup";
 export { CopyableId } from "./CopyableId";
 export { SidebarNav } from "./SidebarNav";
@@ -73,6 +90,12 @@ export type { BreadcrumbItem } from "./Breadcrumbs";
 export { UserMenu } from "./UserMenu";
 export type { UserMenuProps } from "./UserMenu";
 export { Avatar } from "./Avatar";
+export { ProfileHeader } from "./ProfileHeader";
+export type { ProfileHeaderProps } from "./ProfileHeader";
+export { ProfileLayout } from "./ProfileLayout";
+export type { ProfileLayoutProps } from "./ProfileLayout";
+export { ProfileAccountPanel } from "./ProfileAccountPanel";
+export type { ProfileAccountPanelProps } from "./ProfileAccountPanel";
 export { Dropdown } from "./Dropdown";
 export type {
   DropdownActionItem,
@@ -87,9 +110,24 @@ export { ForbiddenState } from "./ForbiddenState";
 export { Stepper } from "./Stepper";
 export type { StepItem } from "./Stepper";
 export { TabPanel, Tabs } from "./Tabs";
-export type { TabItem, TabPanelProps } from "./Tabs";
+export type { TabItem, TabPanelProps, TabsActiveVariant, TabsProps, TabsVariant } from "./Tabs";
+export { HeaderSearch } from "./HeaderSearch";
+export type { HeaderSearchItem, HeaderSearchProps } from "./HeaderSearch";
 export { DEFAULT_TOAST_DURATION_MS, ToastProvider, useToast } from "./Toast";
 export type { ShowToastOptions, ToastTone } from "./Toast";
 export * from "./icons";
+export * from "./dashboardIcons";
 export { Mascot } from "./Mascot";
+export { Board, BoardColumn } from "./Board";
+export type { BoardProps, BoardColumnProps } from "./Board";
+export { CircularProgressChart } from "./CircularProgressChart";
+export type { CircularProgressChartProps, CircularProgressTone } from "./CircularProgressChart";
+export { StatusDonutChart } from "./StatusDonutChart";
+export type { StatusDonutChartProps, StatusDonutItem, StatusDonutTone } from "./StatusDonutChart";
+export type { ChartTone } from "./chartTones";
+export { TrendBarChart } from "./TrendBarChart";
+export type { TrendBarChartProps } from "./TrendBarChart";
+export { TrendLineChart } from "./TrendLineChart";
+export type { TrendLineChartProps } from "./TrendLineChart";
+export type { TrendChartBaseProps, TrendChartDatum, TrendChartSeries } from "./trendChartShared";
 export { MailIcon, LockIcon, GradCapIcon, EyeIcon } from "./AuthIcons";

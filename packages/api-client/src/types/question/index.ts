@@ -35,6 +35,9 @@ export type PteTaskType =
 
 export type QuestionVisibility = "SHARED" | "PRIVATE";
 
+/** Which product a question serves; fixed at creation and never changed afterwards. */
+export type QuestionPool = "EXAM" | "PRACTICE";
+
 /** Real enum (`services/authoring/domain/enums/QuestionStatus.java`) — not the previous fictitious DRAFT|ACTIVE|ARCHIVED. */
 export type QuestionStatus = "DRAFT" | "PENDING_APPROVAL" | "APPROVED" | "ARCHIVED";
 
@@ -53,6 +56,8 @@ export interface OptionResponse extends OptionRequest {
 export interface CreateQuestionRequest {
   pteTaskType: PteTaskType | string;
   visibility?: QuestionVisibility | string;
+  /** Defaults to EXAM on the server; only accepted on create. */
+  pool?: QuestionPool;
   title: string;
   promptText?: string | null;
   audioPromptRef?: string | null;
@@ -64,7 +69,7 @@ export interface CreateQuestionRequest {
   options?: OptionRequest[];
 }
 
-export type UpdateQuestionRequest = Omit<CreateQuestionRequest, "pteTaskType" | "visibility"> & {
+export type UpdateQuestionRequest = Omit<CreateQuestionRequest, "pteTaskType" | "visibility" | "pool"> & {
   version?: number;
 };
 
@@ -74,6 +79,7 @@ export interface QuestionResponse {
   taskTypeKey?: string | null;
   section: PteSection | string;
   visibility: QuestionVisibility | string;
+  pool: QuestionPool | string;
   tenantId: string | null;
   status: QuestionStatus | string;
   title: string;
@@ -100,6 +106,7 @@ export interface QuestionFilters {
   taskType?: string;
   section?: PteSection | string;
   status?: QuestionStatus | string;
+  pool?: QuestionPool | string;
   q?: string;
 }
 

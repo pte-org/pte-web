@@ -1,15 +1,10 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Modal, Select } from "@pte/ui";
+import { Alert, Modal, Select, useLocale } from "@pte/ui";
 import type { ProctorRole } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
-import {
-  ASSIGN_PROCTOR_TEXT,
-  DEFAULT_PROCTOR_ROLE,
-  PROCTOR_ROLE_DESCRIPTIONS,
-  PROCTOR_ROLE_OPTIONS,
-} from "../constants";
+import { ASSIGN_PROCTOR_TEXT, DEFAULT_PROCTOR_ROLE, PROCTOR_ROLE_DESCRIPTIONS } from "../constants";
 import { useAssignProctor, useTenantProctors } from "../api";
 
 interface AssignProctorModalProps {
@@ -28,6 +23,7 @@ export const AssignProctorModal = ({
   sessionPublicId,
   assignedProctorPublicIds,
 }: AssignProctorModalProps): ReactElement => {
+  const { t } = useLocale();
   const [selectedProctorId, setSelectedProctorId] = useState("");
   const [role, setRole] = useState<ProctorRole>(DEFAULT_PROCTOR_ROLE);
 
@@ -39,6 +35,27 @@ export const AssignProctorModal = ({
     (proctor) => proctor.status === "ACTIVE" && !assignedSet.has(proctor.publicId),
   );
   const submitError = errorMessage(assignProctor.error);
+  const text = {
+    title: t("tenant.proctor.assignTitle", T.TITLE),
+    cancel: t("tenant.proctor.cancel", T.CANCEL),
+    submit: t("tenant.proctor.submit", T.SUBMIT),
+    submitting: t("tenant.proctor.submitting", T.SUBMITTING),
+    noExisting: t("tenant.proctor.noExisting", T.NO_EXISTING),
+    existing: t("tenant.proctor.existing", T.EXISTING_LABEL),
+    select: t("tenant.proctor.select", T.EXISTING_PLACEHOLDER),
+    role: t("tenant.proctor.roleInExam", T.ROLE_LABEL),
+    lead: t("tenant.proctor.lead", "Lead Proctor"),
+    assistant: t("tenant.proctor.assistant", "Assistant Proctor"),
+    leadDescription: t("tenant.proctor.leadDescription", PROCTOR_ROLE_DESCRIPTIONS.LEAD_PROCTOR),
+    assistantDescription: t(
+      "tenant.proctor.assistantDescription",
+      PROCTOR_ROLE_DESCRIPTIONS.ASSISTANT_PROCTOR,
+    ),
+  };
+  const roleOptions = [
+    { value: "ASSISTANT_PROCTOR", label: text.assistant },
+    { value: "LEAD_PROCTOR", label: text.lead },
+  ];
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -50,7 +67,7 @@ export const AssignProctorModal = ({
     <Modal
       open={open}
       onClose={onClose}
-      title={T.TITLE}
+      title={text.title}
       footer={
         <>
           <button
@@ -58,7 +75,7 @@ export const AssignProctorModal = ({
             onClick={onClose}
             className="rounded-lg border border-[var(--shell-border)] px-4 py-2 text-sm font-medium text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)]"
           >
-            {T.CANCEL}
+            {text.cancel}
           </button>
           <button
             type="submit"
@@ -66,7 +83,7 @@ export const AssignProctorModal = ({
             disabled={assignProctor.isPending || !selectedProctorId}
             className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {assignProctor.isPending ? T.SUBMITTING : T.SUBMIT}
+            {assignProctor.isPending ? text.submitting : text.submit}
           </button>
         </>
       }
@@ -84,11 +101,11 @@ export const AssignProctorModal = ({
         className="flex flex-col gap-4"
       >
         {availableProctors.length === 0 && !proctorsLoading ? (
-          <p className="text-sm text-[var(--ink-secondary)]">{T.NO_EXISTING}</p>
+          <p className="text-sm text-[var(--ink-secondary)]">{text.noExisting}</p>
         ) : (
           <Select
-            label={T.EXISTING_LABEL}
-            placeholder={T.EXISTING_PLACEHOLDER}
+            label={text.existing}
+            placeholder={text.select}
             value={selectedProctorId}
             disabled={proctorsLoading}
             onChange={(event) => setSelectedProctorId(event.target.value)}
@@ -100,11 +117,11 @@ export const AssignProctorModal = ({
         )}
 
         <Select
-          label={T.ROLE_LABEL}
+          label={text.role}
           value={role}
-          helperText={PROCTOR_ROLE_DESCRIPTIONS[role]}
+          helperText={role === "LEAD_PROCTOR" ? text.leadDescription : text.assistantDescription}
           onChange={(event) => setRole(event.target.value as ProctorRole)}
-          options={PROCTOR_ROLE_OPTIONS}
+          options={roleOptions}
         />
       </form>
     </Modal>

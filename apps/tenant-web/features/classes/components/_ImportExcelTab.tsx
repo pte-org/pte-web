@@ -1,18 +1,25 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Button } from "@pte/ui";
-import { SkippedRowsReport } from "@/features/examoperations/components";
+import { Alert, Button, useToast } from "@pte/ui";
+import {
+  RosterColumnWarnings,
+  RosterTemplateButton,
+  SkippedRowsReport,
+} from "@/features/examoperations/components";
 import { downloadCredentials } from "@/features/examoperations/downloadCredentials";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { parseRosterFile } from "@/features/examoperations/cleanRosterFile";
-import type { CreatedAccount, RosterRow, SkippedRow } from "@/features/examoperations/types";
+import type {
+  CreatedAccount,
+  RosterColumnIssues,
+  RosterRow,
+  SkippedRow,
+} from "@/features/examoperations/types";
 import { useBulkAssignStudents, useCreateRosterAccountsForClass } from "../api";
-import { IMPORT_HELP, IMPORT_OR_ASSIGN_TEXT } from "../constants";
+import { useStudentImportText } from "../hooks/useStudentImportText";
 import { RosterDropzone } from "./_RosterDropzone";
 import type { TabScopeProps } from "./tabScopeProps";
-
-const T = IMPORT_OR_ASSIGN_TEXT;
 
 interface ImportExcelTabProps extends TabScopeProps {
   onCreated: (accounts: CreatedAccount[]) => void;
@@ -36,8 +43,11 @@ export const ImportExcelTab = ({
   onCreated,
   onAssigned,
 }: ImportExcelTabProps): ReactElement => {
+  const text = useStudentImportText();
+  const { showToast } = useToast();
   const [file, setFile] = useState<File | null>(null);
   const [rows, setRows] = useState<RosterRow[] | null>(null);
+  const [columnIssues, setColumnIssues] = useState<RosterColumnIssues | null>(null);
   const [parseError, setParseError] = useState<string | undefined>();
   const [lastResult, setLastResult] = useState<{
     created: CreatedAccount[];
@@ -53,6 +63,7 @@ export const ImportExcelTab = ({
     try {
       const result = await parseRosterFile(file);
       setRows(result.rows);
+      setColumnIssues(result);
     } catch (error) {
       setParseError(errorMessage(error));
     }
@@ -62,10 +73,14 @@ export const ImportExcelTab = ({
     if (!rows) return;
     createAccounts.mutate(rows, {
       onSuccess: (response) => {
+        showToast(text.accountsCreated.replace("{count}", String(response.created.length)), {
+          tone: "success",
+        });
         setLastResult({ created: response.created, skipped: response.skipped });
         onCreated(response.created);
         setFile(null);
         setRows(null);
+        setColumnIssues(null);
         if (response.created.length > 0) {
           bulkAssign.mutate(
             response.created.map((account) => account.publicId),
@@ -78,16 +93,19 @@ export const ImportExcelTab = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <h4 className="text-sm font-semibold text-gray-900">{T.importHeading}</h4>
+      <h4 className="text-sm font-semibold text-gray-900">{text.importHeading}</h4>
+
+      <RosterTemplateButton />
 
       <RosterDropzone
         fileName={file?.name}
-        dropPrompt={T.dropPrompt}
-        fileInputLabel={T.importHeading}
-        helperText={IMPORT_HELP.classNameOverride}
+        dropPrompt={text.dropPrompt}
+        fileInputLabel={text.importHeading}
+        helperText={text.importHelper}
         onFileSelected={(selected) => {
           setFile(selected);
           setRows(null);
+          setColumnIssues(null);
           setLastResult(null);
         }}
       />
@@ -97,7 +115,7 @@ export const ImportExcelTab = ({
       {!rows && !createAccounts.isPending && (
         <div>
           <Button type="button" onClick={() => void handleReview()} disabled={!file}>
-            {T.checkFile}
+            {text.checkFile}
           </Button>
         </div>
       )}
@@ -105,8 +123,9 @@ export const ImportExcelTab = ({
       {rows && (
         <div className="flex flex-col gap-4">
           <p className="text-sm text-gray-700">
-            {T.reviewRows}: {rows.length}
+            {text.reviewRows}: {rows.length}
           </p>
+          <RosterColumnWarnings issues={columnIssues} />
           {!!createAccounts.error && (
             <Alert tone="error">{errorMessage(createAccounts.error)}</Alert>
           )}
@@ -115,9 +134,9 @@ export const ImportExcelTab = ({
               type="button"
               onClick={handleCreateAccounts}
               isLoading={createAccounts.isPending}
-              loadingText={T.creating}
+              loadingText={text.creating}
             >
-              {T.createAccounts}
+              {text.createAccounts}
             </Button>
           </div>
         </div>
@@ -125,9 +144,6 @@ export const ImportExcelTab = ({
 
       {lastResult && (
         <div className="flex flex-col gap-4">
-          <Alert tone="success">
-            {T.accountsCreated.replace("{count}", String(lastResult.created.length))}
-          </Alert>
           <SkippedRowsReport rows={lastResult.skipped} />
           <div>
             <Button
@@ -135,12 +151,12 @@ export const ImportExcelTab = ({
               variant="secondary"
               onClick={() => downloadCredentials(lastResult.created)}
             >
-              {T.download}
+              {text.download}
             </Button>
           </div>
-          {bulkAssign.isPending && <p className="text-sm text-gray-500">{T.assigningAll}</p>}
+          {bulkAssign.isPending && <p className="text-sm text-gray-500">{text.assigningAll}</p>}
           {!!bulkAssign.error && (
-            <Alert tone="error" title={T.assignErrorTitle}>
+            <Alert tone="error" title={text.assignErrorTitle}>
               {errorMessage(bulkAssign.error)}
             </Alert>
           )}

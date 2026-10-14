@@ -2,6 +2,8 @@ export { LearnersOverview } from "./LearnersOverview";
 export { ExistingStudentAssignmentModal } from "./ExistingStudentAssignmentModal";
 export { ExistingStudentImportModal } from "./ExistingStudentImportModal";
 export { RosterImport } from "./RosterImport";
+export { RosterTemplateButton } from "./RosterTemplateButton";
+export { RosterColumnWarnings } from "./RosterColumnWarnings";
 export { AddStudentForm } from "./AddStudentForm";
 export { StudentRosterTable } from "./StudentRosterTable";
 export { SkippedRowsReport } from "./SkippedRowsReport";

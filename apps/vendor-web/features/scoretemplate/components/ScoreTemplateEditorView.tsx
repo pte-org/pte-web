@@ -4,6 +4,7 @@ import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { type QuestionTypeResponse, type QuestionTypeSection } from "@pte/api-client";
 import { Alert, Button, LoadingState, PageHeader, Select } from "@pte/ui";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
 import {
   useActivateScoreTemplate,
   useReplaceScoreTemplateItems,
@@ -13,7 +14,11 @@ import {
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
 import { useTaskTypes } from "@/features/questiontemplate/api";
-import { EXAM_TEMPLATE_BASE_PATH, EXAM_TEMPLATE_SECTIONS, SCORE_TEMPLATE_TEXT } from "../constants";
+import {
+  EXAM_TEMPLATE_BASE_PATH,
+  EXAM_TEMPLATE_SECTIONS,
+  SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
+} from "../constants";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
 import { hasUnreadyTaskType, isTaskTypeRuntimeReady } from "../taskTypeReadiness";
 import {
@@ -34,6 +39,7 @@ interface ScoreTemplateEditorViewProps {
 export const ScoreTemplateEditorView = ({
   publicId,
 }: ScoreTemplateEditorViewProps): ReactElement => {
+  const SCORE_TEMPLATE_TEXT = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
   const { data: template, isLoading, isError, error } = useScoreTemplate(publicId);
   const {
     data: questionTypes = [],
@@ -102,6 +108,13 @@ const ScoreTemplateEditorForm = ({
   isFeasibilityLoading,
   isFeasibilityError,
 }: ScoreTemplateEditorFormProps): ReactElement => {
+  const SCORE_TEMPLATE_TEXT = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
+  const sectionLabels = useAdminCopy({
+    SPEAKING: "Speaking",
+    WRITING: "Writing",
+    READING: "Reading",
+    LISTENING: "Listening",
+  });
   const router = useRouter();
   const { data: currentUser } = useCurrentUser();
   const replaceItemsMutation = useReplaceScoreTemplateItems();
@@ -402,7 +415,7 @@ const ScoreTemplateEditorForm = ({
               placeholder={SCORE_TEMPLATE_TEXT.ADD_SECTION_PLACEHOLDER}
               options={EXAM_TEMPLATE_SECTIONS.map((section) => ({
                 value: section,
-                label: section,
+                label: sectionLabels[section],
               }))}
             />
             <Select

@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from "react";
 import { DotsHorizontalIcon } from "./icons";
 import { cn } from "../utils/cn";
+import { PRIMARY_ACTION_SURFACE_CLASSES } from "../styles/interactiveClasses";
 
 export interface SidebarNavItem {
   label: string;
@@ -55,10 +56,10 @@ export const SidebarNav = ({ items, isOpen = true, renderLink }: SidebarNavProps
             {renderLink(
               item,
               cn(
-                "flex min-h-9 items-center rounded-md text-sm font-medium transition-colors duration-150",
+                "flex min-h-9 items-center rounded-md text-sm font-medium transition-[background-color,border-color,box-shadow,filter,opacity] duration-150",
                 isOpen ? "w-full gap-3 px-3 py-2" : "mx-auto h-9 w-9 justify-center px-2 py-2",
                 item.isActive
-                  ? "bg-[var(--sidebar-nav-hover-background)] text-[var(--ink-primary)]"
+                  ? PRIMARY_ACTION_SURFACE_CLASSES
                   : "text-[var(--ink-secondary)] hover:bg-[var(--sidebar-nav-hover-background)] hover:text-[var(--ink-primary)]",
               ),
             )}

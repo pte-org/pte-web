@@ -62,6 +62,8 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
     "This exam was changed in another window. Refresh the page and review your changes again.",
   EXAM_DRAFT_CONFIGURATION_INVALID:
     "Some exam settings are incompatible. Review the selected mode and reuse rule.",
+  TEMPLATE_NOT_ACTIVE:
+    "The selected exam template is not active. Choose an active template and try again.",
   LOCKDOWN_MODE_INVALID_FOR_EXAM_MODE:
     "The selected security policy is not compatible with this exam mode.",
   LOCKDOWN_MODE_REQUIRED:

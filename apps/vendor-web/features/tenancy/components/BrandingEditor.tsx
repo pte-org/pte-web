@@ -2,7 +2,8 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert } from "@pte/ui";
-import { TENANT_DETAIL_TEXT } from "../constants";
+import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { TENANT_DETAIL_TEXT as RAW_TENANT_DETAIL_TEXT } from "../constants";
 import { validateBranding, type BrandingErrors } from "../utils/validateBranding";
 import type { BrandingInput, Tenant } from "../types";
 import { fieldInputClass } from "./_TenantFormField";
@@ -12,18 +13,16 @@ interface BrandingEditorProps {
   onSubmit: (input: BrandingInput) => void;
   isSubmitting?: boolean;
   error?: string;
-  saved?: boolean;
 }
-
-const T = TENANT_DETAIL_TEXT;
 
 export const BrandingEditor = ({
   tenant,
   onSubmit,
   isSubmitting = false,
   error,
-  saved = false,
 }: BrandingEditorProps): ReactElement => {
+  const T = useAdminCopy(RAW_TENANT_DETAIL_TEXT);
+  const savingLabel = useAdminCopy("Saving...");
   const [form, setForm] = useState<BrandingInput>({
     logoUrl: tenant.logoUrl ?? "",
     primaryColor: tenant.primaryColor ?? "",
@@ -46,12 +45,6 @@ export const BrandingEditor = ({
           <Alert tone="error">{error}</Alert>
         </div>
       )}
-      {saved && !error && (
-        <div className="mt-4">
-          <Alert tone="success">{T.BRANDING_SAVED}</Alert>
-        </div>
-      )}
-
       <form onSubmit={handleSubmit} className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
         <div className="flex flex-col gap-1">
           <label htmlFor="branding-logo-url" className="text-sm font-medium text-gray-700">
@@ -93,7 +86,7 @@ export const BrandingEditor = ({
             disabled={isSubmitting}
             className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? "Saving..." : T.SAVE_BRANDING}
+            {isSubmitting ? savingLabel : T.SAVE_BRANDING}
           </button>
         </div>
       </form>

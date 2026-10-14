@@ -1,18 +1,16 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Button, Input } from "@pte/ui";
+import { Alert, Button, DateInput, Input } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useCreateStudent } from "@/features/examoperations/api";
 import type { CreatedAccount } from "@/features/examoperations/types";
 import { useAssignStudent } from "../api";
-import { IMPORT_OR_ASSIGN_TEXT } from "../constants";
+import { useStudentImportText } from "../hooks/useStudentImportText";
 import type { AddStudentErrors } from "../types";
 import { validateAddStudentInput } from "../utils/validateAddStudentInput";
 import { assignErrorMessage } from "./assignErrorMessage";
 import type { TabScopeProps } from "./tabScopeProps";
-
-const T = IMPORT_OR_ASSIGN_TEXT;
 
 interface AddIndividuallyTabProps extends TabScopeProps {
   onCreated: (accounts: CreatedAccount[]) => void;
@@ -43,6 +41,7 @@ export const AddIndividuallyTab = ({
   onCreated,
   onAssigned,
 }: AddIndividuallyTabProps): ReactElement => {
+  const text = useStudentImportText();
   const [form, setForm] = useState<AddStudentInput>(EMPTY_ADD_STUDENT_INPUT);
   const [errors, setErrors] = useState<AddStudentErrors>({});
   const createStudent = useCreateStudent();
@@ -89,38 +88,37 @@ export const AddIndividuallyTab = ({
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3">
-      <h4 className="text-sm font-semibold text-gray-900">{T.addIndividuallyHeading}</h4>
+      <h4 className="text-sm font-semibold text-gray-900">{text.addIndividuallyHeading}</h4>
       {!!createStudent.error && <Alert tone="error">{errorMessage(createStudent.error)}</Alert>}
       {!!assignStudent.error && (
         <Alert tone="error">{assignErrorMessage(assignStudent.error)}</Alert>
       )}
       <div className="grid gap-3 sm:grid-cols-2">
         <Input
-          label={T.emailLabel}
+          label={text.emailLabel}
           type="email"
           value={form.email}
           error={errors.email}
           onChange={(event) => handleChange("email", event.target.value)}
         />
         <Input
-          label={T.fullNameLabel}
+          label={text.fullNameLabel}
           value={form.fullName}
           error={errors.fullName}
           onChange={(event) => handleChange("fullName", event.target.value)}
         />
         <Input
-          label={T.studentCodeLabel}
+          label={text.studentCodeLabel}
           value={form.studentCode}
           onChange={(event) => handleChange("studentCode", event.target.value)}
         />
         <Input
-          label={T.phoneLabel}
+          label={text.phoneLabel}
           value={form.phone}
           onChange={(event) => handleChange("phone", event.target.value)}
         />
-        <Input
-          type="date"
-          label={T.dobLabel}
+        <DateInput
+          label={text.dobLabel}
           value={form.dateOfBirth}
           onChange={(event) => handleChange("dateOfBirth", event.target.value)}
         />
@@ -129,9 +127,9 @@ export const AddIndividuallyTab = ({
         <Button
           type="submit"
           isLoading={createStudent.isPending || assignStudent.isPending}
-          loadingText={T.submitting}
+          loadingText={text.submitting}
         >
-          {T.submit}
+          {text.submit}
         </Button>
       </div>
     </form>

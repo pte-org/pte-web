@@ -43,6 +43,7 @@ export function listQuestions(
   if (filters.taskType) params.set("taskType", filters.taskType);
   if (filters.section) params.set("section", filters.section);
   if (filters.status) params.set("status", filters.status);
+  if (filters.pool) params.set("pool", filters.pool);
   if (filters.q) params.set("q", filters.q);
   const suffix = params.toString() ? `?${params.toString()}` : "";
   return client.request<PagedResult<QuestionResponse>>(`${QUESTION_ENDPOINTS.questions}${suffix}`);

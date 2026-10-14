@@ -1,1 +1,1 @@
-export { OverviewView } from "./OverviewView";
+export { AdminDashboardView, AdminDashboardView as OverviewView } from "./AdminDashboardView";

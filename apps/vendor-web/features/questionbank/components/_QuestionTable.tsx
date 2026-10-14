@@ -24,11 +24,12 @@ import {
   useUnarchiveQuestion,
 } from "../api";
 import {
-  QUESTIONBANK_TEXT,
-  QUESTION_SKILL_LABELS,
-  QUESTION_STATUS_LABELS,
+  QUESTIONBANK_TEXT as RAW_QUESTIONBANK_TEXT,
+  QUESTION_POOL_LABELS as RAW_QUESTION_POOL_LABELS,
+  QUESTION_SKILL_LABELS as RAW_QUESTION_SKILL_LABELS,
+  QUESTION_STATUS_LABELS as RAW_QUESTION_STATUS_LABELS,
   QUESTION_STATUS_VARIANT,
-  QUESTION_TABLE_HEADERS,
+  QUESTION_TABLE_HEADERS as RAW_QUESTION_TABLE_HEADERS,
 } from "../constants";
 import type { Question } from "../types";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
@@ -42,27 +43,39 @@ interface QuestionTableProps {
   toolbarActions?: ReactNode;
 }
 
-const QUESTION_SKILL_FILTER_OPTIONS = [
-  { value: "", label: "All skills" },
-  { value: "listening", label: "Listening" },
-  { value: "reading", label: "Reading" },
-  { value: "writing", label: "Writing" },
-  { value: "speaking", label: "Speaking" },
-] as const;
-
-const QUESTION_STATUS_FILTER_OPTIONS = [
-  { value: "", label: "All statuses" },
-  { value: "draft", label: "Draft" },
-  { value: "pending_approval", label: "Pending approval" },
-  { value: "published", label: "Published" },
-  { value: "archived", label: "Archived" },
-] as const;
+import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
 
 export const QuestionTable = ({
   questions,
   isLoading = false,
   toolbarActions,
 }: QuestionTableProps): ReactElement => {
+  const T = useAdminCopy(RAW_QUESTIONBANK_TEXT);
+  const searchText = useAdminSearchText("questionContent");
+  const H = useAdminCopy(RAW_QUESTION_TABLE_HEADERS);
+  const skillLabels = useAdminCopy(RAW_QUESTION_SKILL_LABELS);
+  const poolLabels = useAdminCopy(RAW_QUESTION_POOL_LABELS);
+  const statusLabels = useAdminCopy(RAW_QUESTION_STATUS_LABELS);
+  const skillFilterOptions = useAdminCopy([
+    { value: "", label: "All skills" },
+    { value: "listening", label: "Listening" },
+    { value: "reading", label: "Reading" },
+    { value: "writing", label: "Writing" },
+    { value: "speaking", label: "Speaking" },
+  ]);
+  const statusFilterOptions = useAdminCopy([
+    { value: "", label: "All statuses" },
+    { value: "draft", label: "Draft" },
+    { value: "pending_approval", label: "Pending approval" },
+    { value: "published", label: "Published" },
+    { value: "archived", label: "Archived" },
+  ]);
+  const poolFilterOptions = useAdminCopy([
+    { value: "", label: "All pools" },
+    { value: "exam", label: "Exam" },
+    { value: "practice", label: "Practice" },
+  ]);
   const router = useRouter();
   const { data: currentUser } = useCurrentUser();
   const { showToast } = useToast();
@@ -94,39 +107,39 @@ export const QuestionTable = ({
   const buildActions = (question: Question): ActionMenuItem[] => {
     const actions: ActionMenuItem[] = [
       {
-        label: QUESTIONBANK_TEXT.ROW_VIEW_DETAILS,
+        label: T.ROW_VIEW_DETAILS,
         icon: DocumentIcon,
         onSelect: () => router.push(`/admin/questions/${question.id}`),
       },
     ];
     if (question.status === "draft") {
       actions.push({
-        label: QUESTIONBANK_TEXT.ROW_SUBMIT,
+        label: T.ROW_SUBMIT,
         icon: UploadIcon,
         onSelect: () =>
           submitMutation.mutate(question.id, {
-            onSuccess: () => showToast(QUESTIONBANK_TEXT.SUBMIT_SUCCESS),
+            onSuccess: () => showToast(T.SUBMIT_SUCCESS),
           }),
       });
     }
     if (question.status === "pending_approval" && canReview) {
       actions.push({
-        label: QUESTIONBANK_TEXT.ROW_APPROVE,
+        label: T.ROW_APPROVE,
         icon: CheckCircleIcon,
         onSelect: () =>
           approveMutation.mutate(question.id, {
-            onSuccess: () => showToast(QUESTIONBANK_TEXT.APPROVE_SUCCESS),
+            onSuccess: () => showToast(T.APPROVE_SUCCESS),
           }),
       });
       actions.push({
-        label: QUESTIONBANK_TEXT.ROW_REJECT,
+        label: T.ROW_REJECT,
         icon: BanIcon,
         onSelect: () => setQuestionToReject(question),
       });
     }
     if (question.canArchive === true) {
       actions.push({
-        label: QUESTIONBANK_TEXT.ROW_ARCHIVE,
+        label: T.ROW_ARCHIVE,
         icon: BanIcon,
         onSelect: () => {
           archiveMutation.reset();
@@ -136,7 +149,7 @@ export const QuestionTable = ({
     }
     if (question.status === "draft" && question.canDeleteDraft === true) {
       actions.push({
-        label: QUESTIONBANK_TEXT.ROW_DELETE_DRAFT,
+        label: T.ROW_DELETE_DRAFT,
         icon: TrashIcon,
         danger: true,
         onSelect: () => {
@@ -146,24 +159,24 @@ export const QuestionTable = ({
       });
     } else if (question.status === "draft" && question.canArchive !== true) {
       actions.push({
-        label: QUESTIONBANK_TEXT.DELETE_BLOCKED,
+        label: T.DELETE_BLOCKED,
         disabled: true,
         onSelect: () => undefined,
       });
     }
     if (question.status === "archived" && canReview) {
       actions.push({
-        label: QUESTIONBANK_TEXT.ROW_UNARCHIVE,
+        label: T.ROW_UNARCHIVE,
         icon: CheckCircleIcon,
         onSelect: () =>
           unarchiveMutation.mutate(question.id, {
-            onSuccess: () => showToast(QUESTIONBANK_TEXT.UNARCHIVE_SUCCESS),
+            onSuccess: () => showToast(T.UNARCHIVE_SUCCESS),
           }),
       });
     }
     if (question.status === "draft" || question.status === "published") {
       actions.push({
-        label: QUESTIONBANK_TEXT.ROW_EDIT,
+        label: T.ROW_EDIT,
         icon: PencilIcon,
         onSelect: () => router.push(`/admin/questions/${question.id}/edit`),
       });
@@ -177,7 +190,7 @@ export const QuestionTable = ({
     if (!questionToArchive || isBusy) return;
     archiveMutation.mutate(questionToArchive.id, {
       onSuccess: () => {
-        showToast(QUESTIONBANK_TEXT.ARCHIVE_SUCCESS);
+        showToast(T.ARCHIVE_SUCCESS);
         setQuestionToArchive(null);
       },
     });
@@ -187,7 +200,7 @@ export const QuestionTable = ({
     if (!questionToDelete || isBusy) return;
     deleteMutation.mutate(questionToDelete.id, {
       onSuccess: () => {
-        showToast(QUESTIONBANK_TEXT.DELETE_SUCCESS);
+        showToast(T.DELETE_SUCCESS);
         setQuestionToDelete(null);
       },
     });
@@ -199,7 +212,7 @@ export const QuestionTable = ({
       { id: questionToReject.id, reason },
       {
         onSuccess: () => {
-          showToast(QUESTIONBANK_TEXT.REJECT_SUCCESS);
+          showToast(T.REJECT_SUCCESS);
           setQuestionToReject(null);
         },
       },
@@ -208,43 +221,42 @@ export const QuestionTable = ({
 
   return (
     <div className="space-y-4">
-      {hasMutationError && <Alert tone="error">{QUESTIONBANK_TEXT.STATUS_UPDATE_ERROR}</Alert>}
+      {hasMutationError && <Alert tone="error">{T.STATUS_UPDATE_ERROR}</Alert>}
       <DataTable
         toolbarActions={toolbarActions}
         columns={[
           {
-            key: "code",
-            label: QUESTION_TABLE_HEADERS.CODE,
-            header: QUESTION_TABLE_HEADERS.CODE,
-            filterAccessor: (question) => question.id,
-            cell: (question) => (
-              <span className="font-mono text-xs text-[var(--ink-primary)]">{question.id}</span>
-            ),
-          },
-          {
             key: "skill",
-            label: QUESTION_TABLE_HEADERS.SKILL,
-            header: QUESTION_TABLE_HEADERS.SKILL,
-            filterOptions: QUESTION_SKILL_FILTER_OPTIONS,
+            label: H.SKILL,
+            header: H.SKILL,
+            filterOptions: skillFilterOptions,
             filterAccessor: (question) => question.skill,
-            cell: (question) => QUESTION_SKILL_LABELS[question.skill],
+            cell: (question) => skillLabels[question.skill],
           },
           {
             key: "content",
-            label: QUESTION_TABLE_HEADERS.CONTENT,
-            header: QUESTION_TABLE_HEADERS.CONTENT,
+            label: H.CONTENT,
+            header: H.CONTENT,
             filterAccessor: (question) => question.content,
             cell: (question) => <span className="line-clamp-1 max-w-xl">{question.content}</span>,
           },
           {
+            key: "pool",
+            label: H.POOL,
+            header: H.POOL,
+            filterOptions: poolFilterOptions,
+            filterAccessor: (question) => question.pool,
+            cell: (question) => poolLabels[question.pool],
+          },
+          {
             key: "status",
-            label: QUESTION_TABLE_HEADERS.STATUS,
-            header: QUESTION_TABLE_HEADERS.STATUS,
-            filterOptions: QUESTION_STATUS_FILTER_OPTIONS,
+            label: H.STATUS,
+            header: H.STATUS,
+            filterOptions: statusFilterOptions,
             filterAccessor: (question) => question.status,
             cell: (question) => (
               <Badge variant={QUESTION_STATUS_VARIANT[question.status]}>
-                {QUESTION_STATUS_LABELS[question.status]}
+                {statusLabels[question.status]}
               </Badge>
             ),
           },
@@ -252,34 +264,31 @@ export const QuestionTable = ({
         rows={questions}
         getRowKey={(question) => question.id}
         isLoading={isLoading}
-        emptyTitle={QUESTIONBANK_TEXT.EMPTY_TITLE}
-        emptyDescription={QUESTIONBANK_TEXT.EMPTY_DESCRIPTION_FILTERED}
-        searchPlaceholder={QUESTIONBANK_TEXT.SEARCH_PLACEHOLDER}
-        searchAriaLabel={QUESTIONBANK_TEXT.SEARCH_PLACEHOLDER}
+        emptyTitle={T.EMPTY_TITLE}
+        emptyDescription={T.EMPTY_DESCRIPTION_FILTERED}
+        searchPlaceholder={searchText.placeholder}
+        searchAriaLabel={searchText.ariaLabel}
         clientSidePagination
         initialPageSize={10}
         tableClassName="min-w-[900px]"
-        rowActionsHeader={QUESTION_TABLE_HEADERS.ACTIONS}
+        rowActionsHeader={H.ACTIONS}
         rowActions={(question) => <ActionMenu items={buildActions(question)} />}
       />
       <ConfirmDialog
         open={questionToArchive !== null}
-        title={QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_TITLE}
+        title={T.ARCHIVE_CONFIRM_TITLE}
         description={
           <>
             <p>{questionToArchive?.content}</p>
-            <p>{QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_DESCRIPTION}</p>
+            <p>{T.ARCHIVE_CONFIRM_DESCRIPTION}</p>
             {archiveMutation.error && (
               <Alert tone="error">
-                {getUserFacingApiErrorMessage(
-                  archiveMutation.error,
-                  QUESTIONBANK_TEXT.STATUS_UPDATE_ERROR,
-                )}
+                {getUserFacingApiErrorMessage(archiveMutation.error, T.STATUS_UPDATE_ERROR)}
               </Alert>
             )}
           </>
         }
-        confirmLabel={QUESTIONBANK_TEXT.ARCHIVE_CONFIRM_BUTTON}
+        confirmLabel={T.ARCHIVE_CONFIRM_BUTTON}
         tone="danger"
         isConfirming={archiveMutation.isPending}
         onConfirm={confirmArchive}
@@ -289,22 +298,19 @@ export const QuestionTable = ({
       />
       <ConfirmDialog
         open={questionToDelete !== null}
-        title={QUESTIONBANK_TEXT.DELETE_CONFIRM_TITLE}
+        title={T.DELETE_CONFIRM_TITLE}
         description={
           <>
             <p>{questionToDelete?.content}</p>
-            <p>{QUESTIONBANK_TEXT.DELETE_CONFIRM_DESCRIPTION}</p>
+            <p>{T.DELETE_CONFIRM_DESCRIPTION}</p>
             {deleteMutation.error && (
               <Alert tone="error">
-                {getUserFacingApiErrorMessage(
-                  deleteMutation.error,
-                  QUESTIONBANK_TEXT.STATUS_UPDATE_ERROR,
-                )}
+                {getUserFacingApiErrorMessage(deleteMutation.error, T.STATUS_UPDATE_ERROR)}
               </Alert>
             )}
           </>
         }
-        confirmLabel={QUESTIONBANK_TEXT.ROW_DELETE_DRAFT}
+        confirmLabel={T.ROW_DELETE_DRAFT}
         tone="danger"
         isConfirming={deleteMutation.isPending}
         onConfirm={confirmDelete}

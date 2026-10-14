@@ -32,22 +32,22 @@ export const CopyableId = ({ value }: CopyableIdProps): ReactElement => {
 
   return (
     <span className="inline-flex max-w-full items-center gap-1.5">
-      <code className="truncate font-mono text-xs text-gray-500">{value}</code>
+      <code className="truncate font-mono text-xs text-[var(--ink-muted)]">{value}</code>
       <span className="relative shrink-0">
         <button
           type="button"
           onClick={handleCopy}
           aria-label={TEXT.COPY_ARIA_LABEL}
-          className="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+          className="rounded p-0.5 text-[var(--ink-muted)] hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)]"
         >
           {copied ? (
-            <CheckCircleIcon className="h-3.5 w-3.5 text-green-600" />
+            <CheckCircleIcon className="h-3.5 w-3.5 text-[var(--mint-action)]" />
           ) : (
             <CopyIcon className="h-3.5 w-3.5" />
           )}
         </button>
         {copied && (
-          <span className="absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-gray-900 px-1.5 py-0.5 text-[11px] font-medium text-white shadow-sm">
+          <span className="absolute -top-7 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded border border-[var(--shell-border)] bg-[var(--surface-card)] px-1.5 py-0.5 text-[11px] font-medium text-[var(--ink-primary)] shadow-[var(--popover-shadow)]">
             {TEXT.COPIED}
           </span>
         )}
