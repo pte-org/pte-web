@@ -6,7 +6,7 @@ import type { AdminDashboardResponse, DashboardRecentTenant } from "@pte/api-cli
 import { Badge, Button, DataTable, type DataTableColumn } from "@pte/ui";
 import { ADMIN_DASHBOARD_ROUTES, TENANT_STATUS_BADGE_VARIANT } from "../constants";
 import { useAdminDashboardText } from "../hooks/useAdminDashboardText";
-import { formatDate, formatNumber } from "../utils/format";
+import { formatDate, formatNumber, formatTenantStatus } from "../utils/format";
 import { SectionPanel } from "./SectionPanel";
 
 export interface RecentTenantsPanelProps {
@@ -54,7 +54,7 @@ export const RecentTenantsPanel = ({
       header: messages.colStatus,
       cell: (row) => (
         <Badge variant={TENANT_STATUS_BADGE_VARIANT[row.status] ?? "neutral"}>
-          {messages[`status${row.status.charAt(0).toUpperCase() + row.status.slice(1)}` as keyof typeof messages] ?? row.status}
+          {formatTenantStatus(row.status, messages)}
         </Badge>
       ),
     },

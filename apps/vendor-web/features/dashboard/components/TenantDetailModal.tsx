@@ -6,7 +6,7 @@ import { useTenant } from "@/features/tenancy/api";
 import { TENANT_LOCATION_OPTIONS } from "@/features/tenancy/constants";
 import { TENANCY_STATUS_BADGE_VARIANT } from "../constants";
 import { useAdminDashboardText } from "../hooks/useAdminDashboardText";
-import { formatDate } from "../utils/format";
+import { formatDate, formatTenantStatus } from "../utils/format";
 
 export interface TenantDetailModalProps {
   tenantId: string | null;
@@ -57,7 +57,7 @@ export const TenantDetailModal = ({
             label={messages.tenantDetailStatus}
             value={
               <Badge variant={TENANCY_STATUS_BADGE_VARIANT[tenant.status] ?? "neutral"}>
-                {messages[`status${tenant.status.charAt(0).toUpperCase() + tenant.status.slice(1)}` as keyof typeof messages] ?? tenant.status}
+                {formatTenantStatus(tenant.status, messages)}
               </Badge>
             }
           />

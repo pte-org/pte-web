@@ -1,4 +1,5 @@
 import type { Locale } from "@pte/ui";
+import type { AdminDashboardMessages } from "../messages/en";
 
 export type MessageValues = Record<string, string | number | undefined | null>;
 
@@ -82,4 +83,15 @@ export function formatMessage(template: string, values?: MessageValues): string 
 
 export function keyForCount<T extends string>(count: number, singular: T, plural: T): T {
   return count === 1 ? singular : plural;
+}
+
+export function formatTenantStatus(
+  status: string | null | undefined,
+  messages: AdminDashboardMessages,
+): string {
+  if (!status) return "";
+  const normalized = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+  const key = `status${normalized}` as keyof AdminDashboardMessages;
+  const translation = messages[key];
+  return typeof translation === "string" ? translation : status;
 }

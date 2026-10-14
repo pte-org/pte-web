@@ -6,8 +6,11 @@ import {
   formatMonthLabel,
   formatNumber,
   formatPercent,
+  formatTenantStatus,
   keyForCount,
 } from "./format";
+import { ADMIN_DASHBOARD_EN } from "../messages/en";
+import { ADMIN_DASHBOARD_VI } from "../messages/vi";
 
 describe("formatNumber", () => {
   it("formats integers according to locale", () => {
@@ -99,5 +102,29 @@ describe("keyForCount", () => {
     expect(keyForCount(1, "day", "days")).toBe("day");
     expect(keyForCount(0, "day", "days")).toBe("days");
     expect(keyForCount(2, "day", "days")).toBe("days");
+  });
+});
+
+describe("formatTenantStatus", () => {
+  it("formats uppercase ACTIVE status in Vietnamese and English", () => {
+    expect(formatTenantStatus("ACTIVE", ADMIN_DASHBOARD_VI)).toBe("Hoạt động");
+    expect(formatTenantStatus("ACTIVE", ADMIN_DASHBOARD_EN)).toBe("Active");
+  });
+
+  it("formats uppercase SUSPENDED status in Vietnamese and English", () => {
+    expect(formatTenantStatus("SUSPENDED", ADMIN_DASHBOARD_VI)).toBe("Tạm ngưng");
+    expect(formatTenantStatus("SUSPENDED", ADMIN_DASHBOARD_EN)).toBe("Suspended");
+  });
+
+  it("formats lowercase and mixed-case statuses correctly", () => {
+    expect(formatTenantStatus("active", ADMIN_DASHBOARD_VI)).toBe("Hoạt động");
+    expect(formatTenantStatus("suspended", ADMIN_DASHBOARD_VI)).toBe("Tạm ngưng");
+    expect(formatTenantStatus("pending", ADMIN_DASHBOARD_VI)).toBe("Chờ duyệt");
+  });
+
+  it("handles empty or unknown status gracefully", () => {
+    expect(formatTenantStatus("", ADMIN_DASHBOARD_VI)).toBe("");
+    expect(formatTenantStatus(null, ADMIN_DASHBOARD_VI)).toBe("");
+    expect(formatTenantStatus("UNKNOWN_STATUS", ADMIN_DASHBOARD_VI)).toBe("UNKNOWN_STATUS");
   });
 });
