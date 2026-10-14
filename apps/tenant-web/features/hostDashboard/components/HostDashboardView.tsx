@@ -3,15 +3,12 @@
 import type { ReactElement } from "react";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { Button, DashboardLoadingState, ErrorState } from "@pte/ui";
-import { LearnersOverview } from "@/features/examoperations/components";
 import { useHostDashboard } from "../api";
 import { useHostDashboardText } from "../hooks/useHostDashboardText";
 import { HostDashboardGrid } from "./HostDashboardGrid";
-import { HostDashboardHeader } from "./HostDashboardHeader";
 
 /**
- * Host overview: header, the dashboard widgets from the single aggregate request and, last and
- * full width, the learners roster (it keeps its own request).
+ * Host overview: dashboard widgets from the single aggregate request.
  */
 export const HostDashboardView = (): ReactElement => {
   const { messages } = useHostDashboardText();
@@ -22,7 +19,6 @@ export const HostDashboardView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-6">
-      <HostDashboardHeader />
       {isPending ? (
         <DashboardLoadingState variant="overview" label={messages.loadingLabel} />
       ) : data ? (
@@ -38,7 +34,6 @@ export const HostDashboardView = (): ReactElement => {
           }
         />
       )}
-      <LearnersOverview />
     </div>
   );
 };

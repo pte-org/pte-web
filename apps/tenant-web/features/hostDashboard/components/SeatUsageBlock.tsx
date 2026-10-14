@@ -3,11 +3,10 @@
 import type { ReactElement } from "react";
 import type { HostQuotaData } from "@pte/api-client";
 import { Alert, ProgressBar } from "@pte/ui";
-import { HOST_DASHBOARD_ROUTES, PERCENT_SCALE } from "../constants";
+import { PERCENT_SCALE } from "../constants";
 import { useHostDashboardText } from "../hooks/useHostDashboardText";
 import { buildSeatUsage } from "../utils/usage";
 import { formatNumber } from "../utils/format";
-import { PanelLink } from "./PanelLink";
 
 export const SeatUsageBlock = ({ quota }: { quota: HostQuotaData }): ReactElement => {
   const { locale, messages, format } = useHostDashboardText();
@@ -40,12 +39,7 @@ export const SeatUsageBlock = ({ quota }: { quota: HostQuotaData }): ReactElemen
         {format("usageRemaining", { count: formatNumber(seats.remaining, locale) })}
       </p>
       {seats.nearLimit && (
-        <Alert tone="warning">
-          <span className="flex flex-wrap items-center justify-between gap-2">
-            {messages.usageNearLimit}
-            <PanelLink href={HOST_DASHBOARD_ROUTES.billing}>{messages.usageAddCapacity}</PanelLink>
-          </span>
-        </Alert>
+        <Alert tone="warning">{messages.usageNearLimit}</Alert>
       )}
     </div>
   );

@@ -7,7 +7,7 @@ import { vi } from "vitest";
  *
  * - the active locale and the tenant's organisation nouns are driven through `environment`
  * - `useRouter` records navigation instead of needing the Next.js app router
- * - `LearnersOverview` (own roster request, untouched by this feature) is replaced by a marker
+ * - `LearnersOverview` is replaced by a marker so overview tests can assert it is not rendered
  * - `Button` and `DashboardPanel` imported from the package entry record their props, so a test
  *   can invoke the retry handlers that a static render cannot click
  */
@@ -55,7 +55,7 @@ vi.mock("@/features/examoperations/components", async () => {
   const { createElement } = await import("react");
   return {
     LearnersOverview: () =>
-      createElement("section", { "aria-label": "learners-overview-marker" }, "learners-overview-marker"),
+      createElement("section", { "aria-label": LEARNERS_OVERVIEW_MARKER }, LEARNERS_OVERVIEW_MARKER),
   };
 });
 

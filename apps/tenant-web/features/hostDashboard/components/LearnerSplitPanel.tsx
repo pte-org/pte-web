@@ -23,7 +23,7 @@ export const LearnerSplitPanel = ({ section, onRetry, className }: LearnerSplitP
     <SectionPanel
       title={messages.splitTitle}
       subtitle={messages.splitSubtitle}
-      actions={<PanelLink href={HOST_DASHBOARD_ROUTES.students}>{messages.splitManage}</PanelLink>}
+      footerAction={<PanelLink href={HOST_DASHBOARD_ROUTES.students}>{messages.splitManage}</PanelLink>}
       section={section}
       onRetry={onRetry}
       className={className}

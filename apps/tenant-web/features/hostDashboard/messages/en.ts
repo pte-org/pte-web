@@ -6,7 +6,6 @@
  */
 export const HOST_DASHBOARD_EN = {
   // Page and shared states
-  title: "Overview",
   emptyValue: "–",
   retry: "Try again",
   loadingLabel: "Loading your overview",
@@ -15,9 +14,8 @@ export const HOST_DASHBOARD_EN = {
   sectionErrorTitle: "This section is unavailable",
   sectionErrorDescription: "We could not load this section. Please try again.",
   viewAll: "View all",
-  quickAddLearners: "Add learners",
-  quickCreateExam: "Create exam session",
-  quickBilling: "Plans & billing",
+  analysisTitle: "Detailed analysis",
+  analysisSubtitle: "Trends, activity and supporting signals for deeper review.",
 
   // Key figures
   kpiTitle: "Key figures",
@@ -45,13 +43,12 @@ export const HOST_DASHBOARD_EN = {
   usageRemaining: "{count} seats remaining",
   usageNoSeats: "No seat capacity is available yet.",
   usageNearLimit: "You are close to your seat limit. Add capacity before importing more learners.",
-  usageAddCapacity: "Add capacity",
   usageSubscriptions: "Subscriptions",
   usageNoSubscriptions: "No active subscription.",
   usageExpiresOn: "Expires {date}",
   usagePlanMeta: "{type} · {expires}",
   usageExpiringSoon: "A subscription is about to expire.",
-  usageManage: "View subscriptions",
+  usageManage: "View billing",
   expiryNone: "No expiry date",
   expiryExpired: "Expired",
   expiryToday: "Expires today",

@@ -79,7 +79,7 @@ export const UpcomingSessionsPanel = ({
     <SectionPanel
       title={messages.upcomingTitle}
       subtitle={messages.upcomingSubtitle}
-      actions={<PanelLink href={HOST_DASHBOARD_ROUTES.exams}>{messages.viewAll}</PanelLink>}
+      footerAction={<PanelLink href={HOST_DASHBOARD_ROUTES.exams}>{messages.viewAll}</PanelLink>}
       section={dashboard.exams}
       onRetry={onRetry}
       className={className}

@@ -30,15 +30,19 @@ beforeAll(() => {
 afterAll(() => restoreConsole());
 afterEach(() => resetTestEnvironment());
 
-const render = (dashboard: HostDashboardResponse, onRetry: () => void = () => undefined): string =>
-  renderHtml(createElement(HostDashboardGrid, { dashboard, onRetry }));
+const render = (
+  dashboard: HostDashboardResponse,
+  onRetry: () => void = () => undefined,
+  analysisDefaultExpanded = true,
+): string => renderHtml(createElement(HostDashboardGrid, { dashboard, onRetry, analysisDefaultExpanded }));
 
 const EXPECTED_TITLES_EN = [
   "Needs attention",
   "Key figures",
   "Seats and subscription",
-  "Attempts submitted",
   "Upcoming sessions",
+  "Detailed analysis",
+  "Attempts submitted",
   "Recent activity",
   "Sessions by status",
   "Learner assignment",
@@ -59,9 +63,9 @@ describe("HostDashboardGrid with every section loaded", () => {
     expect(panelTitles(html)).toEqual(EXPECTED_TITLES_EN);
   });
 
-  it("gives every panel a named region and uses h2 only (the page h1 belongs to the header)", () => {
+  it("gives every panel a named region and uses h2 only", () => {
     const regionIds = [...html.matchAll(/role="region" aria-labelledby="([^"]+)"/g)].map((match) => match[1]);
-    expect(regionIds).toHaveLength(EXPECTED_TITLES_EN.length - 1); // the key figures use a <section>
+    expect(regionIds).toHaveLength(EXPECTED_TITLES_EN.length - 2); // the analysis group and key figures use <section>
     for (const id of regionIds) expect(html).toContain(`<h2 id="${id}"`);
     expect(html).not.toMatch(/<h1[\s>]/);
   });
@@ -78,6 +82,13 @@ describe("HostDashboardGrid with every section loaded", () => {
     expect(hrefs.length).toBeGreaterThan(0);
     expect(hrefs.filter((href) => !isAllowedHref(href))).toEqual([]);
     expect(hrefs).toContain(`/host/exams/${SESSION_ID}`);
+  });
+
+  it("keeps detailed analysis available without putting it in the first reading group", () => {
+    const html = render(richDashboard(), () => undefined, false);
+    expect(html).toContain('aria-expanded="false"');
+    expect(textOf(html)).not.toContain("Recent activity");
+    expect(textOf(html)).toContain("Detailed analysis");
   });
 
   it("uses no inline style (except recharts' own sizing wrapper), hex or functional colors", () => {

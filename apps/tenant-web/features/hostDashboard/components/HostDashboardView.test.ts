@@ -35,38 +35,34 @@ const setQuery = (result: Record<string, unknown>): void => {
 const render = (): string => renderHtml(createElement(HostDashboardView));
 
 describe("HostDashboardView", () => {
-  it("shows the overview loading state under the header while the single query is pending", () => {
+  it("shows the overview loading state while the single query is pending", () => {
     setQuery({ isPending: true });
     const html = render();
     expect(html).toContain('role="status"');
     expect(textOf(html)).toContain("Loading your overview");
-    expect(textOf(html)).toContain("Overview"); // page title stays visible
+    expect(html).not.toMatch(/<h1[\s>]/);
     expect(panelTitles(html)).toEqual([]);
     expect(html).not.toContain('role="alert"');
   });
 
-  it("renders the grid and keeps LearnersOverview as the last, full-width child", () => {
+  it("renders the overview grid without the standalone learners roster", () => {
     setQuery({ data: makeDashboard() });
     const html = render();
     expect(panelTitles(html)).toContain("Needs attention");
-    const markerAt = html.indexOf(LEARNERS_OVERVIEW_MARKER);
-    expect(markerAt).toBeGreaterThan(html.lastIndexOf("</h2>"));
-    expect(html).toMatch(new RegExp(`${LEARNERS_OVERVIEW_MARKER}</section></div>$`));
-    expect(html.match(new RegExp(LEARNERS_OVERVIEW_MARKER, "g"))!.length).toBe(2); // aria-label + text, one section
+    expect(html).not.toContain(LEARNERS_OVERVIEW_MARKER);
+    expect(html).not.toContain("All student accounts in your organization.");
   });
 
-  it("shows the page header with its three quick actions before the widgets", () => {
+  it("renders the widgets without a standalone page header or quick actions", () => {
     setQuery({ data: makeDashboard() });
     const html = render();
-    const header = html.indexOf("Overview");
-    expect(header).toBeGreaterThanOrEqual(0);
-    expect(header).toBeLessThan(html.indexOf("Needs attention"));
-    for (const label of ["Add learners", "Create exam session", "Plans &amp; billing"]) {
-      expect(html).toContain(label);
-    }
+    expect(html).not.toMatch(/<h1[\s>]/);
+    expect(html).not.toContain("Add learners");
+    expect(html).not.toContain("Create exam session");
+    expect(html).not.toContain("Plans &amp; billing");
   });
 
-  it("shows a whole-page error with a retry when there is no data, and still mounts LearnersOverview", () => {
+  it("shows a whole-page error with a retry when there is no data", () => {
     setQuery({ error: new Error("boom"), isPending: false });
     const html = render();
     const text = textOf(html);
@@ -74,7 +70,6 @@ describe("HostDashboardView", () => {
     expect(text).toContain("Something went wrong while loading your overview. Please try again.");
     expect(text).toContain("Try again");
     expect(panelTitles(html)).toEqual([]);
-    expect(html).toContain(LEARNERS_OVERVIEW_MARKER);
   });
 
   it("retry of the whole-page error refetches the one query", () => {

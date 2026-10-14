@@ -17,7 +17,7 @@ import { HostDashboardGrid } from "./HostDashboardGrid";
 installRenderHooks();
 
 const render = (dashboard: HostDashboardResponse): string =>
-  renderHtml(createElement(HostDashboardGrid, { dashboard, onRetry: () => undefined }));
+  renderHtml(createElement(HostDashboardGrid, { dashboard, onRetry: () => undefined, analysisDefaultExpanded: true }));
 
 /** Sections whose absence hides one or more whole panels, with the headings that must disappear. */
 const FORBIDDEN_CASES: Array<{ section: keyof HostDashboardResponse; panels: string[] }> = [
@@ -124,8 +124,9 @@ describe("locale and organisation labels", () => {
       "Cần xử lý",
       "Chỉ số chính",
       "Chỗ học viên và gói đăng ký",
-      "Lượt thi đã nộp",
       "Kỳ thi sắp tới",
+      "Phân tích chi tiết",
+      "Lượt thi đã nộp",
       "Hoạt động gần đây",
       "Kỳ thi theo trạng thái",
       "Phân lớp học viên",

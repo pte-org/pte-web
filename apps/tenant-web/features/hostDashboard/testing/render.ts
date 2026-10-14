@@ -135,7 +135,6 @@ export const ALLOWED_STATIC_HREFS: readonly string[] = [
   HOST_DASHBOARD_ROUTES.exams,
   HOST_DASHBOARD_ROUTES.examStaff,
   HOST_DASHBOARD_ROUTES.billing,
-  HOST_DASHBOARD_ROUTES.subscriptions,
   HOST_DASHBOARD_ROUTES.orders,
   HOST_DASHBOARD_ROUTES.supportTickets,
   HOST_DASHBOARD_ROUTES.auditLog,

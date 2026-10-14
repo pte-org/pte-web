@@ -42,7 +42,7 @@ const DIRECTION_LABEL_KEY: Record<"up" | "down" | "flat", HostDashboardMessageKe
   flat: "changeNoChange",
 };
 
-/** Key figures in a collapsible section; each card follows its own source section's state. */
+/** Key figures grouped inside the operational overview; each card follows its source section's state. */
 export const KpiRow = ({ dashboard, onRetry, className }: KpiRowProps): ReactElement | null => {
   const { locale, messages, format } = useHostDashboardText();
   const cards = buildKpis(dashboard, locale);
@@ -92,6 +92,7 @@ export const KpiRow = ({ dashboard, onRetry, className }: KpiRowProps): ReactEle
       className={className}
       title={messages.kpiTitle}
       subtitle={format("kpiSubtitle", { days })}
+      collapsible={false}
       actions={
         hasUnavailable ? (
           <Button variant="ghost" size="sm" onClick={onRetry}>

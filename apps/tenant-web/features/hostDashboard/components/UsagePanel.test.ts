@@ -49,7 +49,7 @@ describe("seat usage near-limit threshold (rounded percent, 90)", () => {
     const html = render(withQuota(used, 100));
     expect(textOf(html)).toContain(label);
     expect(textOf(html).includes(NEAR_LIMIT)).toBe(nearLimit);
-    expect(hrefsOf(html).includes("/host/billing")).toBe(nearLimit);
+    expect(hrefsOf(html).filter((href) => href === "/host/billing")).toHaveLength(1);
   });
 
   it("uses the rounded percent so the label and the warning agree (89.4 stays quiet, 89.5 warns)", () => {
@@ -61,9 +61,10 @@ describe("seat usage near-limit threshold (rounded percent, 90)", () => {
     expect(warns).toContain(NEAR_LIMIT);
   });
 
-  it("links the warning to the billing page with an add-capacity action", () => {
+  it("keeps one billing action at the panel footer when the limit is near", () => {
     const html = render(withQuota(95, 100));
-    expect(html).toContain('href="/host/billing">Add capacity</a>');
+    expect(html).toContain('href="/host/billing">View billing</a>');
+    expect(hrefsOf(html).filter((href) => href === "/host/billing")).toHaveLength(1);
   });
 
   it("colours the bar green below the threshold, amber from it and red when full", () => {
@@ -106,7 +107,6 @@ describe("seat usage near-limit threshold (rounded percent, 90)", () => {
     useTestLocale("vi");
     const text = textOf(render(withQuota(95, 100)));
     expect(text).toContain("Bạn sắp hết chỗ học viên.");
-    expect(text).toContain("Bổ sung chỗ");
   });
 });
 
@@ -195,9 +195,9 @@ describe("subscription block", () => {
 });
 
 describe("usage panel structure", () => {
-  it("links to the subscriptions page and never to a payment screen", () => {
+  it("links to the billing page and never to a payment screen", () => {
     const hrefs = hrefsOf(render(makeDashboard()));
-    expect(hrefs).toEqual(["/host/subscriptions"]);
+    expect(hrefs).toEqual(["/host/billing"]);
   });
 
   it("shows the subscription half only when seats are forbidden, with no error text", () => {

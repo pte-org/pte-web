@@ -3,7 +3,6 @@ import type { HostDashboardMessages } from "./en";
 /** Vietnamese copy. Typed against the English catalog: every key must be present. */
 export const HOST_DASHBOARD_VI: HostDashboardMessages = {
   // Page and shared states
-  title: "Tổng quan",
   emptyValue: "–",
   retry: "Thử lại",
   loadingLabel: "Đang tải tổng quan",
@@ -12,9 +11,8 @@ export const HOST_DASHBOARD_VI: HostDashboardMessages = {
   sectionErrorTitle: "Phần này hiện không khả dụng",
   sectionErrorDescription: "Không thể tải phần này. Vui lòng thử lại.",
   viewAll: "Xem tất cả",
-  quickAddLearners: "Thêm học viên",
-  quickCreateExam: "Tạo kỳ thi",
-  quickBilling: "Gói & thanh toán",
+  analysisTitle: "Phân tích chi tiết",
+  analysisSubtitle: "Xu hướng, hoạt động và các tín hiệu bổ sung khi cần xem sâu hơn.",
 
   // Key figures
   kpiTitle: "Chỉ số chính",
@@ -42,13 +40,12 @@ export const HOST_DASHBOARD_VI: HostDashboardMessages = {
   usageRemaining: "Còn {count} chỗ",
   usageNoSeats: "Chưa có chỗ học viên nào khả dụng.",
   usageNearLimit: "Bạn sắp hết chỗ học viên. Hãy bổ sung trước khi nhập thêm học viên.",
-  usageAddCapacity: "Bổ sung chỗ",
   usageSubscriptions: "Gói đăng ký",
   usageNoSubscriptions: "Chưa có gói đăng ký đang hoạt động.",
   usageExpiresOn: "Hết hạn {date}",
   usagePlanMeta: "{type} · {expires}",
   usageExpiringSoon: "Có gói đăng ký sắp hết hạn.",
-  usageManage: "Xem gói đăng ký",
+  usageManage: "Xem gói và thanh toán",
   expiryNone: "Không có ngày hết hạn",
   expiryExpired: "Đã hết hạn",
   expiryToday: "Hết hạn hôm nay",

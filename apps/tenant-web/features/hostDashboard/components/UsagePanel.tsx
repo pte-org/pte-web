@@ -48,7 +48,7 @@ export const UsagePanel = ({ dashboard, onRetry, className }: UsagePanelProps): 
       title={messages.usageTitle}
       subtitle={messages.usageSubtitle}
       className={className}
-      actions={<PanelLink href={HOST_DASHBOARD_ROUTES.subscriptions}>{messages.usageManage}</PanelLink>}
+      footerAction={<PanelLink href={HOST_DASHBOARD_ROUTES.billing}>{messages.usageManage}</PanelLink>}
       status={bothFailed ? "error" : "content"}
       error={{
         title: messages.sectionErrorTitle,

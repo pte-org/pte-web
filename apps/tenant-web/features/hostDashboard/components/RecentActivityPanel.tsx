@@ -27,7 +27,7 @@ export const RecentActivityPanel = ({
     <SectionPanel
       title={messages.activityTitle}
       subtitle={messages.activitySubtitle}
-      actions={<PanelLink href={HOST_DASHBOARD_ROUTES.auditLog}>{messages.activityViewAll}</PanelLink>}
+      footerAction={<PanelLink href={HOST_DASHBOARD_ROUTES.auditLog}>{messages.activityViewAll}</PanelLink>}
       section={dashboard.recentActivity}
       onRetry={onRetry}
       className={className}

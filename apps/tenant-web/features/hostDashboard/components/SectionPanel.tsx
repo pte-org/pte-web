@@ -10,6 +10,7 @@ interface SectionPanelProps<T> {
   title: string;
   subtitle?: string;
   actions?: ReactNode;
+  footerAction?: ReactNode;
   /** Typed as present by the contract; `undefined` (payload drift) is hidden like FORBIDDEN. */
   section: DashboardSection<T> | undefined;
   /** Refetches the single dashboard query. */
@@ -29,6 +30,7 @@ export const SectionPanel = <T,>({
   title,
   subtitle,
   actions,
+  footerAction,
   section,
   onRetry,
   className,
@@ -65,6 +67,7 @@ export const SectionPanel = <T,>({
       title={title}
       subtitle={subtitle}
       actions={actions}
+      footerAction={footerAction}
       className={className}
       contentClassName={contentClassName}
       status={empty ? "empty" : "content"}

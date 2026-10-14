@@ -7,17 +7,14 @@ import { HOST_DASHBOARD_EN } from "../messages/en";
 import { failed, forbidden, makeDashboard, ok } from "../testing/fixtures";
 import { ACTOR_UUID, SYSTEM_ACTOR_ID, UNKNOWN_ACTION, activityItem } from "../testing/scenarios";
 import {
-  countOf,
   hrefsOf,
   installRenderHooks,
-  recordedButtons,
   regionOf,
   renderHtml,
   textOf,
   useTestLocale,
 } from "../testing/render";
 import { CompactCards } from "./CompactCards";
-import { HostDashboardHeader } from "./HostDashboardHeader";
 import { RecentActivityPanel } from "./RecentActivityPanel";
 
 installRenderHooks();
@@ -152,34 +149,6 @@ describe("RecentActivityPanel", () => {
     expect(errorHtml).toContain('role="alert"');
     expect(hrefsOf(errorHtml)).toEqual([]);
     expect(renderActivity({ ...makeDashboard(), recentActivity: forbidden() })).toBe("");
-  });
-});
-
-describe("HostDashboardHeader", () => {
-  it("shows the page title as the single h1 with three quick actions", () => {
-    const html = renderHtml(createElement(HostDashboardHeader));
-    expect(countOf(html, /<h1[\s>]/)).toBe(1);
-    expect(textOf(html)).toContain("Overview");
-    expect(recordedButtons("Add learners")).toHaveLength(1);
-    expect(recordedButtons("Create exam session")).toHaveLength(1);
-    expect(recordedButtons("Plans & billing")).toHaveLength(1);
-  });
-
-  it("sends each quick action to an existing screen", () => {
-    renderHtml(createElement(HostDashboardHeader));
-    recordedButtons("Add learners")[0].onClick?.();
-    recordedButtons("Create exam session")[0].onClick?.();
-    recordedButtons("Plans & billing")[0].onClick?.();
-    expect(environment.push.mock.calls.map(([href]) => href)).toEqual(["/host/students", "/host/exams", "/host/billing"]);
-  });
-
-  it("is Vietnamese", () => {
-    useTestLocale("vi");
-    const text = textOf(renderHtml(createElement(HostDashboardHeader)));
-    expect(text).toContain("Tổng quan");
-    expect(text).toContain("Thêm học viên");
-    expect(text).toContain("Tạo kỳ thi");
-    expect(text).toContain("Gói & thanh toán");
   });
 });
 

@@ -22,7 +22,7 @@ export const SessionStatusPanel = ({ section, onRetry, className }: SessionStatu
     <SectionPanel
       title={messages.statusTitle}
       subtitle={messages.statusSubtitle}
-      actions={<PanelLink href={HOST_DASHBOARD_ROUTES.exams}>{messages.statusManage}</PanelLink>}
+      footerAction={<PanelLink href={HOST_DASHBOARD_ROUTES.exams}>{messages.statusManage}</PanelLink>}
       section={section}
       onRetry={onRetry}
       className={className}

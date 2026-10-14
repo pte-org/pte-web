@@ -26,7 +26,6 @@ export const HOST_DASHBOARD_ROUTES = {
   exams: "/host/exams",
   examStaff: "/host/exam-staff",
   billing: "/host/billing",
-  subscriptions: "/host/subscriptions",
   orders: "/host/orders",
   supportTickets: "/host/support-tickets",
   auditLog: "/host/audit-log",
@@ -140,22 +139,22 @@ export const ACTIVITY_ACTIONS: Readonly<Record<string, ActivityActionDescriptor>
 };
 
 /**
- * Grid placement. Mobile follows DOM order (needs attention first); from `md` every widget gets an
- * explicit order so the key figures lead, then the page flows into two columns (`md`) or a
- * twelve-column grid (`xl`). Class names are complete literals so Tailwind can detect them.
+ * Grid placement. Each section keeps its own mobile reading order. The operational section puts
+ * attention and key figures first, then usage and upcoming sessions; supporting panels stay below
+ * the fold in the analysis section. Class names are complete literals so Tailwind can detect them.
  */
 export const DASHBOARD_GRID_CLASS = "grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-12";
 
 export const DASHBOARD_SLOT_CLASS = {
-  attention: "md:order-3 xl:order-5 xl:col-span-4",
-  kpis: "md:order-1 md:col-span-2 xl:order-1 xl:col-span-12",
-  usage: "md:order-2 xl:order-3 xl:col-span-4",
-  trend: "md:order-4 md:col-span-2 xl:order-2 xl:col-span-8",
-  upcoming: "md:order-5 md:col-span-2 xl:order-4 xl:col-span-8",
-  activity: "h-full md:order-6 xl:order-6 xl:col-span-6 flex flex-col",
-  stackedDonuts: "h-full md:order-7 xl:order-7 xl:col-span-6 flex flex-col gap-5",
+  attention: "md:order-1 md:col-span-2 xl:col-span-4",
+  kpis: "md:order-2 md:col-span-2 xl:col-span-8",
+  usage: "md:order-3 md:col-span-2 xl:col-span-4",
+  upcoming: "md:order-4 md:col-span-2 xl:col-span-8",
+  trend: "md:col-span-2 xl:col-span-8",
+  activity: "h-full md:col-span-2 xl:col-span-4 flex flex-col",
+  stackedDonuts: "h-full md:col-span-2 xl:col-span-4 flex flex-col gap-5",
   status: "flex-1",
   split: "flex-1",
-  grading: "md:order-8 xl:order-8 xl:col-span-6",
-  compact: "md:order-9 md:col-span-2 xl:order-9 xl:col-span-6",
+  grading: "md:col-span-2 xl:col-span-8",
+  compact: "md:col-span-2 xl:col-span-12",
 } as const;
