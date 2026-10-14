@@ -38,6 +38,7 @@ export const TenantGrowthPanel = ({
           <TrendBarChart
             data={chartData}
             series={series}
+            chartClassName="h-52"
             ariaLabel={messages.growthAria}
             emptyLabel={messages.growthEmpty}
             partialLabel={messages.growthPartial}

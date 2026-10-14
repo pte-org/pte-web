@@ -46,6 +46,7 @@ export const AdminNeedsAttentionPanel = ({
       title={messages.attentionTitle}
       subtitle={messages.attentionSubtitle}
       className={className}
+      contentClassName="flex-1 flex flex-col justify-start"
       status={available === 0 ? "error" : "content"}
       error={{
         title: messages.sectionErrorTitle,

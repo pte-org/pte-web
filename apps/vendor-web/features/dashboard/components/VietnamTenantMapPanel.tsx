@@ -20,13 +20,12 @@ export const VietnamTenantMapPanel = ({ className }: VietnamTenantMapPanelProps)
       title={messages.mapTitle}
       subtitle={messages.mapSubtitle}
       className={className}
-      status="content"
+      contentClassName="flex-1 flex flex-col justify-center"
+      status="empty"
       empty={{
         title: messages.mapEmptyTitle,
         description: messages.mapEmpty,
       }}
-    >
-      <div />
-    </DashboardPanel>
+    />
   );
 };

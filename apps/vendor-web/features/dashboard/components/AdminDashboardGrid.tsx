@@ -38,42 +38,43 @@ export const AdminDashboardGrid = ({
       {/* Responsive Grid */}
       <div className={DASHBOARD_GRID_CLASS}>
         {/* Row 1: Attention + Growth */}
-        <div className="md:col-span-2 xl:col-span-4">
-          <AdminNeedsAttentionPanel dashboard={dashboard} onRetry={onRetry} />
+        <div className="flex flex-col md:col-span-2 xl:col-span-4">
+          <AdminNeedsAttentionPanel dashboard={dashboard} onRetry={onRetry} className="h-full" />
         </div>
-        <div className="md:col-span-2 xl:col-span-8">
-          <TenantGrowthPanel section={dashboard.tenants} onRetry={onRetry} />
+        <div className="flex flex-col md:col-span-2 xl:col-span-8">
+          <TenantGrowthPanel section={dashboard.tenants} onRetry={onRetry} className="h-full" />
         </div>
 
         {/* Row 2: Status Donut + Org Type Donut + Map */}
-        <div className="md:col-span-1 xl:col-span-4">
-          <TenantStatusDonutPanel section={dashboard.tenants} onRetry={onRetry} />
+        <div className="flex flex-col md:col-span-1 xl:col-span-4">
+          <TenantStatusDonutPanel section={dashboard.tenants} onRetry={onRetry} className="h-full" />
         </div>
-        <div className="md:col-span-1 xl:col-span-4">
-          <TenantOrgTypeDonutPanel section={dashboard.tenants} onRetry={onRetry} />
+        <div className="flex flex-col md:col-span-1 xl:col-span-4">
+          <TenantOrgTypeDonutPanel section={dashboard.tenants} onRetry={onRetry} className="h-full" />
         </div>
-        <div className="md:col-span-2 xl:col-span-4">
-          <VietnamTenantMapPanel />
+        <div className="flex flex-col md:col-span-2 xl:col-span-4">
+          <VietnamTenantMapPanel className="h-full" />
         </div>
 
         {/* Row 3: Recent Tenants + Top Seat Utilisation */}
-        <div className="md:col-span-2 xl:col-span-8">
+        <div className="flex flex-col md:col-span-2 xl:col-span-8">
           <RecentTenantsPanel
             section={dashboard.recentTenants}
             onRetry={onRetry}
             onViewTenant={onViewTenant}
+            className="h-full"
           />
         </div>
-        <div className="md:col-span-2 xl:col-span-4">
-          <SeatUtilisationPanel section={dashboard.learners} onRetry={onRetry} />
+        <div className="flex flex-col md:col-span-2 xl:col-span-4">
+          <SeatUtilisationPanel section={dashboard.learners} onRetry={onRetry} className="h-full" />
         </div>
 
         {/* Row 4: Oldest Applications + Oldest Tickets */}
-        <div className="md:col-span-1 xl:col-span-6">
-          <ApplicationsPanel section={dashboard.applications} onRetry={onRetry} />
+        <div className="flex flex-col md:col-span-1 xl:col-span-6">
+          <ApplicationsPanel section={dashboard.applications} onRetry={onRetry} className="h-full" />
         </div>
-        <div className="md:col-span-1 xl:col-span-6">
-          <SupportTicketsPanel section={dashboard.support} onRetry={onRetry} />
+        <div className="flex flex-col md:col-span-1 xl:col-span-6">
+          <SupportTicketsPanel section={dashboard.support} onRetry={onRetry} className="h-full" />
         </div>
 
         {/* Row 5: Commercial Cards */}
