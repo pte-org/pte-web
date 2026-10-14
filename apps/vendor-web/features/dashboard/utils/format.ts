@@ -53,16 +53,19 @@ export function formatDate(
 }
 
 export function formatMonthLabel(monthKey: string, locale: Locale): string {
-  // Format "YYYY-MM" to "MMM yyyy" or "Thg M, YYYY"
   const parts = monthKey.split("-");
   if (parts.length !== 2) return monthKey;
   const year = Number.parseInt(parts[0], 10);
   const month = Number.parseInt(parts[1], 10);
   if (Number.isNaN(year) || Number.isNaN(month) || month < 1 || month > 12) return monthKey;
 
+  if (locale === "vi") {
+    const yearShort = String(year).slice(-2);
+    return `T${month}/${yearShort}`;
+  }
+
   const date = new Date(Date.UTC(year, month - 1, 1));
-  const intlLocale = locale === "vi" ? "vi-VN" : "en-US";
-  return new Intl.DateTimeFormat(intlLocale, {
+  return new Intl.DateTimeFormat("en-US", {
     timeZone: "UTC",
     month: "short",
     year: "2-digit",

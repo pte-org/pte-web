@@ -66,6 +66,10 @@ describe("formatMonthLabel", () => {
     const enLabel = formatMonthLabel("2026-10", "en");
     expect(enLabel.toLowerCase()).toMatch(/oct/);
     expect(enLabel).toMatch(/26/);
+
+    expect(formatMonthLabel("2026-10", "vi")).toBe("T10/26");
+    expect(formatMonthLabel("2025-12", "vi")).toBe("T12/25");
+    expect(formatMonthLabel("2026-01", "vi")).toBe("T1/26");
   });
 
   it("returns original string for malformed input", () => {
