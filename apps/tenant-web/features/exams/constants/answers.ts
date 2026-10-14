@@ -8,12 +8,9 @@ export const ANSWERS_SECTION_TEXT = {
   STATUS_FILTER_LABEL: "Status",
   STATUS_FILTER_ALL: "All statuses",
   VIEW: "View",
-  ATTEMPT_VALUE: (attemptNumber: number | null) =>
-    attemptNumber === null ? "Unavailable" : `Attempt ${attemptNumber}`,
 } as const;
 
 export const ANSWER_TABLE_HEADERS = {
-  ATTEMPT: "Attempt",
   TASK_TYPE: "Task Type",
   STATUS: "Status",
   TEACHER_SCORE: "Teacher Score",
@@ -65,7 +62,7 @@ export const RESCORE_TEXT = {
 
 export const START_AI_SCORING_TEXT = {
   DESCRIPTION:
-    "Bài nộp chỉ xuất hiện sau khi chấm. Bấm “Chấm điểm AI” để nhận bài đã nộp và chạy chấm bằng AI.",
+    "Bài nộp hiển thị ngay khi thí sinh nộp bài và ở trạng thái chờ chấm. Bấm “Chấm điểm AI” để chạy chấm bằng AI.",
   BUTTON: "Chấm điểm AI",
   SUBMITTING: "Đang gửi…",
   CONFIRM_TITLE: "Chấm điểm AI cho kỳ thi này?",
