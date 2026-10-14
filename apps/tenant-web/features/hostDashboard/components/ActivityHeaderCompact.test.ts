@@ -2,7 +2,7 @@ import { environment } from "../testing/environment";
 import { createElement } from "react";
 import type { DashboardActivityItem, HostDashboardResponse } from "@pte/api-client";
 import { describe, expect, it, vi } from "vitest";
-import { ACTIVITY_ACTIONS } from "../constants";
+import { ACTIVITY_ACTIONS, ACTIVITY_DISPLAY_LIMIT } from "../constants";
 import { HOST_DASHBOARD_EN } from "../messages/en";
 import { failed, forbidden, makeDashboard, ok } from "../testing/fixtures";
 import { ACTOR_UUID, SYSTEM_ACTOR_ID, UNKNOWN_ACTION, activityItem } from "../testing/scenarios";
@@ -44,8 +44,8 @@ describe("RecentActivityPanel", () => {
   it("labels every known audit code with its own sentence and never shows the code", () => {
     const codes = Object.keys(ACTIVITY_ACTIONS);
     expect(codes.length).toBeGreaterThanOrEqual(25);
-    for (let start = 0; start < codes.length; start += 8) {
-      const chunk = codes.slice(start, start + 8);
+    for (let start = 0; start < codes.length; start += ACTIVITY_DISPLAY_LIMIT) {
+      const chunk = codes.slice(start, start + ACTIVITY_DISPLAY_LIMIT);
       const html = renderActivity(
         withActivity(chunk.map((action, index) => activityItem({ id: `a${start + index}`, action, actorUserId: ACTOR_UUID }))),
       );
@@ -130,14 +130,14 @@ describe("RecentActivityPanel", () => {
     expect(entries(html)[0]).toEqual(["Exam session published", "Staff member"]);
   });
 
-  it("shows at most eight entries, newest first as delivered", () => {
+  it("shows at most five entries, newest first as delivered", () => {
     const items = Array.from({ length: 11 }, (_, index) =>
       activityItem({ id: `a${index}`, action: "ExamPublished", actorUserId: ACTOR_UUID, occurredAt: `2026-10-${String(20 - index).padStart(2, "0")}T08:30:00Z` }),
     );
     const rows = entries(renderActivity(withActivity(items)));
-    expect(rows).toHaveLength(8);
+    expect(rows).toHaveLength(ACTIVITY_DISPLAY_LIMIT);
     expect(rows[0][0]).toBe("Oct 20, 2026, 3:30 PM");
-    expect(rows[7][0]).toBe("Oct 13, 2026, 3:30 PM");
+    expect(rows[4][0]).toBe("Oct 16, 2026, 3:30 PM");
   });
 
   it("explains an empty timeline and still links to the audit log", () => {

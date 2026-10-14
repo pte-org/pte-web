@@ -27,6 +27,7 @@ export const LearnerSplitPanel = ({ section, onRetry, className }: LearnerSplitP
       section={section}
       onRetry={onRetry}
       className={className}
+      contentClassName="flex-1 flex flex-col justify-center"
     >
       {(data) => {
         const split = buildLearnerSplit(data);

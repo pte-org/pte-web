@@ -107,12 +107,14 @@ describe("SessionStatusPanel (donut)", () => {
   };
 
   it("lists statuses that have sessions with their copy and skips the empty ones", () => {
-    const text = textOf(render(byStatus({})));
+    const html = render(byStatus({}));
+    const text = textOf(html);
     for (const label of ["Draft", "Ready", "Scheduled", "Open", "Closed"]) expect(text).toContain(label);
     expect(text).not.toContain("Preparing");
     expect(text).not.toContain("Cancelled");
     expect(text).toContain("14 sessions");
     expect(text).not.toMatch(/\b(?:DRAFT|READY|SCHEDULED|CLOSED|OPEN)\b/);
+    expect(hrefsOf(html)).toEqual(["/host/exams"]);
   });
 
   it("shows the empty state when no status has a session", () => {

@@ -149,6 +149,7 @@ export const HOST_DASHBOARD_VI: HostDashboardMessages = {
   statusTotal: "kỳ thi",
   statusAria: "Kỳ thi theo trạng thái",
   statusEmpty: "Chưa có kỳ thi nào.",
+  statusManage: "Quản lý kỳ thi",
 
   // Learner assignment
   splitTitle: "Phân lớp học viên",

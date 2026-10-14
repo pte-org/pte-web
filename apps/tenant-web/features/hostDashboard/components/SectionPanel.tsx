@@ -15,6 +15,7 @@ interface SectionPanelProps<T> {
   /** Refetches the single dashboard query. */
   onRetry: () => void;
   className?: string;
+  contentClassName?: string;
   /** Return the empty-state copy when the loaded data has nothing to show; zero counts are not empty. */
   emptyWhen?: (data: T) => DashboardPanelEmptyProps | null;
   children: (data: T) => ReactNode;
@@ -31,6 +32,7 @@ export const SectionPanel = <T,>({
   section,
   onRetry,
   className,
+  contentClassName,
   emptyWhen,
   children,
 }: SectionPanelProps<T>): ReactElement | null => {
@@ -45,6 +47,7 @@ export const SectionPanel = <T,>({
         title={title}
         subtitle={subtitle}
         className={className}
+        contentClassName={contentClassName}
         status="error"
         error={{
           title: messages.sectionErrorTitle,
@@ -63,6 +66,7 @@ export const SectionPanel = <T,>({
       subtitle={subtitle}
       actions={actions}
       className={className}
+      contentClassName={contentClassName}
       status={empty ? "empty" : "content"}
       empty={empty ?? undefined}
     >

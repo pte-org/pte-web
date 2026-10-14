@@ -152,6 +152,7 @@ export const HOST_DASHBOARD_EN = {
   statusTotal: "sessions",
   statusAria: "Exam sessions by status",
   statusEmpty: "No exam sessions yet.",
+  statusManage: "Manage exams",
 
   // Learner assignment
   splitTitle: "Learner assignment",

@@ -79,8 +79,8 @@ describe("buildActivityRows", () => {
   it("limits the list and keeps order", () => {
     const items = Array.from({ length: 12 }, (_, index) => item({ id: `a${index}` }));
     const rows = buildActivityRows(items, "en");
-    expect(rows).toHaveLength(8);
-    expect(rows.map((row) => row.id)).toEqual(items.slice(0, 8).map((entry) => entry.id));
+    expect(rows).toHaveLength(5);
+    expect(rows.map((row) => row.id)).toEqual(items.slice(0, 5).map((entry) => entry.id));
     expect(buildActivityRows(items, "en", undefined, 2)).toHaveLength(2);
   });
 

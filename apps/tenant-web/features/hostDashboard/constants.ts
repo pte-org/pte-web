@@ -13,7 +13,7 @@ export const HOST_DASHBOARD_STALE_TIME_MS = 30_000;
 export const SEAT_NEAR_LIMIT_PERCENT = 90;
 
 export const ATTEMPTS_SERIES_KEY = "submitted";
-export const ACTIVITY_DISPLAY_LIMIT = 8;
+export const ACTIVITY_DISPLAY_LIMIT = 5;
 export const UPCOMING_DISPLAY_LIMIT = 8;
 export const PERCENT_SCALE = 100;
 /** The backend uses the nil UUID for rows written without a signed-in user. */
@@ -152,9 +152,10 @@ export const DASHBOARD_SLOT_CLASS = {
   usage: "md:order-2 xl:order-3 xl:col-span-4",
   trend: "md:order-4 md:col-span-2 xl:order-2 xl:col-span-8",
   upcoming: "md:order-5 md:col-span-2 xl:order-4 xl:col-span-8",
-  activity: "md:order-6 xl:order-6 xl:col-span-4",
-  status: "md:order-7 xl:order-7 xl:col-span-4",
-  split: "md:order-8 xl:order-8 xl:col-span-4",
-  grading: "md:order-9 xl:order-9 xl:col-span-6",
-  compact: "md:order-10 md:col-span-2 xl:order-10 xl:col-span-6",
+  activity: "h-full md:order-6 xl:order-6 xl:col-span-6 flex flex-col",
+  stackedDonuts: "h-full md:order-7 xl:order-7 xl:col-span-6 flex flex-col gap-5",
+  status: "flex-1",
+  split: "flex-1",
+  grading: "md:order-8 xl:order-8 xl:col-span-6",
+  compact: "md:order-9 md:col-span-2 xl:order-9 xl:col-span-6",
 } as const;
