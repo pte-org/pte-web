@@ -42,6 +42,8 @@ export interface AttemptReviewItemResponse {
   /** Null when the student can no longer be resolved. */
   studentName: string | null;
   attemptNumber: number | null;
+  /** Null when the attempt can no longer be resolved or was never submitted. */
+  submittedAt: string | null;
   answerCount: number;
   scoredCount: number;
   pendingCount: number;
