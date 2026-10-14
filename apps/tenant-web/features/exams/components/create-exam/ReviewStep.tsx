@@ -56,10 +56,6 @@ export function ReviewStep({
             </dd>
           </div>
           <div>
-            <dt className="font-medium">{wizardText.REVIEW_RETRIES}</dt>
-            <dd>{form.maxRetriesPerStudent}</dd>
-          </div>
-          <div>
             <dt className="font-medium">{wizardText.REVIEW_AUDIENCE}</dt>
             <dd>{audienceCount}</dd>
           </div>

@@ -21,6 +21,9 @@ export const EXAM_PREVIEW_QUERY_KEY = ["examPreview"] as const;
 export const ASSIGNED_CLASSES_QUERY_KEY = ["assignedClasses"] as const;
 export const EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY = ["examinerAssignmentOverview"] as const;
 export const EXAMINER_DIRECTORY_QUERY_KEY = ["examinerAssignmentDirectory"] as const;
+/** Each student sits an exam once, as in the real test; the API refuses any other retry count. */
+export const SINGLE_SITTING_RETRIES = 0;
+
 export const HOST_SCORE_REVIEW_QUERY_KEY = ["hostScoreReview"] as const;
 export const SCORE_SOURCE_AUDIT_QUERY_KEY = ["scoreSourceAuditHistory"] as const;
 export const REPORT_PUBLICATION_READINESS_QUERY_KEY = ["reportPublicationReadiness"] as const;
