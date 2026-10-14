@@ -43,17 +43,30 @@ export const UpcomingSessionsPanel = ({
     {
       key: "status",
       header: messages.columnStatus,
+      cellClassName: "whitespace-nowrap",
       cell: (row) => (
         <Badge variant={SESSION_STATUS_BADGE_VARIANT[row.status]}>
           {messages[SESSION_STATUS_MESSAGE_KEYS[row.status]]}
         </Badge>
       ),
     },
-    { key: "opens", header: messages.columnOpens, cell: (row) => row.opens || dash },
-    { key: "closes", header: messages.columnCloses, cell: (row) => row.closes || dash },
+    {
+      key: "opens",
+      header: messages.columnOpens,
+      cellClassName: "whitespace-nowrap",
+      cell: (row) => row.opens || dash,
+    },
+    {
+      key: "closes",
+      header: messages.columnCloses,
+      cellClassName: "whitespace-nowrap",
+      cell: (row) => row.closes || dash,
+    },
     {
       key: "enrolled",
       header: messages.columnEnrolled,
+      cellClassName: "whitespace-nowrap text-right",
+      headerClassName: "text-right",
       cell: (row) =>
         format("enrolledOfCapacity", {
           enrolled: formatNumber(row.enrolled, locale),
