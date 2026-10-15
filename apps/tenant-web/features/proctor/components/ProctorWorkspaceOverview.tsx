@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import type { ProctorOverviewCounts, ProctorScope } from "@pte/api-client";
-import { Button, Skeleton } from "@pte/ui";
+import { Button, ErrorState, Skeleton } from "@pte/ui";
 import { useProctorWorkspaceText } from "../hooks/useProctorWorkspaceText";
 
 export interface ProctorWorkspaceOverviewProps {
@@ -41,21 +41,17 @@ export function ProctorWorkspaceOverview({
 
   if (isError) {
     return (
-      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h4 className="text-sm font-semibold text-amber-900">{text.overviewError}</h4>
-            <p className="text-xs text-amber-700">
-              {error instanceof Error ? error.message : text.overviewError}
-            </p>
-          </div>
-          {onRetry && (
+      <ErrorState
+        title={text.overviewError}
+        description={error instanceof Error ? error.message : undefined}
+        action={
+          onRetry ? (
             <Button variant="secondary" size="sm" onClick={onRetry}>
               {text.retry}
             </Button>
-          )}
-        </div>
-      </div>
+          ) : undefined
+        }
+      />
     );
   }
 

@@ -22,7 +22,6 @@ import {
   getAttendanceRoster,
   recordAttendance,
   recordIdentityVerification,
-  getAttendanceReceipt,
   getAttendanceHistory,
   getHostAttendanceRoster,
   recordHostAttendance,
@@ -279,7 +278,7 @@ export function useProctorAuditLog(
         createdAt: v.detectedAt ?? v.createdAt ?? new Date().toISOString(),
         performedBy: {
           publicId: v.proctorPublicId ?? "",
-          fullName: "",
+          fullName: v.proctorPublicId ? `Proctor #${v.proctorPublicId.slice(0, 8).toUpperCase()}` : "—",
           email: "",
         },
       })),

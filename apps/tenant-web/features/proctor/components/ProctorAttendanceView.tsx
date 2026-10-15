@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Alert, BackButton, Button, PageHeader, PaginationControls } from "@pte/ui";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
+import { PROCTOR_ATTENDANCE_VIEW_TEXT as T } from "../constants";
 import { useAttendanceRoster, useRecordIdentityVerificationMutation } from "../api";
 import { AttendanceSummaryCards } from "./AttendanceSummaryCards";
 import { AttendanceFilterToolbar } from "./AttendanceFilterToolbar";
@@ -83,31 +84,31 @@ export function ProctorAttendanceView({
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <BackButton href="/proctor/attendance" label="Danh sách ca thi" />
+        <BackButton href="/proctor/attendance" label={T.BACK_BTN} />
         {data?.asOf && (
           <span className="text-xs text-[var(--ink-muted)]">
-            Cập nhật lúc: {new Date(data.asOf).toLocaleTimeString("vi-VN")}
+            {T.UPDATED_PREFIX}{new Date(data.asOf).toLocaleTimeString("vi-VN")}
           </span>
         )}
       </div>
 
       <PageHeader
-        title={`Điểm danh ca thi: ${sessionPublicId}`}
-        subtitle="Quản lý và cập nhật danh sách có mặt / vắng mặt của thí sinh trong ca thi."
+        title={`${T.TITLE_PREFIX}${sessionPublicId}`}
+        subtitle={T.SUBTITLE}
       />
 
       {!canEditSession && data?.sessionBlockingReason && (
-        <Alert tone="warning" title="Cổng điểm danh bị khóa">
+        <Alert tone="warning" title={T.PORTAL_LOCKED_TITLE}>
           {data.sessionBlockingReason.includes("TIMING_PRE_OPEN") || data.sessionBlockingReason.includes("before 30 minutes")
-            ? "Điểm danh chỉ mở trước giờ thi 30 phút."
+            ? T.REASON_PRE_OPEN
             : data.sessionBlockingReason.includes("TIMING_CLOSED") || data.sessionBlockingReason.includes("closed after")
-            ? "Ca thi đã kết thúc thời gian điểm danh."
+            ? T.REASON_CLOSED
             : data.sessionBlockingReason.includes("CANCELLED")
-            ? "Ca thi đã bị hủy bỏ."
+            ? T.REASON_CANCELLED
             : data.sessionBlockingReason}
           {data.attendanceWindowOpensAt && (
             <div className="mt-1 text-xs">
-              Thời gian mở điểm danh:{" "}
+              {T.WINDOW_OPENS_AT_PREFIX}
               {new Date(data.attendanceWindowOpensAt).toLocaleString("vi-VN")}
             </div>
           )}
@@ -115,11 +116,11 @@ export function ProctorAttendanceView({
       )}
 
       {isError && (
-        <Alert tone="error" title="Không thể tải danh sách thí sinh">
+        <Alert tone="error" title={T.ERROR_TITLE}>
           <div className="flex items-center gap-3">
-            <span>Đã có lỗi xảy ra khi truy vấn dữ liệu từ máy chủ.</span>
+            <span>{T.ERROR_DESC}</span>
             <Button variant="secondary" size="sm" onClick={() => void refetch()}>
-              Thử lại
+              {T.RETRY_BTN}
             </Button>
           </div>
         </Alert>

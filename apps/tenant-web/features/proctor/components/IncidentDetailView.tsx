@@ -10,12 +10,11 @@ import {
   ErrorState,
   LoadingState,
   Modal,
-  PageHeader,
   StatusBadge,
   Textarea,
   type DataTableColumn,
 } from "@pte/ui";
-import type { IncidentHistoryItemResponse, IncidentSeverity, IncidentStatus } from "@pte/api-client";
+import type { IncidentHistoryItemResponse, IncidentStatus } from "@pte/api-client";
 import {
   useIncidentDetail,
   useIncidentHistory,
@@ -27,33 +26,11 @@ interface IncidentDetailViewProps {
   incidentPublicId: string;
 }
 
-function getSeverityBadge(severity: IncidentSeverity = "MEDIUM"): { label: string; variant: "danger" | "warning" | "neutral" } {
-  switch (severity) {
-    case "HIGH":
-      return { label: "Nghiêm trọng (HIGH)", variant: "danger" };
-    case "MEDIUM":
-      return { label: "Trung bình (MEDIUM)", variant: "warning" };
-    case "LOW":
-    default:
-      return { label: "Thấp (LOW)", variant: "neutral" };
-  }
-}
-
-function getStatusBadge(status: IncidentStatus = "NEW"): { label: string; variant: "danger" | "info" | "success" | "warning" | "neutral" } {
-  switch (status) {
-    case "NEW":
-      return { label: "Mới tiếp nhận", variant: "warning" };
-    case "IN_PROGRESS":
-      return { label: "Đang xử lý", variant: "info" };
-    case "ESCALATED":
-      return { label: "Đã chuyển cấp Admin", variant: "danger" };
-    case "RESOLVED":
-      return { label: "Đã giải quyết", variant: "success" };
-    case "CLOSED":
-    default:
-      return { label: "Đã đóng", variant: "neutral" };
-  }
-}
+import {
+  getIncidentSeverityBadge as getSeverityBadge,
+  getIncidentStatusBadge as getStatusBadge,
+  PROCTOR_INCIDENT_DETAIL_TEXT as T,
+} from "../constants";
 
 export function IncidentDetailView({
   sessionPublicId,
@@ -81,7 +58,7 @@ export function IncidentDetailView({
       setModalAction(null);
       setActionNote("");
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Thao tác không thành công.");
+      setErrorMessage(err instanceof Error ? err.message : T.ACTION_FAILED_DEFAULT);
     }
   };
 
@@ -89,7 +66,7 @@ export function IncidentDetailView({
     () => [
       {
         key: "time",
-        header: "Thời gian",
+        header: T.COL_TIME,
         cell: (row) => (
           <span className="text-xs text-[var(--ink-secondary)]">
             {new Date(row.createdAt).toLocaleString("vi-VN")}
@@ -98,19 +75,19 @@ export function IncidentDetailView({
       },
       {
         key: "actor",
-        header: "Người thực hiện",
+        header: T.COL_ACTOR,
         cell: (row) => (
           <div>
             <div className="font-medium text-xs text-[var(--ink-primary)]">{row.actorName}</div>
             <Badge variant="neutral" className="mt-0.5 text-[10px]">
-              {row.actorRole}
+              {row.actorRole ?? T.DEFAULT_ACTOR_ROLE}
             </Badge>
           </div>
         ),
       },
       {
         key: "action",
-        header: "Thao tác & Trạng thái",
+        header: T.COL_ACTION_STATUS,
         cell: (row) => (
           <div className="flex items-center gap-1.5">
             {row.fromStatus && (
@@ -131,7 +108,7 @@ export function IncidentDetailView({
       },
       {
         key: "notes",
-        header: "Ghi chú / Biên bản",
+        header: T.COL_NOTES,
         cell: (row) => (
           <span className="text-xs text-[var(--ink-secondary)]">{row.notes || "—"}</span>
         ),
@@ -145,9 +122,9 @@ export function IncidentDetailView({
       <div className="flex flex-col gap-6 p-5 sm:p-8">
         <BackButton
           href={`/proctor/incidents/${sessionPublicId}`}
-          label="Danh sách sự cố ca thi"
+          label={T.BACK_BTN}
         />
-        <LoadingState variant="rows" label="Đang tải chi tiết sự cố..." />
+        <LoadingState variant="rows" label={T.LOADING} />
       </div>
     );
   }
@@ -157,14 +134,14 @@ export function IncidentDetailView({
       <div className="flex flex-col gap-6 p-5 sm:p-8">
         <BackButton
           href={`/proctor/incidents/${sessionPublicId}`}
-          label="Danh sách sự cố ca thi"
+          label={T.BACK_BTN}
         />
         <ErrorState
-          title="Không thể tải chi tiết sự cố"
-          description="Đã có lỗi xảy ra khi truy vấn dữ liệu từ máy chủ. Vui lòng thử lại."
+          title={T.ERROR_TITLE}
+          description={T.ERROR_DESC}
           action={
             <Button variant="secondary" size="sm" onClick={() => void detailQuery.refetch()}>
-              Thử lại
+              {T.RETRY_BTN}
             </Button>
           }
         />
@@ -177,7 +154,7 @@ export function IncidentDetailView({
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <BackButton
           href={`/proctor/incidents/${sessionPublicId}`}
-          label="Danh sách sự cố ca thi"
+          label={T.BACK_BTN}
         />
         <div className="flex flex-wrap items-center gap-2">
           {incident?.status === "NEW" && (
@@ -185,9 +162,9 @@ export function IncidentDetailView({
               variant="secondary"
               size="sm"
               disabled={updateMutation.isPending}
-              onClick={() => void handleStatusChange("IN_PROGRESS", "Tiếp nhận xử lý sự cố")}
+              onClick={() => void handleStatusChange("IN_PROGRESS", T.ACTION_TAKE_OWNERSHIP_NOTE)}
             >
-              Tiếp nhận xử lý
+              {T.BTN_TAKE_OWNERSHIP}
             </Button>
           )}
 
@@ -199,7 +176,7 @@ export function IncidentDetailView({
                 disabled={updateMutation.isPending}
                 onClick={() => setModalAction("ESCALATE")}
               >
-                Chuyển cấp Admin
+                {T.BTN_ESCALATE}
               </Button>
               <Button
                 variant="primary"
@@ -207,7 +184,7 @@ export function IncidentDetailView({
                 disabled={updateMutation.isPending}
                 onClick={() => setModalAction("RESOLVE")}
               >
-                Giải quyết sự cố
+                {T.BTN_RESOLVE}
               </Button>
             </>
           )}
@@ -217,9 +194,9 @@ export function IncidentDetailView({
               variant="secondary"
               size="sm"
               disabled={updateMutation.isPending}
-              onClick={() => void handleStatusChange("CLOSED", "Đóng sự cố")}
+              onClick={() => void handleStatusChange("CLOSED", T.ACTION_CLOSE_NOTE)}
             >
-              Đóng hồ sơ sự cố
+              {T.BTN_CLOSE}
             </Button>
           )}
 
@@ -229,13 +206,13 @@ export function IncidentDetailView({
             onClick={() => setModalAction("NOTE")}
             disabled={updateMutation.isPending}
           >
-            Bổ sung ghi chú
+            {T.BTN_ADD_NOTE}
           </Button>
         </div>
       </div>
 
       {errorMessage && (
-        <Alert tone="error" title="Thao tác thất bại">
+        <Alert tone="error" title={T.ACTION_FAILED_TITLE}>
           {errorMessage}
         </Alert>
       )}
@@ -257,11 +234,11 @@ export function IncidentDetailView({
               />
             </div>
             <h1 className="mt-2 text-xl font-bold text-[var(--ink-primary)]">
-              {incident?.title ?? "Đang tải sự cố..."}
+              {incident?.title ?? T.LOADING}
             </h1>
             <p className="mt-1 text-xs text-[var(--ink-muted)]">
-              Phân loại: <strong className="text-[var(--ink-secondary)]">{incident?.category}</strong> • Người báo cáo:{" "}
-              <strong className="text-[var(--ink-secondary)]">{incident?.reporterName} ({incident?.reporterRole})</strong> • Lúc{" "}
+              {T.CATEGORY_LABEL}<strong className="text-[var(--ink-secondary)]">{incident?.category}</strong> • {T.REPORTER_LABEL}
+              <strong className="text-[var(--ink-secondary)]">{incident?.reporterName} ({incident?.reporterRole})</strong> • {T.TIME_LABEL}
               {incident?.createdAt ? new Date(incident.createdAt).toLocaleString("vi-VN") : "—"}
             </p>
           </div>
@@ -271,7 +248,7 @@ export function IncidentDetailView({
         <div className="mt-6 grid grid-cols-1 gap-4 border-t border-[var(--border-subtle)] pt-4 sm:grid-cols-2">
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--ink-muted)]">
-              Nội dung mô tả sự cố
+              {T.SECTION_DESCRIPTION}
             </h4>
             <p className="mt-2 whitespace-pre-wrap text-sm text-[var(--ink-primary)]">
               {incident?.description}
@@ -280,10 +257,10 @@ export function IncidentDetailView({
 
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--ink-muted)]">
-              Kết luận / Phương án giải quyết
+              {T.SECTION_RESOLUTION}
             </h4>
             <p className="mt-2 text-sm text-[var(--ink-secondary)]">
-              {incident?.resolutionSummary || "Chưa có kết luận giải quyết."}
+              {incident?.resolutionSummary || T.EMPTY_RESOLUTION}
             </p>
           </div>
         </div>
@@ -292,14 +269,14 @@ export function IncidentDetailView({
       {/* Audit History Timeline */}
       <div className="space-y-3">
         <h3 className="text-base font-semibold text-[var(--ink-primary)]">
-          Lịch sử xử lý & Bàn giao sự cố
+          {T.TIMELINE_TITLE}
         </h3>
         <DataTable
           columns={historyColumns}
           rows={history}
           getRowKey={(row) => row.id}
           isLoading={historyQuery.isLoading}
-          emptyTitle="Chưa có bản ghi lịch sử xử lý nào."
+          emptyTitle={T.TIMELINE_EMPTY}
           clientSideFiltering={false}
           clientSideSorting={false}
           clientSidePagination={false}
@@ -313,10 +290,10 @@ export function IncidentDetailView({
         onClose={() => setModalAction(null)}
         title={
           modalAction === "ESCALATE"
-            ? "Chuyển cấp sự cố lên Admin"
+            ? T.MODAL_TITLE_ESCALATE
             : modalAction === "RESOLVE"
-              ? "Xác nhận giải quyết sự cố"
-              : "Bổ sung ghi chú vào hồ sơ sự cố"
+              ? T.MODAL_TITLE_RESOLVE
+              : T.MODAL_TITLE_NOTE
         }
         size="md"
         isDismissDisabled={updateMutation.isPending}
@@ -328,7 +305,7 @@ export function IncidentDetailView({
               onClick={() => setModalAction(null)}
               disabled={updateMutation.isPending}
             >
-              Hủy
+              {T.MODAL_CANCEL_BTN}
             </Button>
             <Button
               type="button"
@@ -344,7 +321,7 @@ export function IncidentDetailView({
                 }
               }}
             >
-              {updateMutation.isPending ? "Đang lưu..." : "Xác nhận"}
+              {updateMutation.isPending ? T.MODAL_SAVING_BTN : T.MODAL_CONFIRM_BTN}
             </Button>
           </div>
         }
@@ -352,16 +329,16 @@ export function IncidentDetailView({
         <div className="space-y-3">
           <label className="block text-xs font-medium text-[var(--ink-secondary)]">
             {modalAction === "ESCALATE"
-              ? "Lý do và nội dung chuyển cấp Admin *"
+              ? T.LABEL_ESCALATE
               : modalAction === "RESOLVE"
-                ? "Tóm tắt kết quả và phương án giải quyết *"
-                : "Nội dung ghi chú *"}:
+                ? T.LABEL_RESOLVE
+                : T.LABEL_NOTE}:
           </label>
           <Textarea
             rows={4}
             value={actionNote}
             onChange={(e) => setActionNote(e.target.value)}
-            placeholder="Nhập nội dung chi tiết..."
+            placeholder={T.PLACEHOLDER_ACTION_NOTE}
           />
         </div>
       </Modal>

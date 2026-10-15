@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 import type { AttendanceSummaryResponse } from "@pte/api-client";
 import { StatCard } from "@pte/ui";
+import { PROCTOR_ATTENDANCE_SUMMARY_TEXT as T } from "../constants";
 
 interface AttendanceSummaryCardsProps {
   summary?: AttendanceSummaryResponse;
@@ -22,33 +23,33 @@ export function AttendanceSummaryCards({
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
       <StatCard
-        label="Tổng số thí sinh"
+        label={T.TOTAL_STUDENTS_LABEL}
         value={isLoading ? "—" : String(total)}
-        footnote="Tổng số lượng thí sinh đăng ký"
+        footnote={T.TOTAL_STUDENTS_FOOTNOTE}
         accent="blue"
       />
       <StatCard
-        label="Chưa điểm danh"
+        label={T.UNMARKED_LABEL}
         value={isLoading ? "—" : String(unmarked)}
-        footnote="Chưa cập nhật trạng thái"
+        footnote={T.UNMARKED_FOOTNOTE}
         accent="cream"
       />
       <StatCard
-        label="Có mặt"
+        label={T.PRESENT_LABEL}
         value={isLoading ? "—" : String(present)}
-        footnote="Đã xác nhận có mặt"
+        footnote={T.PRESENT_FOOTNOTE}
         accent="mint"
       />
       <StatCard
-        label="Vắng mặt"
+        label={T.ABSENT_LABEL}
         value={isLoading ? "—" : String(absent)}
-        footnote="Ghi nhận vắng mặt"
+        footnote={T.ABSENT_FOOTNOTE}
         accent="blush"
       />
       <StatCard
-        label="Đến trễ"
+        label={T.LATE_LABEL}
         value={isLoading ? "—" : String(late)}
-        footnote="Ghi nhận đến muộn"
+        footnote={T.LATE_FOOTNOTE}
         accent="cream"
       />
     </div>

@@ -3,6 +3,7 @@
 import { useState, type ReactElement } from "react";
 import { Button, Input } from "@pte/ui";
 import type { AttendanceStatus, AttendanceSummaryResponse } from "@pte/api-client";
+import { getAttendanceStatusLabel, PROCTOR_TOOLBAR_TEXT as T } from "../constants";
 
 interface AttendanceFilterToolbarProps {
   currentStatus: AttendanceStatus | "ALL";
@@ -24,11 +25,11 @@ export function AttendanceFilterToolbar({
   const [searchInput, setSearchInput] = useState(currentSearch);
 
   const tabs: Array<{ id: AttendanceStatus | "ALL"; label: string; count: number | undefined }> = [
-    { id: "ALL", label: "Tất cả", count: summary?.totalEnrollments },
-    { id: "UNMARKED", label: "Chưa điểm danh", count: summary?.unmarkedCount },
-    { id: "PRESENT", label: "Có mặt", count: summary?.presentCount },
-    { id: "LATE", label: "Đến trễ", count: summary?.lateCount },
-    { id: "ABSENT", label: "Vắng mặt", count: summary?.absentCount },
+    { id: "ALL", label: T.ALL_TAB, count: summary?.totalEnrollments },
+    { id: "UNMARKED", label: getAttendanceStatusLabel("UNMARKED"), count: summary?.unmarkedCount },
+    { id: "PRESENT", label: getAttendanceStatusLabel("PRESENT"), count: summary?.presentCount },
+    { id: "LATE", label: getAttendanceStatusLabel("LATE"), count: summary?.lateCount },
+    { id: "ABSENT", label: getAttendanceStatusLabel("ABSENT"), count: summary?.absentCount },
   ];
 
   return (
@@ -63,16 +64,16 @@ export function AttendanceFilterToolbar({
         <Input
           id="attendance-search-input"
           type="search"
-          placeholder="Tìm tên hoặc email..."
+          placeholder={T.SEARCH_PLACEHOLDER}
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
           className="w-64"
         />
         <Button type="submit" variant="secondary" size="sm">
-          Tìm
+          {T.SEARCH_BTN}
         </Button>
-        <Button type="button" variant="secondary" size="sm" onClick={onRefresh} title="Làm mới">
-          Tải lại
+        <Button type="button" variant="secondary" size="sm" onClick={onRefresh} title={T.REFRESH_TITLE}>
+          {T.REFRESH_BTN}
         </Button>
       </form>
     </div>

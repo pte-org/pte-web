@@ -2,7 +2,13 @@
 
 import { useMemo, type ReactElement } from "react";
 import { ActionMenu, Badge, Button, DataTable, StatusBadge, type DataTableColumn } from "@pte/ui";
-import type { AttendanceRowResponse, AttendanceStatus, IdentityVerificationStatus } from "@pte/api-client";
+import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
+import {
+  getAttendanceBadgeVariant,
+  getAttendanceStatusLabel as getAttendanceLabel,
+  getIdentityBadgeProps,
+  PROCTOR_ROSTER_TEXT as T,
+} from "../constants";
 
 interface AttendanceRosterTableProps {
   rows: AttendanceRowResponse[];
@@ -12,49 +18,6 @@ interface AttendanceRosterTableProps {
   onViewHistory: (row: AttendanceRowResponse) => void;
   onVerifyIdentity?: (row: AttendanceRowResponse) => void;
 }
-
-const getAttendanceBadgeVariant = (status: AttendanceStatus): "success" | "warning" | "danger" | "neutral" => {
-  switch (status) {
-    case "PRESENT":
-      return "success";
-    case "LATE":
-      return "warning";
-    case "ABSENT":
-      return "danger";
-    case "UNMARKED":
-    default:
-      return "neutral";
-  }
-};
-
-const getAttendanceLabel = (status: AttendanceStatus): string => {
-  switch (status) {
-    case "PRESENT":
-      return "Có mặt";
-    case "LATE":
-      return "Đến trễ";
-    case "ABSENT":
-      return "Vắng mặt";
-    case "UNMARKED":
-    default:
-      return "Chưa điểm danh";
-  }
-};
-
-const getIdentityBadgeProps = (status: IdentityVerificationStatus = "UNVERIFIED"): {
-  label: string;
-  variant: "success" | "danger" | "neutral";
-} => {
-  switch (status) {
-    case "VERIFIED":
-      return { label: "Đã xác minh", variant: "success" };
-    case "FAILED":
-      return { label: "Nghi vấn", variant: "danger" };
-    case "UNVERIFIED":
-    default:
-      return { label: "Chưa xác minh", variant: "neutral" };
-  }
-};
 
 export function AttendanceRosterTable({
   rows,
@@ -68,7 +31,7 @@ export function AttendanceRosterTable({
     () => [
       {
         key: "student",
-        header: "Thí sinh",
+        header: T.COL_STUDENT,
         cell: (row) => (
           <div>
             <div className="font-medium text-[var(--ink-primary)]">
@@ -82,7 +45,7 @@ export function AttendanceRosterTable({
       },
       {
         key: "attendance",
-        header: "Điểm danh",
+        header: T.COL_ATTENDANCE,
         cell: (row) => {
           const canEditRow = canEditSession && row.canEdit;
           return (
@@ -102,7 +65,7 @@ export function AttendanceRosterTable({
       },
       {
         key: "identity",
-        header: "Xác minh danh tính",
+        header: T.COL_IDENTITY,
         cell: (row) => {
           const { label, variant } = getIdentityBadgeProps(row.identityStatus);
           return (
@@ -119,7 +82,7 @@ export function AttendanceRosterTable({
       },
       {
         key: "activity",
-        header: "Hoạt động bài thi",
+        header: T.COL_ACTIVITY,
         cell: (row) =>
           row.latestAttemptActivityStatus ? (
             <div>
@@ -131,19 +94,19 @@ export function AttendanceRosterTable({
               )}
             </div>
           ) : (
-            <span className="text-xs text-[var(--ink-muted)]">Chưa bắt đầu</span>
+            <span className="text-xs text-[var(--ink-muted)]">{T.NOT_STARTED}</span>
           ),
       },
       {
         key: "lastAction",
-        header: "Cập nhật gần nhất",
+        header: T.COL_LAST_ACTION,
         cell: (row) =>
           row.lastActionAt ? (
             <div className="text-xs text-[var(--ink-secondary)]">
               <div>{new Date(row.lastActionAt).toLocaleString("vi-VN")}</div>
               {row.lastActorRole && (
                 <div className="text-[11px] text-[var(--ink-muted)]">
-                  Bởi: {row.lastActorRole}
+                  {T.BY_PREFIX}{row.lastActorRole}
                 </div>
               )}
             </div>
@@ -161,36 +124,36 @@ export function AttendanceRosterTable({
     const actionItems = [];
     if (canEditRow && row.status !== "PRESENT") {
       actionItems.push({
-        label: "Có mặt",
+        label: T.ACTION_PRESENT,
         onClick: () => onRecordAttendance(row, "PRESENT"),
       });
     }
     if (canEditRow && row.status !== "LATE") {
       actionItems.push({
-        label: "Đến trễ",
+        label: T.ACTION_LATE,
         onClick: () => onRecordAttendance(row, "LATE"),
       });
     }
     if (canEditRow && row.status !== "ABSENT") {
       actionItems.push({
-        label: "Vắng mặt",
+        label: T.ACTION_ABSENT,
         onClick: () => onRecordAttendance(row, "ABSENT"),
       });
     }
     if (canEditRow && row.status !== "UNMARKED") {
       actionItems.push({
-        label: "Đặt lại",
+        label: T.ACTION_RESET,
         onClick: () => onRecordAttendance(row, "UNMARKED"),
       });
     }
     if (onVerifyIdentity) {
       actionItems.push({
-        label: "Xác minh danh tính",
+        label: T.ACTION_VERIFY_IDENTITY,
         onClick: () => onVerifyIdentity(row),
       });
     }
     actionItems.push({
-      label: "Lịch sử điểm danh",
+      label: T.ACTION_VIEW_HISTORY,
       onClick: () => onViewHistory(row),
     });
 
@@ -203,7 +166,7 @@ export function AttendanceRosterTable({
             className="text-xs text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
             onClick={() => onRecordAttendance(row, "PRESENT")}
           >
-            Có mặt
+            {T.ACTION_PRESENT}
           </Button>
         )}
         {canEditRow && row.status !== "LATE" && (
@@ -213,10 +176,10 @@ export function AttendanceRosterTable({
             className="text-xs text-amber-700 hover:bg-amber-50 hover:text-amber-800"
             onClick={() => onRecordAttendance(row, "LATE")}
           >
-            Đến trễ
+            {T.ACTION_LATE}
           </Button>
         )}
-        <ActionMenu items={actionItems} label="Thao tác điểm danh" />
+        <ActionMenu items={actionItems} label={T.ACTION_MENU_LABEL} />
       </div>
     );
   };
@@ -227,7 +190,7 @@ export function AttendanceRosterTable({
       rows={rows}
       getRowKey={(row) => row.studentPublicId}
       isLoading={isLoading}
-      emptyTitle="Không có dữ liệu thí sinh phù hợp."
+      emptyTitle={T.EMPTY_TITLE}
       rowActions={renderRowActions}
       clientSideFiltering={false}
       clientSideSorting={false}

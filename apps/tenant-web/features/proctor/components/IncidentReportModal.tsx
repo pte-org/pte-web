@@ -3,6 +3,11 @@
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Button, Input, Modal, Textarea } from "@pte/ui";
 import type { IncidentCategory, IncidentSeverity } from "@pte/api-client";
+import {
+  PROCTOR_INCIDENT_CATEGORY_OPTIONS,
+  PROCTOR_INCIDENT_REPORT_TEXT as T,
+  PROCTOR_INCIDENT_SEVERITY_OPTIONS,
+} from "../constants";
 import { useCreateIncidentMutation } from "../api";
 
 interface IncidentReportModalProps {
@@ -12,20 +17,6 @@ interface IncidentReportModalProps {
   initialStudentPublicId?: string | null;
   onSuccess?: () => void;
 }
-
-const CATEGORY_OPTIONS: Array<{ value: IncidentCategory; label: string }> = [
-  { value: "IDENTITY_VERIFICATION", label: "Nghi vấn xác minh danh tính" },
-  { value: "RULE_VIOLATION", label: "Vi phạm quy chế thi" },
-  { value: "TECHNICAL_ISSUE", label: "Sự cố kỹ thuật / Thiết bị" },
-  { value: "DISRUPTION", label: "Mất trật tự / Can thiệp phòng thi" },
-  { value: "OTHER", label: "Sự cố khác" },
-];
-
-const SEVERITY_OPTIONS: Array<{ value: IncidentSeverity; label: string; desc: string }> = [
-  { value: "LOW", label: "Thấp (LOW)", desc: "Không ảnh hưởng nhiều tới tiến trình làm bài" },
-  { value: "MEDIUM", label: "Trung bình (MEDIUM)", desc: "Cần giám thị hoặc Host theo dõi, nhắc nhở" },
-  { value: "HIGH", label: "Nghiêm trọng (HIGH)", desc: "Nghi vấn gian lận hoặc sự cố cần chuyển cấp khẩn cấp" },
-];
 
 export function IncidentReportModal({
   open,
@@ -46,11 +37,11 @@ export function IncidentReportModal({
   const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
     if (!title.trim()) {
-      setError("Vui lòng nhập tiêu đề sự cố.");
+      setError(T.ERROR_TITLE_REQUIRED);
       return;
     }
     if (!description.trim()) {
-      setError("Vui lòng nhập mô tả chi tiết sự cố.");
+      setError(T.ERROR_DESC_REQUIRED);
       return;
     }
     setError(null);
@@ -68,7 +59,7 @@ export function IncidentReportModal({
       onClose();
       if (onSuccess) onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Không thể tạo báo cáo sự cố. Vui lòng thử lại.");
+      setError(err instanceof Error ? err.message : T.ERROR_FALLBACK);
     }
   };
 
@@ -76,13 +67,13 @@ export function IncidentReportModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Báo cáo sự cố phòng thi mới"
+      title={T.TITLE}
       size="lg"
       isDismissDisabled={createMutation.isPending}
       footer={
         <div className="flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={onClose} disabled={createMutation.isPending}>
-            Hủy bỏ
+            {T.CANCEL_BTN}
           </Button>
           <Button
             type="button"
@@ -90,27 +81,27 @@ export function IncidentReportModal({
             disabled={createMutation.isPending}
             onClick={(e) => void handleSubmit(e as unknown as FormEvent)}
           >
-            {createMutation.isPending ? "Đang gửi báo cáo..." : "Gửi báo cáo sự cố"}
+            {createMutation.isPending ? T.SUBMITTING_BTN : T.SUBMIT_BTN}
           </Button>
         </div>
       }
     >
       <div className="space-y-4 py-1">
         {error && (
-          <Alert tone="error" title="Lỗi gửi báo cáo">
+          <Alert tone="error" title={T.ERROR_TITLE}>
             {error}
           </Alert>
         )}
 
         <div>
           <label htmlFor="incident-title" className="block text-xs font-medium text-[var(--ink-secondary)] mb-1">
-            Tiêu đề sự cố *
+            {T.FIELD_TITLE}
           </label>
           <Input
             id="incident-title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Ví dụ: Thí sinh không mang giấy tờ tùy thân hợp lệ..."
+            placeholder={T.TITLE_PLACEHOLDER}
             disabled={createMutation.isPending}
           />
         </div>
@@ -118,7 +109,7 @@ export function IncidentReportModal({
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label htmlFor="incident-category" className="block text-xs font-medium text-[var(--ink-secondary)] mb-1">
-              Phân loại sự cố *
+              {T.FIELD_CATEGORY}
             </label>
             <select
               id="incident-category"
@@ -127,7 +118,7 @@ export function IncidentReportModal({
               className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-default)] p-2 text-sm text-[var(--ink-primary)]"
               disabled={createMutation.isPending}
             >
-              {CATEGORY_OPTIONS.map((opt) => (
+              {PROCTOR_INCIDENT_CATEGORY_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
@@ -137,7 +128,7 @@ export function IncidentReportModal({
 
           <div>
             <label htmlFor="incident-severity" className="block text-xs font-medium text-[var(--ink-secondary)] mb-1">
-              Mức độ nghiêm trọng *
+              {T.FIELD_SEVERITY}
             </label>
             <select
               id="incident-severity"
@@ -146,7 +137,7 @@ export function IncidentReportModal({
               className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-default)] p-2 text-sm text-[var(--ink-primary)]"
               disabled={createMutation.isPending}
             >
-              {SEVERITY_OPTIONS.map((opt) => (
+              {PROCTOR_INCIDENT_SEVERITY_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
@@ -157,27 +148,27 @@ export function IncidentReportModal({
 
         <div>
           <label htmlFor="incident-student" className="block text-xs font-medium text-[var(--ink-secondary)] mb-1">
-            Mã định danh thí sinh liên quan (tùy chọn)
+            {T.FIELD_STUDENT_ID}
           </label>
           <Input
             id="incident-student"
             value={studentPublicId}
             onChange={(e) => setStudentPublicId(e.target.value)}
-            placeholder="Nhập mã định danh công khai của thí sinh (nếu có)..."
+            placeholder={T.STUDENT_ID_PLACEHOLDER}
             disabled={createMutation.isPending}
           />
         </div>
 
         <div>
           <label htmlFor="incident-description" className="block text-xs font-medium text-[var(--ink-secondary)] mb-1">
-            Mô tả chi tiết sự cố *
+            {T.FIELD_DESCRIPTION}
           </label>
           <Textarea
             id="incident-description"
             rows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Mô tả cụ thể thời điểm phát hiện, hành vi hoặc hiện tượng quan sát thấy..."
+            placeholder={T.DESCRIPTION_PLACEHOLDER}
             disabled={createMutation.isPending}
           />
         </div>

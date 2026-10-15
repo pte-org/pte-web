@@ -63,12 +63,13 @@ export function ForceSubmitDialog({
     >
       <div className="space-y-4">
         <p className="text-sm text-[var(--ink-secondary)]">
-          Bạn có chắc chắn muốn nộp bài bắt buộc cho thí sinh{" "}
-          <strong className="text-[var(--ink-primary)]">{studentName}</strong> (Bài thi:{" "}
+          {PROCTOR_LIVE_TEXT.FORCE_SUBMIT_CONFIRM_MSG_PREFIX}
+          <strong className="text-[var(--ink-primary)]">{studentName}</strong>
+          {PROCTOR_LIVE_TEXT.FORCE_SUBMIT_EXAM_LABEL}
           <code className="rounded bg-[var(--surface-subtle)] px-1.5 py-0.5 font-mono text-xs text-[var(--ink-primary)]">
             {attemptPublicId ? attemptPublicId.slice(0, 8).toUpperCase() : "—"}
           </code>
-          )? Thí sinh sẽ không thể tiếp tục làm bài.
+          {PROCTOR_LIVE_TEXT.FORCE_SUBMIT_CONFIRM_MSG_SUFFIX}
         </p>
 
         {error && <Alert tone="error">{error}</Alert>}

@@ -69,10 +69,10 @@ export function ViolationForm({
       <div className="space-y-4">
         {studentName && (
           <p className="text-sm text-[var(--ink-secondary)]">
-            Thí sinh: <strong className="text-[var(--ink-primary)]">{studentName}</strong>
+            {PROCTOR_LIVE_TEXT.STUDENT_PREFIX}<strong className="text-[var(--ink-primary)]">{studentName}</strong>
             {attemptPublicId && (
               <>
-                {" "}(Bài thi:{" "}
+                {" "}{PROCTOR_LIVE_TEXT.FORCE_SUBMIT_EXAM_LABEL}
                 <code className="rounded bg-[var(--surface-subtle)] px-1.5 py-0.5 font-mono text-xs text-[var(--ink-primary)]">
                   {attemptPublicId.slice(0, 8).toUpperCase()}
                 </code>

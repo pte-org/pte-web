@@ -1,7 +1,8 @@
 "use client";
 
 import type { ReactElement, ReactNode } from "react";
-import { Button, PageHeader, Skeleton } from "@pte/ui";
+import Link from "next/link";
+import { Button, ErrorState, LoadingState, PageHeader } from "@pte/ui";
 import { useCurrentUser } from "@/features/auth/api";
 import { PROCTOR_PROFILE_TEXT as T } from "../constants";
 
@@ -14,35 +15,37 @@ function Field({ label, children }: { label: string; children: ReactNode }): Rea
   );
 }
 
-function ProfileSkeleton(): ReactElement {
-  return (
-    <div className="space-y-6 p-5 sm:p-8">
-      <Skeleton className="h-8 w-64" />
-      <Skeleton className="h-32 w-full" />
-    </div>
-  );
-}
-
-function ProfileError({ onRetry }: { onRetry: () => void }): ReactElement {
-  return (
-    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 p-8 text-center">
-      <h1 className="text-xl font-semibold text-[var(--ink-primary)]">{T.ERROR_TITLE}</h1>
-      <p className="max-w-md text-sm text-[var(--ink-secondary)]">{T.ERROR_DESCRIPTION}</p>
-      <Button onClick={onRetry}>{T.RETRY}</Button>
-    </div>
-  );
-}
-
 export const ProctorProfileView = (): ReactElement => {
   const user = useCurrentUser();
 
-  if (user.isLoading) return <ProfileSkeleton />;
+  if (user.isLoading) {
+    return (
+      <div className="flex flex-col gap-6 p-5 sm:p-8">
+        <PageHeader title={T.TITLE} subtitle={T.SUBTITLE} />
+        <LoadingState variant="rows" rows={4} label={T.LOADING} />
+      </div>
+    );
+  }
+
   if (user.isError || !user.data) {
-    return <ProfileError onRetry={() => void user.refetch()} />;
+    return (
+      <div className="flex flex-col gap-6 p-5 sm:p-8">
+        <PageHeader title={T.TITLE} subtitle={T.SUBTITLE} />
+        <ErrorState
+          title={T.ERROR_TITLE}
+          description={T.ERROR_DESCRIPTION}
+          action={
+            <Button variant="secondary" size="sm" onClick={() => void user.refetch()}>
+              {T.RETRY}
+            </Button>
+          }
+        />
+      </div>
+    );
   }
 
   const data = user.data;
-  const roles = data.roles.length > 0 ? data.roles.join(T.ROLES_SEPARATOR) : T.EMPTY_FULL_NAME;
+  const roles = data.roles.length > 0 ? data.roles.join(T.ROLES_SEPARATOR) : T.EMPTY_ROLES;
   const tenant = data.tenantId ?? T.EMPTY_TENANT;
 
   return (
@@ -51,11 +54,11 @@ export const ProctorProfileView = (): ReactElement => {
         title={T.TITLE}
         subtitle={T.SUBTITLE}
         actions={
-          <a href="/proctor/sessions">
+          <Link href="/proctor/sessions">
             <Button variant="secondary" size="sm">
-              Xem ca thi được phân công
+              {T.VIEW_ASSIGNED_SESSIONS}
             </Button>
-          </a>
+          </Link>
         }
       />
 

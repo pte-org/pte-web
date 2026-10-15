@@ -1,9 +1,13 @@
 "use client";
 
-import { useState, useEffect, type FormEvent, type ReactElement } from "react";
+import { useState, type FormEvent, type ReactElement } from "react";
 import Link from "next/link";
 import { Alert, Button, Modal, StatusBadge, Textarea } from "@pte/ui";
 import type { AttendanceRowResponse, IdentityVerificationStatus } from "@pte/api-client";
+import {
+  getIdentityBadgeProps as getVerificationBadgeProps,
+  PROCTOR_IDENTITY_MODAL_TEXT as T,
+} from "../constants";
 
 interface IdentityVerificationModalProps {
   open: boolean;
@@ -17,21 +21,6 @@ interface IdentityVerificationModalProps {
   }) => Promise<void> | void;
 }
 
-function getVerificationBadgeProps(status: IdentityVerificationStatus): {
-  label: string;
-  variant: "success" | "danger" | "neutral";
-} {
-  switch (status) {
-    case "VERIFIED":
-      return { label: "Đã xác minh", variant: "success" };
-    case "FAILED":
-      return { label: "Không xác minh được / Nghi vấn", variant: "danger" };
-    case "UNVERIFIED":
-    default:
-      return { label: "Chưa xác minh", variant: "neutral" };
-  }
-}
-
 export function IdentityVerificationModal({
   open,
   onClose,
@@ -39,19 +28,21 @@ export function IdentityVerificationModal({
   sessionPublicId,
   onConfirmVerification,
 }: IdentityVerificationModalProps): ReactElement {
-  const [targetStatus, setTargetStatus] = useState<IdentityVerificationStatus>("VERIFIED");
-  const [note, setNote] = useState("");
+  const [targetStatus, setTargetStatus] = useState<IdentityVerificationStatus>(
+    () => (row?.identityStatus === "VERIFIED" ? "VERIFIED" : row?.identityStatus === "FAILED" ? "FAILED" : "VERIFIED")
+  );
+  const [note, setNote] = useState(() => row?.identityNote ?? "");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (open && row) {
-      setTargetStatus(row.identityStatus === "VERIFIED" ? "VERIFIED" : row.identityStatus === "FAILED" ? "FAILED" : "VERIFIED");
-      setNote(row.identityNote ?? "");
-      setError(null);
-      setIsSubmitting(false);
-    }
-  }, [open, row]);
+  const [prevRowId, setPrevRowId] = useState<string | null>(row?.studentPublicId ?? null);
+  if (row && row.studentPublicId !== prevRowId) {
+    setPrevRowId(row.studentPublicId);
+    setTargetStatus(row.identityStatus === "VERIFIED" ? "VERIFIED" : row.identityStatus === "FAILED" ? "FAILED" : "VERIFIED");
+    setNote(row.identityNote ?? "");
+    setError(null);
+    setIsSubmitting(false);
+  }
 
   if (!row) return <></>;
 
@@ -61,7 +52,7 @@ export function IdentityVerificationModal({
   const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
     if (targetStatus === "FAILED" && !note.trim()) {
-      setError("Vui lòng nhập mô tả hoặc lý do không xác minh được danh tính.");
+      setError(T.VALIDATION_ERROR_DESC);
       return;
     }
     setError(null);
@@ -75,7 +66,7 @@ export function IdentityVerificationModal({
         });
         onClose();
       } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Không thể lưu xác minh danh tính. Vui lòng thử lại.");
+        setError(err instanceof Error ? err.message : T.SAVE_ERROR_FALLBACK);
       } finally {
         setIsSubmitting(false);
       }
@@ -88,12 +79,12 @@ export function IdentityVerificationModal({
     <Modal
       open={open}
       onClose={isSubmitting ? () => {} : onClose}
-      title="Xác minh danh tính thí sinh"
+      title={T.TITLE}
       size="md"
       footer={
         <div className="flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
-            Đóng
+            {T.CLOSE_BTN}
           </Button>
           <Button
             type="button"
@@ -101,7 +92,7 @@ export function IdentityVerificationModal({
             disabled={isSubmitting}
             onClick={(e) => handleSubmit(e as unknown as FormEvent)}
           >
-            {isSubmitting ? "Đang lưu..." : "Lưu xác minh"}
+            {isSubmitting ? T.SAVING_BTN : T.SAVE_BTN}
           </Button>
         </div>
       }
@@ -115,19 +106,19 @@ export function IdentityVerificationModal({
         </div>
 
         <div className="flex items-center gap-2 text-xs text-[var(--ink-secondary)]">
-          <span>Trạng thái hiện tại:</span>
+          <span>{T.CURRENT_STATUS_LABEL}</span>
           <StatusBadge label={currentLabel} variant={currentVariant} />
         </div>
 
         {error && (
-          <Alert tone="error" title="Thông tin chưa hợp lệ">
+          <Alert tone="error" title={T.VALIDATION_ERROR_TITLE}>
             {error}
           </Alert>
         )}
 
         <div>
           <label className="block text-xs font-medium text-[var(--ink-secondary)] mb-1.5">
-            Kết quả đối chiếu danh tính *
+            {T.RESULT_LABEL}
           </label>
           <div className="grid grid-cols-3 gap-2">
             <button
@@ -139,7 +130,7 @@ export function IdentityVerificationModal({
                   : "border-[var(--border-subtle)] text-[var(--ink-secondary)] hover:bg-[var(--surface-subtle)]"
               }`}
             >
-              Hợp lệ (VERIFIED)
+              {T.STATUS_VERIFIED}
             </button>
             <button
               type="button"
@@ -150,7 +141,7 @@ export function IdentityVerificationModal({
                   : "border-[var(--border-subtle)] text-[var(--ink-secondary)] hover:bg-[var(--surface-subtle)]"
               }`}
             >
-              Nghi vấn (FAILED)
+              {T.STATUS_FAILED}
             </button>
             <button
               type="button"
@@ -161,34 +152,31 @@ export function IdentityVerificationModal({
                   : "border-[var(--border-subtle)] text-[var(--ink-secondary)] hover:bg-[var(--surface-subtle)]"
               }`}
             >
-              Chưa xác minh
+              {T.STATUS_UNVERIFIED}
             </button>
           </div>
         </div>
 
         <div>
           <label htmlFor="identity-note" className="block text-xs font-medium text-[var(--ink-secondary)] mb-1">
-            Ghi chú đối chiếu {targetStatus === "FAILED" ? "(Bắt buộc)" : "(Tùy chọn)"}
+            {T.NOTE_LABEL_PREFIX}{targetStatus === "FAILED" ? T.NOTE_REQUIRED_SUFFIX : T.NOTE_OPTIONAL_SUFFIX}
           </label>
           <Textarea
             id="identity-note"
             rows={3}
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="Ghi nhận kết quả kiểm tra giấy tờ tùy thân, thẻ sinh viên..."
+            placeholder={T.NOTE_PLACEHOLDER}
           />
         </div>
 
         {targetStatus === "FAILED" && (
-          <Alert tone="warning" title="Thủ tục chuyển giao sự cố">
-            <p className="text-xs">
-              Trường hợp không xác minh được danh tính, quy chế yêu cầu lập biên bản sự cố gửi Host để
-              xử lý hoặc chuyển cấp Admin.
-            </p>
+          <Alert tone="warning" title={T.ESCALATION_TITLE}>
+            <p className="text-xs">{T.ESCALATION_DESC}</p>
             <div className="mt-2">
               <Link href={`/proctor/incidents/${sessionPublicId}`}>
                 <Button variant="secondary" size="sm">
-                  Mở quản lý sự cố ca thi
+                  {T.OPEN_INCIDENTS_BTN}
                 </Button>
               </Link>
             </div>

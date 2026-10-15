@@ -1,8 +1,13 @@
 "use client";
 
-import { useEffect, useState, type ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import { Alert, Button, Modal, StatusBadge, Textarea } from "@pte/ui";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
+import {
+  getAttendanceBadgeVariant,
+  getAttendanceStatusLabel,
+  PROCTOR_RECORD_MODAL_TEXT as T,
+} from "../constants";
 import { useRecordAttendanceMutation, useRecordHostAttendanceMutation } from "../api";
 
 interface RecordAttendanceModalProps {
@@ -14,34 +19,6 @@ interface RecordAttendanceModalProps {
   isHost?: boolean;
   onSuccess?: () => void;
 }
-
-const getStatusBadgeVariant = (status: AttendanceStatus) => {
-  switch (status) {
-    case "PRESENT":
-      return "success";
-    case "LATE":
-      return "warning";
-    case "ABSENT":
-      return "danger";
-    case "UNMARKED":
-    default:
-      return "neutral";
-  }
-};
-
-const getStatusLabel = (status: AttendanceStatus) => {
-  switch (status) {
-    case "PRESENT":
-      return "Có mặt";
-    case "LATE":
-      return "Đến trễ";
-    case "ABSENT":
-      return "Vắng mặt";
-    case "UNMARKED":
-    default:
-      return "Chưa điểm danh";
-  }
-};
 
 const generateUuid = (): string => {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -64,7 +41,7 @@ export function RecordAttendanceModal({
   onSuccess,
 }: RecordAttendanceModalProps): ReactElement {
   const [reason, setReason] = useState("");
-  const [requestUuid, setRequestUuid] = useState("");
+  const [requestUuid, setRequestUuid] = useState(generateUuid);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isIntentFrozen, setIsIntentFrozen] = useState(false);
   const [isStaleConflict, setIsStaleConflict] = useState(false);
@@ -73,15 +50,16 @@ export function RecordAttendanceModal({
   const hostMutation = useRecordHostAttendanceMutation(sessionPublicId);
   const mutation = isHost ? hostMutation : proctorMutation;
 
-  useEffect(() => {
-    if (open) {
-      setReason("");
-      setErrorMessage(null);
-      setIsIntentFrozen(false);
-      setIsStaleConflict(false);
-      setRequestUuid(generateUuid());
-    }
-  }, [open, row?.studentPublicId, targetStatus]);
+  const targetKey = `${open}-${row?.studentPublicId}-${targetStatus}`;
+  const [prevTargetKey, setPrevTargetKey] = useState(targetKey);
+  if (targetKey !== prevTargetKey) {
+    setPrevTargetKey(targetKey);
+    setReason("");
+    setErrorMessage(null);
+    setIsIntentFrozen(false);
+    setIsStaleConflict(false);
+    setRequestUuid(generateUuid());
+  }
 
   if (!row || !targetStatus) return <></>;
 
@@ -92,7 +70,7 @@ export function RecordAttendanceModal({
 
   const handleSubmit = async () => {
     if (isReasonRequired && !reason.trim()) {
-      setErrorMessage("Vui lòng nhập lý do thay đổi điểm danh.");
+      setErrorMessage(T.REASON_VALIDATION_ERROR);
       return;
     }
     setErrorMessage(null);
@@ -114,13 +92,11 @@ export function RecordAttendanceModal({
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes("409") || msg.includes("Conflict") || msg.includes("stale") || msg.includes("version")) {
         setIsStaleConflict(true);
-        setErrorMessage(
-          "Dữ liệu điểm danh đã được thay đổi bởi người khác. Vui lòng tải lại trang để xem trạng thái mới nhất.",
-        );
+        setErrorMessage(T.STALE_CONFLICT_ERROR);
       } else {
         // Freeze current intent so user retries exact same payload and UUID, preventing idempotency conflicts
         setIsIntentFrozen(true);
-        setErrorMessage("Lỗi kết nối hoặc phản hồi máy chủ chưa xác định. Bạn có thể gửi lại chính xác lệnh này hoặc hủy để tải lại.");
+        setErrorMessage(T.UNKNOWN_NETWORK_ERROR);
       }
     }
   };
@@ -130,11 +106,11 @@ export function RecordAttendanceModal({
       open={open}
       onClose={onClose}
       isDismissDisabled={mutation.isPending}
-      title="Xác nhận ghi nhận điểm danh"
+      title={T.TITLE}
       footer={
         <div className="flex justify-end gap-2">
           <Button variant="secondary" size="sm" disabled={mutation.isPending} onClick={onClose}>
-            {isStaleConflict ? "Đóng" : "Hủy"}
+            {isStaleConflict ? T.CLOSE_BTN : T.CANCEL_BTN}
           </Button>
           {!isStaleConflict && (
             <Button
@@ -144,10 +120,10 @@ export function RecordAttendanceModal({
               onClick={() => void handleSubmit()}
             >
               {mutation.isPending
-                ? "Đang xử lý..."
+                ? T.PROCESSING_BTN
                 : isIntentFrozen
-                ? "Thử lại chính xác"
-                : "Xác nhận"}
+                ? T.RETRY_EXACT_BTN
+                : T.CONFIRM_BTN}
             </Button>
           )}
         </div>
@@ -163,45 +139,45 @@ export function RecordAttendanceModal({
 
         <div className="flex items-center justify-between rounded-lg border border-[var(--border-subtle)] p-3 text-sm">
           <div>
-            <span className="text-xs text-[var(--ink-muted)]">Hiện tại:</span>
+            <span className="text-xs text-[var(--ink-muted)]">{T.CURRENT_LABEL}</span>
             <div className="mt-1">
               <StatusBadge
-                label={getStatusLabel(row.status)}
-                variant={getStatusBadgeVariant(row.status)}
+                label={getAttendanceStatusLabel(row.status)}
+                variant={getAttendanceBadgeVariant(row.status)}
               />
             </div>
           </div>
           <span className="text-lg text-[var(--ink-muted)]">→</span>
           <div>
-            <span className="text-xs text-[var(--ink-muted)]">Mục tiêu:</span>
+            <span className="text-xs text-[var(--ink-muted)]">{T.TARGET_LABEL}</span>
             <div className="mt-1">
               <StatusBadge
-                label={getStatusLabel(targetStatus)}
-                variant={getStatusBadgeVariant(targetStatus)}
+                label={getAttendanceStatusLabel(targetStatus)}
+                variant={getAttendanceBadgeVariant(targetStatus)}
               />
             </div>
           </div>
         </div>
 
         {hasDiscrepancy && (
-          <Alert tone="warning" title="Cảnh báo bất đồng bộ bài thi">
-            Thí sinh có ghi nhận hoạt động bài thi (Trạng thái:{" "}
-            <span className="font-medium">{row.latestAttemptActivityStatus}</span>). Thao tác đánh
-            dấu VẮNG MẶT không hủy bỏ hay ngắt bài thi của thí sinh.
+          <Alert tone="warning" title={T.DISCREPANCY_TITLE}>
+            {T.DISCREPANCY_PREFIX}
+            <span className="font-medium">{row.latestAttemptActivityStatus}</span>
+            {T.DISCREPANCY_SUFFIX}
           </Alert>
         )}
 
         <Textarea
           id="attendance-reason-input"
-          label={isReasonRequired ? "Lý do thay đổi (bắt buộc)" : "Ghi chú (tùy chọn)"}
+          label={isReasonRequired ? T.REASON_REQUIRED_LABEL : T.REASON_OPTIONAL_LABEL}
           required={isReasonRequired}
           disabled={isIntentFrozen || isStaleConflict}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           placeholder={
             isReasonRequired
-              ? "Nhập lý do điều chỉnh trạng thái điểm danh..."
-              : "Nhập ghi chú nếu có..."
+              ? T.REASON_REQUIRED_PLACEHOLDER
+              : T.REASON_OPTIONAL_PLACEHOLDER
           }
           className="w-full"
         />

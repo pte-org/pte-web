@@ -1,8 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState, type ReactElement } from "react";
-import { Badge, Button, DataTable, Modal, PaginationControls, StatusBadge, type DataTableColumn } from "@pte/ui";
-import type { AttendanceHistoryItemResponse, AttendanceStatus } from "@pte/api-client";
+import { useMemo, useState, type ReactElement } from "react";
+import { Badge, Button, DataTable, ErrorState, Modal, PaginationControls, StatusBadge, type DataTableColumn } from "@pte/ui";
+import type { AttendanceHistoryItemResponse } from "@pte/api-client";
+import {
+  getAttendanceBadgeVariant,
+  getAttendanceStatusLabel,
+  PROCTOR_HISTORY_MODAL_TEXT as T,
+} from "../constants";
 import { useAttendanceHistory, useHostAttendanceHistory } from "../api";
 
 interface AttendanceHistoryModalProps {
@@ -15,34 +20,6 @@ interface AttendanceHistoryModalProps {
   isHost?: boolean;
 }
 
-const getStatusBadgeVariant = (status: AttendanceStatus): "success" | "warning" | "danger" | "neutral" => {
-  switch (status) {
-    case "PRESENT":
-      return "success";
-    case "LATE":
-      return "warning";
-    case "ABSENT":
-      return "danger";
-    case "UNMARKED":
-    default:
-      return "neutral";
-  }
-};
-
-const getStatusLabel = (status: AttendanceStatus): string => {
-  switch (status) {
-    case "PRESENT":
-      return "Có mặt";
-    case "LATE":
-      return "Đến trễ";
-    case "ABSENT":
-      return "Vắng mặt";
-    case "UNMARKED":
-    default:
-      return "Chưa điểm danh";
-  }
-};
-
 export function AttendanceHistoryModal({
   open,
   onClose,
@@ -54,11 +31,11 @@ export function AttendanceHistoryModal({
 }: AttendanceHistoryModalProps): ReactElement {
   const [page, setPage] = useState(0);
 
-  useEffect(() => {
-    if (open) {
-      setPage(0);
-    }
-  }, [open, studentPublicId]);
+  const [prevStudentPublicId, setPrevStudentPublicId] = useState(studentPublicId);
+  if (studentPublicId !== prevStudentPublicId) {
+    setPrevStudentPublicId(studentPublicId);
+    setPage(0);
+  }
 
   const proctorQuery = useAttendanceHistory(
     open && !isHost ? sessionPublicId : "",
@@ -82,7 +59,7 @@ export function AttendanceHistoryModal({
     () => [
       {
         key: "time",
-        header: "Thời gian",
+        header: T.COL_TIME,
         cell: (row) => (
           <span className="text-xs text-[var(--ink-secondary)]">
             {new Date(row.serverActionAt).toLocaleString("vi-VN")}
@@ -91,7 +68,7 @@ export function AttendanceHistoryModal({
       },
       {
         key: "actor",
-        header: "Người thực hiện",
+        header: T.COL_ACTOR,
         cell: (row) => (
           <div>
             <div className="font-medium text-xs text-[var(--ink-primary)]">
@@ -105,24 +82,24 @@ export function AttendanceHistoryModal({
       },
       {
         key: "change",
-        header: "Thay đổi",
+        header: T.COL_CHANGE,
         cell: (row) => (
           <div className="flex items-center gap-1.5">
             <StatusBadge
-              label={getStatusLabel(row.previousStatus)}
-              variant={getStatusBadgeVariant(row.previousStatus)}
+              label={getAttendanceStatusLabel(row.previousStatus)}
+              variant={getAttendanceBadgeVariant(row.previousStatus)}
             />
             <span className="text-[var(--ink-muted)]">→</span>
             <StatusBadge
-              label={getStatusLabel(row.newStatus)}
-              variant={getStatusBadgeVariant(row.newStatus)}
+              label={getAttendanceStatusLabel(row.newStatus)}
+              variant={getAttendanceBadgeVariant(row.newStatus)}
             />
           </div>
         ),
       },
       {
         key: "reason",
-        header: "Lý do / Ghi chú",
+        header: T.COL_REASON,
         cell: (row) => (
           <span className="text-xs text-[var(--ink-secondary)]">
             {row.reasonOrNote || "—"}
@@ -138,7 +115,7 @@ export function AttendanceHistoryModal({
       open={open}
       onClose={onClose}
       size="lg"
-      title={`Lịch sử điểm danh: ${studentName || studentEmail || studentPublicId || ""}`}
+      title={`${T.TITLE_PREFIX}${studentName || studentEmail || studentPublicId || ""}`}
       footer={
         <div className="flex w-full items-center justify-between">
           <div>
@@ -147,30 +124,32 @@ export function AttendanceHistoryModal({
             )}
           </div>
           <Button variant="secondary" size="sm" onClick={onClose}>
-            Đóng
+            {T.CLOSE_BTN}
           </Button>
         </div>
       }
     >
       <div className="space-y-4 py-2">
         {studentEmail && (
-          <p className="text-xs text-[var(--ink-secondary)]">Email: {studentEmail}</p>
+          <p className="text-xs text-[var(--ink-secondary)]">{T.EMAIL_PREFIX}{studentEmail}</p>
         )}
 
         {isError ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-center text-sm text-red-700">
-            <p>Không thể tải lịch sử điểm danh.</p>
-            <Button variant="secondary" size="sm" className="mt-2" onClick={() => void refetch()}>
-              Thử lại
-            </Button>
-          </div>
+          <ErrorState
+            title={T.ERROR_TITLE}
+            action={
+              <Button variant="secondary" size="sm" onClick={() => void refetch()}>
+                {T.RETRY_BTN}
+              </Button>
+            }
+          />
         ) : (
           <DataTable
             columns={columns}
             rows={historyItems}
             getRowKey={(row) => row.id}
             isLoading={isLoading}
-            emptyTitle="Chưa có ghi nhận điểm danh nào cho thí sinh này."
+            emptyTitle={T.EMPTY_TITLE}
             clientSideFiltering={false}
             clientSideSorting={false}
             clientSidePagination={false}

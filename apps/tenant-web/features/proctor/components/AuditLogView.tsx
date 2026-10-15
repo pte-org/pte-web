@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Button, DataTable, PageHeader, type DataTableColumn } from "@pte/ui";
+import { Button, DataTable, ErrorState, PageHeader, type DataTableColumn } from "@pte/ui";
 import { useProctorAuditLog, useProctorSecurityAudit, type ProctorSecurityAuditPage } from "../api";
 import { AUDIT_ACTION_LABELS, PROCTOR_AUDIT_TEXT as T } from "../constants";
 import type { ProctorAuditLogEntry, ProctorSecurityAuditEntry } from "../types";
@@ -40,7 +40,7 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
       header: T.COL_TIME,
       filterType: "date-range",
       filterAccessor: (row) => row.createdAt,
-      filterPlaceholder: "Date range",
+      filterPlaceholder: T.FILTER_DATE_RANGE,
       cell: (row) => formatTimestamp(row.createdAt),
     },
     {
@@ -69,7 +69,7 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
       header: T.COL_TIME,
       filterType: "date-range",
       filterAccessor: (row) => row.recordedAt,
-      filterPlaceholder: "Date range",
+      filterPlaceholder: T.FILTER_DATE_RANGE,
       cell: (row) => formatTimestamp(row.recordedAt),
     },
     {
@@ -103,12 +103,12 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
         <div className="flex items-center gap-2">
           <Link href={`/proctor/sessions/${sessionPublicId}`}>
             <Button variant="secondary" size="sm">
-              Vào giám sát
+              {T.ENTER_MONITORING}
             </Button>
           </Link>
           <Link href="/proctor/sessions">
             <Button variant="secondary" size="sm">
-              Danh sách ca thi
+              {T.SESSION_LIST}
             </Button>
           </Link>
         </div>
@@ -116,7 +116,7 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
 
       <div
         role="tablist"
-        aria-label="Audit log tabs"
+        aria-label={T.TABS_ARIA_LABEL}
         className="flex gap-1 border-b border-[var(--border-subtle)]"
       >
         {TABS.map((tab) => {
@@ -142,14 +142,36 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
       </div>
 
       {activeTab === "violations" ? (
-        <DataTable<ProctorAuditLogEntry>
-          showSearch={false}
-          columns={violationColumns}
-          rows={violations}
-          getRowKey={(row) => row.publicId}
-          isLoading={audit.isFetching}
-          emptyTitle={T.EMPTY_VIOLATIONS_TITLE}
-          emptyDescription={T.EMPTY_VIOLATIONS_DESCRIPTION}
+        audit.isError ? (
+          <ErrorState
+            title={T.ERROR_TITLE}
+            description={T.ERROR_DESC}
+            action={
+              <Button variant="secondary" size="sm" onClick={() => void audit.refetch()}>
+                {T.RETRY}
+              </Button>
+            }
+          />
+        ) : (
+          <DataTable<ProctorAuditLogEntry>
+            showSearch={false}
+            columns={violationColumns}
+            rows={violations}
+            getRowKey={(row) => row.publicId}
+            isLoading={audit.isFetching}
+            emptyTitle={T.EMPTY_VIOLATIONS_TITLE}
+            emptyDescription={T.EMPTY_VIOLATIONS_DESCRIPTION}
+          />
+        )
+      ) : security.isError ? (
+        <ErrorState
+          title={T.ERROR_TITLE}
+          description={T.ERROR_DESC}
+          action={
+            <Button variant="secondary" size="sm" onClick={() => void security.refetch()}>
+              {T.RETRY}
+            </Button>
+          }
         />
       ) : (
         <div className="flex flex-col gap-4">

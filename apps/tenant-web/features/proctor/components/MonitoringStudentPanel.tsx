@@ -25,6 +25,19 @@ function formatDateTime(iso: string | null): string {
   }).format(date);
 }
 
+function getStudentStatusLabel(status: string | null | undefined): string {
+  switch (status) {
+    case "IN_PROGRESS":
+      return PROCTOR_LIVE_TEXT.STATUS_IN_PROGRESS;
+    case "SUBMITTED":
+      return PROCTOR_LIVE_TEXT.STATUS_SUBMITTED;
+    case "ABANDONED":
+      return PROCTOR_LIVE_TEXT.STATUS_ABANDONED;
+    default:
+      return PROCTOR_LIVE_TEXT.STATUS_NOT_STARTED;
+  }
+}
+
 export function MonitoringStudentPanel({
   sessionPublicId,
   student,
@@ -85,13 +98,7 @@ export function MonitoringStudentPanel({
             <div>
               <dt className="text-slate-500">{PROCTOR_LIVE_TEXT.PANEL_STATUS}</dt>
               <dd className="font-semibold text-slate-900">
-                {student.status === "IN_PROGRESS"
-                  ? PROCTOR_LIVE_TEXT.STATUS_IN_PROGRESS
-                  : student.status === "SUBMITTED"
-                    ? PROCTOR_LIVE_TEXT.STATUS_SUBMITTED
-                    : student.status === "ABANDONED"
-                      ? PROCTOR_LIVE_TEXT.STATUS_ABANDONED
-                      : PROCTOR_LIVE_TEXT.STATUS_NOT_STARTED}
+                {getStudentStatusLabel(student.status)}
               </dd>
             </div>
             <div>
@@ -168,12 +175,12 @@ export function MonitoringStudentPanel({
                             : "text-slate-500"
                       }
                     >
-                      {att.status}
+                      {getStudentStatusLabel(att.status)}
                     </span>
                   </div>
                   <div className="mt-1 flex justify-between text-slate-500 text-[11px]">
-                    <span>Bắt đầu: {formatDateTime(att.startedAt)}</span>
-                    {att.submittedAt && <span>Nộp: {formatDateTime(att.submittedAt)}</span>}
+                    <span>{PROCTOR_LIVE_TEXT.PANEL_STARTED_PREFIX}{formatDateTime(att.startedAt)}</span>
+                    {att.submittedAt && <span>{PROCTOR_LIVE_TEXT.PANEL_SUBMITTED_PREFIX}{formatDateTime(att.submittedAt)}</span>}
                   </div>
                 </li>
               ))}

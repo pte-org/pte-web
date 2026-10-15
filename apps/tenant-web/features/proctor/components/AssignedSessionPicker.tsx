@@ -7,6 +7,7 @@ import type { AssignedProctorSessionResponse } from "@pte/api-client";
 import {
   Button,
   DataTable,
+  ErrorState,
   PageHeader,
   PaginationControls,
   StatusBadge,
@@ -75,6 +76,24 @@ export function AssignedSessionPicker({
   const sessions = data?.data ?? [];
   const meta = data?.meta;
 
+  const getStatusLabel = useCallback(
+    (status: string): string => {
+      switch (status) {
+        case "OPEN":
+          return text.statusOpen;
+        case "SCHEDULED":
+          return text.statusScheduled;
+        case "CLOSED":
+          return text.statusClosed;
+        case "CANCELLED":
+          return text.statusCancelled;
+        default:
+          return status;
+      }
+    },
+    [text],
+  );
+
   const getTargetUrl = useCallback(
     (sessionPublicId: string): string => {
       if (mode === "attendance") {
@@ -132,7 +151,7 @@ export function AssignedSessionPicker({
         header: text.tableColStatus,
         cell: (row) => (
           <StatusBadge
-            label={row.status}
+            label={getStatusLabel(row.status)}
             variant={getStatusBadgeVariant(row.status)}
           />
         ),
@@ -152,7 +171,7 @@ export function AssignedSessionPicker({
         ),
       },
     ],
-    [formatDateTime, text],
+    [formatDateTime, getStatusLabel, text],
   );
 
   const renderRowActions = useCallback(
@@ -176,12 +195,14 @@ export function AssignedSessionPicker({
       <PageHeader title={title} subtitle={subtitle} />
 
       {isError ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-red-700">
-          <p className="font-medium">{text.error}</p>
-          <Button variant="secondary" size="sm" className="mt-4" onClick={() => void refetch()}>
-            {text.retry}
-          </Button>
-        </div>
+        <ErrorState
+          title={text.error}
+          action={
+            <Button variant="secondary" size="sm" onClick={() => void refetch()}>
+              {text.retry}
+            </Button>
+          }
+        />
       ) : (
         <DataTable
           columns={columns}

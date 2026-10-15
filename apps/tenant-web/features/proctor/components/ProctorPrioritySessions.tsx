@@ -3,7 +3,7 @@
 import type { ReactElement } from "react";
 import Link from "next/link";
 import type { ProctorWorkspaceSessionResponse } from "@pte/api-client";
-import { Button, Skeleton } from "@pte/ui";
+import { Button, EmptyState, Skeleton } from "@pte/ui";
 import { useProctorWorkspaceText } from "../hooks/useProctorWorkspaceText";
 
 export interface ProctorPrioritySessionsProps {
@@ -79,9 +79,7 @@ export function ProctorPrioritySessions({
             <Skeleton className="h-16 w-full" />
           </div>
         ) : priorityItems.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
-            {text.priorityEmpty}
-          </div>
+          <EmptyState title={text.priorityEmpty} />
         ) : (
           <div className="divide-y divide-slate-100">
             {priorityItems.map((session) => {

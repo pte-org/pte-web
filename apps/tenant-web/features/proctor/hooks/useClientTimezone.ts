@@ -2,21 +2,21 @@
 
 import { useEffect, useState } from "react";
 
+function getInitialTimezone(): string | null {
+  try {
+    return typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone || null : null;
+  } catch {
+    return null;
+  }
+}
+
 export function useClientTimezone(): {
   timezone: string | null;
   isResolved: boolean;
 } {
-  const [timezone, setTimezone] = useState<string | null>(null);
+  const [timezone, setTimezone] = useState<string | null>(getInitialTimezone);
 
   useEffect(() => {
-    try {
-      const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      if (detected) {
-        setTimezone(detected);
-      }
-    } catch {
-      // Intl timezone lookup fallback
-    }
 
     const handleFocus = (): void => {
       try {

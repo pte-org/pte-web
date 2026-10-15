@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState, type ReactElement } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   BackButton,
@@ -14,50 +13,19 @@ import {
   StatusBadge,
   type DataTableColumn,
 } from "@pte/ui";
-import type { IncidentResponse, IncidentSeverity, IncidentStatus } from "@pte/api-client";
+import type { IncidentResponse, IncidentStatus } from "@pte/api-client";
 import { useIncidentsList } from "../api";
 import { IncidentReportModal } from "./IncidentReportModal";
+import {
+  getIncidentSeverityBadge as getSeverityBadge,
+  getIncidentStatusBadge as getStatusBadge,
+  PROCTOR_INCIDENT_LIST_TEXT as T,
+  PROCTOR_INCIDENT_STATUS_TABS,
+} from "../constants";
 
 interface IncidentListViewProps {
   sessionPublicId: string;
 }
-
-function getSeverityBadge(severity: IncidentSeverity): { label: string; variant: "danger" | "warning" | "neutral" } {
-  switch (severity) {
-    case "HIGH":
-      return { label: "Nghiêm trọng (HIGH)", variant: "danger" };
-    case "MEDIUM":
-      return { label: "Trung bình (MEDIUM)", variant: "warning" };
-    case "LOW":
-    default:
-      return { label: "Thấp (LOW)", variant: "neutral" };
-  }
-}
-
-function getStatusBadge(status: IncidentStatus): { label: string; variant: "danger" | "info" | "success" | "warning" | "neutral" } {
-  switch (status) {
-    case "NEW":
-      return { label: "Mới tiếp nhận", variant: "warning" };
-    case "IN_PROGRESS":
-      return { label: "Đang xử lý", variant: "info" };
-    case "ESCALATED":
-      return { label: "Đã chuyển cấp Admin", variant: "danger" };
-    case "RESOLVED":
-      return { label: "Đã giải quyết", variant: "success" };
-    case "CLOSED":
-    default:
-      return { label: "Đã đóng", variant: "neutral" };
-  }
-}
-
-const STATUS_TABS: Array<{ id: IncidentStatus | "ALL"; label: string }> = [
-  { id: "ALL", label: "Tất cả" },
-  { id: "NEW", label: "Mới báo cáo" },
-  { id: "IN_PROGRESS", label: "Đang xử lý" },
-  { id: "ESCALATED", label: "Chuyển cấp Admin" },
-  { id: "RESOLVED", label: "Đã giải quyết" },
-  { id: "CLOSED", label: "Đã đóng" },
-];
 
 export function IncidentListView({ sessionPublicId }: IncidentListViewProps): ReactElement {
   const router = useRouter();
@@ -78,7 +46,7 @@ export function IncidentListView({ sessionPublicId }: IncidentListViewProps): Re
     () => [
       {
         key: "title",
-        header: "Tiêu đề & Phân loại",
+        header: T.COL_TITLE_CATEGORY,
         cell: (row) => (
           <div>
             <div className="font-medium text-[var(--ink-primary)]">{row.title}</div>
@@ -90,12 +58,12 @@ export function IncidentListView({ sessionPublicId }: IncidentListViewProps): Re
       },
       {
         key: "student",
-        header: "Thí sinh liên quan",
+        header: T.COL_STUDENT,
         cell: (row) =>
           row.studentName || row.studentPublicId ? (
             <div>
               <div className="font-medium text-xs text-[var(--ink-primary)]">
-                {row.studentName || "Thí sinh"}
+                {row.studentName || T.STUDENT_FALLBACK}
               </div>
               {row.studentPublicId && (
                 <div className="font-mono text-[11px] text-[var(--ink-muted)]">
@@ -104,12 +72,12 @@ export function IncidentListView({ sessionPublicId }: IncidentListViewProps): Re
               )}
             </div>
           ) : (
-            <span className="text-xs text-[var(--ink-muted)]">Toàn ca thi</span>
+            <span className="text-xs text-[var(--ink-muted)]">{T.ALL_SESSION_SCOPE}</span>
           ),
       },
       {
         key: "severity",
-        header: "Mức độ",
+        header: T.COL_SEVERITY,
         cell: (row) => {
           const { label, variant } = getSeverityBadge(row.severity);
           return <Badge variant={variant}>{label}</Badge>;
@@ -117,7 +85,7 @@ export function IncidentListView({ sessionPublicId }: IncidentListViewProps): Re
       },
       {
         key: "status",
-        header: "Trạng thái",
+        header: T.COL_STATUS,
         cell: (row) => {
           const { label, variant } = getStatusBadge(row.status);
           return <StatusBadge label={label} variant={variant} />;
@@ -125,7 +93,7 @@ export function IncidentListView({ sessionPublicId }: IncidentListViewProps): Re
       },
       {
         key: "owner",
-        header: "Phụ trách hiện tại",
+        header: T.COL_OWNER,
         cell: (row) => (
           <div>
             <span className="text-xs font-medium text-[var(--ink-primary)]">
@@ -139,7 +107,7 @@ export function IncidentListView({ sessionPublicId }: IncidentListViewProps): Re
       },
       {
         key: "updatedAt",
-        header: "Cập nhật",
+        header: T.COL_UPDATED,
         cell: (row) => (
           <span className="text-xs text-[var(--ink-secondary)]">
             {new Date(row.updatedAt).toLocaleString("vi-VN")}
@@ -153,20 +121,20 @@ export function IncidentListView({ sessionPublicId }: IncidentListViewProps): Re
   return (
     <div className="flex flex-col gap-6 p-5 sm:p-8">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <BackButton href="/proctor/incidents" label="Danh sách ca thi" />
+        <BackButton href="/proctor/incidents" label={T.BACK_BTN} />
         <Button variant="primary" size="sm" onClick={() => setIsReportModalOpen(true)}>
-          + Báo cáo sự cố mới
+          {T.REPORT_NEW_BTN}
         </Button>
       </div>
 
       <PageHeader
-        title={`Sự cố phòng thi: #${sessionPublicId.slice(0, 8).toUpperCase()}`}
-        subtitle="Theo dõi, điều phối và chuyển cấp các sự cố xảy ra trong ca thi."
+        title={`${T.TITLE_PREFIX}${sessionPublicId.slice(0, 8).toUpperCase()}`}
+        subtitle={T.SUBTITLE}
       />
 
       {/* Status Filter Tabs */}
       <div className="flex flex-wrap items-center gap-1.5 border-b border-[var(--border-subtle)] pb-3">
-        {STATUS_TABS.map((tab) => {
+        {PROCTOR_INCIDENT_STATUS_TABS.map((tab) => {
           const isActive = selectedStatus === tab.id;
           return (
             <button
@@ -190,11 +158,11 @@ export function IncidentListView({ sessionPublicId }: IncidentListViewProps): Re
 
       {isError ? (
         <ErrorState
-          title="Không thể tải danh sách sự cố"
-          description="Đã có lỗi xảy ra khi truy vấn dữ liệu từ máy chủ. Vui lòng thử lại."
+          title={T.ERROR_TITLE}
+          description={T.ERROR_DESC}
           action={
             <Button variant="secondary" size="sm" onClick={() => void refetch()}>
-              Thử lại
+              {T.RETRY_BTN}
             </Button>
           }
         />
@@ -204,7 +172,7 @@ export function IncidentListView({ sessionPublicId }: IncidentListViewProps): Re
           rows={incidents}
           getRowKey={(row) => row.incidentPublicId}
           isLoading={isLoading}
-          emptyTitle="Chưa có sự cố nào được ghi nhận cho ca thi này."
+          emptyTitle={T.EMPTY_TITLE}
           rowActions={(row) => (
             <div className="flex justify-end">
               <Button
@@ -214,7 +182,7 @@ export function IncidentListView({ sessionPublicId }: IncidentListViewProps): Re
                   router.push(`/proctor/incidents/${sessionPublicId}/${row.incidentPublicId}`)
                 }
               >
-                Chi tiết
+                {T.ACTION_DETAIL}
               </Button>
             </div>
           )}
