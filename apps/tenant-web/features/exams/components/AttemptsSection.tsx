@@ -6,6 +6,7 @@ import { Badge, Button, DataTable, useLocale, type DataTableColumn } from "@pte/
 import { useAttemptReviews } from "../api/attemptReviews";
 import { ATTEMPT_TABLE_HEADERS, ATTEMPTS_SECTION_TEXT as T } from "../constants/attemptReviews";
 import { AnswersSection } from "./AnswersSection";
+import { AttemptScoreSummary } from "./AttemptScoreSummary";
 
 function formatDateTime(value: string, locale: "vi" | "en"): string {
   const date = new Date(value);
@@ -42,6 +43,7 @@ export const AttemptsSection = ({ sessionPublicId }: AttemptsSectionProps): Reac
             {t("tenant.attempts.back", T.BACK)}
           </Button>
         </div>
+        <AttemptScoreSummary attemptPublicId={selected.attemptPublicId} />
         <AnswersSection
           sessionPublicId={sessionPublicId}
           attemptPublicId={selected.attemptPublicId}
