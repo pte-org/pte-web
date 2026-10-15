@@ -26,7 +26,7 @@ export function ConfirmAttemptFinalizeDialog({
       tone="primary"
       confirmLabel={isFinalizing ? T.FINALIZING : T.FINALIZE_WORK}
       cancelLabel={T.CANCEL}
-      description={`${T.CONFIRM_FINALIZE_DESC} (${totalAnswers} answers)`}
+      description={`${T.CONFIRM_FINALIZE_DESC} (${totalAnswers} ${T.QUESTIONS_SUFFIX})`}
       onConfirm={onConfirm}
       onClose={onClose}
     />

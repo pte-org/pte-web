@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import type { ExaminerDecisionKind } from "@pte/api-client";
-import { Badge, ConfirmDialog } from "@pte/ui";
+import { Alert, Badge, ConfirmDialog } from "@pte/ui";
 import { EXAMINER_WORK_TEXT as T } from "../constants";
 
 interface ConfirmDecisionDialogProps {
@@ -50,15 +50,15 @@ export const ConfirmDecisionDialog = ({
       onClose={onClose}
       onConfirm={handleConfirm}
       isConfirming={isConfirming}
-      confirmLabel={isConfirming ? T.SUBMITTING : isBlocked ? "Submission Blocked" : T.CONFIRM_ACTION}
+      confirmLabel={isConfirming ? T.SUBMITTING : isBlocked ? T.SUBMISSION_BLOCKED : T.CONFIRM_ACTION}
       cancelLabel={T.CANCEL}
       description={
         <div className="space-y-3 pt-2 text-sm text-slate-700">
           <p>{T.CONFIRM_DESCRIPTION}</p>
           {isBlocked && (
-            <div className="rounded-md border border-amber-300 bg-amber-50 p-2.5 text-xs text-amber-900">
-              <p className="font-semibold">{T.CONFIRM_INVALIDATED_WARNING}</p>
-            </div>
+            <Alert tone="warning">
+              {T.CONFIRM_INVALIDATED_WARNING}
+            </Alert>
           )}
           <div className="rounded-md border border-slate-200 bg-slate-50 p-3 space-y-2 text-xs">
             <div className="flex justify-between items-center">
@@ -72,7 +72,7 @@ export const ConfirmDecisionDialog = ({
               </Badge>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-slate-500">Proposed Score:</span>
+              <span className="text-slate-500">{T.PROPOSED_SCORE}</span>
               <span className="font-bold text-base text-slate-900">{score} / 100</span>
             </div>
             {diff !== null && (

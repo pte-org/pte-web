@@ -200,7 +200,7 @@ export const ExaminerQueueView = (): ReactElement => {
             className="w-64"
           />
           <Button type="submit" variant="secondary" size="sm">
-            Search
+            {text.searchBtn}
           </Button>
         </form>
       </div>

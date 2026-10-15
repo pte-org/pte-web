@@ -128,27 +128,30 @@ export const DecisionPanel = ({
   return (
     <section className="mt-5 rounded-lg border border-slate-200 bg-white p-4">
       {isReconciling && (
-        <div className="mb-4 rounded-md border border-amber-300 bg-amber-50 p-3">
-          <h5 className="font-semibold text-xs text-amber-900">{T.UNKNOWN_OUTCOME_TITLE}</h5>
-          <p className="mt-1 text-xs text-amber-800">{T.UNKNOWN_OUTCOME_MESSAGE}</p>
-          <div className="mt-3 flex items-center gap-2">
-            {onRetryIdentical && (
-              <Button size="sm" variant="primary" onClick={onRetryIdentical} disabled={isSubmitting}>
-                {T.RETRY_IDENTICAL}
-              </Button>
-            )}
-            {onReconcileServer && (
-              <Button size="sm" variant="secondary" onClick={onReconcileServer} disabled={isSubmitting}>
-                {T.RECONCILE_SERVER}
-              </Button>
-            )}
-          </div>
+        <div className="mb-4">
+          <Alert tone="warning" title={T.UNKNOWN_OUTCOME_TITLE}>
+            <div>
+              <p>{T.UNKNOWN_OUTCOME_MESSAGE}</p>
+              <div className="mt-3 flex items-center gap-2">
+                {onRetryIdentical && (
+                  <Button size="sm" variant="primary" onClick={onRetryIdentical} disabled={isSubmitting}>
+                    {T.RETRY_IDENTICAL}
+                  </Button>
+                )}
+                {onReconcileServer && (
+                  <Button size="sm" variant="secondary" onClick={onReconcileServer} disabled={isSubmitting}>
+                    {T.RECONCILE_SERVER}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </Alert>
         </div>
       )}
 
       {isStale && (
         <div className="mb-4">
-          <Alert tone="warning" title="Stale Reference">
+          <Alert tone="warning" title={T.STALE_REFERENCE}>
             <div>
               <p>{T.STALE_REFERENCE_WARNING}</p>
               {onAcknowledgeStale && (
@@ -165,7 +168,7 @@ export const DecisionPanel = ({
 
       {isMediaBroken && (
         <div className="mb-4">
-          <Alert tone="error" title="Media Unavailable">
+          <Alert tone="error" title={T.MEDIA_UNAVAILABLE_TITLE}>
             {T.MEDIA_ERROR_WARNING}
           </Alert>
         </div>
@@ -174,7 +177,7 @@ export const DecisionPanel = ({
       {!answer.canFinalize && (
         <div className="mb-4">
           <Alert tone="error" title={T.BLOCKED_FINALIZATION}>
-            {answer.blockingReason || "You cannot submit scores for this answer."}
+            {answer.blockingReason || T.SUBMISSION_BLOCKED_FALLBACK}
           </Alert>
         </div>
       )}
@@ -194,7 +197,7 @@ export const DecisionPanel = ({
               value={draftScore}
               disabled={!answer.canFinalize || isSubmitting || isMediaBroken || isReconciling}
               onChange={(e) => onScoreChange(e.target.value)}
-              placeholder="0–100"
+              placeholder={T.SCORE_PLACEHOLDER}
             />
           </div>
 

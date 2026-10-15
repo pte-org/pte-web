@@ -65,6 +65,9 @@ export const EXAMINER_WORKSPACE_EN = {
   loadingReports: "Loading reports…",
   reportsError: "Could not load marking reports.",
   noData: "No data available",
+  searchBtn: "Search",
+  resetFilters: "Reset Filters",
+  refreshing: "Refreshing…",
 };
 
 export type ExaminerWorkspaceMessageKey = keyof typeof EXAMINER_WORKSPACE_EN;

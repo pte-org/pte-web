@@ -1,8 +1,9 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow } from "@pte/ui";
+import { EmptyState, TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow } from "@pte/ui";
 import type { ExaminerReportTaskTypeBreakdown } from "@pte/api-client";
+import { EXAMINER_WORK_TEXT } from "../constants";
 import { useExaminerWorkspaceText } from "../hooks/useExaminerWorkspaceText";
 
 interface ExaminerReportBreakdownTableProps {
@@ -18,16 +19,14 @@ export function ExaminerReportBreakdownTable({
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-slate-800">{text.breakdownTitle}</h3>
       {breakdown.length === 0 ? (
-        <div className="rounded-lg border border-slate-200 bg-white p-6 text-center text-sm text-slate-500">
-          {text.noData}
-        </div>
+        <EmptyState title={text.noData} />
       ) : (
         <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
           <TableRoot>
             <TableHeader>
               <TableRow>
                 <TableHead>{text.breakdownTaskType}</TableHead>
-                <TableHead>Scored / Total</TableHead>
+                <TableHead>{EXAMINER_WORK_TEXT.SCORED_OVER_TOTAL}</TableHead>
                 <TableHead>{text.breakdownAvgScore}</TableHead>
               </TableRow>
             </TableHeader>

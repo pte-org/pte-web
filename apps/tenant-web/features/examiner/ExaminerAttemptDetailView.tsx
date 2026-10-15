@@ -203,13 +203,13 @@ export const ExaminerAttemptDetailView = ({
       />
 
       {hasOpenIssue && (
-        <Alert tone="error" title="Active Issue Blocking Finalization">
+        <Alert tone="error" title={T.ACTIVE_ISSUE_TITLE}>
           {T.ISSUES_BLOCKING}
         </Alert>
       )}
 
       {workflow?.blockingReason && (
-        <Alert tone="warning" title="Scoring Status Notice">
+        <Alert tone="warning" title={T.SCORING_NOTICE_TITLE}>
           {workflow.blockingReason}
         </Alert>
       )}

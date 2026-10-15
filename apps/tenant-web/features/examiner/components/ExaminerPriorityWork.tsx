@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import type { ExaminerQueueItemResponse } from "@pte/api-client";
-import { Badge, Button, Skeleton } from "@pte/ui";
+import { Badge, Button, EmptyState, Skeleton } from "@pte/ui";
 import { useExaminerWorkspaceText } from "../hooks/useExaminerWorkspaceText";
 
 export interface ExaminerPriorityWorkProps {
@@ -46,9 +46,7 @@ export function ExaminerPriorityWork({
             <Skeleton className="h-16 w-full" />
           </div>
         ) : priorityItems.length === 0 ? (
-          <div className="rounded-lg border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
-            {text.priorityEmpty}
-          </div>
+          <EmptyState title={text.priorityEmpty} />
         ) : (
           <div className="divide-y divide-slate-100">
             {priorityItems.map((item) => {

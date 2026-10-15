@@ -4,6 +4,9 @@ import { useState, type ReactElement } from "react";
 import {
   Badge,
   Button,
+  EmptyState,
+  ErrorState,
+  LoadingState,
   Modal,
   TableBody,
   TableCell,
@@ -13,7 +16,11 @@ import {
   TableRow,
 } from "@pte/ui";
 import { useExaminerHistory } from "../api";
-import type { ExaminerGradingOperation, ExaminerHistoryItemResponse } from "@pte/api-client";
+import type { ExaminerHistoryItemResponse } from "@pte/api-client";
+import {
+  EXAMINER_HISTORY_DIALOG_TEXT as T,
+  EXAMINER_OPERATION_BADGES,
+} from "../constants";
 
 interface ExaminerGradingHistoryDialogProps {
   open: boolean;
@@ -21,20 +28,6 @@ interface ExaminerGradingHistoryDialogProps {
   sessionPublicId: string;
   attemptPublicId: string;
 }
-
-const OPERATION_BADGES: Record<
-  ExaminerGradingOperation,
-  { label: string; variant: "neutral" | "info" | "warning" | "success" | "danger" }
-> = {
-  START: { label: "Started", variant: "info" },
-  SAVE_DRAFT: { label: "Draft Saved", variant: "neutral" },
-  SCORE_CHANGE: { label: "Score Changed", variant: "warning" },
-  FINALIZE: { label: "Finalized", variant: "success" },
-  REOPEN: { label: "Reopened", variant: "warning" },
-  REGRADE: { label: "Regraded", variant: "warning" },
-  REPORT_ISSUE: { label: "Issue Reported", variant: "danger" },
-  RESOLVE_ISSUE: { label: "Issue Resolved", variant: "success" },
-};
 
 function formatDateTime(iso: string): string {
   try {
@@ -74,48 +67,44 @@ export function ExaminerGradingHistoryDialog({
     <Modal
       open={open}
       onClose={onClose}
-      title={`Grading History & Audit Trail (#${attemptPublicId.slice(0, 8).toUpperCase()})`}
+      title={`${T.TITLE_PREFIX} (#${attemptPublicId.slice(0, 8).toUpperCase()})`}
       size="xl"
     >
       <div className="space-y-4 py-2">
         <p className="text-sm text-slate-600">
-          Immutable audit record of all scoring and workflow transitions for this assigned attempt.
+          {T.DESCRIPTION}
         </p>
 
         {isLoading ? (
-          <div className="py-8 text-center text-sm text-slate-500">Loading audit history…</div>
+          <LoadingState variant="table" label={T.LOADING} />
         ) : isError ? (
-          <div className="rounded bg-red-50 p-4 text-center text-sm text-red-700">
-            Could not load grading history.{" "}
-            <button
-              type="button"
-              onClick={() => void refetch()}
-              className="font-medium underline hover:text-red-900"
-            >
-              Retry
-            </button>
-          </div>
+          <ErrorState
+            title={T.ERROR_TITLE}
+            action={
+              <Button variant="secondary" size="sm" onClick={() => void refetch()}>
+                {T.RETRY}
+              </Button>
+            }
+          />
         ) : items.length === 0 ? (
-          <div className="py-8 text-center text-sm text-slate-500">
-            No grading events recorded yet.
-          </div>
+          <EmptyState title={T.EMPTY_TITLE} />
         ) : (
           <div className="overflow-x-auto rounded-lg border border-slate-200">
             <TableRoot>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Timestamp</TableHead>
-                  <TableHead>Action</TableHead>
-                  <TableHead>Actor</TableHead>
-                  <TableHead>Target / Version</TableHead>
-                  <TableHead>Score Values</TableHead>
-                  <TableHead>Rubric</TableHead>
-                  <TableHead>Reason / Notes</TableHead>
+                  <TableHead>{T.COL_TIMESTAMP}</TableHead>
+                  <TableHead>{T.COL_ACTION}</TableHead>
+                  <TableHead>{T.COL_ACTOR}</TableHead>
+                  <TableHead>{T.COL_TARGET_VERSION}</TableHead>
+                  <TableHead>{T.COL_SCORE_VALUES}</TableHead>
+                  <TableHead>{T.COL_RUBRIC}</TableHead>
+                  <TableHead>{T.COL_REASON_NOTES}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {items.map((item: ExaminerHistoryItemResponse) => {
-                  const badgeInfo = OPERATION_BADGES[item.operation] ?? {
+                  const badgeInfo = EXAMINER_OPERATION_BADGES[item.operation] ?? {
                     label: item.operation,
                     variant: "neutral" as const,
                   };
@@ -134,7 +123,7 @@ export function ExaminerGradingHistoryDialog({
                         {item.answerPublicId ? (
                           <span>Ans: #{item.answerPublicId.slice(0, 8)}</span>
                         ) : (
-                          <span className="italic text-slate-400">Attempt level</span>
+                          <span className="italic text-slate-400">{T.ATTEMPT_LEVEL}</span>
                         )}
                         <span className="ml-1 text-slate-400">
                           (w:v{item.workVersion}
@@ -178,7 +167,7 @@ export function ExaminerGradingHistoryDialog({
                 disabled={page <= 0}
                 onClick={() => setPage((p) => Math.max(0, p - 1))}
               >
-                Previous
+                {T.PREVIOUS}
               </Button>
               <Button
                 variant="secondary"
@@ -186,7 +175,7 @@ export function ExaminerGradingHistoryDialog({
                 disabled={page >= totalPages - 1}
                 onClick={() => setPage((p) => p + 1)}
               >
-                Next
+                {T.NEXT}
               </Button>
             </div>
           </div>
@@ -194,7 +183,7 @@ export function ExaminerGradingHistoryDialog({
 
         <div className="flex justify-end pt-3">
           <Button variant="secondary" onClick={onClose}>
-            Close
+            {T.CLOSE}
           </Button>
         </div>
       </div>

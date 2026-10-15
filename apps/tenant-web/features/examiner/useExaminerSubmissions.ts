@@ -69,8 +69,9 @@ export const useExaminerSubmissions = ({
   const [isFinalizing, setIsFinalizing] = useState(false);
 
   // Sync server drafts into local state
-  useEffect(() => {
-    if (!workflow?.drafts || workflow.drafts.length === 0) return;
+  const [prevServerDrafts, setPrevServerDrafts] = useState(workflow?.drafts);
+  if (workflow?.drafts && workflow.drafts !== prevServerDrafts) {
+    setPrevServerDrafts(workflow.drafts);
     setDrafts((prev) => {
       const next = { ...prev };
       for (const d of workflow.drafts) {
@@ -89,7 +90,7 @@ export const useExaminerSubmissions = ({
       }
       return next;
     });
-  }, [workflow?.drafts]);
+  }
 
   const hasUnsaved =
     Object.values(drafts).some((d) => d.isDirty && d.score.trim() !== "") ||
@@ -103,23 +104,24 @@ export const useExaminerSubmissions = ({
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasUnsaved]);
 
-  useEffect(() => {
-    if (!answers || answers.length === 0) return;
+  const [prevAnswers, setPrevAnswers] = useState(answers);
+  if (answers && answers !== prevAnswers) {
+    setPrevAnswers(answers);
     const answeredIds = new Set(
       answers
         .filter((a) => a.myScore !== null || a.decision !== null)
         .map((a) => a.answerPublicId),
     );
-    if (answeredIds.size === 0) return;
-
-    setUnresolvedSubmissions((prev) => {
-      const keysToRemove = Object.keys(prev).filter((id) => answeredIds.has(id));
-      if (keysToRemove.length === 0) return prev;
-      const next = { ...prev };
-      for (const id of keysToRemove) delete next[id];
-      return next;
-    });
-  }, [answers]);
+    if (answeredIds.size > 0) {
+      setUnresolvedSubmissions((prev) => {
+        const keysToRemove = Object.keys(prev).filter((id) => answeredIds.has(id));
+        if (keysToRemove.length === 0) return prev;
+        const next = { ...prev };
+        for (const id of keysToRemove) delete next[id];
+        return next;
+      });
+    }
+  }
 
   const activeDraft: DraftEntry | null = currentAnswer
     ? drafts[currentAnswer.answerPublicId] ?? {

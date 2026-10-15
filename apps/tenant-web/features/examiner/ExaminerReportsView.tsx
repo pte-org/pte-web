@@ -136,7 +136,7 @@ export const ExaminerReportsView = (): ReactElement => {
           <div className="flex items-center gap-2">
             {hasActiveFilters && (
               <Button variant="ghost" size="sm" onClick={handleResetFilters}>
-                Reset Filters
+                {text.resetFilters}
               </Button>
             )}
           </div>
@@ -146,7 +146,7 @@ export const ExaminerReportsView = (): ReactElement => {
             onClick={() => void reportsQuery.refetch()}
             disabled={reportsQuery.isFetching}
           >
-            {reportsQuery.isFetching ? "Refreshing…" : text.refresh}
+            {reportsQuery.isFetching ? text.refreshing : text.refresh}
           </Button>
         </div>
       </div>

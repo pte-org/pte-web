@@ -5,7 +5,7 @@ import type {
   ExaminerPromptResponse,
   ExaminerAnswerPayloadResponse,
 } from "@pte/api-client";
-import { Button } from "@pte/ui";
+import { Alert, Button } from "@pte/ui";
 import { EXAMINER_WORK_TEXT as T } from "../constants";
 
 interface PromptRendererProps {
@@ -28,15 +28,19 @@ export const PromptRenderer = ({
   const [imageFailed, setImageFailed] = useState(false);
   const [retryKey, setRetryKey] = useState(0);
 
-  useEffect(() => {
+  const [prevAudioUrl, setPrevAudioUrl] = useState(prompt.audioPromptUrl);
+  if (prompt.audioPromptUrl !== prevAudioUrl) {
+    setPrevAudioUrl(prompt.audioPromptUrl);
     setAudioReady(!hasAudio);
     setAudioFailed(false);
-  }, [hasAudio, prompt.audioPromptUrl]);
+  }
 
-  useEffect(() => {
+  const [prevImageUrl, setPrevImageUrl] = useState(prompt.imagePromptUrl);
+  if (prompt.imagePromptUrl !== prevImageUrl) {
+    setPrevImageUrl(prompt.imagePromptUrl);
     setImageReady(!hasImage);
     setImageFailed(false);
-  }, [hasImage, prompt.imagePromptUrl]);
+  }
 
   const isBlocked = (hasAudio && !audioReady) || (hasImage && !imageReady);
 
@@ -54,7 +58,7 @@ export const PromptRenderer = ({
       )}
       {prompt.minWordCount !== null && prompt.maxWordCount !== null && (
         <p className="mt-2 text-xs text-slate-500">
-          Word count: {prompt.minWordCount}–{prompt.maxWordCount}
+          {T.WORD_COUNT_PREFIX}{prompt.minWordCount}–{prompt.maxWordCount}
         </p>
       )}
       {prompt.options.length > 0 && (
@@ -67,27 +71,29 @@ export const PromptRenderer = ({
       {hasAudio && (
         <div className="mt-3 space-y-2">
           {audioFailed ? (
-            <div className="flex items-center justify-between rounded-md border border-red-200 bg-red-50 p-2 text-xs text-red-700">
-              <span>{T.AUDIO_FAILED}</span>
-              <div className="flex gap-2">
-                {onRefreshMedia && (
-                  <Button size="sm" variant="secondary" onClick={onRefreshMedia}>
-                    {T.REFRESH_MEDIA}
+            <Alert tone="error">
+              <div className="flex items-center justify-between">
+                <span>{T.AUDIO_FAILED}</span>
+                <div className="flex gap-2">
+                  {onRefreshMedia && (
+                    <Button size="sm" variant="secondary" onClick={onRefreshMedia}>
+                      {T.REFRESH_MEDIA}
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      setAudioFailed(false);
+                      setAudioReady(false);
+                      setRetryKey((k) => k + 1);
+                    }}
+                  >
+                    {T.RETRY}
                   </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => {
-                    setAudioFailed(false);
-                    setAudioReady(false);
-                    setRetryKey((k) => k + 1);
-                  }}
-                >
-                  {T.RETRY}
-                </Button>
+                </div>
               </div>
-            </div>
+            </Alert>
           ) : (
             <>
               {!audioReady && (
@@ -117,27 +123,29 @@ export const PromptRenderer = ({
       {hasImage && (
         <div className="mt-3 space-y-2">
           {imageFailed ? (
-            <div className="flex items-center justify-between rounded-md border border-red-200 bg-red-50 p-2 text-xs text-red-700">
-              <span>{T.IMAGE_FAILED}</span>
-              <div className="flex gap-2">
-                {onRefreshMedia && (
-                  <Button size="sm" variant="secondary" onClick={onRefreshMedia}>
-                    {T.REFRESH_MEDIA}
+            <Alert tone="error">
+              <div className="flex items-center justify-between">
+                <span>{T.IMAGE_FAILED}</span>
+                <div className="flex gap-2">
+                  {onRefreshMedia && (
+                    <Button size="sm" variant="secondary" onClick={onRefreshMedia}>
+                      {T.REFRESH_MEDIA}
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      setImageFailed(false);
+                      setImageReady(false);
+                      setRetryKey((k) => k + 1);
+                    }}
+                  >
+                    {T.RETRY}
                   </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => {
-                    setImageFailed(false);
-                    setImageReady(false);
-                    setRetryKey((k) => k + 1);
-                  }}
-                >
-                  {T.RETRY}
-                </Button>
+                </div>
               </div>
-            </div>
+            </Alert>
           ) : (
             <>
               {!imageReady && (
@@ -183,7 +191,9 @@ export const ResponseRenderer = ({
   const [audioFailed, setAudioFailed] = useState(isMissingAudio);
   const [retryKey, setRetryKey] = useState(0);
 
-  useEffect(() => {
+  const [prevMediaUrl, setPrevMediaUrl] = useState(response.mediaUrl);
+  if (response.mediaUrl !== prevMediaUrl) {
+    setPrevMediaUrl(response.mediaUrl);
     if (!isAudio) {
       setAudioReady(true);
       setAudioFailed(false);
@@ -194,7 +204,7 @@ export const ResponseRenderer = ({
       setAudioReady(false);
       setAudioFailed(false);
     }
-  }, [isAudio, isMissingAudio, response.mediaUrl]);
+  }
 
   const isBlocked = isAudio && !audioReady;
 
@@ -207,36 +217,43 @@ export const ResponseRenderer = ({
       <h4 className="text-sm font-semibold text-slate-800">{T.STUDENT_RESPONSE}</h4>
       {isAudio ? (
         isMissingAudio ? (
-          <div className="mt-2 rounded-md border border-red-200 bg-red-50 p-3 text-xs text-red-700">
-            <p className="font-semibold">{T.AUDIO_FAILED}</p>
-            <p className="mt-0.5">{T.AUDIO_UNAVAILABLE}</p>
-            {onRefreshMedia && (
-              <Button size="sm" variant="secondary" className="mt-2" onClick={onRefreshMedia}>
-                {T.REFRESH_MEDIA}
-              </Button>
-            )}
+          <div className="mt-2">
+            <Alert tone="error" title={T.AUDIO_FAILED}>
+              <div>
+                <p>{T.AUDIO_UNAVAILABLE}</p>
+                {onRefreshMedia && (
+                  <Button size="sm" variant="secondary" className="mt-2" onClick={onRefreshMedia}>
+                    {T.REFRESH_MEDIA}
+                  </Button>
+                )}
+              </div>
+            </Alert>
           </div>
         ) : audioFailed ? (
-          <div className="mt-2 flex items-center justify-between rounded-md border border-red-200 bg-red-50 p-2 text-xs text-red-700">
-            <span>{T.AUDIO_FAILED}</span>
-            <div className="flex gap-2">
-              {onRefreshMedia && (
-                <Button size="sm" variant="secondary" onClick={onRefreshMedia}>
-                  {T.REFRESH_MEDIA}
-                </Button>
-              )}
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => {
-                  setAudioFailed(false);
-                  setAudioReady(false);
-                  setRetryKey((k) => k + 1);
-                }}
-              >
-                {T.RETRY}
-              </Button>
-            </div>
+          <div className="mt-2">
+            <Alert tone="error">
+              <div className="flex items-center justify-between">
+                <span>{T.AUDIO_FAILED}</span>
+                <div className="flex gap-2">
+                  {onRefreshMedia && (
+                    <Button size="sm" variant="secondary" onClick={onRefreshMedia}>
+                      {T.REFRESH_MEDIA}
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      setAudioFailed(false);
+                      setAudioReady(false);
+                      setRetryKey((k) => k + 1);
+                    }}
+                  >
+                    {T.RETRY}
+                  </Button>
+                </div>
+              </div>
+            </Alert>
           </div>
         ) : (
           <>
@@ -269,7 +286,7 @@ export const ResponseRenderer = ({
               key={option.orderIndex}
               className={option.selected ? "font-semibold text-blue-800" : ""}
             >
-              {option.selected ? "Selected: " : ""}
+              {option.selected ? T.SELECTED_PREFIX : ""}
               {option.text}
             </li>
           ))}
@@ -282,7 +299,7 @@ export const ResponseRenderer = ({
         </p>
       ) : response.kind === "WORD_INDICES" ? (
         <p className="mt-2 text-sm text-slate-700">
-          Selected word indexes: {response.wordIndices?.join(", ") || "—"}
+          {T.SELECTED_WORD_INDEXES_PREFIX}{response.wordIndices?.join(", ") || "—"}
         </p>
       ) : (
         <p className="mt-2 whitespace-pre-wrap break-words text-sm text-slate-700">

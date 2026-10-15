@@ -3,7 +3,7 @@
 import { useState, type ReactElement } from "react";
 import type { ExaminerGradingIssueType } from "@pte/api-client";
 import { Button, Modal, Select } from "@pte/ui";
-import { EXAMINER_WORK_TEXT as T } from "../constants";
+import { EXAMINER_ISSUE_OPTIONS, EXAMINER_WORK_TEXT as T } from "../constants";
 
 interface ReportIssueDialogProps {
   open: boolean;
@@ -11,13 +11,6 @@ interface ReportIssueDialogProps {
   onClose: () => void;
   onSubmit: (type: ExaminerGradingIssueType, description: string) => void;
 }
-
-const ISSUE_OPTIONS: { value: ExaminerGradingIssueType; label: string }[] = [
-  { value: "AUDIO_UNAVAILABLE", label: "Audio unavailable or unplayable" },
-  { value: "MEDIA_UNAVAILABLE", label: "Image or media unavailable" },
-  { value: "RESPONSE_DATA", label: "Corrupted or missing response data" },
-  { value: "OTHER", label: "Other issue" },
-];
 
 export function ReportIssueDialog({
   open,
@@ -45,7 +38,7 @@ export function ReportIssueDialog({
             id="issue-type"
             value={type}
             onChange={(e) => setType(e.target.value as ExaminerGradingIssueType)}
-            options={ISSUE_OPTIONS}
+            options={EXAMINER_ISSUE_OPTIONS}
           />
         </div>
 
@@ -60,7 +53,7 @@ export function ReportIssueDialog({
             required
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Describe the issue preventing grading in detail (max 2000 chars)..."
+            placeholder={T.ISSUE_DESC_PLACEHOLDER}
             className="w-full rounded-md border border-slate-300 p-2 text-sm focus:border-slate-800 focus:outline-none"
           />
         </div>
@@ -75,7 +68,7 @@ export function ReportIssueDialog({
             type="submit"
             disabled={isSubmitting || !description.trim()}
           >
-            {isSubmitting ? "Submitting…" : T.SUBMIT_ISSUE}
+            {isSubmitting ? T.SUBMITTING_ISSUE : T.SUBMIT_ISSUE}
           </Button>
         </div>
       </form>

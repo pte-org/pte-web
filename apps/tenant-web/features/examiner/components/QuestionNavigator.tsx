@@ -72,7 +72,7 @@ export const QuestionNavigator = ({
                 ) : hasDraft ? (
                   <span className="inline-block h-2 w-2 rounded-full bg-amber-500" title={T.STATUS_DRAFT} />
                 ) : (
-                  <span className="inline-block h-2 w-2 rounded-full bg-slate-300" title="Not started" />
+                  <span className="inline-block h-2 w-2 rounded-full bg-slate-300" title={T.NOT_STARTED_TITLE} />
                 )}
               </div>
             </button>

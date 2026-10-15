@@ -1,4 +1,8 @@
-import type { ExaminerQueueStatus } from "@pte/api-client";
+import type {
+  ExaminerGradingIssueType,
+  ExaminerGradingOperation,
+  ExaminerQueueStatus,
+} from "@pte/api-client";
 
 export const EXAMINER_QUEUE_QUERY_KEY = ["examinerWorkQueue"] as const;
 export const EXAMINER_ATTEMPT_QUERY_KEY = ["examinerAttemptWork"] as const;
@@ -101,7 +105,43 @@ export const EXAMINER_WORK_TEXT = {
   SORT_ASSIGNED_ASC: "Oldest assigned",
   SORT_ASSIGNED_DESC: "Newest assigned",
   ISSUES_BLOCKING: "Grading is blocked by an unresolved issue on this attempt.",
+  SUBMISSION_BLOCKED: "Submission Blocked",
+  PROPOSED_SCORE: "Proposed Score:",
+  STALE_REFERENCE: "Stale Reference",
+  MEDIA_UNAVAILABLE_TITLE: "Media Unavailable",
+  SUBMISSION_BLOCKED_FALLBACK: "You cannot submit scores for this answer.",
+  PUBLISHED_COHORT: "Published Cohort",
+  SCORED_OVER_TOTAL: "Scored / Total",
+  TABLE_HEADER_SCORES: "Scores",
+  TABLE_HEADER_AVG_SCORE: "Avg Score",
+  TABLE_HEADER_VERSION: "Version",
+  TABLE_HEADER_ACTION: "Action",
+  REGRADE_LABEL: "(regrade)",
+  QUESTIONS_SUFFIX: "questions",
+  WORD_COUNT_PREFIX: "Word count: ",
+  SELECTED_PREFIX: "Selected: ",
+  SELECTED_WORD_INDEXES_PREFIX: "Selected word indexes: ",
+  NOT_STARTED_TITLE: "Not started",
+  SCORE_LABEL_SHORT: "Score:",
+  AI_REVISION_LABEL: "AI revision:",
+  ISSUE_TYPE_AUDIO: "Audio unavailable or unplayable",
+  ISSUE_TYPE_MEDIA: "Image or media unavailable",
+  ISSUE_TYPE_DATA: "Corrupted or missing response data",
+  ISSUE_TYPE_OTHER: "Other issue",
+  ISSUE_DESC_PLACEHOLDER: "Describe the issue preventing grading in detail (max 2000 chars)...",
+  SUBMITTING_ISSUE: "Submitting…",
+  SEARCH_BTN: "Search",
+  ACTIVE_ISSUE_TITLE: "Active Issue Blocking Finalization",
+  SCORING_NOTICE_TITLE: "Scoring Status Notice",
+  SCORE_PLACEHOLDER: "0–100",
 } as const;
+
+export const EXAMINER_ISSUE_OPTIONS: { value: ExaminerGradingIssueType; label: string }[] = [
+  { value: "AUDIO_UNAVAILABLE", label: EXAMINER_WORK_TEXT.ISSUE_TYPE_AUDIO },
+  { value: "MEDIA_UNAVAILABLE", label: EXAMINER_WORK_TEXT.ISSUE_TYPE_MEDIA },
+  { value: "RESPONSE_DATA", label: EXAMINER_WORK_TEXT.ISSUE_TYPE_DATA },
+  { value: "OTHER", label: EXAMINER_WORK_TEXT.ISSUE_TYPE_OTHER },
+];
 
 export const EXAMINER_QUEUE_STATUSES: { value: ExaminerQueueStatus; label: string }[] = [
   { value: "ALL", label: EXAMINER_WORK_TEXT.STATUS_ALL },
@@ -123,3 +163,56 @@ export function parseExaminerQueueStatus(val: string | null | undefined): Examin
   }
   return "ALL";
 }
+
+export const EXAMINER_HISTORY_DIALOG_TEXT = {
+  TITLE_PREFIX: "Grading History & Audit Trail",
+  DESCRIPTION: "Immutable audit record of all scoring and workflow transitions for this assigned attempt.",
+  LOADING: "Loading audit history…",
+  ERROR_TITLE: "Could not load grading history.",
+  RETRY: "Retry",
+  EMPTY_TITLE: "No grading events recorded yet.",
+  COL_TIMESTAMP: "Timestamp",
+  COL_ACTION: "Action",
+  COL_ACTOR: "Actor",
+  COL_TARGET_VERSION: "Target / Version",
+  COL_SCORE_VALUES: "Score Values",
+  COL_RUBRIC: "Rubric",
+  COL_REASON_NOTES: "Reason / Notes",
+  ATTEMPT_LEVEL: "Attempt level",
+  PREVIOUS: "Previous",
+  NEXT: "Next",
+  CLOSE: "Close",
+  OP_STARTED: "Started",
+  OP_DRAFT_SAVED: "Draft Saved",
+  OP_SCORE_CHANGED: "Score Changed",
+  OP_FINALIZED: "Finalized",
+  OP_REOPENED: "Reopened",
+  OP_REGRADED: "Regraded",
+  OP_ISSUE_REPORTED: "Issue Reported",
+  OP_ISSUE_RESOLVED: "Issue Resolved",
+} as const;
+
+export const EXAMINER_OPERATION_BADGES: Record<
+  ExaminerGradingOperation,
+  { label: string; variant: "neutral" | "info" | "warning" | "success" | "danger" }
+> = {
+  START: { label: EXAMINER_HISTORY_DIALOG_TEXT.OP_STARTED, variant: "info" },
+  SAVE_DRAFT: { label: EXAMINER_HISTORY_DIALOG_TEXT.OP_DRAFT_SAVED, variant: "neutral" },
+  SCORE_CHANGE: { label: EXAMINER_HISTORY_DIALOG_TEXT.OP_SCORE_CHANGED, variant: "warning" },
+  FINALIZE: { label: EXAMINER_HISTORY_DIALOG_TEXT.OP_FINALIZED, variant: "success" },
+  REOPEN: { label: EXAMINER_HISTORY_DIALOG_TEXT.OP_REOPENED, variant: "warning" },
+  REGRADE: { label: EXAMINER_HISTORY_DIALOG_TEXT.OP_REGRADED, variant: "warning" },
+  REPORT_ISSUE: { label: EXAMINER_HISTORY_DIALOG_TEXT.OP_ISSUE_REPORTED, variant: "danger" },
+  RESOLVE_ISSUE: { label: EXAMINER_HISTORY_DIALOG_TEXT.OP_ISSUE_RESOLVED, variant: "success" },
+};
+
+export const EXAMINER_GUIDELINES_DIALOG_TEXT = {
+  LOADING: "Loading scoring guidelines…",
+  POLICY_TITLE: "Scoring Scale & Policy",
+  SCALE_PREFIX: "Scale: ",
+  TASK_CRITERIA_TITLE: "Task Criteria",
+  TEMPLATE_PREFIX: "Template: ",
+  STANDARD_RUBRIC_FALLBACK: "Standard scalar 0–100 rubric applies.",
+  EMPTY_TITLE: "No specific guidelines configured for this session.",
+  CLOSE: "Close",
+} as const;

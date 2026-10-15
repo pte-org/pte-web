@@ -71,14 +71,14 @@ export const AiReferencePanel = ({
 
       <div className="mt-3 flex flex-wrap items-baseline gap-4 text-sm">
         <div className="flex items-baseline gap-1">
-          <span className="text-xs text-slate-500">Score:</span>
+          <span className="text-xs text-slate-500">{T.SCORE_LABEL_SHORT}</span>
           <span className="text-lg font-bold text-indigo-950">
             {hasScore ? `${reference.score}/100` : "—"}
           </span>
         </div>
         {reference.version && (
           <div className="flex items-baseline gap-1">
-            <span className="text-xs text-slate-500">AI revision:</span>
+            <span className="text-xs text-slate-500">{T.AI_REVISION_LABEL}</span>
             <span className="font-mono text-xs text-slate-700">{reference.version}</span>
           </div>
         )}

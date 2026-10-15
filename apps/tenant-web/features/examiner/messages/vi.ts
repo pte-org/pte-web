@@ -67,4 +67,7 @@ export const EXAMINER_WORKSPACE_VI: ExaminerWorkspaceMessages = {
   loadingReports: "Đang tải báo cáo...",
   reportsError: "Không thể tải báo cáo chấm thi.",
   noData: "Không có dữ liệu",
+  searchBtn: "Tìm kiếm",
+  resetFilters: "Đặt lại bộ lọc",
+  refreshing: "Đang làm mới...",
 };
