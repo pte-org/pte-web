@@ -34,18 +34,18 @@ describe("resolveWorkspace", () => {
     expect(result.allowedWorkspaces.map((w) => w.id)).toEqual(["student"]);
   });
 
-  it("routes PROCTOR-only to /proctor/sessions when feature flag is enabled", () => {
+  it("routes PROCTOR-only to proctorSessions when feature flag is enabled", () => {
     const result = resolveWorkspace(["PROCTOR"], true);
-    expect(result.defaultRoute).toBe("/proctor/sessions");
+    expect(result.defaultRoute).toBe(AUTH_ROUTES.proctorSessions);
     expect(result.allowedWorkspaces).toHaveLength(1);
-    expect(result.allowedWorkspaces[0]?.href).toBe("/proctor/sessions");
+    expect(result.allowedWorkspaces[0]?.href).toBe(AUTH_ROUTES.proctorSessions);
   });
 
-  it("routes PROCTOR-only to /proctor/unavailable when feature flag is disabled", () => {
+  it("routes PROCTOR-only to proctorUnavailable when feature flag is disabled", () => {
     const result = resolveWorkspace(["PROCTOR"], false);
-    expect(result.defaultRoute).toBe("/proctor/unavailable");
+    expect(result.defaultRoute).toBe(AUTH_ROUTES.proctorUnavailable);
     expect(result.allowedWorkspaces).toHaveLength(1);
-    expect(result.allowedWorkspaces[0]?.href).toBe("/proctor/unavailable");
+    expect(result.allowedWorkspaces[0]?.href).toBe(AUTH_ROUTES.proctorUnavailable);
   });
 
   it("routes multi-role PROCTOR + HOST_ADMIN to hostDashboard with switcher option", () => {

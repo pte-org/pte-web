@@ -65,7 +65,7 @@ export function resolveWorkspace(
       id: "proctor",
       labelKey: "workspace.proctor",
       defaultLabel: "Proctor",
-      href: proctorUiEnabled ? "/proctor/sessions" : "/proctor/unavailable",
+      href: proctorUiEnabled ? AUTH_ROUTES.proctorSessions : AUTH_ROUTES.proctorUnavailable,
     });
   }
 
@@ -79,7 +79,7 @@ export function resolveWorkspace(
   } else if (hasHost) {
     defaultRoute = AUTH_ROUTES.hostDashboard;
   } else if (hasProctor) {
-    defaultRoute = proctorUiEnabled ? "/proctor/sessions" : "/proctor/unavailable";
+    defaultRoute = proctorUiEnabled ? AUTH_ROUTES.proctorSessions : AUTH_ROUTES.proctorUnavailable;
   } else {
     defaultRoute = AUTH_ROUTES.login;
   }
