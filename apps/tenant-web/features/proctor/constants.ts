@@ -146,7 +146,6 @@ export const PROCTOR_LIVE_TEXT = {
   PANEL_STARTED_PREFIX: "Bắt đầu: ",
   PANEL_SUBMITTED_PREFIX: "Nộp: ",
 } as const;
-
 export const PROCTOR_AUDIT_TEXT = {
   TITLE: "Session audit log",
   SUBTITLE:

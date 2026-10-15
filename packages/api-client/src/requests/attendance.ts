@@ -47,7 +47,6 @@ export function getAttendanceRoster(
   const url = `${ATTENDANCE_ENDPOINTS.proctorRoster(sessionPublicId)}${qs ? `?${qs}` : ""}`;
   return client.request<AttendancePageResponse>(url);
 }
-
 export function recordAttendance(
   client: ApiClient,
   sessionPublicId: string,

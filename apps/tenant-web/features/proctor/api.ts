@@ -67,7 +67,6 @@ export interface ProctorSecurityAuditPage {
   cursor: string | null;
   hasNext: boolean;
 }
-
 export interface UseAssignedProctorSessionsOptions {
   page?: number;
   size?: number;
