@@ -152,10 +152,27 @@ const ADMIN_VI: Record<string, string> = {
   "Plan archived.": "Đã lưu trữ gói.",
 
   "License codes": "Mã bản quyền",
+  "Activation codes": "Mã kích hoạt",
+  "Review and manage codes issued by the platform.":
+    "Theo dõi và quản lý các mã được phát hành bởi nền tảng.",
+  "Create code": "Tạo mã",
+  "Lookup code": "Tra cứu mã",
+  "Advanced filters": "Bộ lọc nâng cao",
+  "Hide advanced filters": "Ẩn bộ lọc nâng cao",
+  "Create activation code": "Tạo mã kích hoạt",
+  "Code created": "Đã tạo mã",
+  "The code was created securely. Reveal it only when you are ready to share it.":
+    "Mã đã được tạo an toàn. Chỉ hiển thị mã khi bạn sẵn sàng chia sẻ.",
+  "Issued on": "Ngày phát hành",
+  "Code expires": "Hạn sử dụng mã",
+  "Redeemed on": "Ngày kích hoạt",
+  "Not redeemed": "Chưa sử dụng",
+  "No expiry": "Không thời hạn",
   "Issue a code": "Phát hành mã",
+  "Lookup activation code": "Tra cứu mã kích hoạt",
+  "Code expiry": "Thời hạn mã",
   "Select active exam package": "Chọn gói kỳ thi đang hoạt động",
   "Refresh plans": "Làm mới danh sách gói",
-  "Code expiry": "Thời hạn mã",
   "Recover issuance result": "Khôi phục kết quả phát hành",
   "Start a new issuance": "Bắt đầu phát hành mới",
   "Start another issuance?": "Bắt đầu một lần phát hành khác?",
@@ -178,6 +195,7 @@ const ADMIN_VI: Record<string, string> = {
   "Refresh list": "Làm mới danh sách",
   "Find a code safely": "Tra cứu mã an toàn",
   "License code": "Mã bản quyền",
+  "Activation code": "Mã kích hoạt",
   Lookup: "Tra cứu",
   "Lookup result": "Kết quả tra cứu",
   "No matching code was found.": "Không tìm thấy mã phù hợp.",
@@ -970,8 +988,12 @@ const ADMIN_VI: Record<string, string> = {
     "Tìm theo tên gói, mô tả, loại hoặc trạng thái",
   "Search plans by name, description, type, or status":
     "Tìm gói theo tên, mô tả, loại hoặc trạng thái",
-  "Search by tenant or license identifier": "Tìm theo tenant hoặc mã bản quyền",
-  "Search license codes by tenant or identifier": "Tìm mã bản quyền theo tenant hoặc mã định danh",
+  "Search by activation code or tenant ID": "Tìm theo mã kích hoạt hoặc ID tenant",
+  "Search license codes by activation code or tenant ID":
+    "Tìm mã kích hoạt hoặc ID tenant",
+  "Activation code created.": "Đã tạo mã kích hoạt.",
+  "Activation code issuance confirmed.": "Đã xác nhận phát hành mã kích hoạt.",
+  "Activation code revoked.": "Đã thu hồi mã kích hoạt.",
   "Search by organization, code, email, phone, or tax code":
     "Tìm theo tổ chức, mã, email, điện thoại hoặc mã số thuế",
   "Search applications by organization, code, email, phone, or tax code":

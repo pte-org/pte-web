@@ -33,6 +33,7 @@ import {
   type AdminLicenseCodeSummary,
   type ConfirmLicenseRevokeRequest,
   type IssueLicenseCodeRequest,
+  type LicenseIssueReceipt,
   type LicenseCodeStatus,
   type LicenseRevokePreviewResponse,
 } from "@pte/api-client";
@@ -67,9 +68,16 @@ const LICENSE_STATUS_FILTER_OPTIONS = [
 const formatDate = (value: string | null): string =>
   value ? new Date(value).toLocaleString() : "—";
 
+const ACTIVATION_CODE_SEARCH_PATTERN =
+  /^(?:[A-Z0-9]{8}|[A-Z0-9]{4}-[A-Z0-9]{4}|[A-Z0-9]{4}(?:-[A-Z0-9]{4}){4})$/i;
+
+const isActivationCodeSearch = (value: string): boolean =>
+  ACTIVATION_CODE_SEARCH_PATTERN.test(value.trim().replace(/\s+/g, ""));
+
 type IssueIntent = { idempotencyKey: string; payload: IssueLicenseCodeRequest };
 type StatusFilter = LicenseCodeStatus | "";
 type AppliedFilters = { status: StatusFilter; planId: string; tenantId: string };
+type LicenseCodeRevealTarget = Pick<AdminLicenseCodeSummary, "publicId">;
 
 const SAFE_NEW_INTENT_ERROR_CODES = new Set([
   "LICENSE_CODE_IDEMPOTENCY_KEY_REQUIRED",
@@ -139,6 +147,10 @@ export const LicenseCodesView = (): ReactElement => {
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedSearch(search);
+  const activationCodeSearch = isActivationCodeSearch(debouncedSearch);
+  const [codeSearchResult, setCodeSearchResult] = useState<AdminLicenseCodeSummary | null>(null);
+  const [codeSearchNotFound, setCodeSearchNotFound] = useState(false);
+  const [codeSearchError, setCodeSearchError] = useState("");
   const [draftStatus, setDraftStatus] = useState<StatusFilter>("");
   const [draftPlanId, setDraftPlanId] = useState("");
   const [draftTenantId, setDraftTenantId] = useState("");
@@ -149,7 +161,7 @@ export const LicenseCodesView = (): ReactElement => {
     status: filters.status || undefined,
     planId: filters.planId || undefined,
     tenantId: filters.tenantId || undefined,
-    search: debouncedSearch,
+    search: activationCodeSearch ? "UNSUPPORTED" : debouncedSearch,
   });
   const {
     data: plans = [],
@@ -163,6 +175,9 @@ export const LicenseCodesView = (): ReactElement => {
 
   const [planId, setPlanId] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
+  const [issueDialogOpen, setIssueDialogOpen] = useState(false);
+  const [issueSuccess, setIssueSuccess] = useState<LicenseIssueReceipt | null>(null);
+  const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false);
   const [codeToRevoke, setCodeToRevoke] = useState<AdminLicenseCodeSummary | null>(null);
   const [revokePreview, setRevokePreview] = useState<LicenseRevokePreviewResponse | null>(null);
   const [revokeReason, setRevokeReason] = useState<string>(T.REVOKE_REASON);
@@ -176,11 +191,12 @@ export const LicenseCodesView = (): ReactElement => {
   const [localError, setLocalError] = useState("");
   const [confirmNewIntent, setConfirmNewIntent] = useState(false);
 
+  const [lookupDialogOpen, setLookupDialogOpen] = useState(false);
   const [lookupInput, setLookupInput] = useState("");
   const [lookupResult, setLookupResult] = useState<AdminLicenseCodeSummary | null>(null);
   const [lookupBusy, setLookupBusy] = useState(false);
   const [lookupError, setLookupError] = useState("");
-  const [revealTarget, setRevealTarget] = useState<AdminLicenseCodeSummary | null>(null);
+  const [revealTarget, setRevealTarget] = useState<LicenseCodeRevealTarget | null>(null);
   const [revealedCode, setRevealedCode] = useState<string | null>(null);
   const [revealBusy, setRevealBusy] = useState(false);
   const [revealError, setRevealError] = useState("");
@@ -204,15 +220,32 @@ export const LicenseCodesView = (): ReactElement => {
   const activePlans = plans.filter(
     (plan) => plan.type === "EXAM_PACKAGE" && plan.status === "ACTIVE",
   );
-  const codes = codePageQuery.data?.data ?? [];
+  const codeSearchMatchesFilters =
+    codeSearchResult !== null &&
+    (!filters.status || codeSearchResult.effectiveStatus === filters.status) &&
+    (!filters.planId || codeSearchResult.planPublicId === filters.planId) &&
+    (!filters.tenantId || codeSearchResult.recipientPublicId === filters.tenantId);
+  const codeSearchBusy =
+    activationCodeSearch && codeSearchResult === null && !codeSearchNotFound && !codeSearchError;
+  const codes = activationCodeSearch
+    ? codeSearchMatchesFilters
+      ? codeSearchResult
+        ? [codeSearchResult]
+        : []
+      : []
+    : codePageQuery.data?.data ?? [];
   const isFiltered = Boolean(filters.status || filters.planId || filters.tenantId || search.trim());
-  const error = issue.error ?? revoke.error ?? revokePreviewRequest.error ?? codePageQuery.error;
+  const error =
+    issue.error ?? revoke.error ?? revokePreviewRequest.error ?? codePageQuery.error ?? codeSearchError;
   const errorMessage =
     localError ||
     (error ? safeOperationMessage(error, T.ERROR) : codePageQuery.isError ? T.ERROR : undefined);
   const expiryDate = expiresAt ? new Date(expiresAt) : null;
   const utcPreview =
     expiryDate && !Number.isNaN(expiryDate.getTime()) ? expiryDate.toISOString() : T.EMPTY_VALUE;
+  const issueSuccessPlanName = issueSuccess
+    ? plans.find((plan) => plan.publicId === issueSuccess.planId)?.name ?? T.EMPTY_VALUE
+    : T.EMPTY_VALUE;
 
   const saveRecovery = (next: IssueIntent | null): void => {
     if (!recoveryKey) return;
@@ -246,11 +279,18 @@ export const LicenseCodesView = (): ReactElement => {
         setLookupResult(null);
         setLookupInput("");
         setLookupError("");
+        setLookupDialogOpen(false);
+        setIssueDialogOpen(false);
+        setIssueSuccess(null);
+        setAdvancedFiltersOpen(false);
         setLocalError("");
         setMemoryRecovery(null);
         setConfirmNewIntent(false);
         setCodeToRevoke(null);
         setRevokePreview(null);
+        setCodeSearchResult(null);
+        setCodeSearchNotFound(false);
+        setCodeSearchError("");
       }),
     [],
   );
@@ -260,6 +300,32 @@ export const LicenseCodesView = (): ReactElement => {
     const timeout = window.setTimeout(() => setRevealedCode(null), MAX_REVEAL_MS);
     return () => window.clearTimeout(timeout);
   }, [revealedCode]);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!activationCodeSearch) {
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    void lookupAdminLicenseCode(debouncedSearch)
+      .then((result) => {
+        if (!cancelled) setCodeSearchResult(result);
+      })
+      .catch((caught) => {
+        if (cancelled) return;
+        if (caught instanceof ApiError && caught.status === 404) {
+          setCodeSearchNotFound(true);
+          return;
+        }
+        setCodeSearchError(safeOperationMessage(caught, T.ERROR));
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activationCodeSearch, debouncedSearch, T.ERROR]);
 
   const applyFilters = (): void => {
     setPage(0);
@@ -300,12 +366,14 @@ export const LicenseCodesView = (): ReactElement => {
     try {
       const result = await issue.mutateAsync(next);
       showToast(
-        result.replayed ? T.RECOVERED_SUCCESS(result.publicId) : T.ISSUED_SUCCESS(result.publicId),
+        result.replayed ? T.RECOVERED_SUCCESS : T.ISSUED_SUCCESS,
         { tone: "success" },
       );
       saveRecovery(null);
       setPlanId("");
       setExpiresAt("");
+      setIssueDialogOpen(false);
+      setIssueSuccess(result);
     } catch {
       // The mutation error is rendered; the same idempotency key remains recoverable.
     }
@@ -361,7 +429,7 @@ export const LicenseCodesView = (): ReactElement => {
     };
     try {
       await revoke.mutateAsync({ publicId: codeToRevoke.publicId, payload });
-      showToast(T.REVOKED_SUCCESS(codeToRevoke.publicId), { tone: "success" });
+      showToast(T.REVOKED_SUCCESS, { tone: "success" });
       setCodeToRevoke(null);
       setRevokePreview(null);
     } catch (caught) {
@@ -381,7 +449,7 @@ export const LicenseCodesView = (): ReactElement => {
     }
   };
 
-  const revealCode = async (row: AdminLicenseCodeSummary): Promise<void> => {
+  const revealCode = async (row: LicenseCodeRevealTarget): Promise<void> => {
     clearReveal();
     setRevealTarget(row);
     setRevealBusy(true);
@@ -444,93 +512,25 @@ export const LicenseCodesView = (): ReactElement => {
         </Alert>
       )}
 
-      <CommercialPanel title={T.ISSUE_TITLE}>
-        <form
-          className="grid gap-4 sm:grid-cols-[1fr_220px_auto] sm:items-end"
-          onSubmit={(event) => void issueCode(event)}
-        >
-          <Select
-            id="license-plan"
-            label={T.PLAN_LABEL}
-            placeholder={T.PLAN_PLACEHOLDER}
-            options={activePlans.map((plan) => ({ label: plan.name, value: plan.publicId }))}
-            value={planId}
-            onChange={(event) => setPlanId(event.target.value)}
-            required
-            disabled={intent !== null || issue.isPending || plansLoading || plansError}
-          />
-          <DateTimeInput
-            id="license-expires"
-            label={T.EXPIRY_LABEL}
-            value={expiresAt}
-            onChange={(event) => setExpiresAt(event.target.value)}
-            disabled={intent !== null || issue.isPending}
-          />
-          <Button
-            type="submit"
-            isLoading={issue.isPending}
-            disabled={!isReady || !actorId || (!planId && !intent)}
-          >
-            {intent ? T.RETRY_ISSUE : T.ISSUE}
-          </Button>
-        </form>
-        {plansError && <Alert tone="error">{T.PLAN_LOAD_ERROR}</Alert>}
-        {!plansError && !plansLoading && activePlans.length === 0 && (
-          <Alert tone="info">{T.PLAN_LOAD_ERROR}</Alert>
-        )}
-        <p className="mt-3 text-xs text-slate-600">{T.EXPIRY_HELP(zone, utcPreview)}</p>
-        <Button type="button" disabled={issue.isPending} onClick={() => void refreshPlans()}>
-          {T.REFRESH_PLANS}
-        </Button>
-        {intent && (
-          <Button
-            type="button"
-            disabled={issue.isPending}
-            onClick={() => setConfirmNewIntent(true)}
-          >
-            {T.NEW_ISSUE}
-          </Button>
-        )}
-      </CommercialPanel>
-
-      <CommercialPanel title={T.LOOKUP_TITLE}>
-        <form
-          className="flex flex-col gap-3 sm:flex-row sm:items-end"
-          onSubmit={(event) => void lookupCode(event)}
-        >
-          <Input
-            id="license-code-lookup"
-            label={T.LOOKUP_LABEL}
-            value={lookupInput}
-            onChange={(event) => setLookupInput(event.target.value)}
-            autoComplete="off"
-            disabled={lookupBusy}
-          />
-          <Button type="submit" isLoading={lookupBusy} disabled={!lookupInput.trim()}>
-            {T.LOOKUP}
-          </Button>
-        </form>
-        {lookupError && <Alert tone="error">{lookupError}</Alert>}
-        {lookupResult && (
-          <div className="mt-4 rounded-md border border-slate-200 bg-slate-50 p-3 text-sm">
-            <p className="font-medium text-slate-900">{T.LOOKUP_RESULT}</p>
-            <p className="mt-1 font-mono text-xs text-slate-600">{lookupResult.publicId}</p>
-            <p className="mt-2 text-slate-700">
-              {lookupResult.planName} · {lookupResult.effectiveStatus} · {lookupResult.maskedCode}
-            </p>
-          </div>
-        )}
-      </CommercialPanel>
-
       <CommercialPanel
-        title={T.ISSUED_TITLE}
+        title={T.TITLE}
+        subtitle={T.INVENTORY_SUBTITLE}
         actions={
-          <Button type="button" variant="secondary" onClick={refreshLicenseCodes}>
-            {T.REFRESH_LIST}
-          </Button>
+          <>
+            <Button type="button" onClick={() => setIssueDialogOpen(true)}>
+              {T.CREATE_ACTION}
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => setLookupDialogOpen(true)}>
+              {T.LOOKUP_ACTION}
+            </Button>
+            <Button type="button" variant="secondary" onClick={refreshLicenseCodes}>
+              {T.REFRESH_LIST}
+            </Button>
+          </>
         }
       >
-        <div className="mb-5 rounded-md border border-slate-200 bg-slate-50 p-3">
+        {advancedFiltersOpen && (
+          <div className="mb-4 rounded-md border border-[var(--table-border)] bg-[var(--surface-subtle)] p-3">
           <div className="grid gap-3 md:grid-cols-[180px_1fr_1fr_auto_auto] md:items-end">
             <Select
               id="license-status-filter"
@@ -565,37 +565,45 @@ export const LicenseCodesView = (): ReactElement => {
               {T.TENANT_FILTER_HELP}
             </p>
           </div>
-        </div>
+          </div>
+        )}
         <DataTable
           searchPlaceholder={searchText.placeholder}
           searchAriaLabel={searchText.ariaLabel}
           searchValue={search}
           onSearchChange={(value) => {
             clearReveal();
+            setCodeSearchResult(null);
+            setCodeSearchNotFound(false);
+            setCodeSearchError("");
             setSearch(value);
             setPage(0);
           }}
+          filters={
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setAdvancedFiltersOpen((current) => !current)}
+            >
+              {advancedFiltersOpen ? T.HIDE_ADVANCED_FILTERS : T.ADVANCED_FILTERS}
+            </Button>
+          }
           columns={[
             {
               key: "code",
               header: T.CODE,
               cell: (row: AdminLicenseCodeSummary) => (
-                <div>
-                  <span className="font-mono text-xs font-semibold text-slate-900">
-                    {row.maskedCode}
-                  </span>
-                  <p className="mt-1 font-mono text-[11px] text-slate-500">{row.publicId}</p>
-                </div>
+                <span className="font-mono text-xs font-semibold text-slate-900">
+                  {row.maskedCode}
+                </span>
               ),
             },
             {
               key: "plan",
               header: T.PLAN_ID,
               cell: (row: AdminLicenseCodeSummary) => (
-                <div>
-                  <p className="font-medium text-slate-900">{row.planName}</p>
-                  <p className="mt-1 font-mono text-[11px] text-slate-500">{row.planPublicId}</p>
-                </div>
+                <p className="font-medium text-slate-900">{row.planName}</p>
               ),
             },
             {
@@ -603,12 +611,7 @@ export const LicenseCodesView = (): ReactElement => {
               header: T.RECIPIENT,
               cell: (row: AdminLicenseCodeSummary) =>
                 row.recipientPublicId ? (
-                  <div>
-                    <p>{row.recipientName ?? T.EMPTY_VALUE}</p>
-                    <p className="mt-1 font-mono text-[11px] text-slate-500">
-                      {row.recipientPublicId}
-                    </p>
-                  </div>
+                  <p>{row.recipientName ?? T.EMPTY_VALUE}</p>
                 ) : (
                   T.EMPTY_VALUE
                 ),
@@ -641,7 +644,7 @@ export const LicenseCodesView = (): ReactElement => {
           ]}
           rows={codes}
           getRowKey={(row) => row.publicId}
-          isLoading={codePageQuery.isLoading}
+          isLoading={codePageQuery.isLoading || codeSearchBusy}
           rowActions={(row) => (
             <ActionMenu
               items={[
@@ -664,11 +667,17 @@ export const LicenseCodesView = (): ReactElement => {
             />
           )}
           rowActionsHeader=""
-          emptyTitle={codePageQuery.isLoading ? T.LOADING : isFiltered ? T.FILTER_EMPTY : T.EMPTY}
+          emptyTitle={
+            codePageQuery.isLoading || codeSearchBusy
+              ? T.LOADING
+              : isFiltered || codeSearchNotFound
+                ? T.FILTER_EMPTY
+                : T.EMPTY
+          }
           clientSideFiltering={false}
           clientSidePagination={false}
           pagination={
-            codePageQuery.data ? (
+            !activationCodeSearch && codePageQuery.data ? (
               <PaginationControls
                 meta={codePageQuery.data.meta}
                 onPageChange={(nextPage) => {
@@ -688,6 +697,217 @@ export const LicenseCodesView = (): ReactElement => {
           }
         />
       </CommercialPanel>
+
+      <Modal
+        open={issueDialogOpen || intent !== null}
+        title={T.ISSUE_TITLE}
+        size="md"
+        isDismissDisabled={issue.isPending}
+        onClose={() => {
+          if (!issue.isPending && !intent) {
+            setIssueDialogOpen(false);
+            setLocalError("");
+          }
+        }}
+        footer={
+          <>
+            {intent && (
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={issue.isPending}
+                onClick={() => setConfirmNewIntent(true)}
+              >
+                {T.NEW_ISSUE}
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={issue.isPending || intent !== null}
+              onClick={() => setIssueDialogOpen(false)}
+            >
+              {T.CLOSE}
+            </Button>
+            <Button
+              type="submit"
+              form="license-issue-form"
+              isLoading={issue.isPending}
+              disabled={!isReady || !actorId || (!planId && !intent)}
+            >
+              {intent ? T.RETRY_ISSUE : T.ISSUE}
+            </Button>
+          </>
+        }
+      >
+        <form
+          id="license-issue-form"
+          className="flex flex-col gap-4"
+          onSubmit={(event) => void issueCode(event)}
+        >
+          <Select
+            id="license-plan"
+            label={T.PLAN_LABEL}
+            placeholder={T.PLAN_PLACEHOLDER}
+            options={activePlans.map((plan) => ({ label: plan.name, value: plan.publicId }))}
+            value={intent?.payload.planId ?? planId}
+            onChange={(event) => setPlanId(event.target.value)}
+            required
+            disabled={intent !== null || issue.isPending || plansLoading || plansError}
+          />
+          <DateTimeInput
+            id="license-expires"
+            label={T.EXPIRY_LABEL}
+            value={expiresAt}
+            onChange={(event) => setExpiresAt(event.target.value)}
+            disabled={intent !== null || issue.isPending}
+          />
+          <p className="text-xs text-[var(--ink-muted)]">{T.EXPIRY_HELP(zone, utcPreview)}</p>
+          {issue.error != null && (
+            <Alert tone="error">{safeOperationMessage(issue.error, T.ERROR)}</Alert>
+          )}
+          {localError && <Alert tone="error">{localError}</Alert>}
+          {plansError && (
+            <div className="flex flex-col gap-2">
+              <Alert tone="error">{T.PLAN_LOAD_ERROR}</Alert>
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={issue.isPending}
+                onClick={() => void refreshPlans()}
+              >
+                {T.REFRESH_PLANS}
+              </Button>
+            </div>
+          )}
+          {!plansError && !plansLoading && activePlans.length === 0 && (
+            <div className="flex flex-col gap-2">
+              <Alert tone="info">{T.PLAN_LOAD_ERROR}</Alert>
+              <Button
+                type="button"
+                variant="ghost"
+                disabled={issue.isPending}
+                onClick={() => void refreshPlans()}
+              >
+                {T.REFRESH_PLANS}
+              </Button>
+            </div>
+          )}
+        </form>
+      </Modal>
+
+      <Modal
+        open={issueSuccess !== null}
+        title={T.ISSUE_SUCCESS_TITLE}
+        size="md"
+        onClose={() => setIssueSuccess(null)}
+        footer={
+          <>
+            <Button variant="ghost" onClick={() => setIssueSuccess(null)}>
+              {T.CLOSE}
+            </Button>
+            <Button
+              onClick={() => {
+                if (!issueSuccess) return;
+                const publicId = issueSuccess.publicId;
+                setIssueSuccess(null);
+                void revealCode({ publicId });
+              }}
+            >
+              {T.REVEAL}
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-4">
+          <p className="text-sm text-[var(--ink-secondary)]">{T.ISSUE_SUCCESS_DESCRIPTION}</p>
+          {issueSuccess && (
+            <dl className="grid gap-3 rounded-md border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-3 text-sm sm:grid-cols-2">
+              <div>
+                <dt className="text-xs text-[var(--ink-muted)]">{T.ISSUE_SUCCESS_PLAN}</dt>
+                <dd className="mt-1 font-medium text-[var(--ink-primary)]">{issueSuccessPlanName}</dd>
+              </div>
+              <div>
+                <dt className="text-xs text-[var(--ink-muted)]">{T.ISSUE_SUCCESS_EXPIRY}</dt>
+                <dd className="mt-1 font-medium text-[var(--ink-primary)]">
+                  {formatDate(issueSuccess.codeExpiresAt)}
+                </dd>
+              </div>
+            </dl>
+          )}
+        </div>
+      </Modal>
+
+      <Modal
+        open={lookupDialogOpen}
+        title={T.LOOKUP_TITLE}
+        size="md"
+        onClose={() => setLookupDialogOpen(false)}
+        footer={
+          <Button variant="ghost" onClick={() => setLookupDialogOpen(false)}>
+            {T.CLOSE}
+          </Button>
+        }
+      >
+        <form
+          className="flex flex-col gap-3 sm:flex-row sm:items-end"
+          onSubmit={(event) => void lookupCode(event)}
+        >
+          <Input
+            id="license-code-lookup"
+            label={T.LOOKUP_LABEL}
+            value={lookupInput}
+            onChange={(event) => setLookupInput(event.target.value)}
+            autoComplete="off"
+            disabled={lookupBusy}
+          />
+          <Button type="submit" isLoading={lookupBusy} disabled={!lookupInput.trim()}>
+            {T.LOOKUP}
+          </Button>
+        </form>
+        {lookupError && <Alert tone="error">{lookupError}</Alert>}
+        {lookupResult && (
+          <div className="mt-4 rounded-md border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4 text-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="font-medium text-[var(--ink-primary)]">{T.LOOKUP_RESULT}</p>
+                <p className="mt-2 font-mono text-sm font-semibold text-[var(--ink-primary)]">
+                  {lookupResult.maskedCode}
+                </p>
+              </div>
+              <CommercialStatusBadge status={lookupResult.effectiveStatus} />
+            </div>
+            <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-[var(--ink-secondary)]">{T.PLAN_LABEL}</dt>
+                <dd className="mt-1 font-medium text-[var(--ink-primary)]">{lookupResult.planName}</dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-[var(--ink-secondary)]">{T.RECIPIENT}</dt>
+                <dd className="mt-1 font-medium text-[var(--ink-primary)]">
+                  {lookupResult.recipientName ?? T.NOT_REDEEMED}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-[var(--ink-secondary)]">{T.ISSUED_AT}</dt>
+                <dd className="mt-1 text-[var(--ink-primary)]">{formatDate(lookupResult.issuedAt)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-[var(--ink-secondary)]">{T.EXPIRES_AT}</dt>
+                <dd className="mt-1 text-[var(--ink-primary)]">
+                  {lookupResult.codeExpiresAt ? formatDate(lookupResult.codeExpiresAt) : T.NO_EXPIRY}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-wide text-[var(--ink-secondary)]">{T.REDEEMED_AT}</dt>
+                <dd className="mt-1 text-[var(--ink-primary)]">
+                  {lookupResult.redeemedAt ? formatDate(lookupResult.redeemedAt) : T.NOT_REDEEMED}
+                </dd>
+              </div>
+            </dl>
+          </div>
+        )}
+      </Modal>
 
       <ConfirmDialog
         open={confirmNewIntent}
@@ -728,9 +948,6 @@ export const LicenseCodesView = (): ReactElement => {
       >
         <div className="flex flex-col gap-3">
           <p className="text-sm text-slate-600">{T.REVEAL_DESCRIPTION}</p>
-          {revealTarget && (
-            <p className="font-mono text-xs text-slate-500">{revealTarget.publicId}</p>
-          )}
           {revealBusy && <p className="text-sm text-slate-600">{T.REVEAL}...</p>}
           {revealError && <Alert tone="error">{revealError}</Alert>}
           {revealedCode && (
