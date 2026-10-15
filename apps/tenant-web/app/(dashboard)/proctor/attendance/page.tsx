@@ -1,17 +1,12 @@
 import type { Metadata } from "next";
 import type { ReactElement } from "react";
 import { AssignedSessionPicker } from "@/features/proctor/components/AssignedSessionPicker";
+import { PROCTOR_PICKER_TEXT } from "@/features/proctor/constants";
 
 export const metadata: Metadata = {
-  title: "Điểm danh ca thi | Giám thị",
+  title: PROCTOR_PICKER_TEXT.ATTENDANCE.PAGE_TITLE,
 };
 
 export default function ProctorAttendancePickerPage(): ReactElement {
-  return (
-    <AssignedSessionPicker
-      mode="attendance"
-      title="Điểm danh ca thi"
-      subtitle="Chọn ca thi bạn được phân công giám thị để thực hiện điểm danh thí sinh."
-    />
-  );
+  return <AssignedSessionPicker mode="attendance" />;
 }

@@ -504,3 +504,22 @@ export const PROCTOR_ATTENDANCE_VIEW_TEXT = {
   ERROR_DESC: "Đã có lỗi xảy ra khi truy vấn dữ liệu từ máy chủ.",
   RETRY_BTN: "Thử lại",
 } as const;
+
+export const PROCTOR_PICKER_TEXT = {
+  ATTENDANCE: {
+    TITLE: "Điểm danh ca thi",
+    SUBTITLE: "Chọn ca thi bạn được phân công giám thị để thực hiện điểm danh thí sinh.",
+    PAGE_TITLE: "Điểm danh ca thi | Giám thị",
+  },
+  INCIDENTS: {
+    TITLE: "Sự cố phòng thi",
+    SUBTITLE: "Chọn ca thi bạn được phân công giám thị để quản lý, báo cáo và theo dõi sự cố.",
+    PAGE_TITLE: "Sự cố phòng thi | Giám thị",
+  },
+  AUDIT_LOG: {
+    TITLE: "Nhật ký ca thi",
+    SUBTITLE: "Chọn một ca thi được phân công để xem nhật ký giám sát và vi phạm",
+    PAGE_TITLE: "Nhật ký ca thi | Giám thị",
+  },
+} as const;
+
