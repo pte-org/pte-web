@@ -1,7 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
-import { DashboardChrome } from "@/features/auth/components";
+import { DashboardChrome, TenantDashboardLayoutChrome } from "@/features/auth/components";
 import { PROCTOR_ROLES } from "@/features/auth/constants";
-import { buildProctorNav } from "@/lib/navigation";
 import { ProctorUnavailableView } from "@/features/proctor/components/ProctorUnavailableView";
 
 /**
@@ -29,9 +28,5 @@ export default function ProctorLayout({
     );
   }
 
-  return (
-    <DashboardChrome navItems={buildProctorNav()} allowedRoles={PROCTOR_ROLES}>
-      {children}
-    </DashboardChrome>
-  );
+  return <TenantDashboardLayoutChrome area="proctor">{children}</TenantDashboardLayoutChrome>;
 }

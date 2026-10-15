@@ -3,7 +3,7 @@
 import type { ReactElement } from "react";
 import Link from "next/link";
 import type { ProctorWorkspaceSessionResponse } from "@pte/api-client";
-import { Button, EmptyState, Skeleton } from "@pte/ui";
+import { Button, EmptyState, Skeleton, StatusBadge } from "@pte/ui";
 import { useProctorWorkspaceText } from "../hooks/useProctorWorkspaceText";
 
 export interface ProctorPrioritySessionsProps {
@@ -12,18 +12,17 @@ export interface ProctorPrioritySessionsProps {
   onViewToday: () => void;
 }
 
-function sessionStatusBadgeClass(status: string): string {
+function getSessionStatusVariant(status: string): "success" | "info" | "neutral" | "danger" {
   switch (status) {
     case "OPEN":
-      return "bg-emerald-100 text-emerald-800";
+      return "success";
     case "SCHEDULED":
-      return "bg-blue-100 text-blue-800";
-    case "CLOSED":
-      return "bg-slate-100 text-slate-700";
+      return "info";
     case "CANCELLED":
-      return "bg-red-100 text-red-800";
+      return "danger";
+    case "CLOSED":
     default:
-      return "bg-slate-100 text-slate-600";
+      return "neutral";
   }
 }
 
@@ -95,13 +94,10 @@ export function ProctorPrioritySessions({
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-medium text-slate-900">{session.name}</span>
-                      <span
-                        className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${sessionStatusBadgeClass(
-                          session.status,
-                        )}`}
-                      >
-                        {getStatusLabel(session.status)}
-                      </span>
+                      <StatusBadge
+                        label={getStatusLabel(session.status)}
+                        variant={getSessionStatusVariant(session.status)}
+                      />
                       <span className="text-xs text-slate-500">({roleName})</span>
                     </div>
 

@@ -21,7 +21,7 @@ export function ExaminerReportBreakdownTable({
       {breakdown.length === 0 ? (
         <EmptyState title={text.noData} />
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-slate-200 bg-white">
+        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
           <TableRoot>
             <TableHeader>
               <TableRow>

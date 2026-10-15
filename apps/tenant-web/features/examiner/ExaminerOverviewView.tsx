@@ -29,7 +29,7 @@ export const ExaminerOverviewView = (): ReactElement => {
   );
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6 p-4 sm:p-6 lg:p-8">
+    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
       <PageHeader
         title={text.overviewTitle}
         subtitle={text.overviewSubtitle}

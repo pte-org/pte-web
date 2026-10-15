@@ -60,6 +60,7 @@ export const PROCTOR_LIVE_TEXT = {
   LOADING: "Đang tải dữ liệu phòng giám sát…",
   ERROR_TITLE: "Không thể tải dữ liệu phòng giám sát",
   ERROR_DESCRIPTION: "Đã có lỗi xảy ra khi truy vấn dữ liệu từ máy chủ. Vui lòng thử lại.",
+  BACK_TO_SESSIONS_BTN: "Danh sách ca thi",
   AUDIT_LOG_BTN: "Nhật ký phòng thi",
   REFRESH_BTN: "Làm mới",
   UPDATING_TEXT: "Đang cập nhật...",
@@ -431,6 +432,7 @@ export const PROCTOR_INCIDENT_STATUS_TABS: ReadonlyArray<{
 export const PROCTOR_INCIDENT_LIST_TEXT = {
   BACK_BTN: "Danh sách ca thi",
   REPORT_NEW_BTN: "+ Báo cáo sự cố mới",
+  FILTER_STATUS_LABEL: "Trạng thái",
   TITLE_PREFIX: "Sự cố phòng thi: #",
   SUBTITLE: "Theo dõi, điều phối và chuyển cấp các sự cố xảy ra trong ca thi.",
   ERROR_TITLE: "Không thể tải danh sách sự cố",

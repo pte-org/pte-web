@@ -73,7 +73,7 @@ export function ProctorOverviewView(): ReactElement {
   ];
 
   return (
-    <div className="flex flex-col gap-6 p-5 sm:p-8">
+    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
       <PageHeader
         title={text.overviewTitle}
         subtitle={text.overviewSubtitle}

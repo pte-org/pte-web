@@ -42,6 +42,7 @@ export function ExamAttendanceTab({
 
   useEffect(() => {
     if (data && data.meta.totalPages > 0 && page >= data.meta.totalPages) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setPage(data.meta.totalPages - 1);
     }
   }, [data, page]);

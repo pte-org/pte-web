@@ -22,7 +22,7 @@ export const QuestionNavigator = ({
   const canGoNext = currentIndex < answers.length - 1;
 
   return (
-    <nav className="rounded-lg border border-slate-200 bg-white p-4" aria-label={T.NAV_TITLE}>
+    <nav className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" aria-label={T.NAV_TITLE}>
       <div className="flex items-center justify-between pb-3 border-b border-slate-100">
         <h3 className="text-sm font-semibold text-slate-800">{T.NAV_TITLE}</h3>
         <div className="flex items-center gap-2">

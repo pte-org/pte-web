@@ -109,7 +109,7 @@ export function ExaminerWorkspaceOverview({
               type="button"
               onClick={() => onSelectStatus(c.status)}
               className={`flex flex-col justify-between rounded-xl border p-5 text-left transition-all hover:border-slate-400 hover:shadow-sm ${
-                isSelected ? c.borderActiveClass : "border-slate-200 bg-white"
+                isSelected ? c.borderActiveClass : "border-slate-200 bg-white shadow-sm"
               }`}
             >
               <div>

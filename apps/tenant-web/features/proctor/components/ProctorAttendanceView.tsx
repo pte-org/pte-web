@@ -82,19 +82,20 @@ export function ProctorAttendanceView({
   const canEditSession = data?.canEditSession ?? false;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <BackButton href="/proctor/attendance" label={T.BACK_BTN} />
-        {data?.asOf && (
-          <span className="text-xs text-[var(--ink-muted)]">
-            {T.UPDATED_PREFIX}{new Date(data.asOf).toLocaleTimeString("vi-VN")}
-          </span>
-        )}
-      </div>
-
+    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
       <PageHeader
         title={`${T.TITLE_PREFIX}${sessionPublicId}`}
         subtitle={T.SUBTITLE}
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            <BackButton href="/proctor/attendance" label={T.BACK_BTN} />
+            {data?.asOf && (
+              <span className="text-xs text-[var(--ink-muted)]">
+                {T.UPDATED_PREFIX}{new Date(data.asOf).toLocaleTimeString("vi-VN")}
+              </span>
+            )}
+          </div>
+        }
       />
 
       {!canEditSession && data?.sessionBlockingReason && (

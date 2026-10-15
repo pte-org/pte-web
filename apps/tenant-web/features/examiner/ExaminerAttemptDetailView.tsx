@@ -150,7 +150,7 @@ export const ExaminerAttemptDetailView = ({
   const workflowStatus = workflow?.status ?? (query.data?.submittedAnswerCount === query.data?.eligibleAnswerCount ? "COMPLETED" : "IN_PROGRESS");
 
   return (
-    <div className="mx-auto w-full max-w-6xl p-5 sm:p-8 space-y-6">
+    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
       <ExaminerAttemptHeader
         sessionPublicId={sessionPublicId}
         attemptPublicId={attemptPublicId}
@@ -233,8 +233,8 @@ export const ExaminerAttemptDetailView = ({
       ) : answers.length === 0 ? (
         <EmptyState title={T.NO_ANSWERS} />
       ) : currentAnswer ? (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
-          <div className="lg:col-span-1">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="lg:col-span-1 xl:col-span-1">
             <QuestionNavigator
               answers={answers}
               currentIndex={currentIndex}
@@ -245,7 +245,7 @@ export const ExaminerAttemptDetailView = ({
             />
           </div>
 
-          <div className="space-y-4 lg:col-span-3">
+          <div className="space-y-4 lg:col-span-3 xl:col-span-4">
             <PromptRenderer
               key={`prompt-${currentAnswer.answerPublicId}`}
               prompt={currentAnswer.prompt}

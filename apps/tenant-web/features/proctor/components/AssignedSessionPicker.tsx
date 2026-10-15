@@ -191,8 +191,18 @@ export function AssignedSessionPicker({
   );
 
   return (
-    <div className="space-y-6">
-      <PageHeader title={title} subtitle={subtitle} />
+    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
+      <PageHeader
+        title={title}
+        subtitle={subtitle}
+        actions={
+          <Link href="/proctor/sessions">
+            <Button variant="secondary" size="sm">
+              {text.overviewTitle}
+            </Button>
+          </Link>
+        }
+      />
 
       {isError ? (
         <ErrorState

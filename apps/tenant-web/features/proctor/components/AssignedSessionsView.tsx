@@ -246,7 +246,7 @@ export function AssignedSessionsView(): ReactElement {
   );
 
   return (
-    <div className="flex flex-col gap-6 p-5 sm:p-8">
+    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
       <PageHeader
         title={text.pageTitle}
         subtitle={text.pageSubtitle}
@@ -260,7 +260,7 @@ export function AssignedSessionsView(): ReactElement {
       />
 
       {/* Scope Filter Tabs Toolbar */}
-      <div className="flex flex-wrap items-center gap-2 border-b border-[var(--border-subtle)] pb-3">
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">
         <span className="text-xs font-semibold uppercase tracking-wider text-[var(--ink-muted)] mr-2">
           {text.filterScopeLabel}:
         </span>

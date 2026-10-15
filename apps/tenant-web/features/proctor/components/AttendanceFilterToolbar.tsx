@@ -33,7 +33,7 @@ export function AttendanceFilterToolbar({
   ];
 
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
       <div className="flex flex-wrap gap-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-subtle)] p-1">
         {tabs.map((tab) => {
           const isActive = currentStatus === tab.id;

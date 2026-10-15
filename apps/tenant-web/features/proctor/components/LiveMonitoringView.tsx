@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Alert, Button, ConfirmDialog, ErrorState, LoadingState, PageHeader } from "@pte/ui";
+import { Alert, Button, ConfirmDialog, ErrorState, LoadingState, PageHeader, StatCard } from "@pte/ui";
 import { useCloseProctorSession, useMonitoringSnapshot } from "../api";
 import { useProctorRoom } from "../useProctorRoom";
 import { MonitoringConnectionBanner } from "./MonitoringConnectionBanner";
@@ -148,10 +148,17 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
 
   if (snapshotQuery.isLoading && !snapshot) {
     return (
-      <div className="flex flex-col gap-6 p-5 sm:p-8">
+      <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
         <PageHeader
           title={PROCTOR_LIVE_TEXT.TITLE}
           subtitle={`${PROCTOR_LIVE_TEXT.ROOM_CODE_PREFIX}${sessionPublicId.slice(0, 8).toUpperCase()}`}
+          actions={
+            <Link href="/proctor/sessions">
+              <Button variant="secondary" size="sm">
+                {PROCTOR_LIVE_TEXT.BACK_TO_SESSIONS_BTN}
+              </Button>
+            </Link>
+          }
         />
         <LoadingState variant="table" label={PROCTOR_LIVE_TEXT.LOADING} />
       </div>
@@ -160,10 +167,17 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
 
   if (snapshotQuery.isError && !snapshot) {
     return (
-      <div className="flex flex-col gap-6 p-5 sm:p-8">
+      <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
         <PageHeader
           title={PROCTOR_LIVE_TEXT.TITLE}
           subtitle={`${PROCTOR_LIVE_TEXT.ROOM_CODE_PREFIX}${sessionPublicId.slice(0, 8).toUpperCase()}`}
+          actions={
+            <Link href="/proctor/sessions">
+              <Button variant="secondary" size="sm">
+                {PROCTOR_LIVE_TEXT.BACK_TO_SESSIONS_BTN}
+              </Button>
+            </Link>
+          }
         />
         <ErrorState
           title={PROCTOR_LIVE_TEXT.ERROR_TITLE}
@@ -179,50 +193,47 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
   }
 
   return (
-    <div className="flex flex-col gap-6 p-5 sm:p-8">
+    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Page Header */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <PageHeader
-            title={session?.name ?? PROCTOR_LIVE_TEXT.TITLE}
-            subtitle={`${PROCTOR_LIVE_TEXT.ROOM_CODE_PREFIX}${sessionPublicId.slice(0, 8).toUpperCase()}`}
-          />
-          {session && (
-            <p className="mt-1 text-xs text-[var(--ink-muted)]">
-              {PROCTOR_LIVE_TEXT.OPEN_PREFIX}{formatDateTime(session.opensAt)}{PROCTOR_LIVE_TEXT.CLOSE_PREFIX}{formatDateTime(session.closesAt)}
-              {session.timeLimitMinutes && ` (${session.timeLimitMinutes}${PROCTOR_LIVE_TEXT.MINUTES_SUFFIX})`}
-            </p>
-          )}
-        </div>
+      <PageHeader
+        title={session?.name ?? PROCTOR_LIVE_TEXT.TITLE}
+        subtitle={`${PROCTOR_LIVE_TEXT.ROOM_CODE_PREFIX}${sessionPublicId.slice(0, 8).toUpperCase()}${session ? ` • ${PROCTOR_LIVE_TEXT.OPEN_PREFIX}${formatDateTime(session.opensAt)}${PROCTOR_LIVE_TEXT.CLOSE_PREFIX}${formatDateTime(session.closesAt)}${session.timeLimitMinutes ? ` (${session.timeLimitMinutes}${PROCTOR_LIVE_TEXT.MINUTES_SUFFIX})` : ""}` : ""}`}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <Link href="/proctor/sessions">
+              <Button variant="secondary" size="sm">
+                {PROCTOR_LIVE_TEXT.BACK_TO_SESSIONS_BTN}
+              </Button>
+            </Link>
 
-        <div className="flex items-center gap-2">
-          <Link href={`/proctor/audit-log/${sessionPublicId}`}>
-            <Button variant="secondary" size="sm">
-              {PROCTOR_LIVE_TEXT.AUDIT_LOG_BTN}
-            </Button>
-          </Link>
+            <Link href={`/proctor/audit-log/${sessionPublicId}`}>
+              <Button variant="secondary" size="sm">
+                {PROCTOR_LIVE_TEXT.AUDIT_LOG_BTN}
+              </Button>
+            </Link>
 
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => void snapshotQuery.refetch()}
-            disabled={snapshotQuery.isFetching}
-          >
-            {snapshotQuery.isFetching ? PROCTOR_LIVE_TEXT.UPDATING_TEXT : PROCTOR_LIVE_TEXT.REFRESH_BTN}
-          </Button>
-
-          {room.proctorSession?.status === "ACTIVE" && (
             <Button
-              variant="danger"
+              variant="secondary"
               size="sm"
-              disabled={isClosingSession}
-              onClick={() => setIsCloseSessionDialogOpen(true)}
+              onClick={() => void snapshotQuery.refetch()}
+              disabled={snapshotQuery.isFetching}
             >
-              {isClosingSession ? PROCTOR_LIVE_TEXT.LEAVING_ROOM_BTN : PROCTOR_LIVE_TEXT.LEAVE_ROOM_BTN}
+              {snapshotQuery.isFetching ? PROCTOR_LIVE_TEXT.UPDATING_TEXT : PROCTOR_LIVE_TEXT.REFRESH_BTN}
             </Button>
-          )}
-        </div>
-      </div>
+
+            {room.proctorSession?.status === "ACTIVE" && (
+              <Button
+                variant="danger"
+                size="sm"
+                disabled={isClosingSession}
+                onClick={() => setIsCloseSessionDialogOpen(true)}
+              >
+                {isClosingSession ? PROCTOR_LIVE_TEXT.LEAVING_ROOM_BTN : PROCTOR_LIVE_TEXT.LEAVE_ROOM_BTN}
+              </Button>
+            )}
+          </div>
+        }
+      />
 
       {/* Real-time connection status banner */}
       <MonitoringConnectionBanner
@@ -269,22 +280,26 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
       {/* Roster statistics summary cards */}
       {summary && (
         <section aria-label={PROCTOR_LIVE_TEXT.SUMMARY_LABEL} className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">
-            <span className="text-xs font-medium text-[var(--ink-muted)]">{PROCTOR_LIVE_TEXT.SUMMARY_REGISTERED}</span>
-            <div className="mt-1 text-2xl font-bold text-[var(--ink-primary)]">{summary.registeredCount}</div>
-          </div>
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">
-            <span className="text-xs font-medium text-[var(--ink-muted)]">{PROCTOR_LIVE_TEXT.SUMMARY_NOT_STARTED}</span>
-            <div className="mt-1 text-2xl font-bold text-[var(--ink-secondary)]">{summary.notStartedCount}</div>
-          </div>
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">
-            <span className="text-xs font-medium text-blue-600">{PROCTOR_LIVE_TEXT.SUMMARY_IN_PROGRESS}</span>
-            <div className="mt-1 text-2xl font-bold text-blue-700">{summary.inProgressCount}</div>
-          </div>
-          <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">
-            <span className="text-xs font-medium text-emerald-600">{PROCTOR_LIVE_TEXT.SUMMARY_SUBMITTED}</span>
-            <div className="mt-1 text-2xl font-bold text-emerald-700">{summary.submittedCount}</div>
-          </div>
+          <StatCard
+            label={PROCTOR_LIVE_TEXT.SUMMARY_REGISTERED}
+            value={String(summary.registeredCount)}
+            accent="blue"
+          />
+          <StatCard
+            label={PROCTOR_LIVE_TEXT.SUMMARY_NOT_STARTED}
+            value={String(summary.notStartedCount)}
+            accent="cream"
+          />
+          <StatCard
+            label={PROCTOR_LIVE_TEXT.SUMMARY_IN_PROGRESS}
+            value={String(summary.inProgressCount)}
+            accent="blue"
+          />
+          <StatCard
+            label={PROCTOR_LIVE_TEXT.SUMMARY_SUBMITTED}
+            value={String(summary.submittedCount)}
+            accent="mint"
+          />
         </section>
       )}
 

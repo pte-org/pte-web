@@ -151,21 +151,21 @@ export const ExaminerQueueView = (): ReactElement => {
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl p-5 sm:p-8 space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <PageHeader title={text.title} />
-        </div>
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => router.push("/examiner/work")}
-        >
-          {T.BACK_TO_OVERVIEW}
-        </Button>
-      </div>
+    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
+      <PageHeader
+        title={text.title}
+        actions={
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => router.push("/examiner/work")}
+          >
+            {T.BACK_TO_OVERVIEW}
+          </Button>
+        }
+      />
 
-      <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
         <div className="flex flex-wrap items-center gap-4">
           <div className="w-48">
             <label htmlFor="examiner-queue-status" className="block text-xs font-medium text-slate-700 mb-1">

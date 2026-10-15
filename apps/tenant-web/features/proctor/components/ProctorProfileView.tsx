@@ -20,7 +20,7 @@ export const ProctorProfileView = (): ReactElement => {
 
   if (user.isLoading) {
     return (
-      <div className="flex flex-col gap-6 p-5 sm:p-8">
+      <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
         <PageHeader title={T.TITLE} subtitle={T.SUBTITLE} />
         <LoadingState variant="rows" rows={4} label={T.LOADING} />
       </div>
@@ -29,7 +29,7 @@ export const ProctorProfileView = (): ReactElement => {
 
   if (user.isError || !user.data) {
     return (
-      <div className="flex flex-col gap-6 p-5 sm:p-8">
+      <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
         <PageHeader title={T.TITLE} subtitle={T.SUBTITLE} />
         <ErrorState
           title={T.ERROR_TITLE}
@@ -49,7 +49,7 @@ export const ProctorProfileView = (): ReactElement => {
   const tenant = data.tenantId ?? T.EMPTY_TENANT;
 
   return (
-    <div className="flex flex-col gap-6 p-5 sm:p-8">
+    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
       <PageHeader
         title={T.TITLE}
         subtitle={T.SUBTITLE}

@@ -104,7 +104,7 @@ export const DecisionPanel = ({
     const decision = answer.decision;
     const kind = decision?.decisionKind ?? decision?.kind;
     return (
-      <section className="mt-5 rounded-lg border border-slate-200 bg-white p-4">
+      <section className="mt-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <Badge variant="success">{T.STATUS_SAVED}</Badge>
           <span className="text-xs text-slate-500">{T.READ_ONLY}</span>
@@ -126,7 +126,7 @@ export const DecisionPanel = ({
   }
 
   return (
-    <section className="mt-5 rounded-lg border border-slate-200 bg-white p-4">
+    <section className="mt-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       {isReconciling && (
         <div className="mb-4">
           <Alert tone="warning" title={T.UNKNOWN_OUTCOME_TITLE}>

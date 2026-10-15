@@ -20,7 +20,7 @@ export const AiReferencePanel = ({
 }: AiReferencePanelProps): ReactElement => {
   if (!reference || reference.availability === "UNAVAILABLE") {
     return (
-      <aside className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-xs text-slate-500">
+      <aside className="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm text-xs text-slate-500">
         <h4 className="font-semibold text-slate-700">{T.AI_REFERENCE_TITLE}</h4>
         <p className="mt-1">{T.AI_STATUS_UNAVAILABLE}</p>
       </aside>
@@ -29,7 +29,7 @@ export const AiReferencePanel = ({
 
   if (reference.availability === "PENDING") {
     return (
-      <aside className="rounded-lg border border-blue-200 bg-blue-50/50 p-4 text-xs text-blue-800">
+      <aside className="rounded-xl border border-blue-200 bg-blue-50/50 p-4 shadow-sm text-xs text-blue-800">
         <div className="flex items-center gap-2">
           <Badge variant="neutral">{T.AI_STATUS_PENDING}</Badge>
         </div>
@@ -39,7 +39,7 @@ export const AiReferencePanel = ({
 
   if (reference.availability === "FAILED") {
     return (
-      <aside className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-xs text-amber-800">
+      <aside className="rounded-xl border border-amber-200 bg-amber-50 p-4 shadow-sm text-xs text-amber-800">
         <div className="flex items-center gap-2">
           <Badge variant="warning">{T.AI_STATUS_FAILED}</Badge>
         </div>
@@ -50,7 +50,7 @@ export const AiReferencePanel = ({
   const hasScore = reference.score !== null;
 
   return (
-    <aside className="rounded-lg border border-indigo-100 bg-indigo-50/40 p-4">
+    <aside className="rounded-xl border border-indigo-100 bg-indigo-50/40 p-4 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <h4 className="text-sm font-semibold text-indigo-950">{T.AI_REFERENCE_TITLE}</h4>

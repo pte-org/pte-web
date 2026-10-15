@@ -93,25 +93,30 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
   const securityIsEmpty = securityItems.length === 0;
 
   return (
-    <div className="flex flex-col gap-6 p-8">
-      <PageHeader title={T.TITLE} subtitle={T.SUBTITLE} />
+    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
+      <PageHeader
+        title={T.TITLE}
+        subtitle={T.SUBTITLE}
+        actions={
+          <div className="flex items-center gap-2">
+            <Link href={`/proctor/sessions/${sessionPublicId}`}>
+              <Button variant="secondary" size="sm">
+                {T.ENTER_MONITORING}
+              </Button>
+            </Link>
+            <Link href="/proctor/sessions">
+              <Button variant="secondary" size="sm">
+                {T.SESSION_LIST}
+              </Button>
+            </Link>
+          </div>
+        }
+      />
 
-      <section className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-4 py-3 text-sm text-[var(--ink-secondary)]">
+      <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] px-4 py-3 text-sm text-[var(--ink-secondary)] shadow-sm">
         <span>
           {T.COL_PROCTOR}: <code className="font-mono text-xs text-[var(--ink-primary)]">#{shortId(sessionPublicId)}</code>
         </span>
-        <div className="flex items-center gap-2">
-          <Link href={`/proctor/sessions/${sessionPublicId}`}>
-            <Button variant="secondary" size="sm">
-              {T.ENTER_MONITORING}
-            </Button>
-          </Link>
-          <Link href="/proctor/sessions">
-            <Button variant="secondary" size="sm">
-              {T.SESSION_LIST}
-            </Button>
-          </Link>
-        </div>
       </section>
 
       <div

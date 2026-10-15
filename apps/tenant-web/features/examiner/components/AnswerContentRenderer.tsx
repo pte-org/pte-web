@@ -49,7 +49,7 @@ export const PromptRenderer = ({
   }, [isBlocked, onMediaError]);
 
   return (
-    <section className="rounded-md bg-slate-50 p-4 border border-slate-200" aria-label={T.PROMPT}>
+    <section className="rounded-xl bg-slate-50 p-5 border border-slate-200 shadow-sm" aria-label={T.PROMPT}>
       <h4 className="text-sm font-semibold text-slate-800">{prompt.title || T.PROMPT}</h4>
       {prompt.promptText && (
         <p className="mt-2 whitespace-pre-wrap text-sm text-slate-700">
@@ -213,7 +213,7 @@ export const ResponseRenderer = ({
   }, [isBlocked, onMediaError]);
 
   return (
-    <section className="mt-4 rounded-md border border-slate-200 bg-white p-4" aria-label={T.STUDENT_RESPONSE}>
+    <section className="mt-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm" aria-label={T.STUDENT_RESPONSE}>
       <h4 className="text-sm font-semibold text-slate-800">{T.STUDENT_RESPONSE}</h4>
       {isAudio ? (
         isMissingAudio ? (

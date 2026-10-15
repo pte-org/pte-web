@@ -10,6 +10,7 @@ import {
   ErrorState,
   LoadingState,
   Modal,
+  PageHeader,
   StatusBadge,
   Textarea,
   type DataTableColumn,
@@ -119,10 +120,15 @@ export function IncidentDetailView({
 
   if (detailQuery.isLoading) {
     return (
-      <div className="flex flex-col gap-6 p-5 sm:p-8">
-        <BackButton
-          href={`/proctor/incidents/${sessionPublicId}`}
-          label={T.BACK_BTN}
+      <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
+        <PageHeader
+          title={T.LOADING}
+          actions={
+            <BackButton
+              href={`/proctor/incidents/${sessionPublicId}`}
+              label={T.BACK_BTN}
+            />
+          }
         />
         <LoadingState variant="rows" label={T.LOADING} />
       </div>
@@ -131,10 +137,15 @@ export function IncidentDetailView({
 
   if (detailQuery.isError || !incident) {
     return (
-      <div className="flex flex-col gap-6 p-5 sm:p-8">
-        <BackButton
-          href={`/proctor/incidents/${sessionPublicId}`}
-          label={T.BACK_BTN}
+      <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
+        <PageHeader
+          title={T.ERROR_TITLE}
+          actions={
+            <BackButton
+              href={`/proctor/incidents/${sessionPublicId}`}
+              label={T.BACK_BTN}
+            />
+          }
         />
         <ErrorState
           title={T.ERROR_TITLE}
@@ -150,66 +161,70 @@ export function IncidentDetailView({
   }
 
   return (
-    <div className="flex flex-col gap-6 p-5 sm:p-8">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <BackButton
-          href={`/proctor/incidents/${sessionPublicId}`}
-          label={T.BACK_BTN}
-        />
-        <div className="flex flex-wrap items-center gap-2">
-          {incident?.status === "NEW" && (
-            <Button
-              variant="secondary"
-              size="sm"
-              disabled={updateMutation.isPending}
-              onClick={() => void handleStatusChange("IN_PROGRESS", T.ACTION_TAKE_OWNERSHIP_NOTE)}
-            >
-              {T.BTN_TAKE_OWNERSHIP}
-            </Button>
-          )}
-
-          {incident?.status === "IN_PROGRESS" && (
-            <>
+    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
+      <PageHeader
+        title={incident?.title ?? T.LOADING}
+        subtitle={`${T.CATEGORY_LABEL}${incident?.category ?? "—"} • ${T.REPORTER_LABEL}${incident?.reporterName ?? "—"} (${incident?.reporterRole ?? "—"}) • ${T.TIME_LABEL}${incident?.createdAt ? new Date(incident.createdAt).toLocaleString("vi-VN") : "—"}`}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <BackButton
+              href={`/proctor/incidents/${sessionPublicId}`}
+              label={T.BACK_BTN}
+            />
+            {incident?.status === "NEW" && (
               <Button
                 variant="secondary"
                 size="sm"
                 disabled={updateMutation.isPending}
-                onClick={() => setModalAction("ESCALATE")}
+                onClick={() => void handleStatusChange("IN_PROGRESS", T.ACTION_TAKE_OWNERSHIP_NOTE)}
               >
-                {T.BTN_ESCALATE}
+                {T.BTN_TAKE_OWNERSHIP}
               </Button>
+            )}
+
+            {incident?.status === "IN_PROGRESS" && (
+              <>
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  disabled={updateMutation.isPending}
+                  onClick={() => setModalAction("ESCALATE")}
+                >
+                  {T.BTN_ESCALATE}
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  disabled={updateMutation.isPending}
+                  onClick={() => setModalAction("RESOLVE")}
+                >
+                  {T.BTN_RESOLVE}
+                </Button>
+              </>
+            )}
+
+            {incident?.status === "RESOLVED" && (
               <Button
-                variant="primary"
+                variant="secondary"
                 size="sm"
                 disabled={updateMutation.isPending}
-                onClick={() => setModalAction("RESOLVE")}
+                onClick={() => void handleStatusChange("CLOSED", T.ACTION_CLOSE_NOTE)}
               >
-                {T.BTN_RESOLVE}
+                {T.BTN_CLOSE}
               </Button>
-            </>
-          )}
+            )}
 
-          {incident?.status === "RESOLVED" && (
             <Button
               variant="secondary"
               size="sm"
+              onClick={() => setModalAction("NOTE")}
               disabled={updateMutation.isPending}
-              onClick={() => void handleStatusChange("CLOSED", T.ACTION_CLOSE_NOTE)}
             >
-              {T.BTN_CLOSE}
+              {T.BTN_ADD_NOTE}
             </Button>
-          )}
-
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setModalAction("NOTE")}
-            disabled={updateMutation.isPending}
-          >
-            {T.BTN_ADD_NOTE}
-          </Button>
-        </div>
-      </div>
+          </div>
+        }
+      />
 
       {errorMessage && (
         <Alert tone="error" title={T.ACTION_FAILED_TITLE}>
@@ -217,35 +232,23 @@ export function IncidentDetailView({
         </Alert>
       )}
 
-      {/* Incident Header & Cards */}
+      {/* Incident Details Card */}
       <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-6 shadow-sm">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="font-mono text-xs font-semibold text-[var(--ink-muted)]">
-                #{incidentPublicId.slice(0, 8).toUpperCase()}
-              </span>
-              <Badge variant={getSeverityBadge(incident?.severity).variant}>
-                {getSeverityBadge(incident?.severity).label}
-              </Badge>
-              <StatusBadge
-                label={getStatusBadge(incident?.status).label}
-                variant={getStatusBadge(incident?.status).variant}
-              />
-            </div>
-            <h1 className="mt-2 text-xl font-bold text-[var(--ink-primary)]">
-              {incident?.title ?? T.LOADING}
-            </h1>
-            <p className="mt-1 text-xs text-[var(--ink-muted)]">
-              {T.CATEGORY_LABEL}<strong className="text-[var(--ink-secondary)]">{incident?.category}</strong> • {T.REPORTER_LABEL}
-              <strong className="text-[var(--ink-secondary)]">{incident?.reporterName} ({incident?.reporterRole})</strong> • {T.TIME_LABEL}
-              {incident?.createdAt ? new Date(incident.createdAt).toLocaleString("vi-VN") : "—"}
-            </p>
-          </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-mono text-xs font-semibold text-[var(--ink-muted)]">
+            #{incidentPublicId.slice(0, 8).toUpperCase()}
+          </span>
+          <Badge variant={getSeverityBadge(incident?.severity).variant}>
+            {getSeverityBadge(incident?.severity).label}
+          </Badge>
+          <StatusBadge
+            label={getStatusBadge(incident?.status).label}
+            variant={getStatusBadge(incident?.status).variant}
+          />
         </div>
 
         {/* Details Grid */}
-        <div className="mt-6 grid grid-cols-1 gap-4 border-t border-[var(--border-subtle)] pt-4 sm:grid-cols-2">
+        <div className="mt-6 grid grid-cols-1 gap-6 border-t border-[var(--border-subtle)] pt-4 sm:grid-cols-2">
           <div>
             <h4 className="text-xs font-semibold uppercase tracking-wider text-[var(--ink-muted)]">
               {T.SECTION_DESCRIPTION}

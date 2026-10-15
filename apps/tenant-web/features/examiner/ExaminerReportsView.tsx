@@ -69,20 +69,20 @@ export const ExaminerReportsView = (): ReactElement => {
   const hasActiveFilters = Boolean(fromDate || toDate || taskType || status !== "ALL");
 
   return (
-    <div className="mx-auto w-full max-w-6xl space-y-6 p-4 sm:p-6 lg:p-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <PageHeader
-          title={text.reportsTitle}
-          subtitle={text.reportsSubtitle}
-        />
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={() => router.push("/examiner/work")}
-        >
-          {text.title}
-        </Button>
-      </div>
+    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
+      <PageHeader
+        title={text.reportsTitle}
+        subtitle={text.reportsSubtitle}
+        actions={
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => router.push("/examiner/work")}
+          >
+            {text.title}
+          </Button>
+        }
+      />
 
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

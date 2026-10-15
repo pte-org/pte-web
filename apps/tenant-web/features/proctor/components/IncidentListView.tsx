@@ -119,21 +119,25 @@ export function IncidentListView({ sessionPublicId }: IncidentListViewProps): Re
   );
 
   return (
-    <div className="flex flex-col gap-6 p-5 sm:p-8">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <BackButton href="/proctor/incidents" label={T.BACK_BTN} />
-        <Button variant="primary" size="sm" onClick={() => setIsReportModalOpen(true)}>
-          {T.REPORT_NEW_BTN}
-        </Button>
-      </div>
-
+    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
       <PageHeader
         title={`${T.TITLE_PREFIX}${sessionPublicId.slice(0, 8).toUpperCase()}`}
         subtitle={T.SUBTITLE}
+        actions={
+          <div className="flex flex-wrap items-center gap-3">
+            <BackButton href="/proctor/incidents" label={T.BACK_BTN} />
+            <Button variant="primary" size="sm" onClick={() => setIsReportModalOpen(true)}>
+              {T.REPORT_NEW_BTN}
+            </Button>
+          </div>
+        }
       />
 
-      {/* Status Filter Tabs */}
-      <div className="flex flex-wrap items-center gap-1.5 border-b border-[var(--border-subtle)] pb-3">
+      {/* Status Filter Tabs Toolbar */}
+      <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">
+        <span className="text-xs font-semibold uppercase tracking-wider text-[var(--ink-muted)] mr-2">
+          {T.FILTER_STATUS_LABEL}:
+        </span>
         {PROCTOR_INCIDENT_STATUS_TABS.map((tab) => {
           const isActive = selectedStatus === tab.id;
           return (
