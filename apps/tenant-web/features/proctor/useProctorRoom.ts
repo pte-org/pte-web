@@ -3,12 +3,16 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { subscribeSessionLifecycle } from "@pte/ui";
-import { getMonitoringSnapshot, getStudentAttemptHistory } from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
 import { API_BASE_URL } from "@/features/auth/constants";
 import { PROCTOR_QUERY_KEYS } from "./queryKeys";
 import { OperationTracker } from "./operationState";
 import { ProctorTransport } from "./transport";
+import {
+  useProctorRoomCommands,
+  type ForceSubmitOptions,
+  type ForceSubmitOutcome,
+} from "./useProctorRoomCommands";
 import type {
   ConnectionStatus,
   LegacyTopicCommandEvent,
@@ -18,15 +22,7 @@ import type {
   TopicMessage,
 } from "./transportTypes";
 
-export interface ForceSubmitOptions {
-  attemptPublicId: string;
-  studentPublicId?: string;
-  reason?: string;
-  /** Max milliseconds to wait for snapshot to reflect SUBMITTED. Default 10_000 */
-  confirmationTimeoutMs?: number;
-}
-
-export type ForceSubmitOutcome = "CONFIRMED" | "ACKNOWLEDGED_UNCONFIRMED" | "NO_OP";
+export type { ForceSubmitOptions, ForceSubmitOutcome } from "./useProctorRoomCommands";
 
 export interface UseProctorRoomReturn {
   connectionStatus: ConnectionStatus;
@@ -194,6 +190,14 @@ export function useProctorRoom(examSessionPublicId: string): UseProctorRoomRetur
     };
   }, [examSessionPublicId, handleTopicMessage]);
 
+  const { forceSubmit, flagViolation } = useProctorRoomCommands({
+    examSessionPublicId,
+    connectionStatus,
+    proctorSession,
+    transportRef,
+    trackerRef,
+  });
+
   const openSession = useCallback((): Promise<ProctorSessionDto> => {
     setIsOpenPending(true);
     setOpenError(null);
@@ -221,140 +225,6 @@ export function useProctorRoom(examSessionPublicId: string): UseProctorRoomRetur
       }
     });
   }, [examSessionPublicId]);
-
-  const forceSubmit = useCallback(
-    async ({
-      attemptPublicId,
-      studentPublicId,
-      confirmationTimeoutMs = 10_000,
-    }: ForceSubmitOptions): Promise<ForceSubmitOutcome> => {
-      if (connectionStatus !== "CONNECTED") {
-        throw new Error("Cannot force submit: STOMP transport is not connected.");
-      }
-      if (!proctorSession || proctorSession.status !== "ACTIVE") {
-        throw new Error("Cannot force submit: proctor session is not active.");
-      }
-
-      const requestId = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `req-${Date.now()}`;
-      const pendingPromise = trackerRef.current.register(
-        requestId,
-        "FORCE_SUBMIT",
-        attemptPublicId,
-        10_000,
-      );
-      // Attach catch handler immediately to prevent unhandled rejection on publish throw or abandon
-      pendingPromise.catch(() => {});
-
-      try {
-        transportRef.current?.sendForceSubmit(
-          proctorSession.publicId,
-          attemptPublicId,
-          requestId,
-        );
-      } catch (err) {
-        trackerRef.current.cancel(requestId, "Send failed");
-        throw err;
-      }
-
-      const opResult = await pendingPromise;
-      if (opResult.outcome === "NO_OP") {
-        return "NO_OP";
-      }
-
-      // Immediately refetch snapshot to observe status
-      await queryClient.invalidateQueries({
-        queryKey: PROCTOR_QUERY_KEYS.monitoringSnapshot(examSessionPublicId),
-      });
-
-      // Poll until attempt is confirmed SUBMITTED or timeout
-      const pollStart = Date.now();
-      while (Date.now() - pollStart < confirmationTimeoutMs) {
-        await new Promise((r) => setTimeout(r, 1000));
-
-        // If studentPublicId is provided, check the student's attempt history directly (not bounded by first 50 roster items)
-        if (studentPublicId) {
-          try {
-            const history = await getStudentAttemptHistory(
-              apiClient,
-              examSessionPublicId,
-              studentPublicId,
-              0,
-              5,
-            );
-            const targetAttempt = history.data.find(
-              (a) => a.attemptPublicId === attemptPublicId,
-            );
-            if (targetAttempt && targetAttempt.status === "SUBMITTED") {
-              void queryClient.invalidateQueries({
-                queryKey: PROCTOR_QUERY_KEYS.monitoringSnapshot(examSessionPublicId),
-              });
-              return "CONFIRMED";
-            }
-          } catch {
-            // Fall through to snapshot check
-          }
-        }
-
-        try {
-          const updated = await getMonitoringSnapshot(apiClient, examSessionPublicId, 0, 50);
-          queryClient.setQueryData(
-            PROCTOR_QUERY_KEYS.monitoringSnapshot(examSessionPublicId, 0, 50),
-            updated,
-          );
-          const targetStudent = updated.students.data.find(
-            (s) => s.attemptPublicId === attemptPublicId,
-          );
-          if (targetStudent && targetStudent.status === "SUBMITTED") {
-            return "CONFIRMED";
-          }
-        } catch {
-          // Retry on next loop tick
-        }
-      }
-
-      return "ACKNOWLEDGED_UNCONFIRMED";
-    },
-    [connectionStatus, examSessionPublicId, proctorSession, queryClient],
-  );
-
-  const flagViolation = useCallback(
-    async (payload: SendViolationPayload): Promise<ProctorOperationResultDto> => {
-      if (connectionStatus !== "CONNECTED") {
-        throw new Error("Cannot flag violation: STOMP transport is not connected.");
-      }
-      if (!proctorSession || proctorSession.status !== "ACTIVE") {
-        throw new Error("Cannot flag violation: proctor session is not active.");
-      }
-
-      const targetId = payload.attemptPublicId ?? examSessionPublicId;
-      const requestId = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `req-${Date.now()}`;
-      const pendingPromise = trackerRef.current.register(
-        requestId,
-        "FLAG_VIOLATION",
-        targetId,
-        10_000,
-      );
-      // Attach catch handler immediately to prevent unhandled rejection on publish throw or abandon
-      pendingPromise.catch(() => {});
-
-      try {
-        transportRef.current?.sendFlagViolation(proctorSession.publicId, payload, requestId);
-      } catch (err) {
-        trackerRef.current.cancel(requestId, "Send failed");
-        throw err;
-      }
-
-      const result = await pendingPromise;
-      void queryClient.invalidateQueries({
-        queryKey: PROCTOR_QUERY_KEYS.violations(examSessionPublicId),
-      });
-      void queryClient.invalidateQueries({
-        queryKey: PROCTOR_QUERY_KEYS.monitoringSnapshot(examSessionPublicId),
-      });
-      return result;
-    },
-    [connectionStatus, examSessionPublicId, proctorSession, queryClient],
-  );
 
   const reconnect = useCallback((): void => {
     transportRef.current?.connect();
