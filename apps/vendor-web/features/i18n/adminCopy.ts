@@ -64,10 +64,32 @@ const ADMIN_VI: Record<string, string> = {
   Actions: "Thao tác",
 
   "Platform settings": "Cài đặt nền tảng",
-  "Commercial defaults": "Thiết lập thương mại mặc định",
+  "Commercial and approvals": "Thương mại và phê duyệt",
+  "Manage business policies used by new tenant applications.":
+    "Quản lý chính sách nghiệp vụ áp dụng cho các đơn đăng ký tenant mới.",
   "Loading settings...": "Đang tải cài đặt...",
-  Save: "Lưu",
+  "Saving changes...": "Đang lưu thay đổi...",
+  "Reset to defaults": "Khôi phục giá trị mặc định",
+  "Reset platform settings?": "Khôi phục cài đặt nền tảng?",
+  "Restore this group to its recommended defaults. Review the values and save to apply them.":
+    "Khôi phục nhóm cài đặt về giá trị mặc định đề xuất. Hãy kiểm tra lại và lưu để áp dụng.",
+  "No editable platform settings are available.": "Hiện chưa có cài đặt nền tảng nào có thể chỉnh sửa.",
+  "Unsaved changes": "Có thay đổi chưa lưu",
+  "All changes are saved": "Tất cả thay đổi đã được lưu",
   "Settings could not be loaded or saved.": "Không thể tải hoặc lưu cài đặt.",
+  "Platform settings saved.": "Đã lưu cài đặt nền tảng.",
+  "Free student limit": "Hạn mức học viên miễn phí",
+  "The number of learner seats granted when a tenant application is approved.":
+    "Số chỗ học viên được cấp khi đơn đăng ký tenant được duyệt.",
+  "Applies to tenant applications approved after this value is saved.":
+    "Áp dụng cho các đơn đăng ký tenant được duyệt sau khi lưu giá trị này.",
+  "Tenant application response time": "Thời gian phản hồi hồ sơ tenant",
+  "The response time promised to applicants in the application email.":
+    "Thời gian phản hồi được cam kết với người đăng ký trong email hồ sơ.",
+  "Applies to application notifications sent after this value is saved.":
+    "Áp dụng cho các thông báo hồ sơ được gửi sau khi lưu giá trị này.",
+  students: "học viên",
+  hours: "giờ",
   "Tenant applications": "Đơn đăng ký tenant",
   "Filter applications by status": "Lọc đơn đăng ký theo trạng thái",
   "All statuses": "Tất cả trạng thái",

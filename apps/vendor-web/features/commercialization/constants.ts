@@ -13,13 +13,59 @@ export const LICENSE_CODES_PAGE_QUERY_KEY = (params: {
   search: string;
 }) => [...LICENSE_CODES_QUERY_KEY, params] as const;
 
+export const PLATFORM_SETTING_KEYS = {
+  FREE_STUDENT_LIMIT: "free_student_limit",
+  APPLICATION_RESPONSE_SLA_HOURS: "tenant_application_response_sla_hours",
+} as const;
+export const PLATFORM_SETTING_CATEGORY = "COMMERCIAL";
+
+export type PlatformSettingKey =
+  (typeof PLATFORM_SETTING_KEYS)[keyof typeof PLATFORM_SETTING_KEYS];
+
+export interface PlatformSettingPresentation {
+  label: string;
+  description: string;
+  impact: string;
+  unit: string;
+}
+
+export const PLATFORM_SETTING_PRESENTATION: Record<
+  PlatformSettingKey,
+  PlatformSettingPresentation
+> = {
+  [PLATFORM_SETTING_KEYS.FREE_STUDENT_LIMIT]: {
+    label: "Free student limit",
+    description: "The number of learner seats granted when a tenant application is approved.",
+    impact: "Applies to tenant applications approved after this value is saved.",
+    unit: "students",
+  },
+  [PLATFORM_SETTING_KEYS.APPLICATION_RESPONSE_SLA_HOURS]: {
+    label: "Tenant application response time",
+    description: "The response time promised to applicants in the application email.",
+    impact: "Applies to application notifications sent after this value is saved.",
+    unit: "hours",
+  },
+};
+
 export const PLATFORM_SETTINGS_TEXT = {
   TITLE: "Platform settings",
-  PANEL_TITLE: "Commercial defaults",
+  PANEL_TITLE: "Commercial and approvals",
+  PANEL_SUBTITLE: "Manage business policies used by new tenant applications.",
   LOADING: "Loading settings...",
-  SAVE: "Save",
+  SAVE: "Save changes",
+  SAVING: "Saving changes...",
+  RESET: "Reset to defaults",
+  RESET_TITLE: "Reset platform settings?",
+  RESET_DESCRIPTION:
+    "Restore this group to its recommended defaults. Review the values and save to apply them.",
+  RESET_CONFIRM: "Reset to defaults",
+  RESET_CANCEL: "Cancel",
+  NO_SETTINGS: "No editable platform settings are available.",
+  RETRY: "Try again",
+  UNSAVED: "Unsaved changes",
+  UP_TO_DATE: "All changes are saved",
   ERROR: "Settings could not be loaded or saved.",
-  SAVED: (key: string) => `Setting ${key} saved.`,
+  SAVED: "Platform settings saved.",
 } as const;
 
 export const ADMIN_APPLICATIONS_TEXT = {
