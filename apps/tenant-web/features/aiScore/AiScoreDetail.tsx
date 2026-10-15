@@ -20,7 +20,6 @@ const SectionTitle = ({ children }: { children: string }): ReactElement => (
  */
 export const AiScoreDetail = ({ ai }: AiScoreDetailProps): ReactElement => {
   const criteria = Object.entries(ai.criteria);
-  const hasDetail = Object.keys(ai.detail).length > 0;
 
   return (
     <section
@@ -75,15 +74,6 @@ export const AiScoreDetail = ({ ai }: AiScoreDetailProps): ReactElement => {
             {ai.transcript}
           </p>
         </div>
-      )}
-
-      {hasDetail && (
-        <details className="text-sm">
-          <summary className="cursor-pointer text-[var(--ink-secondary)]">{T.DETAIL_TITLE}</summary>
-          <pre className="mt-2 max-h-64 overflow-auto rounded-md bg-[var(--surface-card)] p-3 text-xs">
-            {JSON.stringify(ai.detail, null, 2)}
-          </pre>
-        </details>
       )}
 
       <p className="text-xs text-[var(--ink-muted)]">{T.DISCLAIMER}</p>

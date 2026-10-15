@@ -9,7 +9,6 @@ export const AI_SCORE_TEXT = {
   CRITERIA_TITLE: "Tiêu chí",
   FEEDBACK_TITLE: "Nhận xét",
   TRANSCRIPT_TITLE: "Bản ghi lời nói",
-  DETAIL_TITLE: "Chi tiết kỹ thuật",
   FALLBACK_NOTICE: "AI chấm bằng phương án dự phòng nên độ tin cậy thấp. Hãy xem lại điểm này.",
   LOW_CONFIDENCE: "Độ tin cậy thấp",
   FAILURE_TITLE: "AI chấm lỗi",
