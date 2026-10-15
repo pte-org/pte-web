@@ -963,9 +963,9 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.search.orders.placeholder": "Tìm theo mã đơn, tên gói hoặc trạng thái",
     "tenant.search.orders.ariaLabel": "Tìm đơn hàng theo mã đơn, tên gói hoặc trạng thái",
     "tenant.search.answers.placeholder":
-      "Tìm theo mã câu trả lời, lượt thi, dạng bài hoặc trạng thái",
+      "Tìm theo mã, dạng bài hoặc trạng thái",
     "tenant.search.answers.ariaLabel":
-      "Tìm câu trả lời theo mã, lượt thi, dạng bài hoặc trạng thái",
+      "Tìm câu trả lời theo mã, dạng bài hoặc trạng thái",
     "tenant.search.classAssignment.placeholder": "Tìm theo tên lớp hoặc chương trình",
     "tenant.search.classAssignment.ariaLabel": "Tìm lớp đã gán theo tên lớp hoặc chương trình",
     "tenant.search.examinerBatches.placeholder":
@@ -1920,9 +1920,9 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.search.programs.ariaLabel": "Search programs by name or status",
     "tenant.search.orders.placeholder": "Search by order code, plan name, or status",
     "tenant.search.orders.ariaLabel": "Search orders by order code, plan name, or status",
-    "tenant.search.answers.placeholder": "Search by answer ID, attempt ID, task type, or status",
+    "tenant.search.answers.placeholder": "Search by answer ID, task type, or status",
     "tenant.search.answers.ariaLabel":
-      "Search answers by answer ID, attempt ID, task type, or status",
+      "Search answers by answer ID, task type, or status",
     "tenant.search.classAssignment.placeholder": "Search by class or program name",
     "tenant.search.classAssignment.ariaLabel": "Search assigned classes by class or program name",
     "tenant.search.examinerBatches.placeholder": "Search by batch ID, status, or assignment method",

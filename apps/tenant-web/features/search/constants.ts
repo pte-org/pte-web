@@ -44,8 +44,8 @@ export const TENANT_SEARCH_TEXT = {
     ariaLabel: "Search orders by order code, plan name, or status",
   },
   answers: {
-    placeholder: "Search by answer ID, attempt ID, task type, or status",
-    ariaLabel: "Search answers by answer ID, attempt ID, task type, or status",
+    placeholder: "Search by answer ID, task type, or status",
+    ariaLabel: "Search answers by answer ID, task type, or status",
   },
   classAssignment: {
     placeholder: "Search by class or program name",
