@@ -1,12 +1,12 @@
 "use client";
 
 import type { ReactElement, ReactNode } from "react";
-import { HOST_ROLES } from "../constants";
+import { HOST_ROLES, PROCTOR_ROLES } from "../constants";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
-import { buildExaminerNav, buildHostNav, buildStudentNav } from "@/lib/navigation";
+import { buildExaminerNav, buildHostNav, buildProctorNav, buildStudentNav } from "@/lib/navigation";
 import { DashboardChrome } from "./DashboardChrome";
 
-export type TenantDashboardArea = "host" | "examiner" | "student";
+export type TenantDashboardArea = "host" | "examiner" | "student" | "proctor";
 
 interface TenantDashboardLayoutChromeProps {
   area: TenantDashboardArea;
@@ -35,11 +35,18 @@ const StudentDashboardChrome = ({ children }: { children: ReactNode }): ReactEle
   </DashboardChrome>
 );
 
+const ProctorDashboardChrome = ({ children }: { children: ReactNode }): ReactElement => (
+  <DashboardChrome navItems={buildProctorNav()} allowedRoles={PROCTOR_ROLES}>
+    {children}
+  </DashboardChrome>
+);
+
 export const TenantDashboardLayoutChrome = ({
   area,
   children,
 }: TenantDashboardLayoutChromeProps): ReactElement => {
   if (area === "host") return <HostDashboardChrome>{children}</HostDashboardChrome>;
   if (area === "examiner") return <ExaminerDashboardChrome>{children}</ExaminerDashboardChrome>;
+  if (area === "proctor") return <ProctorDashboardChrome>{children}</ProctorDashboardChrome>;
   return <StudentDashboardChrome>{children}</StudentDashboardChrome>;
 };

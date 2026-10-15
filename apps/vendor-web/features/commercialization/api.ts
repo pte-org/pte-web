@@ -10,6 +10,7 @@ import {
   listApplications,
   listAdminLicenseCodes,
   listPlatformSettings,
+  updatePlatformSettings,
   listPlans,
   lookupLicenseCode,
   rejectApplication,
@@ -31,6 +32,7 @@ import {
   type PlanTransitionRequest,
   type PlanUpdateRequest,
   type PlatformSettingRequest,
+  type PlatformSettingBatchRequest,
   type PlatformSettingResponse,
   type RejectApplicationRequest,
   type TenantApplicationResponse,
@@ -174,6 +176,20 @@ export function useUpdatePlatformSetting(): UseMutationResult<
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ key, payload }) => updatePlatformSetting(apiClient, key, payload),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
+    },
+  });
+}
+
+export function useUpdatePlatformSettings(): UseMutationResult<
+  PlatformSettingResponse[],
+  unknown,
+  PlatformSettingBatchRequest
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload) => updatePlatformSettings(apiClient, payload),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
     },

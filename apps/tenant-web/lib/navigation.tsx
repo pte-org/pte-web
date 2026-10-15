@@ -110,16 +110,48 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
   ];
 }
 
-/** Examiner navigation is intentionally isolated from all Host-only destinations. */
+/** Examiner navigation: Overview plus filtered status entries. */
 export function buildExaminerNav(): NavItem[] {
   return [
     {
-      label: EXAMINER_NAV_TEXT.QUEUE,
-      labelKey: "nav.markingQueue",
+      label: EXAMINER_NAV_TEXT.OVERVIEW,
+      labelKey: "nav.examinerOverview",
       href: "/examiner/work",
+      icon: <NavDashboardIcon />,
+      section: EXAMINER_NAV_TEXT.HOME_SECTION,
+      sectionKey: "nav.home",
+    },
+    {
+      label: EXAMINER_NAV_TEXT.PENDING,
+      labelKey: "nav.examinerPending",
+      href: "/examiner/work?status=PENDING",
       icon: <NavTaskTypeIcon />,
-      section: EXAMINER_NAV_TEXT.SECTION,
-      sectionKey: "nav.examiner",
+      section: EXAMINER_NAV_TEXT.QUEUE_SECTION,
+      sectionKey: "nav.markingQueue",
+    },
+    {
+      label: EXAMINER_NAV_TEXT.IN_PROGRESS,
+      labelKey: "nav.examinerInProgress",
+      href: "/examiner/work?status=IN_PROGRESS",
+      icon: <NavExamTemplateIcon />,
+      section: EXAMINER_NAV_TEXT.QUEUE_SECTION,
+      sectionKey: "nav.markingQueue",
+    },
+    {
+      label: EXAMINER_NAV_TEXT.COMPLETED,
+      labelKey: "nav.examinerCompleted",
+      href: "/examiner/work?status=COMPLETED",
+      icon: <NavApplicationIcon />,
+      section: EXAMINER_NAV_TEXT.QUEUE_SECTION,
+      sectionKey: "nav.markingQueue",
+    },
+    {
+      label: EXAMINER_NAV_TEXT.REPORTS,
+      labelKey: "nav.examinerReports",
+      href: "/examiner/reports",
+      icon: <NavAuditLogIcon />,
+      section: EXAMINER_NAV_TEXT.REPORTS_SECTION,
+      sectionKey: "nav.reports",
     },
   ];
 }
@@ -139,18 +171,65 @@ export function buildStudentNav(): NavItem[] {
 
 /**
  * Proctor navigation. PROCTOR accounts land in the proctor console
- * (proctor is a monitoring role, not a host tenant-admin). Audit-log
- * list at `/proctor/audit-log` is out of scope this phase; pro enters
- * post-hoc review per-session via deep-link from
- * `/proctor/sessions/{publicId}` (the live monitoring view).
+ * with overview, accessible monitoring, attendance picker, and audit log picker.
  */
 export function buildProctorNav(): NavItem[] {
-  return [
-    {
-      label: PROCTOR_NAV_TEXT.PROFILE,
-      href: "/proctor/profile",
-      icon: <ShieldIcon />,
-      section: PROCTOR_NAV_TEXT.SECTION,
-    },
-  ];
+  const isEnabled = process.env.NEXT_PUBLIC_PROCTOR_UI_ENABLED === "true";
+  const items: NavItem[] = [];
+
+  if (isEnabled) {
+    items.push(
+      {
+        label: PROCTOR_NAV_TEXT.OVERVIEW,
+        labelKey: "nav.proctorOverview",
+        href: "/proctor/sessions",
+        icon: <NavDashboardIcon />,
+        section: PROCTOR_NAV_TEXT.HOME_SECTION,
+        sectionKey: "nav.home",
+      },
+      {
+        label: PROCTOR_NAV_TEXT.MONITORING,
+        labelKey: "nav.proctorMonitoring",
+        href: "/proctor/sessions?scope=ACCESSIBLE",
+        icon: <NavExamTemplateIcon />,
+        section: PROCTOR_NAV_TEXT.SUPERVISION_SECTION,
+        sectionKey: "nav.supervision",
+      },
+      {
+        label: PROCTOR_NAV_TEXT.ATTENDANCE,
+        labelKey: "nav.proctorAttendance",
+        href: "/proctor/attendance",
+        icon: <NavUserGroupIcon />,
+        section: PROCTOR_NAV_TEXT.SUPERVISION_SECTION,
+        sectionKey: "nav.supervision",
+      },
+      {
+        label: PROCTOR_NAV_TEXT.INCIDENTS,
+        labelKey: "nav.proctorIncidents",
+        href: "/proctor/incidents",
+        icon: <NavSupportTicketIcon />,
+        section: PROCTOR_NAV_TEXT.SUPERVISION_SECTION,
+        sectionKey: "nav.supervision",
+      },
+      {
+        label: PROCTOR_NAV_TEXT.AUDIT_LOG,
+        labelKey: "nav.proctorAuditLog",
+        href: "/proctor/audit-log",
+        icon: <NavAuditLogIcon />,
+        section: PROCTOR_NAV_TEXT.DATA_SECTION,
+        sectionKey: "nav.data",
+      },
+    );
+  }
+
+  items.push({
+    label: PROCTOR_NAV_TEXT.PROFILE,
+    labelKey: "nav.proctorProfile",
+    href: "/proctor/profile",
+    icon: <ShieldIcon />,
+    section: PROCTOR_NAV_TEXT.ACCOUNT_SECTION,
+    sectionKey: "nav.account",
+  });
+
+  return items;
 }

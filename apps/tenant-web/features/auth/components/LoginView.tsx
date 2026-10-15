@@ -11,7 +11,8 @@ import {
   type JwtTokenResponse,
 } from "@pte/api-client";
 import { useLoginHost, useLoginOrganizationOptions } from "../api";
-import { AUTH_ROUTES, AUTH_TEXT } from "../constants";
+import { AUTH_TEXT } from "../constants";
+import { resolveWorkspace } from "../resolveWorkspace";
 import { getLoginErrorMessage } from "../loginError";
 import { AuthBrandPanel } from "./_AuthBrandPanel";
 
@@ -63,13 +64,8 @@ export const LoginView = (): ReactElement => {
       tenantId: claims.tenantId,
       expiresAt: claims.expiresAt || Date.now() + data.expiresInSeconds * 1000,
     });
-    router.replace(
-      roles.includes("EXAMINER") && !roles.includes("HOST_ADMIN")
-        ? AUTH_ROUTES.examinerWork
-        : roles.includes("STUDENT")
-          ? AUTH_ROUTES.studentResults
-          : AUTH_ROUTES.hostDashboard,
-    );
+    const { defaultRoute } = resolveWorkspace(roles);
+    router.replace(defaultRoute);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {

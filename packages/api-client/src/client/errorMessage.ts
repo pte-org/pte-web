@@ -103,6 +103,11 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
     "This class still has active members. Please remove all members before archiving the class.",
   CLASS_MEMBERSHIP_NOT_FOUND: "The class membership could not be found.",
   STUDENT_NOT_FOUND: "The selected student could not be found.",
+  FORBIDDEN_USER_MANAGEMENT: "You do not have permission to manage platform users.",
+  FORBIDDEN_PASSWORD_RESET: "You do not have permission to reset this user's password.",
+  FORBIDDEN_ROLE_ASSIGNMENT: "The selected platform role is not allowed.",
+  USER_EMAIL_REQUIRED: "This account has no email address for credential delivery.",
+  USER_NOT_FOUND: "The selected platform user could not be found or is no longer available.",
 };
 
 const KIND_FALLBACKS: Record<ApiErrorKind, string> = {

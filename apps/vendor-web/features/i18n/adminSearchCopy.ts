@@ -12,8 +12,8 @@ const ADMIN_SEARCH_COPY = {
     ariaLabel: "Search plans by name, description, type, or status",
   },
   licenseCodes: {
-    placeholder: "Search by tenant or license identifier",
-    ariaLabel: "Search license codes by tenant or identifier",
+    placeholder: "Search by activation code or tenant ID",
+    ariaLabel: "Search license codes by activation code or tenant ID",
   },
   applications: {
     placeholder: "Search by organization, code, email, phone, or tax code",

@@ -20,6 +20,7 @@ import {
   UserMenu,
   cn,
   useLocale,
+  useSessionManager,
   useTokenManager,
   type DropdownItem,
   type SessionRole,
@@ -106,9 +107,11 @@ const SidebarNav = ({
 }): ReactElement => {
   const pathname = usePathname();
   const { data: user } = useCurrentUser();
+  const { session } = useSessionManager();
   const { t } = useLocale();
+  const roles = user?.roles ?? session?.roles;
   const visibleItems = navItems.filter(
-    (item) => !item.requiredRoles || hasAnyRole(user?.roles, item.requiredRoles),
+    (item) => !item.requiredRoles || hasAnyRole(roles, item.requiredRoles),
   );
 
   const sidebarItems = visibleItems.map((item) => ({
@@ -200,9 +203,11 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
   const searchParams = useSearchParams();
   const router = useRouter();
   const { data: user } = useCurrentUser();
+  const { session } = useSessionManager();
   const { t } = useLocale();
+  const roles = user?.roles ?? session?.roles;
   const searchItems = navItems
-    .filter((item) => !item.requiredRoles || hasAnyRole(user?.roles, item.requiredRoles))
+    .filter((item) => !item.requiredRoles || hasAnyRole(roles, item.requiredRoles))
     .map((item) => ({
       id: item.href,
       title: item.labelKey ? t(item.labelKey, item.label) : item.label,

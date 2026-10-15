@@ -10,6 +10,18 @@ export interface OrganizationResponse {
   tenantPublicId: string;
   name: string;
   address: string | null;
+  provinceCode: string | null;
+  provinceName: string | null;
+  wardCode: string | null;
+  wardName: string | null;
   facilityType: FacilityType;
   status: OrganizationStatusResponse;
+}
+
+export interface UpdateOrganizationProfileRequest {
+  name: string;
+  address: string | null;
+  provinceCode: string | null;
+  wardCode: string | null;
+  facilityType: FacilityType;
 }
