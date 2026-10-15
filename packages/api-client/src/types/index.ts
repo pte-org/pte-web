@@ -20,5 +20,8 @@ export * from "./admin";
 export * from "./billing";
 export * from "./notification";
 export * from "./support";
+export * from "./proctoring";
+export * from "./attendance";
+export * from "./incidents";
 export * from "./dashboard";
 export * from "./location";

@@ -27,8 +27,10 @@ import {
 } from "@pte/ui";
 import { NotificationBellContainer } from "@/features/notifications";
 import { RequireAuth } from "./RequireAuth";
+import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 import { useCurrentUser } from "../api";
 import { AUTH_ROUTES } from "../constants";
+import { resolveActiveNavItem } from "../utils/resolveActiveNavItem";
 
 export interface NavItem {
   label: string;
@@ -114,29 +116,6 @@ const SidebarBrand = ({ collapsed = false }: { collapsed?: boolean }): ReactElem
 //   Classes should be the highlighted entry point.
 // - Programs list (`/host/programs`) and Programs detail
 //   (`/host/programs/{id}`) still highlight normally because they have
-//   no `/classes/` sub-segment.
-const HOST_NAV_DEACTIVATES: Readonly<Record<string, (pathname: string) => boolean>> = {
-  "/host/programs": (pathname) => pathname.includes("/classes/") || pathname.endsWith("/classes"),
-};
-
-const HOST_NAV_ACTIVATES: Readonly<Record<string, (pathname: string) => boolean>> = {
-  // The Classes section owns the class-detail page even though the URL
-  // sits under `/host/programs/.../classes/...`. Force Classes active
-  // whenever we navigate into a class.
-  "/host/classes": (pathname) => pathname.includes("/classes/") || pathname.endsWith("/classes"),
-};
-
-const isActive = (pathname: string | null, href: string): boolean => {
-  if (!pathname) return false;
-  const forceOn = HOST_NAV_ACTIVATES[href];
-  if (forceOn && forceOn(pathname)) return true;
-  if (href === "/") return pathname === "/";
-  if (!pathname.startsWith(href)) return false;
-  const deactivator = HOST_NAV_DEACTIVATES[href];
-  if (deactivator && deactivator(pathname)) return false;
-  return true;
-};
-
 const SidebarNav = ({
   navItems,
   isSidebarOpen,
@@ -147,18 +126,21 @@ const SidebarNav = ({
   onItemClick?: () => void;
 }): ReactElement => {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const { data: user } = useCurrentUser();
   const { t } = useLocale();
   const visibleItems = navItems.filter(
     (item) => !item.requiredRoles || item.requiredRoles.some((role) => user?.roles.includes(role)),
   );
 
+  const activeHref = resolveActiveNavItem(visibleItems, pathname, searchParams);
+
   const sidebarItems = visibleItems.map((item) => ({
     label: item.labelKey ? t(item.labelKey, item.label) : item.label,
     href: item.href,
     icon: item.icon,
     section: item.sectionKey ? t(item.sectionKey, item.section ?? "Pages") : item.section,
-    isActive: isActive(pathname, item.href),
+    isActive: item.href === activeHref,
   }));
 
   return (
@@ -223,6 +205,7 @@ const HeaderActions = (): ReactElement => {
 
   return (
     <>
+      <WorkspaceSwitcher />
       <LocaleSwitcher />
       <ThemeToggle />
       <NotificationBellContainer />
@@ -259,9 +242,8 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
       url: item.href,
       icon: item.icon,
     }));
-  const activeItem = navItems
-    .filter((item) => isActive(pathname, item.href))
-    .sort((a, b) => b.href.length - a.href.length)[0];
+  const activeHref = resolveActiveNavItem(navItems, pathname, searchParams);
+  const activeItem = navItems.find((item) => item.href === activeHref);
   const explicitParent = BREADCRUMB_PARENT_ROUTES.find(route => pathname === route.prefix || pathname?.startsWith(`${route.prefix}/`));
   const breadcrumbItems = useDashboardBreadcrumbItems(
     pathname,
