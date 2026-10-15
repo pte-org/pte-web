@@ -140,6 +140,7 @@ export interface AdminLicenseCodeSummary {
   planType: PlanType | null;
   issuedAt: string;
   codeExpiresAt: string | null;
+  redeemedAt: string | null;
   recipientPublicId: string | null;
   recipientName: string | null;
   subscriptionPublicId: string | null;
