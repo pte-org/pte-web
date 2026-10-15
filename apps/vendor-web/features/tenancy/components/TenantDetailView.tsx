@@ -19,11 +19,7 @@ import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useCurrentUser } from "@/features/auth/api";
 import { isPlatformAdmin } from "@/features/auth/permissions";
 import {
-  CREATE_LOGIN_ACCOUNT_TEXT as RAW_CREATE_LOGIN_ACCOUNT_TEXT,
   CREATE_TENANT_CONFLICT_TEXT as RAW_CREATE_TENANT_CONFLICT_TEXT,
-  LOGIN_ACCOUNT_STATUS_LABELS as RAW_LOGIN_ACCOUNT_STATUS_LABELS,
-  LOGIN_ACCOUNT_STATUS_VARIANT,
-  LOGIN_ACCOUNT_TEXT as RAW_LOGIN_ACCOUNT_TEXT,
   ORGANIZATION_TYPE_OPTIONS as RAW_ORGANIZATION_TYPE_OPTIONS,
   TENANT_DETAIL_TEXT as RAW_TENANT_DETAIL_TEXT,
   TENANT_PLAN_LABELS as RAW_TENANT_PLAN_LABELS,
@@ -31,26 +27,17 @@ import {
   TENANT_STATUS_VARIANT,
 } from "../constants";
 import {
-  useCreateLoginAccount,
-  useLoginAccount,
   useOrganizations,
   useReactivateOrganization,
-  useResetPassword,
   useSuspendOrganization,
   useTenant,
   useUpdateBranding,
 } from "../api";
-import type {
-  BrandingInput,
-  CreateLoginAccountInput,
-  Organization,
-  ResetPasswordInput,
-} from "../types";
+import type { BrandingInput, Organization } from "../types";
 import { BrandingEditor } from "./BrandingEditor";
-import { CreateLoginAccountModal } from "./CreateLoginAccountModal";
 import { OrganizationTable } from "./_OrganizationTable";
-import { ResetPasswordModal } from "./ResetPasswordModal";
 import { TenantEmptyState } from "./_TenantEmptyState";
+import { TenantLoginAccountSection } from "./TenantLoginAccountSection";
 
 function mutationErrorMessage(error: unknown, conflictMessage: string): string | undefined {
   if (!error) return undefined;
@@ -60,48 +47,16 @@ function mutationErrorMessage(error: unknown, conflictMessage: string): string |
   return getUserFacingApiErrorMessage(error);
 }
 
-function loginAccountErrorMessage(error: unknown, conflictMessage: string): string | undefined {
-  if (!error) return undefined;
-  if (error instanceof ApiError && error.kind === "conflict") {
-    return getUserFacingApiErrorMessage(error, conflictMessage);
-  }
-  return getUserFacingApiErrorMessage(error);
-}
-
-function resetPasswordErrorMessage(
-  error: unknown,
-  uncertainMessage: string,
-  conflictMessage: string,
-): string | undefined {
-  if (error instanceof ApiError && (error.kind === "network" || error.kind === "server")) {
-    return uncertainMessage;
-  }
-  return mutationErrorMessage(error, conflictMessage);
-}
-
 interface TenantDetailViewProps {
   tenantPublicId: string;
 }
 
 export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): ReactElement => {
   const T = useAdminCopy(RAW_TENANT_DETAIL_TEXT);
-  const L = useAdminCopy(RAW_LOGIN_ACCOUNT_TEXT);
-  const createLoginText = useAdminCopy(RAW_CREATE_LOGIN_ACCOUNT_TEXT);
   const tenantConflictText = useAdminCopy(RAW_CREATE_TENANT_CONFLICT_TEXT);
   const organizationTypeOptions = useAdminCopy(RAW_ORGANIZATION_TYPE_OPTIONS);
   const tenantPlanLabels = useAdminCopy(RAW_TENANT_PLAN_LABELS);
   const tenantStatusLabels = useAdminCopy(RAW_TENANT_STATUS_LABELS);
-  const loginAccountStatusLabels = useAdminCopy(RAW_LOGIN_ACCOUNT_STATUS_LABELS);
-  const loginRoleLabels = useAdminCopy({
-    HOST_ADMIN: "Host admin",
-    PLATFORM_ADMIN: "Platform administrator",
-    PLATFORM_MANAGER: "Platform manager",
-    ACADEMIC_MANAGER: "Academic manager",
-    ACADEMIC_STAFF: "Academic staff",
-    EXAMINER: "Examiner",
-    PROCTOR: "Proctor",
-    STUDENT: "Student",
-  });
   const organizationTypeLabel = (value: string): string =>
     organizationTypeOptions.find((option) => option.value === value)?.label ?? value;
   const { data: currentUser } = useCurrentUser();
@@ -111,35 +66,13 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
   const pathname = usePathname();
   useDashboardBreadcrumbLabel(pathname, tenant?.name);
   const { data: organizations } = useOrganizations(tenantPublicId, canManageTenantAccount);
-  const loginAccountQuery = useLoginAccount(tenantPublicId, canManageTenantAccount);
-  const loginAccount = loginAccountQuery.data?.account ?? null;
-  const isAmbiguousLoginAccount = loginAccountQuery.data?.ambiguous ?? false;
   const updateBranding = useUpdateBranding(tenantPublicId);
   const suspendOrganization = useSuspendOrganization(tenantPublicId);
   const reactivateOrganization = useReactivateOrganization(tenantPublicId);
-  const createLoginAccount = useCreateLoginAccount(tenantPublicId);
-  const resetPassword = useResetPassword(loginAccount?.id ?? "");
 
-  const [createLoginOpen, setCreateLoginOpen] = useState(false);
-  const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("summary");
+  const [activeSection, setActiveSection] = useState("tenant");
   const { t } = useLocale();
   const { showToast } = useToast();
-
-  const confirmCreateLoginAccount = (input: CreateLoginAccountInput): void => {
-    createLoginAccount.mutate(input, {
-      onSuccess: () => setCreateLoginOpen(false),
-    });
-  };
-
-  const confirmResetPassword = (input: ResetPasswordInput): void => {
-    resetPassword.mutate(input, {
-      onSuccess: () => {
-        setResetPasswordOpen(false);
-        showToast(L.RESET_SUCCESS, { tone: "success" });
-      },
-    });
-  };
 
   const confirmSuspendOrganization = (organization: Organization): void => {
     suspendOrganization.mutate(organization.id);
@@ -177,17 +110,17 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-4 shadow-card">
       <Tabs
         id="tenant-detail-tabs"
         value={activeSection}
         onChange={setActiveSection}
         variant="default"
         items={[
-          { id: "summary", label: t("tenant.tabs.summary", "Summary") },
+          { id: "tenant", label: t("tenant.tabs.tenant", "Tenant information") },
           ...(canManageTenantAccount
             ? [
-                { id: "account", label: t("tenant.tabs.account", "Login account") },
+                { id: "admin", label: t("tenant.tabs.admin", "Administrator information") },
                 { id: "organizations", label: t("tenant.tabs.organizations", "Organizations") },
               ]
             : []),
@@ -199,9 +132,9 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
         id={`tenant-detail-tabs-panel-${activeSection}`}
         aria-labelledby={`tenant-detail-tabs-tab-${activeSection}`}
         tabIndex={0}
-        className="flex flex-col gap-5 outline-none"
+        className="mt-5 flex flex-col gap-5 outline-none"
       >
-        {activeSection === "summary" && (
+        {activeSection === "tenant" && (
           <>
             <section className="flex flex-col gap-4 rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] p-5 shadow-card">
               <h2 className="text-base font-semibold text-gray-900">{T.INFORMATION_TITLE}</h2>
@@ -254,128 +187,12 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
           </>
         )}
 
-        {activeSection === "account" && (
-          <section className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-base font-semibold text-gray-900">{L.TITLE}</h2>
-              </div>
-              {loginAccount && (
-                <button
-                  type="button"
-                  onClick={() => setResetPasswordOpen(true)}
-                  className="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
-                >
-                  {L.RESET_PASSWORD}
-                </button>
-              )}
-            </div>
-
-            {loginAccountQuery.isLoading ? (
-              <div className="rounded-lg border border-gray-200 bg-white p-5 text-sm text-gray-500">
-                {L.LOADING}
-              </div>
-            ) : loginAccountQuery.error ? (
-              <Alert tone="error">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <span>
-                    {loginAccountErrorMessage(loginAccountQuery.error, createLoginText.CONFLICT) ??
-                      L.LOAD_ERROR}
-                  </span>
-                  <button
-                    type="button"
-                    className="font-semibold underline"
-                    onClick={() => void loginAccountQuery.refetch()}
-                  >
-                    {L.RETRY}
-                  </button>
-                </div>
-              </Alert>
-            ) : isAmbiguousLoginAccount ? (
-              <Alert tone="error">{L.AMBIGUOUS_TARGET}</Alert>
-            ) : loginAccount ? (
-              <div className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-5">
-                <DetailGroup
-                  title={L.GROUP_IDENTITY}
-                  items={[
-                    { label: L.USER_ID_LABEL, value: <CopyableId value={loginAccount.id} /> },
-                    { label: L.USERNAME_LABEL, value: loginAccount.username },
-                  ]}
-                />
-                <DetailGroup
-                  title={L.GROUP_ACCOUNT}
-                  items={[
-                    { label: L.EMAIL_LABEL, value: loginAccount.email },
-                    { label: L.FULL_NAME_LABEL, value: loginAccount.fullName },
-                    {
-                      label: L.ROLES_LABEL,
-                      value:
-                        loginAccount.roles.length > 0
-                          ? loginAccount.roles
-                              .map(
-                                (role) =>
-                                  loginRoleLabels[role as keyof typeof loginRoleLabels] ?? role,
-                              )
-                              .join(", ")
-                          : L.EMPTY_VALUE,
-                    },
-                    {
-                      label: T.STATUS_LABEL,
-                      value: (
-                        <Badge variant={LOGIN_ACCOUNT_STATUS_VARIANT[loginAccount.status]}>
-                          {loginAccountStatusLabels[loginAccount.status]}
-                        </Badge>
-                      ),
-                    },
-                  ]}
-                />
-                <DetailGroup
-                  title={L.GROUP_STUDENT}
-                  items={[
-                    {
-                      label: L.STUDENT_CODE_LABEL,
-                      value: loginAccount.studentCode ?? L.EMPTY_VALUE,
-                    },
-                    { label: L.CLASS_NAME_LABEL, value: loginAccount.className ?? L.EMPTY_VALUE },
-                    { label: L.PHONE_LABEL, value: loginAccount.phone ?? L.EMPTY_VALUE },
-                    {
-                      label: L.DATE_OF_BIRTH_LABEL,
-                      value: loginAccount.dateOfBirth ?? L.EMPTY_VALUE,
-                    },
-                  ]}
-                />
-                <DetailGroup
-                  title={L.GROUP_SECURITY}
-                  items={[
-                    {
-                      label: L.PASSWORD_STATE_LABEL,
-                      value: loginAccount.mustChangePassword
-                        ? L.PASSWORD_STATE_REQUIRED
-                        : L.PASSWORD_STATE_NOT_REQUIRED,
-                      fullWidth: true,
-                    },
-                  ]}
-                />
-              </div>
-            ) : (
-              <TenantEmptyState
-                onAdd={() => setCreateLoginOpen(true)}
-                title={L.EMPTY_TITLE}
-                text={L.EMPTY_TEXT}
-                addLabel={L.CREATE_LOGIN}
-              />
-            )}
-          </section>
+        {activeSection === "admin" && canManageTenantAccount && (
+          <TenantLoginAccountSection tenantPublicId={tenantPublicId} tenantName={tenant.name} />
         )}
 
         {activeSection === "organizations" && (
           <section className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-base font-semibold text-gray-900">{T.ORGANIZATIONS_TITLE}</h2>
-              </div>
-            </div>
-
             {suspendOrganization.error || reactivateOrganization.error ? (
               <Alert tone="error">
                 {mutationErrorMessage(
@@ -400,42 +217,6 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
           </section>
         )}
       </div>
-
-      <CreateLoginAccountModal
-        key={createLoginOpen ? "createLoginAccount-open" : "createLoginAccount-closed"}
-        open={createLoginOpen}
-        onClose={() => {
-          createLoginAccount.reset();
-          setCreateLoginOpen(false);
-        }}
-        onSubmit={confirmCreateLoginAccount}
-        error={loginAccountErrorMessage(createLoginAccount.error, createLoginText.CONFLICT)}
-        isSubmitting={createLoginAccount.isPending}
-      />
-
-      <ResetPasswordModal
-        key={
-          resetPasswordOpen
-            ? `resetPassword-open-${loginAccount?.id ?? "unknown"}`
-            : "resetPassword-closed"
-        }
-        open={resetPasswordOpen}
-        onClose={() => {
-          resetPassword.reset();
-          setResetPasswordOpen(false);
-        }}
-        onSubmit={confirmResetPassword}
-        error={resetPasswordErrorMessage(
-          resetPassword.error,
-          L.RESET_UNCERTAIN,
-          tenantConflictText.CONFLICT,
-        )}
-        isSubmitting={resetPassword.isPending}
-        tenantName={tenant.name}
-        targetName={loginAccount?.fullName ?? ""}
-        targetUsername={loginAccount?.username ?? ""}
-        targetRoles={loginAccount?.roles ?? []}
-      />
     </div>
   );
 };

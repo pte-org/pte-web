@@ -2,9 +2,13 @@ import { describe, expect, it, vi } from "vitest";
 import type { ApiClient } from "../../client/client";
 import {
   createPlatformUser,
+  archivePlatformUser,
   listPlatformUsers,
   PLATFORM_USER_ENDPOINTS,
+  resetPlatformUserPassword,
+  restorePlatformUser,
   suspendPlatformUser,
+  updatePlatformUserProfile,
   updatePlatformUserRoles,
 } from "./index";
 
@@ -37,12 +41,19 @@ describe("platform user request contract", () => {
     );
   });
 
-  it("creates only the tenantless platform-user payload", async () => {
+  it("includes archived rows only when explicitly requested", async () => {
+    const client = fakeClient();
+    await listPlatformUsers(client, { page: 0, size: 20, includeArchived: true });
+    expect(client.request).toHaveBeenCalledWith(
+      `${PLATFORM_USER_ENDPOINTS.users}?page=0&size=20&includeArchived=true`,
+    );
+  });
+
+  it("creates a tenantless platform user without a client-managed password", async () => {
     const client = fakeClient();
     await createPlatformUser(client, {
       email: "manager@example.test",
       fullName: "Platform Manager",
-      password: "password8",
       roles: ["PLATFORM_MANAGER"],
     });
     expect(client.request).toHaveBeenCalledWith(PLATFORM_USER_ENDPOINTS.users, {
@@ -50,7 +61,6 @@ describe("platform user request contract", () => {
       body: {
         email: "manager@example.test",
         fullName: "Platform Manager",
-        password: "password8",
         roles: ["PLATFORM_MANAGER"],
       },
     });
@@ -65,6 +75,34 @@ describe("platform user request contract", () => {
       body: { roles: ["ACADEMIC_STAFF"] },
     });
     expect(client.request).toHaveBeenNthCalledWith(2, PLATFORM_USER_ENDPOINTS.suspend("user/1"), {
+      method: "POST",
+    });
+  });
+
+  it("uses the dedicated profile, password, archive, and restore contracts", async () => {
+    const client = fakeClient();
+    await updatePlatformUserProfile(client, "user/1", {
+      fullName: "Updated User",
+      phone: "0909",
+      dateOfBirth: "1990-01-02",
+    });
+    await resetPlatformUserPassword(client, "user/1");
+    await archivePlatformUser(client, "user/1");
+    await restorePlatformUser(client, "user/1");
+
+    expect(client.request).toHaveBeenNthCalledWith(1, PLATFORM_USER_ENDPOINTS.user("user/1"), {
+      method: "PATCH",
+      body: { fullName: "Updated User", phone: "0909", dateOfBirth: "1990-01-02" },
+    });
+    expect(client.request).toHaveBeenNthCalledWith(
+      2,
+      PLATFORM_USER_ENDPOINTS.resetPassword("user/1"),
+      { method: "POST" },
+    );
+    expect(client.request).toHaveBeenNthCalledWith(3, PLATFORM_USER_ENDPOINTS.archive("user/1"), {
+      method: "DELETE",
+    });
+    expect(client.request).toHaveBeenNthCalledWith(4, PLATFORM_USER_ENDPOINTS.restore("user/1"), {
       method: "POST",
     });
   });

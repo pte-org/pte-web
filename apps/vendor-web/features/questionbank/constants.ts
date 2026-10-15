@@ -1,4 +1,5 @@
 import type { BadgeVariant } from "@pte/ui";
+import type { QuestionPool as ApiQuestionPool } from "@pte/api-client";
 import type {
   QuestionPool,
   QuestionSkill,
@@ -12,6 +13,7 @@ export const QUESTION_STATS_QUERY_KEY = ["questionStats"] as const;
 
 export const QUESTIONBANK_TEXT = {
   TITLE: "Question Bank",
+  POOL_TABS_ARIA_LABEL: "Question pool",
   ADD: "Add question",
   SEARCH_PLACEHOLDER: "Search by question content...",
   TOTAL_QUESTIONS: (count: number) => `${count} questions`,
@@ -173,6 +175,18 @@ export const QUESTION_TABLE_HEADERS = {
   ACTIONS: "Actions",
 } as const;
 
+export type QuestionBankTab = "official" | "practice";
+
+export const QUESTION_BANK_TAB_ITEMS = [
+  { id: "official", label: "Official" },
+  { id: "practice", label: "Practice" },
+] as const;
+
+export const QUESTION_BANK_TAB_POOLS: Record<QuestionBankTab, ApiQuestionPool> = {
+  official: "EXAM",
+  practice: "PRACTICE",
+};
+
 export const QUESTION_SKILL_LABELS: Record<QuestionSkill, string> = {
   listening: "Listening",
   reading: "Reading",
@@ -181,7 +195,7 @@ export const QUESTION_SKILL_LABELS: Record<QuestionSkill, string> = {
 };
 
 export const QUESTION_POOL_LABELS: Record<QuestionPool, string> = {
-  exam: "Exam",
+  exam: "Official",
   practice: "Practice",
 };
 

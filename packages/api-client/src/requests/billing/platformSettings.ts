@@ -1,9 +1,14 @@
 import type { ApiClient } from "../../client/client";
-import type { PlatformSettingRequest, PlatformSettingResponse } from "../../types/billing";
+import type {
+  PlatformSettingBatchRequest,
+  PlatformSettingRequest,
+  PlatformSettingResponse,
+} from "../../types/billing";
 
 export const PLATFORM_SETTING_ENDPOINTS = {
   settings: "/api/v1/settings",
   setting: (key: string) => "/api/v1/settings/" + encodeURIComponent(key),
+  batch: "/api/v1/settings/batch",
 } as const;
 
 export function listPlatformSettings(client: ApiClient): Promise<PlatformSettingResponse[]> {
@@ -23,4 +28,11 @@ export function updatePlatformSetting(
   payload: PlatformSettingRequest,
 ): Promise<PlatformSettingResponse> {
   return client.request(PLATFORM_SETTING_ENDPOINTS.setting(key), { method: "PUT", body: payload });
+}
+
+export function updatePlatformSettings(
+  client: ApiClient,
+  payload: PlatformSettingBatchRequest,
+): Promise<PlatformSettingResponse[]> {
+  return client.request(PLATFORM_SETTING_ENDPOINTS.batch, { method: "PUT", body: payload });
 }

@@ -197,10 +197,16 @@ export const HostScoreReviewPanel = ({
     [answers, section],
   );
 
+  const isManualExaminer = review.data?.markingMode === "MANUAL_EXAMINER";
+  const canSelectScoreSource = review.data?.canSelectScoreSource ?? !isManualExaminer;
+
   const scopeValue =
     scope === "ALL" ? null : scope === "SECTION" ? section || null : taskType || null;
   const canPreview = Boolean(
-    review.data && !review.data.publicationLocked && (scope === "ALL" || scopeValue !== null),
+    review.data &&
+      !review.data.publicationLocked &&
+      canSelectScoreSource &&
+      (scope === "ALL" || scopeValue !== null),
   );
 
   const openPreview = (): void => {
@@ -397,60 +403,94 @@ export const HostScoreReviewPanel = ({
       )}
 
       {review.data?.publicationLocked && <Alert tone="warning">{text.publicationLocked}</Alert>}
+      {isManualExaminer && (
+        <Alert tone="info">
+          {t(
+            "tenant.scoreReview.manualExaminerInfo",
+            "This session uses Manual Examiner marking. Score sources are decided by assigned examiners and committed upon submission. Host score-source overrides are disabled.",
+          )}
+        </Alert>
+      )}
+      {isManualExaminer && (review.data?.pendingExaminerAnswerCount ?? 0) > 0 && (
+        <Alert
+          tone="warning"
+          title={t("tenant.scoreReview.pendingExaminerTitle", "Pending Examiner Work")}
+        >
+          {t(
+            "tenant.scoreReview.pendingExaminerCount",
+            `${review.data?.pendingExaminerAnswerCount} examiner answer(s) are still pending submission before publication.`,
+            { count: review.data?.pendingExaminerAnswerCount ?? 0 },
+          )}
+        </Alert>
+      )}
+      {(review.data?.unavailableSelectedAnswerCount ?? 0) > 0 && (
+        <Alert
+          tone="warning"
+          title={t("tenant.scoreReview.unavailableScoresTitle", "Unavailable Scores")}
+        >
+          {t(
+            "tenant.scoreReview.unavailableScoresCount",
+            `${review.data?.unavailableSelectedAnswerCount} answer(s) have selected scores that are unavailable.`,
+            { count: review.data?.unavailableSelectedAnswerCount ?? 0 },
+          )}
+        </Alert>
+      )}
       {error && <Alert tone="error">{error}</Alert>}
 
-      <div className="grid gap-3 md:grid-cols-4 md:items-end">
-        <Select
-          label={text.applyScope}
-          value={scope}
-          onChange={(event) => {
-            setScope(event.target.value as ScoreSourceSelectionScope);
-            setPreview(null);
-          }}
-          options={scopeOptions}
-        />
-        {scope !== "ALL" && (
+      {canSelectScoreSource && !review.data?.publicationLocked && (
+        <div className="grid gap-3 md:grid-cols-4 md:items-end">
           <Select
-            label={scope === "SECTION" ? text.section : text.taskSectionFilter}
-            value={section}
+            label={text.applyScope}
+            value={scope}
             onChange={(event) => {
-              setSection(event.target.value);
-              setTaskType("");
+              setScope(event.target.value as ScoreSourceSelectionScope);
               setPreview(null);
             }}
-            options={sections.map((value) => ({ label: value, value }))}
-            placeholder={text.selectSection}
+            options={scopeOptions}
           />
-        )}
-        {scope === "TASK_TYPE" && (
+          {scope !== "ALL" && (
+            <Select
+              label={scope === "SECTION" ? text.section : text.taskSectionFilter}
+              value={section}
+              onChange={(event) => {
+                setSection(event.target.value);
+                setTaskType("");
+                setPreview(null);
+              }}
+              options={sections.map((value) => ({ label: value, value }))}
+              placeholder={text.selectSection}
+            />
+          )}
+          {scope === "TASK_TYPE" && (
+            <Select
+              label={text.taskType}
+              value={taskType}
+              onChange={(event) => {
+                setTaskType(event.target.value);
+                setPreview(null);
+              }}
+              options={taskTypes.map((value) => ({ label: value, value }))}
+              placeholder={text.selectTaskType}
+            />
+          )}
           <Select
-            label={text.taskType}
-            value={taskType}
+            label={text.reportScoreSource}
+            value={source}
             onChange={(event) => {
-              setTaskType(event.target.value);
+              setSource(event.target.value as ScoreSource);
               setPreview(null);
             }}
-            options={taskTypes.map((value) => ({ label: value, value }))}
-            placeholder={text.selectTaskType}
+            options={sourceOptions}
           />
-        )}
-        <Select
-          label={text.reportScoreSource}
-          value={source}
-          onChange={(event) => {
-            setSource(event.target.value as ScoreSource);
-            setPreview(null);
-          }}
-          options={sourceOptions}
-        />
-        <Button
-          type="button"
-          onClick={openPreview}
-          disabled={!canPreview || review.isLoading || previewMutation.isPending}
-        >
-          {previewMutation.isPending ? text.checking : text.previewSelection}
-        </Button>
-      </div>
+          <Button
+            type="button"
+            onClick={openPreview}
+            disabled={!canPreview || review.isLoading || previewMutation.isPending}
+          >
+            {previewMutation.isPending ? text.checking : text.previewSelection}
+          </Button>
+        </div>
+      )}
 
       {preview && (
         <div className="flex flex-col gap-3 rounded-md bg-[var(--surface-subtle)] p-4 text-sm">

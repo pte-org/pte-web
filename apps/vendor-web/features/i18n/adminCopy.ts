@@ -64,10 +64,32 @@ const ADMIN_VI: Record<string, string> = {
   Actions: "Thao tác",
 
   "Platform settings": "Cài đặt nền tảng",
-  "Commercial defaults": "Thiết lập thương mại mặc định",
+  "Commercial and approvals": "Thương mại và phê duyệt",
+  "Manage business policies used by new tenant applications.":
+    "Quản lý chính sách nghiệp vụ áp dụng cho các đơn đăng ký tenant mới.",
   "Loading settings...": "Đang tải cài đặt...",
-  Save: "Lưu",
+  "Saving changes...": "Đang lưu thay đổi...",
+  "Reset to defaults": "Khôi phục giá trị mặc định",
+  "Reset platform settings?": "Khôi phục cài đặt nền tảng?",
+  "Restore this group to its recommended defaults. Review the values and save to apply them.":
+    "Khôi phục nhóm cài đặt về giá trị mặc định đề xuất. Hãy kiểm tra lại và lưu để áp dụng.",
+  "No editable platform settings are available.": "Hiện chưa có cài đặt nền tảng nào có thể chỉnh sửa.",
+  "Unsaved changes": "Có thay đổi chưa lưu",
+  "All changes are saved": "Tất cả thay đổi đã được lưu",
   "Settings could not be loaded or saved.": "Không thể tải hoặc lưu cài đặt.",
+  "Platform settings saved.": "Đã lưu cài đặt nền tảng.",
+  "Free student limit": "Hạn mức học viên miễn phí",
+  "The number of learner seats granted when a tenant application is approved.":
+    "Số chỗ học viên được cấp khi đơn đăng ký tenant được duyệt.",
+  "Applies to tenant applications approved after this value is saved.":
+    "Áp dụng cho các đơn đăng ký tenant được duyệt sau khi lưu giá trị này.",
+  "Tenant application response time": "Thời gian phản hồi hồ sơ tenant",
+  "The response time promised to applicants in the application email.":
+    "Thời gian phản hồi được cam kết với người đăng ký trong email hồ sơ.",
+  "Applies to application notifications sent after this value is saved.":
+    "Áp dụng cho các thông báo hồ sơ được gửi sau khi lưu giá trị này.",
+  students: "học viên",
+  hours: "giờ",
   "Tenant applications": "Đơn đăng ký tenant",
   "Filter applications by status": "Lọc đơn đăng ký theo trạng thái",
   "All statuses": "Tất cả trạng thái",
@@ -152,10 +174,27 @@ const ADMIN_VI: Record<string, string> = {
   "Plan archived.": "Đã lưu trữ gói.",
 
   "License codes": "Mã bản quyền",
+  "Activation codes": "Mã kích hoạt",
+  "Review and manage codes issued by the platform.":
+    "Theo dõi và quản lý các mã được phát hành bởi nền tảng.",
+  "Create code": "Tạo mã",
+  "Lookup code": "Tra cứu mã",
+  "Advanced filters": "Bộ lọc nâng cao",
+  "Hide advanced filters": "Ẩn bộ lọc nâng cao",
+  "Create activation code": "Tạo mã kích hoạt",
+  "Code created": "Đã tạo mã",
+  "The code was created securely. Reveal it only when you are ready to share it.":
+    "Mã đã được tạo an toàn. Chỉ hiển thị mã khi bạn sẵn sàng chia sẻ.",
+  "Issued on": "Ngày phát hành",
+  "Code expires": "Hạn sử dụng mã",
+  "Redeemed on": "Ngày kích hoạt",
+  "Not redeemed": "Chưa sử dụng",
+  "No expiry": "Không thời hạn",
   "Issue a code": "Phát hành mã",
+  "Lookup activation code": "Tra cứu mã kích hoạt",
+  "Code expiry": "Thời hạn mã",
   "Select active exam package": "Chọn gói kỳ thi đang hoạt động",
   "Refresh plans": "Làm mới danh sách gói",
-  "Code expiry": "Thời hạn mã",
   "Recover issuance result": "Khôi phục kết quả phát hành",
   "Start a new issuance": "Bắt đầu phát hành mới",
   "Start another issuance?": "Bắt đầu một lần phát hành khác?",
@@ -178,6 +217,7 @@ const ADMIN_VI: Record<string, string> = {
   "Refresh list": "Làm mới danh sách",
   "Find a code safely": "Tra cứu mã an toàn",
   "License code": "Mã bản quyền",
+  "Activation code": "Mã kích hoạt",
   Lookup: "Tra cứu",
   "Lookup result": "Kết quả tra cứu",
   "No matching code was found.": "Không tìm thấy mã phù hợp.",
@@ -246,26 +286,53 @@ const ADMIN_VI: Record<string, string> = {
     "Quản lý tài khoản quản lý nền tảng và nhân sự học thuật.",
   "Create platform user": "Tạo người dùng nền tảng",
   "Update platform roles": "Cập nhật vai trò nền tảng",
+  "Update platform user": "Cập nhật người dùng nền tảng",
   Email: "Email",
+  "Email and username cannot be changed in this flow.":
+    "Không thể thay đổi email và tên đăng nhập trong luồng này.",
   "Full name": "Họ và tên",
-  "Temporary password": "Mật khẩu tạm thời",
+  "A temporary password will be generated and sent to the user's email.":
+    "Mật khẩu tạm thời sẽ được tự động tạo và gửi đến email của người dùng.",
+  "Phone": "Số điện thoại",
+  "Date of birth": "Ngày sinh",
   "Search by name or email": "Tìm theo họ tên hoặc email",
   Role: "Vai trò",
   "Filter by role": "Lọc theo vai trò",
   "Filter by status": "Lọc theo trạng thái",
   "All roles": "Tất cả vai trò",
+  "Show archived": "Hiển thị đã lưu trữ",
+  "Protected account": "Tài khoản được bảo vệ",
   "Platform user created.": "Đã tạo người dùng nền tảng.",
   "Platform roles updated.": "Đã cập nhật vai trò nền tảng.",
   "Platform user suspended.": "Đã tạm ngưng người dùng nền tảng.",
   "Platform user reactivated.": "Đã kích hoạt lại người dùng nền tảng.",
+  "Platform user profile updated.": "Đã cập nhật hồ sơ người dùng nền tảng.",
+  "A temporary password was generated and sent by email.":
+    "Đã tạo mật khẩu tạm thời và gửi qua email.",
+  "Platform user archived.": "Đã lưu trữ người dùng nền tảng.",
+  "Platform user restored.": "Đã khôi phục người dùng nền tảng.",
   "Loading platform users...": "Đang tải người dùng nền tảng...",
   "No platform users found.": "Không tìm thấy người dùng nền tảng.",
   "Unable to load platform users.": "Không thể tải người dùng nền tảng.",
-  "Use at least 8 characters. The password is shown only during creation.":
-    "Sử dụng ít nhất 8 ký tự. Mật khẩu chỉ hiển thị khi tạo mới.",
   Suspend: "Tạm ngưng",
   Reactivate: "Kích hoạt lại",
   "Update roles": "Cập nhật vai trò",
+  "Update profile": "Cập nhật hồ sơ",
+  "Reset password": "Đặt lại mật khẩu",
+  Restore: "Khôi phục",
+  "Reset platform user password": "Đặt lại mật khẩu người dùng nền tảng",
+  "A new temporary password will be generated and sent to this user's email. Continue?":
+    "Một mật khẩu tạm thời mới sẽ được tạo và gửi tới email của người dùng. Tiếp tục?",
+  "Archive this platform user? They will lose access, but the account can be restored later.":
+    "Lưu trữ người dùng nền tảng này? Tài khoản sẽ mất quyền truy cập nhưng có thể khôi phục sau.",
+  "Restore this platform user and allow them to sign in again?":
+    "Khôi phục người dùng nền tảng này và cho phép đăng nhập lại?",
+  "Reactivate this platform user and allow them to sign in again?":
+    "Kích hoạt lại người dùng nền tảng này và cho phép đăng nhập lại?",
+  "Your account and platform administrators are read-only here.":
+    "Tài khoản của bạn và quản trị viên nền tảng chỉ được xem tại đây.",
+  "Archived accounts cannot sign in and are hidden unless this filter is enabled.":
+    "Tài khoản đã lưu trữ không thể đăng nhập và bị ẩn nếu chưa bật bộ lọc này.",
   "Platform manager": "Quản lý nền tảng",
   "Academic manager": "Quản lý học thuật",
   "Academic staff": "Nhân sự học thuật",
@@ -523,7 +590,7 @@ const ADMIN_VI: Record<string, string> = {
   "Main Campus": "Cơ sở chính",
   Branch: "Chi nhánh",
   "Test Center": "Trung tâm khảo thí",
-  "Login Account": "Tài khoản đăng nhập",
+  "Tenant admin account": "Tài khoản quản trị tenant",
   "No login account yet": "Chưa có tài khoản đăng nhập",
   "Create the Host's first login so they can sign in.":
     "Tạo tài khoản đăng nhập đầu tiên cho Host để họ có thể đăng nhập.",
@@ -535,14 +602,10 @@ const ADMIN_VI: Record<string, string> = {
   "Create Login": "Tạo tài khoản đăng nhập",
   "Reset Password": "Đặt lại mật khẩu",
   Account: "Tài khoản",
-  "Student info": "Thông tin học viên",
+  "Technical details": "Thông tin kỹ thuật",
   Security: "Bảo mật",
   "User ID": "ID người dùng",
   Roles: "Vai trò",
-  "Student code": "Mã học viên",
-  "Class name": "Tên lớp",
-  Phone: "Số điện thoại",
-  "Date of birth": "Ngày sinh",
   "First-login password change": "Đổi mật khẩu lần đầu đăng nhập",
   Required: "Bắt buộc",
   "Not required": "Không bắt buộc",
@@ -880,11 +943,9 @@ const ADMIN_VI: Record<string, string> = {
   "Save draft": "Lưu bản nháp",
   "This notification is no longer available.": "Thông báo này không còn khả dụng.",
   "System Error": "Lỗi hệ thống",
-  "Something went wrong. Please reload the page.":
-    "Đã xảy ra lỗi. Vui lòng tải lại trang.",
+  "Something went wrong. Please reload the page.": "Đã xảy ra lỗi. Vui lòng tải lại trang.",
   "Something went wrong": "Đã xảy ra lỗi",
-  "We could not load this page. Please try again.":
-    "Không thể tải trang này. Vui lòng thử lại.",
+  "We could not load this page. Please try again.": "Không thể tải trang này. Vui lòng thử lại.",
   "Try again": "Thử lại",
 
   // Question bank and task type workflow copy.
@@ -944,14 +1005,17 @@ const ADMIN_VI: Record<string, string> = {
   "Search licenses by tenant, plan, or license identifier":
     "Tìm bản quyền theo tenant, gói hoặc mã bản quyền",
   "Search by tenant, plan, or status": "Tìm theo tenant, gói hoặc trạng thái",
-  "Search licenses by tenant, plan, or status":
-    "Tìm bản quyền theo tenant, gói hoặc trạng thái",
+  "Search licenses by tenant, plan, or status": "Tìm bản quyền theo tenant, gói hoặc trạng thái",
   "Search by plan name, description, type, or status":
     "Tìm theo tên gói, mô tả, loại hoặc trạng thái",
   "Search plans by name, description, type, or status":
     "Tìm gói theo tên, mô tả, loại hoặc trạng thái",
-  "Search by tenant or license identifier": "Tìm theo tenant hoặc mã bản quyền",
-  "Search license codes by tenant or identifier": "Tìm mã bản quyền theo tenant hoặc mã định danh",
+  "Search by activation code or tenant ID": "Tìm theo mã kích hoạt hoặc ID tenant",
+  "Search license codes by activation code or tenant ID":
+    "Tìm mã kích hoạt hoặc ID tenant",
+  "Activation code created.": "Đã tạo mã kích hoạt.",
+  "Activation code issuance confirmed.": "Đã xác nhận phát hành mã kích hoạt.",
+  "Activation code revoked.": "Đã thu hồi mã kích hoạt.",
   "Search by organization, code, email, phone, or tax code":
     "Tìm theo tổ chức, mã, email, điện thoại hoặc mã số thuế",
   "Search applications by organization, code, email, phone, or tax code":

@@ -140,6 +140,7 @@ export interface AdminLicenseCodeSummary {
   planType: PlanType | null;
   issuedAt: string;
   codeExpiresAt: string | null;
+  redeemedAt: string | null;
   recipientPublicId: string | null;
   recipientName: string | null;
   subscriptionPublicId: string | null;
@@ -219,16 +220,38 @@ export interface SubscriptionActivationResponse {
   activationSource: ActivationSource | null;
 }
 
+export type PlatformSettingValueType = "INTEGER" | "DURATION_HOURS";
+
 export interface PlatformSettingResponse {
   publicId: string;
   key: string;
   value: string;
   description: string | null;
+  category: string;
+  type: PlatformSettingValueType;
+  defaultValue: string;
+  unit: string | null;
+  minimum: number | null;
+  maximum: number | null;
+  editable: boolean;
+  requiresRestart: boolean;
+  scope: string;
+  impact: string;
+  updatedAt: string | null;
 }
 
 export interface PlatformSettingRequest {
   value: string;
   description?: string;
+}
+
+export interface PlatformSettingChangeRequest {
+  key: string;
+  value: string;
+}
+
+export interface PlatformSettingBatchRequest {
+  settings: PlatformSettingChangeRequest[];
 }
 
 export interface PlatformOrderResponse {
