@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { ApiError, type ReportPublicationBlockerResponse } from "@pte/api-client";
-import { Alert, Button, ConfirmDialog, useLocale } from "@pte/ui";
+import { Alert, Button, ConfirmDialog, useLocale, useToast } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import {
   useHostScoreReview,
@@ -21,6 +21,7 @@ export const ReportPublicationPanel = ({
   sessionStatus,
 }: ReportPublicationPanelProps): ReactElement => {
   const { locale, t } = useLocale();
+  const { showToast } = useToast();
   const [checked, setChecked] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const review = useHostScoreReview(sessionPublicId);
@@ -125,7 +126,6 @@ export const ReportPublicationPanel = ({
           ))}
         </ul>
       )}
-      {publish.isSuccess && <Alert tone="success">{text.success}</Alert>}
       <div className="flex flex-wrap gap-2">
         <Button
           type="button"
@@ -176,7 +176,12 @@ export const ReportPublicationPanel = ({
         description={text.publishConfirm(preflight.data?.submittedAttemptCount ?? 0)}
         confirmLabel={text.approve}
         isConfirming={publish.isPending}
-        onConfirm={() => publish.mutate(undefined, { onSettled: () => setConfirmOpen(false) })}
+        onConfirm={() =>
+          publish.mutate(undefined, {
+            onSuccess: () => showToast(text.success, { tone: "success" }),
+            onSettled: () => setConfirmOpen(false),
+          })
+        }
         onClose={() => setConfirmOpen(false)}
       />
     </section>

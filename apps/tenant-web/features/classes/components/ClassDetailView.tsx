@@ -1,19 +1,23 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
-import { Alert, Badge, LoadingState, PageHeader } from "@pte/ui";
-import { errorMessage } from "@/features/examoperations/errorMessage";
-import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
+import { usePathname, useRouter } from "next/navigation";
+
+import { useState } from "react";
 import {
-  CLASS_ROSTER_TEXT,
-  CLASS_STATUS_LABELS,
-  CLASS_STATUS_VARIANT,
-  LECTURER_SECTION_TEXT,
-} from "../constants";
-import { useClasses } from "../api";
+  Alert,
+  LoadingState,
+  Tabs,
+  TabPanel,
+  useLocale,
+  useDashboardBreadcrumbLabel,
+} from "@pte/ui";
+import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
+import { useProgram } from "@/features/programs/api";
+import { useClasses, useClassRoster } from "../api";
+import { useClassActionText } from "../hooks/useClassActionText";
+import { ClassInformation } from "./ClassInformation";
 import { ClassRosterTable } from "./ClassRosterTable";
 import { ImportOrAssignModal } from "./ImportOrAssignModal";
-import { LecturerAssignmentSection } from "./LecturerAssignmentSection";
 
 interface ClassDetailViewProps {
   organizationPublicId: string;
@@ -21,101 +25,83 @@ interface ClassDetailViewProps {
   classPublicId: string;
 }
 
-export const ClassDetailView = ({
-  organizationPublicId,
-  programPublicId,
-  classPublicId,
-}: ClassDetailViewProps): ReactElement => {
-  const labels = useOrgLabels();
-
-  if (!organizationPublicId || !programPublicId) {
-    return (
-      <div className="flex flex-col gap-4">
-        <Alert tone="error">{CLASS_ROSTER_TEXT.missingContext}</Alert>
-      </div>
-    );
+export const ClassDetailView = (props: ClassDetailViewProps) => {
+  const text = useClassActionText();
+  if (!props.organizationPublicId || !props.programPublicId) {
+    return <Alert tone="error">{text.missingContext}</Alert>;
   }
-
-  return (
-    <ClassDetailContent
-      organizationPublicId={organizationPublicId}
-      programPublicId={programPublicId}
-      classPublicId={classPublicId}
-      classLabel={labels.class}
-    />
-  );
+  return <ClassDetailContent {...props} />;
 };
-
-interface ClassDetailContentProps {
-  organizationPublicId: string;
-  programPublicId: string;
-  classPublicId: string;
-  classLabel: string;
-}
 
 const ClassDetailContent = ({
   organizationPublicId,
   programPublicId,
   classPublicId,
-  classLabel,
-}: ClassDetailContentProps): ReactElement => {
+}: ClassDetailViewProps) => {
+  const router = useRouter();
+  const text = useClassActionText();
+  const { t } = useLocale();
+  const labels = useOrgLabels();
+  const classLabel = t("nav.class", labels.class);
+  const [activeTab, setActiveTab] = useState("overview");
   const [importOpen, setImportOpen] = useState(false);
-  // Classes aren't individually fetchable by id alone in this API surface
-  // (`GET .../classes` is list-only) — find this Class in its Program's
-  // list, same shared-data-source discipline as the roster table.
-  const {
-    data: classes,
-    isLoading,
-    isError,
-    error,
-  } = useClasses(organizationPublicId, programPublicId);
-  const studentClass = classes?.find((candidate) => candidate.publicId === classPublicId);
+  const query = useClasses(organizationPublicId, programPublicId);
+  const program = useProgram(organizationPublicId, programPublicId);
+  const studentClass = query.data?.find((candidate) => candidate.publicId === classPublicId);
+  const roster = useClassRoster(programPublicId, classPublicId);
+  const pathname = usePathname();
+  useDashboardBreadcrumbLabel(pathname, studentClass?.name);
 
-  if (isError) {
-    return <Alert tone="error">{errorMessage(error, CLASS_ROSTER_TEXT.loadFailed)}</Alert>;
-  }
-
-  if (isLoading || !studentClass) {
-    return <LoadingState rows={4} />;
-  }
+  if (query.isError) return <Alert tone="error">{text.loadFailed}</Alert>;
+  if (query.isLoading) return <LoadingState rows={4} />;
+  if (!studentClass) return <Alert tone="error">{text.notFound}</Alert>;
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-5">
-      <PageHeader
-        title={studentClass.name}
-        actions={
-          <div className="flex items-center gap-3">
-            <Badge variant={CLASS_STATUS_VARIANT[studentClass.status]}>
-              {CLASS_STATUS_LABELS[studentClass.status]}
-            </Badge>
-            <button
-              type="button"
-              onClick={() => setImportOpen(true)}
-              className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover"
-            >
-              {CLASS_ROSTER_TEXT.addButton}
-            </button>
-          </div>
-        }
+    <div className="flex flex-col gap-5">
+      <Tabs
+        id="class-detail-tabs"
+        value={activeTab}
+        onChange={setActiveTab}
+        ariaLabel={text.sections}
+        items={[
+          { id: "overview", label: text.overview },
+          { id: "students", label: text.roster },
+        ]}
       />
-
-      <ClassRosterTable
-        organizationPublicId={organizationPublicId}
-        programPublicId={programPublicId}
-        classPublicId={classPublicId}
-        classLabel={classLabel}
-        className={studentClass.name}
-      />
-
-      <section className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-4 sm:p-5">
-        <h3 className="text-sm font-semibold text-gray-900">{LECTURER_SECTION_TEXT.title}</h3>
-        <LecturerAssignmentSection
+      <TabPanel
+        id="class-detail-tabs-panel-overview"
+        active={activeTab === "overview"}
+        labelledBy="class-detail-tabs-tab-overview"
+      >
+        <ClassInformation
           organizationPublicId={organizationPublicId}
-          programPublicId={programPublicId}
-          classPublicId={classPublicId}
+          studentClass={studentClass}
+          programName={program.data?.name}
+          classLabel={classLabel}
+          studentCount={roster.data?.length ?? 0}
+          onArchived={() =>
+            router.push(
+              `/host/programs/${programPublicId}?organizationPublicId=${organizationPublicId}`,
+            )
+          }
         />
-      </section>
-
+      </TabPanel>
+      <TabPanel
+        id="class-detail-tabs-panel-students"
+        active={activeTab === "students"}
+        labelledBy="class-detail-tabs-tab-students"
+      >
+        <div className="flex flex-col gap-4">
+          <ClassRosterTable
+            organizationPublicId={organizationPublicId}
+            programPublicId={programPublicId}
+            classPublicId={classPublicId}
+            classLabel={classLabel}
+            className={studentClass.name}
+            onAddStudents={() => setImportOpen(true)}
+          />
+        </div>
+      </TabPanel>
       <ImportOrAssignModal
         open={importOpen}
         onClose={() => setImportOpen(false)}

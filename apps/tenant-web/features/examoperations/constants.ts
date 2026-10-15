@@ -94,6 +94,11 @@ export const ROSTER_TEMPLATE_TEXT = {
   ],
 } as const;
 
+export const ROSTER_TEMPLATE_TEXT_VI = {
+  BUTTON: "Tải mẫu",
+  HINT: "Điền mẫu hệ thống: mỗi dòng một học viên, bắt đầu từ dòng 2.",
+} as const;
+
 const MAX_LISTED_COLUMNS = 10;
 const COLUMN_LIST_SEPARATOR = ", ";
 const COLUMN_LIST_OVERFLOW = "...";

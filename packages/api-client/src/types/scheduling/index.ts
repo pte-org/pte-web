@@ -45,6 +45,18 @@ export interface ExamPolicyResponse {
   lockdownMode: LockdownMode | null;
 }
 
+export type ReplayPolicyType = "UNLIMITED" | "LIMITED";
+export type AnswerIntegrityLevel = "STANDARD" | "STRICT";
+
+export interface PatchExamPolicyRequest {
+  replayPolicyType?: ReplayPolicyType;
+  replayPolicyLimit?: number | null;
+  deviceCheckRequired?: boolean;
+  proctorRequired?: boolean;
+  answerIntegrityLevel?: AnswerIntegrityLevel;
+  lockdownMode?: LockdownMode | null;
+}
+
 /** Host preview of the immutable published snapshot; deliberately answer-stripped. */
 export interface ExamPreviewResponse {
   snapshotPublicId: string;
@@ -196,6 +208,13 @@ export interface PatchExamDraftRequest {
   selectedSkills?: string[];
   maxRetriesPerStudent?: number;
   lockdownMode?: LockdownMode | null;
+}
+
+export interface PatchExamScheduleRequest {
+  name?: string;
+  opensAt?: string;
+  closesAt?: string;
+  expectedVersion?: number;
 }
 
 export type AudienceSourceType = "STUDENT" | "CLASS" | "PROGRAM";

@@ -112,6 +112,16 @@ describe("support ticket requests", () => {
         `${SUPPORT_TICKET_ENDPOINTS.tickets}?status=OPEN&category=CONTENT_COMPLAINT&page=0&size=10`,
       );
     });
+
+    it("trims and encodes the server-side search term", async () => {
+      const client = fakeClient();
+
+      await listTickets(client, { search: "  billing & timeout  ", page: 0, size: 20 });
+
+      expect(client.request).toHaveBeenCalledWith(
+        `${SUPPORT_TICKET_ENDPOINTS.tickets}?search=billing+%26+timeout&page=0&size=20`,
+      );
+    });
   });
 
   describe("getTicket", () => {

@@ -10,6 +10,7 @@ export const LICENSE_CODES_PAGE_QUERY_KEY = (params: {
   status: string;
   planId: string;
   tenantId: string;
+  search: string;
 }) => [...LICENSE_CODES_QUERY_KEY, params] as const;
 
 export const PLATFORM_SETTINGS_TEXT = {

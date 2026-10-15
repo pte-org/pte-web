@@ -137,6 +137,7 @@ export interface AnnouncementAudiencePreviewResponse {
 export interface ListAnnouncementsParams {
   page?: number;
   size?: number;
+  search?: string;
 }
 
 export type AnnouncementPage = PagedResult<AnnouncementResponse>;

@@ -16,6 +16,12 @@ export interface ExamSession {
   name: string;
   subscriptionPublicId: string;
   snapshotPublicId: string | null;
+  templatePublicId: string | null;
+  templateVersion: number | null;
+  formMode: FormMode | null;
+  reusePolicy: ReusePolicy | null;
+  seriesKey: string | null;
+  draftVersion: number;
   opensAt: string;
   closesAt: string;
   status: SessionStatus;

@@ -50,4 +50,14 @@ describe("examiner assignment requests", () => {
       },
     );
   });
+
+  it("encodes the overview search term", async () => {
+    const client = fakeClient();
+
+    await getExaminerAssignmentOverview(client, "session-id", 0, 20, " PREVIEWED & RANDOM ");
+
+    expect(client.request).toHaveBeenCalledWith(
+      EXAMINER_ASSIGNMENT_ENDPOINTS.overview("session-id", 0, 20, "PREVIEWED & RANDOM"),
+    );
+  });
 });

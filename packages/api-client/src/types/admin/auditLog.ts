@@ -4,6 +4,8 @@ export interface AuditLogResponse {
   actorUserId: string;
   aggregateType: string;
   aggregateId: string;
+  resourceName: string | null;
+  resourceCode: string | null;
   action: string;
   summary: string;
   createdAt: string;

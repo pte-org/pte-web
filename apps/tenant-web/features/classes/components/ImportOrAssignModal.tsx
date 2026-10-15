@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Modal, cn } from "@pte/ui";
+import { Button, Modal, Tabs } from "@pte/ui";
 import type { CreatedAccount } from "@/features/examoperations/types";
 import { useBulkAssignStudents } from "../api";
-import { IMPORT_OR_ASSIGN_TEXT } from "../constants";
+import { useStudentImportText } from "../hooks/useStudentImportText";
 import {
   clearPendingClassAssignment,
   loadPendingClassAssignment,
@@ -15,8 +15,6 @@ import { ExistingStudentTab } from "./_ExistingStudentTab";
 import { ImportExcelTab } from "./_ImportExcelTab";
 import { PendingClassAssignmentBanner } from "./PendingClassAssignmentBanner";
 
-const T = IMPORT_OR_ASSIGN_TEXT;
-
 interface ImportOrAssignModalProps {
   open: boolean;
   onClose: () => void;
@@ -26,12 +24,6 @@ interface ImportOrAssignModalProps {
 }
 
 type Tab = "existing" | "import" | "add";
-
-const TAB_CLASS = (active: boolean): string =>
-  cn(
-    "rounded-md px-3 py-1.5 text-sm font-medium",
-    active ? "bg-blue-100 text-blue-700" : "text-gray-500 hover:bg-gray-100",
-  );
 
 function mergeAccounts(previous: CreatedAccount[], added: CreatedAccount[]): CreatedAccount[] {
   const byId = new Map(previous.map((account) => [account.publicId, account]));
@@ -52,6 +44,7 @@ export const ImportOrAssignModal = ({
   programPublicId,
   classPublicId,
 }: ImportOrAssignModalProps): ReactElement => {
+  const text = useStudentImportText();
   const [tab, setTab] = useState<Tab>("existing");
   // Lazy init reads sessionStorage during render — safe only because this
   // modal is only ever mounted client-side (never during SSR/hydration).
@@ -108,16 +101,12 @@ export const ImportOrAssignModal = ({
     <Modal
       open={open}
       onClose={onClose}
-      title={T.title}
+      title={text.title}
       size="xl"
       footer={
-        <button
-          type="button"
-          onClick={onClose}
-          className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
-        >
-          {T.close}
-        </button>
+        <Button type="button" variant="secondary" onClick={onClose}>
+          {text.close}
+        </Button>
       }
     >
       {pending && pending.length > 0 && (
@@ -132,24 +121,18 @@ export const ImportOrAssignModal = ({
         </div>
       )}
 
-      <div className="mb-4 flex gap-2 rounded-lg bg-gray-50 p-1">
-        <button
-          type="button"
-          className={TAB_CLASS(tab === "existing")}
-          onClick={() => setTab("existing")}
-        >
-          {T.tabExisting}
-        </button>
-        <button
-          type="button"
-          className={TAB_CLASS(tab === "import")}
-          onClick={() => setTab("import")}
-        >
-          {T.tabImport}
-        </button>
-        <button type="button" className={TAB_CLASS(tab === "add")} onClick={() => setTab("add")}>
-          {T.tabAdd}
-        </button>
+      <div className="mb-4">
+        <Tabs
+          id="student-import-method-tabs"
+          value={tab}
+          onChange={(value) => setTab(value as Tab)}
+          ariaLabel={text.tabsLabel}
+          items={[
+            { id: "existing", label: text.tabExisting },
+            { id: "import", label: text.tabImport },
+            { id: "add", label: text.tabAdd },
+          ]}
+        />
       </div>
 
       {tab === "existing" && (

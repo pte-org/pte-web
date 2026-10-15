@@ -3,7 +3,7 @@ import { cn } from "../utils/cn";
 import { LoadingState } from "./LoadingState";
 import { Skeleton } from "./Skeleton";
 
-export type DashboardLoadingVariant = "page" | "detail" | "table";
+export type DashboardLoadingVariant = "page" | "detail" | "table" | "overview";
 
 export interface DashboardLoadingStateProps {
   variant?: DashboardLoadingVariant;
@@ -22,6 +22,43 @@ const DetailPanel = (): ReactElement => (
   </div>
 );
 
+const OverviewPanel = ({ className }: { className?: string }): ReactElement => (
+  <div className={cn("rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5", className)}>
+    <Skeleton className="h-5 w-40" />
+    <Skeleton className="mt-5 h-48 w-full" />
+  </div>
+);
+
+/** Overview dashboard shape: KPI row, a wide chart beside a side panel, then list panels. */
+const OverviewSkeleton = (): ReactElement => (
+  <>
+    <div className="flex items-end justify-between gap-4">
+      <Skeleton className="h-8 w-56" />
+      <Skeleton className="h-10 w-32" />
+    </div>
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {Array.from({ length: 4 }, (_, index) => (
+        <div
+          key={index}
+          className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5"
+        >
+          <Skeleton className="h-4 w-2/5" />
+          <Skeleton className="mt-5 h-8 w-1/3" />
+          <Skeleton className="mt-3 h-3 w-1/2" />
+        </div>
+      ))}
+    </div>
+    <div className="grid gap-4 xl:grid-cols-3">
+      <OverviewPanel className="xl:col-span-2" />
+      <OverviewPanel />
+    </div>
+    <div className="grid gap-4 xl:grid-cols-3">
+      <OverviewPanel className="xl:col-span-2" />
+      <OverviewPanel />
+    </div>
+  </>
+);
+
 export const DashboardLoadingState = ({
   variant = "page",
   label = "Đang tải trang",
@@ -35,7 +72,9 @@ export const DashboardLoadingState = ({
   >
     <span className="sr-only">{label}</span>
 
-    {variant === "table" ? (
+    {variant === "overview" ? (
+      <OverviewSkeleton />
+    ) : variant === "table" ? (
       <>
         <div className="flex items-end justify-between gap-4">
           <Skeleton className="h-8 w-52" />

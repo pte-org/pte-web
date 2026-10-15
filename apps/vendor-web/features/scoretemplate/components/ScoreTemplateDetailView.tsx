@@ -1,8 +1,8 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { useRouter } from "next/navigation";
-import { Alert, Badge, Button, LoadingState, PageHeader } from "@pte/ui";
+import { useRouter, usePathname } from "next/navigation";
+import { Alert, Badge, Button, DashboardCard, LoadingState, useDashboardBreadcrumbLabel } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
 import { useCloneScoreTemplate, useScoreTemplate } from "../api";
@@ -27,6 +27,8 @@ export const ScoreTemplateDetailView = ({
   const SCORE_TEMPLATE_STATUS_LABELS = useAdminCopy(RAW_SCORE_TEMPLATE_STATUS_LABELS);
   const router = useRouter();
   const { data: template, isLoading, isError, error } = useScoreTemplate(publicId);
+  const pathname = usePathname();
+  useDashboardBreadcrumbLabel(pathname, template ? `${template.name || template.code} v${template.version}` : undefined);
   const cloneMutation = useCloneScoreTemplate();
 
   if (isLoading) {
@@ -44,11 +46,13 @@ export const ScoreTemplateDetailView = ({
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={`${template.code} v${template.version}`}
-        subtitle={template.name}
-        actions={
-          <>
+      <DashboardCard>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-sm font-semibold text-[var(--ink-primary)]">{template.name}</p>
+            <p className="mt-1 text-xs text-[var(--ink-muted)]">{template.code} v{template.version}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
             <Badge variant={SCORE_TEMPLATE_STATUS_VARIANT[status] ?? "neutral"}>
               {SCORE_TEMPLATE_STATUS_LABELS[status] ?? template.status}
             </Badge>
@@ -64,9 +68,9 @@ export const ScoreTemplateDetailView = ({
             >
               {SCORE_TEMPLATE_TEXT.CLONE_ACTION}
             </Button>
-          </>
-        }
-      />
+          </div>
+        </div>
+      </DashboardCard>
 
       {template.rejectionReason && (
         <Alert tone="warning" title={SCORE_TEMPLATE_TEXT.REJECTION_FEEDBACK_LABEL}>

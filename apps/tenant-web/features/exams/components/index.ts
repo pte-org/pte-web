@@ -2,7 +2,6 @@ export { ExamsListView } from "./ExamsListView";
 export { SessionDetailView } from "./SessionDetailView";
 export { ExamDetailTabs } from "./ExamDetailTabs";
 export { ExamOverviewTab } from "./ExamOverviewTab";
-export { ExamSettingsTab } from "./ExamSettingsTab";
 export { ExamParticipantsTab } from "./ExamParticipantsTab";
 export { ExamSubmissionsTab } from "./ExamSubmissionsTab";
 export { ExaminerTab } from "./ExaminerTab";

@@ -54,6 +54,7 @@ export interface AddNoteRequest {
 export interface SupportTicketListParams {
   status?: TicketStatus;
   category?: TicketCategory;
+  search?: string;
   page?: number;
   size?: number;
 }
@@ -62,6 +63,7 @@ export interface AdminSupportTicketListParams {
   status?: TicketStatus;
   category?: TicketCategory;
   tenantId?: string;
+  search?: string;
   page?: number;
   size?: number;
 }

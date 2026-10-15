@@ -29,14 +29,16 @@ export function useAdminSupportTickets(
   tenantId?: string,
   page = 0,
   size = DEFAULT_PAGE_SIZE,
+  search = "",
 ): UseQueryResult<{ data: SupportTicket[]; meta: { totalElements: number; totalPages: number; page: number; size: number } }> {
   return useQuery({
-    queryKey: [...ADMIN_SUPPORT_TICKETS_QUERY_KEY, { status, category, tenantId, page, size }],
+    queryKey: [...ADMIN_SUPPORT_TICKETS_QUERY_KEY, { status, category, tenantId, search, page, size }],
     queryFn: async () => {
       const result = await adminListTickets(apiClient, {
         status,
         category,
         tenantId: tenantId?.trim() || undefined,
+        search,
         page,
         size,
       });

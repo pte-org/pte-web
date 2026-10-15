@@ -143,6 +143,7 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
 
       {activeTab === "violations" ? (
         <DataTable<ProctorAuditLogEntry>
+          showSearch={false}
           columns={violationColumns}
           rows={violations}
           getRowKey={(row) => row.publicId}
@@ -153,6 +154,7 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
       ) : (
         <div className="flex flex-col gap-4">
           <DataTable<ProctorSecurityAuditEntry>
+            showSearch={false}
             columns={securityColumns}
             rows={securityItems}
             getRowKey={(row) => row.publicId}

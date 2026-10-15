@@ -25,6 +25,8 @@ export function listAnnouncements(
   const query = new URLSearchParams();
   query.set("page", String(params.page ?? 0));
   query.set("size", String(params.size ?? 20));
+  const search = params.search?.trim();
+  if (search) query.set("search", search);
   return client.request<AnnouncementPage>(
     `${ANNOUNCEMENT_ENDPOINTS.announcements}?${query.toString()}`,
   );

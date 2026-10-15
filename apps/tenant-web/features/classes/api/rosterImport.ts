@@ -9,11 +9,13 @@ import {
 import {
   useMutation,
   useQuery,
+  useQueryClient,
   type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import type { RosterRow } from "@/features/examoperations/types";
+import { HOST_DASHBOARD_QUERY_KEY } from "@/features/hostDashboard/constants";
 
 /** Backs the Transfer flow's pending-exam-request warning (Phase 3's new `scheduling` endpoint) — read-only, never blocks the transfer. */
 export function useStudentEnrollments(
@@ -44,6 +46,8 @@ export function useCreateRosterAccountsForClass(): UseMutationResult<
   unknown,
   RosterRow[]
 > {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (rows) =>
       bulkCreateUsers(apiClient, {
@@ -57,5 +61,9 @@ export function useCreateRosterAccountsForClass(): UseMutationResult<
         })),
         tenantId: null,
       }),
+    // Only refreshes the overview's learner counts; the pending-assignment write stays with the caller.
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: HOST_DASHBOARD_QUERY_KEY });
+    },
   });
 }
