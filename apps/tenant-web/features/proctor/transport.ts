@@ -1,6 +1,9 @@
 import { Client, type StompSubscription } from "@stomp/stompjs";
-import { decodeAccessTokenClaims, type ApiClient } from "@pte/api-client";
-import { subscribeTokenRefresh } from "@pte/ui";
+import {
+  decodeAccessTokenClaims,
+  subscribeTokenRefresh,
+  type ApiClient,
+} from "@pte/api-client";
 import { decodeTopicMessage } from "./decodeTopicMessage";
 import type {
   ConnectionStatus,

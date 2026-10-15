@@ -1,4 +1,9 @@
-import { createApiClient, type ApiClient, type RefreshedTokens } from "@pte/api-client";
+import {
+  createApiClient,
+  noteTokenRefreshed,
+  type ApiClient,
+  type RefreshedTokens,
+} from "@pte/api-client";
 import { sessionStorage } from "./sessionStorage";
 import { getSessionGeneration } from "./sessionLifecycle";
 
@@ -9,8 +14,6 @@ import { getSessionGeneration } from "./sessionLifecycle";
  * future change to the refresh contract is made once, not drifted across
  * both apps. Each app still supplies its own `baseUrl`.
  */
-import { noteTokenRefreshed } from "./sessionTokenLifecycle";
-
 export function createSessionApiClient(baseUrl: string): ApiClient {
   return createApiClient({
     baseUrl,

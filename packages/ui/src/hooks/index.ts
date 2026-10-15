@@ -11,5 +11,4 @@ export type { PteSession, SessionRole } from "./sessionStorage";
 export { useSessionManager } from "./useSessionManager";
 export type { SessionManager } from "./useSessionManager";
 export { getSessionGeneration, subscribeSessionLifecycle } from "./sessionLifecycle";
-export { noteTokenRefreshed, subscribeTokenRefresh } from "./sessionTokenLifecycle";
 export { createSessionApiClient } from "./createSessionApiClient";

@@ -15,3 +15,4 @@ export type { ApiErrorKind, ApiErrorMetadata } from "./apiError";
 export { getUserFacingApiErrorMessage } from "./errorMessage";
 export { decodeAccessTokenClaims } from "./jwt";
 export type { AccessTokenClaims } from "./jwt";
+export { noteTokenRefreshed, subscribeTokenRefresh } from "./sessionTokenLifecycle";
