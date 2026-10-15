@@ -8,6 +8,8 @@ import {
   DataTable,
   EyeIcon,
   PaginationControls,
+  PencilIcon,
+  Select,
   useLocale,
   type DataTableColumn,
 } from "@pte/ui";
@@ -20,6 +22,7 @@ import {
 import { AI_SCORE_TEXT, AiScoreCell, aiGapRowClass } from "@/features/aiScore";
 import { useAnswers } from "../api";
 import { AnswerDetailModal } from "./AnswerDetailModal";
+import { TeacherScoreModal } from "./TeacherScoreModal";
 import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
 
@@ -53,8 +56,10 @@ export const AnswersSection = ({
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const debouncedSearch = useDebouncedSearch(search);
   const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
+  const [scoringAnswer, setScoringAnswer] = useState<AnswerListItemResponse | null>(null);
 
   const statusLabel = (status: string): string => {
     const keyByStatus: Record<string, string> = {
@@ -78,7 +83,7 @@ export const AnswersSection = ({
 
   const { data, isLoading } = useAnswers(
     sessionPublicId,
-    "",
+    statusFilter,
     page,
     size,
     attemptPublicId,
@@ -94,8 +99,6 @@ export const AnswersSection = ({
     {
       key: "status",
       header: t("tenant.answers.status", ANSWER_TABLE_HEADERS.STATUS),
-      filterOptions: statusOptions,
-      filterAccessor: (row) => row.status,
       cell: (row) => (
         <Badge variant={ANSWER_STATUS_VARIANT[row.status]}>{statusLabel(row.status)}</Badge>
       ),
@@ -118,9 +121,6 @@ export const AnswersSection = ({
     {
       key: "createdAt",
       header: t("tenant.answers.submitted", ANSWER_TABLE_HEADERS.SUBMITTED_AT),
-      filterType: "date-range",
-      filterAccessor: (row) => row.createdAt,
-      filterPlaceholder: t("tenant.examList.dateRange", "Date range"),
       cell: (row) => formatDateTime(row.createdAt, locale),
     },
   ];
@@ -135,6 +135,17 @@ export const AnswersSection = ({
         emptyTitle={t("tenant.answers.empty", T.EMPTY_TITLE)}
         searchPlaceholder={searchText.placeholder}
         searchAriaLabel={searchText.ariaLabel}
+        filters={
+          <Select
+            aria-label={t("tenant.answers.status", ANSWER_TABLE_HEADERS.STATUS)}
+            value={statusFilter}
+            options={statusOptions}
+            onChange={(event) => {
+              setStatusFilter(event.target.value);
+              setPage(0);
+            }}
+          />
+        }
         searchValue={search}
         onSearchChange={(value) => {
           setSearch(value);
@@ -169,6 +180,11 @@ export const AnswersSection = ({
                 icon: EyeIcon,
                 onSelect: () => setSelectedAnswerId(row.answerPublicId),
               },
+              {
+                label: t("tenant.answers.enterTeacherScore", T.ENTER_TEACHER_SCORE),
+                icon: PencilIcon,
+                onSelect: () => setScoringAnswer(row),
+              },
             ]}
           />
         )}
@@ -178,6 +194,12 @@ export const AnswersSection = ({
         key={selectedAnswerId ?? "answer-detail-closed"}
         answerPublicId={selectedAnswerId}
         onClose={() => setSelectedAnswerId(null)}
+      />
+      <TeacherScoreModal
+        key={scoringAnswer?.answerPublicId ?? "teacher-score-closed"}
+        answerPublicId={scoringAnswer?.answerPublicId ?? null}
+        currentScore={scoringAnswer?.teacherScore ?? null}
+        onClose={() => setScoringAnswer(null)}
       />
     </div>
   );

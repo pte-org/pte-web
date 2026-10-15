@@ -8,6 +8,7 @@ export const ANSWERS_SECTION_TEXT = {
   STATUS_FILTER_LABEL: "Status",
   STATUS_FILTER_ALL: "All statuses",
   VIEW: "View",
+  ENTER_TEACHER_SCORE: "Enter teacher score",
 } as const;
 
 export const ANSWER_TABLE_HEADERS = {
