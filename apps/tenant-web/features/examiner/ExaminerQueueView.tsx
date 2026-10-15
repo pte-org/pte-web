@@ -3,7 +3,17 @@
 import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { ExaminerQueueItemResponse, ExaminerQueueStatus } from "@pte/api-client";
-import { Badge, Button, Input, PageHeader, Pagination, Select } from "@pte/ui";
+import {
+  Badge,
+  Button,
+  EmptyState,
+  ErrorState,
+  Input,
+  LoadingState,
+  PageHeader,
+  Pagination,
+  Select,
+} from "@pte/ui";
 import { useExaminerQueue } from "./api";
 import { EXAMINER_WORK_TEXT as T, parseExaminerQueueStatus } from "./constants";
 import { useExaminerWorkspaceText } from "./hooks/useExaminerWorkspaceText";
@@ -197,27 +207,30 @@ export const ExaminerQueueView = (): ReactElement => {
 
       <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
         {queue.isLoading ? (
-          <p className="p-5 text-sm text-slate-600">{text.loadingQueue}</p>
+          <div className="p-4">
+            <LoadingState variant="table" label={text.loadingQueue} />
+          </div>
         ) : queue.isError ? (
-          <div
-            className="m-4 flex flex-col gap-3 rounded-lg border border-red-200 bg-red-50 p-4 sm:flex-row sm:items-center sm:justify-between text-red-800"
-            role="alert"
-          >
-            <div>
-              <p className="font-semibold text-sm">{text.queueError}</p>
-            </div>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              disabled={queue.isFetching}
-              onClick={() => void queue.refetch()}
-            >
-              {text.retry}
-            </Button>
+          <div className="p-4">
+            <ErrorState
+              title={text.queueError}
+              action={
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  disabled={queue.isFetching}
+                  onClick={() => void queue.refetch()}
+                >
+                  {text.retry}
+                </Button>
+              }
+            />
           </div>
         ) : !queue.data || queue.data.items?.length === 0 ? (
-          <p className="p-5 text-sm text-slate-600">{text.emptyQueue}</p>
+          <div className="p-4">
+            <EmptyState title={text.emptyQueue} />
+          </div>
         ) : (
           <>
             <ul className="divide-y divide-slate-100">

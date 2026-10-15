@@ -10,6 +10,7 @@ import {
   StatusBadge,
   type DataTableColumn,
 } from "@pte/ui";
+import { PROCTOR_LIVE_TEXT } from "../constants";
 
 interface MonitoringStudentTableProps {
   students: MonitoringStudentResponse[];
@@ -32,13 +33,13 @@ function formatTime(iso: string | null): string {
 function getStatusBadgeProps(status: string | null | undefined): { label: string; variant: "info" | "success" | "warning" | "neutral" } {
   switch (status) {
     case "IN_PROGRESS":
-      return { label: "Đang thi", variant: "info" };
+      return { label: PROCTOR_LIVE_TEXT.STATUS_IN_PROGRESS, variant: "info" };
     case "SUBMITTED":
-      return { label: "Đã nộp", variant: "success" };
+      return { label: PROCTOR_LIVE_TEXT.STATUS_SUBMITTED, variant: "success" };
     case "ABANDONED":
-      return { label: "Bỏ dở", variant: "warning" };
+      return { label: PROCTOR_LIVE_TEXT.STATUS_ABANDONED, variant: "warning" };
     default:
-      return { label: "Chưa thi", variant: "neutral" };
+      return { label: PROCTOR_LIVE_TEXT.STATUS_NOT_STARTED, variant: "neutral" };
   }
 }
 
@@ -54,7 +55,7 @@ export function MonitoringStudentTable({
     () => [
       {
         key: "student",
-        header: "Thí sinh",
+        header: PROCTOR_LIVE_TEXT.COL_STUDENT,
         cell: (row) => {
           const isSelected = selectedStudentPublicId === row.studentPublicId;
           return (
@@ -71,7 +72,7 @@ export function MonitoringStudentTable({
       },
       {
         key: "attempt",
-        header: "Lượt thi",
+        header: PROCTOR_LIVE_TEXT.COL_ATTEMPT,
         cell: (row) => (
           <span className="font-mono text-xs text-[var(--ink-secondary)]">
             {row.attemptNumber ? `#${row.attemptNumber}` : "—"}
@@ -80,7 +81,7 @@ export function MonitoringStudentTable({
       },
       {
         key: "status",
-        header: "Trạng thái",
+        header: PROCTOR_LIVE_TEXT.COL_STATUS,
         cell: (row) => {
           const { label, variant } = getStatusBadgeProps(row.status);
           return <StatusBadge label={label} variant={variant} />;
@@ -88,21 +89,21 @@ export function MonitoringStudentTable({
       },
       {
         key: "startedAt",
-        header: "Bắt đầu",
+        header: PROCTOR_LIVE_TEXT.COL_STARTED_AT,
         cell: (row) => (
           <span className="text-xs text-[var(--ink-secondary)]">{formatTime(row.startedAt)}</span>
         ),
       },
       {
         key: "lastSeenAt",
-        header: "Tín hiệu cuối",
+        header: PROCTOR_LIVE_TEXT.COL_LAST_SEEN,
         cell: (row) => (
           <span className="text-xs text-[var(--ink-secondary)]">{formatTime(row.lastSeenAt)}</span>
         ),
       },
       {
         key: "violations",
-        header: "Vi phạm",
+        header: PROCTOR_LIVE_TEXT.COL_VIOLATIONS,
         cell: (row) =>
           row.manualViolationCount > 0 ? (
             <Badge variant="danger">{row.manualViolationCount}</Badge>
@@ -120,7 +121,7 @@ export function MonitoringStudentTable({
       rows={students}
       getRowKey={(row) => row.studentPublicId}
       isLoading={isLoading}
-      emptyTitle="Không có thí sinh nào trong danh sách phòng thi."
+      emptyTitle={PROCTOR_LIVE_TEXT.EMPTY_STUDENTS_TITLE}
       clientSideFiltering={false}
       clientSideSorting={false}
       clientSidePagination={false}
@@ -132,7 +133,7 @@ export function MonitoringStudentTable({
             size="sm"
             onClick={() => onSelectStudent(row)}
           >
-            Chi tiết
+            {PROCTOR_LIVE_TEXT.ACTION_DETAILS}
           </Button>
         </div>
       )}

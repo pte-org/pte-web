@@ -2,7 +2,15 @@
 
 import { useState, type ReactElement } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Alert, Badge, Button, ConfirmDialog } from "@pte/ui";
+import {
+  Alert,
+  Badge,
+  Button,
+  ConfirmDialog,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from "@pte/ui";
 import { EXAMINER_WORK_TEXT as T } from "./constants";
 import {
   useExaminerAttempt,
@@ -207,20 +215,23 @@ export const ExaminerAttemptDetailView = ({
       )}
 
       {query.isLoading ? (
-        <p className="rounded-md bg-white p-5 text-sm text-slate-600">{T.LOADING_DETAIL}</p>
+        <LoadingState variant="table" label={T.LOADING_DETAIL} />
       ) : query.isError ? (
-        <div className="rounded-md bg-red-50 p-4 text-sm text-red-800" role="alert">
-          {T.DETAIL_ERROR}{" "}
-          <button
-            type="button"
-            onClick={() => void query.refetch()}
-            className="font-semibold underline"
-          >
-            Retry
-          </button>
-        </div>
+        <ErrorState
+          title={T.DETAIL_ERROR}
+          action={
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => void query.refetch()}
+            >
+              {T.RETRY}
+            </Button>
+          }
+        />
       ) : answers.length === 0 ? (
-        <p className="rounded-md bg-white p-5 text-sm text-slate-600">{T.NO_ANSWERS}</p>
+        <EmptyState title={T.NO_ANSWERS} />
       ) : currentAnswer ? (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-4">
           <div className="lg:col-span-1">

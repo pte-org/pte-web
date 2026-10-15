@@ -7,6 +7,8 @@ import {
   Badge,
   Button,
   DataTable,
+  ErrorState,
+  LoadingState,
   Modal,
   PageHeader,
   StatusBadge,
@@ -137,6 +139,38 @@ export function IncidentDetailView({
     ],
     [],
   );
+
+  if (detailQuery.isLoading) {
+    return (
+      <div className="flex flex-col gap-6 p-5 sm:p-8">
+        <BackButton
+          href={`/proctor/incidents/${sessionPublicId}`}
+          label="Danh sách sự cố ca thi"
+        />
+        <LoadingState variant="rows" label="Đang tải chi tiết sự cố..." />
+      </div>
+    );
+  }
+
+  if (detailQuery.isError || !incident) {
+    return (
+      <div className="flex flex-col gap-6 p-5 sm:p-8">
+        <BackButton
+          href={`/proctor/incidents/${sessionPublicId}`}
+          label="Danh sách sự cố ca thi"
+        />
+        <ErrorState
+          title="Không thể tải chi tiết sự cố"
+          description="Đã có lỗi xảy ra khi truy vấn dữ liệu từ máy chủ. Vui lòng thử lại."
+          action={
+            <Button variant="secondary" size="sm" onClick={() => void detailQuery.refetch()}>
+              Thử lại
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 p-5 sm:p-8">

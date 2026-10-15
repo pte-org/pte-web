@@ -8,6 +8,7 @@ import {
   Badge,
   Button,
   DataTable,
+  ErrorState,
   PageHeader,
   PaginationControls,
   StatusBadge,
@@ -188,12 +189,15 @@ export function IncidentListView({ sessionPublicId }: IncidentListViewProps): Re
       </div>
 
       {isError ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-red-700">
-          <p className="font-medium">Không thể tải danh sách sự cố.</p>
-          <Button variant="secondary" size="sm" className="mt-3" onClick={() => void refetch()}>
-            Thử lại
-          </Button>
-        </div>
+        <ErrorState
+          title="Không thể tải danh sách sự cố"
+          description="Đã có lỗi xảy ra khi truy vấn dữ liệu từ máy chủ. Vui lòng thử lại."
+          action={
+            <Button variant="secondary" size="sm" onClick={() => void refetch()}>
+              Thử lại
+            </Button>
+          }
+        />
       ) : (
         <DataTable
           columns={columns}

@@ -9,6 +9,7 @@ import {
   ActionMenu,
   Button,
   DataTable,
+  ErrorState,
   PageHeader,
   PaginationControls,
   StatusBadge,
@@ -282,27 +283,38 @@ export function AssignedSessionsView(): ReactElement {
         })}
       </div>
 
-      <DataTable
-        columns={columns}
-        rows={sessions}
-        getRowKey={(row) => row.assignmentPublicId || row.examSessionPublicId || ""}
-        isLoading={listQuery.isLoading || (scope === "TODAY" && !isTimezoneResolved)}
-        emptyTitle={scope === "ALL" ? text.empty : text.emptyInScope}
-        rowActions={renderRowActions}
-        clientSideFiltering={false}
-        clientSideSorting={false}
-        clientSidePagination={false}
-        showSearch={false}
-        pagination={
-          meta && meta.totalPages > 1 ? (
-            <PaginationControls
-              meta={meta}
-              onPageChange={(nextPage) => updateUrl(scope, nextPage)}
-              disabled={listQuery.isLoading}
-            />
-          ) : null
-        }
-      />
+      {listQuery.isError ? (
+        <ErrorState
+          title={text.error}
+          action={
+            <Button variant="secondary" size="sm" onClick={() => void listQuery.refetch()}>
+              {text.retry}
+            </Button>
+          }
+        />
+      ) : (
+        <DataTable
+          columns={columns}
+          rows={sessions}
+          getRowKey={(row) => row.assignmentPublicId || row.examSessionPublicId || ""}
+          isLoading={listQuery.isLoading || (scope === "TODAY" && !isTimezoneResolved)}
+          emptyTitle={scope === "ALL" ? text.empty : text.emptyInScope}
+          rowActions={renderRowActions}
+          clientSideFiltering={false}
+          clientSideSorting={false}
+          clientSidePagination={false}
+          showSearch={false}
+          pagination={
+            meta && meta.totalPages > 1 ? (
+              <PaginationControls
+                meta={meta}
+                onPageChange={(nextPage) => updateUrl(scope, nextPage)}
+                disabled={listQuery.isLoading}
+              />
+            ) : null
+          }
+        />
+      )}
     </div>
   );
 }

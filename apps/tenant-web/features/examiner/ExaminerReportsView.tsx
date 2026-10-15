@@ -2,7 +2,7 @@
 
 import { useMemo, useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Input, PageHeader, Select } from "@pte/ui";
+import { Button, ErrorState, Input, LoadingState, PageHeader, Select } from "@pte/ui";
 import type { ExaminerQueueStatus } from "@pte/api-client";
 import { useExaminerReports } from "./api";
 import { useExaminerWorkspaceText } from "./hooks/useExaminerWorkspaceText";
@@ -152,20 +152,20 @@ export const ExaminerReportsView = (): ReactElement => {
       </div>
 
       {reportsQuery.isLoading ? (
-        <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
-          {text.loadingReports}
-        </div>
+        <LoadingState variant="table" label={text.loadingReports} />
       ) : reportsQuery.isError ? (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">
-          {text.reportsError}{" "}
-          <button
-            type="button"
-            onClick={() => void reportsQuery.refetch()}
-            className="font-medium underline hover:text-red-900"
-          >
-            {text.retry}
-          </button>
-        </div>
+        <ErrorState
+          title={text.reportsError}
+          action={
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => void reportsQuery.refetch()}
+            >
+              {text.retry}
+            </Button>
+          }
+        />
       ) : (
         <div className="space-y-6">
           <ExaminerReportKpis summary={reportsQuery.data?.summary} />

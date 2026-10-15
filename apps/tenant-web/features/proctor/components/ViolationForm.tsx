@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Button, Modal } from "@pte/ui";
+import { Alert, Button, Modal } from "@pte/ui";
+import { PROCTOR_LIVE_TEXT, PROCTOR_VIOLATION_TYPES } from "../constants";
 
 interface ViolationFormProps {
   isOpen: boolean;
@@ -13,15 +14,6 @@ interface ViolationFormProps {
   onConfirm: (payload: { violationType: string; detail: string }) => Promise<void>;
 }
 
-const VIOLATION_TYPES = [
-  { value: "TAB_SWITCH", label: "Chuyển tab / ứng dụng khác" },
-  { value: "MULTIPLE_FACES", label: "Nhiều khuôn mặt trong camera" },
-  { value: "FACE_NOT_VISIBLE", label: "Không nhận diện được khuôn mặt / rời vị trí" },
-  { value: "SUSPICIOUS_AUDIO", label: "Âm thanh bất thường / tiếng nói" },
-  { value: "TECHNICAL_ISSUE", label: "Sự cố kỹ thuật thiết bị" },
-  { value: "OTHER", label: "Hành vi vi phạm quy chế khác" },
-];
-
 export function ViolationForm({
   isOpen,
   studentName,
@@ -31,14 +23,14 @@ export function ViolationForm({
   onClose,
   onConfirm,
 }: ViolationFormProps): ReactElement | null {
-  const [violationType, setViolationType] = useState("TAB_SWITCH");
+  const [violationType, setViolationType] = useState<string>(PROCTOR_VIOLATION_TYPES[0].value);
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
     if (!attemptPublicId) {
-      setError("Thí sinh chưa có bài thi để ghi nhận vi phạm.");
+      setError(PROCTOR_LIVE_TEXT.VIOLATION_NO_ATTEMPT_ERROR);
       return;
     }
     setError(null);
@@ -47,7 +39,7 @@ export function ViolationForm({
       setNote("");
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Không thể ghi nhận vi phạm. Vui lòng thử lại.");
+      setError(err instanceof Error ? err.message : PROCTOR_LIVE_TEXT.VIOLATION_SUBMIT_ERROR);
     }
   };
 
@@ -55,13 +47,13 @@ export function ViolationForm({
     <Modal
       open={isOpen}
       onClose={onClose}
-      title="Ghi nhận vi phạm quy chế thi"
+      title={PROCTOR_LIVE_TEXT.VIOLATION_TITLE}
       size="md"
       isDismissDisabled={isLoading}
       footer={
         <div className="flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
-            Hủy bỏ
+            {PROCTOR_LIVE_TEXT.CANCEL}
           </Button>
           <Button
             type="button"
@@ -69,7 +61,7 @@ export function ViolationForm({
             disabled={isLoading || disabled}
             onClick={(e) => void handleSubmit(e as unknown as FormEvent)}
           >
-            {isLoading ? "Đang xử lý..." : "Lưu biên bản vi phạm"}
+            {isLoading ? PROCTOR_LIVE_TEXT.VIOLATION_PROCESSING : PROCTOR_LIVE_TEXT.VIOLATION_CONFIRM_BTN}
           </Button>
         </div>
       }
@@ -90,15 +82,11 @@ export function ViolationForm({
           </p>
         )}
 
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
-            {error}
-          </div>
-        )}
+        {error && <Alert tone="error">{error}</Alert>}
 
         <div>
           <label htmlFor="violation-type" className="block text-xs font-medium text-[var(--ink-secondary)]">
-            Loại vi phạm *
+            {PROCTOR_LIVE_TEXT.VIOLATION_TYPE_LABEL}
           </label>
           <select
             id="violation-type"
@@ -107,7 +95,7 @@ export function ViolationForm({
             className="mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-default)] p-2 text-sm text-[var(--ink-primary)] focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
             disabled={isLoading}
           >
-            {VIOLATION_TYPES.map((t) => (
+            {PROCTOR_VIOLATION_TYPES.map((t) => (
               <option key={t.value} value={t.value}>
                 {t.label}
               </option>
@@ -117,14 +105,14 @@ export function ViolationForm({
 
         <div>
           <label htmlFor="violation-note" className="block text-xs font-medium text-[var(--ink-secondary)]">
-            Mô tả chi tiết vi phạm
+            {PROCTOR_LIVE_TEXT.VIOLATION_DETAIL_LABEL}
           </label>
           <textarea
             id="violation-note"
             rows={3}
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="Mô tả cụ thể thời điểm, hành vi quan sát thấy..."
+            placeholder={PROCTOR_LIVE_TEXT.VIOLATION_DETAIL_PLACEHOLDER}
             className="mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-default)] p-2 text-sm text-[var(--ink-primary)] focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
             disabled={isLoading}
           />

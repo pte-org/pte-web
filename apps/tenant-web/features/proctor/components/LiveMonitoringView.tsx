@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Button, PageHeader } from "@pte/ui";
+import { Alert, Button, ConfirmDialog, ErrorState, LoadingState, PageHeader } from "@pte/ui";
 import { useCloseProctorSession, useMonitoringSnapshot } from "../api";
 import { useProctorRoom } from "../useProctorRoom";
 import { MonitoringConnectionBanner } from "./MonitoringConnectionBanner";
@@ -12,6 +12,11 @@ import { ForceSubmitDialog } from "./ForceSubmitDialog";
 import { ViolationForm } from "./ViolationForm";
 import { getStudentAttemptHistory, type MonitoringStudentResponse } from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
+import {
+  DEFAULT_PROCTOR_PAGE_SIZE,
+  PROCTOR_LIVE_TEXT,
+  PROCTOR_MONITORING_PAGE_SIZES,
+} from "../constants";
 
 interface LiveMonitoringViewProps {
   sessionPublicId: string;
@@ -32,6 +37,7 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
   const [violationTarget, setViolationTarget] = useState<MonitoringStudentResponse | null>(null);
   const [isSubmittingAction, setIsSubmittingAction] = useState(false);
   const [isClosingSession, setIsClosingSession] = useState(false);
+  const [isCloseSessionDialogOpen, setIsCloseSessionDialogOpen] = useState(false);
   const [unconfirmedNotice, setUnconfirmedNotice] = useState<{
     studentName: string;
     attemptPublicId: string;
@@ -39,7 +45,7 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
   } | null>(null);
   const [isCheckingNotice, setIsCheckingNotice] = useState(false);
   const [page, setPage] = useState(0);
-  const [size, setSize] = useState(50);
+  const [size, setSize] = useState<number>(DEFAULT_PROCTOR_PAGE_SIZE);
 
   const snapshotQuery = useMonitoringSnapshot(sessionPublicId, page, size, { poll: true });
   const room = useProctorRoom(sessionPublicId);
@@ -97,15 +103,13 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
     }
   };
 
-  const handleCloseSessionClick = async (): Promise<void> => {
+  const handleCloseSessionConfirm = async (): Promise<void> => {
     if (!room.proctorSession?.publicId) return;
-    if (!window.confirm("Bạn có chắc chắn muốn kết thúc phiên giám sát của mình? Ca thi vẫn tiếp tục với các giám thị khác.")) {
-      return;
-    }
     setIsClosingSession(true);
     try {
       await closeSessionMutation.mutateAsync(room.proctorSession.publicId);
       room.disconnect();
+      setIsCloseSessionDialogOpen(false);
     } finally {
       setIsClosingSession(false);
     }
@@ -142,19 +146,51 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
     }
   };
 
+  if (snapshotQuery.isLoading && !snapshot) {
+    return (
+      <div className="flex flex-col gap-6 p-5 sm:p-8">
+        <PageHeader
+          title={PROCTOR_LIVE_TEXT.TITLE}
+          subtitle={`${PROCTOR_LIVE_TEXT.ROOM_CODE_PREFIX}${sessionPublicId.slice(0, 8).toUpperCase()}`}
+        />
+        <LoadingState variant="table" label={PROCTOR_LIVE_TEXT.LOADING} />
+      </div>
+    );
+  }
+
+  if (snapshotQuery.isError && !snapshot) {
+    return (
+      <div className="flex flex-col gap-6 p-5 sm:p-8">
+        <PageHeader
+          title={PROCTOR_LIVE_TEXT.TITLE}
+          subtitle={`${PROCTOR_LIVE_TEXT.ROOM_CODE_PREFIX}${sessionPublicId.slice(0, 8).toUpperCase()}`}
+        />
+        <ErrorState
+          title={PROCTOR_LIVE_TEXT.ERROR_TITLE}
+          description={PROCTOR_LIVE_TEXT.ERROR_DESCRIPTION}
+          action={
+            <Button variant="secondary" size="sm" onClick={() => void snapshotQuery.refetch()}>
+              {PROCTOR_LIVE_TEXT.RETRY}
+            </Button>
+          }
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6 p-5 sm:p-8">
       {/* Page Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <PageHeader
-            title={session?.name ?? "Giám sát phòng thi"}
-            subtitle={`Mã phòng: #${sessionPublicId.slice(0, 8).toUpperCase()}`}
+            title={session?.name ?? PROCTOR_LIVE_TEXT.TITLE}
+            subtitle={`${PROCTOR_LIVE_TEXT.ROOM_CODE_PREFIX}${sessionPublicId.slice(0, 8).toUpperCase()}`}
           />
           {session && (
             <p className="mt-1 text-xs text-[var(--ink-muted)]">
-              Mở: {formatDateTime(session.opensAt)} — Đóng: {formatDateTime(session.closesAt)}
-              {session.timeLimitMinutes && ` (${session.timeLimitMinutes} phút)`}
+              {PROCTOR_LIVE_TEXT.OPEN_PREFIX}{formatDateTime(session.opensAt)}{PROCTOR_LIVE_TEXT.CLOSE_PREFIX}{formatDateTime(session.closesAt)}
+              {session.timeLimitMinutes && ` (${session.timeLimitMinutes}${PROCTOR_LIVE_TEXT.MINUTES_SUFFIX})`}
             </p>
           )}
         </div>
@@ -162,7 +198,7 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
         <div className="flex items-center gap-2">
           <Link href={`/proctor/audit-log/${sessionPublicId}`}>
             <Button variant="secondary" size="sm">
-              Nhật ký phòng thi
+              {PROCTOR_LIVE_TEXT.AUDIT_LOG_BTN}
             </Button>
           </Link>
 
@@ -172,7 +208,7 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
             onClick={() => void snapshotQuery.refetch()}
             disabled={snapshotQuery.isFetching}
           >
-            {snapshotQuery.isFetching ? "Đang cập nhật..." : "Làm mới"}
+            {snapshotQuery.isFetching ? PROCTOR_LIVE_TEXT.UPDATING_TEXT : PROCTOR_LIVE_TEXT.REFRESH_BTN}
           </Button>
 
           {room.proctorSession?.status === "ACTIVE" && (
@@ -180,9 +216,9 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
               variant="danger"
               size="sm"
               disabled={isClosingSession}
-              onClick={handleCloseSessionClick}
+              onClick={() => setIsCloseSessionDialogOpen(true)}
             >
-              {isClosingSession ? "Đang đóng..." : "Rời phòng giám sát"}
+              {isClosingSession ? PROCTOR_LIVE_TEXT.LEAVING_ROOM_BTN : PROCTOR_LIVE_TEXT.LEAVE_ROOM_BTN}
             </Button>
           )}
         </div>
@@ -196,63 +232,67 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
 
       {/* Session Open Status / Error banner */}
       {room.isOpenPending && (
-        <div className="rounded-xl border border-blue-200 bg-blue-50 p-3 text-xs text-blue-700">
-          Đang kết nối và khởi tạo phiên giám sát với hệ thống...
-        </div>
+        <Alert tone="info">
+          {PROCTOR_LIVE_TEXT.SESSION_OPEN_PENDING}
+        </Alert>
       )}
       {room.openError && (
-        <div className="flex items-center justify-between rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
-          <span>{room.openError}</span>
-          <Button variant="secondary" size="sm" onClick={() => void room.openSession()}>
-            Thử lại mở phiên
-          </Button>
-        </div>
+        <Alert tone="error">
+          <div className="flex items-center justify-between">
+            <span>{room.openError}</span>
+            <Button variant="secondary" size="sm" onClick={() => void room.openSession()}>
+              {PROCTOR_LIVE_TEXT.SESSION_OPEN_RETRY}
+            </Button>
+          </div>
+        </Alert>
       )}
 
       {/* Unconfirmed Force Submit Alert */}
       {unconfirmedNotice && (
-        <div className="flex items-center justify-between rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
-          <div>
-            <span className="font-semibold">Chưa xác nhận nộp bài:</span> Lệnh ép nộp cho thí sinh {unconfirmedNotice.studentName} đã được gửi nhưng máy thí sinh chưa xác nhận hoàn tất nộp bài. Vui lòng bấm kiểm tra lại.
+        <Alert tone="warning" title={PROCTOR_LIVE_TEXT.UNCONFIRMED_FORCE_SUBMIT_TITLE}>
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              {PROCTOR_LIVE_TEXT.UNCONFIRMED_FORCE_SUBMIT_MSG}
+            </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={isCheckingNotice}
+              onClick={() => void handleRecheckUnconfirmed()}
+            >
+              {isCheckingNotice ? PROCTOR_LIVE_TEXT.CHECKING_BTN : PROCTOR_LIVE_TEXT.RECHECK_BTN}
+            </Button>
           </div>
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={isCheckingNotice}
-            onClick={() => void handleRecheckUnconfirmed()}
-          >
-            {isCheckingNotice ? "Đang kiểm tra..." : "Làm mới kiểm tra"}
-          </Button>
-        </div>
+        </Alert>
       )}
 
       {/* Roster statistics summary cards */}
       {summary && (
-        <section aria-label="Thống kê phòng thi" className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <section aria-label={PROCTOR_LIVE_TEXT.SUMMARY_LABEL} className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">
-            <span className="text-xs font-medium text-[var(--ink-muted)]">Đã đăng ký</span>
+            <span className="text-xs font-medium text-[var(--ink-muted)]">{PROCTOR_LIVE_TEXT.SUMMARY_REGISTERED}</span>
             <div className="mt-1 text-2xl font-bold text-[var(--ink-primary)]">{summary.registeredCount}</div>
           </div>
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">
-            <span className="text-xs font-medium text-[var(--ink-muted)]">Chưa bắt đầu</span>
+            <span className="text-xs font-medium text-[var(--ink-muted)]">{PROCTOR_LIVE_TEXT.SUMMARY_NOT_STARTED}</span>
             <div className="mt-1 text-2xl font-bold text-[var(--ink-secondary)]">{summary.notStartedCount}</div>
           </div>
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">
-            <span className="text-xs font-medium text-blue-600">Đang làm bài</span>
+            <span className="text-xs font-medium text-blue-600">{PROCTOR_LIVE_TEXT.SUMMARY_IN_PROGRESS}</span>
             <div className="mt-1 text-2xl font-bold text-blue-700">{summary.inProgressCount}</div>
           </div>
           <div className="rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">
-            <span className="text-xs font-medium text-emerald-600">Đã nộp bài</span>
+            <span className="text-xs font-medium text-emerald-600">{PROCTOR_LIVE_TEXT.SUMMARY_SUBMITTED}</span>
             <div className="mt-1 text-2xl font-bold text-emerald-700">{summary.submittedCount}</div>
           </div>
         </section>
       )}
 
       {/* Roster student table */}
-      <section aria-label="Danh sách thí sinh" className="space-y-3">
+      <section aria-label={PROCTOR_LIVE_TEXT.STUDENTS_SECTION_LABEL} className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-[var(--ink-primary)]">
-            Danh sách thí sinh ({totalItems})
+            {PROCTOR_LIVE_TEXT.STUDENTS_TABLE_TITLE} ({totalItems})
           </h2>
           <div className="flex items-center gap-3">
             <select
@@ -261,15 +301,17 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
                 setSize(Number(e.target.value));
                 setPage(0);
               }}
-              aria-label="Số thí sinh mỗi trang"
+              aria-label={PROCTOR_LIVE_TEXT.PER_PAGE_ARIA}
               className="rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-default)] px-2 py-1 text-xs text-[var(--ink-primary)] focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
-              <option value={25}>25 / trang</option>
-              <option value={50}>50 / trang</option>
-              <option value={100}>100 / trang</option>
+              {PROCTOR_MONITORING_PAGE_SIZES.map((pageSize) => (
+                <option key={pageSize} value={pageSize}>
+                  {pageSize} {PROCTOR_LIVE_TEXT.PER_PAGE_SUFFIX}
+                </option>
+              ))}
             </select>
             {snapshotQuery.isFetching && (
-              <span className="text-xs text-[var(--ink-muted)]">Đang cập nhật...</span>
+              <span className="text-xs text-[var(--ink-muted)]">{PROCTOR_LIVE_TEXT.UPDATING_TEXT}</span>
             )}
           </div>
         </div>
@@ -314,6 +356,19 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
         disabled={room.connectionStatus !== "CONNECTED"}
         onClose={() => setViolationTarget(null)}
         onConfirm={handleFlagViolationConfirm}
+      />
+
+      {/* Close session confirmation dialog */}
+      <ConfirmDialog
+        open={isCloseSessionDialogOpen}
+        title={PROCTOR_LIVE_TEXT.CLOSE_SESSION_CONFIRM_TITLE}
+        description={PROCTOR_LIVE_TEXT.CLOSE_SESSION_CONFIRM_DESC}
+        confirmLabel={PROCTOR_LIVE_TEXT.CLOSE_SESSION_CONFIRM_ACTION}
+        cancelLabel={PROCTOR_LIVE_TEXT.CANCEL}
+        tone="danger"
+        isConfirming={isClosingSession}
+        onConfirm={handleCloseSessionConfirm}
+        onClose={() => setIsCloseSessionDialogOpen(false)}
       />
     </div>
   );

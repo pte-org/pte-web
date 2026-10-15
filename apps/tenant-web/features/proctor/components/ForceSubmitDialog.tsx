@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Button, Modal } from "@pte/ui";
+import { Alert, Button, Modal } from "@pte/ui";
+import { PROCTOR_LIVE_TEXT } from "../constants";
 
 interface ForceSubmitDialogProps {
   isOpen: boolean;
@@ -33,7 +34,7 @@ export function ForceSubmitDialog({
       setReason("");
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Không thể đình chỉ bài làm. Vui lòng thử lại.");
+      setError(err instanceof Error ? err.message : PROCTOR_LIVE_TEXT.FORCE_SUBMIT_ERROR);
     }
   };
 
@@ -41,13 +42,13 @@ export function ForceSubmitDialog({
     <Modal
       open={isOpen}
       onClose={onClose}
-      title="Xác nhận đình chỉ & Nộp bài bắt buộc"
+      title={PROCTOR_LIVE_TEXT.FORCE_SUBMIT_TITLE}
       size="md"
       isDismissDisabled={isLoading}
       footer={
         <div className="flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
-            Hủy bỏ
+            {PROCTOR_LIVE_TEXT.CANCEL}
           </Button>
           <Button
             type="button"
@@ -55,7 +56,7 @@ export function ForceSubmitDialog({
             disabled={isLoading || disabled}
             onClick={(e) => void handleSubmit(e as unknown as FormEvent)}
           >
-            {isLoading ? "Đang xử lý..." : "Xác nhận nộp bài"}
+            {isLoading ? PROCTOR_LIVE_TEXT.FORCE_SUBMIT_PROCESSING : PROCTOR_LIVE_TEXT.FORCE_SUBMIT_CONFIRM_BTN}
           </Button>
         </div>
       }
@@ -70,22 +71,18 @@ export function ForceSubmitDialog({
           )? Thí sinh sẽ không thể tiếp tục làm bài.
         </p>
 
-        {error && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
-            {error}
-          </div>
-        )}
+        {error && <Alert tone="error">{error}</Alert>}
 
         <div>
           <label htmlFor="force-submit-reason" className="block text-xs font-medium text-[var(--ink-secondary)]">
-            Lý do đình chỉ (tùy chọn)
+            {PROCTOR_LIVE_TEXT.FORCE_SUBMIT_REASON_LABEL}
           </label>
           <textarea
             id="force-submit-reason"
             rows={3}
             value={reason}
             onChange={(e) => setReason(e.target.value)}
-            placeholder="Nhập lý do nộp bài bắt buộc hoặc căn cứ biên bản..."
+            placeholder={PROCTOR_LIVE_TEXT.FORCE_SUBMIT_REASON_PLACEHOLDER}
             className="mt-1 w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-default)] p-2 text-sm text-[var(--ink-primary)] focus:border-red-500 focus:outline-none focus:ring-1 focus:ring-red-500"
             disabled={isLoading}
           />

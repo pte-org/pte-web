@@ -1,8 +1,9 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { Button } from "@pte/ui";
+import { Alert, Button } from "@pte/ui";
 import type { ConnectionStatus } from "../transportTypes";
+import { PROCTOR_LIVE_TEXT } from "../constants";
 
 interface MonitoringConnectionBannerProps {
   status: ConnectionStatus;
@@ -19,51 +20,43 @@ export function MonitoringConnectionBanner({
 
   if (status === "CONNECTING" || status === "RECONNECTING") {
     return (
-      <div
-        role="status"
-        aria-live="polite"
-        className="flex items-center justify-between rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800"
-      >
+      <Alert tone="warning">
         <div className="flex items-center gap-2">
           <span className="inline-block h-2.5 w-2.5 animate-pulse rounded-full bg-amber-500" />
           <span>
             {status === "RECONNECTING"
-              ? "Mất kết nối thời gian thực. Đang tự động kết nối lại..."
-              : "Đang kết nối tới máy chủ giám sát..."}
+              ? PROCTOR_LIVE_TEXT.RECONNECTING_ROOM
+              : PROCTOR_LIVE_TEXT.CONNECTING_ROOM}
           </span>
         </div>
-      </div>
+      </Alert>
     );
   }
 
   if (status === "DENIED") {
     return (
-      <div
-        role="alert"
-        className="flex items-center justify-between rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
-      >
+      <Alert tone="error">
         <div className="flex items-center gap-2">
           <span className="inline-block h-2.5 w-2.5 rounded-full bg-red-500" />
-          <span>Phiên giám sát bị từ chối hoặc phân công đã bị thu hồi.</span>
+          <span>{PROCTOR_LIVE_TEXT.DENIED_ROOM}</span>
         </div>
-      </div>
+      </Alert>
     );
   }
 
   return (
-    <div
-      role="alert"
-      className="flex items-center justify-between rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800"
-    >
-      <div className="flex items-center gap-2">
-        <span className="inline-block h-2.5 w-2.5 rounded-full bg-red-500" />
-        <span>Mất kết nối với kênh thông báo thời gian thực.</span>
+    <Alert tone="error">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="inline-block h-2.5 w-2.5 rounded-full bg-red-500" />
+          <span>{PROCTOR_LIVE_TEXT.DISCONNECTED_ROOM}</span>
+        </div>
+        {onReconnect && (
+          <Button variant="secondary" size="sm" onClick={onReconnect}>
+            {PROCTOR_LIVE_TEXT.RECONNECT_BTN}
+          </Button>
+        )}
       </div>
-      {onReconnect && (
-        <Button variant="secondary" size="sm" onClick={onReconnect}>
-          Kết nối lại
-        </Button>
-      )}
-    </div>
+    </Alert>
   );
 }
