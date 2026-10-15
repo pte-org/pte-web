@@ -246,26 +246,53 @@ const ADMIN_VI: Record<string, string> = {
     "Quản lý tài khoản quản lý nền tảng và nhân sự học thuật.",
   "Create platform user": "Tạo người dùng nền tảng",
   "Update platform roles": "Cập nhật vai trò nền tảng",
+  "Update platform user": "Cập nhật người dùng nền tảng",
   Email: "Email",
+  "Email and username cannot be changed in this flow.":
+    "Không thể thay đổi email và tên đăng nhập trong luồng này.",
   "Full name": "Họ và tên",
-  "Temporary password": "Mật khẩu tạm thời",
+  "A temporary password will be generated and sent to the user's email.":
+    "Mật khẩu tạm thời sẽ được tự động tạo và gửi đến email của người dùng.",
+  "Phone": "Số điện thoại",
+  "Date of birth": "Ngày sinh",
   "Search by name or email": "Tìm theo họ tên hoặc email",
   Role: "Vai trò",
   "Filter by role": "Lọc theo vai trò",
   "Filter by status": "Lọc theo trạng thái",
   "All roles": "Tất cả vai trò",
+  "Show archived": "Hiển thị đã lưu trữ",
+  "Protected account": "Tài khoản được bảo vệ",
   "Platform user created.": "Đã tạo người dùng nền tảng.",
   "Platform roles updated.": "Đã cập nhật vai trò nền tảng.",
   "Platform user suspended.": "Đã tạm ngưng người dùng nền tảng.",
   "Platform user reactivated.": "Đã kích hoạt lại người dùng nền tảng.",
+  "Platform user profile updated.": "Đã cập nhật hồ sơ người dùng nền tảng.",
+  "A temporary password was generated and sent by email.":
+    "Đã tạo mật khẩu tạm thời và gửi qua email.",
+  "Platform user archived.": "Đã lưu trữ người dùng nền tảng.",
+  "Platform user restored.": "Đã khôi phục người dùng nền tảng.",
   "Loading platform users...": "Đang tải người dùng nền tảng...",
   "No platform users found.": "Không tìm thấy người dùng nền tảng.",
   "Unable to load platform users.": "Không thể tải người dùng nền tảng.",
-  "Use at least 8 characters. The password is shown only during creation.":
-    "Sử dụng ít nhất 8 ký tự. Mật khẩu chỉ hiển thị khi tạo mới.",
   Suspend: "Tạm ngưng",
   Reactivate: "Kích hoạt lại",
   "Update roles": "Cập nhật vai trò",
+  "Update profile": "Cập nhật hồ sơ",
+  "Reset password": "Đặt lại mật khẩu",
+  Restore: "Khôi phục",
+  "Reset platform user password": "Đặt lại mật khẩu người dùng nền tảng",
+  "A new temporary password will be generated and sent to this user's email. Continue?":
+    "Một mật khẩu tạm thời mới sẽ được tạo và gửi tới email của người dùng. Tiếp tục?",
+  "Archive this platform user? They will lose access, but the account can be restored later.":
+    "Lưu trữ người dùng nền tảng này? Tài khoản sẽ mất quyền truy cập nhưng có thể khôi phục sau.",
+  "Restore this platform user and allow them to sign in again?":
+    "Khôi phục người dùng nền tảng này và cho phép đăng nhập lại?",
+  "Reactivate this platform user and allow them to sign in again?":
+    "Kích hoạt lại người dùng nền tảng này và cho phép đăng nhập lại?",
+  "Your account and platform administrators are read-only here.":
+    "Tài khoản của bạn và quản trị viên nền tảng chỉ được xem tại đây.",
+  "Archived accounts cannot sign in and are hidden unless this filter is enabled.":
+    "Tài khoản đã lưu trữ không thể đăng nhập và bị ẩn nếu chưa bật bộ lọc này.",
   "Platform manager": "Quản lý nền tảng",
   "Academic manager": "Quản lý học thuật",
   "Academic staff": "Nhân sự học thuật",
