@@ -13,6 +13,7 @@ import type {
   PlatformUserPage,
   PlatformUserRoleUpdateRequest,
   PlatformUserListParams,
+  UpdatePlatformUserProfileRequest,
   UpdateStudentProfileRequest,
 } from "../../types/user";
 
@@ -35,6 +36,11 @@ export const PLATFORM_USER_ENDPOINTS = {
   suspend: (publicId: string) => `/api/v1/platform-users/${encodeURIComponent(publicId)}/suspend`,
   reactivate: (publicId: string) =>
     `/api/v1/platform-users/${encodeURIComponent(publicId)}/reactivate`,
+  resetPassword: (publicId: string) =>
+    `/api/v1/platform-users/${encodeURIComponent(publicId)}/reset-password`,
+  archive: (publicId: string) => `/api/v1/platform-users/${encodeURIComponent(publicId)}`,
+  restore: (publicId: string) =>
+    `/api/v1/platform-users/${encodeURIComponent(publicId)}/restore`,
 } as const;
 
 export function createUser(client: ApiClient, payload: CreateUserRequest): Promise<UserResponse> {
@@ -179,6 +185,7 @@ export function listPlatformUsers(
   if (params.search?.trim()) query.set("search", params.search.trim());
   if (params.role) query.set("role", params.role);
   if (params.status) query.set("status", params.status);
+  if (params.includeArchived) query.set("includeArchived", "true");
   return client.request<PlatformUserPage>(`${PLATFORM_USER_ENDPOINTS.users}?${query.toString()}`);
 }
 
@@ -215,6 +222,38 @@ export function suspendPlatformUser(client: ApiClient, publicId: string): Promis
 
 export function reactivatePlatformUser(client: ApiClient, publicId: string): Promise<UserResponse> {
   return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.reactivate(publicId), {
+    method: "POST",
+  });
+}
+
+export function updatePlatformUserProfile(
+  client: ApiClient,
+  publicId: string,
+  payload: UpdatePlatformUserProfileRequest,
+): Promise<UserResponse> {
+  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.user(publicId), {
+    method: "PATCH",
+    body: payload,
+  });
+}
+
+export function resetPlatformUserPassword(
+  client: ApiClient,
+  publicId: string,
+): Promise<UserResponse> {
+  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.resetPassword(publicId), {
+    method: "POST",
+  });
+}
+
+export function archivePlatformUser(client: ApiClient, publicId: string): Promise<UserResponse> {
+  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.archive(publicId), {
+    method: "DELETE",
+  });
+}
+
+export function restorePlatformUser(client: ApiClient, publicId: string): Promise<UserResponse> {
+  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.restore(publicId), {
     method: "POST",
   });
 }
