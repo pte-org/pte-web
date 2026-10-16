@@ -8,12 +8,9 @@ import type { AudienceStepProps } from "../components/create-exam/AudienceStep";
 import type { ExamDetailsStepProps } from "../components/create-exam/ExamDetailsStep";
 import type { ReviewStepProps } from "../components/create-exam/ReviewStep";
 import type { SchedulePolicyStepProps } from "../components/create-exam/SchedulePolicyStep";
-import {
-  CREATE_EXAM_WIZARD_ERRORS,
-  CREATE_EXAM_WIZARD_TEXT as DEFAULT_CREATE_EXAM_WIZARD_TEXT,
-  EXAM_SKILL_OPTIONS,
-} from "../constants";
+import { CREATE_EXAM_WIZARD_ERRORS, EXAM_SKILL_OPTIONS } from "../constants";
 import type { CreateExamWorkflowInput, ExamSkill } from "../types";
+import { composePreflightMessage, ExamPreflightBlockedError } from "../utils/examPreflight";
 import {
   createEmptyExamWorkflow,
   getTemplateSkills,
@@ -21,8 +18,7 @@ import {
 } from "../utils/createExamWizard";
 import { useCreateExamAudience } from "./useCreateExamAudience";
 import { useCreateExamWizardForm } from "./useCreateExamWizardForm";
-
-type WizardText = typeof DEFAULT_CREATE_EXAM_WIZARD_TEXT;
+import { useCreateExamWizardText, type CreateExamWizardText } from "./useCreateExamWizardText";
 
 export interface UseCreateExamWizardViewModelOptions {
   open: boolean;
@@ -34,7 +30,7 @@ export interface UseCreateExamWizardViewModelOptions {
 export interface UseCreateExamWizardViewModelResult {
   step: CreateExamStep;
   effectiveForm: CreateExamWorkflowInput;
-  wizardText: WizardText;
+  wizardText: CreateExamWizardText;
   stepLabels: { id: string; label: string }[];
   submitMessage?: string;
   detailsStepProps: ExamDetailsStepProps;
@@ -61,16 +57,7 @@ export function useCreateExamWizardViewModel({
     () => createEmptyExamWorkflow(activeTemplate?.publicId),
     [activeTemplate?.publicId],
   );
-  const wizardText = useMemo(
-    () =>
-      Object.fromEntries(
-        Object.entries(DEFAULT_CREATE_EXAM_WIZARD_TEXT).map(([key, value]) => [
-          key,
-          typeof value === "string" ? t(`tenant.createExam.${key}`, value) : value,
-        ]),
-      ) as WizardText,
-    [t],
-  );
+  const wizardText = useCreateExamWizardText();
   const localizedSkillOptions = useMemo(
     () =>
       EXAM_SKILL_OPTIONS.map((option) => ({
@@ -114,7 +101,19 @@ export function useCreateExamWizardViewModel({
   const templateMessage = templateError
     ? errorMessage(templateError, wizardText.NO_TEMPLATE)
     : undefined;
-  const submitMessage = error ? errorMessage(error) : undefined;
+  const submitMessage = !error
+    ? undefined
+    : error instanceof ExamPreflightBlockedError
+      ? composePreflightMessage(
+          wizardText.PREFLIGHT_BLOCKED,
+          error.issues,
+          (issue) =>
+            t(
+              `tenant.createExam.preflight.${issue}`,
+              wizardText.PREFLIGHT_ISSUE_MESSAGES[issue] ?? "",
+            ) || undefined,
+        )
+      : errorMessage(error);
 
   const fieldStepProps: SchedulePolicyStepProps = {
     form,
