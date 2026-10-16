@@ -73,7 +73,9 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   AUDIENCE_CHANGED_REQUIRES_REGENERATION:
     "The student audience changed while the exam was being prepared. Generate the exam again before publishing.",
   EXAM_AUDIENCE_LOCKED:
-    "This exam audience is already locked for preparation or publishing and cannot be changed here.",
+    "Students can't be added or removed while the exam is being prepared or running. Try again before it starts or after it ends.",
+  ENROLLED_STUDENT_ALREADY_STARTED:
+    "This student already started the exam, so they can't be removed from it.",
   LEGACY_SESSION_CREATE_REQUIRES_NEW_WORKFLOW:
     "This exam creation form is outdated. Use the new exam workflow so the template, audience, and student rules can be checked before publishing.",
   SESSION_SUBSCRIPTION_NOT_FOUND:

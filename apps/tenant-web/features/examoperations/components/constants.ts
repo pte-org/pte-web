@@ -65,44 +65,6 @@ export const STUDENT_ROSTER_TABLE_TEXT = {
   EMPTY_VALUE: "—",
 } as const;
 
-export const EXISTING_STUDENT_ASSIGNMENT_TEXT = {
-  TITLE: "Add Existing Students",
-  SEARCH_LABEL: "Search students",
-  SEARCH_PLACEHOLDER: "Search by name, email, account, or student code",
-  SEARCH_HELPER: "Only active students who are not already enrolled are available.",
-  SELECT_ALL: "Select all shown",
-  SELECTED: (count: number) => `${count} selected`,
-  NO_MATCHES: "No available students match your search.",
-  NO_STUDENTS: "No active students are available to add.",
-  LOAD_ERROR: "Unable to load students. Please try again.",
-  CANCEL: "Cancel",
-  SUBMIT: "Add to Exam",
-  SUBMITTING: "Adding...",
-  TOTAL_ITEMS: (count: number) => `${count} student(s) found`,
-} as const;
-
-export const EXISTING_STUDENT_IMPORT_TEXT = {
-  TITLE: "Import existing students",
-  HELPER:
-    "Upload an .xlsx file containing Email, Account, or Student Code. Matching active accounts will be enrolled; no account is created.",
-  REVIEW: "Review file",
-  REVIEWING: "Reading file...",
-  FILE_REQUIRED: "Choose an .xlsx file first.",
-  ROWS_FOUND: (count: number) => `${count} row(s) found`,
-  MATCHED: (count: number) => `${count} existing student(s) ready to add`,
-  SKIPPED: (count: number) => `${count} row(s) will be skipped`,
-  SKIPPED_TITLE: "Skipped rows",
-  SKIPPED_REASON: "No active existing account matched Email, Account, or Student Code.",
-  ALREADY_ENROLLED: "This student is already enrolled in the exam.",
-  IDENTIFIER_REQUIRED: "Add an email, account, or student code to identify the account.",
-  NO_MATCHES: "No active existing students matched this file.",
-  CANCEL: "Cancel",
-  SUBMIT: "Add matched students",
-  SUBMITTING: "Adding...",
-  LOAD_ERROR: "Unable to load existing students. Please try again.",
-  IMPORT_ERROR: "Unable to read this file. Please check the .xlsx format and try again.",
-} as const;
-
 export const SKIPPED_ROWS_REPORT_TEXT = {
   HEADING: "{count} row(s) skipped",
   ROW_HEADER: "Row",

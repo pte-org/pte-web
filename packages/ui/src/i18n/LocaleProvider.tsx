@@ -191,7 +191,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examDetails.cancelEdit": "Hủy",
     "tenant.examDetails.saved": "Đã lưu thông tin kỳ thi.",
     "tenant.examDetails.saveFailed": "Không thể lưu thông tin kỳ thi. Hãy thử lại.",
-    "tenant.examDetails.noActions": "Không có thao tác khả dụng",
     "tenant.examDetails.name": "Tên kỳ thi",
     "tenant.examDetails.status": "Trạng thái",
     "tenant.examDetails.code": "Mã kỳ thi",
@@ -447,13 +446,14 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.grading.finalizeDescription":
       "Thao tác này sẽ cố định danh sách lượt làm bài đã nộp cho kỳ thi đã đóng. Các lượt còn tồn đọng sẽ được giữ lại cùng lý do đã nhập; không có lượt nào bị ép nộp bài.",
     "tenant.grading.finalize": "Hoàn tất nhóm chấm điểm",
-    "tenant.participants.classes": "Các lớp được phân công",
     "tenant.participants.students": "Học viên",
     "tenant.participants.proctors": "Coi thi",
     "tenant.participants.addStudents": "Thêm học viên hiện có",
-    "tenant.participants.importStudents": "Nhập học viên hiện có",
+    "tenant.participants.addCancel": "Hủy",
+    "tenant.participants.addSubmit": "Thêm vào kỳ thi",
+    "tenant.participants.addSubmitting": "Đang thêm...",
     "tenant.participants.lockedNotice":
-      "Chỉ có thể thêm học viên khi kỳ thi ở trạng thái Đã lên lịch. Các nút sẽ được bật ở trạng thái đó.",
+      "Không thể thêm hoặc xóa học viên khi kỳ thi đang chuẩn bị hoặc đang diễn ra. Bạn chỉnh sửa được danh sách khi kỳ thi Đã lên lịch hoặc Đã kết thúc.",
     "tenant.studentRoster.fullName": "Họ và tên",
     "tenant.studentRoster.email": "Email",
     "tenant.studentRoster.studentCode": "Mã học viên",
@@ -790,17 +790,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.billing.loadFailed": "Không thể tải các gói. Vui lòng thử lại sau.",
     "tenant.students.confirmSuspend": "Tạm khóa tài khoản",
     "tenant.students.cancel": "Hủy",
-    "tenant.classAssignment.empty": "Chưa có lớp nào được phân công",
-    "tenant.classAssignment.label": "Lớp",
-    "tenant.classAssignment.placeholder": "Chọn lớp để phân công",
-    "tenant.classAssignment.assign": "Phân công lớp",
-    "tenant.classAssignment.assigning": "Đang phân công...",
-    "tenant.classAssignment.sourceLocked":
-      "Chỉ có thể phân công lớp khi kỳ thi ở trạng thái Đã lên lịch.",
-    "tenant.classAssignment.unassign": "Bỏ phân công",
-    "tenant.classAssignment.actions": "Thao tác",
-    "tenant.classAssignment.notScheduled":
-      "Chỉ có thể phân công hoặc bỏ phân công lớp khi kỳ thi ở trạng thái Đã lên lịch.",
     "tenant.answers.empty": "Chưa có câu trả lời nào được nộp",
     "tenant.answers.sectionTitle": "Câu trả lời đã nộp",
     "tenant.answers.status": "Trạng thái",
@@ -973,6 +962,26 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.createExam.error.RETRIES_INVALID": "Nhập số lần thi lại là số nguyên từ 0 đến 9.",
     "tenant.createExam.error.POLICY_MISMATCH":
       "Máy chủ trả về chính sách bảo mật khác. Hãy tải lại cài đặt kỳ thi và thử lại.",
+    "tenant.createExam.PREFLIGHT_BLOCKED":
+      "Một số điều kiện chưa sẵn sàng. Hãy xem lại cảnh báo về đối tượng dự thi và ngân hàng câu hỏi.",
+    "tenant.createExam.preflight.TEMPLATE_POOL_INSUFFICIENT":
+      "Mẫu kỳ thi đã chọn chưa có đủ câu hỏi đã xuất bản.",
+    "tenant.createExam.preflight.SESSION_SUBSCRIPTION_NOT_FOUND":
+      "Gói thuê bao đã chọn không còn hoạt động.",
+    "tenant.createExam.preflight.SESSION_WINDOW_OUTSIDE_SUBSCRIPTION":
+      "Khung giờ thi phải nằm trong thời hạn của gói thuê bao.",
+    "tenant.createExam.preflight.SESSION_TIME_CONFLICT":
+      "Gói thuê bao đã có một kỳ thi khác trong khung giờ này.",
+    "tenant.createExam.preflight.AUDIENCE_EMPTY":
+      "Không tìm thấy học viên nào từ các nguồn đối tượng đã chọn.",
+    "tenant.createExam.preflight.AUDIENCE_NO_ELIGIBLE":
+      "Không còn học viên nào đủ điều kiện sau khi áp dụng quy tắc thi lại.",
+    "tenant.createExam.preflight.AUDIENCE_CONFLICT_BLOCKED":
+      "Một số học viên bị trùng lịch với kỳ thi khác.",
+    "tenant.createExam.preflight.AUDIENCE_CHANGED_REQUIRES_REGENERATION":
+      "Danh sách học viên đã thay đổi trong lúc chuẩn bị kỳ thi. Hãy tạo lại đề trước khi phát hành.",
+    "tenant.createExam.preflight.SESSION_CAPACITY_EXCEEDED":
+      "Số học viên vượt quá sức chứa cho phép của gói thuê bao.",
     "nav.home": "Trang chủ",
     "nav.overview": "Tổng quan",
     "nav.tenants": "Tenant",
@@ -1039,8 +1048,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
       "Tìm theo mã, dạng bài hoặc trạng thái",
     "tenant.search.answers.ariaLabel":
       "Tìm câu trả lời theo mã, dạng bài hoặc trạng thái",
-    "tenant.search.classAssignment.placeholder": "Tìm theo tên lớp hoặc chương trình",
-    "tenant.search.classAssignment.ariaLabel": "Tìm lớp đã gán theo tên lớp hoặc chương trình",
     "tenant.search.examinerBatches.placeholder":
       "Tìm theo mã đợt, trạng thái hoặc phương thức phân công",
     "tenant.search.examinerBatches.ariaLabel":
@@ -1240,7 +1247,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examDetails.cancelEdit": "Cancel",
     "tenant.examDetails.saved": "Exam information saved.",
     "tenant.examDetails.saveFailed": "Unable to save exam information. Please try again.",
-    "tenant.examDetails.noActions": "No actions available",
     "tenant.examDetails.name": "Exam name",
     "tenant.examDetails.status": "Status",
     "tenant.examDetails.code": "Exam code",
@@ -1499,13 +1505,14 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.grading.finalizeDescription":
       "This freezes the submitted-attempt inventory for this closed session. Outstanding attempts will be retained with the reasons entered above; no attempt is force-submitted.",
     "tenant.grading.finalize": "Finalize cohort",
-    "tenant.participants.classes": "Assigned Classes",
     "tenant.participants.students": "Students",
     "tenant.participants.proctors": "Proctors",
     "tenant.participants.addStudents": "Add existing students",
-    "tenant.participants.importStudents": "Import existing students",
+    "tenant.participants.addCancel": "Cancel",
+    "tenant.participants.addSubmit": "Add to exam",
+    "tenant.participants.addSubmitting": "Adding...",
     "tenant.participants.lockedNotice":
-      "Students can only be added while this exam is Scheduled. The buttons are enabled then.",
+      "Students can't be added or removed while this exam is being prepared or running. You can edit the list when it is Scheduled or Closed.",
     "tenant.studentRoster.fullName": "Full name",
     "tenant.studentRoster.email": "Email",
     "tenant.studentRoster.studentCode": "Student code",
@@ -1838,17 +1845,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.billing.loadFailed": "Plans could not be loaded. Try again shortly.",
     "tenant.students.confirmSuspend": "Suspend account",
     "tenant.students.cancel": "Cancel",
-    "tenant.classAssignment.empty": "No Classes assigned yet",
-    "tenant.classAssignment.label": "Class",
-    "tenant.classAssignment.placeholder": "Select a Class to assign",
-    "tenant.classAssignment.assign": "Assign Class",
-    "tenant.classAssignment.assigning": "Assigning...",
-    "tenant.classAssignment.sourceLocked":
-      "Class assignment is available only while this exam is Scheduled.",
-    "tenant.classAssignment.unassign": "Unassign",
-    "tenant.classAssignment.actions": "Actions",
-    "tenant.classAssignment.notScheduled":
-      "Classes can only be assigned or unassigned while this exam is Scheduled.",
     "tenant.answers.empty": "No answers submitted yet",
     "tenant.answers.sectionTitle": "Submitted Answers",
     "tenant.answers.status": "Status",
@@ -2022,6 +2018,26 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.createExam.error.RETRIES_INVALID": "Enter a whole number of retries from 0 to 9.",
     "tenant.createExam.error.POLICY_MISMATCH":
       "The server returned a different security policy. Refresh the exam settings and try again.",
+    "tenant.createExam.PREFLIGHT_BLOCKED":
+      "Some requirements are not ready. Review the audience and question-bank warnings.",
+    "tenant.createExam.preflight.TEMPLATE_POOL_INSUFFICIENT":
+      "The selected template does not have enough published questions.",
+    "tenant.createExam.preflight.SESSION_SUBSCRIPTION_NOT_FOUND":
+      "The selected subscription is no longer active.",
+    "tenant.createExam.preflight.SESSION_WINDOW_OUTSIDE_SUBSCRIPTION":
+      "The exam window must fit within the subscription period.",
+    "tenant.createExam.preflight.SESSION_TIME_CONFLICT":
+      "The subscription already has another exam in this time window.",
+    "tenant.createExam.preflight.AUDIENCE_EMPTY":
+      "No students were found from the selected audience sources.",
+    "tenant.createExam.preflight.AUDIENCE_NO_ELIGIBLE":
+      "No students remain eligible after applying the reuse rule.",
+    "tenant.createExam.preflight.AUDIENCE_CONFLICT_BLOCKED":
+      "Some students have a schedule conflict with another exam.",
+    "tenant.createExam.preflight.AUDIENCE_CHANGED_REQUIRES_REGENERATION":
+      "The student audience changed while the exam was being prepared. Generate the exam again before publishing.",
+    "tenant.createExam.preflight.SESSION_CAPACITY_EXCEEDED":
+      "The audience is larger than the capacity allowed by the subscription.",
     "nav.home": "Home",
     "nav.overview": "Overview",
     "nav.tenants": "Tenants",
@@ -2085,8 +2101,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.search.answers.placeholder": "Search by answer ID, task type, or status",
     "tenant.search.answers.ariaLabel":
       "Search answers by answer ID, task type, or status",
-    "tenant.search.classAssignment.placeholder": "Search by class or program name",
-    "tenant.search.classAssignment.ariaLabel": "Search assigned classes by class or program name",
     "tenant.search.examinerBatches.placeholder": "Search by batch ID, status, or assignment method",
     "tenant.search.examinerBatches.ariaLabel":
       "Search assignment batches by batch ID, status, or assignment method",

@@ -18,7 +18,6 @@ export const ENROLLMENTS_QUERY_KEY = ["enrollments"] as const;
 export const PROCTOR_ASSIGNMENTS_QUERY_KEY = ["proctorAssignments"] as const;
 export const TENANT_USERS_QUERY_KEY = ["tenantUsers"] as const;
 export const EXAM_PREVIEW_QUERY_KEY = ["examPreview"] as const;
-export const ASSIGNED_CLASSES_QUERY_KEY = ["assignedClasses"] as const;
 export const EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY = ["examinerAssignmentOverview"] as const;
 export const EXAMINER_DIRECTORY_QUERY_KEY = ["examinerAssignmentDirectory"] as const;
 /** Each student sits an exam once, as in the real test; the API refuses any other retry count. */
@@ -294,10 +293,11 @@ export const SESSION_DETAIL_TEXT = {
   CANCEL_EXAM_CONFIRM: "Cancel this exam? Students will not be able to access it.",
   STUDENTS_SECTION: "Students",
   ADD_EXISTING_STUDENTS: "Add existing students",
-  IMPORT_EXISTING_STUDENTS: "Import existing students",
-  AUDIENCE_NOT_SCHEDULED_NOTICE:
-    "Students can only be added while this exam is Scheduled. The buttons are enabled then.",
-  CLASSES_SECTION: "Assigned Classes",
+  ADD_STUDENTS_CANCEL: "Cancel",
+  ADD_STUDENTS_SUBMIT: "Add to exam",
+  ADD_STUDENTS_SUBMITTING: "Adding...",
+  AUDIENCE_LOCKED_NOTICE:
+    "Students can't be added or removed while this exam is being prepared or running. You can edit the list when it is Scheduled or Closed.",
   PROCTORS_SECTION: "Proctors",
   ANSWERS_SECTION: "Submitted Answers",
   EXAMINER_ASSIGNMENTS_SECTION: "Examiner assignments",
@@ -324,7 +324,6 @@ export const EXAM_EDITOR_TEXT = {
   CANCEL: "Cancel",
   SAVED: "Exam information saved.",
   SAVE_FAILED: "Unable to save exam information. Please try again.",
-  NO_ACTIONS: "No actions available",
   NAME: "Exam name",
   STATUS: "Status",
   CODE: "Exam code",
@@ -447,18 +446,6 @@ export const EXAM_PREVIEW_TEXT = {
     return "";
   },
   UNAVAILABLE: "The published exam questions are not available yet.",
-} as const;
-
-export const CLASS_ASSIGNMENT_TEXT = {
-  EMPTY_TITLE: "No Classes assigned yet",
-  ASSIGN_LABEL: "Class",
-  ASSIGN_PLACEHOLDER: "Select a Class to assign",
-  ASSIGN: "Assign Class",
-  ASSIGNING: "Assigning...",
-  SOURCE_LOCKED: "Class assignment is available only while this exam is Scheduled.",
-  UNASSIGN: "Unassign",
-  ACTIONS: "Actions",
-  NOT_SCHEDULED_NOTICE: "Classes can only be assigned or unassigned while this exam is Scheduled.",
 } as const;
 
 export const PROCTOR_SECTION_TEXT = {

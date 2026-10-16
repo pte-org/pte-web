@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  assignClass,
   assignProctor,
   confirmExaminerAssignmentPreview,
   closeSession,
@@ -25,7 +24,6 @@ import {
   preflightReportPublication,
   publishSessionReports,
   getReportPublicationSummary,
-  listAssignedClasses,
   listAllExamStaff,
   listProctorAssignments,
   listSessions,
@@ -38,7 +36,6 @@ import {
   generateExam,
   publishExam,
   submitTeacherScore,
-  unassignClass,
   unassignProctor,
   updateProctorRole,
   type AnswerListResponse,
@@ -74,16 +71,13 @@ import {
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import { UserFacingError } from "@/features/examoperations/errorMessage";
-import { useAllTenantClasses } from "@/features/classes/api";
 import { HOST_DASHBOARD_QUERY_KEY } from "@/features/hostDashboard/constants";
+import { ExamPreflightBlockedError } from "../utils/examPreflight";
 import {
-  CREATE_EXAM_WIZARD_TEXT,
   CREATE_EXAM_WIZARD_ERRORS,
   ANSWER_QUERY_KEY,
   EXAM_PREVIEW_QUERY_KEY,
   ANSWERS_QUERY_KEY,
-  ASSIGNED_CLASSES_QUERY_KEY,
-  ENROLLMENTS_QUERY_KEY,
   PROCTOR_ASSIGNMENTS_QUERY_KEY,
   SESSION_QUERY_KEY,
   SESSIONS_QUERY_KEY,
@@ -98,7 +92,6 @@ import {
   OFFICIAL_EXAM_MODE,
 } from "../constants";
 import type {
-  AssignedClass,
   CreateSessionInput,
   ExamSession,
   ExamSkill,
@@ -325,14 +318,7 @@ export function useCreateExamWorkflow(): UseMutationResult<
 
 function assertExamPreflightReady(preflight: Awaited<ReturnType<typeof preflightExam>>): void {
   if (preflight.ready) return;
-  const details = preflight.issues
-    .map((issue) => CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_ISSUE_MESSAGES[issue])
-    .filter((message): message is string => Boolean(message));
-  throw new UserFacingError(
-    details.length > 0
-      ? `${CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_BLOCKED} ${details.join(" ")}`
-      : CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_BLOCKED,
-  );
+  throw new ExamPreflightBlockedError(preflight.issues);
 }
 
 /** Runs the backend-owned command for a selected status rather than patching status directly. */
@@ -734,71 +720,5 @@ export function useSubmitTeacherScore(
       void queryClient.invalidateQueries({ queryKey: [...ANSWER_QUERY_KEY, answerPublicId] });
       void queryClient.invalidateQueries({ queryKey: ANSWERS_QUERY_KEY });
     },
-  });
-}
-
-/**
- * A session's assigned Classes, joined client-side against the tenant's own
- * Class list (`SessionClassAssignmentResponse` only carries `classPublicId`
- * — same join-here-not-in-scheduling shape as `useProctorAssignments` above).
- */
-export function useAssignedClasses(sessionPublicId: string): UseQueryResult<AssignedClass[]> {
-  const tenantClasses = useAllTenantClasses();
-
-  return useQuery({
-    queryKey: [...ASSIGNED_CLASSES_QUERY_KEY, sessionPublicId],
-    queryFn: async () => {
-      const assignments = await listAssignedClasses(apiClient, sessionPublicId);
-      const byId = new Map(
-        (tenantClasses.data ?? []).map((option) => [option.classPublicId, option]),
-      );
-      return assignments.flatMap((assignment) => {
-        const option = byId.get(assignment.classPublicId);
-        return option
-          ? [
-              {
-                classPublicId: option.classPublicId,
-                className: option.className,
-                programName: option.programName,
-              },
-            ]
-          : [];
-      });
-    },
-    enabled: sessionPublicId.length > 0 && tenantClasses.data !== undefined,
-  });
-}
-
-function invalidateClassAssignments(
-  queryClient: ReturnType<typeof useQueryClient>,
-  sessionPublicId: string,
-): void {
-  void queryClient.invalidateQueries({
-    queryKey: [...ASSIGNED_CLASSES_QUERY_KEY, sessionPublicId],
-  });
-  void queryClient.invalidateQueries({ queryKey: [...ENROLLMENTS_QUERY_KEY, sessionPublicId] });
-}
-
-/** Assigns a Class — enrolls every current member into this session (backend Phase 4). */
-export function useAssignClass(sessionPublicId: string): UseMutationResult<void, unknown, string> {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (classPublicId: string) => {
-      await assignClass(apiClient, sessionPublicId, { classPublicId });
-    },
-    onSuccess: () => invalidateClassAssignments(queryClient, sessionPublicId),
-  });
-}
-
-/** Unassigns a Class — removes the enrollments of that Class's current members only. */
-export function useUnassignClass(
-  sessionPublicId: string,
-): UseMutationResult<void, unknown, string> {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (classPublicId: string) => unassignClass(apiClient, sessionPublicId, classPublicId),
-    onSuccess: () => invalidateClassAssignments(queryClient, sessionPublicId),
   });
 }

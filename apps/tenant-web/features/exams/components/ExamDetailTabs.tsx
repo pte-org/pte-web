@@ -3,11 +3,8 @@
 import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { useSearchParams } from "next/navigation";
 import { TabPanel, Tabs, useLocale, type TabItem } from "@pte/ui";
-import {
-  ExistingStudentAssignmentModal,
-  ExistingStudentImportModal,
-} from "@/features/examoperations/components";
 import type { ExamSession } from "../types";
+import { AddExamStudentsModal } from "./AddExamStudentsModal";
 import { ExaminerTab } from "./ExaminerTab";
 import { ExamOverviewTab, type ExamOverviewLifecycle } from "./ExamOverviewTab";
 import { ExamParticipantsTab } from "./ExamParticipantsTab";
@@ -64,12 +61,10 @@ export const ExamDetailTabs = ({
   const [activeTab, setActiveTab] = useState<ExamDetailTab>(initialTab);
   const [visitedTabs, setVisitedTabs] = useState<Set<ExamDetailTab>>(() => new Set([initialTab]));
   const [studentAssignmentOpen, setStudentAssignmentOpen] = useState(false);
-  const [studentImportOpen, setStudentImportOpen] = useState(false);
 
   const activateTab = useCallback((nextTab: ExamDetailTab): void => {
     setActiveTab(nextTab);
     setStudentAssignmentOpen(false);
-    setStudentImportOpen(false);
     setVisitedTabs((current) => {
       if (current.has(nextTab)) return current;
       return new Set(current).add(nextTab);
@@ -163,7 +158,6 @@ export const ExamDetailTabs = ({
           session={session}
           sessionPublicId={sessionPublicId}
           onOpenStudentAssignment={() => setStudentAssignmentOpen(true)}
-          onOpenStudentImport={() => setStudentImportOpen(true)}
         />
       </TabPanel>
       <TabPanel
@@ -203,14 +197,9 @@ export const ExamDetailTabs = ({
         <ExamResultsTab sessionPublicId={sessionPublicId} sessionStatus={session.status} />
       </TabPanel>
 
-      <ExistingStudentAssignmentModal
+      <AddExamStudentsModal
         open={studentAssignmentOpen}
         onClose={() => setStudentAssignmentOpen(false)}
-        sessionPublicId={sessionPublicId}
-      />
-      <ExistingStudentImportModal
-        open={studentImportOpen}
-        onClose={() => setStudentImportOpen(false)}
         sessionPublicId={sessionPublicId}
       />
     </section>

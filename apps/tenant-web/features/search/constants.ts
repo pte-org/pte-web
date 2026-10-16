@@ -47,10 +47,6 @@ export const TENANT_SEARCH_TEXT = {
     placeholder: "Search by answer ID, task type, or status",
     ariaLabel: "Search answers by answer ID, task type, or status",
   },
-  classAssignment: {
-    placeholder: "Search by class or program name",
-    ariaLabel: "Search assigned classes by class or program name",
-  },
   examinerBatches: {
     placeholder: "Search by batch ID, status, or assignment method",
     ariaLabel: "Search assignment batches by batch ID, status, or assignment method",
