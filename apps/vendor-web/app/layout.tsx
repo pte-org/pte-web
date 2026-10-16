@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -31,7 +32,11 @@ export default function RootLayout({
       className={`${inter.variable} ${inter.className} ${geistMono.variable} h-full antialiased`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: PTE_UI_BOOTSTRAP_SCRIPT }} />
+        <Script
+          id="pte-ui-bootstrap"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: PTE_UI_BOOTSTRAP_SCRIPT }}
+        />
       </head>
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>

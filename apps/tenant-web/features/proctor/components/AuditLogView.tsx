@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Button, DataTable, PageHeader, type DataTableColumn } from "@pte/ui";
+import Link from "next/link";
+import { Button, DataTable, ErrorState, PageHeader, type DataTableColumn } from "@pte/ui";
 import { useProctorAuditLog, useProctorSecurityAudit, type ProctorSecurityAuditPage } from "../api";
 import { AUDIT_ACTION_LABELS, PROCTOR_AUDIT_TEXT as T } from "../constants";
 import type { ProctorAuditLogEntry, ProctorSecurityAuditEntry } from "../types";
@@ -39,7 +40,7 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
       header: T.COL_TIME,
       filterType: "date-range",
       filterAccessor: (row) => row.createdAt,
-      filterPlaceholder: "Date range",
+      filterPlaceholder: T.FILTER_DATE_RANGE,
       cell: (row) => formatTimestamp(row.createdAt),
     },
     {
@@ -50,7 +51,7 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
     {
       key: "performedBy",
       header: T.COL_PROCTOR,
-      cell: (row) => row.performedBy.fullName || shortId(row.performedBy.publicId),
+      cell: (row) => row.performedBy.fullName || (row.performedBy.publicId ? shortId(row.performedBy.publicId) : "—"),
     },
     {
       key: "note",
@@ -68,7 +69,7 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
       header: T.COL_TIME,
       filterType: "date-range",
       filterAccessor: (row) => row.recordedAt,
-      filterPlaceholder: "Date range",
+      filterPlaceholder: T.FILTER_DATE_RANGE,
       cell: (row) => formatTimestamp(row.recordedAt),
     },
     {
@@ -92,19 +93,36 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
   const securityIsEmpty = securityItems.length === 0;
 
   return (
-    <div className="flex flex-col gap-6 p-8">
-      <PageHeader title={T.TITLE} subtitle={T.SUBTITLE} />
+    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
+      <PageHeader
+        title={T.TITLE}
+        subtitle={T.SUBTITLE}
+        actions={
+          <div className="flex items-center gap-2">
+            <Link href={`/proctor/sessions/${sessionPublicId}`}>
+              <Button variant="secondary" size="sm">
+                {T.ENTER_MONITORING}
+              </Button>
+            </Link>
+            <Link href="/proctor/sessions">
+              <Button variant="secondary" size="sm">
+                {T.SESSION_LIST}
+              </Button>
+            </Link>
+          </div>
+        }
+      />
 
-      <section className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
+      <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] px-4 py-3 text-sm text-[var(--ink-secondary)] shadow-sm">
         <span>
-          {T.COL_PROCTOR}: <code className="font-mono text-xs">#{shortId(sessionPublicId)}</code>
+          {T.COL_PROCTOR}: <code className="font-mono text-xs text-[var(--ink-primary)]">#{shortId(sessionPublicId)}</code>
         </span>
       </section>
 
       <div
         role="tablist"
-        aria-label="Audit log tabs"
-        className="flex gap-1 border-b border-slate-200"
+        aria-label={T.TABS_ARIA_LABEL}
+        className="flex gap-1 border-b border-[var(--border-subtle)]"
       >
         {TABS.map((tab) => {
           const isActive = activeTab === tab.key;
@@ -118,8 +136,8 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
               className={
                 "border-b-2 px-4 py-2 text-sm font-medium transition-colors " +
                 (isActive
-                  ? "border-blue-600 text-blue-700"
-                  : "border-transparent text-slate-600 hover:text-slate-900")
+                  ? "border-blue-600 text-[var(--ink-primary)] font-semibold"
+                  : "border-transparent text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]")
               }
             >
               {tab.label}
@@ -129,14 +147,36 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
       </div>
 
       {activeTab === "violations" ? (
-        <DataTable<ProctorAuditLogEntry>
-          showSearch={false}
-          columns={violationColumns}
-          rows={violations}
-          getRowKey={(row) => row.publicId}
-          isLoading={audit.isFetching}
-          emptyTitle={T.EMPTY_VIOLATIONS_TITLE}
-          emptyDescription={T.EMPTY_VIOLATIONS_DESCRIPTION}
+        audit.isError ? (
+          <ErrorState
+            title={T.ERROR_TITLE}
+            description={T.ERROR_DESC}
+            action={
+              <Button variant="secondary" size="sm" onClick={() => void audit.refetch()}>
+                {T.RETRY}
+              </Button>
+            }
+          />
+        ) : (
+          <DataTable<ProctorAuditLogEntry>
+            showSearch={false}
+            columns={violationColumns}
+            rows={violations}
+            getRowKey={(row) => row.publicId}
+            isLoading={audit.isFetching}
+            emptyTitle={T.EMPTY_VIOLATIONS_TITLE}
+            emptyDescription={T.EMPTY_VIOLATIONS_DESCRIPTION}
+          />
+        )
+      ) : security.isError ? (
+        <ErrorState
+          title={T.ERROR_TITLE}
+          description={T.ERROR_DESC}
+          action={
+            <Button variant="secondary" size="sm" onClick={() => void security.refetch()}>
+              {T.RETRY}
+            </Button>
+          }
         />
       ) : (
         <div className="flex flex-col gap-4">

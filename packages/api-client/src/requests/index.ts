@@ -42,4 +42,8 @@ export * from "./billing/quota";
 export * from "./notification";
 export * from "./scoring/gradingCohort";
 export * from "./support/tickets";
+export * from "./proctoring";
+export * from "./attendance";
+export * from "./incidents";
 export * from "./dashboard";
+export * from "./location";

@@ -15,6 +15,7 @@ export interface UserResponse {
   dateOfBirth: string | null;
   organizationType?: string | null;
   mustChangePassword: boolean;
+  archived: boolean;
 }
 
 /** Matches identity's real `UserDirectoryEntryResponse` record exactly. */
@@ -113,12 +114,19 @@ export type PlatformAssignableRole = "PLATFORM_MANAGER" | "ACADEMIC_MANAGER" | "
 export interface PlatformUserCreateRequest {
   email: string;
   fullName: string;
-  password: string;
+  /** Optional for backwards compatibility; the server generates one when omitted. */
+  password?: string;
   roles: PlatformAssignableRole[];
 }
 
 export interface PlatformUserRoleUpdateRequest {
   roles: PlatformAssignableRole[];
+}
+
+export interface UpdatePlatformUserProfileRequest {
+  fullName: string;
+  phone?: string | null;
+  dateOfBirth?: string | null;
 }
 
 export interface PlatformUserListParams {
@@ -127,6 +135,7 @@ export interface PlatformUserListParams {
   search?: string;
   role?: PlatformAssignableRole | "PLATFORM_ADMIN" | "PLATFORM_AUTHOR";
   status?: "ACTIVE" | "SUSPENDED";
+  includeArchived?: boolean;
 }
 
 export type PlatformUserPage = PagedResult<UserResponse>;

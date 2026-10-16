@@ -99,7 +99,14 @@ export function GradingCohortSection({
         <div>
           <h2 className="text-sm font-semibold text-[var(--ink-primary)]">{text.title}</h2>
         </div>
-        {preview.data?.finalized && <Badge variant="success">{text.finalized}</Badge>}
+        {preview.data?.finalized && (
+          <div className="flex items-center gap-2">
+            <Badge variant="success">{text.finalized}</Badge>
+            <Badge variant="neutral">
+              {preview.data.markingMode === "MANUAL_EXAMINER" ? text.manualExaminer : text.aiOnly}
+            </Badge>
+          </div>
+        )}
       </div>
       {preview.isLoading && (
         <p className="mt-4 text-sm text-[var(--ink-secondary)]">{text.loading}</p>
@@ -138,6 +145,11 @@ export function GradingCohortSection({
               onChange={(event) => setSelectedMarkingMode(event.target.value as GradingMarkingMode)}
             />
           </div>
+          {markingMode === "MANUAL_EXAMINER" && (
+            <Alert tone="info" className="mt-4">
+              Manual examiner workflow: Finalizing as MANUAL_EXAMINER freezes the cohort and enables subjective examiner assignment. Assigned examiners review and submit scores. Once all required attempts and answers are scored, Host publishes reports.
+            </Alert>
+          )}
           {preview.data.blockingReasons.length > 0 && (
             <Alert tone="warning" className="mt-4" title={text.cannotFinalize}>
               <ul className="list-disc pl-5">

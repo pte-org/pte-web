@@ -1,5 +1,6 @@
 import { ApiError, type ApiErrorKind } from "./apiError";
 import { isMachineErrorCode } from "./errorMessage";
+import { decodeAccessTokenClaims } from "./jwt";
 
 export type TokenGetter = () => string | null;
 export type SessionGenerationGetter = () => number;
@@ -81,6 +82,16 @@ export interface PagedResult<T> {
   meta: PageMeta;
 }
 
+export interface EnsureFreshTokenOptions {
+  /**
+   * If provided, refresh early if remaining lifetime is less than this many seconds.
+   * Default 0 (only refresh if already expired or missing, or if forced).
+   */
+  minValiditySeconds?: number;
+  /** Force refresh even if token is still valid. Default false. */
+  forceRefresh?: boolean;
+}
+
 export interface ApiClient {
   request<T>(path: string, options?: RequestOptions): Promise<T>;
   upload<T>(path: string, formData: FormData, options?: RequestInit): Promise<T>;
@@ -90,6 +101,7 @@ export interface ApiClient {
     options?: RequestInit,
   ): Promise<DownloadResponse>;
   download(path: string, options?: RequestOptions): Promise<DownloadResponse>;
+  ensureFreshAccessToken(options?: EnsureFreshTokenOptions): Promise<string | null>;
 }
 
 /** A request completed after logout or account/tenant switch and must not update protected state. */
@@ -410,5 +422,31 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     };
   }
 
-  return { request, upload, uploadDownload, download };
+  async function ensureFreshAccessToken(options?: EnsureFreshTokenOptions): Promise<string | null> {
+    const currentToken = getToken?.() ?? null;
+    const minValidityMs = (options?.minValiditySeconds ?? 0) * 1000;
+    const force = options?.forceRefresh ?? false;
+
+    if (currentToken && !force) {
+      const claims = decodeAccessTokenClaims(currentToken);
+      if (claims && claims.expiresAt > Date.now() + minValidityMs) {
+        return currentToken;
+      }
+    }
+
+    const requestGeneration = getSessionGeneration?.();
+    const refreshOutcome = await tryRefresh(requestGeneration);
+    if (refreshOutcome === "refreshed") {
+      if (requestGeneration === undefined || getSessionGeneration?.() === requestGeneration) {
+        return getToken?.() ?? null;
+      }
+      return null;
+    }
+    if (refreshOutcome === "stale") {
+      return null;
+    }
+    return currentToken;
+  }
+
+  return { request, upload, uploadDownload, download, ensureFreshAccessToken };
 }

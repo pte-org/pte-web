@@ -13,13 +13,59 @@ export const LICENSE_CODES_PAGE_QUERY_KEY = (params: {
   search: string;
 }) => [...LICENSE_CODES_QUERY_KEY, params] as const;
 
+export const PLATFORM_SETTING_KEYS = {
+  FREE_STUDENT_LIMIT: "free_student_limit",
+  APPLICATION_RESPONSE_SLA_HOURS: "tenant_application_response_sla_hours",
+} as const;
+export const PLATFORM_SETTING_CATEGORY = "COMMERCIAL";
+
+export type PlatformSettingKey =
+  (typeof PLATFORM_SETTING_KEYS)[keyof typeof PLATFORM_SETTING_KEYS];
+
+export interface PlatformSettingPresentation {
+  label: string;
+  description: string;
+  impact: string;
+  unit: string;
+}
+
+export const PLATFORM_SETTING_PRESENTATION: Record<
+  PlatformSettingKey,
+  PlatformSettingPresentation
+> = {
+  [PLATFORM_SETTING_KEYS.FREE_STUDENT_LIMIT]: {
+    label: "Free student limit",
+    description: "The number of learner seats granted when a tenant application is approved.",
+    impact: "Applies to tenant applications approved after this value is saved.",
+    unit: "students",
+  },
+  [PLATFORM_SETTING_KEYS.APPLICATION_RESPONSE_SLA_HOURS]: {
+    label: "Tenant application response time",
+    description: "The response time promised to applicants in the application email.",
+    impact: "Applies to application notifications sent after this value is saved.",
+    unit: "hours",
+  },
+};
+
 export const PLATFORM_SETTINGS_TEXT = {
   TITLE: "Platform settings",
-  PANEL_TITLE: "Commercial defaults",
+  PANEL_TITLE: "Commercial and approvals",
+  PANEL_SUBTITLE: "Manage business policies used by new tenant applications.",
   LOADING: "Loading settings...",
-  SAVE: "Save",
+  SAVE: "Save changes",
+  SAVING: "Saving changes...",
+  RESET: "Reset to defaults",
+  RESET_TITLE: "Reset platform settings?",
+  RESET_DESCRIPTION:
+    "Restore this group to its recommended defaults. Review the values and save to apply them.",
+  RESET_CONFIRM: "Reset to defaults",
+  RESET_CANCEL: "Cancel",
+  NO_SETTINGS: "No editable platform settings are available.",
+  RETRY: "Try again",
+  UNSAVED: "Unsaved changes",
+  UP_TO_DATE: "All changes are saved",
   ERROR: "Settings could not be loaded or saved.",
-  SAVED: (key: string) => `Setting ${key} saved.`,
+  SAVED: "Platform settings saved.",
 } as const;
 
 export const ADMIN_APPLICATIONS_TEXT = {
@@ -152,8 +198,13 @@ export const PLAN_CATALOG_TEXT = {
 } as const;
 
 export const LICENSE_CODES_TEXT = {
-  TITLE: "License codes",
-  ISSUE_TITLE: "Issue a code",
+  TITLE: "Activation codes",
+  INVENTORY_SUBTITLE: "Review and manage codes issued by the platform.",
+  CREATE_ACTION: "Create code",
+  LOOKUP_ACTION: "Lookup code",
+  ADVANCED_FILTERS: "Advanced filters",
+  HIDE_ADVANCED_FILTERS: "Hide advanced filters",
+  ISSUE_TITLE: "Create activation code",
   PLAN_LABEL: "Plan",
   PLAN_PLACEHOLDER: "Select active exam package",
   REFRESH_PLANS: "Refresh plans",
@@ -169,8 +220,18 @@ export const LICENSE_CODES_TEXT = {
   REJECTED_NEW_ISSUE: "Clear this rejected request so you can correct the plan or expiry.",
   INVALID_EXPIRY: "Enter a valid future date and time.",
   ISSUE: "Issue code",
+  ISSUE_SUCCESS_TITLE: "Code created",
+  ISSUE_SUCCESS_DESCRIPTION:
+    "The code was created securely. Reveal it only when you are ready to share it.",
+  ISSUE_SUCCESS_PLAN: "Package",
+  ISSUE_SUCCESS_EXPIRY: "Code expiry",
+  ISSUED_AT: "Issued on",
+  EXPIRES_AT: "Code expires",
+  REDEEMED_AT: "Redeemed on",
+  NOT_REDEEMED: "Not redeemed",
+  NO_EXPIRY: "No expiry",
   ISSUED_TITLE: "License inventory",
-  CODE: "Masked code",
+  CODE: "Code",
   PLAN_ID: "Plan",
   RECIPIENT: "Recipient",
   PUBLIC_ID: "Public ID",
@@ -194,8 +255,8 @@ export const LICENSE_CODES_TEXT = {
   STALE_DATA: "Showing the last successful page while a refresh is pending.",
   PLAN_LOAD_ERROR: "Plans could not be loaded. Issuance is temporarily unavailable.",
   REFRESH_LIST: "Refresh list",
-  LOOKUP_TITLE: "Find a code safely",
-  LOOKUP_LABEL: "License code",
+  LOOKUP_TITLE: "Lookup activation code",
+  LOOKUP_LABEL: "Activation code",
   LOOKUP: "Lookup",
   LOOKUP_RESULT: "Lookup result",
   LOOKUP_NOT_FOUND: "No matching code was found.",
@@ -227,9 +288,9 @@ export const LICENSE_CODES_TEXT = {
   REVOKE_PREVIEW_RETRY: "Refresh preview",
   REVOKE_NO_SCHEDULED: "No scheduled sessions",
   REVOKE_EXPIRED_CODE: "Expired codes cannot be revoked.",
-  ISSUED_SUCCESS: (id: string) => `License issuance ${id} confirmed.`,
-  RECOVERED_SUCCESS: (id: string) => `Previous license issuance ${id} recovered.`,
-  REVOKED_SUCCESS: (code: string) => `License code ${code} revoked.`,
+  ISSUED_SUCCESS: "Activation code created.",
+  RECOVERED_SUCCESS: "Activation code issuance confirmed.",
+  REVOKED_SUCCESS: "Activation code revoked.",
   ERROR: "License codes could not be loaded or saved.",
   REVOKE_REASON: "Revoked by platform administrator",
   EMPTY_VALUE: "—",

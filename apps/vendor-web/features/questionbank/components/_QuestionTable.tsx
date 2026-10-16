@@ -71,11 +71,6 @@ export const QuestionTable = ({
     { value: "published", label: "Published" },
     { value: "archived", label: "Archived" },
   ]);
-  const poolFilterOptions = useAdminCopy([
-    { value: "", label: "All pools" },
-    { value: "exam", label: "Exam" },
-    { value: "practice", label: "Practice" },
-  ]);
   const router = useRouter();
   const { data: currentUser } = useCurrentUser();
   const { showToast } = useToast();
@@ -244,7 +239,6 @@ export const QuestionTable = ({
             key: "pool",
             label: H.POOL,
             header: H.POOL,
-            filterOptions: poolFilterOptions,
             filterAccessor: (question) => question.pool,
             cell: (question) => poolLabels[question.pool],
           },

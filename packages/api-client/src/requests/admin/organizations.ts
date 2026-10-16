@@ -1,5 +1,8 @@
 import type { ApiClient } from "../../client/client";
-import type { OrganizationResponse } from "../../types/organization";
+import type {
+  OrganizationResponse,
+  UpdateOrganizationProfileRequest,
+} from "../../types/organization";
 
 /**
  * Host self-service read of its own Organizations (branches) —
@@ -22,4 +25,15 @@ export function getMyOrganization(
   publicId: string,
 ): Promise<OrganizationResponse> {
   return client.request<OrganizationResponse>(HOST_ORGANIZATION_ENDPOINTS.organization(publicId));
+}
+
+export function updateMyOrganization(
+  client: ApiClient,
+  publicId: string,
+  payload: UpdateOrganizationProfileRequest,
+): Promise<OrganizationResponse> {
+  return client.request<OrganizationResponse>(HOST_ORGANIZATION_ENDPOINTS.organization(publicId), {
+    method: "PATCH",
+    body: payload,
+  });
 }
