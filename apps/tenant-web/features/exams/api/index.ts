@@ -7,7 +7,7 @@ import {
   closeSession,
   cancelExam,
   deleteSession as deleteSessionRequest,
-  addAudienceSource,
+  addAudienceSources,
   createSession,
   createExamDraft,
   createExaminerAssignmentPreview,
@@ -303,9 +303,8 @@ export function useCreateExamWorkflow(): UseMutationResult<
         capacity: Number(input.capacity),
       });
       assertResolvedPolicy(draft, expectedLockdownMode);
-      for (const source of input.sources) {
-        await addAudienceSource(apiClient, draft.publicId, source);
-      }
+      // One atomic request: the draft never ends up with a partial audience.
+      await addAudienceSources(apiClient, draft.publicId, input.sources);
       const preflight = await preflightExam(apiClient, draft.publicId);
       assertExamPreflightReady(preflight);
       await generateExam(apiClient, draft.publicId, globalThis.crypto.randomUUID());
