@@ -146,18 +146,24 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   REUSE_POLICY_LABEL: "Student reuse rule",
   SERIES_LABEL: "Exam series",
   SERIES_PLACEHOLDER: "e.g. 2026-HK1",
-  SOURCES_TITLE: "Audience sources",
-  SOURCE_TYPE_LABEL: "Source type",
-  SOURCE_OPTION_LABEL: "Existing source",
-  SOURCE_SEARCH_LABEL: "Search existing sources",
+  SOURCES_TITLE: "Students taking the exam",
+  SOURCE_SEARCH_LABEL: "Search students",
   SOURCE_SEARCH_PLACEHOLDER: "Search by name, email, account, or code",
-  SOURCE_PLACEHOLDER: "Select an existing source",
-  SOURCE_LOADING: "Loading existing sources...",
-  SOURCE_EMPTY: "No existing sources match your search.",
+  FILTER_PROGRAM_LABEL: "Program",
+  FILTER_CLASS_LABEL: "Class",
+  FILTER_ALL_PROGRAMS: "All programs",
+  FILTER_ALL_CLASSES: "All classes",
+  FILTER_NO_CLASS: "Not in any class",
+  SELECT_ALL_FILTERED: "Select all students in this list",
+  SELECT_STUDENT: "Select student",
+  NO_CLASS_BADGE: "No class",
+  CLEAR_SELECTION: "Clear selection",
+  SELECTED_TOTAL: "{count} students selected",
+  SELECTED_IN_LIST: "{selected} of {total} in this list",
+  SOURCE_LOADING: "Loading students...",
+  SOURCE_EMPTY: "No students match your filters.",
   MANAGE_CLASSES: "Manage classes",
-  ADD_SOURCE: "Add source",
-  REMOVE_SOURCE: "Remove",
-  NO_SOURCES: "Add at least one student, class, or program source.",
+  NO_SOURCES: "Select at least one student.",
   NO_TEMPLATE:
     "No active exam template is available yet. Ask the platform administrator to activate one.",
   NO_ACTIVE_SUBSCRIPTIONS: "No active subscription is available for this exam.",
@@ -166,7 +172,7 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   REVIEW_SECURITY_POLICY: "Security policy",
   REVIEW_SKILLS: "Included skills",
   REVIEW_RETRIES: "Retries per student",
-  REVIEW_AUDIENCE: "Audience sources",
+  REVIEW_AUDIENCE: "Students",
   REVIEW_RULE: "Student reuse rule",
   REVIEW_CAPACITY: "Maximum students",
   EMPTY_VALUE: "—",
@@ -215,9 +221,7 @@ export const CREATE_EXAM_WIZARD_ERRORS = {
   CLOSES_AFTER_OPENS: "The close time must be after the open time.",
   CAPACITY_REQUIRED: "Enter a positive whole-number capacity.",
   SERIES_REQUIRED: "Add an exam series for this reuse rule.",
-  SOURCE_REQUIRED: "Select an existing source before adding it.",
-  SOURCE_DUPLICATE: "This audience source has already been added.",
-  AUDIENCE_REQUIRED: "Add at least one audience source.",
+  AUDIENCE_REQUIRED: "Select at least one student.",
   OPEN_FUTURE: "Choose an opening time in the future.",
   RETRIES_INVALID: "Enter a whole number of retries from 0 to 9.",
   POLICY_MISMATCH:
@@ -244,11 +248,10 @@ export const REUSE_POLICY_OPTIONS: { value: ReusePolicy; label: string }[] = [
   { value: "BLOCK_ON_SCHEDULE_OVERLAP", label: CREATE_EXAM_WIZARD_TEXT.REUSE_OVERLAP },
 ];
 
-export const AUDIENCE_SOURCE_OPTIONS = [
-  { value: "STUDENT", label: "Student" },
-  { value: "CLASS", label: "Class" },
-  { value: "PROGRAM", label: "Program" },
-] as const;
+/** Select value meaning "no filter" in the audience program/class filters. */
+export const AUDIENCE_FILTER_ALL = "";
+/** Select value for students who have no class membership yet. */
+export const AUDIENCE_FILTER_NO_CLASS = "__NO_CLASS__";
 
 export const EXAM_SKILL_OPTIONS: { value: ExamSkill; label: string }[] = [
   { value: "SPEAKING", label: "Speaking" },

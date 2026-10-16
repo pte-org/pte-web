@@ -9,7 +9,6 @@ import type { ExamDetailsStepProps } from "../components/create-exam/ExamDetails
 import type { ReviewStepProps } from "../components/create-exam/ReviewStep";
 import type { SchedulePolicyStepProps } from "../components/create-exam/SchedulePolicyStep";
 import {
-  AUDIENCE_SOURCE_OPTIONS,
   CREATE_EXAM_WIZARD_ERRORS,
   CREATE_EXAM_WIZARD_TEXT as DEFAULT_CREATE_EXAM_WIZARD_TEXT,
   EXAM_SKILL_OPTIONS,
@@ -81,14 +80,6 @@ export function useCreateExamWizardViewModel({
       })),
     [t],
   );
-  const localizedSourceTypeOptions = useMemo(
-    () =>
-      AUDIENCE_SOURCE_OPTIONS.map((option) => ({
-        ...option,
-        label: t(`tenant.createExam.source.${option.value}`, option.label),
-      })),
-    [t],
-  );
   const localizedReusePolicyOptions = useMemo(
     () =>
       REUSE_POLICY_OPTIONS.map((option) => ({
@@ -127,25 +118,15 @@ export function useCreateExamWizardViewModel({
     sources,
     update,
     onSourcesChange,
-    setFieldError,
     validate,
     goToNextStep,
     goToPreviousStep,
   } = wizardForm;
-  const onSourcesError = useCallback(
-    (message?: string): void => setFieldError("sources", message),
-    [setFieldError],
-  );
   const audience = useCreateExamAudience({
     open,
     sources,
     onSourcesChange,
-    onSourcesError,
   });
-  const sourceTypeLabels = useMemo(
-    () => new Map(localizedSourceTypeOptions.map((option) => [option.value, option.label])),
-    [localizedSourceTypeOptions],
-  );
   const templateMessage = templateError
     ? errorMessage(templateError, wizardText.NO_TEMPLATE)
     : undefined;
@@ -168,22 +149,23 @@ export function useCreateExamWizardViewModel({
     templateMessage,
   };
   const audienceStepProps: AudienceStepProps = {
-    sources,
     errors,
     wizardText,
-    localizedSourceTypeOptions,
-    sourceType: audience.sourceType,
-    sourcePublicId: audience.sourcePublicId,
-    sourceSearch: audience.sourceSearch,
-    sourceOptions: audience.sourceOptions,
-    sourceLabels: audience.sourceLabels,
-    sourceTypeLabels,
-    sourceLoading: audience.sourceLoading,
-    onSourceTypeChange: audience.onSourceTypeChange,
-    onSourcePublicIdChange: audience.onSourcePublicIdChange,
-    onSourceSearchChange: audience.onSourceSearchChange,
-    addSource: audience.addSource,
-    removeSource: audience.removeSource,
+    search: audience.search,
+    programFilter: audience.programFilter,
+    classFilter: audience.classFilter,
+    programOptions: audience.programOptions,
+    classOptions: audience.classOptions,
+    students: audience.students,
+    selectedIds: audience.selectedIds,
+    selectedInFilterCount: audience.selectedInFilterCount,
+    loading: audience.loading,
+    onSearchChange: audience.onSearchChange,
+    onProgramFilterChange: audience.onProgramFilterChange,
+    onClassFilterChange: audience.onClassFilterChange,
+    toggleStudent: audience.toggleStudent,
+    toggleAllFiltered: audience.toggleAllFiltered,
+    clearSelection: audience.clearSelection,
     localizeError,
   };
   const reviewStepProps: ReviewStepProps = {

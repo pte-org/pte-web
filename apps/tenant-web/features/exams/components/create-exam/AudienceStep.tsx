@@ -1,54 +1,75 @@
 import Link from "next/link";
 import type { ReactElement } from "react";
-import type { AudienceSourceRequest } from "@pte/api-client";
 import { Input, Select } from "@pte/ui";
-import { CREATE_EXAM_WIZARD_TEXT } from "../../constants";
-import type { CreateExamWorkflowInput } from "../../types";
-import type { CreateExamAudienceOption } from "../../hooks/useCreateExamAudience";
+import { AUDIENCE_FILTER_ALL, AUDIENCE_FILTER_NO_CLASS, CREATE_EXAM_WIZARD_TEXT } from "../../constants";
+import type {
+  CreateExamAudienceOption,
+  CreateExamAudienceStudent,
+} from "../../hooks/useCreateExamAudience";
 import type { CreateExamWorkflowErrors } from "../../utils/validateCreateExamWorkflow";
 
 type WizardText = typeof CREATE_EXAM_WIZARD_TEXT;
-type SourceTypeOption = { value: AudienceSourceRequest["sourceType"]; label: string };
 
 export interface AudienceStepProps {
-  sources: readonly CreateExamWorkflowInput["sources"][number][];
   errors: CreateExamWorkflowErrors;
   wizardText: WizardText;
-  localizedSourceTypeOptions: SourceTypeOption[];
-  sourceType: AudienceSourceRequest["sourceType"];
-  sourcePublicId: string;
-  sourceSearch: string;
-  sourceOptions: CreateExamAudienceOption[];
-  sourceLabels: ReadonlyMap<string, string>;
-  sourceTypeLabels: ReadonlyMap<string, string>;
-  sourceLoading: boolean;
-  onSourceTypeChange: (sourceType: AudienceSourceRequest["sourceType"]) => void;
-  onSourcePublicIdChange: (sourcePublicId: string) => void;
-  onSourceSearchChange: (sourceSearch: string) => void;
-  addSource: () => void;
-  removeSource: (index: number) => void;
+  search: string;
+  programFilter: string;
+  classFilter: string;
+  programOptions: CreateExamAudienceOption[];
+  classOptions: CreateExamAudienceOption[];
+  students: CreateExamAudienceStudent[];
+  selectedIds: ReadonlySet<string>;
+  selectedInFilterCount: number;
+  loading: boolean;
+  onSearchChange: (search: string) => void;
+  onProgramFilterChange: (programPublicId: string) => void;
+  onClassFilterChange: (classPublicId: string) => void;
+  toggleStudent: (studentPublicId: string) => void;
+  toggleAllFiltered: () => void;
+  clearSelection: () => void;
   localizeError: (message?: string) => string | undefined;
 }
 
+function fillTemplate(template: string, values: Record<string, number>): string {
+  return Object.entries(values).reduce(
+    (text, [key, value]) => text.replace(`{${key}}`, String(value)),
+    template,
+  );
+}
+
 export function AudienceStep({
-  sources,
   errors,
   wizardText,
-  localizedSourceTypeOptions,
-  sourceType,
-  sourcePublicId,
-  sourceSearch,
-  sourceOptions,
-  sourceLabels,
-  sourceTypeLabels,
-  sourceLoading,
-  onSourceTypeChange,
-  onSourcePublicIdChange,
-  onSourceSearchChange,
-  addSource,
-  removeSource,
+  search,
+  programFilter,
+  classFilter,
+  programOptions,
+  classOptions,
+  students,
+  selectedIds,
+  selectedInFilterCount,
+  loading,
+  onSearchChange,
+  onProgramFilterChange,
+  onClassFilterChange,
+  toggleStudent,
+  toggleAllFiltered,
+  clearSelection,
   localizeError,
 }: AudienceStepProps): ReactElement {
+  const allSelected = students.length > 0 && selectedInFilterCount === students.length;
+  const someSelected = selectedInFilterCount > 0 && !allSelected;
+  const programSelectOptions = [
+    { value: AUDIENCE_FILTER_ALL, label: wizardText.FILTER_ALL_PROGRAMS },
+    ...programOptions,
+  ];
+  const classSelectOptions = [
+    { value: AUDIENCE_FILTER_ALL, label: wizardText.FILTER_ALL_CLASSES },
+    { value: AUDIENCE_FILTER_NO_CLASS, label: wizardText.FILTER_NO_CLASS },
+    ...classOptions,
+  ];
+
   return (
     <>
       <div className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)]">
@@ -59,83 +80,115 @@ export function AudienceStep({
           <div className="text-sm font-semibold text-[var(--ink-primary)]">
             {wizardText.SOURCES_TITLE}
           </div>
-          {sourceType === "CLASS" && (
-            <Link
-              href="/host/programs"
-              className="text-xs font-medium text-[var(--brand-ink)] hover:underline"
-            >
-              {wizardText.MANAGE_CLASSES}
-            </Link>
-          )}
+          <Link
+            href="/host/programs"
+            className="text-xs font-medium text-[var(--brand-ink)] hover:underline"
+          >
+            {wizardText.MANAGE_CLASSES}
+          </Link>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-3">
           <Select
-            label={wizardText.SOURCE_TYPE_LABEL}
-            value={sourceType}
-            onChange={(event) =>
-              onSourceTypeChange(event.target.value as AudienceSourceRequest["sourceType"])
-            }
-            options={localizedSourceTypeOptions}
+            label={wizardText.FILTER_PROGRAM_LABEL}
+            value={programFilter}
+            onChange={(event) => onProgramFilterChange(event.target.value)}
+            options={programSelectOptions}
+          />
+          <Select
+            label={wizardText.FILTER_CLASS_LABEL}
+            value={classFilter}
+            onChange={(event) => onClassFilterChange(event.target.value)}
+            options={classSelectOptions}
           />
           <Input
             label={wizardText.SOURCE_SEARCH_LABEL}
             placeholder={wizardText.SOURCE_SEARCH_PLACEHOLDER}
-            value={sourceSearch}
-            onChange={(event) => onSourceSearchChange(event.target.value)}
+            value={search}
+            onChange={(event) => onSearchChange(event.target.value)}
           />
         </div>
-        <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
-          <Select
-            label={wizardText.SOURCE_OPTION_LABEL}
-            placeholder={
-              sourceLoading
-                ? wizardText.SOURCE_LOADING
-                : sourceOptions.length === 0
-                  ? wizardText.SOURCE_EMPTY
-                  : wizardText.SOURCE_PLACEHOLDER
-            }
-            value={sourcePublicId}
-            disabled={sourceLoading || sourceOptions.length === 0}
-            onChange={(event) => onSourcePublicIdChange(event.target.value)}
-            options={sourceOptions}
-          />
-          <button
-            type="button"
-            onClick={addSource}
-            disabled={!sourcePublicId}
-            className="rounded-lg border border-action px-3 py-2.5 text-sm font-medium text-action transition-colors hover:bg-[var(--action-tint)] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {wizardText.ADD_SOURCE}
-          </button>
+
+        <div className="mt-3 overflow-hidden rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)]">
+          <label className="flex cursor-pointer items-center gap-3 border-b border-[var(--shell-border)] px-3 py-2.5 text-sm font-medium text-[var(--ink-primary)]">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              ref={(element) => {
+                if (element) element.indeterminate = someSelected;
+              }}
+              disabled={loading || students.length === 0}
+              onChange={toggleAllFiltered}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="flex-1">{wizardText.SELECT_ALL_FILTERED}</span>
+            <span className="text-xs font-normal text-[var(--ink-muted)]">
+              {fillTemplate(wizardText.SELECTED_IN_LIST, {
+                selected: selectedInFilterCount,
+                total: students.length,
+              })}
+            </span>
+          </label>
+          <div className="max-h-72 overflow-y-auto">
+            {loading ? (
+              <p className="px-4 py-8 text-center text-sm text-[var(--ink-muted)]">
+                {wizardText.SOURCE_LOADING}
+              </p>
+            ) : students.length === 0 ? (
+              <p className="px-4 py-8 text-center text-sm text-[var(--ink-muted)]">
+                {wizardText.SOURCE_EMPTY}
+              </p>
+            ) : (
+              <ul className="divide-y divide-[var(--shell-border)]">
+                {students.map((student) => (
+                  <li key={student.publicId}>
+                    <label className="flex cursor-pointer items-start gap-3 px-3 py-2.5 hover:bg-[var(--surface-subtle)]">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(student.publicId)}
+                        onChange={() => toggleStudent(student.publicId)}
+                        aria-label={`${wizardText.SELECT_STUDENT}: ${student.fullName}`}
+                        className="mt-1 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-medium text-[var(--ink-primary)]">
+                          {student.fullName}
+                        </span>
+                        <span className="block truncate text-xs text-[var(--ink-muted)]">
+                          {student.contact}
+                        </span>
+                      </span>
+                      <span className="shrink-0 text-right text-xs text-[var(--ink-secondary)]">
+                        {student.group
+                          ? `${student.group.className} · ${student.group.programName}`
+                          : wizardText.NO_CLASS_BADGE}
+                      </span>
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
+
         {errors.sources && (
           <p className="mt-2 text-sm text-[var(--blush-action)]">{localizeError(errors.sources)}</p>
         )}
-        {sources.length === 0 ? (
-          <p className="mt-3 text-sm text-[var(--ink-muted)]">{wizardText.NO_SOURCES}</p>
-        ) : (
-          <ul className="mt-3 flex flex-col gap-2">
-            {sources.map((source, index) => (
-              <li
-                key={`${source.sourceType}-${source.sourcePublicId}`}
-                className="flex items-center justify-between rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] px-3 py-2 text-sm"
-              >
-                <span className="text-[var(--ink-primary)]">
-                  {sourceTypeLabels.get(source.sourceType) ?? source.sourceType}:{" "}
-                  {sourceLabels.get(`${source.sourceType}:${source.sourcePublicId}`) ??
-                    source.sourcePublicId}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => removeSource(index)}
-                  className="text-[var(--blush-action)] hover:underline"
-                >
-                  {wizardText.REMOVE_SOURCE}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="mt-3 flex items-center justify-between gap-3 text-sm">
+          <span className="text-[var(--ink-primary)]">
+            {selectedIds.size === 0
+              ? wizardText.NO_SOURCES
+              : fillTemplate(wizardText.SELECTED_TOTAL, { count: selectedIds.size })}
+          </span>
+          {selectedIds.size > 0 && (
+            <button
+              type="button"
+              onClick={clearSelection}
+              className="text-[var(--blush-action)] hover:underline"
+            >
+              {wizardText.CLEAR_SELECTION}
+            </button>
+          )}
+        </div>
       </div>
     </>
   );
