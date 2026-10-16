@@ -2,11 +2,9 @@
 
 import { useEffect, useMemo, useState, type ReactElement } from "react";
 import type {
-  AssignmentScopeType,
   CreateExaminerAssignmentPreviewRequest,
   ExaminerAssignmentOverviewResponse,
   ExaminerAssignmentMode,
-  ExaminerAssignmentScopeRequest,
   UserResponse,
 } from "@pte/api-client";
 import {
@@ -20,11 +18,12 @@ import {
   useToast,
   type DataTableColumn,
 } from "@pte/ui";
-import { useAllTenantClasses, type TenantClassOption } from "@/features/classes/api";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
 import { EXAMINER_ASSIGNMENT_TEXT as T, SESSION_DETAIL_TEXT } from "../constants";
+import { AssignStudentsToExaminerModal, type PickedStudent } from "./AssignStudentsToExaminerModal";
+import { ExaminerCards, StudentChips, type ExaminerCardDraft } from "./ExaminerAssignmentCards";
 import {
   useActiveExaminers,
   useConfirmExaminerAssignmentPreview,
@@ -36,14 +35,9 @@ interface ExaminerAssignmentSectionProps {
   sessionPublicId: string;
 }
 
-interface ScopeDraft {
-  key: string;
-  type: AssignmentScopeType;
-  scopePublicId: string;
-  examinerPublicId: string;
-}
+/** Where the student picker was opened from: the shared Random pool or one Manual Examiner card. */
+type PickerTarget = { kind: "pool" } | { kind: "card"; cardKey: string };
 
-const EMPTY_CLASSES: TenantClassOption[] = [];
 const EMPTY_USERS: UserResponse[] = [];
 type AssignmentBatch = ExaminerAssignmentOverviewResponse["batches"][number];
 
@@ -62,21 +56,8 @@ function formatDate(value: string | null, locale: "vi" | "en"): string {
       }).format(date);
 }
 
-function scopeLabel(
-  type: AssignmentScopeType,
-  publicId: string,
-  classes: TenantClassOption[],
-  labels: { classLabel: string; programLabel: string },
-): string {
-  if (type === "CLASS") {
-    const option = classes.find((item) => item.classPublicId === publicId);
-    return option ? `${labels.classLabel} ${option.className}` : `${labels.classLabel} ${publicId}`;
-  }
-  const option = classes.find((item) => item.programPublicId === publicId);
-  return option
-    ? `${labels.programLabel} ${option.programName}`
-    : `${labels.programLabel} ${publicId}`;
-}
+const newCardId = (): string =>
+  globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
 
 export const ExaminerAssignmentSection = ({
   sessionPublicId,
@@ -85,37 +66,42 @@ export const ExaminerAssignmentSection = ({
   const { showToast } = useToast();
   const searchText = useTenantSearchText("examinerBatches");
   const [mode, setMode] = useState<ExaminerAssignmentMode>("RANDOM");
-  const [scopes, setScopes] = useState<ScopeDraft[]>([]);
+  const [poolStudents, setPoolStudents] = useState<PickedStudent[]>([]);
+  const [cards, setCards] = useState<ExaminerCardDraft[]>([]);
+  const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
   const [selectedExaminerIds, setSelectedExaminerIds] = useState<string[]>([]);
   const [batchPage, setBatchPage] = useState(0);
   const [batchSearch, setBatchSearch] = useState("");
   const debouncedBatchSearch = useDebouncedSearch(batchSearch);
   const [currentTime, setCurrentTime] = useState(() => Date.now());
-  const classesQuery = useAllTenantClasses();
-  const classes = classesQuery.data ?? EMPTY_CLASSES;
   const examinersQuery = useActiveExaminers();
   const examiners = examinersQuery.data ?? EMPTY_USERS;
   const overview = useExaminerAssignmentOverview(sessionPublicId, batchPage, debouncedBatchSearch);
   const createPreview = useCreateExaminerAssignmentPreview(sessionPublicId);
   const confirmPreview = useConfirmExaminerAssignmentPreview(sessionPublicId);
-  const classesLoading = classesQuery.isLoading;
   const examinersLoading = examinersQuery.isLoading;
 
   const text = {
     mode: t("tenant.examinerAssignment.mode", T.MODE_LABEL),
     randomMode: t("tenant.examinerAssignment.randomMode", T.RANDOM_MODE),
     manualMode: t("tenant.examinerAssignment.manualMode", T.MANUAL_MODE),
-    scope: t("tenant.examinerAssignment.scope", T.SCOPE_LABEL),
-    classLabel: t("tenant.examinerAssignment.class", T.SCOPE_TYPE_CLASS),
-    programLabel: t("tenant.examinerAssignment.program", T.SCOPE_TYPE_PROGRAM),
-    scopePlaceholder: t("tenant.examinerAssignment.scopePlaceholder", T.SCOPE_PLACEHOLDER),
-    addScope: t("tenant.examinerAssignment.addScope", T.ADD_SCOPE),
+    studentLabel: t("tenant.examinerAssignment.student", T.SCOPE_TYPE_STUDENT),
+    addStudents: t("tenant.examinerAssignment.addStudents", T.ADD_STUDENTS),
+    addExaminer: t("tenant.examinerAssignment.addExaminer", T.ADD_EXAMINER),
+    studentsModalTitle: t("tenant.examinerAssignment.studentsModalTitle", T.STUDENTS_MODAL_TITLE),
+    studentsModalAdd: t("tenant.examinerAssignment.studentsModalAdd", T.STUDENTS_MODAL_ADD),
+    studentsModalCancel: t("tenant.examinerAssignment.studentsModalCancel", T.STUDENTS_MODAL_CANCEL),
+    studentsModalHint: t("tenant.examinerAssignment.studentsModalHint", T.STUDENTS_MODAL_HINT),
+    studentsPool: t("tenant.examinerAssignment.studentsPool", T.STUDENTS_POOL),
+    cardNoStudents: t("tenant.examinerAssignment.cardNoStudents", T.CARD_NO_STUDENTS),
+    manualEmpty: t("tenant.examinerAssignment.manualEmpty", T.MANUAL_EMPTY),
+    studentsCount: (count: number) =>
+      t("tenant.examinerAssignment.studentsCount", T.STUDENTS_COUNT, { count }),
     remove: t("tenant.examinerAssignment.remove", T.REMOVE_SCOPE),
     examiners: t("tenant.examinerAssignment.examiners", T.EXAMINERS_LABEL),
     examiner: t("tenant.examinerAssignment.examiner", T.EXAMINER_LABEL),
     examinerPlaceholder: t("tenant.examinerAssignment.examinerPlaceholder", T.EXAMINER_PLACEHOLDER),
     noExaminers: t("tenant.examinerAssignment.noExaminers", T.NO_EXAMINERS),
-    noActiveScopes: t("tenant.examinerAssignment.noActiveScopes", T.NO_ACTIVE_SCOPES),
     noScopes: t("tenant.examinerAssignment.noScopes", T.NO_SCOPES),
     loading: t("tenant.examinerAssignment.loading", "Loading..."),
     preview: t("tenant.examinerAssignment.preview", T.PREVIEW),
@@ -149,10 +135,6 @@ export const ExaminerAssignmentSection = ({
     staleStatus: t("tenant.examinerAssignment.staleStatus", "Stale"),
     invalidStatus: t("tenant.examinerAssignment.invalid", "Invalid"),
   };
-  const scopeTypes: { value: AssignmentScopeType; label: string }[] = [
-    { value: "CLASS", label: text.classLabel },
-    { value: "PROGRAM", label: text.programLabel },
-  ];
   const batchStatusFilterOptions = [
     { value: "", label: text.allStatuses },
     { value: "PREVIEWED", label: text.previewedStatus },
@@ -174,54 +156,120 @@ export const ExaminerAssignmentSection = ({
     confirmPreview.reset();
   };
 
-  const activeClasses = useMemo(
-    () => classes.filter((item) => item.status === "ACTIVE"),
-    [classes],
+  const examinerOptions = useMemo(
+    () => examiners.map((examiner) => ({ value: examiner.publicId, label: examinerName(examiner) })),
+    [examiners],
   );
-  const programs = useMemo(() => {
-    const unique = new Map<string, { publicId: string; name: string }>();
-    activeClasses.forEach((item) => {
-      unique.set(item.programPublicId, { publicId: item.programPublicId, name: item.programName });
-    });
-    return [...unique.values()].sort((left, right) => left.name.localeCompare(right.name));
-  }, [activeClasses]);
+  const studentNames = useMemo(
+    () =>
+      new Map(
+        [...poolStudents, ...cards.flatMap((card) => card.students)].map(
+          (student) => [student.publicId, student.fullName] as const,
+        ),
+      ),
+    [poolStudents, cards],
+  );
+  const pickedStudentIds = useMemo(
+    () =>
+      new Set(
+        (mode === "RANDOM" ? poolStudents : cards.flatMap((card) => card.students)).map(
+          (student) => student.publicId,
+        ),
+      ),
+    [mode, poolStudents, cards],
+  );
 
-  const updateScope = (key: string, patch: Partial<ScopeDraft>): void => {
+  const addExaminerCard = (): void => {
     resetAssignmentFeedback();
-    setScopes((previous) =>
-      previous.map((scope) =>
-        scope.key === key
-          ? { ...scope, ...patch, ...(patch.type ? { scopePublicId: "" } : {}) }
-          : scope,
+    setCards((previous) => [
+      ...previous,
+      { key: newCardId(), examinerPublicId: "", students: [] },
+    ]);
+  };
+  const changeCardExaminer = (cardKey: string, examinerPublicId: string): void => {
+    resetAssignmentFeedback();
+    setCards((previous) =>
+      previous.map((card) => (card.key === cardKey ? { ...card, examinerPublicId } : card)),
+    );
+  };
+  const removeCard = (cardKey: string): void => {
+    resetAssignmentFeedback();
+    setCards((previous) => previous.filter((card) => card.key !== cardKey));
+  };
+  const removeCardStudent = (cardKey: string, studentPublicId: string): void => {
+    resetAssignmentFeedback();
+    setCards((previous) =>
+      previous.map((card) =>
+        card.key === cardKey
+          ? { ...card, students: card.students.filter((s) => s.publicId !== studentPublicId) }
+          : card,
+      ),
+    );
+  };
+  const removePoolStudent = (studentPublicId: string): void => {
+    resetAssignmentFeedback();
+    setPoolStudents((previous) => previous.filter((s) => s.publicId !== studentPublicId));
+  };
+  const addPickedStudents = (students: PickedStudent[]): void => {
+    if (!pickerTarget) return;
+    resetAssignmentFeedback();
+    if (pickerTarget.kind === "pool") {
+      setPoolStudents((previous) => [...previous, ...students]);
+      return;
+    }
+    setCards((previous) =>
+      previous.map((card) =>
+        card.key === pickerTarget.cardKey
+          ? { ...card, students: [...card.students, ...students] }
+          : card,
       ),
     );
   };
 
+  const pickerExaminerId =
+    pickerTarget?.kind === "card"
+      ? cards.find((card) => card.key === pickerTarget.cardKey)?.examinerPublicId
+      : undefined;
+  const pickerExaminerLabel = examinerOptions.find(
+    (option) => option.value === pickerExaminerId,
+  )?.label;
+  const pickerTitle = pickerExaminerLabel
+    ? t("tenant.examinerAssignment.studentsModalTitleFor", T.STUDENTS_MODAL_TITLE_FOR, {
+        examiner: pickerExaminerLabel,
+      })
+    : text.studentsModalTitle;
+
   const canPreview =
-    scopes.length > 0 &&
-    !classesQuery.isLoading &&
-    !classesQuery.isError &&
     !examinersQuery.isLoading &&
     !examinersQuery.isError &&
-    scopes.every(
-      (scope) =>
-        scope.scopePublicId.length > 0 && (mode === "RANDOM" || scope.examinerPublicId.length > 0),
-    ) &&
-    (mode !== "RANDOM" || selectedExaminerIds.length > 0) &&
-    !createPreview.isPending;
+    !createPreview.isPending &&
+    (mode === "RANDOM"
+      ? poolStudents.length > 0 && selectedExaminerIds.length > 0
+      : cards.length > 0 &&
+        cards.every((card) => card.examinerPublicId.length > 0 && card.students.length > 0));
 
-  const createRequest = (): CreateExaminerAssignmentPreviewRequest => {
-    const scopeRequests: ExaminerAssignmentScopeRequest[] = scopes.map((scope) => ({
-      type: scope.type,
-      scopePublicId: scope.scopePublicId,
-      examinerPublicId: mode === "MANUAL" ? scope.examinerPublicId : null,
-    }));
-    return {
-      mode,
-      scopes: scopeRequests,
-      examinerPublicIds: mode === "RANDOM" ? selectedExaminerIds : [],
-    };
-  };
+  const createRequest = (): CreateExaminerAssignmentPreviewRequest =>
+    mode === "RANDOM"
+      ? {
+          mode,
+          scopes: poolStudents.map((student) => ({
+            type: "STUDENT" as const,
+            scopePublicId: student.publicId,
+            examinerPublicId: null,
+          })),
+          examinerPublicIds: selectedExaminerIds,
+        }
+      : {
+          mode,
+          scopes: cards.flatMap((card) =>
+            card.students.map((student) => ({
+              type: "STUDENT" as const,
+              scopePublicId: student.publicId,
+              examinerPublicId: card.examinerPublicId,
+            })),
+          ),
+          examinerPublicIds: [],
+        };
 
   const toggleExaminer = (publicId: string): void => {
     resetAssignmentFeedback();
@@ -235,7 +283,6 @@ export const ExaminerAssignmentSection = ({
   const previewError = errorMessage(createPreview.error);
   const confirmError = errorMessage(confirmPreview.error);
   const overviewError = errorMessage(overview.error);
-  const classesError = errorMessage(classesQuery.error);
   const examinersError = errorMessage(examinersQuery.error);
   const preview = createPreview.data;
   const previewExpiryTimestamps = [
@@ -335,7 +382,6 @@ export const ExaminerAssignmentSection = ({
       className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5"
       contentClassName="flex flex-col gap-5"
     >
-      {classesQuery.isError && <Alert tone="error">{classesError}</Alert>}
       {examinersQuery.isError && <Alert tone="error">{examinersError}</Alert>}
       {overviewError && <Alert tone="error">{overviewError}</Alert>}
       {previewError && <Alert tone="error">{previewError}</Alert>}
@@ -358,144 +404,95 @@ export const ExaminerAssignmentSection = ({
           />
         </div>
 
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center justify-between gap-3">
-            <h4 className="text-sm font-semibold text-[var(--ink-primary)]">{text.scope}</h4>
+        {mode === "RANDOM" ? (
+          <>
+            <div className="flex flex-col gap-3 rounded-md border border-[var(--shell-border)] p-3">
+              <div className="flex items-center justify-between gap-3">
+                <h4 className="text-sm font-semibold text-[var(--ink-primary)]">
+                  {text.studentsPool}
+                </h4>
+                <span className="text-sm text-[var(--ink-secondary)]">
+                  {text.studentsCount(poolStudents.length)}
+                </span>
+              </div>
+              {poolStudents.length === 0 ? (
+                <p className="text-sm text-[var(--ink-secondary)]">{text.noScopes}</p>
+              ) : (
+                <StudentChips
+                  students={poolStudents}
+                  removeLabel={text.remove}
+                  onRemove={removePoolStudent}
+                />
+              )}
+              <button
+                type="button"
+                onClick={() => setPickerTarget({ kind: "pool" })}
+                className="self-start rounded-lg border border-[var(--shell-border)] px-3 py-1.5 text-sm text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)]"
+              >
+                + {text.addStudents}
+              </button>
+            </div>
+
+            <fieldset className="flex flex-col gap-2 rounded-md border border-[var(--shell-border)] p-3">
+              <legend className="px-1 text-sm font-semibold text-[var(--ink-primary)]">
+                {text.examiners}
+              </legend>
+              {examinersLoading ? (
+                <p className="text-sm text-[var(--ink-secondary)]">{text.loading}</p>
+              ) : examinersQuery.isError ? (
+                <p className="text-sm text-red-700">{examinersError}</p>
+              ) : examiners.length === 0 ? (
+                <p className="text-sm text-[var(--ink-secondary)]">{text.noExaminers}</p>
+              ) : (
+                examiners.map((examiner) => (
+                  <label
+                    key={examiner.publicId}
+                    className="flex items-center gap-2 text-sm text-[var(--ink-primary)]"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedExaminerIds.includes(examiner.publicId)}
+                      onChange={() => toggleExaminer(examiner.publicId)}
+                    />
+                    {examinerName(examiner)}
+                  </label>
+                ))
+              )}
+            </fieldset>
+          </>
+        ) : (
+          <div className="flex flex-col gap-3">
+            {cards.length === 0 && (
+              <p className="text-sm text-[var(--ink-secondary)]">{text.manualEmpty}</p>
+            )}
+            {!examinersLoading && !examinersQuery.isError && examiners.length === 0 && (
+              <p className="text-sm text-[var(--ink-secondary)]">{text.noExaminers}</p>
+            )}
+            <ExaminerCards
+              cards={cards}
+              examinerOptions={examinerOptions}
+              labels={{
+                examiner: text.examiner,
+                examinerPlaceholder: text.examinerPlaceholder,
+                addStudents: text.addStudents,
+                noStudents: text.cardNoStudents,
+                remove: text.remove,
+                count: text.studentsCount,
+              }}
+              onExaminerChange={changeCardExaminer}
+              onAddStudents={(cardKey) => setPickerTarget({ kind: "card", cardKey })}
+              onRemoveStudent={removeCardStudent}
+              onRemoveCard={removeCard}
+            />
             <button
               type="button"
-              onClick={() => {
-                resetAssignmentFeedback();
-                setScopes((previous) => [
-                  ...previous,
-                  {
-                    key: globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${previous.length}`,
-                    type: "CLASS",
-                    scopePublicId: "",
-                    examinerPublicId: "",
-                  },
-                ]);
-              }}
-              className="rounded-lg border border-[var(--shell-border)] px-3 py-1.5 text-sm text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)]"
+              disabled={examinersLoading || cards.length >= examiners.length}
+              onClick={addExaminerCard}
+              className="self-start rounded-lg border border-[var(--shell-border)] px-3 py-1.5 text-sm text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              + {text.addScope}
+              + {text.addExaminer}
             </button>
           </div>
-
-          {scopes.length === 0 && (
-            <p className="text-sm text-[var(--ink-secondary)]">{text.noScopes}</p>
-          )}
-          {scopes.length === 0 &&
-            !classesLoading &&
-            !classesQuery.isError &&
-            activeClasses.length === 0 && (
-              <p className="text-sm text-[var(--ink-secondary)]">{text.noActiveScopes}</p>
-            )}
-          {scopes.map((scope) => {
-            const selectedKeys = new Set(
-              scopes
-                .filter((item) => item.key !== scope.key)
-                .map((item) => `${item.type}:${item.scopePublicId}`),
-            );
-            const options =
-              scope.type === "CLASS"
-                ? activeClasses.map((item) => ({
-                    publicId: item.classPublicId,
-                    label: `${item.className} — ${item.programName}`,
-                  }))
-                : programs.map((item) => ({ publicId: item.publicId, label: item.name }));
-            return (
-              <div
-                key={scope.key}
-                className="grid gap-3 rounded-md border border-[var(--shell-border)] p-3 md:grid-cols-[150px_1fr_1fr_auto]"
-              >
-                <Select
-                  id={`scope-type-${scope.key}`}
-                  label={`${text.classLabel} / ${text.programLabel}`}
-                  value={scope.type}
-                  onChange={(event) =>
-                    updateScope(scope.key, {
-                      type: event.target.value as AssignmentScopeType,
-                    })
-                  }
-                  options={scopeTypes}
-                />
-                <Select
-                  id={`scope-value-${scope.key}`}
-                  label={text.scope}
-                  value={scope.scopePublicId}
-                  onChange={(event) =>
-                    updateScope(scope.key, { scopePublicId: event.target.value })
-                  }
-                  disabled={classesLoading || classesQuery.isError}
-                  placeholder={classesLoading ? text.loading : text.scopePlaceholder}
-                  options={options
-                    .filter(
-                      (option) =>
-                        !selectedKeys.has(`${scope.type}:${option.publicId}`) ||
-                        option.publicId === scope.scopePublicId,
-                    )
-                    .map((option) => ({ value: option.publicId, label: option.label }))}
-                />
-                {mode === "MANUAL" ? (
-                  <Select
-                    id={`scope-examiner-${scope.key}`}
-                    label={text.examiner}
-                    value={scope.examinerPublicId}
-                    onChange={(event) =>
-                      updateScope(scope.key, { examinerPublicId: event.target.value })
-                    }
-                    disabled={examinersLoading || examinersQuery.isError || examiners.length === 0}
-                    placeholder={text.examinerPlaceholder}
-                    options={examiners.map((examiner) => ({
-                      value: examiner.publicId,
-                      label: examinerName(examiner),
-                    }))}
-                  />
-                ) : (
-                  <div />
-                )}
-                <button
-                  type="button"
-                  onClick={() => {
-                    resetAssignmentFeedback();
-                    setScopes((previous) => previous.filter((item) => item.key !== scope.key));
-                  }}
-                  className="self-end rounded-md px-2 py-2 text-sm text-red-700 hover:bg-red-50"
-                >
-                  {text.remove}
-                </button>
-              </div>
-            );
-          })}
-        </div>
-
-        {mode === "RANDOM" && (
-          <fieldset className="flex flex-col gap-2 rounded-md border border-[var(--shell-border)] p-3">
-            <legend className="px-1 text-sm font-semibold text-[var(--ink-primary)]">
-              {text.examiners}
-            </legend>
-            {examinersLoading ? (
-              <p className="text-sm text-[var(--ink-secondary)]">{text.loading}</p>
-            ) : examinersQuery.isError ? (
-              <p className="text-sm text-red-700">{examinersError}</p>
-            ) : examiners.length === 0 ? (
-              <p className="text-sm text-[var(--ink-secondary)]">{text.noExaminers}</p>
-            ) : (
-              examiners.map((examiner) => (
-                <label
-                  key={examiner.publicId}
-                  className="flex items-center gap-2 text-sm text-[var(--ink-primary)]"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedExaminerIds.includes(examiner.publicId)}
-                    onChange={() => toggleExaminer(examiner.publicId)}
-                  />
-                  {examinerName(examiner)}
-                </label>
-              ))
-            )}
-          </fieldset>
         )}
 
         <button
@@ -559,11 +556,9 @@ export const ExaminerAssignmentSection = ({
                   <p>
                     {text.conflictingScopes}:{" "}
                     {conflict.conflictingScopes
-                      .map((scope) =>
-                        scopeLabel(scope.type, scope.scopePublicId, classes, {
-                          classLabel: text.classLabel,
-                          programLabel: text.programLabel,
-                        }),
+                      .map(
+                        (scope) =>
+                          `${text.studentLabel} ${studentNames.get(scope.scopePublicId) ?? scope.scopePublicId}`,
                       )
                       .join(", ")}
                   </p>
@@ -658,6 +653,19 @@ export const ExaminerAssignmentSection = ({
         loads={overview.isError ? [] : (overview.data?.committedExaminerLoads ?? [])}
         examiners={examiners}
         labels={text}
+      />
+      <AssignStudentsToExaminerModal
+        open={pickerTarget !== null}
+        onClose={() => setPickerTarget(null)}
+        sessionPublicId={sessionPublicId}
+        title={pickerTitle}
+        labels={{
+          hint: text.studentsModalHint,
+          add: text.studentsModalAdd,
+          cancel: text.studentsModalCancel,
+        }}
+        excludedStudentIds={pickedStudentIds}
+        onAdd={addPickedStudents}
       />
     </CollapsibleSection>
   );
