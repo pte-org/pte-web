@@ -12,7 +12,6 @@ import {
   CREATE_EXAM_WIZARD_ERRORS,
   CREATE_EXAM_WIZARD_TEXT as DEFAULT_CREATE_EXAM_WIZARD_TEXT,
   EXAM_SKILL_OPTIONS,
-  REUSE_POLICY_OPTIONS,
 } from "../constants";
 import type { CreateExamWorkflowInput, ExamSkill } from "../types";
 import {
@@ -79,21 +78,6 @@ export function useCreateExamWizardViewModel({
         label: t(`tenant.createExam.skill.${option.value}`, option.label),
       })),
     [t],
-  );
-  const localizedReusePolicyOptions = useMemo(
-    () =>
-      REUSE_POLICY_OPTIONS.map((option) => ({
-        ...option,
-        label:
-          option.value === "ALLOW"
-            ? wizardText.REUSE_ALLOW
-            : option.value === "EXCLUDE_STARTED_IN_SERIES"
-              ? wizardText.REUSE_STARTED
-              : option.value === "EXCLUDE_ASSIGNED_IN_SERIES"
-                ? wizardText.REUSE_ASSIGNED
-                : wizardText.REUSE_OVERLAP,
-      })),
-    [wizardText],
   );
   const localizeError = useCallback(
     (message?: string): string | undefined => {
@@ -174,7 +158,6 @@ export function useCreateExamWizardViewModel({
     wizardText,
     localizedSkillOptions,
     templateSkills,
-    localizedReusePolicyOptions,
     audienceCount: sources.length,
   };
 

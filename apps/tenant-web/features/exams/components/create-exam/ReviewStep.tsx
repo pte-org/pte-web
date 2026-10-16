@@ -5,7 +5,6 @@ import type { CreateExamWorkflowInput, ExamSkill } from "../../types";
 
 type WizardText = typeof CREATE_EXAM_WIZARD_TEXT;
 type SkillOption = { value: ExamSkill; label: string };
-type ReusePolicyOption = { value: CreateExamWorkflowInput["reusePolicy"]; label: string };
 
 export interface ReviewStepProps {
   form: CreateExamWorkflowInput;
@@ -13,7 +12,6 @@ export interface ReviewStepProps {
   wizardText: WizardText;
   localizedSkillOptions: readonly SkillOption[];
   templateSkills: readonly ExamSkill[];
-  localizedReusePolicyOptions: readonly ReusePolicyOption[];
   audienceCount: number;
 }
 
@@ -23,7 +21,6 @@ export function ReviewStep({
   wizardText,
   localizedSkillOptions,
   templateSkills,
-  localizedReusePolicyOptions,
   audienceCount,
 }: ReviewStepProps): ReactElement {
   return (
@@ -41,10 +38,6 @@ export function ReviewStep({
             <dd>{activeTemplate?.name ?? wizardText.EMPTY_VALUE}</dd>
           </div>
           <div>
-            <dt className="font-medium">{wizardText.REVIEW_SECURITY_POLICY}</dt>
-            <dd>{wizardText.POLICY_OFFICIAL_STRICT}</dd>
-          </div>
-          <div>
             <dt className="font-medium">{wizardText.REVIEW_SKILLS}</dt>
             <dd>
               {templateSkills
@@ -58,15 +51,6 @@ export function ReviewStep({
           <div>
             <dt className="font-medium">{wizardText.REVIEW_AUDIENCE}</dt>
             <dd>{audienceCount}</dd>
-          </div>
-          <div>
-            <dt className="font-medium">{wizardText.REVIEW_RULE}</dt>
-            <dd>
-              {
-                localizedReusePolicyOptions.find((option) => option.value === form.reusePolicy)
-                  ?.label
-              }
-            </dd>
           </div>
           <div>
             <dt className="font-medium">{wizardText.REVIEW_CAPACITY}</dt>
