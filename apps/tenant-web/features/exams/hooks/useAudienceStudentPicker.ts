@@ -28,6 +28,8 @@ export interface UseAudienceStudentPickerOptions {
   onSourcesChange: (nextSources: AudienceSourceRequest[]) => void;
   /** Students hidden from the list, e.g. those already enrolled in the exam. */
   excludedStudentIds?: ReadonlySet<string>;
+  /** When set, only these students are listed, e.g. those enrolled in the exam. */
+  allowedStudentIds?: ReadonlySet<string>;
 }
 
 export interface UseAudienceStudentPickerResult {
@@ -56,6 +58,7 @@ export function useAudienceStudentPicker({
   sources,
   onSourcesChange,
   excludedStudentIds,
+  allowedStudentIds,
 }: UseAudienceStudentPickerOptions): UseAudienceStudentPickerResult {
   const [search, setSearch] = useState("");
   const [programFilter, setProgramFilter] = useState(AUDIENCE_FILTER_ALL);
@@ -109,6 +112,7 @@ export function useAudienceStudentPicker({
         .filter((student) => student.status === "ACTIVE")
         .flatMap((student) => {
           if (excludedStudentIds?.has(student.publicId)) return [];
+          if (allowedStudentIds && !allowedStudentIds.has(student.publicId)) return [];
           const membership = membershipByStudent.get(student.publicId);
           if (programFilter !== AUDIENCE_FILTER_ALL && membership?.programPublicId !== programFilter) {
             return [];
@@ -139,6 +143,7 @@ export function useAudienceStudentPicker({
         })
         .sort((left, right) => left.fullName.localeCompare(right.fullName)),
     [
+      allowedStudentIds,
       classFilter,
       excludedStudentIds,
       membershipByStudent,
