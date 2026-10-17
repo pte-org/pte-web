@@ -81,6 +81,13 @@ export const EXISTING_STUDENT_ASSIGNMENT_TEXT = {
   TOTAL_ITEMS: (count: number) => `${count} student(s) found`,
 } as const;
 
+export const ENROLLMENT_CONFLICT_TEXT = {
+  TITLE: "Some students were not added",
+  SUMMARY: (count: number) => `${count} student(s) already have an overlapping exam.`,
+  STUDENT: (student: string, session: string) => `${student} — overlaps with “${session}”`,
+  MORE: (count: number) => `...and ${count} more conflict(s).`,
+} as const;
+
 export const EXISTING_STUDENT_IMPORT_TEXT = {
   TITLE: "Import existing students",
   HELPER:

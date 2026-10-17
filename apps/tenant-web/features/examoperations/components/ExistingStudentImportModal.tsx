@@ -17,6 +17,7 @@ import { RosterDropzone } from "./_RosterDropzone";
 import { RosterColumnWarnings } from "./RosterColumnWarnings";
 import { RosterTemplateButton } from "./RosterTemplateButton";
 import { EXISTING_STUDENT_IMPORT_TEXT as T } from "./constants";
+import { EnrollmentConflictNotice } from "./EnrollmentConflictNotice";
 
 interface ExistingStudentImportModalProps {
   open: boolean;
@@ -139,7 +140,11 @@ export const ExistingStudentImportModal = ({
     if (!preview || preview.matched.length === 0) return;
     enroll.mutate(
       preview.matched.map(({ student }) => student.publicId),
-      { onSuccess: handleClose },
+      {
+        onSuccess: (response) => {
+          if (response.skippedByConflict.length === 0) handleClose();
+        },
+      },
     );
   };
 
@@ -184,6 +189,12 @@ export const ExistingStudentImportModal = ({
         {studentsQuery.error && <Alert tone="error">{T.LOAD_ERROR}</Alert>}
         {parseError && <Alert tone="error">{parseError}</Alert>}
         {!!enroll.error && <Alert tone="error">{errorMessage(enroll.error)}</Alert>}
+        <EnrollmentConflictNotice
+          conflicts={enroll.data?.skippedByConflict}
+          studentLabels={Object.fromEntries(
+            (preview?.matched ?? []).map(({ student }) => [student.publicId, student.fullName]),
+          )}
+        />
         <RosterColumnWarnings issues={columnIssues} />
 
         {!preview && (

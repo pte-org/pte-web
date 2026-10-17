@@ -7,6 +7,7 @@ import { useStudentRoster } from "@/features/studentSearch/api";
 import { errorMessage } from "../errorMessage";
 import { useEnrollExistingStudents, useSessionRoster } from "../api";
 import { EXISTING_STUDENT_ASSIGNMENT_TEXT } from "./constants";
+import { EnrollmentConflictNotice } from "./EnrollmentConflictNotice";
 
 interface ExistingStudentAssignmentModalProps {
   open: boolean;
@@ -91,7 +92,15 @@ export const ExistingStudentAssignmentModal = ({
 
   const handleSubmit = (): void => {
     if (selectedStudentIds.length === 0) return;
-    assignStudents.mutate(selectedStudentIds, { onSuccess: handleClose });
+    assignStudents.mutate(selectedStudentIds, {
+      onSuccess: (response) => {
+        if (response.skippedByConflict.length === 0) {
+          handleClose();
+          return;
+        }
+        setSelectedStudentIds(response.skippedByConflict.map((conflict) => conflict.studentPublicId));
+      },
+    });
   };
 
   return (
@@ -129,6 +138,12 @@ export const ExistingStudentAssignmentModal = ({
 
         {queryError && <Alert tone="error">{queryError || T.LOAD_ERROR}</Alert>}
         {assignError && <Alert tone="error">{assignError}</Alert>}
+        <EnrollmentConflictNotice
+          conflicts={assignStudents.data?.skippedByConflict}
+          studentLabels={Object.fromEntries(
+            availableStudents.map((student) => [student.studentPublicId, student.fullName]),
+          )}
+        />
 
         {isLoading ? (
           <LoadingState rows={4} />
