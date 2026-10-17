@@ -47,9 +47,9 @@ export const TenantManagementView = (): ReactElement => {
 
   const allTenants = tenants ?? [];
 
-  const confirmSuspend = (tenant: Tenant): void => {
+  const confirmSuspend = (tenant: Tenant, days?: number): void => {
     setLifecycleError(undefined);
-    suspend.mutate(tenant.id, {
+    suspend.mutate({ publicId: tenant.id, days }, {
       onSuccess: () => showToast(T.SUSPEND_SUCCESS, { tone: "success" }),
       onError: (error) => setLifecycleError(lifecycleErrorMessage(error)),
     });
@@ -122,6 +122,7 @@ export const TenantManagementView = (): ReactElement => {
         tenant={suspendTarget}
         onCancel={() => setSuspendTarget(null)}
         onConfirm={confirmSuspend}
+        isSubmitting={suspend.isPending}
       />
 
       <CreateTenantModal

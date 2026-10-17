@@ -17,6 +17,7 @@ import type {
 export const TENANTS_QUERY_KEY = ["tenants"] as const;
 export const SYSTEM_HEALTH_QUERY_KEY = ["systemHealth"] as const;
 export const TENANT_QUERY_KEY = ["tenant"] as const;
+export const TENANT_SUSPENSION_IMPACT_QUERY_KEY = ["tenantSuspensionImpact"] as const;
 export const ORGANIZATIONS_QUERY_KEY = ["organizations"] as const;
 export const LOGIN_ACCOUNT_QUERY_KEY = ["loginAccount"] as const;
 
@@ -102,10 +103,23 @@ export const SYSTEM_HEALTH_TEXT = {
 export const SUSPEND_MODAL_TEXT = {
   TITLE: "Confirm Suspension",
   WARNING:
-    "This action will temporarily stop access for users under this tenant. The license will remain frozen until reactivated.",
+    "This action blocks new tenant activity. Attempts already in progress can still submit and read published reports.",
   CONFIRM_PROMPT: "To confirm, enter the exact tenant name:",
   INPUT_LABEL: "Tenant name",
   INPUT_PLACEHOLDER: "Enter tenant name to confirm",
+  DURATION_LABEL: "Suspension duration (days)",
+  DURATION_HELPER: "Leave blank to use the platform default. Enter 0 for an indefinite suspension.",
+  DURATION_INVALID: "Enter a whole number of days (0 or more).",
+  IMPACT_TITLE: "Before you suspend",
+  IMPACT_LOADING: "Calculating active subscription impact…",
+  IMPACT_SUMMARY: (subscriptions: number, days: number) =>
+    `${subscriptions} active subscription(s) may lose up to ${days} day(s) during this suspension.`,
+  IMPACT_INDEFINITE: (subscriptions: number, days: number) =>
+    `${subscriptions} active subscription(s) may lose up to ${days} remaining day(s). This suspension has no automatic end date.`,
+  IMPACT_NONE: "No active subscriptions are affected by this suspension.",
+  IMPACT_ERROR: "The subscription impact could not be calculated. Try again before suspending.",
+  IMPACT_EXPIRING: "Subscriptions that may expire before reactivation:",
+  IMPACT_EXPIRING_ITEM: (days: number, date: string) => `${days} day(s) remaining · expires ${date}`,
   CANCEL: "Cancel",
   CONFIRM: "Suspend",
 } as const;

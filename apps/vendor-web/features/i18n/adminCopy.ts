@@ -548,10 +548,22 @@ const ADMIN_VI: Record<string, string> = {
   "All systems operational.": "Tất cả hệ thống đang hoạt động bình thường.",
   "View Logs": "Xem nhật ký",
   "Confirm Suspension": "Xác nhận tạm ngưng",
-  "This action will temporarily stop access for users under this tenant. The license will remain frozen until reactivated.":
-    "Thao tác này sẽ tạm dừng quyền truy cập của người dùng thuộc tenant này. Bản quyền sẽ được giữ nguyên cho đến khi tenant được kích hoạt lại.",
+  "This action blocks new tenant activity. Attempts already in progress can still submit and read published reports.":
+    "Thao tác này chặn hoạt động mới của tenant. Các lượt thi đang diễn ra vẫn có thể nộp bài và đọc báo cáo đã công bố.",
   "To confirm, enter the exact tenant name:": "Để xác nhận, hãy nhập chính xác tên tenant:",
   "Tenant name": "Tên tenant",
+  "Suspension duration (days)": "Thời hạn tạm ngưng (ngày)",
+  "Leave blank to use the platform default. Enter 0 for an indefinite suspension.":
+    "Để trống để dùng mặc định của nền tảng. Nhập 0 để tạm ngưng vô thời hạn.",
+  "Enter a whole number of days (0 or more).": "Nhập số ngày nguyên từ 0 trở lên.",
+  "Before you suspend": "Trước khi tạm ngưng",
+  "Calculating active subscription impact…": "Đang tính ảnh hưởng đến gói đăng ký đang hoạt động…",
+  "No active subscriptions are affected by this suspension.":
+    "Không có gói đăng ký đang hoạt động nào bị ảnh hưởng bởi lần tạm ngưng này.",
+  "The subscription impact could not be calculated. Try again before suspending.":
+    "Không thể tính ảnh hưởng đến gói đăng ký. Hãy thử lại trước khi tạm ngưng.",
+  "Subscriptions that may expire before reactivation:":
+    "Các gói đăng ký có thể hết hạn trước khi kích hoạt lại:",
   "Enter tenant name to confirm": "Nhập tên tenant để xác nhận",
   "General Information": "Thông tin chung",
   "e.g. fpt-university": "Ví dụ: fpt-university",

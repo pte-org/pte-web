@@ -9,10 +9,27 @@ export interface TenantResponse {
   organizationType: string;
   taxCode: string | null;
   status: TenantStatusResponse;
+  suspendedUntil: string | null;
   packageName: string;
   studentLimit: number;
   logoUrl: string | null;
   primaryColor: string | null;
+}
+
+export interface TenantSuspensionSubscriptionImpact {
+  subscriptionPublicId: string;
+  planPublicId: string;
+  expiresAt: string;
+  daysLost: number;
+}
+
+export interface TenantSuspensionImpactResponse {
+  tenantPublicId: string;
+  suspensionDays: number;
+  suspendedUntil: string | null;
+  activeSubscriptionCount: number;
+  totalDaysLost: number;
+  expiringSubscriptions: TenantSuspensionSubscriptionImpact[];
 }
 
 /** Matches admin's real `OnboardTenantRequest` record exactly. */

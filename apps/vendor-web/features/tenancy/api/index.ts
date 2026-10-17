@@ -2,6 +2,7 @@
 
 import {
   createUser,
+  getTenantSuspensionImpact,
   getTenant,
   listOrganizations,
   listTenants,
@@ -16,6 +17,7 @@ import {
   type CreateUserRequest,
   type OnboardTenantRequest,
   type OrganizationResponse,
+  type TenantSuspensionImpactResponse,
   type TenantResponse,
   type UpdateBrandingRequest,
   type UserResponse,
@@ -33,6 +35,7 @@ import {
   ORGANIZATIONS_QUERY_KEY,
   SYSTEM_HEALTH_QUERY_KEY,
   TENANT_QUERY_KEY,
+  TENANT_SUSPENSION_IMPACT_QUERY_KEY,
   TENANTS_QUERY_KEY,
 } from "../constants";
 import type {
@@ -85,6 +88,7 @@ function tenantResponseToTenant(response: TenantResponse): Tenant {
     taxCode: response.taxCode,
     contactEmail: null,
     status: response.status === "SUSPENDED" ? "suspended" : "active",
+    suspendedUntil: response.suspendedUntil,
     seatsUsed: 0,
     seatsTotal: response.studentLimit,
     plan: normalizePlan(response.packageName),
@@ -95,6 +99,11 @@ function tenantResponseToTenant(response: TenantResponse): Tenant {
     logoUrl: response.logoUrl,
     primaryColor: response.primaryColor,
   };
+}
+
+export interface SuspendTenantInput {
+  publicId: string;
+  days?: number;
 }
 
 function organizationResponseToOrganization(response: OrganizationResponse): Organization {
@@ -188,18 +197,30 @@ export function useCreateTenant(): UseMutationResult<Tenant, unknown, CreateTena
   });
 }
 
-export function useSuspendTenant(): UseMutationResult<Tenant, unknown, string> {
+export function useSuspendTenant(): UseMutationResult<Tenant, unknown, SuspendTenantInput> {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (publicId: string) => {
-      const response = await suspendTenant(apiClient, publicId);
+    mutationFn: async ({ publicId, days }: SuspendTenantInput) => {
+      const response = await suspendTenant(apiClient, publicId, days);
       return tenantResponseToTenant(response);
     },
     onSuccess: (tenant) => {
       replaceTenantInCache(queryClient, tenant);
       void queryClient.invalidateQueries({ queryKey: TENANTS_QUERY_KEY });
     },
+  });
+}
+
+export function useTenantSuspensionImpact(
+  publicId: string,
+  days?: number,
+  enabled = true,
+): UseQueryResult<TenantSuspensionImpactResponse> {
+  return useQuery({
+    queryKey: [...TENANT_SUSPENSION_IMPACT_QUERY_KEY, publicId, days ?? "default"],
+    queryFn: () => getTenantSuspensionImpact(apiClient, publicId, days),
+    enabled: enabled && publicId.length > 0,
   });
 }
 
