@@ -393,6 +393,7 @@ export const EXAMINER_ASSIGNMENT_TEXT = {
   SCOPE_TYPE_STUDENT: "Student",
   ADD_STUDENTS: "Add students",
   ADD_EXAMINER: "Add Examiner",
+  REQUIRES_CLOSED: "Examiners can only be assigned after the exam has closed.",
   STUDENTS_MODAL_TITLE: "Add students",
   STUDENTS_MODAL_TITLE_FOR: "Add students for {examiner}",
   STUDENTS_MODAL_ADD: "Add to assignment",

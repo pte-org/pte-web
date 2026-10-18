@@ -341,6 +341,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examinerAssignment.attempt": "Bài thi",
     "tenant.examinerAssignment.conflictingScopes": "Phạm vi xung đột",
     "tenant.examinerAssignment.attempts": "Bài thi cần chấm",
+    "tenant.examinerAssignment.requiresClosed":
+      "Chỉ có thể phân công giám khảo sau khi kỳ thi đã đóng.",
     "tenant.examinerAssignment.eligibleAnswers": "Câu trả lời đủ điều kiện",
     "tenant.examinerAssignment.loads": "Phân bổ theo giám khảo",
     "tenant.examinerAssignment.confirm": "Xác nhận phân công",
@@ -1406,6 +1408,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examinerAssignment.attempt": "Exam attempt",
     "tenant.examinerAssignment.conflictingScopes": "Conflicting scopes",
     "tenant.examinerAssignment.attempts": "Attempts to grade",
+    "tenant.examinerAssignment.requiresClosed":
+      "Examiners can only be assigned after the exam has closed.",
     "tenant.examinerAssignment.eligibleAnswers": "Eligible answers",
     "tenant.examinerAssignment.loads": "Distribution by Examiner",
     "tenant.examinerAssignment.confirm": "Confirm assignment",

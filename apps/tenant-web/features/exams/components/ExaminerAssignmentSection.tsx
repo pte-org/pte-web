@@ -33,6 +33,7 @@ import {
 
 interface ExaminerAssignmentSectionProps {
   sessionPublicId: string;
+  sessionStatus: string;
 }
 
 /** Where the student picker was opened from: the shared Random pool or one Manual Examiner card. */
@@ -61,8 +62,10 @@ const newCardId = (): string =>
 
 export const ExaminerAssignmentSection = ({
   sessionPublicId,
+  sessionStatus,
 }: ExaminerAssignmentSectionProps): ReactElement => {
   const { locale, t } = useLocale();
+  const assignmentLocked = sessionStatus !== "CLOSED";
   const { showToast } = useToast();
   const searchText = useTenantSearchText("examinerBatches");
   const [mode, setMode] = useState<ExaminerAssignmentMode>("RANDOM");
@@ -88,6 +91,7 @@ export const ExaminerAssignmentSection = ({
     studentLabel: t("tenant.examinerAssignment.student", T.SCOPE_TYPE_STUDENT),
     addStudents: t("tenant.examinerAssignment.addStudents", T.ADD_STUDENTS),
     addExaminer: t("tenant.examinerAssignment.addExaminer", T.ADD_EXAMINER),
+    requiresClosed: t("tenant.examinerAssignment.requiresClosed", T.REQUIRES_CLOSED),
     studentsModalTitle: t("tenant.examinerAssignment.studentsModalTitle", T.STUDENTS_MODAL_TITLE),
     studentsModalAdd: t("tenant.examinerAssignment.studentsModalAdd", T.STUDENTS_MODAL_ADD),
     studentsModalCancel: t("tenant.examinerAssignment.studentsModalCancel", T.STUDENTS_MODAL_CANCEL),
@@ -240,6 +244,7 @@ export const ExaminerAssignmentSection = ({
     : text.studentsModalTitle;
 
   const canPreview =
+    !assignmentLocked &&
     !examinersQuery.isLoading &&
     !examinersQuery.isError &&
     !createPreview.isPending &&
@@ -387,7 +392,9 @@ export const ExaminerAssignmentSection = ({
       {previewError && <Alert tone="error">{previewError}</Alert>}
       {confirmError && <Alert tone="error">{confirmError}</Alert>}
 
-      <div className="flex flex-col gap-4">
+      {assignmentLocked && <Alert tone="warning">{text.requiresClosed}</Alert>}
+
+      <fieldset disabled={assignmentLocked} className="m-0 flex min-w-0 flex-col gap-4 border-0 p-0">
         <div className="max-w-md">
           <Select
             id="examiner-assignment-mode"
@@ -507,7 +514,7 @@ export const ExaminerAssignmentSection = ({
         >
           {createPreview.isPending ? text.previewing : text.preview}
         </button>
-      </div>
+      </fieldset>
 
       {preview && (
         <div className="flex flex-col gap-3 rounded-md border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4">
@@ -574,7 +581,7 @@ export const ExaminerAssignmentSection = ({
             !currentPreviewStale && (
               <button
                 type="button"
-                disabled={confirmPreview.isPending}
+                disabled={assignmentLocked || confirmPreview.isPending}
                 onClick={() => confirmAssignment(preview.batchPublicId as string)}
                 className="self-start rounded-md bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:opacity-50"
               >

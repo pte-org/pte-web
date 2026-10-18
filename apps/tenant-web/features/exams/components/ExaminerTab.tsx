@@ -5,10 +5,11 @@ import { ExaminerAssignmentSection } from "./ExaminerAssignmentSection";
 
 interface ExaminerTabProps {
   sessionPublicId: string;
+  sessionStatus: string;
 }
 
-export const ExaminerTab = ({ sessionPublicId }: ExaminerTabProps): ReactElement => (
+export const ExaminerTab = ({ sessionPublicId, sessionStatus }: ExaminerTabProps): ReactElement => (
   <div className="motion-safe:animate-pte-fade-up">
-    <ExaminerAssignmentSection sessionPublicId={sessionPublicId} />
+    <ExaminerAssignmentSection sessionPublicId={sessionPublicId} sessionStatus={sessionStatus} />
   </div>
 );

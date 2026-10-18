@@ -185,7 +185,7 @@ export const ExamDetailTabs = ({
         keepMounted={keepPanelMounted("examiner")}
         className="mt-5"
       >
-        <ExaminerTab sessionPublicId={sessionPublicId} />
+        <ExaminerTab sessionPublicId={sessionPublicId} sessionStatus={session.status} />
       </TabPanel>
       <TabPanel
         id="exam-detail-tabs-panel-results"
