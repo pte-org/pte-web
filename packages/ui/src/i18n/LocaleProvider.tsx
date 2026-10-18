@@ -300,62 +300,48 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examStatus.open": "Đang diễn ra",
     "tenant.examStatus.closed": "Đã đóng",
     "tenant.examStatus.cancelled": "Đã hủy",
-    "tenant.examinerAssignment.title": "Phân công chấm điểm",
-    "tenant.examinerAssignment.mode": "Phương thức phân công",
-    "tenant.examinerAssignment.randomMode": "Ngẫu nhiên",
-    "tenant.examinerAssignment.manualMode": "Thủ công",
-    "tenant.examinerAssignment.student": "Học viên",
-    "tenant.examinerAssignment.addExaminer": "Thêm giám khảo",
-    "tenant.examinerAssignment.studentsModalTitleFor": "Thêm học viên cho {examiner}",
-    "tenant.examinerAssignment.cardNoStudents": "Chưa có học viên.",
-    "tenant.examinerAssignment.manualEmpty": "Thêm giám khảo, rồi chọn học viên cho giám khảo đó.",
-    "tenant.examinerAssignment.addStudents": "Thêm học viên",
-    "tenant.examinerAssignment.studentsModalTitle": "Thêm học viên",
-    "tenant.examinerAssignment.studentsModalAdd": "Thêm vào phân công",
-    "tenant.examinerAssignment.studentsModalCancel": "Hủy",
-    "tenant.examinerAssignment.studentsModalHint":
-      "Chỉ hiển thị học viên đã được ghi danh vào kỳ thi này.",
-    "tenant.examinerAssignment.studentsCount": "{count} học viên",
-    "tenant.examinerAssignment.remove": "Xóa",
-    "tenant.examinerAssignment.examiners": "Giám khảo",
-    "tenant.examinerAssignment.examiner": "Giám khảo",
-    "tenant.examinerAssignment.examinerPlaceholder": "Chọn giám khảo đang hoạt động",
-    "tenant.examinerAssignment.noExaminers": "Không có giám khảo đang hoạt động trong tổ chức này.",
-    "tenant.examinerAssignment.randomHint":
-      "Toàn bộ bài thi đã nộp của kỳ thi này sẽ được chia ngẫu nhiên và đều cho các giám khảo được chọn.",
-    "tenant.examinerAssignment.loading": "Đang tải...",
-    "tenant.examinerAssignment.allStatuses": "Tất cả trạng thái",
-    "tenant.examinerAssignment.previewed": "Đã xem trước",
-    "tenant.examinerAssignment.committed": "Đã xác nhận",
-    "tenant.examinerAssignment.expiredStatus": "Đã hết hạn",
-    "tenant.examinerAssignment.staleStatus": "Không còn hiệu lực",
-    "tenant.examinerAssignment.invalid": "Không hợp lệ",
-    "tenant.examinerAssignment.dateRange": "Khoảng ngày",
-    "tenant.examinerAssignment.preview": "Xem trước phân công",
-    "tenant.examinerAssignment.previewing": "Đang chuẩn bị bản xem trước...",
-    "tenant.examinerAssignment.previewValid":
-      "Bản xem trước đã sẵn sàng. Xác nhận để ghi nhận chính xác phân công này.",
-    "tenant.examinerAssignment.previewInvalid":
-      "Không tạo được phân công hợp lệ. Hãy kiểm tra xung đột hoặc phạm vi đã chọn.",
-    "tenant.examinerAssignment.conflicts": "Xung đột phân công thủ công",
-    "tenant.examinerAssignment.attempt": "Bài thi",
-    "tenant.examinerAssignment.conflictingScopes": "Phạm vi xung đột",
-    "tenant.examinerAssignment.attempts": "Bài thi cần chấm",
+    "tenant.examinerAssignment.title":
+      "Phân công chấm điểm",
+    "tenant.examinerAssignment.student":
+      "Học viên",
+    "tenant.examinerAssignment.examiners":
+      "Giám khảo",
+    "tenant.examinerAssignment.examiner":
+      "Giám khảo",
+    "tenant.examinerAssignment.examinerPlaceholder":
+      "Chọn giám khảo",
+    "tenant.examinerAssignment.noExaminers":
+      "Không có giám khảo đang hoạt động trong tổ chức này.",
+    "tenant.examinerAssignment.loading":
+      "Đang tải...",
     "tenant.examinerAssignment.requiresClosed":
       "Chỉ có thể phân công giám khảo sau khi kỳ thi đã đóng.",
-    "tenant.examinerAssignment.loads": "Phân bổ theo giám khảo",
-    "tenant.examinerAssignment.confirm": "Xác nhận phân công",
-    "tenant.examinerAssignment.confirming": "Đang xác nhận...",
-    "tenant.examinerAssignment.confirmed": "Đã ghi nhận phân công.",
-    "tenant.examinerAssignment.expired": "Bản xem trước này đã hết hạn. Hãy tạo bản xem trước mới.",
-    "tenant.examinerAssignment.stale":
-      "Bản xem trước này không còn hợp lệ vì nhóm thí sinh đã thay đổi. Hãy tạo bản xem trước mới.",
-    "tenant.examinerAssignment.retry": "Thử lại",
-    "tenant.examinerAssignment.batches": "Lịch sử xem trước và phân công",
-    "tenant.examinerAssignment.noBatches": "Chưa có đợt phân công nào.",
-    "tenant.examinerAssignment.assignedTotal": "Đã phân công {count} bài thi cần chấm trong kỳ thi này",
-    "tenant.examinerAssignment.created": "Tạo lúc",
-    "tenant.examinerAssignment.status": "Trạng thái",
+    "tenant.examinerAssignment.lockedNotice":
+      "Phân công đã được chốt và không thể chỉnh sửa.",
+    "tenant.examinerAssignment.hint":
+      "Chọn giám khảo rồi bấm “Chia ngẫu nhiên” để điền sẵn bảng, sau đó chỉnh giám khảo của từng học viên nếu cần. Bấm “Chốt phân công” khi mọi học viên đã có giám khảo.",
+    "tenant.examinerAssignment.randomize":
+      "Chia ngẫu nhiên",
+    "tenant.examinerAssignment.progress":
+      "{assigned}/{total} học viên đã có giám khảo",
+    "tenant.examinerAssignment.commit":
+      "Chốt phân công",
+    "tenant.examinerAssignment.committing":
+      "Đang chốt...",
+    "tenant.examinerAssignment.cancel":
+      "Hủy",
+    "tenant.examinerAssignment.commitTitle":
+      "Chốt phân công chấm điểm?",
+    "tenant.examinerAssignment.commitDescription":
+      "Sau khi chốt, bảng phân công sẽ bị khoá và không thể chỉnh sửa.",
+    "tenant.examinerAssignment.confirmed":
+      "Đã chốt phân công.",
+    "tenant.examinerAssignment.empty":
+      "Chưa có bài thi đã nộp để phân công.",
+    "tenant.examinerAssignment.unknownStudent":
+      "Không rõ học viên",
+    "tenant.examinerAssignment.retry":
+      "Thử lại",
     "tenant.scoreReview.title": "Rà soát điểm",
     "tenant.scoreReview.aiEligibleAttempts": "Lượt làm bài đủ điều kiện AI",
     "tenant.scoreReview.assigned": "Đã phân công",
@@ -1055,10 +1041,10 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
       "Tìm theo mã, dạng bài hoặc trạng thái",
     "tenant.search.answers.ariaLabel":
       "Tìm câu trả lời theo mã, dạng bài hoặc trạng thái",
-    "tenant.search.examinerBatches.placeholder":
-      "Tìm theo mã đợt, trạng thái hoặc phương thức phân công",
-    "tenant.search.examinerBatches.ariaLabel":
-      "Tìm đợt phân công theo mã, trạng thái hoặc phương thức",
+    "tenant.search.examinerRoster.placeholder":
+      "Tìm theo tên hoặc email học viên",
+    "tenant.search.examinerRoster.ariaLabel":
+      "Tìm học viên theo tên hoặc email",
     "tenant.search.proctors.placeholder": "Tìm theo tên, email hoặc vai trò giám thị",
     "tenant.search.proctors.ariaLabel": "Tìm giám thị theo tên, email hoặc vai trò",
     "tenant.search.sessions.placeholder": "Tìm theo tên kỳ thi, mã phiên hoặc trạng thái",
@@ -1364,63 +1350,48 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examStatus.open": "In progress",
     "tenant.examStatus.closed": "Closed",
     "tenant.examStatus.cancelled": "Cancelled",
-    "tenant.examinerAssignment.title": "Examiner assignments",
-    "tenant.examinerAssignment.mode": "Assignment method",
-    "tenant.examinerAssignment.randomMode": "Random",
-    "tenant.examinerAssignment.manualMode": "Manual",
-    "tenant.examinerAssignment.student": "Student",
-    "tenant.examinerAssignment.addExaminer": "Add Examiner",
-    "tenant.examinerAssignment.studentsModalTitleFor": "Add students for {examiner}",
-    "tenant.examinerAssignment.cardNoStudents": "No students yet.",
-    "tenant.examinerAssignment.manualEmpty": "Add an Examiner, then choose the students they will grade.",
-    "tenant.examinerAssignment.addStudents": "Add students",
-    "tenant.examinerAssignment.studentsModalTitle": "Add students",
-    "tenant.examinerAssignment.studentsModalAdd": "Add to assignment",
-    "tenant.examinerAssignment.studentsModalCancel": "Cancel",
-    "tenant.examinerAssignment.studentsModalHint":
-      "Only students enrolled in this exam are listed.",
-    "tenant.examinerAssignment.studentsCount": "{count} student(s)",
-    "tenant.examinerAssignment.remove": "Remove",
-    "tenant.examinerAssignment.examiners": "Examiners",
-    "tenant.examinerAssignment.examiner": "Examiner",
-    "tenant.examinerAssignment.examinerPlaceholder": "Select an active Examiner",
+    "tenant.examinerAssignment.title":
+      "Examiner assignments",
+    "tenant.examinerAssignment.student":
+      "Student",
+    "tenant.examinerAssignment.examiners":
+      "Examiners",
+    "tenant.examinerAssignment.examiner":
+      "Examiner",
+    "tenant.examinerAssignment.examinerPlaceholder":
+      "Select an Examiner",
     "tenant.examinerAssignment.noExaminers":
       "No active Examiners are available in this organization.",
-    "tenant.examinerAssignment.randomHint":
-      "Every submitted attempt of this exam is split randomly and evenly among the selected examiners.",
-    "tenant.examinerAssignment.loading": "Loading...",
-    "tenant.examinerAssignment.allStatuses": "All statuses",
-    "tenant.examinerAssignment.previewed": "Previewed",
-    "tenant.examinerAssignment.committed": "Committed",
-    "tenant.examinerAssignment.expiredStatus": "Expired",
-    "tenant.examinerAssignment.staleStatus": "Stale",
-    "tenant.examinerAssignment.invalid": "Invalid",
-    "tenant.examinerAssignment.dateRange": "Date range",
-    "tenant.examinerAssignment.preview": "Preview assignment",
-    "tenant.examinerAssignment.previewing": "Preparing preview...",
-    "tenant.examinerAssignment.previewValid":
-      "Preview ready. Confirm to commit this exact allocation.",
-    "tenant.examinerAssignment.previewInvalid":
-      "No valid allocation was created. Review the conflicts or selected scope.",
-    "tenant.examinerAssignment.conflicts": "Manual mapping conflicts",
-    "tenant.examinerAssignment.attempt": "Exam attempt",
-    "tenant.examinerAssignment.conflictingScopes": "Conflicting scopes",
-    "tenant.examinerAssignment.attempts": "Attempts to grade",
+    "tenant.examinerAssignment.loading":
+      "Loading...",
     "tenant.examinerAssignment.requiresClosed":
       "Examiners can only be assigned after the exam has closed.",
-    "tenant.examinerAssignment.loads": "Distribution by Examiner",
-    "tenant.examinerAssignment.confirm": "Confirm assignment",
-    "tenant.examinerAssignment.confirming": "Confirming...",
-    "tenant.examinerAssignment.confirmed": "Assignment committed.",
-    "tenant.examinerAssignment.expired": "This preview expired. Create a new preview.",
-    "tenant.examinerAssignment.stale":
-      "This preview is no longer valid because the candidate pool changed. Create a new preview.",
-    "tenant.examinerAssignment.retry": "Retry",
-    "tenant.examinerAssignment.batches": "Preview and assignment history",
-    "tenant.examinerAssignment.noBatches": "No assignment batches yet.",
-    "tenant.examinerAssignment.assignedTotal": "{count} attempt(s) to grade assigned in this session",
-    "tenant.examinerAssignment.created": "Created",
-    "tenant.examinerAssignment.status": "Status",
+    "tenant.examinerAssignment.lockedNotice":
+      "The assignment is committed and can no longer be edited.",
+    "tenant.examinerAssignment.hint":
+      "Select Examiners and click “Randomize” to pre-fill the table, then adjust any student's Examiner. Click “Commit assignment” once every student has an Examiner.",
+    "tenant.examinerAssignment.randomize":
+      "Randomize",
+    "tenant.examinerAssignment.progress":
+      "{assigned}/{total} students have an Examiner",
+    "tenant.examinerAssignment.commit":
+      "Commit assignment",
+    "tenant.examinerAssignment.committing":
+      "Committing...",
+    "tenant.examinerAssignment.cancel":
+      "Cancel",
+    "tenant.examinerAssignment.commitTitle":
+      "Commit the grading assignment?",
+    "tenant.examinerAssignment.commitDescription":
+      "Once committed, the assignment table is locked and cannot be edited.",
+    "tenant.examinerAssignment.confirmed":
+      "Assignment committed.",
+    "tenant.examinerAssignment.empty":
+      "No submitted attempts to assign yet.",
+    "tenant.examinerAssignment.unknownStudent":
+      "Unknown student",
+    "tenant.examinerAssignment.retry":
+      "Retry",
     "tenant.scoreReview.title": "Score review",
     "tenant.scoreReview.aiEligibleAttempts": "AI-eligible attempts",
     "tenant.scoreReview.assigned": "Assigned",
@@ -2115,9 +2086,10 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.search.answers.placeholder": "Search by answer ID, task type, or status",
     "tenant.search.answers.ariaLabel":
       "Search answers by answer ID, task type, or status",
-    "tenant.search.examinerBatches.placeholder": "Search by batch ID, status, or assignment method",
-    "tenant.search.examinerBatches.ariaLabel":
-      "Search assignment batches by batch ID, status, or assignment method",
+    "tenant.search.examinerRoster.placeholder":
+      "Search by student name or email",
+    "tenant.search.examinerRoster.ariaLabel":
+      "Search students by name or email",
     "tenant.search.proctors.placeholder": "Search by proctor name, email, or role",
     "tenant.search.proctors.ariaLabel": "Search proctors by name, email, or role",
     "tenant.search.sessions.placeholder": "Search by exam name, session code, or status",

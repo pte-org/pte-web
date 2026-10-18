@@ -47,9 +47,9 @@ export const TENANT_SEARCH_TEXT = {
     placeholder: "Search by answer ID, task type, or status",
     ariaLabel: "Search answers by answer ID, task type, or status",
   },
-  examinerBatches: {
-    placeholder: "Search by batch ID, status, or assignment method",
-    ariaLabel: "Search assignment batches by batch ID, status, or assignment method",
+  examinerRoster: {
+    placeholder: "Search by student name or email",
+    ariaLabel: "Search students by name or email",
   },
   proctors: {
     placeholder: "Search by proctor name, email, or role",

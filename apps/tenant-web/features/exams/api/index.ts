@@ -2,20 +2,19 @@
 
 import {
   assignProctor,
-  confirmExaminerAssignmentPreview,
+  commitExaminerAssignment,
   closeSession,
   cancelExam,
   deleteSession as deleteSessionRequest,
   addAudienceSources,
   createSession,
   createExamDraft,
-  createExaminerAssignmentPreview,
   DEFAULT_PAGE_SIZE,
   getAnswer,
   getHostScoreReview,
   getScoreSourceSelectionAudits,
   getActiveScoreTemplate,
-  getExaminerAssignmentOverview,
+  getExaminerAssignmentRoster,
   getSession,
   getSessionExamPreview,
   listAnswers,
@@ -47,9 +46,8 @@ import {
   type ScoreSourceAuditResponse,
   type ReportPublicationReadinessResponse,
   type ReportPublicationSummaryResponse,
-  type CreateExaminerAssignmentPreviewRequest,
-  type ExaminerAssignmentOverviewResponse,
-  type ExaminerAssignmentPreviewResponse,
+  type CommitExaminerAssignmentRequest,
+  type ExaminerAssignmentRosterResponse,
   type ExamPreviewResponse,
   type ExamPolicyResponse,
   type LockdownMode,
@@ -82,7 +80,7 @@ import {
   SESSION_QUERY_KEY,
   SESSIONS_QUERY_KEY,
   TENANT_USERS_QUERY_KEY,
-  EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY,
+  EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY,
   EXAMINER_DIRECTORY_QUERY_KEY,
   HOST_SCORE_REVIEW_QUERY_KEY,
   SCORE_SOURCE_AUDIT_QUERY_KEY,
@@ -393,14 +391,12 @@ export function useDeleteSession(): UseMutationResult<void, unknown, string> {
   });
 }
 
-export function useExaminerAssignmentOverview(
+export function useExaminerAssignmentRoster(
   sessionPublicId: string,
-  page: number,
-  search = "",
-): UseQueryResult<ExaminerAssignmentOverviewResponse> {
+): UseQueryResult<ExaminerAssignmentRosterResponse> {
   return useQuery({
-    queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId, search, page],
-    queryFn: () => getExaminerAssignmentOverview(apiClient, sessionPublicId, page, 20, search),
+    queryKey: [...EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY, sessionPublicId],
+    queryFn: () => getExaminerAssignmentRoster(apiClient, sessionPublicId),
     enabled: sessionPublicId.length > 0,
   });
 }
@@ -419,34 +415,17 @@ export function useActiveExaminers(): UseQueryResult<UserResponse[]> {
   });
 }
 
-export function useCreateExaminerAssignmentPreview(
+export function useCommitExaminerAssignment(
   sessionPublicId: string,
-): UseMutationResult<
-  ExaminerAssignmentPreviewResponse,
-  unknown,
-  CreateExaminerAssignmentPreviewRequest
-> {
+): UseMutationResult<ExaminerAssignmentRosterResponse, unknown, CommitExaminerAssignmentRequest> {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload) => createExaminerAssignmentPreview(apiClient, sessionPublicId, payload),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId],
-      }),
-  });
-}
-
-export function useConfirmExaminerAssignmentPreview(
-  sessionPublicId: string,
-): UseMutationResult<ExaminerAssignmentPreviewResponse, unknown, string> {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (batchPublicId) =>
-      confirmExaminerAssignmentPreview(apiClient, sessionPublicId, batchPublicId),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId],
-      }),
+    mutationFn: (payload) => commitExaminerAssignment(apiClient, sessionPublicId, payload),
+    onSuccess: (roster) =>
+      queryClient.setQueryData(
+        [...EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY, sessionPublicId],
+        roster,
+      ),
   });
 }
 

@@ -18,7 +18,7 @@ export const ENROLLMENTS_QUERY_KEY = ["enrollments"] as const;
 export const PROCTOR_ASSIGNMENTS_QUERY_KEY = ["proctorAssignments"] as const;
 export const TENANT_USERS_QUERY_KEY = ["tenantUsers"] as const;
 export const EXAM_PREVIEW_QUERY_KEY = ["examPreview"] as const;
-export const EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY = ["examinerAssignmentOverview"] as const;
+export const EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY = ["examinerAssignmentRoster"] as const;
 export const EXAMINER_DIRECTORY_QUERY_KEY = ["examinerAssignmentDirectory"] as const;
 /** Each student sits an exam once, as in the real test; the API refuses any other retry count. */
 export const SINGLE_SITTING_RETRIES = 0;
@@ -387,55 +387,27 @@ export const EXAM_EDITOR_TEXT = {
 } as const;
 
 export const EXAMINER_ASSIGNMENT_TEXT = {
-  MODE_LABEL: "Assignment method",
-  RANDOM_MODE: "Random",
-  MANUAL_MODE: "Manual",
   SCOPE_TYPE_STUDENT: "Student",
-  ADD_STUDENTS: "Add students",
-  ADD_EXAMINER: "Add Examiner",
   REQUIRES_CLOSED: "Examiners can only be assigned after the exam has closed.",
-  STUDENTS_MODAL_TITLE: "Add students",
-  STUDENTS_MODAL_TITLE_FOR: "Add students for {examiner}",
-  STUDENTS_MODAL_ADD: "Add to assignment",
-  STUDENTS_MODAL_CANCEL: "Cancel",
-  STUDENTS_MODAL_HINT: "Only students enrolled in this exam are listed.",
-  STUDENTS_COUNT: "{count} student(s)",
-  CARD_NO_STUDENTS: "No students yet.",
-  MANUAL_EMPTY: "Add an Examiner, then choose the students they will grade.",
-  REMOVE_SCOPE: "Remove",
+  LOCKED_NOTICE: "The assignment is committed and can no longer be edited.",
+  HINT:
+    "Select Examiners and click “Randomize” to pre-fill the table, then adjust any student's Examiner. Click “Commit assignment” once every student has an Examiner.",
   EXAMINERS_LABEL: "Examiners",
   EXAMINER_LABEL: "Examiner",
-  EXAMINER_PLACEHOLDER: "Select an active Examiner",
+  EXAMINER_PLACEHOLDER: "Select an Examiner",
   NO_EXAMINERS: "No active Examiners are available in this organization.",
-  RANDOM_HINT:
-    "Every submitted attempt of this exam is split randomly and evenly among the selected examiners.",
-  RANDOM_HELP:
-    "All selected scopes are combined into one pool, then attempts are split as evenly as possible.",
-  SUPPLEMENTAL_HELP:
-    "Already assigned attempts are excluded; this preview adds only new eligible attempts.",
-  PREVIEW: "Preview assignment",
-  PREVIEWING: "Preparing preview...",
-  PREVIEW_VALID: "Preview ready. Confirm to commit this exact allocation.",
-  PREVIEW_INVALID: "No valid allocation was created. Review the conflicts or selected scope.",
-  CONFLICTS: "Manual mapping conflicts",
-  ATTEMPT: "Exam attempt",
-  CONFLICTING_SCOPES: "Conflicting scopes",
-  ATTEMPT_COUNT: "Attempts to grade",
-  LOADS: "Distribution by Examiner",
-  CONFIRM: "Confirm assignment",
-  CONFIRMING: "Confirming...",
+  LOADING: "Loading...",
+  RANDOMIZE: "Randomize",
+  PROGRESS: "{assigned}/{total} students have an Examiner",
+  COMMIT: "Commit assignment",
+  COMMITTING: "Committing...",
+  CANCEL: "Cancel",
+  COMMIT_TITLE: "Commit the grading assignment?",
+  COMMIT_DESCRIPTION: "Once committed, the assignment table is locked and cannot be edited.",
   CONFIRMED: "Assignment committed.",
-  EXPIRED: "This preview expired. Create a new preview.",
-  STALE:
-    "This preview is no longer valid because the candidate pool changed. Create a new preview.",
+  EMPTY: "No submitted attempts to assign yet.",
+  UNKNOWN_STUDENT: "Unknown student",
   RETRY: "Retry",
-  BATCHES: "Preview and assignment history",
-  NO_BATCHES: "No assignment batches yet.",
-  ASSIGNED_TOTAL: (count: number) => `${count} attempt(s) to grade assigned in this session`,
-  CREATED: "Created",
-  STATUS: "Status",
-  PREVIOUS_PAGE: "Previous",
-  NEXT_PAGE: "Next",
 } as const;
 
 export const EXAM_PREVIEW_TEXT = {

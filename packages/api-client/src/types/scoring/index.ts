@@ -204,67 +204,23 @@ export interface ScoringAnswerResponse {
 
 export * from "./gradingCohort";
 
-export type AssignmentScopeType = "CLASS" | "PROGRAM" | "STUDENT" | "SESSION";
-export type ExaminerAssignmentMode = "MANUAL" | "RANDOM";
-export type ExaminerAssignmentBatchStatus =
-  "PREVIEWED" | "COMMITTED" | "EXPIRED" | "STALE" | "INVALID";
-
-export interface ExaminerAssignmentScopeRequest {
-  type: AssignmentScopeType;
-  scopePublicId: string;
+/** One eligible submitted attempt; `examinerPublicId` is only filled once the assignment is committed. */
+export interface ExaminerAssignmentRosterRow {
+  attemptPublicId: string;
+  studentPublicId: string;
+  studentName: string | null;
+  studentEmail: string | null;
   examinerPublicId: string | null;
 }
 
-export interface CreateExaminerAssignmentPreviewRequest {
-  mode: ExaminerAssignmentMode;
-  scopes: ExaminerAssignmentScopeRequest[];
-  examinerPublicIds: string[];
+export interface ExaminerAssignmentRosterResponse {
+  /** True once the Host has committed; the table is then read-only. */
+  locked: boolean;
+  rows: ExaminerAssignmentRosterRow[];
 }
 
-export interface ExaminerAssignmentConflictResponse {
-  attemptPublicId: string;
-  conflictingScopes: { type: AssignmentScopeType; scopePublicId: string }[];
-}
-
-export interface ExaminerAssignmentLoadResponse {
-  examinerPublicId: string;
-  attemptCount: number;
-  eligibleAnswerCount: number;
-}
-
-export interface ExaminerAssignmentPreviewResponse {
-  batchPublicId: string | null;
-  mode: ExaminerAssignmentMode;
-  status: ExaminerAssignmentBatchStatus;
-  valid: boolean;
-  supplemental: boolean;
-  attemptCount: number;
-  eligibleAnswerCount: number;
-  examinerLoads: ExaminerAssignmentLoadResponse[];
-  conflicts: ExaminerAssignmentConflictResponse[];
-  previewExpiresAt: string | null;
-  committedAt: string | null;
-}
-
-export interface ExaminerAssignmentBatchSummaryResponse {
-  batchPublicId: string;
-  mode: ExaminerAssignmentMode;
-  status: ExaminerAssignmentBatchStatus;
-  attemptCount: number;
-  eligibleAnswerCount: number;
-  createdAt: string;
-  previewExpiresAt: string;
-  committedAt: string | null;
-}
-
-export interface ExaminerAssignmentOverviewResponse {
-  batches: ExaminerAssignmentBatchSummaryResponse[];
-  committedExaminerLoads: ExaminerAssignmentLoadResponse[];
-  assignedAttemptCount: number;
-  page: number;
-  size: number;
-  totalBatches: number;
-  totalPages: number;
+export interface CommitExaminerAssignmentRequest {
+  entries: { attemptPublicId: string; examinerPublicId: string }[];
 }
 
 export * from "./examiner";
