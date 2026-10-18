@@ -116,7 +116,6 @@ export const ExaminerAssignmentSection = ({
     attempt: t("tenant.examinerAssignment.attempt", T.ATTEMPT),
     conflictingScopes: t("tenant.examinerAssignment.conflictingScopes", T.CONFLICTING_SCOPES),
     attempts: t("tenant.examinerAssignment.attempts", T.ATTEMPT_COUNT),
-    eligibleAnswers: t("tenant.examinerAssignment.eligibleAnswers", T.ANSWER_COUNT),
     loads: t("tenant.examinerAssignment.loads", T.LOADS),
     confirm: t("tenant.examinerAssignment.confirm", T.CONFIRM),
     confirming: t("tenant.examinerAssignment.confirming", T.CONFIRMING),
@@ -366,12 +365,6 @@ export const ExaminerAssignmentSection = ({
       cell: (batch) => batch.attemptCount,
     },
     {
-      key: "answerCount",
-      header: text.eligibleAnswers,
-      filterAccessor: (batch) => batch.eligibleAnswerCount,
-      cell: (batch) => batch.eligibleAnswerCount,
-    },
-    {
       key: "created",
       header: text.created,
       filterType: "date-range",
@@ -545,8 +538,6 @@ export const ExaminerAssignmentSection = ({
           </Alert>
           <p className="text-sm text-[var(--ink-primary)]">
             {text.attempts}: <strong>{preview.attemptCount}</strong>
-            <span className="px-2">·</span>
-            {text.eligibleAnswers}: <strong>{preview.eligibleAnswerCount}</strong>
           </p>
           <LoadTable loads={preview.examinerLoads} examiners={examiners} labels={text} />
           {preview.conflicts.length > 0 && (
@@ -679,12 +670,11 @@ export const ExaminerAssignmentSection = ({
 };
 
 interface LoadTableProps {
-  loads: { examinerPublicId: string; attemptCount: number; eligibleAnswerCount: number }[];
+  loads: { examinerPublicId: string; attemptCount: number }[];
   examiners: UserResponse[];
   labels: {
     examiner: string;
     attempts: string;
-    eligibleAnswers: string;
     loads: string;
     noBatches: string;
   };
@@ -719,12 +709,6 @@ function LoadTable({ loads, examiners, labels }: LoadTableProps): ReactElement |
               header: labels.attempts,
               filterAccessor: (load) => load.attemptCount,
               cell: (load) => load.attemptCount,
-            },
-            {
-              key: "answerCount",
-              header: labels.eligibleAnswers,
-              filterAccessor: (load) => load.eligibleAnswerCount,
-              cell: (load) => load.eligibleAnswerCount,
             },
           ] satisfies DataTableColumn<LoadTableProps["loads"][number]>[]
         }

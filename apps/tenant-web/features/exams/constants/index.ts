@@ -421,7 +421,6 @@ export const EXAMINER_ASSIGNMENT_TEXT = {
   ATTEMPT: "Exam attempt",
   CONFLICTING_SCOPES: "Conflicting scopes",
   ATTEMPT_COUNT: "Attempts to grade",
-  ANSWER_COUNT: "Eligible answers",
   LOADS: "Distribution by Examiner",
   CONFIRM: "Confirm assignment",
   CONFIRMING: "Confirming...",
