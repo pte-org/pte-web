@@ -29,8 +29,23 @@ export const HOST_ROLES: SessionRole[] = ["HOST_ADMIN"];
 
 export const AUTH_ROUTES = {
   login: "/login",
+  changePassword: "/change-password",
   adminDashboard: "/admin",
   hostDashboard: "/host",
+} as const;
+
+export const PASSWORD_CHANGE_TEXT = {
+  TITLE: "Change your password",
+  SUBTITLE: "Your temporary password must be replaced before you can open a workspace.",
+  CURRENT_LABEL: "Current password",
+  NEW_LABEL: "New password",
+  CONFIRM_LABEL: "Confirm new password",
+  REQUIRED: "Enter all password fields.",
+  MISMATCH: "The new passwords do not match.",
+  TOO_SHORT: "Use at least 8 characters for the new password.",
+  SUBMIT: "Change password",
+  SUBMITTING: "Changing password...",
+  FAILED: "Password could not be changed. Check the current password and try again.",
 } as const;
 
 export const AUTH_TEXT = {

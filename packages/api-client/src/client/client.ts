@@ -9,6 +9,8 @@ export interface RefreshedTokens {
   accessToken: string;
   refreshToken: string;
   expiresInSeconds: number;
+  /** Present on the live identity refresh response; optional for old clients. */
+  mustChangePassword?: boolean;
 }
 
 export interface ApiClientOptions {

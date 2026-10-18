@@ -1,4 +1,5 @@
 export { LoginView } from "./LoginView";
+export { ChangePasswordView } from "./ChangePasswordView";
 export { RegisterOrganizationView } from "./RegisterOrganizationView";
 export { RequireAuth } from "./RequireAuth";
 export { LogoutButton } from "./LogoutButton";

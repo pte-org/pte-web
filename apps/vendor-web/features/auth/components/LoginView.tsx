@@ -73,6 +73,7 @@ export const LoginView = (): ReactElement => {
       roles,
       tenantId: claims.tenantId,
       expiresAt: claims.expiresAt || Date.now() + data.expiresInSeconds * 1000,
+      mustChangePassword: data.mustChangePassword,
     });
     router.replace(isAdminRole ? AUTH_ROUTES.adminDashboard : AUTH_ROUTES.hostDashboard);
   };

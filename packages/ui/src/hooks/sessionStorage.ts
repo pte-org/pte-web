@@ -52,6 +52,8 @@ export interface PteSession {
   /** From the JWT `tenant_id` claim (UUID string) — null for platform roles. */
   tenantId?: string | null;
   expiresAt?: number;
+  /** Identity requires the password-change-only workspace until this is false. */
+  mustChangePassword?: boolean;
 }
 
 const SESSION_KEY = "pte.session";
@@ -68,7 +70,7 @@ function parseSession(value: string | null): PteSession | null {
     if (!parsed.accessToken || roles.length === 0) {
       return null;
     }
-    return { ...parsed, roles } as PteSession;
+    return { ...parsed, roles, mustChangePassword: parsed.mustChangePassword === true } as PteSession;
   } catch {
     return null;
   }

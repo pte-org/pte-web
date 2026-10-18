@@ -63,6 +63,7 @@ export const LoginView = (): ReactElement => {
       roles,
       tenantId: claims.tenantId,
       expiresAt: claims.expiresAt || Date.now() + data.expiresInSeconds * 1000,
+      mustChangePassword: data.mustChangePassword,
     });
     const { defaultRoute } = resolveWorkspace(roles);
     router.replace(defaultRoute);

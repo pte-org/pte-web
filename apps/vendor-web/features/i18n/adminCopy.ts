@@ -32,6 +32,19 @@ const ADMIN_VI: Record<string, string> = {
   "This account is not allowed to use the vendor portal.":
     "Tài khoản này không được phép sử dụng cổng quản trị.",
   "Login failed. Please try again.": "Đăng nhập thất bại. Vui lòng thử lại.",
+  "Change your password": "Đổi mật khẩu",
+  "Your temporary password must be replaced before you can open a workspace.":
+    "Bạn phải thay mật khẩu tạm thời trước khi mở workspace.",
+  "Current password": "Mật khẩu hiện tại",
+  "New password": "Mật khẩu mới",
+  "Confirm new password": "Xác nhận mật khẩu mới",
+  "Enter all password fields.": "Nhập đầy đủ các trường mật khẩu.",
+  "The new passwords do not match.": "Mật khẩu mới không khớp.",
+  "Use at least 8 characters for the new password.": "Mật khẩu mới phải có ít nhất 8 ký tự.",
+  "Change password": "Đổi mật khẩu",
+  "Changing password...": "Đang đổi mật khẩu...",
+  "Password could not be changed. Check the current password and try again.":
+    "Không thể đổi mật khẩu. Hãy kiểm tra mật khẩu hiện tại và thử lại.",
 
   "Good morning, Administrator": "Chào buổi sáng, Quản trị viên",
   "Add Tenant": "Thêm tenant",
@@ -1086,6 +1099,16 @@ const translatePattern = (value: string): string | undefined => {
   if (match) return `Lựa chọn đúng ${match[1]}`;
   match = value.match(/^Option (\d+)$/);
   if (match) return `Lựa chọn ${match[1]}`;
+  match = value.match(/^(\d+) active subscription\(s\) may lose up to (\d+) day\(s\) (\d+) hour\(s\) (\d+) minute\(s\) (\d+) second\(s\) during this suspension\.$/);
+  if (match) return `${match[1]} gói đăng ký đang hoạt động có thể mất tối đa ${match[2]} ngày ${match[3]} giờ ${match[4]} phút ${match[5]} giây trong lần tạm ngưng này.`;
+  match = value.match(/^(\d+) active subscription\(s\) may lose up to (\d+) day\(s\) (\d+) hour\(s\) (\d+) minute\(s\) (\d+) second\(s\) remaining\. This suspension has no automatic end date\.$/);
+  if (match) return `${match[1]} gói đăng ký đang hoạt động có thể mất tối đa ${match[2]} ngày ${match[3]} giờ ${match[4]} phút ${match[5]} giây còn lại. Lần tạm ngưng này không có ngày kết thúc tự động.`;
+  match = value.match(/^(\d+) active subscription\(s\) remain outside this expiry list\.$/);
+  if (match) return `Còn ${match[1]} gói đăng ký đang hoạt động không nằm trong danh sách hết hạn này.`;
+  match = value.match(/^(\d+) more impacted subscription\(s\) are not shown\.$/);
+  if (match) return `Còn ${match[1]} gói đăng ký bị ảnh hưởng không được hiển thị.`;
+  match = value.match(/^(.+) · (\d+) day\(s\) (\d+) hour\(s\) (\d+) minute\(s\) (\d+) second\(s\) remaining · expires (.+)$/);
+  if (match) return `${match[1]} · còn ${match[2]} ngày ${match[3]} giờ ${match[4]} phút ${match[5]} giây · hết hạn ${match[6]}`;
   return undefined;
 };
 
