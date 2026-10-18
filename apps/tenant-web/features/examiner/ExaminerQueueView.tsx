@@ -15,7 +15,7 @@ import {
   Select,
 } from "@pte/ui";
 import { useExaminerQueue } from "./api";
-import { parseExaminerQueueStatus } from "./constants";
+import { buildExaminerQueueHref, parseExaminerQueueStatus } from "./constants";
 import { useExaminerWorkspaceText } from "./hooks/useExaminerWorkspaceText";
 
 function formatDate(value: string, locale: string): string {
@@ -60,13 +60,7 @@ export const ExaminerQueueView = (): ReactElement => {
 
   const updateUrl = useCallback(
     (nextStatus: ExaminerQueueStatus, nextPage: number, nextSearch: string, nextSort: string): void => {
-      const params = new URLSearchParams();
-      if (nextStatus !== "ALL") params.set("status", nextStatus);
-      if (nextPage > 0) params.set("page", String(nextPage));
-      if (nextSearch.trim()) params.set("search", nextSearch.trim());
-      if (nextSort && nextSort !== "ASSIGNED_ASC") params.set("sort", nextSort);
-      const qs = params.toString();
-      router.replace(qs ? `/examiner/work?${qs}` : "/examiner/work?status=ALL");
+      router.replace(buildExaminerQueueHref(nextStatus, nextPage, nextSearch, nextSort));
     },
     [router],
   );

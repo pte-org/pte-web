@@ -157,6 +157,20 @@ export function parseExaminerQueueStatus(val: string | null | undefined): Examin
   return "ALL";
 }
 
+/** Queue URL for a filter state; always carries `status` because the page falls back to the overview without it. */
+export function buildExaminerQueueHref(
+  status: ExaminerQueueStatus,
+  page: number,
+  search: string,
+  sort: string,
+): string {
+  const params = new URLSearchParams({ status });
+  if (page > 0) params.set("page", String(page));
+  if (search.trim()) params.set("search", search.trim());
+  if (sort && sort !== "ASSIGNED_ASC") params.set("sort", sort);
+  return `/examiner/work?${params.toString()}`;
+}
+
 export const EXAMINER_HISTORY_DIALOG_TEXT = {
   TITLE_PREFIX: "Grading History & Audit Trail",
   DESCRIPTION: "Immutable audit record of all scoring and workflow transitions for this assigned attempt.",
