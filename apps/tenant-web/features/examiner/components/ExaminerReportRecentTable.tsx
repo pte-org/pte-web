@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { Badge, Button, EmptyState, TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow } from "@pte/ui";
 import type { ExaminerReportRecentItem } from "@pte/api-client";
-import { EXAMINER_WORK_TEXT } from "../constants";
+import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 import { useExaminerWorkspaceText } from "../hooks/useExaminerWorkspaceText";
 
 interface ExaminerReportRecentTableProps {
@@ -27,6 +27,7 @@ export function ExaminerReportRecentTable({
 }: ExaminerReportRecentTableProps): ReactElement {
   const router = useRouter();
   const text = useExaminerWorkspaceText();
+  const T = useExaminerWorkText();
 
   return (
     <div className="space-y-3">
@@ -40,11 +41,11 @@ export function ExaminerReportRecentTable({
               <TableRow>
                 <TableHead>{text.attemptLabel}</TableHead>
                 <TableHead>{text.sessionLabel}</TableHead>
-                <TableHead>{EXAMINER_WORK_TEXT.TABLE_HEADER_SCORES}</TableHead>
-                <TableHead>{EXAMINER_WORK_TEXT.TABLE_HEADER_AVG_SCORE}</TableHead>
-                <TableHead>{EXAMINER_WORK_TEXT.TABLE_HEADER_VERSION}</TableHead>
+                <TableHead>{T.TABLE_HEADER_SCORES}</TableHead>
+                <TableHead>{T.TABLE_HEADER_AVG_SCORE}</TableHead>
+                <TableHead>{T.TABLE_HEADER_VERSION}</TableHead>
                 <TableHead>{text.asOfLabel}</TableHead>
-                <TableHead className="text-right">{EXAMINER_WORK_TEXT.TABLE_HEADER_ACTION}</TableHead>
+                <TableHead className="text-right">{T.TABLE_HEADER_ACTION}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -61,7 +62,7 @@ export function ExaminerReportRecentTable({
                     </span>
                   </TableCell>
                   <TableCell className="text-xs text-slate-700">
-                    {item.scoreCount} {EXAMINER_WORK_TEXT.QUESTIONS_SUFFIX}
+                    {item.scoreCount} {T.QUESTIONS_SUFFIX}
                   </TableCell>
                   <TableCell>
                     {item.averageScore != null ? (
@@ -73,7 +74,7 @@ export function ExaminerReportRecentTable({
                   <TableCell className="text-xs text-slate-500">
                     v{item.workVersion}
                     {item.workVersion > 2 && (
-                      <span className="ml-1 text-amber-600 font-semibold">{EXAMINER_WORK_TEXT.REGRADE_LABEL}</span>
+                      <span className="ml-1 text-amber-600 font-semibold">{T.REGRADE_LABEL}</span>
                     )}
                   </TableCell>
                   <TableCell className="whitespace-nowrap text-xs text-slate-500">

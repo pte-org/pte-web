@@ -3,7 +3,7 @@
 import type { ReactElement } from "react";
 import type { ExaminerAiReferenceResponse } from "@pte/api-client";
 import { Badge, Button } from "@pte/ui";
-import { EXAMINER_WORK_TEXT as T } from "../constants";
+import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
 interface AiReferencePanelProps {
   reference: ExaminerAiReferenceResponse | null;
@@ -18,6 +18,7 @@ export const AiReferencePanel = ({
   disabled = false,
   onApplyAiScore,
 }: AiReferencePanelProps): ReactElement => {
+  const T = useExaminerWorkText();
   if (!reference || reference.availability === "UNAVAILABLE") {
     return (
       <aside className="rounded-xl border border-slate-200 bg-slate-50 p-4 shadow-sm text-xs text-slate-500">

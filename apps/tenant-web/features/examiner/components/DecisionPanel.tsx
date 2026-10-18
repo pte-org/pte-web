@@ -6,7 +6,7 @@ import type {
   ExaminerDecisionKind,
 } from "@pte/api-client";
 import { Alert, Badge, Button, Input } from "@pte/ui";
-import { EXAMINER_WORK_TEXT as T } from "../constants";
+import { getExaminerBlockingText, useExaminerWorkText } from "../hooks/useExaminerWorkText";
 import { ConfirmDecisionDialog } from "./ConfirmDecisionDialog";
 
 interface DecisionPanelProps {
@@ -57,6 +57,7 @@ export const DecisionPanel = ({
   onReconcileServer,
   onAcknowledgeStale,
 }: DecisionPanelProps): ReactElement => {
+  const T = useExaminerWorkText();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [frozenConfirmation, setFrozenConfirmation] = useState<FrozenConfirmation | null>(null);
 
@@ -177,7 +178,9 @@ export const DecisionPanel = ({
       {!answer.canFinalize && (
         <div className="mb-4">
           <Alert tone="error" title={T.BLOCKED_FINALIZATION}>
-            {answer.blockingReason || T.SUBMISSION_BLOCKED_FALLBACK}
+            {answer.blockingReason
+              ? getExaminerBlockingText(T, answer.blockingReason)
+              : T.SUBMISSION_BLOCKED_FALLBACK}
           </Alert>
         </div>
       )}

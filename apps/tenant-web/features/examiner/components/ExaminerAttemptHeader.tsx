@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import { Alert, BackButton } from "@pte/ui";
-import { EXAMINER_WORK_TEXT as T } from "../constants";
+import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
 interface ExaminerAttemptHeaderProps {
   sessionPublicId: string;
@@ -25,6 +25,7 @@ export const ExaminerAttemptHeader = ({
   actions,
   onBack,
 }: ExaminerAttemptHeaderProps): ReactElement => {
+  const T = useExaminerWorkText();
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">

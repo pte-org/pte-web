@@ -127,6 +127,10 @@ export const EXAMINER_WORK_TEXT = {
   ACTIVE_ISSUE_TITLE: "Active Issue Blocking Finalization",
   SCORING_NOTICE_TITLE: "Scoring Status Notice",
   SCORE_PLACEHOLDER: "0–100",
+  BLOCK_ALREADY_PUBLISHED: "Results for this cohort have already been published.",
+  BLOCK_WAITING_FOR_HOST_FREEZE: "Waiting for the Host to freeze the cohort.",
+  BLOCK_COHORT_NOT_MANUAL: "This cohort is not marked manually by examiners.",
+  BLOCK_EXCLUDED_FROM_COHORT: "This attempt was excluded from the grading cohort.",
 } as const;
 
 export const EXAMINER_ISSUE_OPTIONS: { value: ExaminerGradingIssueType; label: string }[] = [
@@ -197,7 +201,15 @@ export const EXAMINER_HISTORY_DIALOG_TEXT = {
   OP_REGRADED: "Regraded",
   OP_ISSUE_REPORTED: "Issue Reported",
   OP_ISSUE_RESOLVED: "Issue Resolved",
+  ANSWER_PREFIX: "Ans: #",
+  PAGE_LABEL: "Page",
+  PAGE_OF: "of",
 } as const;
+
+/** Widened so a translated catalog can satisfy the same shape as the English `as const` source. */
+export type ExaminerWorkText = { -readonly [K in keyof typeof EXAMINER_WORK_TEXT]: string };
+export type ExaminerHistoryText = { -readonly [K in keyof typeof EXAMINER_HISTORY_DIALOG_TEXT]: string };
+export type ExaminerGuidelinesText = { -readonly [K in keyof typeof EXAMINER_GUIDELINES_DIALOG_TEXT]: string };
 
 export const EXAMINER_OPERATION_BADGES: Record<
   ExaminerGradingOperation,

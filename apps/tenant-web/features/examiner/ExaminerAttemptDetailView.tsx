@@ -2,6 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import type { ExaminerAnswerDetailResponse } from "@pte/api-client";
 import {
   Alert,
   Badge,
@@ -11,7 +12,7 @@ import {
   ErrorState,
   LoadingState,
 } from "@pte/ui";
-import { EXAMINER_WORK_TEXT as T } from "./constants";
+import { getExaminerBlockingText, useExaminerWorkText } from "./hooks/useExaminerWorkText";
 import {
   useExaminerAttempt,
   useExaminerGuidelines,
@@ -32,6 +33,9 @@ import { ExaminerGuidelinesDialog } from "./components/ExaminerGuidelinesDialog"
 import { ExaminerGradingHistoryDialog } from "./components/ExaminerGradingHistoryDialog";
 import { useExaminerSubmissions } from "./useExaminerSubmissions";
 
+/** Stable reference: a fresh `[]` per render makes the draft hook's `answers !== prevAnswers` check loop forever. */
+const NO_ANSWERS: ExaminerAnswerDetailResponse[] = [];
+
 export const ExaminerAttemptDetailView = ({
   sessionPublicId,
   attemptPublicId,
@@ -41,6 +45,7 @@ export const ExaminerAttemptDetailView = ({
   attemptPublicId: string;
   onBack?: () => void;
 }): ReactElement => {
+  const T = useExaminerWorkText();
   const router = useRouter();
   const searchParams = useSearchParams();
   const fromStatus = searchParams?.get("fromStatus");
@@ -62,7 +67,7 @@ export const ExaminerAttemptDetailView = ({
   const [promptMediaBroken, setPromptMediaBroken] = useState(false);
   const [responseMediaBroken, setResponseMediaBroken] = useState(false);
 
-  const answers = query.data?.answers ?? [];
+  const answers = query.data?.answers ?? NO_ANSWERS;
   const workflow = query.data?.workflow;
   const currentAnswer = answers[currentIndex] ?? null;
 
@@ -211,7 +216,7 @@ export const ExaminerAttemptDetailView = ({
 
       {workflow?.blockingReason && (
         <Alert tone="warning" title={T.SCORING_NOTICE_TITLE}>
-          {workflow.blockingReason}
+          {getExaminerBlockingText(T, workflow.blockingReason)}
         </Alert>
       )}
 

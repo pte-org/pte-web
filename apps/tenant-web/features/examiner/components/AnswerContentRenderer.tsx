@@ -6,7 +6,7 @@ import type {
   ExaminerAnswerPayloadResponse,
 } from "@pte/api-client";
 import { Alert, Button } from "@pte/ui";
-import { EXAMINER_WORK_TEXT as T } from "../constants";
+import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
 interface PromptRendererProps {
   prompt: ExaminerPromptResponse;
@@ -19,6 +19,7 @@ export const PromptRenderer = ({
   onMediaError,
   onRefreshMedia,
 }: PromptRendererProps): ReactElement => {
+  const T = useExaminerWorkText();
   const hasAudio = Boolean(prompt.audioPromptUrl);
   const hasImage = Boolean(prompt.imagePromptUrl);
 
@@ -185,6 +186,7 @@ export const ResponseRenderer = ({
   onMediaError,
   onRefreshMedia,
 }: ResponseRendererProps): ReactElement => {
+  const T = useExaminerWorkText();
   const isAudio = response.kind === "AUDIO";
   const isMissingAudio = isAudio && !response.mediaUrl;
   const [audioReady, setAudioReady] = useState(!isAudio);

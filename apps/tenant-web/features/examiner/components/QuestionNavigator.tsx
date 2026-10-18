@@ -3,7 +3,7 @@
 import type { ReactElement } from "react";
 import type { ExaminerAnswerDetailResponse } from "@pte/api-client";
 import { Button } from "@pte/ui";
-import { EXAMINER_WORK_TEXT as T } from "../constants";
+import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
 interface QuestionNavigatorProps {
   answers: ExaminerAnswerDetailResponse[];
@@ -18,6 +18,7 @@ export const QuestionNavigator = ({
   drafts,
   onSelectIndex,
 }: QuestionNavigatorProps): ReactElement => {
+  const T = useExaminerWorkText();
   const canGoPrev = currentIndex > 0;
   const canGoNext = currentIndex < answers.length - 1;
 

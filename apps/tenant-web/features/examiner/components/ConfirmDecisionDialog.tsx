@@ -3,7 +3,7 @@
 import type { ReactElement } from "react";
 import type { ExaminerDecisionKind } from "@pte/api-client";
 import { Alert, Badge, ConfirmDialog } from "@pte/ui";
-import { EXAMINER_WORK_TEXT as T } from "../constants";
+import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
 interface ConfirmDecisionDialogProps {
   open: boolean;
@@ -34,6 +34,7 @@ export const ConfirmDecisionDialog = ({
   onConfirm,
   onClose,
 }: ConfirmDecisionDialogProps): ReactElement => {
+  const T = useExaminerWorkText();
   const isConfirmAi = decisionKind === "CONFIRM_AI";
   const diff = typeof aiScore === "number" ? score - aiScore : null;
   const isBlocked = isStale || isMediaBroken;
