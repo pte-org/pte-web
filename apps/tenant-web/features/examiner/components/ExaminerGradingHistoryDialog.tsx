@@ -24,6 +24,7 @@ interface ExaminerGradingHistoryDialogProps {
   onClose: () => void;
   sessionPublicId: string;
   attemptPublicId: string;
+  attemptTitle: string;
 }
 
 function formatDateTime(iso: string): string {
@@ -46,6 +47,7 @@ export function ExaminerGradingHistoryDialog({
   onClose,
   sessionPublicId,
   attemptPublicId,
+  attemptTitle,
 }: ExaminerGradingHistoryDialogProps): ReactElement {
   const T = useExaminerHistoryText();
   const operationBadges = useExaminerOperationBadges();
@@ -66,7 +68,7 @@ export function ExaminerGradingHistoryDialog({
     <Modal
       open={open}
       onClose={onClose}
-      title={`${T.TITLE_PREFIX} (#${attemptPublicId.slice(0, 8).toUpperCase()})`}
+      title={`${T.TITLE_PREFIX} (${attemptTitle})`}
       size="xl"
     >
       <div className="space-y-4 py-2">

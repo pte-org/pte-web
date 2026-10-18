@@ -46,6 +46,9 @@ export interface ExaminerQueueItemResponse {
   canFinalize?: boolean;
   blockingReason?: string | null;
   hasOutstandingAnswers?: boolean;
+  sessionName?: string | null;
+  /** 1-based position among this examiner's assignments in the session. */
+  attemptOrdinal?: number;
 }
 
 export interface ExaminerOverviewCounts {
@@ -195,6 +198,8 @@ export interface ExaminerAttemptDetailResponse {
   canFinalize: boolean;
   blockingReason: string | null;
   workflow?: ExaminerWorkflowView | null;
+  sessionName?: string | null;
+  attemptOrdinal?: number;
 }
 
 export interface ExaminerCommandReceiptChild {
@@ -314,6 +319,8 @@ export interface ExaminerReportRecentItem {
   scoreCount: number;
   averageScore: number | null;
   workVersion: number;
+  sessionName?: string | null;
+  attemptOrdinal?: number;
 }
 
 export interface ExaminerReportsResponse {

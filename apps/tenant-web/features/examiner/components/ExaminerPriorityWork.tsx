@@ -4,15 +4,12 @@ import type { ReactElement } from "react";
 import type { ExaminerQueueItemResponse } from "@pte/api-client";
 import { Badge, Button, EmptyState, Skeleton } from "@pte/ui";
 import { useExaminerWorkspaceText } from "../hooks/useExaminerWorkspaceText";
+import { formatAttemptTitle } from "../utils/attemptLabels";
 
 export interface ExaminerPriorityWorkProps {
   items: ExaminerQueueItemResponse[];
   isLoading: boolean;
   onOpenAttempt: (sessionPublicId: string, attemptPublicId: string) => void;
-}
-
-function shortId(value: string): string {
-  return value.slice(0, 8).toUpperCase();
 }
 
 export function ExaminerPriorityWork({
@@ -62,7 +59,7 @@ export function ExaminerPriorityWork({
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-medium text-slate-900">
-                        {text.attemptLabel} #{shortId(item.attemptPublicId)}
+                        {formatAttemptTitle(text.attemptLabel, item)}
                       </span>
                       {item.status === "IN_PROGRESS" ? (
                         <Badge variant="warning">{text.statusInProgress}</Badge>
@@ -74,9 +71,6 @@ export function ExaminerPriorityWork({
                     </div>
 
                     <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-                      <span>
-                        {text.sessionLabel} #{shortId(item.sessionPublicId)}
-                      </span>
                       <span>
                         {text.progressLabel}: {item.submittedAnswerCount}/{item.eligibleAnswerCount}
                       </span>

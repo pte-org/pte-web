@@ -6,6 +6,7 @@ import { Badge, Button, EmptyState, TableBody, TableCell, TableHead, TableHeader
 import type { ExaminerReportRecentItem } from "@pte/api-client";
 import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 import { useExaminerWorkspaceText } from "../hooks/useExaminerWorkspaceText";
+import { formatAttemptNumber } from "../utils/attemptLabels";
 
 interface ExaminerReportRecentTableProps {
   recentItems: ExaminerReportRecentItem[];
@@ -51,15 +52,11 @@ export function ExaminerReportRecentTable({
             <TableBody>
               {recentItems.map((item) => (
                 <TableRow key={`${item.sessionPublicId}-${item.attemptPublicId}-${item.finalizedAt}`}>
-                  <TableCell className="font-mono text-xs font-medium text-slate-800">
-                    <span title={item.attemptPublicId}>
-                      #{item.attemptPublicId.slice(0, 8).toUpperCase()}
-                    </span>
+                  <TableCell className="text-xs font-medium text-slate-800">
+                    {formatAttemptNumber(text.attemptLabel, item)}
                   </TableCell>
-                  <TableCell className="font-mono text-xs text-slate-500">
-                    <span title={item.sessionPublicId}>
-                      #{item.sessionPublicId.slice(0, 8).toUpperCase()}
-                    </span>
+                  <TableCell className="text-xs text-slate-500">
+                    {item.sessionName ?? "—"}
                   </TableCell>
                   <TableCell className="text-xs text-slate-700">
                     {item.scoreCount} {T.QUESTIONS_SUFFIX}

@@ -8,7 +8,6 @@ import {
   Button,
   EmptyState,
   ErrorState,
-  Input,
   LoadingState,
   PageHeader,
   Pagination,
@@ -17,6 +16,7 @@ import {
 import { useExaminerQueue } from "./api";
 import { buildExaminerQueueHref, parseExaminerQueueStatus } from "./constants";
 import { useExaminerWorkspaceText } from "./hooks/useExaminerWorkspaceText";
+import { formatAttemptTitle } from "./utils/attemptLabels";
 
 function formatDate(value: string, locale: string): string {
   const date = new Date(value);
@@ -26,10 +26,6 @@ function formatDate(value: string, locale: string): string {
         dateStyle: "medium",
         timeStyle: "short",
       }).format(date);
-}
-
-function shortId(value: string): string {
-  return value.slice(0, 8).toUpperCase();
 }
 
 export const ExaminerQueueView = (): ReactElement => {
@@ -43,7 +39,6 @@ export const ExaminerQueueView = (): ReactElement => {
   const searchParam = searchParams?.get("search") ?? "";
   const sortParam = searchParams?.get("sort") ?? "ASSIGNED_ASC";
 
-  const [searchInput, setSearchInput] = useState(searchParam);
   const [startingAttemptId, setStartingAttemptId] = useState<string | null>(null);
 
   const queue = useExaminerQueue({
@@ -84,11 +79,6 @@ export const ExaminerQueueView = (): ReactElement => {
     },
     [searchParam, sortParam, status, updateUrl],
   );
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateUrl(status, 0, searchInput, sortParam);
-  };
 
   const chooseSort = (nextSort: string) => {
     updateUrl(status, 0, searchParam, nextSort);
@@ -185,18 +175,6 @@ export const ExaminerQueueView = (): ReactElement => {
             />
           </div>
         </div>
-
-        <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
-          <Input
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder={text.searchPlaceholder}
-            className="w-64"
-          />
-          <Button type="submit" variant="secondary" size="sm">
-            {text.searchBtn}
-          </Button>
-        </form>
       </div>
 
       <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -241,7 +219,7 @@ export const ExaminerQueueView = (): ReactElement => {
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="font-medium text-slate-900">
-                          {text.attemptLabel} #{shortId(item.attemptPublicId)}
+                          {formatAttemptTitle(text.attemptLabel, item)}
                         </p>
                         {item.status === "PENDING" ? (
                           <Badge variant="neutral">{text.statusPending}</Badge>
@@ -253,8 +231,7 @@ export const ExaminerQueueView = (): ReactElement => {
                       </div>
 
                       <p className="mt-1 text-sm text-slate-600">
-                        {text.sessionLabel} #{shortId(item.sessionPublicId)} · {text.progressLabel}:{" "}
-                        {item.submittedAnswerCount}/{item.eligibleAnswerCount}
+                        {text.progressLabel}: {item.submittedAnswerCount}/{item.eligibleAnswerCount}
                       </p>
 
                       <div className="mt-1 flex flex-wrap items-center gap-x-3 text-xs text-slate-500">

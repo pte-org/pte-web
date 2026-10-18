@@ -32,6 +32,7 @@ import { ReportIssueDialog } from "./components/ReportIssueDialog";
 import { ExaminerGuidelinesDialog } from "./components/ExaminerGuidelinesDialog";
 import { ExaminerGradingHistoryDialog } from "./components/ExaminerGradingHistoryDialog";
 import { useExaminerSubmissions } from "./useExaminerSubmissions";
+import { formatAttemptTitle } from "./utils/attemptLabels";
 
 /** Stable reference: a fresh `[]` per render makes the draft hook's `answers !== prevAnswers` check loop forever. */
 const NO_ANSWERS: ExaminerAnswerDetailResponse[] = [];
@@ -70,6 +71,13 @@ export const ExaminerAttemptDetailView = ({
   const answers = query.data?.answers ?? NO_ANSWERS;
   const workflow = query.data?.workflow;
   const currentAnswer = answers[currentIndex] ?? null;
+  const attemptTitle = query.data
+    ? formatAttemptTitle(T.ATTEMPT_LABEL, {
+        attemptPublicId,
+        sessionName: query.data.sessionName,
+        attemptOrdinal: query.data.attemptOrdinal,
+      })
+    : T.ATTEMPT_LABEL;
 
   const {
     drafts,
@@ -158,8 +166,7 @@ export const ExaminerAttemptDetailView = ({
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
       <ExaminerAttemptHeader
-        sessionPublicId={sessionPublicId}
-        attemptPublicId={attemptPublicId}
+        title={attemptTitle}
         publicationState={query.data?.publicationState}
         submittedCount={query.data?.submittedAnswerCount ?? 0}
         eligibleCount={query.data?.eligibleAnswerCount ?? 0}
@@ -335,6 +342,7 @@ export const ExaminerAttemptDetailView = ({
         open={historyOpen}
         sessionPublicId={sessionPublicId}
         attemptPublicId={attemptPublicId}
+        attemptTitle={attemptTitle}
         onClose={() => setHistoryOpen(false)}
       />
     </div>
