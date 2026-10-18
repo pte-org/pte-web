@@ -1,6 +1,7 @@
 import type { ApiClient } from "../../client/client";
 import type {
   OnboardTenantRequest,
+  SuspendTenantRequest,
   TenantSuspensionImpactResponse,
   TenantResponse,
   UpdateBrandingRequest,
@@ -9,8 +10,7 @@ import type {
 export const TENANT_ENDPOINTS = {
   tenants: "/api/v1/tenants",
   tenant: (publicId: string) => `/api/v1/tenants/${publicId}`,
-  suspend: (publicId: string, days?: number) =>
-    `/api/v1/tenants/${publicId}/suspend${days === undefined ? "" : `?days=${days}`}`,
+  suspend: (publicId: string) => `/api/v1/tenants/${publicId}/suspend`,
   suspensionImpact: (publicId: string, days?: number) =>
     `/api/v1/tenants/${publicId}/suspension-impact${days === undefined ? "" : `?days=${days}`}`,
   reactivate: (publicId: string) => `/api/v1/tenants/${publicId}/reactivate`,
@@ -38,10 +38,11 @@ export function getTenant(client: ApiClient, publicId: string): Promise<TenantRe
 export function suspendTenant(
   client: ApiClient,
   publicId: string,
-  days?: number,
+  payload: SuspendTenantRequest,
 ): Promise<TenantResponse> {
-  return client.request<TenantResponse>(TENANT_ENDPOINTS.suspend(publicId, days), {
+  return client.request<TenantResponse>(TENANT_ENDPOINTS.suspend(publicId), {
     method: "POST",
+    body: payload,
   });
 }
 

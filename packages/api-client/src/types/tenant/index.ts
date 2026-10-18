@@ -19,8 +19,10 @@ export interface TenantResponse {
 export interface TenantSuspensionSubscriptionImpact {
   subscriptionPublicId: string;
   planPublicId: string;
+  planLabel: string | null;
   expiresAt: string;
   daysLost: number;
+  lossSeconds: number;
 }
 
 export interface TenantSuspensionImpactResponse {
@@ -30,6 +32,14 @@ export interface TenantSuspensionImpactResponse {
   activeSubscriptionCount: number;
   totalDaysLost: number;
   expiringSubscriptions: TenantSuspensionSubscriptionImpact[];
+  totalLossSeconds: number;
+  remainingSubscriptionCount: number;
+  impactDigest: string | null;
+}
+
+export interface SuspendTenantRequest {
+  days?: number | null;
+  impactDigest: string;
 }
 
 /** Matches admin's real `OnboardTenantRequest` record exactly. */

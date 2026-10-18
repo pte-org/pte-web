@@ -24,6 +24,10 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   DUPLICATE_EMAIL_IN_BATCH: "Some email addresses appear more than once in the uploaded file.",
   INVALID_LOGIN: "The username or password is incorrect.",
   ACCESS_DENIED: "You do not have permission to complete this action.",
+  TENANT_SUSPENDED:
+    "This organization is suspended. New activity is blocked, but ongoing attempts and published reports remain available.",
+  TENANT_SUSPENSION_IMPACT_STALE:
+    "The live suspension impact changed. Refresh the preview and review it again before confirming.",
   LICENSE_CODE_IDEMPOTENCY_KEY_REQUIRED: "Reload this page before issuing a license code.",
   LICENSE_CODE_IDEMPOTENCY_KEY_INVALID: "Reload this page to generate a valid issuance key.",
   LICENSE_CODE_IDEMPOTENCY_KEY_REUSED: "This request belongs to another issuance. Recover the original result or explicitly start a new issuance.",

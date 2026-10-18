@@ -17,6 +17,7 @@ import {
   type CreateUserRequest,
   type OnboardTenantRequest,
   type OrganizationResponse,
+  type SuspendTenantRequest,
   type TenantSuspensionImpactResponse,
   type TenantResponse,
   type UpdateBrandingRequest,
@@ -104,6 +105,7 @@ function tenantResponseToTenant(response: TenantResponse): Tenant {
 export interface SuspendTenantInput {
   publicId: string;
   days?: number;
+  impactDigest: string;
 }
 
 function organizationResponseToOrganization(response: OrganizationResponse): Organization {
@@ -201,8 +203,12 @@ export function useSuspendTenant(): UseMutationResult<Tenant, unknown, SuspendTe
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ publicId, days }: SuspendTenantInput) => {
-      const response = await suspendTenant(apiClient, publicId, days);
+    mutationFn: async ({ publicId, days, impactDigest }: SuspendTenantInput) => {
+      const payload: SuspendTenantRequest = {
+        days: days ?? null,
+        impactDigest,
+      };
+      const response = await suspendTenant(apiClient, publicId, payload);
       return tenantResponseToTenant(response);
     },
     onSuccess: (tenant) => {

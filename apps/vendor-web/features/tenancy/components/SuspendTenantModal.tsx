@@ -15,7 +15,7 @@ interface SuspendTenantModalProps {
    */
   tenant: Tenant | null;
   onCancel: () => void;
-  onConfirm: (tenant: Tenant, days?: number) => void;
+  onConfirm: (tenant: Tenant, days: number | undefined, impactDigest: string) => void;
   isSubmitting?: boolean;
 }
 
@@ -64,10 +64,12 @@ export const SuspendTenantModal = ({
           </Button>
           <Button
             variant="danger"
-            onClick={() => tenant && onConfirm(tenant, durationDays)}
+            onClick={() =>
+              tenant && impactData?.impactDigest && onConfirm(tenant, durationDays, impactData.impactDigest)
+            }
             isPending={isSubmitting}
             loadingText={T.CONFIRM}
-            isDisabled={!confirmed || !durationIsValid || !impactReady}
+            isDisabled={!confirmed || !durationIsValid || !impactReady || !impactData?.impactDigest}
           >
             {T.CONFIRM}
           </Button>
@@ -99,28 +101,39 @@ export const SuspendTenantModal = ({
               <>
                 <p>
                   {impactData.suspensionDays === 0
-                    ? T.IMPACT_INDEFINITE(
+                    ? T.IMPACT_INDEFINITE_EXACT(
                         impactData.activeSubscriptionCount,
-                        impactData.totalDaysLost,
+                        impactData.totalLossSeconds,
                       )
-                    : T.IMPACT_SUMMARY(
+                    : T.IMPACT_SUMMARY_EXACT(
                         impactData.activeSubscriptionCount,
-                        impactData.totalDaysLost,
+                        impactData.totalLossSeconds,
                       )}
                 </p>
+                {impactData.remainingSubscriptionCount > 0 && (
+                  <p className="mt-2 text-xs text-gray-600">
+                    {T.IMPACT_REMAINING(impactData.remainingSubscriptionCount)}
+                  </p>
+                )}
                 {impactData.expiringSubscriptions.length > 0 && (
                   <div className="mt-2">
                     <p>{T.IMPACT_EXPIRING}</p>
                     <ul className="mt-1 list-disc pl-5">
                       {impactData.expiringSubscriptions.slice(0, 5).map((subscription) => (
                         <li key={subscription.subscriptionPublicId}>
-                          {T.IMPACT_EXPIRING_ITEM(
-                            subscription.daysLost,
+                          {T.IMPACT_EXPIRING_ITEM_EXACT(
+                            subscription.lossSeconds,
+                            subscription.planLabel,
                             new Date(subscription.expiresAt).toLocaleDateString(),
                           )}
                         </li>
                       ))}
                     </ul>
+                    {impactData.expiringSubscriptions.length > 5 && (
+                      <p className="mt-1 text-xs text-gray-600">
+                        {T.IMPACT_MORE(impactData.expiringSubscriptions.length - 5)}
+                      </p>
+                    )}
                   </div>
                 )}
               </>
