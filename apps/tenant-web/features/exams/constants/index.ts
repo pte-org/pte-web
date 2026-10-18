@@ -399,7 +399,6 @@ export const EXAMINER_ASSIGNMENT_TEXT = {
   STUDENTS_MODAL_ADD: "Add to assignment",
   STUDENTS_MODAL_CANCEL: "Cancel",
   STUDENTS_MODAL_HINT: "Only students enrolled in this exam are listed.",
-  STUDENTS_POOL: "Students to grade",
   STUDENTS_COUNT: "{count} student(s)",
   CARD_NO_STUDENTS: "No students yet.",
   MANUAL_EMPTY: "Add an Examiner, then choose the students they will grade.",
@@ -408,7 +407,8 @@ export const EXAMINER_ASSIGNMENT_TEXT = {
   EXAMINER_LABEL: "Examiner",
   EXAMINER_PLACEHOLDER: "Select an active Examiner",
   NO_EXAMINERS: "No active Examiners are available in this organization.",
-  NO_SCOPES: "Add at least one student to assign.",
+  RANDOM_HINT:
+    "Every submitted attempt of this exam is split randomly and evenly among the selected examiners.",
   RANDOM_HELP:
     "All selected scopes are combined into one pool, then attempts are split as evenly as possible.",
   SUPPLEMENTAL_HELP:
@@ -434,7 +434,6 @@ export const EXAMINER_ASSIGNMENT_TEXT = {
   ASSIGNED_TOTAL: (count: number) => `${count} attempt(s) to grade assigned in this session`,
   CREATED: "Created",
   STATUS: "Status",
-  ACTIONS: "Actions",
   PREVIOUS_PAGE: "Previous",
   NEXT_PAGE: "Next",
 } as const;

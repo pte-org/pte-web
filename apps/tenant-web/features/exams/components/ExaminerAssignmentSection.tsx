@@ -8,7 +8,6 @@ import type {
   UserResponse,
 } from "@pte/api-client";
 import {
-  ActionMenu,
   Alert,
   CollapsibleSection,
   DataTable,
@@ -23,7 +22,7 @@ import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
 import { EXAMINER_ASSIGNMENT_TEXT as T, SESSION_DETAIL_TEXT } from "../constants";
 import { AssignStudentsToExaminerModal, type PickedStudent } from "./AssignStudentsToExaminerModal";
-import { ExaminerCards, StudentChips, type ExaminerCardDraft } from "./ExaminerAssignmentCards";
+import { ExaminerCards, type ExaminerCardDraft } from "./ExaminerAssignmentCards";
 import {
   useActiveExaminers,
   useConfirmExaminerAssignmentPreview,
@@ -35,9 +34,6 @@ interface ExaminerAssignmentSectionProps {
   sessionPublicId: string;
   sessionStatus: string;
 }
-
-/** Where the student picker was opened from: the shared Random pool or one Manual Examiner card. */
-type PickerTarget = { kind: "pool" } | { kind: "card"; cardKey: string };
 
 const EMPTY_USERS: UserResponse[] = [];
 type AssignmentBatch = ExaminerAssignmentOverviewResponse["batches"][number];
@@ -69,9 +65,8 @@ export const ExaminerAssignmentSection = ({
   const { showToast } = useToast();
   const searchText = useTenantSearchText("examinerBatches");
   const [mode, setMode] = useState<ExaminerAssignmentMode>("RANDOM");
-  const [poolStudents, setPoolStudents] = useState<PickedStudent[]>([]);
   const [cards, setCards] = useState<ExaminerCardDraft[]>([]);
-  const [pickerTarget, setPickerTarget] = useState<PickerTarget | null>(null);
+  const [pickerCardKey, setPickerCardKey] = useState<string | null>(null);
   const [selectedExaminerIds, setSelectedExaminerIds] = useState<string[]>([]);
   const [batchPage, setBatchPage] = useState(0);
   const [batchSearch, setBatchSearch] = useState("");
@@ -96,7 +91,6 @@ export const ExaminerAssignmentSection = ({
     studentsModalAdd: t("tenant.examinerAssignment.studentsModalAdd", T.STUDENTS_MODAL_ADD),
     studentsModalCancel: t("tenant.examinerAssignment.studentsModalCancel", T.STUDENTS_MODAL_CANCEL),
     studentsModalHint: t("tenant.examinerAssignment.studentsModalHint", T.STUDENTS_MODAL_HINT),
-    studentsPool: t("tenant.examinerAssignment.studentsPool", T.STUDENTS_POOL),
     cardNoStudents: t("tenant.examinerAssignment.cardNoStudents", T.CARD_NO_STUDENTS),
     manualEmpty: t("tenant.examinerAssignment.manualEmpty", T.MANUAL_EMPTY),
     studentsCount: (count: number) =>
@@ -106,7 +100,7 @@ export const ExaminerAssignmentSection = ({
     examiner: t("tenant.examinerAssignment.examiner", T.EXAMINER_LABEL),
     examinerPlaceholder: t("tenant.examinerAssignment.examinerPlaceholder", T.EXAMINER_PLACEHOLDER),
     noExaminers: t("tenant.examinerAssignment.noExaminers", T.NO_EXAMINERS),
-    noScopes: t("tenant.examinerAssignment.noScopes", T.NO_SCOPES),
+    randomHint: t("tenant.examinerAssignment.randomHint", T.RANDOM_HINT),
     loading: t("tenant.examinerAssignment.loading", "Loading..."),
     preview: t("tenant.examinerAssignment.preview", T.PREVIEW),
     previewing: t("tenant.examinerAssignment.previewing", T.PREVIEWING),
@@ -129,7 +123,6 @@ export const ExaminerAssignmentSection = ({
       t("tenant.examinerAssignment.assignedTotal", T.ASSIGNED_TOTAL(count), { count }),
     created: t("tenant.examinerAssignment.created", T.CREATED),
     status: t("tenant.examinerAssignment.status", T.STATUS),
-    actions: t("tenant.examinerAssignment.actions", T.ACTIONS),
     dateRange: t("tenant.examinerAssignment.dateRange", "Date range"),
     allStatuses: t("tenant.examinerAssignment.allStatuses", "All statuses"),
     previewedStatus: t("tenant.examinerAssignment.previewed", "Previewed"),
@@ -166,20 +159,15 @@ export const ExaminerAssignmentSection = ({
   const studentNames = useMemo(
     () =>
       new Map(
-        [...poolStudents, ...cards.flatMap((card) => card.students)].map(
-          (student) => [student.publicId, student.fullName] as const,
-        ),
+        cards
+          .flatMap((card) => card.students)
+          .map((student) => [student.publicId, student.fullName] as const),
       ),
-    [poolStudents, cards],
+    [cards],
   );
   const pickedStudentIds = useMemo(
-    () =>
-      new Set(
-        (mode === "RANDOM" ? poolStudents : cards.flatMap((card) => card.students)).map(
-          (student) => student.publicId,
-        ),
-      ),
-    [mode, poolStudents, cards],
+    () => new Set(cards.flatMap((card) => card.students).map((student) => student.publicId)),
+    [cards],
   );
 
   const addExaminerCard = (): void => {
@@ -209,30 +197,19 @@ export const ExaminerAssignmentSection = ({
       ),
     );
   };
-  const removePoolStudent = (studentPublicId: string): void => {
-    resetAssignmentFeedback();
-    setPoolStudents((previous) => previous.filter((s) => s.publicId !== studentPublicId));
-  };
   const addPickedStudents = (students: PickedStudent[]): void => {
-    if (!pickerTarget) return;
+    if (!pickerCardKey) return;
     resetAssignmentFeedback();
-    if (pickerTarget.kind === "pool") {
-      setPoolStudents((previous) => [...previous, ...students]);
-      return;
-    }
     setCards((previous) =>
       previous.map((card) =>
-        card.key === pickerTarget.cardKey
+        card.key === pickerCardKey
           ? { ...card, students: [...card.students, ...students] }
           : card,
       ),
     );
   };
 
-  const pickerExaminerId =
-    pickerTarget?.kind === "card"
-      ? cards.find((card) => card.key === pickerTarget.cardKey)?.examinerPublicId
-      : undefined;
+  const pickerExaminerId = cards.find((card) => card.key === pickerCardKey)?.examinerPublicId;
   const pickerExaminerLabel = examinerOptions.find(
     (option) => option.value === pickerExaminerId,
   )?.label;
@@ -248,7 +225,7 @@ export const ExaminerAssignmentSection = ({
     !examinersQuery.isError &&
     !createPreview.isPending &&
     (mode === "RANDOM"
-      ? poolStudents.length > 0 && selectedExaminerIds.length > 0
+      ? selectedExaminerIds.length > 0
       : cards.length > 0 &&
         cards.every((card) => card.examinerPublicId.length > 0 && card.students.length > 0));
 
@@ -256,11 +233,9 @@ export const ExaminerAssignmentSection = ({
     mode === "RANDOM"
       ? {
           mode,
-          scopes: poolStudents.map((student) => ({
-            type: "STUDENT" as const,
-            scopePublicId: student.publicId,
-            examinerPublicId: null,
-          })),
+          scopes: [
+            { type: "SESSION" as const, scopePublicId: sessionPublicId, examinerPublicId: null },
+          ],
           examinerPublicIds: selectedExaminerIds,
         }
       : {
@@ -326,11 +301,11 @@ export const ExaminerAssignmentSection = ({
     confirmPreview.mutate(batchPublicId, {
       onSuccess: (result) => {
         if (result.status === "COMMITTED") {
-          showToast(`${text.confirmed} ${result.batchPublicId}`, { tone: "success" });
+          showToast(text.confirmed, { tone: "success" });
         } else if (result.status === "EXPIRED") {
-          showToast(`${text.expired} ${result.batchPublicId}`, { tone: "warning" });
+          showToast(text.expired, { tone: "warning" });
         } else if (result.status === "STALE") {
-          showToast(`${text.stale} ${result.batchPublicId}`, { tone: "warning" });
+          showToast(text.stale, { tone: "warning" });
         }
       },
     });
@@ -406,32 +381,7 @@ export const ExaminerAssignmentSection = ({
 
         {mode === "RANDOM" ? (
           <>
-            <div className="flex flex-col gap-3 rounded-md border border-[var(--shell-border)] p-3">
-              <div className="flex items-center justify-between gap-3">
-                <h4 className="text-sm font-semibold text-[var(--ink-primary)]">
-                  {text.studentsPool}
-                </h4>
-                <span className="text-sm text-[var(--ink-secondary)]">
-                  {text.studentsCount(poolStudents.length)}
-                </span>
-              </div>
-              {poolStudents.length === 0 ? (
-                <p className="text-sm text-[var(--ink-secondary)]">{text.noScopes}</p>
-              ) : (
-                <StudentChips
-                  students={poolStudents}
-                  removeLabel={text.remove}
-                  onRemove={removePoolStudent}
-                />
-              )}
-              <button
-                type="button"
-                onClick={() => setPickerTarget({ kind: "pool" })}
-                className="self-start rounded-lg border border-[var(--shell-border)] px-3 py-1.5 text-sm text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)]"
-              >
-                + {text.addStudents}
-              </button>
-            </div>
+            <p className="text-sm text-[var(--ink-secondary)]">{text.randomHint}</p>
 
             <fieldset className="flex flex-col gap-2 rounded-md border border-[var(--shell-border)] p-3">
               <legend className="px-1 text-sm font-semibold text-[var(--ink-primary)]">
@@ -480,7 +430,7 @@ export const ExaminerAssignmentSection = ({
                 count: text.studentsCount,
               }}
               onExaminerChange={changeCardExaminer}
-              onAddStudents={(cardKey) => setPickerTarget({ kind: "card", cardKey })}
+              onAddStudents={setPickerCardKey}
               onRemoveStudent={removeCardStudent}
               onRemoveCard={removeCard}
             />
@@ -519,17 +469,11 @@ export const ExaminerAssignmentSection = ({
             }
           >
             {currentPreviewCommitted ? (
-              <>
-                {text.confirmed} <code>{preview.batchPublicId}</code>
-              </>
+              text.confirmed
             ) : currentPreviewExpired ? (
-              <>
-                {text.expired} <code>{preview.batchPublicId}</code>
-              </>
+              text.expired
             ) : currentPreviewStale ? (
-              <>
-                {text.stale} <code>{preview.batchPublicId}</code>
-              </>
+              text.stale
             ) : preview.valid ? (
               text.previewValid
             ) : (
@@ -611,25 +555,8 @@ export const ExaminerAssignmentSection = ({
               setBatchSearch(value);
               setBatchPage(0);
             }}
-            rowActionsHeader={text.actions}
             clientSideFiltering={false}
             clientSidePagination={false}
-            rowActions={(batch) =>
-              batch.status === "PREVIEWED" &&
-              Date.parse(batch.previewExpiresAt) > currentTime &&
-              confirmPreview.data?.batchPublicId !== batch.batchPublicId ? (
-                <ActionMenu
-                  label={text.actions}
-                  items={[
-                    {
-                      label: text.confirm,
-                      disabled: confirmPreview.isPending,
-                      onSelect: () => confirmAssignment(batch.batchPublicId),
-                    },
-                  ]}
-                />
-              ) : null
-            }
             pagination={
               overview.data ? (
                 <PaginationControls
@@ -653,8 +580,8 @@ export const ExaminerAssignmentSection = ({
         labels={text}
       />
       <AssignStudentsToExaminerModal
-        open={pickerTarget !== null}
-        onClose={() => setPickerTarget(null)}
+        open={pickerCardKey !== null}
+        onClose={() => setPickerCardKey(null)}
         sessionPublicId={sessionPublicId}
         title={pickerTitle}
         labels={{
