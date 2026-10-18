@@ -204,7 +204,7 @@ export interface ScoringAnswerResponse {
 
 export * from "./gradingCohort";
 
-export type AssignmentScopeType = "CLASS" | "PROGRAM" | "STUDENT";
+export type AssignmentScopeType = "CLASS" | "PROGRAM" | "STUDENT" | "SESSION";
 export type ExaminerAssignmentMode = "MANUAL" | "RANDOM";
 export type ExaminerAssignmentBatchStatus =
   "PREVIEWED" | "COMMITTED" | "EXPIRED" | "STALE" | "INVALID";
