@@ -70,4 +70,11 @@ export const EXAMINER_WORKSPACE_VI: ExaminerWorkspaceMessages = {
   searchBtn: "Tìm kiếm",
   resetFilters: "Đặt lại bộ lọc",
   refreshing: "Đang làm mới...",
+  backToOverview: "Về tổng quan",
+  searchPlaceholder: "Tìm theo mã bài thi hoặc phiên thi…",
+  sortLabel: "Sắp xếp",
+  sortAssignedAsc: "Phân công cũ nhất",
+  sortAssignedDesc: "Phân công mới nhất",
+  startingWork: "Đang bắt đầu…",
+  viewWork: "Xem bài chấm",
 };

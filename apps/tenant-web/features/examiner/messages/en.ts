@@ -68,6 +68,13 @@ export const EXAMINER_WORKSPACE_EN = {
   searchBtn: "Search",
   resetFilters: "Reset Filters",
   refreshing: "Refreshing…",
+  backToOverview: "Back to overview",
+  searchPlaceholder: "Search by attempt or session ID…",
+  sortLabel: "Sort order",
+  sortAssignedAsc: "Oldest assigned",
+  sortAssignedDesc: "Newest assigned",
+  startingWork: "Starting…",
+  viewWork: "View marking",
 };
 
 export type ExaminerWorkspaceMessageKey = keyof typeof EXAMINER_WORKSPACE_EN;
