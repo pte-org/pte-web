@@ -18,7 +18,7 @@ export const PublicHeader = (): ReactElement => {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="PTE Prep home">
           <Image
-            src="/logo.png"
+            src="/logo-ppte.png"
             alt="PTE Prep logo"
             width={40}
             height={40}

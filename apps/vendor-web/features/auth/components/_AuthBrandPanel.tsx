@@ -13,7 +13,7 @@ export const AuthBrandPanel = (): ReactElement => {
         <div className="absolute bottom-5 right-2 h-24 w-24 -rotate-12 rounded-2xl bg-sky-100" />
         <div className="absolute inset-8 grid place-items-center rounded-2xl bg-white shadow-card">
           <Image
-            src="/logo.png"
+            src="/logo-ppte.png"
             alt="PTE Prep logo"
             width={128}
             height={128}

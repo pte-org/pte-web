@@ -28,7 +28,7 @@ export const PublicShell = ({ children }: PublicShellProps): ReactElement => (
               aria-label="PTE Prep home"
             >
               <Image
-                src="/logo.png"
+                src="/logo-ppte.png"
                 alt="PTE Prep logo"
                 width={36}
                 height={36}

@@ -83,7 +83,7 @@ const SidebarBrand = ({ collapsed = false }: { collapsed?: boolean }): ReactElem
       )}
     >
       <Image
-        src="/logo.png"
+        src="/logo-ppte.png"
         alt={`${BRAND_NAME} logo`}
         width={40}
         height={40}

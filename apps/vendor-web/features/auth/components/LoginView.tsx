@@ -121,7 +121,7 @@ export const LoginView = (): ReactElement => {
         <div className="flex flex-col justify-center gap-6 p-8 md:p-10">
           <div className="flex items-center gap-2 text-blue-800">
             <Image
-              src="/logo.png"
+              src="/logo-ppte.png"
               alt="PTE Prep logo"
               width={32}
               height={32}
