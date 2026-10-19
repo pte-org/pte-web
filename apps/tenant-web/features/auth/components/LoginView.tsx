@@ -172,6 +172,7 @@ export const LoginView = (): ReactElement => {
                   id="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
+                  placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
                   value={password}
                   onChange={(event) => {
                     setPassword(event.target.value);
