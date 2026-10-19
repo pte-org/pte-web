@@ -3,7 +3,6 @@
 import type { ReactElement } from "react";
 import type {
   ExaminerAnswerDetailResponse,
-  ExaminerDecisionKind,
 } from "@pte/api-client";
 import { Alert, Badge, Button, Input } from "@pte/ui";
 import { getExaminerBlockingText, useExaminerWorkText } from "../hooks/useExaminerWorkText";
@@ -13,7 +12,6 @@ interface DecisionPanelProps {
   draftScore: string;
   draftComment?: string;
   draftSavedAt?: string | null;
-  decisionKind: ExaminerDecisionKind;
   isStale: boolean;
   isMediaBroken?: boolean;
   isSavingDraft?: boolean;
@@ -28,7 +26,6 @@ export const DecisionPanel = ({
   draftScore,
   draftComment = "",
   draftSavedAt,
-  decisionKind,
   isStale,
   isMediaBroken = false,
   isSavingDraft = false,
@@ -129,20 +126,15 @@ export const DecisionPanel = ({
             />
           </div>
 
-          <div className="flex items-center gap-2 pb-1">
-            <Badge variant={decisionKind === "CONFIRM_AI" ? "neutral" : "info"}>
-              {decisionKind === "CONFIRM_AI" ? T.DECISION_CONFIRM_AI : T.DECISION_MANUAL}
-            </Badge>
-            {diff !== null && (
-              <span
-                className={`text-xs font-semibold ${
-                  diff > 0 ? "text-emerald-700" : diff < 0 ? "text-amber-700" : "text-slate-600"
-                }`}
-              >
-                {T.DIFF_FROM_AI}: {diff > 0 ? `+${diff}` : diff}
-              </span>
-            )}
-          </div>
+          {diff !== null && (
+            <span
+              className={`pb-1 text-xs font-semibold ${
+                diff > 0 ? "text-emerald-700" : diff < 0 ? "text-amber-700" : "text-slate-600"
+              }`}
+            >
+              {T.DIFF_FROM_AI}: {diff > 0 ? `+${diff}` : diff}
+            </span>
+          )}
 
           {onSaveDraft && (
             <Button

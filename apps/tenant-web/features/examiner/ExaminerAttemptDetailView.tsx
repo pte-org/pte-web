@@ -286,7 +286,6 @@ export const ExaminerAttemptDetailView = ({
               draftScore={activeDraft?.score ?? ""}
               draftComment={activeDraft?.comment ?? ""}
               draftSavedAt={activeDraft?.savedAt}
-              decisionKind={activeDraft?.decisionKind ?? "MANUAL"}
               isStale={isStale}
               isMediaBroken={promptMediaBroken || responseMediaBroken}
               isSavingDraft={isSavingDraft}
