@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>PTE Orbit</title>
+    <link rel="icon" href="data:," />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      if (new URLSearchParams(window.location.search).get("embed") === "1") {
+        document.documentElement.dataset.mode = "embed";
+      }
+    </script>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <main>
+      <section class="viewer" aria-label="PTE 3D artwork">
+        <div id="canvas-host" class="canvas-host"></div>
+        <div id="loading" class="loading" role="status">
+          <span class="loader" aria-hidden="true"></span>
+        </div>
+        <div id="fallback" class="fallback" role="alert" hidden>
+          <p>Unable to load 3D artwork.</p>
+          <p id="fallback-detail"></p>
+          <button id="retry" type="button">Retry</button>
+        </div>
+        <div class="scene-label" aria-hidden="true">
+          <span class="live-dot"></span>
+          <span id="render-state">LIVE 3D</span>
+        </div>
+        <div class="controls" aria-label="3D controls">
+          <button
+            id="motion-toggle"
+            class="primary-button"
+            type="button"
+            aria-pressed="false"
+            disabled
+          >
+            Pause
+          </button>
+          <button id="reset-view" class="text-button" type="button" disabled>Reset</button>
+          <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false">
+            Theme
+          </button>
+        </div>
+      </section>
+    </main>
+    <noscript><p class="noscript">JavaScript is required to view the 3D artwork.</p></noscript>
+    <script type="module" src="bootstrap.js"></script>
+  </body>
+</html>
