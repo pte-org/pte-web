@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">A workspace for your organization</title>
+  <desc id="desc">A welcoming exam center with an open doorway and a verified organization card. Transparent flat vector illustration.</desc>
+  <path d="M55 202V115a104 104 0 0 1 208 0v87H55Z" fill="#E8F2F9"/>
+  <circle cx="248" cy="57" r="22" fill="#F3C67A"/>
+  <path d="M36 208h250" stroke="#BDD1DF" stroke-width="2" stroke-linecap="round"/>
+  <g id="exam-center">
+    <path d="M91 96h132v112H91z" fill="#B8D8EE"/>
+    <path d="M78 98 156 49l79 49H78Z" fill="#163650"/>
+    <path d="M87 99h139v11H87z" fill="#407694"/>
+    <path d="M139 161a18 18 0 0 1 36 0v47h-36v-47Z" fill="#0D6FBE"/>
+    <path d="m157 148 18 12v48h-18v-60Z" fill="#163650"/>
+    <circle cx="168" cy="183" r="2" fill="#F3C67A"/>
+    <g fill="#FFFDF8"><rect x="107" y="124" width="19" height="24" rx="4"/><rect x="188" y="124" width="19" height="24" rx="4"/><rect x="107" y="163" width="19" height="24" rx="4"/><rect x="188" y="163" width="19" height="24" rx="4"/></g>
+    <path d="M139 208h39m-44 7h49" stroke="#8EBBCD" stroke-width="4" stroke-linecap="round"/>
+    <path d="m145 83 11-6 12 6-12 6-11-6Z" fill="#B9DFEF"/>
+  </g>
+  <g id="organization-card" transform="rotate(-9 76 151)">
+    <rect x="37" y="122" width="90" height="66" rx="9" fill="#FFFDF8" stroke="#BDD1DF" stroke-width="1.5"/>
+    <circle cx="60" cy="144" r="8" fill="#E9B294"/>
+    <path d="M47 165a13 13 0 0 1 26 0H47Z" fill="#0D6FBE"/>
+    <path d="M82 142h29m-29 12h20m-61 21h69" stroke="#8EBBCD" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="120" cy="123" r="16" fill="#AAD8CE"/>
+    <path d="m113 123 5 5 9-10" stroke="#1C6258" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="welcome-plant">
+    <path d="M249 191c-25-10-34-29-28-45 18 4 30 20 28 45Z" fill="#71AFA2"/>
+    <path d="M250 190c-5-31 4-51 21-58 11 20 2 44-21 58Z" fill="#AAD8CE"/>
+    <path d="M249 194v-40" stroke="#478F83" stroke-width="2" stroke-linecap="round"/>
+    <path d="M235 187h30l-4 21h-22l-4-21Z" fill="#E6AF90"/>
+  </g>
+</svg>

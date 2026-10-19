@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">See the progress, plan the next step</title>
+  <desc id="desc">A progress report with four rising bars, a completed checklist and an open learner notebook. Transparent flat vector illustration.</desc>
+  <path d="M53 203v-81a107 107 0 0 1 214 0v81H53Z" fill="#E8F2F9"/>
+  <path d="M34 208h253" stroke="#BDD1DF" stroke-width="2" stroke-linecap="round"/>
+  <g id="progress-report" transform="rotate(5 170 122)">
+    <rect x="93" y="45" width="162" height="155" rx="13" fill="#B8D8EE"/>
+    <rect x="86" y="38" width="162" height="155" rx="13" fill="#FFFDF8"/>
+    <path d="M105 60h76m-76 13h47" stroke="#163650" stroke-width="5" stroke-linecap="round"/>
+    <path d="M104 174h125" stroke="#BDD1DF" stroke-width="1.5"/>
+    <rect x="109" y="143" width="20" height="30" rx="5" fill="#B8D8EE"/>
+    <rect x="140" y="125" width="20" height="48" rx="5" fill="#8EBBCD"/>
+    <rect x="171" y="105" width="20" height="68" rx="5" fill="#0D6FBE"/>
+    <rect x="202" y="86" width="20" height="87" rx="5" fill="#71AFA2"/>
+    <circle cx="239" cy="44" r="24" fill="#AAD8CE"/>
+    <path d="m229 44 7 7 14-16" stroke="#1C6258" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="learner-notebook">
+    <path d="M38 158c24-6 43-2 62 8 20-10 43-14 66-8v47c-25-6-45-2-66 8-20-10-39-14-62-8v-47Z" fill="#163650"/>
+    <path d="M42 151c21-5 40-1 58 9v45c-19-10-37-13-58-9v-45Z" fill="#FFFDF8"/>
+    <path d="M100 160c19-10 39-14 61-9v45c-22-4-43-1-61 9v-45Z" fill="#D5E5EF"/>
+    <path d="m53 166 33 7m-33 5 33 7m27-13 35-7m-35 19 35-7" stroke="#8EBBCD" stroke-width="3" stroke-linecap="round"/>
+    <path d="M100 161v43" stroke="#BDD1DF" stroke-width="1.5"/>
+    <path d="M132 155v22l7-5 7 2v-22" fill="#F3C67A"/>
+  </g>
+  <g id="completed-checklist" transform="rotate(9 253 170)">
+    <rect x="226" y="137" width="54" height="69" rx="8" fill="#FFFDF8" stroke="#BDD1DF" stroke-width="1.5"/>
+    <g stroke="#1C6258" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m236 154 3 3 5-6m-8 19 3 3 5-6m-8 19 3 3 5-6"/></g>
+    <path d="M252 154h16m-16 16h16m-16 16h10" stroke="#8EBBCD" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>

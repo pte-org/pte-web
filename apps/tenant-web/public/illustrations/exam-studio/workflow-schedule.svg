@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" viewBox="0 0 320 240" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Every exam has its place</title>
+  <desc id="desc">An exam calendar with a confirmed session, a learner roster and a headset. Transparent flat vector illustration.</desc>
+  <path d="M52 204v-84a108 108 0 0 1 216 0v84H52Z" fill="#E8F2F9"/>
+  <path d="M35 208h253" stroke="#BDD1DF" stroke-width="2" stroke-linecap="round"/>
+  <g id="exam-calendar">
+    <rect x="92" y="52" width="157" height="150" rx="13" fill="#B8D8EE"/>
+    <rect x="84" y="45" width="157" height="150" rx="13" fill="#FFFDF8"/>
+    <path d="M97 45h131c7 0 13 6 13 13v29H84V58c0-7 6-13 13-13Z" fill="#0D6FBE"/>
+    <path d="M116 34v25m93-25v25" stroke="#163650" stroke-width="6" stroke-linecap="round"/>
+    <g fill="#D5E5EF"><rect x="102" y="103" width="22" height="18" rx="4"/><rect x="137" y="103" width="22" height="18" rx="4"/><rect x="172" y="103" width="22" height="18" rx="4"/><rect x="207" y="103" width="16" height="18" rx="4"/><rect x="102" y="135" width="22" height="18" rx="4"/><rect x="207" y="135" width="16" height="18" rx="4"/><rect x="102" y="167" width="22" height="12" rx="4"/><rect x="137" y="167" width="22" height="12" rx="4"/><rect x="172" y="167" width="22" height="12" rx="4"/></g>
+    <rect x="133" y="130" width="66" height="28" rx="7" fill="#AAD8CE"/>
+    <path d="m145 144 4 4 8-9m11 5h18" stroke="#1C6258" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g id="learner-roster" transform="rotate(-9 78 156)">
+    <rect x="38" y="108" width="82" height="95" rx="9" fill="#FFFDF8" stroke="#BDD1DF" stroke-width="1.5"/>
+    <path d="M54 124h35" stroke="#163650" stroke-width="4" stroke-linecap="round"/>
+    <g fill="#B8D8EE"><circle cx="57" cy="144" r="6"/><circle cx="57" cy="165" r="6"/><circle cx="57" cy="186" r="6"/></g>
+    <path d="M72 144h30m-30 21h24m-24 21h28" stroke="#8EBBCD" stroke-width="3.5" stroke-linecap="round"/>
+  </g>
+  <g id="headset">
+    <path d="M222 187v-21c0-17 11-28 25-28s25 11 25 28v21" stroke="#163650" stroke-width="6" stroke-linecap="round"/>
+    <rect x="215" y="167" width="14" height="30" rx="7" fill="#0D6FBE"/>
+    <rect x="265" y="167" width="14" height="30" rx="7" fill="#0D6FBE"/>
+    <path d="M272 195c0 10-11 14-22 14" stroke="#163650" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="240" y="205" width="14" height="6" rx="3" fill="#163650"/>
+  </g>
+  <path d="M53 68h18m-9-9v18" stroke="#CBA363" stroke-width="2" stroke-linecap="round"/>
+</svg>
