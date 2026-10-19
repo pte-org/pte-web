@@ -13,8 +13,6 @@ interface ConfirmDecisionDialogProps {
   score: number;
   decisionKind: ExaminerDecisionKind;
   taskTitle: string;
-  requestPublicId: string;
-  expectedReviewVersion?: string | null;
   aiScore?: number | null;
   onConfirm: () => void;
   onClose: () => void;
@@ -28,8 +26,6 @@ export const ConfirmDecisionDialog = ({
   score,
   decisionKind,
   taskTitle,
-  requestPublicId,
-  expectedReviewVersion,
   aiScore,
   onConfirm,
   onClose,
@@ -88,18 +84,6 @@ export const ConfirmDecisionDialog = ({
                 </span>
               </div>
             )}
-            {expectedReviewVersion && (
-              <div className="flex justify-between items-center">
-                <span className="text-slate-500">{T.EXPECTED_VERSION}:</span>
-                <span className="font-mono text-slate-600">{expectedReviewVersion}</span>
-              </div>
-            )}
-            <div className="flex justify-between items-center">
-              <span className="text-slate-500">{T.REQUEST_ID}:</span>
-              <span className="font-mono text-[10px] text-slate-500 truncate max-w-[180px]">
-                {requestPublicId}
-              </span>
-            </div>
           </div>
         </div>
       }

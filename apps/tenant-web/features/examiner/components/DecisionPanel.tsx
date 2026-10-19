@@ -280,8 +280,6 @@ export const DecisionPanel = ({
         score={frozenConfirmation?.score ?? parsedScore}
         decisionKind={frozenConfirmation?.decisionKind ?? decisionKind}
         taskTitle={`${answer.prompt.orderIndex + 1}. ${answer.taskType}`}
-        requestPublicId={frozenConfirmation?.requestPublicId ?? ""}
-        expectedReviewVersion={frozenConfirmation?.expectedReviewVersion ?? answer.reviewVersion}
         aiScore={aiScore}
         onConfirm={handleConfirmSubmit}
         onClose={() => setConfirmOpen(false)}
