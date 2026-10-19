@@ -52,9 +52,6 @@ export const AUTH_TEXT = {
   BRAND: "PTE Prep",
   WELCOME_TITLE: "Welcome Back",
   WELCOME_SUBTITLE: "Please enter your institutional credentials to continue.",
-  PANEL_HEADING: "Ready to Manage?",
-  PANEL_TEXT:
-    "Sign in to access your institutional dashboard, manage exams, and track your results.",
   // Username, not email: the backend login key moved off email in Phase 1
   // of the commercialization work. A PLATFORM_ADMIN's username IS their
   // email (the backend sets username = email for every non-STUDENT role),

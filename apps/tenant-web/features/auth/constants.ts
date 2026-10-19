@@ -49,8 +49,6 @@ export const AUTH_TEXT = {
   BRAND: "PTE Prep",
   WELCOME_TITLE: "Welcome Back",
   WELCOME_SUBTITLE: "Sign in to manage learners and exams for your organization.",
-  PANEL_HEADING: "Ready to manage?",
-  PANEL_TEXT: "Sign in to import learners, assign exams, and monitor results.",
   // Username, not email: the backend login key moved off email in Phase 1
   // of the commercialization work. A HOST_ADMIN's username IS their email
   // (the backend sets username = email for every non-STUDENT role), which

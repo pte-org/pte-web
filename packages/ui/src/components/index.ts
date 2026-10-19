@@ -131,3 +131,5 @@ export { TrendLineChart } from "./TrendLineChart";
 export type { TrendLineChartProps } from "./TrendLineChart";
 export type { TrendChartBaseProps, TrendChartDatum, TrendChartSeries } from "./trendChartShared";
 export { MailIcon, LockIcon, GradCapIcon, EyeIcon } from "./AuthIcons";
+export { PteOrbitPanel } from "./PteOrbitPanel";
+export type { PteOrbitPanelProps } from "./PteOrbitPanel";
