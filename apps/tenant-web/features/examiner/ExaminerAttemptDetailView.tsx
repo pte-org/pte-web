@@ -11,6 +11,7 @@ import {
   EmptyState,
   ErrorState,
   LoadingState,
+  useToast,
 } from "@pte/ui";
 import { getExaminerBlockingText, useExaminerWorkText } from "./hooks/useExaminerWorkText";
 import {
@@ -19,7 +20,6 @@ import {
   useExaminerIssues,
   useReportExaminerIssue,
   useStartExaminerWork,
-  useSubmitExaminerScore,
 } from "./api";
 import { PromptRenderer, ResponseRenderer } from "./components/AnswerContentRenderer";
 import { AiReferencePanel } from "./components/AiReferencePanel";
@@ -47,13 +47,13 @@ export const ExaminerAttemptDetailView = ({
   onBack?: () => void;
 }): ReactElement => {
   const T = useExaminerWorkText();
+  const { showToast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const fromStatus = searchParams?.get("fromStatus");
   const fromPage = searchParams?.get("fromPage");
 
   const query = useExaminerAttempt(sessionPublicId, attemptPublicId);
-  const submitMutation = useSubmitExaminerScore(sessionPublicId, attemptPublicId);
   const startMutation = useStartExaminerWork(sessionPublicId, attemptPublicId);
   const reportIssueMutation = useReportExaminerIssue(sessionPublicId, attemptPublicId);
   const guidelinesQuery = useExaminerGuidelines(sessionPublicId, attemptPublicId);
@@ -84,8 +84,6 @@ export const ExaminerAttemptDetailView = ({
     activeDraft,
     hasUnsaved,
     isStale,
-    isCurrentReconciling,
-    isCurrentSubmitting,
     isSavingDraft,
     isFinalizing,
     handleScoreChange,
@@ -94,9 +92,6 @@ export const ExaminerAttemptDetailView = ({
     handleAcknowledgeStale,
     handleSaveDraft,
     handleFinalizeAttempt,
-    handleSubmit,
-    handleRetryIdentical,
-    handleReconcileServer,
   } = useExaminerSubmissions({
     answers,
     currentAnswer,
@@ -104,7 +99,6 @@ export const ExaminerAttemptDetailView = ({
     sessionPublicId,
     attemptPublicId,
     refetchAttempt: () => query.refetch(),
-    submitMutation,
   });
 
   const executeBack = (): void => {
@@ -141,10 +135,17 @@ export const ExaminerAttemptDetailView = ({
     void query.refetch();
   };
 
+  const handleSaveClick = async (): Promise<void> => {
+    const saved = await handleSaveDraft();
+    showToast(saved ? T.SAVE_SUCCESS : T.SAVE_FAILED, { tone: saved ? "success" : "error" });
+  };
+
   const handleConfirmFinalize = async () => {
     const success = await handleFinalizeAttempt();
     if (success) {
       setFinalizeOpen(false);
+    } else {
+      showToast(T.FINALIZE_FAILED, { tone: "error" });
     }
   };
 
@@ -252,7 +253,10 @@ export const ExaminerAttemptDetailView = ({
               answers={answers}
               currentIndex={currentIndex}
               drafts={Object.fromEntries(
-                Object.entries(drafts).map(([k, v]) => [k, v.score]),
+                Object.entries(drafts).map(([k, v]) => [
+                  k,
+                  { score: v.score, isSaved: Boolean(v.savedAt) && !v.isDirty },
+                ]),
               )}
               onSelectIndex={handleSelectIndex}
             />
@@ -274,7 +278,6 @@ export const ExaminerAttemptDetailView = ({
             <AiReferencePanel
               reference={currentAnswer.aiReference}
               readOnly={currentAnswer.myScore !== null}
-              disabled={isCurrentReconciling || isCurrentSubmitting}
               onApplyAiScore={handleApplyAiScore}
             />
             {currentAnswer.ai && <AiScoreDetail ai={currentAnswer.ai} />}
@@ -286,16 +289,10 @@ export const ExaminerAttemptDetailView = ({
               decisionKind={activeDraft?.decisionKind ?? "MANUAL"}
               isStale={isStale}
               isMediaBroken={promptMediaBroken || responseMediaBroken}
-              isSubmitting={submitMutation.isPending}
               isSavingDraft={isSavingDraft}
-              isReconciling={isCurrentReconciling}
-              submitError={submitMutation.isError ? T.SUBMIT_ERROR : null}
               onScoreChange={handleScoreChange}
               onCommentChange={handleCommentChange}
-              onSaveDraft={() => void handleSaveDraft()}
-              onSubmit={handleSubmit}
-              onRetryIdentical={handleRetryIdentical}
-              onReconcileServer={handleReconcileServer}
+              onSaveDraft={() => void handleSaveClick()}
               onAcknowledgeStale={handleAcknowledgeStale}
             />
           </div>

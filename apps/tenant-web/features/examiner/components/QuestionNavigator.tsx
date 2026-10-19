@@ -8,7 +8,7 @@ import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 interface QuestionNavigatorProps {
   answers: ExaminerAnswerDetailResponse[];
   currentIndex: number;
-  drafts: Record<string, string>;
+  drafts: Record<string, { score: string; isSaved: boolean }>;
   onSelectIndex: (index: number) => void;
 }
 
@@ -49,8 +49,9 @@ export const QuestionNavigator = ({
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-1">
         {answers.map((answer, index) => {
           const isSelected = index === currentIndex;
-          const isSaved = answer.myScore !== null || answer.decision !== null;
-          const hasDraft = !isSaved && Boolean(drafts[answer.answerPublicId]?.trim());
+          const draft = drafts[answer.answerPublicId];
+          const isSaved = answer.myScore !== null || answer.decision !== null || Boolean(draft?.isSaved);
+          const hasDraft = !isSaved && Boolean(draft?.score.trim());
 
           return (
             <button

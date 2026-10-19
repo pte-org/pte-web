@@ -1,13 +1,12 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
+import type { ReactElement } from "react";
 import type {
   ExaminerAnswerDetailResponse,
   ExaminerDecisionKind,
 } from "@pte/api-client";
 import { Alert, Badge, Button, Input } from "@pte/ui";
 import { getExaminerBlockingText, useExaminerWorkText } from "../hooks/useExaminerWorkText";
-import { ConfirmDecisionDialog } from "./ConfirmDecisionDialog";
 
 interface DecisionPanelProps {
   answer: ExaminerAnswerDetailResponse;
@@ -17,24 +16,11 @@ interface DecisionPanelProps {
   decisionKind: ExaminerDecisionKind;
   isStale: boolean;
   isMediaBroken?: boolean;
-  isSubmitting: boolean;
   isSavingDraft?: boolean;
-  isReconciling?: boolean;
-  submitError: string | null;
   onScoreChange: (score: string) => void;
   onCommentChange?: (comment: string) => void;
   onSaveDraft?: () => void;
-  onSubmit: (score: number, kind: ExaminerDecisionKind, requestPublicId: string, expectedReviewVersion: string) => void;
-  onRetryIdentical?: () => void;
-  onReconcileServer?: () => void;
   onAcknowledgeStale?: () => void;
-}
-
-interface FrozenConfirmation {
-  requestPublicId: string;
-  expectedReviewVersion: string;
-  score: number;
-  decisionKind: ExaminerDecisionKind;
 }
 
 export const DecisionPanel = ({
@@ -45,21 +31,13 @@ export const DecisionPanel = ({
   decisionKind,
   isStale,
   isMediaBroken = false,
-  isSubmitting,
   isSavingDraft = false,
-  isReconciling = false,
-  submitError,
   onScoreChange,
   onCommentChange,
   onSaveDraft,
-  onSubmit,
-  onRetryIdentical,
-  onReconcileServer,
   onAcknowledgeStale,
 }: DecisionPanelProps): ReactElement => {
   const T = useExaminerWorkText();
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [frozenConfirmation, setFrozenConfirmation] = useState<FrozenConfirmation | null>(null);
 
   const hasSavedScore = answer.myScore !== null || answer.decision !== null;
   const parsedScore = draftScore.trim() === "" ? Number.NaN : Number(draftScore);
@@ -69,37 +47,6 @@ export const DecisionPanel = ({
   const aiScore = answer.aiReference?.score ?? null;
   const diff =
     scoreIsValid && typeof aiScore === "number" ? parsedScore - aiScore : null;
-
-  const canSubmit =
-    scoreIsValid &&
-    !hasSavedScore &&
-    !isSubmitting &&
-    !isReconciling &&
-    Boolean(answer.canFinalize) &&
-    !isStale &&
-    !isMediaBroken;
-
-  const handleOpenConfirm = (): void => {
-    if (!canSubmit) return;
-    setFrozenConfirmation({
-      requestPublicId: crypto.randomUUID(),
-      expectedReviewVersion: answer.reviewVersion ?? "",
-      score: parsedScore,
-      decisionKind,
-    });
-    setConfirmOpen(true);
-  };
-
-  const handleConfirmSubmit = (): void => {
-    if (!frozenConfirmation || isStale || isMediaBroken || !scoreIsValid) return;
-    setConfirmOpen(false);
-    onSubmit(
-      frozenConfirmation.score,
-      frozenConfirmation.decisionKind,
-      frozenConfirmation.requestPublicId,
-      frozenConfirmation.expectedReviewVersion,
-    );
-  };
 
   if (hasSavedScore) {
     const decision = answer.decision;
@@ -128,28 +75,6 @@ export const DecisionPanel = ({
 
   return (
     <section className="mt-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      {isReconciling && (
-        <div className="mb-4">
-          <Alert tone="warning" title={T.UNKNOWN_OUTCOME_TITLE}>
-            <div>
-              <p>{T.UNKNOWN_OUTCOME_MESSAGE}</p>
-              <div className="mt-3 flex items-center gap-2">
-                {onRetryIdentical && (
-                  <Button size="sm" variant="primary" onClick={onRetryIdentical} disabled={isSubmitting}>
-                    {T.RETRY_IDENTICAL}
-                  </Button>
-                )}
-                {onReconcileServer && (
-                  <Button size="sm" variant="secondary" onClick={onReconcileServer} disabled={isSubmitting}>
-                    {T.RECONCILE_SERVER}
-                  </Button>
-                )}
-              </div>
-            </div>
-          </Alert>
-        </div>
-      )}
-
       {isStale && (
         <div className="mb-4">
           <Alert tone="warning" title={T.STALE_REFERENCE}>
@@ -198,7 +123,7 @@ export const DecisionPanel = ({
               max={100}
               step={1}
               value={draftScore}
-              disabled={!answer.canFinalize || isSubmitting || isMediaBroken || isReconciling}
+              disabled={!answer.canFinalize || isMediaBroken}
               onChange={(e) => onScoreChange(e.target.value)}
               placeholder={T.SCORE_PLACEHOLDER}
             />
@@ -222,20 +147,12 @@ export const DecisionPanel = ({
           {onSaveDraft && (
             <Button
               variant="secondary"
-              disabled={!scoreIsValid || isSavingDraft || isSubmitting}
+              disabled={!scoreIsValid || isSavingDraft}
               onClick={onSaveDraft}
             >
               {isSavingDraft ? T.SAVING_DRAFT : T.SAVE_DRAFT}
             </Button>
           )}
-
-          <Button
-            variant="primary"
-            disabled={!canSubmit}
-            onClick={handleOpenConfirm}
-          >
-            {isSubmitting ? T.SUBMITTING : T.SUBMIT_SCORE}
-          </Button>
         </div>
 
         {onCommentChange && (
@@ -265,25 +182,6 @@ export const DecisionPanel = ({
       {!scoreIsValid && draftScore.length > 0 && (
         <p className="mt-2 text-xs text-red-600">{T.SCORE_INVALID}</p>
       )}
-
-      {submitError && (
-        <p className="mt-2 text-xs text-red-600" role="alert">
-          {submitError}
-        </p>
-      )}
-
-      <ConfirmDecisionDialog
-        open={confirmOpen}
-        isConfirming={isSubmitting}
-        isStale={isStale}
-        isMediaBroken={isMediaBroken}
-        score={frozenConfirmation?.score ?? parsedScore}
-        decisionKind={frozenConfirmation?.decisionKind ?? decisionKind}
-        taskTitle={`${answer.prompt.orderIndex + 1}. ${answer.taskType}`}
-        aiScore={aiScore}
-        onConfirm={handleConfirmSubmit}
-        onClose={() => setConfirmOpen(false)}
-      />
     </section>
   );
 };
