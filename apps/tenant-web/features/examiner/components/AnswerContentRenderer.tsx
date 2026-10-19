@@ -8,15 +8,17 @@ import type {
 import { Alert, Button } from "@pte/ui";
 import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
+export type MediaState = "ready" | "loading" | "failed";
+
 interface PromptRendererProps {
   prompt: ExaminerPromptResponse;
-  onMediaError?: (hasErrorOrLoading: boolean) => void;
+  onMediaStateChange?: (state: MediaState) => void;
   onRefreshMedia?: () => void;
 }
 
 export const PromptRenderer = ({
   prompt,
-  onMediaError,
+  onMediaStateChange,
   onRefreshMedia,
 }: PromptRendererProps): ReactElement => {
   const T = useExaminerWorkText();
@@ -44,10 +46,11 @@ export const PromptRenderer = ({
   }
 
   const isBlocked = (hasAudio && !audioReady) || (hasImage && !imageReady);
+  const mediaState: MediaState = audioFailed || imageFailed ? "failed" : isBlocked ? "loading" : "ready";
 
   useEffect(() => {
-    onMediaError?.(isBlocked);
-  }, [isBlocked, onMediaError]);
+    onMediaStateChange?.(mediaState);
+  }, [mediaState, onMediaStateChange]);
 
   return (
     <section className="rounded-xl bg-slate-50 p-5 border border-slate-200 shadow-sm" aria-label={T.PROMPT}>
@@ -177,13 +180,13 @@ export const PromptRenderer = ({
 
 interface ResponseRendererProps {
   response: ExaminerAnswerPayloadResponse;
-  onMediaError?: (hasErrorOrLoading: boolean) => void;
+  onMediaStateChange?: (state: MediaState) => void;
   onRefreshMedia?: () => void;
 }
 
 export const ResponseRenderer = ({
   response,
-  onMediaError,
+  onMediaStateChange,
   onRefreshMedia,
 }: ResponseRendererProps): ReactElement => {
   const T = useExaminerWorkText();
@@ -209,10 +212,11 @@ export const ResponseRenderer = ({
   }
 
   const isBlocked = isAudio && !audioReady;
+  const mediaState: MediaState = audioFailed ? "failed" : isBlocked ? "loading" : "ready";
 
   useEffect(() => {
-    onMediaError?.(isBlocked);
-  }, [isBlocked, onMediaError]);
+    onMediaStateChange?.(mediaState);
+  }, [mediaState, onMediaStateChange]);
 
   return (
     <section className="mt-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm" aria-label={T.STUDENT_RESPONSE}>

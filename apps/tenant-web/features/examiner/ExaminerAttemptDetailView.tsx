@@ -21,7 +21,7 @@ import {
   useReportExaminerIssue,
   useStartExaminerWork,
 } from "./api";
-import { PromptRenderer, ResponseRenderer } from "./components/AnswerContentRenderer";
+import { PromptRenderer, ResponseRenderer, type MediaState } from "./components/AnswerContentRenderer";
 import { AiReferencePanel } from "./components/AiReferencePanel";
 import { AiScoreDetail } from "@/features/aiScore";
 import { DecisionPanel } from "./components/DecisionPanel";
@@ -65,8 +65,8 @@ export const ExaminerAttemptDetailView = ({
   const [reportIssueOpen, setReportIssueOpen] = useState(false);
   const [guidelinesOpen, setGuidelinesOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [promptMediaBroken, setPromptMediaBroken] = useState(false);
-  const [responseMediaBroken, setResponseMediaBroken] = useState(false);
+  const [promptMedia, setPromptMedia] = useState<MediaState>("ready");
+  const [responseMedia, setResponseMedia] = useState<MediaState>("ready");
 
   const answers = query.data?.answers ?? NO_ANSWERS;
   const workflow = query.data?.workflow;
@@ -123,8 +123,8 @@ export const ExaminerAttemptDetailView = ({
 
   const handleSelectIndex = (index: number): void => {
     setCurrentIndex(index);
-    setPromptMediaBroken(false);
-    setResponseMediaBroken(false);
+    setPromptMedia("ready");
+    setResponseMedia("ready");
   };
 
   const handleStartWork = async () => {
@@ -266,13 +266,13 @@ export const ExaminerAttemptDetailView = ({
             <PromptRenderer
               key={`prompt-${currentAnswer.answerPublicId}`}
               prompt={currentAnswer.prompt}
-              onMediaError={setPromptMediaBroken}
+              onMediaStateChange={setPromptMedia}
               onRefreshMedia={() => void query.refetch()}
             />
             <ResponseRenderer
               key={`response-${currentAnswer.answerPublicId}`}
               response={currentAnswer.response}
-              onMediaError={setResponseMediaBroken}
+              onMediaStateChange={setResponseMedia}
               onRefreshMedia={() => void query.refetch()}
             />
             <AiReferencePanel
@@ -287,7 +287,8 @@ export const ExaminerAttemptDetailView = ({
               draftComment={activeDraft?.comment ?? ""}
               draftSavedAt={activeDraft?.savedAt}
               isStale={isStale}
-              isMediaBroken={promptMediaBroken || responseMediaBroken}
+              isMediaBroken={promptMedia === "failed" || responseMedia === "failed"}
+              isMediaLoading={promptMedia === "loading" || responseMedia === "loading"}
               isSavingDraft={isSavingDraft}
               onScoreChange={handleScoreChange}
               onCommentChange={handleCommentChange}

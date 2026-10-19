@@ -14,6 +14,7 @@ interface DecisionPanelProps {
   draftSavedAt?: string | null;
   isStale: boolean;
   isMediaBroken?: boolean;
+  isMediaLoading?: boolean;
   isSavingDraft?: boolean;
   onScoreChange: (score: string) => void;
   onCommentChange?: (comment: string) => void;
@@ -28,6 +29,7 @@ export const DecisionPanel = ({
   draftSavedAt,
   isStale,
   isMediaBroken = false,
+  isMediaLoading = false,
   isSavingDraft = false,
   onScoreChange,
   onCommentChange,
@@ -120,7 +122,7 @@ export const DecisionPanel = ({
               max={100}
               step={1}
               value={draftScore}
-              disabled={!answer.canFinalize || isMediaBroken}
+              disabled={!answer.canFinalize || isMediaBroken || isMediaLoading}
               onChange={(e) => onScoreChange(e.target.value)}
               placeholder={T.SCORE_PLACEHOLDER}
             />
