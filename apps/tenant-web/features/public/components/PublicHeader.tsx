@@ -5,13 +5,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRightIcon, useSessionManager } from "@pte/ui";
 import { AUTH_ROUTES } from "@/features/auth/constants";
+import { HomePublicHeader } from "./HomePublicHeader";
 
 const LINK_BUTTON_CLASS =
   "inline-flex min-h-10 items-center justify-center rounded-lg px-3.5 text-sm font-medium transition-[background-color,color] duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-action focus-visible:ring-offset-2";
 
-export const PublicHeader = (): ReactElement => {
+interface PublicHeaderProps {
+  home?: boolean;
+}
+
+export const PublicHeader = ({ home = false }: PublicHeaderProps): ReactElement => {
   const { isReady, session } = useSessionManager();
   const showDashboard = isReady && Boolean(session?.accessToken);
+  if (home) return <HomePublicHeader />;
 
   return (
     <header className="border-b border-slate-200 bg-white">
