@@ -6,7 +6,19 @@
     <meta name="color-scheme" content="light dark" />
     <title>PTE Orbit</title>
     <link rel="icon" href="data:," />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+    <script>
+      try {
+        const theme = window.localStorage.getItem("pte-web.theme");
+        if (theme === "dark" || theme === "light") {
+          document.documentElement.dataset.theme = theme;
+          document.documentElement.style.colorScheme = theme;
+        }
+      } catch {
+        // Storage can be disabled in private or embedded browser contexts.
+      }
+    </script>
+    <link rel="stylesheet" href="styles.css?v=motion-2" />
     <script>
       if (new URLSearchParams(window.location.search).get("embed") === "1") {
         document.documentElement.dataset.mode = "embed";
@@ -25,8 +37,12 @@
     <main>
       <section class="viewer" aria-label="PTE 3D artwork">
         <div id="canvas-host" class="canvas-host"></div>
-        <div id="loading" class="loading" role="status">
-          <span class="loader" aria-hidden="true"></span>
+        <div id="loading" class="loading" role="status" aria-label="PTE Prep artwork">
+          <div class="loading-art" aria-hidden="true">
+            <span class="loading-orbit loading-orbit-wide"></span>
+            <span class="loading-orbit loading-orbit-tilted"></span>
+            <span class="loading-core">P</span>
+          </div>
         </div>
         <div id="fallback" class="fallback" role="alert" hidden>
           <p>Unable to load 3D artwork.</p>
@@ -55,6 +71,6 @@
       </section>
     </main>
     <noscript><p class="noscript">JavaScript is required to view the 3D artwork.</p></noscript>
-    <script type="module" src="bootstrap.js"></script>
+    <script type="module" src="bootstrap.js?v=motion-2"></script>
   </body>
 </html>

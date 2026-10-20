@@ -29,7 +29,7 @@ export const servePteOrbitAsset = async (assetName: string): Promise<Response> =
     const content = await readFile(path.join(PTE_ORBIT_ASSET_DIRECTORY, asset), "utf8");
     return new Response(content, {
       headers: {
-        "Cache-Control": "public, max-age=3600",
+        "Cache-Control": "no-cache",
         "Content-Type": PTE_ORBIT_ASSETS[asset],
       },
     });

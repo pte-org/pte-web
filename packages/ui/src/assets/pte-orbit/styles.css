@@ -158,6 +158,46 @@ main {
   font-size: 13px;
   line-height: 1.7;
 }
+.loading {
+  background:
+    radial-gradient(circle at 50% 46%, rgba(126, 198, 238, 0.18), transparent 24%),
+    var(--background);
+}
+.loading-art {
+  position: relative;
+  width: min(42vw, 240px);
+  aspect-ratio: 1;
+}
+.loading-orbit {
+  position: absolute;
+  inset: 12%;
+  border: 1px solid var(--blue);
+  border-radius: 50%;
+  opacity: 0.28;
+}
+.loading-orbit-wide {
+  transform: rotate(24deg) scaleY(0.56);
+}
+.loading-orbit-tilted {
+  transform: rotate(-18deg) scaleY(0.7);
+}
+.loading-core {
+  position: absolute;
+  inset: 28%;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffffff 0%, #82c9f1 48%, #176fbd 100%);
+  box-shadow: 0 18px 42px rgba(22, 121, 206, 0.28);
+  color: #ffffff;
+  font-size: clamp(28px, 5vw, 46px);
+  font-weight: 900;
+  font-style: italic;
+  letter-spacing: -0.12em;
+  line-height: 1;
+  padding-right: 0.12em;
+  text-shadow: 0 2px 5px rgba(20, 58, 99, 0.24);
+}
 .fallback > p {
   margin: 0;
 }
@@ -176,14 +216,6 @@ main {
   background: transparent;
   color: var(--ink);
 }
-.loader {
-  width: 26px;
-  height: 26px;
-  border: 2px solid var(--line);
-  border-top-color: var(--blue);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
 .noscript {
   position: fixed;
   inset: 32px;
@@ -192,12 +224,6 @@ main {
 [hidden] {
   display: none !important;
 }
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 html[data-mode="embed"],
 html[data-mode="embed"] body {
   width: 100%;
@@ -211,8 +237,8 @@ html[data-mode="embed"] .viewer {
   height: 100%;
   min-height: 100%;
 }
-html[data-mode="embed"] .controls,
-html[data-mode="embed"] .scene-label {
+html[data-mode="embed"] .scene-label,
+html[data-mode="embed"] .controls {
   display: none;
 }
 @media (max-width: 520px) {
@@ -225,10 +251,5 @@ html[data-mode="embed"] .scene-label {
   .primary-button,
   .text-button {
     min-height: 38px;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .loader {
-    animation: none;
   }
 }
