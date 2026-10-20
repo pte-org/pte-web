@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { SETTINGS, THEMES } from "./constants.js";
-import { createEcosystem } from "./models.js";
+import { createEcosystem } from "./models.js?v=motion-2";
 
 /** @returns {{setTheme: Function, setMotion: Function, reset: Function, dispose: Function}} */
 export const mountScene = (host, reducedMotion) => {
@@ -22,12 +22,6 @@ export const mountScene = (host, reducedMotion) => {
   renderer.domElement.setAttribute("aria-label", "PTE Orbit 3D");
   renderer.domElement.tabIndex = 0;
   host.append(renderer.domElement);
-  const environmentScene = new RoomEnvironment();
-  const generator = new THREE.PMREMGenerator(renderer);
-  const environment = generator.fromScene(environmentScene, 0.04);
-  scene.environment = environment.texture;
-  environmentScene.dispose();
-  generator.dispose();
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.target.set(...SETTINGS.target);
   controls.enableDamping = !reducedMotion;
@@ -73,8 +67,25 @@ export const mountScene = (host, reducedMotion) => {
   let previousTime = null;
   let disposed = false;
   let contextLost = false;
+  let environment = null;
+  let environmentStarted = false;
   const render = () => {
     if (!disposed && !contextLost) renderer.render(scene, camera);
+  };
+  const enhanceEnvironment = () => {
+    if (disposed || contextLost || environmentStarted) return;
+    environmentStarted = true;
+    try {
+      const environmentScene = new RoomEnvironment();
+      const generator = new THREE.PMREMGenerator(renderer);
+      environment = generator.fromScene(environmentScene, 0.04);
+      scene.environment = environment.texture;
+      environmentScene.dispose();
+      generator.dispose();
+      render();
+    } catch (error) {
+      console.warn("PTE Orbit environment enhancement was skipped:", error);
+    }
   };
   const setTheme = (name) => {
     const theme = THEMES[name] ?? THEMES.light;
@@ -86,11 +97,12 @@ export const mountScene = (host, reducedMotion) => {
   };
   const tick = (timestamp) => {
     if (disposed || contextLost) return;
-    const delta =
-      previousTime === null ? 0 : Math.min((timestamp - previousTime) / 1000, SETTINGS.maxDelta);
+    const elapsedDelta = previousTime === null ? 0 : (timestamp - previousTime) / 1000;
+    const delta = Math.min(elapsedDelta, SETTINGS.maxDelta);
     previousTime = timestamp;
     if (playing) {
-      elapsed += delta;
+      // Orbital speed follows real time even when rendering takes longer than one frame.
+      elapsed += elapsedDelta;
       ecosystem.update(elapsed);
     }
     controls.update(delta);
@@ -138,6 +150,11 @@ export const mountScene = (host, reducedMotion) => {
   host.dataset.ready = "true";
   host.dataset.threeRevision = THREE.REVISION;
   host.dataset.meshes = String(renderer.info.render.calls);
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(enhanceEnvironment, { timeout: 1600 });
+  } else {
+    window.setTimeout(enhanceEnvironment, 0);
+  }
   return {
     setTheme,
     setMotion: (value) => {
@@ -171,7 +188,7 @@ export const mountScene = (host, reducedMotion) => {
       });
       geometries.forEach((geometry) => geometry.dispose());
       materials.forEach((material) => material.dispose());
-      environment.dispose();
+      environment?.dispose();
       renderer.dispose();
       renderer.domElement.remove();
     },

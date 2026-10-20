@@ -3,6 +3,8 @@ import { COLORS } from "./constants.js";
 import { ceramic, roundedBox, sphere, torus, tube, cylinder } from "./primitives.js";
 import { createBrandMonogram } from "./logo.js";
 
+const ORBIT_SPEEDS = Object.freeze([0.28, -0.2]);
+
 const createMaterials = () => ({
   blue: ceramic(COLORS.blue),
   navy: ceramic(COLORS.navy),
@@ -158,14 +160,14 @@ const createCore = (materials) => {
   return group;
 };
 
-const createOrbit = (radius, rotation, material) => {
+const createOrbit = (radius, rotation, material, speed) => {
   const group = new THREE.Group();
   const curve = new THREE.EllipseCurve(0, 0, radius, radius * 0.78);
   const points = curve.getPoints(128).map((point) => new THREE.Vector3(point.x, 0, point.y));
   const path = new THREE.CatmullRomCurve3(points, true);
   group.add(new THREE.Mesh(new THREE.TubeGeometry(path, 160, 0.008, 5, true), material));
   group.rotation.set(...rotation);
-  return { group, path };
+  return { group, path, rotation, speed };
 };
 
 /** @returns {{root: THREE.Group, update: Function, orbitMaterial: THREE.MeshStandardMaterial}} */
@@ -185,8 +187,8 @@ export const createEcosystem = () => {
     metalness: 0.5,
   });
   const orbits = [
-    createOrbit(2.43, [0.24, 0, -0.25], orbitMaterial),
-    createOrbit(2.17, [-0.5, 0.45, 0.5], orbitMaterial),
+    createOrbit(2.43, [0.24, 0, -0.25], orbitMaterial, ORBIT_SPEEDS[0]),
+    createOrbit(2.17, [-0.5, 0.45, 0.5], orbitMaterial, ORBIT_SPEEDS[1]),
   ];
   orbits.forEach(({ group }) => {
     group.position.y = 0.42;
@@ -233,8 +235,12 @@ export const createEcosystem = () => {
     root.add(sphere(0.06 + index * 0.015, index === 1 ? materials.gold : materials.ice, position)),
   );
   const update = (time) => {
-    core.position.y = 0.48 + Math.sin(time * 0.65) * 0.055;
-    core.rotation.y = Math.sin(time * 0.22) * 0.12;
+    // Keep the glass sphere and P monogram fixed while the orbit rings turn around it.
+    core.position.y = 0.48;
+    core.rotation.set(0, 0, 0);
+    orbits.forEach(({ group, rotation, speed }) => {
+      group.rotation.set(rotation[0], rotation[1] + time * speed, rotation[2]);
+    });
     nodes.forEach(({ object, position, rotation }, index) => {
       object.position.y = position[1] + Math.sin(time * 0.7 + index * 1.6) * 0.09;
       object.rotation.z = rotation[2] + Math.sin(time * 0.5 + index) * 0.035;

@@ -8,10 +8,20 @@ const themeButton = document.querySelector("#theme-toggle");
 const resetButton = document.querySelector("#reset-view");
 const renderState = document.querySelector("#render-state");
 const motionPreference = window.matchMedia("(prefers-reduced-motion: reduce)");
+const embedded = document.documentElement.dataset.mode === "embed";
+const THEME_STORAGE_KEY = "pte-web.theme";
 let scene = null;
-let playing = !motionPreference.matches;
-let dark = false;
+let playing = embedded || !motionPreference.matches;
+let dark = readStoredTheme() === "dark";
 let starting = false;
+
+function readStoredTheme() {
+  try {
+    return window.localStorage.getItem(THEME_STORAGE_KEY) === "dark" ? "dark" : "light";
+  } catch {
+    return "light";
+  }
+}
 
 const setButton = (button, label, symbol) => {
   const icon = document.createElement("span");
@@ -25,6 +35,23 @@ const updateMotion = () => {
   motionButton.setAttribute("aria-pressed", String(!playing));
   setButton(motionButton, playing ? TEXT.pause : TEXT.resume, playing ? "Ⅱ" : "▷");
   renderState.textContent = playing ? TEXT.live : TEXT.paused;
+};
+
+const applyTheme = (theme) => {
+  dark = theme === "dark";
+  document.documentElement.dataset.theme = theme;
+  document.documentElement.style.colorScheme = theme;
+  themeButton.setAttribute("aria-pressed", String(dark));
+  setButton(themeButton, dark ? TEXT.lightTheme : TEXT.darkTheme, String.fromCodePoint(0x25d0));
+  scene?.setTheme(theme);
+};
+
+const persistTheme = (theme) => {
+  try {
+    window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+  } catch {
+    // Storage can be disabled in private or embedded browser contexts.
+  }
 };
 
 const showFailure = () => {
@@ -44,7 +71,7 @@ const start = async () => {
   try {
     scene?.dispose();
     scene = null;
-    const { mountScene } = await import("./scene.js");
+    const { mountScene } = await import("./scene.js?v=motion-2");
     scene = mountScene(host, motionPreference.matches);
     scene.setTheme(dark ? "dark" : "light");
     updateMotion();
@@ -65,14 +92,17 @@ motionButton.addEventListener("click", () => {
 });
 resetButton.addEventListener("click", () => scene?.reset());
 themeButton.addEventListener("click", () => {
-  dark = !dark;
-  document.documentElement.dataset.theme = dark ? "dark" : "light";
-  themeButton.setAttribute("aria-pressed", String(dark));
-  setButton(themeButton, dark ? TEXT.lightTheme : TEXT.darkTheme, "◐");
-  scene?.setTheme(dark ? "dark" : "light");
+  const nextTheme = dark ? "light" : "dark";
+  persistTheme(nextTheme);
+  applyTheme(nextTheme);
+});
+window.addEventListener("storage", (event) => {
+  if (event.key === THEME_STORAGE_KEY) {
+    applyTheme(event.newValue === "dark" ? "dark" : "light");
+  }
 });
 motionPreference.addEventListener("change", () => {
-  playing = !motionPreference.matches;
+  playing = embedded || !motionPreference.matches;
   updateMotion();
 });
 host.addEventListener("scene-error", showFailure);
@@ -80,4 +110,16 @@ document.querySelector("#retry").addEventListener("click", () => window.location
 window.addEventListener("pagehide", (event) => {
   if (!event.persisted) scene?.dispose();
 });
-start();
+applyTheme(dark ? "dark" : "light");
+
+// Let the login form paint first. The poster remains visible while Three.js
+// downloads and the interactive scene initializes as an enhancement.
+const scheduleStart = () => {
+  if ("requestIdleCallback" in window) {
+    window.requestIdleCallback(() => void start(), { timeout: 800 });
+    return;
+  }
+  window.setTimeout(() => void start(), 0);
+};
+
+scheduleStart();
