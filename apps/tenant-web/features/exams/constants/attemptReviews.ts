@@ -13,6 +13,10 @@ export const ATTEMPTS_SECTION_TEXT = {
   IN_PROGRESS: (count: number) => `${count} in progress`,
   WAITING: (count: number) => `${count} waiting`,
   NOT_SUBMITTED: "—",
+  NO_EXAMINER: "—",
+  EXAMINER_NOT_STARTED: (saved: number, total: number) => `Not started · ${saved}/${total}`,
+  EXAMINER_IN_PROGRESS: (saved: number, total: number) => `Marking · ${saved}/${total} answers`,
+  EXAMINER_FINALIZED: "Finalized",
 } as const;
 
 export const ATTEMPT_SCORE_TEXT = {
@@ -36,6 +40,8 @@ export const ATTEMPT_SCORE_TEXT = {
 export const ATTEMPT_TABLE_HEADERS = {
   STUDENT: "Student",
   SUBMITTED_AT: ANSWER_TABLE_HEADERS.SUBMITTED_AT,
-  PROGRESS: "Scoring",
+  EXAMINER: "Examiner",
+  EXAMINER_PROGRESS: "Examiner progress",
+  PROGRESS: "AI scoring",
   ACTIONS: ANSWER_TABLE_HEADERS.ACTIONS,
 } as const;

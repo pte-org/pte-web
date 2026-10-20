@@ -18,7 +18,7 @@ import {
   ANSWERS_SECTION_TEXT,
 } from "../constants";
 import { AI_SCORE_TEXT, AiScoreCell } from "@/features/aiScore";
-import { useAnswers } from "../api";
+import { useAnswers, useHostScoreReview } from "../api";
 import { AnswerDetailModal } from "./AnswerDetailModal";
 import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
@@ -77,6 +77,14 @@ export const AnswersSection = ({
     })),
   ];
 
+  const review = useHostScoreReview(sessionPublicId);
+  const examinerScoreByAnswer = new Map(
+    (review.data?.answers ?? []).map((view) => [
+      view.answerPublicId,
+      view.examinerAvailable ? view.examinerScore : null,
+    ]),
+  );
+
   const { data, isLoading } = useAnswers(
     sessionPublicId,
     statusFilter,
@@ -108,6 +116,11 @@ export const AnswersSection = ({
         ) : (
           formatScore(null)
         ),
+    },
+    {
+      key: "examinerScore",
+      header: t("tenant.answers.examinerScore", ANSWER_TABLE_HEADERS.EXAMINER_SCORE),
+      cell: (row) => formatScore(examinerScoreByAnswer.get(row.answerPublicId) ?? null),
     },
     {
       key: "createdAt",

@@ -13,6 +13,7 @@ export const ANSWERS_SECTION_TEXT = {
 export const ANSWER_TABLE_HEADERS = {
   TASK_TYPE: "Task Type",
   STATUS: "Status",
+  EXAMINER_SCORE: "Examiner score",
   SUBMITTED_AT: "Submitted",
   ACTIONS: "Actions",
 } as const;

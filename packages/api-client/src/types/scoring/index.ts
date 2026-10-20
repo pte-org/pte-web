@@ -49,6 +49,13 @@ export interface AttemptReviewItemResponse {
   pendingCount: number;
   aiScoringCount: number;
   failedCount: number;
+  /** Null while no examiner is assigned to the attempt; the three fields below are then null / 0. */
+  examinerPublicId: string | null;
+  examinerName: string | null;
+  examinerStatus: "PENDING" | "IN_PROGRESS" | "COMPLETED" | null;
+  examinerEligibleCount: number;
+  /** Answers with a score saved by the examiner so far. */
+  examinerSavedCount: number;
 }
 
 /** Matches scoring's real `AnswerListResponse` record exactly. */

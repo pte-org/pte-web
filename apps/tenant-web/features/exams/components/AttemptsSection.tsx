@@ -30,6 +30,39 @@ export const AttemptsSection = ({ sessionPublicId }: AttemptsSectionProps): Reac
   const studentName = (row: AttemptReviewItemResponse): string =>
     row.studentName ?? t("tenant.attempts.unknownStudent", T.UNKNOWN_STUDENT);
 
+  const examinerProgress = (row: AttemptReviewItemResponse): ReactElement | string => {
+    const saved = row.examinerSavedCount;
+    const total = row.examinerEligibleCount;
+    switch (row.examinerStatus) {
+      case "COMPLETED":
+        return (
+          <Badge variant="success">
+            {t("tenant.attempts.examinerFinalized", T.EXAMINER_FINALIZED)}
+          </Badge>
+        );
+      case "IN_PROGRESS":
+        return (
+          <Badge variant="info">
+            {t("tenant.attempts.examinerInProgress", T.EXAMINER_IN_PROGRESS(saved, total), {
+              saved,
+              total,
+            })}
+          </Badge>
+        );
+      case "PENDING":
+        return (
+          <Badge variant="neutral">
+            {t("tenant.attempts.examinerNotStarted", T.EXAMINER_NOT_STARTED(saved, total), {
+              saved,
+              total,
+            })}
+          </Badge>
+        );
+      default:
+        return T.NO_EXAMINER;
+    }
+  };
+
   const selected = attempts?.find((row) => row.attemptPublicId === selectedId);
 
   if (selected) {
@@ -65,6 +98,16 @@ export const AttemptsSection = ({ sessionPublicId }: AttemptsSectionProps): Reac
       header: t("tenant.answers.submitted", ATTEMPT_TABLE_HEADERS.SUBMITTED_AT),
       cell: (row) =>
         row.submittedAt ? formatDateTime(row.submittedAt, locale) : T.NOT_SUBMITTED,
+    },
+    {
+      key: "examiner",
+      header: t("tenant.attempts.examiner", ATTEMPT_TABLE_HEADERS.EXAMINER),
+      cell: (row) => row.examinerName ?? T.NO_EXAMINER,
+    },
+    {
+      key: "examinerProgress",
+      header: t("tenant.attempts.examinerProgress", ATTEMPT_TABLE_HEADERS.EXAMINER_PROGRESS),
+      cell: (row) => examinerProgress(row),
     },
     {
       key: "progress",
