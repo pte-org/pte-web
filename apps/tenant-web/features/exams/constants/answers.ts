@@ -8,13 +8,11 @@ export const ANSWERS_SECTION_TEXT = {
   STATUS_FILTER_LABEL: "Status",
   STATUS_FILTER_ALL: "All statuses",
   VIEW: "View",
-  ENTER_TEACHER_SCORE: "Enter teacher score",
 } as const;
 
 export const ANSWER_TABLE_HEADERS = {
   TASK_TYPE: "Task Type",
   STATUS: "Status",
-  TEACHER_SCORE: "Teacher Score",
   SUBMITTED_AT: "Submitted",
   ACTIONS: "Actions",
 } as const;
@@ -45,11 +43,6 @@ export const ANSWER_DETAIL_TEXT = {
   AUDIO_UNAVAILABLE: "Audio recording is not available right now.",
   UNRECOGNIZED_NOTICE:
     "This answer's format could not be decoded automatically. Showing the raw submitted value below.",
-  TEACHER_SCORE_TITLE: "Teacher Score",
-  TEACHER_SCORE_LABEL: "Score (0-100)",
-  SUBMIT: "Save Score",
-  SUBMITTING: "Saving...",
-  SAVED: "Score saved.",
   CLOSE: "Close",
 } as const;
 

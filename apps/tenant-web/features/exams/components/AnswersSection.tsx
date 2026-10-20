@@ -3,12 +3,10 @@
 import { useState, type ReactElement } from "react";
 import { DEFAULT_PAGE_SIZE, type AnswerListItemResponse } from "@pte/api-client";
 import {
-  ActionMenu,
   Badge,
+  Button,
   DataTable,
-  EyeIcon,
   PaginationControls,
-  PencilIcon,
   Select,
   useLocale,
   type DataTableColumn,
@@ -19,10 +17,9 @@ import {
   ANSWER_TABLE_HEADERS,
   ANSWERS_SECTION_TEXT,
 } from "../constants";
-import { AI_SCORE_TEXT, AiScoreCell, aiGapRowClass } from "@/features/aiScore";
+import { AI_SCORE_TEXT, AiScoreCell } from "@/features/aiScore";
 import { useAnswers } from "../api";
 import { AnswerDetailModal } from "./AnswerDetailModal";
-import { TeacherScoreModal } from "./TeacherScoreModal";
 import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
 
@@ -59,7 +56,6 @@ export const AnswersSection = ({
   const [statusFilter, setStatusFilter] = useState("");
   const debouncedSearch = useDebouncedSearch(search);
   const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
-  const [scoringAnswer, setScoringAnswer] = useState<AnswerListItemResponse | null>(null);
 
   const statusLabel = (status: string): string => {
     const keyByStatus: Record<string, string> = {
@@ -114,11 +110,6 @@ export const AnswersSection = ({
         ),
     },
     {
-      key: "teacherScore",
-      header: t("tenant.answers.teacherScore", ANSWER_TABLE_HEADERS.TEACHER_SCORE),
-      cell: (row) => formatScore(row.teacherScore),
-    },
-    {
       key: "createdAt",
       header: t("tenant.answers.submitted", ANSWER_TABLE_HEADERS.SUBMITTED_AT),
       cell: (row) => formatDateTime(row.createdAt, locale),
@@ -152,9 +143,6 @@ export const AnswersSection = ({
           setPage(0);
         }}
         rowActionsHeader={t("tenant.answers.actions", ANSWER_TABLE_HEADERS.ACTIONS)}
-        rowClassName={(row) =>
-          row.aiScored ? aiGapRowClass(row.rawScore, row.teacherScore) : undefined
-        }
         clientSideFiltering={false}
         clientSidePagination={false}
         pagination={
@@ -172,21 +160,14 @@ export const AnswersSection = ({
           ) : undefined
         }
         rowActions={(row) => (
-          <ActionMenu
-            label={t("tenant.answers.actions", ANSWER_TABLE_HEADERS.ACTIONS)}
-            items={[
-              {
-                label: t("tenant.answers.view", T.VIEW),
-                icon: EyeIcon,
-                onSelect: () => setSelectedAnswerId(row.answerPublicId),
-              },
-              {
-                label: t("tenant.answers.enterTeacherScore", T.ENTER_TEACHER_SCORE),
-                icon: PencilIcon,
-                onSelect: () => setScoringAnswer(row),
-              },
-            ]}
-          />
+          <Button
+            type="button"
+            variant="secondary"
+            className="whitespace-nowrap"
+            onClick={() => setSelectedAnswerId(row.answerPublicId)}
+          >
+            {t("tenant.answers.view", T.VIEW)}
+          </Button>
         )}
       />
 
@@ -194,12 +175,6 @@ export const AnswersSection = ({
         key={selectedAnswerId ?? "answer-detail-closed"}
         answerPublicId={selectedAnswerId}
         onClose={() => setSelectedAnswerId(null)}
-      />
-      <TeacherScoreModal
-        key={scoringAnswer?.answerPublicId ?? "teacher-score-closed"}
-        answerPublicId={scoringAnswer?.answerPublicId ?? null}
-        currentScore={scoringAnswer?.teacherScore ?? null}
-        onClose={() => setScoringAnswer(null)}
       />
     </div>
   );
