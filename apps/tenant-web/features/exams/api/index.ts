@@ -12,14 +12,11 @@ import {
   DEFAULT_PAGE_SIZE,
   getAnswer,
   getHostScoreReview,
-  getScoreSourceSelectionAudits,
   getActiveScoreTemplate,
   getExaminerAssignmentRoster,
   getSession,
   getSessionExamPreview,
   listAnswers,
-  previewScoreSourceSelection,
-  applyScoreSourceSelection,
   preflightReportPublication,
   publishSessionReports,
   getReportPublicationSummary,
@@ -34,16 +31,11 @@ import {
   preflightExam,
   generateExam,
   publishExam,
-  submitTeacherScore,
   unassignProctor,
   updateProctorRole,
   type AnswerListResponse,
   type AnswerReviewDetailResponse,
   type HostScoreReviewResponse,
-  type SelectScoreSourceRequest,
-  type ScoreSourceSelectionPreviewResponse,
-  type ScoreSourceSelectionResultResponse,
-  type ScoreSourceAuditResponse,
   type ReportPublicationReadinessResponse,
   type ReportPublicationSummaryResponse,
   type CommitExaminerAssignmentRequest,
@@ -83,7 +75,6 @@ import {
   EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY,
   EXAMINER_DIRECTORY_QUERY_KEY,
   HOST_SCORE_REVIEW_QUERY_KEY,
-  SCORE_SOURCE_AUDIT_QUERY_KEY,
   REPORT_PUBLICATION_READINESS_QUERY_KEY,
   REPORT_PUBLICATION_SUMMARY_QUERY_KEY,
   OFFICIAL_EXAM_LOCKDOWN_MODE,
@@ -587,45 +578,6 @@ export function useHostScoreReview(
   });
 }
 
-export function useScoreSourceSelectionAudits(
-  sessionPublicId: string,
-): UseQueryResult<ScoreSourceAuditResponse[]> {
-  return useQuery({
-    queryKey: [...SCORE_SOURCE_AUDIT_QUERY_KEY, sessionPublicId],
-    queryFn: () => getScoreSourceSelectionAudits(apiClient, sessionPublicId),
-    enabled: sessionPublicId.length > 0,
-  });
-}
-
-export function usePreviewScoreSourceSelection(
-  sessionPublicId: string,
-): UseMutationResult<ScoreSourceSelectionPreviewResponse, unknown, SelectScoreSourceRequest> {
-  return useMutation({
-    mutationFn: (payload) => previewScoreSourceSelection(apiClient, sessionPublicId, payload),
-  });
-}
-
-export function useApplyScoreSourceSelection(
-  sessionPublicId: string,
-): UseMutationResult<ScoreSourceSelectionResultResponse, unknown, SelectScoreSourceRequest> {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (payload) => applyScoreSourceSelection(apiClient, sessionPublicId, payload),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [...HOST_SCORE_REVIEW_QUERY_KEY, sessionPublicId],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [...SCORE_SOURCE_AUDIT_QUERY_KEY, sessionPublicId],
-      });
-      void queryClient.invalidateQueries({ queryKey: ANSWERS_QUERY_KEY });
-      void queryClient.invalidateQueries({
-        queryKey: [...REPORT_PUBLICATION_READINESS_QUERY_KEY, sessionPublicId],
-      });
-    },
-  });
-}
-
 export function useReportPublicationPreflight(
   sessionPublicId: string,
   enabled: boolean,
@@ -681,23 +633,3 @@ export function useAnswer(
   });
 }
 
-/**
- * Records a host's own independent score — parallel to the AI's `rawScore`,
- * never gated by answer status, never affects attempt completion (see
- * scoring's ScoringReviewService.submitTeacherScore doc comment).
- */
-export function useSubmitTeacherScore(
-  answerPublicId: string,
-): UseMutationResult<void, unknown, number> {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (score) => {
-      await submitTeacherScore(apiClient, answerPublicId, { score });
-    },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: [...ANSWER_QUERY_KEY, answerPublicId] });
-      void queryClient.invalidateQueries({ queryKey: ANSWERS_QUERY_KEY });
-    },
-  });
-}

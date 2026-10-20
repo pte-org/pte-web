@@ -10,7 +10,6 @@ import { ExamOverviewTab, type ExamOverviewLifecycle } from "./ExamOverviewTab";
 import { ExamParticipantsTab } from "./ExamParticipantsTab";
 import { ExamAttendanceTab } from "./ExamAttendanceTab";
 import { ExamQuestionsTab } from "./ExamQuestionsTab";
-import { ExamResultsTab } from "./ExamResultsTab";
 import { ExamSubmissionsTab } from "./ExamSubmissionsTab";
 
 type ExamDetailTab =
@@ -19,8 +18,7 @@ type ExamDetailTab =
   | "participants"
   | "attendance"
   | "submissions"
-  | "examiner"
-  | "results";
+  | "examiner";
 
 const TAB_IDS: readonly ExamDetailTab[] = [
   "overview",
@@ -29,7 +27,6 @@ const TAB_IDS: readonly ExamDetailTab[] = [
   "attendance",
   "submissions",
   "examiner",
-  "results",
 ];
 
 interface ExamDetailTabsProps {
@@ -41,8 +38,10 @@ interface ExamDetailTabsProps {
 const isExamDetailTab = (value: string | null): value is ExamDetailTab =>
   value !== null && TAB_IDS.includes(value as ExamDetailTab);
 
-const parseTab = (value: string | null): ExamDetailTab =>
-  isExamDetailTab(value) ? value : "overview";
+const parseTab = (value: string | null): ExamDetailTab => {
+  if (value === "results") return "submissions";
+  return isExamDetailTab(value) ? value : "overview";
+};
 
 const readTabFromLocation = (): ExamDetailTab => {
   if (typeof window === "undefined") return "overview";
@@ -113,7 +112,6 @@ export const ExamDetailTabs = ({
     { id: "attendance", label: t("tenant.examTabs.attendance", "Attendance") },
     { id: "submissions", label: t("tenant.examTabs.submissions", "Submissions") },
     { id: "examiner", label: t("tenant.examTabs.examiner", "Examiner") },
-    { id: "results", label: t("tenant.examTabs.results", "Results & publication") },
   ];
 
   return (
@@ -176,7 +174,7 @@ export const ExamDetailTabs = ({
         keepMounted={keepPanelMounted("submissions")}
         className="mt-5"
       >
-        <ExamSubmissionsTab sessionPublicId={sessionPublicId} />
+        <ExamSubmissionsTab sessionPublicId={sessionPublicId} sessionStatus={session.status} />
       </TabPanel>
       <TabPanel
         id="exam-detail-tabs-panel-examiner"
@@ -186,15 +184,6 @@ export const ExamDetailTabs = ({
         className="mt-5"
       >
         <ExaminerTab sessionPublicId={sessionPublicId} sessionStatus={session.status} />
-      </TabPanel>
-      <TabPanel
-        id="exam-detail-tabs-panel-results"
-        labelledBy="exam-detail-tabs-tab-results"
-        active={activeTab === "results"}
-        keepMounted={keepPanelMounted("results")}
-        className="mt-5"
-      >
-        <ExamResultsTab sessionPublicId={sessionPublicId} sessionStatus={session.status} />
       </TabPanel>
 
       <AddExamStudentsModal
