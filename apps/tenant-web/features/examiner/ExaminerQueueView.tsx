@@ -8,15 +8,15 @@ import {
   Button,
   EmptyState,
   ErrorState,
-  Input,
   LoadingState,
   PageHeader,
   Pagination,
   Select,
 } from "@pte/ui";
 import { useExaminerQueue } from "./api";
-import { EXAMINER_WORK_TEXT as T, parseExaminerQueueStatus } from "./constants";
+import { buildExaminerQueueHref, parseExaminerQueueStatus } from "./constants";
 import { useExaminerWorkspaceText } from "./hooks/useExaminerWorkspaceText";
+import { formatAttemptTitle } from "./utils/attemptLabels";
 
 function formatDate(value: string, locale: string): string {
   const date = new Date(value);
@@ -26,10 +26,6 @@ function formatDate(value: string, locale: string): string {
         dateStyle: "medium",
         timeStyle: "short",
       }).format(date);
-}
-
-function shortId(value: string): string {
-  return value.slice(0, 8).toUpperCase();
 }
 
 export const ExaminerQueueView = (): ReactElement => {
@@ -43,7 +39,6 @@ export const ExaminerQueueView = (): ReactElement => {
   const searchParam = searchParams?.get("search") ?? "";
   const sortParam = searchParams?.get("sort") ?? "ASSIGNED_ASC";
 
-  const [searchInput, setSearchInput] = useState(searchParam);
   const [startingAttemptId, setStartingAttemptId] = useState<string | null>(null);
 
   const queue = useExaminerQueue({
@@ -60,13 +55,7 @@ export const ExaminerQueueView = (): ReactElement => {
 
   const updateUrl = useCallback(
     (nextStatus: ExaminerQueueStatus, nextPage: number, nextSearch: string, nextSort: string): void => {
-      const params = new URLSearchParams();
-      if (nextStatus !== "ALL") params.set("status", nextStatus);
-      if (nextPage > 0) params.set("page", String(nextPage));
-      if (nextSearch.trim()) params.set("search", nextSearch.trim());
-      if (nextSort && nextSort !== "ASSIGNED_ASC") params.set("sort", nextSort);
-      const qs = params.toString();
-      router.replace(qs ? `/examiner/work?${qs}` : "/examiner/work?status=ALL");
+      router.replace(buildExaminerQueueHref(nextStatus, nextPage, nextSearch, nextSort));
     },
     [router],
   );
@@ -90,11 +79,6 @@ export const ExaminerQueueView = (): ReactElement => {
     },
     [searchParam, sortParam, status, updateUrl],
   );
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateUrl(status, 0, searchInput, sortParam);
-  };
 
   const chooseSort = (nextSort: string) => {
     updateUrl(status, 0, searchParam, nextSort);
@@ -138,10 +122,10 @@ export const ExaminerQueueView = (): ReactElement => {
 
   const sortOptions = useMemo(
     () => [
-      { value: "ASSIGNED_ASC", label: T.SORT_ASSIGNED_ASC },
-      { value: "ASSIGNED_DESC", label: T.SORT_ASSIGNED_DESC },
+      { value: "ASSIGNED_ASC", label: text.sortAssignedAsc },
+      { value: "ASSIGNED_DESC", label: text.sortAssignedDesc },
     ],
-    [],
+    [text],
   );
 
   const getBlockingText = (reason: string | null | undefined): string => {
@@ -160,7 +144,7 @@ export const ExaminerQueueView = (): ReactElement => {
             size="sm"
             onClick={() => router.push("/examiner/work")}
           >
-            {T.BACK_TO_OVERVIEW}
+            {text.backToOverview}
           </Button>
         }
       />
@@ -181,7 +165,7 @@ export const ExaminerQueueView = (): ReactElement => {
 
           <div className="w-48">
             <label htmlFor="examiner-queue-sort" className="block text-xs font-medium text-slate-700 mb-1">
-              {T.SORT_LABEL}
+              {text.sortLabel}
             </label>
             <Select
               id="examiner-queue-sort"
@@ -191,18 +175,6 @@ export const ExaminerQueueView = (): ReactElement => {
             />
           </div>
         </div>
-
-        <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
-          <Input
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            placeholder={T.SEARCH_PLACEHOLDER}
-            className="w-64"
-          />
-          <Button type="submit" variant="secondary" size="sm">
-            {text.searchBtn}
-          </Button>
-        </form>
       </div>
 
       <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
@@ -247,7 +219,7 @@ export const ExaminerQueueView = (): ReactElement => {
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <p className="font-medium text-slate-900">
-                          {text.attemptLabel} #{shortId(item.attemptPublicId)}
+                          {formatAttemptTitle(text.attemptLabel, item)}
                         </p>
                         {item.status === "PENDING" ? (
                           <Badge variant="neutral">{text.statusPending}</Badge>
@@ -259,8 +231,7 @@ export const ExaminerQueueView = (): ReactElement => {
                       </div>
 
                       <p className="mt-1 text-sm text-slate-600">
-                        {text.sessionLabel} #{shortId(item.sessionPublicId)} · {text.progressLabel}:{" "}
-                        {item.submittedAnswerCount}/{item.eligibleAnswerCount}
+                        {text.progressLabel}: {item.submittedAnswerCount}/{item.eligibleAnswerCount}
                       </p>
 
                       <div className="mt-1 flex flex-wrap items-center gap-x-3 text-xs text-slate-500">
@@ -285,7 +256,7 @@ export const ExaminerQueueView = (): ReactElement => {
                             disabled={isStarting}
                             onClick={() => handleStartAttempt(item.sessionPublicId, item.attemptPublicId)}
                           >
-                            {isStarting ? T.STARTING_WORK : T.START_WORK}
+                            {isStarting ? text.startingWork : text.startMarking}
                           </Button>
                         ) : item.status === "IN_PROGRESS" ? (
                           <Button
@@ -293,7 +264,7 @@ export const ExaminerQueueView = (): ReactElement => {
                             size="sm"
                             onClick={() => handleOpenAttempt(item.sessionPublicId, item.attemptPublicId)}
                           >
-                            {T.RESUME_WORK}
+                            {text.continueMarking}
                           </Button>
                         ) : (
                           <Button
@@ -301,7 +272,7 @@ export const ExaminerQueueView = (): ReactElement => {
                             size="sm"
                             onClick={() => handleOpenAttempt(item.sessionPublicId, item.attemptPublicId)}
                           >
-                            {T.VIEW_WORK}
+                            {text.viewWork}
                           </Button>
                         )
                       ) : (

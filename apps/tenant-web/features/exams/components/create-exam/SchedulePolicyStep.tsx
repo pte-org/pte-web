@@ -43,16 +43,6 @@ export function SchedulePolicyStep({
           error={localizeError(errors.closesAt)}
           onChange={(event) => onUpdate("closesAt", event.target.value)}
         />
-        <Input
-          type="number"
-          min={0}
-          max={9}
-          step={1}
-          label={wizardText.RETRIES_LABEL}
-          value={form.maxRetriesPerStudent}
-          error={localizeError(errors.maxRetriesPerStudent)}
-          onChange={(event) => onUpdate("maxRetriesPerStudent", event.target.value)}
-        />
       </div>
       {form.reusePolicy !== "ALLOW" && (
         <Input

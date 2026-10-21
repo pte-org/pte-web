@@ -1,0 +1,87 @@
+.page {
+  --color-action: #0d6fbe;
+  --color-action-hover: #0b61a8;
+  --color-action-tint: #e8f2f9;
+  --home-success-bg: #e9f6f2;
+  --home-success: #086753;
+  --home-draft-bg: #fef5e5;
+  --home-draft: #805200;
+  --brand: #4169e8;
+  --brand-ink: #3359d2;
+  --shell-border: #e8e8e8;
+  --home-navy: #0d2f51;
+  --home-paper: #f8f9fb;
+  --home-border: #d5dfe8;
+  --home-banner: #e2eff8;
+  --home-banner-dark: #123f65;
+  --home-banner-foot: #d5e7f4;
+  color: #18181b;
+  background: #fff;
+  color-scheme: light;
+}
+
+.page section[id] {
+  scroll-margin-top: 7rem;
+}
+
+/* The public marketing surface has a fixed light art direction, like the approved mockup.
+   Scope its palette so a saved dashboard theme cannot reduce contrast here. */
+.page {
+  --action: #0d6fbe;
+  --action-hover: #0b61a8;
+  --action-tint: #e8f2f9;
+  --surface-card: #fff;
+  --surface-subtle: #f4f4f5;
+  --ink-primary: #18181b;
+  --ink-secondary: #52525b;
+  --ink-muted: #71717a;
+  --control-border: #d4d4d8;
+}
+
+.banner {
+  position: relative;
+  overflow: hidden;
+  background: var(--home-banner);
+}
+
+.banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--home-banner-dark);
+  clip-path: polygon(68% 0, 100% 0, 100% 100%, 57% 100%);
+  pointer-events: none;
+}
+
+.artwork {
+  position: relative;
+  min-width: 0;
+  padding: 22px 0 25px 12px;
+}
+
+.previewFrame {
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--home-border);
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+  transform: rotate(-1.5deg);
+  box-shadow: 0 28px 60px -30px #061b3266;
+}
+
+@media (max-width: 1023px) {
+  .banner::before {
+    display: none;
+  }
+  .artwork {
+    padding-left: 0;
+  }
+  .artwork::before {
+    content: "";
+    position: absolute;
+    inset: 0 -24px 0 32px;
+    border-radius: 64px 0 0 16px;
+    background: var(--home-banner-dark);
+  }
+}

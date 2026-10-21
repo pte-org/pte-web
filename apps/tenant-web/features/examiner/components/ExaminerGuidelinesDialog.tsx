@@ -3,7 +3,7 @@
 import type { ReactElement } from "react";
 import type { ExaminerGuidelinesResponse } from "@pte/api-client";
 import { Button, EmptyState, LoadingState, Modal } from "@pte/ui";
-import { EXAMINER_WORK_TEXT as T, EXAMINER_GUIDELINES_DIALOG_TEXT as G } from "../constants";
+import { useExaminerGuidelinesText, useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
 interface ExaminerGuidelinesDialogProps {
   open: boolean;
@@ -18,6 +18,8 @@ export function ExaminerGuidelinesDialog({
   isLoading,
   onClose,
 }: ExaminerGuidelinesDialogProps): ReactElement {
+  const T = useExaminerWorkText();
+  const G = useExaminerGuidelinesText();
   return (
     <Modal open={open} onClose={onClose} title={T.GUIDELINES_TITLE} size="lg">
       <div className="space-y-4 p-4 text-sm text-slate-700">

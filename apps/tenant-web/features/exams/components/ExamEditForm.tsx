@@ -19,6 +19,7 @@ import {
   OFFICIAL_EXAM_LOCKDOWN_MODE,
   SESSION_STATUS_LABELS,
   SESSION_STATUS_TRANSITIONS,
+  SINGLE_SITTING_RETRIES,
 } from "../constants";
 import { useExamEditTimingWarning } from "../hooks/useExamEditTimingWarning";
 import { useExamMutationErrorToast } from "../hooks/useExamMutationErrorToast";
@@ -150,8 +151,6 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
         draftForm.closesAt > draftForm.opensAt &&
         /^\d+$/.test(draftForm.capacity) &&
         Number(draftForm.capacity) > 0 &&
-        /^\d+$/.test(draftForm.maxRetriesPerStudent) &&
-        Number(draftForm.maxRetriesPerStudent) <= 9 &&
         draftForm.selectedSkills.length > 0,
       );
       if (!valid) return;
@@ -160,7 +159,7 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
         opensAt: new Date(draftForm.opensAt).toISOString(),
         closesAt: new Date(draftForm.closesAt).toISOString(),
         capacity: Number(draftForm.capacity),
-        maxRetriesPerStudent: Number(draftForm.maxRetriesPerStudent),
+        maxRetriesPerStudent: SINGLE_SITTING_RETRIES,
         selectedSkills: draftForm.selectedSkills,
         expectedVersion: session.draftVersion,
         seriesKey: draftForm.seriesKey.trim() || null,

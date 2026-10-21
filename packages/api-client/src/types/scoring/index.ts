@@ -1,6 +1,23 @@
 /** Matches scoring's real `ScoringAnswerStatus` enum exactly. */
 export type ScoringAnswerStatus = "PENDING" | "AI_SCORING" | "SCORING_FAILED" | "SCORED";
 
+export type AiScoreStatus = "PENDING" | "SCORING" | "FAILED" | "SCORED";
+
+/**
+ * Matches scoring's real `AiScoreDetailResponse` record. Host and assigned examiner only;
+ * student and reporting responses never carry it. `score` is an estimate, not the final score.
+ */
+export interface AiScoreDetailResponse {
+  status: AiScoreStatus;
+  score: number | null;
+  criteria: Record<string, number>;
+  feedback: string | null;
+  transcript: string | null;
+  detail: Record<string, unknown>;
+  fallback: boolean;
+  failureReason: string | null;
+}
+
 /** Matches scoring's real `AnswerListItemResponse` record exactly. */
 export interface AnswerListItemResponse {
   answerPublicId: string;
@@ -12,6 +29,33 @@ export interface AnswerListItemResponse {
   teacherScore: number | null;
   createdAt: string;
   attemptNumber: number | null;
+  aiFallback: boolean;
+  /** False for objective answers, whose rawScore is not an AI estimate. */
+  aiScored: boolean;
+}
+
+/** Matches scoring's real `AttemptReviewItemResponse` record exactly. */
+export interface AttemptReviewItemResponse {
+  attemptPublicId: string;
+  /** Null only when the attempt can no longer be resolved. */
+  studentPublicId: string | null;
+  /** Null when the student can no longer be resolved. */
+  studentName: string | null;
+  attemptNumber: number | null;
+  /** Null when the attempt can no longer be resolved or was never submitted. */
+  submittedAt: string | null;
+  answerCount: number;
+  scoredCount: number;
+  pendingCount: number;
+  aiScoringCount: number;
+  failedCount: number;
+  /** Null while no examiner is assigned to the attempt; the three fields below are then null / 0. */
+  examinerPublicId: string | null;
+  examinerName: string | null;
+  examinerStatus: "PENDING" | "IN_PROGRESS" | "COMPLETED" | null;
+  examinerEligibleCount: number;
+  /** Answers with a score saved by the examiner so far. */
+  examinerSavedCount: number;
 }
 
 /** Matches scoring's real `AnswerListResponse` record exactly. */
@@ -54,6 +98,7 @@ export interface AnswerReviewDetailResponse {
   teacherScore: number | null;
   createdAt: string;
   payload: DecodedAnswerPayload;
+  ai: AiScoreDetailResponse | null;
 }
 
 /** Matches scoring's real `SubmitTeacherScoreRequest` record exactly. */
@@ -84,6 +129,8 @@ export interface HostScoreReviewView {
   teacherScore: number | null;
   selectedScoreSource: ScoreSource | null;
   lockVersion: number;
+  aiFallback: boolean;
+  aiFailureReason: string | null;
 }
 
 export interface HostScoreReviewResponse {
@@ -94,6 +141,7 @@ export interface HostScoreReviewResponse {
   unassignedAttemptCount: number;
   pendingExaminerAnswerCount: number;
   unavailableSelectedAnswerCount: number;
+  rescorableAnswerCount: number;
   answers: HostScoreReviewView[];
   markingMode?: string | null;
   cohortStatus?: string | null;
@@ -163,67 +211,23 @@ export interface ScoringAnswerResponse {
 
 export * from "./gradingCohort";
 
-export type AssignmentScopeType = "CLASS" | "PROGRAM";
-export type ExaminerAssignmentMode = "MANUAL" | "RANDOM";
-export type ExaminerAssignmentBatchStatus =
-  "PREVIEWED" | "COMMITTED" | "EXPIRED" | "STALE" | "INVALID";
-
-export interface ExaminerAssignmentScopeRequest {
-  type: AssignmentScopeType;
-  scopePublicId: string;
+/** One eligible submitted attempt; `examinerPublicId` is only filled once the assignment is committed. */
+export interface ExaminerAssignmentRosterRow {
+  attemptPublicId: string;
+  studentPublicId: string;
+  studentName: string | null;
+  studentEmail: string | null;
   examinerPublicId: string | null;
 }
 
-export interface CreateExaminerAssignmentPreviewRequest {
-  mode: ExaminerAssignmentMode;
-  scopes: ExaminerAssignmentScopeRequest[];
-  examinerPublicIds: string[];
+export interface ExaminerAssignmentRosterResponse {
+  /** True once the Host has committed; the table is then read-only. */
+  locked: boolean;
+  rows: ExaminerAssignmentRosterRow[];
 }
 
-export interface ExaminerAssignmentConflictResponse {
-  attemptPublicId: string;
-  conflictingScopes: { type: AssignmentScopeType; scopePublicId: string }[];
-}
-
-export interface ExaminerAssignmentLoadResponse {
-  examinerPublicId: string;
-  attemptCount: number;
-  eligibleAnswerCount: number;
-}
-
-export interface ExaminerAssignmentPreviewResponse {
-  batchPublicId: string | null;
-  mode: ExaminerAssignmentMode;
-  status: ExaminerAssignmentBatchStatus;
-  valid: boolean;
-  supplemental: boolean;
-  attemptCount: number;
-  eligibleAnswerCount: number;
-  examinerLoads: ExaminerAssignmentLoadResponse[];
-  conflicts: ExaminerAssignmentConflictResponse[];
-  previewExpiresAt: string | null;
-  committedAt: string | null;
-}
-
-export interface ExaminerAssignmentBatchSummaryResponse {
-  batchPublicId: string;
-  mode: ExaminerAssignmentMode;
-  status: ExaminerAssignmentBatchStatus;
-  attemptCount: number;
-  eligibleAnswerCount: number;
-  createdAt: string;
-  previewExpiresAt: string;
-  committedAt: string | null;
-}
-
-export interface ExaminerAssignmentOverviewResponse {
-  batches: ExaminerAssignmentBatchSummaryResponse[];
-  committedExaminerLoads: ExaminerAssignmentLoadResponse[];
-  assignedAttemptCount: number;
-  page: number;
-  size: number;
-  totalBatches: number;
-  totalPages: number;
+export interface CommitExaminerAssignmentRequest {
+  entries: { attemptPublicId: string; examinerPublicId: string }[];
 }
 
 export * from "./examiner";

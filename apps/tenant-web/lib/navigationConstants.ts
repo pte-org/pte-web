@@ -16,9 +16,6 @@ export const HOST_NAV_TEXT = {
 
 export const EXAMINER_NAV_TEXT = {
   OVERVIEW: "Overview",
-  PENDING: "Pending",
-  IN_PROGRESS: "In Progress",
-  COMPLETED: "Completed",
   QUEUE: "Marking queue",
   REPORTS: "My Reports",
   HOME_SECTION: "Home",

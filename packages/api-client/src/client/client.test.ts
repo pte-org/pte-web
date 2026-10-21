@@ -218,3 +218,30 @@ describe("ApiClient protected-session fencing", () => {
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("ApiClient bearer token on public auth endpoints", () => {
+  async function authorizationFor(path: string): Promise<string | null> {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ data: {} }, 200));
+    const client = createApiClient({
+      baseUrl: "https://api.example.test",
+      fetchFn: fetchMock as typeof fetch,
+      getToken: () => "stale-token",
+    });
+
+    await client.request(path, { method: "POST", body: {} });
+
+    const requestInit = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    return new Headers(requestInit.headers).get("Authorization");
+  }
+
+  it.each(["/api/v1/auth/login", "/api/v1/auth/login-options", "/api/v1/auth/refresh"])(
+    "does not send the stored token to %s",
+    async (path) => {
+      expect(await authorizationFor(path)).toBeNull();
+    },
+  );
+
+  it("still sends the stored token to protected endpoints", async () => {
+    expect(await authorizationFor("/api/v1/auth/me")).toBe("Bearer stale-token");
+  });
+});

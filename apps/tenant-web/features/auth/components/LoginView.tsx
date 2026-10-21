@@ -4,7 +4,15 @@ import { useState, type FormEvent, type ReactElement } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { EyeIcon, LockIcon, MailIcon, Select, useSessionManager, type SessionRole } from "@pte/ui";
+import {
+  EyeIcon,
+  LockIcon,
+  MailIcon,
+  Select,
+  ThemeToggle,
+  useSessionManager,
+  type SessionRole,
+} from "@pte/ui";
 import {
   decodeAccessTokenClaims,
   type LoginOrganizationOption,
@@ -32,9 +40,9 @@ function toSessionRoles(rawRoles: string[]): SessionRole[] {
 }
 
 const FIELD_WRAP_CLASS =
-  "flex items-center gap-2 rounded-md border border-gray-300 bg-white px-3 shadow-sm focus-within:border-blue-600 focus-within:ring-2 focus-within:ring-blue-100";
+  "flex items-center gap-2 rounded-md border border-[var(--control-border)] bg-[var(--surface-card)] px-3 shadow-sm focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]/20";
 const INPUT_CLASS = "w-full bg-transparent py-2.5 text-sm outline-none";
-const LABEL_CLASS = "text-xs font-semibold uppercase tracking-wide text-gray-500";
+const LABEL_CLASS = "text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]";
 
 export const LoginView = (): ReactElement => {
   const router = useRouter();
@@ -63,6 +71,7 @@ export const LoginView = (): ReactElement => {
       roles,
       tenantId: claims.tenantId,
       expiresAt: claims.expiresAt || Date.now() + data.expiresInSeconds * 1000,
+      mustChangePassword: data.mustChangePassword,
     });
     const { defaultRoute } = resolveWorkspace(roles);
     router.replace(defaultRoute);
@@ -105,13 +114,16 @@ export const LoginView = (): ReactElement => {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
-      <div className="grid w-full max-w-4xl overflow-hidden rounded-lg bg-white shadow-card md:grid-cols-2">
+    <main className="relative flex min-h-screen items-center justify-center bg-[var(--surface-page)] p-4 pt-16 md:pt-4">
+      <div className="absolute right-4 top-4 z-10">
+        <ThemeToggle />
+      </div>
+      <div className="grid w-full max-w-4xl overflow-hidden rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] shadow-card md:grid-cols-2">
         <AuthBrandPanel />
         <div className="flex flex-col justify-center gap-6 p-8 md:p-10">
-          <div className="flex items-center gap-2 text-blue-800">
+          <div className="flex items-center gap-2 text-[var(--brand-ink)]">
             <Image
-              src="/logo.png"
+              src="/logo-ppte.png"
               alt="PTE Prep logo"
               width={32}
               height={32}
@@ -120,12 +132,17 @@ export const LoginView = (): ReactElement => {
             <span className="text-lg font-bold">{AUTH_TEXT.BRAND}</span>
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{AUTH_TEXT.WELCOME_TITLE}</h1>
-            <p className="mt-1 text-sm text-gray-500">{AUTH_TEXT.WELCOME_SUBTITLE}</p>
+            <h1 className="text-2xl font-bold text-[var(--ink-primary)]">
+              {AUTH_TEXT.WELCOME_TITLE}
+            </h1>
+            <p className="mt-1 text-sm text-[var(--ink-secondary)]">{AUTH_TEXT.WELCOME_SUBTITLE}</p>
           </div>
 
           {errorMessage && (
-            <div role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+            <div
+              role="alert"
+              className="rounded-md bg-[var(--blush-tint)] px-3 py-2 text-sm text-[var(--blush-action)]"
+            >
               {errorMessage}
             </div>
           )}
@@ -136,7 +153,7 @@ export const LoginView = (): ReactElement => {
                 {AUTH_TEXT.USERNAME_LABEL}
               </label>
               <div className={FIELD_WRAP_CLASS}>
-                <MailIcon className="h-4 w-4 text-gray-400" />
+                <MailIcon className="h-4 w-4 text-[var(--ink-muted)]" />
                 {/* type="text", NOT type="email": a STUDENT's username is
                     `{tenant.code}.{random}`, which the browser would reject
                     as an invalid email before the request is ever sent. */}
@@ -154,7 +171,7 @@ export const LoginView = (): ReactElement => {
                   className={INPUT_CLASS}
                 />
               </div>
-              <p className="text-xs text-gray-500">{AUTH_TEXT.USERNAME_HINT}</p>
+              <p className="text-xs text-[var(--ink-secondary)]">{AUTH_TEXT.USERNAME_HINT}</p>
             </div>
 
             <div className="flex flex-col gap-1">
@@ -162,16 +179,20 @@ export const LoginView = (): ReactElement => {
                 <label htmlFor="password" className={LABEL_CLASS}>
                   {AUTH_TEXT.PASSWORD_LABEL}
                 </label>
-                <Link href="#" className="text-xs font-medium text-blue-700 hover:underline">
+                <Link
+                  href="#"
+                  className="text-xs font-medium text-[var(--brand-ink)] hover:underline"
+                >
                   {AUTH_TEXT.FORGOT}
                 </Link>
               </div>
               <div className={FIELD_WRAP_CLASS}>
-                <LockIcon className="h-4 w-4 text-gray-400" />
+                <LockIcon className="h-4 w-4 text-[var(--ink-muted)]" />
                 <input
                   id="password"
                   type={showPassword ? "text" : "password"}
                   autoComplete="current-password"
+                  placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
                   value={password}
                   onChange={(event) => {
                     setPassword(event.target.value);
@@ -184,7 +205,7 @@ export const LoginView = (): ReactElement => {
                   type="button"
                   onClick={() => setShowPassword((value) => !value)}
                   aria-label={showPassword ? AUTH_TEXT.HIDE_PASSWORD : AUTH_TEXT.SHOW_PASSWORD}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-[var(--ink-muted)] hover:text-[var(--ink-primary)]"
                 >
                   <EyeIcon closed={showPassword} className="h-4 w-4" />
                 </button>

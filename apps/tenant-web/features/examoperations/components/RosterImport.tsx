@@ -5,6 +5,7 @@ import { Alert, Button, DataTable, useToast } from "@pte/ui";
 import { RosterDropzone } from "./_RosterDropzone";
 import { SkippedRowsReport } from "./SkippedRowsReport";
 import { PendingImportBanner } from "./PendingImportBanner";
+import { EnrollmentConflictNotice } from "./EnrollmentConflictNotice";
 import { RosterColumnWarnings } from "./RosterColumnWarnings";
 import { RosterTemplateButton } from "./RosterTemplateButton";
 import { ROSTER_REVIEW_TABLE_HEADERS, ROSTER_TEXT } from "./constants";
@@ -72,7 +73,8 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
 
   const handleEnroll = (accounts: CreatedAccount[]): void => {
     enrollAccounts.mutate(accounts, {
-      onSuccess: () => {
+      onSuccess: (response) => {
+        if (response.skippedByConflict.length > 0) return;
         setPending(null);
         setFile(null);
         setRows(null);
@@ -97,6 +99,7 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
           onDismiss={handleDismiss}
           isEnrolling={enrollAccounts.isPending}
           enrollError={enrollAccounts.error}
+          conflicts={enrollAccounts.data?.skippedByConflict}
         />
       )}
 
@@ -192,6 +195,12 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
               {errorMessage(enrollAccounts.error)}
             </Alert>
           )}
+          <EnrollmentConflictNotice
+            conflicts={enrollAccounts.data?.skippedByConflict}
+            studentLabels={Object.fromEntries(
+              created.map((account) => [account.publicId, account.fullName ?? account.username]),
+            )}
+          />
         </div>
       )}
     </section>

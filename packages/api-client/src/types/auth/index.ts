@@ -47,18 +47,16 @@ export interface LoginOrganizationOption {
 }
 
 /**
- * Matches iam's real `TokenResponse` record exactly
- * (`services/iam/.../dto/response/TokenResponse.java`) — no `role`/
- * `tenantId`/`userType`/`mustChangePassword` fields exist on this response;
- * those claims live inside `accessToken` itself (`roles`, `tenant_id`) and
- * must be read via `decodeAccessTokenClaims` after login, not off this
- * object.
+ * Matches iam's real token response plus the first-login business flag.
+ * Roles and tenant identity still live inside `accessToken` claims
+ * (`roles`, `tenant_id`) and must be read via `decodeAccessTokenClaims`.
  */
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   tokenType: string;
   expiresInSeconds: number;
+  mustChangePassword: boolean;
 }
 
 export type JwtTokenResponse = AuthResponse;

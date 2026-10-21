@@ -23,6 +23,7 @@ export interface Tenant {
   taxCode: string | null;
   contactEmail: string | null;
   status: TenantStatus;
+  suspendedUntil: string | null;
   seatsUsed: number;
   seatsTotal: number;
   plan: TenantPlan;

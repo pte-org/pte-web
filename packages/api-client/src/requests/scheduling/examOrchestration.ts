@@ -14,6 +14,7 @@ export const EXAM_ORCHESTRATION_ENDPOINTS = {
   drafts: "/api/v1/sessions/drafts",
   draft: (publicId: string) => `/api/v1/sessions/${publicId}`,
   sources: (publicId: string) => `/api/v1/sessions/${publicId}/audience-sources`,
+  sourcesBulk: (publicId: string) => `/api/v1/sessions/${publicId}/audience-sources/bulk`,
   source: (publicId: string, sourcePublicId: string) =>
     `/api/v1/sessions/${publicId}/audience-sources/${sourcePublicId}`,
   audiencePreview: (publicId: string) => `/api/v1/sessions/${publicId}/audience-preview`,
@@ -61,6 +62,18 @@ export function addAudienceSource(
   return client.request<AudienceSourceResponse>(EXAM_ORCHESTRATION_ENDPOINTS.sources(publicId), {
     method: "POST",
     body: payload,
+  });
+}
+
+/** Adds all sources atomically; duplicates are ignored and a covered source fails the whole batch. */
+export function addAudienceSources(
+  client: ApiClient,
+  publicId: string,
+  sources: readonly AudienceSourceRequest[],
+): Promise<AudienceSourceResponse[]> {
+  return client.request<AudienceSourceResponse[]>(EXAM_ORCHESTRATION_ENDPOINTS.sourcesBulk(publicId), {
+    method: "POST",
+    body: { sources },
   });
 }
 

@@ -2,6 +2,8 @@ export interface SkillScoreResponse {
   skill: string;
   score: number | null;
   sufficientData: boolean;
+  /** Sum of the pinned template weights that had publishable scores. */
+  appliedWeight: number | null;
 }
 
 export interface ReportResponse {
@@ -12,6 +14,8 @@ export interface ReportResponse {
   immutableSnapshot: boolean;
   overall: SkillScoreResponse | null;
   communicativeSkills: SkillScoreResponse[];
+  /** True only on a host's unpublished view: answers with no chosen score source were counted by their AI score. */
+  includesUnselectedAiScores: boolean;
 }
 
 export interface ReportPublicationBlockerResponse {

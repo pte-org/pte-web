@@ -24,6 +24,10 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   DUPLICATE_EMAIL_IN_BATCH: "Some email addresses appear more than once in the uploaded file.",
   INVALID_LOGIN: "The username or password is incorrect.",
   ACCESS_DENIED: "You do not have permission to complete this action.",
+  TENANT_SUSPENDED:
+    "This organization is suspended. New activity is blocked, but ongoing attempts and published reports remain available.",
+  TENANT_SUSPENSION_IMPACT_STALE:
+    "The live suspension impact changed. Refresh the preview and review it again before confirming.",
   LICENSE_CODE_IDEMPOTENCY_KEY_REQUIRED: "Reload this page before issuing a license code.",
   LICENSE_CODE_IDEMPOTENCY_KEY_INVALID: "Reload this page to generate a valid issuance key.",
   LICENSE_CODE_IDEMPOTENCY_KEY_REUSED: "This request belongs to another issuance. Recover the original result or explicitly start a new issuance.",
@@ -73,7 +77,9 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   AUDIENCE_CHANGED_REQUIRES_REGENERATION:
     "The student audience changed while the exam was being prepared. Generate the exam again before publishing.",
   EXAM_AUDIENCE_LOCKED:
-    "This exam audience is already locked for preparation or publishing and cannot be changed here.",
+    "Students can't be added or removed while the exam is being prepared or running. Try again before it starts or after it ends.",
+  ENROLLED_STUDENT_ALREADY_STARTED:
+    "This student already started the exam, so they can't be removed from it.",
   LEGACY_SESSION_CREATE_REQUIRES_NEW_WORKFLOW:
     "This exam creation form is outdated. Use the new exam workflow so the template, audience, and student rules can be checked before publishing.",
   SESSION_SUBSCRIPTION_NOT_FOUND:

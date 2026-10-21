@@ -1,11 +1,13 @@
 "use client";
 
 import type { ReactElement } from "react";
+import type { SlotConflict } from "@pte/api-client";
 import { Alert, Button } from "@pte/ui";
 import { ROSTER_TEXT } from "./constants";
 import { errorMessage } from "../errorMessage";
 import { downloadCredentials } from "../downloadCredentials";
 import type { CreatedAccount } from "../types";
+import { EnrollmentConflictNotice } from "./EnrollmentConflictNotice";
 
 interface PendingImportBannerProps {
   accounts: CreatedAccount[];
@@ -13,6 +15,7 @@ interface PendingImportBannerProps {
   onDismiss: () => void;
   isEnrolling?: boolean;
   enrollError?: unknown;
+  conflicts?: SlotConflict[];
 }
 
 const T = ROSTER_TEXT;
@@ -23,6 +26,7 @@ export const PendingImportBanner = ({
   onDismiss,
   isEnrolling = false,
   enrollError,
+  conflicts,
 }: PendingImportBannerProps): ReactElement => (
   <Alert tone="warning" title={T.RECOVERY_TITLE}>
     <div className="flex flex-col gap-3">
@@ -48,6 +52,12 @@ export const PendingImportBanner = ({
         </button>
       </div>
       {!!enrollError && <Alert tone="error">{errorMessage(enrollError)}</Alert>}
+      <EnrollmentConflictNotice
+        conflicts={conflicts}
+        studentLabels={Object.fromEntries(
+          accounts.map((account) => [account.publicId, account.fullName ?? account.username]),
+        )}
+      />
     </div>
   </Alert>
 );

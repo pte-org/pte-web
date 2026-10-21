@@ -22,6 +22,7 @@ export const PROCTOR_ROLES: SessionRole[] = ["PROCTOR"];
 
 export const AUTH_ROUTES = {
   login: "/login",
+  changePassword: "/change-password",
   register: "/register",
   hostDashboard: "/host/dashboard",
   examinerWork: "/examiner/work",
@@ -30,12 +31,24 @@ export const AUTH_ROUTES = {
   proctorUnavailable: "/proctor/unavailable",
 } as const;
 
+export const PASSWORD_CHANGE_TEXT = {
+  TITLE: "Change your password",
+  SUBTITLE: "Your temporary password must be replaced before you can open a workspace.",
+  CURRENT_LABEL: "Current password",
+  NEW_LABEL: "New password",
+  CONFIRM_LABEL: "Confirm new password",
+  REQUIRED: "Enter all password fields.",
+  MISMATCH: "The new passwords do not match.",
+  TOO_SHORT: "Use at least 8 characters for the new password.",
+  SUBMIT: "Change password",
+  SUBMITTING: "Changing password...",
+  FAILED: "Password could not be changed. Check the current password and try again.",
+} as const;
+
 export const AUTH_TEXT = {
   BRAND: "PTE Prep",
   WELCOME_TITLE: "Welcome Back",
   WELCOME_SUBTITLE: "Sign in to manage learners and exams for your organization.",
-  PANEL_HEADING: "Ready to manage?",
-  PANEL_TEXT: "Sign in to import learners, assign exams, and monitor results.",
   // Username, not email: the backend login key moved off email in Phase 1
   // of the commercialization work. A HOST_ADMIN's username IS their email
   // (the backend sets username = email for every non-STUDENT role), which
@@ -49,6 +62,7 @@ export const AUTH_TEXT = {
   ORGANIZATION_PLACEHOLDER: "Select your organization",
   ORGANIZATION_REQUIRED: "Please select your organization.",
   PASSWORD_LABEL: "Password",
+  PASSWORD_PLACEHOLDER: "Enter your password",
   FORGOT: "Forgot password?",
   LOGIN_BUTTON: "Login",
   LOGGING_IN: "Signing in...",

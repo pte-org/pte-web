@@ -5,6 +5,7 @@ import {
   ActionMenu,
   Alert,
   Badge,
+  Button,
   CopyableId,
   DescriptionList,
   ProfileAccountPanel,
@@ -19,7 +20,6 @@ import {
   SESSION_STATUS_VARIANT,
 } from "../constants";
 import type { ExamSession } from "../types";
-import { getExamPolicyLabel } from "../utils/examPolicy";
 import { ExamEditForm } from "./ExamEditForm";
 import type { ExamOverviewLifecycle } from "./ExamOverviewTab";
 
@@ -66,56 +66,17 @@ export const ExamInformationPanel = ({
           })
           .join(", ")
       : t("tenant.examDetails.legacySkills", SESSION_DETAIL_TEXT.LEGACY_SKILLS);
-  const retriesLabel = t(
-    "tenant.examDetails.totalAttempts",
-    SESSION_DETAIL_TEXT.TOTAL_ATTEMPTS(session.maxRetriesPerStudent),
-    {
-      retries: session.maxRetriesPerStudent,
-      total: session.maxRetriesPerStudent + 1,
-      retriesLabel: session.maxRetriesPerStudent === 1 ? "retry" : "retries",
-      attemptLabel: session.maxRetriesPerStudent === 0 ? "attempt" : "attempts",
-    },
-  );
-  const actionItems: DropdownItem[] = [];
-
-  if (isEditable) {
-    actionItems.push({
-      label: t("tenant.examDetails.edit", EXAM_EDITOR_TEXT.EDIT),
-      disabled: editing,
-      onSelect: onEdit,
-    });
-  }
-  if (lifecycle.canOpen || lifecycle.canClose || lifecycle.canCancel) {
-    if (actionItems.length > 0) actionItems.push({ separator: true });
-    if (lifecycle.canOpen) {
-      actionItems.push({
-        label: t("tenant.examOverview.open", SESSION_DETAIL_TEXT.OPEN_EXAM),
-        disabled: lifecycle.openPending,
-        onSelect: lifecycle.onOpen,
-      });
-    }
-    if (lifecycle.canClose) {
-      actionItems.push({
-        label: t("tenant.examOverview.close", SESSION_DETAIL_TEXT.CLOSE_EXAM),
-        disabled: lifecycle.closePending,
-        onSelect: lifecycle.onClose,
-      });
-    }
-    if (lifecycle.canCancel) {
-      actionItems.push({
-        label: t("tenant.examOverview.cancel", SESSION_DETAIL_TEXT.CANCEL_EXAM),
-        danger: true,
-        disabled: lifecycle.cancelPending,
-        onSelect: lifecycle.onCancel,
-      });
-    }
-  }
-  if (actionItems.length === 0) {
-    actionItems.push({
-      label: t("tenant.examDetails.noActions", EXAM_EDITOR_TEXT.NO_ACTIONS),
-      disabled: true,
-    });
-  }
+  // The next step and edit stay visible; only the rare, hard-to-undo cancel hides in the menu.
+  const overflowItems: DropdownItem[] = lifecycle.canCancel
+    ? [
+        {
+          label: t("tenant.examOverview.cancel", SESSION_DETAIL_TEXT.CANCEL_EXAM),
+          danger: true,
+          disabled: lifecycle.cancelPending,
+          onSelect: lifecycle.onCancel,
+        },
+      ]
+    : [];
 
   const details = [
     { label: t("tenant.examDetails.name", EXAM_EDITOR_TEXT.NAME), value: session.name },
@@ -140,15 +101,7 @@ export const ExamInformationPanel = ({
       label: t("tenant.examDetails.skillsIncluded", SESSION_DETAIL_TEXT.SKILLS_LABEL),
       value: skillsLabel,
     },
-    {
-      label: t("tenant.examDetails.retriesPerStudent", SESSION_DETAIL_TEXT.RETRIES_LABEL),
-      value: retriesLabel,
-    },
     { label: t("tenant.examDetails.capacity", EXAM_EDITOR_TEXT.CAPACITY), value: session.capacity },
-    {
-      label: t("tenant.examDetails.securityPolicy", SESSION_DETAIL_TEXT.SECURITY_POLICY_LABEL),
-      value: getExamPolicyLabel(session.examMode, session.policy?.lockdownMode, t),
-    },
   ];
 
   return (
@@ -160,10 +113,29 @@ export const ExamInformationPanel = ({
       )}
       actions={
         !editing && (
-          <ActionMenu
-            label={t("tenant.examDetails.actions", EXAM_EDITOR_TEXT.ACTIONS)}
-            items={actionItems}
-          />
+          <div className="flex flex-wrap items-center gap-2">
+            {isEditable && (
+              <Button size="sm" variant="secondary" onClick={onEdit}>
+                {t("tenant.examDetails.edit", EXAM_EDITOR_TEXT.EDIT)}
+              </Button>
+            )}
+            {lifecycle.canOpen && (
+              <Button size="sm" onClick={lifecycle.onOpen} disabled={lifecycle.openPending}>
+                {t("tenant.examOverview.open", SESSION_DETAIL_TEXT.OPEN_EXAM)}
+              </Button>
+            )}
+            {lifecycle.canClose && (
+              <Button size="sm" onClick={lifecycle.onClose} disabled={lifecycle.closePending}>
+                {t("tenant.examOverview.close", SESSION_DETAIL_TEXT.CLOSE_EXAM)}
+              </Button>
+            )}
+            {overflowItems.length > 0 && (
+              <ActionMenu
+                label={t("tenant.examDetails.actions", EXAM_EDITOR_TEXT.ACTIONS)}
+                items={overflowItems}
+              />
+            )}
+          </div>
         )
       }
     >

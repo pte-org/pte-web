@@ -8,10 +8,12 @@ import {
 } from "@tanstack/react-query";
 import {
   getCurrentUser,
+  changePassword,
   listLoginOrganizations,
   loginAdmin,
   loginHost,
   type AdminLoginRequest,
+  type ChangePasswordRequest,
   type CurrentUser,
   type HostLoginRequest,
   type LoginOrganizationOption,
@@ -42,6 +44,12 @@ export function useLoginOrganizationOptions(): UseMutationResult<
   return useMutation({
     mutationFn: (payload: LoginOrganizationOptionsRequest) =>
       listLoginOrganizations(apiClient, payload),
+  });
+}
+
+export function useChangePassword(): UseMutationResult<void, unknown, ChangePasswordRequest> {
+  return useMutation({
+    mutationFn: (payload: ChangePasswordRequest) => changePassword(apiClient, payload),
   });
 }
 

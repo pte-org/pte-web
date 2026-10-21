@@ -1,7 +1,7 @@
 "use client";
 
-import type { ReactElement, ReactNode } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, type ReactElement, type ReactNode } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { ProtectedRoute, useSessionManager, type SessionRole } from "@pte/ui";
 import { AUTH_ROUTES } from "../constants";
 import { AuthLoading } from "./AuthLoading";
@@ -15,9 +15,19 @@ export const RequireAuth = ({
   allowedRoles?: SessionRole[];
 }): ReactElement => {
   const router = useRouter();
+  const pathname = usePathname();
   const { session, isReady, hasRole } = useSessionManager();
+  const mustChangePassword = Boolean(session?.mustChangePassword)
+    && pathname !== AUTH_ROUTES.changePassword;
+
+  useEffect(() => {
+    if (isReady && mustChangePassword) {
+      router.replace(AUTH_ROUTES.changePassword);
+    }
+  }, [isReady, mustChangePassword, router]);
 
   if (!isReady) return <AuthLoading />;
+  if (mustChangePassword) return <AuthLoading />;
 
   return (
     <ProtectedRoute

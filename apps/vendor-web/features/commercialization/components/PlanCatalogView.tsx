@@ -8,6 +8,7 @@ import {
   ConfirmDialog,
   DataTable,
   Input,
+  Textarea,
   Modal,
   Select,
   CheckCircleIcon,
@@ -438,7 +439,7 @@ export const PlanCatalogView = (): ReactElement => {
                 disabled={editing?.status === "ACTIVE"}
                 onChange={(event) => setForm({ ...form, type: event.target.value as PlanType })}
               />
-              <Input
+              <Textarea
                 id="plan-description"
                 label={T.DESCRIPTION}
                 value={form.description}
@@ -536,7 +537,9 @@ export const PlanCatalogView = (): ReactElement => {
               cell: (row: PlanResponse) => (
                 <div>
                   <p className="font-medium text-slate-900">{row.name}</p>
-                  <p className="mt-1 text-xs text-slate-500">{row.description || T.EMPTY_VALUE}</p>
+                  <p className="mt-1 whitespace-pre-line break-words text-xs text-slate-500">
+                    {row.description || T.EMPTY_VALUE}
+                  </p>
                 </div>
               ),
             },

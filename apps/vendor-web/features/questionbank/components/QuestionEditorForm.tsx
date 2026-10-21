@@ -167,6 +167,8 @@ export const QuestionEditorForm = ({
       return setError(E.WORD_COUNTS_REQUIRED);
     if (questionType.requiresCorrectAnswer && !hasOptions && !correctAnswerText.trim())
       return setError(E.CORRECT_ANSWER_REQUIRED);
+    if (questionType.requiresReferenceAnswer && !referenceAnswerText.trim())
+      return setError(E.REFERENCE_ANSWER_REQUIRED);
     if (hasOptions && (options.length === 0 || options.some((option) => !option.text.trim()))) {
       return setError(E.OPTION_TEXT_REQUIRED);
     }

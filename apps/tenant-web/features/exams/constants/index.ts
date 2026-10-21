@@ -8,6 +8,8 @@ import type {
 } from "@pte/api-client";
 import type { CreateSessionInput, ExamSkill } from "../types";
 
+export * from "./answers";
+
 // react-query cache-key roots — named constants per this repo's established
 // convention (avoids raw-string query-key drift/collisions).
 export const SESSIONS_QUERY_KEY = ["sessions"] as const;
@@ -15,12 +17,12 @@ export const SESSION_QUERY_KEY = ["session"] as const;
 export const ENROLLMENTS_QUERY_KEY = ["enrollments"] as const;
 export const PROCTOR_ASSIGNMENTS_QUERY_KEY = ["proctorAssignments"] as const;
 export const TENANT_USERS_QUERY_KEY = ["tenantUsers"] as const;
-export const ANSWERS_QUERY_KEY = ["answers"] as const;
-export const ANSWER_QUERY_KEY = ["answer"] as const;
 export const EXAM_PREVIEW_QUERY_KEY = ["examPreview"] as const;
-export const ASSIGNED_CLASSES_QUERY_KEY = ["assignedClasses"] as const;
-export const EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY = ["examinerAssignmentOverview"] as const;
+export const EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY = ["examinerAssignmentRoster"] as const;
 export const EXAMINER_DIRECTORY_QUERY_KEY = ["examinerAssignmentDirectory"] as const;
+/** Each student sits an exam once, as in the real test; the API refuses any other retry count. */
+export const SINGLE_SITTING_RETRIES = 0;
+
 export const HOST_SCORE_REVIEW_QUERY_KEY = ["hostScoreReview"] as const;
 export const SCORE_SOURCE_AUDIT_QUERY_KEY = ["scoreSourceAuditHistory"] as const;
 export const REPORT_PUBLICATION_READINESS_QUERY_KEY = ["reportPublicationReadiness"] as const;
@@ -143,28 +145,32 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   REUSE_POLICY_LABEL: "Student reuse rule",
   SERIES_LABEL: "Exam series",
   SERIES_PLACEHOLDER: "e.g. 2026-HK1",
-  SOURCES_TITLE: "Audience sources",
-  SOURCE_TYPE_LABEL: "Source type",
-  SOURCE_OPTION_LABEL: "Existing source",
-  SOURCE_SEARCH_LABEL: "Search existing sources",
+  SOURCES_TITLE: "Students taking the exam",
+  SOURCE_SEARCH_LABEL: "Search students",
   SOURCE_SEARCH_PLACEHOLDER: "Search by name, email, account, or code",
-  SOURCE_PLACEHOLDER: "Select an existing source",
-  SOURCE_LOADING: "Loading existing sources...",
-  SOURCE_EMPTY: "No existing sources match your search.",
+  FILTER_PROGRAM_LABEL: "Program",
+  FILTER_CLASS_LABEL: "Class",
+  FILTER_ALL_PROGRAMS: "All programs",
+  FILTER_ALL_CLASSES: "All classes",
+  FILTER_NO_CLASS: "Not in any class",
+  SELECT_ALL_FILTERED: "Select all students in this list",
+  SELECT_STUDENT: "Select student",
+  NO_CLASS_BADGE: "No class",
+  CLEAR_SELECTION: "Clear selection",
+  SELECTED_TOTAL: "{count} students selected",
+  SELECTED_IN_LIST: "{selected} of {total} in this list",
+  SOURCE_LOADING: "Loading students...",
+  SOURCE_EMPTY: "No students match your filters.",
   MANAGE_CLASSES: "Manage classes",
-  ADD_SOURCE: "Add source",
-  REMOVE_SOURCE: "Remove",
-  NO_SOURCES: "Add at least one student, class, or program source.",
+  NO_SOURCES: "Select at least one student.",
   NO_TEMPLATE:
     "No active exam template is available yet. Ask the platform administrator to activate one.",
   NO_ACTIVE_SUBSCRIPTIONS: "No active subscription is available for this exam.",
   REVIEW_TITLE: "Review before generation",
   REVIEW_TEMPLATE: "Template",
-  REVIEW_SECURITY_POLICY: "Security policy",
   REVIEW_SKILLS: "Included skills",
   REVIEW_RETRIES: "Retries per student",
-  REVIEW_AUDIENCE: "Audience sources",
-  REVIEW_RULE: "Student reuse rule",
+  REVIEW_AUDIENCE: "Students",
   REVIEW_CAPACITY: "Maximum students",
   EMPTY_VALUE: "—",
   TEMPLATE_READY: "The template has enough published questions.",
@@ -212,9 +218,7 @@ export const CREATE_EXAM_WIZARD_ERRORS = {
   CLOSES_AFTER_OPENS: "The close time must be after the open time.",
   CAPACITY_REQUIRED: "Enter a positive whole-number capacity.",
   SERIES_REQUIRED: "Add an exam series for this reuse rule.",
-  SOURCE_REQUIRED: "Select an existing source before adding it.",
-  SOURCE_DUPLICATE: "This audience source has already been added.",
-  AUDIENCE_REQUIRED: "Add at least one audience source.",
+  AUDIENCE_REQUIRED: "Select at least one student.",
   OPEN_FUTURE: "Choose an opening time in the future.",
   RETRIES_INVALID: "Enter a whole number of retries from 0 to 9.",
   POLICY_MISMATCH:
@@ -241,11 +245,10 @@ export const REUSE_POLICY_OPTIONS: { value: ReusePolicy; label: string }[] = [
   { value: "BLOCK_ON_SCHEDULE_OVERLAP", label: CREATE_EXAM_WIZARD_TEXT.REUSE_OVERLAP },
 ];
 
-export const AUDIENCE_SOURCE_OPTIONS = [
-  { value: "STUDENT", label: "Student" },
-  { value: "CLASS", label: "Class" },
-  { value: "PROGRAM", label: "Program" },
-] as const;
+/** Select value meaning "no filter" in the audience program/class filters. */
+export const AUDIENCE_FILTER_ALL = "";
+/** Select value for students who have no class membership yet. */
+export const AUDIENCE_FILTER_NO_CLASS = "__NO_CLASS__";
 
 export const EXAM_SKILL_OPTIONS: { value: ExamSkill; label: string }[] = [
   { value: "SPEAKING", label: "Speaking" },
@@ -290,10 +293,11 @@ export const SESSION_DETAIL_TEXT = {
   CANCEL_EXAM_CONFIRM: "Cancel this exam? Students will not be able to access it.",
   STUDENTS_SECTION: "Students",
   ADD_EXISTING_STUDENTS: "Add existing students",
-  IMPORT_EXISTING_STUDENTS: "Import existing students",
-  AUDIENCE_NOT_SCHEDULED_NOTICE:
-    "Students can only be added while this exam is Scheduled. The buttons are enabled then.",
-  CLASSES_SECTION: "Assigned Classes",
+  ADD_STUDENTS_CANCEL: "Cancel",
+  ADD_STUDENTS_SUBMIT: "Add to exam",
+  ADD_STUDENTS_SUBMITTING: "Adding...",
+  AUDIENCE_LOCKED_NOTICE:
+    "Students can't be added or removed while this exam is being prepared or running. You can edit the list when it is Scheduled or Closed.",
   PROCTORS_SECTION: "Proctors",
   ANSWERS_SECTION: "Submitted Answers",
   EXAMINER_ASSIGNMENTS_SECTION: "Examiner assignments",
@@ -320,7 +324,6 @@ export const EXAM_EDITOR_TEXT = {
   CANCEL: "Cancel",
   SAVED: "Exam information saved.",
   SAVE_FAILED: "Unable to save exam information. Please try again.",
-  NO_ACTIONS: "No actions available",
   NAME: "Exam name",
   STATUS: "Status",
   CODE: "Exam code",
@@ -384,50 +387,27 @@ export const EXAM_EDITOR_TEXT = {
 } as const;
 
 export const EXAMINER_ASSIGNMENT_TEXT = {
-  MODE_LABEL: "Assignment method",
-  RANDOM_MODE: "Random pooled (balanced)",
-  MANUAL_MODE: "Assign by Class/Program",
-  SCOPE_LABEL: "Class or Program",
-  SCOPE_TYPE_CLASS: "Class",
-  SCOPE_TYPE_PROGRAM: "Program",
-  SCOPE_PLACEHOLDER: "Select a scope",
-  ADD_SCOPE: "Add scope",
-  REMOVE_SCOPE: "Remove",
+  SCOPE_TYPE_STUDENT: "Student",
+  REQUIRES_CLOSED: "Examiners can only be assigned after the exam has closed.",
+  LOCKED_NOTICE: "The assignment is committed and can no longer be edited.",
+  HINT:
+    "Select Examiners and click “Randomize” to pre-fill the table, then adjust any student's Examiner. Click “Commit assignment” once every student has an Examiner.",
   EXAMINERS_LABEL: "Examiners",
   EXAMINER_LABEL: "Examiner",
-  EXAMINER_PLACEHOLDER: "Select an active Examiner",
+  EXAMINER_PLACEHOLDER: "Select an Examiner",
   NO_EXAMINERS: "No active Examiners are available in this organization.",
-  NO_ACTIVE_SCOPES: "No active Classes are available for assignment.",
-  NO_SCOPES: "Assign at least one Class or Program scope.",
-  RANDOM_HELP:
-    "All selected scopes are combined into one pool, then attempts are split as evenly as possible.",
-  SUPPLEMENTAL_HELP:
-    "Already assigned attempts are excluded; this preview adds only new eligible attempts.",
-  PREVIEW: "Preview assignment",
-  PREVIEWING: "Preparing preview...",
-  PREVIEW_VALID: "Preview ready. Confirm to commit this exact allocation.",
-  PREVIEW_INVALID: "No valid allocation was created. Review the conflicts or selected scope.",
-  CONFLICTS: "Manual mapping conflicts",
-  ATTEMPT: "Attempt",
-  CONFLICTING_SCOPES: "Conflicting scopes",
-  ATTEMPT_COUNT: "Attempts",
-  ANSWER_COUNT: "Eligible answers",
-  LOADS: "Distribution by Examiner",
-  CONFIRM: "Confirm assignment",
-  CONFIRMING: "Confirming...",
+  LOADING: "Loading...",
+  RANDOMIZE: "Randomize",
+  PROGRESS: "{assigned}/{total} students have an Examiner",
+  COMMIT: "Commit assignment",
+  COMMITTING: "Committing...",
+  CANCEL: "Cancel",
+  COMMIT_TITLE: "Commit the grading assignment?",
+  COMMIT_DESCRIPTION: "Once committed, the assignment table is locked and cannot be edited.",
   CONFIRMED: "Assignment committed.",
-  EXPIRED: "This preview expired. Create a new preview.",
-  STALE:
-    "This preview is no longer valid because the candidate pool changed. Create a new preview.",
+  EMPTY: "No submitted attempts to assign yet.",
+  UNKNOWN_STUDENT: "Unknown student",
   RETRY: "Retry",
-  BATCHES: "Preview and assignment history",
-  NO_BATCHES: "No assignment batches yet.",
-  ASSIGNED_TOTAL: (count: number) => `${count} attempt(s) assigned in this session`,
-  CREATED: "Created",
-  STATUS: "Status",
-  ACTIONS: "Actions",
-  PREVIOUS_PAGE: "Previous",
-  NEXT_PAGE: "Next",
 } as const;
 
 export const EXAM_PREVIEW_TEXT = {
@@ -443,71 +423,6 @@ export const EXAM_PREVIEW_TEXT = {
     return "";
   },
   UNAVAILABLE: "The published exam questions are not available yet.",
-} as const;
-
-export const CLASS_ASSIGNMENT_TEXT = {
-  EMPTY_TITLE: "No Classes assigned yet",
-  ASSIGN_LABEL: "Class",
-  ASSIGN_PLACEHOLDER: "Select a Class to assign",
-  ASSIGN: "Assign Class",
-  ASSIGNING: "Assigning...",
-  SOURCE_LOCKED: "Class assignment is available only while this exam is Scheduled.",
-  UNASSIGN: "Unassign",
-  ACTIONS: "Actions",
-  NOT_SCHEDULED_NOTICE: "Classes can only be assigned or unassigned while this exam is Scheduled.",
-} as const;
-
-export const ANSWERS_SECTION_TEXT = {
-  EMPTY_TITLE: "No answers submitted yet",
-  STATUS_FILTER_LABEL: "Status",
-  STATUS_FILTER_ALL: "All statuses",
-  VIEW: "View",
-  ATTEMPT_VALUE: (attemptNumber: number | null) =>
-    attemptNumber === null ? "Unavailable" : `Attempt ${attemptNumber}`,
-} as const;
-
-export const ANSWER_TABLE_HEADERS = {
-  ATTEMPT: "Attempt",
-  TASK_TYPE: "Task Type",
-  STATUS: "Status",
-  AI_SCORE: "AI Score",
-  TEACHER_SCORE: "Teacher Score",
-  SUBMITTED_AT: "Submitted",
-  ACTIONS: "Actions",
-} as const;
-
-export const ANSWER_STATUS_LABELS: Record<string, string> = {
-  PENDING: "Pending",
-  AI_SCORING: "AI Scoring",
-  SCORING_FAILED: "Scoring Failed",
-  SCORED: "Scored",
-};
-
-export const ANSWER_STATUS_VARIANT: Record<string, "info" | "success" | "neutral" | "danger"> = {
-  PENDING: "neutral",
-  AI_SCORING: "info",
-  SCORING_FAILED: "danger",
-  SCORED: "success",
-};
-
-export const ANSWER_DETAIL_TEXT = {
-  TITLE: "Submitted Answer",
-  TASK_TYPE_LABEL: "Task type",
-  STATUS_LABEL: "Status",
-  AI_SCORE_LABEL: "AI score",
-  NOT_SCORED: "Not scored yet",
-  OPTIONS_TITLE: "Options",
-  SELECTED_BADGE: "Selected",
-  CORRECT_BADGE: "Correct",
-  AUDIO_UNAVAILABLE: "Audio recording is not available right now.",
-  UNRECOGNIZED_NOTICE:
-    "This answer's format could not be decoded automatically. Showing the raw submitted value below.",
-  TEACHER_SCORE_TITLE: "Teacher Score",
-  TEACHER_SCORE_LABEL: "Score (0-100)",
-  SUBMIT: "Save Score",
-  SUBMITTING: "Saving...",
-  SAVED: "Score saved.",
-  CLOSE: "Close",
 } as const;
 
 export const PROCTOR_SECTION_TEXT = {

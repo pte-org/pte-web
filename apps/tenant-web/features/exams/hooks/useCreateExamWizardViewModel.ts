@@ -8,14 +8,9 @@ import type { AudienceStepProps } from "../components/create-exam/AudienceStep";
 import type { ExamDetailsStepProps } from "../components/create-exam/ExamDetailsStep";
 import type { ReviewStepProps } from "../components/create-exam/ReviewStep";
 import type { SchedulePolicyStepProps } from "../components/create-exam/SchedulePolicyStep";
-import {
-  AUDIENCE_SOURCE_OPTIONS,
-  CREATE_EXAM_WIZARD_ERRORS,
-  CREATE_EXAM_WIZARD_TEXT as DEFAULT_CREATE_EXAM_WIZARD_TEXT,
-  EXAM_SKILL_OPTIONS,
-  REUSE_POLICY_OPTIONS,
-} from "../constants";
+import { CREATE_EXAM_WIZARD_ERRORS, EXAM_SKILL_OPTIONS } from "../constants";
 import type { CreateExamWorkflowInput, ExamSkill } from "../types";
+import { composePreflightMessage, ExamPreflightBlockedError } from "../utils/examPreflight";
 import {
   createEmptyExamWorkflow,
   getTemplateSkills,
@@ -23,8 +18,7 @@ import {
 } from "../utils/createExamWizard";
 import { useCreateExamAudience } from "./useCreateExamAudience";
 import { useCreateExamWizardForm } from "./useCreateExamWizardForm";
-
-type WizardText = typeof DEFAULT_CREATE_EXAM_WIZARD_TEXT;
+import { useCreateExamWizardText, type CreateExamWizardText } from "./useCreateExamWizardText";
 
 export interface UseCreateExamWizardViewModelOptions {
   open: boolean;
@@ -36,7 +30,7 @@ export interface UseCreateExamWizardViewModelOptions {
 export interface UseCreateExamWizardViewModelResult {
   step: CreateExamStep;
   effectiveForm: CreateExamWorkflowInput;
-  wizardText: WizardText;
+  wizardText: CreateExamWizardText;
   stepLabels: { id: string; label: string }[];
   submitMessage?: string;
   detailsStepProps: ExamDetailsStepProps;
@@ -63,16 +57,7 @@ export function useCreateExamWizardViewModel({
     () => createEmptyExamWorkflow(activeTemplate?.publicId),
     [activeTemplate?.publicId],
   );
-  const wizardText = useMemo(
-    () =>
-      Object.fromEntries(
-        Object.entries(DEFAULT_CREATE_EXAM_WIZARD_TEXT).map(([key, value]) => [
-          key,
-          typeof value === "string" ? t(`tenant.createExam.${key}`, value) : value,
-        ]),
-      ) as WizardText,
-    [t],
-  );
+  const wizardText = useCreateExamWizardText();
   const localizedSkillOptions = useMemo(
     () =>
       EXAM_SKILL_OPTIONS.map((option) => ({
@@ -80,29 +65,6 @@ export function useCreateExamWizardViewModel({
         label: t(`tenant.createExam.skill.${option.value}`, option.label),
       })),
     [t],
-  );
-  const localizedSourceTypeOptions = useMemo(
-    () =>
-      AUDIENCE_SOURCE_OPTIONS.map((option) => ({
-        ...option,
-        label: t(`tenant.createExam.source.${option.value}`, option.label),
-      })),
-    [t],
-  );
-  const localizedReusePolicyOptions = useMemo(
-    () =>
-      REUSE_POLICY_OPTIONS.map((option) => ({
-        ...option,
-        label:
-          option.value === "ALLOW"
-            ? wizardText.REUSE_ALLOW
-            : option.value === "EXCLUDE_STARTED_IN_SERIES"
-              ? wizardText.REUSE_STARTED
-              : option.value === "EXCLUDE_ASSIGNED_IN_SERIES"
-                ? wizardText.REUSE_ASSIGNED
-                : wizardText.REUSE_OVERLAP,
-      })),
-    [wizardText],
   );
   const localizeError = useCallback(
     (message?: string): string | undefined => {
@@ -127,29 +89,31 @@ export function useCreateExamWizardViewModel({
     sources,
     update,
     onSourcesChange,
-    setFieldError,
     validate,
     goToNextStep,
     goToPreviousStep,
   } = wizardForm;
-  const onSourcesError = useCallback(
-    (message?: string): void => setFieldError("sources", message),
-    [setFieldError],
-  );
   const audience = useCreateExamAudience({
     open,
     sources,
     onSourcesChange,
-    onSourcesError,
   });
-  const sourceTypeLabels = useMemo(
-    () => new Map(localizedSourceTypeOptions.map((option) => [option.value, option.label])),
-    [localizedSourceTypeOptions],
-  );
   const templateMessage = templateError
     ? errorMessage(templateError, wizardText.NO_TEMPLATE)
     : undefined;
-  const submitMessage = error ? errorMessage(error) : undefined;
+  const submitMessage = !error
+    ? undefined
+    : error instanceof ExamPreflightBlockedError
+      ? composePreflightMessage(
+          wizardText.PREFLIGHT_BLOCKED,
+          error.issues,
+          (issue) =>
+            t(
+              `tenant.createExam.preflight.${issue}`,
+              wizardText.PREFLIGHT_ISSUE_MESSAGES[issue] ?? "",
+            ) || undefined,
+        )
+      : errorMessage(error);
 
   const fieldStepProps: SchedulePolicyStepProps = {
     form,
@@ -168,22 +132,23 @@ export function useCreateExamWizardViewModel({
     templateMessage,
   };
   const audienceStepProps: AudienceStepProps = {
-    sources,
     errors,
     wizardText,
-    localizedSourceTypeOptions,
-    sourceType: audience.sourceType,
-    sourcePublicId: audience.sourcePublicId,
-    sourceSearch: audience.sourceSearch,
-    sourceOptions: audience.sourceOptions,
-    sourceLabels: audience.sourceLabels,
-    sourceTypeLabels,
-    sourceLoading: audience.sourceLoading,
-    onSourceTypeChange: audience.onSourceTypeChange,
-    onSourcePublicIdChange: audience.onSourcePublicIdChange,
-    onSourceSearchChange: audience.onSourceSearchChange,
-    addSource: audience.addSource,
-    removeSource: audience.removeSource,
+    search: audience.search,
+    programFilter: audience.programFilter,
+    classFilter: audience.classFilter,
+    programOptions: audience.programOptions,
+    classOptions: audience.classOptions,
+    students: audience.students,
+    selectedIds: audience.selectedIds,
+    selectedInFilterCount: audience.selectedInFilterCount,
+    loading: audience.loading,
+    onSearchChange: audience.onSearchChange,
+    onProgramFilterChange: audience.onProgramFilterChange,
+    onClassFilterChange: audience.onClassFilterChange,
+    toggleStudent: audience.toggleStudent,
+    toggleAllFiltered: audience.toggleAllFiltered,
+    clearSelection: audience.clearSelection,
     localizeError,
   };
   const reviewStepProps: ReviewStepProps = {
@@ -192,7 +157,6 @@ export function useCreateExamWizardViewModel({
     wizardText,
     localizedSkillOptions,
     templateSkills,
-    localizedReusePolicyOptions,
     audienceCount: sources.length,
   };
 
