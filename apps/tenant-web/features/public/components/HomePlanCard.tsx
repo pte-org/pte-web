@@ -41,7 +41,9 @@ export const HomePlanCard = ({
       <h3 className="break-words text-xl font-semibold tracking-tight text-[var(--home-navy)]">
         {plan.name}
       </h3>
-      <p className="mt-3 text-sm leading-6 text-slate-600">{plan.description}</p>
+      <p className="mt-3 whitespace-pre-line break-words text-sm leading-6 text-slate-600">
+        {plan.description}
+      </p>
       <div className="my-7">
         <p className="flex flex-wrap items-baseline gap-2 text-[var(--home-navy)]">
           <span className="break-all text-4xl font-semibold tracking-tight tabular-nums">
