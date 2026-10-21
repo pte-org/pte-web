@@ -14,6 +14,8 @@ export interface ReportResponse {
   immutableSnapshot: boolean;
   overall: SkillScoreResponse | null;
   communicativeSkills: SkillScoreResponse[];
+  /** True only on a host's unpublished view: answers with no chosen score source were counted by their AI score. */
+  includesUnselectedAiScores: boolean;
 }
 
 export interface ReportPublicationBlockerResponse {

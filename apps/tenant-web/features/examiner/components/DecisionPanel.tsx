@@ -1,40 +1,25 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
+import type { ReactElement } from "react";
 import type {
   ExaminerAnswerDetailResponse,
-  ExaminerDecisionKind,
 } from "@pte/api-client";
 import { Alert, Badge, Button, Input } from "@pte/ui";
-import { EXAMINER_WORK_TEXT as T } from "../constants";
-import { ConfirmDecisionDialog } from "./ConfirmDecisionDialog";
+import { getExaminerBlockingText, useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
 interface DecisionPanelProps {
   answer: ExaminerAnswerDetailResponse;
   draftScore: string;
   draftComment?: string;
   draftSavedAt?: string | null;
-  decisionKind: ExaminerDecisionKind;
   isStale: boolean;
   isMediaBroken?: boolean;
-  isSubmitting: boolean;
+  isMediaLoading?: boolean;
   isSavingDraft?: boolean;
-  isReconciling?: boolean;
-  submitError: string | null;
   onScoreChange: (score: string) => void;
   onCommentChange?: (comment: string) => void;
   onSaveDraft?: () => void;
-  onSubmit: (score: number, kind: ExaminerDecisionKind, requestPublicId: string, expectedReviewVersion: string) => void;
-  onRetryIdentical?: () => void;
-  onReconcileServer?: () => void;
   onAcknowledgeStale?: () => void;
-}
-
-interface FrozenConfirmation {
-  requestPublicId: string;
-  expectedReviewVersion: string;
-  score: number;
-  decisionKind: ExaminerDecisionKind;
 }
 
 export const DecisionPanel = ({
@@ -42,23 +27,16 @@ export const DecisionPanel = ({
   draftScore,
   draftComment = "",
   draftSavedAt,
-  decisionKind,
   isStale,
   isMediaBroken = false,
-  isSubmitting,
+  isMediaLoading = false,
   isSavingDraft = false,
-  isReconciling = false,
-  submitError,
   onScoreChange,
   onCommentChange,
   onSaveDraft,
-  onSubmit,
-  onRetryIdentical,
-  onReconcileServer,
   onAcknowledgeStale,
 }: DecisionPanelProps): ReactElement => {
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [frozenConfirmation, setFrozenConfirmation] = useState<FrozenConfirmation | null>(null);
+  const T = useExaminerWorkText();
 
   const hasSavedScore = answer.myScore !== null || answer.decision !== null;
   const parsedScore = draftScore.trim() === "" ? Number.NaN : Number(draftScore);
@@ -68,37 +46,6 @@ export const DecisionPanel = ({
   const aiScore = answer.aiReference?.score ?? null;
   const diff =
     scoreIsValid && typeof aiScore === "number" ? parsedScore - aiScore : null;
-
-  const canSubmit =
-    scoreIsValid &&
-    !hasSavedScore &&
-    !isSubmitting &&
-    !isReconciling &&
-    Boolean(answer.canFinalize) &&
-    !isStale &&
-    !isMediaBroken;
-
-  const handleOpenConfirm = (): void => {
-    if (!canSubmit) return;
-    setFrozenConfirmation({
-      requestPublicId: crypto.randomUUID(),
-      expectedReviewVersion: answer.reviewVersion ?? "",
-      score: parsedScore,
-      decisionKind,
-    });
-    setConfirmOpen(true);
-  };
-
-  const handleConfirmSubmit = (): void => {
-    if (!frozenConfirmation || isStale || isMediaBroken || !scoreIsValid) return;
-    setConfirmOpen(false);
-    onSubmit(
-      frozenConfirmation.score,
-      frozenConfirmation.decisionKind,
-      frozenConfirmation.requestPublicId,
-      frozenConfirmation.expectedReviewVersion,
-    );
-  };
 
   if (hasSavedScore) {
     const decision = answer.decision;
@@ -127,28 +74,6 @@ export const DecisionPanel = ({
 
   return (
     <section className="mt-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-      {isReconciling && (
-        <div className="mb-4">
-          <Alert tone="warning" title={T.UNKNOWN_OUTCOME_TITLE}>
-            <div>
-              <p>{T.UNKNOWN_OUTCOME_MESSAGE}</p>
-              <div className="mt-3 flex items-center gap-2">
-                {onRetryIdentical && (
-                  <Button size="sm" variant="primary" onClick={onRetryIdentical} disabled={isSubmitting}>
-                    {T.RETRY_IDENTICAL}
-                  </Button>
-                )}
-                {onReconcileServer && (
-                  <Button size="sm" variant="secondary" onClick={onReconcileServer} disabled={isSubmitting}>
-                    {T.RECONCILE_SERVER}
-                  </Button>
-                )}
-              </div>
-            </div>
-          </Alert>
-        </div>
-      )}
-
       {isStale && (
         <div className="mb-4">
           <Alert tone="warning" title={T.STALE_REFERENCE}>
@@ -177,7 +102,9 @@ export const DecisionPanel = ({
       {!answer.canFinalize && (
         <div className="mb-4">
           <Alert tone="error" title={T.BLOCKED_FINALIZATION}>
-            {answer.blockingReason || T.SUBMISSION_BLOCKED_FALLBACK}
+            {answer.blockingReason
+              ? getExaminerBlockingText(T, answer.blockingReason)
+              : T.SUBMISSION_BLOCKED_FALLBACK}
           </Alert>
         </div>
       )}
@@ -195,44 +122,31 @@ export const DecisionPanel = ({
               max={100}
               step={1}
               value={draftScore}
-              disabled={!answer.canFinalize || isSubmitting || isMediaBroken || isReconciling}
+              disabled={!answer.canFinalize || isMediaBroken || isMediaLoading}
               onChange={(e) => onScoreChange(e.target.value)}
               placeholder={T.SCORE_PLACEHOLDER}
             />
           </div>
 
-          <div className="flex items-center gap-2 pb-1">
-            <Badge variant={decisionKind === "CONFIRM_AI" ? "neutral" : "info"}>
-              {decisionKind === "CONFIRM_AI" ? T.DECISION_CONFIRM_AI : T.DECISION_MANUAL}
-            </Badge>
-            {diff !== null && (
-              <span
-                className={`text-xs font-semibold ${
-                  diff > 0 ? "text-emerald-700" : diff < 0 ? "text-amber-700" : "text-slate-600"
-                }`}
-              >
-                {T.DIFF_FROM_AI}: {diff > 0 ? `+${diff}` : diff}
-              </span>
-            )}
-          </div>
+          {diff !== null && (
+            <span
+              className={`pb-1 text-xs font-semibold ${
+                diff > 0 ? "text-emerald-700" : diff < 0 ? "text-amber-700" : "text-slate-600"
+              }`}
+            >
+              {T.DIFF_FROM_AI}: {diff > 0 ? `+${diff}` : diff}
+            </span>
+          )}
 
           {onSaveDraft && (
             <Button
               variant="secondary"
-              disabled={!scoreIsValid || isSavingDraft || isSubmitting}
+              disabled={!scoreIsValid || isSavingDraft}
               onClick={onSaveDraft}
             >
               {isSavingDraft ? T.SAVING_DRAFT : T.SAVE_DRAFT}
             </Button>
           )}
-
-          <Button
-            variant="primary"
-            disabled={!canSubmit}
-            onClick={handleOpenConfirm}
-          >
-            {isSubmitting ? T.SUBMITTING : T.SUBMIT_SCORE}
-          </Button>
         </div>
 
         {onCommentChange && (
@@ -262,27 +176,6 @@ export const DecisionPanel = ({
       {!scoreIsValid && draftScore.length > 0 && (
         <p className="mt-2 text-xs text-red-600">{T.SCORE_INVALID}</p>
       )}
-
-      {submitError && (
-        <p className="mt-2 text-xs text-red-600" role="alert">
-          {submitError}
-        </p>
-      )}
-
-      <ConfirmDecisionDialog
-        open={confirmOpen}
-        isConfirming={isSubmitting}
-        isStale={isStale}
-        isMediaBroken={isMediaBroken}
-        score={frozenConfirmation?.score ?? parsedScore}
-        decisionKind={frozenConfirmation?.decisionKind ?? decisionKind}
-        taskTitle={`${answer.prompt.orderIndex + 1}. ${answer.taskType}`}
-        requestPublicId={frozenConfirmation?.requestPublicId ?? ""}
-        expectedReviewVersion={frozenConfirmation?.expectedReviewVersion ?? answer.reviewVersion}
-        aiScore={aiScore}
-        onConfirm={handleConfirmSubmit}
-        onClose={() => setConfirmOpen(false)}
-      />
     </section>
   );
 };

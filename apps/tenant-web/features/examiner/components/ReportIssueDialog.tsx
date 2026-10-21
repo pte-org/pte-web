@@ -3,7 +3,7 @@
 import { useState, type ReactElement } from "react";
 import type { ExaminerGradingIssueType } from "@pte/api-client";
 import { Button, Modal, Select } from "@pte/ui";
-import { EXAMINER_ISSUE_OPTIONS, EXAMINER_WORK_TEXT as T } from "../constants";
+import { useExaminerIssueOptions, useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
 interface ReportIssueDialogProps {
   open: boolean;
@@ -18,6 +18,8 @@ export function ReportIssueDialog({
   onClose,
   onSubmit,
 }: ReportIssueDialogProps): ReactElement {
+  const T = useExaminerWorkText();
+  const issueOptions = useExaminerIssueOptions();
   const [type, setType] = useState<ExaminerGradingIssueType>("AUDIO_UNAVAILABLE");
   const [description, setDescription] = useState("");
 
@@ -38,7 +40,7 @@ export function ReportIssueDialog({
             id="issue-type"
             value={type}
             onChange={(e) => setType(e.target.value as ExaminerGradingIssueType)}
-            options={EXAMINER_ISSUE_OPTIONS}
+            options={issueOptions}
           />
         </div>
 

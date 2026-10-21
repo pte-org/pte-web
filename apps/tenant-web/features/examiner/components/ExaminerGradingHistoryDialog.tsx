@@ -17,16 +17,14 @@ import {
 } from "@pte/ui";
 import { useExaminerHistory } from "../api";
 import type { ExaminerHistoryItemResponse } from "@pte/api-client";
-import {
-  EXAMINER_HISTORY_DIALOG_TEXT as T,
-  EXAMINER_OPERATION_BADGES,
-} from "../constants";
+import { useExaminerHistoryText, useExaminerOperationBadges } from "../hooks/useExaminerWorkText";
 
 interface ExaminerGradingHistoryDialogProps {
   open: boolean;
   onClose: () => void;
   sessionPublicId: string;
   attemptPublicId: string;
+  attemptTitle: string;
 }
 
 function formatDateTime(iso: string): string {
@@ -49,7 +47,10 @@ export function ExaminerGradingHistoryDialog({
   onClose,
   sessionPublicId,
   attemptPublicId,
+  attemptTitle,
 }: ExaminerGradingHistoryDialogProps): ReactElement {
+  const T = useExaminerHistoryText();
+  const operationBadges = useExaminerOperationBadges();
   const [page, setPage] = useState(0);
   const pageSize = 15;
 
@@ -67,7 +68,7 @@ export function ExaminerGradingHistoryDialog({
     <Modal
       open={open}
       onClose={onClose}
-      title={`${T.TITLE_PREFIX} (#${attemptPublicId.slice(0, 8).toUpperCase()})`}
+      title={`${T.TITLE_PREFIX} (${attemptTitle})`}
       size="xl"
     >
       <div className="space-y-4 py-2">
@@ -104,7 +105,7 @@ export function ExaminerGradingHistoryDialog({
               </TableHeader>
               <TableBody>
                 {items.map((item: ExaminerHistoryItemResponse) => {
-                  const badgeInfo = EXAMINER_OPERATION_BADGES[item.operation] ?? {
+                  const badgeInfo = operationBadges[item.operation] ?? {
                     label: item.operation,
                     variant: "neutral" as const,
                   };
@@ -121,7 +122,7 @@ export function ExaminerGradingHistoryDialog({
                       </TableCell>
                       <TableCell className="text-xs text-slate-600">
                         {item.answerPublicId ? (
-                          <span>Ans: #{item.answerPublicId.slice(0, 8)}</span>
+                          <span>{T.ANSWER_PREFIX}{item.answerPublicId.slice(0, 8)}</span>
                         ) : (
                           <span className="italic text-slate-400">{T.ATTEMPT_LEVEL}</span>
                         )}
@@ -158,7 +159,7 @@ export function ExaminerGradingHistoryDialog({
         {totalPages > 1 && (
           <div className="flex items-center justify-between pt-2">
             <span className="text-xs text-slate-500">
-              Page {page + 1} of {totalPages}
+              {T.PAGE_LABEL} {page + 1} {T.PAGE_OF} {totalPages}
             </span>
             <div className="flex gap-2">
               <Button

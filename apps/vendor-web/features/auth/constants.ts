@@ -63,6 +63,7 @@ export const AUTH_TEXT = {
   ORGANIZATION_PLACEHOLDER: "Select your organization",
   ORGANIZATION_REQUIRED: "Please select your organization.",
   PASSWORD_LABEL: "Password",
+  PASSWORD_PLACEHOLDER: "Enter your password",
   FORGOT: "Forgot password?",
   LOGIN_BUTTON: "Login",
   LOGGING_IN: "Signing in...",

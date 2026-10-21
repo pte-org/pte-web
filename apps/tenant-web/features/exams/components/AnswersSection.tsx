@@ -3,11 +3,11 @@
 import { useState, type ReactElement } from "react";
 import { DEFAULT_PAGE_SIZE, type AnswerListItemResponse } from "@pte/api-client";
 import {
-  ActionMenu,
   Badge,
+  Button,
   DataTable,
-  EyeIcon,
   PaginationControls,
+  Select,
   useLocale,
   type DataTableColumn,
 } from "@pte/ui";
@@ -17,13 +17,16 @@ import {
   ANSWER_TABLE_HEADERS,
   ANSWERS_SECTION_TEXT,
 } from "../constants";
-import { useAnswers } from "../api";
+import { AI_SCORE_TEXT, AiScoreCell } from "@/features/aiScore";
+import { useAnswers, useHostScoreReview } from "../api";
 import { AnswerDetailModal } from "./AnswerDetailModal";
 import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
 
 interface AnswersSectionProps {
   sessionPublicId: string;
+  /** The answers of one attempt (student) of the session. */
+  attemptPublicId: string;
 }
 
 const T = ANSWERS_SECTION_TEXT;
@@ -41,12 +44,16 @@ function formatScore(score: number | null): string {
   return score === null ? "—" : String(score);
 }
 
-export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactElement => {
+export const AnswersSection = ({
+  sessionPublicId,
+  attemptPublicId,
+}: AnswersSectionProps): ReactElement => {
   const { locale, t } = useLocale();
   const searchText = useTenantSearchText("answers");
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
   const debouncedSearch = useDebouncedSearch(search);
   const [selectedAnswerId, setSelectedAnswerId] = useState<string | null>(null);
 
@@ -62,10 +69,6 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
       ANSWER_STATUS_LABELS[status] ?? status,
     );
   };
-  const attemptLabel = (attemptNumber: number | null): string =>
-    attemptNumber === null
-      ? t("tenant.answers.unavailable", "Unavailable")
-      : t("tenant.answers.attempt", `Attempt ${attemptNumber}`, { number: attemptNumber });
   const statusOptions = [
     { label: t("tenant.answers.allStatuses", T.STATUS_FILTER_ALL), value: "" },
     ...["PENDING", "AI_SCORING", "SCORING_FAILED", "SCORED"].map((status) => ({
@@ -74,18 +77,24 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
     })),
   ];
 
-  const { data, isLoading } = useAnswers(sessionPublicId, "", page, size, debouncedSearch);
+  const review = useHostScoreReview(sessionPublicId);
+  const examinerScoreByAnswer = new Map(
+    (review.data?.answers ?? []).map((view) => [
+      view.answerPublicId,
+      view.examinerAvailable ? view.examinerScore : null,
+    ]),
+  );
+
+  const { data, isLoading } = useAnswers(
+    sessionPublicId,
+    statusFilter,
+    page,
+    size,
+    attemptPublicId,
+    debouncedSearch,
+  );
 
   const columns: DataTableColumn<AnswerListItemResponse>[] = [
-    {
-      key: "attemptNumber",
-      header: t("tenant.answers.attemptHeader", ANSWER_TABLE_HEADERS.ATTEMPT),
-      cell: (row) => (
-        <span className="font-medium text-[var(--ink-primary)]">
-          {attemptLabel(row.attemptNumber)}
-        </span>
-      ),
-    },
     {
       key: "taskType",
       header: t("tenant.answers.taskType", ANSWER_TABLE_HEADERS.TASK_TYPE),
@@ -94,28 +103,28 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
     {
       key: "status",
       header: t("tenant.answers.status", ANSWER_TABLE_HEADERS.STATUS),
-      filterOptions: statusOptions,
-      filterAccessor: (row) => row.status,
       cell: (row) => (
         <Badge variant={ANSWER_STATUS_VARIANT[row.status]}>{statusLabel(row.status)}</Badge>
       ),
     },
     {
       key: "rawScore",
-      header: t("tenant.answers.aiScore", ANSWER_TABLE_HEADERS.AI_SCORE),
-      cell: (row) => formatScore(row.rawScore),
+      header: t("tenant.answers.aiScore", AI_SCORE_TEXT.LABEL),
+      cell: (row) =>
+        row.aiScored ? (
+          <AiScoreCell score={formatScore(row.rawScore)} fallback={row.aiFallback} />
+        ) : (
+          formatScore(null)
+        ),
     },
     {
-      key: "teacherScore",
-      header: t("tenant.answers.teacherScore", ANSWER_TABLE_HEADERS.TEACHER_SCORE),
-      cell: (row) => formatScore(row.teacherScore),
+      key: "examinerScore",
+      header: t("tenant.answers.examinerScore", ANSWER_TABLE_HEADERS.EXAMINER_SCORE),
+      cell: (row) => formatScore(examinerScoreByAnswer.get(row.answerPublicId) ?? null),
     },
     {
       key: "createdAt",
       header: t("tenant.answers.submitted", ANSWER_TABLE_HEADERS.SUBMITTED_AT),
-      filterType: "date-range",
-      filterAccessor: (row) => row.createdAt,
-      filterPlaceholder: t("tenant.examList.dateRange", "Date range"),
       cell: (row) => formatDateTime(row.createdAt, locale),
     },
   ];
@@ -130,6 +139,17 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
         emptyTitle={t("tenant.answers.empty", T.EMPTY_TITLE)}
         searchPlaceholder={searchText.placeholder}
         searchAriaLabel={searchText.ariaLabel}
+        filters={
+          <Select
+            aria-label={t("tenant.answers.status", ANSWER_TABLE_HEADERS.STATUS)}
+            value={statusFilter}
+            options={statusOptions}
+            onChange={(event) => {
+              setStatusFilter(event.target.value);
+              setPage(0);
+            }}
+          />
+        }
         searchValue={search}
         onSearchChange={(value) => {
           setSearch(value);
@@ -153,16 +173,14 @@ export const AnswersSection = ({ sessionPublicId }: AnswersSectionProps): ReactE
           ) : undefined
         }
         rowActions={(row) => (
-          <ActionMenu
-            label={t("tenant.answers.actions", ANSWER_TABLE_HEADERS.ACTIONS)}
-            items={[
-              {
-                label: t("tenant.answers.view", T.VIEW),
-                icon: EyeIcon,
-                onSelect: () => setSelectedAnswerId(row.answerPublicId),
-              },
-            ]}
-          />
+          <Button
+            type="button"
+            variant="secondary"
+            className="whitespace-nowrap"
+            onClick={() => setSelectedAnswerId(row.answerPublicId)}
+          >
+            {t("tenant.answers.view", T.VIEW)}
+          </Button>
         )}
       />
 

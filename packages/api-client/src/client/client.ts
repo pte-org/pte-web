@@ -192,6 +192,26 @@ function filenameFromDisposition(disposition: string | null): string | undefined
   return match?.[1];
 }
 
+/**
+ * Credential-exchange endpoints the backend serves without authentication. A
+ * stale access token left in storage must not ride along: the resource server
+ * rejects any invalid bearer token with 401 before it checks the path is public,
+ * which made the first login attempt after a session expired always fail.
+ * Duplicated from `AUTH_ENDPOINTS` for the same circular-import reason as
+ * `createSessionApiClient`'s refresh path.
+ */
+const PUBLIC_AUTH_PATHS: readonly string[] = [
+  "/api/v1/auth/login",
+  "/api/v1/auth/login-options",
+  "/api/v1/auth/refresh",
+  "/api/v1/auth/logout",
+];
+
+function isPublicAuthPath(path: string): boolean {
+  const pathname = path.split("?")[0] ?? path;
+  return PUBLIC_AUTH_PATHS.includes(pathname);
+}
+
 export function createApiClient(options: ApiClientOptions): ApiClient {
   const {
     baseUrl,
@@ -241,9 +261,9 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     return outcome;
   }
 
-  function buildHeaders(customHeaders?: HeadersInit, hasJsonBody = false): Headers {
+  function buildHeaders(path: string, customHeaders?: HeadersInit, hasJsonBody = false): Headers {
     const headers = new Headers(customHeaders);
-    const token = getToken?.() ?? null;
+    const token = isPublicAuthPath(path) ? null : (getToken?.() ?? null);
     if (token) headers.set("Authorization", `Bearer ${token}`);
     if (hasJsonBody) headers.set("Content-Type", "application/json");
     return headers;
@@ -279,7 +299,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     const { body, headers: customHeaders, ...rest } = requestOptions;
     const response = await send(path, {
       ...rest,
-      headers: buildHeaders(customHeaders, body !== undefined),
+      headers: buildHeaders(path, customHeaders, body !== undefined),
       body: body === undefined ? undefined : JSON.stringify(body),
     });
 
@@ -312,7 +332,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     const response = await send(path, {
       ...rest,
       method: rest.method ?? "POST",
-      headers: buildHeaders(customHeaders, false),
+      headers: buildHeaders(path, customHeaders, false),
       body: formData,
     });
 
@@ -345,7 +365,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     const response = await send(path, {
       ...rest,
       method: rest.method ?? "POST",
-      headers: buildHeaders(customHeaders, false),
+      headers: buildHeaders(path, customHeaders, false),
       body: formData,
     });
 
@@ -379,7 +399,7 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     const { body, headers: customHeaders, ...rest } = requestOptions;
     const response = await send(path, {
       ...rest,
-      headers: buildHeaders(customHeaders, body !== undefined),
+      headers: buildHeaders(path, customHeaders, body !== undefined),
       body: body === undefined ? undefined : JSON.stringify(body),
     });
 

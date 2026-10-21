@@ -20,7 +20,7 @@ const mocks = vi.hoisted(() => ({
     createClass: vi.fn(),
     createSession: vi.fn(),
     createExamDraft: vi.fn(),
-    addAudienceSource: vi.fn(),
+    addAudienceSources: vi.fn(),
     preflightExam: vi.fn(),
     generateExam: vi.fn(),
     publishExam: vi.fn(),
@@ -180,7 +180,7 @@ const HOOKS: HookCase[] = [
     useHook: (outcome) => {
       useCreateExamWorkflow();
       mocks.api.createExamDraft.mockResolvedValue(sessionResponse());
-      mocks.api.addAudienceSource.mockResolvedValue(undefined);
+      mocks.api.addAudienceSources.mockResolvedValue(undefined);
       mocks.api.preflightExam.mockResolvedValue({ ready: true, issues: [] });
       mocks.api.generateExam.mockResolvedValue(undefined);
       if (outcome === "success") mocks.api.publishExam.mockResolvedValue(sessionResponse());

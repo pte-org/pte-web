@@ -67,6 +67,8 @@ export interface QuestionTypeResponse {
   requiresWordCount: boolean;
   requiresSingleCorrectOption: boolean;
   usesOptionOrderAsCorrectPosition: boolean;
+  /** The AI scores the answer against the question's reference answer text. */
+  requiresReferenceAnswer: boolean;
   /** Canonical additive field; `code` remains the compatibility field. */
   taskTypeCode?: string;
   taskTypeKey?: string;

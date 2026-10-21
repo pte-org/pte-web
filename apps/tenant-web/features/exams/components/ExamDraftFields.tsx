@@ -103,21 +103,6 @@ export const ExamDraftFields = ({
           }
           onChange={(event) => onChange("closesAt", event.target.value)}
         />
-        <Input
-          type="number"
-          min={0}
-          max={9}
-          step={1}
-          label={t("tenant.examDetails.retriesPerStudent", EXAM_EDITOR_TEXT.RETRIES)}
-          value={form.maxRetriesPerStudent}
-          error={
-            submitted &&
-            (!/^\d+$/.test(form.maxRetriesPerStudent) || Number(form.maxRetriesPerStudent) > 9)
-              ? t("tenant.examDetails.retriesInvalid", EXAM_EDITOR_TEXT.RETRIES_INVALID)
-              : undefined
-          }
-          onChange={(event) => onChange("maxRetriesPerStudent", event.target.value)}
-        />
         {session.formMode !== null && (
           <Select
             label={t("tenant.examDetails.formMode", EXAM_EDITOR_TEXT.FORM_MODE)}

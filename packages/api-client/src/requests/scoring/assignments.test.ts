@@ -1,10 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import type { ApiClient } from "../../client/client";
 import {
-  confirmExaminerAssignmentPreview,
-  createExaminerAssignmentPreview,
+  commitExaminerAssignment,
   EXAMINER_ASSIGNMENT_ENDPOINTS,
-  getExaminerAssignmentOverview,
+  getExaminerAssignmentRoster,
 } from "./assignments";
 
 function fakeClient(): ApiClient & { request: ReturnType<typeof vi.fn> } {
@@ -16,48 +15,24 @@ function fakeClient(): ApiClient & { request: ReturnType<typeof vi.fn> } {
 }
 
 describe("examiner assignment requests", () => {
-  it("uses session-scoped paths for overview, durable preview and confirmation", async () => {
+  it("reads the roster and commits the edited table on session-scoped paths", async () => {
     const client = fakeClient();
     const sessionId = "session-public-id";
-    const batchId = "batch-public-id";
     const payload = {
-      mode: "RANDOM" as const,
-      scopes: [{ type: "CLASS" as const, scopePublicId: "class-id", examinerPublicId: null }],
-      examinerPublicIds: ["examiner-a", "examiner-b"],
+      entries: [{ attemptPublicId: "attempt-a", examinerPublicId: "examiner-a" }],
     };
 
-    await getExaminerAssignmentOverview(client, sessionId, 2, 25);
-    await createExaminerAssignmentPreview(client, sessionId, payload);
-    await confirmExaminerAssignmentPreview(client, sessionId, batchId);
+    await getExaminerAssignmentRoster(client, sessionId);
+    await commitExaminerAssignment(client, sessionId, payload);
 
     expect(client.request).toHaveBeenNthCalledWith(
       1,
-      EXAMINER_ASSIGNMENT_ENDPOINTS.overview(sessionId, 2, 25),
+      EXAMINER_ASSIGNMENT_ENDPOINTS.roster(sessionId),
     );
     expect(client.request).toHaveBeenNthCalledWith(
       2,
-      EXAMINER_ASSIGNMENT_ENDPOINTS.previews(sessionId),
-      {
-        method: "POST",
-        body: payload,
-      },
-    );
-    expect(client.request).toHaveBeenNthCalledWith(
-      3,
-      EXAMINER_ASSIGNMENT_ENDPOINTS.confirm(sessionId, batchId),
-      {
-        method: "POST",
-      },
-    );
-  });
-
-  it("encodes the overview search term", async () => {
-    const client = fakeClient();
-
-    await getExaminerAssignmentOverview(client, "session-id", 0, 20, " PREVIEWED & RANDOM ");
-
-    expect(client.request).toHaveBeenCalledWith(
-      EXAMINER_ASSIGNMENT_ENDPOINTS.overview("session-id", 0, 20, "PREVIEWED & RANDOM"),
+      EXAMINER_ASSIGNMENT_ENDPOINTS.commit(sessionId),
+      { method: "POST", body: payload },
     );
   });
 });

@@ -1,34 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import {
-  ApiError,
-  finalizeExaminerWork,
-  saveExaminerDraft,
-  type ExaminerAnswerDetailResponse,
-  type ExaminerDecisionKind,
-} from "@pte/api-client";
+import { finalizeExaminerWork, saveExaminerDraft } from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
 import type { ExaminerDraftState } from "./useExaminerDraftState";
 import type { UseExaminerSubmissionParams } from "./submissionTypes";
-
-function isStaleReviewVersionError(error: unknown): boolean {
-  if (error instanceof ApiError) {
-    return (
-      error.status === 409 &&
-      (error.code === "STALE_REVIEW_VERSION" || error.message?.includes("STALE_REVIEW_VERSION"))
-    );
-  }
-  if (typeof error === "object" && error !== null) {
-    const candidate = error as { status?: number; code?: string; message?: string };
-    return (
-      candidate.status === 409 &&
-      (candidate.code === "STALE_REVIEW_VERSION" ||
-        (typeof candidate.message === "string" && candidate.message.includes("STALE_REVIEW_VERSION")))
-    );
-  }
-  return false;
-}
 
 interface UseExaminerSubmissionActionsParams extends UseExaminerSubmissionParams {
   draftState: ExaminerDraftState;
@@ -41,110 +17,10 @@ export const useExaminerSubmissionActions = ({
   sessionPublicId,
   attemptPublicId,
   refetchAttempt,
-  submitMutation,
   draftState,
 }: UseExaminerSubmissionActionsParams) => {
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isFinalizing, setIsFinalizing] = useState(false);
-
-  const clearAnswerState = (answerId: string): void => {
-    draftState.setUnresolvedSubmissions((previous) => {
-      const next = { ...previous };
-      delete next[answerId];
-      return next;
-    });
-    draftState.setDrafts((previous) => {
-      const next = { ...previous };
-      delete next[answerId];
-      return next;
-    });
-  };
-
-  const handleSubmit = (
-    score: number,
-    decisionKind: ExaminerDecisionKind,
-    requestPublicId: string,
-    expectedReviewVersion: string,
-  ): void => {
-    if (!currentAnswer) return;
-    const answerId = currentAnswer.answerPublicId;
-    const payload = {
-      score,
-      decisionKind,
-      reviewedAiVersion: draftState.activeDraft?.reviewedAiVersion ?? null,
-      expectedReviewVersion,
-      requestPublicId,
-    };
-    draftState.setSubmittingAnswerPublicId(answerId);
-    draftState.setUnresolvedSubmissions((previous) => ({
-      ...previous,
-      [answerId]: { payload, submittedAt: Date.now() },
-    }));
-    submitMutation.mutate(
-      { answerPublicId: answerId, payload },
-      {
-        onSuccess: () => {
-          draftState.setSubmittingAnswerPublicId(null);
-          clearAnswerState(answerId);
-        },
-        onError: async (error: unknown) => {
-          draftState.setSubmittingAnswerPublicId(null);
-          if (isStaleReviewVersionError(error)) {
-            draftState.setUnresolvedSubmissions((previous) => {
-              const next = { ...previous };
-              delete next[answerId];
-              return next;
-            });
-            await refetchAttempt();
-          }
-        },
-      },
-    );
-  };
-
-  const handleRetryIdentical = (): void => {
-    if (!currentAnswer || !draftState.currentUnresolved) return;
-    const answerId = currentAnswer.answerPublicId;
-    const payload = draftState.currentUnresolved.payload;
-    draftState.setSubmittingAnswerPublicId(answerId);
-    submitMutation.mutate(
-      { answerPublicId: answerId, payload },
-      {
-        onSuccess: () => {
-          draftState.setSubmittingAnswerPublicId(null);
-          clearAnswerState(answerId);
-        },
-        onError: async (error: unknown) => {
-          draftState.setSubmittingAnswerPublicId(null);
-          if (isStaleReviewVersionError(error)) {
-            draftState.setUnresolvedSubmissions((previous) => {
-              const next = { ...previous };
-              delete next[answerId];
-              return next;
-            });
-            await refetchAttempt();
-          }
-        },
-      },
-    );
-  };
-
-  const handleReconcileServer = async (): Promise<void> => {
-    if (!currentAnswer) return;
-    const answerId = currentAnswer.answerPublicId;
-    const retained = draftState.currentUnresolved;
-    const result = (await refetchAttempt()) as {
-      data?: { answers?: ExaminerAnswerDetailResponse[] };
-    };
-    const matched = result.data?.answers?.find((answer) => answer.answerPublicId === answerId);
-    if (!matched) return;
-
-    const isCommitted = matched.myScore !== null || matched.decision !== null;
-    const receiptMatches =
-      Boolean(retained?.payload.requestPublicId) &&
-      matched.decision?.requestPublicId === retained?.payload.requestPublicId;
-    if (isCommitted || receiptMatches) clearAnswerState(answerId);
-  };
 
   const handleSaveDraft = async (answerIdToSave?: string): Promise<boolean> => {
     const targetAnswer = answerIdToSave
@@ -225,9 +101,6 @@ export const useExaminerSubmissionActions = ({
   return {
     isSavingDraft,
     isFinalizing,
-    handleSubmit,
-    handleRetryIdentical,
-    handleReconcileServer,
     handleSaveDraft,
     handleFinalizeAttempt,
   };

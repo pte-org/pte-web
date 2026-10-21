@@ -3,7 +3,7 @@
 import type { ReactElement } from "react";
 import { EmptyState, TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow } from "@pte/ui";
 import type { ExaminerReportTaskTypeBreakdown } from "@pte/api-client";
-import { EXAMINER_WORK_TEXT } from "../constants";
+import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 import { useExaminerWorkspaceText } from "../hooks/useExaminerWorkspaceText";
 
 interface ExaminerReportBreakdownTableProps {
@@ -14,6 +14,7 @@ export function ExaminerReportBreakdownTable({
   breakdown,
 }: ExaminerReportBreakdownTableProps): ReactElement {
   const text = useExaminerWorkspaceText();
+  const T = useExaminerWorkText();
 
   return (
     <div className="space-y-3">
@@ -26,7 +27,7 @@ export function ExaminerReportBreakdownTable({
             <TableHeader>
               <TableRow>
                 <TableHead>{text.breakdownTaskType}</TableHead>
-                <TableHead>{EXAMINER_WORK_TEXT.SCORED_OVER_TOTAL}</TableHead>
+                <TableHead>{T.SCORED_OVER_TOTAL}</TableHead>
                 <TableHead>{text.breakdownAvgScore}</TableHead>
               </TableRow>
             </TableHeader>

@@ -1,11 +1,11 @@
 "use client";
 
-import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Badge, LoadingState, Modal, NumberInput, cn, useLocale, useToast } from "@pte/ui";
+import type { ReactElement } from "react";
+import { Alert, Badge, LoadingState, Modal, cn, useLocale } from "@pte/ui";
 import type { AnswerOptionView } from "@pte/api-client";
-import { errorMessage } from "@/features/examoperations/errorMessage";
+import { AiScoreDetail } from "@/features/aiScore";
 import { ANSWER_DETAIL_TEXT, ANSWER_STATUS_LABELS, ANSWER_STATUS_VARIANT } from "../constants";
-import { useAnswer, useSubmitTeacherScore } from "../api";
+import { useAnswer } from "../api";
 
 interface AnswerDetailModalProps {
   answerPublicId: string | null;
@@ -46,10 +46,7 @@ export const AnswerDetailModal = ({
   onClose,
 }: AnswerDetailModalProps): ReactElement => {
   const { t } = useLocale();
-  const { showToast } = useToast();
   const { data: answer, isLoading } = useAnswer(answerPublicId);
-  const submitScore = useSubmitTeacherScore(answerPublicId ?? "");
-  const [scoreInput, setScoreInput] = useState("");
   const statusLabel = (status: string): string => {
     const keyByStatus: Record<string, string> = {
       PENDING: "tenant.answers.pending",
@@ -66,27 +63,13 @@ export const AnswerDetailModal = ({
     title: t("tenant.answerDetail.title", T.TITLE),
     taskType: t("tenant.answerDetail.taskType", T.TASK_TYPE_LABEL),
     status: t("tenant.answerDetail.status", T.STATUS_LABEL),
-    aiScore: t("tenant.answerDetail.aiScore", T.AI_SCORE_LABEL),
+    score: t("tenant.answerDetail.score", T.SCORE_LABEL),
     notScored: t("tenant.answerDetail.notScored", T.NOT_SCORED),
     options: t("tenant.answerDetail.options", T.OPTIONS_TITLE),
     selected: t("tenant.answerDetail.selected", T.SELECTED_BADGE),
     correct: t("tenant.answerDetail.correct", T.CORRECT_BADGE),
     audioUnavailable: t("tenant.answerDetail.audioUnavailable", T.AUDIO_UNAVAILABLE),
     unrecognized: t("tenant.answerDetail.unrecognized", T.UNRECOGNIZED_NOTICE),
-    teacherScore: t("tenant.answerDetail.teacherScore", T.TEACHER_SCORE_TITLE),
-    scoreLabel: t("tenant.answerDetail.scoreLabel", T.TEACHER_SCORE_LABEL),
-    save: t("tenant.answerDetail.save", T.SUBMIT),
-    saving: t("tenant.answerDetail.saving", T.SUBMITTING),
-    saved: t("tenant.answerDetail.saved", T.SAVED),
-  };
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
-    event.preventDefault();
-    const score = Number(scoreInput);
-    if (Number.isNaN(score)) return;
-    submitScore.mutate(score, {
-      onSuccess: () => showToast(text.saved, { tone: "success" }),
-    });
   };
 
   return (
@@ -108,12 +91,14 @@ export const AnswerDetailModal = ({
                 </Badge>
               </dd>
             </div>
-            <div>
-              <dt className="text-[var(--ink-secondary)]">{text.aiScore}</dt>
-              <dd className="font-medium text-[var(--ink-primary)]">
-                {answer.rawScore === null ? text.notScored : answer.rawScore}
-              </dd>
-            </div>
+            {answer.ai === null && (
+              <div>
+                <dt className="text-[var(--ink-secondary)]">{text.score}</dt>
+                <dd className="font-medium text-[var(--ink-primary)]">
+                  {answer.rawScore === null ? text.notScored : answer.rawScore}
+                </dd>
+              </div>
+            )}
           </dl>
 
           <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4">
@@ -158,38 +143,7 @@ export const AnswerDetailModal = ({
             )}
           </div>
 
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-col gap-3 border-t border-[var(--divider)] pt-4"
-          >
-            <div>
-              <h3 className="text-sm font-semibold text-[var(--ink-primary)]">
-                {text.teacherScore}
-              </h3>
-            </div>
-            {submitScore.isError && <Alert tone="error">{errorMessage(submitScore.error)}</Alert>}
-            <div className="flex items-end gap-3">
-              <div className="w-40">
-                <NumberInput
-                  label={text.scoreLabel}
-                  min={0}
-                  max={100}
-                  value={scoreInput}
-                  placeholder={
-                    answer.teacherScore === null ? undefined : String(answer.teacherScore)
-                  }
-                  onChange={(event) => setScoreInput(event.target.value)}
-                />
-              </div>
-              <button
-                type="submit"
-                disabled={submitScore.isPending || scoreInput === ""}
-                className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {submitScore.isPending ? text.saving : text.save}
-              </button>
-            </div>
-          </form>
+          {answer.ai && <AiScoreDetail ai={answer.ai} />}
         </div>
       )}
     </Modal>

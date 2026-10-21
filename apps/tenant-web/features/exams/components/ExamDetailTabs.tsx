@@ -3,17 +3,13 @@
 import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { useSearchParams } from "next/navigation";
 import { TabPanel, Tabs, useLocale, type TabItem } from "@pte/ui";
-import {
-  ExistingStudentAssignmentModal,
-  ExistingStudentImportModal,
-} from "@/features/examoperations/components";
 import type { ExamSession } from "../types";
+import { AddExamStudentsModal } from "./AddExamStudentsModal";
 import { ExaminerTab } from "./ExaminerTab";
 import { ExamOverviewTab, type ExamOverviewLifecycle } from "./ExamOverviewTab";
 import { ExamParticipantsTab } from "./ExamParticipantsTab";
 import { ExamAttendanceTab } from "./ExamAttendanceTab";
 import { ExamQuestionsTab } from "./ExamQuestionsTab";
-import { ExamResultsTab } from "./ExamResultsTab";
 import { ExamSubmissionsTab } from "./ExamSubmissionsTab";
 
 type ExamDetailTab =
@@ -22,8 +18,7 @@ type ExamDetailTab =
   | "participants"
   | "attendance"
   | "submissions"
-  | "examiner"
-  | "results";
+  | "examiner";
 
 const TAB_IDS: readonly ExamDetailTab[] = [
   "overview",
@@ -32,7 +27,6 @@ const TAB_IDS: readonly ExamDetailTab[] = [
   "attendance",
   "submissions",
   "examiner",
-  "results",
 ];
 
 interface ExamDetailTabsProps {
@@ -44,8 +38,10 @@ interface ExamDetailTabsProps {
 const isExamDetailTab = (value: string | null): value is ExamDetailTab =>
   value !== null && TAB_IDS.includes(value as ExamDetailTab);
 
-const parseTab = (value: string | null): ExamDetailTab =>
-  isExamDetailTab(value) ? value : "overview";
+const parseTab = (value: string | null): ExamDetailTab => {
+  if (value === "results") return "submissions";
+  return isExamDetailTab(value) ? value : "overview";
+};
 
 const readTabFromLocation = (): ExamDetailTab => {
   if (typeof window === "undefined") return "overview";
@@ -64,12 +60,10 @@ export const ExamDetailTabs = ({
   const [activeTab, setActiveTab] = useState<ExamDetailTab>(initialTab);
   const [visitedTabs, setVisitedTabs] = useState<Set<ExamDetailTab>>(() => new Set([initialTab]));
   const [studentAssignmentOpen, setStudentAssignmentOpen] = useState(false);
-  const [studentImportOpen, setStudentImportOpen] = useState(false);
 
   const activateTab = useCallback((nextTab: ExamDetailTab): void => {
     setActiveTab(nextTab);
     setStudentAssignmentOpen(false);
-    setStudentImportOpen(false);
     setVisitedTabs((current) => {
       if (current.has(nextTab)) return current;
       return new Set(current).add(nextTab);
@@ -118,7 +112,6 @@ export const ExamDetailTabs = ({
     { id: "attendance", label: t("tenant.examTabs.attendance", "Attendance") },
     { id: "submissions", label: t("tenant.examTabs.submissions", "Submissions") },
     { id: "examiner", label: t("tenant.examTabs.examiner", "Examiner") },
-    { id: "results", label: t("tenant.examTabs.results", "Results & publication") },
   ];
 
   return (
@@ -163,7 +156,6 @@ export const ExamDetailTabs = ({
           session={session}
           sessionPublicId={sessionPublicId}
           onOpenStudentAssignment={() => setStudentAssignmentOpen(true)}
-          onOpenStudentImport={() => setStudentImportOpen(true)}
         />
       </TabPanel>
       <TabPanel
@@ -182,7 +174,7 @@ export const ExamDetailTabs = ({
         keepMounted={keepPanelMounted("submissions")}
         className="mt-5"
       >
-        <ExamSubmissionsTab sessionPublicId={sessionPublicId} />
+        <ExamSubmissionsTab sessionPublicId={sessionPublicId} sessionStatus={session.status} />
       </TabPanel>
       <TabPanel
         id="exam-detail-tabs-panel-examiner"
@@ -191,26 +183,12 @@ export const ExamDetailTabs = ({
         keepMounted={keepPanelMounted("examiner")}
         className="mt-5"
       >
-        <ExaminerTab sessionPublicId={sessionPublicId} />
-      </TabPanel>
-      <TabPanel
-        id="exam-detail-tabs-panel-results"
-        labelledBy="exam-detail-tabs-tab-results"
-        active={activeTab === "results"}
-        keepMounted={keepPanelMounted("results")}
-        className="mt-5"
-      >
-        <ExamResultsTab sessionPublicId={sessionPublicId} sessionStatus={session.status} />
+        <ExaminerTab sessionPublicId={sessionPublicId} sessionStatus={session.status} />
       </TabPanel>
 
-      <ExistingStudentAssignmentModal
+      <AddExamStudentsModal
         open={studentAssignmentOpen}
         onClose={() => setStudentAssignmentOpen(false)}
-        sessionPublicId={sessionPublicId}
-      />
-      <ExistingStudentImportModal
-        open={studentImportOpen}
-        onClose={() => setStudentImportOpen(false)}
         sessionPublicId={sessionPublicId}
       />
     </section>

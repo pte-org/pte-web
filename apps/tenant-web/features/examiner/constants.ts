@@ -80,11 +80,12 @@ export const EXAMINER_WORK_TEXT = {
   CONFIRM_INVALIDATED_WARNING: "The underlying question, review version, or media state changed while this dialog was open. Please close this dialog and review the latest content.",
   START_WORK: "Start marking",
   STARTING_WORK: "Starting…",
-  RESUME_WORK: "Resume marking",
-  VIEW_WORK: "View marking",
-  SAVE_DRAFT: "Save draft",
-  SAVING_DRAFT: "Saving draft…",
-  DRAFT_SAVED: "Draft saved",
+  SAVE_DRAFT: "Save",
+  SAVING_DRAFT: "Saving…",
+  DRAFT_SAVED: "Saved",
+  SAVE_SUCCESS: "Score saved. Remember to finalize the attempt when every answer is marked.",
+  SAVE_FAILED: "Could not save the score. Please check your connection and try again.",
+  FINALIZE_FAILED: "Could not finalize the attempt. Please reload the page and try again.",
   COMMENT_LABEL: "Examiner feedback / comment",
   COMMENT_PLACEHOLDER: "Optional note or rationale (max 2000 chars)",
   FINALIZE_WORK: "Finalize attempt",
@@ -99,11 +100,6 @@ export const EXAMINER_WORK_TEXT = {
   GUIDELINES: "Marking guidelines",
   GUIDELINES_TITLE: "Examiner scoring guidelines",
   HISTORY_AUDIT: "Grading History & Audit",
-  BACK_TO_OVERVIEW: "Back to overview",
-  SEARCH_PLACEHOLDER: "Search by attempt or session ID…",
-  SORT_LABEL: "Sort order",
-  SORT_ASSIGNED_ASC: "Oldest assigned",
-  SORT_ASSIGNED_DESC: "Newest assigned",
   ISSUES_BLOCKING: "Grading is blocked by an unresolved issue on this attempt.",
   SUBMISSION_BLOCKED: "Submission Blocked",
   PROPOSED_SCORE: "Proposed Score:",
@@ -134,6 +130,10 @@ export const EXAMINER_WORK_TEXT = {
   ACTIVE_ISSUE_TITLE: "Active Issue Blocking Finalization",
   SCORING_NOTICE_TITLE: "Scoring Status Notice",
   SCORE_PLACEHOLDER: "0–100",
+  BLOCK_ALREADY_PUBLISHED: "Results for this cohort have already been published.",
+  BLOCK_WAITING_FOR_HOST_FREEZE: "Waiting for the Host to freeze the cohort.",
+  BLOCK_COHORT_NOT_MANUAL: "This cohort is not marked manually by examiners.",
+  BLOCK_EXCLUDED_FROM_COHORT: "This attempt was excluded from the grading cohort.",
 } as const;
 
 export const EXAMINER_ISSUE_OPTIONS: { value: ExaminerGradingIssueType; label: string }[] = [
@@ -164,6 +164,20 @@ export function parseExaminerQueueStatus(val: string | null | undefined): Examin
   return "ALL";
 }
 
+/** Queue URL for a filter state; always carries `status` because the page falls back to the overview without it. */
+export function buildExaminerQueueHref(
+  status: ExaminerQueueStatus,
+  page: number,
+  search: string,
+  sort: string,
+): string {
+  const params = new URLSearchParams({ status });
+  if (page > 0) params.set("page", String(page));
+  if (search.trim()) params.set("search", search.trim());
+  if (sort && sort !== "ASSIGNED_ASC") params.set("sort", sort);
+  return `/examiner/work?${params.toString()}`;
+}
+
 export const EXAMINER_HISTORY_DIALOG_TEXT = {
   TITLE_PREFIX: "Grading History & Audit Trail",
   DESCRIPTION: "Immutable audit record of all scoring and workflow transitions for this assigned attempt.",
@@ -183,14 +197,22 @@ export const EXAMINER_HISTORY_DIALOG_TEXT = {
   NEXT: "Next",
   CLOSE: "Close",
   OP_STARTED: "Started",
-  OP_DRAFT_SAVED: "Draft Saved",
+  OP_DRAFT_SAVED: "Score saved",
   OP_SCORE_CHANGED: "Score Changed",
   OP_FINALIZED: "Finalized",
   OP_REOPENED: "Reopened",
   OP_REGRADED: "Regraded",
   OP_ISSUE_REPORTED: "Issue Reported",
   OP_ISSUE_RESOLVED: "Issue Resolved",
+  ANSWER_PREFIX: "Ans: #",
+  PAGE_LABEL: "Page",
+  PAGE_OF: "of",
 } as const;
+
+/** Widened so a translated catalog can satisfy the same shape as the English `as const` source. */
+export type ExaminerWorkText = { -readonly [K in keyof typeof EXAMINER_WORK_TEXT]: string };
+export type ExaminerHistoryText = { -readonly [K in keyof typeof EXAMINER_HISTORY_DIALOG_TEXT]: string };
+export type ExaminerGuidelinesText = { -readonly [K in keyof typeof EXAMINER_GUIDELINES_DIALOG_TEXT]: string };
 
 export const EXAMINER_OPERATION_BADGES: Record<
   ExaminerGradingOperation,
