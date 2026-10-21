@@ -1,53 +1,32 @@
 import type { ApiClient } from "../../client/client";
 import type {
-  CreateExaminerAssignmentPreviewRequest,
-  ExaminerAssignmentOverviewResponse,
-  ExaminerAssignmentPreviewResponse,
+  CommitExaminerAssignmentRequest,
+  ExaminerAssignmentRosterResponse,
 } from "../../types/scoring";
 
 export const EXAMINER_ASSIGNMENT_ENDPOINTS = {
-  overview: (sessionPublicId: string, page = 0, size = 20, search?: string) => {
-    const params = new URLSearchParams({ page: String(page), size: String(size) });
-    const normalizedSearch = search?.trim();
-    if (normalizedSearch) params.set("search", normalizedSearch);
-    return `/api/v1/sessions/${sessionPublicId}/examiner-assignments?${params.toString()}`;
-  },
-  previews: (sessionPublicId: string) =>
-    `/api/v1/sessions/${sessionPublicId}/examiner-assignments/previews`,
-  confirm: (sessionPublicId: string, batchPublicId: string) =>
-    `/api/v1/sessions/${sessionPublicId}/examiner-assignments/${batchPublicId}/confirm`,
+  roster: (sessionPublicId: string) =>
+    `/api/v1/sessions/${sessionPublicId}/examiner-assignments/roster`,
+  commit: (sessionPublicId: string) =>
+    `/api/v1/sessions/${sessionPublicId}/examiner-assignments/commit`,
 } as const;
 
-export function getExaminerAssignmentOverview(
+export function getExaminerAssignmentRoster(
   client: ApiClient,
   sessionPublicId: string,
-  page = 0,
-  size = 20,
-  search?: string,
-): Promise<ExaminerAssignmentOverviewResponse> {
-  return client.request<ExaminerAssignmentOverviewResponse>(
-    EXAMINER_ASSIGNMENT_ENDPOINTS.overview(sessionPublicId, page, size, search),
+): Promise<ExaminerAssignmentRosterResponse> {
+  return client.request<ExaminerAssignmentRosterResponse>(
+    EXAMINER_ASSIGNMENT_ENDPOINTS.roster(sessionPublicId),
   );
 }
 
-export function createExaminerAssignmentPreview(
+export function commitExaminerAssignment(
   client: ApiClient,
   sessionPublicId: string,
-  payload: CreateExaminerAssignmentPreviewRequest,
-): Promise<ExaminerAssignmentPreviewResponse> {
-  return client.request<ExaminerAssignmentPreviewResponse>(
-    EXAMINER_ASSIGNMENT_ENDPOINTS.previews(sessionPublicId),
+  payload: CommitExaminerAssignmentRequest,
+): Promise<ExaminerAssignmentRosterResponse> {
+  return client.request<ExaminerAssignmentRosterResponse>(
+    EXAMINER_ASSIGNMENT_ENDPOINTS.commit(sessionPublicId),
     { method: "POST", body: payload },
-  );
-}
-
-export function confirmExaminerAssignmentPreview(
-  client: ApiClient,
-  sessionPublicId: string,
-  batchPublicId: string,
-): Promise<ExaminerAssignmentPreviewResponse> {
-  return client.request<ExaminerAssignmentPreviewResponse>(
-    EXAMINER_ASSIGNMENT_ENDPOINTS.confirm(sessionPublicId, batchPublicId),
-    { method: "POST" },
   );
 }

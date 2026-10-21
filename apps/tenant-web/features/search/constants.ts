@@ -44,16 +44,12 @@ export const TENANT_SEARCH_TEXT = {
     ariaLabel: "Search orders by order code, plan name, or status",
   },
   answers: {
-    placeholder: "Search by answer ID, attempt ID, task type, or status",
-    ariaLabel: "Search answers by answer ID, attempt ID, task type, or status",
+    placeholder: "Search by answer ID, task type, or status",
+    ariaLabel: "Search answers by answer ID, task type, or status",
   },
-  classAssignment: {
-    placeholder: "Search by class or program name",
-    ariaLabel: "Search assigned classes by class or program name",
-  },
-  examinerBatches: {
-    placeholder: "Search by batch ID, status, or assignment method",
-    ariaLabel: "Search assignment batches by batch ID, status, or assignment method",
+  examinerRoster: {
+    placeholder: "Search by student name or email",
+    ariaLabel: "Search students by name or email",
   },
   proctors: {
     placeholder: "Search by proctor name, email, or role",

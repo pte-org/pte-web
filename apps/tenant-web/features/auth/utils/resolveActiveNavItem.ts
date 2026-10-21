@@ -1,5 +1,7 @@
 import type { NavItem } from "../components/DashboardChrome";
 
+const EXAMINER_QUEUE_HREF = "/examiner/work?status=ALL";
+
 export function resolveActiveNavItem(
   navItems: NavItem[],
   pathname: string | null,
@@ -38,10 +40,9 @@ export function resolveActiveNavItem(
 
   // 3. Examiner detail routes
   if (pathname.startsWith("/examiner/work/") && pathname !== "/examiner/work") {
-    const fromStatus = searchParams?.get("fromStatus");
-    if (fromStatus && ["PENDING", "IN_PROGRESS", "COMPLETED"].includes(fromStatus)) {
-      const match = navItems.find((item) => item.href === `/examiner/work?status=${fromStatus}`);
-      if (match) return match.href;
+    if (searchParams?.get("fromStatus")) {
+      const queueItem = navItems.find((item) => item.href === EXAMINER_QUEUE_HREF);
+      if (queueItem) return queueItem.href;
     }
     const overviewItem = navItems.find((item) => item.href === "/examiner/work");
     if (overviewItem) return overviewItem.href;
@@ -59,10 +60,9 @@ export function resolveActiveNavItem(
   }
 
   if (pathname === "/examiner/work") {
-    const status = searchParams?.get("status");
-    if (status && ["PENDING", "IN_PROGRESS", "COMPLETED"].includes(status)) {
-      const statusItem = navItems.find((item) => item.href === `/examiner/work?status=${status}`);
-      if (statusItem) return statusItem.href;
+    if (searchParams?.get("status")) {
+      const queueItem = navItems.find((item) => item.href === EXAMINER_QUEUE_HREF);
+      if (queueItem) return queueItem.href;
     }
     const overviewItem = navItems.find((item) => item.href === "/examiner/work");
     if (overviewItem) return overviewItem.href;

@@ -1,31 +1,25 @@
 "use client";
 
 import {
-  assignClass,
   assignProctor,
-  confirmExaminerAssignmentPreview,
+  commitExaminerAssignment,
   closeSession,
   cancelExam,
   deleteSession as deleteSessionRequest,
-  addAudienceSource,
+  addAudienceSources,
   createSession,
   createExamDraft,
-  createExaminerAssignmentPreview,
   DEFAULT_PAGE_SIZE,
   getAnswer,
   getHostScoreReview,
-  getScoreSourceSelectionAudits,
   getActiveScoreTemplate,
-  getExaminerAssignmentOverview,
+  getExaminerAssignmentRoster,
   getSession,
   getSessionExamPreview,
   listAnswers,
-  previewScoreSourceSelection,
-  applyScoreSourceSelection,
   preflightReportPublication,
   publishSessionReports,
   getReportPublicationSummary,
-  listAssignedClasses,
   listAllExamStaff,
   listProctorAssignments,
   listSessions,
@@ -37,22 +31,15 @@ import {
   preflightExam,
   generateExam,
   publishExam,
-  submitTeacherScore,
-  unassignClass,
   unassignProctor,
   updateProctorRole,
   type AnswerListResponse,
   type AnswerReviewDetailResponse,
   type HostScoreReviewResponse,
-  type SelectScoreSourceRequest,
-  type ScoreSourceSelectionPreviewResponse,
-  type ScoreSourceSelectionResultResponse,
-  type ScoreSourceAuditResponse,
   type ReportPublicationReadinessResponse,
   type ReportPublicationSummaryResponse,
-  type CreateExaminerAssignmentPreviewRequest,
-  type ExaminerAssignmentOverviewResponse,
-  type ExaminerAssignmentPreviewResponse,
+  type CommitExaminerAssignmentRequest,
+  type ExaminerAssignmentRosterResponse,
   type ExamPreviewResponse,
   type ExamPolicyResponse,
   type LockdownMode,
@@ -74,31 +61,26 @@ import {
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import { UserFacingError } from "@/features/examoperations/errorMessage";
-import { useAllTenantClasses } from "@/features/classes/api";
 import { HOST_DASHBOARD_QUERY_KEY } from "@/features/hostDashboard/constants";
+import { ExamPreflightBlockedError } from "../utils/examPreflight";
 import {
-  CREATE_EXAM_WIZARD_TEXT,
   CREATE_EXAM_WIZARD_ERRORS,
   ANSWER_QUERY_KEY,
   EXAM_PREVIEW_QUERY_KEY,
   ANSWERS_QUERY_KEY,
-  ASSIGNED_CLASSES_QUERY_KEY,
-  ENROLLMENTS_QUERY_KEY,
   PROCTOR_ASSIGNMENTS_QUERY_KEY,
   SESSION_QUERY_KEY,
   SESSIONS_QUERY_KEY,
   TENANT_USERS_QUERY_KEY,
-  EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY,
+  EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY,
   EXAMINER_DIRECTORY_QUERY_KEY,
   HOST_SCORE_REVIEW_QUERY_KEY,
-  SCORE_SOURCE_AUDIT_QUERY_KEY,
   REPORT_PUBLICATION_READINESS_QUERY_KEY,
   REPORT_PUBLICATION_SUMMARY_QUERY_KEY,
   OFFICIAL_EXAM_LOCKDOWN_MODE,
   OFFICIAL_EXAM_MODE,
 } from "../constants";
 import type {
-  AssignedClass,
   CreateSessionInput,
   ExamSession,
   ExamSkill,
@@ -303,9 +285,8 @@ export function useCreateExamWorkflow(): UseMutationResult<
         capacity: Number(input.capacity),
       });
       assertResolvedPolicy(draft, expectedLockdownMode);
-      for (const source of input.sources) {
-        await addAudienceSource(apiClient, draft.publicId, source);
-      }
+      // One atomic request: the draft never ends up with a partial audience.
+      await addAudienceSources(apiClient, draft.publicId, input.sources);
       const preflight = await preflightExam(apiClient, draft.publicId);
       assertExamPreflightReady(preflight);
       await generateExam(apiClient, draft.publicId, globalThis.crypto.randomUUID());
@@ -326,14 +307,7 @@ export function useCreateExamWorkflow(): UseMutationResult<
 
 function assertExamPreflightReady(preflight: Awaited<ReturnType<typeof preflightExam>>): void {
   if (preflight.ready) return;
-  const details = preflight.issues
-    .map((issue) => CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_ISSUE_MESSAGES[issue])
-    .filter((message): message is string => Boolean(message));
-  throw new UserFacingError(
-    details.length > 0
-      ? `${CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_BLOCKED} ${details.join(" ")}`
-      : CREATE_EXAM_WIZARD_TEXT.PREFLIGHT_BLOCKED,
-  );
+  throw new ExamPreflightBlockedError(preflight.issues);
 }
 
 /** Runs the backend-owned command for a selected status rather than patching status directly. */
@@ -408,14 +382,12 @@ export function useDeleteSession(): UseMutationResult<void, unknown, string> {
   });
 }
 
-export function useExaminerAssignmentOverview(
+export function useExaminerAssignmentRoster(
   sessionPublicId: string,
-  page: number,
-  search = "",
-): UseQueryResult<ExaminerAssignmentOverviewResponse> {
+): UseQueryResult<ExaminerAssignmentRosterResponse> {
   return useQuery({
-    queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId, search, page],
-    queryFn: () => getExaminerAssignmentOverview(apiClient, sessionPublicId, page, 20, search),
+    queryKey: [...EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY, sessionPublicId],
+    queryFn: () => getExaminerAssignmentRoster(apiClient, sessionPublicId),
     enabled: sessionPublicId.length > 0,
   });
 }
@@ -434,34 +406,17 @@ export function useActiveExaminers(): UseQueryResult<UserResponse[]> {
   });
 }
 
-export function useCreateExaminerAssignmentPreview(
+export function useCommitExaminerAssignment(
   sessionPublicId: string,
-): UseMutationResult<
-  ExaminerAssignmentPreviewResponse,
-  unknown,
-  CreateExaminerAssignmentPreviewRequest
-> {
+): UseMutationResult<ExaminerAssignmentRosterResponse, unknown, CommitExaminerAssignmentRequest> {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload) => createExaminerAssignmentPreview(apiClient, sessionPublicId, payload),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId],
-      }),
-  });
-}
-
-export function useConfirmExaminerAssignmentPreview(
-  sessionPublicId: string,
-): UseMutationResult<ExaminerAssignmentPreviewResponse, unknown, string> {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (batchPublicId) =>
-      confirmExaminerAssignmentPreview(apiClient, sessionPublicId, batchPublicId),
-    onSuccess: () =>
-      queryClient.invalidateQueries({
-        queryKey: [...EXAMINER_ASSIGNMENT_OVERVIEW_QUERY_KEY, sessionPublicId],
-      }),
+    mutationFn: (payload) => commitExaminerAssignment(apiClient, sessionPublicId, payload),
+    onSuccess: (roster) =>
+      queryClient.setQueryData(
+        [...EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY, sessionPublicId],
+        roster,
+      ),
   });
 }
 
@@ -587,13 +542,23 @@ export function useAnswers(
   statusFilter: string,
   page: number,
   size = DEFAULT_PAGE_SIZE,
+  attemptPublicId?: string,
   search = "",
 ): UseQueryResult<AnswerListResponse> {
   return useQuery({
-    queryKey: [...ANSWERS_QUERY_KEY, sessionPublicId, statusFilter, search, page, size],
+    queryKey: [
+      ...ANSWERS_QUERY_KEY,
+      sessionPublicId,
+      attemptPublicId ?? "",
+      statusFilter,
+      search,
+      page,
+      size,
+    ],
     queryFn: () =>
       listAnswers(apiClient, {
         sessionPublicId,
+        attemptPublicId,
         status: statusFilter || undefined,
         search,
         page,
@@ -610,45 +575,6 @@ export function useHostScoreReview(
     queryKey: [...HOST_SCORE_REVIEW_QUERY_KEY, sessionPublicId],
     queryFn: () => getHostScoreReview(apiClient, sessionPublicId),
     enabled: sessionPublicId.length > 0,
-  });
-}
-
-export function useScoreSourceSelectionAudits(
-  sessionPublicId: string,
-): UseQueryResult<ScoreSourceAuditResponse[]> {
-  return useQuery({
-    queryKey: [...SCORE_SOURCE_AUDIT_QUERY_KEY, sessionPublicId],
-    queryFn: () => getScoreSourceSelectionAudits(apiClient, sessionPublicId),
-    enabled: sessionPublicId.length > 0,
-  });
-}
-
-export function usePreviewScoreSourceSelection(
-  sessionPublicId: string,
-): UseMutationResult<ScoreSourceSelectionPreviewResponse, unknown, SelectScoreSourceRequest> {
-  return useMutation({
-    mutationFn: (payload) => previewScoreSourceSelection(apiClient, sessionPublicId, payload),
-  });
-}
-
-export function useApplyScoreSourceSelection(
-  sessionPublicId: string,
-): UseMutationResult<ScoreSourceSelectionResultResponse, unknown, SelectScoreSourceRequest> {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (payload) => applyScoreSourceSelection(apiClient, sessionPublicId, payload),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: [...HOST_SCORE_REVIEW_QUERY_KEY, sessionPublicId],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [...SCORE_SOURCE_AUDIT_QUERY_KEY, sessionPublicId],
-      });
-      void queryClient.invalidateQueries({ queryKey: ANSWERS_QUERY_KEY });
-      void queryClient.invalidateQueries({
-        queryKey: [...REPORT_PUBLICATION_READINESS_QUERY_KEY, sessionPublicId],
-      });
-    },
   });
 }
 
@@ -707,89 +633,3 @@ export function useAnswer(
   });
 }
 
-/**
- * Records a host's own independent score — parallel to the AI's `rawScore`,
- * never gated by answer status, never affects attempt completion (see
- * scoring's ScoringReviewService.submitTeacherScore doc comment).
- */
-export function useSubmitTeacherScore(
-  answerPublicId: string,
-): UseMutationResult<void, unknown, number> {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (score) => {
-      await submitTeacherScore(apiClient, answerPublicId, { score });
-    },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: [...ANSWER_QUERY_KEY, answerPublicId] });
-      void queryClient.invalidateQueries({ queryKey: ANSWERS_QUERY_KEY });
-    },
-  });
-}
-
-/**
- * A session's assigned Classes, joined client-side against the tenant's own
- * Class list (`SessionClassAssignmentResponse` only carries `classPublicId`
- * — same join-here-not-in-scheduling shape as `useProctorAssignments` above).
- */
-export function useAssignedClasses(sessionPublicId: string): UseQueryResult<AssignedClass[]> {
-  const tenantClasses = useAllTenantClasses();
-
-  return useQuery({
-    queryKey: [...ASSIGNED_CLASSES_QUERY_KEY, sessionPublicId],
-    queryFn: async () => {
-      const assignments = await listAssignedClasses(apiClient, sessionPublicId);
-      const byId = new Map(
-        (tenantClasses.data ?? []).map((option) => [option.classPublicId, option]),
-      );
-      return assignments.flatMap((assignment) => {
-        const option = byId.get(assignment.classPublicId);
-        return option
-          ? [
-              {
-                classPublicId: option.classPublicId,
-                className: option.className,
-                programName: option.programName,
-              },
-            ]
-          : [];
-      });
-    },
-    enabled: sessionPublicId.length > 0 && tenantClasses.data !== undefined,
-  });
-}
-
-function invalidateClassAssignments(
-  queryClient: ReturnType<typeof useQueryClient>,
-  sessionPublicId: string,
-): void {
-  void queryClient.invalidateQueries({
-    queryKey: [...ASSIGNED_CLASSES_QUERY_KEY, sessionPublicId],
-  });
-  void queryClient.invalidateQueries({ queryKey: [...ENROLLMENTS_QUERY_KEY, sessionPublicId] });
-}
-
-/** Assigns a Class — enrolls every current member into this session (backend Phase 4). */
-export function useAssignClass(sessionPublicId: string): UseMutationResult<void, unknown, string> {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (classPublicId: string) => {
-      await assignClass(apiClient, sessionPublicId, { classPublicId });
-    },
-    onSuccess: () => invalidateClassAssignments(queryClient, sessionPublicId),
-  });
-}
-
-/** Unassigns a Class — removes the enrollments of that Class's current members only. */
-export function useUnassignClass(
-  sessionPublicId: string,
-): UseMutationResult<void, unknown, string> {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (classPublicId: string) => unassignClass(apiClient, sessionPublicId, classPublicId),
-    onSuccess: () => invalidateClassAssignments(queryClient, sessionPublicId),
-  });
-}

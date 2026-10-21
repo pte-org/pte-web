@@ -2,11 +2,10 @@
 
 import type { ReactElement } from "react";
 import { Alert, BackButton } from "@pte/ui";
-import { EXAMINER_WORK_TEXT as T } from "../constants";
+import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
 interface ExaminerAttemptHeaderProps {
-  sessionPublicId: string;
-  attemptPublicId: string;
+  title: string;
   publicationState?: "UNPUBLISHED" | "PUBLISHED" | "DRAFT";
   submittedCount: number;
   eligibleCount: number;
@@ -16,8 +15,7 @@ interface ExaminerAttemptHeaderProps {
 }
 
 export const ExaminerAttemptHeader = ({
-  sessionPublicId,
-  attemptPublicId,
+  title,
   publicationState,
   submittedCount,
   eligibleCount,
@@ -25,6 +23,7 @@ export const ExaminerAttemptHeader = ({
   actions,
   onBack,
 }: ExaminerAttemptHeaderProps): ReactElement => {
+  const T = useExaminerWorkText();
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
@@ -38,13 +37,10 @@ export const ExaminerAttemptHeader = ({
             label={T.BACK_TO_QUEUE}
           />
           <div className="mt-2 flex items-center gap-3">
-            <h2 className="text-xl font-bold text-slate-900">
-              {T.ATTEMPT_LABEL} #{attemptPublicId.slice(0, 8).toUpperCase()}
-            </h2>
+            <h2 className="text-xl font-bold text-slate-900">{title}</h2>
             {statusBadge}
           </div>
           <p className="text-xs text-slate-500">
-            {T.SESSION_LABEL} #{sessionPublicId.slice(0, 8).toUpperCase()} ·{" "}
             {T.PROGRESS_LABEL}: {submittedCount}/{eligibleCount}
           </p>
         </div>

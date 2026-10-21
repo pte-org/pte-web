@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseExaminerQueueStatus } from "./constants";
+import { buildExaminerQueueHref, parseExaminerQueueStatus } from "./constants";
 import { EXAMINER_QUERY_KEYS } from "./queryKeys";
 
 describe("Examiner queue parameters and status resolution", () => {
@@ -42,5 +42,17 @@ describe("Examiner queue parameters and status resolution", () => {
 
     expect(key1).toEqual(key2);
     expect(key1).not.toEqual(key3);
+  });
+
+  it("keeps the status in the queue URL for every filter combination", () => {
+    expect(buildExaminerQueueHref("ALL", 0, "", "ASSIGNED_ASC")).toBe("/examiner/work?status=ALL");
+    expect(buildExaminerQueueHref("PENDING", 0, "", "ASSIGNED_ASC")).toBe("/examiner/work?status=PENDING");
+    expect(buildExaminerQueueHref("ALL", 2, " abc ", "ASSIGNED_DESC")).toBe(
+      "/examiner/work?status=ALL&page=2&search=abc&sort=ASSIGNED_DESC",
+    );
+    for (const status of ["ALL", "PENDING", "IN_PROGRESS", "COMPLETED"] as const) {
+      const href = buildExaminerQueueHref(status, 1, "x", "ASSIGNED_DESC");
+      expect(new URL(href, "http://localhost").searchParams.get("status")).toBe(status);
+    }
   });
 });

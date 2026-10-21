@@ -4,6 +4,7 @@ import type {
   ReplayPolicyType,
   ReusePolicy,
 } from "@pte/api-client";
+import { SINGLE_SITTING_RETRIES } from "../constants";
 import type { ExamSession, ExamSkill } from "../types";
 
 export type DraftFormValues = {
@@ -44,7 +45,7 @@ export const draftFormFromSession = (session: ExamSession): DraftFormValues => (
   opensAt: toLocalDateTime(session.opensAt),
   closesAt: toLocalDateTime(session.closesAt),
   capacity: String(session.capacity),
-  maxRetriesPerStudent: String(session.maxRetriesPerStudent),
+  maxRetriesPerStudent: String(SINGLE_SITTING_RETRIES),
   selectedSkills: session.selectedSkills,
   formMode: session.formMode ?? "",
   reusePolicy: session.reusePolicy ?? "",

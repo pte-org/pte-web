@@ -110,7 +110,7 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
   ];
 }
 
-/** Examiner navigation: Overview plus filtered status entries. */
+/** Examiner navigation: Overview, the marking queue (status is filtered in-page) and reports. */
 export function buildExaminerNav(): NavItem[] {
   return [
     {
@@ -122,26 +122,10 @@ export function buildExaminerNav(): NavItem[] {
       sectionKey: "nav.home",
     },
     {
-      label: EXAMINER_NAV_TEXT.PENDING,
-      labelKey: "nav.examinerPending",
-      href: "/examiner/work?status=PENDING",
+      label: EXAMINER_NAV_TEXT.QUEUE,
+      labelKey: "nav.markingQueue",
+      href: "/examiner/work?status=ALL",
       icon: <NavTaskTypeIcon />,
-      section: EXAMINER_NAV_TEXT.QUEUE_SECTION,
-      sectionKey: "nav.markingQueue",
-    },
-    {
-      label: EXAMINER_NAV_TEXT.IN_PROGRESS,
-      labelKey: "nav.examinerInProgress",
-      href: "/examiner/work?status=IN_PROGRESS",
-      icon: <NavExamTemplateIcon />,
-      section: EXAMINER_NAV_TEXT.QUEUE_SECTION,
-      sectionKey: "nav.markingQueue",
-    },
-    {
-      label: EXAMINER_NAV_TEXT.COMPLETED,
-      labelKey: "nav.examinerCompleted",
-      href: "/examiner/work?status=COMPLETED",
-      icon: <NavApplicationIcon />,
       section: EXAMINER_NAV_TEXT.QUEUE_SECTION,
       sectionKey: "nav.markingQueue",
     },

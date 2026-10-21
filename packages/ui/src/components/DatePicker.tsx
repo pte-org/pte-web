@@ -366,7 +366,7 @@ export const DatePicker = ({
               disabled={disabled || readOnly || !dateValue}
               onChange={(event) => emitTime(event.target.value)}
               className={cn(
-                "w-[5.25rem] shrink-0 border-0 bg-transparent tabular-nums outline-none disabled:cursor-not-allowed",
+                "w-[7.5rem] shrink-0 border-0 bg-transparent tabular-nums outline-none disabled:cursor-not-allowed",
                 variant === "table"
                   ? "py-1.5 text-xs text-[var(--table-body-text)] disabled:text-[var(--table-muted-text)]"
                   : "py-2.5 text-sm text-[var(--ink-primary)] disabled:text-[var(--ink-muted)]",

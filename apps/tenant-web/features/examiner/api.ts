@@ -13,7 +13,6 @@ import {
   reportExaminerIssue,
   saveExaminerDraft,
   startExaminerWork,
-  submitExaminerScore,
   type ExaminerHistoryResponse,
   type ExaminerQueueStatus,
   type ExaminerReportsResponse,
@@ -23,7 +22,6 @@ import {
   type ReportGradingIssueRequest,
   type SaveExaminerDraftRequest,
   type StartExaminerWorkRequest,
-  type SubmitExaminerScoreRequest,
 } from "@pte/api-client";
 import { useMutation, useQuery, useQueryClient, type UseQueryResult } from "@tanstack/react-query";
 import { useSessionManager } from "@pte/ui";
@@ -260,39 +258,6 @@ export function useReportExaminerIssue(sessionPublicId: string, attemptPublicId:
           }),
           queryClient.invalidateQueries({
             queryKey: EXAMINER_QUERY_KEYS.attempt(tenantId, actorId, sessionPublicId, attemptPublicId),
-          }),
-        ]);
-      }
-    },
-  });
-}
-
-export function useSubmitExaminerScore(sessionPublicId: string, attemptPublicId: string) {
-  const queryClient = useQueryClient();
-  const { session } = useSessionManager();
-  const tenantId = session?.tenantId;
-  const actorId = session ? decodeAccessTokenClaims(session.accessToken)?.sub : undefined;
-
-  return useMutation({
-    mutationFn: ({
-      answerPublicId,
-      payload,
-    }: {
-      answerPublicId: string;
-      payload: SubmitExaminerScoreRequest;
-    }) => submitExaminerScore(apiClient, answerPublicId, payload),
-    retry: false,
-    onSuccess: async () => {
-      if (tenantId && actorId) {
-        await Promise.all([
-          queryClient.invalidateQueries({
-            queryKey: EXAMINER_QUERY_KEYS.attempt(tenantId, actorId, sessionPublicId, attemptPublicId),
-          }),
-          queryClient.invalidateQueries({
-            queryKey: EXAMINER_QUERY_KEYS.queuePrefix(tenantId, actorId),
-          }),
-          queryClient.invalidateQueries({
-            queryKey: EXAMINER_QUERY_KEYS.overview(tenantId, actorId),
           }),
         ]);
       }

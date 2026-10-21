@@ -22,6 +22,7 @@ const ADMIN_VI: Record<string, string> = {
   "Select your organization": "Chọn tổ chức",
   "Please select your organization.": "Vui lòng chọn tổ chức.",
   Password: "Mật khẩu",
+  "Enter your password": "Nhập mật khẩu của bạn",
   "Forgot password?": "Quên mật khẩu?",
   Login: "Đăng nhập",
   "Signing in...": "Đang đăng nhập...",

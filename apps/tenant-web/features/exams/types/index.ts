@@ -70,12 +70,6 @@ export interface CreateSessionErrors {
   capacity?: string;
 }
 
-export interface AssignedClass {
-  classPublicId: string;
-  className: string;
-  programName: string;
-}
-
 export interface ProctorAssignmentEntry {
   assignmentPublicId: string;
   proctor: UserResponse;

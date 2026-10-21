@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import { ConfirmDialog } from "@pte/ui";
-import { EXAMINER_WORK_TEXT as T } from "../constants";
+import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
 interface ConfirmAttemptFinalizeDialogProps {
   open: boolean;
@@ -19,6 +19,7 @@ export function ConfirmAttemptFinalizeDialog({
   onConfirm,
   onClose,
 }: ConfirmAttemptFinalizeDialogProps): ReactElement {
+  const T = useExaminerWorkText();
   return (
     <ConfirmDialog
       open={open}

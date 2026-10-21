@@ -22,9 +22,14 @@ import {
 
 interface StudentRosterTableProps {
   sessionPublicId: string;
+  /** False while the exam is being prepared or running, when the API rejects roster changes. */
+  canRemove?: boolean;
 }
 
-export const StudentRosterTable = ({ sessionPublicId }: StudentRosterTableProps): ReactElement => {
+export const StudentRosterTable = ({
+  sessionPublicId,
+  canRemove = true,
+}: StudentRosterTableProps): ReactElement => {
   const { t } = useLocale();
   const searchText = useTenantSearchText("roster");
   const { data: roster, isLoading } = useSessionRoster(sessionPublicId);
@@ -87,12 +92,16 @@ export const StudentRosterTable = ({ sessionPublicId }: StudentRosterTableProps)
                 icon: LockIcon,
                 onSelect: () => setResetTarget(entry),
               },
-              {
-                label: text.removeFromExam,
-                icon: XIcon,
-                danger: true,
-                onSelect: () => unenrollMutation.mutate(entry.enrollmentPublicId),
-              },
+              ...(canRemove
+                ? [
+                    {
+                      label: text.removeFromExam,
+                      icon: XIcon,
+                      danger: true,
+                      onSelect: () => unenrollMutation.mutate(entry.enrollmentPublicId),
+                    },
+                  ]
+                : []),
             ]}
           />
         )}

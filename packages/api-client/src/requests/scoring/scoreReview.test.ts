@@ -6,6 +6,7 @@ import {
   getHostScoreReview,
   getScoreSourceSelectionAudits,
   previewScoreSourceSelection,
+  rescoreSession,
 } from "./scoreReview";
 
 function fakeClient(): ApiClient & { request: ReturnType<typeof vi.fn> } {
@@ -43,5 +44,15 @@ describe("Host score review requests", () => {
       body: request,
     });
     expect(client.request).toHaveBeenNthCalledWith(4, SCORE_REVIEW_ENDPOINTS.audits(sessionId));
+  });
+
+  it("rescores through the session score command", async () => {
+    const client = fakeClient();
+
+    await rescoreSession(client, "session-id");
+
+    expect(client.request).toHaveBeenCalledWith("/api/v1/sessions/session-id/score", {
+      method: "POST",
+    });
   });
 });

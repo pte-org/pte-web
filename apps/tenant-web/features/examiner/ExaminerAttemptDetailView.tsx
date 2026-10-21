@@ -2,6 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import type { ExaminerAnswerDetailResponse } from "@pte/api-client";
 import {
   Alert,
   Badge,
@@ -10,18 +11,19 @@ import {
   EmptyState,
   ErrorState,
   LoadingState,
+  useToast,
 } from "@pte/ui";
-import { EXAMINER_WORK_TEXT as T } from "./constants";
+import { getExaminerBlockingText, useExaminerWorkText } from "./hooks/useExaminerWorkText";
 import {
   useExaminerAttempt,
   useExaminerGuidelines,
   useExaminerIssues,
   useReportExaminerIssue,
   useStartExaminerWork,
-  useSubmitExaminerScore,
 } from "./api";
-import { PromptRenderer, ResponseRenderer } from "./components/AnswerContentRenderer";
+import { PromptRenderer, ResponseRenderer, type MediaState } from "./components/AnswerContentRenderer";
 import { AiReferencePanel } from "./components/AiReferencePanel";
+import { AiScoreDetail } from "@/features/aiScore";
 import { DecisionPanel } from "./components/DecisionPanel";
 import { QuestionNavigator } from "./components/QuestionNavigator";
 import { ExaminerAttemptHeader } from "./components/ExaminerAttemptHeader";
@@ -30,6 +32,10 @@ import { ReportIssueDialog } from "./components/ReportIssueDialog";
 import { ExaminerGuidelinesDialog } from "./components/ExaminerGuidelinesDialog";
 import { ExaminerGradingHistoryDialog } from "./components/ExaminerGradingHistoryDialog";
 import { useExaminerSubmissions } from "./useExaminerSubmissions";
+import { formatAttemptTitle } from "./utils/attemptLabels";
+
+/** Stable reference: a fresh `[]` per render makes the draft hook's `answers !== prevAnswers` check loop forever. */
+const NO_ANSWERS: ExaminerAnswerDetailResponse[] = [];
 
 export const ExaminerAttemptDetailView = ({
   sessionPublicId,
@@ -40,13 +46,14 @@ export const ExaminerAttemptDetailView = ({
   attemptPublicId: string;
   onBack?: () => void;
 }): ReactElement => {
+  const T = useExaminerWorkText();
+  const { showToast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
   const fromStatus = searchParams?.get("fromStatus");
   const fromPage = searchParams?.get("fromPage");
 
   const query = useExaminerAttempt(sessionPublicId, attemptPublicId);
-  const submitMutation = useSubmitExaminerScore(sessionPublicId, attemptPublicId);
   const startMutation = useStartExaminerWork(sessionPublicId, attemptPublicId);
   const reportIssueMutation = useReportExaminerIssue(sessionPublicId, attemptPublicId);
   const guidelinesQuery = useExaminerGuidelines(sessionPublicId, attemptPublicId);
@@ -58,20 +65,25 @@ export const ExaminerAttemptDetailView = ({
   const [reportIssueOpen, setReportIssueOpen] = useState(false);
   const [guidelinesOpen, setGuidelinesOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [promptMediaBroken, setPromptMediaBroken] = useState(false);
-  const [responseMediaBroken, setResponseMediaBroken] = useState(false);
+  const [promptMedia, setPromptMedia] = useState<MediaState>("ready");
+  const [responseMedia, setResponseMedia] = useState<MediaState>("ready");
 
-  const answers = query.data?.answers ?? [];
+  const answers = query.data?.answers ?? NO_ANSWERS;
   const workflow = query.data?.workflow;
   const currentAnswer = answers[currentIndex] ?? null;
+  const attemptTitle = query.data
+    ? formatAttemptTitle(T.ATTEMPT_LABEL, {
+        attemptPublicId,
+        sessionName: query.data.sessionName,
+        attemptOrdinal: query.data.attemptOrdinal,
+      })
+    : T.ATTEMPT_LABEL;
 
   const {
     drafts,
     activeDraft,
     hasUnsaved,
     isStale,
-    isCurrentReconciling,
-    isCurrentSubmitting,
     isSavingDraft,
     isFinalizing,
     handleScoreChange,
@@ -80,9 +92,6 @@ export const ExaminerAttemptDetailView = ({
     handleAcknowledgeStale,
     handleSaveDraft,
     handleFinalizeAttempt,
-    handleSubmit,
-    handleRetryIdentical,
-    handleReconcileServer,
   } = useExaminerSubmissions({
     answers,
     currentAnswer,
@@ -90,7 +99,6 @@ export const ExaminerAttemptDetailView = ({
     sessionPublicId,
     attemptPublicId,
     refetchAttempt: () => query.refetch(),
-    submitMutation,
   });
 
   const executeBack = (): void => {
@@ -115,8 +123,8 @@ export const ExaminerAttemptDetailView = ({
 
   const handleSelectIndex = (index: number): void => {
     setCurrentIndex(index);
-    setPromptMediaBroken(false);
-    setResponseMediaBroken(false);
+    setPromptMedia("ready");
+    setResponseMedia("ready");
   };
 
   const handleStartWork = async () => {
@@ -127,10 +135,17 @@ export const ExaminerAttemptDetailView = ({
     void query.refetch();
   };
 
+  const handleSaveClick = async (): Promise<void> => {
+    const saved = await handleSaveDraft();
+    showToast(saved ? T.SAVE_SUCCESS : T.SAVE_FAILED, { tone: saved ? "success" : "error" });
+  };
+
   const handleConfirmFinalize = async () => {
     const success = await handleFinalizeAttempt();
     if (success) {
       setFinalizeOpen(false);
+    } else {
+      showToast(T.FINALIZE_FAILED, { tone: "error" });
     }
   };
 
@@ -152,8 +167,7 @@ export const ExaminerAttemptDetailView = ({
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
       <ExaminerAttemptHeader
-        sessionPublicId={sessionPublicId}
-        attemptPublicId={attemptPublicId}
+        title={attemptTitle}
         publicationState={query.data?.publicationState}
         submittedCount={query.data?.submittedAnswerCount ?? 0}
         eligibleCount={query.data?.eligibleAnswerCount ?? 0}
@@ -210,7 +224,7 @@ export const ExaminerAttemptDetailView = ({
 
       {workflow?.blockingReason && (
         <Alert tone="warning" title={T.SCORING_NOTICE_TITLE}>
-          {workflow.blockingReason}
+          {getExaminerBlockingText(T, workflow.blockingReason)}
         </Alert>
       )}
 
@@ -239,7 +253,10 @@ export const ExaminerAttemptDetailView = ({
               answers={answers}
               currentIndex={currentIndex}
               drafts={Object.fromEntries(
-                Object.entries(drafts).map(([k, v]) => [k, v.score]),
+                Object.entries(drafts).map(([k, v]) => [
+                  k,
+                  { score: v.score, isSaved: Boolean(v.savedAt) && !v.isDirty },
+                ]),
               )}
               onSelectIndex={handleSelectIndex}
             />
@@ -249,39 +266,33 @@ export const ExaminerAttemptDetailView = ({
             <PromptRenderer
               key={`prompt-${currentAnswer.answerPublicId}`}
               prompt={currentAnswer.prompt}
-              onMediaError={setPromptMediaBroken}
+              onMediaStateChange={setPromptMedia}
               onRefreshMedia={() => void query.refetch()}
             />
             <ResponseRenderer
               key={`response-${currentAnswer.answerPublicId}`}
               response={currentAnswer.response}
-              onMediaError={setResponseMediaBroken}
+              onMediaStateChange={setResponseMedia}
               onRefreshMedia={() => void query.refetch()}
             />
             <AiReferencePanel
               reference={currentAnswer.aiReference}
               readOnly={currentAnswer.myScore !== null}
-              disabled={isCurrentReconciling || isCurrentSubmitting}
               onApplyAiScore={handleApplyAiScore}
             />
+            {currentAnswer.ai && <AiScoreDetail ai={currentAnswer.ai} />}
             <DecisionPanel
               answer={currentAnswer}
               draftScore={activeDraft?.score ?? ""}
               draftComment={activeDraft?.comment ?? ""}
               draftSavedAt={activeDraft?.savedAt}
-              decisionKind={activeDraft?.decisionKind ?? "MANUAL"}
               isStale={isStale}
-              isMediaBroken={promptMediaBroken || responseMediaBroken}
-              isSubmitting={submitMutation.isPending}
+              isMediaBroken={promptMedia === "failed" || responseMedia === "failed"}
+              isMediaLoading={promptMedia === "loading" || responseMedia === "loading"}
               isSavingDraft={isSavingDraft}
-              isReconciling={isCurrentReconciling}
-              submitError={submitMutation.isError ? T.SUBMIT_ERROR : null}
               onScoreChange={handleScoreChange}
               onCommentChange={handleCommentChange}
-              onSaveDraft={() => void handleSaveDraft()}
-              onSubmit={handleSubmit}
-              onRetryIdentical={handleRetryIdentical}
-              onReconcileServer={handleReconcileServer}
+              onSaveDraft={() => void handleSaveClick()}
               onAcknowledgeStale={handleAcknowledgeStale}
             />
           </div>
@@ -328,6 +339,7 @@ export const ExaminerAttemptDetailView = ({
         open={historyOpen}
         sessionPublicId={sessionPublicId}
         attemptPublicId={attemptPublicId}
+        attemptTitle={attemptTitle}
         onClose={() => setHistoryOpen(false)}
       />
     </div>
