@@ -29,17 +29,29 @@ export const HOST_ROLES: SessionRole[] = ["HOST_ADMIN"];
 
 export const AUTH_ROUTES = {
   login: "/login",
+  changePassword: "/change-password",
   adminDashboard: "/admin",
   hostDashboard: "/host",
+} as const;
+
+export const PASSWORD_CHANGE_TEXT = {
+  TITLE: "Change your password",
+  SUBTITLE: "Your temporary password must be replaced before you can open a workspace.",
+  CURRENT_LABEL: "Current password",
+  NEW_LABEL: "New password",
+  CONFIRM_LABEL: "Confirm new password",
+  REQUIRED: "Enter all password fields.",
+  MISMATCH: "The new passwords do not match.",
+  TOO_SHORT: "Use at least 8 characters for the new password.",
+  SUBMIT: "Change password",
+  SUBMITTING: "Changing password...",
+  FAILED: "Password could not be changed. Check the current password and try again.",
 } as const;
 
 export const AUTH_TEXT = {
   BRAND: "PTE Prep",
   WELCOME_TITLE: "Welcome Back",
   WELCOME_SUBTITLE: "Please enter your institutional credentials to continue.",
-  PANEL_HEADING: "Ready to Manage?",
-  PANEL_TEXT:
-    "Sign in to access your institutional dashboard, manage exams, and track your results.",
   // Username, not email: the backend login key moved off email in Phase 1
   // of the commercialization work. A PLATFORM_ADMIN's username IS their
   // email (the backend sets username = email for every non-STUDENT role),

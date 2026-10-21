@@ -3,6 +3,7 @@
 import { useMemo, useState, type ReactElement } from "react";
 import type { AudienceSourceRequest } from "@pte/api-client";
 import { Alert, Button, Modal, useLocale } from "@pte/ui";
+import { EnrollmentConflictNotice } from "@/features/examoperations/components/EnrollmentConflictNotice";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useEnrollExistingStudents, useSessionRoster } from "@/features/examoperations/api";
 import { SESSION_DETAIL_TEXT } from "../constants";
@@ -50,7 +51,20 @@ export const AddExamStudentsModal = ({
 
   const handleSubmit = (): void => {
     if (selectedCount === 0) return;
-    enroll.mutate([...picker.selectedIds], { onSuccess: handleClose });
+    enroll.mutate([...picker.selectedIds], {
+      onSuccess: (response) => {
+        if (response.skippedByConflict.length === 0) {
+          handleClose();
+          return;
+        }
+        setSources(
+          response.skippedByConflict.map((conflict) => ({
+            sourceType: "STUDENT",
+            sourcePublicId: conflict.studentPublicId,
+          })),
+        );
+      },
+    });
   };
 
   return (
@@ -78,6 +92,12 @@ export const AddExamStudentsModal = ({
     >
       <div className="flex flex-col gap-3">
         {enrollError && <Alert tone="error">{enrollError}</Alert>}
+        <EnrollmentConflictNotice
+          conflicts={enroll.data?.skippedByConflict}
+          studentLabels={Object.fromEntries(
+            picker.students.map((student) => [student.publicId, student.fullName]),
+          )}
+        />
         <div>
           <AudienceStudentPicker wizardText={wizardText} {...picker} />
         </div>

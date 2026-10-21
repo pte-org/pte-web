@@ -28,6 +28,9 @@ export function createSessionApiClient(baseUrl: string): ApiClient {
         accessToken: tokens.accessToken,
         refreshToken: tokens.refreshToken,
         expiresAt: Date.now() + tokens.expiresInSeconds * 1000,
+        ...(typeof tokens.mustChangePassword === "boolean"
+          ? { mustChangePassword: tokens.mustChangePassword }
+          : {}),
       });
       noteTokenRefreshed(tokens.accessToken);
     },
@@ -65,5 +68,6 @@ async function refreshAccessToken(baseUrl: string, refreshToken: string): Promis
     accessToken: data.accessToken,
     refreshToken: data.refreshToken,
     expiresInSeconds: data.expiresInSeconds ?? 0,
+    mustChangePassword: data.mustChangePassword === true,
   };
 }

@@ -7,6 +7,7 @@ import {
   loginAdmin,
   loginHost,
   loginStudent,
+  changePassword,
 } from "./index";
 
 /**
@@ -23,6 +24,7 @@ function fakeClient(): ApiClient & { request: ReturnType<typeof vi.fn> } {
     refreshToken: "r",
     tokenType: "Bearer",
     expiresInSeconds: 900,
+    mustChangePassword: false,
   });
   return {
     request,
@@ -104,5 +106,17 @@ describe("auth requests", () => {
     expect(AUTH_ENDPOINTS.login).toBe("/api/v1/auth/login");
     expect(AUTH_ENDPOINTS.refresh).toBe("/api/v1/auth/refresh");
     expect(AUTH_ENDPOINTS.logout).toBe("/api/v1/auth/logout");
+    expect(AUTH_ENDPOINTS.changePassword).toBe("/api/v1/auth/change-password");
+  });
+
+  it("posts the authenticated first-login password change to identity", async () => {
+    const client = fakeClient();
+
+    await changePassword(client, { currentPassword: "Temporary123", newPassword: "NewPassword456" });
+
+    expect(client.request).toHaveBeenCalledWith(AUTH_ENDPOINTS.changePassword, {
+      method: "POST",
+      body: { currentPassword: "Temporary123", newPassword: "NewPassword456" },
+    });
   });
 });

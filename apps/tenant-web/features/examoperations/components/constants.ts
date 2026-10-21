@@ -65,6 +65,13 @@ export const STUDENT_ROSTER_TABLE_TEXT = {
   EMPTY_VALUE: "—",
 } as const;
 
+export const ENROLLMENT_CONFLICT_TEXT = {
+  TITLE: "Some students were not added",
+  SUMMARY: (count: number) => `${count} student(s) already have an overlapping exam.`,
+  STUDENT: (student: string, session: string) => `${student} — overlaps with “${session}”`,
+  MORE: (count: number) => `...and ${count} more conflict(s).`,
+} as const;
+
 export const SKIPPED_ROWS_REPORT_TEXT = {
   HEADING: "{count} row(s) skipped",
   ROW_HEADER: "Row",

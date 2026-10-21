@@ -129,6 +129,13 @@ export interface BulkEnrollRequest {
 export interface BulkEnrollResponse {
   enrolled: string[];
   alreadyEnrolled: string[];
+  skippedByConflict: SlotConflict[];
+}
+
+export interface SlotConflict {
+  studentPublicId: string;
+  conflictingSessionPublicId: string;
+  conflictingSessionName: string;
 }
 
 /** Matches scheduling's real `ProctorRole` enum exactly. */

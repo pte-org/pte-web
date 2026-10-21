@@ -2,6 +2,8 @@ export interface SkillScoreResponse {
   skill: string;
   score: number | null;
   sufficientData: boolean;
+  /** Sum of the pinned template weights that had publishable scores. */
+  appliedWeight: number | null;
 }
 
 export interface ReportResponse {

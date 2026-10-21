@@ -52,7 +52,11 @@ export const AddStudentForm = ({ sessionPublicId }: AddStudentFormProps): ReactE
         savePendingImport(sessionPublicId, [account]);
         setPending([account]);
         setForm(EMPTY_INPUT);
-        enrollAccounts.mutate([account], { onSuccess: () => setPending(null) });
+        enrollAccounts.mutate([account], {
+          onSuccess: (response) => {
+            if (response.skippedByConflict.length === 0) setPending(null);
+          },
+        });
       },
     });
   };
@@ -68,11 +72,16 @@ export const AddStudentForm = ({ sessionPublicId }: AddStudentFormProps): ReactE
         <PendingImportBanner
           accounts={pending}
           onRetryEnroll={() =>
-            enrollAccounts.mutate(pending, { onSuccess: () => setPending(null) })
+            enrollAccounts.mutate(pending, {
+              onSuccess: (response) => {
+                if (response.skippedByConflict.length === 0) setPending(null);
+              },
+            })
           }
           onDismiss={handleDismiss}
           isEnrolling={enrollAccounts.isPending}
           enrollError={enrollAccounts.error}
+          conflicts={enrollAccounts.data?.skippedByConflict}
         />
       )}
 

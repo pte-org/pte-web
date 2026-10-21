@@ -8,6 +8,7 @@ import {
   resetPassword as resetPasswordRequest,
   unenroll,
   type BulkCreateUsersResponse,
+  type BulkEnrollResponse,
   type UserResponse,
 } from "@pte/api-client";
 import {
@@ -88,17 +89,18 @@ export function useCreateRosterAccounts(
  * place so the recovery banner can offer another retry. */
 export function useEnrollRosterAccounts(
   sessionPublicId: string,
-): UseMutationResult<void, unknown, CreatedAccount[]> {
+): UseMutationResult<BulkEnrollResponse, unknown, CreatedAccount[]> {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (created) => {
-      await bulkEnroll(apiClient, sessionPublicId, {
+    mutationFn: (created) =>
+      bulkEnroll(apiClient, sessionPublicId, {
         studentPublicIds: created.map((account) => account.publicId),
-      });
-    },
-    onSuccess: async () => {
-      clearPendingImport(sessionPublicId);
+      }),
+    onSuccess: async (response) => {
+      if (response.skippedByConflict.length === 0) {
+        clearPendingImport(sessionPublicId);
+      }
       // Must resolve before the roster invalidation below — useSessionRoster
       // joins against this cache, so a stale read here would drop the
       // just-enrolled students from the roster.
@@ -111,13 +113,11 @@ export function useEnrollRosterAccounts(
 /** Enrolls existing student accounts into a scheduled exam session. */
 export function useEnrollExistingStudents(
   sessionPublicId: string,
-): UseMutationResult<void, unknown, string[]> {
+): UseMutationResult<BulkEnrollResponse, unknown, string[]> {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (studentPublicIds) => {
-      await bulkEnroll(apiClient, sessionPublicId, { studentPublicIds });
-    },
+    mutationFn: (studentPublicIds) => bulkEnroll(apiClient, sessionPublicId, { studentPublicIds }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: [...ENROLLMENTS_QUERY_KEY, sessionPublicId] });
     },

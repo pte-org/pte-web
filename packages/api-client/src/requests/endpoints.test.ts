@@ -30,9 +30,7 @@ const RETIRED_SERVICE_SEGMENTS = [
 /**
  * `/api/v1/assets/upload` — deliberately excluded. It is backed by no
  * controller anywhere in pte-api (MediaController serves `/objects` with a
- * completely different presign flow) and is unused by either app, same as
- * `AUTH_ENDPOINTS.changePassword`. Kept as a known-fictitious path rather
- * than silently "fixed" into something that looks real but still 404s.
+ * completely different presign flow) and is unused by either app.
  */
 const KNOWN_FICTITIOUS_PATHS = new Set(["/api/v1/assets/upload"]);
 

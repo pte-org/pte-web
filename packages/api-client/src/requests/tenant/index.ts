@@ -1,6 +1,8 @@
 import type { ApiClient } from "../../client/client";
 import type {
   OnboardTenantRequest,
+  SuspendTenantRequest,
+  TenantSuspensionImpactResponse,
   TenantResponse,
   UpdateBrandingRequest,
 } from "../../types/tenant";
@@ -9,6 +11,8 @@ export const TENANT_ENDPOINTS = {
   tenants: "/api/v1/tenants",
   tenant: (publicId: string) => `/api/v1/tenants/${publicId}`,
   suspend: (publicId: string) => `/api/v1/tenants/${publicId}/suspend`,
+  suspensionImpact: (publicId: string, days?: number) =>
+    `/api/v1/tenants/${publicId}/suspension-impact${days === undefined ? "" : `?days=${days}`}`,
   reactivate: (publicId: string) => `/api/v1/tenants/${publicId}/reactivate`,
   branding: (publicId: string) => `/api/v1/tenants/${publicId}/branding`,
 } as const;
@@ -31,10 +35,25 @@ export function getTenant(client: ApiClient, publicId: string): Promise<TenantRe
   return client.request<TenantResponse>(TENANT_ENDPOINTS.tenant(publicId));
 }
 
-export function suspendTenant(client: ApiClient, publicId: string): Promise<TenantResponse> {
+export function suspendTenant(
+  client: ApiClient,
+  publicId: string,
+  payload: SuspendTenantRequest,
+): Promise<TenantResponse> {
   return client.request<TenantResponse>(TENANT_ENDPOINTS.suspend(publicId), {
     method: "POST",
+    body: payload,
   });
+}
+
+export function getTenantSuspensionImpact(
+  client: ApiClient,
+  publicId: string,
+  days?: number,
+): Promise<TenantSuspensionImpactResponse> {
+  return client.request<TenantSuspensionImpactResponse>(
+    TENANT_ENDPOINTS.suspensionImpact(publicId, days),
+  );
 }
 
 export function reactivateTenant(client: ApiClient, publicId: string): Promise<TenantResponse> {

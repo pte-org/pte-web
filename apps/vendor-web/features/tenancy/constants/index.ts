@@ -17,6 +17,7 @@ import type {
 export const TENANTS_QUERY_KEY = ["tenants"] as const;
 export const SYSTEM_HEALTH_QUERY_KEY = ["systemHealth"] as const;
 export const TENANT_QUERY_KEY = ["tenant"] as const;
+export const TENANT_SUSPENSION_IMPACT_QUERY_KEY = ["tenantSuspensionImpact"] as const;
 export const ORGANIZATIONS_QUERY_KEY = ["organizations"] as const;
 export const LOGIN_ACCOUNT_QUERY_KEY = ["loginAccount"] as const;
 
@@ -99,13 +100,43 @@ export const SYSTEM_HEALTH_TEXT = {
   EMPTY_VALUE: "—",
 } as const;
 
+export function formatSuspensionDuration(seconds: number): string {
+  const safeSeconds = Math.max(0, Math.floor(seconds));
+  const days = Math.floor(safeSeconds / 86_400);
+  const hours = Math.floor((safeSeconds % 86_400) / 3_600);
+  const minutes = Math.floor((safeSeconds % 3_600) / 60);
+  const remainingSeconds = safeSeconds % 60;
+  return `${days} day(s) ${hours} hour(s) ${minutes} minute(s) ${remainingSeconds} second(s)`;
+}
+
 export const SUSPEND_MODAL_TEXT = {
   TITLE: "Confirm Suspension",
   WARNING:
-    "This action will temporarily stop access for users under this tenant. The license will remain frozen until reactivated.",
+    "This action blocks new tenant activity. Attempts already in progress can still submit and read published reports.",
   CONFIRM_PROMPT: "To confirm, enter the exact tenant name:",
   INPUT_LABEL: "Tenant name",
   INPUT_PLACEHOLDER: "Enter tenant name to confirm",
+  DURATION_LABEL: "Suspension duration (days)",
+  DURATION_HELPER: "Leave blank to use the platform default. Enter 0 for an indefinite suspension.",
+  DURATION_INVALID: "Enter a whole number of days (0 or more).",
+  IMPACT_TITLE: "Before you suspend",
+  IMPACT_LOADING: "Calculating active subscription impact…",
+  IMPACT_SUMMARY: (subscriptions: number, days: number) =>
+    `${subscriptions} active subscription(s) may lose up to ${days} day(s) during this suspension.`,
+  IMPACT_INDEFINITE: (subscriptions: number, days: number) =>
+    `${subscriptions} active subscription(s) may lose up to ${days} remaining day(s). This suspension has no automatic end date.`,
+  IMPACT_NONE: "No active subscriptions are affected by this suspension.",
+  IMPACT_SUMMARY_EXACT: (subscriptions: number, seconds: number) =>
+    `${subscriptions} active subscription(s) may lose up to ${formatSuspensionDuration(seconds)} during this suspension.`,
+  IMPACT_INDEFINITE_EXACT: (subscriptions: number, seconds: number) =>
+    `${subscriptions} active subscription(s) may lose up to ${formatSuspensionDuration(seconds)} remaining. This suspension has no automatic end date.`,
+  IMPACT_EXPIRING_ITEM_EXACT: (seconds: number, planLabel: string | null, date: string) =>
+    `${planLabel ?? "Subscription"} · ${formatSuspensionDuration(seconds)} remaining · expires ${date}`,
+  IMPACT_REMAINING: (count: number) => `${count} active subscription(s) remain outside this expiry list.`,
+  IMPACT_MORE: (count: number) => `${count} more impacted subscription(s) are not shown.`,
+  IMPACT_ERROR: "The subscription impact could not be calculated. Try again before suspending.",
+  IMPACT_EXPIRING: "Subscriptions that may expire before reactivation:",
+  IMPACT_EXPIRING_ITEM: (days: number, date: string) => `${days} day(s) remaining · expires ${date}`,
   CANCEL: "Cancel",
   CONFIRM: "Suspend",
 } as const;
