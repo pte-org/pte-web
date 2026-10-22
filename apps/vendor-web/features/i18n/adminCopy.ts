@@ -35,6 +35,9 @@ const ADMIN_VI: Record<string, string> = {
   "Show password": "Hiện mật khẩu",
   "Hide password": "Ẩn mật khẩu",
   "Please enter username and password.": "Vui lòng nhập tên đăng nhập và mật khẩu.",
+  "Please enter your email.": "Vui lòng nhập email.",
+  "Please enter a valid email address.": "Vui lòng nhập địa chỉ email hợp lệ.",
+  "Please enter your password.": "Vui lòng nhập mật khẩu.",
   "Username or password is incorrect.": "Tên đăng nhập hoặc mật khẩu không đúng.",
   "This account is not allowed to use the vendor portal.":
     "Tài khoản này không được phép sử dụng cổng quản trị.",

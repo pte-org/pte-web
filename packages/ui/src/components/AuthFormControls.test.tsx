@@ -44,6 +44,33 @@ describe("AuthTextField", () => {
   });
 });
 
+describe("AuthTextField error state", () => {
+  it("marks the input invalid, links the message and replaces the hint", () => {
+    const html = renderField({
+      value: "",
+      hint: "Use your email",
+      error: "Please enter your username.",
+    });
+    expect(html).toMatch(/<input[^>]*aria-invalid="true"/);
+    expect(html).toMatch(/<input[^>]*aria-describedby="username-error"/);
+    expect(html).toMatch(/<p id="username-error"[^>]*>Please enter your username\.<\/p>/);
+    expect(html).not.toContain("Use your email");
+  });
+
+  it("hides the tick while the field has an error even if it has content", () => {
+    expect(renderField({ value: "a b", error: "No spaces" })).toMatch(
+      /aria-hidden="true" class="[^"]*scale-50 opacity-0/,
+    );
+  });
+
+  it("links the hint when there is no error", () => {
+    const html = renderField({ hint: "Use your email" });
+    expect(html).not.toContain("aria-invalid");
+    expect(html).toMatch(/<input[^>]*aria-describedby="username-hint"/);
+    expect(html).toMatch(/<p id="username-hint"[^>]*>Use your email<\/p>/);
+  });
+});
+
 describe("AuthSubmitButton", () => {
   it("is always a submit button and forwards disabled", () => {
     const html = renderHtml(<AuthSubmitButton disabled>Login</AuthSubmitButton>);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent, type ReactElement } from "react";
+import { useMemo, useState, type FormEvent, type ReactElement } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -16,6 +16,7 @@ import {
   Select,
   normalizeSessionRoles,
   useSessionManager,
+  useSignInValidation,
   type AuthFooterItem,
 } from "@pte/ui";
 import {
@@ -45,6 +46,15 @@ export const LoginView = (): ReactElement => {
   const searchParams = useSearchParams();
   const role = resolveRole(searchParams.get("role"));
   const { saveSession } = useSessionManager();
+  const validationMessages = useMemo(
+    () => ({
+      usernameRequired: T.USERNAME_REQUIRED,
+      usernameInvalidEmail: T.USERNAME_INVALID_EMAIL,
+      passwordRequired: T.PASSWORD_REQUIRED,
+    }),
+    [T],
+  );
+  const validation = useSignInValidation(validationMessages);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -91,8 +101,10 @@ export const LoginView = (): ReactElement => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
-    if (!username.trim() || !password) {
-      setErrorMessage(T.EMPTY_FIELDS);
+    const fieldErrors = validation.validateAll({ username, password });
+    if (fieldErrors.username || fieldErrors.password) {
+      setErrorMessage(undefined);
+      document.getElementById(fieldErrors.username ? "username" : "password")?.focus();
       return;
     }
     if (organizationOptions.length > 0 && !organizationId) {
@@ -176,12 +188,15 @@ export const LoginView = (): ReactElement => {
           autoComplete="username"
           label={T.USERNAME_LABEL}
           icon={<MailIcon />}
+          error={validation.errors.username}
           value={username}
           onChange={(event) => {
             setUsername(event.target.value);
+            validation.onChange("username", event.target.value);
             setOrganizationOptions([]);
             setOrganizationId("");
           }}
+          onBlur={(event) => validation.onBlur("username", event.target.value)}
           placeholder={T.USERNAME_PLACEHOLDER}
         />
 
@@ -193,12 +208,15 @@ export const LoginView = (): ReactElement => {
             label={T.PASSWORD_LABEL}
             icon={<LockIcon />}
             placeholder={T.PASSWORD_PLACEHOLDER}
+            error={validation.errors.password}
             value={password}
             onChange={(event) => {
               setPassword(event.target.value);
+              validation.onChange("password", event.target.value);
               setOrganizationOptions([]);
               setOrganizationId("");
             }}
+            onBlur={(event) => validation.onBlur("password", event.target.value)}
             trailing={
               <button
                 type="button"

@@ -14,8 +14,10 @@ import {
   MailIcon,
   Select,
   useSessionManager,
+  useSignInValidation,
   type AuthFooterItem,
   type SessionRole,
+  type SignInValidationMessages,
 } from "@pte/ui";
 import {
   decodeAccessTokenClaims,
@@ -54,9 +56,16 @@ const FOOTER_ITEMS: readonly AuthFooterItem[] = [
   { label: AUTH_TEXT.FOOTER_SUPPORT },
 ];
 
+const VALIDATION_MESSAGES: SignInValidationMessages = {
+  usernameRequired: AUTH_TEXT.USERNAME_REQUIRED,
+  usernameInvalidEmail: AUTH_TEXT.USERNAME_INVALID_EMAIL,
+  passwordRequired: AUTH_TEXT.PASSWORD_REQUIRED,
+};
+
 export const LoginView = (): ReactElement => {
   const router = useRouter();
   const { saveSession } = useSessionManager();
+  const validation = useSignInValidation(VALIDATION_MESSAGES);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -89,8 +98,10 @@ export const LoginView = (): ReactElement => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
-    if (!username.trim() || !password) {
-      setErrorMessage(AUTH_TEXT.EMPTY_FIELDS);
+    const fieldErrors = validation.validateAll({ username, password });
+    if (fieldErrors.username || fieldErrors.password) {
+      setErrorMessage(undefined);
+      document.getElementById(fieldErrors.username ? "username" : "password")?.focus();
       return;
     }
     if (organizationOptions.length > 0 && !organizationId) {
@@ -174,12 +185,15 @@ export const LoginView = (): ReactElement => {
           label={AUTH_TEXT.USERNAME_LABEL}
           icon={<MailIcon />}
           hint={AUTH_TEXT.USERNAME_HINT}
+          error={validation.errors.username}
           value={username}
           onChange={(event) => {
             setUsername(event.target.value);
+            validation.onChange("username", event.target.value);
             setOrganizationOptions([]);
             setOrganizationId("");
           }}
+          onBlur={(event) => validation.onBlur("username", event.target.value)}
           placeholder={AUTH_TEXT.USERNAME_PLACEHOLDER}
         />
 
@@ -191,12 +205,15 @@ export const LoginView = (): ReactElement => {
             label={AUTH_TEXT.PASSWORD_LABEL}
             icon={<LockIcon />}
             placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
+            error={validation.errors.password}
             value={password}
             onChange={(event) => {
               setPassword(event.target.value);
+              validation.onChange("password", event.target.value);
               setOrganizationOptions([]);
               setOrganizationId("");
             }}
+            onBlur={(event) => validation.onBlur("password", event.target.value)}
             trailing={
               <button
                 type="button"
