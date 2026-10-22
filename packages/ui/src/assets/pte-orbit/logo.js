@@ -12,23 +12,24 @@ const LOGO = Object.freeze({
 });
 
 /**
- * Per-ribbon gradients sampled from the 2D brand mark (logo-mark.png) and laid along the same
+ * Per-ribbon gradients based on the 2D brand mark (logo-mark.png), deepened ~10% so the mark
+ * still reads as dark as the 2D logo once lit and seen through the glass, laid along the same
  * direction as in the artwork. `axis(x, y)` maps a point in source-path units to 0..1.
  */
 const clamp01 = (value) => THREE.MathUtils.clamp(value, 0, 1);
 const GRADIENTS = Object.freeze({
-  // Top edge #005EFC fading to the deep right-hand bowl #003DF5.
-  outerRing: { from: 0x005efc, to: 0x003df5, axis: (x) => clamp01(x / 474) },
-  // Back stem: cyan at the top (#01B2FB) to blue lower down (#0069FB).
-  backStem: { from: 0x01b2fb, to: 0x0069fb, axis: (_x, y) => clamp01((y - 76) / 300) },
-  // Inner fold: #017DFB near the bowl, brightening to cyan #00A8FC towards the lower left.
+  // Top edge fading to the deep right-hand bowl (2D: #005EFC → #003DF5).
+  outerRing: { from: 0x0052ec, to: 0x0030e0, axis: (x) => clamp01(x / 474) },
+  // Back stem: cyan at the top to blue lower down (2D: #01B2FB → #0069FB).
+  backStem: { from: 0x00a0ea, to: 0x005ced, axis: (_x, y) => clamp01((y - 76) / 300) },
+  // Inner fold: blue near the bowl, brightening to cyan towards the lower left (2D: #017DFB → #00A8FC).
   innerFold: {
-    from: 0x017dfb,
-    to: 0x00a8fc,
+    from: 0x016eec,
+    to: 0x0096ea,
     axis: (x, y) => clamp01(((384 - x) / 167) * 0.4 + ((y - 49) / 301) * 0.6),
   },
-  // Front stem: #0052FB at the top deepening to #003CF4 at the tail.
-  frontStem: { from: 0x0052fb, to: 0x003cf4, axis: (_x, y) => clamp01((y - 76) / 486) },
+  // Front stem: blue at the top deepening at the tail (2D: #0052FB → #003CF4).
+  frontStem: { from: 0x0046ec, to: 0x0030dc, axis: (_x, y) => clamp01((y - 76) / 486) },
 });
 
 // Partition the reference into adjoining solids so shared folds do not overlap.

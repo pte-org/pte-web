@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, type ReactElement } from "react";
+import { useEffect, useRef, type ReactElement } from "react";
 
 const DOT_SPACING = 22;
 const DOT_RADIUS = 1.1;
@@ -15,8 +15,8 @@ const GLOW_ALPHA = 0.12;
 const EASE = 0.14;
 const MAX_PIXEL_RATIO = 2;
 
-const readBrandColor = (): string =>
-  getComputedStyle(document.documentElement).getPropertyValue("--brand").trim();
+const readAccentColor = (): string =>
+  getComputedStyle(document.documentElement).getPropertyValue("--action").trim();
 
 /**
  * Canvas dot grid: dots near the pointer swell, brighten and bulge outwards, with a soft glow;
@@ -31,7 +31,7 @@ const InteractiveDotGrid = (): ReactElement => {
     const context = canvas?.getContext("2d");
     if (!canvas || !context) return undefined;
 
-    let color = readBrandColor();
+    let color = readAccentColor();
     let width = 0;
     let height = 0;
     const pointer = { x: 0, y: 0, tx: 0, ty: 0, strength: 0, target: 0 };
@@ -147,9 +147,9 @@ const InteractiveDotGrid = (): ReactElement => {
 
     const resizeObserver = new ResizeObserver(resize);
     resizeObserver.observe(canvas);
-    // Re-read the brand colour when the theme toggles.
+    // Re-read the action colour when the theme toggles.
     const themeObserver = new MutationObserver(() => {
-      color = readBrandColor();
+      color = readAccentColor();
       draw();
     });
     themeObserver.observe(document.documentElement, {
@@ -174,39 +174,14 @@ const InteractiveDotGrid = (): ReactElement => {
 };
 
 /**
- * Sign-in page background: tinted glows, slowly drifting light ribbons, an interactive dot grid
- * and a fine grain overlay. Purely decorative and hidden from assistive technology.
+ * Sign-in page background: a plain white surface (`--surface-card`, dark in dark mode) with the
+ * interactive dot grid on top. Purely decorative and hidden from assistive technology.
  */
-export const AuthBackdrop = (): ReactElement => {
-  // useId output may contain characters that break `url(#…)` references.
-  const grainId = `auth-grain-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
-  return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-      {/* Base: cool tint top-left fading to a grey bottom-right, so light ribbons have depth to sit on. */}
-      <div className="absolute inset-0 bg-[linear-gradient(155deg,var(--brand-tint)_0%,var(--surface-page)_42%,var(--shell-border)_100%)]" />
-      {/* Colour aura: three large blurred blobs that wander slowly behind everything. */}
-      <div className="absolute -left-[12%] -top-[18%] h-[38rem] w-[38rem] rounded-full bg-[radial-gradient(circle,var(--brand-soft),transparent_68%)] opacity-35 blur-3xl animate-pte-aura-a" />
-      <div className="absolute -bottom-[22%] -right-[10%] h-[42rem] w-[42rem] rounded-full bg-[radial-gradient(circle,var(--action-gradient-start),transparent_68%)] opacity-25 blur-3xl animate-pte-aura-b" />
-      <div className="absolute bottom-[5%] left-[18%] h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(circle,var(--brand-tint),transparent_70%)] opacity-90 blur-3xl animate-pte-aura-c" />
-      {/* Silk folds: a darker shadow band with a white highlight just above it, twice over. */}
-      <div className="absolute -left-[30%] top-[26%] h-[15rem] w-[160%] -rotate-[20deg] rounded-[50%] bg-[linear-gradient(90deg,transparent_5%,var(--shell-border)_45%,transparent_95%)] opacity-90 blur-2xl animate-pte-silk-b" />
-      <div className="absolute -left-[25%] top-[16%] h-[9rem] w-[150%] -rotate-[20deg] rounded-[50%] bg-[linear-gradient(90deg,transparent_5%,var(--surface-card)_50%,transparent_95%)] blur-2xl animate-pte-silk-a" />
-      <div className="absolute -right-[35%] bottom-[10%] h-[14rem] w-[140%] -rotate-[17deg] rounded-[50%] bg-[linear-gradient(90deg,transparent_5%,var(--shell-border)_50%,transparent_95%)] opacity-80 blur-2xl animate-pte-silk-c" />
-      <div className="absolute -right-[30%] bottom-[22%] h-[8rem] w-[130%] -rotate-[17deg] rounded-[50%] bg-[linear-gradient(90deg,transparent_5%,var(--surface-card)_55%,transparent_95%)] blur-2xl animate-pte-silk-b" />
-      {/* Brand light streak across the lower left. */}
-      <div className="absolute -left-[15%] bottom-[-4%] h-[11rem] w-[85%] -rotate-[30deg] rounded-[50%] bg-[linear-gradient(90deg,transparent,var(--brand-soft)_50%,transparent)] opacity-35 blur-3xl animate-pte-silk-a" />
-      <InteractiveDotGrid />
-      <svg className="absolute inset-0 h-full w-full opacity-[0.06] mix-blend-multiply">
-        <filter id={grainId}>
-          <feTurbulence
-            type="fractalNoise"
-            baseFrequency="0.9"
-            numOctaves="2"
-            stitchTiles="stitch"
-          />
-        </filter>
-        <rect width="100%" height="100%" filter={`url(#${grainId})`} />
-      </svg>
-    </div>
-  );
-};
+export const AuthBackdrop = (): ReactElement => (
+  <div
+    aria-hidden="true"
+    className="pointer-events-none absolute inset-0 overflow-hidden bg-[var(--surface-card)]"
+  >
+    <InteractiveDotGrid />
+  </div>
+);

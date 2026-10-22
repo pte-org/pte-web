@@ -6,8 +6,8 @@ import { MoonIcon, SunIcon } from "../components/icons";
 import { useLocale } from "../i18n";
 import { useTheme } from "./ThemeProvider";
 
-const REVEAL_DURATION_MS = 600;
-const REVEAL_EASING = "cubic-bezier(0.4, 0, 0.2, 1)";
+const REVEAL_DURATION_MS = 350;
+const REVEAL_EASING = "cubic-bezier(0.22, 1, 0.36, 1)";
 
 /**
  * Reveals the new theme as a circle growing from the clicked button. Falls back to an instant

@@ -260,12 +260,6 @@ body {
   --animate-pte-scale-in: pte-scale-in 320ms var(--motion-ease-out) both;
   --animate-pte-dropdown-in: pte-dropdown-in 140ms ease-out both;
   --animate-pte-progress: pte-progress 1.1s ease-in-out infinite;
-  --animate-pte-silk-a: pte-silk-a 24s ease-in-out infinite;
-  --animate-pte-silk-b: pte-silk-b 31s ease-in-out infinite;
-  --animate-pte-silk-c: pte-silk-c 38s ease-in-out infinite;
-  --animate-pte-aura-a: pte-aura-a 18s ease-in-out infinite;
-  --animate-pte-aura-b: pte-aura-b 23s ease-in-out infinite;
-  --animate-pte-aura-c: pte-aura-c 29s ease-in-out infinite;
 
   /* Keep existing feature classes on the shared Academic Swiss palette. */
   --color-blue-50: var(--brand-tint);
@@ -405,88 +399,12 @@ body {
   }
 }
 
-/* Slow drift for the sign-in page light ribbons; combines with the element's own `rotate`. */
-@keyframes pte-silk-a {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-
-  50% {
-    transform: translate3d(6%, -5%, 0) scale(1.08);
-  }
-}
-
-@keyframes pte-silk-b {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1.04);
-  }
-
-  50% {
-    transform: translate3d(-8%, 6%, 0) scale(1.14);
-  }
-}
-
 /* ThemeToggle reveals the new theme with a clip-path circle (see ThemeToggle.tsx), so drop the
    default View Transition cross-fade and keep the old snapshot still underneath. */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
-}
-
-/* Sign-in page colour aura: large blurred blobs wandering across the background. */
-@keyframes pte-aura-a {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-
-  33% {
-    transform: translate3d(18vw, 10vh, 0) scale(1.15);
-  }
-
-  66% {
-    transform: translate3d(6vw, 26vh, 0) scale(0.9);
-  }
-}
-
-@keyframes pte-aura-b {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1.05);
-  }
-
-  40% {
-    transform: translate3d(-22vw, -12vh, 0) scale(1.25);
-  }
-
-  75% {
-    transform: translate3d(-8vw, 8vh, 0) scale(0.95);
-  }
-}
-
-@keyframes pte-aura-c {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-
-  50% {
-    transform: translate3d(14vw, -18vh, 0) scale(1.2);
-  }
-}
-
-@keyframes pte-silk-c {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-
-  50% {
-    transform: translate3d(5%, 7%, 0) scale(0.94);
-  }
 }
 
 .pte-skeleton {

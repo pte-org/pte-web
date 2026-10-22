@@ -27,17 +27,11 @@ describe("AuthBrandShell", () => {
     expect(html).toMatch(/<div aria-hidden="true"[^>]*pointer-events-none/);
   });
 
-  it("renders the interactive dot grid canvas and the drifting ribbons", () => {
+  it("renders a plain white backdrop with only the dot grid canvas", () => {
     const html = renderShell();
+    expect(html).toMatch(/<div aria-hidden="true"[^>]*bg-\[var\(--surface-card\)\]/);
     expect(countMatches(html, /<canvas /)).toBe(1);
-    expect(countMatches(html, /animate-pte-silk-[abc]/)).toBe(5);
-  });
-
-  it("references the grain filter by an id that is safe inside url(#…)", () => {
-    const html = renderShell();
-    const id = html.match(/<filter id="([^"]+)"/)?.[1] ?? "";
-    expect(id).toMatch(/^auth-grain-[a-zA-Z0-9_-]+$/);
-    expect(html).toContain(`filter="url(#${id})"`);
+    expect(countMatches(html, /pte-aura|radial-gradient|<filter/)).toBe(0);
   });
 
   it("pins the brand above the form content", () => {

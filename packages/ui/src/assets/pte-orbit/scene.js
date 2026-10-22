@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { SETTINGS, THEMES } from "./constants.js";
-import { createEcosystem } from "./models.js?v=motion-6";
+import { createEcosystem } from "./models.js?v=motion-9";
 import { createHomeReturn } from "./home-return.js?v=motion-5";
 
 /** @returns {{setTheme: Function, setMotion: Function, reset: Function, dispose: Function}} */
