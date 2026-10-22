@@ -428,6 +428,14 @@ body {
   }
 }
 
+/* ThemeToggle reveals the new theme with a clip-path circle (see ThemeToggle.tsx), so drop the
+   default View Transition cross-fade and keep the old snapshot still underneath. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
 /* Sign-in page colour aura: large blurred blobs wandering across the background. */
 @keyframes pte-aura-a {
   0%,
