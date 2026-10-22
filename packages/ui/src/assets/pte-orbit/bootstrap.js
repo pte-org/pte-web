@@ -54,7 +54,14 @@ const persistTheme = (theme) => {
   }
 };
 
+/** Tells the embedding page (same origin) when the scene is visible or failed, so it can fade in. */
+const notifyHost = (type) => {
+  if (!embedded || window.parent === window) return;
+  window.parent.postMessage({ source: "pte-orbit", type }, window.location.origin);
+};
+
 const showFailure = () => {
+  notifyHost("error");
   loading.hidden = true;
   fallback.hidden = false;
   motionButton.disabled = true;
@@ -71,13 +78,16 @@ const start = async () => {
   try {
     scene?.dispose();
     scene = null;
-    const { mountScene } = await import("./scene.js?v=motion-2");
-    scene = mountScene(host, motionPreference.matches);
+    const { mountScene } = await import("./scene.js?v=motion-10");
+    // Embedded on the sign-in page the scene always animates, whatever the OS motion setting.
+    scene = mountScene(host, !embedded && motionPreference.matches, { intro: embedded });
     scene.setTheme(dark ? "dark" : "light");
     updateMotion();
     loading.hidden = true;
     motionButton.disabled = false;
     resetButton.disabled = false;
+    // Wait for the first painted frame so the host never fades in an empty canvas.
+    window.requestAnimationFrame(() => notifyHost("ready"));
   } catch (error) {
     console.error("PTE Orbit could not start:", error);
     showFailure();

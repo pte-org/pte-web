@@ -47,6 +47,12 @@ export const PASSWORD_CHANGE_TEXT = {
 
 export const AUTH_TEXT = {
   BRAND: "PTE Prep",
+  PORTAL_LABEL: "Organization portal",
+  FOOTER_LABEL: "Legal and support",
+  FOOTER_COPYRIGHT: "© {year} PTE Prep",
+  FOOTER_TERMS: "Terms",
+  FOOTER_PRIVACY: "Privacy",
+  FOOTER_SUPPORT: "Contact support",
   WELCOME_TITLE: "Welcome Back",
   WELCOME_SUBTITLE: "Sign in to manage learners and exams for your organization.",
   // Username, not email: the backend login key moved off email in Phase 1
@@ -55,7 +61,7 @@ export const AUTH_TEXT = {
   // is why the placeholder still shows one — but a STUDENT signing in uses
   // `{tenant.code}.{random}`, so the field must not be email-typed or
   // email-validated.
-  USERNAME_LABEL: "Username",
+  USERNAME_LABEL: "Email",
   USERNAME_PLACEHOLDER: "host@school.edu.vn",
   USERNAME_HINT: "Use your email address, or the account issued by your organization.",
   ORGANIZATION_LABEL: "Organization",
@@ -68,7 +74,9 @@ export const AUTH_TEXT = {
   LOGGING_IN: "Signing in...",
   SHOW_PASSWORD: "Show password",
   HIDE_PASSWORD: "Hide password",
-  EMPTY_FIELDS: "Please enter username and password.",
+  USERNAME_REQUIRED: "Please enter your email.",
+  USERNAME_INVALID_EMAIL: "Please enter a valid email address.",
+  PASSWORD_REQUIRED: "Please enter your password.",
   INVALID_CREDENTIALS: "Username or password is incorrect.",
   GENERIC_ERROR: "Login failed. Please try again.",
 } as const;

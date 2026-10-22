@@ -60,12 +60,18 @@ export const ThemeProvider = ({ children }: { children: ReactNode }): ReactEleme
     }
   }, [isHydrated, theme]);
 
+  // Apply the DOM attribute synchronously as well, so a View Transition callback that calls
+  // setTheme captures the new colours immediately instead of after the next effect pass.
   const setTheme = useCallback((nextTheme: ThemeMode): void => {
+    applyTheme(nextTheme);
     setThemeState(nextTheme);
   }, []);
 
   const toggleTheme = useCallback((): void => {
-    setThemeState((current) => (current === "dark" ? "light" : "dark"));
+    const nextTheme: ThemeMode =
+      document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+    applyTheme(nextTheme);
+    setThemeState(nextTheme);
   }, []);
 
   const value = useMemo(() => ({ theme, setTheme, toggleTheme }), [setTheme, theme, toggleTheme]);
