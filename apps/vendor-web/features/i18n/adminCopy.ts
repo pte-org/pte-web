@@ -12,6 +12,12 @@ import { useLocale, type Locale } from "@pte/ui";
  */
 const ADMIN_VI: Record<string, string> = {
   "Welcome Back": "Chào mừng trở lại",
+  "Admin portal": "Cổng quản trị",
+  "Organization portal": "Cổng tổ chức",
+  "Legal and support": "Pháp lý và hỗ trợ",
+  Terms: "Điều khoản",
+  Privacy: "Bảo mật",
+  "Contact support": "Liên hệ hỗ trợ",
   "Please enter your institutional credentials to continue.":
     "Vui lòng nhập thông tin đăng nhập của tổ chức để tiếp tục.",
   "Ready to Manage?": "Sẵn sàng quản lý?",

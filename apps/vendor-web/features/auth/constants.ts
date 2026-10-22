@@ -50,6 +50,13 @@ export const PASSWORD_CHANGE_TEXT = {
 
 export const AUTH_TEXT = {
   BRAND: "PTE Prep",
+  PORTAL_ADMIN_LABEL: "Admin portal",
+  PORTAL_HOST_LABEL: "Organization portal",
+  FOOTER_LABEL: "Legal and support",
+  FOOTER_COPYRIGHT: "© {year} PTE Prep",
+  FOOTER_TERMS: "Terms",
+  FOOTER_PRIVACY: "Privacy",
+  FOOTER_SUPPORT: "Contact support",
   WELCOME_TITLE: "Welcome Back",
   WELCOME_SUBTITLE: "Please enter your institutional credentials to continue.",
   // Username, not email: the backend login key moved off email in Phase 1
