@@ -7,7 +7,7 @@ export interface PteOrbitPanelProps {
   src?: string;
 }
 
-const DEFAULT_PTE_ORBIT_SRC = "/illustrations/pte-orbit/index.html?embed=1&v=motion-2";
+const DEFAULT_PTE_ORBIT_SRC = "/illustrations/pte-orbit/index.html?embed=1&v=motion-5";
 
 const OrbitPoster = (): ReactElement => (
   <div aria-hidden="true" className="absolute inset-0 overflow-hidden bg-[var(--surface-page)]">

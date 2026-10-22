@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { COLORS } from "./constants.js";
 import { ceramic, roundedBox, sphere, torus, tube, cylinder } from "./primitives.js";
-import { createBrandMonogram } from "./logo.js";
+import { createBrandMonogram } from "./logo.js?v=motion-5";
 
 const ORBIT_SPEEDS = Object.freeze([0.28, -0.2]);
 
@@ -138,20 +138,25 @@ const createLearnerCard = (materials) => {
 const createCore = (materials) => {
   const group = new THREE.Group();
   group.name = "pte-glass-core";
-  const glass = ceramic(0xc4e9ff, {
-    transmission: 0.97,
-    thickness: 0.3,
-    roughness: 0.025,
+  // Alpha-blended glass rather than `transmission`: transmission re-renders the logo into an
+  // offscreen buffer and refracts it, which blurred the mark and shifted its blues. A faint,
+  // glossy transparent shell drawn after the opaque logo keeps the mark crisp and true to the
+  // 2D colours while the clearcoat still gives glass highlights.
+  const glass = ceramic(0xffffff, {
+    transparent: true,
+    opacity: 0.16,
+    depthWrite: false,
+    roughness: 0.04,
     metalness: 0,
-    ior: 1.15,
+    specularIntensity: 1,
     clearcoat: 1,
-    clearcoatRoughness: 0.1,
-    envMapIntensity: 1.1,
-    // Preserve the logo's hue again when the glass composites the transmitted image.
-    toneMapped: false,
+    clearcoatRoughness: 0.04,
+    envMapIntensity: 0.9,
   });
   const shell = sphere(1.05, glass);
   shell.castShadow = false;
+  shell.receiveShadow = false;
+  shell.renderOrder = 1;
   group.add(shell);
   group.add(createBrandMonogram());
   const collar = torus(1.07, 0.016, materials.silver);
@@ -182,7 +187,7 @@ export const createEcosystem = () => {
   root.add(cylinder(1.19, 0.04, materials.silver, [0, -1.115, 0]));
   root.add(cylinder(0.99, 0.035, materials.blue, [0, -1.08, 0]));
   const orbitMaterial = new THREE.MeshStandardMaterial({
-    color: 0x83a4c2,
+    color: 0x4a78b8,
     roughness: 0.4,
     metalness: 0.5,
   });

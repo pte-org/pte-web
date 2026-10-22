@@ -9,9 +9,26 @@ const LOGO = Object.freeze({
   bevelSize: 0.012,
   bevelThickness: 0.012,
   bevelSegments: 4,
-  cyan: 0x00beef,
-  blue: 0x006fff,
-  royal: 0x004fff,
+});
+
+/**
+ * Per-ribbon gradients sampled from the 2D brand mark (logo-mark.png) and laid along the same
+ * direction as in the artwork. `axis(x, y)` maps a point in source-path units to 0..1.
+ */
+const clamp01 = (value) => THREE.MathUtils.clamp(value, 0, 1);
+const GRADIENTS = Object.freeze({
+  // Top edge #005EFC fading to the deep right-hand bowl #003DF5.
+  outerRing: { from: 0x005efc, to: 0x003df5, axis: (x) => clamp01(x / 474) },
+  // Back stem: cyan at the top (#01B2FB) to blue lower down (#0069FB).
+  backStem: { from: 0x01b2fb, to: 0x0069fb, axis: (_x, y) => clamp01((y - 76) / 300) },
+  // Inner fold: #017DFB near the bowl, brightening to cyan #00A8FC towards the lower left.
+  innerFold: {
+    from: 0x017dfb,
+    to: 0x00a8fc,
+    axis: (x, y) => clamp01(((384 - x) / 167) * 0.4 + ((y - 49) / 301) * 0.6),
+  },
+  // Front stem: #0052FB at the top deepening to #003CF4 at the tail.
+  frontStem: { from: 0x0052fb, to: 0x003cf4, axis: (_x, y) => clamp01((y - 76) / 486) },
 });
 
 // Partition the reference into adjoining solids so shared folds do not overlap.
@@ -83,7 +100,7 @@ const buildShape = (commands) => {
   return shape;
 };
 
-const createRibbon = (commands, name, offset, palette) => {
+const createRibbon = (commands, name, offset, gradient) => {
   const geometry = new THREE.ExtrudeGeometry(buildShape(commands), {
     depth: LOGO.depth,
     steps: 1,
@@ -96,36 +113,28 @@ const createRibbon = (commands, name, offset, palette) => {
   geometry.translate(0, 0, -LOGO.depth / 2);
   const positions = geometry.getAttribute("position");
   const colors = new Float32Array(positions.count * 3);
-  const start = new THREE.Color(palette[0]);
-  const end = new THREE.Color(palette[1]);
+  const start = new THREE.Color(gradient.from);
+  const end = new THREE.Color(gradient.to);
   const color = new THREE.Color();
   for (let index = 0; index < positions.count; index += 1) {
     const x = positions.getX(index) / LOGO.scale + LOGO.centerX;
     const y = LOGO.centerY - positions.getY(index) / LOGO.scale;
-    const blend = THREE.MathUtils.clamp((x / 474) * 0.7 + (y / 562) * 0.3, 0, 1);
     color
       .copy(start)
-      .lerp(end, blend)
+      .lerp(end, gradient.axis(x, y))
       .toArray(colors, index * 3);
   }
   geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
   geometry.computeBoundingBox();
-  // Preserve the source logo's saturated blues while retaining physically lit bevels.
-  const face = ceramic(0xffffff, {
-    vertexColors: true,
-    roughness: 0.23,
-    metalness: 0,
-    clearcoat: 0.15,
-    specularIntensity: 0.1,
-    envMapIntensity: 0.6,
-    toneMapped: false,
-  });
-  const edge = ceramic(palette[1], {
-    roughness: 0.28,
+  // Unlit front faces reproduce the 2D mark's exact colours and gradient; only the bevelled
+  // sides take light, which keeps the extruded depth readable.
+  const face = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false });
+  const edge = ceramic(gradient.to, {
+    roughness: 0.3,
     metalness: 0,
     clearcoat: 0.2,
     specularIntensity: 0.2,
-    envMapIntensity: 0.6,
+    envMapIntensity: 1.1,
     toneMapped: false,
   });
   const ribbon = mesh(geometry, [face, edge], [0, 0, offset]);
@@ -137,11 +146,11 @@ const createRibbon = (commands, name, offset, palette) => {
 export const createBrandMonogram = () => {
   const group = new THREE.Group();
   group.name = "pte-brand-monogram";
-  group.add(createRibbon(OUTER_RING, "outer-blue-ribbon", 0, [LOGO.blue, LOGO.royal]));
-  group.add(createRibbon(BACK_STEM, "cyan-back-stem", 0, [LOGO.cyan, LOGO.blue]));
+  group.add(createRibbon(OUTER_RING, "outer-blue-ribbon", 0, GRADIENTS.outerRing));
+  group.add(createRibbon(BACK_STEM, "cyan-back-stem", 0, GRADIENTS.backStem));
   // Small depth offsets preserve the folded ribbon seams when viewed from the side.
-  group.add(createRibbon(INNER_FOLD, "cyan-inner-fold", 0.008, [LOGO.blue, LOGO.cyan]));
-  group.add(createRibbon(FRONT_STEM, "front-blue-stem", 0.016, [LOGO.blue, LOGO.royal]));
+  group.add(createRibbon(INNER_FOLD, "cyan-inner-fold", 0.008, GRADIENTS.innerFold));
+  group.add(createRibbon(FRONT_STEM, "front-blue-stem", 0.016, GRADIENTS.frontStem));
   group.rotation.y = 0.28;
   return group;
 };

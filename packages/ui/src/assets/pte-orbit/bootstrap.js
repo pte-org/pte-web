@@ -71,8 +71,9 @@ const start = async () => {
   try {
     scene?.dispose();
     scene = null;
-    const { mountScene } = await import("./scene.js?v=motion-2");
-    scene = mountScene(host, motionPreference.matches);
+    const { mountScene } = await import("./scene.js?v=motion-5");
+    // Embedded on the sign-in page the scene always animates, whatever the OS motion setting.
+    scene = mountScene(host, !embedded && motionPreference.matches);
     scene.setTheme(dark ? "dark" : "light");
     updateMotion();
     loading.hidden = true;

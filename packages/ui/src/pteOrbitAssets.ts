@@ -9,6 +9,7 @@ const PTE_ORBIT_ASSET_DIRECTORY = path.resolve(
 const PTE_ORBIT_ASSETS = {
   "bootstrap.js": "text/javascript; charset=utf-8",
   "constants.js": "text/javascript; charset=utf-8",
+  "home-return.js": "text/javascript; charset=utf-8",
   "index.html": "text/html; charset=utf-8",
   "logo.js": "text/javascript; charset=utf-8",
   "models.js": "text/javascript; charset=utf-8",
