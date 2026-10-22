@@ -10,6 +10,7 @@ const PTE_ORBIT_ASSETS = {
   "bootstrap.js": "text/javascript; charset=utf-8",
   "constants.js": "text/javascript; charset=utf-8",
   "home-return.js": "text/javascript; charset=utf-8",
+  "intro.js": "text/javascript; charset=utf-8",
   "index.html": "text/html; charset=utf-8",
   "logo.js": "text/javascript; charset=utf-8",
   "models.js": "text/javascript; charset=utf-8",
