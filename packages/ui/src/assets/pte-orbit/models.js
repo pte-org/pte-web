@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { COLORS } from "./constants.js";
 import { ceramic, roundedBox, sphere, torus, tube, cylinder } from "./primitives.js";
-import { createBrandMonogram } from "./logo.js";
+import { createBrandMonogram } from "./logo.js?v=motion-7";
 
 const ORBIT_SPEEDS = Object.freeze([0.28, -0.2]);
 
@@ -135,24 +135,69 @@ const createLearnerCard = (materials) => {
   return group;
 };
 
+/** Edge-weighted glow: alpha = intensity · (1 − n·v)^power. */
+const createFresnelRimMaterial = () =>
+  new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    uniforms: {
+      rimColor: { value: new THREE.Color(0x7fb4ea) },
+      power: { value: 2 },
+      intensity: { value: 0.95 },
+    },
+    vertexShader: /* glsl */ `
+      varying vec3 vNormal;
+      varying vec3 vView;
+      void main() {
+        vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
+        vNormal = normalize(normalMatrix * normal);
+        vView = normalize(-viewPosition.xyz);
+        gl_Position = projectionMatrix * viewPosition;
+      }
+    `,
+    fragmentShader: /* glsl */ `
+      uniform vec3 rimColor;
+      uniform float power;
+      uniform float intensity;
+      varying vec3 vNormal;
+      varying vec3 vView;
+      void main() {
+        float facing = max(dot(normalize(vNormal), normalize(vView)), 0.0);
+        float rim = pow(1.0 - facing, power) * intensity;
+        gl_FragColor = vec4(rimColor, rim);
+        #include <colorspace_fragment>
+      }
+    `,
+  });
+
 const createCore = (materials) => {
   const group = new THREE.Group();
   group.name = "pte-glass-core";
-  const glass = ceramic(0xc4e9ff, {
-    transmission: 0.97,
-    thickness: 0.3,
-    roughness: 0.025,
+  // Alpha-blended glass rather than `transmission`: transmission re-renders the logo into an
+  // offscreen buffer and refracts it, which blurred the mark and shifted its blues. A faint,
+  // glossy transparent shell drawn after the opaque logo keeps the mark crisp and true to the
+  // 2D colours while the clearcoat still gives glass highlights.
+  const glass = ceramic(0xffffff, {
+    transparent: true,
+    opacity: 0.08,
+    depthWrite: false,
+    roughness: 0.04,
     metalness: 0,
-    ior: 1.15,
+    specularIntensity: 1,
     clearcoat: 1,
-    clearcoatRoughness: 0.1,
-    envMapIntensity: 1.1,
-    // Preserve the logo's hue again when the glass composites the transmitted image.
-    toneMapped: false,
+    clearcoatRoughness: 0.04,
+    envMapIntensity: 0.7,
   });
   const shell = sphere(1.05, glass);
   shell.castShadow = false;
+  shell.receiveShadow = false;
+  shell.renderOrder = 1;
   group.add(shell);
+  // Fresnel rim: clear in the middle, bright towards the silhouette like real glass, so the
+  // sphere reads as glass without washing a white film over the logo inside.
+  const rim = new THREE.Mesh(new THREE.SphereGeometry(1.06, 64, 40), createFresnelRimMaterial());
+  rim.renderOrder = 2;
+  group.add(rim);
   group.add(createBrandMonogram());
   const collar = torus(1.07, 0.016, materials.silver);
   collar.rotation.set(Math.PI / 2.7, 0.25, 0);
@@ -182,7 +227,7 @@ export const createEcosystem = () => {
   root.add(cylinder(1.19, 0.04, materials.silver, [0, -1.115, 0]));
   root.add(cylinder(0.99, 0.035, materials.blue, [0, -1.08, 0]));
   const orbitMaterial = new THREE.MeshStandardMaterial({
-    color: 0x83a4c2,
+    color: 0x4a78b8,
     roughness: 0.4,
     metalness: 0.5,
   });

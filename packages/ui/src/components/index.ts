@@ -18,6 +18,8 @@ export type { MotionRevealProps } from "./MotionReveal";
 export { DashboardCard } from "./DashboardCard";
 export { LoginForm } from "./LoginForm";
 export type { LoginCredentials } from "./LoginForm";
+export { AuthSubmitButton, AuthTextField } from "./AuthFormControls";
+export type { AuthSubmitButtonProps, AuthTextFieldProps } from "./AuthFormControls";
 export { CredentialDisplay } from "./CredentialDisplay";
 export { ProtectedRoute } from "./ProtectedRoute";
 export { Badge } from "./Badge";

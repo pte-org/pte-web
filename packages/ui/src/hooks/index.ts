@@ -12,3 +12,11 @@ export { useSessionManager } from "./useSessionManager";
 export type { SessionManager } from "./useSessionManager";
 export { getSessionGeneration, subscribeSessionLifecycle } from "./sessionLifecycle";
 export { createSessionApiClient } from "./createSessionApiClient";
+export { useSignInValidation, validateSignInField } from "./useSignInValidation";
+export type {
+  SignInErrors,
+  SignInField,
+  SignInValidation,
+  SignInValidationMessages,
+  SignInValues,
+} from "./useSignInValidation";

@@ -2,10 +2,15 @@ import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { SETTINGS, THEMES } from "./constants.js";
-import { createEcosystem } from "./models.js?v=motion-2";
+import { createEcosystem } from "./models.js?v=motion-9";
+import { createHomeReturn } from "./home-return.js?v=motion-5";
+import { createIntro } from "./intro.js?v=motion-10";
 
-/** @returns {{setTheme: Function, setMotion: Function, reset: Function, dispose: Function}} */
-export const mountScene = (host, reducedMotion) => {
+/**
+ * @param {{intro?: boolean}} [options] `intro` plays the entrance glide-in (used when embedded).
+ * @returns {{setTheme: Function, setMotion: Function, reset: Function, dispose: Function}}
+ */
+export const mountScene = (host, reducedMotion, options = {}) => {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(37, 1, 0.1, 60);
   camera.position.set(...SETTINGS.camera);
@@ -15,7 +20,8 @@ export const mountScene = (host, reducedMotion) => {
     powerPreference: "default",
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, SETTINGS.maxPixelRatio));
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  // Neutral keeps the brand blues saturated; ACES Filmic washed them towards pastel.
+  renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.toneMappingExposure = 1;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -105,6 +111,8 @@ export const mountScene = (host, reducedMotion) => {
       elapsed += elapsedDelta;
       ecosystem.update(elapsed);
     }
+    intro?.update(delta);
+    homeReturn.update(delta);
     controls.update(delta);
     render();
   };
@@ -112,6 +120,16 @@ export const mountScene = (host, reducedMotion) => {
     previousTime = null;
     renderer.setAnimationLoop(document.hidden || contextLost || !playing ? null : tick);
   };
+  const homeReturn = createHomeReturn({
+    camera,
+    controls,
+    element: renderer.domElement,
+    canAnimate: () => playing && !document.hidden && !contextLost,
+    render,
+  });
+  // Entrance glide-in; skipped when nothing animates (paused or reduced motion).
+  const intro =
+    options.intro && playing ? createIntro({ camera, controls, root: ecosystem.root }) : null;
   const observer = new ResizeObserver(resize);
   observer.observe(host);
   const onKeyDown = (event) => {
@@ -131,6 +149,7 @@ export const mountScene = (host, reducedMotion) => {
     camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(spherical));
     controls.update();
     render();
+    homeReturn.afterKeyboard();
   };
   const onContextLost = (event) => {
     event.preventDefault();
@@ -164,6 +183,8 @@ export const mountScene = (host, reducedMotion) => {
       render();
     },
     reset: () => {
+      intro?.cancel();
+      homeReturn.cancel();
       controls.reset();
       elapsed = 0;
       ecosystem.update(0);
@@ -173,6 +194,8 @@ export const mountScene = (host, reducedMotion) => {
       disposed = true;
       renderer.setAnimationLoop(null);
       observer.disconnect();
+      intro?.dispose();
+      homeReturn.dispose();
       controls.dispose();
       document.removeEventListener("visibilitychange", visibility);
       renderer.domElement.removeEventListener("keydown", onKeyDown);

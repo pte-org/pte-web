@@ -12,6 +12,12 @@ import { useLocale, type Locale } from "@pte/ui";
  */
 const ADMIN_VI: Record<string, string> = {
   "Welcome Back": "Chào mừng trở lại",
+  "Admin portal": "Cổng quản trị",
+  "Organization portal": "Cổng tổ chức",
+  "Legal and support": "Pháp lý và hỗ trợ",
+  Terms: "Điều khoản",
+  Privacy: "Bảo mật",
+  "Contact support": "Liên hệ hỗ trợ",
   "Please enter your institutional credentials to continue.":
     "Vui lòng nhập thông tin đăng nhập của tổ chức để tiếp tục.",
   "Ready to Manage?": "Sẵn sàng quản lý?",
@@ -29,6 +35,9 @@ const ADMIN_VI: Record<string, string> = {
   "Show password": "Hiện mật khẩu",
   "Hide password": "Ẩn mật khẩu",
   "Please enter username and password.": "Vui lòng nhập tên đăng nhập và mật khẩu.",
+  "Please enter your email.": "Vui lòng nhập email.",
+  "Please enter a valid email address.": "Vui lòng nhập địa chỉ email hợp lệ.",
+  "Please enter your password.": "Vui lòng nhập mật khẩu.",
   "Username or password is incorrect.": "Tên đăng nhập hoặc mật khẩu không đúng.",
   "This account is not allowed to use the vendor portal.":
     "Tài khoản này không được phép sử dụng cổng quản trị.",

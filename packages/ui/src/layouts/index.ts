@@ -1,4 +1,6 @@
 export { AuthLayout } from "./AuthLayout";
+export { AuthBrandLockup, AuthBrandShell } from "./AuthBrandShell";
+export type { AuthBrandLockupProps, AuthBrandShellProps, AuthFooterItem } from "./AuthBrandShell";
 export { DashboardShell } from "./DashboardShell";
 export {
   DashboardBreadcrumbProvider,
