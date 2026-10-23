@@ -47,3 +47,4 @@ export * from "./attendance";
 export * from "./incidents";
 export * from "./dashboard";
 export * from "./location";
+export * from "./practicerubric";
