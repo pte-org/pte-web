@@ -8,7 +8,7 @@ import type {
 } from "../../types/scoretemplate";
 
 /**
- * Matches `ScoreTemplateController`'s `@RequestMapping("/api/v1/score-templates")` —
+ * Matches `ExamDefinitionController`'s `@RequestMapping("/api/v1/exam-definitions")` —
  * pte-api's Nginx edge forwards `/api/v1/*` unchanged, so every request
  * module in this package must carry the controller's real full path.
  * Academic authoring endpoints are available to platform admin, academic
@@ -16,16 +16,16 @@ import type {
  * to platform admin and academic manager. Hosts never call these.
  */
 export const SCORE_TEMPLATE_ENDPOINTS = {
-  templates: "/api/v1/score-templates",
-  template: (publicId: string) => `/api/v1/score-templates/${publicId}`,
-  clone: (publicId: string) => `/api/v1/score-templates/${publicId}/clone`,
-  items: (publicId: string) => `/api/v1/score-templates/${publicId}/items`,
-  activate: (publicId: string) => `/api/v1/score-templates/${publicId}/activate`,
-  active: "/api/v1/score-templates/active",
-  submitApproval: (publicId: string) => `/api/v1/score-templates/${publicId}/submit-approval`,
-  approve: (publicId: string) => `/api/v1/score-templates/${publicId}/approve`,
-  reject: (publicId: string) => `/api/v1/score-templates/${publicId}/reject`,
-  feasibility: (publicId: string) => `/api/v1/score-templates/${publicId}/feasibility`,
+  templates: "/api/v1/exam-definitions",
+  template: (publicId: string) => `/api/v1/exam-definitions/${publicId}`,
+  clone: (publicId: string) => `/api/v1/exam-definitions/${publicId}/clone`,
+  items: (publicId: string) => `/api/v1/exam-definitions/${publicId}/items`,
+  activate: (publicId: string) => `/api/v1/exam-definitions/${publicId}/activate`,
+  active: "/api/v1/exam-definitions/active",
+  submitApproval: (publicId: string) => `/api/v1/exam-definitions/${publicId}/submit-approval`,
+  approve: (publicId: string) => `/api/v1/exam-definitions/${publicId}/approve`,
+  reject: (publicId: string) => `/api/v1/exam-definitions/${publicId}/reject`,
+  feasibility: (publicId: string) => `/api/v1/exam-definitions/${publicId}/feasibility`,
 } as const;
 
 export function listScoreTemplates(client: ApiClient): Promise<ScoreTemplateResponse[]> {

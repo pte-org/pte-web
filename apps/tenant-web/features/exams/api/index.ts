@@ -103,7 +103,7 @@ function sessionResponseToExamSession(response: SessionResponse): ExamSession {
     closesAt: response.closesAt,
     status: response.status,
     capacity: response.capacity,
-    templatePublicId: response.templatePublicId,
+    templatePublicId: response.examDefinitionPublicId,
     templateVersion: response.templateVersion,
     formMode: response.formMode,
     reusePolicy: response.reusePolicy,
@@ -272,7 +272,7 @@ export function useCreateExamWorkflow(): UseMutationResult<
       // selectedSkills is omitted on purpose: the server then uses the full template scope.
       const draft = await createExamDraft(apiClient, {
         name: input.name.trim(),
-        templatePublicId: input.templatePublicId,
+        examDefinitionPublicId: input.templatePublicId,
         subscriptionPublicId: input.subscriptionPublicId,
         opensAt: new Date(input.opensAt).toISOString(),
         closesAt: new Date(input.closesAt).toISOString(),

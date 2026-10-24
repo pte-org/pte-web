@@ -21,7 +21,7 @@ export interface SessionResponse {
   closesAt: string;
   status: SessionStatus;
   capacity: number;
-  templatePublicId: string | null;
+  examDefinitionPublicId: string | null;
   templateVersion: number | null;
   examMode: ExamMode | null;
   formMode: FormMode | null;
@@ -186,7 +186,7 @@ export interface StudentEnrollmentResponse {
 
 export interface CreateExamDraftRequest {
   name: string;
-  templatePublicId: string;
+  examDefinitionPublicId: string;
   subscriptionPublicId: string;
   opensAt: string;
   closesAt: string;
@@ -202,7 +202,7 @@ export interface CreateExamDraftRequest {
 
 export interface PatchExamDraftRequest {
   name?: string;
-  templatePublicId?: string;
+  examDefinitionPublicId?: string;
   subscriptionPublicId?: string;
   opensAt?: string;
   closesAt?: string;
@@ -267,7 +267,7 @@ export interface AudiencePreviewResponse {
 
 export interface ExamPreflightResponse {
   ready: boolean;
-  template: ScoreTemplateFeasibilityResponse;
+  examDefinition: ScoreTemplateFeasibilityResponse;
   audience: AudiencePreviewResponse;
   subscriptionReady: boolean;
   windowReady: boolean;
