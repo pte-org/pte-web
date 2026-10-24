@@ -8,13 +8,13 @@ import type {
 } from "../../types/tenant";
 
 export const TENANT_ENDPOINTS = {
-  tenants: "/api/v1/tenants",
-  tenant: (publicId: string) => `/api/v1/tenants/${publicId}`,
-  suspend: (publicId: string) => `/api/v1/tenants/${publicId}/suspend`,
+  tenants: "/api/v1/organizations",
+  tenant: (publicId: string) => `/api/v1/organizations/${publicId}`,
+  suspend: (publicId: string) => `/api/v1/organizations/${publicId}/suspend`,
   suspensionImpact: (publicId: string, days?: number) =>
-    `/api/v1/tenants/${publicId}/suspension-impact${days === undefined ? "" : `?days=${days}`}`,
-  reactivate: (publicId: string) => `/api/v1/tenants/${publicId}/reactivate`,
-  branding: (publicId: string) => `/api/v1/tenants/${publicId}/branding`,
+    `/api/v1/organizations/${publicId}/suspension-impact${days === undefined ? "" : `?days=${days}`}`,
+  reactivate: (publicId: string) => `/api/v1/organizations/${publicId}/reactivate`,
+  branding: (publicId: string) => `/api/v1/organizations/${publicId}/branding`,
 } as const;
 
 export function onboardTenant(

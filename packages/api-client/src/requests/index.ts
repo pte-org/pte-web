@@ -5,7 +5,6 @@ export * from "./media";
 export * from "./question";
 export * from "./questiontype";
 export * from "./tenant";
-export * from "./organization";
 export * from "./quota";
 export * from "./user";
 export * from "./scheduling/sessions";

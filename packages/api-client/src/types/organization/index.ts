@@ -1,21 +1,31 @@
-/** Matches admin's real `FacilityType` enum. */
+/** Matches the API's `FacilityType` enum. */
 export type FacilityType = "MAIN" | "BRANCH" | "TEST_CENTER";
 
-/** Matches admin's real `OrganizationStatus` enum — independent of the parent Tenant's status. */
-export type OrganizationStatusResponse = "ACTIVE" | "SUSPENDED";
+/** An organization starts PENDING as an application; platform operators only ever see ACTIVE or SUSPENDED ones. */
+export type OrganizationStatusResponse = "PENDING" | "ACTIVE" | "REJECTED" | "SUSPENDED";
 
-/** Matches admin's real `OrganizationResponse` record exactly. */
+/**
+ * Matches the API's merged `OrganizationResponse`: the tenant governance fields platform operators use and the
+ * profile fields its Host edits. `publicId` is the identifier other APIs call the tenant id.
+ */
 export interface OrganizationResponse {
   publicId: string;
-  tenantPublicId: string;
+  code: string;
   name: string;
+  organizationType: string;
+  taxCode: string | null;
+  status: OrganizationStatusResponse;
+  suspendedUntil: string | null;
+  packageName: string;
+  studentLimit: number;
+  logoUrl: string | null;
+  primaryColor: string | null;
   address: string | null;
   provinceCode: string | null;
   provinceName: string | null;
   wardCode: string | null;
   wardName: string | null;
   facilityType: FacilityType;
-  status: OrganizationStatusResponse;
 }
 
 export interface UpdateOrganizationProfileRequest {
