@@ -43,7 +43,7 @@ export const JAVA_ENUM_FILES: Readonly<Record<string, string>> = {
   QuestionPool: "itembank/domain/enums/QuestionPool.java",
   PteSection: "itembank/domain/enums/PteSection.java",
   TicketCategory: "support/domain/enums/TicketCategory.java",
-  TenantStatus: "tenancy/domain/enums/TenantStatus.java",
+  OrganizationStatus: "tenancy/domain/enums/OrganizationStatus.java",
 };
 
 /**
@@ -69,7 +69,7 @@ export const ENUM_FIELDS: Readonly<Record<string, string>> = {
   "UpcomingSessionView.status": "SessionStatus",
   "CurrentSubscriptionView.planType": "PlanType",
   "CurrentSubscriptionView.status": "SubscriptionStatus",
-  "AdminSectionData.RecentTenant.status": "TenantStatus",
+  "AdminSectionData.RecentTenant.status": "OrganizationStatus",
   "AdminSectionData.OldestTicket.category": "TicketCategory",
 };
 

@@ -89,7 +89,7 @@ const TS_ENUMS: Readonly<Record<string, readonly string[]>> = {
     CONTENT_COMPLAINT: true,
     GENERAL_FEEDBACK: true,
   } satisfies Record<TicketCategory, true>),
-  TenantStatus: Object.keys({ ACTIVE: true, SUSPENDED: true } satisfies Record<TenantStatusResponse, true>),
+  OrganizationStatus: Object.keys({ PENDING: true, ACTIVE: true, REJECTED: true, SUSPENDED: true } satisfies Record<TenantStatusResponse, true>),
 };
 
 const HOST_FIXTURES = {
