@@ -88,15 +88,6 @@ export const ADMIN_NAV: NavItem[] = [
     requiredRoles: ACADEMIC_ROLES,
   },
   {
-    label: T.PRACTICE_RUBRICS,
-    labelKey: "nav.practiceRubrics",
-    href: "/admin/practice-rubrics",
-    icon: <NavTaskTypeIcon />,
-    section: T.CONTENT_SECTION,
-    sectionKey: "nav.content",
-    requiredRoles: ACADEMIC_ROLES,
-  },
-  {
     label: T.PLATFORM_SETTINGS,
     labelKey: "nav.platformSettings",
     href: "/admin/settings",
