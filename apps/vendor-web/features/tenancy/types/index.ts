@@ -68,19 +68,6 @@ export interface CreateTenantInput {
 /** Per-field validation messages; a field is absent when it is valid. */
 export type CreateTenantErrors = Partial<Record<keyof CreateTenantInput, string>>;
 
-export type FacilityType = "MAIN" | "BRANCH" | "TEST_CENTER";
-
-export type OrganizationStatus = "active" | "suspended";
-
-/** A branch/facility under a Tenant — matches admin's real `OrganizationResponse`. */
-export interface Organization {
-  id: string;
-  name: string;
-  address: string | null;
-  facilityType: FacilityType;
-  status: OrganizationStatus;
-}
-
 /** Raw form values for the branding editor — empty string means "unset". */
 export interface BrandingInput {
   logoUrl: string;

@@ -26,17 +26,9 @@ import {
   TENANT_STATUS_LABELS as RAW_TENANT_STATUS_LABELS,
   TENANT_STATUS_VARIANT,
 } from "../constants";
-import {
-  useOrganizations,
-  useReactivateOrganization,
-  useSuspendOrganization,
-  useTenant,
-  useUpdateBranding,
-} from "../api";
-import type { BrandingInput, Organization } from "../types";
+import { useTenant, useUpdateBranding } from "../api";
+import type { BrandingInput } from "../types";
 import { BrandingEditor } from "./BrandingEditor";
-import { OrganizationTable } from "./_OrganizationTable";
-import { TenantEmptyState } from "./_TenantEmptyState";
 import { TenantLoginAccountSection } from "./TenantLoginAccountSection";
 
 function mutationErrorMessage(error: unknown, conflictMessage: string): string | undefined {
@@ -65,22 +57,11 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
   const { data: tenant, isLoading } = tenantQuery;
   const pathname = usePathname();
   useDashboardBreadcrumbLabel(pathname, tenant?.name);
-  const { data: organizations } = useOrganizations(tenantPublicId, canManageTenantAccount);
   const updateBranding = useUpdateBranding(tenantPublicId);
-  const suspendOrganization = useSuspendOrganization(tenantPublicId);
-  const reactivateOrganization = useReactivateOrganization(tenantPublicId);
 
   const [activeSection, setActiveSection] = useState("tenant");
   const { t } = useLocale();
   const { showToast } = useToast();
-
-  const confirmSuspendOrganization = (organization: Organization): void => {
-    suspendOrganization.mutate(organization.id);
-  };
-
-  const confirmReactivateOrganization = (organization: Organization): void => {
-    reactivateOrganization.mutate(organization.id);
-  };
 
   const submitBranding = (input: BrandingInput): void => {
     updateBranding.mutate(input, {
@@ -121,7 +102,6 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
           ...(canManageTenantAccount
             ? [
                 { id: "admin", label: t("tenant.tabs.admin", "Administrator information") },
-                { id: "organizations", label: t("tenant.tabs.organizations", "Organizations") },
               ]
             : []),
         ]}
@@ -189,32 +169,6 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
 
         {activeSection === "admin" && canManageTenantAccount && (
           <TenantLoginAccountSection tenantPublicId={tenantPublicId} tenantName={tenant.name} />
-        )}
-
-        {activeSection === "organizations" && (
-          <section className="flex flex-col gap-4">
-            {suspendOrganization.error || reactivateOrganization.error ? (
-              <Alert tone="error">
-                {mutationErrorMessage(
-                  suspendOrganization.error ?? reactivateOrganization.error,
-                  tenantConflictText.CONFLICT,
-                )}
-              </Alert>
-            ) : null}
-
-            {organizations && organizations.length > 0 ? (
-              <OrganizationTable
-                organizations={organizations}
-                onSuspend={confirmSuspendOrganization}
-                onReactivate={confirmReactivateOrganization}
-              />
-            ) : (
-              <TenantEmptyState
-                title={T.EMPTY_ORGANIZATIONS_TITLE}
-                text={T.EMPTY_ORGANIZATIONS_TEXT}
-              />
-            )}
-          </section>
         )}
       </div>
     </div>
