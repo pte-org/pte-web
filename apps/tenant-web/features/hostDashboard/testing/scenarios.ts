@@ -99,7 +99,7 @@ export function zeroDashboard(): HostDashboardResponse {
     academics: ok({ organizations: 0, programs: 0, activeClasses: 0 }),
     staff: ok({ proctors: 0, examiners: 0 }),
     exams: ok({
-      byStatus: { DRAFT: 0, PREPARING: 0, READY: 0, SCHEDULED: 0, OPEN: 0, CLOSED: 0, CANCELLED: 0 },
+      byStatus: { DRAFT: 0, READY: 0, SCHEDULED: 0, OPEN: 0, CLOSED: 0, CANCELLED: 0 },
       created: TREND_ZERO,
       upcoming: [],
     }),

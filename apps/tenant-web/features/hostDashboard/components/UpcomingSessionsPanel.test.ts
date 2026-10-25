@@ -86,20 +86,19 @@ describe("UpcomingSessionsPanel table", () => {
   });
 
   it("labels every status with copy, never the enum code", () => {
-    const statuses: SessionStatus[] = ["DRAFT", "PREPARING", "READY", "SCHEDULED", "OPEN", "CLOSED", "CANCELLED"];
+    const statuses: SessionStatus[] = ["DRAFT", "READY", "SCHEDULED", "OPEN", "CLOSED", "CANCELLED"];
     const html = render(
       withSessions(statuses.map((status, index) => session({ publicId: `${SESSION_ID.slice(0, -1)}${index}`, status }))),
     );
     expect(cells(html).map((row) => row[1])).toEqual([
       "Draft",
-      "Preparing",
       "Ready",
       "Scheduled",
       "Open",
       "Closed",
       "Cancelled",
     ]);
-    expect(html).not.toMatch(/>(?:DRAFT|PREPARING|READY|SCHEDULED|OPEN|CLOSED|CANCELLED)</);
+    expect(html).not.toMatch(/>(?:DRAFT|READY|SCHEDULED|OPEN|CLOSED|CANCELLED)</);
   });
 
   it("shows at most eight sessions", () => {

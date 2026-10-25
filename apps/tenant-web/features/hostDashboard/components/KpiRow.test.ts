@@ -101,7 +101,7 @@ describe("KpiRow values, windows and locale", () => {
         makeDashboard({
           learners: ok({ total: 0, active: 0, suspended: 0, newInWindow: zero, activeLearners: zero, unassigned: 0 }),
           exams: ok({
-            byStatus: { DRAFT: 0, PREPARING: 0, READY: 0, SCHEDULED: 0, OPEN: 0, CLOSED: 0, CANCELLED: 0 },
+            byStatus: { DRAFT: 0, READY: 0, SCHEDULED: 0, OPEN: 0, CLOSED: 0, CANCELLED: 0 },
             created: zero,
             upcoming: [],
           }),
