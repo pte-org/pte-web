@@ -22,15 +22,15 @@ export const ATTENDANCE_ENDPOINTS = {
     `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance/students/${encodeURIComponent(studentPublicId)}/history`,
 
   hostRoster: (sessionPublicId: string) =>
-    `/api/v1/host/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance`,
+    `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance`,
   hostRecord: (sessionPublicId: string, studentPublicId: string) =>
-    `/api/v1/host/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance/students/${encodeURIComponent(studentPublicId)}`,
+    `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance/students/${encodeURIComponent(studentPublicId)}`,
   hostIdentity: (sessionPublicId: string, studentPublicId: string) =>
-    `/api/v1/host/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance/students/${encodeURIComponent(studentPublicId)}/identity`,
+    `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance/students/${encodeURIComponent(studentPublicId)}/identity`,
   hostReceipt: (sessionPublicId: string, requestPublicId: string) =>
-    `/api/v1/host/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance/receipts/${encodeURIComponent(requestPublicId)}`,
+    `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance/receipts/${encodeURIComponent(requestPublicId)}`,
   hostHistory: (sessionPublicId: string, studentPublicId: string) =>
-    `/api/v1/host/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance/students/${encodeURIComponent(studentPublicId)}/history`,
+    `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/attendance/students/${encodeURIComponent(studentPublicId)}/history`,
 } as const;
 
 export function getAttendanceRoster(

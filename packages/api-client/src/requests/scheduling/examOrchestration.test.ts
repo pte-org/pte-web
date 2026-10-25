@@ -18,7 +18,6 @@ const baseCreatePayload = {
   closesAt: "2026-10-01T11:00:00Z",
   examMode: "OFFICIAL_EXAM" as const,
   lockdownMode: "STRICT" as const,
-  formMode: "SHARED_FORM" as const,
   reusePolicy: "ALLOW" as const,
   seriesKey: null,
   capacity: 1,

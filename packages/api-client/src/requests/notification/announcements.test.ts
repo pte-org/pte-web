@@ -82,12 +82,13 @@ describe("admin announcement requests", () => {
       body: updatePayload,
     });
     expect(client.request).toHaveBeenNthCalledWith(4, ANNOUNCEMENT_ENDPOINTS.audiencePreview(id));
-    expect(client.request).toHaveBeenNthCalledWith(5, ANNOUNCEMENT_ENDPOINTS.publish(id), {
-      method: "POST",
-      body: { expectedDraftVersion: 2 },
+    expect(client.request).toHaveBeenNthCalledWith(5, ANNOUNCEMENT_ENDPOINTS.status(id), {
+      method: "PATCH",
+      body: { action: "PUBLISH", expectedDraftVersion: 2 },
     });
-    expect(client.request).toHaveBeenNthCalledWith(6, ANNOUNCEMENT_ENDPOINTS.retryDelivery(id), {
-      method: "POST",
+    expect(client.request).toHaveBeenNthCalledWith(6, ANNOUNCEMENT_ENDPOINTS.status(id), {
+      method: "PATCH",
+      body: { action: "RETRY_DELIVERY" },
     });
     expect(client.request).toHaveBeenNthCalledWith(7, ANNOUNCEMENT_ENDPOINTS.announcement(id), {
       method: "DELETE",

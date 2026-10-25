@@ -21,8 +21,6 @@ export const PROCTORING_ENDPOINTS = {
     `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/security-audit`,
   violations: (sessionPublicId: string) =>
     `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/violations`,
-  closeSession: (proctorSessionPublicId: string) =>
-    `/api/v1/proctor-sessions/${encodeURIComponent(proctorSessionPublicId)}/close`,
 } as const;
 
 export interface ListAssignedProctorSessionsOptions {
@@ -101,16 +99,6 @@ export function getProctorSecurityAudit(
   }
   return client.request<SecurityAuditPageResponse>(
     `${PROCTORING_ENDPOINTS.securityAudit(sessionPublicId)}?${params.toString()}`,
-  );
-}
-
-export function closeProctorSession(
-  client: ApiClient,
-  proctorSessionPublicId: string,
-): Promise<void> {
-  return client.request<void>(
-    PROCTORING_ENDPOINTS.closeSession(proctorSessionPublicId),
-    { method: "POST" },
   );
 }
 

@@ -14,8 +14,7 @@ const staffPath = (publicId: string): string =>
 export const EXAM_STAFF_WORKSPACE_ENDPOINTS = {
   detail: staffPath,
   overview: (id: string) => `${staffPath(id)}/overview`,
-  proctor: (id: string) => `${staffPath(id)}/proctor-sessions`,
-  examiner: (id: string) => `${staffPath(id)}/examiner-sessions`,
+  sessions: (id: string) => `${staffPath(id)}/sessions`,
   profile: (id: string) => `/api/v1/users/${encodeURIComponent(id)}/exam-staff-profile`,
 } as const;
 
@@ -30,6 +29,13 @@ export const staffWorkspaceQueryString = (query: StaffWorkspaceQuery): string =>
   const serialized = params.toString();
   return serialized ? `?${serialized}` : "";
 };
+
+const staffSessionsUrl = (
+  publicId: string,
+  role: "PROCTOR" | "EXAMINER",
+  query: StaffWorkspaceQuery,
+): string =>
+  `${EXAM_STAFF_WORKSPACE_ENDPOINTS.sessions(publicId)}?role=${role}${staffWorkspaceQueryString(query).replace(/^\?/, "&")}`;
 
 export const getExamStaffDetail = (
   client: ApiClient, publicId: string, signal?: AbortSignal,
@@ -48,7 +54,7 @@ export const listProctorStaffSessions = (
   client: ApiClient, publicId: string, query: StaffWorkspaceQuery, signal?: AbortSignal,
 ): Promise<ProctorSessionPage> =>
   client.request(
-    `${EXAM_STAFF_WORKSPACE_ENDPOINTS.proctor(publicId)}${staffWorkspaceQueryString(query)}`,
+    staffSessionsUrl(publicId, "PROCTOR", query),
     { signal },
   );
 
@@ -56,7 +62,7 @@ export const listExaminerStaffSessions = (
   client: ApiClient, publicId: string, query: StaffWorkspaceQuery, signal?: AbortSignal,
 ): Promise<ExaminerSessionPage> =>
   client.request(
-    `${EXAM_STAFF_WORKSPACE_ENDPOINTS.examiner(publicId)}${staffWorkspaceQueryString(query)}`,
+    staffSessionsUrl(publicId, "EXAMINER", query),
     { signal },
   );
 

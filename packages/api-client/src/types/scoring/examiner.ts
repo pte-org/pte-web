@@ -338,7 +338,7 @@ export interface ExaminerHistoryResponse {
 }
 
 export interface ExaminerTemplateGuidelineItem {
-  scoreTemplatePublicId: string;
+  examDefinitionPublicId: string;
   items: unknown[];
 }
 

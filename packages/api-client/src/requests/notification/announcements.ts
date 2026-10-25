@@ -14,8 +14,7 @@ export const ANNOUNCEMENT_ENDPOINTS = {
   announcements: "/api/v1/announcements",
   announcement: (publicId: string) => `/api/v1/announcements/${publicId}`,
   audiencePreview: (publicId: string) => `/api/v1/announcements/${publicId}/audience-preview`,
-  publish: (publicId: string) => `/api/v1/announcements/${publicId}/publish`,
-  retryDelivery: (publicId: string) => `/api/v1/announcements/${publicId}/retry-delivery`,
+  status: (publicId: string) => `/api/v1/announcements/${publicId}/status`,
 } as const;
 
 export function listAnnouncements(
@@ -85,9 +84,8 @@ export function publishAnnouncement(
   publicId: string,
   payload: AnnouncementPublishRequest,
 ): Promise<AnnouncementResponse> {
-  return client.request<AnnouncementResponse>(ANNOUNCEMENT_ENDPOINTS.publish(publicId), {
-    method: "POST",
-    body: payload,
+  return client.request<AnnouncementResponse>(ANNOUNCEMENT_ENDPOINTS.status(publicId), {
+    method: "PATCH", body: { action: "PUBLISH", ...payload },
   });
 }
 
@@ -95,7 +93,7 @@ export function retryAnnouncementDelivery(
   client: ApiClient,
   publicId: string,
 ): Promise<AnnouncementResponse> {
-  return client.request<AnnouncementResponse>(ANNOUNCEMENT_ENDPOINTS.retryDelivery(publicId), {
-    method: "POST",
+  return client.request<AnnouncementResponse>(ANNOUNCEMENT_ENDPOINTS.status(publicId), {
+    method: "PATCH", body: { action: "RETRY_DELIVERY" },
   });
 }

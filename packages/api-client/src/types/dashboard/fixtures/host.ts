@@ -34,7 +34,6 @@ export const HOST_DASHBOARD_OK: HostDashboardResponse = {
   exams: ok({
     byStatus: {
       DRAFT: 1,
-      PREPARING: 2,
       READY: 3,
       SCHEDULED: 4,
       OPEN: 1,
@@ -117,7 +116,6 @@ export const HOST_DASHBOARD_NULLABLES: HostDashboardResponse = {
   exams: ok({
     byStatus: {
       DRAFT: 0,
-      PREPARING: 0,
       READY: 0,
       SCHEDULED: 1,
       OPEN: 0,
@@ -171,7 +169,6 @@ export const HOST_DASHBOARD_EMPTY: HostDashboardResponse = {
   exams: ok({
     byStatus: {
       DRAFT: 0,
-      PREPARING: 0,
       READY: 0,
       SCHEDULED: 0,
       OPEN: 0,

@@ -22,14 +22,6 @@ export const CLASS_ENDPOINTS = {
   classes: basePath,
   class: (organizationPublicId: string, programPublicId: string, publicId: string) =>
     `${basePath(organizationPublicId, programPublicId)}/${publicId}`,
-  activate: (organizationPublicId: string, programPublicId: string, publicId: string) =>
-    `${basePath(organizationPublicId, programPublicId)}/${publicId}/activate`,
-  deactivate: (organizationPublicId: string, programPublicId: string, publicId: string) =>
-    `${basePath(organizationPublicId, programPublicId)}/${publicId}/deactivate`,
-  suspend: (organizationPublicId: string, programPublicId: string, publicId: string) =>
-    `${basePath(organizationPublicId, programPublicId)}/${publicId}/suspend`,
-  archive: (organizationPublicId: string, programPublicId: string, publicId: string) =>
-    `${basePath(organizationPublicId, programPublicId)}/${publicId}/archive`,
   students: (organizationPublicId: string, programPublicId: string, classPublicId: string) =>
     `${basePath(organizationPublicId, programPublicId)}/${classPublicId}/students`,
   studentsBulk: (organizationPublicId: string, programPublicId: string, classPublicId: string) =>
@@ -52,6 +44,8 @@ export const CLASS_ENDPOINTS = {
     `${basePath(organizationPublicId, programPublicId)}/${targetClassPublicId}/merge`,
   split: (organizationPublicId: string, programPublicId: string, sourceClassPublicId: string) =>
     `${basePath(organizationPublicId, programPublicId)}/${sourceClassPublicId}/split`,
+  status: (organizationPublicId: string, programPublicId: string, publicId: string) =>
+    `${basePath(organizationPublicId, programPublicId)}/${publicId}/status`,
 } as const;
 
 export function listClasses(
@@ -102,9 +96,9 @@ export function activateClass(
   publicId: string,
 ): Promise<ClassResponse> {
   return client.request<ClassResponse>(
-    CLASS_ENDPOINTS.activate(organizationPublicId, programPublicId, publicId),
+    CLASS_ENDPOINTS.status(organizationPublicId, programPublicId, publicId),
     {
-      method: "POST",
+      method: "PATCH", body: { action: "ACTIVATE" },
     },
   );
 }
@@ -116,9 +110,9 @@ export function deactivateClass(
   publicId: string,
 ): Promise<ClassResponse> {
   return client.request<ClassResponse>(
-    CLASS_ENDPOINTS.deactivate(organizationPublicId, programPublicId, publicId),
+    CLASS_ENDPOINTS.status(organizationPublicId, programPublicId, publicId),
     {
-      method: "POST",
+      method: "PATCH", body: { action: "DEACTIVATE" },
     },
   );
 }
@@ -130,9 +124,9 @@ export function suspendClass(
   publicId: string,
 ): Promise<ClassResponse> {
   return client.request<ClassResponse>(
-    CLASS_ENDPOINTS.suspend(organizationPublicId, programPublicId, publicId),
+    CLASS_ENDPOINTS.status(organizationPublicId, programPublicId, publicId),
     {
-      method: "POST",
+      method: "PATCH", body: { action: "SUSPEND" },
     },
   );
 }
@@ -144,9 +138,9 @@ export function archiveClass(
   publicId: string,
 ): Promise<ClassResponse> {
   return client.request<ClassResponse>(
-    CLASS_ENDPOINTS.archive(organizationPublicId, programPublicId, publicId),
+    CLASS_ENDPOINTS.status(organizationPublicId, programPublicId, publicId),
     {
-      method: "POST",
+      method: "PATCH", body: { action: "ARCHIVE" },
     },
   );
 }

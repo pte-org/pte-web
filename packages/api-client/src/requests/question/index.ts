@@ -17,13 +17,8 @@ export const QUESTION_ENDPOINTS = {
   questions: "/api/v1/questions",
   stats: "/api/v1/questions/stats",
   byId: (id: string) => `/api/v1/questions/${id}`,
-  publish: (id: string) => `/api/v1/questions/${id}/publish`,
   edit: (id: string) => `/api/v1/questions/${id}/edit`,
-  submitApproval: (id: string) => `/api/v1/questions/${id}/submit-approval`,
-  approve: (id: string) => `/api/v1/questions/${id}/approve`,
-  reject: (id: string) => `/api/v1/questions/${id}/reject`,
-  archive: (id: string) => `/api/v1/questions/${id}/archive`,
-  unarchive: (id: string) => `/api/v1/questions/${id}/unarchive`,
+  status: (id: string) => `/api/v1/questions/${id}/status`,
 } as const;
 
 /**
@@ -89,34 +84,34 @@ export function createQuestionRevision(client: ApiClient, id: string): Promise<Q
 }
 
 export function submitQuestionApproval(client: ApiClient, id: string): Promise<QuestionResponse> {
-  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.submitApproval(id), { method: "POST" });
+  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.status(id), { method: "PATCH", body: { action: "SUBMIT_APPROVAL" }, });
 }
 
 export function approveQuestion(client: ApiClient, id: string): Promise<QuestionResponse> {
-  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.approve(id), { method: "POST" });
+  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.status(id), { method: "PATCH", body: { action: "APPROVE" }, });
 }
 
 export function rejectQuestion(client: ApiClient, id: string, reason: string): Promise<QuestionResponse> {
-  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.reject(id), {
-    method: "POST",
-    body: { reason },
+  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.status(id), {
+    method: "PATCH",
+    body: { action: "REJECT", reason },
   });
 }
 
 export function publishQuestion(client: ApiClient, id: string): Promise<QuestionResponse> {
-  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.publish(id), {
-    method: "POST",
+  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.status(id), {
+    method: "PATCH", body: { action: "PUBLISH" },
   });
 }
 
 export function archiveQuestion(client: ApiClient, id: string): Promise<QuestionResponse> {
-  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.archive(id), {
-    method: "POST",
+  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.status(id), {
+    method: "PATCH", body: { action: "ARCHIVE" },
   });
 }
 
 export function unarchiveQuestion(client: ApiClient, id: string): Promise<QuestionResponse> {
-  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.unarchive(id), {
-    method: "POST",
+  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.status(id), {
+    method: "PATCH", body: { action: "UNARCHIVE" },
   });
 }

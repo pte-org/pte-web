@@ -33,6 +33,14 @@ export const SERIALISED_FACADE_FILES = ["session/UpcomingSessionView.java", "bil
 /** Cache-only wrapper in the DTO package: never part of a response body. */
 export const CACHE_ONLY_RECORDS: ReadonlySet<string> = new Set(["MonthlySeries"]);
 
+/** Student workspace responses share the overview DTO package but are served by their own endpoints. */
+export const STUDENT_WORKSPACE_RECORDS: ReadonlySet<string> = new Set([
+  "StudentAttemptHistoryResponse",
+  "StudentDetailResponse",
+  "StudentPerformanceResponse",
+  "StudentSkillPerformanceResponse",
+]);
+
 export const JAVA_ENUM_FILES: Readonly<Record<string, string>> = {
   SectionStatus: `${DTO_DIR}/SectionStatus.java`,
   SessionStatus: "session/domain/enums/SessionStatus.java",

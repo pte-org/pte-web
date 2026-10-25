@@ -27,6 +27,7 @@ import {
   BACKEND_REQUIRED_ENV,
   BACKEND_ROOT_ENV,
   CACHE_ONLY_RECORDS,
+  STUDENT_WORKSPACE_RECORDS,
   CONSTANTS_FILE,
   NULLABLE_FIELDS,
   backendPresent,
@@ -64,7 +65,6 @@ function need(): Backend {
 const TS_ENUMS: Readonly<Record<string, readonly string[]>> = {
   SessionStatus: Object.keys({
     DRAFT: true,
-    PREPARING: true,
     READY: true,
     SCHEDULED: true,
     OPEN: true,
@@ -157,7 +157,9 @@ describe.skipIf(!present)("dashboard contract vs pte-api overview records", () =
     Object.values(ADMIN_FIXTURES).forEach((fixture) => collect(walkResponse(need(), "AdminDashboardResponse", fixture)));
 
     const expected = [
-      ...need().dtoRecordNames.filter((name) => !CACHE_ONLY_RECORDS.has(name)),
+      ...need().dtoRecordNames.filter(
+        (name) => !CACHE_ONLY_RECORDS.has(name) && !STUDENT_WORKSPACE_RECORDS.has(name),
+      ),
       "UpcomingSessionView",
       "CurrentSubscriptionView",
     ];

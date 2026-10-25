@@ -20,12 +20,9 @@ export const SCORE_TEMPLATE_ENDPOINTS = {
   template: (publicId: string) => `/api/v1/exam-definitions/${publicId}`,
   clone: (publicId: string) => `/api/v1/exam-definitions/${publicId}/clone`,
   items: (publicId: string) => `/api/v1/exam-definitions/${publicId}/items`,
-  activate: (publicId: string) => `/api/v1/exam-definitions/${publicId}/activate`,
   active: "/api/v1/exam-definitions/active",
-  submitApproval: (publicId: string) => `/api/v1/exam-definitions/${publicId}/submit-approval`,
-  approve: (publicId: string) => `/api/v1/exam-definitions/${publicId}/approve`,
-  reject: (publicId: string) => `/api/v1/exam-definitions/${publicId}/reject`,
   feasibility: (publicId: string) => `/api/v1/exam-definitions/${publicId}/feasibility`,
+  status: (publicId: string) => `/api/v1/exam-definitions/${publicId}/status`,
 } as const;
 
 export function listScoreTemplates(client: ApiClient): Promise<ScoreTemplateResponse[]> {
@@ -79,8 +76,8 @@ export function activateScoreTemplate(
   client: ApiClient,
   publicId: string,
 ): Promise<ScoreTemplateResponse> {
-  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.activate(publicId), {
-    method: "POST",
+  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.status(publicId), {
+    method: "PATCH", body: { action: "ACTIVATE" },
   });
 }
 
@@ -92,8 +89,8 @@ export function submitScoreTemplateApproval(
   client: ApiClient,
   publicId: string,
 ): Promise<ScoreTemplateResponse> {
-  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.submitApproval(publicId), {
-    method: "POST",
+  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.status(publicId), {
+    method: "PATCH", body: { action: "SUBMIT_APPROVAL" },
   });
 }
 
@@ -101,8 +98,8 @@ export function approveScoreTemplate(
   client: ApiClient,
   publicId: string,
 ): Promise<ScoreTemplateResponse> {
-  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.approve(publicId), {
-    method: "POST",
+  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.status(publicId), {
+    method: "PATCH", body: { action: "APPROVE" },
   });
 }
 
@@ -111,9 +108,8 @@ export function rejectScoreTemplate(
   publicId: string,
   payload: RejectScoreTemplateRequest,
 ): Promise<ScoreTemplateResponse> {
-  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.reject(publicId), {
-    method: "POST",
-    body: payload,
+  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.status(publicId), {
+    method: "PATCH", body: { action: "REJECT", ...payload },
   });
 }
 

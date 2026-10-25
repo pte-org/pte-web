@@ -114,7 +114,6 @@ describe("dashboard requests through the real client", () => {
         data: {
           byStatus: {
             DRAFT: 1,
-            PREPARING: 0,
             READY: 0,
             SCHEDULED: 2,
             OPEN: 1,

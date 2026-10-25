@@ -22,25 +22,20 @@ export const USER_ENDPOINTS = {
   directory: "/api/v1/users/directory",
   bulk: "/api/v1/users/bulk",
   byTenant: (tenantPublicId: string) => `/api/v1/users/by-tenant/${tenantPublicId}`,
-  suspend: (publicId: string) => `/api/v1/users/${publicId}/suspend`,
-  reactivate: (publicId: string) => `/api/v1/users/${publicId}/reactivate`,
   resetPassword: (publicId: string) => `/api/v1/users/${publicId}/reset-password`,
   sendCredentialsEmail: (publicId: string) => `/api/v1/users/${publicId}/credentials/send-email`,
   generateCredentials: (publicId: string) => `/api/v1/users/${publicId}/credentials/generate`,
+  status: (publicId: string) => `/api/v1/users/${publicId}/status`,
 } as const;
 
 export const PLATFORM_USER_ENDPOINTS = {
   users: "/api/v1/platform-users",
   user: (publicId: string) => `/api/v1/platform-users/${encodeURIComponent(publicId)}`,
   roles: (publicId: string) => `/api/v1/platform-users/${encodeURIComponent(publicId)}/roles`,
-  suspend: (publicId: string) => `/api/v1/platform-users/${encodeURIComponent(publicId)}/suspend`,
-  reactivate: (publicId: string) =>
-    `/api/v1/platform-users/${encodeURIComponent(publicId)}/reactivate`,
   resetPassword: (publicId: string) =>
     `/api/v1/platform-users/${encodeURIComponent(publicId)}/reset-password`,
-  archive: (publicId: string) => `/api/v1/platform-users/${encodeURIComponent(publicId)}`,
-  restore: (publicId: string) =>
-    `/api/v1/platform-users/${encodeURIComponent(publicId)}/restore`,
+  status: (publicId: string) =>
+    `/api/v1/platform-users/${encodeURIComponent(publicId)}/status`,
 } as const;
 
 export function createUser(client: ApiClient, payload: CreateUserRequest): Promise<UserResponse> {
@@ -156,11 +151,11 @@ export function generateStudentCredentials(
 }
 
 export function suspendUser(client: ApiClient, publicId: string): Promise<UserResponse> {
-  return client.request<UserResponse>(USER_ENDPOINTS.suspend(publicId), { method: "POST" });
+  return client.request<UserResponse>(USER_ENDPOINTS.status(publicId), { method: "PATCH", body: { action: "SUSPEND" }, });
 }
 
 export function reactivateUser(client: ApiClient, publicId: string): Promise<UserResponse> {
-  return client.request<UserResponse>(USER_ENDPOINTS.reactivate(publicId), { method: "POST" });
+  return client.request<UserResponse>(USER_ENDPOINTS.status(publicId), { method: "PATCH", body: { action: "REACTIVATE" }, });
 }
 
 export function updateStudentProfile(
@@ -215,14 +210,14 @@ export function updatePlatformUserRoles(
 }
 
 export function suspendPlatformUser(client: ApiClient, publicId: string): Promise<UserResponse> {
-  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.suspend(publicId), {
-    method: "POST",
+  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.status(publicId), {
+    method: "PATCH", body: { action: "SUSPEND" },
   });
 }
 
 export function reactivatePlatformUser(client: ApiClient, publicId: string): Promise<UserResponse> {
-  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.reactivate(publicId), {
-    method: "POST",
+  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.status(publicId), {
+    method: "PATCH", body: { action: "REACTIVATE" },
   });
 }
 
@@ -247,13 +242,13 @@ export function resetPlatformUserPassword(
 }
 
 export function archivePlatformUser(client: ApiClient, publicId: string): Promise<UserResponse> {
-  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.archive(publicId), {
-    method: "DELETE",
+  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.status(publicId), {
+    method: "PATCH", body: { action: "ARCHIVE" },
   });
 }
 
 export function restorePlatformUser(client: ApiClient, publicId: string): Promise<UserResponse> {
-  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.restore(publicId), {
-    method: "POST",
+  return client.request<UserResponse>(PLATFORM_USER_ENDPOINTS.status(publicId), {
+    method: "PATCH", body: { action: "RESTORE" },
   });
 }
