@@ -24,7 +24,7 @@ export const STAFF_DETAIL_EN = {
   publication: "Publication", allStatuses: "All statuses", allPublications: "All publication states",
   dateInvalid: "Enter valid dates; the end date cannot be before the start date.",
   filtersDescription: "Statistics and workload follow the applied filters.",
-  DRAFT: "Draft", PREPARING: "Preparing", READY: "Ready", SCHEDULED: "Scheduled",
+  DRAFT: "Draft", READY: "Ready", SCHEDULED: "Scheduled",
   OPEN: "Open", CLOSED: "Closed", CANCELLED: "Cancelled",
   PENDING: "Pending", IN_PROGRESS: "In progress", COMPLETED: "Completed",
   PUBLISHED: "Published", UNPUBLISHED: "Unpublished", start: "Start time", end: "End time",

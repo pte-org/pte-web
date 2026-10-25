@@ -78,11 +78,6 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
       cell: (row) => row.eventType,
     },
     {
-      key: "hashPosition",
-      header: T.COL_HASH,
-      cell: (row) => String(row.hashPosition),
-    },
-    {
       key: "description",
       header: T.COL_DESCRIPTION,
       cell: (row) => row.description || "—",
