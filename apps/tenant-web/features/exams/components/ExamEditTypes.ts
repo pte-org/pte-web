@@ -1,6 +1,5 @@
 import type {
   AnswerIntegrityLevel,
-  FormMode,
   ReplayPolicyType,
   ReusePolicy,
 } from "@pte/api-client";
@@ -14,7 +13,6 @@ export type DraftFormValues = {
   capacity: string;
   maxRetriesPerStudent: string;
   selectedSkills: ExamSkill[];
-  formMode: FormMode | "";
   reusePolicy: ReusePolicy | "";
   seriesKey: string;
 };
@@ -47,7 +45,6 @@ export const draftFormFromSession = (session: ExamSession): DraftFormValues => (
   capacity: String(session.capacity),
   maxRetriesPerStudent: String(SINGLE_SITTING_RETRIES),
   selectedSkills: session.selectedSkills,
-  formMode: session.formMode ?? "",
   reusePolicy: session.reusePolicy ?? "",
   seriesKey: session.seriesKey ?? "",
 });

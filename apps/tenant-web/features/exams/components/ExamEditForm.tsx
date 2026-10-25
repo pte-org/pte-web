@@ -165,7 +165,6 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
         seriesKey: draftForm.seriesKey.trim() || null,
         lockdownMode: OFFICIAL_EXAM_LOCKDOWN_MODE,
       };
-      if (session.formMode !== null) payload.formMode = draftForm.formMode || undefined;
       if (session.reusePolicy !== null) payload.reusePolicy = draftForm.reusePolicy || undefined;
       if (dataDirty) await draftUpdate.mutateAsync(payload);
     } else {

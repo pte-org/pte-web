@@ -2,7 +2,6 @@ import type {
   AudienceSourceRequest,
   ExamPolicyResponse,
   ExamMode,
-  FormMode,
   ProctorRole,
   ReusePolicy,
   SessionStatus,
@@ -15,10 +14,9 @@ export interface ExamSession {
   sessionCode: string;
   name: string;
   subscriptionPublicId: string;
-  snapshotPublicId: string | null;
+  examVersionPublicId: string | null;
   templatePublicId: string | null;
-  templateVersion: number | null;
-  formMode: FormMode | null;
+  examDefinitionVersion: number | null;
   reusePolicy: ReusePolicy | null;
   seriesKey: string | null;
   draftVersion: number;
@@ -54,7 +52,6 @@ export interface CreateExamWorkflowInput {
   closesAt: string;
   /** Controlled input value; parsed and validated before sending to the API. */
   maxRetriesPerStudent: string;
-  formMode: FormMode;
   reusePolicy: ReusePolicy;
   seriesKey: string;
   capacity: string;

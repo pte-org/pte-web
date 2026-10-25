@@ -39,7 +39,7 @@ export const SessionDetailView = ({ sessionPublicId }: SessionDetailViewProps): 
   );
   const canOpen = session.status === "SCHEDULED";
   const canClose = session.status === "OPEN";
-  const canCancel = ["PREPARING", "READY", "SCHEDULED"].includes(session.status);
+  const canCancel = ["READY", "SCHEDULED"].includes(session.status);
 
   return (
     <div className="flex flex-col gap-5">
