@@ -1,4 +1,4 @@
-import { CREATE_LECTURER_ERRORS } from "../constants";
+import { ADD_STUDENT_ERRORS } from "../constants";
 import type { AddStudentErrors, AddStudentInput } from "../types";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -6,20 +6,19 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 /**
  * Validation for the "Add Students → Add Individually" form.
  *
- * Mirrors `validateCreateLecturer` (same email/fullName rules, same copy) but without
- * the password field — students are created without a local password. Everything else
- * the form collects (studentCode, phone, dateOfBirth) is optional.
+ * Students are created without a local password. Other fields collected by
+ * the form (studentCode, phone, dateOfBirth) are optional.
  */
 export function validateAddStudentInput(input: AddStudentInput): AddStudentErrors {
   const errors: AddStudentErrors = {};
 
   if (!input.email.trim()) {
-    errors.email = CREATE_LECTURER_ERRORS.emailRequired;
+    errors.email = ADD_STUDENT_ERRORS.emailRequired;
   } else if (!EMAIL_PATTERN.test(input.email.trim())) {
-    errors.email = CREATE_LECTURER_ERRORS.emailInvalid;
+    errors.email = ADD_STUDENT_ERRORS.emailInvalid;
   }
   if (!input.fullName.trim()) {
-    errors.fullName = CREATE_LECTURER_ERRORS.fullNameRequired;
+    errors.fullName = ADD_STUDENT_ERRORS.fullNameRequired;
   }
 
   return errors;

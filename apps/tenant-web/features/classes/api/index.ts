@@ -40,7 +40,6 @@ import { ALL_TENANT_CLASSES_QUERY_KEY, CLASSES_QUERY_KEY } from "../constants";
 import { invalidateClassMemberships } from "./shared";
 
 export * from "./shared";
-export * from "./lecturerAssignments";
 export * from "./mergeSplit";
 export * from "./rosterImport";
 

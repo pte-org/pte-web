@@ -974,8 +974,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
       "Tìm học viên theo họ tên, email, điện thoại hoặc mã học viên",
     "tenant.search.roster.placeholder": "Tìm theo họ tên, email hoặc mã học viên",
     "tenant.search.roster.ariaLabel": "Tìm học viên theo họ tên, email hoặc mã học viên",
-    "tenant.search.lecturers.placeholder": "Tìm theo họ tên hoặc email giảng viên",
-    "tenant.search.lecturers.ariaLabel": "Tìm giảng viên theo họ tên hoặc email",
     "tenant.search.liveMonitoring.placeholder":
       "Tìm theo mã lượt thi, tên học viên hoặc trạng thái",
     "tenant.search.liveMonitoring.ariaLabel": "Tìm lượt thi theo mã, tên học viên hoặc trạng thái",
@@ -1967,8 +1965,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.search.students.ariaLabel": "Search students by name, email, phone, or student code",
     "tenant.search.roster.placeholder": "Search by name, email, or student code",
     "tenant.search.roster.ariaLabel": "Search students by name, email, or student code",
-    "tenant.search.lecturers.placeholder": "Search by lecturer name or email",
-    "tenant.search.lecturers.ariaLabel": "Search lecturers by name or email",
     "tenant.search.liveMonitoring.placeholder": "Search by attempt ID, student name, or status",
     "tenant.search.liveMonitoring.ariaLabel": "Search live attempts by ID, student name, or status",
     "tenant.search.programs.placeholder": "Search by program name or status",

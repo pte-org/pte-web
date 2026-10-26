@@ -24,7 +24,6 @@ export * from "./admin/organizations";
 export * from "./admin/programs";
 export * from "./admin/classes";
 export * from "./admin/classMemberships";
-export * from "./admin/lecturerAssignments";
 export * from "./admin/auditLogs";
 export * from "./admin/studentRoster";
 export * from "./admin/studentWorkspace";
