@@ -66,7 +66,7 @@ describe("platform user request contract", () => {
     });
   });
 
-  it("uses PATCH for role updates and POST for suspension", async () => {
+  it("uses PATCH for role updates and for the status action of a suspension", async () => {
     const client = fakeClient();
     await updatePlatformUserRoles(client, "user/1", { roles: ["ACADEMIC_STAFF"] });
     await suspendPlatformUser(client, "user/1");
@@ -74,8 +74,9 @@ describe("platform user request contract", () => {
       method: "PATCH",
       body: { roles: ["ACADEMIC_STAFF"] },
     });
-    expect(client.request).toHaveBeenNthCalledWith(2, PLATFORM_USER_ENDPOINTS.suspend("user/1"), {
-      method: "POST",
+    expect(client.request).toHaveBeenNthCalledWith(2, PLATFORM_USER_ENDPOINTS.status("user/1"), {
+      method: "PATCH",
+      body: { action: "SUSPEND" },
     });
   });
 
@@ -99,11 +100,13 @@ describe("platform user request contract", () => {
       PLATFORM_USER_ENDPOINTS.resetPassword("user/1"),
       { method: "POST" },
     );
-    expect(client.request).toHaveBeenNthCalledWith(3, PLATFORM_USER_ENDPOINTS.archive("user/1"), {
-      method: "DELETE",
+    expect(client.request).toHaveBeenNthCalledWith(3, PLATFORM_USER_ENDPOINTS.status("user/1"), {
+      method: "PATCH",
+      body: { action: "ARCHIVE" },
     });
-    expect(client.request).toHaveBeenNthCalledWith(4, PLATFORM_USER_ENDPOINTS.restore("user/1"), {
-      method: "POST",
+    expect(client.request).toHaveBeenNthCalledWith(4, PLATFORM_USER_ENDPOINTS.status("user/1"), {
+      method: "PATCH",
+      body: { action: "RESTORE" },
     });
   });
 });

@@ -30,6 +30,8 @@ export const ADMIN_DASHBOARD_ROUTES = {
 } as const;
 
 export const TENANT_STATUS_BADGE_VARIANT: Record<TenantStatusResponse, BadgeVariant> = {
+  PENDING: "warning",
+  REJECTED: "danger",
   ACTIVE: "success",
   SUSPENDED: "danger",
 };

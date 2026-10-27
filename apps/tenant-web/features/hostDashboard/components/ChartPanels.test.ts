@@ -118,7 +118,7 @@ describe("SessionStatusPanel (donut)", () => {
   });
 
   it("shows the empty state when no status has a session", () => {
-    const zero = { DRAFT: 0, PREPARING: 0, READY: 0, SCHEDULED: 0, OPEN: 0, CLOSED: 0, CANCELLED: 0 };
+    const zero = { DRAFT: 0, READY: 0, SCHEDULED: 0, OPEN: 0, CLOSED: 0, CANCELLED: 0 };
     expect(textOf(render(byStatus(zero)))).toContain("No exam sessions yet.");
   });
 

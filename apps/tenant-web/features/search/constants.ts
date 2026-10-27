@@ -27,10 +27,6 @@ export const TENANT_SEARCH_TEXT = {
     placeholder: "Search by name, email, or student code",
     ariaLabel: "Search students by name, email, or student code",
   },
-  lecturers: {
-    placeholder: "Search by lecturer name or email",
-    ariaLabel: "Search lecturers by name or email",
-  },
   liveMonitoring: {
     placeholder: "Search by attempt ID, student name, or status",
     ariaLabel: "Search live attempts by ID, student name, or status",

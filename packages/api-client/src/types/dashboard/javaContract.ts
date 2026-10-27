@@ -33,6 +33,14 @@ export const SERIALISED_FACADE_FILES = ["session/UpcomingSessionView.java", "bil
 /** Cache-only wrapper in the DTO package: never part of a response body. */
 export const CACHE_ONLY_RECORDS: ReadonlySet<string> = new Set(["MonthlySeries"]);
 
+/** Student workspace responses share the overview DTO package but are served by their own endpoints. */
+export const STUDENT_WORKSPACE_RECORDS: ReadonlySet<string> = new Set([
+  "StudentAttemptHistoryResponse",
+  "StudentDetailResponse",
+  "StudentPerformanceResponse",
+  "StudentSkillPerformanceResponse",
+]);
+
 export const JAVA_ENUM_FILES: Readonly<Record<string, string>> = {
   SectionStatus: `${DTO_DIR}/SectionStatus.java`,
   SessionStatus: "session/domain/enums/SessionStatus.java",
@@ -43,7 +51,7 @@ export const JAVA_ENUM_FILES: Readonly<Record<string, string>> = {
   QuestionPool: "itembank/domain/enums/QuestionPool.java",
   PteSection: "itembank/domain/enums/PteSection.java",
   TicketCategory: "support/domain/enums/TicketCategory.java",
-  TenantStatus: "tenancy/domain/enums/TenantStatus.java",
+  OrganizationStatus: "tenancy/domain/enums/OrganizationStatus.java",
 };
 
 /**
@@ -69,7 +77,7 @@ export const ENUM_FIELDS: Readonly<Record<string, string>> = {
   "UpcomingSessionView.status": "SessionStatus",
   "CurrentSubscriptionView.planType": "PlanType",
   "CurrentSubscriptionView.status": "SubscriptionStatus",
-  "AdminSectionData.RecentTenant.status": "TenantStatus",
+  "AdminSectionData.RecentTenant.status": "OrganizationStatus",
   "AdminSectionData.OldestTicket.category": "TicketCategory",
 };
 

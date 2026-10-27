@@ -2,9 +2,7 @@ import type { BadgeVariant } from "@pte/ui";
 import type {
   CreateLoginAccountInput,
   CreateTenantInput,
-  FacilityType,
   LoginAccountStatus,
-  OrganizationStatus,
   ResetPasswordInput,
   TenantPlan,
   TenantStatus,
@@ -18,7 +16,6 @@ export const TENANTS_QUERY_KEY = ["tenants"] as const;
 export const SYSTEM_HEALTH_QUERY_KEY = ["systemHealth"] as const;
 export const TENANT_QUERY_KEY = ["tenant"] as const;
 export const TENANT_SUSPENSION_IMPACT_QUERY_KEY = ["tenantSuspensionImpact"] as const;
-export const ORGANIZATIONS_QUERY_KEY = ["organizations"] as const;
 export const LOGIN_ACCOUNT_QUERY_KEY = ["loginAccount"] as const;
 
 export const TENANCY_TEXT = {
@@ -270,33 +267,8 @@ export const TENANT_DETAIL_TEXT = {
   PRIMARY_COLOR_INVALID: "Enter a 6-digit hex color like #1A2B3C.",
   SAVE_BRANDING: "Save Branding",
   BRANDING_SAVED: "Branding saved.",
-  EMPTY_ORGANIZATIONS_TITLE: "Organization not provisioned",
-  EMPTY_ORGANIZATIONS_TEXT: "A default organization is created automatically with the tenant.",
 } as const;
 
-export const ORGANIZATION_TABLE_HEADERS = {
-  NAME: "Name",
-  FACILITY_TYPE: "Facility Type",
-  ADDRESS: "Address",
-  STATUS: "Status",
-  ACTIONS: "Actions",
-} as const;
-
-export const FACILITY_TYPE_LABELS: Record<FacilityType, string> = {
-  MAIN: "Main Campus",
-  BRANCH: "Branch",
-  TEST_CENTER: "Test Center",
-};
-
-export const ORGANIZATION_STATUS_LABELS: Record<OrganizationStatus, string> = {
-  active: "Active",
-  suspended: "Suspended",
-};
-
-export const ORGANIZATION_STATUS_VARIANT: Record<OrganizationStatus, BadgeVariant> = {
-  active: "success",
-  suspended: "neutral",
-};
 
 export const LOGIN_ACCOUNT_TEXT = {
   TITLE: "Tenant admin account",

@@ -21,7 +21,6 @@ export const STAFF_WORK_STATUSES: readonly StaffVisibleWorkStatus[] = [
 ];
 export const STAFF_SESSION_STATUSES: readonly StaffSessionStatus[] = [
   "DRAFT",
-  "PREPARING",
   "READY",
   "SCHEDULED",
   "OPEN",
@@ -33,7 +32,7 @@ export const STAFF_PROCTOR_BOARD_COLUMNS: readonly {
   key: StaffProctorBoardColumnKey;
   statuses: readonly StaffSessionStatus[];
 }[] = [
-  { key: "upcoming", statuses: ["DRAFT", "PREPARING", "READY", "SCHEDULED"] },
+  { key: "upcoming", statuses: ["DRAFT", "READY", "SCHEDULED"] },
   { key: "ongoing", statuses: ["OPEN"] },
   { key: "proctored", statuses: ["CLOSED"] },
   { key: "cancelled", statuses: ["CANCELLED"] },

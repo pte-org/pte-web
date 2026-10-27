@@ -3,7 +3,7 @@
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { Alert, Button, ConfirmDialog, ErrorState, LoadingState, PageHeader, StatCard } from "@pte/ui";
-import { useCloseProctorSession, useMonitoringSnapshot } from "../api";
+import { useMonitoringSnapshot } from "../api";
 import { useProctorRoom } from "../useProctorRoom";
 import { MonitoringConnectionBanner } from "./MonitoringConnectionBanner";
 import { MonitoringStudentTable } from "./MonitoringStudentTable";
@@ -36,7 +36,6 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
   const [forceSubmitTarget, setForceSubmitTarget] = useState<MonitoringStudentResponse | null>(null);
   const [violationTarget, setViolationTarget] = useState<MonitoringStudentResponse | null>(null);
   const [isSubmittingAction, setIsSubmittingAction] = useState(false);
-  const [isClosingSession, setIsClosingSession] = useState(false);
   const [isCloseSessionDialogOpen, setIsCloseSessionDialogOpen] = useState(false);
   const [unconfirmedNotice, setUnconfirmedNotice] = useState<{
     studentName: string;
@@ -49,7 +48,6 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
 
   const snapshotQuery = useMonitoringSnapshot(sessionPublicId, page, size, { poll: true });
   const room = useProctorRoom(sessionPublicId);
-  const closeSessionMutation = useCloseProctorSession();
 
   const snapshot = snapshotQuery.data;
   const session = snapshot?.session;
@@ -103,16 +101,10 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
     }
   };
 
-  const handleCloseSessionConfirm = async (): Promise<void> => {
-    if (!room.proctorSession?.publicId) return;
-    setIsClosingSession(true);
-    try {
-      await closeSessionMutation.mutateAsync(room.proctorSession.publicId);
-      room.disconnect();
-      setIsCloseSessionDialogOpen(false);
-    } finally {
-      setIsClosingSession(false);
-    }
+  /** Watching a session is not stored, so leaving the room only closes the live connection. */
+  const handleLeaveRoomConfirm = (): void => {
+    room.disconnect();
+    setIsCloseSessionDialogOpen(false);
   };
 
   const handleRecheckUnconfirmed = async (): Promise<void> => {
@@ -225,10 +217,9 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
               <Button
                 variant="danger"
                 size="sm"
-                disabled={isClosingSession}
                 onClick={() => setIsCloseSessionDialogOpen(true)}
               >
-                {isClosingSession ? PROCTOR_LIVE_TEXT.LEAVING_ROOM_BTN : PROCTOR_LIVE_TEXT.LEAVE_ROOM_BTN}
+                {PROCTOR_LIVE_TEXT.LEAVE_ROOM_BTN}
               </Button>
             )}
           </div>
@@ -381,8 +372,8 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
         confirmLabel={PROCTOR_LIVE_TEXT.CLOSE_SESSION_CONFIRM_ACTION}
         cancelLabel={PROCTOR_LIVE_TEXT.CANCEL}
         tone="danger"
-        isConfirming={isClosingSession}
-        onConfirm={handleCloseSessionConfirm}
+        isConfirming={false}
+        onConfirm={handleLeaveRoomConfirm}
         onClose={() => setIsCloseSessionDialogOpen(false)}
       />
     </div>

@@ -5,11 +5,8 @@ import type {
 } from "../../types/organization";
 
 /**
- * Host self-service read of its own Organizations (branches) —
- * `caller.tenantId()`-scoped server-side, no `tenantPublicId` path param.
- * Separate from `requests/organization` (which is `PLATFORM_ADMIN`-only
- * and trusts an explicit `tenantPublicId`) — same response shape, different
- * auth/routing, so left untouched per this phase's Design Constraints.
+ * Organization endpoints used by a Host: scoped server-side by the caller's token, no tenant path param. Platform
+ * operators use the same paths through `requests/tenant`, which also covers governance actions.
  */
 export const HOST_ORGANIZATION_ENDPOINTS = {
   organizations: "/api/v1/organizations",

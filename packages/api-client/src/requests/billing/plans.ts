@@ -9,8 +9,7 @@ import type {
 export const PLAN_ENDPOINTS = {
   plans: "/api/v1/plans",
   plan: (publicId: string) => "/api/v1/plans/" + publicId,
-  activate: (publicId: string) => "/api/v1/plans/" + publicId + "/activation",
-  archive: (publicId: string) => "/api/v1/plans/" + publicId + "/archive",
+  status: (publicId: string) => "/api/v1/plans/" + publicId + "/status",
 } as const;
 
 export function listPlans(client: ApiClient): Promise<PlanResponse[]> {
@@ -38,7 +37,7 @@ export function activatePlan(
   publicId: string,
   payload: PlanTransitionRequest,
 ): Promise<PlanResponse> {
-  return client.request(PLAN_ENDPOINTS.activate(publicId), { method: "POST", body: payload });
+  return client.request(PLAN_ENDPOINTS.status(publicId), { method: "PATCH", body: { action: "ACTIVATE", ...payload } });
 }
 
 export function archivePlan(
@@ -46,7 +45,7 @@ export function archivePlan(
   publicId: string,
   payload: PlanTransitionRequest,
 ): Promise<PlanResponse> {
-  return client.request(PLAN_ENDPOINTS.archive(publicId), { method: "POST", body: payload });
+  return client.request(PLAN_ENDPOINTS.status(publicId), { method: "PATCH", body: { action: "ARCHIVE", ...payload } });
 }
 
 export function deletePlan(client: ApiClient, publicId: string): Promise<void> {

@@ -34,8 +34,6 @@ export function decodeTopicMessage(rawBody: string): TopicMessage {
         attemptPublicId: typeof parsed.attemptPublicId === "string" ? parsed.attemptPublicId : "",
         violationType: parsed.violationType,
         detail: typeof parsed.detail === "string" ? parsed.detail : null,
-        sequenceNo: typeof parsed.sequenceNo === "number" ? parsed.sequenceNo : 0,
-        hash: typeof parsed.hash === "string" ? parsed.hash : "",
         detectedAt: typeof parsed.detectedAt === "string" ? parsed.detectedAt : new Date().toISOString(),
         sessionPublicId: typeof parsed.sessionPublicId === "string" ? parsed.sessionPublicId : undefined,
         note: typeof parsed.note === "string" ? parsed.note : null,

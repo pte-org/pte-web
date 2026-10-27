@@ -102,7 +102,7 @@ describe("HostDashboardGrid with every section loaded", () => {
   it("never shows machine strings: enum codes, audit codes, ids or unresolved placeholders", () => {
     const visible = [textOf(html), ...attributeText(html)].join(" ");
     expect(visible).not.toMatch(/\b[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)+\b/);
-    expect(visible).not.toMatch(/\b(?:DRAFT|PREPARING|READY|SCHEDULED|OPEN|CLOSED|CANCELLED|ACTIVE|EXPIRED|PENDING)\b/);
+    expect(visible).not.toMatch(/\b(?:DRAFT|READY|SCHEDULED|OPEN|CLOSED|CANCELLED|ACTIVE|EXPIRED|PENDING)\b/);
     for (const raw of ["ExamPublished", "ClassCreated", "ExamSession", UNKNOWN_ACTION, ACTOR_UUID]) {
       expect(html).not.toContain(raw);
     }

@@ -50,8 +50,8 @@ export interface ScoreTemplateSlotFeasibilityResponse {
 }
 
 export interface ScoreTemplateFeasibilityResponse {
-  templatePublicId: string;
-  templateVersion: number;
+  examDefinitionPublicId: string;
+  examDefinitionVersion: number;
   ready: boolean;
   slots: ScoreTemplateSlotFeasibilityResponse[];
 }

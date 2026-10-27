@@ -3,7 +3,8 @@ import type { ProctorRole, SessionStatus } from "../scheduling";
 
 export type AttemptStatus = "NOT_STARTED" | "IN_PROGRESS" | "SUBMITTED" | "ABANDONED";
 export type SecurityAuditSource = "PROCTOR" | "STUDENT_LOCKDOWN";
-export type ProctorSessionStatus = "ACTIVE" | "ENDED";
+/** Watching a session has no stored lifecycle: opening it always answers ACTIVE. */
+export type ProctorSessionStatus = "ACTIVE";
 
 export interface AssignedProctorSessionResponse {
   assignmentPublicId: string;
@@ -139,8 +140,6 @@ export interface ViolationEventResponse {
   attemptPublicId: string;
   violationType: string;
   detail: string | null;
-  sequenceNo: number;
-  hash: string;
   detectedAt: string;
   sessionPublicId?: string;
   proctorPublicId?: string;
@@ -153,8 +152,7 @@ export interface ProctorSessionResponse {
   sessionPublicId: string;
   proctorPublicId: string;
   status: ProctorSessionStatus;
-  startedAt: string;
-  endedAt: string | null;
+  openedAt: string;
 }
 
 export interface ProctorOperationResultResponse {

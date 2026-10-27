@@ -79,7 +79,6 @@ export const HOST_DASHBOARD_VI: HostDashboardMessages = {
   columnEnrolled: "Đã ghi danh / sức chứa",
   enrolledOfCapacity: "{enrolled} / {capacity}",
   sessionStatusDRAFT: "Bản nháp",
-  sessionStatusPREPARING: "Đang chuẩn bị",
   sessionStatusREADY: "Sẵn sàng",
   sessionStatusSCHEDULED: "Đã lên lịch",
   sessionStatusOPEN: "Đang mở",

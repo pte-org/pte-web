@@ -33,7 +33,7 @@ export function makeDashboard(overrides: Partial<HostDashboardResponse> = {}): H
     academics: ok({ organizations: 2, programs: 4, activeClasses: 9 }),
     staff: ok({ proctors: 4, examiners: 6 }),
     exams: ok({
-      byStatus: { DRAFT: 1, PREPARING: 0, READY: 3, SCHEDULED: 4, OPEN: 1, CLOSED: 5, CANCELLED: 0 },
+      byStatus: { DRAFT: 1, READY: 3, SCHEDULED: 4, OPEN: 1, CLOSED: 5, CANCELLED: 0 },
       created: TREND_SHRINKING,
       upcoming: [
         {

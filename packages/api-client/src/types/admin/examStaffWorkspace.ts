@@ -3,7 +3,7 @@ import type { PagedResult } from "../../client/client";
 export type StaffWorkStatus = "PENDING" | "IN_PROGRESS" | "COMPLETED" | "UNAVAILABLE";
 export type StaffPublicationStatus = "PUBLISHED" | "UNPUBLISHED";
 export type StaffSessionStatus =
-  | "DRAFT" | "PREPARING" | "READY" | "SCHEDULED" | "OPEN" | "CLOSED" | "CANCELLED";
+  | "DRAFT" | "READY" | "SCHEDULED" | "OPEN" | "CLOSED" | "CANCELLED";
 
 export interface ExamStaffAccountResponse {
   publicId: string;

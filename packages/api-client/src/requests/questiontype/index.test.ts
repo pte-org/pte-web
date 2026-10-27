@@ -77,15 +77,13 @@ describe("task-type catalog compatibility adapters", () => {
     await submitTaskTypeApproval(client, "draft-id");
     await approveTaskType(client, "draft-id");
 
-    expect(client.request).toHaveBeenNthCalledWith(
-      1,
-      "/api/v1/task-types/draft-id/submit-approval",
-      { method: "POST" },
-    );
-    expect(client.request).toHaveBeenNthCalledWith(
-      2,
-      "/api/v1/task-types/draft-id/approve",
-      { method: "POST" },
-    );
+    expect(client.request).toHaveBeenNthCalledWith(1, "/api/v1/task-types/draft-id/status", {
+      method: "PATCH",
+      body: { action: "SUBMIT_APPROVAL" },
+    });
+    expect(client.request).toHaveBeenNthCalledWith(2, "/api/v1/task-types/draft-id/status", {
+      method: "PATCH",
+      body: { action: "APPROVE" },
+    });
   });
 });

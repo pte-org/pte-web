@@ -41,8 +41,6 @@ describe("decodeTopicMessage", () => {
       attemptPublicId: "att-123",
       violationType: "TAB_SWITCH",
       detail: "Switched to outside app",
-      sequenceNo: 1,
-      hash: "abc123hash",
       detectedAt: "2026-10-12T00:01:00Z",
     });
 
@@ -51,7 +49,7 @@ describe("decodeTopicMessage", () => {
     if (result.type === "VIOLATION") {
       expect(result.event.publicId).toBe("v-1");
       expect(result.event.violationType).toBe("TAB_SWITCH");
-      expect(result.event.sequenceNo).toBe(1);
+      expect(result.event.detectedAt).toBe("2026-10-12T00:01:00Z");
     }
   });
 

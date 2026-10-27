@@ -5,7 +5,7 @@ import {
   listQuotaHistory,
   listTenants,
   type GrantQuotaRequest,
-  type QuotaTransactionResponse,
+  type QuotaGrantResponse,
   type TenantResponse,
 } from "@pte/api-client";
 import {
@@ -58,7 +58,7 @@ export function useLicenses(): UseQueryResult<License[]> {
 
 export function useGrantQuota(
   tenantPublicId: string,
-): UseMutationResult<QuotaTransactionResponse, unknown, GrantQuotaInput> {
+): UseMutationResult<QuotaGrantResponse, unknown, GrantQuotaInput> {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -83,7 +83,7 @@ export function useGrantQuota(
 
 export function useQuotaHistory(
   tenantPublicId: string,
-): UseQueryResult<QuotaTransactionResponse[]> {
+): UseQueryResult<QuotaGrantResponse[]> {
   return useQuery({
     queryKey: [...QUOTA_HISTORY_QUERY_KEY, tenantPublicId],
     queryFn: () => listQuotaHistory(apiClient, tenantPublicId),

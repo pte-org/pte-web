@@ -22,8 +22,7 @@ export const EXAM_ORCHESTRATION_ENDPOINTS = {
   generate: (publicId: string, idempotencyKey: string) =>
     `/api/v1/sessions/${publicId}/generate?idempotencyKey=${encodeURIComponent(idempotencyKey)}`,
   generation: (publicId: string) => `/api/v1/sessions/${publicId}/generation`,
-  publish: (publicId: string) => `/api/v1/sessions/${publicId}/publish`,
-  cancel: (publicId: string) => `/api/v1/sessions/${publicId}/cancel`,
+  status: (publicId: string) => `/api/v1/sessions/${publicId}/status`,
 } as const;
 
 export function createExamDraft(
@@ -124,13 +123,13 @@ export function getGenerationJob(
 }
 
 export function publishExam(client: ApiClient, publicId: string): Promise<SessionResponse> {
-  return client.request<SessionResponse>(EXAM_ORCHESTRATION_ENDPOINTS.publish(publicId), {
-    method: "POST",
+  return client.request<SessionResponse>(EXAM_ORCHESTRATION_ENDPOINTS.status(publicId), {
+    method: "PATCH", body: { action: "PUBLISH" },
   });
 }
 
 export function cancelExam(client: ApiClient, publicId: string): Promise<SessionResponse> {
-  return client.request<SessionResponse>(EXAM_ORCHESTRATION_ENDPOINTS.cancel(publicId), {
-    method: "POST",
+  return client.request<SessionResponse>(EXAM_ORCHESTRATION_ENDPOINTS.status(publicId), {
+    method: "PATCH", body: { action: "CANCEL" },
   });
 }

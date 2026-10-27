@@ -4,19 +4,15 @@ import {
   createUser,
   getTenantSuspensionImpact,
   getTenant,
-  listOrganizations,
   listTenants,
   listUsersByTenant,
   onboardTenant,
-  reactivateOrganization,
   reactivateTenant,
   resetPassword as resetPasswordRequest,
-  suspendOrganization,
   suspendTenant,
   updateTenantBranding,
   type CreateUserRequest,
   type OnboardTenantRequest,
-  type OrganizationResponse,
   type SuspendTenantRequest,
   type TenantSuspensionImpactResponse,
   type TenantResponse,
@@ -33,7 +29,6 @@ import {
 import { apiClient } from "@/lib/apiClient";
 import {
   LOGIN_ACCOUNT_QUERY_KEY,
-  ORGANIZATIONS_QUERY_KEY,
   SYSTEM_HEALTH_QUERY_KEY,
   TENANT_QUERY_KEY,
   TENANT_SUSPENSION_IMPACT_QUERY_KEY,
@@ -45,7 +40,6 @@ import type {
   CreateTenantInput,
   LoginAccount,
   LoginAccountLookup,
-  Organization,
   ResetPasswordInput,
   SystemHealth,
   Tenant,
@@ -106,16 +100,6 @@ export interface SuspendTenantInput {
   publicId: string;
   days?: number;
   impactDigest: string;
-}
-
-function organizationResponseToOrganization(response: OrganizationResponse): Organization {
-  return {
-    id: response.publicId,
-    name: response.name,
-    address: response.address,
-    facilityType: response.facilityType,
-    status: response.status === "SUSPENDED" ? "suspended" : "active",
-  };
 }
 
 function userResponseToLoginAccount(response: UserResponse): LoginAccount {
@@ -271,66 +255,6 @@ export function useUpdateBranding(
       queryClient.setQueryData([...TENANT_QUERY_KEY, publicId], tenant);
       replaceTenantInCache(queryClient, tenant);
     },
-  });
-}
-
-export function useOrganizations(
-  tenantPublicId: string,
-  enabled = true,
-): UseQueryResult<Organization[]> {
-  return useQuery({
-    queryKey: [...ORGANIZATIONS_QUERY_KEY, tenantPublicId],
-    queryFn: async () => {
-      const organizations = await listOrganizations(apiClient, tenantPublicId);
-      return organizations.map(organizationResponseToOrganization);
-    },
-    enabled: enabled && tenantPublicId.length > 0,
-  });
-}
-
-function replaceOrganizationInCache(
-  queryClient: ReturnType<typeof useQueryClient>,
-  tenantPublicId: string,
-  updated: Organization,
-): void {
-  queryClient.setQueryData<Organization[]>(
-    [...ORGANIZATIONS_QUERY_KEY, tenantPublicId],
-    (previous = []) =>
-      previous.map((organization) => (organization.id === updated.id ? updated : organization)),
-  );
-}
-
-export function useSuspendOrganization(
-  tenantPublicId: string,
-): UseMutationResult<Organization, unknown, string> {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (organizationPublicId: string) => {
-      const response = await suspendOrganization(apiClient, tenantPublicId, organizationPublicId);
-      return organizationResponseToOrganization(response);
-    },
-    onSuccess: (organization) =>
-      replaceOrganizationInCache(queryClient, tenantPublicId, organization),
-  });
-}
-
-export function useReactivateOrganization(
-  tenantPublicId: string,
-): UseMutationResult<Organization, unknown, string> {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (organizationPublicId: string) => {
-      const response = await reactivateOrganization(
-        apiClient,
-        tenantPublicId,
-        organizationPublicId,
-      );
-      return organizationResponseToOrganization(response);
-    },
-    onSuccess: (organization) =>
-      replaceOrganizationInCache(queryClient, tenantPublicId, organization),
   });
 }
 

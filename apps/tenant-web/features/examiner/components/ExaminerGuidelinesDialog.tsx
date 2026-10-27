@@ -39,9 +39,9 @@ export function ExaminerGuidelinesDialog({
               <div className="space-y-3">
                 <h4 className="font-semibold text-slate-900">{G.TASK_CRITERIA_TITLE}</h4>
                 {guidelines.templates.map((tpl) => (
-                  <div key={tpl.scoreTemplatePublicId} className="rounded-md border border-slate-200 p-3">
+                  <div key={tpl.examDefinitionPublicId} className="rounded-md border border-slate-200 p-3">
                     <p className="text-xs font-mono text-slate-500 mb-2">
-                      {G.TEMPLATE_PREFIX}{tpl.scoreTemplatePublicId.slice(0, 8)}
+                      {G.TEMPLATE_PREFIX}{tpl.examDefinitionPublicId.slice(0, 8)}
                     </p>
                     <div className="space-y-1">
                       {Array.isArray(tpl.items) && tpl.items.length > 0 ? (

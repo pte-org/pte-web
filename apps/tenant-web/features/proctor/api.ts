@@ -7,11 +7,9 @@ import {
   useQueryClient,
   type InfiniteData,
   type UseInfiniteQueryResult,
-  type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
 import {
-  closeProctorSession,
   decodeAccessTokenClaims,
   getMonitoringSnapshot,
   getProctorSecurityAudit,
@@ -190,11 +188,10 @@ export function useProctorSecurityAudit(
       const resp = await getProctorSecurityAudit(apiClient, sessionPublicId, limit, pageParam);
       const list = resp.entries ?? resp.items ?? [];
       return {
-        items: list.map((it, idx) => ({
+        items: list.map((it) => ({
           publicId: it.publicId,
           recordedAt: it.detectedAt,
           eventType: it.violationType,
-          hashPosition: idx + 1,
           description: it.detail ?? `${it.source} - ${it.severity}`,
         })),
         cursor: resp.nextCursor,
@@ -203,13 +200,6 @@ export function useProctorSecurityAudit(
     },
     getNextPageParam: (lastPage) => lastPage.cursor ?? undefined,
     enabled: Boolean(sessionPublicId),
-  });
-}
-
-export function useCloseProctorSession(): UseMutationResult<void, Error, string> {
-  return useMutation<void, Error, string>({
-    mutationFn: (proctorSessionPublicId: string) =>
-      closeProctorSession(apiClient, proctorSessionPublicId),
   });
 }
 

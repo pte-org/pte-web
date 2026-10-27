@@ -8,9 +8,7 @@ import type {
 export const BLUEPRINT_ENDPOINTS = {
   blueprints: "/api/v1/blueprints",
   blueprint: (publicId: string) => `/api/v1/blueprints/${publicId}`,
-  submitApproval: (publicId: string) => `/api/v1/blueprints/${publicId}/submit-approval`,
-  approve: (publicId: string) => `/api/v1/blueprints/${publicId}/approve`,
-  reject: (publicId: string) => `/api/v1/blueprints/${publicId}/reject`,
+  status: (publicId: string) => `/api/v1/blueprints/${publicId}/status`,
 } as const;
 
 export function listBlueprints(client: ApiClient): Promise<ExamBlueprintResponse[]> {
@@ -40,16 +38,16 @@ export function updateBlueprint(
 }
 
 export function submitBlueprintApproval(client: ApiClient, publicId: string): Promise<ExamBlueprintResponse> {
-  return client.request<ExamBlueprintResponse>(BLUEPRINT_ENDPOINTS.submitApproval(publicId), { method: "POST" });
+  return client.request<ExamBlueprintResponse>(BLUEPRINT_ENDPOINTS.status(publicId), { method: "PATCH", body: { action: "SUBMIT_APPROVAL" }, });
 }
 
 export function approveBlueprint(client: ApiClient, publicId: string): Promise<ExamSnapshotResponse> {
-  return client.request<ExamSnapshotResponse>(BLUEPRINT_ENDPOINTS.approve(publicId), { method: "POST" });
+  return client.request<ExamSnapshotResponse>(BLUEPRINT_ENDPOINTS.status(publicId), { method: "PATCH", body: { action: "APPROVE" }, });
 }
 
 export function rejectBlueprint(client: ApiClient, publicId: string, reason: string): Promise<ExamBlueprintResponse> {
-  return client.request<ExamBlueprintResponse>(BLUEPRINT_ENDPOINTS.reject(publicId), {
-    method: "POST",
-    body: { reason },
+  return client.request<ExamBlueprintResponse>(BLUEPRINT_ENDPOINTS.status(publicId), {
+    method: "PATCH",
+    body: { action: "REJECT", reason },
   });
 }

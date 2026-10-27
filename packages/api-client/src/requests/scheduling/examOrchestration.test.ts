@@ -12,13 +12,12 @@ function fakeClient(): ApiClient & { request: ReturnType<typeof vi.fn> } {
 
 const baseCreatePayload = {
   name: "Official security policy test",
-  templatePublicId: "template-1",
+  examDefinitionPublicId: "template-1",
   subscriptionPublicId: "subscription-1",
   opensAt: "2026-10-01T10:00:00Z",
   closesAt: "2026-10-01T11:00:00Z",
   examMode: "OFFICIAL_EXAM" as const,
   lockdownMode: "STRICT" as const,
-  formMode: "SHARED_FORM" as const,
   reusePolicy: "ALLOW" as const,
   seriesKey: null,
   capacity: 1,

@@ -14,12 +14,12 @@ describe("draft deletion contract", () => {
     expect(fetchFn).toHaveBeenCalledWith("https://test.invalid" + path, expect.objectContaining({ method: "DELETE" }));
   });
 
-  it("retains the archive POST contract", async () => {
+  it("sends the archive transition as a status PATCH", async () => {
     const fetchFn = vi.fn().mockResolvedValue(new Response(JSON.stringify({ success: true, data: { status: "ARCHIVED" } }), { status: 200 }));
     const client = createApiClient({ baseUrl: "https://test.invalid", fetchFn });
     await expect(archivePlan(client, "plan-id", { expectedVersion: 3 })).resolves.toEqual({ status: "ARCHIVED" });
-    expect(fetchFn).toHaveBeenCalledWith("https://test.invalid/api/v1/plans/plan-id/archive", expect.objectContaining({ method: "POST" }));
-    expect(fetchFn.mock.calls[0][1]).toMatchObject({ body: JSON.stringify({ expectedVersion: 3 }) });
+    expect(fetchFn).toHaveBeenCalledWith("https://test.invalid/api/v1/plans/plan-id/status", expect.objectContaining({ method: "PATCH" }));
+    expect(fetchFn.mock.calls[0][1]).toMatchObject({ body: JSON.stringify({ action: "ARCHIVE", expectedVersion: 3 }) });
   });
 
   it("sends the captured version for update and activation", async () => {
@@ -45,8 +45,8 @@ describe("draft deletion contract", () => {
       body: expect.stringContaining('"expectedVersion":4'),
     });
     expect(fetchFn.mock.calls[1][1]).toMatchObject({
-      method: "POST",
-      body: JSON.stringify({ expectedVersion: 4 }),
+      method: "PATCH",
+      body: JSON.stringify({ action: "ACTIVATE", expectedVersion: 4 }),
     });
   });
 

@@ -1,5 +1,5 @@
-/** Matches admin's real `TenantStatus` enum (`ACTIVE`/`SUSPENDED` only). */
-export type TenantStatusResponse = "ACTIVE" | "SUSPENDED";
+/** Matches the API's `OrganizationStatus` enum; platform operators only ever see ACTIVE or SUSPENDED rows. */
+export type TenantStatusResponse = "PENDING" | "ACTIVE" | "REJECTED" | "SUSPENDED";
 
 /** Matches admin's real `TenantResponse` record exactly, including its immutable code. */
 export interface TenantResponse {

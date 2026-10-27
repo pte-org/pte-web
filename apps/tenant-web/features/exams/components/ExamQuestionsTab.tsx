@@ -16,8 +16,8 @@ export const ExamQuestionsTab = ({
   <div className="min-w-0">
     <ExamPreviewSurface
       sessionPublicId={sessionPublicId}
-      snapshotPublicId={session.snapshotPublicId}
-      enabled={Boolean(session.snapshotPublicId)}
+      snapshotPublicId={session.examVersionPublicId}
+      enabled={Boolean(session.examVersionPublicId)}
     />
   </div>
 );

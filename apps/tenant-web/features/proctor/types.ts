@@ -37,6 +37,5 @@ export interface ProctorSecurityAuditEntry {
   publicId: string;
   recordedAt: string;
   eventType: string;
-  hashPosition: number;
   description: string;
 }

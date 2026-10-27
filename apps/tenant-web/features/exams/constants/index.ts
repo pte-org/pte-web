@@ -1,6 +1,5 @@
 import type {
   ExamMode,
-  FormMode,
   LockdownMode,
   ProctorRole,
   ReusePolicy,
@@ -59,7 +58,6 @@ export const EXAM_ROW_ACTIONS_TEXT = {
 
 export const SESSION_STATUS_LABELS = {
   DRAFT: "Draft",
-  PREPARING: "Preparing",
   READY: "Ready to publish",
   SCHEDULED: "Scheduled",
   OPEN: "In progress",
@@ -73,7 +71,6 @@ export const SESSION_STATUS_LABELS = {
  */
 export const SESSION_STATUS_TRANSITIONS = {
   DRAFT: ["DRAFT", "READY", "SCHEDULED"],
-  PREPARING: ["PREPARING", "DRAFT"],
   READY: ["READY", "SCHEDULED", "CANCELLED"],
   SCHEDULED: ["SCHEDULED", "OPEN", "CANCELLED"],
   OPEN: ["OPEN", "CLOSED"],
@@ -84,7 +81,6 @@ export const SESSION_STATUS_TRANSITIONS = {
 export const SESSION_STATUS_FILTER_OPTIONS = [
   { value: "", label: "All statuses" },
   { value: "DRAFT", label: SESSION_STATUS_LABELS.DRAFT },
-  { value: "PREPARING", label: SESSION_STATUS_LABELS.PREPARING },
   { value: "READY", label: SESSION_STATUS_LABELS.READY },
   { value: "SCHEDULED", label: SESSION_STATUS_LABELS.SCHEDULED },
   { value: "OPEN", label: SESSION_STATUS_LABELS.OPEN },
@@ -94,7 +90,6 @@ export const SESSION_STATUS_FILTER_OPTIONS = [
 
 export const SESSION_STATUS_VARIANT = {
   DRAFT: "warning",
-  PREPARING: "info",
   READY: "success",
   SCHEDULED: "info",
   OPEN: "success",
@@ -141,7 +136,6 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   CAPACITY_LABEL: "Maximum students",
   FULL_TEMPLATE_SCOPE: "Full template scope",
   RETRIES_LABEL: "Allowed retries per student",
-  FORM_MODE_LABEL: "Question form",
   REUSE_POLICY_LABEL: "Student reuse rule",
   SERIES_LABEL: "Exam series",
   SERIES_PLACEHOLDER: "e.g. 2026-HK1",
@@ -201,8 +195,6 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   POLICY_OFFICIAL_STRICT: "Official — strict",
   POLICY_LEGACY: "Previously created exam",
   POLICY_UNAVAILABLE: "Security policy unavailable — review required",
-  FORM_SHARED: "One shared form",
-  FORM_UNIQUE: "Separate form per student",
   REUSE_ALLOW: "Allow previous attempts",
   REUSE_STARTED: "Exclude students who already started this series",
   REUSE_ASSIGNED: "Exclude students already assigned in this series",
@@ -232,11 +224,6 @@ export const OFFICIAL_EXAM_LOCKDOWN_MODE: LockdownMode = "STRICT";
 export const EXAM_MODE_LABELS: Record<ExamMode, string> = {
   OFFICIAL_EXAM: CREATE_EXAM_WIZARD_TEXT.MODE_REAL,
 };
-
-export const FORM_MODE_OPTIONS: { value: FormMode; label: string }[] = [
-  { value: "SHARED_FORM", label: CREATE_EXAM_WIZARD_TEXT.FORM_SHARED },
-  { value: "UNIQUE_FORM_PER_STUDENT", label: CREATE_EXAM_WIZARD_TEXT.FORM_UNIQUE },
-];
 
 export const REUSE_POLICY_OPTIONS: { value: ReusePolicy; label: string }[] = [
   { value: "ALLOW", label: CREATE_EXAM_WIZARD_TEXT.REUSE_ALLOW },
@@ -335,7 +322,6 @@ export const EXAM_EDITOR_TEXT = {
   CAPACITY: "Capacity",
   SECURITY_POLICY: "Security policy",
   SUBSCRIPTION: "Subscription",
-  FORM_MODE: "Question form",
   REUSE_POLICY: "Student reuse rule",
   SERIES: "Exam series",
   REPLAY_POLICY: "Replay policy",

@@ -46,7 +46,7 @@ describe("buildAttemptsChartData", () => {
 });
 
 describe("session status slices", () => {
-  const byStatus = { DRAFT: 1, PREPARING: 0, READY: 3, SCHEDULED: 4, OPEN: 1, CLOSED: 5, CANCELLED: 0 };
+  const byStatus = { DRAFT: 1, READY: 3, SCHEDULED: 4, OPEN: 1, CLOSED: 5, CANCELLED: 0 };
 
   it("lists statuses with sessions, in lifecycle order, skipping zeros", () => {
     expect(buildSessionStatusSlices(byStatus).map((slice) => slice.key)).toEqual([
@@ -66,7 +66,7 @@ describe("session status slices", () => {
   });
 
   it("has no slices when there are no sessions", () => {
-    const empty = { DRAFT: 0, PREPARING: 0, READY: 0, SCHEDULED: 0, OPEN: 0, CLOSED: 0, CANCELLED: 0 };
+    const empty = { DRAFT: 0, READY: 0, SCHEDULED: 0, OPEN: 0, CLOSED: 0, CANCELLED: 0 };
     expect(buildSessionStatusSlices(empty)).toEqual([]);
     expect(countSessions(empty)).toBe(0);
   });
