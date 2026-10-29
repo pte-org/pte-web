@@ -51,7 +51,7 @@ export function summarizeChatUsage(days: readonly ChatUsageDayResponse[]): ChatU
 }
 
 /** yyyy-MM-dd of an instant on the Vietnam calendar, the day the backend groups the report by. */
-function vietnamDate(instant: Date): string {
+export function vietnamDate(instant: Date): string {
   return new Intl.DateTimeFormat("en-CA", { timeZone: VIETNAM_TIME_ZONE }).format(instant);
 }
 
