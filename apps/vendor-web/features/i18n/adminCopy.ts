@@ -96,7 +96,8 @@ const ADMIN_VI: Record<string, string> = {
   "Reset platform settings?": "Khôi phục cài đặt nền tảng?",
   "Restore this group to its recommended defaults. Review the values and save to apply them.":
     "Khôi phục nhóm cài đặt về giá trị mặc định đề xuất. Hãy kiểm tra lại và lưu để áp dụng.",
-  "No editable platform settings are available.": "Hiện chưa có cài đặt nền tảng nào có thể chỉnh sửa.",
+  "No editable platform settings are available.":
+    "Hiện chưa có cài đặt nền tảng nào có thể chỉnh sửa.",
   "Unsaved changes": "Có thay đổi chưa lưu",
   "All changes are saved": "Tất cả thay đổi đã được lưu",
   "Settings could not be loaded or saved.": "Không thể tải hoặc lưu cài đặt.",
@@ -316,7 +317,7 @@ const ADMIN_VI: Record<string, string> = {
   "Full name": "Họ và tên",
   "A temporary password will be generated and sent to the user's email.":
     "Mật khẩu tạm thời sẽ được tự động tạo và gửi đến email của người dùng.",
-  "Phone": "Số điện thoại",
+  Phone: "Số điện thoại",
   "Date of birth": "Ngày sinh",
   "Search by name or email": "Tìm theo họ tên hoặc email",
   Role: "Vai trò",
@@ -1046,8 +1047,7 @@ const ADMIN_VI: Record<string, string> = {
   "Search plans by name, description, type, or status":
     "Tìm gói theo tên, mô tả, loại hoặc trạng thái",
   "Search by activation code or tenant ID": "Tìm theo mã kích hoạt hoặc ID tenant",
-  "Search license codes by activation code or tenant ID":
-    "Tìm mã kích hoạt hoặc ID tenant",
+  "Search license codes by activation code or tenant ID": "Tìm mã kích hoạt hoặc ID tenant",
   "Activation code created.": "Đã tạo mã kích hoạt.",
   "Activation code issuance confirmed.": "Đã xác nhận phát hành mã kích hoạt.",
   "Activation code revoked.": "Đã thu hồi mã kích hoạt.",
@@ -1109,23 +1109,52 @@ const translatePattern = (value: string): string | undefined => {
   if (match) return `Lựa chọn đúng ${match[1]}`;
   match = value.match(/^Option (\d+)$/);
   if (match) return `Lựa chọn ${match[1]}`;
-  match = value.match(/^(\d+) active subscription\(s\) may lose up to (\d+) day\(s\) (\d+) hour\(s\) (\d+) minute\(s\) (\d+) second\(s\) during this suspension\.$/);
-  if (match) return `${match[1]} gói đăng ký đang hoạt động có thể mất tối đa ${match[2]} ngày ${match[3]} giờ ${match[4]} phút ${match[5]} giây trong lần tạm ngưng này.`;
-  match = value.match(/^(\d+) active subscription\(s\) may lose up to (\d+) day\(s\) (\d+) hour\(s\) (\d+) minute\(s\) (\d+) second\(s\) remaining\. This suspension has no automatic end date\.$/);
-  if (match) return `${match[1]} gói đăng ký đang hoạt động có thể mất tối đa ${match[2]} ngày ${match[3]} giờ ${match[4]} phút ${match[5]} giây còn lại. Lần tạm ngưng này không có ngày kết thúc tự động.`;
+  match = value.match(
+    /^(\d+) active subscription\(s\) may lose up to (\d+) day\(s\) (\d+) hour\(s\) (\d+) minute\(s\) (\d+) second\(s\) during this suspension\.$/,
+  );
+  if (match)
+    return `${match[1]} gói đăng ký đang hoạt động có thể mất tối đa ${match[2]} ngày ${match[3]} giờ ${match[4]} phút ${match[5]} giây trong lần tạm ngưng này.`;
+  match = value.match(
+    /^(\d+) active subscription\(s\) may lose up to (\d+) day\(s\) (\d+) hour\(s\) (\d+) minute\(s\) (\d+) second\(s\) remaining\. This suspension has no automatic end date\.$/,
+  );
+  if (match)
+    return `${match[1]} gói đăng ký đang hoạt động có thể mất tối đa ${match[2]} ngày ${match[3]} giờ ${match[4]} phút ${match[5]} giây còn lại. Lần tạm ngưng này không có ngày kết thúc tự động.`;
   match = value.match(/^(\d+) active subscription\(s\) remain outside this expiry list\.$/);
-  if (match) return `Còn ${match[1]} gói đăng ký đang hoạt động không nằm trong danh sách hết hạn này.`;
+  if (match)
+    return `Còn ${match[1]} gói đăng ký đang hoạt động không nằm trong danh sách hết hạn này.`;
   match = value.match(/^(\d+) more impacted subscription\(s\) are not shown\.$/);
   if (match) return `Còn ${match[1]} gói đăng ký bị ảnh hưởng không được hiển thị.`;
-  match = value.match(/^(.+) · (\d+) day\(s\) (\d+) hour\(s\) (\d+) minute\(s\) (\d+) second\(s\) remaining · expires (.+)$/);
-  if (match) return `${match[1]} · còn ${match[2]} ngày ${match[3]} giờ ${match[4]} phút ${match[5]} giây · hết hạn ${match[6]}`;
+  match = value.match(
+    /^(.+) · (\d+) day\(s\) (\d+) hour\(s\) (\d+) minute\(s\) (\d+) second\(s\) remaining · expires (.+)$/,
+  );
+  if (match)
+    return `${match[1]} · còn ${match[2]} ngày ${match[3]} giờ ${match[4]} phút ${match[5]} giây · hết hạn ${match[6]}`;
   return undefined;
 };
 
 export function translateAdminText(value: string, locale: Locale): string {
   if (locale !== "vi") return value;
-  return ADMIN_VI[value] ?? translatePattern(value) ?? value;
+  return SCORE_TEMPLATE_FEEDBACK_VI[value] ?? ADMIN_VI[value] ?? translatePattern(value) ?? value;
 }
+
+const SCORE_TEMPLATE_FEEDBACK_VI: Record<string, string> = {
+  "Could not save this exam template. Your changes are preserved. Please try again.":
+    "Không thể lưu mẫu đề. Dữ liệu bạn nhập vẫn được giữ nguyên. Vui lòng thử lại.",
+  "Enter a template name.": "Vui lòng nhập tên mẫu đề.",
+  "Cannot activate yet": "Chưa thể kích hoạt",
+  "Question availability is checked against the last saved template. Save your changes to check again.":
+    "Số câu hỏi được kiểm tra theo mẫu đã lưu gần nhất. Hãy lưu thay đổi để kiểm tra lại.",
+  "Checking question availability...": "Đang kiểm tra số câu hỏi...",
+  "Add at least one task type.": "Hãy thêm ít nhất một dạng bài.",
+  "Unavailable task types or runtime profiles": "Dạng bài hoặc cấu hình thực thi chưa sẵn sàng",
+  "Repeated task types: keep one configuration per task type":
+    "Dạng bài bị lặp: giữ một cấu hình cho mỗi dạng bài",
+  "Insufficient approved questions": "Chưa đủ câu hỏi đã duyệt",
+  "Question availability has not been confirmed. Save and check again.":
+    "Chưa xác nhận được số câu hỏi. Hãy lưu và kiểm tra lại.",
+  Required: "Cần có",
+  Available: "Hiện có",
+};
 
 type LocalizableFunction = (...args: never[]) => unknown;
 
