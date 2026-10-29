@@ -9,7 +9,7 @@ import {
   TrendDownIcon,
   TrendFlatIcon,
   TrendUpIcon,
-} from "./dashboardIcons";
+} from "../../../src/components/dashboardIcons";
 
 type Icon = (props: { className?: string }) => ReactElement;
 

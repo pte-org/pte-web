@@ -1,9 +1,9 @@
 import type { ReactElement, ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { renderHtml, textOf } from "../testing/renderHtml";
-import { TrendBarChart } from "./TrendBarChart";
-import { TrendLineChart } from "./TrendLineChart";
-import type { TrendChartDatum, TrendChartSeries } from "./trendChartShared";
+import { TrendBarChart } from "../../../src/components/TrendBarChart";
+import { TrendLineChart } from "../../../src/components/TrendLineChart";
+import type { TrendChartDatum, TrendChartSeries } from "../../../src/components/trendChartShared";
 
 // recharts cannot measure itself on the server, so it is replaced by recording stubs. This lets
 // the tests assert exactly what the chart components hand to recharts (rows, partial handling,

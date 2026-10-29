@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 import type { TooltipContentProps } from "recharts";
 import { describe, expect, it } from "vitest";
 import { findOpeningTag, renderHtml, textOf } from "../testing/renderHtml";
-import { CHART_TONE_COLORS } from "./chartTones";
+import { CHART_TONE_COLORS } from "../../../src/components/chartTones";
 import {
   createTooltipRenderer,
   DEFAULT_CHART_HEIGHT_CLASS,
@@ -15,7 +15,7 @@ import {
   TrendChartFrame,
   type TrendChartDatum,
   type TrendChartSeries,
-} from "./trendChartShared";
+} from "../../../src/components/trendChartShared";
 
 const SERIES: TrendChartSeries[] = [
   { key: "paid", label: "Paid", tone: "success" },

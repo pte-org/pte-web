@@ -1,8 +1,8 @@
 import type { ReactElement } from "react";
 import { describe, expect, it } from "vitest";
 import { renderHtml } from "../testing/renderHtml";
-import { buildRows, createPartialDotRenderer } from "./TrendLineChart";
-import type { TrendChartDatum, TrendChartSeries } from "./trendChartShared";
+import { buildRows, createPartialDotRenderer } from "../../../src/components/TrendLineChart";
+import type { TrendChartDatum, TrendChartSeries } from "../../../src/components/trendChartShared";
 
 // Pure logic behind the line chart's partial handling, tested directly (no recharts needed).
 describe("buildRows (partial handling)", () => {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { countMatches, renderHtml } from "../testing/renderHtml";
-import { AuthSubmitButton, AuthTextField, type AuthTextFieldProps } from "./AuthFormControls";
+import { AuthSubmitButton, AuthTextField, type AuthTextFieldProps } from "../../../src/components/AuthFormControls";
 
 const renderField = (props: Partial<AuthTextFieldProps> = {}): string =>
   renderHtml(

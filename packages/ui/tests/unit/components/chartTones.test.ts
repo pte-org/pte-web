@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
-import { CHART_TONE_COLORS, CHART_TONE_DOT_CLASSES, type ChartTone } from "./chartTones";
-import type { StatusDonutTone } from "./StatusDonutChart";
+import { CHART_TONE_COLORS, CHART_TONE_DOT_CLASSES, type ChartTone } from "../../../src/components/chartTones";
+import type { StatusDonutTone } from "../../../src/components/StatusDonutChart";
 
 const ALL_TONES = ["brand", "info", "success", "warning", "danger", "neutral"] as const satisfies readonly ChartTone[];
 

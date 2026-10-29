@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { countMatches, findOpeningTag, renderHtml, textOf } from "../testing/renderHtml";
-import { DashboardPanel, type DashboardPanelProps } from "./DashboardPanel";
+import { DashboardPanel, type DashboardPanelProps } from "../../../src/components/DashboardPanel";
 
 const ERROR_PROPS = {
   title: "Could not load",

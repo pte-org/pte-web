@@ -8,9 +8,9 @@ import {
   renderHtml,
   textOf,
 } from "../testing/renderHtml";
-import { TrendBarChart } from "./TrendBarChart";
-import { TrendLineChart } from "./TrendLineChart";
-import type { TrendChartBaseProps, TrendChartDatum, TrendChartSeries } from "./trendChartShared";
+import { TrendBarChart } from "../../../src/components/TrendBarChart";
+import { TrendLineChart } from "../../../src/components/TrendLineChart";
+import type { TrendChartBaseProps, TrendChartDatum, TrendChartSeries } from "../../../src/components/trendChartShared";
 
 // recharts' ResponsiveContainer has no size on the server, so the plot itself renders nothing.
 // These tests pin what IS deterministic: wrapper, legend, screen-reader table and empty state.

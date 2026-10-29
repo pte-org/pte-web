@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { countMatches, findOpeningTag, renderHtml, textOf } from "../testing/renderHtml";
-import { DashboardLoadingState, type DashboardLoadingVariant } from "./DashboardLoadingState";
+import { DashboardLoadingState, type DashboardLoadingVariant } from "../../../src/components/DashboardLoadingState";
 
 const skeletons = (html: string): number => countMatches(html, /pte-skeleton/);
 const render = (variant?: DashboardLoadingVariant): string =>

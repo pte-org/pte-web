@@ -1,9 +1,9 @@
 import type { ReactElement } from "react";
 import { describe, expect, it } from "vitest";
 import { countMatches, renderHtml } from "../testing/renderHtml";
-import { LocaleProvider } from "../i18n";
-import { ThemeProvider } from "../theme";
-import { AuthBrandLockup, AuthBrandShell, type AuthBrandShellProps } from "./AuthBrandShell";
+import { LocaleProvider } from "../../../src/i18n";
+import { ThemeProvider } from "../../../src/theme";
+import { AuthBrandLockup, AuthBrandShell, type AuthBrandShellProps } from "../../../src/layouts/AuthBrandShell";
 
 const renderShell = (props: Partial<AuthBrandShellProps> = {}): string =>
   renderHtml(

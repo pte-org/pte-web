@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { describe, expect, it } from "vitest";
 import { countMatches, renderHtml, textOf } from "../testing/renderHtml";
-import { ActivityList, type ActivityListItem, type ActivityListLinkProps } from "./ActivityList";
+import { ActivityList, type ActivityListItem, type ActivityListLinkProps } from "../../../src/components/ActivityList";
 
 const CHEVRON = "<svg";
 

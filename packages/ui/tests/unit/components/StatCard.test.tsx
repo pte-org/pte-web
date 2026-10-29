@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { countMatches, renderHtml, textOf } from "../testing/renderHtml";
-import { StatCard } from "./StatCard";
-import { hasStatCardDelta } from "./StatCardDelta";
+import { StatCard } from "../../../src/components/StatCard";
+import { hasStatCardDelta } from "../../../src/components/StatCardDelta";
 
 const DELTA_PARAGRAPH = /<p class="mt-2 flex flex-wrap[^>]*>[\s\S]*?<\/p>/;
 const UP_PATH = 'd="m3 17 6-6 4 4 8-8"';

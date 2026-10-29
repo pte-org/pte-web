@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it } from "vitest";
 // The package entry (package.json "main"/"exports" -> ./src/index.ts), i.e. what '@pte/ui' resolves to.
-import * as ui from "./index";
+import * as ui from "../../src/index";
 import type {
   ActivityListItem,
   ActivityListLinkProps,
@@ -23,7 +23,7 @@ import type {
   TrendChartDatum,
   TrendChartSeries,
   TrendLineChartProps,
-} from "./index";
+} from "../../src/index";
 
 const NEW_COMPONENTS = [
   "StatCard",

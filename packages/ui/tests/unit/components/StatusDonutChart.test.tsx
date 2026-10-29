@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import { countMatches, muteRechartsSizeWarning, renderHtml, textOf } from "../testing/renderHtml";
-import { CHART_TONE_DOT_CLASSES } from "./chartTones";
-import { StatusDonutChart, type StatusDonutItem } from "./StatusDonutChart";
+import { CHART_TONE_DOT_CLASSES } from "../../../src/components/chartTones";
+import { StatusDonutChart, type StatusDonutItem } from "../../../src/components/StatusDonutChart";
 
 let restoreConsole: () => void;
 beforeAll(() => {

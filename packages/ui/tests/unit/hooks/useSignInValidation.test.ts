@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { validateSignInField, type SignInValidationMessages } from "./useSignInValidation";
+import { validateSignInField, type SignInValidationMessages } from "../../../src/hooks/useSignInValidation";
 
 const MESSAGES: SignInValidationMessages = {
   usernameRequired: "USERNAME_REQUIRED",
