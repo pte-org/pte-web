@@ -61,6 +61,25 @@ describe("notification inbox requests", () => {
     );
   });
 
+  it("models a generated exam preview as a session notification", () => {
+    const previewItem: InboxItemResponse = {
+      publicId: "preview-item",
+      notificationType: "SESSION_PREVIEW_READY",
+      category: "SESSION",
+      importance: "INFO",
+      title: "Exam preview ready",
+      body: "Log in to PTE App as a host to preview it.",
+      targetType: "SESSION",
+      targetPublicId: "session-id",
+      sequenceNo: 2,
+      deliveredAt: "2026-10-29T00:00:00Z",
+      readAt: null,
+    };
+
+    expect(previewItem.notificationType).toBe("SESSION_PREVIEW_READY");
+    expect(previewItem.targetType).toBe("SESSION");
+  });
+
   it("uses self-scoped detail and read-state endpoints", async () => {
     const client = fakeClient();
 
