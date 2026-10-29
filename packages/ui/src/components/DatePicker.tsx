@@ -49,6 +49,7 @@ export interface DatePickerProps extends Omit<
   className?: string;
   includeTime?: boolean;
   variant?: "default" | "table";
+  allowTextInput?: boolean;
 }
 
 function parseDate(value: string | undefined): Date | null {
@@ -75,6 +76,22 @@ function formatIsoDate(date: Date): string {
 function formatDisplayDate(value: string): string {
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
   return match ? `${match[3]}/${match[2]}/${match[1]}` : value;
+}
+
+function parseTypedDate(value: string): Date | null {
+  const normalized = value.trim();
+  const displayMatch = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(normalized);
+  if (displayMatch) {
+    const [, day, month, year] = displayMatch;
+    const date = new Date(Number(year), Number(month) - 1, Number(day));
+    return date.getFullYear() === Number(year) &&
+      date.getMonth() === Number(month) - 1 &&
+      date.getDate() === Number(day)
+      ? date
+      : null;
+  }
+
+  return parseDate(normalized);
 }
 
 function isSameDay(left: Date | null, right: Date): boolean {
@@ -129,6 +146,7 @@ export const DatePicker = ({
   max,
   includeTime = false,
   variant = "default",
+  allowTextInput = true,
   "aria-label": ariaLabel,
 }: DatePickerProps): ReactElement => {
   const { locale, t } = useLocale();
@@ -145,12 +163,16 @@ export const DatePicker = ({
     const year = (selectedDate ?? new Date()).getFullYear();
     return Math.floor(year / YEAR_PAGE_SIZE) * YEAR_PAGE_SIZE;
   });
+  const [inputValue, setInputValue] = useState(() => formatDisplayDate(dateValue));
+  const [inputError, setInputError] = useState<string>();
   const [panelPosition, setPanelPosition] = useState<PanelPosition | null>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const anchorRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const controlId = id ?? name?.toString() ?? label?.toLowerCase().replace(/\s+/g, "-");
   const resolvedPlaceholder = placeholder ?? t("common.datePlaceholder", "dd/mm/yyyy");
   const resolvedAriaLabel = ariaLabel ?? label ?? t("common.selectDate", "Select date");
+  const resolvedError = error ?? inputError;
 
   const monthLabel = useMemo(
     () =>
@@ -189,21 +211,27 @@ export const DatePicker = ({
   );
 
   useEffect(() => {
+    const nextSelectedDate = dateFromValue(dateValue);
+    setInputValue(nextSelectedDate ? formatDisplayDate(dateValue) : dateValue);
+    setInputError(undefined);
+  }, [dateValue]);
+
+  useEffect(() => {
     if (!isOpen) return;
 
     const updatePanelPosition = (): void => {
-      const trigger = triggerRef.current;
+      const anchor = anchorRef.current;
       const panel = panelRef.current;
-      if (!trigger || !panel) return;
+      if (!anchor || !panel) return;
 
-      const triggerRect = trigger.getBoundingClientRect();
+      const anchorRect = anchor.getBoundingClientRect();
       const panelRect = panel.getBoundingClientRect();
       const opensAbove =
-        triggerRect.bottom + GAP_PX + panelRect.height > window.innerHeight &&
-        triggerRect.top - GAP_PX - panelRect.height >= VIEWPORT_PADDING_PX;
+        anchorRect.bottom + GAP_PX + panelRect.height > window.innerHeight &&
+        anchorRect.top - GAP_PX - panelRect.height >= VIEWPORT_PADDING_PX;
       const top = opensAbove
-        ? triggerRect.top - GAP_PX - panelRect.height
-        : triggerRect.bottom + GAP_PX;
+        ? anchorRect.top - GAP_PX - panelRect.height
+        : anchorRect.bottom + GAP_PX;
       const maxLeft = Math.max(
         VIEWPORT_PADDING_PX,
         window.innerWidth - panelRect.width - VIEWPORT_PADDING_PX,
@@ -214,7 +242,7 @@ export const DatePicker = ({
           VIEWPORT_PADDING_PX,
           Math.min(top, window.innerHeight - panelRect.height - VIEWPORT_PADDING_PX),
         ),
-        left: Math.max(VIEWPORT_PADDING_PX, Math.min(triggerRect.left, maxLeft)),
+        left: Math.max(VIEWPORT_PADDING_PX, Math.min(anchorRect.left, maxLeft)),
       });
     };
 
@@ -249,6 +277,8 @@ export const DatePicker = ({
   };
 
   const emitDate = (nextDate: string): void => {
+    setInputValue(formatDisplayDate(nextDate));
+    setInputError(undefined);
     dispatchChange(
       onChange,
       includeTime && timeValue ? `${nextDate}T${timeValue}` : nextDate,
@@ -268,6 +298,32 @@ export const DatePicker = ({
 
   const dateIsDisabled = (date: Date): boolean =>
     Boolean((minDate && dateIsBefore(date, minDate)) || (maxDate && dateIsAfter(date, maxDate)));
+
+  const commitTypedDate = (): void => {
+    const normalized = inputValue.trim();
+    if (!normalized) {
+      setInputError(undefined);
+      if (value) dispatchChange(onChange, "", name);
+      return;
+    }
+
+    const typedDate = parseTypedDate(normalized);
+    if (!typedDate || dateIsDisabled(typedDate)) {
+      setInputError(t("common.invalidDate", "Enter a valid date as dd/mm/yyyy."));
+      return;
+    }
+
+    const nextDate = formatIsoDate(typedDate);
+    setInputError(undefined);
+    setInputValue(formatDisplayDate(nextDate));
+    setViewDate(typedDate);
+    setYearPageStart(Math.floor(typedDate.getFullYear() / YEAR_PAGE_SIZE) * YEAR_PAGE_SIZE);
+    dispatchChange(
+      onChange,
+      includeTime && timeValue ? `${nextDate}T${timeValue}` : nextDate,
+      name,
+    );
+  };
 
   const openPicker = (): void => {
     if (disabled || readOnly) return;
@@ -297,28 +353,26 @@ export const DatePicker = ({
     setView("months");
   };
 
-  const displayValue = selectedDate
-    ? formatDisplayDate(dateValue)
-    : dateValue || resolvedPlaceholder;
   const displayTime = includeTime ? timeValue : "";
 
   return (
     <FormField
       id={controlId}
       label={label}
-      error={error}
+      error={resolvedError}
       helperText={helperText}
       required={required}
     >
       <div className="relative">
         {name && <input type="hidden" name={name} value={value} readOnly />}
         <div
+          ref={anchorRef}
           className={cn(
             "flex items-center border transition-[border-color,box-shadow] focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]/20",
             variant === "table"
               ? "min-h-9 rounded-md bg-[var(--table-control-background)]"
               : "min-h-10 rounded-lg bg-[var(--surface-card)]",
-            error
+            resolvedError
               ? "border-[var(--blush-action)]"
               : variant === "table"
                 ? "border-[var(--table-control-border)]"
@@ -330,33 +384,57 @@ export const DatePicker = ({
             includeTime ? "gap-2 px-3" : "px-0",
           )}
         >
-          <button
-            ref={triggerRef}
+          <input
             id={controlId}
-            type="button"
+            type="text"
+            value={
+              allowTextInput ? inputValue : selectedDate ? formatDisplayDate(dateValue) : dateValue
+            }
+            placeholder={resolvedPlaceholder}
             disabled={disabled}
+            readOnly={readOnly || !allowTextInput}
             aria-label={resolvedAriaLabel}
-            aria-haspopup="dialog"
-            aria-expanded={isOpen}
             aria-required={required || undefined}
-            aria-readonly={readOnly || undefined}
-            aria-invalid={error ? true : undefined}
-            onClick={() => (isOpen ? closePicker() : openPicker())}
+            aria-readonly={readOnly || !allowTextInput || undefined}
+            aria-invalid={resolvedError ? true : undefined}
+            onChange={(event) => {
+              setInputError(undefined);
+              setInputValue(event.target.value);
+            }}
+            onBlur={allowTextInput ? commitTypedDate : undefined}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                commitTypedDate();
+              }
+              if (event.key === "ArrowDown" && event.altKey) {
+                event.preventDefault();
+                openPicker();
+              }
+            }}
             className={cn(
-              "flex min-w-0 flex-1 items-center justify-between gap-2 text-left outline-none disabled:cursor-not-allowed",
+              "min-w-0 flex-1 border-0 bg-transparent outline-none placeholder:text-[var(--ink-muted)] disabled:cursor-not-allowed",
               variant === "table"
-                ? "rounded-md px-2 py-1.5 text-xs text-[var(--table-body-text)]"
-                : "rounded-lg px-3 py-2.5 text-sm text-[var(--ink-primary)]",
-              !selectedDate &&
-                (variant === "table"
-                  ? "text-[var(--table-muted-text)]"
-                  : "text-[var(--ink-muted)]"),
-              includeTime && "px-0",
+                ? "rounded-md px-2 py-1.5 text-xs text-[var(--table-body-text)] disabled:text-[var(--table-muted-text)]"
+                : "rounded-lg px-3 py-2.5 text-sm text-[var(--ink-primary)] disabled:text-[var(--ink-muted)]",
               className,
             )}
+          />
+          <button
+            ref={triggerRef}
+            type="button"
+            disabled={disabled || readOnly}
+            aria-label={t("common.openDatePicker", "Open date picker")}
+            aria-haspopup="dialog"
+            aria-expanded={isOpen}
+            aria-invalid={resolvedError ? true : undefined}
+            onClick={() => (isOpen ? closePicker() : openPicker())}
+            className={cn(
+              "shrink-0 rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35 disabled:cursor-not-allowed",
+              variant === "table" ? "px-2 py-1.5" : "px-3 py-2.5",
+            )}
           >
-            <span className="truncate">{displayValue}</span>
-            <NextAdminCalendarIcon className="h-4 w-4 shrink-0 text-[var(--ink-muted)]" />
+            <NextAdminCalendarIcon className="h-4 w-4 text-[var(--ink-muted)]" />
           </button>
           {includeTime && (
             <input
