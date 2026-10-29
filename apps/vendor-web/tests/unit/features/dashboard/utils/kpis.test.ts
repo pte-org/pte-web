@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { failed, forbidden, makeAdminDashboard } from "../testing/fixtures";
-import { buildAdminKpis } from "./kpis";
+import { buildAdminKpis } from "../../../../../features/dashboard/utils/kpis";
 
 describe("buildAdminKpis", () => {
   it("builds 4 KPI cards when all sections are OK", () => {

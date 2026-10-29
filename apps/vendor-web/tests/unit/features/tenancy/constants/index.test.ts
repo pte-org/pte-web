@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { formatSuspensionDuration } from "./index";
+import { formatSuspensionDuration } from "../../../../../features/tenancy/constants/index";
 
 describe("formatSuspensionDuration", () => {
   it("keeps the complete suspension loss duration", () => {

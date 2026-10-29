@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ADMIN_DASHBOARD_EN } from "../messages/en";
+import { ADMIN_DASHBOARD_EN } from "../../../../../features/dashboard/messages/en";
 import {
   buildGrowthSeries,
   buildOrgTypeDonutSlices,
@@ -7,7 +7,7 @@ import {
   buildStatusDonutSlices,
   REVENUE_SERIES_KEY,
   TENANT_GROWTH_SERIES_KEY,
-} from "./charts";
+} from "../../../../../features/dashboard/utils/charts";
 
 describe("buildGrowthSeries", () => {
   it("maps monthlyCreated points to chart datums", () => {

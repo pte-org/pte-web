@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { failed, forbidden, ok } from "../testing/fixtures";
-import { sectionAvailability, sectionData } from "./sections";
+import { sectionAvailability, sectionData } from "../../../../../features/dashboard/utils/sections";
 
 describe("sections", () => {
   it("maps each status to its availability", () => {

@@ -16,8 +16,8 @@ vi.mock("@tanstack/react-query", () => ({
   },
 }));
 
-import { useAdminDashboard } from "./api";
-import { ADMIN_DASHBOARD_QUERY_KEY, ADMIN_DASHBOARD_STALE_TIME_MS } from "./constants";
+import { useAdminDashboard } from "../../../../features/dashboard/api";
+import { ADMIN_DASHBOARD_QUERY_KEY, ADMIN_DASHBOARD_STALE_TIME_MS } from "../../../../features/dashboard/constants";
 
 describe("useAdminDashboard", () => {
   it("configures query with correct queryKey, staleTime, and no auto-retry", () => {

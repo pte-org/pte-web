@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { failed, makeAdminDashboard, ok } from "../testing/fixtures";
-import { deriveAdminAttention } from "./attention";
+import { deriveAdminAttention } from "../../../../../features/dashboard/utils/attention";
 
 describe("deriveAdminAttention", () => {
   it("derives all attention items sorted by severity (danger before warning)", () => {

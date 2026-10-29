@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { ADMIN_DASHBOARD_EN, type AdminDashboardMessageKey } from "./en";
-import { ADMIN_DASHBOARD_VI } from "./vi";
+import { ADMIN_DASHBOARD_EN, type AdminDashboardMessageKey } from "../../../../../features/dashboard/messages/en";
+import { ADMIN_DASHBOARD_VI } from "../../../../../features/dashboard/messages/vi";
 
 const RUNTIME_PLACEHOLDERS = [
   "name",

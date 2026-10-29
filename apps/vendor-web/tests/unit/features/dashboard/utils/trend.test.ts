@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildDelta } from "./trend";
+import { buildDelta } from "../../../../../features/dashboard/utils/trend";
 
 describe("buildDelta", () => {
   it("formats positive growth as up with good tone", () => {

@@ -2,9 +2,9 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { ADMIN_DASHBOARD_ROUTES } from "./constants";
+import { ADMIN_DASHBOARD_ROUTES } from "../../../../features/dashboard/constants";
 
-const FEATURE_ROOT = fileURLToPath(new URL(".", import.meta.url));
+const FEATURE_ROOT = fileURLToPath(new URL("../../../../features/dashboard", import.meta.url));
 const VENDOR_ROOT = join(FEATURE_ROOT, "..", "..");
 const PAGE = join(VENDOR_ROOT, "app", "(dashboard)", "admin", "page.tsx");
 
@@ -30,7 +30,7 @@ const SOURCES = walk(FEATURE_ROOT).filter(
   (path) => /\.tsx?$/.test(path) && !isTest(path) && !isTestSupport(path),
 );
 const COMPONENTS = SOURCES.filter((path) => path.endsWith(".tsx"));
-const TESTS = walk(FEATURE_ROOT).filter((path) => isTest(path) || isTestSupport(path));
+const TESTS = walk(fileURLToPath(new URL(".", import.meta.url))).filter((path) => isTest(path) || isTestSupport(path));
 
 /** Source without block and line comments, so documentation cannot trigger or hide a finding. */
 const code = (path: string): string =>

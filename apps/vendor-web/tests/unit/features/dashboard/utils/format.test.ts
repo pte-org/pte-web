@@ -8,9 +8,9 @@ import {
   formatPercent,
   formatTenantStatus,
   keyForCount,
-} from "./format";
-import { ADMIN_DASHBOARD_EN } from "../messages/en";
-import { ADMIN_DASHBOARD_VI } from "../messages/vi";
+} from "../../../../../features/dashboard/utils/format";
+import { ADMIN_DASHBOARD_EN } from "../../../../../features/dashboard/messages/en";
+import { ADMIN_DASHBOARD_VI } from "../../../../../features/dashboard/messages/vi";
 
 describe("formatNumber", () => {
   it("formats integers according to locale", () => {
