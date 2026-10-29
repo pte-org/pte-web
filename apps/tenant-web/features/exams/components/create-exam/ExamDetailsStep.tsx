@@ -24,6 +24,7 @@ export interface ExamDetailsStepProps {
   templateMessage?: string;
   onUpdate: UpdateExamField;
   localizeError: (message?: string) => string | undefined;
+  onValidateField: (field: keyof CreateExamWorkflowErrors) => void;
 }
 
 export function ExamDetailsStep({
@@ -38,7 +39,11 @@ export function ExamDetailsStep({
   templateMessage,
   onUpdate,
   localizeError,
+  onValidateField,
 }: ExamDetailsStepProps): ReactElement {
+  const selectedSubscription = activeSubscriptions.find(
+    (subscription) => subscription.publicId === form.subscriptionPublicId,
+  );
   return (
     <>
       <div className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-secondary)]">
@@ -50,6 +55,7 @@ export function ExamDetailsStep({
         value={form.name}
         error={localizeError(errors.name)}
         onChange={(event) => onUpdate("name", event.target.value)}
+        onBlur={() => onValidateField("name")}
       />
       {templateMessage && <Alert tone="error">{templateMessage}</Alert>}
       <Select
@@ -71,12 +77,22 @@ export function ExamDetailsStep({
       <Input
         type="number"
         min={1}
+        max={selectedSubscription?.maxStudentsPerSession}
         step={1}
         label={wizardText.CAPACITY_LABEL}
         value={form.capacity}
         error={localizeError(errors.capacity)}
         onChange={(event) => onUpdate("capacity", event.target.value)}
+        onBlur={() => onValidateField("capacity")}
       />
+      {selectedSubscription && (
+        <p aria-live="polite" className="text-sm text-[var(--ink-secondary)]">
+          {wizardText.SUBSCRIPTION_CAPACITY_HINT.replace(
+            "{count}",
+            String(selectedSubscription.maxStudentsPerSession),
+          )}
+        </p>
+      )}
       <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-5">
         <div className="text-sm font-medium text-[var(--ink-primary)]">
           {wizardText.FULL_TEMPLATE_SCOPE}

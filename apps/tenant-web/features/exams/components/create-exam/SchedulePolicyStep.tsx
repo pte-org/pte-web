@@ -16,6 +16,7 @@ export interface SchedulePolicyStepProps {
   wizardText: WizardText;
   onUpdate: UpdateExamField;
   localizeError: (message?: string) => string | undefined;
+  onValidateField: (field: keyof CreateExamWorkflowErrors) => void;
 }
 
 export function SchedulePolicyStep({
@@ -24,6 +25,7 @@ export function SchedulePolicyStep({
   wizardText,
   onUpdate,
   localizeError,
+  onValidateField,
 }: SchedulePolicyStepProps): ReactElement {
   return (
     <>
@@ -51,6 +53,7 @@ export function SchedulePolicyStep({
           value={form.seriesKey}
           error={localizeError(errors.seriesKey)}
           onChange={(event) => onUpdate("seriesKey", event.target.value)}
+          onBlur={() => onValidateField("seriesKey")}
         />
       )}
     </>
