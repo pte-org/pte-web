@@ -958,7 +958,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.program": "Chương trình",
     "nav.class": "Lớp học",
     "nav.markingQueue": "Hàng đợi chấm",
-    "nav.student": "Học viên",
     "tenant.search.auditLog.placeholder":
       "Tìm nhật ký hệ thống theo tên, mã tài nguyên, thao tác hoặc nội dung",
     "tenant.search.auditLog.ariaLabel":
@@ -993,7 +992,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.search.proctors.ariaLabel": "Tìm giám thị theo tên, email hoặc vai trò",
     "tenant.search.sessions.placeholder": "Tìm theo tên kỳ thi, mã phiên hoặc trạng thái",
     "tenant.search.sessions.ariaLabel": "Tìm phiên thi theo tên, mã phiên hoặc trạng thái",
-    "nav.myResults": "Kết quả của tôi",
     "nav.proctor": "Giám thị",
     "nav.proctorOverview": "Tổng quan",
     "nav.proctorMonitoring": "Giám sát trực tiếp",
@@ -1005,7 +1003,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.supervision": "Giám sát",
     "workspace.host": "Quản trị cơ sở",
     "workspace.examiner": "Chấm thi",
-    "workspace.student": "Học viên",
     "workspace.proctor": "Giám thị",
     "workspace.switchTitle": "Chuyển không gian",
     "proctor.unavailable.title": "Khu vực Giám thị chưa khả dụng",
@@ -1955,7 +1952,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.program": "Program",
     "nav.class": "Class",
     "nav.markingQueue": "Marking queue",
-    "nav.student": "Student",
     "tenant.search.auditLog.placeholder":
       "Search system log by resource name, code, action, or summary",
     "tenant.search.auditLog.ariaLabel":
@@ -1988,7 +1984,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.search.proctors.ariaLabel": "Search proctors by name, email, or role",
     "tenant.search.sessions.placeholder": "Search by exam name, session code, or status",
     "tenant.search.sessions.ariaLabel": "Search exam sessions by name, code, or status",
-    "nav.myResults": "My results",
     "nav.proctor": "Proctor",
     "nav.proctorOverview": "Overview",
     "nav.proctorMonitoring": "Live Monitoring",
@@ -2000,7 +1995,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.supervision": "Supervision",
     "workspace.host": "Host Admin",
     "workspace.examiner": "Examiner",
-    "workspace.student": "Student",
     "workspace.proctor": "Proctor",
     "workspace.switchTitle": "Switch Workspace",
     "proctor.unavailable.title": "Proctor Workspace Unavailable",
