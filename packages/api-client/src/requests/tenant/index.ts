@@ -1,6 +1,7 @@
 import type { ApiClient } from "../../client/client";
 import type {
-  OnboardTenantRequest,
+  DirectOnboardRequest,
+  DirectOnboardResponse,
   SuspendTenantRequest,
   TenantSuspensionImpactResponse,
   TenantResponse,
@@ -10,6 +11,7 @@ import type { OrganizationResponse } from "../../types/organization";
 
 export const TENANT_ENDPOINTS = {
   tenants: "/api/v1/organizations",
+  directOnboard: "/api/v1/admin/organizations",
   tenant: (publicId: string) => `/api/v1/organizations/${publicId}`,
   suspensionImpact: (publicId: string, days?: number) =>
     `/api/v1/organizations/${publicId}/suspension-impact${days === undefined ? "" : `?days=${days}`}`,
@@ -17,11 +19,12 @@ export const TENANT_ENDPOINTS = {
   status: (publicId: string) => `/api/v1/organizations/${publicId}/status`,
 } as const;
 
-export function onboardTenant(
+/** Creates and approves an organization with its first host; the platform-only replacement of direct onboarding. */
+export function onboardOrganization(
   client: ApiClient,
-  payload: OnboardTenantRequest,
-): Promise<TenantResponse> {
-  return client.request<TenantResponse>(TENANT_ENDPOINTS.tenants, {
+  payload: DirectOnboardRequest,
+): Promise<DirectOnboardResponse> {
+  return client.request<DirectOnboardResponse>(TENANT_ENDPOINTS.directOnboard, {
     method: "POST",
     body: payload,
   });

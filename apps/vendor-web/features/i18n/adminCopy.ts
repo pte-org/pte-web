@@ -199,6 +199,14 @@ const ADMIN_VI: Record<string, string> = {
   "License codes": "Mã bản quyền",
   "Activation codes": "Mã kích hoạt",
   "Package grants": "Cấp gói",
+  "Host email": "Email Host",
+  "The first host account is created for this email and its password is sent there.":
+    "Tài khoản Host đầu tiên được tạo theo email này và mật khẩu được gửi tới đó.",
+  "The student limit starts at the free limit in Platform settings. Grant packages after the tenant is created.":
+    "Hạn mức học viên lấy theo mức miễn phí trong Platform settings. Cấp gói sau khi tạo tenant.",
+  "Host account": "Tài khoản Host",
+  "The host password has been emailed to this address.": "Mật khẩu Host đã được gửi tới email này.",
+  "Grant package now": "Cấp gói ngay",
   "Grant packages to organizations under contract and review issued codes.":
     "Cấp gói cho tổ chức theo hợp đồng và theo dõi các mã đã phát hành.",
   "Grant package": "Cấp gói",

@@ -1,10 +1,9 @@
 import type { ReactElement } from "react";
-import { Select } from "@pte/ui";
+import { Alert, Select } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import {
   CREATE_TENANT_TEXT as RAW_CREATE_TENANT_TEXT,
   ORGANIZATION_TYPE_OPTIONS as RAW_ORGANIZATION_TYPE_OPTIONS,
-  PLAN_SELECT_OPTIONS as RAW_PLAN_SELECT_OPTIONS,
 } from "../constants";
 import type { CreateTenantErrors, CreateTenantInput } from "../types";
 import { TenantFormField, fieldInputClass } from "./_TenantFormField";
@@ -22,7 +21,6 @@ export const TenantGeneralFields = ({
 }: TenantGeneralFieldsProps): ReactElement => {
   const T = useAdminCopy(RAW_CREATE_TENANT_TEXT);
   const organizationTypeOptions = useAdminCopy(RAW_ORGANIZATION_TYPE_OPTIONS);
-  const planOptions = useAdminCopy(RAW_PLAN_SELECT_OPTIONS);
   return (
     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
       <TenantFormField
@@ -90,33 +88,28 @@ export const TenantGeneralFields = ({
         />
       </TenantFormField>
 
-      <TenantFormField label={T.PLAN_LABEL} htmlFor="tenant-plan" required error={errors.plan}>
-        <Select
-          id="tenant-plan"
-          value={form.plan}
-          onChange={(event) => onChange("plan", event.target.value)}
-          placeholder={T.PLAN_PLACEHOLDER}
-          options={planOptions}
-          className={errors.plan ? "!border-red-300 !bg-red-50/40" : undefined}
+      <TenantFormField
+        label={T.HOST_EMAIL_LABEL}
+        htmlFor="tenant-host-email"
+        required
+        helper={T.HOST_EMAIL_HELPER}
+        error={errors.hostEmail}
+      >
+        <input
+          id="tenant-host-email"
+          type="email"
+          value={form.hostEmail}
+          onChange={(event) => onChange("hostEmail", event.target.value)}
+          placeholder={T.HOST_EMAIL_PLACEHOLDER}
+          maxLength={255}
+          autoComplete="off"
+          className={fieldInputClass(errors.hostEmail)}
         />
       </TenantFormField>
 
-      <TenantFormField
-        label={T.STUDENT_LIMIT_LABEL}
-        htmlFor="tenant-student-limit"
-        required
-        error={errors.studentLimit}
-      >
-        <input
-          id="tenant-student-limit"
-          type="number"
-          min="1"
-          value={form.studentLimit}
-          onChange={(event) => onChange("studentLimit", event.target.value)}
-          placeholder={T.STUDENT_LIMIT_PLACEHOLDER}
-          className={fieldInputClass(errors.studentLimit)}
-        />
-      </TenantFormField>
+      <div className="md:col-span-2">
+        <Alert tone="info">{T.CAPACITY_NOTE}</Alert>
+      </div>
     </div>
   );
 };

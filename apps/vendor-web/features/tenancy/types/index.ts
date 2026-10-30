@@ -53,7 +53,7 @@ export interface TenantFilter {
 
 /**
  * Raw form values for creating a tenant — one field per real
- * `OnboardTenantRequest` field, nothing else (the backend has no
+ * `DirectOnboardRequest` field, nothing else (the backend has no
  * slug/location/contact/contract-date fields to receive them).
  */
 export interface CreateTenantInput {
@@ -61,8 +61,8 @@ export interface CreateTenantInput {
   name: string;
   organizationType: string;
   taxCode: string;
-  plan: TenantPlan | "";
-  studentLimit: string;
+  /** Receives the first host account; the student limit and packages are not set here. */
+  hostEmail: string;
 }
 
 /** Per-field validation messages; a field is absent when it is valid. */
