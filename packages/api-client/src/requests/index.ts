@@ -36,6 +36,7 @@ export * from "./billing/subscriptions";
 export * from "./billing/orders";
 export * from "./billing/platformCommercial";
 export * from "./billing/licenseCodes";
+export * from "./billing/licenseGrants";
 export * from "./billing/platformSettings";
 export * from "./billing/quota";
 export * from "./notification";

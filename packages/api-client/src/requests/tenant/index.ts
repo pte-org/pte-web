@@ -6,6 +6,7 @@ import type {
   TenantResponse,
   UpdateBrandingRequest,
 } from "../../types/tenant";
+import type { OrganizationResponse } from "../../types/organization";
 
 export const TENANT_ENDPOINTS = {
   tenants: "/api/v1/organizations",
@@ -28,6 +29,15 @@ export function onboardTenant(
 
 export function listTenants(client: ApiClient): Promise<TenantResponse[]> {
   return client.request<TenantResponse[]>(TENANT_ENDPOINTS.tenants);
+}
+
+/**
+ * Platform lookup by organization code or tax-code prefix, or exact contact email; at most 20 rows.
+ * Returns the full organization so a caller can show its address and facility type.
+ */
+export function searchTenants(client: ApiClient, q: string): Promise<OrganizationResponse[]> {
+  const query = new URLSearchParams({ q: q.trim() });
+  return client.request<OrganizationResponse[]>(`${TENANT_ENDPOINTS.tenants}?${query.toString()}`);
 }
 
 export function getTenant(client: ApiClient, publicId: string): Promise<TenantResponse> {
