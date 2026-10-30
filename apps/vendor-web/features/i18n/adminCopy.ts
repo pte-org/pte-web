@@ -349,6 +349,12 @@ const ADMIN_VI: Record<string, string> = {
   "Task type key": "Mã dạng bài",
   "Display name": "Tên hiển thị",
   "Short name": "Tên viết tắt",
+  "Student instruction": "Hướng dẫn cho thí sinh",
+  "Shown to students above every question of this task type.":
+    "Hiển thị cho thí sinh phía trên mọi câu hỏi thuộc dạng bài này.",
+  "Plain text. You can edit it even after the task type is locked.":
+    "Văn bản thuần. Vẫn sửa được kể cả khi dạng bài đã bị khóa.",
+  "Enter the instruction students will see.": "Nhập hướng dẫn mà thí sinh sẽ thấy.",
   "Display order": "Thứ tự hiển thị",
   "Available for new questions": "Cho phép dùng cho câu hỏi mới",
   "Screen key": "Mã màn hình",
