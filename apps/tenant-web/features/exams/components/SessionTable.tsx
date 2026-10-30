@@ -21,6 +21,7 @@ import {
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useTenantSearchText } from "@/features/search/useTenantSearchText";
+import { getExamMutationErrorMessage } from "../utils/examMutationError";
 import { useDeleteSession, useTransitionExamStatus } from "../api";
 import {
   EXAM_TABLE_HEADERS,
@@ -151,7 +152,7 @@ export const SessionTable = ({
         setStatusEditingSessionId(null);
       },
       onError: (error) => {
-        showToast(errorMessage(error) ?? actionText.updateStatusFailed, { tone: "error" });
+        showToast(getExamMutationErrorMessage(error, t), { tone: "error" });
       },
     });
   };
