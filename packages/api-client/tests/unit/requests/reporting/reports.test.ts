@@ -4,7 +4,6 @@ import {
   REPORT_ENDPOINTS,
   getAttemptReport,
   getReportPublicationSummary,
-  listMyReports,
   preflightReportPublication,
   publishSessionReports,
 } from "../../../../src/requests/reporting/reports";
@@ -18,18 +17,18 @@ function fakeClient(): ApiClient & { request: ReturnType<typeof vi.fn> } {
 }
 
 describe("report requests", () => {
-  it("uses student and attempt report routes", async () => {
+  it("uses the attempt report and publication summary routes", async () => {
     const client = fakeClient();
-    await listMyReports(client);
     await getAttemptReport(client, "attempt-id");
     await getReportPublicationSummary(client, "session-id");
 
-    expect(client.request).toHaveBeenNthCalledWith(1, REPORT_ENDPOINTS.mine);
-    expect(client.request).toHaveBeenNthCalledWith(2, REPORT_ENDPOINTS.attempt("attempt-id"));
+    expect(client.request).toHaveBeenNthCalledWith(1, REPORT_ENDPOINTS.attempt("attempt-id"));
     expect(client.request).toHaveBeenNthCalledWith(
-      3,
+      2,
       REPORT_ENDPOINTS.publicationSummary("session-id"),
     );
+    // Students have no report route: their scores arrive by email only.
+    expect(Object.keys(REPORT_ENDPOINTS)).not.toContain("mine");
   });
 
   it("preflights and publishes a session through Reporting", async () => {
