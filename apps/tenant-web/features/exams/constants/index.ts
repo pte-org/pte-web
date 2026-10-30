@@ -107,7 +107,7 @@ export const CREATE_SESSION_TEXT = {
   PLAN_FALLBACK: "Plan",
   SUBSCRIPTION_OPTION: (planName: string, licenseKey: string) => `${planName} — ${licenseKey}`,
   NO_ACTIVE_SUBSCRIPTIONS:
-    "No active subscription yet — redeem a license or purchase a plan first.",
+    "No active subscription yet — buy a plan or contact PTEPrep for a contract grant.",
   SKILLS_LABEL: "Skills",
   OPENS_AT_LABEL: "Opens at",
   CLOSES_AT_LABEL: "Closes at",
