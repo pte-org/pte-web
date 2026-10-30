@@ -305,7 +305,11 @@ export function useCreateExamWorkflow(): UseMutationResult<
 
 function assertExamPreflightReady(preflight: Awaited<ReturnType<typeof preflightExam>>): void {
   if (preflight.ready) return;
-  throw new ExamPreflightBlockedError(preflight.issues, preflight.examDefinition.slots);
+  throw new ExamPreflightBlockedError(
+    preflight.issues,
+    preflight.examDefinition.slots,
+    preflight.audience.members,
+  );
 }
 
 /** Runs the backend-owned command for a selected status rather than patching status directly. */
