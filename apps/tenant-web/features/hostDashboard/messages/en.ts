@@ -82,7 +82,6 @@ export const HOST_DASHBOARD_EN = {
   columnEnrolled: "Enrolled / capacity",
   enrolledOfCapacity: "{enrolled} / {capacity}",
   sessionStatusDRAFT: "Draft",
-  sessionStatusPREPARING: "Preparing",
   sessionStatusREADY: "Ready",
   sessionStatusSCHEDULED: "Scheduled",
   sessionStatusOPEN: "Open",

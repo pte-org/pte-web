@@ -11,16 +11,10 @@ export const PROGRAM_ENDPOINTS = {
     `/api/v1/organizations/${organizationPublicId}/programs`,
   program: (organizationPublicId: string, publicId: string) =>
     `/api/v1/organizations/${organizationPublicId}/programs/${publicId}`,
-  activate: (organizationPublicId: string, publicId: string) =>
-    `/api/v1/organizations/${organizationPublicId}/programs/${publicId}/activate`,
-  deactivate: (organizationPublicId: string, publicId: string) =>
-    `/api/v1/organizations/${organizationPublicId}/programs/${publicId}/deactivate`,
-  suspend: (organizationPublicId: string, publicId: string) =>
-    `/api/v1/organizations/${organizationPublicId}/programs/${publicId}/suspend`,
-  archive: (organizationPublicId: string, publicId: string) =>
-    `/api/v1/organizations/${organizationPublicId}/programs/${publicId}/archive`,
   dashboard: (organizationPublicId: string, publicId: string) =>
     `/api/v1/organizations/${organizationPublicId}/programs/${publicId}/dashboard`,
+  status: (organizationPublicId: string, publicId: string) =>
+    `/api/v1/organizations/${organizationPublicId}/programs/${publicId}/status`,
 } as const;
 
 export function listPrograms(
@@ -70,9 +64,9 @@ export function activateProgram(
   publicId: string,
 ): Promise<ProgramResponse> {
   return client.request<ProgramResponse>(
-    PROGRAM_ENDPOINTS.activate(organizationPublicId, publicId),
+    PROGRAM_ENDPOINTS.status(organizationPublicId, publicId),
     {
-      method: "POST",
+      method: "PATCH", body: { action: "ACTIVATE" },
     },
   );
 }
@@ -83,9 +77,9 @@ export function deactivateProgram(
   publicId: string,
 ): Promise<ProgramResponse> {
   return client.request<ProgramResponse>(
-    PROGRAM_ENDPOINTS.deactivate(organizationPublicId, publicId),
+    PROGRAM_ENDPOINTS.status(organizationPublicId, publicId),
     {
-      method: "POST",
+      method: "PATCH", body: { action: "DEACTIVATE" },
     },
   );
 }
@@ -96,9 +90,9 @@ export function suspendProgram(
   publicId: string,
 ): Promise<ProgramResponse> {
   return client.request<ProgramResponse>(
-    PROGRAM_ENDPOINTS.suspend(organizationPublicId, publicId),
+    PROGRAM_ENDPOINTS.status(organizationPublicId, publicId),
     {
-      method: "POST",
+      method: "PATCH", body: { action: "SUSPEND" },
     },
   );
 }
@@ -109,9 +103,9 @@ export function archiveProgram(
   publicId: string,
 ): Promise<ProgramResponse> {
   return client.request<ProgramResponse>(
-    PROGRAM_ENDPOINTS.archive(organizationPublicId, publicId),
+    PROGRAM_ENDPOINTS.status(organizationPublicId, publicId),
     {
-      method: "POST",
+      method: "PATCH", body: { action: "ARCHIVE" },
     },
   );
 }

@@ -50,6 +50,13 @@ export const PASSWORD_CHANGE_TEXT = {
 
 export const AUTH_TEXT = {
   BRAND: "PTE Prep",
+  PORTAL_ADMIN_LABEL: "Admin portal",
+  PORTAL_HOST_LABEL: "Organization portal",
+  FOOTER_LABEL: "Legal and support",
+  FOOTER_COPYRIGHT: "© {year} PTE Prep",
+  FOOTER_TERMS: "Terms",
+  FOOTER_PRIVACY: "Privacy",
+  FOOTER_SUPPORT: "Contact support",
   WELCOME_TITLE: "Welcome Back",
   WELCOME_SUBTITLE: "Please enter your institutional credentials to continue.",
   // Username, not email: the backend login key moved off email in Phase 1
@@ -57,7 +64,7 @@ export const AUTH_TEXT = {
   // email (the backend sets username = email for every non-STUDENT role),
   // which is why the placeholder still shows one — but the field carries
   // username semantics and must not be email-typed or email-validated.
-  USERNAME_LABEL: "Username",
+  USERNAME_LABEL: "Email",
   USERNAME_PLACEHOLDER: "admin@institution.edu",
   ORGANIZATION_LABEL: "Organization",
   ORGANIZATION_PLACEHOLDER: "Select your organization",
@@ -69,7 +76,9 @@ export const AUTH_TEXT = {
   LOGGING_IN: "Signing in...",
   SHOW_PASSWORD: "Show password",
   HIDE_PASSWORD: "Hide password",
-  EMPTY_FIELDS: "Please enter username and password.",
+  USERNAME_REQUIRED: "Please enter your email.",
+  USERNAME_INVALID_EMAIL: "Please enter a valid email address.",
+  PASSWORD_REQUIRED: "Please enter your password.",
   INVALID_CREDENTIALS: "Username or password is incorrect.",
   UNSUPPORTED_ROLE: "This account is not allowed to use the vendor portal.",
   GENERIC_ERROR: "Login failed. Please try again.",

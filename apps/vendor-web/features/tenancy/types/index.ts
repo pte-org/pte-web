@@ -53,7 +53,7 @@ export interface TenantFilter {
 
 /**
  * Raw form values for creating a tenant — one field per real
- * `OnboardTenantRequest` field, nothing else (the backend has no
+ * `DirectOnboardRequest` field, nothing else (the backend has no
  * slug/location/contact/contract-date fields to receive them).
  */
 export interface CreateTenantInput {
@@ -61,25 +61,12 @@ export interface CreateTenantInput {
   name: string;
   organizationType: string;
   taxCode: string;
-  plan: TenantPlan | "";
-  studentLimit: string;
+  /** Receives the first host account; the student limit and packages are not set here. */
+  hostEmail: string;
 }
 
 /** Per-field validation messages; a field is absent when it is valid. */
 export type CreateTenantErrors = Partial<Record<keyof CreateTenantInput, string>>;
-
-export type FacilityType = "MAIN" | "BRANCH" | "TEST_CENTER";
-
-export type OrganizationStatus = "active" | "suspended";
-
-/** A branch/facility under a Tenant — matches admin's real `OrganizationResponse`. */
-export interface Organization {
-  id: string;
-  name: string;
-  address: string | null;
-  facilityType: FacilityType;
-  status: OrganizationStatus;
-}
 
 /** Raw form values for the branding editor — empty string means "unset". */
 export interface BrandingInput {

@@ -1,7 +1,7 @@
 import type { ScoreTemplateFeasibilityResponse } from "../scoretemplate";
 
 export type SessionStatus =
-  "DRAFT" | "PREPARING" | "READY" | "SCHEDULED" | "OPEN" | "CLOSED" | "CANCELLED";
+  "DRAFT" | "READY" | "SCHEDULED" | "OPEN" | "CLOSED" | "CANCELLED";
 
 /**
  * Matches scheduling's real `SessionResponse` record exactly (Plan B, Phase
@@ -16,18 +16,16 @@ export interface SessionResponse {
   name: string;
   tenantId: string;
   subscriptionPublicId: string;
-  snapshotPublicId: string | null;
+  examVersionPublicId: string | null;
   opensAt: string;
   closesAt: string;
   status: SessionStatus;
   capacity: number;
-  templatePublicId: string | null;
-  templateVersion: number | null;
+  examDefinitionPublicId: string | null;
+  examDefinitionVersion: number | null;
   examMode: ExamMode | null;
-  formMode: FormMode | null;
   reusePolicy: ReusePolicy | null;
   seriesKey: string | null;
-  generationJobPublicId: string | null;
   draftVersion: number;
   /** Canonical session policy; nullable/optional for older response fixtures. */
   policy?: ExamPolicyResponse | null;
@@ -67,8 +65,11 @@ export interface ExamPreviewResponse {
 
 export interface ExamPreviewItem {
   orderIndex: number;
+  /** Stable identity inside this immutable snapshot; use with snapshotPublicId for answer keys. */
+  snapshotItemPublicId: string;
   section: string;
   taskType: string;
+  taskTypeKey: string | null;
   taskTypeCode: string;
   taskTypeDisplayName: string;
   title: string;
@@ -79,6 +80,36 @@ export interface ExamPreviewItem {
   maxWordCount: number | null;
   options: ExamPreviewOption[];
   sourceQuestionPublicId: string | null;
+  runtime: TaskRuntimeProfile | null;
+  runtimeMappingVersion: string | null;
+  runtimeMappingStatus: string | null;
+  prepSeconds: number;
+  responseSeconds: number;
+  preListenSeconds: number | null;
+  preRecordSeconds: number | null;
+  audioDurationSeconds: number | null;
+  audioUrlExpiresAt: string | null;
+  imageUrlExpiresAt: string | null;
+}
+
+/** Serialized assessment runtime contract used by the Flutter renderer registry. */
+export interface TaskRuntimeProfile {
+  taskTypeCode: string;
+  profileKey: string;
+  profileVersion: number;
+  behaviorKey: string;
+  rendererKey: string;
+  answerSchemaVersion: number;
+  scoringProfileKey: string;
+  scoringProfileVersion: number;
+  requiredClientCapabilities: string[];
+  status: string;
+  screenKey: string;
+  contractVersion: number;
+  scoringMode: string;
+  minSupportedAppVersion: string;
+  authoringContractKey: string;
+  authoringContractVersion: number | null;
 }
 
 /** Scoring flags are intentionally absent. */
@@ -90,7 +121,6 @@ export interface ExamPreviewOption {
 
 export type ExamMode = "OFFICIAL_EXAM";
 export type LockdownMode = "NONE" | "STANDARD" | "STRICT";
-export type FormMode = "SHARED_FORM" | "UNIQUE_FORM_PER_STUDENT";
 export type ReusePolicy =
   | "ALLOW"
   | "EXCLUDE_STARTED_IN_SERIES"
@@ -160,7 +190,7 @@ export interface UpdateProctorRoleRequest {
   role: ProctorRole;
 }
 
-/** Matches scheduling's real `AssignClassRequest`/`SessionClassAssignmentResponse` records exactly (Plan B, Phase 4). */
+/** Matches the real `AssignClassRequest`/`SessionClassAssignmentResponse` records of `SessionClassController`. */
 export interface AssignClassRequest {
   classPublicId: string;
 }
@@ -186,12 +216,11 @@ export interface StudentEnrollmentResponse {
 
 export interface CreateExamDraftRequest {
   name: string;
-  templatePublicId: string;
+  examDefinitionPublicId: string;
   subscriptionPublicId: string;
   opensAt: string;
   closesAt: string;
   examMode?: ExamMode | null;
-  formMode?: FormMode | null;
   reusePolicy?: ReusePolicy | null;
   seriesKey?: string | null;
   capacity: number;
@@ -202,12 +231,11 @@ export interface CreateExamDraftRequest {
 
 export interface PatchExamDraftRequest {
   name?: string;
-  templatePublicId?: string;
+  examDefinitionPublicId?: string;
   subscriptionPublicId?: string;
   opensAt?: string;
   closesAt?: string;
   examMode?: ExamMode;
-  formMode?: FormMode;
   reusePolicy?: ReusePolicy;
   seriesKey?: string | null;
   capacity?: number;
@@ -267,7 +295,7 @@ export interface AudiencePreviewResponse {
 
 export interface ExamPreflightResponse {
   ready: boolean;
-  template: ScoreTemplateFeasibilityResponse;
+  examDefinition: ScoreTemplateFeasibilityResponse;
   audience: AudiencePreviewResponse;
   subscriptionReady: boolean;
   windowReady: boolean;

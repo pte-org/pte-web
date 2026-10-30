@@ -25,7 +25,6 @@ export const BillingOverviewView = (): ReactElement => {
     transactionHistoryTab: t("tenant.billing.transactionHistoryTab", T.TRANSACTION_HISTORY_TAB),
     billingTabsAriaLabel: t("tenant.billing.billingTabsAriaLabel", T.BILLING_TABS_ARIA_LABEL),
     viewPlans: t("tenant.billing.viewPlansOnHome", T.VIEW_PLANS_ON_HOME),
-    billingActions: t("tenant.billing.billingActions", T.BILLING_ACTIONS),
     currentPlan: t("tenant.billing.currentPlan", T.CURRENT_PLAN),
     currentPlanSubtitle: t("tenant.billing.currentPlanSubtitle", T.CURRENT_PLAN_SUBTITLE),
     usageStatus: t("tenant.billing.usageStatus", T.USAGE_STATUS),
@@ -39,7 +38,6 @@ export const BillingOverviewView = (): ReactElement => {
     capacityLoadError: t("tenant.billing.capacityLoadError", T.CAPACITY_LOAD_ERROR),
     loadingAccess: t("tenant.billing.loadingAccess", T.LOADING_SUBSCRIPTIONS),
     loadingCapacity: t("tenant.billing.loadingCapacity", T.LOADING_QUOTA),
-    redeemLicense: t("tenant.billing.redeemLicense", T.REDEEM_LICENSE),
   };
   const planNames = new Map(plans.map((plan) => [plan.publicId, plan.name]));
   const resolvePlanName = (planId: string): string =>

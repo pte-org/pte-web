@@ -5,13 +5,18 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
+  AuthBrandLockup,
+  AuthBrandShell,
+  AuthSubmitButton,
+  AuthTextField,
   EyeIcon,
   LockIcon,
   MailIcon,
   Select,
-  ThemeToggle,
   useSessionManager,
-  type SessionRole,
+  useSignInValidation,
+  type AuthFooterItem,
+  type SignInValidationMessages,
 } from "@pte/ui";
 import {
   decodeAccessTokenClaims,
@@ -21,32 +26,31 @@ import {
 import { useLoginHost, useLoginOrganizationOptions } from "../api";
 import { AUTH_TEXT } from "../constants";
 import { resolveWorkspace } from "../resolveWorkspace";
+import { isStudentOnlyAccount, toSessionRoles } from "../sessionRoles";
 import { getLoginErrorMessage } from "../loginError";
 import { AuthBrandPanel } from "./_AuthBrandPanel";
 
-const SESSION_ROLES: readonly SessionRole[] = [
-  "PLATFORM_ADMIN",
-  "PLATFORM_AUTHOR",
-  "HOST_ADMIN",
-  "EXAMINER",
-  "PROCTOR",
-  "STUDENT",
+const LABEL_CLASS = "text-[13px] font-semibold text-[var(--ink-secondary)]";
+const LOGO_WIDTH = 482;
+const LOGO_HEIGHT = 567;
+
+const FOOTER_ITEMS: readonly AuthFooterItem[] = [
+  { label: AUTH_TEXT.FOOTER_COPYRIGHT.replace("{year}", String(new Date().getFullYear())) },
+  { label: AUTH_TEXT.FOOTER_TERMS },
+  { label: AUTH_TEXT.FOOTER_PRIVACY },
+  { label: AUTH_TEXT.FOOTER_SUPPORT },
 ];
 
-function toSessionRoles(rawRoles: string[]): SessionRole[] {
-  return rawRoles.filter((role): role is SessionRole =>
-    (SESSION_ROLES as readonly string[]).includes(role),
-  );
-}
-
-const FIELD_WRAP_CLASS =
-  "flex items-center gap-2 rounded-md border border-[var(--control-border)] bg-[var(--surface-card)] px-3 shadow-sm focus-within:border-[var(--brand)] focus-within:ring-2 focus-within:ring-[var(--brand)]/20";
-const INPUT_CLASS = "w-full bg-transparent py-2.5 text-sm outline-none";
-const LABEL_CLASS = "text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]";
+const VALIDATION_MESSAGES: SignInValidationMessages = {
+  usernameRequired: AUTH_TEXT.USERNAME_REQUIRED,
+  usernameInvalidEmail: AUTH_TEXT.USERNAME_INVALID_EMAIL,
+  passwordRequired: AUTH_TEXT.PASSWORD_REQUIRED,
+};
 
 export const LoginView = (): ReactElement => {
   const router = useRouter();
   const { saveSession } = useSessionManager();
+  const validation = useSignInValidation(VALIDATION_MESSAGES);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -60,6 +64,11 @@ export const LoginView = (): ReactElement => {
 
   const handleLoginSuccess = (data: JwtTokenResponse): void => {
     const claims = decodeAccessTokenClaims(data.accessToken);
+    if (claims && isStudentOnlyAccount(claims.roles)) {
+      // No session is saved: a student's scores arrive by email, never through this portal.
+      setErrorMessage(AUTH_TEXT.STUDENT_ACCOUNT_NOT_ALLOWED);
+      return;
+    }
     const roles = claims ? toSessionRoles(claims.roles) : [];
     if (!claims || roles.length === 0) {
       setErrorMessage(AUTH_TEXT.GENERIC_ERROR);
@@ -79,8 +88,10 @@ export const LoginView = (): ReactElement => {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
-    if (!username.trim() || !password) {
-      setErrorMessage(AUTH_TEXT.EMPTY_FIELDS);
+    const fieldErrors = validation.validateAll({ username, password });
+    if (fieldErrors.username || fieldErrors.password) {
+      setErrorMessage(undefined);
+      document.getElementById(fieldErrors.username ? "username" : "password")?.focus();
       return;
     }
     if (organizationOptions.length > 0 && !organizationId) {
@@ -114,134 +125,128 @@ export const LoginView = (): ReactElement => {
   };
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center bg-[var(--surface-page)] p-4 pt-16 md:pt-4">
-      <div className="absolute right-4 top-4 z-10">
-        <ThemeToggle />
-      </div>
-      <div className="grid w-full max-w-4xl overflow-hidden rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] shadow-card md:grid-cols-2">
-        <AuthBrandPanel />
-        <div className="flex flex-col justify-center gap-6 p-8 md:p-10">
-          <div className="flex items-center gap-2 text-[var(--brand-ink)]">
+    <AuthBrandShell
+      artwork={<AuthBrandPanel />}
+      brand={
+        <AuthBrandLockup
+          logo={
             <Image
-              src="/logo-ppte.png"
-              alt="PTE Prep logo"
-              width={32}
-              height={32}
-              className="h-8 w-8 rounded-md object-contain"
+              src="/logo-mark.png"
+              alt=""
+              width={LOGO_WIDTH}
+              height={LOGO_HEIGHT}
+              priority
+              className="h-12 w-auto"
             />
-            <span className="text-lg font-bold">{AUTH_TEXT.BRAND}</span>
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-[var(--ink-primary)]">
-              {AUTH_TEXT.WELCOME_TITLE}
-            </h1>
-            <p className="mt-1 text-sm text-[var(--ink-secondary)]">{AUTH_TEXT.WELCOME_SUBTITLE}</p>
-          </div>
-
-          {errorMessage && (
-            <div
-              role="alert"
-              className="rounded-md bg-[var(--blush-tint)] px-3 py-2 text-sm text-[var(--blush-action)]"
-            >
-              {errorMessage}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-              <label htmlFor="username" className={LABEL_CLASS}>
-                {AUTH_TEXT.USERNAME_LABEL}
-              </label>
-              <div className={FIELD_WRAP_CLASS}>
-                <MailIcon className="h-4 w-4 text-[var(--ink-muted)]" />
-                {/* type="text", NOT type="email": a STUDENT's username is
-                    `{tenant.code}.{random}`, which the browser would reject
-                    as an invalid email before the request is ever sent. */}
-                <input
-                  id="username"
-                  type="text"
-                  autoComplete="username"
-                  value={username}
-                  onChange={(event) => {
-                    setUsername(event.target.value);
-                    setOrganizationOptions([]);
-                    setOrganizationId("");
-                  }}
-                  placeholder={AUTH_TEXT.USERNAME_PLACEHOLDER}
-                  className={INPUT_CLASS}
-                />
-              </div>
-              <p className="text-xs text-[var(--ink-secondary)]">{AUTH_TEXT.USERNAME_HINT}</p>
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <div className="flex items-center justify-between">
-                <label htmlFor="password" className={LABEL_CLASS}>
-                  {AUTH_TEXT.PASSWORD_LABEL}
-                </label>
-                <Link
-                  href="#"
-                  className="text-xs font-medium text-[var(--brand-ink)] hover:underline"
-                >
-                  {AUTH_TEXT.FORGOT}
-                </Link>
-              </div>
-              <div className={FIELD_WRAP_CLASS}>
-                <LockIcon className="h-4 w-4 text-[var(--ink-muted)]" />
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
-                  placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
-                  value={password}
-                  onChange={(event) => {
-                    setPassword(event.target.value);
-                    setOrganizationOptions([]);
-                    setOrganizationId("");
-                  }}
-                  className={INPUT_CLASS}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((value) => !value)}
-                  aria-label={showPassword ? AUTH_TEXT.HIDE_PASSWORD : AUTH_TEXT.SHOW_PASSWORD}
-                  className="text-[var(--ink-muted)] hover:text-[var(--ink-primary)]"
-                >
-                  <EyeIcon closed={showPassword} className="h-4 w-4" />
-                </button>
-              </div>
-            </div>
-
-            {organizationOptions.length > 0 && (
-              <div className="flex flex-col gap-1">
-                <label htmlFor="organization" className={LABEL_CLASS}>
-                  {AUTH_TEXT.ORGANIZATION_LABEL}
-                </label>
-                <Select
-                  id="organization"
-                  value={organizationId}
-                  onChange={(event) => setOrganizationId(event.target.value)}
-                  placeholder={AUTH_TEXT.ORGANIZATION_PLACEHOLDER}
-                  options={organizationOptions.map((option) => ({
-                    value: option.tenantId,
-                    label: `${option.organizationName} (${option.tenantCode})`,
-                  }))}
-                />
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={mutation.isPending || organizationMutation.isPending}
-              className="rounded-md bg-action py-2.5 text-sm font-medium text-white shadow-sm shadow-action/25 transition-colors hover:bg-action-hover disabled:opacity-60"
-            >
-              {mutation.isPending || organizationMutation.isPending
-                ? AUTH_TEXT.LOGGING_IN
-                : AUTH_TEXT.LOGIN_BUTTON}
-            </button>
-          </form>
-        </div>
+          }
+          name={AUTH_TEXT.BRAND}
+          portalLabel={AUTH_TEXT.PORTAL_LABEL}
+        />
+      }
+      footerItems={FOOTER_ITEMS}
+      footerLabel={AUTH_TEXT.FOOTER_LABEL}
+    >
+      <div>
+        <h1 className="text-[2rem] font-extrabold leading-tight tracking-[-0.025em] text-[var(--ink-primary)]">
+          {AUTH_TEXT.WELCOME_TITLE}
+        </h1>
+        <p className="mt-2 text-[15px] leading-relaxed text-[var(--ink-secondary)]">
+          {AUTH_TEXT.WELCOME_SUBTITLE}
+        </p>
       </div>
-    </main>
+
+      {errorMessage && (
+        <div
+          role="alert"
+          className="rounded-md bg-[var(--blush-tint)] px-3 py-2 text-sm text-[var(--blush-action)]"
+        >
+          {errorMessage}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-[18px]">
+        {/* type="text", NOT type="email": a STUDENT's username is
+            `{tenant.code}.{random}`, which the browser would reject
+            as an invalid email before the request is ever sent. */}
+        <AuthTextField
+          id="username"
+          type="text"
+          autoComplete="username"
+          label={AUTH_TEXT.USERNAME_LABEL}
+          icon={<MailIcon />}
+          hint={AUTH_TEXT.USERNAME_HINT}
+          error={validation.errors.username}
+          value={username}
+          onChange={(event) => {
+            setUsername(event.target.value);
+            validation.onChange("username", event.target.value);
+            setOrganizationOptions([]);
+            setOrganizationId("");
+          }}
+          onBlur={(event) => validation.onBlur("username", event.target.value)}
+          placeholder={AUTH_TEXT.USERNAME_PLACEHOLDER}
+        />
+
+        <div className="flex flex-col gap-2">
+          <AuthTextField
+            id="password"
+            type={showPassword ? "text" : "password"}
+            autoComplete="current-password"
+            label={AUTH_TEXT.PASSWORD_LABEL}
+            icon={<LockIcon />}
+            placeholder={AUTH_TEXT.PASSWORD_PLACEHOLDER}
+            error={validation.errors.password}
+            value={password}
+            onChange={(event) => {
+              setPassword(event.target.value);
+              validation.onChange("password", event.target.value);
+              setOrganizationOptions([]);
+              setOrganizationId("");
+            }}
+            onBlur={(event) => validation.onBlur("password", event.target.value)}
+            trailing={
+              <button
+                type="button"
+                onClick={() => setShowPassword((value) => !value)}
+                aria-label={showPassword ? AUTH_TEXT.HIDE_PASSWORD : AUTH_TEXT.SHOW_PASSWORD}
+                className="shrink-0 text-[var(--ink-muted)] hover:text-[var(--ink-primary)]"
+              >
+                <EyeIcon closed={showPassword} className="h-[18px] w-[18px]" />
+              </button>
+            }
+          />
+          <Link
+            href="#"
+            className="self-end text-[13px] font-semibold text-[var(--brand-ink)] hover:underline"
+          >
+            {AUTH_TEXT.FORGOT}
+          </Link>
+        </div>
+
+        {organizationOptions.length > 0 && (
+          <div className="flex flex-col gap-1">
+            <label htmlFor="organization" className={LABEL_CLASS}>
+              {AUTH_TEXT.ORGANIZATION_LABEL}
+            </label>
+            <Select
+              id="organization"
+              value={organizationId}
+              onChange={(event) => setOrganizationId(event.target.value)}
+              placeholder={AUTH_TEXT.ORGANIZATION_PLACEHOLDER}
+              options={organizationOptions.map((option) => ({
+                value: option.tenantId,
+                label: `${option.organizationName} (${option.tenantCode})`,
+              }))}
+            />
+          </div>
+        )}
+
+        <AuthSubmitButton disabled={mutation.isPending || organizationMutation.isPending}>
+          {mutation.isPending || organizationMutation.isPending
+            ? AUTH_TEXT.LOGGING_IN
+            : AUTH_TEXT.LOGIN_BUTTON}
+        </AuthSubmitButton>
+      </form>
+    </AuthBrandShell>
   );
 };

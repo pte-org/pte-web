@@ -12,6 +12,12 @@ import { useLocale, type Locale } from "@pte/ui";
  */
 const ADMIN_VI: Record<string, string> = {
   "Welcome Back": "Chào mừng trở lại",
+  "Admin portal": "Cổng quản trị",
+  "Organization portal": "Cổng tổ chức",
+  "Legal and support": "Pháp lý và hỗ trợ",
+  Terms: "Điều khoản",
+  Privacy: "Bảo mật",
+  "Contact support": "Liên hệ hỗ trợ",
   "Please enter your institutional credentials to continue.":
     "Vui lòng nhập thông tin đăng nhập của tổ chức để tiếp tục.",
   "Ready to Manage?": "Sẵn sàng quản lý?",
@@ -29,6 +35,9 @@ const ADMIN_VI: Record<string, string> = {
   "Show password": "Hiện mật khẩu",
   "Hide password": "Ẩn mật khẩu",
   "Please enter username and password.": "Vui lòng nhập tên đăng nhập và mật khẩu.",
+  "Please enter your email.": "Vui lòng nhập email.",
+  "Please enter a valid email address.": "Vui lòng nhập địa chỉ email hợp lệ.",
+  "Please enter your password.": "Vui lòng nhập mật khẩu.",
   "Username or password is incorrect.": "Tên đăng nhập hoặc mật khẩu không đúng.",
   "This account is not allowed to use the vendor portal.":
     "Tài khoản này không được phép sử dụng cổng quản trị.",
@@ -87,7 +96,8 @@ const ADMIN_VI: Record<string, string> = {
   "Reset platform settings?": "Khôi phục cài đặt nền tảng?",
   "Restore this group to its recommended defaults. Review the values and save to apply them.":
     "Khôi phục nhóm cài đặt về giá trị mặc định đề xuất. Hãy kiểm tra lại và lưu để áp dụng.",
-  "No editable platform settings are available.": "Hiện chưa có cài đặt nền tảng nào có thể chỉnh sửa.",
+  "No editable platform settings are available.":
+    "Hiện chưa có cài đặt nền tảng nào có thể chỉnh sửa.",
   "Unsaved changes": "Có thay đổi chưa lưu",
   "All changes are saved": "Tất cả thay đổi đã được lưu",
   "Settings could not be loaded or saved.": "Không thể tải hoặc lưu cài đặt.",
@@ -189,6 +199,57 @@ const ADMIN_VI: Record<string, string> = {
 
   "License codes": "Mã bản quyền",
   "Activation codes": "Mã kích hoạt",
+  "Package grants": "Cấp gói",
+  "Host email": "Email Host",
+  "The first host account is created for this email and its password is sent there.":
+    "Tài khoản Host đầu tiên được tạo theo email này và mật khẩu được gửi tới đó.",
+  "The student limit starts at the free limit in Platform settings. Grant packages after the tenant is created.":
+    "Hạn mức học viên lấy theo mức miễn phí trong Platform settings. Cấp gói sau khi tạo tenant.",
+  "Host account": "Tài khoản Host",
+  "The host password has been emailed to this address.": "Mật khẩu Host đã được gửi tới email này.",
+  "Grant package now": "Cấp gói ngay",
+  "Grant packages to organizations under contract and review issued codes.":
+    "Cấp gói cho tổ chức theo hợp đồng và theo dõi các mã đã phát hành.",
+  "Grant package": "Cấp gói",
+  Contract: "Hợp đồng",
+  "Package period": "Thời hạn gói",
+  "Find organization": "Tìm tổ chức",
+  Confirm: "Xác nhận",
+  Details: "Thông tin",
+  Preview: "Xem trước",
+  "Organization code, tax code or contact email": "Mã tổ chức, mã số thuế hoặc email liên hệ",
+  "Type at least 2 characters to search.": "Nhập ít nhất 2 ký tự để tìm.",
+  "No organization matches this search.": "Không tìm thấy tổ chức phù hợp.",
+  "Only active organizations can receive a package.": "Chỉ tổ chức đang hoạt động mới được cấp gói.",
+  "Searching...": "Đang tìm...",
+  Select: "Chọn",
+  "Organization name": "Tên tổ chức",
+  "Organization code": "Mã tổ chức",
+  "Facility type": "Loại cơ sở",
+  "Current hosts": "Host hiện tại",
+  "No host account yet": "Chưa có tài khoản Host",
+  "Check the tax code against the paper contract before continuing.":
+    "Đối chiếu mã số thuế với hợp đồng giấy trước khi tiếp tục.",
+  "Select an active plan": "Chọn gói đang bán",
+  "Start date": "Ngày bắt đầu",
+  "Pre-filled to continue the current package of this plan. Change it only to match the contract.":
+    "Tự điền để nối tiếp gói hiện tại cùng loại. Chỉ sửa khi hợp đồng ghi ngày khác.",
+  "Contract number": "Số hợp đồng",
+  "Enter the contract number.": "Vui lòng nhập số hợp đồng.",
+  "Select a plan.": "Vui lòng chọn gói.",
+  Runs: "Thời gian chạy",
+  "Max students per exam": "Số học viên tối đa mỗi kỳ thi",
+  "Student seats added": "Số chỗ học viên được cộng",
+  Continues: "Nối tiếp gói",
+  "Student capacity is permanent and cannot be revoked after it is granted.":
+    "Chỗ học viên được cộng vĩnh viễn và không thu hồi được sau khi cấp.",
+  "Package granted.": "Đã cấp gói.",
+  "The package could not be granted.": "Không cấp được gói.",
+  Back: "Quay lại",
+  Continue: "Tiếp tục",
+  "Granting package...": "Đang cấp gói...",
+  Main: "Cơ sở chính",
+  "Test center": "Trung tâm thi",
   "Review and manage codes issued by the platform.":
     "Theo dõi và quản lý các mã được phát hành bởi nền tảng.",
   "Create code": "Tạo mã",
@@ -288,6 +349,12 @@ const ADMIN_VI: Record<string, string> = {
   "Task type key": "Mã dạng bài",
   "Display name": "Tên hiển thị",
   "Short name": "Tên viết tắt",
+  "Student instruction": "Hướng dẫn cho thí sinh",
+  "Shown to students above every question of this task type.":
+    "Hiển thị cho thí sinh phía trên mọi câu hỏi thuộc dạng bài này.",
+  "Plain text. You can edit it even after the task type is locked.":
+    "Văn bản thuần. Vẫn sửa được kể cả khi dạng bài đã bị khóa.",
+  "Enter the instruction students will see.": "Nhập hướng dẫn mà thí sinh sẽ thấy.",
   "Display order": "Thứ tự hiển thị",
   "Available for new questions": "Cho phép dùng cho câu hỏi mới",
   "Screen key": "Mã màn hình",
@@ -307,7 +374,7 @@ const ADMIN_VI: Record<string, string> = {
   "Full name": "Họ và tên",
   "A temporary password will be generated and sent to the user's email.":
     "Mật khẩu tạm thời sẽ được tự động tạo và gửi đến email của người dùng.",
-  "Phone": "Số điện thoại",
+  Phone: "Số điện thoại",
   "Date of birth": "Ngày sinh",
   "Search by name or email": "Tìm theo họ tên hoặc email",
   Role: "Vai trò",
@@ -1037,8 +1104,7 @@ const ADMIN_VI: Record<string, string> = {
   "Search plans by name, description, type, or status":
     "Tìm gói theo tên, mô tả, loại hoặc trạng thái",
   "Search by activation code or tenant ID": "Tìm theo mã kích hoạt hoặc ID tenant",
-  "Search license codes by activation code or tenant ID":
-    "Tìm mã kích hoạt hoặc ID tenant",
+  "Search license codes by activation code or tenant ID": "Tìm mã kích hoạt hoặc ID tenant",
   "Activation code created.": "Đã tạo mã kích hoạt.",
   "Activation code issuance confirmed.": "Đã xác nhận phát hành mã kích hoạt.",
   "Activation code revoked.": "Đã thu hồi mã kích hoạt.",
@@ -1100,23 +1166,52 @@ const translatePattern = (value: string): string | undefined => {
   if (match) return `Lựa chọn đúng ${match[1]}`;
   match = value.match(/^Option (\d+)$/);
   if (match) return `Lựa chọn ${match[1]}`;
-  match = value.match(/^(\d+) active subscription\(s\) may lose up to (\d+) day\(s\) (\d+) hour\(s\) (\d+) minute\(s\) (\d+) second\(s\) during this suspension\.$/);
-  if (match) return `${match[1]} gói đăng ký đang hoạt động có thể mất tối đa ${match[2]} ngày ${match[3]} giờ ${match[4]} phút ${match[5]} giây trong lần tạm ngưng này.`;
-  match = value.match(/^(\d+) active subscription\(s\) may lose up to (\d+) day\(s\) (\d+) hour\(s\) (\d+) minute\(s\) (\d+) second\(s\) remaining\. This suspension has no automatic end date\.$/);
-  if (match) return `${match[1]} gói đăng ký đang hoạt động có thể mất tối đa ${match[2]} ngày ${match[3]} giờ ${match[4]} phút ${match[5]} giây còn lại. Lần tạm ngưng này không có ngày kết thúc tự động.`;
+  match = value.match(
+    /^(\d+) active subscription\(s\) may lose up to (\d+) day\(s\) (\d+) hour\(s\) (\d+) minute\(s\) (\d+) second\(s\) during this suspension\.$/,
+  );
+  if (match)
+    return `${match[1]} gói đăng ký đang hoạt động có thể mất tối đa ${match[2]} ngày ${match[3]} giờ ${match[4]} phút ${match[5]} giây trong lần tạm ngưng này.`;
+  match = value.match(
+    /^(\d+) active subscription\(s\) may lose up to (\d+) day\(s\) (\d+) hour\(s\) (\d+) minute\(s\) (\d+) second\(s\) remaining\. This suspension has no automatic end date\.$/,
+  );
+  if (match)
+    return `${match[1]} gói đăng ký đang hoạt động có thể mất tối đa ${match[2]} ngày ${match[3]} giờ ${match[4]} phút ${match[5]} giây còn lại. Lần tạm ngưng này không có ngày kết thúc tự động.`;
   match = value.match(/^(\d+) active subscription\(s\) remain outside this expiry list\.$/);
-  if (match) return `Còn ${match[1]} gói đăng ký đang hoạt động không nằm trong danh sách hết hạn này.`;
+  if (match)
+    return `Còn ${match[1]} gói đăng ký đang hoạt động không nằm trong danh sách hết hạn này.`;
   match = value.match(/^(\d+) more impacted subscription\(s\) are not shown\.$/);
   if (match) return `Còn ${match[1]} gói đăng ký bị ảnh hưởng không được hiển thị.`;
-  match = value.match(/^(.+) · (\d+) day\(s\) (\d+) hour\(s\) (\d+) minute\(s\) (\d+) second\(s\) remaining · expires (.+)$/);
-  if (match) return `${match[1]} · còn ${match[2]} ngày ${match[3]} giờ ${match[4]} phút ${match[5]} giây · hết hạn ${match[6]}`;
+  match = value.match(
+    /^(.+) · (\d+) day\(s\) (\d+) hour\(s\) (\d+) minute\(s\) (\d+) second\(s\) remaining · expires (.+)$/,
+  );
+  if (match)
+    return `${match[1]} · còn ${match[2]} ngày ${match[3]} giờ ${match[4]} phút ${match[5]} giây · hết hạn ${match[6]}`;
   return undefined;
 };
 
 export function translateAdminText(value: string, locale: Locale): string {
   if (locale !== "vi") return value;
-  return ADMIN_VI[value] ?? translatePattern(value) ?? value;
+  return SCORE_TEMPLATE_FEEDBACK_VI[value] ?? ADMIN_VI[value] ?? translatePattern(value) ?? value;
 }
+
+const SCORE_TEMPLATE_FEEDBACK_VI: Record<string, string> = {
+  "Could not save this exam template. Your changes are preserved. Please try again.":
+    "Không thể lưu mẫu đề. Dữ liệu bạn nhập vẫn được giữ nguyên. Vui lòng thử lại.",
+  "Enter a template name.": "Vui lòng nhập tên mẫu đề.",
+  "Cannot activate yet": "Chưa thể kích hoạt",
+  "Question availability is checked against the last saved template. Save your changes to check again.":
+    "Số câu hỏi được kiểm tra theo mẫu đã lưu gần nhất. Hãy lưu thay đổi để kiểm tra lại.",
+  "Checking question availability...": "Đang kiểm tra số câu hỏi...",
+  "Add at least one task type.": "Hãy thêm ít nhất một dạng bài.",
+  "Unavailable task types or runtime profiles": "Dạng bài hoặc cấu hình thực thi chưa sẵn sàng",
+  "Repeated task types: keep one configuration per task type":
+    "Dạng bài bị lặp: giữ một cấu hình cho mỗi dạng bài",
+  "Insufficient approved questions": "Chưa đủ câu hỏi đã duyệt",
+  "Question availability has not been confirmed. Save and check again.":
+    "Chưa xác nhận được số câu hỏi. Hãy lưu và kiểm tra lại.",
+  Required: "Cần có",
+  Available: "Hiện có",
+};
 
 type LocalizableFunction = (...args: never[]) => unknown;
 

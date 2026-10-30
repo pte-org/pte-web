@@ -74,21 +74,7 @@ export const QUOTA_HISTORY_TEXT = {
 // noise, not a real "granted by" name.
 export const QUOTA_HISTORY_TABLE_HEADERS = {
   DATE: "Date",
-  ACTION: "Action",
   PACKAGE: "Package",
   AMOUNT: "Amount",
   NOTE: "Note",
 } as const;
-
-export const QUOTA_ACTION_TYPE_LABELS = {
-  GRANTED: "Granted",
-  DEDUCTED: "Deducted",
-  REVOKED: "Revoked",
-} as const;
-
-export const QUOTA_ACTION_TYPE_FILTER_OPTIONS: { value: string; label: string }[] = [
-  { value: "all", label: "All actions" },
-  { value: "GRANTED", label: QUOTA_ACTION_TYPE_LABELS.GRANTED },
-  { value: "DEDUCTED", label: QUOTA_ACTION_TYPE_LABELS.DEDUCTED },
-  { value: "REVOKED", label: QUOTA_ACTION_TYPE_LABELS.REVOKED },
-];

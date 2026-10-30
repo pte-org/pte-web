@@ -2,7 +2,7 @@
 
 import { useCallback, type FormEvent, type ReactElement } from "react";
 import type { ScoreTemplateResponse } from "@pte/api-client";
-import { Alert, Modal, Stepper } from "@pte/ui";
+import { Modal, Stepper } from "@pte/ui";
 import { useCreateExamWizardViewModel } from "../hooks/useCreateExamWizardViewModel";
 import type { CreateExamWorkflowInput } from "../types";
 import { CREATE_EXAM_STEP_IDS, type CreateExamStep } from "../utils/createExamWizard";
@@ -37,7 +37,6 @@ export const CreateExamWizard = ({
     effectiveForm,
     wizardText,
     stepLabels,
-    submitMessage,
     detailsStepProps,
     scheduleStepProps,
     audienceStepProps,
@@ -104,7 +103,6 @@ export const CreateExamWizard = ({
     >
       <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <Stepper steps={stepLabels} currentStep={CREATE_EXAM_STEP_IDS[step - 1]} />
-        {submitMessage && <Alert tone="error">{submitMessage}</Alert>}
         {stepContent[step]}
       </form>
     </Modal>

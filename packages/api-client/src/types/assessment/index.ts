@@ -41,8 +41,8 @@ export interface ExamSnapshotResponse {
   name: string;
   version: number;
   sourceBlueprintPublicId: string;
-  scoreTemplatePublicId: string;
-  scoreTemplateVersion: number;
+  examDefinitionPublicId: string;
+  examDefinitionVersion: number;
   tenantId: string | null;
   items: SnapshotResponseItem[];
 }

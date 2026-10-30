@@ -17,7 +17,6 @@ import {
   previewLicenseCodeRevoke,
   revealLicenseCode,
   revokeLicenseCode,
-  updatePlatformSetting,
   updatePlan,
   activatePlan,
   type IssueLicenseCodeRequest,
@@ -31,7 +30,6 @@ import {
   type PlanResponse,
   type PlanTransitionRequest,
   type PlanUpdateRequest,
-  type PlatformSettingRequest,
   type PlatformSettingBatchRequest,
   type PlatformSettingResponse,
   type RejectApplicationRequest,
@@ -166,20 +164,6 @@ export function useDeletePlan(): UseMutationResult<void, unknown, string> {
 
 export function usePlatformSettingsQuery(): UseQueryResult<PlatformSettingResponse[]> {
   return useQuery({ queryKey: SETTINGS_QUERY_KEY, queryFn: () => listPlatformSettings(apiClient) });
-}
-
-export function useUpdatePlatformSetting(): UseMutationResult<
-  PlatformSettingResponse,
-  unknown,
-  { key: string; payload: PlatformSettingRequest }
-> {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: ({ key, payload }) => updatePlatformSetting(apiClient, key, payload),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: SETTINGS_QUERY_KEY });
-    },
-  });
 }
 
 export function useUpdatePlatformSettings(): UseMutationResult<

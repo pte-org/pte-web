@@ -90,7 +90,7 @@ import type {
 
 const PROCTOR_ROLE = "PROCTOR";
 
-export type ExamStatusTransitionTarget = Exclude<SessionStatus, "PREPARING">;
+export type ExamStatusTransitionTarget = SessionStatus;
 
 function sessionResponseToExamSession(response: SessionResponse): ExamSession {
   return {
@@ -98,14 +98,13 @@ function sessionResponseToExamSession(response: SessionResponse): ExamSession {
     sessionCode: response.sessionCode ?? response.publicId,
     name: response.name,
     subscriptionPublicId: response.subscriptionPublicId,
-    snapshotPublicId: response.snapshotPublicId,
+    examVersionPublicId: response.examVersionPublicId,
     opensAt: response.opensAt,
     closesAt: response.closesAt,
     status: response.status,
     capacity: response.capacity,
-    templatePublicId: response.templatePublicId,
-    templateVersion: response.templateVersion,
-    formMode: response.formMode,
+    templatePublicId: response.examDefinitionPublicId,
+    examDefinitionVersion: response.examDefinitionVersion,
     reusePolicy: response.reusePolicy,
     seriesKey: response.seriesKey,
     draftVersion: response.draftVersion,
@@ -272,14 +271,13 @@ export function useCreateExamWorkflow(): UseMutationResult<
       // selectedSkills is omitted on purpose: the server then uses the full template scope.
       const draft = await createExamDraft(apiClient, {
         name: input.name.trim(),
-        templatePublicId: input.templatePublicId,
+        examDefinitionPublicId: input.templatePublicId,
         subscriptionPublicId: input.subscriptionPublicId,
         opensAt: new Date(input.opensAt).toISOString(),
         closesAt: new Date(input.closesAt).toISOString(),
         examMode: OFFICIAL_EXAM_MODE,
         lockdownMode: expectedLockdownMode,
         maxRetriesPerStudent: Number(input.maxRetriesPerStudent),
-        formMode: input.formMode,
         reusePolicy: input.reusePolicy,
         seriesKey: input.seriesKey.trim() || null,
         capacity: Number(input.capacity),
@@ -307,7 +305,11 @@ export function useCreateExamWorkflow(): UseMutationResult<
 
 function assertExamPreflightReady(preflight: Awaited<ReturnType<typeof preflightExam>>): void {
   if (preflight.ready) return;
-  throw new ExamPreflightBlockedError(preflight.issues);
+  throw new ExamPreflightBlockedError(
+    preflight.issues,
+    preflight.examDefinition.slots,
+    preflight.audience.members,
+  );
 }
 
 /** Runs the backend-owned command for a selected status rather than patching status directly. */
@@ -413,10 +415,7 @@ export function useCommitExaminerAssignment(
   return useMutation({
     mutationFn: (payload) => commitExaminerAssignment(apiClient, sessionPublicId, payload),
     onSuccess: (roster) =>
-      queryClient.setQueryData(
-        [...EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY, sessionPublicId],
-        roster,
-      ),
+      queryClient.setQueryData([...EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY, sessionPublicId], roster),
   });
 }
 
@@ -632,4 +631,3 @@ export function useAnswer(
     enabled: !!answerPublicId,
   });
 }
-

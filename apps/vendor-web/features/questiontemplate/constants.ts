@@ -80,7 +80,14 @@ export const QUESTION_TYPE_EDITOR_TEXT = {
   DISPLAY_NAME_ALREADY_USED: "This display name is already used. Choose a different name.",
   DISPLAY_NAME_INVALID: "Enter a display name between 1 and 128 characters.",
   AUTHORING_REQUIREMENTS: "Authoring requirements",
+  INSTRUCTION: "Student instruction",
+  INSTRUCTION_PLACEHOLDER: "Shown to students above every question of this task type.",
+  INSTRUCTION_HELPER: "Plain text. You can edit it even after the task type is locked.",
+  INSTRUCTION_REQUIRED: "Enter the instruction students will see.",
 } as const;
+
+/** Matches the API limit on question_types.instruction. */
+export const TASK_TYPE_INSTRUCTION_MAX_LENGTH = 500;
 
 export const QUESTION_TYPE_ERROR_MESSAGES: Record<string, string> = {
   QUESTION_TYPE_NOT_FOUND:

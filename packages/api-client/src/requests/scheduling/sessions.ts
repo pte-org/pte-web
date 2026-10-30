@@ -15,8 +15,7 @@ export const SESSION_ENDPOINTS = {
   examPreview: (publicId: string) => `/api/v1/sessions/${publicId}/exam-preview`,
   policy: (publicId: string) => `/api/v1/sessions/${publicId}/policy`,
   schedule: (publicId: string) => `/api/v1/sessions/${publicId}/schedule`,
-  open: (publicId: string) => `/api/v1/sessions/${publicId}/open`,
-  close: (publicId: string) => `/api/v1/sessions/${publicId}/close`,
+  status: (publicId: string) => `/api/v1/sessions/${publicId}/status`,
 } as const;
 
 export function createSession(
@@ -73,13 +72,13 @@ export function getSessionExamPreview(
 }
 
 export function openSession(client: ApiClient, publicId: string): Promise<SessionResponse> {
-  return client.request<SessionResponse>(SESSION_ENDPOINTS.open(publicId), {
-    method: "POST",
+  return client.request<SessionResponse>(SESSION_ENDPOINTS.status(publicId), {
+    method: "PATCH", body: { action: "OPEN" },
   });
 }
 
 export function closeSession(client: ApiClient, publicId: string): Promise<SessionResponse> {
-  return client.request<SessionResponse>(SESSION_ENDPOINTS.close(publicId), {
-    method: "POST",
+  return client.request<SessionResponse>(SESSION_ENDPOINTS.status(publicId), {
+    method: "PATCH", body: { action: "CLOSE" },
   });
 }

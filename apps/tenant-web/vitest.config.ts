@@ -4,6 +4,6 @@ export default defineConfig({
   test: {
     // Node environment: the code under test is pure parsing/workbook logic, no DOM.
     environment: "node",
-    include: ["features/**/*.test.ts"],
+    include: ["tests/**/*.test.{ts,tsx}", "tests/**/*.spec.{ts,tsx}"],
   },
 });

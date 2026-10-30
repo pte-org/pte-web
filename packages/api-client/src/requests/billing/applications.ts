@@ -8,8 +8,7 @@ import type {
 export const APPLICATION_ENDPOINTS = {
   applications: "/api/v1/applications",
   detail: (publicId: string) => "/api/v1/applications/" + publicId,
-  approve: (publicId: string) => "/api/v1/applications/" + publicId + "/approval",
-  reject: (publicId: string) => "/api/v1/applications/" + publicId + "/rejection",
+  status: (publicId: string) => "/api/v1/applications/" + publicId + "/status",
 } as const;
 
 export function submitApplication(
@@ -34,7 +33,7 @@ export function approveApplication(
   client: ApiClient,
   publicId: string,
 ): Promise<void> {
-  return client.request(APPLICATION_ENDPOINTS.approve(publicId), { method: "POST" });
+  return client.request(APPLICATION_ENDPOINTS.status(publicId), { method: "PATCH", body: { action: "APPROVE" }, });
 }
 
 export function rejectApplication(
@@ -42,8 +41,7 @@ export function rejectApplication(
   publicId: string,
   payload: RejectApplicationRequest,
 ): Promise<TenantApplicationResponse> {
-  return client.request(APPLICATION_ENDPOINTS.reject(publicId), {
-    method: "POST",
-    body: payload,
+  return client.request(APPLICATION_ENDPOINTS.status(publicId), {
+    method: "PATCH", body: { action: "REJECT", ...payload },
   });
 }

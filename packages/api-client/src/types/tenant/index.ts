@@ -1,5 +1,5 @@
-/** Matches admin's real `TenantStatus` enum (`ACTIVE`/`SUSPENDED` only). */
-export type TenantStatusResponse = "ACTIVE" | "SUSPENDED";
+/** Matches the API's `OrganizationStatus` enum; platform operators only ever see ACTIVE or SUSPENDED rows. */
+export type TenantStatusResponse = "PENDING" | "ACTIVE" | "REJECTED" | "SUSPENDED";
 
 /** Matches admin's real `TenantResponse` record exactly, including its immutable code. */
 export interface TenantResponse {
@@ -42,14 +42,24 @@ export interface SuspendTenantRequest {
   impactDigest: string;
 }
 
-/** Matches admin's real `OnboardTenantRequest` record exactly. */
-export interface OnboardTenantRequest {
+/**
+ * Platform operator creates an organization: approved at once with its first host account for `hostEmail`.
+ * There is no plan or student limit: the limit comes from platform settings, packages are granted separately.
+ */
+export interface DirectOnboardRequest {
   code: string;
   name: string;
   organizationType: string;
   taxCode: string;
-  packageName: string;
-  studentLimit: number;
+  hostEmail: string;
+}
+
+/** The host password is emailed to the host, never returned. */
+export interface DirectOnboardResponse {
+  publicId: string;
+  code: string;
+  name: string;
+  hostUsername: string;
 }
 
 /** Matches admin's real `UpdateBrandingRequest` record exactly. Either field may be `null` to clear it. */

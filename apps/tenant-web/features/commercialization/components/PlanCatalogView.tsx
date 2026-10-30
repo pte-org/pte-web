@@ -7,7 +7,6 @@ import {
   BookOpenIcon,
   ChevronRightIcon,
   ClipboardIcon,
-  DocumentIcon,
   LicenseIcon,
   PageHeader,
   useLocale,
@@ -37,7 +36,6 @@ export const PlanCatalogView = (): ReactElement => {
     loadingPlans: t("tenant.billing.loadingPlans", T.LOADING_PLANS),
     viewOrderHistory: t("tenant.billing.viewOrderHistory", T.VIEW_ORDER_HISTORY),
     viewBilling: t("tenant.billing.accessTitle", T.ACCESS_TITLE),
-    redeemLicense: t("tenant.billing.redeemLicense", T.REDEEM_LICENSE),
   };
   const { data: plans = [], isLoading, isError } = useTenantPlansQuery();
   const activePlans = plans.filter((plan) => plan.status === "ACTIVE");
@@ -66,7 +64,7 @@ export const PlanCatalogView = (): ReactElement => {
           ))}
         </div>
       </BillingPanel>
-      <div className="grid gap-3 sm:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2">
         <Link
           href="/host/orders"
           className="group flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:border-blue-300 hover:shadow-md"
@@ -97,20 +95,6 @@ export const PlanCatalogView = (): ReactElement => {
           <ChevronRightIcon className="h-4 w-4 text-slate-400 transition-all group-hover:translate-x-0.5 group-hover:text-blue-600" />
         </Link>
 
-        <Link
-          href="/host/redeem-license"
-          className="group flex items-center justify-between rounded-xl border border-blue-200 bg-blue-50/40 p-4 shadow-sm transition-all hover:border-blue-300 hover:bg-blue-50/80 hover:shadow-md"
-        >
-          <div className="flex items-center gap-3">
-            <span className="grid h-10 w-10 place-items-center rounded-lg bg-blue-100 text-blue-700 transition-colors group-hover:bg-blue-200">
-              <DocumentIcon className="h-5 w-5" />
-            </span>
-            <span className="text-sm font-semibold text-blue-900 transition-colors group-hover:text-blue-700">
-              {text.redeemLicense}
-            </span>
-          </div>
-          <ChevronRightIcon className="h-4 w-4 text-blue-500 transition-all group-hover:translate-x-0.5 group-hover:text-blue-700" />
-        </Link>
       </div>
     </div>
   );

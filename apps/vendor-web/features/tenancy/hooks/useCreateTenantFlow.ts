@@ -35,6 +35,8 @@ interface UseCreateTenantFlowResult {
   error: string | undefined;
   isSubmitting: boolean;
   createdTenant: Tenant | null;
+  /** The host email the credentials were sent to, shown with the created tenant. */
+  createdHostEmail: string;
   closeCreatedModal: () => void;
 }
 
@@ -47,6 +49,7 @@ export function useCreateTenantFlow(
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | undefined>();
   const [createdTenant, setCreatedTenant] = useState<Tenant | null>(null);
+  const [createdHostEmail, setCreatedHostEmail] = useState("");
 
   const openModal = (): void => setOpen(true);
 
@@ -68,6 +71,7 @@ export function useCreateTenantFlow(
       onSuccess: (tenant) => {
         setOpen(false);
         setError(undefined);
+        setCreatedHostEmail(input.hostEmail.trim());
         setCreatedTenant(tenant);
       },
     });
@@ -87,6 +91,7 @@ export function useCreateTenantFlow(
     error: error ?? mutationErrorMessage(create.error),
     isSubmitting: create.isPending,
     createdTenant,
+    createdHostEmail,
     closeCreatedModal,
   };
 }

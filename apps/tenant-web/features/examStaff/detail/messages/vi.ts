@@ -26,7 +26,7 @@ export const STAFF_DETAIL_VI: StaffDetailMessages = {
   publication: "Công bố kết quả", allStatuses: "Tất cả trạng thái", allPublications: "Tất cả trạng thái công bố",
   dateInvalid: "Nhập ngày hợp lệ; ngày kết thúc không được trước ngày bắt đầu.",
   filtersDescription: "Thống kê và công việc theo các bộ lọc đã áp dụng.",
-  DRAFT: "Bản nháp", PREPARING: "Đang chuẩn bị", READY: "Sẵn sàng", SCHEDULED: "Đã lên lịch",
+  DRAFT: "Bản nháp", READY: "Sẵn sàng", SCHEDULED: "Đã lên lịch",
   OPEN: "Đang mở", CLOSED: "Đã đóng", CANCELLED: "Đã hủy",
   PENDING: "Chưa chấm", IN_PROGRESS: "Đang chấm", COMPLETED: "Hoàn thành",
   PUBLISHED: "Đã công bố", UNPUBLISHED: "Chưa công bố", start: "Bắt đầu", end: "Kết thúc",

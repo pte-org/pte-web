@@ -1,19 +1,22 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { CheckCircleIcon, Modal } from "@pte/ui";
+import { Button, CheckCircleIcon, Modal } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import {
   ORGANIZATION_TYPE_OPTIONS as RAW_ORGANIZATION_TYPE_OPTIONS,
   TENANT_CREATED_TEXT as RAW_TENANT_CREATED_TEXT,
-  TENANT_PLAN_LABELS as RAW_TENANT_PLAN_LABELS,
 } from "../constants";
 import type { Tenant } from "../types";
 
 interface TenantCreatedModalProps {
   /** The newly created tenant; `null` keeps the modal closed. */
   tenant: Tenant | null;
+  /** Where the first host's credentials were emailed. */
+  hostEmail: string;
   onClose: () => void;
+  /** Opens the package grant wizard for this tenant; a new tenant has no exam package yet. */
+  onGrantPackage: (tenant: Tenant) => void;
 }
 
 const DetailRow = ({ label, value }: { label: string; value: string }): ReactElement => (
@@ -23,10 +26,14 @@ const DetailRow = ({ label, value }: { label: string; value: string }): ReactEle
   </div>
 );
 
-export const TenantCreatedModal = ({ tenant, onClose }: TenantCreatedModalProps): ReactElement => {
+export const TenantCreatedModal = ({
+  tenant,
+  hostEmail,
+  onClose,
+  onGrantPackage,
+}: TenantCreatedModalProps): ReactElement => {
   const T = useAdminCopy(RAW_TENANT_CREATED_TEXT);
   const organizationTypeOptions = useAdminCopy(RAW_ORGANIZATION_TYPE_OPTIONS);
-  const tenantPlanLabels = useAdminCopy(RAW_TENANT_PLAN_LABELS);
   const organizationTypeLabel = (value: string): string =>
     organizationTypeOptions.find((option) => option.value === value)?.label ?? value;
   return (
@@ -35,13 +42,14 @@ export const TenantCreatedModal = ({ tenant, onClose }: TenantCreatedModalProps)
       onClose={onClose}
       size="md"
       footer={
-        <button
-          type="button"
-          onClick={onClose}
-          className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover"
-        >
-          {T.CLOSE}
-        </button>
+        <>
+          <Button type="button" variant="ghost" onClick={onClose}>
+            {T.CLOSE}
+          </Button>
+          <Button type="button" onClick={() => tenant && onGrantPackage(tenant)}>
+            {T.GRANT_PACKAGE}
+          </Button>
+        </>
       }
     >
       {tenant && (
@@ -62,9 +70,10 @@ export const TenantCreatedModal = ({ tenant, onClose }: TenantCreatedModalProps)
               value={organizationTypeLabel(tenant.organizationType)}
             />
             <DetailRow label={T.TAX_CODE_LABEL} value={tenant.taxCode ?? T.EMPTY_VALUE} />
-            <DetailRow label={T.PLAN_LABEL} value={tenantPlanLabels[tenant.plan]} />
             <DetailRow label={T.STUDENT_LIMIT_LABEL} value={String(tenant.seatsTotal)} />
+            <DetailRow label={T.HOST_LABEL} value={hostEmail || T.EMPTY_VALUE} />
           </div>
+          <p className="text-center text-xs text-gray-500">{T.HOST_NOTE}</p>
         </div>
       )}
     </Modal>

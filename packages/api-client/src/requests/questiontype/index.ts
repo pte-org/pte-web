@@ -20,6 +20,7 @@ export const QUESTION_TYPE_ENDPOINTS = {
 export const TASK_TYPE_ENDPOINTS = {
   types: "/api/v1/task-types",
   type: (publicId: string) => `/api/v1/task-types/${publicId}`,
+  status: (publicId: string) => `/api/v1/task-types/${publicId}/status`,
   capabilities: "/api/v1/task-types/capabilities",
   availability: "/api/v1/task-types/availability",
 } as const;
@@ -145,22 +146,25 @@ export function submitTaskTypeApproval(
   client: ApiClient,
   publicId: string,
 ): Promise<QuestionTypeResponse> {
-  return client.request<QuestionTypeResponse>(
-    `${TASK_TYPE_ENDPOINTS.type(publicId)}/submit-approval`,
-    { method: "POST" },
-  );
+  return client.request<QuestionTypeResponse>(TASK_TYPE_ENDPOINTS.status(publicId), {
+    method: "PATCH",
+    body: { action: "SUBMIT_APPROVAL" },
+  });
 }
 
 export function approveTaskType(
   client: ApiClient,
   publicId: string,
 ): Promise<QuestionTypeResponse> {
-  return client.request<QuestionTypeResponse>(
-    `${TASK_TYPE_ENDPOINTS.type(publicId)}/approve`,
-    { method: "POST" },
-  );
+  return client.request<QuestionTypeResponse>(TASK_TYPE_ENDPOINTS.status(publicId), {
+    method: "PATCH",
+    body: { action: "APPROVE" },
+  });
 }
 
 export function deleteTaskType(client: ApiClient, publicId: string): Promise<void> {
-  return client.request<void>(TASK_TYPE_ENDPOINTS.type(publicId), { method: "DELETE" });
+  return client.request<void>(TASK_TYPE_ENDPOINTS.status(publicId), {
+    method: "PATCH",
+    body: { action: "RETIRE" },
+  });
 }

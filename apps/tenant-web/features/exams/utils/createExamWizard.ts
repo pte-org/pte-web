@@ -36,7 +36,6 @@ export function createEmptyExamWorkflow(templatePublicId = ""): CreateExamWorkfl
     opensAt: "",
     closesAt: "",
     maxRetriesPerStudent: "0",
-    formMode: "SHARED_FORM",
     reusePolicy: "ALLOW",
     seriesKey: "",
     capacity: "",

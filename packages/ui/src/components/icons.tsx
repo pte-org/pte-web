@@ -160,6 +160,12 @@ export const CheckCircleIcon = ({ className }: IconProps): ReactElement => (
   </svg>
 );
 
+export const CheckIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...base} className={className}>
+    <path d="m5 12 5 5 9-10" />
+  </svg>
+);
+
 export const InfoIcon = ({ className }: IconProps): ReactElement => (
   <svg {...base} className={className}>
     <circle cx="12" cy="12" r="9" />
@@ -311,7 +317,7 @@ export const NavSettingsIcon = ({ className }: IconProps): ReactElement => (
 );
 
 export const NavAnnouncementIcon = ({ className }: IconProps): ReactElement => (
-  <NextAdminLetterIcon className={className} />
+  <BellIcon className={className} />
 );
 
 export const NavQuestionBankIcon = ({ className }: IconProps): ReactElement => (

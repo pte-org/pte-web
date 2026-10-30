@@ -1,7 +1,7 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useRef, useState, type ReactElement } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactElement } from "react";
 import { cn } from "../utils/cn";
 import { ChevronDownIcon } from "./icons";
 import { FormField } from "./FormField";
@@ -32,6 +32,9 @@ export interface SelectProps {
   title?: string;
   size?: "sm" | "md";
   variant?: "default" | "table";
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  noOptionsMessage?: string;
   "aria-label"?: string;
 }
 
@@ -67,24 +70,38 @@ export const Select = ({
   title,
   size = "md",
   variant = "default",
+  searchable = false,
+  searchPlaceholder,
+  noOptionsMessage,
   "aria-label": ariaLabel,
 }: SelectProps): ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   const [listPosition, setListPosition] = useState<ListPosition | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const selectedOption = options.find((option) => option.value === value);
-  const selectedIndex = options.findIndex((option) => option.value === value);
+  const filteredOptions = useMemo(() => {
+    const normalizedSearchTerm = searchTerm.trim().toLocaleLowerCase();
+    if (!normalizedSearchTerm) return options;
+
+    return options.filter((option) =>
+      `${option.label} ${option.value}`.toLocaleLowerCase().includes(normalizedSearchTerm),
+    );
+  }, [options, searchTerm]);
+  const selectedIndex = filteredOptions.findIndex((option) => option.value === value);
   const isTable = variant === "table";
   const listId = `${id ?? name ?? "select"}-options`;
 
   const firstEnabledIndex = (fromIndex: number, direction: 1 | -1): number => {
-    if (options.length === 0) return -1;
+    if (filteredOptions.length === 0) return -1;
 
-    for (let offset = 0; offset < options.length; offset += 1) {
-      const index = (fromIndex + offset * direction + options.length) % options.length;
-      if (!options[index]?.disabled) return index;
+    for (let offset = 0; offset < filteredOptions.length; offset += 1) {
+      const index =
+        (fromIndex + offset * direction + filteredOptions.length) % filteredOptions.length;
+      if (!filteredOptions[index]?.disabled) return index;
     }
 
     return -1;
@@ -128,15 +145,20 @@ export const Select = ({
       window.removeEventListener("resize", updateListPosition);
       window.removeEventListener("scroll", updateListPosition, true);
     };
-  }, [isOpen]);
+  }, [filteredOptions.length, isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
     const nextIndex = selectedIndex >= 0 ? selectedIndex : firstEnabledIndex(0, 1);
     setActiveIndex(nextIndex >= 0 ? nextIndex : 0);
-  }, [isOpen, selectedIndex]);
+  }, [filteredOptions.length, isOpen, searchTerm, selectedIndex]);
+
+  useEffect(() => {
+    if (isOpen && searchable) searchInputRef.current?.focus();
+  }, [isOpen, searchable]);
 
   const openList = (nextIndex?: number): void => {
+    setSearchTerm("");
     setListPosition(null);
     if (nextIndex !== undefined) setActiveIndex(nextIndex);
     setIsOpen(true);
@@ -144,6 +166,7 @@ export const Select = ({
 
   const closeList = (): void => {
     setIsOpen(false);
+    setSearchTerm("");
     buttonRef.current?.focus();
   };
 
@@ -158,6 +181,27 @@ export const Select = ({
     if (nextIndex >= 0) setActiveIndex(nextIndex);
   };
 
+  const handleSearchKeyDown = (event: React.KeyboardEvent<HTMLInputElement>): void => {
+    event.stopPropagation();
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      event.preventDefault();
+      moveActive(event.key === "ArrowDown" ? 1 : -1);
+      return;
+    }
+
+    if (event.key === "Enter") {
+      event.preventDefault();
+      const option = filteredOptions[activeIndex];
+      if (option) selectOption(option);
+      return;
+    }
+
+    if (event.key === "Escape") {
+      event.preventDefault();
+      closeList();
+    }
+  };
+
   const handleButtonKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>): void => {
     if (disabled) return;
 
@@ -167,7 +211,7 @@ export const Select = ({
         openList(
           event.key === "ArrowDown"
             ? firstEnabledIndex(0, 1)
-            : firstEnabledIndex(options.length - 1, -1),
+            : firstEnabledIndex(filteredOptions.length - 1, -1),
         );
       } else {
         moveActive(event.key === "ArrowDown" ? 1 : -1);
@@ -183,7 +227,7 @@ export const Select = ({
 
     if ((event.key === "Enter" || event.key === " ") && isOpen) {
       event.preventDefault();
-      const option = options[activeIndex];
+      const option = filteredOptions[activeIndex];
       if (option) selectOption(option);
       return;
     }
@@ -206,7 +250,9 @@ export const Select = ({
         aria-haspopup="listbox"
         aria-controls={isOpen ? listId : undefined}
         aria-expanded={isOpen}
-        aria-activedescendant={isOpen ? `${listId}-${activeIndex}` : undefined}
+        aria-activedescendant={
+          isOpen && filteredOptions.length > 0 ? `${listId}-${activeIndex}` : undefined
+        }
         aria-invalid={error ? true : undefined}
         onClick={() => (isOpen ? closeList() : openList())}
         onKeyDown={handleButtonKeyDown}
@@ -244,13 +290,10 @@ export const Select = ({
               className="fixed inset-0 cursor-default"
               style={{ zIndex: SELECT_BACKDROP_Z_INDEX }}
             />
-            <ul
+            <div
               ref={listRef}
-              id={listId}
-              role="listbox"
-              aria-label={ariaLabel ?? label}
               className={cn(
-                "fixed max-h-60 max-w-[calc(100vw-1rem)] overflow-auto rounded-lg border py-1 text-sm shadow-[var(--popover-shadow)] motion-safe:animate-pte-dropdown-in",
+                "fixed max-h-60 max-w-[calc(100vw-1rem)] overflow-hidden rounded-lg border text-sm shadow-[var(--popover-shadow)] motion-safe:animate-pte-dropdown-in",
                 isTable
                   ? "border-[var(--table-border)] bg-[var(--table-surface-background)]"
                   : "border-[var(--shell-border)] bg-[var(--surface-card)]",
@@ -263,49 +306,81 @@ export const Select = ({
                 zIndex: SELECT_LIST_Z_INDEX,
               }}
             >
-              {options.map((option, index) => (
-                <li
-                  key={option.value}
-                  id={`${listId}-${index}`}
-                  role="option"
-                  aria-selected={option.value === value}
-                  aria-disabled={option.disabled || undefined}
-                  onMouseEnter={() => setActiveIndex(index)}
-                  onClick={() => selectOption(option)}
-                  className={cn(
-                    "mx-1 truncate rounded-md px-3 py-2 transition-colors",
-                    option.disabled
-                      ? cn(
-                          "cursor-not-allowed",
-                          isTable ? "text-[var(--table-muted-text)]" : "text-[var(--ink-muted)]",
-                        )
-                      : option.value === value
-                        ? "cursor-pointer bg-[var(--action)] text-[var(--action-foreground)]"
-                        : index === activeIndex
+              {searchable && (
+                <div className="border-b border-[var(--divider)] p-2">
+                  <input
+                    ref={searchInputRef}
+                    type="search"
+                    value={searchTerm}
+                    placeholder={searchPlaceholder}
+                    aria-label={searchPlaceholder ?? ariaLabel ?? label}
+                    onChange={(event) => setSearchTerm(event.target.value)}
+                    onKeyDown={handleSearchKeyDown}
+                    className={cn(
+                      "h-9 w-full rounded-md border bg-transparent px-2.5 text-sm outline-none placeholder:text-[var(--ink-muted)] focus:border-[var(--brand)] focus:ring-2 focus:ring-[var(--brand)]/20",
+                      isTable
+                        ? "border-[var(--table-control-border)] text-[var(--table-body-text)]"
+                        : "border-[var(--control-border)] text-[var(--ink-primary)]",
+                    )}
+                  />
+                </div>
+              )}
+              <ul
+                id={listId}
+                role="listbox"
+                aria-label={ariaLabel ?? label}
+                className="max-h-52 overflow-auto py-1"
+              >
+                {filteredOptions.length === 0 && noOptionsMessage ? (
+                  <li className="px-3 py-2 text-[var(--ink-muted)]">{noOptionsMessage}</li>
+                ) : (
+                  filteredOptions.map((option, index) => (
+                    <li
+                      key={option.value}
+                      id={`${listId}-${index}`}
+                      role="option"
+                      aria-selected={option.value === value}
+                      aria-disabled={option.disabled || undefined}
+                      onMouseEnter={() => setActiveIndex(index)}
+                      onClick={() => selectOption(option)}
+                      className={cn(
+                        "mx-1 truncate rounded-md px-3 py-2 transition-colors",
+                        option.disabled
                           ? cn(
-                              "cursor-pointer",
+                              "cursor-not-allowed",
                               isTable
-                                ? "text-[var(--table-body-text)]"
-                                : "text-[var(--ink-primary)]",
-                              isTable
-                                ? "bg-[var(--table-control-hover)]"
-                                : "bg-[var(--surface-subtle)]",
+                                ? "text-[var(--table-muted-text)]"
+                                : "text-[var(--ink-muted)]",
                             )
-                          : cn(
-                              "cursor-pointer hover:text-[var(--ink-primary)]",
-                              isTable
-                                ? "text-[var(--table-muted-text)] hover:text-[var(--table-body-text)]"
-                                : "text-[var(--ink-secondary)]",
-                              isTable
-                                ? "hover:bg-[var(--table-control-hover)]"
-                                : "hover:bg-[var(--surface-subtle)]",
-                            ),
-                  )}
-                >
-                  {option.label}
-                </li>
-              ))}
-            </ul>
+                          : option.value === value
+                            ? "cursor-pointer bg-[var(--action)] text-[var(--action-foreground)]"
+                            : index === activeIndex
+                              ? cn(
+                                  "cursor-pointer",
+                                  isTable
+                                    ? "text-[var(--table-body-text)]"
+                                    : "text-[var(--ink-primary)]",
+                                  isTable
+                                    ? "bg-[var(--table-control-hover)]"
+                                    : "bg-[var(--surface-subtle)]",
+                                )
+                              : cn(
+                                  "cursor-pointer hover:text-[var(--ink-primary)]",
+                                  isTable
+                                    ? "text-[var(--table-muted-text)] hover:text-[var(--table-body-text)]"
+                                    : "text-[var(--ink-secondary)]",
+                                  isTable
+                                    ? "hover:bg-[var(--table-control-hover)]"
+                                    : "hover:bg-[var(--surface-subtle)]",
+                                ),
+                      )}
+                    >
+                      {option.label}
+                    </li>
+                  ))
+                )}
+              </ul>
+            </div>
           </>,
           document.body,
         )}

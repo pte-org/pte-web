@@ -238,7 +238,9 @@ html[data-mode="embed"] .viewer {
   min-height: 100%;
 }
 html[data-mode="embed"] .scene-label,
-html[data-mode="embed"] .controls {
+html[data-mode="embed"] .controls,
+html[data-mode="embed"] .loading {
+  /* Embedded: the host page shows a single poster and fades the iframe in on "ready". */
   display: none;
 }
 @media (max-width: 520px) {

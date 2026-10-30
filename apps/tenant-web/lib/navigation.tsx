@@ -1,7 +1,6 @@
 import type { NavItem } from "@/features/auth/components";
 import type { OrgLabels } from "@/features/orgLabels/constants";
 import {
-  NavApplicationIcon,
   NavAuditLogIcon,
   NavBillingIcon,
   NavClassIcon,
@@ -18,7 +17,6 @@ import {
   EXAMINER_NAV_TEXT,
   HOST_NAV_TEXT as T,
   PROCTOR_NAV_TEXT,
-  STUDENT_NAV_TEXT,
 } from "./navigationConstants";
 
 /**
@@ -136,19 +134,6 @@ export function buildExaminerNav(): NavItem[] {
       icon: <NavAuditLogIcon />,
       section: EXAMINER_NAV_TEXT.REPORTS_SECTION,
       sectionKey: "nav.reports",
-    },
-  ];
-}
-
-export function buildStudentNav(): NavItem[] {
-  return [
-    {
-      label: STUDENT_NAV_TEXT.RESULTS,
-      labelKey: "nav.myResults",
-      href: "/student/results",
-      icon: <NavApplicationIcon />,
-      section: STUDENT_NAV_TEXT.SECTION,
-      sectionKey: "nav.student",
     },
   ];
 }

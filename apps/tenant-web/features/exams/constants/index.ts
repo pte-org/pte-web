@@ -1,6 +1,5 @@
 import type {
   ExamMode,
-  FormMode,
   LockdownMode,
   ProctorRole,
   ReusePolicy,
@@ -47,6 +46,8 @@ export const EXAM_TABLE_HEADERS = {
 
 export const EXAM_ROW_ACTIONS_TEXT = {
   VIEW: "View details",
+  UPDATE_STATUS: "Update status",
+  CANCEL_UPDATE_STATUS: "Cancel status update",
   DELETE: "Delete exam",
   DELETE_TITLE: "Delete this exam draft?",
   DELETE_DESCRIPTION: (name: string) =>
@@ -55,11 +56,16 @@ export const EXAM_ROW_ACTIONS_TEXT = {
   CANCEL: "Cancel",
   DELETE_SUCCESS: "Exam draft deleted.",
   DELETE_FAILED: "Unable to delete the exam draft. Please try again.",
+  UPDATE_STATUS_TITLE: (name: string) => `Update the status of "${name}"?`,
+  UPDATE_STATUS_DESCRIPTION: (name: string, current: string, next: string) =>
+    `"${name}" will move from ${current} to ${next}.`,
+  UPDATE_STATUS_CONFIRM: "Update status",
+  UPDATE_STATUS_SUCCESS: "Exam status updated.",
+  UPDATE_STATUS_FAILED: "Unable to update the exam status. Please try again.",
 } as const;
 
 export const SESSION_STATUS_LABELS = {
   DRAFT: "Draft",
-  PREPARING: "Preparing",
   READY: "Ready to publish",
   SCHEDULED: "Scheduled",
   OPEN: "In progress",
@@ -73,7 +79,6 @@ export const SESSION_STATUS_LABELS = {
  */
 export const SESSION_STATUS_TRANSITIONS = {
   DRAFT: ["DRAFT", "READY", "SCHEDULED"],
-  PREPARING: ["PREPARING", "DRAFT"],
   READY: ["READY", "SCHEDULED", "CANCELLED"],
   SCHEDULED: ["SCHEDULED", "OPEN", "CANCELLED"],
   OPEN: ["OPEN", "CLOSED"],
@@ -84,7 +89,6 @@ export const SESSION_STATUS_TRANSITIONS = {
 export const SESSION_STATUS_FILTER_OPTIONS = [
   { value: "", label: "All statuses" },
   { value: "DRAFT", label: SESSION_STATUS_LABELS.DRAFT },
-  { value: "PREPARING", label: SESSION_STATUS_LABELS.PREPARING },
   { value: "READY", label: SESSION_STATUS_LABELS.READY },
   { value: "SCHEDULED", label: SESSION_STATUS_LABELS.SCHEDULED },
   { value: "OPEN", label: SESSION_STATUS_LABELS.OPEN },
@@ -94,7 +98,6 @@ export const SESSION_STATUS_FILTER_OPTIONS = [
 
 export const SESSION_STATUS_VARIANT = {
   DRAFT: "warning",
-  PREPARING: "info",
   READY: "success",
   SCHEDULED: "info",
   OPEN: "success",
@@ -112,7 +115,7 @@ export const CREATE_SESSION_TEXT = {
   PLAN_FALLBACK: "Plan",
   SUBSCRIPTION_OPTION: (planName: string, licenseKey: string) => `${planName} — ${licenseKey}`,
   NO_ACTIVE_SUBSCRIPTIONS:
-    "No active subscription yet — redeem a license or purchase a plan first.",
+    "No active subscription yet — buy a plan or contact PTEPrep for a contract grant.",
   SKILLS_LABEL: "Skills",
   OPENS_AT_LABEL: "Opens at",
   CLOSES_AT_LABEL: "Closes at",
@@ -139,9 +142,9 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   OPENS_AT_LABEL: "Opens at",
   CLOSES_AT_LABEL: "Closes at",
   CAPACITY_LABEL: "Maximum students",
+  SUBSCRIPTION_CAPACITY_HINT: "This subscription allows up to {count} students per exam.",
   FULL_TEMPLATE_SCOPE: "Full template scope",
   RETRIES_LABEL: "Allowed retries per student",
-  FORM_MODE_LABEL: "Question form",
   REUSE_POLICY_LABEL: "Student reuse rule",
   SERIES_LABEL: "Exam series",
   SERIES_PLACEHOLDER: "e.g. 2026-HK1",
@@ -174,6 +177,8 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   REVIEW_CAPACITY: "Maximum students",
   EMPTY_VALUE: "—",
   TEMPLATE_READY: "The template has enough published questions.",
+  PREFLIGHT_SHORTAGE_DETAILS:
+    "{taskType}: requires {required} published question(s); available: {available}.",
   TEMPLATE_NOT_READY: "The question bank does not yet have enough questions for this template.",
   BACK: "Back",
   NEXT: "Continue",
@@ -201,8 +206,6 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   POLICY_OFFICIAL_STRICT: "Official — strict",
   POLICY_LEGACY: "Previously created exam",
   POLICY_UNAVAILABLE: "Security policy unavailable — review required",
-  FORM_SHARED: "One shared form",
-  FORM_UNIQUE: "Separate form per student",
   REUSE_ALLOW: "Allow previous attempts",
   REUSE_STARTED: "Exclude students who already started this series",
   REUSE_ASSIGNED: "Exclude students already assigned in this series",
@@ -217,6 +220,8 @@ export const CREATE_EXAM_WIZARD_ERRORS = {
   CLOSES_REQUIRED: "Choose when the exam closes.",
   CLOSES_AFTER_OPENS: "The close time must be after the open time.",
   CAPACITY_REQUIRED: "Enter a positive whole-number capacity.",
+  CAPACITY_EXCEEDS_PLAN: "Capacity exceeds the selected subscription's student limit.",
+  AUDIENCE_EXCEEDS_CAPACITY: "The selected students exceed this exam's capacity.",
   SERIES_REQUIRED: "Add an exam series for this reuse rule.",
   AUDIENCE_REQUIRED: "Select at least one student.",
   OPEN_FUTURE: "Choose an opening time in the future.",
@@ -232,11 +237,6 @@ export const OFFICIAL_EXAM_LOCKDOWN_MODE: LockdownMode = "STRICT";
 export const EXAM_MODE_LABELS: Record<ExamMode, string> = {
   OFFICIAL_EXAM: CREATE_EXAM_WIZARD_TEXT.MODE_REAL,
 };
-
-export const FORM_MODE_OPTIONS: { value: FormMode; label: string }[] = [
-  { value: "SHARED_FORM", label: CREATE_EXAM_WIZARD_TEXT.FORM_SHARED },
-  { value: "UNIQUE_FORM_PER_STUDENT", label: CREATE_EXAM_WIZARD_TEXT.FORM_UNIQUE },
-];
 
 export const REUSE_POLICY_OPTIONS: { value: ReusePolicy; label: string }[] = [
   { value: "ALLOW", label: CREATE_EXAM_WIZARD_TEXT.REUSE_ALLOW },
@@ -335,7 +335,6 @@ export const EXAM_EDITOR_TEXT = {
   CAPACITY: "Capacity",
   SECURITY_POLICY: "Security policy",
   SUBSCRIPTION: "Subscription",
-  FORM_MODE: "Question form",
   REUSE_POLICY: "Student reuse rule",
   SERIES: "Exam series",
   REPLAY_POLICY: "Replay policy",
@@ -350,6 +349,7 @@ export const EXAM_EDITOR_TEXT = {
   LOCKDOWN: "Lockdown mode",
   LOCKDOWN_STRICT: "Strict",
   READ_ONLY_HELP: "This exam is read-only in its current status.",
+  READY_STATUS_HELP: "This generated exam can be scheduled or cancelled from the status field.",
   NAME_REQUIRED: "Enter an exam name.",
   OPEN_REQUIRED: "Choose when the exam opens.",
   CLOSE_REQUIRED: "Choose when the exam closes.",
@@ -390,8 +390,7 @@ export const EXAMINER_ASSIGNMENT_TEXT = {
   SCOPE_TYPE_STUDENT: "Student",
   REQUIRES_CLOSED: "Examiners can only be assigned after the exam has closed.",
   LOCKED_NOTICE: "The assignment is committed and can no longer be edited.",
-  HINT:
-    "Select Examiners and click “Randomize” to pre-fill the table, then adjust any student's Examiner. Click “Commit assignment” once every student has an Examiner.",
+  HINT: "Select Examiners and click “Randomize” to pre-fill the table, then adjust any student's Examiner. Click “Commit assignment” once every student has an Examiner.",
   EXAMINERS_LABEL: "Examiners",
   EXAMINER_LABEL: "Examiner",
   EXAMINER_PLACEHOLDER: "Select an Examiner",

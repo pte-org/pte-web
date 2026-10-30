@@ -5,7 +5,6 @@ import { DateTimeInput, Input, Checkbox, Select, useLocale } from "@pte/ui";
 import {
   EXAM_EDITOR_TEXT,
   EXAM_SKILL_OPTIONS,
-  FORM_MODE_OPTIONS,
   REUSE_POLICY_OPTIONS,
 } from "../constants";
 import type { ExamSession } from "../types";
@@ -29,15 +28,6 @@ export const ExamDraftFields = ({
   const localizedSkills = EXAM_SKILL_OPTIONS.map((option) => ({
     ...option,
     label: t(`tenant.createExam.skill.${option.value}`, option.label),
-  }));
-  const localizedFormModes = FORM_MODE_OPTIONS.map((option) => ({
-    ...option,
-    label: t(
-      option.value === "SHARED_FORM"
-        ? "tenant.createExam.FORM_SHARED"
-        : "tenant.createExam.FORM_UNIQUE",
-      option.label,
-    ),
   }));
   const localizedReusePolicies = REUSE_POLICY_OPTIONS.map((option) => ({
     ...option,
@@ -103,16 +93,6 @@ export const ExamDraftFields = ({
           }
           onChange={(event) => onChange("closesAt", event.target.value)}
         />
-        {session.formMode !== null && (
-          <Select
-            label={t("tenant.examDetails.formMode", EXAM_EDITOR_TEXT.FORM_MODE)}
-            value={form.formMode || undefined}
-            options={localizedFormModes}
-            onChange={(event) =>
-              onChange("formMode", event.target.value as DraftFormValues["formMode"])
-            }
-          />
-        )}
         {session.reusePolicy !== null && (
           <Select
             label={t("tenant.examDetails.reusePolicy", EXAM_EDITOR_TEXT.REUSE_POLICY)}

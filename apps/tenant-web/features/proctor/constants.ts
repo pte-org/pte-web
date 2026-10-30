@@ -66,7 +66,6 @@ export const PROCTOR_LIVE_TEXT = {
   UPDATING_TEXT: "Đang cập nhật...",
   RETRY: "Thử lại",
   LEAVE_ROOM_BTN: "Rời phòng giám sát",
-  LEAVING_ROOM_BTN: "Đang đóng...",
   CLOSE_SESSION_CONFIRM_TITLE: "Xác nhận rời phòng giám sát",
   CLOSE_SESSION_CONFIRM_DESC:
     "Bạn có chắc chắn muốn kết thúc phiên giám sát của mình? Ca thi vẫn tiếp tục với các giám thị khác.",
@@ -166,7 +165,6 @@ export const PROCTOR_AUDIT_TEXT = {
   COL_TYPE: "Type",
   COL_PROCTOR: "Proctor",
   COL_DESCRIPTION: "Description",
-  COL_HASH: "Hash position",
   BACK_TO_PROFILE: "Back to profile",
   ENTER_MONITORING: "Live monitoring",
   SESSION_LIST: "Assigned sessions",

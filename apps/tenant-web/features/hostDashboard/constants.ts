@@ -34,7 +34,6 @@ export const HOST_DASHBOARD_ROUTES = {
 
 export const SESSION_STATUS_ORDER = [
   "DRAFT",
-  "PREPARING",
   "READY",
   "SCHEDULED",
   "OPEN",
@@ -44,7 +43,6 @@ export const SESSION_STATUS_ORDER = [
 
 export const SESSION_STATUS_MESSAGE_KEYS: Record<SessionStatus, HostDashboardMessageKey> = {
   DRAFT: "sessionStatusDRAFT",
-  PREPARING: "sessionStatusPREPARING",
   READY: "sessionStatusREADY",
   SCHEDULED: "sessionStatusSCHEDULED",
   OPEN: "sessionStatusOPEN",
@@ -54,7 +52,6 @@ export const SESSION_STATUS_MESSAGE_KEYS: Record<SessionStatus, HostDashboardMes
 
 export const SESSION_STATUS_BADGE_VARIANT: Record<SessionStatus, BadgeVariant> = {
   DRAFT: "neutral",
-  PREPARING: "info",
   READY: "success",
   SCHEDULED: "info",
   OPEN: "success",
@@ -64,7 +61,6 @@ export const SESSION_STATUS_BADGE_VARIANT: Record<SessionStatus, BadgeVariant> =
 
 export const SESSION_STATUS_CHART_TONE: Record<SessionStatus, ChartTone> = {
   DRAFT: "neutral",
-  PREPARING: "info",
   READY: "brand",
   SCHEDULED: "warning",
   OPEN: "success",
