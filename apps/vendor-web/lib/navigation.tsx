@@ -123,6 +123,15 @@ export const ADMIN_NAV: NavItem[] = [
     sectionKey: "nav.system",
     requiredRoles: PLATFORM_OPERATIONS_ROLES,
   },
+  {
+    label: T.CHAT_USAGE,
+    labelKey: "nav.chatUsage",
+    href: "/admin/chat-usage",
+    icon: <NavDashboardIcon />,
+    section: T.SYSTEM_SECTION,
+    sectionKey: "nav.system",
+    requiredRoles: PLATFORM_ADMIN_ONLY,
+  },
 ];
 
 export const HOST_NAV: NavItem[] = [

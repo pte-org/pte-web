@@ -275,7 +275,7 @@ export const QuestionEditorForm = ({
           <input
             className="mt-1 block text-sm"
             type="file"
-            accept="audio/wav"
+            accept="audio/wav,audio/mpeg"
             onChange={(event) => void uploadMedia(event, "AUDIO_PROMPT")}
           />
           {audioPromptRef && (
