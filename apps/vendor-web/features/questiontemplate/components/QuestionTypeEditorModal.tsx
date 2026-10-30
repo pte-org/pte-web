@@ -2,13 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { Alert, Button, Modal } from "@pte/ui";
-import type {
-  CreateTaskTypeRequest,
-  QuestionTypeResponse,
-  QuestionTypeSection,
-  TaskTypeCapabilityResponse,
-  UpdateTaskTypeRequest,
-} from "@pte/api-client";
+import type { QuestionTypeResponse, TaskTypeCapabilityResponse } from "@pte/api-client";
 import { useCreateTaskType, useTaskTypeAvailability, useUpdateTaskType } from "../api";
 import {
   QUESTION_TYPE_SECTIONS,
@@ -17,10 +11,14 @@ import {
 } from "../constants";
 import { getQuestionTypeErrorMessage } from "../errorMessage";
 import {
-  QuestionTypeEditorFields,
-  type EditorMode,
+  hasRequiredDraftFields,
+  newDraft,
+  toCreatePayload,
+  toDraft,
+  toUpdatePayload,
   type QuestionTypeFormDraft,
-} from "./_QuestionTypeEditorFields";
+} from "../taskTypeDraft";
+import { QuestionTypeEditorFields, type EditorMode } from "./_QuestionTypeEditorFields";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 interface QuestionTypeEditorModalProps {
@@ -31,33 +29,6 @@ interface QuestionTypeEditorModalProps {
   onClose: () => void;
   onSuccess: (message: string) => void;
 }
-
-const toSection = (section: string): QuestionTypeSection =>
-  QUESTION_TYPE_SECTIONS.includes(section as QuestionTypeSection)
-    ? (section as QuestionTypeSection)
-    : "SPEAKING";
-
-const toDraft = (type: QuestionTypeResponse): QuestionTypeFormDraft => ({
-  taskTypeKey: type.taskTypeKey ?? type.code,
-  section: toSection(type.section),
-  displayName: type.displayName,
-  shortName: type.shortName,
-  screenKey: type.screenKey ?? type.runtime?.screenKey ?? "",
-  contractVersion: type.contractVersion ?? type.runtime?.contractVersion ?? 0,
-  displayOrder: type.displayOrder,
-  active: type.active,
-});
-
-const newDraft = (displayOrder: number): QuestionTypeFormDraft => ({
-  taskTypeKey: "",
-  section: "SPEAKING",
-  displayName: "",
-  shortName: "",
-  screenKey: "",
-  contractVersion: 0,
-  displayOrder,
-  active: true,
-});
 
 const KEY_PATTERN = /^[A-Z][A-Z0-9_]{1,63}$/;
 
@@ -100,33 +71,13 @@ export const QuestionTypeEditorModal = ({
   const save = async (): Promise<void> => {
     try {
       if (mode === "create") {
-        const payload: CreateTaskTypeRequest = {
-          taskTypeKey: draft.taskTypeKey,
-          displayName: draft.displayName.trim(),
-          shortName: draft.shortName.trim(),
-          section: draft.section,
-          screenKey: draft.screenKey,
-          contractVersion: draft.contractVersion,
-          displayOrder: draft.displayOrder,
-          active: draft.active,
-        };
-        await createMutation.mutateAsync({ payload });
+        await createMutation.mutateAsync({ payload: toCreatePayload(draft) });
         onSuccess(T.CREATE_SUCCESS);
       } else if (editing) {
-        const payload: UpdateTaskTypeRequest = {
-          displayName: draft.displayName.trim(),
-          shortName: draft.shortName.trim(),
-          displayOrder: draft.displayOrder,
-          active: draft.active,
-          ...(runtimeLocked
-            ? {}
-            : {
-                screenKey: draft.screenKey,
-                contractVersion: draft.contractVersion,
-                section: draft.section,
-              }),
-        };
-        await updateMutation.mutateAsync({ publicId: editing.publicId, payload });
+        await updateMutation.mutateAsync({
+          publicId: editing.publicId,
+          payload: toUpdatePayload(draft, runtimeLocked),
+        });
         onSuccess(T.UPDATE_SUCCESS);
       }
     } catch {
@@ -145,11 +96,7 @@ export const QuestionTypeEditorModal = ({
     !invalidKey &&
     !availabilityKeyConflict &&
     !availabilityNameConflict &&
-    draft.displayName.trim() &&
-    draft.shortName.trim() &&
-    draft.section &&
-    draft.screenKey &&
-    draft.contractVersion > 0,
+    hasRequiredDraftFields(draft),
   );
   const sectionOptions = useAdminCopy(
     QUESTION_TYPE_SECTIONS.map((section) => ({
