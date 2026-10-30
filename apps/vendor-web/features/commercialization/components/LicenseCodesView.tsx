@@ -1,22 +1,14 @@
 "use client";
 
-import {
-  useEffect,
-  useSyncExternalStore,
-  useState,
-  type FormEvent,
-  type ReactElement,
-} from "react";
+import { useEffect, useState, type FormEvent, type ReactElement } from "react";
 import {
   ActionMenu,
   Alert,
   BanIcon,
   Button,
   Checkbox,
-  ConfirmDialog,
   CopyIcon,
   DataTable,
-  DateTimeInput,
   EyeIcon,
   Input,
   Modal,
@@ -28,12 +20,9 @@ import {
 } from "@pte/ui";
 import {
   ApiError,
-  decodeAccessTokenClaims,
   getUserFacingApiErrorMessage,
   type AdminLicenseCodeSummary,
   type ConfirmLicenseRevokeRequest,
-  type IssueLicenseCodeRequest,
-  type LicenseIssueReceipt,
   type LicenseCodeStatus,
   type LicenseRevokePreviewResponse,
 } from "@pte/api-client";
@@ -41,7 +30,6 @@ import {
   lookupAdminLicenseCode,
   revealAdminLicenseCode,
   useAdminLicenseCodesQuery,
-  useIssueLicenseCode,
   useLicenseCodeRevokePreview,
   usePlansQuery,
   useRevokeLicenseCode,
@@ -49,12 +37,19 @@ import {
 import { LICENSE_CODES_TEXT as RAW_LICENSE_CODES_TEXT } from "../constants";
 import { CommercialPanel } from "./CommercialPanel";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
+import { GrantLicenseWizard } from "@/features/licenseGrant/components";
+import { formatContractDate } from "@/features/licenseGrant/utils";
 import { isPlatformAdmin } from "@/features/auth/permissions";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
 import { useDebouncedSearch } from "@/features/i18n/useDebouncedSearch";
 
 const DEFAULT_PAGE_SIZE = 25;
+/**
+ * Hidden: admin grants never set a code deadline, so the column only ever showed "—". Legacy code expiry stays
+ * visible through the Expired status badge and the Lookup dialog. Set to true to show it again.
+ */
+const SHOW_CODE_EXPIRY_COLUMN = false;
 const MAX_REVEAL_MS = 60_000;
 
 const LICENSE_STATUS_FILTER_OPTIONS = [
@@ -74,57 +69,9 @@ const ACTIVATION_CODE_SEARCH_PATTERN =
 const isActivationCodeSearch = (value: string): boolean =>
   ACTIVATION_CODE_SEARCH_PATTERN.test(value.trim().replace(/\s+/g, ""));
 
-type IssueIntent = { idempotencyKey: string; payload: IssueLicenseCodeRequest };
 type StatusFilter = LicenseCodeStatus | "";
 type AppliedFilters = { status: StatusFilter; planId: string; tenantId: string };
 type LicenseCodeRevealTarget = Pick<AdminLicenseCodeSummary, "publicId">;
-
-const SAFE_NEW_INTENT_ERROR_CODES = new Set([
-  "LICENSE_CODE_IDEMPOTENCY_KEY_REQUIRED",
-  "LICENSE_CODE_IDEMPOTENCY_KEY_INVALID",
-  "LICENSE_CODE_PLAN_REQUIRED",
-  "LICENSE_CODE_PLAN_NOT_ACTIVE",
-  "LICENSE_CODE_EXAM_PLAN_REQUIRED",
-  "LICENSE_CODE_EXPIRY_INVALID",
-  "LICENSE_CODE_EXPIRY_PRECISION_INVALID",
-  "PLAN_NOT_FOUND",
-]);
-
-const subscribeRecovery = (notify: () => void): (() => void) => {
-  window.addEventListener("storage", notify);
-  window.addEventListener("license-issue-intent", notify);
-  return () => {
-    window.removeEventListener("storage", notify);
-    window.removeEventListener("license-issue-intent", notify);
-  };
-};
-
-const parseRecovery = (stored: string | null): IssueIntent | null => {
-  try {
-    const value: unknown = stored ? JSON.parse(stored) : null;
-    if (
-      typeof value !== "object" ||
-      value === null ||
-      !("idempotencyKey" in value) ||
-      typeof value.idempotencyKey !== "string" ||
-      !("payload" in value) ||
-      typeof value.payload !== "object" ||
-      value.payload === null ||
-      !("planId" in value.payload) ||
-      typeof value.payload.planId !== "string" ||
-      !("codeExpiresAt" in value.payload) ||
-      (value.payload.codeExpiresAt !== null && typeof value.payload.codeExpiresAt !== "string")
-    ) {
-      return null;
-    }
-    return {
-      idempotencyKey: value.idempotencyKey,
-      payload: { planId: value.payload.planId, codeExpiresAt: value.payload.codeExpiresAt },
-    };
-  } catch {
-    return null;
-  }
-};
 
 const safeOperationMessage = (error: unknown, fallback: string): string =>
   getUserFacingApiErrorMessage(error, fallback);
@@ -136,12 +83,9 @@ export const LicenseCodesView = (): ReactElement => {
   const dateRangeLabel = useAdminCopy("Date range");
   const impactLabel = useAdminCopy("Impact");
   const previewValidUntilLabel = useAdminCopy("Preview valid until");
-  const { session, isReady } = useSessionManager();
+  const { session } = useSessionManager();
   const { showToast } = useToast();
   const canUseSensitiveActions = isPlatformAdmin(session?.roles);
-  const actorId = session ? decodeAccessTokenClaims(session.accessToken)?.sub : undefined;
-  const recoveryKey = actorId ? `pte-license-issue:${actorId}` : null;
-  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
@@ -163,20 +107,11 @@ export const LicenseCodesView = (): ReactElement => {
     tenantId: filters.tenantId || undefined,
     search: activationCodeSearch ? "UNSUPPORTED" : debouncedSearch,
   });
-  const {
-    data: plans = [],
-    refetch: refreshPlans,
-    isLoading: plansLoading,
-    isError: plansError,
-  } = usePlansQuery();
-  const issue = useIssueLicenseCode();
+  const { data: plans = [], isLoading: plansLoading, isError: plansError } = usePlansQuery();
   const revokePreviewRequest = useLicenseCodeRevokePreview();
   const revoke = useRevokeLicenseCode();
 
-  const [planId, setPlanId] = useState("");
-  const [expiresAt, setExpiresAt] = useState("");
-  const [issueDialogOpen, setIssueDialogOpen] = useState(false);
-  const [issueSuccess, setIssueSuccess] = useState<LicenseIssueReceipt | null>(null);
+  const [grantOpen, setGrantOpen] = useState(false);
   const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false);
   const [codeToRevoke, setCodeToRevoke] = useState<AdminLicenseCodeSummary | null>(null);
   const [revokePreview, setRevokePreview] = useState<LicenseRevokePreviewResponse | null>(null);
@@ -184,12 +119,7 @@ export const LicenseCodesView = (): ReactElement => {
   const [cancelSubscription, setCancelSubscription] = useState(false);
   const [cancelScheduledScope, setCancelScheduledScope] = useState(false);
   const [preserveOpenClosed, setPreserveOpenClosed] = useState(false);
-  const [memoryRecovery, setMemoryRecovery] = useState<{
-    owner: string;
-    intent: IssueIntent | null;
-  } | null>(null);
   const [localError, setLocalError] = useState("");
-  const [confirmNewIntent, setConfirmNewIntent] = useState(false);
 
   const [lookupDialogOpen, setLookupDialogOpen] = useState(false);
   const [lookupInput, setLookupInput] = useState("");
@@ -202,24 +132,6 @@ export const LicenseCodesView = (): ReactElement => {
   const [revealError, setRevealError] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const storedIntent = useSyncExternalStore(
-    subscribeRecovery,
-    () => {
-      try {
-        return recoveryKey ? window.sessionStorage.getItem(recoveryKey) : null;
-      } catch {
-        return null;
-      }
-    },
-    () => null,
-  );
-  const intent =
-    memoryRecovery?.owner === recoveryKey ? memoryRecovery.intent : parseRecovery(storedIntent);
-  const issueErrorCode = issue.error instanceof ApiError ? issue.error.code : undefined;
-  const rejected = issueErrorCode !== undefined && SAFE_NEW_INTENT_ERROR_CODES.has(issueErrorCode);
-  const activePlans = plans.filter(
-    (plan) => plan.type === "EXAM_PACKAGE" && plan.status === "ACTIVE",
-  );
   const codeSearchMatchesFilters =
     codeSearchResult !== null &&
     (!filters.status || codeSearchResult.effectiveStatus === filters.status) &&
@@ -235,29 +147,10 @@ export const LicenseCodesView = (): ReactElement => {
       : []
     : codePageQuery.data?.data ?? [];
   const isFiltered = Boolean(filters.status || filters.planId || filters.tenantId || search.trim());
-  const error =
-    issue.error ?? revoke.error ?? revokePreviewRequest.error ?? codePageQuery.error ?? codeSearchError;
+  const error = revoke.error ?? revokePreviewRequest.error ?? codePageQuery.error ?? codeSearchError;
   const errorMessage =
     localError ||
     (error ? safeOperationMessage(error, T.ERROR) : codePageQuery.isError ? T.ERROR : undefined);
-  const expiryDate = expiresAt ? new Date(expiresAt) : null;
-  const utcPreview =
-    expiryDate && !Number.isNaN(expiryDate.getTime()) ? expiryDate.toISOString() : T.EMPTY_VALUE;
-  const issueSuccessPlanName = issueSuccess
-    ? plans.find((plan) => plan.publicId === issueSuccess.planId)?.name ?? T.EMPTY_VALUE
-    : T.EMPTY_VALUE;
-
-  const saveRecovery = (next: IssueIntent | null): void => {
-    if (!recoveryKey) return;
-    setMemoryRecovery({ owner: recoveryKey, intent: next });
-    try {
-      if (next) window.sessionStorage.setItem(recoveryKey, JSON.stringify(next));
-      else window.sessionStorage.removeItem(recoveryKey);
-      window.dispatchEvent(new Event("license-issue-intent"));
-    } catch {
-      // The current-page in-memory value still supports a safe retry.
-    }
-  };
 
   const clearReveal = (): void => {
     setRevealTarget(null);
@@ -280,12 +173,9 @@ export const LicenseCodesView = (): ReactElement => {
         setLookupInput("");
         setLookupError("");
         setLookupDialogOpen(false);
-        setIssueDialogOpen(false);
-        setIssueSuccess(null);
+        setGrantOpen(false);
         setAdvancedFiltersOpen(false);
         setLocalError("");
-        setMemoryRecovery(null);
-        setConfirmNewIntent(false);
         setCodeToRevoke(null);
         setRevokePreview(null);
         setCodeSearchResult(null);
@@ -340,43 +230,6 @@ export const LicenseCodesView = (): ReactElement => {
     setPage(0);
     setFilters({ status: "", planId: "", tenantId: "" });
     clearReveal();
-  };
-
-  const issueCode = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
-    event.preventDefault();
-    if (issue.isPending || !recoveryKey) return;
-    clearReveal();
-    setLocalError("");
-    const submittedExpiry = expiresAt ? new Date(expiresAt) : null;
-    if (
-      !intent &&
-      (!planId ||
-        (submittedExpiry &&
-          (Number.isNaN(submittedExpiry.getTime()) ||
-            submittedExpiry.getTime() <= new Date().getTime())))
-    ) {
-      setLocalError(T.INVALID_EXPIRY);
-      return;
-    }
-    const next = intent ?? {
-      idempotencyKey: crypto.randomUUID(),
-      payload: { planId, codeExpiresAt: submittedExpiry ? submittedExpiry.toISOString() : null },
-    };
-    saveRecovery(next);
-    try {
-      const result = await issue.mutateAsync(next);
-      showToast(
-        result.replayed ? T.RECOVERED_SUCCESS : T.ISSUED_SUCCESS,
-        { tone: "success" },
-      );
-      saveRecovery(null);
-      setPlanId("");
-      setExpiresAt("");
-      setIssueDialogOpen(false);
-      setIssueSuccess(result);
-    } catch {
-      // The mutation error is rendered; the same idempotency key remains recoverable.
-    }
   };
 
   const loadRevokePreview = async (publicId: string): Promise<void> => {
@@ -505,19 +358,13 @@ export const LicenseCodesView = (): ReactElement => {
     <div className="flex flex-col gap-5">
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       {codePageQuery.isFetching && codePageQuery.data && <Alert tone="info">{T.STALE_DATA}</Alert>}
-      {intent && (
-        <Alert tone="warning">
-          {issue.isPending ? T.ISSUE_PENDING : rejected ? T.ISSUE_REJECTED : T.UNCERTAIN}{" "}
-          {intent.payload.planId} · {intent.payload.codeExpiresAt ?? T.EMPTY_VALUE}
-        </Alert>
-      )}
 
       <CommercialPanel
         title={T.TITLE}
         subtitle={T.INVENTORY_SUBTITLE}
         actions={
           <>
-            <Button type="button" onClick={() => setIssueDialogOpen(true)}>
+            <Button type="button" onClick={() => setGrantOpen(true)}>
               {T.CREATE_ACTION}
             </Button>
             <Button type="button" variant="secondary" onClick={() => setLookupDialogOpen(true)}>
@@ -617,6 +464,19 @@ export const LicenseCodesView = (): ReactElement => {
                 ),
             },
             {
+              key: "contract",
+              header: T.CONTRACT,
+              cell: (row: AdminLicenseCodeSummary) => row.contractReference ?? T.EMPTY_VALUE,
+            },
+            {
+              key: "period",
+              header: T.PERIOD,
+              cell: (row: AdminLicenseCodeSummary) =>
+                row.subscriptionStartsAt && row.subscriptionExpiresAt
+                  ? `${formatContractDate(row.subscriptionStartsAt)} – ${formatContractDate(row.subscriptionExpiresAt)}`
+                  : T.EMPTY_VALUE,
+            },
+            {
               key: "issued",
               header: T.ISSUED,
               filterType: "date-range",
@@ -624,14 +484,18 @@ export const LicenseCodesView = (): ReactElement => {
               filterPlaceholder: dateRangeLabel,
               cell: (row: AdminLicenseCodeSummary) => formatDate(row.issuedAt),
             },
-            {
-              key: "expires",
-              header: T.EXPIRES,
-              filterType: "date-range",
-              filterAccessor: (row: AdminLicenseCodeSummary) => row.codeExpiresAt,
-              filterPlaceholder: dateRangeLabel,
-              cell: (row: AdminLicenseCodeSummary) => formatDate(row.codeExpiresAt),
-            },
+            ...(SHOW_CODE_EXPIRY_COLUMN
+              ? [
+                  {
+                    key: "expires",
+                    header: T.EXPIRES,
+                    filterType: "date-range" as const,
+                    filterAccessor: (row: AdminLicenseCodeSummary) => row.codeExpiresAt,
+                    filterPlaceholder: dateRangeLabel,
+                    cell: (row: AdminLicenseCodeSummary) => formatDate(row.codeExpiresAt),
+                  },
+                ]
+              : []),
             {
               key: "status",
               header: T.STATUS,
@@ -698,145 +562,7 @@ export const LicenseCodesView = (): ReactElement => {
         />
       </CommercialPanel>
 
-      <Modal
-        open={issueDialogOpen || intent !== null}
-        title={T.ISSUE_TITLE}
-        size="md"
-        isDismissDisabled={issue.isPending}
-        onClose={() => {
-          if (!issue.isPending && !intent) {
-            setIssueDialogOpen(false);
-            setLocalError("");
-          }
-        }}
-        footer={
-          <>
-            {intent && (
-              <Button
-                type="button"
-                variant="ghost"
-                disabled={issue.isPending}
-                onClick={() => setConfirmNewIntent(true)}
-              >
-                {T.NEW_ISSUE}
-              </Button>
-            )}
-            <Button
-              type="button"
-              variant="ghost"
-              disabled={issue.isPending || intent !== null}
-              onClick={() => setIssueDialogOpen(false)}
-            >
-              {T.CLOSE}
-            </Button>
-            <Button
-              type="submit"
-              form="license-issue-form"
-              isLoading={issue.isPending}
-              disabled={!isReady || !actorId || (!planId && !intent)}
-            >
-              {intent ? T.RETRY_ISSUE : T.ISSUE}
-            </Button>
-          </>
-        }
-      >
-        <form
-          id="license-issue-form"
-          className="flex flex-col gap-4"
-          onSubmit={(event) => void issueCode(event)}
-        >
-          <Select
-            id="license-plan"
-            label={T.PLAN_LABEL}
-            placeholder={T.PLAN_PLACEHOLDER}
-            options={activePlans.map((plan) => ({ label: plan.name, value: plan.publicId }))}
-            value={intent?.payload.planId ?? planId}
-            onChange={(event) => setPlanId(event.target.value)}
-            required
-            disabled={intent !== null || issue.isPending || plansLoading || plansError}
-          />
-          <DateTimeInput
-            id="license-expires"
-            label={T.EXPIRY_LABEL}
-            value={expiresAt}
-            onChange={(event) => setExpiresAt(event.target.value)}
-            disabled={intent !== null || issue.isPending}
-          />
-          <p className="text-xs text-[var(--ink-muted)]">{T.EXPIRY_HELP(zone, utcPreview)}</p>
-          {issue.error != null && (
-            <Alert tone="error">{safeOperationMessage(issue.error, T.ERROR)}</Alert>
-          )}
-          {localError && <Alert tone="error">{localError}</Alert>}
-          {plansError && (
-            <div className="flex flex-col gap-2">
-              <Alert tone="error">{T.PLAN_LOAD_ERROR}</Alert>
-              <Button
-                type="button"
-                variant="ghost"
-                disabled={issue.isPending}
-                onClick={() => void refreshPlans()}
-              >
-                {T.REFRESH_PLANS}
-              </Button>
-            </div>
-          )}
-          {!plansError && !plansLoading && activePlans.length === 0 && (
-            <div className="flex flex-col gap-2">
-              <Alert tone="info">{T.PLAN_LOAD_ERROR}</Alert>
-              <Button
-                type="button"
-                variant="ghost"
-                disabled={issue.isPending}
-                onClick={() => void refreshPlans()}
-              >
-                {T.REFRESH_PLANS}
-              </Button>
-            </div>
-          )}
-        </form>
-      </Modal>
-
-      <Modal
-        open={issueSuccess !== null}
-        title={T.ISSUE_SUCCESS_TITLE}
-        size="md"
-        onClose={() => setIssueSuccess(null)}
-        footer={
-          <>
-            <Button variant="ghost" onClick={() => setIssueSuccess(null)}>
-              {T.CLOSE}
-            </Button>
-            <Button
-              onClick={() => {
-                if (!issueSuccess) return;
-                const publicId = issueSuccess.publicId;
-                setIssueSuccess(null);
-                void revealCode({ publicId });
-              }}
-            >
-              {T.REVEAL}
-            </Button>
-          </>
-        }
-      >
-        <div className="flex flex-col gap-4">
-          <p className="text-sm text-[var(--ink-secondary)]">{T.ISSUE_SUCCESS_DESCRIPTION}</p>
-          {issueSuccess && (
-            <dl className="grid gap-3 rounded-md border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-3 text-sm sm:grid-cols-2">
-              <div>
-                <dt className="text-xs text-[var(--ink-muted)]">{T.ISSUE_SUCCESS_PLAN}</dt>
-                <dd className="mt-1 font-medium text-[var(--ink-primary)]">{issueSuccessPlanName}</dd>
-              </div>
-              <div>
-                <dt className="text-xs text-[var(--ink-muted)]">{T.ISSUE_SUCCESS_EXPIRY}</dt>
-                <dd className="mt-1 font-medium text-[var(--ink-primary)]">
-                  {formatDate(issueSuccess.codeExpiresAt)}
-                </dd>
-              </div>
-            </dl>
-          )}
-        </div>
-      </Modal>
+      <GrantLicenseWizard open={grantOpen} onClose={() => setGrantOpen(false)} />
 
       <Modal
         open={lookupDialogOpen}
@@ -908,20 +634,6 @@ export const LicenseCodesView = (): ReactElement => {
           </div>
         )}
       </Modal>
-
-      <ConfirmDialog
-        open={confirmNewIntent}
-        title={T.NEW_ISSUE_CONFIRM}
-        description={rejected ? T.REJECTED_NEW_ISSUE : T.NEW_ISSUE_WARNING}
-        confirmLabel={T.NEW_ISSUE}
-        onConfirm={() => {
-          if (issue.isPending) return;
-          saveRecovery(null);
-          issue.reset();
-          setConfirmNewIntent(false);
-        }}
-        onClose={() => setConfirmNewIntent(false)}
-      />
 
       <Modal
         open={revealTarget !== null}
