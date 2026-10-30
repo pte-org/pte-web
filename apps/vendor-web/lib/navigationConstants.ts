@@ -4,7 +4,7 @@ export const ADMIN_NAV_TEXT = {
   APPLICATIONS: "Applications",
   PLATFORM_USERS: "Platform users",
   PLAN_CATALOG: "Plan catalog",
-  LICENSE_CODES: "License codes",
+  LICENSE_CODES: "Package grants",
   PLATFORM_SETTINGS: "Platform settings",
   ANNOUNCEMENTS: "Announcements",
   QUESTION_BANK: "Question Bank",

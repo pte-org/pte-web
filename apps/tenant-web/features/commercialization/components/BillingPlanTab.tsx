@@ -3,8 +3,9 @@
 import type { ReactElement } from "react";
 import Link from "next/link";
 import type { PlanResponse, StudentQuotaResponse, SubscriptionResponse } from "@pte/api-client";
-import { ActionMenu, DocumentIcon, EmptyState, LoadingState } from "@pte/ui";
+import { EmptyState, LoadingState } from "@pte/ui";
 import { PLANS_HOME_HREF } from "../constants";
+import { sortByStart } from "../utils/subscriptionStatus";
 import { BillingAccessCard } from "./BillingAccessCard";
 import { BillingCapacitySummary } from "./BillingCapacitySummary";
 import { BillingExpiryStatus } from "./BillingExpiryStatus";
@@ -21,8 +22,6 @@ interface BillingPlanTabText {
   loadingCapacity: string;
   capacityLoadError: string;
   viewPlans: string;
-  billingActions: string;
-  redeemLicense: string;
 }
 
 interface BillingPlanTabProps {
@@ -65,18 +64,7 @@ export const BillingPlanTab = ({
 
   return (
     <div className="flex flex-col gap-5">
-      <BillingPanel
-        title={text.currentPlan}
-        subtitle={text.currentPlanSubtitle}
-        actions={
-          <ActionMenu
-            label={text.billingActions}
-            items={[
-              { label: text.redeemLicense, href: "/host/redeem-license", icon: DocumentIcon },
-            ]}
-          />
-        }
-      >
+      <BillingPanel title={text.currentPlan} subtitle={text.currentPlanSubtitle}>
         {subscriptionsLoading ? (
           <LoadingState rows={2} label={text.loadingAccess} />
         ) : activeExamSubscriptions.length === 0 ? (
@@ -90,12 +78,6 @@ export const BillingPlanTab = ({
                   className="font-semibold text-[var(--action)] hover:underline"
                 >
                   {text.viewPlans}
-                </Link>
-                <Link
-                  href="/host/redeem-license"
-                  className="font-semibold text-[var(--action)] hover:underline"
-                >
-                  {text.redeemLicense}
                 </Link>
               </div>
             }
@@ -124,11 +106,12 @@ export const BillingPlanTab = ({
               description={text.noActiveAccessDescription}
             />
           ) : (
-            groupedExamSubscriptions.map((group) => (
+            // One row per lane: a running lane and the granted lane that continues it are both shown.
+            sortByStart(activeExamSubscriptions).map((subscription) => (
               <BillingExpiryStatus
-                key={group[0].planId}
-                planName={planName(group[0].planId)}
-                subscriptions={group}
+                key={subscription.publicId}
+                planName={planName(subscription.planId)}
+                subscription={subscription}
               />
             ))
           )}

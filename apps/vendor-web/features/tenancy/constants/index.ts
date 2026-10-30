@@ -151,10 +151,11 @@ export const CREATE_TENANT_TEXT = {
   TAX_CODE_LABEL: "Tax Code",
   TAX_CODE_PLACEHOLDER: "Enter the organization's tax code",
   TAX_CODE_HELPER: "Required for organization verification.",
-  PLAN_LABEL: "Plan",
-  PLAN_PLACEHOLDER: "Select a plan",
-  STUDENT_LIMIT_LABEL: "Student Limit",
-  STUDENT_LIMIT_PLACEHOLDER: "e.g. 500",
+  HOST_EMAIL_LABEL: "Host email",
+  HOST_EMAIL_PLACEHOLDER: "host@organization.edu.vn",
+  HOST_EMAIL_HELPER: "The first host account is created for this email and its password is sent there.",
+  CAPACITY_NOTE:
+    "The student limit starts at the free limit in Platform settings. Grant packages after the tenant is created.",
   CANCEL: "Cancel",
   SUBMIT: "Create Tenant",
 } as const;
@@ -185,16 +186,18 @@ export const TENANT_CREATED_TEXT = {
   NAME_LABEL: "Tenant Name",
   ORG_TYPE_LABEL: "Organization Type",
   TAX_CODE_LABEL: "Tax Code",
-  PLAN_LABEL: "Plan",
   STUDENT_LIMIT_LABEL: "Student Limit",
+  HOST_LABEL: "Host account",
+  HOST_NOTE: "The host password has been emailed to this address.",
   EMPTY_VALUE: "—",
   CLOSE: "Close",
+  GRANT_PACKAGE: "Grant package now",
 } as const;
 
 export const CREATE_TENANT_ERRORS = {
   REQUIRED: "This field is required.",
   CODE_INVALID: "Use 3–32 lowercase letters, numbers, or hyphens.",
-  STUDENT_LIMIT_INVALID: "Enter a whole number of at least 1.",
+  EMAIL_INVALID: "Enter a valid email address.",
 } as const;
 
 export const CREATE_TENANT_CONFLICT_TEXT = {
@@ -207,6 +210,7 @@ export const CREATE_TENANT_CONFLICT_TEXT = {
   CONFLICT: "The tenant name already exists. Please check the information and try again.",
 } as const;
 
+/** Quota-grant labels only (licensing); a tenant is no longer created with a plan. */
 export const PLAN_SELECT_OPTIONS: { value: TenantPlan; label: string }[] = [
   { value: "starter", label: TENANT_PLAN_LABELS.starter },
   { value: "professional", label: TENANT_PLAN_LABELS.professional },
@@ -235,27 +239,25 @@ export const EMPTY_CREATE_TENANT: CreateTenantInput = {
   name: "",
   organizationType: "",
   taxCode: "",
-  plan: "",
-  studentLimit: "",
+  hostEmail: "",
 };
 
 export const TENANT_DETAIL_TEXT = {
   BACK_TO_TENANTS: "Back to Tenants",
   LOAD_ERROR: "Tenant details could not be loaded. Retry before changing access.",
   RETRY: "Retry",
-  SUMMARY_SUBTITLE: (organizationType: string, plan: string, seats: number) =>
-    `${organizationType} · ${plan} · ${seats} students`,
+  SUMMARY_SUBTITLE: (organizationType: string, seats: number) =>
+    `${organizationType} · ${seats} students`,
   EMPTY_VALUE: "—",
   INFORMATION_TITLE: "Tenant information",
   GROUP_IDENTITY: "Identity",
   GROUP_ORGANIZATION: "Organization",
-  GROUP_PLAN: "Plan & capacity",
+  GROUP_PLAN: "Capacity",
   ID_LABEL: "Tenant ID",
   CODE_LABEL: "Tenant code",
   NAME_LABEL: "Tenant name",
   ORGANIZATION_TYPE_LABEL: "Organization type",
   TAX_CODE_LABEL: "Tax code",
-  PLAN_LABEL: "Plan",
   STUDENT_LIMIT_LABEL: "Student limit",
   STATUS_LABEL: "Status",
   BRANDING_TITLE: "White-Label Branding",

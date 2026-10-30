@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import type { SubscriptionResponse } from "@pte/api-client";
 import { Alert, Input, Select } from "@pte/ui";
+import { subscriptionPeriod } from "@/features/commercialization/utils/subscriptionStatus";
 import { CREATE_EXAM_WIZARD_TEXT, EXAM_SKILL_OPTIONS } from "../../constants";
 import type { CreateExamWorkflowInput, ExamSkill } from "../../types";
 import type { CreateExamWorkflowErrors } from "../../utils/validateCreateExamWorkflow";
@@ -70,7 +71,7 @@ export function ExamDetailsStep({
         disabled={subscriptionsLoading || activeSubscriptions.length === 0}
         onChange={(event) => onUpdate("subscriptionPublicId", event.target.value)}
         options={activeSubscriptions.map((subscription) => ({
-          label: `${planNameById.get(subscription.planId) ?? wizardText.PLAN_FALLBACK} — ${subscription.licenseKey}`,
+          label: `${planNameById.get(subscription.planId) ?? wizardText.PLAN_FALLBACK} — ${subscription.licenseKey} · ${subscriptionPeriod(subscription)}`,
           value: subscription.publicId,
         }))}
       />

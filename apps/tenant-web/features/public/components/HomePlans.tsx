@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Alert, LoadingState, Tabs, useSessionManager } from "@pte/ui";
 import { AUTH_ROUTES } from "@/features/auth/constants";
 import { useSubscriptionsQuery, useTenantPlansQuery } from "@/features/commercialization/api";
+import { isPendingSubscription } from "@/features/commercialization/utils/subscriptionStatus";
 import { HOME_LAYOUT } from "../homeConstants";
 import { useHomeCopy } from "../useHomeCopy";
 import { toHomePlan } from "./homePlanPresentation";
@@ -17,9 +18,12 @@ export const HomePlans = (): ReactElement => {
   const { data: plans = [], isLoading, isError } = useTenantPlansQuery();
   const registered = isReady && Boolean(session?.tenantId);
   const { data: subscriptions = [] } = useSubscriptionsQuery(registered);
+  // A granted lane that starts later is not the current plan yet.
   const activePlanIds = new Set(
     registered
-      ? subscriptions.filter((item) => item.status === "ACTIVE").map((item) => item.planId)
+      ? subscriptions
+          .filter((item) => item.status === "ACTIVE" && !isPendingSubscription(item))
+          .map((item) => item.planId)
       : [],
   );
   const activePlans = plans

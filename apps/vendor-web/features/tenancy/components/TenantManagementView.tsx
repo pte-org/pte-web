@@ -20,6 +20,7 @@ import { TenantEmptyState } from "./_TenantEmptyState";
 import { SuspendTenantModal } from "./SuspendTenantModal";
 import { CreateTenantModal } from "./CreateTenantModal";
 import { TenantCreatedModal } from "./TenantCreatedModal";
+import { GrantLicenseWizard } from "@/features/licenseGrant/components";
 
 function lifecycleErrorMessage(error: unknown): string | undefined {
   if (!error) return undefined;
@@ -43,6 +44,8 @@ export const TenantManagementView = (): ReactElement => {
   const [lifecycleError, setLifecycleError] = useState<string | undefined>();
   const [grantTarget, setGrantTarget] = useState<Tenant | null>(null);
   const [historyTarget, setHistoryTarget] = useState<Tenant | null>(null);
+  /** Code of a just-created tenant whose package grant wizard is open. */
+  const [packageGrantCode, setPackageGrantCode] = useState<string | null>(null);
   const grantQuota = useGrantQuota(grantTarget?.id ?? "");
 
   const allTenants = tenants ?? [];
@@ -136,7 +139,19 @@ export const TenantManagementView = (): ReactElement => {
 
       <TenantCreatedModal
         tenant={createFlow.createdTenant}
+        hostEmail={createFlow.createdHostEmail}
         onClose={createFlow.closeCreatedModal}
+        onGrantPackage={(tenant) => {
+          createFlow.closeCreatedModal();
+          setPackageGrantCode(tenant.code);
+        }}
+      />
+
+      <GrantLicenseWizard
+        key={packageGrantCode ?? "package-grant-closed"}
+        open={packageGrantCode !== null}
+        initialCode={packageGrantCode ?? undefined}
+        onClose={() => setPackageGrantCode(null)}
       />
 
       <GrantQuotaModal
