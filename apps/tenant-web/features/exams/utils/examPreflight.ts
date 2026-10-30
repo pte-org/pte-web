@@ -1,6 +1,10 @@
 import { UserFacingError } from "@/features/examoperations/errorMessage";
 import { CREATE_EXAM_WIZARD_TEXT } from "../constants";
-import type { ScoreTemplateSlotFeasibilityResponse } from "@pte/api-client";
+import type {
+  AudienceMemberResponse,
+  SlotConflict,
+  ScoreTemplateSlotFeasibilityResponse,
+} from "@pte/api-client";
 
 /**
  * Preflight found blockers. Keeps the raw issue codes so the UI can render them in the active
@@ -9,10 +13,12 @@ import type { ScoreTemplateSlotFeasibilityResponse } from "@pte/api-client";
 export class ExamPreflightBlockedError extends UserFacingError {
   readonly issues: readonly string[];
   readonly shortages: readonly ScoreTemplateSlotFeasibilityResponse[];
+  readonly conflicts: readonly SlotConflict[];
 
   constructor(
     issues: readonly string[],
     shortages: readonly ScoreTemplateSlotFeasibilityResponse[] = [],
+    audience: readonly AudienceMemberResponse[] = [],
   ) {
     super(
       composePreflightMessage(
@@ -23,6 +29,17 @@ export class ExamPreflightBlockedError extends UserFacingError {
     );
     this.issues = issues;
     this.shortages = shortages.filter((slot) => !slot.ready);
+    this.conflicts = audience.flatMap((member) =>
+      member.reason === "SCHEDULE_OVERLAP" && member.priorSessionPublicId
+        ? [
+            {
+              studentPublicId: member.studentPublicId,
+              conflictingSessionPublicId: member.priorSessionPublicId,
+              conflictingSessionName: member.priorSessionName ?? member.priorSessionPublicId,
+            },
+          ]
+        : [],
+    );
   }
 }
 
