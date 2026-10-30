@@ -26,7 +26,6 @@ export const AUTH_ROUTES = {
   register: "/register",
   hostDashboard: "/host/dashboard",
   examinerWork: "/examiner/work",
-  studentResults: "/student/results",
   proctorSessions: "/proctor/sessions",
   proctorUnavailable: "/proctor/unavailable",
 } as const;

@@ -3,11 +3,14 @@ import { resolveWorkspace } from "../../../../features/auth/resolveWorkspace";
 import { AUTH_ROUTES } from "../../../../features/auth/constants";
 
 describe("resolveWorkspace", () => {
-  it("preserves exact legacy precedence for HOST_ADMIN + STUDENT multi-role users (R5 requirement)", () => {
-    const result = resolveWorkspace(["HOST_ADMIN", "STUDENT"], false);
-    // Legacy LoginView sent HOST_ADMIN + STUDENT to studentResults
-    expect(result.defaultRoute).toBe(AUTH_ROUTES.studentResults);
-    expect(result.allowedWorkspaces.map((w) => w.id)).toEqual(["host", "student"]);
+  it("gives STUDENT no workspace, even next to another role", () => {
+    const studentOnly = resolveWorkspace(["STUDENT"], false);
+    expect(studentOnly.defaultRoute).toBe(AUTH_ROUTES.login);
+    expect(studentOnly.allowedWorkspaces).toHaveLength(0);
+
+    const withHost = resolveWorkspace(["HOST_ADMIN", "STUDENT"], false);
+    expect(withHost.defaultRoute).toBe(AUTH_ROUTES.hostDashboard);
+    expect(withHost.allowedWorkspaces.map((w) => w.id)).toEqual(["host"]);
   });
 
   it("routes single-role HOST_ADMIN to hostDashboard", () => {
@@ -26,12 +29,6 @@ describe("resolveWorkspace", () => {
     const result = resolveWorkspace(["EXAMINER", "HOST_ADMIN"], false);
     expect(result.defaultRoute).toBe(AUTH_ROUTES.hostDashboard);
     expect(result.allowedWorkspaces.map((w) => w.id)).toEqual(["host", "examiner"]);
-  });
-
-  it("routes single-role STUDENT to studentResults", () => {
-    const result = resolveWorkspace(["STUDENT"], false);
-    expect(result.defaultRoute).toBe(AUTH_ROUTES.studentResults);
-    expect(result.allowedWorkspaces.map((w) => w.id)).toEqual(["student"]);
   });
 
   it("routes PROCTOR-only to proctorSessions when feature flag is enabled", () => {
