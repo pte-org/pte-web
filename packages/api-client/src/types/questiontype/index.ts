@@ -78,6 +78,8 @@ export interface QuestionTypeResponse {
   readiness?: TaskRuntimeReadiness | null;
   editability?: TaskTypeEditability | null;
   lifecycleStatus?: "DRAFT" | "PENDING_APPROVAL" | "ACTIVE" | "RETIRED" | string;
+  /** Student-facing instruction; null for task types created before it existed. */
+  instruction?: string | null;
 }
 
 /** Terminology aliases for the catalog migration; old names remain valid. */
@@ -105,6 +107,7 @@ export interface CreateTaskTypeRequest {
   contractVersion: number;
   displayOrder: number;
   active: boolean;
+  instruction: string;
 }
 
 export interface UpdateTaskTypeRequest {
@@ -115,6 +118,8 @@ export interface UpdateTaskTypeRequest {
   screenKey?: string;
   contractVersion?: number;
   section?: QuestionTypeSection;
+  /** Omit to keep the stored instruction; editable even when runtime fields are locked. */
+  instruction?: string;
 }
 
 export interface UpdateQuestionTypeRequest {

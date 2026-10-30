@@ -56,6 +56,7 @@ describe("task-type catalog compatibility adapters", () => {
       contractVersion: 1,
       displayOrder: 24,
       active: true,
+      instruction: "Read the text aloud as naturally as possible.",
     };
 
     await createQuestionType(client, payload);
