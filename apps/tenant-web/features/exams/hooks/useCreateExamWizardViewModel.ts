@@ -12,6 +12,7 @@ import type { SchedulePolicyStepProps } from "../components/create-exam/Schedule
 import { CREATE_EXAM_WIZARD_ERRORS, EXAM_SKILL_OPTIONS } from "../constants";
 import type { CreateExamWorkflowInput, ExamSkill } from "../types";
 import { composePreflightMessage, ExamPreflightBlockedError } from "../utils/examPreflight";
+import { formatExamConflictNames, getExamConflictErrorMessage } from "../utils/examConflictError";
 import {
   createEmptyExamWorkflow,
   getTemplateSkills,
@@ -124,11 +125,12 @@ export function useCreateExamWizardViewModel({
               wizardText.PREFLIGHT_ISSUE_MESSAGES[issue] ?? "",
             ) || undefined,
         )
-      : errorMessage(error);
+      : (getExamConflictErrorMessage(error, t) ?? errorMessage(error));
   const submitMessage =
     error instanceof ExamPreflightBlockedError
       ? [
           summary,
+          formatExamConflictNames(error.conflicts, t),
           ...error.shortages.map((slot) =>
             wizardText.PREFLIGHT_SHORTAGE_DETAILS.replace("{taskType}", slot.taskType)
               .replace("{required}", String(slot.required))
