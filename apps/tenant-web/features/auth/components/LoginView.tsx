@@ -16,7 +16,6 @@ import {
   useSessionManager,
   useSignInValidation,
   type AuthFooterItem,
-  type SessionRole,
   type SignInValidationMessages,
 } from "@pte/ui";
 import {
@@ -27,23 +26,9 @@ import {
 import { useLoginHost, useLoginOrganizationOptions } from "../api";
 import { AUTH_TEXT } from "../constants";
 import { resolveWorkspace } from "../resolveWorkspace";
+import { isStudentOnlyAccount, toSessionRoles } from "../sessionRoles";
 import { getLoginErrorMessage } from "../loginError";
 import { AuthBrandPanel } from "./_AuthBrandPanel";
-
-const SESSION_ROLES: readonly SessionRole[] = [
-  "PLATFORM_ADMIN",
-  "PLATFORM_AUTHOR",
-  "HOST_ADMIN",
-  "EXAMINER",
-  "PROCTOR",
-  "STUDENT",
-];
-
-function toSessionRoles(rawRoles: string[]): SessionRole[] {
-  return rawRoles.filter((role): role is SessionRole =>
-    (SESSION_ROLES as readonly string[]).includes(role),
-  );
-}
 
 const LABEL_CLASS = "text-[13px] font-semibold text-[var(--ink-secondary)]";
 const LOGO_WIDTH = 482;
@@ -79,6 +64,11 @@ export const LoginView = (): ReactElement => {
 
   const handleLoginSuccess = (data: JwtTokenResponse): void => {
     const claims = decodeAccessTokenClaims(data.accessToken);
+    if (claims && isStudentOnlyAccount(claims.roles)) {
+      // No session is saved: a student's scores arrive by email, never through this portal.
+      setErrorMessage(AUTH_TEXT.STUDENT_ACCOUNT_NOT_ALLOWED);
+      return;
+    }
     const roles = claims ? toSessionRoles(claims.roles) : [];
     if (!claims || roles.length === 0) {
       setErrorMessage(AUTH_TEXT.GENERIC_ERROR);

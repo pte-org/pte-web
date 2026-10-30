@@ -78,6 +78,8 @@ export const AUTH_TEXT = {
   USERNAME_INVALID_EMAIL: "Please enter a valid email address.",
   PASSWORD_REQUIRED: "Please enter your password.",
   INVALID_CREDENTIALS: "Username or password is incorrect.",
+  STUDENT_ACCOUNT_NOT_ALLOWED:
+    "Student accounts cannot sign in to this portal. Your results are sent to your email when they are published.",
   GENERIC_ERROR: "Login failed. Please try again.",
 } as const;
 
