@@ -1,5 +1,6 @@
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { EXAM_EDITOR_TEXT } from "../constants";
+import { getExamConflictErrorMessage } from "./examConflictError";
 
 export type Translate = (key: string, fallback?: string) => string;
 
@@ -23,6 +24,8 @@ const EXAM_ERROR_TRANSLATIONS = {
 } as const;
 
 export const getExamMutationErrorMessage = (error: unknown, t: Translate): string => {
+  const conflict = getExamConflictErrorMessage(error, t);
+  if (conflict) return conflict;
   const code = error instanceof ApiError ? error.code : undefined;
   const translation = code
     ? EXAM_ERROR_TRANSLATIONS[code as keyof typeof EXAM_ERROR_TRANSLATIONS]
