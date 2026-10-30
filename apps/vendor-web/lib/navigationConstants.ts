@@ -17,4 +17,5 @@ export const ADMIN_NAV_TEXT = {
   SYSTEM_SECTION: "System",
   SUPPORT_TICKETS: "Support Tickets",
   SYSTEM_LOG: "System log",
+  CHAT_USAGE: "AI chat usage",
 } as const;
