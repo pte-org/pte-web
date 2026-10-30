@@ -2,7 +2,7 @@ import type { SessionRole } from "@pte/ui";
 import { AUTH_ROUTES } from "./constants";
 
 export interface WorkspaceOption {
-  id: "host" | "examiner" | "student" | "proctor";
+  id: "host" | "examiner" | "proctor";
   labelKey: string;
   defaultLabel: string;
   href: string;
@@ -30,7 +30,6 @@ export function resolveWorkspace(
 
   const hasHost = roleSet.has("HOST_ADMIN");
   const hasExaminer = roleSet.has("EXAMINER");
-  const hasStudent = roleSet.has("STUDENT");
   const hasProctor = roleSet.has("PROCTOR");
 
   if (hasHost) {
@@ -51,15 +50,6 @@ export function resolveWorkspace(
     });
   }
 
-  if (hasStudent) {
-    allowedWorkspaces.push({
-      id: "student",
-      labelKey: "workspace.student",
-      defaultLabel: "Student",
-      href: AUTH_ROUTES.studentResults,
-    });
-  }
-
   if (hasProctor) {
     allowedWorkspaces.push({
       id: "proctor",
@@ -70,12 +60,9 @@ export function resolveWorkspace(
   }
 
   let defaultRoute: string;
-  // Preserve exact legacy precedence for role combinations:
-  // EXAMINER (without HOST_ADMIN) -> examinerWork, STUDENT -> studentResults, HOST_ADMIN -> hostDashboard
+  // EXAMINER (without HOST_ADMIN) -> examinerWork, HOST_ADMIN -> hostDashboard. STUDENT has no web workspace.
   if (hasExaminer && !hasHost) {
     defaultRoute = AUTH_ROUTES.examinerWork;
-  } else if (hasStudent) {
-    defaultRoute = AUTH_ROUTES.studentResults;
   } else if (hasHost) {
     defaultRoute = AUTH_ROUTES.hostDashboard;
   } else if (hasProctor) {

@@ -317,7 +317,7 @@ export const NavSettingsIcon = ({ className }: IconProps): ReactElement => (
 );
 
 export const NavAnnouncementIcon = ({ className }: IconProps): ReactElement => (
-  <NextAdminLetterIcon className={className} />
+  <BellIcon className={className} />
 );
 
 export const NavQuestionBankIcon = ({ className }: IconProps): ReactElement => (

@@ -2,9 +2,22 @@
 
 import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { type QuestionTypeResponse, type QuestionTypeSection } from "@pte/api-client";
-import { Alert, Button, LoadingState, PageHeader, Select } from "@pte/ui";
-import { useAdminCopy } from "@/features/i18n/adminCopy";
+import {
+  type QuestionTypeResponse,
+  type QuestionTypeSection,
+  type ScoreTemplateFeasibilityResponse,
+} from "@pte/api-client";
+import {
+  Alert,
+  Button,
+  Input,
+  LoadingState,
+  PageHeader,
+  Select,
+  useLocale,
+  useToast,
+} from "@pte/ui";
+import { translateAdminText, useAdminCopy } from "@/features/i18n/adminCopy";
 import {
   useActivateScoreTemplate,
   useReplaceScoreTemplateItems,
@@ -30,6 +43,7 @@ import {
 } from "../types";
 import { ActivateTemplateModal } from "./ActivateTemplateModal";
 import { ScoreTemplateItemTable } from "./_ScoreTemplateItemTable";
+import { TemplateReadinessSummary } from "./TemplateReadinessSummary";
 
 interface ScoreTemplateEditorViewProps {
   publicId: string;
@@ -89,6 +103,7 @@ export const ScoreTemplateEditorView = ({
       feasibilityReady={feasibility?.ready === true}
       isFeasibilityLoading={isFeasibilityLoading}
       isFeasibilityError={isFeasibilityError}
+      feasibility={feasibility}
     />
   );
 };
@@ -99,6 +114,7 @@ interface ScoreTemplateEditorFormProps {
   feasibilityReady: boolean;
   isFeasibilityLoading: boolean;
   isFeasibilityError: boolean;
+  feasibility?: ScoreTemplateFeasibilityResponse;
 }
 
 const ScoreTemplateEditorForm = ({
@@ -107,8 +123,20 @@ const ScoreTemplateEditorForm = ({
   feasibilityReady,
   isFeasibilityLoading,
   isFeasibilityError,
+  feasibility,
 }: ScoreTemplateEditorFormProps): ReactElement => {
   const SCORE_TEMPLATE_TEXT = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
+  const { locale } = useLocale();
+  const { showToast } = useToast();
+  const reportError = (error: unknown): void => {
+    showToast(
+      translateAdminText(
+        getScoreTemplateErrorMessage(error, SCORE_TEMPLATE_TEXT.SAVE_ERROR),
+        locale,
+      ),
+      { tone: "error" },
+    );
+  };
   const sectionLabels = useAdminCopy({
     SPEAKING: "Speaking",
     WRITING: "Writing",
@@ -126,23 +154,7 @@ const ScoreTemplateEditorForm = ({
   );
   const [items, setItems] = useState<ScoreTemplateItemDraft[]>(() => template.items.map(toDraft));
   const [activateTarget, setActivateTarget] = useState<ScoreTemplateResponse | null>(null);
-  // Set only by the confirm-modal's own save-then-activate flow, shown
-  // inside the modal — a page-level Alert would sit uselessly behind the
-  // modal's backdrop/blur while it's open, unreadable until dismissed.
-  const [confirmError, setConfirmError] = useState<string | undefined>(undefined);
-
-  // The generic constant is only a fallback for a non-ApiError failure (e.g.
-  // a network error) — any real backend rejection shows its own message.
-  // Gated to the standalone "Save draft" button: while the activate modal is
-  // open, its own save-then-activate attempt reports through `confirmError`
-  // instead, so this doesn't also render (uselessly) behind the modal.
-  const saveErrorMessage =
-    activateTarget === null && replaceItemsMutation.isError
-      ? getScoreTemplateErrorMessage(
-          replaceItemsMutation.error,
-          SCORE_TEMPLATE_TEXT.NOT_DRAFT_ERROR,
-        )
-      : undefined;
+  const [nameError, setNameError] = useState<string>();
   const [newSection, setNewSection] = useState<QuestionTypeSection | "">("");
   const [newTypeCode, setNewTypeCode] = useState("");
   const taskTypeKey = (type: QuestionTypeResponse): string => type.taskTypeKey ?? type.code;
@@ -194,12 +206,18 @@ const ScoreTemplateEditorForm = ({
   // component's `useState` initializers. Synced back in explicitly here so
   // the on-screen values (Overall %) reflect what was actually just saved.
   const handleSaveDraft = (): void => {
+    if (!name.trim()) {
+      setNameError(SCORE_TEMPLATE_TEXT.NAME_REQUIRED);
+      showToast(SCORE_TEMPLATE_TEXT.NAME_REQUIRED, { tone: "error" });
+      return;
+    }
     replaceItemsMutation.mutate(
       {
         publicId: template.publicId,
         payload: { name, items: items.map(fromDraft), templatePolicy },
       },
       {
+        onError: reportError,
         onSuccess: (response) => {
           setName(response.name);
           setTemplatePolicy(response.templatePolicy === "CUSTOM" ? "CUSTOM" : "STANDARD_PTE");
@@ -213,10 +231,8 @@ const ScoreTemplateEditorForm = ({
   // modal's `target` is only ever the publicId/code/version (those never
   // change from an edit), never a stand-in for the current `name`/`items`
   // state, which is why this can't just call activateMutation directly.
-  // Stays open on failure (rather than closing back to the page) so the
-  // error renders where the user is already looking, via `confirmError`.
+  // Failed requests keep the editor and confirmation open so edits are retained.
   const handleActivateConfirmed = (target: ScoreTemplateResponse): void => {
-    setConfirmError(undefined);
     replaceItemsMutation.mutate(
       {
         publicId: template.publicId,
@@ -236,19 +252,10 @@ const ScoreTemplateEditorForm = ({
               setActivateTarget(null);
               router.push(`${EXAM_TEMPLATE_BASE_PATH}/${target.publicId}`);
             },
-            onError: (error) => {
-              setConfirmError(
-                getScoreTemplateErrorMessage(
-                  error,
-                  SCORE_TEMPLATE_TEXT.CONCURRENT_MODIFICATION_ERROR,
-                ),
-              );
-            },
+            onError: reportError,
           });
         },
-        onError: (error) => {
-          setConfirmError(getScoreTemplateErrorMessage(error, SCORE_TEMPLATE_TEXT.NOT_DRAFT_ERROR));
-        },
+        onError: reportError,
       },
     );
   };
@@ -310,6 +317,7 @@ const ScoreTemplateEditorForm = ({
         !questionTypes.some((type) => taskTypeKey(type) === item.taskTypeKey && type.active),
     ) || hasUnreadyTaskType(items, questionTypes);
   const canActivateFromCatalog =
+    new Set(items.map((item) => item.taskTypeKey)).size === items.length &&
     items.length > 0 &&
     activeCatalogTypes.length > 0 &&
     !selectedTypeUnavailable &&
@@ -330,7 +338,6 @@ const ScoreTemplateEditorForm = ({
           : SCORE_TEMPLATE_TEXT.INCOMPATIBLE_RUNTIME_PROFILE;
 
   const handleOpenActivate = (): void => {
-    setConfirmError(undefined);
     setActivateTarget(template);
   };
 
@@ -360,27 +367,24 @@ const ScoreTemplateEditorForm = ({
         }
       />
 
-      {saveErrorMessage && <Alert tone="error">{saveErrorMessage}</Alert>}
-      {!canActivateFromCatalog && (
-        <Alert tone="warning">{SCORE_TEMPLATE_TEXT.TEMPLATE_READINESS_BLOCKED}</Alert>
-      )}
-      {isFeasibilityError && (
-        <Alert tone="warning">{SCORE_TEMPLATE_TEXT.READINESS_CHECK_ERROR}</Alert>
-      )}
-      {!isFeasibilityError && !isFeasibilityLoading && !feasibilityReady && items.length > 0 && (
-        <Alert tone="warning">{SCORE_TEMPLATE_TEXT.QUESTION_BANK_READINESS_BLOCKED}</Alert>
-      )}
+      <TemplateReadinessSummary
+        items={items}
+        questionTypes={questionTypes}
+        feasibility={feasibility}
+        loading={isFeasibilityLoading}
+        failed={isFeasibilityError}
+      />
 
       <div>
-        <label htmlFor="score-template-name" className="block text-sm font-medium text-gray-700">
-          {SCORE_TEMPLATE_TEXT.NAME_LABEL}
-        </label>
-        <input
+        <Input
           id="score-template-name"
-          type="text"
+          label={SCORE_TEMPLATE_TEXT.NAME_LABEL}
+          error={nameError}
           value={name}
-          onChange={(event) => setName(event.target.value)}
-          className="mt-1 w-full max-w-md rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500"
+          onChange={(event) => {
+            setName(event.target.value);
+            setNameError(undefined);
+          }}
         />
       </div>
 
@@ -456,7 +460,6 @@ const ScoreTemplateEditorForm = ({
       <ActivateTemplateModal
         template={activateTarget}
         isActivating={replaceItemsMutation.isPending || activateMutation.isPending}
-        errorMessage={confirmError}
         onCancel={() => setActivateTarget(null)}
         onConfirm={handleActivateConfirmed}
       />

@@ -32,6 +32,15 @@ export const MANAGE_STUDENTS_TEXT = {
   fullNameLabel: "Full name",
   studentCodeLabel: "Student code",
   classLabel: "Class",
+  classPlaceholder: "Select a class",
+  classSearchPlaceholder: "Search by class or program",
+  classLoading: "Loading classes...",
+  classNoOptions: "No classes found.",
+  classLoadFailed: "Unable to load classes. Please try again.",
+  classOptionLabel: (className: string, programName: string, status: string) =>
+    status === "ACTIVE"
+      ? `${className} · ${programName}`
+      : `${className} · ${programName} (${status.toLowerCase()})`,
   phoneLabel: "Phone",
   dateOfBirthLabel: "Date of birth",
   addSubmit: "Add student",

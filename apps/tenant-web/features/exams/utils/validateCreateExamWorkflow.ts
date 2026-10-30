@@ -18,6 +18,7 @@ export function validateCreateExamWorkflow(
   now = Date.now(),
   requireAudience = true,
   requireSeriesKey = true,
+  maxStudentsPerSession?: number,
 ): CreateExamWorkflowErrors {
   const errors: CreateExamWorkflowErrors = {};
 
@@ -46,6 +47,11 @@ export function validateCreateExamWorkflow(
     Number(input.capacity) <= 0
   ) {
     errors.capacity = CREATE_EXAM_WIZARD_ERRORS.CAPACITY_REQUIRED;
+  } else if (
+    maxStudentsPerSession !== undefined &&
+    Number(input.capacity) > maxStudentsPerSession
+  ) {
+    errors.capacity = CREATE_EXAM_WIZARD_ERRORS.CAPACITY_EXCEEDS_PLAN;
   }
   if (requireSeriesKey && input.reusePolicy !== "ALLOW" && !input.seriesKey.trim()) {
     errors.seriesKey = CREATE_EXAM_WIZARD_ERRORS.SERIES_REQUIRED;
@@ -61,6 +67,8 @@ export function validateCreateExamWorkflow(
   }
   if (requireAudience && input.sources.length === 0) {
     errors.sources = CREATE_EXAM_WIZARD_ERRORS.AUDIENCE_REQUIRED;
+  } else if (requireAudience && input.sources.length > Number(input.capacity)) {
+    errors.sources = CREATE_EXAM_WIZARD_ERRORS.AUDIENCE_EXCEEDS_CAPACITY;
   }
 
   return errors;

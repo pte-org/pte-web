@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useReducer } from "react";
+import type { SubscriptionResponse } from "@pte/api-client";
 import type { CreateExamWorkflowInput } from "../types";
 import {
   createEmptyExamWorkflow,
@@ -43,6 +44,8 @@ type CreateExamWizardFormAction =
 export interface UseCreateExamWizardFormOptions {
   initialForm?: CreateExamWorkflowInput;
   activeTemplatePublicId?: string;
+  subscriptions?: readonly SubscriptionResponse[];
+  onValidationError?: (message: string) => void;
 }
 
 function createInitialForm(
@@ -126,6 +129,7 @@ export interface UseCreateExamWizardFormResult {
   setFieldError: (field: keyof CreateExamWorkflowErrors, message?: string) => void;
   validate: (requireAudience?: boolean) => boolean;
   validateStep: (step: ValidatableCreateExamStep) => boolean;
+  validateField: (field: keyof CreateExamWorkflowErrors) => void;
   setStep: (step: CreateExamStep) => void;
   goToNextStep: () => void;
   goToPreviousStep: () => void;
@@ -135,6 +139,8 @@ export interface UseCreateExamWizardFormResult {
 export function useCreateExamWizardForm({
   initialForm,
   activeTemplatePublicId,
+  subscriptions,
+  onValidationError,
 }: UseCreateExamWizardFormOptions): UseCreateExamWizardFormResult {
   const resolvedInitialForm = useMemo(() => createInitialForm(initialForm), [initialForm]);
   const [state, dispatch] = useReducer(formReducer, resolvedInitialForm, createInitialState);
@@ -143,6 +149,9 @@ export function useCreateExamWizardForm({
     () => getEffectiveExamWorkflowForm(state.form, activeTemplatePublicId),
     [activeTemplatePublicId, state.form],
   );
+  const maxStudentsPerSession = subscriptions?.find(
+    (subscription) => subscription.publicId === effectiveForm.subscriptionPublicId,
+  )?.maxStudentsPerSession;
 
   const update = useCallback(
     <K extends keyof CreateExamWorkflowInput>(
@@ -172,11 +181,14 @@ export function useCreateExamWizardForm({
         undefined,
         requireAudience,
         requireAudience,
+        maxStudentsPerSession,
       );
       dispatch({ type: "set-errors", errors: nextErrors });
+      const firstError = Object.values(nextErrors)[0];
+      if (firstError) onValidationError?.(firstError);
       return Object.keys(nextErrors).length === 0;
     },
-    [effectiveForm],
+    [effectiveForm, maxStudentsPerSession, onValidationError],
   );
 
   const validateStep = useCallback(
@@ -186,12 +198,29 @@ export function useCreateExamWizardForm({
         undefined,
         currentStep === 3,
         currentStep === 3,
+        maxStudentsPerSession,
       );
       const nextErrors = filterWorkflowErrors(allErrors, getCreateExamStepFields(currentStep));
       dispatch({ type: "set-errors", errors: nextErrors });
+      const firstError = Object.values(nextErrors)[0];
+      if (firstError) onValidationError?.(firstError);
       return Object.keys(nextErrors).length === 0;
     },
-    [effectiveForm],
+    [effectiveForm, maxStudentsPerSession, onValidationError],
+  );
+
+  const validateField = useCallback(
+    (field: keyof CreateExamWorkflowErrors): void => {
+      const nextErrors = validateCreateExamWorkflow(
+        effectiveForm,
+        undefined,
+        false,
+        false,
+        maxStudentsPerSession,
+      );
+      dispatch({ type: "set-field-error", field, message: nextErrors[field] });
+    },
+    [effectiveForm, maxStudentsPerSession],
   );
 
   const setStep = useCallback((step: CreateExamStep): void => {
@@ -232,6 +261,7 @@ export function useCreateExamWizardForm({
     setFieldError,
     validate,
     validateStep,
+    validateField,
     setStep,
     goToNextStep,
     goToPreviousStep,
