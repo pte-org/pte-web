@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Button, Select } from "@pte/ui";
+import { Button, Select, useToast } from "@pte/ui";
 import { useTenantStudents } from "@/features/examoperations/api";
 import { useClassMemberships } from "@/features/studentSearch/api";
 import { useAssignStudent } from "../api";
@@ -25,6 +25,7 @@ export const ExistingStudentTab = ({
   onAssigned,
 }: ExistingStudentTabProps): ReactElement => {
   const text = useStudentImportText();
+  const { showToast } = useToast();
   const [selectedStudentId, setSelectedStudentId] = useState("");
   const { data: students, isLoading: studentsLoading } = useTenantStudents();
   const { data: memberships, isLoading: membershipsLoading } = useClassMemberships();
@@ -39,15 +40,17 @@ export const ExistingStudentTab = ({
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     if (!selectedStudentId) return;
-    assignStudent.mutate({ studentPublicId: selectedStudentId }, { onSuccess: onAssigned });
+    assignStudent.mutate({ studentPublicId: selectedStudentId }, {
+      onSuccess: onAssigned,
+      onError: (error) => {
+        const message = assignErrorMessage(error, classPublicId, text);
+        if (message) showToast(message, { tone: "error" });
+      },
+    });
   };
 
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-      {!!assignStudent.error && (
-        <Alert tone="error">{assignErrorMessage(assignStudent.error)}</Alert>
-      )}
-
       {unassignedStudents.length === 0 && !loading ? (
         <p className="text-sm text-gray-500">{text.noExisting}</p>
       ) : (

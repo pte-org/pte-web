@@ -1,4 +1,4 @@
-import { pluralize } from "@/features/orgLabels/constants";
+import { pluralize } from "../../orgLabels/constants";
 
 export const CLASSES_QUERY_KEY = ["classes"] as const;
 export const ALL_TENANT_CLASSES_QUERY_KEY = ["allTenantClasses"] as const;
@@ -139,6 +139,8 @@ export const IMPORT_OR_ASSIGN_TEXT = {
   noExisting: "No unassigned students in your organization yet — import or add one below.",
   assign: "Assign to Class",
   assigning: "Assigning...",
+  alreadyInThisClass: "This student is already in this Class.",
+  alreadyAssigned: "This student is already assigned to a Class.",
   alreadyInAnotherClass:
     "This student is already assigned to another Class. Use Transfer from that Class's roster instead.",
   importHeading: "Import Learners",

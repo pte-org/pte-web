@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Button, DateInput, Input } from "@pte/ui";
+import { Button, DateInput, Input, useToast } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useCreateStudent } from "@/features/examoperations/api";
 import type { CreatedAccount } from "@/features/examoperations/types";
@@ -42,6 +42,7 @@ export const AddIndividuallyTab = ({
   onAssigned,
 }: AddIndividuallyTabProps): ReactElement => {
   const text = useStudentImportText();
+  const { showToast } = useToast();
   const [form, setForm] = useState<AddStudentInput>(EMPTY_ADD_STUDENT_INPUT);
   const [errors, setErrors] = useState<AddStudentErrors>({});
   const createStudent = useCreateStudent();
@@ -79,8 +80,18 @@ export const AddIndividuallyTab = ({
           setErrors({});
           assignStudent.mutate(
             { studentPublicId: account.publicId },
-            { onSuccess: () => onAssigned([account]) },
+            {
+              onSuccess: () => onAssigned([account]),
+              onError: (error) => {
+                const message = assignErrorMessage(error, classPublicId, text);
+                if (message) showToast(message, { tone: "error" });
+              },
+            },
           );
+        },
+        onError: (error) => {
+          const message = errorMessage(error);
+          if (message) showToast(message, { tone: "error" });
         },
       },
     );
@@ -89,10 +100,6 @@ export const AddIndividuallyTab = ({
   return (
     <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-3">
       <h4 className="text-sm font-semibold text-gray-900">{text.addIndividuallyHeading}</h4>
-      {!!createStudent.error && <Alert tone="error">{errorMessage(createStudent.error)}</Alert>}
-      {!!assignStudent.error && (
-        <Alert tone="error">{assignErrorMessage(assignStudent.error)}</Alert>
-      )}
       <div className="grid gap-3 sm:grid-cols-2">
         <Input
           label={text.emailLabel}
