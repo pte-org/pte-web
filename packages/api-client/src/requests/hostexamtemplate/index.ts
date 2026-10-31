@@ -2,6 +2,7 @@ import type { ApiClient } from "../../client/client";
 import type {
   CreateHostExamTemplateRequest,
   ReplaceScoreTemplateItemsRequest,
+  ScoreTemplateFeasibilityResponse,
   ScoreTemplateResponse,
   SkillWeightSuggestionRequest,
   SkillWeightSuggestionResponse,
@@ -16,6 +17,7 @@ export const HOST_EXAM_TEMPLATE_ENDPOINTS = {
   templates: "/api/v1/host/exam-templates",
   template: (publicId: string) => `/api/v1/host/exam-templates/${publicId}`,
   clone: (publicId: string) => `/api/v1/host/exam-templates/${publicId}/clone`,
+  feasibility: (publicId: string) => `/api/v1/host/exam-templates/${publicId}/feasibility`,
   items: (publicId: string) => `/api/v1/host/exam-templates/${publicId}/items`,
   activate: (publicId: string) => `/api/v1/host/exam-templates/${publicId}/activate`,
   retire: (publicId: string) => `/api/v1/host/exam-templates/${publicId}/retire`,
@@ -31,6 +33,15 @@ export function getHostExamTemplate(
   publicId: string,
 ): Promise<ScoreTemplateResponse> {
   return client.request<ScoreTemplateResponse>(HOST_EXAM_TEMPLATE_ENDPOINTS.template(publicId));
+}
+
+export function getHostExamTemplateFeasibility(
+  client: ApiClient,
+  publicId: string,
+): Promise<ScoreTemplateFeasibilityResponse> {
+  return client.request<ScoreTemplateFeasibilityResponse>(
+    HOST_EXAM_TEMPLATE_ENDPOINTS.feasibility(publicId),
+  );
 }
 
 export function createHostExamTemplate(
