@@ -1099,8 +1099,6 @@ const ADMIN_VI: Record<string, string> = {
     "Không thể tải bản xem trước tệp phương tiện. Tham chiếu tệp vẫn được lưu.",
   "No audio or image is attached to this question.":
     "Câu hỏi này không có âm thanh hoặc hình ảnh đính kèm.",
-  "Task type keys are configurable metadata. Interaction and scoring behavior come from a released screen contract selected below.":
-    "Khóa dạng bài là siêu dữ liệu có thể cấu hình. Hành vi tương tác và chấm điểm lấy từ hợp đồng màn hình đã phát hành được chọn bên dưới.",
   "· contributes to scoring": "· tham gia chấm điểm",
   "· not scored": "· không chấm điểm",
   "Authoring requirements": "Yêu cầu biên soạn",

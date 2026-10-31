@@ -172,7 +172,6 @@ export const QuestionTypeView = (): ReactElement => {
   return (
     <div className="space-y-6">
       {(isError || capabilitiesError) && <Alert tone="error">{T.LOAD_ERROR}</Alert>}
-      <Alert tone="info">{T.CATALOG_BOUNDARY_NOTICE}</Alert>
       {(deleteMutation.isError || submitMutation.isError || approveMutation.isError) && (
         <Alert tone="error">
           {errorMessage(

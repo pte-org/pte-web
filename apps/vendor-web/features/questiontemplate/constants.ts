@@ -48,8 +48,6 @@ export const QUESTION_TYPE_TEXT = {
   NO: "No",
   EMPTY_LIST: "No task types are currently in the catalog.",
   LOADING: "Loading task type catalog...",
-  CATALOG_BOUNDARY_NOTICE:
-    "Task type keys are configurable metadata. Interaction and scoring behavior come from a released screen contract selected below.",
   SEPARATOR: "·",
 } as const;
 
