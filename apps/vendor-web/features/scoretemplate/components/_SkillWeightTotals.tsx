@@ -14,7 +14,7 @@ interface SkillWeightTotalsProps {
 export const SkillWeightTotals = ({ items, skillLabels }: SkillWeightTotalsProps): ReactElement => {
   const T = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
   return (
-    <div className="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+    <div className="flex flex-wrap items-center gap-2 text-sm text-[var(--ink-secondary)]">
       <span>{T.WEIGHT_TOTALS_LABEL}</span>
       {computeSkillWeightTotals(items).map(({ skill, total, isValid }) => (
         <Badge key={skill} variant={isValid ? "success" : "danger"}>
