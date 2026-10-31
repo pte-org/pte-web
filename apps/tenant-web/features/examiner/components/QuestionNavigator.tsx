@@ -8,7 +8,7 @@ import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 interface QuestionNavigatorProps {
   answers: ExaminerAnswerDetailResponse[];
   currentIndex: number;
-  drafts: Record<string, { score: string; isSaved: boolean }>;
+  drafts: Record<string, { score: string; isSaved: boolean; carriedOver?: boolean }>;
   onSelectIndex: (index: number) => void;
 }
 
@@ -69,7 +69,12 @@ export const QuestionNavigator = ({
                 <span>{answer.taskType.replaceAll("_", " ")}</span>
               </div>
               <div className="ml-2 shrink-0">
-                {isSaved ? (
+                {draft?.carriedOver && answer.myScore === null ? (
+                  <span
+                    className="inline-block h-2 w-2 rounded-full bg-violet-500"
+                    title={T.CARRIED_OVER_BADGE}
+                  />
+                ) : isSaved ? (
                   <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" title={T.STATUS_SAVED} />
                 ) : hasDraft ? (
                   <span className="inline-block h-2 w-2 rounded-full bg-amber-500" title={T.STATUS_DRAFT} />

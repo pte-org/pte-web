@@ -12,6 +12,8 @@ interface DecisionPanelProps {
   draftScore: string;
   draftComment?: string;
   draftSavedAt?: string | null;
+  /** The saved draft came from the previous Examiner and has not been confirmed yet. */
+  carriedOver?: boolean;
   isStale: boolean;
   isMediaBroken?: boolean;
   isMediaLoading?: boolean;
@@ -27,6 +29,7 @@ export const DecisionPanel = ({
   draftScore,
   draftComment = "",
   draftSavedAt,
+  carriedOver = false,
   isStale,
   isMediaBroken = false,
   isMediaLoading = false,
@@ -74,6 +77,13 @@ export const DecisionPanel = ({
 
   return (
     <section className="mt-5 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+      {carriedOver && (
+        <div className="mb-4">
+          <Alert tone="warning" title={T.CARRIED_OVER_BADGE}>
+            {T.CARRIED_OVER_HINT}
+          </Alert>
+        </div>
+      )}
       {isStale && (
         <div className="mb-4">
           <Alert tone="warning" title={T.STALE_REFERENCE}>

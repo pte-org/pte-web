@@ -27,6 +27,7 @@ export const EXAMINER_WORKSPACE_VI: ExaminerWorkspaceMessages = {
   startMarking: "Bắt đầu chấm",
   noEligibleWork: "Không có câu hỏi cần chấm",
   waitingForHostFreeze: "Chờ Host chốt danh sách",
+  carriedOverDrafts: "Cần xác nhận bản nháp từ giám khảo trước",
   blockedReasonPrefix: "Chưa thể chấm: ",
   attemptLabel: "Bài thi",
   sessionLabel: "Phiên thi",

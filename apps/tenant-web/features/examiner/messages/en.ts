@@ -25,6 +25,7 @@ export const EXAMINER_WORKSPACE_EN = {
   startMarking: "Start Marking",
   noEligibleWork: "No eligible answers to mark",
   waitingForHostFreeze: "Waiting for Host to freeze cohort",
+  carriedOverDrafts: "Review drafts from the previous Examiner",
   blockedReasonPrefix: "Blocked: ",
   attemptLabel: "Attempt",
   sessionLabel: "Session",
