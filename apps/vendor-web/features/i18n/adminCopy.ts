@@ -467,6 +467,20 @@ const ADMIN_VI: Record<string, string> = {
   "Correct answer text": "Nội dung đáp án đúng",
   "Question created as a draft.": "Đã tạo câu hỏi ở trạng thái bản nháp.",
   "Question draft saved.": "Đã lưu bản nháp câu hỏi.",
+  "The pool can be changed only while the question is a draft.":
+    "Chỉ đổi được nhóm câu hỏi khi câu hỏi còn là bản nháp.",
+  "The pool is locked once a question is submitted. Open a new draft revision to change it.":
+    "Nhóm câu hỏi bị khóa sau khi gửi duyệt. Hãy tạo bản nháp chỉnh sửa mới để đổi.",
+  "Move this question to Practice?": "Chuyển câu hỏi này sang Practice?",
+  "Practice questions show answers and feedback to learners. Once published, this question will leave the Official pool and can no longer be drawn into exams.":
+    "Câu hỏi Practice hiển thị đáp án và phản hồi cho học viên. Sau khi phát hành, câu hỏi sẽ rời nhóm Official và không thể được chọn vào đề thi nữa.",
+  "This question has already been published. If it was used in a real exam, moving it to Practice may leak exam content.":
+    "Câu hỏi này đã từng được phát hành. Nếu đã dùng trong kỳ thi thật, chuyển sang Practice có thể làm lộ đề thi.",
+  "Move this question to Official?": "Chuyển câu hỏi này sang Official?",
+  "Once published, this question can be drawn into exams and will leave the Practice pool. Make sure it has been reviewed to exam standard.":
+    "Sau khi phát hành, câu hỏi có thể được chọn vào đề thi và sẽ rời nhóm Practice. Hãy chắc chắn câu hỏi đã được kiểm duyệt đạt chuẩn đề thi.",
+  "Change pool": "Đổi nhóm",
+  "Keep current pool": "Giữ nhóm hiện tại",
   "Media upload failed. Please try again.": "Tải tệp phương tiện thất bại. Vui lòng thử lại.",
   "Task type configuration is unavailable. Please refresh and try again.":
     "Không có cấu hình dạng bài. Vui lòng làm mới và thử lại.",

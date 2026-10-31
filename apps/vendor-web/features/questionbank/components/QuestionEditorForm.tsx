@@ -16,6 +16,8 @@ import { apiClient } from "@/lib/apiClient";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useQuestionTypes } from "@/features/questiontemplate/api";
 import { useCreateQuestion, useUpdateQuestion } from "../api";
+import { poolToAvailability, resolveCurrentPool } from "../poolAvailability";
+import { PoolChangeDialog } from "./_PoolChangeDialog";
 import {
   QUESTION_EDITOR_ERRORS as RAW_QUESTION_EDITOR_ERRORS,
   QUESTION_EDITOR_TEXT as RAW_QUESTION_EDITOR_TEXT,
@@ -60,9 +62,10 @@ export const QuestionEditorForm = ({
     isError: questionTypesError,
   } = useQuestionTypes(!question);
   const [taskType, setTaskType] = useState<string>(question?.pteTaskType ?? "");
-  const [pool, setPool] = useState<QuestionPool>(
-    question?.pool === "PRACTICE" ? "PRACTICE" : "EXAM",
-  );
+  const initialPool: QuestionPool = question ? resolveCurrentPool(question) : "EXAM";
+  const [pool, setPool] = useState<QuestionPool>(initialPool);
+  const [pendingUpdate, setPendingUpdate] = useState<UpdateQuestionRequest | null>(null);
+  const isPoolEditable = !question || question.status === "DRAFT";
   const [title, setTitle] = useState(question?.title ?? "");
   const [promptText, setPromptText] = useState(question?.promptText ?? "");
   const [referenceAnswerText, setReferenceAnswerText] = useState(
@@ -155,6 +158,21 @@ export const QuestionEditorForm = ({
     }
   };
 
+  const saveUpdate = (payload: UpdateQuestionRequest): void => {
+    if (!question) return;
+    updateMutation.mutate(
+      { id: question.publicId, payload },
+      {
+        onSuccess: (saved) => {
+          setPendingUpdate(null);
+          showToast(T.UPDATE_SUCCESS);
+          onSaved?.(saved);
+        },
+        onError: () => setPendingUpdate(null),
+      },
+    );
+  };
+
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
@@ -197,16 +215,14 @@ export const QuestionEditorForm = ({
       options: hasOptions ? options : [],
     };
     if (question) {
-      const payload: UpdateQuestionRequest = { ...content, version: question.version };
-      updateMutation.mutate(
-        { id: question.publicId, payload },
-        {
-          onSuccess: (saved) => {
-            showToast(T.UPDATE_SUCCESS);
-            onSaved?.(saved);
-          },
-        },
-      );
+      const poolChanged = pool !== initialPool;
+      const payload: UpdateQuestionRequest = {
+        ...content,
+        version: question.version,
+        ...(poolChanged ? poolToAvailability(pool) : {}),
+      };
+      if (poolChanged) setPendingUpdate(payload);
+      else saveUpdate(payload);
     } else {
       const payload: CreateQuestionRequest = { pteTaskType: selectedTaskType, pool, ...content };
       createMutation.mutate(payload, {
@@ -225,6 +241,12 @@ export const QuestionEditorForm = ({
       ),
     );
   };
+
+  const poolHelperText = !question
+    ? T.POOL_HELPER_CREATE
+    : isPoolEditable
+      ? T.POOL_HELPER_EDIT
+      : T.POOL_HELPER_LOCKED;
 
   return (
     <form className="flex max-w-4xl flex-col gap-4" onSubmit={submit}>
@@ -255,10 +277,10 @@ export const QuestionEditorForm = ({
         id="question-pool"
         label={T.POOL}
         value={pool}
-        disabled={Boolean(question)}
+        disabled={!isPoolEditable}
         onChange={(event) => setPool(event.target.value as QuestionPool)}
         options={POOL_OPTIONS}
-        helperText={question ? T.POOL_HELPER_EDIT : T.POOL_HELPER_CREATE}
+        helperText={poolHelperText}
       />
       <Input label={T.TITLE} value={title} onChange={(event) => setTitle(event.target.value)} />
       <label className="text-sm font-medium text-gray-700">
@@ -390,6 +412,14 @@ export const QuestionEditorForm = ({
           {question ? T.SAVE_DRAFT : T.CREATE_DRAFT}
         </Button>
       </div>
+      <PoolChangeDialog
+        open={pendingUpdate !== null}
+        targetPool={pool}
+        previouslyPublished={question?.previouslyPublished === true}
+        isConfirming={updateMutation.isPending}
+        onConfirm={() => pendingUpdate && saveUpdate(pendingUpdate)}
+        onClose={() => setPendingUpdate(null)}
+      />
     </form>
   );
 };

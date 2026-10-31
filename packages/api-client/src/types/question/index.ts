@@ -35,7 +35,7 @@ export type PteTaskType =
 
 export type QuestionVisibility = "SHARED" | "PRIVATE";
 
-/** Which product a question serves; fixed at creation and never changed afterwards. */
+/** Which product a question serves at creation; later moves use the availability flags on a draft. */
 export type QuestionPool = "EXAM" | "PRACTICE";
 
 /** Real enum (`services/authoring/domain/enums/QuestionStatus.java`) — not the previous fictitious DRAFT|ACTIVE|ARCHIVED. */
@@ -71,6 +71,9 @@ export interface CreateQuestionRequest {
 
 export type UpdateQuestionRequest = Omit<CreateQuestionRequest, "pteTaskType" | "visibility" | "pool"> & {
   version?: number;
+  /** Moves a draft between products; omit both to leave availability untouched. */
+  availableForExam?: boolean;
+  availableForPractice?: boolean;
 };
 
 export interface QuestionResponse {
@@ -100,6 +103,10 @@ export interface QuestionResponse {
   canDeleteDraft?: boolean;
   canArchive?: boolean;
   deleteBlockReason?: string | null;
+  availableForExam?: boolean;
+  availableForPractice?: boolean;
+  /** True when this or an earlier revision was ever published (exam content may already be exposed). */
+  previouslyPublished?: boolean;
 }
 
 export interface QuestionFilters {

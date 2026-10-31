@@ -32,6 +32,7 @@ import {
 } from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
 import { QUESTION_STATS_QUERY_KEY, QUESTIONS_QUERY_KEY } from "./constants";
+import { resolveCurrentPool } from "./poolAvailability";
 import type { Question, QuestionPool, QuestionSkill, QuestionStats, QuestionStatus } from "./types";
 
 const SKILL_MAP: Partial<Record<string, QuestionSkill>> = {
@@ -55,8 +56,10 @@ function mapStatus(value: QuestionResponse["status"]): QuestionStatus {
   return STATUS_MAP[value] ?? "draft";
 }
 
-export function mapPool(value: QuestionResponse["pool"] | undefined): QuestionPool {
-  return value === "PRACTICE" ? "practice" : "exam";
+export function mapPool(
+  value: Pick<QuestionResponse, "pool" | "availableForExam" | "availableForPractice"> | undefined,
+): QuestionPool {
+  return value && resolveCurrentPool(value) === "PRACTICE" ? "practice" : "exam";
 }
 
 /**
@@ -72,7 +75,7 @@ function mapQuestion(response: QuestionResponse): Question {
     taskType: response.pteTaskType,
     content: response.title || response.promptText || "—",
     status: mapStatus(response.status),
-    pool: mapPool(response.pool),
+    pool: mapPool(response),
     rejectionReason: response.rejectionReason,
     canDeleteDraft: response.canDeleteDraft,
     canArchive: response.canArchive,

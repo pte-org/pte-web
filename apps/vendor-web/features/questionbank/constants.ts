@@ -121,7 +121,9 @@ export const QUESTION_EDITOR_TEXT = {
   POOL: "Question pool",
   POOL_HELPER_CREATE:
     "Exam questions can be drawn into exams; practice questions are only used for practice. This cannot be changed later.",
-  POOL_HELPER_EDIT: "The pool is fixed when a question is created.",
+  POOL_HELPER_EDIT: "The pool can be changed only while the question is a draft.",
+  POOL_HELPER_LOCKED:
+    "The pool is locked once a question is submitted. Open a new draft revision to change it.",
   TITLE: "Title",
   PROMPT_TEXT: "Prompt text",
   AUDIO_PROMPT: "Audio prompt",
@@ -142,6 +144,19 @@ export const QUESTION_EDITOR_TEXT = {
   CANCEL: "Cancel",
   CREATE_SUCCESS: "Question created as a draft.",
   UPDATE_SUCCESS: "Question draft saved.",
+} as const;
+
+export const POOL_CHANGE_TEXT = {
+  TO_PRACTICE_TITLE: "Move this question to Practice?",
+  TO_PRACTICE_BODY:
+    "Practice questions show answers and feedback to learners. Once published, this question will leave the Official pool and can no longer be drawn into exams.",
+  TO_PRACTICE_RISK:
+    "This question has already been published. If it was used in a real exam, moving it to Practice may leak exam content.",
+  TO_OFFICIAL_TITLE: "Move this question to Official?",
+  TO_OFFICIAL_BODY:
+    "Once published, this question can be drawn into exams and will leave the Practice pool. Make sure it has been reviewed to exam standard.",
+  CONFIRM: "Change pool",
+  CANCEL: "Keep current pool",
 } as const;
 
 export const QUESTION_EDITOR_ERRORS = {

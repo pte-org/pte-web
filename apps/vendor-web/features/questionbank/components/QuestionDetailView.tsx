@@ -134,7 +134,7 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
             { label: T.TASK_TYPE, value: taskType },
             { label: T.SECTION, value: section },
             { label: T.VISIBILITY, value: visibility },
-            { label: T.POOL, value: poolLabels[mapPool(question.pool)] },
+            { label: T.POOL, value: poolLabels[mapPool(question)] },
             { label: T.REVISION, value: String(question.revisionNumber ?? T.EMPTY_VALUE) },
             {
               label: T.WORD_COUNT,
