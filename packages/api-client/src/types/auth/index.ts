@@ -84,3 +84,12 @@ export interface PasswordResetConfirmRequest {
   token: string;
   newPassword: string;
 }
+
+export interface PasswordResetValidateRequest {
+  token: string;
+}
+
+/** Whether a reset link can still be used. It never says why not. */
+export interface PasswordResetTokenStatus {
+  valid: boolean;
+}

@@ -5,6 +5,7 @@ import {
   changePassword,
   confirmPasswordReset,
   requestPasswordReset,
+  validatePasswordResetToken,
 } from "../../../../src/requests/auth";
 
 function fakeClient(): ApiClient & { request: ReturnType<typeof vi.fn> } {
@@ -54,5 +55,21 @@ describe("password reset request contract", () => {
       method: "POST",
       body: { currentPassword: "Old", newPassword: "NewPassword456", refreshToken: "refresh-1" },
     });
+  });
+});
+
+describe("password reset link check", () => {
+  it("asks whether a reset link can still be used, sending the token in the body and not the address", async () => {
+    const client = fakeClient();
+    client.request.mockResolvedValue({ valid: true });
+
+    const status = await validatePasswordResetToken(client, { token: "raw" });
+
+    expect(AUTH_ENDPOINTS.passwordResetValidate).toBe("/api/v1/auth/password-reset/validate");
+    expect(client.request).toHaveBeenCalledWith(AUTH_ENDPOINTS.passwordResetValidate, {
+      method: "POST",
+      body: { token: "raw" },
+    });
+    expect(status).toEqual({ valid: true });
   });
 });

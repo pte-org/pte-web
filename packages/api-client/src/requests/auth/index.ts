@@ -10,6 +10,8 @@ import type {
   LogoutRequest,
   PasswordResetConfirmRequest,
   PasswordResetRequest,
+  PasswordResetTokenStatus,
+  PasswordResetValidateRequest,
   RefreshTokenRequest,
   StudentLoginRequest,
 } from "../../types/auth";
@@ -22,6 +24,7 @@ export const AUTH_ENDPOINTS = {
   changePassword: "/api/v1/auth/change-password",
   passwordResetRequest: "/api/v1/auth/password-reset/request",
   passwordResetConfirm: "/api/v1/auth/password-reset/confirm",
+  passwordResetValidate: "/api/v1/auth/password-reset/validate",
 } as const;
 
 export function login(client: ApiClient, payload: LoginRequest): Promise<AuthResponse> {
@@ -109,6 +112,17 @@ export function confirmPasswordReset(
   payload: PasswordResetConfirmRequest,
 ): Promise<void> {
   return client.request<void>(AUTH_ENDPOINTS.passwordResetConfirm, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+/** Read-only: tells whether a link is still usable so the page can say so before a password is typed. */
+export function validatePasswordResetToken(
+  client: ApiClient,
+  payload: PasswordResetValidateRequest,
+): Promise<PasswordResetTokenStatus> {
+  return client.request<PasswordResetTokenStatus>(AUTH_ENDPOINTS.passwordResetValidate, {
     method: "POST",
     body: payload,
   });

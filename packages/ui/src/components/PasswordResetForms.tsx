@@ -117,14 +117,18 @@ export interface ResetPasswordFormText {
   mismatch: string;
   invalidLinkTitle: string;
   invalidLinkMessage: string;
+  checkingTitle: string;
+  checkingMessage: string;
   showPassword: string;
   hidePassword: string;
 }
 
 export interface ResetPasswordFormProps {
   text: ResetPasswordFormText;
-  /** False when the link carries no token; the form is replaced by an explanation. */
+  /** False when the link carries no token, or the server says it cannot be used; the form is replaced by an explanation. */
   hasToken: boolean;
+  /** True while the server is still checking the link: a neutral wait, neither the form nor an error. */
+  checking?: boolean;
   /** Spends the link. The parent shows a failure through {@link error}; this promise must not reject. */
   onSubmit: (newPassword: string) => Promise<void>;
   /** Server-side failure to show above the form, e.g. an expired link. */
@@ -139,6 +143,7 @@ const problemText = (text: ResetPasswordFormText, problem: NewPasswordProblem): 
 export const ResetPasswordForm = ({
   text,
   hasToken,
+  checking = false,
   onSubmit,
   error,
   footer,
@@ -148,6 +153,10 @@ export const ResetPasswordForm = ({
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState<string>();
   const [pending, setPending] = useState(false);
+
+  if (checking) {
+    return <Heading title={text.checkingTitle} subtitle={text.checkingMessage} />;
+  }
 
   if (!hasToken) {
     return (

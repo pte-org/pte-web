@@ -3,10 +3,10 @@
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ResetPasswordForm } from "@pte/ui";
+import { ResetPasswordForm, resolveResetLinkState } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useAdminCopy } from "../../i18n/adminCopy";
-import { useConfirmPasswordReset } from "../api";
+import { useConfirmPasswordReset, useValidatePasswordResetToken } from "../api";
 import { AUTH_ROUTES, PASSWORD_RESET_LINKS, RESET_PASSWORD_TEXT } from "../constants";
 
 const TOKEN_PARAM = "token";
@@ -15,7 +15,9 @@ const TOKEN_PARAM = "token";
 export const ResetPasswordView = (): ReactElement => {
   const router = useRouter();
   const token = useSearchParams().get(TOKEN_PARAM)?.trim() ?? "";
+  const check = useValidatePasswordResetToken(token);
   const confirm = useConfirmPasswordReset();
+  const linkState = resolveResetLinkState(token, check);
   const text = useAdminCopy(RESET_PASSWORD_TEXT);
   const links = useAdminCopy(PASSWORD_RESET_LINKS);
   const [error, setError] = useState<string>();
@@ -30,12 +32,13 @@ export const ResetPasswordView = (): ReactElement => {
     }
   };
 
-  const needsNewLink = Boolean(error) || !token;
+  const needsNewLink = Boolean(error) || linkState === "unusable";
 
   return (
     <ResetPasswordForm
       text={text}
-      hasToken={token.length > 0}
+      hasToken={linkState === "usable"}
+      checking={linkState === "checking"}
       onSubmit={handleSubmit}
       error={error}
       footer={

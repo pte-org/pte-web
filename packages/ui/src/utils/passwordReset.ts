@@ -30,3 +30,18 @@ export async function submitForgotPassword(
   }
   return "SENT";
 }
+
+export type ResetLinkState = "checking" | "usable" | "unusable";
+
+/**
+ * What the reset page should show for a link. A link is refused only when the server says so (or there is no
+ * token); if the check itself fails, the page still lets the person try, because the final step is the authority.
+ */
+export function resolveResetLinkState(
+  token: string,
+  check: { isPending: boolean; data?: { valid: boolean } },
+): ResetLinkState {
+  if (!token) return "unusable";
+  if (check.isPending) return "checking";
+  return check.data?.valid === false ? "unusable" : "usable";
+}

@@ -110,6 +110,8 @@ export const RESET_PASSWORD_TEXT: ResetPasswordFormText & { failed: string } = {
   mismatch: "The new passwords do not match.",
   invalidLinkTitle: "This link cannot be used",
   invalidLinkMessage: "The reset link is missing, invalid or has expired. Request a new one to continue.",
+  checkingTitle: "Checking your link",
+  checkingMessage: "One moment while we make sure it can still be used.",
   showPassword: "Show password",
   hidePassword: "Hide password",
   failed: "The password could not be reset. Request a new link and try again.",

@@ -31,6 +31,9 @@ const ADMIN_VI: Record<string, string> = {
     "Không thể đặt lại mật khẩu. Hãy yêu cầu liên kết mới rồi thử lại.",
   "Back to sign in": "Quay lại đăng nhập",
   "Request a new link": "Yêu cầu liên kết mới",
+  "Checking your link": "Đang kiểm tra liên kết",
+  "One moment while we make sure it can still be used.":
+    "Vui lòng đợi trong giây lát để chúng tôi kiểm tra liên kết còn dùng được không.",
   "Welcome Back": "Chào mừng trở lại",
   "Admin portal": "Cổng quản trị",
   "Organization portal": "Cổng tổ chức",

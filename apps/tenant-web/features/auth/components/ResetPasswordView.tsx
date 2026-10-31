@@ -3,9 +3,9 @@
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ResetPasswordForm } from "@pte/ui";
+import { ResetPasswordForm, resolveResetLinkState } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
-import { useConfirmPasswordReset } from "../api";
+import { useConfirmPasswordReset, useValidatePasswordResetToken } from "../api";
 import { AUTH_ROUTES, PASSWORD_RESET_LINKS, RESET_PASSWORD_TEXT } from "../constants";
 
 const TOKEN_PARAM = "token";
@@ -14,7 +14,9 @@ const TOKEN_PARAM = "token";
 export const ResetPasswordView = (): ReactElement => {
   const router = useRouter();
   const token = useSearchParams().get(TOKEN_PARAM)?.trim() ?? "";
+  const check = useValidatePasswordResetToken(token);
   const confirm = useConfirmPasswordReset();
+  const linkState = resolveResetLinkState(token, check);
   const [error, setError] = useState<string>();
 
   const handleSubmit = async (newPassword: string): Promise<void> => {
@@ -27,12 +29,13 @@ export const ResetPasswordView = (): ReactElement => {
     }
   };
 
-  const needsNewLink = Boolean(error) || !token;
+  const needsNewLink = Boolean(error) || linkState === "unusable";
 
   return (
     <ResetPasswordForm
       text={RESET_PASSWORD_TEXT}
-      hasToken={token.length > 0}
+      hasToken={linkState === "usable"}
+      checking={linkState === "checking"}
       onSubmit={handleSubmit}
       error={error}
       footer={

@@ -32,6 +32,8 @@ const resetText: ResetPasswordFormText = {
   invalidLinkMessage: "The link is invalid or has expired.",
   showPassword: "Show password",
   hidePassword: "Hide password",
+  checkingTitle: "Checking your link",
+  checkingMessage: "One moment while we make sure it can still be used.",
 };
 
 describe("ForgotPasswordForm", () => {
@@ -120,5 +122,23 @@ describe("motion", () => {
       expect(html).not.toContain("animate-pte-fade-up");
       expect(html).not.toContain("animate-pte-fade-in");
     }
+  });
+});
+
+describe("ResetPasswordForm while the link is being checked", () => {
+  it("shows a neutral wait, not the form and not an error", () => {
+    const html = renderHtml(<ResetPasswordForm text={resetText} hasToken checking onSubmit={async () => undefined} />);
+
+    expect(html).toContain("Checking your link");
+    expect(html).toContain("One moment");
+    expect(html).not.toContain("Confirm new password");
+    expect(html).not.toContain("This link cannot be used");
+  });
+
+  it("goes back to the form once the check says the link is fine", () => {
+    const html = renderHtml(<ResetPasswordForm text={resetText} hasToken onSubmit={async () => undefined} />);
+
+    expect(html).not.toContain("Checking your link");
+    expect(html).toContain("Confirm new password");
   });
 });

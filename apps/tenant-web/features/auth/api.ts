@@ -11,6 +11,7 @@ import {
   changePassword,
   confirmPasswordReset,
   requestPasswordReset,
+  validatePasswordResetToken,
   listLoginOrganizations,
   loginHost,
   type LoginOrganizationOption,
@@ -19,6 +20,7 @@ import {
   type ChangePasswordRequest,
   type PasswordResetConfirmRequest,
   type PasswordResetRequest,
+  type PasswordResetTokenStatus,
   type HostLoginRequest,
   type JwtTokenResponse,
 } from "@pte/api-client";
@@ -69,5 +71,19 @@ export function useConfirmPasswordReset(): UseMutationResult<
 > {
   return useMutation({
     mutationFn: (payload: PasswordResetConfirmRequest) => confirmPasswordReset(apiClient, payload),
+  });
+}
+
+/** Checks a reset link without spending it, so a used or expired one is refused as soon as the page opens. */
+export function useValidatePasswordResetToken(token: string): UseQueryResult<PasswordResetTokenStatus> {
+  return useQuery({
+    queryKey: ["passwordResetToken", token],
+    queryFn: () => validatePasswordResetToken(apiClient, { token }),
+    enabled: token.length > 0,
+    retry: false,
+    // Never reuse an answer: coming back to the page after the link was spent must ask the server again.
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
   });
 }
