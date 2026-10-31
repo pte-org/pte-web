@@ -6,11 +6,13 @@ import {
   createHostExamTemplate,
   deleteHostExamTemplate,
   getHostExamTemplate,
+  getHostExamTemplateFeasibility,
   listHostExamTemplates,
   replaceHostExamTemplateItems,
   retireHostExamTemplate,
   suggestHostSkillWeights,
   type ReplaceScoreTemplateItemsRequest,
+  type ScoreTemplateFeasibilityResponse,
   type ScoreTemplateResponse,
   type SkillWeightSuggestionRequest,
   type SkillWeightSuggestionResponse,
@@ -32,11 +34,27 @@ export function useHostTemplates(): UseQueryResult<ScoreTemplateResponse[]> {
   });
 }
 
-export function useHostTemplate(publicId: string): UseQueryResult<ScoreTemplateResponse> {
+/** `enabled` is false for the platform default, which this tenant-scoped endpoint reports as not found. */
+export function useHostTemplate(
+  publicId: string,
+  enabled = true,
+): UseQueryResult<ScoreTemplateResponse> {
   return useQuery({
     queryKey: [HOST_TEMPLATES_QUERY_KEY, publicId],
     queryFn: () => getHostExamTemplate(apiClient, publicId),
-    enabled: Boolean(publicId),
+    enabled: enabled && Boolean(publicId),
+  });
+}
+
+/** Question-bank coverage per task type; refreshed with the template list after every save. */
+export function useHostTemplateFeasibility(
+  publicId: string,
+  enabled = true,
+): UseQueryResult<ScoreTemplateFeasibilityResponse> {
+  return useQuery({
+    queryKey: [HOST_TEMPLATES_QUERY_KEY, publicId, "feasibility"],
+    queryFn: () => getHostExamTemplateFeasibility(apiClient, publicId),
+    enabled: enabled && Boolean(publicId),
   });
 }
 
