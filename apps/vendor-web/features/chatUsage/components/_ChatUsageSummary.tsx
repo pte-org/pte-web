@@ -35,11 +35,6 @@ export const ChatUsageSummaryCards = ({ summary, locale }: ChatUsageSummaryProps
       detail: fill(T.COST_DETAIL, { total }),
     },
     {
-      label: T.CACHE_HIT_RATE,
-      value: percent(summary.cacheHitRate),
-      detail: fill(T.CACHE_DETAIL, { count: number.format(summary.cacheHits), total }),
-    },
-    {
       label: T.FAILED_RATE,
       value: percent(summary.failedRate),
       detail: fill(T.FAILED_DETAIL, { count: number.format(summary.failed), total }),
@@ -53,7 +48,7 @@ export const ChatUsageSummaryCards = ({ summary, locale }: ChatUsageSummaryProps
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat) => (
         <DashboardCard key={stat.label}>
           <p className="text-sm text-[var(--table-muted-text)]">{stat.label}</p>
