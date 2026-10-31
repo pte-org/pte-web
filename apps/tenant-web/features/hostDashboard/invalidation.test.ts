@@ -33,6 +33,7 @@ vi.mock("@/features/hostDashboard/constants", async () => await import("./consta
 vi.mock("@/features/examoperations/errorMessage", async () => await import("../examoperations/errorMessage"));
 vi.mock("@/features/examoperations/api", async () => await import("../examoperations/api"));
 vi.mock("@/features/classes/api", async () => await import("../classes/api"));
+vi.mock("@/features/hostTemplates/api", async () => await import("../hostTemplates/api"));
 vi.mock("@/features/studentSearch/constants", async () => await import("../studentSearch/constants"));
 vi.mock("@/features/orgLabels/constants", async () => await import("../orgLabels/constants"));
 vi.mock("@pte/api-client", async (importOriginal) => ({

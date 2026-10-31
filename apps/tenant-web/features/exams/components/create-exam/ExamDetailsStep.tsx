@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import type { SubscriptionResponse } from "@pte/api-client";
+import type { ScoreTemplateResponse, SubscriptionResponse } from "@pte/api-client";
 import { Alert, Input, Select } from "@pte/ui";
 import { CREATE_EXAM_WIZARD_TEXT, EXAM_SKILL_OPTIONS } from "../../constants";
 import type { CreateExamWorkflowInput, ExamSkill } from "../../types";
@@ -18,6 +18,8 @@ export interface ExamDetailsStepProps {
   wizardText: WizardText;
   localizedSkillOptions: SkillOption[];
   templateSkills: readonly ExamSkill[];
+  /** Selectable templates; the picker only appears when there is a real choice. */
+  templates: readonly ScoreTemplateResponse[];
   activeSubscriptions: readonly SubscriptionResponse[];
   subscriptionsLoading: boolean;
   planNameById: ReadonlyMap<string, string>;
@@ -32,6 +34,7 @@ export function ExamDetailsStep({
   wizardText,
   localizedSkillOptions,
   templateSkills,
+  templates,
   activeSubscriptions,
   subscriptionsLoading,
   planNameById,
@@ -52,6 +55,22 @@ export function ExamDetailsStep({
         onChange={(event) => onUpdate("name", event.target.value)}
       />
       {templateMessage && <Alert tone="error">{templateMessage}</Alert>}
+      {templates.length > 1 && (
+        <Select
+          label={wizardText.TEMPLATE_LABEL}
+          placeholder={wizardText.TEMPLATE_PLACEHOLDER}
+          helperText={wizardText.TEMPLATE_PICK_HINT}
+          value={form.templatePublicId}
+          error={localizeError(errors.templatePublicId)}
+          onChange={(event) => onUpdate("templatePublicId", event.target.value)}
+          options={templates.map((template) => ({
+            label: template.tenantId
+              ? template.name
+              : `${template.name} (${wizardText.DEFAULT_TEMPLATE_TAG})`,
+            value: template.publicId,
+          }))}
+        />
+      )}
       <Select
         label={wizardText.SUBSCRIPTION_LABEL}
         placeholder={

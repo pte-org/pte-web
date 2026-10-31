@@ -128,6 +128,8 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   NAME_PLACEHOLDER: "e.g. Semester 1 mock exam",
   TEMPLATE_LABEL: "Exam template",
   TEMPLATE_PLACEHOLDER: "Select an active template",
+  DEFAULT_TEMPLATE_TAG: "default",
+  TEMPLATE_PICK_HINT: "Choose which task types this exam contains. The default template contains all of them; your own templates contain the ones you kept.",
   PLAN_FALLBACK: "Plan",
   SUBSCRIPTION_LABEL: "Subscription",
   SUBSCRIPTION_PLACEHOLDER: "Select an active subscription",

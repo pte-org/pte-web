@@ -62,6 +62,7 @@ import {
 import { apiClient } from "@/lib/apiClient";
 import { UserFacingError } from "@/features/examoperations/errorMessage";
 import { HOST_DASHBOARD_QUERY_KEY } from "@/features/hostDashboard/constants";
+import { useHostTemplates } from "@/features/hostTemplates/api";
 import { ExamPreflightBlockedError } from "../utils/examPreflight";
 import {
   CREATE_EXAM_WIZARD_ERRORS,
@@ -248,6 +249,29 @@ export function useCreateSession(): UseMutationResult<ExamSession, unknown, Crea
       void queryClient.invalidateQueries({ queryKey: HOST_DASHBOARD_QUERY_KEY });
     },
   });
+}
+
+export interface SelectableTemplates {
+  /** The platform default (null until it loads or when none is active). */
+  defaultTemplate?: ScoreTemplateResponse;
+  /** Default first, then the host's own ACTIVE templates. */
+  templates: ScoreTemplateResponse[];
+  /** Set only when nothing is selectable: any one usable template keeps the wizard working. */
+  error: unknown;
+}
+
+/** Templates a host can pick when creating an exam: the platform default plus its own ACTIVE ones. */
+export function useSelectableTemplates(): SelectableTemplates {
+  const defaultQuery = useActiveScoreTemplate();
+  const ownQuery = useHostTemplates();
+  const own = (ownQuery.data ?? []).filter((template) => template.status === "ACTIVE");
+  const defaultTemplate = defaultQuery.data;
+  const templates = defaultTemplate ? [defaultTemplate, ...own] : own;
+  return {
+    defaultTemplate,
+    templates,
+    error: templates.length === 0 ? defaultQuery.error : undefined,
+  };
 }
 
 export function useActiveScoreTemplate(): UseQueryResult<ScoreTemplateResponse> {

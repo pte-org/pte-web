@@ -23,6 +23,7 @@ import { useCreateExamWizardText, type CreateExamWizardText } from "./useCreateE
 export interface UseCreateExamWizardViewModelOptions {
   open: boolean;
   activeTemplate?: ScoreTemplateResponse;
+  templates?: readonly ScoreTemplateResponse[];
   templateError?: unknown;
   error?: unknown;
 }
@@ -45,17 +46,16 @@ export interface UseCreateExamWizardViewModelResult {
 export function useCreateExamWizardViewModel({
   open,
   activeTemplate,
+  templates = [],
   templateError,
   error,
 }: UseCreateExamWizardViewModelOptions): UseCreateExamWizardViewModelResult {
   const { t } = useLocale();
-  const templateSkills = useMemo<ExamSkill[]>(
-    () => getTemplateSkills(activeTemplate?.items),
-    [activeTemplate?.items],
-  );
+  // With no platform default the host can still pick one of its own templates.
+  const fallbackTemplatePublicId = activeTemplate?.publicId ?? templates[0]?.publicId;
   const initialForm = useMemo(
-    () => createEmptyExamWorkflow(activeTemplate?.publicId),
-    [activeTemplate?.publicId],
+    () => createEmptyExamWorkflow(fallbackTemplatePublicId),
+    [fallbackTemplatePublicId],
   );
   const wizardText = useCreateExamWizardText();
   const localizedSkillOptions = useMemo(
@@ -79,7 +79,7 @@ export function useCreateExamWizardViewModel({
 
   const wizardForm = useCreateExamWizardForm({
     initialForm,
-    activeTemplatePublicId: activeTemplate?.publicId,
+    activeTemplatePublicId: fallbackTemplatePublicId,
   });
   const {
     form,
@@ -93,6 +93,13 @@ export function useCreateExamWizardViewModel({
     goToNextStep,
     goToPreviousStep,
   } = wizardForm;
+  const selectedTemplate =
+    templates.find((template) => template.publicId === effectiveForm.templatePublicId) ??
+    activeTemplate;
+  const templateSkills = useMemo<ExamSkill[]>(
+    () => getTemplateSkills(selectedTemplate?.items),
+    [selectedTemplate?.items],
+  );
   const audience = useCreateExamAudience({
     open,
     sources,
@@ -126,6 +133,7 @@ export function useCreateExamWizardViewModel({
     ...fieldStepProps,
     localizedSkillOptions,
     templateSkills,
+    templates,
     activeSubscriptions: audience.activeSubscriptions,
     subscriptionsLoading: audience.subscriptionsLoading,
     planNameById: audience.planNameById,
@@ -153,7 +161,7 @@ export function useCreateExamWizardViewModel({
   };
   const reviewStepProps: ReviewStepProps = {
     form: effectiveForm,
-    activeTemplate,
+    activeTemplate: selectedTemplate,
     wizardText,
     localizedSkillOptions,
     templateSkills,
