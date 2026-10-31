@@ -17,9 +17,16 @@ import {
 } from "@pte/ui";
 import { useChatUsage } from "../api";
 import { CHAT_USAGE_COPY } from "../constants";
-import { activeDays, chartRows, isSameRange, usagePresets, type UsagePresetKey } from "../utils/presentation";
+import {
+  activeDays,
+  chartRows,
+  failureReasons,
+  isSameRange,
+  usagePresets,
+  type FailureReasonKey,
+  type UsagePresetKey,
+} from "../utils/presentation";
 import { defaultUsageRange, formatUsd, summarizeChatUsage } from "../utils/summarize";
-import { ChatTopStudents } from "./_ChatTopStudents";
 import { ChatUsageSummaryCards } from "./_ChatUsageSummary";
 
 const PRESET_COPY_KEY = {
@@ -27,6 +34,15 @@ const PRESET_COPY_KEY = {
   last30: "PRESET_LAST30",
   thisMonth: "PRESET_THIS_MONTH",
 } as const satisfies Record<UsagePresetKey, string>;
+
+const FAILURE_COPY_KEY = {
+  timeout: "FAIL_TIMEOUT",
+  rateLimited: "FAIL_RATE_LIMITED",
+  authFailed: "FAIL_AUTH",
+  unavailable: "FAIL_UNAVAILABLE",
+  truncated: "FAIL_TRUNCATED",
+  other: "FAIL_OTHER",
+} as const satisfies Record<FailureReasonKey, string>;
 
 const chipClass = (selected: boolean): string =>
   `rounded-full border px-3 py-1 text-sm font-medium transition-colors ${
@@ -63,7 +79,20 @@ export const ChatUsageView = (): ReactElement => {
     { key: "messages", header: T.MESSAGES, cell: (day) => number.format(day.messages) },
     { key: "ok", header: T.ANSWERED, cell: (day) => number.format(day.ok) },
     { key: "refused", header: T.REFUSED, cell: (day) => flagged(day.refused, "warning") },
-    { key: "failed", header: T.FAILED, cell: (day) => flagged(day.failed, "danger") },
+    {
+      key: "failed",
+      header: T.FAILED,
+      cell: (day) => (
+        <div className="flex flex-col items-start gap-1">
+          {flagged(day.failed, "danger")}
+          {failureReasons(day.failures).map((reason) => (
+            <span key={reason.key} className="text-xs text-[var(--table-muted-text)]">
+              {T[FAILURE_COPY_KEY[reason.key]]}: {number.format(reason.count)}
+            </span>
+          ))}
+        </div>
+      ),
+    },
     { key: "tokensIn", header: T.TOKENS_IN, cell: (day) => number.format(day.tokensIn) },
     {
       key: "tokensOut",
@@ -138,7 +167,6 @@ export const ChatUsageView = (): ReactElement => {
         clientSideFiltering={false}
         clientSidePagination={false}
       />
-      <ChatTopStudents from={range.from} to={range.to} locale={locale} />
     </div>
   );
 };

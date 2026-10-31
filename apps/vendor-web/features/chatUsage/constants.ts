@@ -1,8 +1,5 @@
 export const CHAT_USAGE_QUERY_KEY = ["chatUsage"] as const;
 
-/** How many of the most active students the report lists. */
-export const CHAT_TOP_STUDENTS_LIMIT = 10;
-
 /** How far back the report looks when the admin has not picked dates. */
 export const CHAT_USAGE_RANGE_DAYS = 30;
 
@@ -32,18 +29,17 @@ export const CHAT_USAGE_COPY = {
     ANSWERED: "Answered",
     REFUSED: "Refused",
     FAILED: "Failed",
+    FAIL_TIMEOUT: "Timed out",
+    FAIL_RATE_LIMITED: "Rate limit",
+    FAIL_AUTH: "Key rejected",
+    FAIL_UNAVAILABLE: "Provider unavailable",
+    FAIL_TRUNCATED: "Answer cut off",
+    FAIL_OTHER: "Other / unknown",
     TOKENS_IN: "Tokens in",
     TOKENS_OUT: "Tokens out",
     COST: "Cost (USD)",
     EMPTY: "No chat activity in this period",
     EMPTY_DESCRIPTION: "Days appear here once students use the AI assistant.",
-    STUDENTS_TITLE: "Most active students",
-    STUDENTS_NOTE:
-      "Student ids and message counts only. What students typed or were answered is not stored.",
-    STUDENT_ID: "Student id",
-    STUDENT_MESSAGES: "Messages",
-    STUDENTS_EMPTY: "No student activity in this period",
-    STUDENTS_LOAD_FAILED: "Unable to load the most active students.",
     LOAD_FAILED:
       "Unable to load the chat usage report. The AI chat may be switched off on the server.",
   },
@@ -72,18 +68,17 @@ export const CHAT_USAGE_COPY = {
     ANSWERED: "Đã trả lời",
     REFUSED: "Từ chối",
     FAILED: "Lỗi",
+    FAIL_TIMEOUT: "Quá thời gian chờ",
+    FAIL_RATE_LIMITED: "Quá hạn mức (429)",
+    FAIL_AUTH: "Key bị từ chối",
+    FAIL_UNAVAILABLE: "Google không sẵn sàng",
+    FAIL_TRUNCATED: "Câu trả lời bị cắt",
+    FAIL_OTHER: "Khác / không rõ",
     TOKENS_IN: "Token vào",
     TOKENS_OUT: "Token ra",
     COST: "Chi phí (USD)",
     EMPTY: "Không có hoạt động chat trong khoảng này",
     EMPTY_DESCRIPTION: "Các ngày sẽ hiện ở đây khi học viên dùng trợ lý AI.",
-    STUDENTS_TITLE: "Học viên dùng nhiều nhất",
-    STUDENTS_NOTE:
-      "Chỉ gồm mã học viên và số tin. Nội dung học viên gõ hay câu trả lời không được lưu.",
-    STUDENT_ID: "Mã học viên",
-    STUDENT_MESSAGES: "Số tin",
-    STUDENTS_EMPTY: "Không có học viên nào dùng trong khoảng này",
-    STUDENTS_LOAD_FAILED: "Không thể tải danh sách học viên dùng nhiều nhất.",
     LOAD_FAILED:
       "Không thể tải báo cáo mức dùng chat. Chat AI có thể đang được tắt trên máy chủ.",
   },

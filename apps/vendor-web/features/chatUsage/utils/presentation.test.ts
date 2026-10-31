@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ChatUsageDayResponse } from "@pte/api-client";
-import { activeDays, chartRows, failedTone, isSameRange, usagePresets } from "./presentation";
+import { activeDays, chartRows, failedTone, failureReasons, isSameRange, usagePresets } from "./presentation";
 
 function day(overrides: Partial<ChatUsageDayResponse> = {}): ChatUsageDayResponse {
   return {
@@ -9,6 +9,7 @@ function day(overrides: Partial<ChatUsageDayResponse> = {}): ChatUsageDayRespons
     ok: 0,
     refused: 0,
     failed: 0,
+    failures: { timeout: 0, rateLimited: 0, authFailed: 0, unavailable: 0, truncated: 0, other: 0 },
     tokensIn: 0,
     tokensOut: 0,
     tokensThinking: 0,
@@ -16,6 +17,28 @@ function day(overrides: Partial<ChatUsageDayResponse> = {}): ChatUsageDayRespons
     ...overrides,
   };
 }
+
+describe("failureReasons", () => {
+  it("lists only the reasons that happened, most common first", () => {
+    const failures = { timeout: 1, rateLimited: 0, authFailed: 0, unavailable: 3, truncated: 0, other: 2 };
+
+    expect(failureReasons(failures)).toEqual([
+      { key: "unavailable", count: 3 },
+      { key: "other", count: 2 },
+      { key: "timeout", count: 1 },
+    ]);
+  });
+
+  it("keeps the fixed order when counts tie", () => {
+    const failures = { timeout: 2, rateLimited: 2, authFailed: 2, unavailable: 0, truncated: 0, other: 0 };
+
+    expect(failureReasons(failures).map((reason) => reason.key)).toEqual(["timeout", "rateLimited", "authFailed"]);
+  });
+
+  it("is empty when nothing failed", () => {
+    expect(failureReasons(day().failures)).toEqual([]);
+  });
+});
 
 describe("activeDays", () => {
   it("keeps only the days that had messages", () => {
