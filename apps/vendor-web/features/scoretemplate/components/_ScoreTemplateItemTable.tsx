@@ -1,7 +1,7 @@
 "use client";
 
-import type { ReactElement } from "react";
-import { Button, DataTable, Select, type DataTableColumn } from "@pte/ui";
+import { useState, type ReactElement } from "react";
+import { Button, DataTable, Select, Tabs, type DataTableColumn, type TabItem } from "@pte/ui";
 import type { QuestionTypeResponse } from "@pte/api-client";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import {
@@ -35,6 +35,7 @@ type EditableProps = {
 };
 
 type ScoreTemplateItemTableProps = ReadOnlyProps | EditableProps;
+type ScoreTemplateItemRowsProps = ScoreTemplateItemTableProps & { section: string };
 type ScoreTemplateItem = ScoreTemplateItemDraft | ScoreTemplateItemResponse;
 type ScoreTemplateTableRow = { item: ScoreTemplateItem; index: number };
 
@@ -43,10 +44,11 @@ function fieldValue(item: ScoreTemplateItem, field: keyof ScoreTemplateItemDraft
   return value === null || value === undefined ? "" : String(value);
 }
 
-/** Shared table for the read-only detail view and the DRAFT editor. Both use
- * the common DataTable shell, search, per-column filters and responsive rules;
- * only the editable cell controls differ. */
-export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): ReactElement => {
+const ALL_SECTIONS_TAB = "ALL";
+
+/** Rows of the shared table, narrowed to one section while keeping each row's
+ * index in the full item list so the editable callbacks still target the right item. */
+const ScoreTemplateItemRows = (props: ScoreTemplateItemRowsProps): ReactElement => {
   const SCORE_TEMPLATE_ITEM_HEADERS = useAdminCopy(RAW_SCORE_TEMPLATE_ITEM_HEADERS);
   const SCORE_TEMPLATE_TEXT = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
   const SECTION_OPTIONS = useAdminCopy(RAW_SECTION_OPTIONS);
@@ -58,7 +60,6 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
   });
   const getSectionLabel = (section: string): string =>
     sectionLabels[section as keyof typeof sectionLabels] ?? section;
-  const allSectionsLabel = useAdminCopy("All sections");
   const emptyTitle = useAdminCopy("No score template items");
   const numericFields: { field: keyof ScoreTemplateItemDraft; header: string }[] = [
     { field: "minCount", header: SCORE_TEMPLATE_ITEM_HEADERS.MIN_COUNT },
@@ -70,7 +71,9 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
     { field: "readingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.READING_WEIGHT },
     { field: "listeningWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.LISTENING_WEIGHT },
   ];
-  const rows: ScoreTemplateTableRow[] = props.items.map((item, index) => ({ item, index }));
+  const rows: ScoreTemplateTableRow[] = props.items
+    .map((item, index) => ({ item, index }))
+    .filter((row) => props.section === ALL_SECTIONS_TAB || row.item.section === props.section);
   const columns: DataTableColumn<ScoreTemplateTableRow>[] = [
     {
       key: "sequence",
@@ -81,7 +84,6 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
     {
       key: "section",
       header: SCORE_TEMPLATE_ITEM_HEADERS.SECTION,
-      filterOptions: [{ value: "", label: allSectionsLabel }, ...SECTION_OPTIONS],
       filterAccessor: (row) => row.item.section,
       cell: (row) => {
         if (!props.editable) return getSectionLabel(row.item.section);
@@ -188,5 +190,36 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
       emptyTitle={emptyTitle}
       tableClassName="min-w-[1100px]"
     />
+  );
+};
+
+/** Shared table for the read-only detail view and the DRAFT editor. Both use
+ * the common DataTable shell and responsive rules, with the common Tabs to split
+ * the items by skill; only the editable cell controls differ. */
+export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): ReactElement => {
+  const [activeSection, setActiveSection] = useState(ALL_SECTIONS_TAB);
+  const sectionOptions = useAdminCopy(RAW_SECTION_OPTIONS);
+  const allSectionsLabel = useAdminCopy("All sections");
+  const tabItems: TabItem[] = [
+    { id: ALL_SECTIONS_TAB, label: allSectionsLabel, count: props.items.length },
+    ...sectionOptions.map((option) => ({
+      id: option.value,
+      label: option.label,
+      count: props.items.filter((item) => item.section === option.value).length,
+    })),
+  ];
+
+  return (
+    <div className="space-y-4">
+      <Tabs
+        id="score-template-section-tabs"
+        items={tabItems}
+        value={activeSection}
+        onChange={setActiveSection}
+        variant="default"
+      />
+      {/* key resets the table's own page/sort state when the skill tab changes */}
+      <ScoreTemplateItemRows key={activeSection} {...props} section={activeSection} />
+    </div>
   );
 };
