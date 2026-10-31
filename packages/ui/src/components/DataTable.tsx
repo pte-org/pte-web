@@ -10,6 +10,7 @@ import {
 } from "react";
 import { cn } from "../utils/cn";
 import { useLocale } from "../i18n";
+import { RowReorderProvider, SortableTableRow } from "./DataTableReorder";
 import { EmptyState } from "./EmptyState";
 import { LoadingState } from "./LoadingState";
 import { Pagination } from "./Pagination";
@@ -63,6 +64,8 @@ export interface DataTableProps<TRow> {
   isLoading?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
+  /** Rendered under the empty-state text, e.g. a button that adds the first row. */
+  emptyAction?: ReactNode;
   rowActions?: (row: TRow) => ReactNode;
   rowActionsHeader?: ReactNode;
   toolbar?: ReactNode;
@@ -106,6 +109,14 @@ export interface DataTableProps<TRow> {
   onSelectionChange?: (keys: Set<string | number>) => void;
   selectAllLabel?: string;
   selectRowLabel?: (row: TRow) => string;
+  /**
+   * Makes the rows draggable and receives the keys of the rows shown, in their new order.
+   * The caller owns the order, so turn off client-side sorting and pagination (only the
+   * rows shown take part in a drop) and keep `getRowKey` stable when a row moves.
+   */
+  onReorderRows?: (orderedKeys: string[]) => void;
+  /** Accessible name of each row's drag handle. */
+  reorderHandleLabel?: string;
 }
 
 export function DataTable<TRow>({
@@ -115,6 +126,7 @@ export function DataTable<TRow>({
   isLoading = false,
   emptyTitle,
   emptyDescription,
+  emptyAction,
   rowActions,
   rowActionsHeader,
   toolbar,
@@ -141,8 +153,12 @@ export function DataTable<TRow>({
   onSelectionChange,
   selectAllLabel,
   selectRowLabel,
+  onReorderRows,
+  reorderHandleLabel,
 }: DataTableProps<TRow>): ReactElement {
   const { t } = useLocale();
+  const isReorderable = onReorderRows !== undefined;
+  const resolvedReorderHandleLabel = reorderHandleLabel ?? t("common.reorderRow", "Drag to reorder");
   const resolvedEmptyTitle = emptyTitle ?? t("common.noData", "No data");
   const resolvedSearchPlaceholder =
     searchPlaceholder ?? t("common.searchTable", "Search this table");
@@ -318,6 +334,10 @@ export function DataTable<TRow>({
         <>
           <div className={cn(renderMobileRow && "hidden sm:block", tableWrapperClassName)}>
             <div className="overflow-x-auto">
+              <RowReorderProvider
+                keys={visibleRows.map((row) => String(getRowKey(row)))}
+                onReorder={onReorderRows}
+              >
               <table
                 className={cn(
                   "min-w-full border-separate border-spacing-0 text-left text-sm",
@@ -326,6 +346,11 @@ export function DataTable<TRow>({
               >
                 <thead className="bg-[var(--table-surface-background)] text-left text-xs leading-4 font-semibold tracking-normal text-[var(--table-header-text)]">
                   <tr className="bg-[var(--table-surface-background)]">
+                    {isReorderable && (
+                      <th scope="col" className={cn("w-10 border-b border-[var(--table-border)]", cellPadding)}>
+                        <span className="sr-only">{resolvedReorderHandleLabel}</span>
+                      </th>
+                    )}
                     {selectable && (
                       <th scope="col" className={cn("w-10", cellPadding)}>
                         <input
@@ -382,12 +407,18 @@ export function DataTable<TRow>({
                   {visibleRows.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={columns.length + (selectable ? 1 : 0) + (rowActions ? 1 : 0)}
+                        colSpan={
+                          columns.length +
+                          (selectable ? 1 : 0) +
+                          (rowActions ? 1 : 0) +
+                          (isReorderable ? 1 : 0)
+                        }
                         className="px-4 py-0 sm:px-5"
                       >
                         <EmptyState
                           title={resolvedEmptyTitle}
                           description={emptyDescription}
+                          action={emptyAction}
                           className="rounded-none border-0 px-6 py-10 shadow-none"
                         />
                       </td>
@@ -395,14 +426,12 @@ export function DataTable<TRow>({
                   ) : (
                     visibleRows.map((row) => {
                       const key = getRowKey(row);
-                      return (
-                        <tr
-                          key={key}
-                          className={cn(
-                            "not-last:*:border-[var(--table-border)] not-last:[&>td]:border-b not-last:[&>th]:border-b transition-colors duration-150 hover:bg-[var(--table-row-hover)]",
-                            rowClassName?.(row),
-                          )}
-                        >
+                      const rowClasses = cn(
+                        "not-last:*:border-[var(--table-border)] not-last:[&>td]:border-b not-last:[&>th]:border-b transition-colors duration-150 hover:bg-[var(--table-row-hover)]",
+                        rowClassName?.(row),
+                      );
+                      const cells = (
+                        <>
                           {selectable && (
                             <td className={cellPaddingBody}>
                               <input
@@ -429,12 +458,28 @@ export function DataTable<TRow>({
                           {rowActions && (
                             <td className={cn("text-right", cellPaddingBody)}>{rowActions(row)}</td>
                           )}
+                        </>
+                      );
+                      return isReorderable ? (
+                        <SortableTableRow
+                          key={key}
+                          id={String(key)}
+                          className={rowClasses}
+                          handleLabel={resolvedReorderHandleLabel}
+                          cellClassName={cellPaddingBody}
+                        >
+                          {cells}
+                        </SortableTableRow>
+                      ) : (
+                        <tr key={key} className={rowClasses}>
+                          {cells}
                         </tr>
                       );
                     })
                   )}
                 </tbody>
               </table>
+              </RowReorderProvider>
             </div>
           </div>
 
@@ -444,6 +489,7 @@ export function DataTable<TRow>({
                 <EmptyState
                   title={resolvedEmptyTitle}
                   description={emptyDescription}
+                  action={emptyAction}
                   className="rounded-none border-0 px-6 py-10 shadow-none"
                 />
               ) : (

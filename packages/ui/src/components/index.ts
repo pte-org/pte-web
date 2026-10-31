@@ -120,6 +120,8 @@ export type {
   TabsProps,
   TabsVariant,
 } from "./Tabs";
+export { SortableList } from "./SortableList";
+export type { SortableListProps } from "./SortableList";
 export { HeaderSearch } from "./HeaderSearch";
 export type { HeaderSearchItem, HeaderSearchProps } from "./HeaderSearch";
 export { DEFAULT_TOAST_DURATION_MS, ToastProvider, useToast } from "./Toast";
