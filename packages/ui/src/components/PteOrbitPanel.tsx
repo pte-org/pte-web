@@ -75,6 +75,7 @@ export const PteOrbitPanel = ({
         title={title}
         src={src}
         loading="eager"
+        referrerPolicy="no-referrer"
         className={cn(
           "absolute inset-0 z-10 h-full w-full border-0 transition-opacity duration-700 ease-out",
           ready ? "opacity-100" : "opacity-0",
