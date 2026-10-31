@@ -6,6 +6,13 @@ export const SCORE_TEMPLATE_QUERY_KEY = ["scoreTemplate"] as const;
 export const EXAM_TEMPLATE_BASE_PATH = "/admin/exam-template";
 export const EXAM_TEMPLATE_SECTIONS = ["SPEAKING", "WRITING", "READING", "LISTENING"] as const;
 
+export const SCORE_TEMPLATE_SECTION_LABELS = {
+  SPEAKING: "Speaking",
+  WRITING: "Writing",
+  READING: "Reading",
+  LISTENING: "Listening",
+};
+
 export const SCORE_TEMPLATE_TEXT = {
   LIST_TITLE: "Exam Templates",
   CLONE_ACTION: "Clone to new draft",
@@ -13,6 +20,13 @@ export const SCORE_TEMPLATE_TEXT = {
   DELETE_ACTION: "Delete",
   CREATE_MODAL_TITLE: "Create exam template",
   CODE_LABEL: "Code",
+  INFO_TITLE: "Template information",
+  TEMPLATE_ACTIONS_LABEL: "Template actions",
+  UNSAVED_TITLE: "Leave without saving?",
+  UNSAVED_DESCRIPTION:
+    "You have unsaved changes to this template. If you leave now, they will be lost.",
+  UNSAVED_STAY: "Stay on this page",
+  UNSAVED_LEAVE: "Leave without saving",
   NAME_LABEL: "Name",
   POLICY_LABEL: "Template policy",
   STANDARD_POLICY: "Standard PTE",
@@ -138,7 +152,6 @@ export const SCORE_TEMPLATE_POLICY_LABELS = {
 } as const;
 
 export const SCORE_TEMPLATE_ITEM_HEADERS = {
-  SEQUENCE: "#",
   TASK_TYPE: "Task type",
   SECTION: "Section",
   MIN_COUNT: "Min",
@@ -150,7 +163,57 @@ export const SCORE_TEMPLATE_ITEM_HEADERS = {
   WRITING_WEIGHT: "Writing %",
   READING_WEIGHT: "Reading %",
   LISTENING_WEIGHT: "Listening %",
+  QUESTION_COUNT: "Questions",
+  TIME_SECONDS: "Time (s)",
 } as const;
+
+export const SCORE_TEMPLATE_ROW_TEXT = {
+  DRAG_HANDLE: "Drag to reorder",
+  ACTIONS_LABEL: "Task type actions",
+  EDIT_DETAILS: "Edit details",
+  DETAILS_TITLE: "Task type details",
+  DETAILS_DONE: "Done",
+  PREP: "Prep",
+  RESPONSE: "Response",
+  SECTION_EMPTY: "No task types in this section yet.",
+  NO_SKILL_WEIGHT: "—",
+  QUESTIONS_SUFFIX: "questions",
+  SKILL_WEIGHTS_HINT: "Skill weights",
+} as const;
+
+/**
+ * Row grid from `sm` up: task type, timing, overall weight, skill weights, question
+ * count (and the actions menu in the editor). The title takes the free width and the
+ * small columns stay fixed so they line up from row to row. Literal strings so Tailwind
+ * can see them.
+ */
+export const SCORE_TEMPLATE_ROW_COLUMNS = {
+  EDITABLE: "sm:grid-cols-[minmax(0,1fr)_7.5rem_6rem_13rem_12rem_2rem]",
+  READ_ONLY: "sm:grid-cols-[minmax(0,1fr)_7.5rem_6rem_13rem_8rem]",
+} as const;
+
+/** `ALL` is a tab value, never a section: it lists every section one after another. */
+export const SCORE_TEMPLATE_ALL_TAB = "ALL";
+
+/** Which draft field carries each skill's weight; order is the display order of the chips. */
+export const SCORE_TEMPLATE_SKILL_WEIGHT_FIELDS = [
+  { section: "SPEAKING", field: "speakingWeight" },
+  { section: "WRITING", field: "writingWeight" },
+  { section: "READING", field: "readingWeight" },
+  { section: "LISTENING", field: "listeningWeight" },
+] as const;
+
+/** Numeric fields of the details dialog, in the order they are shown. */
+export const SCORE_TEMPLATE_DETAIL_FIELDS = [
+  { field: "minCount", header: "MIN_COUNT", step: "1" },
+  { field: "maxCount", header: "MAX_COUNT", step: "1" },
+  { field: "prepSeconds", header: "PREP_SECONDS", step: "1" },
+  { field: "responseSeconds", header: "RESPONSE_SECONDS", step: "1" },
+  { field: "speakingWeight", header: "SPEAKING_WEIGHT", step: "0.01" },
+  { field: "writingWeight", header: "WRITING_WEIGHT", step: "0.01" },
+  { field: "readingWeight", header: "READING_WEIGHT", step: "0.01" },
+  { field: "listeningWeight", header: "LISTENING_WEIGHT", step: "0.01" },
+] as const;
 
 export const SCORE_TEMPLATE_STATUS_LABELS: Record<ScoreTemplateStatusFilter, string> = {
   ACTIVE: "Active",
