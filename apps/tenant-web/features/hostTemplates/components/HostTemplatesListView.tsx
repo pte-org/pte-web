@@ -188,7 +188,7 @@ export const HostTemplatesListView = (): ReactElement => {
                       >
                         {text.CLONE}
                       </Button>
-                      {template.status === "DRAFT" && (
+                      {(template.status === "DRAFT" || template.status === "RETIRED") && (
                         <Button
                           size="sm"
                           variant="primary"
