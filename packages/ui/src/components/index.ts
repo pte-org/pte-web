@@ -120,6 +120,8 @@ export type {
   TabsProps,
   TabsVariant,
 } from "./Tabs";
+export { UnsavedChangesGuard } from "./UnsavedChangesGuard";
+export type { UnsavedChangesGuardProps } from "./UnsavedChangesGuard";
 export { SortableList } from "./SortableList";
 export type { SortableListProps } from "./SortableList";
 export { HeaderSearch } from "./HeaderSearch";
