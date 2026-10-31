@@ -6,13 +6,10 @@ export interface ChatUsageSummary {
   ok: number;
   refused: number;
   failed: number;
-  cacheHits: number;
   tokensIn: number;
   tokensOut: number;
   tokensThinking: number;
   estimatedCostUsd: number;
-  /** Percent of all messages that were answered from the shared cache. */
-  cacheHitRate: number;
   /** Percent of all messages that failed after the provider call. */
   failedRate: number;
 }
@@ -29,7 +26,6 @@ export function summarizeChatUsage(days: readonly ChatUsageDayResponse[]): ChatU
     ok: 0,
     refused: 0,
     failed: 0,
-    cacheHits: 0,
     tokensIn: 0,
     tokensOut: 0,
     tokensThinking: 0,
@@ -40,14 +36,13 @@ export function summarizeChatUsage(days: readonly ChatUsageDayResponse[]): ChatU
     total.ok += day.ok;
     total.refused += day.refused;
     total.failed += day.failed;
-    total.cacheHits += day.cacheHits;
     total.tokensIn += day.tokensIn;
     total.tokensOut += day.tokensOut;
     total.tokensThinking += day.tokensThinking;
     total.estimatedCostUsd += day.estimatedCostUsd;
   }
   const rate = (part: number): number => (total.messages === 0 ? 0 : (part / total.messages) * PERCENT);
-  return { ...total, cacheHitRate: rate(total.cacheHits), failedRate: rate(total.failed) };
+  return { ...total, failedRate: rate(total.failed) };
 }
 
 /** yyyy-MM-dd of an instant on the Vietnam calendar, the day the backend groups the report by. */

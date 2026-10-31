@@ -9,7 +9,6 @@ function day(overrides: Partial<ChatUsageDayResponse> = {}): ChatUsageDayRespons
     ok: 0,
     refused: 0,
     failed: 0,
-    cacheHits: 0,
     tokensIn: 0,
     tokensOut: 0,
     tokensThinking: 0,
@@ -25,19 +24,17 @@ describe("summarizeChatUsage", () => {
       ok: 0,
       refused: 0,
       failed: 0,
-      cacheHits: 0,
       tokensIn: 0,
       tokensOut: 0,
       tokensThinking: 0,
       estimatedCostUsd: 0,
-      cacheHitRate: 0,
       failedRate: 0,
     });
   });
 
   it("adds up every day", () => {
     const summary = summarizeChatUsage([
-      day({ messages: 10, ok: 7, refused: 2, failed: 1, cacheHits: 3, tokensIn: 100, tokensOut: 200, tokensThinking: 5, estimatedCostUsd: 0.25 }),
+      day({ messages: 10, ok: 7, refused: 2, failed: 1, tokensIn: 100, tokensOut: 200, tokensThinking: 5, estimatedCostUsd: 0.25 }),
       day({ date: "2026-10-30", messages: 10, ok: 10, tokensIn: 50, tokensOut: 60, estimatedCostUsd: 0.5 }),
     ]);
 
@@ -46,7 +43,6 @@ describe("summarizeChatUsage", () => {
       ok: 17,
       refused: 2,
       failed: 1,
-      cacheHits: 3,
       tokensIn: 150,
       tokensOut: 260,
       tokensThinking: 5,
@@ -54,17 +50,15 @@ describe("summarizeChatUsage", () => {
     expect(summary.estimatedCostUsd).toBeCloseTo(0.75, 6);
   });
 
-  it("works out the rates as percentages of all messages", () => {
-    const summary = summarizeChatUsage([day({ messages: 8, cacheHits: 2, failed: 1 })]);
+  it("works out the failed rate as a percentage of all messages", () => {
+    const summary = summarizeChatUsage([day({ messages: 8, failed: 1 })]);
 
-    expect(summary.cacheHitRate).toBe(25);
     expect(summary.failedRate).toBe(12.5);
   });
 
   it("never divides by zero", () => {
     const summary = summarizeChatUsage([day({ messages: 0 }), day({ messages: 0 })]);
 
-    expect(summary.cacheHitRate).toBe(0);
     expect(summary.failedRate).toBe(0);
   });
 });

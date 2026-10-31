@@ -9,7 +9,6 @@ function day(overrides: Partial<ChatUsageDayResponse> = {}): ChatUsageDayRespons
     ok: 0,
     refused: 0,
     failed: 0,
-    cacheHits: 0,
     tokensIn: 0,
     tokensOut: 0,
     tokensThinking: 0,

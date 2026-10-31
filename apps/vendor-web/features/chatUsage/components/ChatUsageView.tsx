@@ -19,6 +19,7 @@ import { useChatUsage } from "../api";
 import { CHAT_USAGE_COPY } from "../constants";
 import { activeDays, chartRows, isSameRange, usagePresets, type UsagePresetKey } from "../utils/presentation";
 import { defaultUsageRange, formatUsd, summarizeChatUsage } from "../utils/summarize";
+import { ChatTopStudents } from "./_ChatTopStudents";
 import { ChatUsageSummaryCards } from "./_ChatUsageSummary";
 
 const PRESET_COPY_KEY = {
@@ -63,7 +64,6 @@ export const ChatUsageView = (): ReactElement => {
     { key: "ok", header: T.ANSWERED, cell: (day) => number.format(day.ok) },
     { key: "refused", header: T.REFUSED, cell: (day) => flagged(day.refused, "warning") },
     { key: "failed", header: T.FAILED, cell: (day) => flagged(day.failed, "danger") },
-    { key: "cacheHits", header: T.FROM_CACHE, cell: (day) => number.format(day.cacheHits) },
     { key: "tokensIn", header: T.TOKENS_IN, cell: (day) => number.format(day.tokensIn) },
     {
       key: "tokensOut",
@@ -138,6 +138,7 @@ export const ChatUsageView = (): ReactElement => {
         clientSideFiltering={false}
         clientSidePagination={false}
       />
+      <ChatTopStudents from={range.from} to={range.to} locale={locale} />
     </div>
   );
 };
