@@ -4,6 +4,7 @@ import { useState, type ReactElement } from "react";
 import {
   ActionMenu,
   Alert,
+  Button,
   CollapsibleSection,
   DataTable,
   Select,
@@ -56,8 +57,6 @@ export const ProctorAssignmentSection = ({
     assign: t("tenant.proctor.assign", T.ASSIGN_PROCTOR),
     empty: t("tenant.proctor.empty", T.EMPTY_TITLE),
     unassign: t("tenant.proctor.unassign", T.UNASSIGN),
-    assignedCount: (count: number) =>
-      t("tenant.proctor.assignedCount", T.ASSIGNED_COUNT, { count }),
     fullName: t("tenant.proctor.fullName", PROCTOR_TABLE_HEADERS.FULL_NAME),
     email: t("tenant.proctor.email", PROCTOR_TABLE_HEADERS.EMAIL),
     role: t("tenant.proctor.role", PROCTOR_TABLE_HEADERS.ROLE),
@@ -111,18 +110,9 @@ export const ProctorAssignmentSection = ({
         className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5"
         contentClassName="flex flex-col gap-3"
         actions={
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <span className="text-sm text-[var(--ink-secondary)]">
-              {text.assignedCount((assignments ?? []).length)}
-            </span>
-            <button
-              type="button"
-              onClick={() => setAddOpen(true)}
-              className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover"
-            >
-              + {text.assign}
-            </button>
-          </div>
+          <Button size="sm" onClick={() => setAddOpen(true)}>
+            {text.assign}
+          </Button>
         }
       >
         {unassignError && <Alert tone="error">{unassignError}</Alert>}

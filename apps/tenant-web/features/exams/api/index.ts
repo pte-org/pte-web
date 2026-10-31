@@ -3,6 +3,7 @@
 import {
   assignProctor,
   commitExaminerAssignment,
+  reassignExaminer,
   closeSession,
   cancelExam,
   deleteSession as deleteSessionRequest,
@@ -39,6 +40,7 @@ import {
   type ReportPublicationReadinessResponse,
   type ReportPublicationSummaryResponse,
   type CommitExaminerAssignmentRequest,
+  type ReassignExaminerRequest,
   type ExaminerAssignmentRosterResponse,
   type ExamPreviewResponse,
   type ExamPolicyResponse,
@@ -414,6 +416,22 @@ export function useCommitExaminerAssignment(
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload) => commitExaminerAssignment(apiClient, sessionPublicId, payload),
+    onSuccess: (roster) =>
+      queryClient.setQueryData([...EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY, sessionPublicId], roster),
+  });
+}
+
+export function useReassignExaminer(
+  sessionPublicId: string,
+): UseMutationResult<
+  ExaminerAssignmentRosterResponse,
+  unknown,
+  { attemptPublicId: string; payload: ReassignExaminerRequest }
+> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ attemptPublicId, payload }) =>
+      reassignExaminer(apiClient, sessionPublicId, attemptPublicId, payload),
     onSuccess: (roster) =>
       queryClient.setQueryData([...EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY, sessionPublicId], roster),
   });

@@ -5,6 +5,7 @@ import { DashboardCard, useLocale } from "@pte/ui";
 import { SESSION_DETAIL_TEXT } from "../constants";
 import { AttemptsSection } from "./AttemptsSection";
 import { ReportPublicationPanel } from "./ReportPublicationPanel";
+import { ReportPublicationStatusChip } from "./ReportPublicationStatusChip";
 import { ScoringOverviewPanel } from "./ScoringOverviewPanel";
 import { StartAiScoringButton } from "./StartAiScoringButton";
 
@@ -20,6 +21,10 @@ export const ExamSubmissionsTab = ({
   const { t } = useLocale();
   return (
     <div className="flex flex-col gap-5">
+      <ReportPublicationStatusChip
+        sessionPublicId={sessionPublicId}
+        sessionStatus={sessionStatus}
+      />
       <DashboardCard className="motion-safe:animate-pte-fade-up">
         <h2 className="text-base font-semibold text-[var(--ink-primary)]">
           {t("tenant.answers.sectionTitle", SESSION_DETAIL_TEXT.ANSWERS_SECTION)}

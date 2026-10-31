@@ -1,3 +1,5 @@
+import type { ExaminerWorkflowStatus } from "./examiner";
+
 /** Matches scoring's real `ScoringAnswerStatus` enum exactly. */
 export type ScoringAnswerStatus = "PENDING" | "AI_SCORING" | "SCORING_FAILED" | "SCORED";
 
@@ -32,6 +34,10 @@ export interface AnswerListItemResponse {
   aiFallback: boolean;
   /** False for objective answers, whose rawScore is not an AI estimate. */
   aiScored: boolean;
+  /** True for a task type the exam never scores; its status stays PENDING but nothing is awaited. */
+  unscored: boolean;
+  /** 1-based position of the item in the exam; only filled when the list is narrowed to one attempt. */
+  questionNumber: number | null;
 }
 
 /** Matches scoring's real `AttemptReviewItemResponse` record exactly. */
@@ -65,6 +71,10 @@ export interface AnswerListResponse {
   size: number;
   totalElements: number;
   totalPages: number;
+  /** Only filled when the list is narrowed to one attempt: the exam's items for it. */
+  expectedCount: number | null;
+  /** Only filled when the list is narrowed to one attempt: how many of those items the student answered. */
+  answeredCount: number | null;
 }
 
 /** Matches scoring's real `AnswerPayloadKind` enum exactly. */
@@ -99,6 +109,8 @@ export interface AnswerReviewDetailResponse {
   createdAt: string;
   payload: DecodedAnswerPayload;
   ai: AiScoreDetailResponse | null;
+  /** True for a task type the exam never scores; its status stays PENDING but nothing is awaited. */
+  unscored: boolean;
 }
 
 /** Matches scoring's real `SubmitTeacherScoreRequest` record exactly. */
@@ -218,6 +230,16 @@ export interface ExaminerAssignmentRosterRow {
   studentName: string | null;
   studentEmail: string | null;
   examinerPublicId: string | null;
+  /** Null until the Host has committed the assignment. */
+  workStatus: ExaminerWorkflowStatus | null;
+  /** Drafts the current Examiner has saved so far; carried over if the attempt is reassigned. */
+  draftCount: number;
+  /** True while the Host may still hand this attempt to another Examiner. */
+  reassignable: boolean;
+}
+
+export interface ReassignExaminerRequest {
+  examinerPublicId: string;
 }
 
 export interface ExaminerAssignmentRosterResponse {
