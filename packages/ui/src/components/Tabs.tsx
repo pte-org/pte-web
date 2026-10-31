@@ -12,6 +12,7 @@ import { cn } from "../utils/cn";
 
 export type TabsVariant = "default" | "minimal";
 export type TabsActiveVariant = "surface" | "primary";
+export type TabsOrientation = "horizontal" | "vertical";
 
 export interface TabItem {
   id: string;
@@ -33,6 +34,11 @@ export interface TabsProps {
   variant?: TabsVariant;
   /** Controls the selected trigger appearance for default card-like tabs. */
   activeVariant?: TabsActiveVariant;
+  /**
+   * `vertical` stacks the triggers in a side rail (Up/Down arrow keys) with the count
+   * badge pushed to the right edge. It always uses the card-like look of `default`.
+   */
+  orientation?: TabsOrientation;
 }
 
 const tabRootStyles: Record<TabsVariant, string> = {
@@ -51,6 +57,12 @@ const tabListStyles: Record<TabsVariant, string> = {
   minimal: "flex min-w-0 gap-2 overflow-x-auto",
 };
 
+const verticalRootStyles =
+  "overflow-hidden rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)]";
+const verticalListWrapperStyles = "p-3";
+const verticalListStyles = "flex min-w-0 flex-col gap-1 rounded-lg bg-[var(--surface-subtle)] p-1";
+const verticalTriggerStyles = "w-full justify-start text-left";
+
 const tabTriggerBaseStyles =
   "inline-flex shrink-0 items-center gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35 disabled:cursor-not-allowed disabled:opacity-50";
 
@@ -63,10 +75,16 @@ export const Tabs = ({
   ariaLabel,
   variant = "default",
   activeVariant = "surface",
+  orientation = "horizontal",
 }: TabsProps): ReactElement => {
   const generatedTabsId = useId().replace(/:/g, "");
   const tabsId = id ?? generatedTabsId;
   const { t } = useLocale();
+  const isVertical = orientation === "vertical";
+  // Vertical rails always use the card-like look; `minimal` underlines only make sense in a row.
+  const effectiveVariant: TabsVariant = isVertical ? "default" : variant;
+  const nextKey = isVertical ? "ArrowDown" : "ArrowRight";
+  const previousKey = isVertical ? "ArrowUp" : "ArrowLeft";
 
   const handleKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>, itemId: string): void => {
     const enabled = items.filter((item) => !item.disabled);
@@ -74,9 +92,9 @@ export const Tabs = ({
     const currentIndex = enabled.findIndex((item) => item.id === itemId);
     if (currentIndex < 0) return;
     const nextIndex =
-      event.key === "ArrowRight"
+      event.key === nextKey
         ? (currentIndex + 1) % enabled.length
-        : event.key === "ArrowLeft"
+        : event.key === previousKey
           ? (currentIndex - 1 + enabled.length) % enabled.length
           : event.key === "Home"
             ? 0
@@ -91,18 +109,19 @@ export const Tabs = ({
   };
 
   return (
-    <div className={cn(tabRootStyles[variant], className)}>
-      <div className={tabListWrapperStyles[variant]}>
+    <div className={cn(isVertical ? verticalRootStyles : tabRootStyles[variant], className)}>
+      <div className={isVertical ? verticalListWrapperStyles : tabListWrapperStyles[variant]}>
         <div
-          className={tabListStyles[variant]}
+          className={isVertical ? verticalListStyles : tabListStyles[variant]}
           role="tablist"
+          aria-orientation={orientation}
           aria-label={ariaLabel ?? t("common.sections", "Sections")}
         >
           {items.map((item) => {
             const selected = item.id === value;
             const badge = item.badge ?? item.count;
             const triggerStyles =
-              variant === "default"
+              effectiveVariant === "default"
                 ? selected
                   ? activeVariant === "primary"
                     ? `rounded-md px-3 py-2 ${PRIMARY_ACTION_SURFACE_CLASSES}`
@@ -124,12 +143,17 @@ export const Tabs = ({
                 disabled={item.disabled}
                 onClick={() => onChange(item.id)}
                 onKeyDown={(event) => handleKeyDown(event, item.id)}
-                className={cn(tabTriggerBaseStyles, triggerStyles)}
+                className={cn(tabTriggerBaseStyles, triggerStyles, isVertical && verticalTriggerStyles)}
               >
                 {item.icon}
                 {item.label}
                 {badge !== undefined && (
-                  <span className="rounded-full bg-[var(--surface-subtle)] px-1.5 py-0.5 text-xs text-[var(--ink-secondary)]">
+                  <span
+                    className={cn(
+                      "rounded-full bg-[var(--surface-subtle)] px-1.5 py-0.5 text-xs text-[var(--ink-secondary)]",
+                      isVertical && "ml-auto",
+                    )}
+                  >
                     {badge}
                   </span>
                 )}

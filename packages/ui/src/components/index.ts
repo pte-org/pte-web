@@ -112,7 +112,14 @@ export { ForbiddenState } from "./ForbiddenState";
 export { Stepper } from "./Stepper";
 export type { StepItem } from "./Stepper";
 export { TabPanel, Tabs } from "./Tabs";
-export type { TabItem, TabPanelProps, TabsActiveVariant, TabsProps, TabsVariant } from "./Tabs";
+export type {
+  TabItem,
+  TabPanelProps,
+  TabsActiveVariant,
+  TabsOrientation,
+  TabsProps,
+  TabsVariant,
+} from "./Tabs";
 export { HeaderSearch } from "./HeaderSearch";
 export type { HeaderSearchItem, HeaderSearchProps } from "./HeaderSearch";
 export { DEFAULT_TOAST_DURATION_MS, ToastProvider, useToast } from "./Toast";
