@@ -18,7 +18,8 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
     "This license is linked to a plan that is no longer active. Please contact the platform administrator.",
   TENANT_NAME_ALREADY_USED: "An organization with this name already exists.",
   TENANT_CODE_ALREADY_USED: "This organization code is already in use.",
-  REQUESTED_CODE_ALREADY_USED: "This organization code is already in use.",
+  TENANT_TAX_CODE_ALREADY_USED:
+    "Another approved organization already uses this tax code, so this application cannot be approved.",  REQUESTED_CODE_ALREADY_USED: "This organization code is already in use.",
   STUDENT_ALREADY_IN_CLASS: "This student is already enrolled in the selected class.",
   EMAIL_ALREADY_USED: "An account with this email already exists.",
   DUPLICATE_EMAIL_IN_BATCH: "Some email addresses appear more than once in the uploaded file.",

@@ -41,9 +41,10 @@ const AdminApplicationDetailContent = ({
   const mutationError =
     lastAction === "approve" ? approve.error : lastAction === "reject" ? reject.error : undefined;
   const errorMessage = mutationError
-    ? mutationError instanceof ApiError && mutationError.kind === "conflict"
-      ? T.UNCERTAIN
-      : getUserFacingApiErrorMessage(mutationError, T.UPDATE_ERROR)
+    ? getUserFacingApiErrorMessage(
+        mutationError,
+        mutationError instanceof ApiError && mutationError.kind === "conflict" ? T.UNCERTAIN : T.UPDATE_ERROR,
+      )
     : undefined;
 
   if (applicationQuery.isLoading) return <p className="text-sm text-slate-500">{T.LOADING}</p>;
@@ -94,7 +95,8 @@ const AdminApplicationDetailContent = ({
       (result) => {
         if (result.error) {
           setRefreshFailed(true);
-        } else {
+        } else if (result.data?.status !== "PENDING") {
+          // The decision was already settled elsewhere; a still-pending application keeps its rejection reason on screen.
           if (action === "approve") approve.reset();
           if (action === "reject") reject.reset();
           setLastAction(null);
