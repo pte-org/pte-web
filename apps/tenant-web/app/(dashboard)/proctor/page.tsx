@@ -9,10 +9,5 @@ import { redirect } from "next/navigation";
  * the only self-service landing.
  */
 export default function ProctorIndexPage(): never {
-  const isEnabled = process.env.NEXT_PUBLIC_PROCTOR_UI_ENABLED === "true";
-  if (isEnabled) {
-    redirect("/proctor/sessions");
-  } else {
-    redirect("/proctor/unavailable");
-  }
+  redirect("/proctor/sessions");
 }

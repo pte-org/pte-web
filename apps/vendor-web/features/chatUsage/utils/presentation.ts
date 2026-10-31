@@ -1,4 +1,4 @@
-import type { ChatUsageDayResponse } from "@pte/api-client";
+import type { ChatFailureCountsResponse, ChatUsageDayResponse } from "@pte/api-client";
 import type { TrendChartDatum } from "@pte/ui";
 import { vietnamDate } from "./summarize";
 
@@ -39,6 +39,27 @@ export function chartRows(days: readonly ChatUsageDayResponse[]): TrendChartDatu
     refused: day.refused,
     failed: day.failed,
   }));
+}
+
+export type FailureReasonKey = keyof ChatFailureCountsResponse;
+
+/** The order reasons are listed in when two have the same count; the likeliest causes to act on come first. */
+const FAILURE_REASON_ORDER: readonly FailureReasonKey[] = [
+  "timeout",
+  "rateLimited",
+  "authFailed",
+  "unavailable",
+  "truncated",
+  "other",
+];
+
+/** The reasons a day's messages failed for, only those that happened, the most common first. */
+export function failureReasons(
+  failures: ChatFailureCountsResponse,
+): Array<{ key: FailureReasonKey; count: number }> {
+  return FAILURE_REASON_ORDER.map((key) => ({ key, count: failures[key] }))
+    .filter((reason) => reason.count > 0)
+    .sort((a, b) => b.count - a.count);
 }
 
 export function failedTone(failedRate: number): "neutral" | "danger" {
