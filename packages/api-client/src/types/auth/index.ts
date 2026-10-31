@@ -72,4 +72,15 @@ export interface LogoutRequest {
 export interface ChangePasswordRequest {
   currentPassword: string;
   newPassword: string;
+  /** The caller's own session: when sent, every other session is signed out and this one is kept. */
+  refreshToken?: string;
+}
+
+export interface PasswordResetRequest {
+  email: string;
+}
+
+export interface PasswordResetConfirmRequest {
+  token: string;
+  newPassword: string;
 }

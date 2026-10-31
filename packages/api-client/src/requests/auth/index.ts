@@ -8,6 +8,8 @@ import type {
   LoginOrganizationOption,
   LoginOrganizationOptionsRequest,
   LogoutRequest,
+  PasswordResetConfirmRequest,
+  PasswordResetRequest,
   RefreshTokenRequest,
   StudentLoginRequest,
 } from "../../types/auth";
@@ -18,6 +20,8 @@ export const AUTH_ENDPOINTS = {
   refresh: "/api/v1/auth/refresh",
   logout: "/api/v1/auth/logout",
   changePassword: "/api/v1/auth/change-password",
+  passwordResetRequest: "/api/v1/auth/password-reset/request",
+  passwordResetConfirm: "/api/v1/auth/password-reset/confirm",
 } as const;
 
 export function login(client: ApiClient, payload: LoginRequest): Promise<AuthResponse> {
@@ -84,6 +88,27 @@ export function logout(client: ApiClient, payload: LogoutRequest): Promise<void>
 
 export function changePassword(client: ApiClient, payload: ChangePasswordRequest): Promise<void> {
   return client.request<void>(AUTH_ENDPOINTS.changePassword, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+/** Always succeeds from the caller's view: the server never says whether the address has an account. */
+export function requestPasswordReset(
+  client: ApiClient,
+  payload: PasswordResetRequest,
+): Promise<void> {
+  return client.request<void>(AUTH_ENDPOINTS.passwordResetRequest, {
+    method: "POST",
+    body: payload,
+  });
+}
+
+export function confirmPasswordReset(
+  client: ApiClient,
+  payload: PasswordResetConfirmRequest,
+): Promise<void> {
+  return client.request<void>(AUTH_ENDPOINTS.passwordResetConfirm, {
     method: "POST",
     body: payload,
   });
