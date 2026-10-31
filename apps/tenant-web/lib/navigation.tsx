@@ -81,6 +81,15 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       sectionKey: "nav.delivery",
     },
     {
+      label: T.EXAM_TEMPLATES,
+      labelKey: "nav.hostTemplates",
+      href: "/host/exam-templates",
+      icon: <NavTaskTypeIcon />,
+      section: T.DELIVERY_SECTION,
+      sectionKey: "nav.delivery",
+      requiredRoles: ["HOST_ADMIN"],
+    },
+    {
       label: T.PLANS_AND_BILLING,
       labelKey: "nav.plansBilling",
       href: "/host/billing",
