@@ -114,6 +114,10 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   FORBIDDEN_ROLE_ASSIGNMENT: "The selected platform role is not allowed.",
   USER_EMAIL_REQUIRED: "This account has no email address for credential delivery.",
   USER_NOT_FOUND: "The selected platform user could not be found or is no longer available.",
+  STUDENT_ATTEMPT_IN_PROGRESS:
+    "This student is taking an exam right now. Try again after they submit.",
+  INVALID_PASSWORD_RESET_TOKEN:
+    "This reset link is invalid or has expired. Request a new link and try again.",
 };
 
 const KIND_FALLBACKS: Record<ApiErrorKind, string> = {
