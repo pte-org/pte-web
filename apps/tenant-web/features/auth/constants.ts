@@ -1,4 +1,4 @@
-import type { SessionRole } from "@pte/ui";
+import type { ForgotPasswordFormText, ResetPasswordFormText, SessionRole } from "@pte/ui";
 
 export const CURRENT_USER_QUERY_KEY = ["currentUser"] as const;
 
@@ -22,6 +22,8 @@ export const PROCTOR_ROLES: SessionRole[] = ["PROCTOR"];
 
 export const AUTH_ROUTES = {
   login: "/login",
+  forgotPassword: "/forgot-password",
+  resetPassword: "/reset-password",
   changePassword: "/change-password",
   register: "/register",
   hostDashboard: "/host/dashboard",
@@ -125,3 +127,37 @@ export const REGISTRATION_ORGANIZATION_TYPES = [
   { label: "University", value: "university" },
   { label: "Other", value: "other" },
 ];
+
+export const FORGOT_PASSWORD_TEXT: ForgotPasswordFormText = {
+  title: "Forgot your password?",
+  subtitle: "Enter the email of your account and we will send you a link to choose a new password.",
+  emailLabel: "Email",
+  submit: "Send reset link",
+  submitting: "Sending...",
+  required: "Enter your email address.",
+  sentTitle: "Check your inbox",
+  sentMessage:
+    "If that email belongs to an account, a reset link is on its way. The link works once and expires in 30 minutes.",
+};
+
+export const RESET_PASSWORD_TEXT: ResetPasswordFormText & { failed: string } = {
+  title: "Choose a new password",
+  subtitle: "Pick a password you have not used here before. The link works once.",
+  newLabel: "New password",
+  confirmLabel: "Confirm new password",
+  submit: "Reset password",
+  submitting: "Saving...",
+  required: "Enter both password fields.",
+  tooShort: "Use at least 8 characters for the new password.",
+  mismatch: "The new passwords do not match.",
+  invalidLinkTitle: "This link cannot be used",
+  invalidLinkMessage: "The reset link is missing, invalid or has expired. Request a new one to continue.",
+  showPassword: "Show password",
+  hidePassword: "Hide password",
+  failed: "The password could not be reset. Request a new link and try again.",
+};
+
+export const PASSWORD_RESET_LINKS = {
+  BACK_TO_LOGIN: "Back to sign in",
+  REQUEST_NEW_LINK: "Request a new link",
+} as const;

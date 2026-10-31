@@ -33,7 +33,11 @@ export const ChangePasswordView = (): ReactElement => {
     }
     setFormError(undefined);
     try {
-      await mutation.mutateAsync({ currentPassword, newPassword });
+      await mutation.mutateAsync({
+        currentPassword,
+        newPassword,
+        refreshToken: session?.refreshToken,
+      });
       if (session) saveSession({ ...session, mustChangePassword: false });
       router.replace(resolveWorkspace(session?.roles ?? []).defaultRoute || AUTH_ROUTES.login);
     } catch (error) {

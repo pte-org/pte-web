@@ -9,12 +9,16 @@ import {
 import {
   getCurrentUser,
   changePassword,
+  confirmPasswordReset,
+  requestPasswordReset,
   listLoginOrganizations,
   loginHost,
   type LoginOrganizationOption,
   type LoginOrganizationOptionsRequest,
   type CurrentUser,
   type ChangePasswordRequest,
+  type PasswordResetConfirmRequest,
+  type PasswordResetRequest,
   type HostLoginRequest,
   type JwtTokenResponse,
 } from "@pte/api-client";
@@ -49,5 +53,21 @@ export function useCurrentUser(): UseQueryResult<CurrentUser> {
     queryKey: CURRENT_USER_QUERY_KEY,
     queryFn: () => getCurrentUser(apiClient),
     retry: false,
+  });
+}
+
+export function useRequestPasswordReset(): UseMutationResult<void, unknown, PasswordResetRequest> {
+  return useMutation({
+    mutationFn: (payload: PasswordResetRequest) => requestPasswordReset(apiClient, payload),
+  });
+}
+
+export function useConfirmPasswordReset(): UseMutationResult<
+  void,
+  unknown,
+  PasswordResetConfirmRequest
+> {
+  return useMutation({
+    mutationFn: (payload: PasswordResetConfirmRequest) => confirmPasswordReset(apiClient, payload),
   });
 }
