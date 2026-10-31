@@ -6,7 +6,7 @@ import {
   computeSkillTotals,
   formatWeight,
   removeItem,
-} from "./weights";
+} from "../../../../../features/hostTemplates/utils/weights";
 
 type Weights = Partial<
   Pick<
