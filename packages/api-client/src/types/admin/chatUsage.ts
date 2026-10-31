@@ -6,10 +6,15 @@ export interface ChatUsageDayResponse {
   ok: number;
   refused: number;
   failed: number;
-  cacheHits: number;
   tokensIn: number;
   tokensOut: number;
   tokensThinking: number;
   /** Tokens times the configured prices; the provider's invoice is the real figure. */
   estimatedCostUsd: number;
+}
+
+/** Matches the backend's `ChatStudentUsage`: how many messages one student sent, never what was said. */
+export interface ChatStudentUsageResponse {
+  studentId: string;
+  messages: number;
 }
