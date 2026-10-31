@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { CHAT_USAGE_COPY, CHAT_USAGE_QUERY_KEY, CHAT_USAGE_RANGE_DAYS } from "./constants";
+import {
+  CHAT_TOP_STUDENTS_LIMIT,
+  CHAT_USAGE_COPY,
+  CHAT_USAGE_QUERY_KEY,
+  CHAT_USAGE_RANGE_DAYS,
+} from "./constants";
 
 describe("chat usage copy", () => {
   it("has the same keys in English and Vietnamese, all non-empty", () => {
@@ -19,6 +24,18 @@ describe("chat usage copy", () => {
   it("tells an admin that a missing report usually means chat is switched off", () => {
     expect(CHAT_USAGE_COPY.en.LOAD_FAILED).toMatch(/chat/i);
     expect(CHAT_USAGE_COPY.vi.LOAD_FAILED).toMatch(/chat/i);
+  });
+
+  it("no longer mentions a cache, because answers are not cached", () => {
+    for (const copy of [CHAT_USAGE_COPY.en, CHAT_USAGE_COPY.vi]) {
+      expect(Object.keys(copy).filter((key) => key.includes("CACHE"))).toEqual([]);
+    }
+  });
+
+  it("says the most active students list holds ids and counts only", () => {
+    expect(CHAT_USAGE_COPY.en.STUDENTS_NOTE).toMatch(/not stored/i);
+    expect(CHAT_USAGE_COPY.vi.STUDENTS_NOTE).toMatch(/không được lưu/i);
+    expect(CHAT_TOP_STUDENTS_LIMIT).toBe(10);
   });
 
   it("looks back thirty days by default and has its own cache key", () => {
