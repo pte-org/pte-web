@@ -65,8 +65,11 @@ export interface ExamPreviewResponse {
 
 export interface ExamPreviewItem {
   orderIndex: number;
+  /** Stable identity inside this immutable snapshot; use with snapshotPublicId for answer keys. */
+  snapshotItemPublicId: string;
   section: string;
   taskType: string;
+  taskTypeKey: string | null;
   taskTypeCode: string;
   taskTypeDisplayName: string;
   title: string;
@@ -77,6 +80,36 @@ export interface ExamPreviewItem {
   maxWordCount: number | null;
   options: ExamPreviewOption[];
   sourceQuestionPublicId: string | null;
+  runtime: TaskRuntimeProfile | null;
+  runtimeMappingVersion: string | null;
+  runtimeMappingStatus: string | null;
+  prepSeconds: number;
+  responseSeconds: number;
+  preListenSeconds: number | null;
+  preRecordSeconds: number | null;
+  audioDurationSeconds: number | null;
+  audioUrlExpiresAt: string | null;
+  imageUrlExpiresAt: string | null;
+}
+
+/** Serialized assessment runtime contract used by the Flutter renderer registry. */
+export interface TaskRuntimeProfile {
+  taskTypeCode: string;
+  profileKey: string;
+  profileVersion: number;
+  behaviorKey: string;
+  rendererKey: string;
+  answerSchemaVersion: number;
+  scoringProfileKey: string;
+  scoringProfileVersion: number;
+  requiredClientCapabilities: string[];
+  status: string;
+  screenKey: string;
+  contractVersion: number;
+  scoringMode: string;
+  minSupportedAppVersion: string;
+  authoringContractKey: string;
+  authoringContractVersion: number | null;
 }
 
 /** Scoring flags are intentionally absent. */

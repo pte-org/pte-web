@@ -2,7 +2,7 @@ import type { SessionRole } from "@pte/ui";
 import { AUTH_ROUTES } from "./constants";
 
 export interface WorkspaceOption {
-  id: "host" | "examiner" | "student" | "proctor";
+  id: "host" | "examiner" | "proctor";
   labelKey: string;
   defaultLabel: string;
   href: string;
@@ -13,24 +13,15 @@ export interface WorkspaceResolution {
   allowedWorkspaces: WorkspaceOption[];
 }
 
-export function isProctorUiEnabled(): boolean {
-  return process.env.NEXT_PUBLIC_PROCTOR_UI_ENABLED === "true";
-}
-
-/**
- * Resolves default navigation destination and allowed workspaces based on user roles and
- * the proctor feature flag. Preserves exact legacy routing when PROCTOR role is absent.
- */
+/** Resolves default navigation destination and allowed workspaces based on user roles. */
 export function resolveWorkspace(
   roles: readonly SessionRole[] | readonly string[],
-  proctorUiEnabled: boolean = isProctorUiEnabled(),
 ): WorkspaceResolution {
   const roleSet = new Set(roles);
   const allowedWorkspaces: WorkspaceOption[] = [];
 
   const hasHost = roleSet.has("HOST_ADMIN");
   const hasExaminer = roleSet.has("EXAMINER");
-  const hasStudent = roleSet.has("STUDENT");
   const hasProctor = roleSet.has("PROCTOR");
 
   if (hasHost) {
@@ -51,35 +42,23 @@ export function resolveWorkspace(
     });
   }
 
-  if (hasStudent) {
-    allowedWorkspaces.push({
-      id: "student",
-      labelKey: "workspace.student",
-      defaultLabel: "Student",
-      href: AUTH_ROUTES.studentResults,
-    });
-  }
-
   if (hasProctor) {
     allowedWorkspaces.push({
       id: "proctor",
       labelKey: "workspace.proctor",
       defaultLabel: "Proctor",
-      href: proctorUiEnabled ? AUTH_ROUTES.proctorSessions : AUTH_ROUTES.proctorUnavailable,
+      href: AUTH_ROUTES.proctorSessions,
     });
   }
 
   let defaultRoute: string;
-  // Preserve exact legacy precedence for role combinations:
-  // EXAMINER (without HOST_ADMIN) -> examinerWork, STUDENT -> studentResults, HOST_ADMIN -> hostDashboard
+  // EXAMINER (without HOST_ADMIN) -> examinerWork, HOST_ADMIN -> hostDashboard. STUDENT has no web workspace.
   if (hasExaminer && !hasHost) {
     defaultRoute = AUTH_ROUTES.examinerWork;
-  } else if (hasStudent) {
-    defaultRoute = AUTH_ROUTES.studentResults;
   } else if (hasHost) {
     defaultRoute = AUTH_ROUTES.hostDashboard;
   } else if (hasProctor) {
-    defaultRoute = proctorUiEnabled ? AUTH_ROUTES.proctorSessions : AUTH_ROUTES.proctorUnavailable;
+    defaultRoute = AUTH_ROUTES.proctorSessions;
   } else {
     defaultRoute = AUTH_ROUTES.login;
   }

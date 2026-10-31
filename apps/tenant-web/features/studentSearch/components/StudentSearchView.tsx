@@ -187,7 +187,11 @@ export const StudentSearchView = (): ReactElement => {
   // Classes across all Programs/Organizations. Reuses useAllTenantClasses()
   // (already cached by Phase 2's /host/classes page) so this is free on
   // warm caches.
-  const { data: tenantClasses, isLoading: tenantClassesLoading } = useAllTenantClasses();
+  const {
+    data: tenantClasses,
+    isLoading: tenantClassesLoading,
+    error: tenantClassesError,
+  } = useAllTenantClasses();
   const hasAnyClass = (tenantClasses?.length ?? 0) > 0;
   useEffect(() => {
     const timeout = window.setTimeout(() => setDebouncedSearch(search.trim()), 300);
@@ -521,6 +525,9 @@ export const StudentSearchView = (): ReactElement => {
         <ManageStudentsModal
           open
           initialMode={manageMode}
+          availableClasses={tenantClasses ?? []}
+          classesLoading={tenantClassesLoading}
+          classesError={tenantClassesError}
           onClose={() => {
             setManageMode(null);
             // If the modal was auto-opened from a deeplink, lock Program + Class

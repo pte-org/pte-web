@@ -10,6 +10,8 @@ export const STUDENT_IMPORT_EN = {
 export type StudentImportMessages = Record<keyof typeof STUDENT_IMPORT_EN, string>;
 
 export const STUDENT_IMPORT_VI: StudentImportMessages = {
+  alreadyInThisClass: "Học viên này đã có trong lớp này.",
+  alreadyAssigned: "Học viên này đã được phân công vào một lớp.",
   title: "Thêm học viên",
   tabExisting: "Chọn học viên có sẵn",
   tabImport: "Nhập từ Excel",

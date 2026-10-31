@@ -1,7 +1,6 @@
 import type { NavItem } from "@/features/auth/components";
 import type { OrgLabels } from "@/features/orgLabels/constants";
 import {
-  NavApplicationIcon,
   NavAuditLogIcon,
   NavBillingIcon,
   NavClassIcon,
@@ -18,7 +17,6 @@ import {
   EXAMINER_NAV_TEXT,
   HOST_NAV_TEXT as T,
   PROCTOR_NAV_TEXT,
-  STUDENT_NAV_TEXT,
 } from "./navigationConstants";
 
 /**
@@ -140,80 +138,59 @@ export function buildExaminerNav(): NavItem[] {
   ];
 }
 
-export function buildStudentNav(): NavItem[] {
-  return [
-    {
-      label: STUDENT_NAV_TEXT.RESULTS,
-      labelKey: "nav.myResults",
-      href: "/student/results",
-      icon: <NavApplicationIcon />,
-      section: STUDENT_NAV_TEXT.SECTION,
-      sectionKey: "nav.student",
-    },
-  ];
-}
-
 /**
  * Proctor navigation. PROCTOR accounts land in the proctor console
  * with overview, accessible monitoring, attendance picker, and audit log picker.
  */
 export function buildProctorNav(): NavItem[] {
-  const isEnabled = process.env.NEXT_PUBLIC_PROCTOR_UI_ENABLED === "true";
-  const items: NavItem[] = [];
-
-  if (isEnabled) {
-    items.push(
-      {
-        label: PROCTOR_NAV_TEXT.OVERVIEW,
-        labelKey: "nav.proctorOverview",
-        href: "/proctor/sessions",
-        icon: <NavDashboardIcon />,
-        section: PROCTOR_NAV_TEXT.HOME_SECTION,
-        sectionKey: "nav.home",
-      },
-      {
-        label: PROCTOR_NAV_TEXT.MONITORING,
-        labelKey: "nav.proctorMonitoring",
-        href: "/proctor/sessions?scope=ACCESSIBLE",
-        icon: <NavExamTemplateIcon />,
-        section: PROCTOR_NAV_TEXT.SUPERVISION_SECTION,
-        sectionKey: "nav.supervision",
-      },
-      {
-        label: PROCTOR_NAV_TEXT.ATTENDANCE,
-        labelKey: "nav.proctorAttendance",
-        href: "/proctor/attendance",
-        icon: <NavUserGroupIcon />,
-        section: PROCTOR_NAV_TEXT.SUPERVISION_SECTION,
-        sectionKey: "nav.supervision",
-      },
-      {
-        label: PROCTOR_NAV_TEXT.INCIDENTS,
-        labelKey: "nav.proctorIncidents",
-        href: "/proctor/incidents",
-        icon: <NavSupportTicketIcon />,
-        section: PROCTOR_NAV_TEXT.SUPERVISION_SECTION,
-        sectionKey: "nav.supervision",
-      },
-      {
-        label: PROCTOR_NAV_TEXT.AUDIT_LOG,
-        labelKey: "nav.proctorAuditLog",
-        href: "/proctor/audit-log",
-        icon: <NavAuditLogIcon />,
-        section: PROCTOR_NAV_TEXT.DATA_SECTION,
-        sectionKey: "nav.data",
-      },
-    );
-  }
-
-  items.push({
-    label: PROCTOR_NAV_TEXT.PROFILE,
-    labelKey: "nav.proctorProfile",
-    href: "/proctor/profile",
-    icon: <ShieldIcon />,
-    section: PROCTOR_NAV_TEXT.ACCOUNT_SECTION,
-    sectionKey: "nav.account",
-  });
-
-  return items;
+  return [
+    {
+      label: PROCTOR_NAV_TEXT.OVERVIEW,
+      labelKey: "nav.proctorOverview",
+      href: "/proctor/sessions",
+      icon: <NavDashboardIcon />,
+      section: PROCTOR_NAV_TEXT.HOME_SECTION,
+      sectionKey: "nav.home",
+    },
+    {
+      label: PROCTOR_NAV_TEXT.MONITORING,
+      labelKey: "nav.proctorMonitoring",
+      href: "/proctor/sessions?scope=ACCESSIBLE",
+      icon: <NavExamTemplateIcon />,
+      section: PROCTOR_NAV_TEXT.SUPERVISION_SECTION,
+      sectionKey: "nav.supervision",
+    },
+    {
+      label: PROCTOR_NAV_TEXT.ATTENDANCE,
+      labelKey: "nav.proctorAttendance",
+      href: "/proctor/attendance",
+      icon: <NavUserGroupIcon />,
+      section: PROCTOR_NAV_TEXT.SUPERVISION_SECTION,
+      sectionKey: "nav.supervision",
+    },
+    {
+      label: PROCTOR_NAV_TEXT.INCIDENTS,
+      labelKey: "nav.proctorIncidents",
+      href: "/proctor/incidents",
+      icon: <NavSupportTicketIcon />,
+      section: PROCTOR_NAV_TEXT.SUPERVISION_SECTION,
+      sectionKey: "nav.supervision",
+    },
+    {
+      label: PROCTOR_NAV_TEXT.AUDIT_LOG,
+      labelKey: "nav.proctorAuditLog",
+      href: "/proctor/audit-log",
+      icon: <NavAuditLogIcon />,
+      section: PROCTOR_NAV_TEXT.DATA_SECTION,
+      sectionKey: "nav.data",
+    },
+    {
+      label: PROCTOR_NAV_TEXT.PROFILE,
+      labelKey: "nav.proctorProfile",
+      href: "/proctor/profile",
+      icon: <ShieldIcon />,
+      section: PROCTOR_NAV_TEXT.ACCOUNT_SECTION,
+      sectionKey: "nav.account",
+    },
+  ];
 }

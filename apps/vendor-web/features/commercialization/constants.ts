@@ -198,9 +198,11 @@ export const PLAN_CATALOG_TEXT = {
 } as const;
 
 export const LICENSE_CODES_TEXT = {
-  TITLE: "Activation codes",
-  INVENTORY_SUBTITLE: "Review and manage codes issued by the platform.",
-  CREATE_ACTION: "Create code",
+  TITLE: "Package grants",
+  INVENTORY_SUBTITLE: "Grant packages to organizations under contract and review issued codes.",
+  CREATE_ACTION: "Grant package",
+  CONTRACT: "Contract",
+  PERIOD: "Package period",
   LOOKUP_ACTION: "Lookup code",
   ADVANCED_FILTERS: "Advanced filters",
   HIDE_ADVANCED_FILTERS: "Hide advanced filters",

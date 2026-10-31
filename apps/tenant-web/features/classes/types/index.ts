@@ -1,3 +1,10 @@
+import type { ClassMembershipResponse, UserResponse } from "@pte/api-client";
+
+export interface ClassRosterEntry {
+  membership: ClassMembershipResponse;
+  student: UserResponse;
+}
+
 export interface AddStudentInput {
   email: string;
   fullName: string;

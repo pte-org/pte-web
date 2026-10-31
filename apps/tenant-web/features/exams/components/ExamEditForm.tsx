@@ -6,7 +6,7 @@ import {
   type PatchExamPolicyRequest,
   type PatchExamScheduleRequest,
 } from "@pte/api-client";
-import { Button, DescriptionList, Select, useLocale, useToast } from "@pte/ui";
+import { Alert, Button, DescriptionList, Select, useLocale, useToast } from "@pte/ui";
 import {
   useTransitionExamStatus,
   useUpdateExamDraft,
@@ -55,6 +55,7 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
   const scheduleUpdate = useUpdateExamSchedule(session.id);
   const statusUpdate = useTransitionExamStatus(session.id);
   const isDraft = session.status === "DRAFT";
+  const isReady = session.status === "READY";
   const isScheduled = session.status === "SCHEDULED";
   const [draftForm, setDraftForm] = useState(() => draftFormFromSession(session));
   const [policyForm, setPolicyForm] = useState(() => policyFormFromSession(session));
@@ -84,7 +85,7 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
   const draftDirty = JSON.stringify(draftForm) !== JSON.stringify(draftInitial);
   const policyDirty = JSON.stringify(policyForm) !== JSON.stringify(policyInitial);
   const scheduleDirty = JSON.stringify(scheduleForm) !== JSON.stringify(scheduleInitial);
-  const dataDirty = isDraft ? draftDirty : scheduleDirty || (isScheduled && policyDirty);
+  const dataDirty = isDraft ? draftDirty : isScheduled && (scheduleDirty || policyDirty);
   const statusDirty = selectedStatus !== session.status;
   const dirty = dataDirty || statusDirty;
   const statusOptions = useMemo(() => {
@@ -116,6 +117,7 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
   };
 
   const validSchedule = (): boolean => {
+    if (isReady) return true;
     if (!scheduleForm.closesAt) return false;
     if (!isScheduled) return new Date(scheduleForm.closesAt) > new Date(session.opensAt);
     return Boolean(
@@ -167,7 +169,7 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
       };
       if (session.reusePolicy !== null) payload.reusePolicy = draftForm.reusePolicy || undefined;
       if (dataDirty) await draftUpdate.mutateAsync(payload);
-    } else {
+    } else if (!isReady) {
       if (!validSchedule()) return;
       if (scheduleDirty) {
         const payload: PatchExamScheduleRequest = {
@@ -261,6 +263,10 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
             submitted={submitted}
             onChange={updateDraft}
           />
+        ) : isReady ? (
+          <Alert tone="info">
+            {t("tenant.examDetails.readyStatusHelp", EXAM_EDITOR_TEXT.READY_STATUS_HELP)}
+          </Alert>
         ) : (
           <>
             <ExamScheduleFields

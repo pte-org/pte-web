@@ -8,7 +8,6 @@ import {
   createClass,
   deactivateClass,
   listClasses,
-  listClassMemberships,
   listMyOrganizations,
   listPrograms,
   suspendClass,
@@ -22,7 +21,6 @@ import {
   type CreateClassRequest,
   type TransferStudentRequest,
   type UpdateClassRequest,
-  type UserResponse,
 } from "@pte/api-client";
 import {
   useMutation,
@@ -32,13 +30,12 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
-import { TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
-import { useTenantStudents } from "@/features/examoperations/api";
 import { HOST_DASHBOARD_QUERY_KEY } from "@/features/hostDashboard/constants";
-import { CLASS_MEMBERSHIPS_QUERY_KEY } from "@/features/studentSearch/constants";
 import { ALL_TENANT_CLASSES_QUERY_KEY, CLASSES_QUERY_KEY } from "../constants";
 import { invalidateClassMemberships } from "./shared";
 
+export { useClassRoster } from "./classRoster";
+export type { ClassRosterEntry } from "../types";
 export * from "./shared";
 export * from "./mergeSplit";
 export * from "./rosterImport";
@@ -115,47 +112,6 @@ export function useClassStatusMutations(
   });
 
   return { activate, deactivate, suspend, archive };
-}
-
-export interface ClassRosterEntry {
-  membership: ClassMembershipResponse;
-  student: UserResponse;
-}
-
-/**
- * A single Class's roster, joined client-side against the tenant's students
- * — `ClassMembershipResponse` only carries `studentPublicId` (same
- * join-here-not-in-admin reasoning as Phase 1/7's precedents). Reads
- * `GET /class-memberships?programPublicId=` (the whole Program's rows, per
- * Phase 3 — there's no single-Class list endpoint) and filters to this
- * Class client-side, since that's the shared data source every consumer of
- * this endpoint reuses rather than adding a narrower variant.
- */
-export function useClassRoster(
-  programPublicId: string,
-  classPublicId: string,
-): UseQueryResult<ClassRosterEntry[]> {
-  const students = useTenantStudents();
-  const queryClient = useQueryClient();
-
-  return useQuery({
-    queryKey: [...CLASS_MEMBERSHIPS_QUERY_KEY, programPublicId],
-    queryFn: async () => {
-      const memberships = await listClassMemberships(apiClient, programPublicId);
-      // Read the cache directly rather than closing over `students.data` (a
-      // per-render snapshot) — same race avoidance as useSessionRoster.
-      const allUsers =
-        queryClient.getQueryData<UserResponse[]>(TENANT_USERS_QUERY_KEY) ?? students.data ?? [];
-      const byId = new Map(allUsers.map((student) => [student.publicId, student]));
-      return memberships.flatMap((membership) => {
-        const student = byId.get(membership.studentPublicId);
-        return student ? [{ membership, student }] : [];
-      });
-    },
-    enabled: programPublicId.length > 0 && students.data !== undefined,
-    select: (entries) =>
-      entries.filter((entry) => entry.membership.classPublicId === classPublicId),
-  });
 }
 
 export interface TenantClassOption {

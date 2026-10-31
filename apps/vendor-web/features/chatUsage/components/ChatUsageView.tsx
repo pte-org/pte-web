@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo, useState, type ReactElement } from "react";
-import { getUserFacingApiErrorMessage, type ChatUsageDayResponse } from "@pte/api-client";
+import type { ChatUsageDayResponse } from "@pte/api-client";
 import {
-  Alert,
   Badge,
   DashboardCard,
   DataTable,
@@ -17,6 +16,7 @@ import {
 } from "@pte/ui";
 import { useChatUsage } from "../api";
 import { CHAT_USAGE_COPY } from "../constants";
+import { useChatUsageErrorToast } from "../hooks/useChatUsageErrorToast";
 import {
   activeDays,
   chartRows,
@@ -57,6 +57,7 @@ export const ChatUsageView = (): ReactElement => {
   const [range, setRange] = useState<DateRangeValue>(() => defaultUsageRange(new Date()));
   const [showAllDays, setShowAllDays] = useState(false);
   const usage = useChatUsage(range.from, range.to);
+  useChatUsageErrorToast(usage.error, usage.errorUpdatedAt, T.LOAD_FAILED);
   const days = useMemo(() => usage.data ?? [], [usage.data]);
   const summary = useMemo(() => summarizeChatUsage(days), [days]);
   const rows = useMemo(() => (showAllDays ? days : activeDays(days)), [days, showAllDays]);
@@ -106,9 +107,6 @@ export const ChatUsageView = (): ReactElement => {
     <div className="flex flex-col gap-5">
       <PageHeader title={T.TITLE} />
       <p className="text-sm text-[var(--table-muted-text)]">{T.ESTIMATE_NOTE}</p>
-      {usage.error && (
-        <Alert tone="error">{getUserFacingApiErrorMessage(usage.error, T.LOAD_FAILED)}</Alert>
-      )}
       <ChatUsageSummaryCards summary={summary} locale={locale} />
       <DashboardCard>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">

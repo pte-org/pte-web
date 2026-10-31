@@ -51,7 +51,10 @@ export const ExamInformationPanel = ({
 }: ExamInformationPanelProps): ReactElement => {
   const { locale, t } = useLocale();
   const isEditable =
-    session.status === "DRAFT" || session.status === "SCHEDULED" || session.status === "OPEN";
+    session.status === "DRAFT" ||
+    session.status === "READY" ||
+    session.status === "SCHEDULED" ||
+    session.status === "OPEN";
   const statusLabel = t(`tenant.examStatus.${session.status.toLowerCase()}`, session.status);
   const modeLabel = session.examMode
     ? t("tenant.createExam.MODE_REAL", EXAM_MODE_LABELS[session.examMode])
@@ -66,17 +69,26 @@ export const ExamInformationPanel = ({
           })
           .join(", ")
       : t("tenant.examDetails.legacySkills", SESSION_DETAIL_TEXT.LEGACY_SKILLS);
-  // The next step and edit stay visible; only the rare, hard-to-undo cancel hides in the menu.
-  const overflowItems: DropdownItem[] = lifecycle.canCancel
-    ? [
-        {
-          label: t("tenant.examOverview.cancel", SESSION_DETAIL_TEXT.CANCEL_EXAM),
-          danger: true,
-          disabled: lifecycle.cancelPending,
-          onSelect: lifecycle.onCancel,
-        },
-      ]
-    : [];
+  const overflowItems: DropdownItem[] = [
+    ...(isEditable
+      ? [
+          {
+            label: t("tenant.examDetails.edit", EXAM_EDITOR_TEXT.EDIT),
+            onSelect: onEdit,
+          },
+        ]
+      : []),
+    ...(lifecycle.canCancel
+      ? [
+          {
+            label: t("tenant.examOverview.cancel", SESSION_DETAIL_TEXT.CANCEL_EXAM),
+            danger: true,
+            disabled: lifecycle.cancelPending,
+            onSelect: lifecycle.onCancel,
+          },
+        ]
+      : []),
+  ];
 
   const details = [
     { label: t("tenant.examDetails.name", EXAM_EDITOR_TEXT.NAME), value: session.name },
@@ -114,11 +126,6 @@ export const ExamInformationPanel = ({
       actions={
         !editing && (
           <div className="flex flex-wrap items-center gap-2">
-            {isEditable && (
-              <Button size="sm" variant="secondary" onClick={onEdit}>
-                {t("tenant.examDetails.edit", EXAM_EDITOR_TEXT.EDIT)}
-              </Button>
-            )}
             {lifecycle.canOpen && (
               <Button size="sm" onClick={lifecycle.onOpen} disabled={lifecycle.openPending}>
                 {t("tenant.examOverview.open", SESSION_DETAIL_TEXT.OPEN_EXAM)}

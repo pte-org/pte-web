@@ -6,13 +6,13 @@ import {
   getTenant,
   listTenants,
   listUsersByTenant,
-  onboardTenant,
+  onboardOrganization,
   reactivateTenant,
   resetPassword as resetPasswordRequest,
   suspendTenant,
   updateTenantBranding,
   type CreateUserRequest,
-  type OnboardTenantRequest,
+  type DirectOnboardRequest,
   type SuspendTenantRequest,
   type TenantSuspensionImpactResponse,
   type TenantResponse,
@@ -128,14 +128,13 @@ function userResponsesToLoginAccountLookup(users: UserResponse[]): LoginAccountL
   };
 }
 
-function tenantInputToOnboardRequest(input: CreateTenantInput): OnboardTenantRequest {
+function tenantInputToOnboardRequest(input: CreateTenantInput): DirectOnboardRequest {
   return {
     code: input.code.trim(),
     name: input.name.trim(),
     organizationType: input.organizationType,
     taxCode: input.taxCode.trim(),
-    packageName: input.plan || "starter",
-    studentLimit: Number(input.studentLimit),
+    hostEmail: input.hostEmail.trim(),
   };
 }
 
@@ -170,8 +169,9 @@ export function useCreateTenant(): UseMutationResult<Tenant, unknown, CreateTena
 
   return useMutation({
     mutationFn: async (input) => {
-      const response = await onboardTenant(apiClient, tenantInputToOnboardRequest(input));
-      return tenantResponseToTenant(response);
+      // The create response is minimal; read the organization back for the full display model.
+      const created = await onboardOrganization(apiClient, tenantInputToOnboardRequest(input));
+      return tenantResponseToTenant(await getTenant(apiClient, created.publicId));
     },
     onSuccess: (tenant) => {
       queryClient.setQueryData<Tenant[]>(TENANTS_QUERY_KEY, (previous = []) => [

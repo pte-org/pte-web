@@ -305,7 +305,11 @@ export function useCreateExamWorkflow(): UseMutationResult<
 
 function assertExamPreflightReady(preflight: Awaited<ReturnType<typeof preflightExam>>): void {
   if (preflight.ready) return;
-  throw new ExamPreflightBlockedError(preflight.issues);
+  throw new ExamPreflightBlockedError(
+    preflight.issues,
+    preflight.examDefinition.slots,
+    preflight.audience.members,
+  );
 }
 
 /** Runs the backend-owned command for a selected status rather than patching status directly. */
@@ -411,10 +415,7 @@ export function useCommitExaminerAssignment(
   return useMutation({
     mutationFn: (payload) => commitExaminerAssignment(apiClient, sessionPublicId, payload),
     onSuccess: (roster) =>
-      queryClient.setQueryData(
-        [...EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY, sessionPublicId],
-        roster,
-      ),
+      queryClient.setQueryData([...EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY, sessionPublicId], roster),
   });
 }
 
@@ -630,4 +631,3 @@ export function useAnswer(
     enabled: !!answerPublicId,
   });
 }
-
