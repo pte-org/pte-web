@@ -64,9 +64,14 @@ const HEADER_TEXT = {
 
 const SidebarBrand = ({ collapsed = false }: { collapsed?: boolean }): ReactElement => {
   const { t } = useLocale();
+  const pathname = usePathname();
+  // "/" has no page and bounces to login; stay inside the current dashboard area.
+  const homeHref = pathname?.startsWith(AUTH_ROUTES.hostDashboard)
+    ? AUTH_ROUTES.hostDashboard
+    : AUTH_ROUTES.adminDashboard;
   return (
     <Link
-      href="/"
+      href={homeHref}
       aria-label={`${BRAND_NAME} home`}
       className={cn(
         "flex items-center rounded-md p-1 transition-colors hover:bg-[var(--surface-subtle)]",
