@@ -13,17 +13,9 @@ export interface WorkspaceResolution {
   allowedWorkspaces: WorkspaceOption[];
 }
 
-export function isProctorUiEnabled(): boolean {
-  return process.env.NEXT_PUBLIC_PROCTOR_UI_ENABLED === "true";
-}
-
-/**
- * Resolves default navigation destination and allowed workspaces based on user roles and
- * the proctor feature flag. Preserves exact legacy routing when PROCTOR role is absent.
- */
+/** Resolves default navigation destination and allowed workspaces based on user roles. */
 export function resolveWorkspace(
   roles: readonly SessionRole[] | readonly string[],
-  proctorUiEnabled: boolean = isProctorUiEnabled(),
 ): WorkspaceResolution {
   const roleSet = new Set(roles);
   const allowedWorkspaces: WorkspaceOption[] = [];
@@ -55,7 +47,7 @@ export function resolveWorkspace(
       id: "proctor",
       labelKey: "workspace.proctor",
       defaultLabel: "Proctor",
-      href: proctorUiEnabled ? AUTH_ROUTES.proctorSessions : AUTH_ROUTES.proctorUnavailable,
+      href: AUTH_ROUTES.proctorSessions,
     });
   }
 
@@ -66,7 +58,7 @@ export function resolveWorkspace(
   } else if (hasHost) {
     defaultRoute = AUTH_ROUTES.hostDashboard;
   } else if (hasProctor) {
-    defaultRoute = proctorUiEnabled ? AUTH_ROUTES.proctorSessions : AUTH_ROUTES.proctorUnavailable;
+    defaultRoute = AUTH_ROUTES.proctorSessions;
   } else {
     defaultRoute = AUTH_ROUTES.login;
   }
