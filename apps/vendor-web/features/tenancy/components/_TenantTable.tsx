@@ -86,7 +86,7 @@ export const TenantTable = ({
       className: "whitespace-nowrap font-mono text-xs text-slate-500",
     },
     {
-      // The student limit is what actually binds a tenant; packages are granted on the Package grants page.
+      // The student limit is what actually binds a tenant; packages are granted on the License code page.
       key: "studentLimit",
       header: H.STUDENT_LIMIT,
       cell: (tenant) => tenant.seatsTotal,

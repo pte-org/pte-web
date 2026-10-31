@@ -13,7 +13,6 @@ import {
   Input,
   Modal,
   PaginationControls,
-  Select,
   subscribeSessionLifecycle,
   useSessionManager,
   useToast,
@@ -23,7 +22,6 @@ import {
   getUserFacingApiErrorMessage,
   type AdminLicenseCodeSummary,
   type ConfirmLicenseRevokeRequest,
-  type LicenseCodeStatus,
   type LicenseRevokePreviewResponse,
 } from "@pte/api-client";
 import {
@@ -31,7 +29,6 @@ import {
   revealAdminLicenseCode,
   useAdminLicenseCodesQuery,
   useLicenseCodeRevokePreview,
-  usePlansQuery,
   useRevokeLicenseCode,
 } from "../api";
 import { LICENSE_CODES_TEXT as RAW_LICENSE_CODES_TEXT } from "../constants";
@@ -69,8 +66,6 @@ const ACTIVATION_CODE_SEARCH_PATTERN =
 const isActivationCodeSearch = (value: string): boolean =>
   ACTIVATION_CODE_SEARCH_PATTERN.test(value.trim().replace(/\s+/g, ""));
 
-type StatusFilter = LicenseCodeStatus | "";
-type AppliedFilters = { status: StatusFilter; planId: string; tenantId: string };
 type LicenseCodeRevealTarget = Pick<AdminLicenseCodeSummary, "publicId">;
 
 const safeOperationMessage = (error: unknown, fallback: string): string =>
@@ -95,24 +90,15 @@ export const LicenseCodesView = (): ReactElement => {
   const [codeSearchResult, setCodeSearchResult] = useState<AdminLicenseCodeSummary | null>(null);
   const [codeSearchNotFound, setCodeSearchNotFound] = useState(false);
   const [codeSearchError, setCodeSearchError] = useState("");
-  const [draftStatus, setDraftStatus] = useState<StatusFilter>("");
-  const [draftPlanId, setDraftPlanId] = useState("");
-  const [draftTenantId, setDraftTenantId] = useState("");
-  const [filters, setFilters] = useState<AppliedFilters>({ status: "", planId: "", tenantId: "" });
   const codePageQuery = useAdminLicenseCodesQuery({
     page,
     size,
-    status: filters.status || undefined,
-    planId: filters.planId || undefined,
-    tenantId: filters.tenantId || undefined,
     search: activationCodeSearch ? "UNSUPPORTED" : debouncedSearch,
   });
-  const { data: plans = [], isLoading: plansLoading, isError: plansError } = usePlansQuery();
   const revokePreviewRequest = useLicenseCodeRevokePreview();
   const revoke = useRevokeLicenseCode();
 
   const [grantOpen, setGrantOpen] = useState(false);
-  const [advancedFiltersOpen, setAdvancedFiltersOpen] = useState(false);
   const [codeToRevoke, setCodeToRevoke] = useState<AdminLicenseCodeSummary | null>(null);
   const [revokePreview, setRevokePreview] = useState<LicenseRevokePreviewResponse | null>(null);
   const [revokeReason, setRevokeReason] = useState<string>(T.REVOKE_REASON);
@@ -132,21 +118,14 @@ export const LicenseCodesView = (): ReactElement => {
   const [revealError, setRevealError] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const codeSearchMatchesFilters =
-    codeSearchResult !== null &&
-    (!filters.status || codeSearchResult.effectiveStatus === filters.status) &&
-    (!filters.planId || codeSearchResult.planPublicId === filters.planId) &&
-    (!filters.tenantId || codeSearchResult.recipientPublicId === filters.tenantId);
   const codeSearchBusy =
     activationCodeSearch && codeSearchResult === null && !codeSearchNotFound && !codeSearchError;
   const codes = activationCodeSearch
-    ? codeSearchMatchesFilters
-      ? codeSearchResult
-        ? [codeSearchResult]
-        : []
+    ? codeSearchResult
+      ? [codeSearchResult]
       : []
     : codePageQuery.data?.data ?? [];
-  const isFiltered = Boolean(filters.status || filters.planId || filters.tenantId || search.trim());
+  const isFiltered = Boolean(search.trim());
   const error = revoke.error ?? revokePreviewRequest.error ?? codePageQuery.error ?? codeSearchError;
   const errorMessage =
     localError ||
@@ -174,7 +153,6 @@ export const LicenseCodesView = (): ReactElement => {
         setLookupError("");
         setLookupDialogOpen(false);
         setGrantOpen(false);
-        setAdvancedFiltersOpen(false);
         setLocalError("");
         setCodeToRevoke(null);
         setRevokePreview(null);
@@ -216,21 +194,6 @@ export const LicenseCodesView = (): ReactElement => {
       cancelled = true;
     };
   }, [activationCodeSearch, debouncedSearch, T.ERROR]);
-
-  const applyFilters = (): void => {
-    setPage(0);
-    setFilters({ status: draftStatus, planId: draftPlanId.trim(), tenantId: draftTenantId.trim() });
-    clearReveal();
-  };
-
-  const resetFilters = (): void => {
-    setDraftStatus("");
-    setDraftPlanId("");
-    setDraftTenantId("");
-    setPage(0);
-    setFilters({ status: "", planId: "", tenantId: "" });
-    clearReveal();
-  };
 
   const loadRevokePreview = async (publicId: string): Promise<void> => {
     setRevokePreview(null);
@@ -376,44 +339,6 @@ export const LicenseCodesView = (): ReactElement => {
           </>
         }
       >
-        {advancedFiltersOpen && (
-          <div className="mb-4 rounded-md border border-[var(--table-border)] bg-[var(--surface-subtle)] p-3">
-          <div className="grid gap-3 md:grid-cols-[180px_1fr_1fr_auto_auto] md:items-end">
-            <Select
-              id="license-status-filter"
-              label={T.STATUS_FILTER}
-              options={statusOptions}
-              value={draftStatus}
-              onChange={(event) => setDraftStatus(event.target.value as StatusFilter)}
-            />
-            <Select
-              id="license-plan-filter"
-              label={T.PLAN_ID}
-              placeholder={T.ALL_PLANS}
-              options={plans.map((plan) => ({ label: plan.name, value: plan.publicId }))}
-              value={draftPlanId}
-              onChange={(event) => setDraftPlanId(event.target.value)}
-              disabled={plansLoading || plansError}
-            />
-            <Input
-              id="license-tenant-filter"
-              label={T.TENANT_FILTER}
-              value={draftTenantId}
-              onChange={(event) => setDraftTenantId(event.target.value)}
-              aria-describedby="license-tenant-filter-help"
-            />
-            <Button type="button" onClick={applyFilters}>
-              {T.APPLY_FILTERS}
-            </Button>
-            <Button type="button" variant="ghost" onClick={resetFilters}>
-              {T.RESET_FILTERS}
-            </Button>
-            <p id="license-tenant-filter-help" className="text-xs text-slate-500 md:col-start-3">
-              {T.TENANT_FILTER_HELP}
-            </p>
-          </div>
-          </div>
-        )}
         <DataTable
           searchPlaceholder={searchText.placeholder}
           searchAriaLabel={searchText.ariaLabel}
@@ -426,16 +351,6 @@ export const LicenseCodesView = (): ReactElement => {
             setSearch(value);
             setPage(0);
           }}
-          filters={
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => setAdvancedFiltersOpen((current) => !current)}
-            >
-              {advancedFiltersOpen ? T.HIDE_ADVANCED_FILTERS : T.ADVANCED_FILTERS}
-            </Button>
-          }
           columns={[
             {
               key: "code",

@@ -13,7 +13,7 @@ import type {
   SkippedRow,
 } from "@/features/examoperations/types";
 import { useCreateTenantStudents } from "../api";
-import { MANAGE_STUDENTS_TEXT as T } from "../constants";
+import { useManageStudentsText } from "../hooks/useManageStudentsText";
 
 interface ImportStudentsPanelProps {
   onCreated: (created: CreatedAccount[], skipped: SkippedRow[]) => void;
@@ -26,6 +26,7 @@ export const ImportStudentsPanel = ({ onCreated }: ImportStudentsPanelProps): Re
   const [parseError, setParseError] = useState<string>();
   const [isReviewing, setIsReviewing] = useState(false);
   const createStudents = useCreateTenantStudents();
+  const T = useManageStudentsText();
 
   const handleFileSelected = (selected: File): void => {
     setFile(selected);

@@ -199,7 +199,7 @@ const ADMIN_VI: Record<string, string> = {
 
   "License codes": "Mã bản quyền",
   "Activation codes": "Mã kích hoạt",
-  "Package grants": "Cấp gói",
+  "License Code": "Mã kịch hoạt",
   "Host email": "Email Host",
   "The first host account is created for this email and its password is sent there.":
     "Tài khoản Host đầu tiên được tạo theo email này và mật khẩu được gửi tới đó.",
@@ -220,7 +220,8 @@ const ADMIN_VI: Record<string, string> = {
   "Organization code, tax code or contact email": "Mã tổ chức, mã số thuế hoặc email liên hệ",
   "Type at least 2 characters to search.": "Nhập ít nhất 2 ký tự để tìm.",
   "No organization matches this search.": "Không tìm thấy tổ chức phù hợp.",
-  "Only active organizations can receive a package.": "Chỉ tổ chức đang hoạt động mới được cấp gói.",
+  "Only active organizations can receive a package.":
+    "Chỉ tổ chức đang hoạt động mới được cấp gói.",
   "Searching...": "Đang tìm...",
   Select: "Chọn",
   "Organization name": "Tên tổ chức",
@@ -254,8 +255,6 @@ const ADMIN_VI: Record<string, string> = {
     "Theo dõi và quản lý các mã được phát hành bởi nền tảng.",
   "Create code": "Tạo mã",
   "Lookup code": "Tra cứu mã",
-  "Advanced filters": "Bộ lọc nâng cao",
-  "Hide advanced filters": "Ẩn bộ lọc nâng cao",
   "Create activation code": "Tạo mã kích hoạt",
   "Code created": "Đã tạo mã",
   "The code was created securely. Reveal it only when you are ready to share it.":
@@ -284,8 +283,6 @@ const ADMIN_VI: Record<string, string> = {
   "Loading codes...": "Đang tải mã...",
   "No license codes found": "Không tìm thấy mã bản quyền",
   "No codes match these filters.": "Không có mã phù hợp với bộ lọc.",
-  "Recipient tenant ID": "ID tenant nhận",
-  "Apply filters": "Áp dụng bộ lọc",
   Reset: "Đặt lại",
   Previous: "Trước",
   Next: "Sau",
@@ -480,6 +477,9 @@ const ADMIN_VI: Record<string, string> = {
   "Once published, this question can be drawn into exams and will leave the Practice pool. Make sure it has been reviewed to exam standard.":
     "Sau khi phát hành, câu hỏi có thể được chọn vào đề thi và sẽ rời nhóm Practice. Hãy chắc chắn câu hỏi đã được kiểm duyệt đạt chuẩn đề thi.",
   "Change pool": "Đổi nhóm",
+  "Skill weight totals (must be 100):": "Tổng trọng số theo kỹ năng (phải bằng 100):",
+  "Skill weights must total exactly 100. Current totals:":
+    "Tổng trọng số mỗi kỹ năng phải đúng bằng 100. Tổng hiện tại:",
   "Keep current pool": "Giữ nhóm hiện tại",
   "Media upload failed. Please try again.": "Tải tệp phương tiện thất bại. Vui lòng thử lại.",
   "Task type configuration is unavailable. Please refresh and try again.":
@@ -539,8 +539,6 @@ const ADMIN_VI: Record<string, string> = {
     "Tất cả dạng bài đang hoạt động trong phần thi này đã có trong mẫu. Hãy chọn phần thi khác hoặc xóa một dạng bài trước khi thêm lại.",
   "The available task types in this section are not compatible with the current app runtime. Ask the platform team to release support before using them.":
     "Các dạng bài khả dụng trong phần thi này không tương thích với runtime hiện tại. Hãy nhờ đội nền tảng phát hành hỗ trợ trước khi sử dụng.",
-  "Task types come from the active platform catalog. Their screen, authoring, and scoring behavior comes from the released runtime contract.":
-    "Dạng bài được lấy từ danh mục nền tảng đang hoạt động. Màn hình, cách nhập liệu và hành vi tính điểm do contract runtime đã phát hành quyết định.",
   "Could not load the active task type catalog. Please refresh before editing.":
     "Không thể tải danh mục dạng bài đang hoạt động. Vui lòng làm mới trước khi chỉnh sửa.",
   "This template cannot be activated until every selected task type has a supported active runtime profile. Review the task type catalog and try again.":
@@ -950,8 +948,6 @@ const ADMIN_VI: Record<string, string> = {
   "Confirming the issuance result…": "Đang xác nhận kết quả cấp mã…",
   "Clear this rejected request": "Xóa yêu cầu bị từ chối này",
   "Enter a valid future date and time.": "Nhập ngày giờ hợp lệ trong tương lai.",
-  "Optional UUID filter; this never searches bearer values.":
-    "Bộ lọc UUID tùy chọn; bộ lọc này không bao giờ tìm trong giá trị mã.",
   "Showing the last successful page...": "Đang hiển thị trang tải thành công gần nhất...",
   "Plans could not be loaded...": "Không thể tải danh sách gói...",
   "The bearer is shown locally...": "Mã cấp quyền chỉ được hiển thị cục bộ...",

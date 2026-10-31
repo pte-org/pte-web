@@ -3,6 +3,7 @@
 import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import {
+  ApiError,
   type QuestionTypeResponse,
   type QuestionTypeSection,
   type ScoreTemplateFeasibilityResponse,
@@ -31,8 +32,10 @@ import {
   EXAM_TEMPLATE_BASE_PATH,
   EXAM_TEMPLATE_SECTIONS,
   SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
+  SCORE_TEMPLATE_VALIDATION_FAILED_CODE,
 } from "../constants";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
+import { describeSkillWeightMismatch } from "../skillWeightTotals";
 import { hasUnreadyTaskType, isTaskTypeRuntimeReady } from "../taskTypeReadiness";
 import {
   fromDraft,
@@ -43,6 +46,7 @@ import {
 } from "../types";
 import { ActivateTemplateModal } from "./ActivateTemplateModal";
 import { ScoreTemplateItemTable } from "./_ScoreTemplateItemTable";
+import { SkillWeightTotals } from "./_SkillWeightTotals";
 import { TemplateReadinessSummary } from "./TemplateReadinessSummary";
 
 interface ScoreTemplateEditorViewProps {
@@ -128,21 +132,28 @@ const ScoreTemplateEditorForm = ({
   const SCORE_TEMPLATE_TEXT = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
   const { locale } = useLocale();
   const { showToast } = useToast();
-  const reportError = (error: unknown): void => {
-    showToast(
-      translateAdminText(
-        getScoreTemplateErrorMessage(error, SCORE_TEMPLATE_TEXT.SAVE_ERROR),
-        locale,
-      ),
-      { tone: "error" },
-    );
-  };
   const sectionLabels = useAdminCopy({
     SPEAKING: "Speaking",
     WRITING: "Writing",
     READING: "Reading",
     LISTENING: "Listening",
   });
+  // The API's generic validation failure hides which column is off; name it from the on-screen totals.
+  const reportError = (error: unknown): void => {
+    const mismatch =
+      error instanceof ApiError && error.code === SCORE_TEMPLATE_VALIDATION_FAILED_CODE
+        ? describeSkillWeightMismatch(items, sectionLabels)
+        : null;
+    showToast(
+      mismatch
+        ? `${SCORE_TEMPLATE_TEXT.WEIGHT_TOTAL_MISMATCH} ${mismatch}.`
+        : translateAdminText(
+            getScoreTemplateErrorMessage(error, SCORE_TEMPLATE_TEXT.SAVE_ERROR),
+            locale,
+          ),
+      { tone: "error" },
+    );
+  };
   const router = useRouter();
   const { data: currentUser } = useCurrentUser();
   const replaceItemsMutation = useReplaceScoreTemplateItems();
@@ -404,10 +415,9 @@ const ScoreTemplateEditorForm = ({
         )}
       </div>
 
-      <div className="rounded-lg border border-blue-100 bg-blue-50/60 p-4">
-        <p className="mb-3 text-sm text-blue-900">{SCORE_TEMPLATE_TEXT.TASK_TYPE_CATALOG_NOTICE}</p>
+      <div className="rounded-lg border border-gray-200 bg-gray-50/60 p-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-end">
-          <div className="flex flex-1 flex-col gap-2">
+          <div className="grid flex-1 gap-3 md:grid-cols-2 md:items-end">
             <Select
               id="exam-template-add-section"
               label={SCORE_TEMPLATE_TEXT.ADD_TYPE}
@@ -447,6 +457,8 @@ const ScoreTemplateEditorForm = ({
           </Button>
         </div>
       </div>
+
+      <SkillWeightTotals items={items} skillLabels={sectionLabels} />
 
       <ScoreTemplateItemTable
         editable

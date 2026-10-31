@@ -42,8 +42,6 @@ export const SCORE_TEMPLATE_TEXT = {
     "All active task types in this section are already in the template. Choose another section or remove one before adding it again.",
   INCOMPATIBLE_RUNTIME_PROFILE:
     "The available task types in this section are not compatible with the current app runtime. Ask the platform team to release support before using them.",
-  TASK_TYPE_CATALOG_NOTICE:
-    "Task types come from the active platform catalog. Their screen, authoring, and scoring behavior comes from the released runtime contract.",
   TASK_TYPES_LOAD_ERROR:
     "Could not load the active task type catalog. Please refresh before editing.",
   TEMPLATE_READINESS_BLOCKED:
@@ -52,6 +50,8 @@ export const SCORE_TEMPLATE_TEXT = {
     "This template cannot be activated until the question bank contains enough approved questions for every selected task type.",
   READINESS_CHECK_ERROR:
     "The readiness check could not be completed. Refresh before activating this template.",
+  WEIGHT_TOTALS_LABEL: "Skill weight totals (must be 100):",
+  WEIGHT_TOTAL_MISMATCH: "Skill weights must total exactly 100. Current totals:",
   SAVE_DRAFT: "Save",
   SAVE_ERROR: "Could not save this exam template. Your changes are preserved. Please try again.",
   NAME_REQUIRED: "Enter a template name.",
@@ -92,6 +92,8 @@ export const SCORE_TEMPLATE_TEXT = {
   LOAD_ERROR: "Could not load exam templates. Please refresh.",
   CLONE_ERROR: "Could not clone this template. Please try again.",
 } as const;
+
+export const SCORE_TEMPLATE_VALIDATION_FAILED_CODE = "SCORE_TEMPLATE_VALIDATION_FAILED";
 
 export const SCORE_TEMPLATE_ERROR_MESSAGES: Record<string, string> = {
   SCORE_TEMPLATE_NOT_FOUND:

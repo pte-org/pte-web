@@ -17,7 +17,7 @@ import { SkippedRowsReport } from "@/features/examoperations/components/SkippedR
 import { downloadCredentials } from "@/features/examoperations/downloadCredentials";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import type { CreatedAccount, RosterRow, SkippedRow } from "@/features/examoperations/types";
-import { MANAGE_STUDENTS_TEXT } from "../constants";
+import { useManageStudentsText } from "../hooks/useManageStudentsText";
 import { useCreateTenantStudents } from "../api";
 import { ImportStudentsPanel } from "./_ImportStudentsPanel";
 
@@ -43,11 +43,6 @@ const EMPTY_FORM: AddStudentFormState = {
   dateOfBirth: "",
 };
 
-const MODE_TABS: readonly TabItem[] = [
-  { id: "add", label: MANAGE_STUDENTS_TEXT.tabAdd },
-  { id: "import", label: MANAGE_STUDENTS_TEXT.tabImport },
-];
-
 const isManageStudentsMode = (value: string): value is ManageStudentsMode =>
   value === "add" || value === "import";
 
@@ -64,6 +59,11 @@ export const ManageStudentsModal = ({
   const [selectedClassPublicId, setSelectedClassPublicId] = useState("");
   const [result, setResult] = useState<CreationResultData>();
   const createStudents = useCreateTenantStudents();
+  const MANAGE_STUDENTS_TEXT = useManageStudentsText();
+  const modeTabs: readonly TabItem[] = [
+    { id: "add", label: MANAGE_STUDENTS_TEXT.tabAdd },
+    { id: "import", label: MANAGE_STUDENTS_TEXT.tabImport },
+  ];
 
   const classOptions = availableClasses.map((studentClass) => ({
     value: studentClass.classPublicId,
@@ -121,7 +121,7 @@ export const ManageStudentsModal = ({
       <div className="flex flex-col gap-4">
         <Tabs
           id="manage-students-tabs"
-          items={MODE_TABS}
+          items={modeTabs}
           value={mode}
           onChange={handleModeChange}
           ariaLabel={MANAGE_STUDENTS_TEXT.title}
@@ -208,43 +208,46 @@ interface CreationResultProps {
   result: CreationResultData;
 }
 
-const CreationResult = ({ result }: CreationResultProps): ReactElement => (
-  <div className="flex flex-col gap-3">
-    <Alert tone={result.created.length > 0 ? "success" : "warning"}>
-      {result.created.length > 0
-        ? MANAGE_STUDENTS_TEXT.accountsCreated(result.created.length)
-        : MANAGE_STUDENTS_TEXT.noAccountsCreated}
-    </Alert>
-    <SkippedRowsReport rows={result.skipped} />
-    {result.created.length > 0 && (
-      <div className="flex flex-col gap-3">
-        <div>
-          <h3 className="text-sm font-semibold text-gray-900">
-            {MANAGE_STUDENTS_TEXT.credentialsTitle}
-          </h3>
-          <p className="mt-1 text-xs text-gray-600">
-            {MANAGE_STUDENTS_TEXT.credentialsDescription}
-          </p>
-        </div>
+const CreationResult = ({ result }: CreationResultProps): ReactElement => {
+  const MANAGE_STUDENTS_TEXT = useManageStudentsText();
+  return (
+    <div className="flex flex-col gap-3">
+      <Alert tone={result.created.length > 0 ? "success" : "warning"}>
+        {result.created.length > 0
+          ? MANAGE_STUDENTS_TEXT.accountsCreated(result.created.length)
+          : MANAGE_STUDENTS_TEXT.noAccountsCreated}
+      </Alert>
+      <SkippedRowsReport rows={result.skipped} />
+      {result.created.length > 0 && (
         <div className="flex flex-col gap-3">
-          {result.created.map((account) => (
-            <CredentialDisplay
-              key={account.publicId}
-              credential={account.generatedPassword}
-              label={MANAGE_STUDENTS_TEXT.credentialLabel(account.fullName, account.username)}
-            />
-          ))}
+          <div>
+            <h3 className="text-sm font-semibold text-gray-900">
+              {MANAGE_STUDENTS_TEXT.credentialsTitle}
+            </h3>
+            <p className="mt-1 text-xs text-gray-600">
+              {MANAGE_STUDENTS_TEXT.credentialsDescription}
+            </p>
+          </div>
+          <div className="flex flex-col gap-3">
+            {result.created.map((account) => (
+              <CredentialDisplay
+                key={account.publicId}
+                credential={account.generatedPassword}
+                label={MANAGE_STUDENTS_TEXT.credentialLabel(account.fullName, account.username)}
+              />
+            ))}
+          </div>
+          <div>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => downloadCredentials(result.created)}
+            >
+              {MANAGE_STUDENTS_TEXT.downloadCredentials}
+            </Button>
+          </div>
         </div>
-        <div>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={() => downloadCredentials(result.created)}
-          >
-            {MANAGE_STUDENTS_TEXT.downloadCredentials}
-          </Button>
-        </div>
-      </div>
-    )}
-  </div>
-);
+      )}
+    </div>
+  );
+};

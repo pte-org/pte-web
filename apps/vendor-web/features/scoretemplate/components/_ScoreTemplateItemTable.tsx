@@ -110,7 +110,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
 
         const item = row.item as ScoreTemplateItemDraft;
         return (
-          <div className="flex flex-col items-start gap-1">
+          <div className="flex items-center gap-2">
             <Select
               value={item.taskTypeKey}
               disabled={!item.section}

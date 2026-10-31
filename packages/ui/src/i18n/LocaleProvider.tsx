@@ -1937,7 +1937,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.support": "Support",
     "nav.applications": "Applications",
     "nav.planCatalog": "Plan catalog",
-    "nav.licenseCodes": "Package grants",
+    "nav.licenseCodes": "License Code",
     "nav.platformSettings": "Platform settings",
     "nav.announcements": "Announcements",
     "nav.questionBank": "Question Bank",
