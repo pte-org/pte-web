@@ -71,11 +71,20 @@ const HEADER_TEXT = {
   LOGOUT: "Log out",
 } as const;
 
+// "/" has no page and bounces to login; keep the logo inside the current workspace.
+const resolveBrandHomeHref = (pathname: string | null): string => {
+  if (pathname?.startsWith("/examiner")) return AUTH_ROUTES.examinerWork;
+  if (pathname?.startsWith("/proctor")) return AUTH_ROUTES.proctorSessions;
+  return AUTH_ROUTES.hostDashboard;
+};
+
 const SidebarBrand = ({ collapsed = false }: { collapsed?: boolean }): ReactElement => {
   const { t } = useLocale();
+  const pathname = usePathname();
+  const homeHref = resolveBrandHomeHref(pathname);
   return (
     <Link
-      href="/"
+      href={homeHref}
       aria-label={`${BRAND_NAME} home`}
       className={cn(
         "flex items-center rounded-md p-1 transition-colors hover:bg-[var(--surface-subtle)]",

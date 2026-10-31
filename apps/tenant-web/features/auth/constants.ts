@@ -27,7 +27,6 @@ export const AUTH_ROUTES = {
   hostDashboard: "/host/dashboard",
   examinerWork: "/examiner/work",
   proctorSessions: "/proctor/sessions",
-  proctorUnavailable: "/proctor/unavailable",
 } as const;
 
 export const PASSWORD_CHANGE_TEXT = {
