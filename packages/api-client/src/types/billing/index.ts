@@ -144,6 +144,68 @@ export interface AdminLicenseCodeSummary {
   recipientPublicId: string | null;
   recipientName: string | null;
   subscriptionPublicId: string | null;
+  /** Organization an admin grant was issued for; null for a legacy bearer code. */
+  boundTenantId: string | null;
+  contractReference: string | null;
+  subscriptionStartsAt: string | null;
+  subscriptionExpiresAt: string | null;
+}
+
+/**
+ * Body for previewing an admin grant; omit `startsAt` to preview the default continuation. Omit `planId` to
+ * read only the organization's hosts (plan fields come back null).
+ */
+export interface LicenseGrantPreviewRequest {
+  tenantId: string;
+  planId?: string;
+  startsAt?: string;
+}
+
+export interface LicenseGrantHost {
+  username: string;
+  email: string | null;
+  fullName: string | null;
+}
+
+/** Exam fields are null for a student-capacity plan; `renewsLicenseKey` is masked. */
+export interface LicenseGrantPreviewResponse {
+  tenantId: string;
+  planId: string | null;
+  planName: string | null;
+  planType: PlanType | null;
+  hosts: LicenseGrantHost[];
+  defaultStartsAt: string | null;
+  startsAt: string | null;
+  expiresAt: string | null;
+  maxStudentsPerSession: number | null;
+  extraStudentSlots: number | null;
+  renewsLicenseKey: string | null;
+  renewsExpiresAt: string | null;
+}
+
+/** Omit `startsAt` to let the server continue the latest lane of the same plan exactly. */
+export interface LicenseGrantRequest {
+  tenantId: string;
+  planId: string;
+  startsAt?: string;
+  contractReference: string;
+  note?: string;
+}
+
+/** The bearer code is never returned; `licenseKey` is masked. */
+export interface LicenseGrantResponse {
+  licenseCodePublicId: string;
+  tenantId: string;
+  planId: string;
+  kind: "SUBSCRIPTION" | "STUDENT_CAPACITY";
+  subscriptionPublicId: string | null;
+  licenseKey: string | null;
+  startsAt: string | null;
+  expiresAt: string | null;
+  maxStudentsPerSession: number | null;
+  grantedStudentSlots: number | null;
+  contractReference: string | null;
+  replayed: boolean;
 }
 
 export interface LicenseCodeRevealResponse {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
+import { useMemo, useState, type ReactElement } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { ExaminerAnswerDetailResponse } from "@pte/api-client";
 import {
@@ -70,6 +70,10 @@ export const ExaminerAttemptDetailView = ({
 
   const answers = query.data?.answers ?? NO_ANSWERS;
   const workflow = query.data?.workflow;
+  const carriedOverIds = useMemo(
+    () => new Set((workflow?.drafts ?? []).filter((d) => d.carriedOver).map((d) => d.answerPublicId)),
+    [workflow?.drafts],
+  );
   const currentAnswer = answers[currentIndex] ?? null;
   const attemptTitle = query.data
     ? formatAttemptTitle(T.ATTEMPT_LABEL, {
@@ -255,7 +259,11 @@ export const ExaminerAttemptDetailView = ({
               drafts={Object.fromEntries(
                 Object.entries(drafts).map(([k, v]) => [
                   k,
-                  { score: v.score, isSaved: Boolean(v.savedAt) && !v.isDirty },
+                  {
+                    score: v.score,
+                    isSaved: Boolean(v.savedAt) && !v.isDirty,
+                    carriedOver: carriedOverIds.has(k),
+                  },
                 ]),
               )}
               onSelectIndex={handleSelectIndex}
@@ -286,6 +294,7 @@ export const ExaminerAttemptDetailView = ({
               draftScore={activeDraft?.score ?? ""}
               draftComment={activeDraft?.comment ?? ""}
               draftSavedAt={activeDraft?.savedAt}
+              carriedOver={carriedOverIds.has(currentAnswer.answerPublicId)}
               isStale={isStale}
               isMediaBroken={promptMedia === "failed" || responseMedia === "failed"}
               isMediaLoading={promptMedia === "loading" || responseMedia === "loading"}

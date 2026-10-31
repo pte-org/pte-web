@@ -9,6 +9,7 @@ export const ATTEMPTS_SECTION_TEXT = {
   VIEW: "View answers",
   BACK: "Back to submissions",
   PROGRESS: (scored: number, total: number) => `${scored} / ${total} scored`,
+  NO_AI_ANSWERS: "No AI-scored answers",
   FAILED: (count: number) => `${count} failed`,
   IN_PROGRESS: (count: number) => `${count} in progress`,
   WAITING: (count: number) => `${count} waiting`,
@@ -21,7 +22,7 @@ export const ATTEMPTS_SECTION_TEXT = {
 
 export const ATTEMPT_SCORE_TEXT = {
   TITLE: "Score summary",
-  PROVISIONAL: "Provisional: counts the answers scored so far",
+  PROVISIONAL: "Not yet published to the student",
   UNSELECTED_AI_NOTE:
     "Answers with no chosen score source are counted by their AI score. Totals may change once you choose.",
   OVERALL_NOTE: "Overall is only calculated when the exam covers all 4 skills.",

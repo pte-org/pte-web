@@ -22,7 +22,6 @@ import {
   CREATE_TENANT_CONFLICT_TEXT as RAW_CREATE_TENANT_CONFLICT_TEXT,
   ORGANIZATION_TYPE_OPTIONS as RAW_ORGANIZATION_TYPE_OPTIONS,
   TENANT_DETAIL_TEXT as RAW_TENANT_DETAIL_TEXT,
-  TENANT_PLAN_LABELS as RAW_TENANT_PLAN_LABELS,
   TENANT_STATUS_LABELS as RAW_TENANT_STATUS_LABELS,
   TENANT_STATUS_VARIANT,
 } from "../constants";
@@ -47,7 +46,6 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
   const T = useAdminCopy(RAW_TENANT_DETAIL_TEXT);
   const tenantConflictText = useAdminCopy(RAW_CREATE_TENANT_CONFLICT_TEXT);
   const organizationTypeOptions = useAdminCopy(RAW_ORGANIZATION_TYPE_OPTIONS);
-  const tenantPlanLabels = useAdminCopy(RAW_TENANT_PLAN_LABELS);
   const tenantStatusLabels = useAdminCopy(RAW_TENANT_STATUS_LABELS);
   const organizationTypeLabel = (value: string): string =>
     organizationTypeOptions.find((option) => option.value === value)?.label ?? value;
@@ -151,7 +149,6 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
               <DetailGroup
                 title={T.GROUP_PLAN}
                 items={[
-                  { label: T.PLAN_LABEL, value: tenantPlanLabels[tenant.plan] },
                   { label: T.STUDENT_LIMIT_LABEL, value: tenant.seatsTotal },
                 ]}
               />

@@ -6,6 +6,6 @@ export default defineConfig({
     // request builders and types, no React, no DOM. See the package's own
     // rule that hooks belong in each app's `features/*/api.ts`, not here.
     environment: "node",
-    include: ["src/**/*.test.ts"],
+    include: ["tests/**/*.test.{ts,tsx}", "tests/**/*.spec.{ts,tsx}"],
   },
 });

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactElement, ReactNode } from "react";
+import { useLocale } from "../i18n";
 import { Button } from "./Button";
 import { AlertTriangleIcon } from "./icons";
 import { Modal } from "./Modal";
@@ -22,40 +23,43 @@ export const ConfirmDialog = ({
   title,
   description,
   confirmLabel,
-  cancelLabel = "Cancel",
+  cancelLabel,
   tone = "primary",
   isConfirming = false,
   onConfirm,
   onClose,
-}: ConfirmDialogProps): ReactElement => (
-  <Modal
-    open={open}
-    title={title}
-    titleIcon={
-      tone === "warning" ? (
-        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--cream-tint)] text-[var(--cream-action)]">
-          <AlertTriangleIcon className="h-5 w-5" />
-        </span>
-      ) : undefined
-    }
-    onClose={onClose}
-    isDismissDisabled={isConfirming}
-    size="sm"
-    footer={
-      <>
-        <Button variant="ghost" onClick={onClose} disabled={isConfirming}>
-          {cancelLabel}
-        </Button>
-        <Button
-          variant={tone === "danger" ? "danger" : "primary"}
-          isLoading={isConfirming}
-          onClick={onConfirm}
-        >
-          {confirmLabel}
-        </Button>
-      </>
-    }
-  >
-    <div className="text-sm text-gray-600">{description}</div>
-  </Modal>
-);
+}: ConfirmDialogProps): ReactElement => {
+  const { t } = useLocale();
+  return (
+    <Modal
+      open={open}
+      title={title}
+      titleIcon={
+        tone === "warning" ? (
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--cream-tint)] text-[var(--cream-action)]">
+            <AlertTriangleIcon className="h-5 w-5" />
+          </span>
+        ) : undefined
+      }
+      onClose={onClose}
+      isDismissDisabled={isConfirming}
+      size="sm"
+      footer={
+        <>
+          <Button variant="ghost" onClick={onClose} disabled={isConfirming}>
+            {cancelLabel ?? t("common.cancel", "Cancel")}
+          </Button>
+          <Button
+            variant={tone === "danger" ? "danger" : "primary"}
+            isLoading={isConfirming}
+            onClick={onConfirm}
+          >
+            {confirmLabel}
+          </Button>
+        </>
+      }
+    >
+      <div className="text-sm text-gray-600">{description}</div>
+    </Modal>
+  );
+};

@@ -17,7 +17,6 @@ import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
 import {
   ORGANIZATION_TYPE_OPTIONS as RAW_ORGANIZATION_TYPE_OPTIONS,
   TENANCY_TEXT as RAW_TENANCY_TEXT,
-  TENANT_PLAN_LABELS as RAW_TENANT_PLAN_LABELS,
   TENANT_STATUS_LABELS as RAW_TENANT_STATUS_LABELS,
   TENANT_STATUS_VARIANT,
   TENANT_TABLE_HEADERS as RAW_TENANT_TABLE_HEADERS,
@@ -43,7 +42,6 @@ export const TenantTable = ({
   const T = useAdminCopy(RAW_TENANCY_TEXT);
   const searchText = useAdminSearchText("tenants");
   const organizationTypeOptions = useAdminCopy(RAW_ORGANIZATION_TYPE_OPTIONS);
-  const planLabels = useAdminCopy(RAW_TENANT_PLAN_LABELS);
   const statusLabels = useAdminCopy(RAW_TENANT_STATUS_LABELS);
   const organizationTypeFilterOptions = useAdminCopy([
     { value: "", label: "All organization types" },
@@ -51,10 +49,6 @@ export const TenantTable = ({
       value: option.value,
       label: option.label,
     })),
-  ]);
-  const planFilterOptions = useAdminCopy([
-    { value: "", label: "All plans" },
-    ...Object.entries(RAW_TENANT_PLAN_LABELS).map(([value, label]) => ({ value, label })),
   ]);
   const statusFilterOptions = useAdminCopy([
     { value: "", label: "All statuses" },
@@ -92,11 +86,10 @@ export const TenantTable = ({
       className: "whitespace-nowrap font-mono text-xs text-slate-500",
     },
     {
-      key: "plan",
-      header: H.PLAN,
-      filterOptions: planFilterOptions,
-      filterAccessor: (tenant) => tenant.plan,
-      cell: (tenant) => planLabels[tenant.plan],
+      // The student limit is what actually binds a tenant; packages are granted on the Package grants page.
+      key: "studentLimit",
+      header: H.STUDENT_LIMIT,
+      cell: (tenant) => tenant.seatsTotal,
       className: "whitespace-nowrap",
     },
     {

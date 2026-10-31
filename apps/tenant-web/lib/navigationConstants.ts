@@ -25,11 +25,6 @@ export const EXAMINER_NAV_TEXT = {
   SECTION: "Examiner",
 } as const;
 
-export const STUDENT_NAV_TEXT = {
-  RESULTS: "My results",
-  SECTION: "Student",
-} as const;
-
 export const PROCTOR_NAV_TEXT = {
   OVERVIEW: "Overview",
   MONITORING: "Monitoring",

@@ -1,8 +1,9 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { ScoreTemplateResponse } from "@pte/api-client";
-import { useLocale } from "@pte/ui";
+import { useLocale, useToast } from "@pte/ui";
+import { useSubscriptionsQuery } from "@/features/commercialization/api";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import type { AudienceStepProps } from "../components/create-exam/AudienceStep";
 import type { ExamDetailsStepProps } from "../components/create-exam/ExamDetailsStep";
@@ -11,6 +12,7 @@ import type { SchedulePolicyStepProps } from "../components/create-exam/Schedule
 import { CREATE_EXAM_WIZARD_ERRORS, EXAM_SKILL_OPTIONS } from "../constants";
 import type { CreateExamWorkflowInput, ExamSkill } from "../types";
 import { composePreflightMessage, ExamPreflightBlockedError } from "../utils/examPreflight";
+import { formatExamConflictNames, getExamConflictErrorMessage } from "../utils/examConflictError";
 import {
   createEmptyExamWorkflow,
   getTemplateSkills,
@@ -51,6 +53,8 @@ export function useCreateExamWizardViewModel({
   error,
 }: UseCreateExamWizardViewModelOptions): UseCreateExamWizardViewModelResult {
   const { t } = useLocale();
+  const { showToast } = useToast();
+  const { data: subscriptions } = useSubscriptionsQuery();
   // With no platform default the host can still pick one of its own templates.
   const fallbackTemplatePublicId = activeTemplate?.publicId ?? templates[0]?.publicId;
   const initialForm = useMemo(
@@ -77,9 +81,17 @@ export function useCreateExamWizardViewModel({
     [t],
   );
 
+  const onValidationError = useCallback(
+    (message: string): void => {
+      showToast(localizeError(message) ?? message, { tone: "error" });
+    },
+    [localizeError, showToast],
+  );
   const wizardForm = useCreateExamWizardForm({
     initialForm,
     activeTemplatePublicId: fallbackTemplatePublicId,
+    subscriptions,
+    onValidationError,
   });
   const {
     form,
@@ -108,7 +120,7 @@ export function useCreateExamWizardViewModel({
   const templateMessage = templateError
     ? errorMessage(templateError, wizardText.NO_TEMPLATE)
     : undefined;
-  const submitMessage = !error
+  const summary = !error
     ? undefined
     : error instanceof ExamPreflightBlockedError
       ? composePreflightMessage(
@@ -120,7 +132,31 @@ export function useCreateExamWizardViewModel({
               wizardText.PREFLIGHT_ISSUE_MESSAGES[issue] ?? "",
             ) || undefined,
         )
-      : errorMessage(error);
+      : (getExamConflictErrorMessage(error, t) ?? errorMessage(error));
+  const submitMessage =
+    error instanceof ExamPreflightBlockedError
+      ? [
+          summary,
+          formatExamConflictNames(error.conflicts, t),
+          ...error.shortages.map((slot) =>
+            wizardText.PREFLIGHT_SHORTAGE_DETAILS.replace("{taskType}", slot.taskType)
+              .replace("{required}", String(slot.required))
+              .replace("{available}", String(slot.available)),
+          ),
+        ]
+          .filter(Boolean)
+          .join(" ")
+      : summary;
+  const lastReportedError = useRef<unknown>(null);
+  useEffect(() => {
+    if (!open || !error) {
+      lastReportedError.current = null;
+      return;
+    }
+    if (lastReportedError.current === error || !submitMessage) return;
+    lastReportedError.current = error;
+    showToast(submitMessage, { tone: "error" });
+  }, [open, error, submitMessage, showToast]);
 
   const fieldStepProps: SchedulePolicyStepProps = {
     form,
@@ -128,6 +164,7 @@ export function useCreateExamWizardViewModel({
     wizardText,
     onUpdate: update,
     localizeError,
+    onValidateField: wizardForm.validateField,
   };
   const detailsStepProps: ExamDetailsStepProps = {
     ...fieldStepProps,

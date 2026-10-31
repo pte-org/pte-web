@@ -4,7 +4,7 @@ export const ADMIN_NAV_TEXT = {
   APPLICATIONS: "Applications",
   PLATFORM_USERS: "Platform users",
   PLAN_CATALOG: "Plan catalog",
-  LICENSE_CODES: "License codes",
+  LICENSE_CODES: "Package grants",
   PLATFORM_SETTINGS: "Platform settings",
   ANNOUNCEMENTS: "Announcements",
   QUESTION_BANK: "Question Bank",
@@ -17,4 +17,5 @@ export const ADMIN_NAV_TEXT = {
   SYSTEM_SECTION: "System",
   SUPPORT_TICKETS: "Support Tickets",
   SYSTEM_LOG: "System log",
+  CHAT_USAGE: "AI chat usage",
 } as const;

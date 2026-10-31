@@ -6,7 +6,6 @@ import type {
 } from "../../types/reporting";
 
 export const REPORT_ENDPOINTS = {
-  mine: "/api/v1/reports",
   attempt: (attemptPublicId: string) => `/api/v1/reports/attempts/${attemptPublicId}`,
   publicationPreflight: (sessionPublicId: string) =>
     `/api/v1/reporting/sessions/${sessionPublicId}/preflight`,
@@ -15,10 +14,6 @@ export const REPORT_ENDPOINTS = {
   publishSession: (sessionPublicId: string) =>
     `/api/v1/reporting/sessions/${sessionPublicId}/publish`,
 } as const;
-
-export function listMyReports(client: ApiClient): Promise<ReportResponse[]> {
-  return client.request<ReportResponse[]>(REPORT_ENDPOINTS.mine);
-}
 
 export function getAttemptReport(
   client: ApiClient,

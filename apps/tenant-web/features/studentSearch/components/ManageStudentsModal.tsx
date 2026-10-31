@@ -8,9 +8,11 @@ import {
   DateInput,
   Input,
   Modal,
+  Select,
   Tabs,
   type TabItem,
 } from "@pte/ui";
+import type { TenantClassOption } from "@/features/classes/api";
 import { SkippedRowsReport } from "@/features/examoperations/components/SkippedRowsReport";
 import { downloadCredentials } from "@/features/examoperations/downloadCredentials";
 import { errorMessage } from "@/features/examoperations/errorMessage";
@@ -24,6 +26,9 @@ type ManageStudentsMode = "add" | "import";
 interface ManageStudentsModalProps {
   open: boolean;
   initialMode: ManageStudentsMode;
+  availableClasses: TenantClassOption[];
+  classesLoading: boolean;
+  classesError: unknown;
   onClose: () => void;
 }
 
@@ -49,15 +54,37 @@ const isManageStudentsMode = (value: string): value is ManageStudentsMode =>
 export const ManageStudentsModal = ({
   open,
   initialMode,
+  availableClasses,
+  classesLoading,
+  classesError,
   onClose,
 }: ManageStudentsModalProps): ReactElement => {
   const [mode, setMode] = useState<ManageStudentsMode>(initialMode);
   const [form, setForm] = useState<AddStudentFormState>(EMPTY_FORM);
+  const [selectedClassPublicId, setSelectedClassPublicId] = useState("");
   const [result, setResult] = useState<CreationResultData>();
   const createStudents = useCreateTenantStudents();
 
+  const classOptions = availableClasses.map((studentClass) => ({
+    value: studentClass.classPublicId,
+    label: MANAGE_STUDENTS_TEXT.classOptionLabel(
+      studentClass.className,
+      studentClass.programName,
+      studentClass.status,
+    ),
+    disabled: studentClass.status !== "ACTIVE",
+  }));
+
   const handleFormChange = (field: keyof AddStudentFormState, value: string): void => {
     setForm((previous) => ({ ...previous, [field]: value }));
+  };
+
+  const handleClassChange = (classPublicId: string): void => {
+    const selectedClass = availableClasses.find(
+      (studentClass) => studentClass.classPublicId === classPublicId,
+    );
+    setSelectedClassPublicId(classPublicId);
+    handleFormChange("className", selectedClass?.className ?? "");
   };
 
   const handleModeChange = (nextMode: string): void => {
@@ -74,6 +101,7 @@ export const ManageStudentsModal = ({
       onSuccess: (response) => {
         setResult({ created: response.created, skipped: response.skipped });
         setForm(EMPTY_FORM);
+        setSelectedClassPublicId("");
       },
     });
   };
@@ -122,10 +150,22 @@ export const ManageStudentsModal = ({
                 value={form.studentCode}
                 onChange={(event) => handleFormChange("studentCode", event.target.value)}
               />
-              <Input
+              <Select
+                id="manage-student-class"
                 label={MANAGE_STUDENTS_TEXT.classLabel}
-                value={form.className}
-                onChange={(event) => handleFormChange("className", event.target.value)}
+                value={selectedClassPublicId}
+                options={classOptions}
+                placeholder={
+                  classesLoading
+                    ? MANAGE_STUDENTS_TEXT.classLoading
+                    : MANAGE_STUDENTS_TEXT.classPlaceholder
+                }
+                disabled={classesLoading || Boolean(classesError)}
+                error={classesError ? MANAGE_STUDENTS_TEXT.classLoadFailed : undefined}
+                searchable
+                searchPlaceholder={MANAGE_STUDENTS_TEXT.classSearchPlaceholder}
+                noOptionsMessage={MANAGE_STUDENTS_TEXT.classNoOptions}
+                onChange={(event) => handleClassChange(event.target.value)}
               />
               <Input
                 label={MANAGE_STUDENTS_TEXT.phoneLabel}
@@ -135,6 +175,7 @@ export const ManageStudentsModal = ({
               <DateInput
                 label={MANAGE_STUDENTS_TEXT.dateOfBirthLabel}
                 value={form.dateOfBirth}
+                allowTextInput
                 onChange={(event) => handleFormChange("dateOfBirth", event.target.value)}
               />
             </div>

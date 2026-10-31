@@ -2,20 +2,11 @@ import type { ReactElement } from "react";
 import { Input, Select, type SelectOption } from "@pte/ui";
 import type { QuestionTypeSection, TaskTypeCapabilityResponse } from "@pte/api-client";
 import { QUESTION_TYPE_EDITOR_TEXT as RAW_QUESTION_TYPE_EDITOR_TEXT } from "../constants";
+import type { QuestionTypeFormDraft } from "../taskTypeDraft";
+import { QuestionTypeInstructionField } from "./_QuestionTypeInstructionField";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 export type EditorMode = "create" | "edit";
-
-export interface QuestionTypeFormDraft {
-  taskTypeKey: string;
-  section: QuestionTypeSection;
-  displayName: string;
-  shortName: string;
-  screenKey: string;
-  contractVersion: number;
-  displayOrder: number;
-  active: boolean;
-}
 
 interface QuestionTypeEditorFieldsProps {
   mode: EditorMode;
@@ -92,6 +83,10 @@ export const QuestionTypeEditorFields = ({
         value={draft.shortName}
         onChange={(event) => onChange("shortName", event.target.value)}
         required
+      />
+      <QuestionTypeInstructionField
+        value={draft.instruction}
+        onChange={(value) => onChange("instruction", value)}
       />
       <Select
         id="task-type-screen-key"

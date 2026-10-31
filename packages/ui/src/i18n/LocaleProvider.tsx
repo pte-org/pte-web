@@ -25,6 +25,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "common.english": "English",
     "common.notifications": "Thông báo",
     "common.account": "Tài khoản",
+    "common.cancel": "Hủy",
     "common.profileAndOrganization": "Hồ sơ & tổ chức",
     "common.logout": "Đăng xuất",
     "common.options": "Tùy chọn",
@@ -108,7 +109,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.profile.tabs.personal": "Thông tin cá nhân",
     "tenant.profile.tabs.ariaLabel": "Các khu vực hồ sơ",
     "tenant.profile.organization.title": "Thông tin tổ chức",
-    "tenant.profile.organization.description": "Thông tin tổ chức được liên kết với tài khoản của bạn.",
+    "tenant.profile.organization.description":
+      "Thông tin tổ chức được liên kết với tài khoản của bạn.",
     "tenant.profile.organization.edit": "Chỉnh sửa",
     "tenant.profile.organization.save": "Lưu thay đổi",
     "tenant.profile.organization.cancel": "Hủy",
@@ -131,7 +133,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
       "Không thể tải danh sách địa chỉ Việt Nam. Hãy thử lại.",
     "tenant.profile.organization.status": "Trạng thái",
     "tenant.profile.organization.emptyTitle": "Chưa có thông tin tổ chức",
-    "tenant.profile.organization.emptyDescription": "Tài khoản của bạn chưa được liên kết với tổ chức nào.",
+    "tenant.profile.organization.emptyDescription":
+      "Tài khoản của bạn chưa được liên kết với tổ chức nào.",
     "tenant.profile.personal.title": "Thông tin cá nhân",
     "tenant.profile.personal.description": "Thông tin tài khoản đang sử dụng trong tổ chức.",
     "tenant.profile.personal.edit": "Chỉnh sửa",
@@ -190,6 +193,9 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examDetails.cancelEdit": "Hủy",
     "tenant.examDetails.saved": "Đã lưu thông tin kỳ thi.",
     "tenant.examDetails.saveFailed": "Không thể lưu thông tin kỳ thi. Hãy thử lại.",
+    "tenant.examConflict.audience": "Tất cả học viên đã chọn đều trùng lịch với kỳ thi khác.",
+    "tenant.examConflict.schedule": "Lịch thi bị trùng với kỳ thi khác.",
+    "tenant.examConflict.sessions": "Kỳ thi bị trùng: {exams}.",
     "tenant.examDetails.name": "Tên kỳ thi",
     "tenant.examDetails.status": "Trạng thái",
     "tenant.examDetails.code": "Mã kỳ thi",
@@ -208,6 +214,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examDetails.lockdown": "Chế độ khóa máy",
     "tenant.examDetails.lockdownStrict": "Nghiêm ngặt",
     "tenant.examDetails.readOnlyHelp": "Kỳ thi chỉ được xem ở trạng thái hiện tại.",
+    "tenant.examDetails.readyStatusHelp":
+      "Đề thi đã được tạo. Bạn có thể chuyển trạng thái sang Đã lên lịch hoặc Hủy kỳ thi.",
     "tenant.examDetails.nameRequired": "Vui lòng nhập tên kỳ thi.",
     "tenant.examDetails.openRequired": "Vui lòng chọn thời gian mở kỳ thi.",
     "tenant.examDetails.closeRequired": "Vui lòng chọn thời gian đóng kỳ thi.",
@@ -258,6 +266,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examList.emptyDescription": "Hãy tạo kỳ thi đầu tiên để bắt đầu thêm học viên.",
     "tenant.examList.actions": "Thao tác",
     "tenant.examList.view": "Xem chi tiết",
+    "tenant.examList.updateStatus": "Cập nhật trạng thái",
+    "tenant.examList.cancelUpdateStatus": "Hủy cập nhật trạng thái",
     "tenant.examList.delete": "Xóa kỳ thi",
     "tenant.examList.deleteTitle": "Xóa bản nháp kỳ thi này?",
     "tenant.examList.deleteDescription": "Bản nháp “{name}” sẽ bị xóa và không thể khôi phục.",
@@ -265,6 +275,11 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examList.cancel": "Hủy",
     "tenant.examList.deleteSuccess": "Đã xóa bản nháp kỳ thi.",
     "tenant.examList.deleteFailed": "Không thể xóa bản nháp kỳ thi. Hãy thử lại.",
+    "tenant.examList.updateStatusTitle": "Cập nhật trạng thái của kỳ thi {name}?",
+    "tenant.examList.updateStatusDescription": "Kỳ thi {name} sẽ chuyển từ {current} sang {next}.",
+    "tenant.examList.updateStatusConfirm": "Cập nhật trạng thái",
+    "tenant.examList.updateStatusSuccess": "Đã cập nhật trạng thái kỳ thi.",
+    "tenant.examList.updateStatusFailed": "Không thể cập nhật trạng thái kỳ thi. Hãy thử lại.",
     "tenant.examTabs.questions": "Câu hỏi",
     "tenant.examQuestions.title": "Câu hỏi kỳ thi",
     "tenant.examQuestions.answerKeyNotice":
@@ -298,48 +313,44 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examStatus.open": "Đang diễn ra",
     "tenant.examStatus.closed": "Đã đóng",
     "tenant.examStatus.cancelled": "Đã hủy",
-    "tenant.examinerAssignment.title":
-      "Phân công chấm điểm",
-    "tenant.examinerAssignment.student":
-      "Học viên",
-    "tenant.examinerAssignment.examiners":
-      "Giám khảo",
-    "tenant.examinerAssignment.examiner":
-      "Giám khảo",
-    "tenant.examinerAssignment.examinerPlaceholder":
-      "Chọn giám khảo",
-    "tenant.examinerAssignment.noExaminers":
-      "Không có giám khảo đang hoạt động trong tổ chức này.",
-    "tenant.examinerAssignment.loading":
-      "Đang tải...",
+    "tenant.examinerAssignment.title": "Phân công chấm điểm",
+    "tenant.examinerAssignment.student": "Học viên",
+    "tenant.examinerAssignment.examiners": "Giám khảo",
+    "tenant.examinerAssignment.examiner": "Giám khảo",
+    "tenant.examinerAssignment.examinerPlaceholder": "Chọn giám khảo",
+    "tenant.examinerAssignment.noExaminers": "Không có giám khảo đang hoạt động trong tổ chức này.",
+    "tenant.examinerAssignment.loading": "Đang tải...",
     "tenant.examinerAssignment.requiresClosed":
       "Chỉ có thể phân công giám khảo sau khi kỳ thi đã đóng.",
     "tenant.examinerAssignment.lockedNotice":
-      "Phân công đã được chốt và không thể chỉnh sửa.",
+      "Phân công đã được chốt. Bạn vẫn có thể đổi giám khảo cho bài chưa được chốt điểm.",
     "tenant.examinerAssignment.hint":
       "Chọn giám khảo rồi bấm “Chia ngẫu nhiên” để điền sẵn bảng, sau đó chỉnh giám khảo của từng học viên nếu cần. Bấm “Chốt phân công” khi mọi học viên đã có giám khảo.",
-    "tenant.examinerAssignment.randomize":
-      "Chia ngẫu nhiên",
-    "tenant.examinerAssignment.progress":
-      "{assigned}/{total} học viên đã có giám khảo",
-    "tenant.examinerAssignment.commit":
-      "Chốt phân công",
-    "tenant.examinerAssignment.committing":
-      "Đang chốt...",
-    "tenant.examinerAssignment.cancel":
-      "Hủy",
-    "tenant.examinerAssignment.commitTitle":
-      "Chốt phân công chấm điểm?",
+    "tenant.examinerAssignment.randomize": "Chia ngẫu nhiên",
+    "tenant.examinerAssignment.progress": "{assigned}/{total} học viên đã có giám khảo",
+    "tenant.examinerAssignment.commit": "Chốt phân công",
+    "tenant.examinerAssignment.committing": "Đang chốt...",
+    "tenant.examinerAssignment.cancel": "Hủy",
+    "tenant.examinerAssignment.commitTitle": "Chốt phân công chấm điểm?",
     "tenant.examinerAssignment.commitDescription":
       "Sau khi chốt, bảng phân công sẽ bị khoá và không thể chỉnh sửa.",
-    "tenant.examinerAssignment.confirmed":
-      "Đã chốt phân công.",
-    "tenant.examinerAssignment.empty":
-      "Chưa có bài thi đã nộp để phân công.",
-    "tenant.examinerAssignment.unknownStudent":
-      "Không rõ học viên",
-    "tenant.examinerAssignment.retry":
-      "Thử lại",
+    "tenant.examinerAssignment.confirmed": "Đã chốt phân công.",
+    "tenant.examinerAssignment.empty": "Chưa có bài thi đã nộp để phân công.",
+    "tenant.examinerAssignment.unknownStudent": "Không rõ học viên",
+    "tenant.examinerAssignment.retry": "Thử lại",
+    "tenant.examinerAssignment.progressColumn": "Chấm điểm",
+    "tenant.examinerAssignment.statusNotStarted": "Chưa bắt đầu",
+    "tenant.examinerAssignment.statusInProgress": "Đang chấm",
+    "tenant.examinerAssignment.statusCompleted": "Đã chốt điểm",
+    "tenant.examinerAssignment.draftCount": "{count} câu nháp",
+    "tenant.examinerAssignment.changeExaminer": "Đổi giám khảo",
+    "tenant.examinerAssignment.reassignTitle": "Đổi giám khảo?",
+    "tenant.examinerAssignment.reassignDescription":
+      "Giám khảo mới sẽ tiếp quản bài này. Các câu đã chấm nháp ({count}) được giữ lại và đánh dấu để giám khảo mới xác nhận; các báo sự cố đang mở sẽ tự động đóng. Giám khảo cũ mất quyền truy cập ngay.",
+    "tenant.examinerAssignment.reassignConfirm": "Đổi giám khảo",
+    "tenant.examinerAssignment.reassignPending": "Đang đổi...",
+    "tenant.examinerAssignment.reassignDone": "Đã đổi giám khảo.",
+    "tenant.examinerAssignment.newExaminer": "Giám khảo mới",
     "tenant.scoreReview.aiEligibleAttempts": "Lượt làm bài đủ điều kiện AI",
     "tenant.scoreReview.assigned": "Đã phân công",
     "tenant.scoreReview.unassigned": "Chưa phân công",
@@ -357,20 +368,25 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.publication.record": "Thông tin phát hành",
     "tenant.publication.reportsPublished": "Đã phát hành {published}/{cohort} báo cáo",
     "tenant.publication.published": "Đã phát hành",
-    "tenant.publication.publication": "Lượt phát hành",
-    "tenant.publication.host": "Host",
     "tenant.publication.loadingRecord": "Đang tải thông tin phát hành…",
-    "tenant.publication.attempt": "Lượt làm bài",
     "tenant.publication.success": "Đã phát hành báo cáo cho nhóm thí sinh của kỳ thi.",
     "tenant.publication.checking": "Đang kiểm tra…",
-    "tenant.publication.checkReadiness": "Kiểm tra điều kiện phát hành",
+    "tenant.publication.notReady": "Chưa thể phát hành: còn {count} câu chưa có điểm chốt",
+    "tenant.publication.allReady": "Tất cả {count} lượt làm bài đã nộp đều sẵn sàng để phát hành.",
+    "tenant.publication.chip.notClosed": "Chưa thể phát hành: cần đóng kỳ thi trước",
+    "tenant.publication.chip.published": "Đã phát hành báo cáo",
+    "tenant.publication.chip.checking": "Đang kiểm tra điều kiện phát hành…",
+    "tenant.publication.chip.blocked": "Chưa thể phát hành: còn {count} câu chưa sẵn sàng",
+    "tenant.publication.chip.ready": "Sẵn sàng phát hành",
+    "tenant.publication.chip.error": "Không kiểm tra được điều kiện phát hành",
+    "tenant.publication.chip.goTo": "Đến phần phát hành",
     "tenant.publication.publishConfirm":
       "Phát hành báo cáo không thể thay đổi cho toàn bộ {count} lượt làm bài đã nộp?",
     "tenant.publication.publishing": "Đang phát hành…",
     "tenant.publication.approve": "Duyệt và phát hành",
-    "tenant.publication.attemptsReady":
-      "{ready}/{submitted} lượt làm bài đã nộp sẵn sàng; {blockers} câu trả lời đang chặn phát hành.",
-    "tenant.publication.showingFirst": "Đang hiển thị 20 lỗi đầu tiên.",
+    "tenant.publication.publishTitle": "Phát hành báo cáo?",
+    "tenant.publication.attemptsReady": "{ready}/{submitted} lượt làm bài sẵn sàng",
+    "tenant.publication.answersPending": "còn {count} câu chưa có điểm chốt",
     "tenant.grading.title": "Nhóm chấm điểm",
     "tenant.grading.finalized": "Đã hoàn tất",
     "tenant.grading.loading": "Đang tải độ bao phủ chấm điểm…",
@@ -663,8 +679,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.billing.usageStatus": "Trạng thái sử dụng",
     "tenant.billing.usageStatusSubtitle":
       "Theo dõi thời hạn gói thi và sức chứa học viên trong tổ chức.",
-    "tenant.billing.activationSourcePayment": "Thanh toán",
-    "tenant.billing.activationSourceLicense": "Mã giấy phép",
+    "tenant.billing.activationSourcePayment": "Mua online",
+    "tenant.billing.activationSourceLicense": "PTEPrep cấp",
     "tenant.billing.activation": "Kích hoạt từ",
     "tenant.billing.activatedOn": "Kích hoạt {date}",
     "tenant.billing.expiryStatus": "Thời hạn",
@@ -673,13 +689,15 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.billing.billingActions": "Thao tác thanh toán",
     "tenant.billing.noActiveAccess": "Chưa có gói kỳ thi đang hoạt động",
     "tenant.billing.noActiveAccessDescription":
-      "Chọn một gói trên Home hoặc đổi mã giấy phép để bắt đầu.",
+      "Chưa có gói. Mua online trên Home hoặc liên hệ PTEPrep để được cấp theo hợp đồng.",
     "tenant.billing.renewAccess": "Gia hạn",
     "tenant.billing.accessActive": "Đang hoạt động",
     "tenant.billing.accessExpiringSoon": "Sắp hết hạn",
     "tenant.billing.accessExpired": "Đã hết hạn",
     "tenant.billing.accessExpiresOn": "Hết hạn {date}",
     "tenant.billing.accessDaysLeft": "Còn {count} ngày",
+    "tenant.billing.accessActiveUntil": "Đang hiệu lực đến {date}",
+    "tenant.billing.accessStartsOn": "Sắp hiệu lực từ {date}",
     "tenant.billing.activeAccessCount": "Có {count} gói đang hoạt động",
     "tenant.billing.examPackageLabel": "Gói kỳ thi",
     "tenant.billing.studentLimit": "Giới hạn học viên",
@@ -742,6 +760,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.answers.view": "Xem",
     "tenant.attempts.student": "Thí sinh",
     "tenant.attempts.scoring": "Chấm AI",
+    "tenant.attempts.noAiAnswers": "Không có câu chấm AI",
     "tenant.attempts.examiner": "Giám khảo",
     "tenant.attempts.examinerProgress": "Tiến độ chấm của giám khảo",
     "tenant.attempts.examinerNotStarted": "Chưa bắt đầu · {saved}/{total}",
@@ -752,7 +771,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.attempts.viewAnswers": "Xem bài làm",
     "tenant.attempts.back": "Quay lại danh sách bài nộp",
     "tenant.attemptScore.title": "Tổng kết điểm",
-    "tenant.attemptScore.provisional": "Tạm tính: chỉ gồm các câu đã chấm",
+    "tenant.attemptScore.provisional": "Chưa phát hành cho học viên",
     "tenant.attemptScore.unselectedAiNote":
       "Các câu chưa chốt nguồn điểm đang được tính theo điểm AI. Tổng điểm có thể thay đổi sau khi bạn chốt.",
     "tenant.attemptScore.overallNote": "Tổng điểm chỉ được tính khi bài thi có đủ 4 kỹ năng.",
@@ -766,15 +785,20 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.answers.unavailable": "Không khả dụng",
     "tenant.answers.attempt": "Lượt làm bài {number}",
     "tenant.answers.attemptHeader": "Lượt làm bài",
+    "tenant.answers.questionNumber": "Câu",
     "tenant.answers.taskType": "Dạng bài",
     "tenant.answers.aiScore": "Điểm AI",
     "tenant.answers.examinerScore": "Điểm giám khảo",
+    "tenant.answers.finalScore": "Điểm câu",
+    "tenant.answers.finalScoreProvisional": "Tạm tính theo điểm AI, chưa chọn nguồn điểm",
     "tenant.answers.submitted": "Đã nộp",
     "tenant.answers.actions": "Thao tác",
     "tenant.answers.pending": "Đang chờ",
     "tenant.answers.aiScoring": "AI đang chấm",
     "tenant.answers.scoringFailed": "Chấm điểm thất bại",
     "tenant.answers.scored": "Đã chấm điểm",
+    "tenant.answers.unscored": "Không chấm điểm",
+    "tenant.answers.coverage": "Học viên đã làm {answered}/{expected} câu, {blank} câu chưa làm",
     "tenant.answerDetail.title": "Câu trả lời đã nộp",
     "tenant.answerDetail.taskType": "Dạng bài",
     "tenant.answerDetail.status": "Trạng thái",
@@ -790,7 +814,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.proctor.assign": "Phân công giám thị",
     "tenant.proctor.empty": "Chưa có giám thị nào được phân công",
     "tenant.proctor.unassign": "Xóa khỏi kỳ thi",
-    "tenant.proctor.assignedCount": "Đã phân công {count} giám thị",
     "tenant.proctor.fullName": "Họ và tên",
     "tenant.proctor.email": "Email",
     "tenant.proctor.role": "Vai trò",
@@ -833,6 +856,10 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.createExam.OPENS_AT_LABEL": "Mở từ",
     "tenant.createExam.CLOSES_AT_LABEL": "Đóng lúc",
     "tenant.createExam.CAPACITY_LABEL": "Số học viên tối đa",
+    "tenant.createExam.PREFLIGHT_SHORTAGE_DETAILS":
+      "{taskType}: cần {required} câu hỏi đã duyệt; hiện có {available}.",
+    "tenant.createExam.SUBSCRIPTION_CAPACITY_HINT":
+      "Gói này cho phép tối đa {count} học viên/kỳ thi.",
     "tenant.createExam.MODE_LABEL": "Chế độ thi",
     "tenant.createExam.PRACTICE_ANTI_CHEAT_LABEL": "Luyện tập có kiểm soát",
     "tenant.createExam.PRACTICE_ANTI_CHEAT_CONTROL":
@@ -897,6 +924,10 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.createExam.error.CLOSES_REQUIRED": "Chọn thời gian đóng kỳ thi.",
     "tenant.createExam.error.CLOSES_AFTER_OPENS": "Thời gian đóng phải sau thời gian mở.",
     "tenant.createExam.error.CAPACITY_REQUIRED": "Nhập sức chứa là số nguyên dương.",
+    "tenant.createExam.error.CAPACITY_EXCEEDS_PLAN":
+      "Số học viên tối đa vượt giới hạn của gói thuê bao đã chọn.",
+    "tenant.createExam.error.AUDIENCE_EXCEEDS_CAPACITY":
+      "Số học viên đã chọn vượt sức chứa của kỳ thi.",
     "tenant.createExam.error.SERIES_REQUIRED": "Thêm chuỗi kỳ thi cho quy tắc thi lại này.",
     "tenant.createExam.error.AUDIENCE_REQUIRED": "Chọn ít nhất một học viên.",
     "tenant.createExam.error.OPEN_FUTURE": "Chọn thời gian mở trong tương lai.",
@@ -935,7 +966,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.support": "Hỗ trợ",
     "nav.applications": "Đơn đăng ký",
     "nav.planCatalog": "Danh mục gói",
-    "nav.licenseCodes": "Mã bản quyền",
+    "nav.licenseCodes": "Cấp gói",
     "nav.platformSettings": "Cài đặt nền tảng",
     "nav.announcements": "Thông báo chung",
     "nav.questionBank": "Ngân hàng câu hỏi",
@@ -1025,10 +1056,10 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.examiner": "Chấm thi",
     "nav.examinerOverview": "Tổng quan",
     "nav.auditLog": "Nhật ký hệ thống",
+    "nav.chatUsage": "Mức dùng chat AI",
     "nav.program": "Chương trình",
     "nav.class": "Lớp học",
     "nav.markingQueue": "Hàng đợi chấm",
-    "nav.student": "Học viên",
     "tenant.search.auditLog.placeholder":
       "Tìm nhật ký hệ thống theo tên, mã tài nguyên, thao tác hoặc nội dung",
     "tenant.search.auditLog.ariaLabel":
@@ -1055,19 +1086,14 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.search.programs.ariaLabel": "Tìm chương trình theo tên hoặc trạng thái",
     "tenant.search.orders.placeholder": "Tìm theo mã đơn, tên gói hoặc trạng thái",
     "tenant.search.orders.ariaLabel": "Tìm đơn hàng theo mã đơn, tên gói hoặc trạng thái",
-    "tenant.search.answers.placeholder":
-      "Tìm theo mã, dạng bài hoặc trạng thái",
-    "tenant.search.answers.ariaLabel":
-      "Tìm câu trả lời theo mã, dạng bài hoặc trạng thái",
-    "tenant.search.examinerRoster.placeholder":
-      "Tìm theo tên hoặc email học viên",
-    "tenant.search.examinerRoster.ariaLabel":
-      "Tìm học viên theo tên hoặc email",
+    "tenant.search.answers.placeholder": "Tìm theo mã, dạng bài hoặc trạng thái",
+    "tenant.search.answers.ariaLabel": "Tìm câu trả lời theo mã, dạng bài hoặc trạng thái",
+    "tenant.search.examinerRoster.placeholder": "Tìm theo tên hoặc email học viên",
+    "tenant.search.examinerRoster.ariaLabel": "Tìm học viên theo tên hoặc email",
     "tenant.search.proctors.placeholder": "Tìm theo tên, email hoặc vai trò giám thị",
     "tenant.search.proctors.ariaLabel": "Tìm giám thị theo tên, email hoặc vai trò",
     "tenant.search.sessions.placeholder": "Tìm theo tên kỳ thi, mã phiên hoặc trạng thái",
     "tenant.search.sessions.ariaLabel": "Tìm phiên thi theo tên, mã phiên hoặc trạng thái",
-    "nav.myResults": "Kết quả của tôi",
     "nav.proctor": "Giám thị",
     "nav.proctorOverview": "Tổng quan",
     "nav.proctorMonitoring": "Giám sát trực tiếp",
@@ -1079,11 +1105,11 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.supervision": "Giám sát",
     "workspace.host": "Quản trị cơ sở",
     "workspace.examiner": "Chấm thi",
-    "workspace.student": "Học viên",
     "workspace.proctor": "Giám thị",
     "workspace.switchTitle": "Chuyển không gian",
     "proctor.unavailable.title": "Khu vực Giám thị chưa khả dụng",
-    "proctor.unavailable.description": "Tính năng giám sát thi trực tiếp hiện đang được bảo trì hoặc chưa kích hoạt. Vui lòng liên hệ quản trị viên.",
+    "proctor.unavailable.description":
+      "Tính năng giám sát thi trực tiếp hiện đang được bảo trì hoặc chưa kích hoạt. Vui lòng liên hệ quản trị viên.",
   },
   en: {
     "common.language": "Language",
@@ -1091,6 +1117,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "common.english": "English",
     "common.notifications": "Notifications",
     "common.account": "Account",
+    "common.cancel": "Cancel",
     "common.profileAndOrganization": "Profile & organization",
     "common.logout": "Log out",
     "common.options": "Options",
@@ -1179,7 +1206,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.profile.organization.save": "Save changes",
     "tenant.profile.organization.cancel": "Cancel",
     "tenant.profile.organization.saved": "Organization information updated.",
-    "tenant.profile.organization.saveFailed": "Could not update organization information. Try again.",
+    "tenant.profile.organization.saveFailed":
+      "Could not update organization information. Try again.",
     "tenant.profile.organization.nameRequired": "Enter the organization name.",
     "tenant.profile.organization.name": "Organization name",
     "tenant.profile.organization.type": "Organization type",
@@ -1197,7 +1225,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
       "Could not load Vietnam address options. Try again.",
     "tenant.profile.organization.status": "Status",
     "tenant.profile.organization.emptyTitle": "No organization information",
-    "tenant.profile.organization.emptyDescription": "Your account is not linked to an organization.",
+    "tenant.profile.organization.emptyDescription":
+      "Your account is not linked to an organization.",
     "tenant.profile.personal.title": "Personal information",
     "tenant.profile.personal.description": "Account information used in your organization.",
     "tenant.profile.personal.edit": "Edit",
@@ -1257,6 +1286,10 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examDetails.cancelEdit": "Cancel",
     "tenant.examDetails.saved": "Exam information saved.",
     "tenant.examDetails.saveFailed": "Unable to save exam information. Please try again.",
+    "tenant.examConflict.audience":
+      "All selected students have a schedule conflict with another exam.",
+    "tenant.examConflict.schedule": "The exam schedule conflicts with another exam.",
+    "tenant.examConflict.sessions": "Conflicting exams: {exams}.",
     "tenant.examDetails.name": "Exam name",
     "tenant.examDetails.status": "Status",
     "tenant.examDetails.code": "Exam code",
@@ -1275,6 +1308,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examDetails.lockdown": "Lockdown mode",
     "tenant.examDetails.lockdownStrict": "Strict",
     "tenant.examDetails.readOnlyHelp": "This exam is read-only in its current status.",
+    "tenant.examDetails.readyStatusHelp":
+      "The exam has been generated. Change the status to Scheduled or Cancelled.",
     "tenant.examDetails.nameRequired": "Enter an exam name.",
     "tenant.examDetails.openRequired": "Choose when the exam opens.",
     "tenant.examDetails.closeRequired": "Choose when the exam closes.",
@@ -1324,6 +1359,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examList.emptyDescription": "Create your first exam session to start adding students.",
     "tenant.examList.actions": "Actions",
     "tenant.examList.view": "View details",
+    "tenant.examList.updateStatus": "Update status",
+    "tenant.examList.cancelUpdateStatus": "Cancel status update",
     "tenant.examList.delete": "Delete exam",
     "tenant.examList.deleteTitle": "Delete this exam draft?",
     "tenant.examList.deleteDescription":
@@ -1332,6 +1369,12 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examList.cancel": "Cancel",
     "tenant.examList.deleteSuccess": "Exam draft deleted.",
     "tenant.examList.deleteFailed": "Unable to delete the exam draft. Please try again.",
+    "tenant.examList.updateStatusTitle": "Update the status of {name}?",
+    "tenant.examList.updateStatusDescription":
+      "The exam {name} will move from {current} to {next}.",
+    "tenant.examList.updateStatusConfirm": "Update status",
+    "tenant.examList.updateStatusSuccess": "Exam status updated.",
+    "tenant.examList.updateStatusFailed": "Unable to update the exam status. Please try again.",
     "tenant.examTabs.questions": "Questions",
     "tenant.examQuestions.title": "Exam questions",
     "tenant.examQuestions.answerKeyNotice":
@@ -1366,48 +1409,45 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examStatus.open": "In progress",
     "tenant.examStatus.closed": "Closed",
     "tenant.examStatus.cancelled": "Cancelled",
-    "tenant.examinerAssignment.title":
-      "Examiner assignments",
-    "tenant.examinerAssignment.student":
-      "Student",
-    "tenant.examinerAssignment.examiners":
-      "Examiners",
-    "tenant.examinerAssignment.examiner":
-      "Examiner",
-    "tenant.examinerAssignment.examinerPlaceholder":
-      "Select an Examiner",
+    "tenant.examinerAssignment.title": "Examiner assignments",
+    "tenant.examinerAssignment.student": "Student",
+    "tenant.examinerAssignment.examiners": "Examiners",
+    "tenant.examinerAssignment.examiner": "Examiner",
+    "tenant.examinerAssignment.examinerPlaceholder": "Select an Examiner",
     "tenant.examinerAssignment.noExaminers":
       "No active Examiners are available in this organization.",
-    "tenant.examinerAssignment.loading":
-      "Loading...",
+    "tenant.examinerAssignment.loading": "Loading...",
     "tenant.examinerAssignment.requiresClosed":
       "Examiners can only be assigned after the exam has closed.",
     "tenant.examinerAssignment.lockedNotice":
-      "The assignment is committed and can no longer be edited.",
+      "The assignment is committed. You can still change the Examiner of an attempt that has not been finalized.",
     "tenant.examinerAssignment.hint":
       "Select Examiners and click “Randomize” to pre-fill the table, then adjust any student's Examiner. Click “Commit assignment” once every student has an Examiner.",
-    "tenant.examinerAssignment.randomize":
-      "Randomize",
-    "tenant.examinerAssignment.progress":
-      "{assigned}/{total} students have an Examiner",
-    "tenant.examinerAssignment.commit":
-      "Commit assignment",
-    "tenant.examinerAssignment.committing":
-      "Committing...",
-    "tenant.examinerAssignment.cancel":
-      "Cancel",
-    "tenant.examinerAssignment.commitTitle":
-      "Commit the grading assignment?",
+    "tenant.examinerAssignment.randomize": "Randomize",
+    "tenant.examinerAssignment.progress": "{assigned}/{total} students have an Examiner",
+    "tenant.examinerAssignment.commit": "Commit assignment",
+    "tenant.examinerAssignment.committing": "Committing...",
+    "tenant.examinerAssignment.cancel": "Cancel",
+    "tenant.examinerAssignment.commitTitle": "Commit the grading assignment?",
     "tenant.examinerAssignment.commitDescription":
       "Once committed, the assignment table is locked and cannot be edited.",
-    "tenant.examinerAssignment.confirmed":
-      "Assignment committed.",
-    "tenant.examinerAssignment.empty":
-      "No submitted attempts to assign yet.",
-    "tenant.examinerAssignment.unknownStudent":
-      "Unknown student",
-    "tenant.examinerAssignment.retry":
-      "Retry",
+    "tenant.examinerAssignment.confirmed": "Assignment committed.",
+    "tenant.examinerAssignment.empty": "No submitted attempts to assign yet.",
+    "tenant.examinerAssignment.unknownStudent": "Unknown student",
+    "tenant.examinerAssignment.retry": "Retry",
+    "tenant.examinerAssignment.progressColumn": "Grading",
+    "tenant.examinerAssignment.statusNotStarted": "Not started",
+    "tenant.examinerAssignment.statusInProgress": "In progress",
+    "tenant.examinerAssignment.statusCompleted": "Finalized",
+    "tenant.examinerAssignment.draftCount": "{count} drafts",
+    "tenant.examinerAssignment.changeExaminer": "Change Examiner",
+    "tenant.examinerAssignment.reassignTitle": "Change the Examiner?",
+    "tenant.examinerAssignment.reassignDescription":
+      "The new Examiner takes over this attempt. Drafts already saved ({count}) are kept and flagged for the new Examiner to confirm; open issue reports are closed automatically. The previous Examiner loses access immediately.",
+    "tenant.examinerAssignment.reassignConfirm": "Change Examiner",
+    "tenant.examinerAssignment.reassignPending": "Changing...",
+    "tenant.examinerAssignment.reassignDone": "Examiner changed.",
+    "tenant.examinerAssignment.newExaminer": "New Examiner",
     "tenant.scoreReview.aiEligibleAttempts": "AI-eligible attempts",
     "tenant.scoreReview.assigned": "Assigned",
     "tenant.scoreReview.unassigned": "Unassigned",
@@ -1426,20 +1466,25 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.publication.record": "Publication record",
     "tenant.publication.reportsPublished": "{published}/{cohort} reports published",
     "tenant.publication.published": "Published",
-    "tenant.publication.publication": "Publication",
-    "tenant.publication.host": "Host",
     "tenant.publication.loadingRecord": "Loading publication record…",
-    "tenant.publication.attempt": "Attempt",
     "tenant.publication.success": "Reports were published for the session cohort.",
     "tenant.publication.checking": "Checking…",
-    "tenant.publication.checkReadiness": "Check readiness",
+    "tenant.publication.notReady": "Cannot publish yet: {count} answer(s) without a final score",
+    "tenant.publication.allReady": "All {count} submitted attempts are ready to publish.",
+    "tenant.publication.chip.notClosed": "Cannot publish yet: close the session first",
+    "tenant.publication.chip.published": "Reports published",
+    "tenant.publication.chip.checking": "Checking publication readiness…",
+    "tenant.publication.chip.blocked": "Cannot publish yet: {count} answer(s) not ready",
+    "tenant.publication.chip.ready": "Ready to publish",
+    "tenant.publication.chip.error": "Could not check publication readiness",
+    "tenant.publication.chip.goTo": "Go to publication",
     "tenant.publication.publishConfirm":
       "Publish immutable reports for all {count} submitted attempts?",
     "tenant.publication.publishing": "Publishing…",
     "tenant.publication.approve": "Approve and publish",
-    "tenant.publication.attemptsReady":
-      "{ready}/{submitted} submitted attempts ready; {blockers} blocking answer(s).",
-    "tenant.publication.showingFirst": "Showing first 20 blockers.",
+    "tenant.publication.publishTitle": "Publish reports?",
+    "tenant.publication.attemptsReady": "{ready}/{submitted} submitted attempts ready",
+    "tenant.publication.answersPending": "{count} answer(s) without a final score",
     "tenant.grading.title": "Grading cohort",
     "tenant.grading.finalized": "Finalized",
     "tenant.grading.loading": "Loading grading coverage…",
@@ -1730,8 +1775,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.billing.usageStatus": "Usage status",
     "tenant.billing.usageStatusSubtitle":
       "Track exam package expiry and your organization student capacity.",
-    "tenant.billing.activationSourcePayment": "Payment",
-    "tenant.billing.activationSourceLicense": "License code",
+    "tenant.billing.activationSourcePayment": "Online purchase",
+    "tenant.billing.activationSourceLicense": "Granted by PTEPrep",
     "tenant.billing.activation": "Activation",
     "tenant.billing.activatedOn": "Activated {date}",
     "tenant.billing.expiryStatus": "Expiry",
@@ -1740,13 +1785,15 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.billing.billingActions": "Billing actions",
     "tenant.billing.noActiveAccess": "No active exam access",
     "tenant.billing.noActiveAccessDescription":
-      "Choose a package on Home or redeem a license code to get started.",
+      "No package yet. Buy one on Home or contact PTEPrep for a contract grant.",
     "tenant.billing.renewAccess": "Renew access",
     "tenant.billing.accessActive": "Active",
     "tenant.billing.accessExpiringSoon": "Expiring soon",
     "tenant.billing.accessExpired": "Expired",
     "tenant.billing.accessExpiresOn": "Expires {date}",
     "tenant.billing.accessDaysLeft": "{count} days left",
+    "tenant.billing.accessActiveUntil": "Active until {date}",
+    "tenant.billing.accessStartsOn": "Starts on {date}",
     "tenant.billing.activeAccessCount": "{count} active subscriptions",
     "tenant.billing.examPackageLabel": "Exam package",
     "tenant.billing.studentLimit": "Student limit",
@@ -1807,6 +1854,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.answers.view": "View",
     "tenant.attempts.student": "Student",
     "tenant.attempts.scoring": "AI scoring",
+    "tenant.attempts.noAiAnswers": "No AI-scored answers",
     "tenant.attempts.examiner": "Examiner",
     "tenant.attempts.examinerProgress": "Examiner progress",
     "tenant.attempts.examinerNotStarted": "Not started · {saved}/{total}",
@@ -1817,10 +1865,11 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.attempts.viewAnswers": "View answers",
     "tenant.attempts.back": "Back to submissions",
     "tenant.attemptScore.title": "Score summary",
-    "tenant.attemptScore.provisional": "Provisional: counts the answers scored so far",
+    "tenant.attemptScore.provisional": "Not yet published to the student",
     "tenant.attemptScore.unselectedAiNote":
       "Answers with no chosen score source are counted by their AI score. Totals may change once you choose.",
-    "tenant.attemptScore.overallNote": "Overall is only calculated when the exam covers all 4 skills.",
+    "tenant.attemptScore.overallNote":
+      "Overall is only calculated when the exam covers all 4 skills.",
     "tenant.attemptScore.overall": "Overall",
     "tenant.attemptScore.insufficient": "Insufficient data",
     "tenant.attemptScore.error": "Unable to load this student's score summary.",
@@ -1831,15 +1880,21 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.answers.unavailable": "Unavailable",
     "tenant.answers.attempt": "Attempt {number}",
     "tenant.answers.attemptHeader": "Attempt",
+    "tenant.answers.questionNumber": "No.",
     "tenant.answers.taskType": "Task Type",
     "tenant.answers.aiScore": "AI Score",
     "tenant.answers.examinerScore": "Examiner score",
+    "tenant.answers.finalScore": "Score",
+    "tenant.answers.finalScoreProvisional": "Provisional: AI score, no score source chosen yet",
     "tenant.answers.submitted": "Submitted",
     "tenant.answers.actions": "Actions",
     "tenant.answers.pending": "Pending",
     "tenant.answers.aiScoring": "AI Scoring",
     "tenant.answers.scoringFailed": "Scoring Failed",
     "tenant.answers.scored": "Scored",
+    "tenant.answers.unscored": "Not scored",
+    "tenant.answers.coverage":
+      "The student answered {answered}/{expected} questions, {blank} left blank",
     "tenant.answerDetail.title": "Submitted Answer",
     "tenant.answerDetail.taskType": "Task type",
     "tenant.answerDetail.status": "Status",
@@ -1855,7 +1910,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.proctor.assign": "Assign Proctor",
     "tenant.proctor.empty": "No proctors assigned yet",
     "tenant.proctor.unassign": "Remove from Exam",
-    "tenant.proctor.assignedCount": "{count} proctor(s) assigned",
     "tenant.proctor.fullName": "Full name",
     "tenant.proctor.email": "Email",
     "tenant.proctor.role": "Role",
@@ -1896,6 +1950,10 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.createExam.OPENS_AT_LABEL": "Opens at",
     "tenant.createExam.CLOSES_AT_LABEL": "Closes at",
     "tenant.createExam.CAPACITY_LABEL": "Maximum students",
+    "tenant.createExam.PREFLIGHT_SHORTAGE_DETAILS":
+      "{taskType}: requires {required} published question(s); available: {available}.",
+    "tenant.createExam.SUBSCRIPTION_CAPACITY_HINT":
+      "This subscription allows up to {count} students per exam.",
     "tenant.createExam.MODE_LABEL": "Exam mode",
     "tenant.createExam.PRACTICE_ANTI_CHEAT_LABEL": "Controlled desktop practice",
     "tenant.createExam.PRACTICE_ANTI_CHEAT_CONTROL":
@@ -1960,6 +2018,10 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.createExam.error.CLOSES_REQUIRED": "Choose when the exam closes.",
     "tenant.createExam.error.CLOSES_AFTER_OPENS": "The close time must be after the open time.",
     "tenant.createExam.error.CAPACITY_REQUIRED": "Enter a positive whole-number capacity.",
+    "tenant.createExam.error.CAPACITY_EXCEEDS_PLAN":
+      "Capacity exceeds the selected subscription's student limit.",
+    "tenant.createExam.error.AUDIENCE_EXCEEDS_CAPACITY":
+      "The selected students exceed this exam's capacity.",
     "tenant.createExam.error.SERIES_REQUIRED": "Add an exam series for this reuse rule.",
     "tenant.createExam.error.AUDIENCE_REQUIRED": "Select at least one student.",
     "tenant.createExam.error.OPEN_FUTURE": "Choose an opening time in the future.",
@@ -1999,7 +2061,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.support": "Support",
     "nav.applications": "Applications",
     "nav.planCatalog": "Plan catalog",
-    "nav.licenseCodes": "License codes",
+    "nav.licenseCodes": "Package grants",
     "nav.platformSettings": "Platform settings",
     "nav.announcements": "Announcements",
     "nav.questionBank": "Question Bank",
@@ -2015,12 +2077,12 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.exams": "Exams",
     "nav.plansBilling": "Plans & billing",
     "nav.auditLog": "System log",
+    "nav.chatUsage": "AI chat usage",
     "nav.examiner": "Examiner",
     "nav.examinerOverview": "Overview",
     "nav.program": "Program",
     "nav.class": "Class",
     "nav.markingQueue": "Marking queue",
-    "nav.student": "Student",
     "tenant.search.auditLog.placeholder":
       "Search system log by resource name, code, action, or summary",
     "tenant.search.auditLog.ariaLabel":
@@ -2046,17 +2108,13 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.search.orders.placeholder": "Search by order code, plan name, or status",
     "tenant.search.orders.ariaLabel": "Search orders by order code, plan name, or status",
     "tenant.search.answers.placeholder": "Search by answer ID, task type, or status",
-    "tenant.search.answers.ariaLabel":
-      "Search answers by answer ID, task type, or status",
-    "tenant.search.examinerRoster.placeholder":
-      "Search by student name or email",
-    "tenant.search.examinerRoster.ariaLabel":
-      "Search students by name or email",
+    "tenant.search.answers.ariaLabel": "Search answers by answer ID, task type, or status",
+    "tenant.search.examinerRoster.placeholder": "Search by student name or email",
+    "tenant.search.examinerRoster.ariaLabel": "Search students by name or email",
     "tenant.search.proctors.placeholder": "Search by proctor name, email, or role",
     "tenant.search.proctors.ariaLabel": "Search proctors by name, email, or role",
     "tenant.search.sessions.placeholder": "Search by exam name, session code, or status",
     "tenant.search.sessions.ariaLabel": "Search exam sessions by name, code, or status",
-    "nav.myResults": "My results",
     "nav.proctor": "Proctor",
     "nav.proctorOverview": "Overview",
     "nav.proctorMonitoring": "Live Monitoring",
@@ -2068,11 +2126,11 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.supervision": "Supervision",
     "workspace.host": "Host Admin",
     "workspace.examiner": "Examiner",
-    "workspace.student": "Student",
     "workspace.proctor": "Proctor",
     "workspace.switchTitle": "Switch Workspace",
     "proctor.unavailable.title": "Proctor Workspace Unavailable",
-    "proctor.unavailable.description": "Live proctoring features are currently disabled. Please contact your administrator.",
+    "proctor.unavailable.description":
+      "Live proctoring features are currently disabled. Please contact your administrator.",
   },
 };
 

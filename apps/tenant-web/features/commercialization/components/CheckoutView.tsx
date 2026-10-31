@@ -3,14 +3,15 @@
 import { useMemo, type ReactElement } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Alert, Button, CheckCircleIcon, PageHeader } from "@pte/ui";
-import { getUserFacingApiErrorMessage } from "@pte/api-client";
+import { Alert, Button, CheckCircleIcon, PageHeader, useToast } from "@pte/ui";
+import { getUserFacingApiErrorMessage, type OrderResponse } from "@pte/api-client";
 import { useCreateOrder, useOrdersQuery, useTenantPlansQuery } from "../api";
 import { BILLING_TEXT as T } from "../constants";
 import { BillingPanel } from "./BillingPanel";
 
 export const CheckoutView = (): ReactElement => {
   const router = useRouter();
+  const { showToast } = useToast();
   const searchParams = useSearchParams();
   const selectedPlanId = searchParams.get("planId") ?? "";
   const { data: plans = [], isLoading } = useTenantPlansQuery();
@@ -21,15 +22,19 @@ export const CheckoutView = (): ReactElement => {
     [plans, selectedPlanId],
   );
   const isFreePlan = plan ? Number(plan.price) === 0 : false;
-  const error = createOrder.error;
-  const errorMessage = error ? getUserFacingApiErrorMessage(error, T.ORDER_ERROR) : undefined;
   const pendingOrder = plan
     ? orders.find((item) => item.planId === plan.publicId && item.status === "PENDING")
     : undefined;
 
   const startPayment = async (): Promise<void> => {
     if (!plan) return;
-    const order = await createOrder.mutateAsync({ planId: plan.publicId });
+    let order: OrderResponse;
+    try {
+      order = await createOrder.mutateAsync({ planId: plan.publicId });
+    } catch (error) {
+      showToast(getUserFacingApiErrorMessage(error, T.ORDER_ERROR), { tone: "error" });
+      return;
+    }
     if (order.paymentLinkUrl) {
       window.location.assign(order.paymentLinkUrl);
       return;
@@ -40,7 +45,6 @@ export const CheckoutView = (): ReactElement => {
   return (
     <div className="flex flex-col gap-5">
       <PageHeader title={T.CHECKOUT_TITLE} subtitle={T.CHECKOUT_SUBTITLE} />
-      {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       {!isLoading && !plan && <Alert tone="warning">{T.SELECT_ACTIVE_PLAN}</Alert>}
       {pendingOrder && (
         <Alert tone="info" title={T.PENDING_PAYMENT_TITLE}>

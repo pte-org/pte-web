@@ -24,5 +24,14 @@ Before inspecting a change in depth or writing code, read [docs/CODING_STANDARDS
 
 ## Verification
 
+### Test file placement
+
+- Each app/package owns a `tests/` directory alongside `features/` or `src/`. Keep all test code outside production folders.
+- Unit/component tests belong in `tests/unit/`, mirroring the source tree: `apps/tenant-web/tests/unit/features/exams/...` and `packages/api-client/tests/unit/requests/...`.
+- Use `tests/integration/` and `tests/e2e/` for those suites. Never put `.test.*`, `.spec.*`, `__tests__`, fixtures, mocks, or test helpers alongside production components, hooks, requests, or types.
+- Keep test-only fixtures and helpers under `tests/`; preserve assertions when relocating tests. Production code must never import test code.
+- Configure Vitest to discover tests only under `tests/`; include tests in TypeScript checks. Update relative imports, mocks, and filesystem/contract paths when moving files.
+- Before handoff, verify no test files remain under production folders and run all affected test suites and typechecks. Report skipped/failing checks explicitly.
+
 - Review the relevant coding-standard checklist before handing off. Run scoped lint, typecheck and appropriate tests/build checks; report exactly what was verified and any outstanding limitations.
 - Preserve unrelated worktree changes. Do not fix a UI inconsistency by silently changing common defaults across other screens.
