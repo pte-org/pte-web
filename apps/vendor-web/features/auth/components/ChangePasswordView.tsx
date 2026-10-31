@@ -39,7 +39,11 @@ export const ChangePasswordView = (): ReactElement => {
     }
     setFormError(undefined);
     try {
-      await mutation.mutateAsync({ currentPassword, newPassword });
+      await mutation.mutateAsync({
+        currentPassword,
+        newPassword,
+        refreshToken: session?.refreshToken,
+      });
       if (session) saveSession({ ...session, mustChangePassword: false });
       const destination = session?.roles.some((role) => ADMIN_ROLES.includes(role))
         ? AUTH_ROUTES.adminDashboard

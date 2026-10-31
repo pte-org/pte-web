@@ -9,11 +9,15 @@ import {
 import {
   getCurrentUser,
   changePassword,
+  confirmPasswordReset,
+  requestPasswordReset,
   listLoginOrganizations,
   loginAdmin,
   loginHost,
   type AdminLoginRequest,
   type ChangePasswordRequest,
+  type PasswordResetConfirmRequest,
+  type PasswordResetRequest,
   type CurrentUser,
   type HostLoginRequest,
   type LoginOrganizationOption,
@@ -62,5 +66,21 @@ export function useCurrentUser(): UseQueryResult<CurrentUser> {
       roles: normalizeSessionRoles(user.roles),
     }),
     retry: false,
+  });
+}
+
+export function useRequestPasswordReset(): UseMutationResult<void, unknown, PasswordResetRequest> {
+  return useMutation({
+    mutationFn: (payload: PasswordResetRequest) => requestPasswordReset(apiClient, payload),
+  });
+}
+
+export function useConfirmPasswordReset(): UseMutationResult<
+  void,
+  unknown,
+  PasswordResetConfirmRequest
+> {
+  return useMutation({
+    mutationFn: (payload: PasswordResetConfirmRequest) => confirmPasswordReset(apiClient, payload),
   });
 }

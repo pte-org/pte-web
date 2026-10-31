@@ -1,5 +1,8 @@
 export { LoginView } from "./LoginView";
 export { ChangePasswordView } from "./ChangePasswordView";
+export { AuthPageShell } from "./AuthPageShell";
+export { ForgotPasswordView } from "./ForgotPasswordView";
+export { ResetPasswordView } from "./ResetPasswordView";
 export { RequireAuth } from "./RequireAuth";
 export { LogoutButton } from "./LogoutButton";
 export { AuthLoading } from "./AuthLoading";
