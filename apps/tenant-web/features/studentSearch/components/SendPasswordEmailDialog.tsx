@@ -1,14 +1,14 @@
 "use client";
 
 import type { ReactElement } from "react";
-import type { StudentRosterRow } from "@pte/api-client";
 import { ConfirmDialog, useLocale, useToast } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useSendUserCredentials } from "@/features/userManagement";
 import { STUDENT_ROSTER_FILTER_TEXT as TEXT } from "../constants";
+import type { SendPasswordEmailTarget } from "../utils/sendPasswordEmail";
 
 interface SendPasswordEmailDialogProps {
-  student: StudentRosterRow | null;
+  student: SendPasswordEmailTarget | null;
   onClose: () => void;
 }
 

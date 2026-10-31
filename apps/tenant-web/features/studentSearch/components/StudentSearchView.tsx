@@ -41,7 +41,11 @@ import { ManageStudentsModal } from "./ManageStudentsModal";
 import { LockedFilterBanner } from "./LockedFilterBanner";
 import { ClassBlockedAlert } from "./ClassBlockedAlert";
 import { SendPasswordEmailDialog } from "./SendPasswordEmailDialog";
-import { getSendPasswordEmailState } from "../utils/sendPasswordEmail";
+import {
+  buildSendPasswordEmailTarget,
+  getSendPasswordEmailState,
+  type SendPasswordEmailTarget,
+} from "../utils/sendPasswordEmail";
 import { useAssignStudentsDeeplink } from "./useAssignStudentsDeeplink";
 import {
   GeneratedCredentialsModal,
@@ -152,7 +156,7 @@ export const StudentSearchView = (): ReactElement => {
   const [guardOpen, setGuardOpen] = useState(false);
   const [studentToSuspend, setStudentToSuspend] = useState<StudentRosterRow | null>(null);
   const [passwordTarget, setPasswordTarget] = useState<StudentRosterRow | null>(null);
-  const [emailTarget, setEmailTarget] = useState<StudentRosterRow | null>(null);
+  const [emailTarget, setEmailTarget] = useState<SendPasswordEmailTarget | null>(null);
   const [credentials, setCredentials] = useState<GeneratedCredentials | null>(null);
   const [keepPreviousRows, setKeepPreviousRows] = useState(false);
 
@@ -475,7 +479,10 @@ export const StudentSearchView = (): ReactElement => {
                 title: getSendPasswordEmailState(row).enabled
                   ? undefined
                   : text.sendPasswordEmailNoEmail,
-                onSelect: () => setEmailTarget(row),
+                onSelect: () =>
+                  setEmailTarget(
+                    buildSendPasswordEmailTarget(row.studentPublicId, row.fullName, row.email),
+                  ),
               },
               row.status === "SUSPENDED"
                 ? {

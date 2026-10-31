@@ -23,6 +23,8 @@ export const STUDENT_DETAIL_TEXT = {
   actions: {
     menuLabel: "Student actions",
     generatePassword: "Generate temporary password",
+    sendPasswordEmail: "Send password via email",
+    sendPasswordEmailNoEmail: "This student has no email address.",
     reactivate: "Reactivate account",
     suspend: "Suspend account",
   },

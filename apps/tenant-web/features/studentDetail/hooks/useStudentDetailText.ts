@@ -31,6 +31,8 @@ export interface StudentDetailText {
   actions: {
     menuLabel: string;
     generatePassword: string;
+    sendPasswordEmail: string;
+    sendPasswordEmailNoEmail: string;
     reactivate: string;
     suspend: string;
   };
@@ -150,6 +152,16 @@ const buildText = (t: Translate, locale: Locale): StudentDetailText => {
         t,
         "tenant.studentDetail.actions.generatePassword",
         text.actions.generatePassword,
+      ),
+      sendPasswordEmail: translate(
+        t,
+        "tenant.students.sendPasswordEmail",
+        text.actions.sendPasswordEmail,
+      ),
+      sendPasswordEmailNoEmail: translate(
+        t,
+        "tenant.students.sendPasswordEmailNoEmail",
+        text.actions.sendPasswordEmailNoEmail,
       ),
       reactivate: translate(t, "tenant.studentDetail.actions.reactivate", text.actions.reactivate),
       suspend: translate(t, "tenant.studentDetail.actions.suspend", text.actions.suspend),

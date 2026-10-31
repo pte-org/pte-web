@@ -3,9 +3,13 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { getUserFacingApiErrorMessage, type StudentDetailResponse } from "@pte/api-client";
-import { BanIcon, ShieldIcon, type DropdownItem } from "@pte/ui";
+import { BanIcon, MailIcon, ShieldIcon, type DropdownItem } from "@pte/ui";
 import { useGenerateStudentCredentials, type GeneratedCredentials } from "@/features/userManagement";
 import { useReactivateStudent, useSuspendStudent } from "@/features/studentSearch/api";
+import {
+  buildSendPasswordEmailTarget,
+  type SendPasswordEmailTarget,
+} from "@/features/studentSearch/utils/sendPasswordEmail";
 import { STUDENT_DETAIL_QUERY_KEY } from "../api";
 import type { StudentDetailText } from "./useStudentDetailText";
 
@@ -15,9 +19,11 @@ export const useStudentDetailActions = (
   items: DropdownItem[]; error: string | null; suspendError: string | null;
   suspendOpen: boolean; closeSuspend: () => void; confirmSuspend: () => void;
   suspending: boolean; credentials: GeneratedCredentials | null; closeCredentials: () => void;
+  emailTarget: SendPasswordEmailTarget | null; closeEmail: () => void;
 } => {
   const [suspendOpen, setSuspendOpen] = useState(false);
   const [credentials, setCredentials] = useState<GeneratedCredentials | null>(null);
+  const [emailTarget, setEmailTarget] = useState<SendPasswordEmailTarget | null>(null);
   const suspend = useSuspendStudent();
   const reactivate = useReactivateStudent();
   const generate = useGenerateStudentCredentials();
@@ -28,10 +34,18 @@ export const useStudentDetailActions = (
   };
   const suspendError = suspend.error ? getUserFacingApiErrorMessage(suspend.error, text.genericError) : null;
   const rawError = suspend.error ?? reactivate.error ?? generate.error;
+  const emailCandidate = buildSendPasswordEmailTarget(
+    publicId, account?.fullName || account?.username || "", account?.email ?? null,
+  );
   const items: DropdownItem[] = [
     {
       label: text.actions.generatePassword, icon: ShieldIcon, disabled: generate.isPending,
       onSelect: () => { resetErrors(); generate.mutate(publicId, { onSuccess: setCredentials }); },
+    },
+    {
+      label: text.actions.sendPasswordEmail, icon: MailIcon, disabled: !emailCandidate,
+      title: emailCandidate ? undefined : text.actions.sendPasswordEmailNoEmail,
+      onSelect: () => { resetErrors(); setEmailTarget(emailCandidate); },
     },
     { separator: true, key: "student-detail-actions-separator" },
     account?.status === "SUSPENDED" ? {
@@ -46,6 +60,7 @@ export const useStudentDetailActions = (
     items, error: rawError ? getUserFacingApiErrorMessage(rawError, text.genericError) : null,
     suspendError, suspendOpen, suspending: suspend.isPending, credentials,
     closeSuspend: () => setSuspendOpen(false), closeCredentials: () => setCredentials(null),
+    emailTarget, closeEmail: () => setEmailTarget(null),
     confirmSuspend: () => {
       resetErrors();
       suspend.mutate(publicId, { onSuccess: () => { setSuspendOpen(false); invalidate(); } });
