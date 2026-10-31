@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Alert, Badge, Button, DashboardCard, LoadingState, useDashboardBreadcrumbLabel } from "@pte/ui";
+import { Alert, Badge, Button, LoadingState, useDashboardBreadcrumbLabel } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
 import { useCloneScoreTemplate, useScoreTemplate } from "../api";
@@ -46,31 +46,30 @@ export const ScoreTemplateDetailView = ({
 
   return (
     <div className="space-y-6">
-      <DashboardCard>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-semibold text-[var(--ink-primary)]">{template.name}</p>
-            <p className="mt-1 text-xs text-[var(--ink-muted)]">{template.code} v{template.version}</p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Badge variant={SCORE_TEMPLATE_STATUS_VARIANT[status] ?? "neutral"}>
-              {SCORE_TEMPLATE_STATUS_LABELS[status] ?? template.status}
-            </Badge>
-            <Button
-              variant="secondary"
-              isLoading={cloneMutation.isPending}
-              onClick={() =>
-                cloneMutation.mutate(template.publicId, {
-                  onSuccess: (draft) =>
-                    router.push(`${EXAM_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`),
-                })
-              }
-            >
-              {SCORE_TEMPLATE_TEXT.CLONE_ACTION}
-            </Button>
-          </div>
+      {/* The template name is already the breadcrumb's last segment, so this row only
+          carries what the breadcrumb does not: code/version, status and the clone action. */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant={SCORE_TEMPLATE_STATUS_VARIANT[status] ?? "neutral"}>
+            {SCORE_TEMPLATE_STATUS_LABELS[status] ?? template.status}
+          </Badge>
+          <span className="text-sm text-[var(--ink-muted)]">
+            {template.code} v{template.version}
+          </span>
         </div>
-      </DashboardCard>
+        <Button
+          variant="secondary"
+          isLoading={cloneMutation.isPending}
+          onClick={() =>
+            cloneMutation.mutate(template.publicId, {
+              onSuccess: (draft) =>
+                router.push(`${EXAM_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`),
+            })
+          }
+        >
+          {SCORE_TEMPLATE_TEXT.CLONE_ACTION}
+        </Button>
+      </div>
 
       {template.rejectionReason && (
         <Alert tone="warning" title={SCORE_TEMPLATE_TEXT.REJECTION_FEEDBACK_LABEL}>

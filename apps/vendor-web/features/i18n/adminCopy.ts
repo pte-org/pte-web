@@ -509,7 +509,7 @@ const ADMIN_VI: Record<string, string> = {
   "Cloudinary upload failed": "Tải lên Cloudinary thất bại",
 
   "Exam Templates": "Mẫu bài thi",
-  "Clone to new draft": "Nhân bản thành bản nháp mới",
+  "Clone to new draft": "Tạo bản nháp mới",
   "Create template": "Tạo mẫu",
   Delete: "Xóa",
   "Create exam template": "Tạo mẫu bài thi",
