@@ -17,6 +17,7 @@ import {
   type BadgeVariant,
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
+import { useActiveScoreTemplate } from "@/features/exams/api";
 import {
   useActivateHostTemplate,
   useCloneHostTemplate,
@@ -27,6 +28,7 @@ import {
 } from "../api";
 import { HOST_TEMPLATES_ROUTE } from "../constants";
 import { useListText } from "../hooks/useTemplateText";
+import { templateActionError } from "../utils/actionError";
 
 type PendingAction = { kind: "delete" | "retire" | "activate"; template: ScoreTemplateResponse };
 
@@ -41,6 +43,7 @@ export const HostTemplatesListView = (): ReactElement => {
   const text = useListText();
   const router = useRouter();
   const { data: templates, isLoading, error } = useHostTemplates();
+  const { data: defaultTemplate } = useActiveScoreTemplate();
   const create = useCreateHostTemplate();
   const clone = useCloneHostTemplate();
   const activate = useActivateHostTemplate();
@@ -57,11 +60,9 @@ export const HostTemplatesListView = (): ReactElement => {
     RETIRED: text.STATUS_RETIRED,
     PENDING_APPROVAL: text.STATUS_PENDING_APPROVAL,
   };
-  const actionError =
-    errorMessage(clone.error) ??
-    errorMessage(activate.error) ??
-    errorMessage(retire.error) ??
-    errorMessage(remove.error);
+  const actionError = [clone.error, activate.error, retire.error, remove.error]
+    .map((error) => templateActionError(error, text))
+    .find(Boolean);
 
   const closeCreate = (): void => {
     setCreateOpen(false);
@@ -102,7 +103,7 @@ export const HostTemplatesListView = (): ReactElement => {
 
       {isLoading ? (
         <LoadingState rows={3} />
-      ) : !templates || templates.length === 0 ? (
+      ) : !defaultTemplate && (!templates || templates.length === 0) ? (
         <EmptyState title={text.EMPTY_TITLE} description={text.EMPTY_TEXT} />
       ) : (
         <div className="overflow-x-auto rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)]">
@@ -116,7 +117,40 @@ export const HostTemplatesListView = (): ReactElement => {
               </tr>
             </thead>
             <tbody>
-              {templates.map((template) => (
+              {defaultTemplate && (
+                <tr className="border-b border-[var(--shell-border)]">
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`${HOST_TEMPLATES_ROUTE}/${defaultTemplate.publicId}`}
+                      className="font-medium text-[var(--action)] hover:underline"
+                    >
+                      {defaultTemplate.name}
+                    </Link>
+                    <p className="mt-0.5 text-xs text-[var(--ink-muted)]">{text.DEFAULT_HINT}</p>
+                  </td>
+                  <td className="px-4 py-3">
+                    <Badge variant="info">{text.DEFAULT_BADGE}</Badge>
+                  </td>
+                  <td className="px-4 py-3 text-[var(--ink-secondary)]">
+                    {defaultTemplate.items.length}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap justify-end gap-1">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        appearance="ghost"
+                        onClick={() =>
+                          router.push(`${HOST_TEMPLATES_ROUTE}/${defaultTemplate.publicId}`)
+                        }
+                      >
+                        {text.OPEN}
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              )}
+              {(templates ?? []).map((template) => (
                 <tr
                   key={template.publicId}
                   className="border-b border-[var(--shell-border)] last:border-0"

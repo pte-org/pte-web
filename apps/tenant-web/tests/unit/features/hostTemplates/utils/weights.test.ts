@@ -1,8 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { ScoreTemplateItemRequest } from "@pte/api-client";
+import type { ScoreTemplateItemRequest, ScoreTemplateItemResponse } from "@pte/api-client";
 import {
   applySuggestedColumn,
   areWeightsValid,
+  buildWeightEditableCheck,
   computeSkillTotals,
   formatWeight,
   removeItem,
@@ -28,6 +29,30 @@ const item = (key: string, section: string, weights: Weights, sequence = 1): Sco
   readingWeight: 0,
   listeningWeight: 0,
   ...weights,
+});
+
+describe("buildWeightEditableCheck", () => {
+  const asResponse = (rows: ScoreTemplateItemRequest[]): ScoreTemplateItemResponse[] =>
+    rows as unknown as ScoreTemplateItemResponse[];
+
+  it("only lets the host tune the skills the default credits for that task type", () => {
+    const base = asResponse([
+      item("REPEAT_SENTENCE", "SPEAKING", { speakingWeight: 16, listeningWeight: 17 }),
+    ]);
+    const editable = buildWeightEditableCheck(base, base);
+    expect(editable("REPEAT_SENTENCE", "SPEAKING")).toBe(true);
+    expect(editable("REPEAT_SENTENCE", "LISTENING")).toBe(true);
+    expect(editable("REPEAT_SENTENCE", "READING")).toBe(false);
+    expect(editable("REPEAT_SENTENCE", "WRITING")).toBe(false);
+  });
+
+  it("falls back to the template's own weights when the default lacks the task type", () => {
+    const own = asResponse([item("ONLY_HERE", "READING", { readingWeight: 40 })]);
+    const editable = buildWeightEditableCheck(undefined, own);
+    expect(editable("ONLY_HERE", "READING")).toBe(true);
+    expect(editable("ONLY_HERE", "SPEAKING")).toBe(false);
+    expect(editable("UNKNOWN", "READING")).toBe(false);
+  });
 });
 
 describe("computeSkillTotals", () => {

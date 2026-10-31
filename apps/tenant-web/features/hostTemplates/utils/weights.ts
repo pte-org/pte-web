@@ -110,6 +110,24 @@ export function applySuggestedColumn(
   );
 }
 
+/**
+ * A host may only tune the skills the platform default already credits for a task type (e.g. Repeat Sentence
+ * counts for Speaking and Listening, so Reading and Writing stay locked at 0). When the default has no such
+ * task type, the template's own saved weights decide.
+ */
+export function buildWeightEditableCheck(
+  base: readonly ScoreTemplateItemResponse[] | undefined,
+  own: readonly ScoreTemplateItemResponse[],
+): (taskTypeKey: string, skill: SkillName) => boolean {
+  const reference = new Map<string, ScoreTemplateItemResponse>();
+  for (const item of own) reference.set(item.taskTypeKey, item);
+  for (const item of base ?? []) reference.set(item.taskTypeKey, item);
+  return (taskTypeKey, skill) => {
+    const item = reference.get(taskTypeKey);
+    return item !== undefined && asNumber(item[WEIGHT_FIELD[skill]]) > 0;
+  };
+}
+
 export function formatWeight(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/\.?0+$/, "");
 }

@@ -6,13 +6,8 @@ import { Alert, Button, Modal } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useSuggestSkillWeights } from "../api";
 import { DEFAULT_REDISTRIBUTION_MODE, type RedistributionMode } from "../constants";
-import { useEditorText, useModeText, useSkillLabels } from "../hooks/useTemplateText";
-import {
-  WEIGHT_FIELD,
-  applySuggestedColumn,
-  formatWeight,
-  toSuggestionItems,
-} from "../utils/weights";
+import { useEditorText, useModeText } from "../hooks/useTemplateText";
+import { WEIGHT_FIELD, applySuggestedColumn, toSuggestionItems } from "../utils/weights";
 
 interface BalanceWeightsDialogProps {
   open: boolean;
@@ -41,7 +36,6 @@ const BalanceWeightsContent = ({
   onApply,
 }: Omit<BalanceWeightsDialogProps, "open">): ReactElement => {
   const text = useEditorText();
-  const labels = useSkillLabels();
   const modeText = useModeText();
   const [mode, setMode] = useState<RedistributionMode>(DEFAULT_REDISTRIBUTION_MODE);
   const { mutate, data, error, isPending, reset } = useSuggestSkillWeights();
@@ -65,11 +59,6 @@ const BalanceWeightsContent = ({
     onApply(next);
     onClose();
   };
-
-  const currentWeight = (taskTypeKey: string, skill: string): number =>
-    items.find((item) => item.taskTypeKey === taskTypeKey)?.[
-      WEIGHT_FIELD[skill as keyof typeof WEIGHT_FIELD]
-    ] ?? 0;
 
   const canApply = mode !== "MANUAL" && unbalanced.length > 0;
 
@@ -124,37 +113,6 @@ const BalanceWeightsContent = ({
           <Alert tone="info">{text.MANUAL_NOTE}</Alert>
         )}
 
-        {mode !== "MANUAL" &&
-          unbalanced.map((skill) => (
-            <section key={skill.skill} className="rounded-lg border border-[var(--shell-border)] p-3">
-              <h3 className="text-sm font-semibold text-[var(--ink-primary)]">
-                {labels[skill.skill as keyof typeof labels] ?? skill.skill}{" "}
-                <span className="font-normal text-[var(--ink-muted)]">
-                  {formatWeight(skill.currentTotal)} → 100
-                </span>
-              </h3>
-              <table className="mt-2 w-full text-left text-sm">
-                <thead className="text-xs uppercase text-[var(--ink-muted)]">
-                  <tr>
-                    <th className="py-1">{text.COL_TASK}</th>
-                    <th className="py-1">{text.BEFORE}</th>
-                    <th className="py-1">{text.AFTER}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {columnOf(skill).map((entry) => (
-                    <tr key={entry.taskTypeKey}>
-                      <td className="py-1 font-mono text-xs">{entry.taskTypeKey}</td>
-                      <td className="py-1">{formatWeight(currentWeight(entry.taskTypeKey, skill.skill))}</td>
-                      <td className="py-1 font-semibold text-[var(--ink-primary)]">
-                        {formatWeight(entry.weight)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </section>
-          ))}
       </div>
     </Modal>
   );

@@ -47,23 +47,41 @@ export const HOST_TEMPLATES_TEXT = {
   CONFIRM_RETIRE_TEXT:
     "It can no longer be chosen for new exams. Exams that already use it are not affected.",
   CONFIRM_ACTIVATE_TITLE: "Activate this template?",
-  CONFIRM_ACTIVATE_TEXT: "Once active, the template can be chosen when you create an exam.",
+  CONFIRM_ACTIVATE_TEXT:
+    "Once activated, the template appears in the list you choose from when you create an exam. It is not applied to exams automatically.",
+  ACTION_FAILED: "We couldn't complete this action. Please try again.",
+  ACTIVATE_POOL_SHORT:
+    "Can't activate yet: some task types don't have enough approved questions. Open the template and check the Available / needed column, or remove those task types.",
+  ACTIVATE_WEIGHTS_INVALID:
+    "Can't activate: each skill's weights must total exactly 100. Open the template and adjust the weights.",
   STATUS_DRAFT: "Draft",
-  STATUS_ACTIVE: "Active",
+  STATUS_ACTIVE: "Available",
   STATUS_RETIRED: "Retired",
   STATUS_PENDING_APPROVAL: "Pending",
+  DEFAULT_BADGE: "Default",
+  DEFAULT_HINT: "Provided by the platform. Choose it when creating an exam, or create a new template from it.",
 } as const;
 
 export const EDITOR_TEXT = {
   BACK: "Back to templates",
   NOT_FOUND: "Template not found.",
   READ_ONLY: "Only a draft can be edited. Duplicate this template to change it.",
+  DEFAULT_READ_ONLY:
+    "This is the platform default template and cannot be edited. You can choose it when creating an exam, or create a new template from it to remove task types.",
   NAME_LABEL: "Template name",
   TASKS_TITLE: "Task types",
   TASKS_HINT:
     "You can remove task types and adjust weights. Task types outside the default template cannot be added.",
   COL_TASK: "Task type",
   COL_COUNT: "Questions",
+  COL_POOL: "Available / needed",
+  POOL_OK: "Enough published questions for this task type.",
+  POOL_SHORT:
+    "Not enough published questions for this task type: {available} available, {required} needed.",
+  POOL_SUMMARY:
+    "{count} task type(s) do not have enough questions yet. You can still save the draft, but activation is blocked until they do.",
+  WEIGHT_LOCKED:
+    "The default template gives this task type no weight for this skill, so it cannot be changed.",
   REMOVE: "Remove",
   NO_TASKS: "A template needs at least one task type.",
   SAVE: "Save",
@@ -71,12 +89,8 @@ export const EDITOR_TEXT = {
   SAVED: "Template saved.",
   ACTIVATED: "Template activated.",
   SAVE_FIRST: "Save your changes before activating.",
-  TOTALS_TITLE: "Weight per skill",
-  TOTALS_HINT:
-    "Each skill must total exactly 100. A skill with no tasks of its own can stay at 0, or reach 100 through tasks from other parts.",
-  TOTAL_OK: "OK",
-  TOTAL_NEEDS_100: "Must total 100",
-  TOTAL_UNUSED: "Not tested",
+  WEIGHTS_INVALID:
+    "Each skill's weights must total 100 (a skill with no tasks of its own may stay at 0). Check:",
   OVERALL_ZERO: "At least one skill must carry weight.",
   BALANCE: "Balance weights",
   BALANCE_TITLE: "Balance skill weights",
@@ -85,8 +99,6 @@ export const EDITOR_TEXT = {
   BALANCE_ALREADY: "All skills already total 100 (or 0). Nothing to balance.",
   APPLY: "Apply",
   CLOSE: "Close",
-  BEFORE: "Before",
-  AFTER: "After",
   SUGGEST_FAILED: "Could not compute a suggestion.",
   MANUAL_NOTE: "Close this dialog and edit the weights in the table yourself.",
 } as const;
