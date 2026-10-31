@@ -1,19 +1,10 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
-import {
-  ActionMenu,
-  Alert,
-  DataTable,
-  LockIcon,
-  useLocale,
-  XIcon,
-  type DataTableColumn,
-} from "@pte/ui";
-import { useResetStudentPassword, useSessionRoster, useUnenroll, type RosterEntry } from "../api";
+import type { ReactElement } from "react";
+import { ActionMenu, Alert, DataTable, useLocale, XIcon, type DataTableColumn } from "@pte/ui";
+import { useSessionRoster, useUnenroll, type RosterEntry } from "../api";
 import { errorMessage } from "../errorMessage";
 import { useTenantSearchText } from "@/features/search/useTenantSearchText";
-import { ResetStudentPasswordModal } from "./ResetStudentPasswordModal";
 import {
   STUDENT_ROSTER_TABLE_TEXT,
   STUDENT_ROW_ACTIONS_TEXT,
@@ -34,8 +25,6 @@ export const StudentRosterTable = ({
   const searchText = useTenantSearchText("roster");
   const { data: roster, isLoading } = useSessionRoster(sessionPublicId);
   const unenrollMutation = useUnenroll(sessionPublicId);
-  const [resetTarget, setResetTarget] = useState<RosterEntry | null>(null);
-  const resetPassword = useResetStudentPassword(resetTarget?.student.publicId ?? "");
   const text = {
     fullName: t("tenant.studentRoster.fullName", STUDENT_TABLE_HEADERS.FULL_NAME),
     email: t("tenant.studentRoster.email", STUDENT_TABLE_HEADERS.EMAIL),
@@ -43,7 +32,6 @@ export const StudentRosterTable = ({
     className: t("tenant.studentRoster.class", STUDENT_TABLE_HEADERS.CLASS_NAME),
     emptyTitle: t("tenant.studentRoster.empty", STUDENT_ROSTER_TABLE_TEXT.EMPTY_TITLE),
     emptyValue: t("common.emptyValue", STUDENT_ROSTER_TABLE_TEXT.EMPTY_VALUE),
-    resetPassword: t("tenant.studentRoster.resetPassword", STUDENT_ROW_ACTIONS_TEXT.RESET_PASSWORD),
     removeFromExam: t(
       "tenant.studentRoster.removeFromExam",
       STUDENT_ROW_ACTIONS_TEXT.REMOVE_FROM_EXAM,
@@ -84,41 +72,22 @@ export const StudentRosterTable = ({
         emptyTitle={text.emptyTitle}
         searchPlaceholder={searchText.placeholder}
         searchAriaLabel={searchText.ariaLabel}
-        rowActions={(entry) => (
-          <ActionMenu
-            items={[
-              {
-                label: text.resetPassword,
-                icon: LockIcon,
-                onSelect: () => setResetTarget(entry),
-              },
-              ...(canRemove
-                ? [
+        rowActions={
+          canRemove
+            ? (entry) => (
+                <ActionMenu
+                  items={[
                     {
                       label: text.removeFromExam,
                       icon: XIcon,
                       danger: true,
                       onSelect: () => unenrollMutation.mutate(entry.enrollmentPublicId),
                     },
-                  ]
-                : []),
-            ]}
-          />
-        )}
-      />
-
-      <ResetStudentPasswordModal
-        key={resetTarget ? `reset-${resetTarget.enrollmentPublicId}` : "reset-closed"}
-        open={resetTarget !== null}
-        onClose={() => {
-          resetPassword.reset();
-          setResetTarget(null);
-        }}
-        onSubmit={(newPassword) =>
-          resetPassword.mutate(newPassword, { onSuccess: () => setResetTarget(null) })
+                  ]}
+                />
+              )
+            : undefined
         }
-        error={errorMessage(resetPassword.error)}
-        isSubmitting={resetPassword.isPending}
       />
     </div>
   );

@@ -112,7 +112,12 @@ export const AttemptsSection = ({ sessionPublicId }: AttemptsSectionProps): Reac
     {
       key: "progress",
       header: t("tenant.attempts.scoring", ATTEMPT_TABLE_HEADERS.PROGRESS),
-      cell: (row) => (
+      cell: (row) =>
+        row.answerCount === 0 ? (
+          <span className="text-[var(--ink-secondary)]">
+            {t("tenant.attempts.noAiAnswers", T.NO_AI_ANSWERS)}
+          </span>
+        ) : (
         <span className="flex flex-wrap items-center gap-2">
           <span>{T.PROGRESS(row.scoredCount, row.answerCount)}</span>
           {row.failedCount > 0 && <Badge variant="danger">{T.FAILED(row.failedCount)}</Badge>}
@@ -121,7 +126,7 @@ export const AttemptsSection = ({ sessionPublicId }: AttemptsSectionProps): Reac
           )}
           {row.pendingCount > 0 && <Badge variant="neutral">{T.WAITING(row.pendingCount)}</Badge>}
         </span>
-      ),
+        ),
     },
   ];
 

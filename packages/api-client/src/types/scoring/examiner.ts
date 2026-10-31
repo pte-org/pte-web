@@ -168,6 +168,8 @@ export interface ExaminerDraftResponse {
   expectedReviewVersion: string | null;
   reviewedAiVersion: string | null;
   savedAt: string;
+  /** True for a draft inherited from the previous Examiner; saving it again clears the flag. */
+  carriedOver: boolean;
 }
 
 export interface ExaminerWorkflowView {

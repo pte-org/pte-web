@@ -134,6 +134,11 @@ export const EXAMINER_WORK_TEXT = {
   BLOCK_WAITING_FOR_HOST_FREEZE: "Waiting for the Host to freeze the cohort.",
   BLOCK_COHORT_NOT_MANUAL: "This cohort is not marked manually by examiners.",
   BLOCK_EXCLUDED_FROM_COHORT: "This attempt was excluded from the grading cohort.",
+  BLOCK_CARRIED_OVER_DRAFTS:
+    "Some drafts were carried over from the previous Examiner. Review each flagged question and save it (even with the same score) before finalizing.",
+  CARRIED_OVER_BADGE: "From previous Examiner",
+  CARRIED_OVER_HINT:
+    "This draft was saved by the previous Examiner. Review it and save it to confirm.",
 } as const;
 
 export const EXAMINER_ISSUE_OPTIONS: { value: ExaminerGradingIssueType; label: string }[] = [

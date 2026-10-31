@@ -131,6 +131,7 @@ export const ExaminerQueueView = (): ReactElement => {
   const getBlockingText = (reason: string | null | undefined): string => {
     if (!reason) return "";
     if (reason === "WAITING_FOR_HOST_FREEZE") return text.waitingForHostFreeze;
+    if (reason === "CARRIED_OVER_DRAFTS_UNCONFIRMED") return text.carriedOverDrafts;
     return `${text.blockedReasonPrefix}${reason}`;
   };
 

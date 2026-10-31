@@ -63,6 +63,7 @@ export const AnswersSection = ({
       AI_SCORING: "tenant.answers.aiScoring",
       SCORING_FAILED: "tenant.answers.scoringFailed",
       SCORED: "tenant.answers.scored",
+      UNSCORED: "tenant.answers.unscored",
     };
     return t(
       keyByStatus[status] ?? "tenant.answers.status",
@@ -78,12 +79,24 @@ export const AnswersSection = ({
   ];
 
   const review = useHostScoreReview(sessionPublicId);
+  const reviewByAnswer = new Map((review.data?.answers ?? []).map((view) => [view.answerPublicId, view]));
   const examinerScoreByAnswer = new Map(
     (review.data?.answers ?? []).map((view) => [
       view.answerPublicId,
       view.examinerAvailable ? view.examinerScore : null,
     ]),
   );
+
+  /** The score this answer counts for: its own for objective items, the chosen source for AI-scored ones. */
+  const answerScore = (row: AnswerListItemResponse): { value: number | null; provisional: boolean } => {
+    if (!row.aiScored) return { value: row.unscored ? null : row.rawScore, provisional: false };
+    const view = reviewByAnswer.get(row.answerPublicId);
+    if (view?.selectedScoreSource === "EXAMINER") {
+      return { value: examinerScoreByAnswer.get(row.answerPublicId) ?? null, provisional: false };
+    }
+    if (view?.selectedScoreSource === "AI") return { value: row.rawScore, provisional: false };
+    return { value: row.rawScore, provisional: row.rawScore !== null };
+  };
 
   const { data, isLoading } = useAnswers(
     sessionPublicId,
@@ -96,6 +109,11 @@ export const AnswersSection = ({
 
   const columns: DataTableColumn<AnswerListItemResponse>[] = [
     {
+      key: "questionNumber",
+      header: t("tenant.answers.questionNumber", ANSWER_TABLE_HEADERS.QUESTION_NUMBER),
+      cell: (row) => formatScore(row.questionNumber),
+    },
+    {
       key: "taskType",
       header: t("tenant.answers.taskType", ANSWER_TABLE_HEADERS.TASK_TYPE),
       cell: (row) => <span className="font-medium text-[var(--ink-primary)]">{row.taskType}</span>,
@@ -103,9 +121,11 @@ export const AnswersSection = ({
     {
       key: "status",
       header: t("tenant.answers.status", ANSWER_TABLE_HEADERS.STATUS),
-      cell: (row) => (
-        <Badge variant={ANSWER_STATUS_VARIANT[row.status]}>{statusLabel(row.status)}</Badge>
-      ),
+      cell: (row) => {
+        // Backend keeps an unscored task (Personal Introduction) PENDING; nothing is awaited for it.
+        const status = row.unscored && row.status === "PENDING" ? "UNSCORED" : row.status;
+        return <Badge variant={ANSWER_STATUS_VARIANT[status]}>{statusLabel(status)}</Badge>;
+      },
     },
     {
       key: "rawScore",
@@ -123,14 +143,46 @@ export const AnswersSection = ({
       cell: (row) => formatScore(examinerScoreByAnswer.get(row.answerPublicId) ?? null),
     },
     {
+      key: "finalScore",
+      header: t("tenant.answers.finalScore", ANSWER_TABLE_HEADERS.FINAL_SCORE),
+      cell: (row) => {
+        const { value, provisional } = answerScore(row);
+        return provisional ? (
+          <span
+            className="italic text-[var(--ink-secondary)]"
+            title={t("tenant.answers.finalScoreProvisional", T.FINAL_SCORE_PROVISIONAL)}
+          >
+            {formatScore(value)}
+          </span>
+        ) : (
+          <span className="font-medium text-[var(--ink-primary)]">{formatScore(value)}</span>
+        );
+      },
+    },
+    {
       key: "createdAt",
       header: t("tenant.answers.submitted", ANSWER_TABLE_HEADERS.SUBMITTED_AT),
       cell: (row) => formatDateTime(row.createdAt, locale),
     },
   ];
 
+  // Only shown when the student left items blank; the table below lists answered items only.
+  const blankCount =
+    data?.expectedCount != null && data.answeredCount != null
+      ? data.expectedCount - data.answeredCount
+      : 0;
+
   return (
     <div className="flex flex-col gap-3">
+      {blankCount > 0 && data?.expectedCount != null && data.answeredCount != null && (
+        <p className="text-sm text-[var(--ink-secondary)]">
+          {t("tenant.answers.coverage", T.COVERAGE, {
+            answered: data.answeredCount,
+            expected: data.expectedCount,
+            blank: blankCount,
+          })}
+        </p>
+      )}
       <DataTable
         columns={columns}
         rows={data?.items ?? []}
