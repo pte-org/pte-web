@@ -26,7 +26,7 @@ import {
 import { useLoginHost, useLoginOrganizationOptions } from "../api";
 import { AUTH_TEXT } from "../constants";
 import { resolveWorkspace } from "../resolveWorkspace";
-import { isStudentOnlyAccount, toSessionRoles } from "../sessionRoles";
+import { decidePortalLogin } from "../sessionRoles";
 import { getLoginErrorMessage } from "../loginError";
 import { AuthBrandPanel } from "./_AuthBrandPanel";
 
@@ -64,16 +64,23 @@ export const LoginView = (): ReactElement => {
 
   const handleLoginSuccess = (data: JwtTokenResponse): void => {
     const claims = decodeAccessTokenClaims(data.accessToken);
-    if (claims && isStudentOnlyAccount(claims.roles)) {
-      // No session is saved: a student's scores arrive by email, never through this portal.
-      setErrorMessage(AUTH_TEXT.STUDENT_ACCOUNT_NOT_ALLOWED);
-      return;
-    }
-    const roles = claims ? toSessionRoles(claims.roles) : [];
-    if (!claims || roles.length === 0) {
+    if (!claims) {
       setErrorMessage(AUTH_TEXT.GENERIC_ERROR);
       return;
     }
+    // No session is saved in either refusal below.
+    const decision = decidePortalLogin(claims.roles);
+    if (decision.kind === "student") {
+      // A student's scores arrive by email, never through this portal.
+      setErrorMessage(AUTH_TEXT.STUDENT_ACCOUNT_NOT_ALLOWED);
+      return;
+    }
+    if (decision.kind === "denied") {
+      // The same copy as a wrong password, so the form does not reveal that the account exists elsewhere.
+      setErrorMessage(AUTH_TEXT.INVALID_CREDENTIALS);
+      return;
+    }
+    const { roles } = decision;
     saveSession({
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
