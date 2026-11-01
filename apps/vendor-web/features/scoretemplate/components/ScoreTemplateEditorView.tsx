@@ -33,6 +33,7 @@ import {
   SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
 } from "../constants";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
+import { buildPoolIndex } from "../poolAvailability";
 import { hasUnreadyTaskType, isTaskTypeRuntimeReady } from "../taskTypeReadiness";
 import {
   fromDraft,
@@ -451,6 +452,7 @@ const ScoreTemplateEditorForm = ({
       <ScoreTemplateItemTable
         editable
         items={items}
+        pool={feasibility ? buildPoolIndex(feasibility) : undefined}
         questionTypes={selectableQuestionTypes}
         onChange={handleItemChange}
         onSectionChange={handleItemSectionChange}

@@ -16,6 +16,8 @@ interface CreateExamWizardProps {
   onClose: () => void;
   onSubmit: (input: CreateExamWorkflowInput) => void;
   activeTemplate?: ScoreTemplateResponse;
+  /** Everything the host may pick: the default plus its own active templates. */
+  templates?: ScoreTemplateResponse[];
   templateError?: unknown;
   error?: unknown;
   isSubmitting?: boolean;
@@ -28,6 +30,7 @@ export const CreateExamWizard = ({
   onClose,
   onSubmit,
   activeTemplate,
+  templates,
   templateError,
   error,
   isSubmitting = false,
@@ -44,7 +47,7 @@ export const CreateExamWizard = ({
     validate,
     goToNextStep,
     goToPreviousStep,
-  } = useCreateExamWizardViewModel({ open, activeTemplate, templateError, error });
+  } = useCreateExamWizardViewModel({ open, activeTemplate, templates, templateError, error });
   const stepContent: Record<CreateExamStep, ReactElement> = {
     1: <ExamDetailsStep {...detailsStepProps} />,
     2: <SchedulePolicyStep {...scheduleStepProps} />,

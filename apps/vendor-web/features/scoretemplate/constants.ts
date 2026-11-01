@@ -64,6 +64,11 @@ export const SCORE_TEMPLATE_TEXT = {
   READINESS_DUPLICATE: "Repeated task types: keep one configuration per task type",
   READINESS_SHORTAGE: "Insufficient approved questions",
   READINESS_UNKNOWN: "Question availability has not been confirmed. Save and check again.",
+  READINESS_POOL_SUMMARY:
+    "{count} task type(s) do not have enough approved questions yet. Activation stays blocked until the Available / needed column is complete.",
+  POOL_OK: "Enough approved questions for this task type.",
+  POOL_SHORT:
+    "Not enough approved questions for this task type: {available} available, {required} needed.",
   REQUIRED_COUNT: "Required",
   AVAILABLE_COUNT: "Available",
   ACTIVATE_ACTION: "Activate",
@@ -103,6 +108,8 @@ export const SCORE_TEMPLATE_ERROR_MESSAGES: Record<string, string> = {
   SCORE_TEMPLATE_PENDING_APPROVAL: "This template is already awaiting platform admin review.",
   SCORE_TEMPLATE_VALIDATION_FAILED:
     "This template is not ready yet. Review the selected task types, counts, timing, and skill weights.",
+  SKILL_WEIGHT_TOTAL_NOT_100:
+    "Could not save: each skill's weight column (Speaking, Writing, Reading, Listening) must total exactly 100. Adjust the weights and save again.",
   TASK_RUNTIME_PROFILE_NOT_FOUND:
     "One selected task type has no runtime profile. Ask the platform team to enable it before activating this template.",
   TASK_RUNTIME_PROFILE_NOT_ACTIVE:
@@ -138,6 +145,7 @@ export const SCORE_TEMPLATE_POLICY_LABELS = {
 export const SCORE_TEMPLATE_ITEM_HEADERS = {
   SEQUENCE: "#",
   TASK_TYPE: "Task type",
+  POOL: "Available / needed",
   SECTION: "Section",
   MIN_COUNT: "Min",
   MAX_COUNT: "Max",

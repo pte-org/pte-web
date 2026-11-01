@@ -4,7 +4,7 @@ import { useState, type ReactElement } from "react";
 import { Alert, Button, useLocale } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { EXAMS_TEXT } from "../constants";
-import { useActiveScoreTemplate, useCreateExamWorkflow, useSessions } from "../api";
+import { useCreateExamWorkflow, useSelectableTemplates, useSessions } from "../api";
 import { SessionTable } from "./SessionTable";
 import { CreateExamWizard } from "./CreateExamWizard";
 
@@ -12,7 +12,7 @@ export const ExamsListView = (): ReactElement => {
   const { t } = useLocale();
   const { data: sessions, isLoading } = useSessions();
   const create = useCreateExamWorkflow();
-  const activeTemplate = useActiveScoreTemplate();
+  const selectable = useSelectableTemplates();
 
   const [createOpen, setCreateOpen] = useState(false);
 
@@ -39,15 +39,16 @@ export const ExamsListView = (): ReactElement => {
       />
 
       <CreateExamWizard
-        key={`${createOpen ? "createExamWizard-open" : "createExamWizard-closed"}-${activeTemplate.data?.publicId ?? "no-template"}`}
+        key={`${createOpen ? "createExamWizard-open" : "createExamWizard-closed"}-${selectable.defaultTemplate?.publicId ?? "no-template"}-${selectable.templates.length}`}
         open={createOpen}
         onClose={() => {
           create.reset();
           setCreateOpen(false);
         }}
         onSubmit={confirmCreate}
-        activeTemplate={activeTemplate.data}
-        templateError={activeTemplate.error}
+        activeTemplate={selectable.defaultTemplate}
+        templates={selectable.templates}
+        templateError={selectable.error}
         error={create.error}
         isSubmitting={create.isPending}
       />
