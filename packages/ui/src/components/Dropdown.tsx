@@ -22,6 +22,8 @@ export interface DropdownActionItem {
   danger?: boolean;
   icon?: ComponentType<{ className?: string }>;
   disabled?: boolean;
+  /** Native tooltip; use it to explain why an item is disabled. */
+  title?: string;
   hidden?: boolean;
 }
 
@@ -178,6 +180,7 @@ export const Dropdown = ({
                         target={item.target}
                         rel={item.rel}
                         role="menuitem"
+                        title={item.title}
                         aria-disabled={item.disabled || undefined}
                         onClick={(event) => {
                           if (item.disabled) {
@@ -197,6 +200,7 @@ export const Dropdown = ({
                       key={item.label}
                       type="button"
                       role="menuitem"
+                      title={item.title}
                       disabled={item.disabled}
                       onClick={() => {
                         if (item.disabled) return;
