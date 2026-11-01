@@ -201,12 +201,11 @@ export function useCreateExamWizardForm({
         maxStudentsPerSession,
       );
       const nextErrors = filterWorkflowErrors(allErrors, getCreateExamStepFields(currentStep));
+      // Every step renders its own field errors inline, so a toast here would repeat them.
       dispatch({ type: "set-errors", errors: nextErrors });
-      const firstError = Object.values(nextErrors)[0];
-      if (firstError) onValidationError?.(firstError);
       return Object.keys(nextErrors).length === 0;
     },
-    [effectiveForm, maxStudentsPerSession, onValidationError],
+    [effectiveForm, maxStudentsPerSession],
   );
 
   const validateField = useCallback(

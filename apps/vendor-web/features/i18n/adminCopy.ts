@@ -593,6 +593,8 @@ const ADMIN_VI: Record<string, string> = {
     "Mẫu này đang chờ quản trị viên nền tảng xét duyệt.",
   "This template is not ready yet. Review the selected task types, counts, timing, and skill weights.":
     "Mẫu chưa sẵn sàng. Hãy kiểm tra dạng bài, số lượng, thời lượng và trọng số kỹ năng đã chọn.",
+  "Could not save: each skill's weight column (Speaking, Writing, Reading, Listening) must total exactly 100. Adjust the weights and save again.":
+    "Không lưu được: tổng trọng số của mỗi kỹ năng (Nói, Viết, Đọc, Nghe) phải đúng bằng 100. Hãy chỉnh lại trọng số rồi lưu lại.",
   "One selected task type has no runtime profile. Ask the platform team to enable it before activating this template.":
     "Một dạng bài đã chọn chưa có runtime profile. Hãy nhờ đội nền tảng bật profile trước khi kích hoạt mẫu.",
   "One selected task type is retired for new templates. Choose an active standard task type.":
@@ -1232,6 +1234,12 @@ const SCORE_TEMPLATE_FEEDBACK_VI: Record<string, string> = {
   "Insufficient approved questions": "Chưa đủ câu hỏi đã duyệt",
   "Question availability has not been confirmed. Save and check again.":
     "Chưa xác nhận được số câu hỏi. Hãy lưu và kiểm tra lại.",
+  "{count} task type(s) do not have enough approved questions yet. Activation stays blocked until the Available / needed column is complete.":
+    "{count} dạng bài chưa đủ câu hỏi đã duyệt. Chưa kích hoạt được cho đến khi cột “Có / cần” đủ.",
+  "Enough approved questions for this task type.": "Đủ câu hỏi đã duyệt cho dạng bài này.",
+  "Not enough approved questions for this task type: {available} available, {required} needed.":
+    "Chưa đủ câu hỏi đã duyệt cho dạng bài này: có {available}, cần {required}.",
+  "Available / needed": "Có / cần",
   Required: "Cần có",
   Available: "Hiện có",
 };

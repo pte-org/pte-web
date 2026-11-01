@@ -131,6 +131,11 @@ export const EXAMINER_WORK_TEXT_VI: ExaminerWorkText = {
   BLOCK_WAITING_FOR_HOST_FREEZE: "Đang chờ Host chốt danh sách bài thi.",
   BLOCK_COHORT_NOT_MANUAL: "Nhóm bài thi này không do giám khảo chấm tay.",
   BLOCK_EXCLUDED_FROM_COHORT: "Bài thi này đã bị loại khỏi nhóm chấm.",
+  BLOCK_CARRIED_OVER_DRAFTS:
+    "Một số câu nháp được chuyển từ giám khảo trước. Hãy xem lại từng câu có đánh dấu và lưu lại (kể cả giữ nguyên điểm) trước khi chốt điểm.",
+  CARRIED_OVER_BADGE: "Từ giám khảo trước",
+  CARRIED_OVER_HINT:
+    "Bản nháp này do giám khảo trước lưu. Hãy xem lại và lưu để xác nhận.",
 };
 
 export const EXAMINER_HISTORY_TEXT_VI: ExaminerHistoryText = {

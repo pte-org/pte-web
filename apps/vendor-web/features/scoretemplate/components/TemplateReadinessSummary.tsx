@@ -16,6 +16,10 @@ interface TemplateReadinessSummaryProps {
   failed: boolean;
 }
 
+/**
+ * Blockers that need an explanation get a list. A plain question shortage is already shown per row (the
+ * Available / needed column), so on its own it collapses to a single line instead of a list.
+ */
 export function TemplateReadinessSummary({
   items,
   questionTypes,
@@ -43,6 +47,8 @@ export function TemplateReadinessSummary({
         .map((slot) => [`${slot.taskType}-${slot.reason}`, slot]),
     ).values(),
   ];
+  const shortSlots = blockedSlots.filter((slot) => slot.reason === "INSUFFICIENT_POOL");
+  const otherSlots = blockedSlots.filter((slot) => slot.reason !== "INSUFFICIENT_POOL");
   if (
     items.length > 0 &&
     duplicates.length === 0 &&
@@ -52,6 +58,19 @@ export function TemplateReadinessSummary({
     feasibility?.ready
   )
     return null;
+
+  const poolSummary = text.READINESS_POOL_SUMMARY.replace("{count}", String(shortSlots.length));
+  const onlyShortage =
+    items.length > 0 &&
+    duplicates.length === 0 &&
+    unavailable.length === 0 &&
+    !loading &&
+    !failed &&
+    otherSlots.length === 0 &&
+    shortSlots.length > 0;
+  if (onlyShortage) {
+    return <p className="text-sm text-red-700">{poolSummary}</p>;
+  }
 
   return (
     <CollapsibleSection title={text.READINESS_TITLE} subtitle={text.READINESS_SAVED_NOTICE}>
@@ -69,14 +88,12 @@ export function TemplateReadinessSummary({
         )}
         {loading && <li>{text.READINESS_LOADING}</li>}
         {failed && <li>{text.READINESS_CHECK_ERROR}</li>}
+        {!failed && !loading && shortSlots.length > 0 && <li>{poolSummary}</li>}
         {!failed &&
           !loading &&
-          blockedSlots.map((slot, index) => (
+          otherSlots.map((slot, index) => (
             <li key={`${slot.taskType}-${index}`}>
-              {slot.taskType}:{" "}
-              {slot.reason === "INSUFFICIENT_POOL"
-                ? `${text.READINESS_SHORTAGE} — ${text.REQUIRED_COUNT}: ${slot.required}; ${text.AVAILABLE_COUNT}: ${slot.available}`
-                : (errors[slot.reason ?? ""] ?? text.READINESS_UNKNOWN)}
+              {slot.taskType}: {errors[slot.reason ?? ""] ?? text.READINESS_UNKNOWN}
             </li>
           ))}
         {!failed && !loading && !feasibility?.ready && blockedSlots.length === 0 && (

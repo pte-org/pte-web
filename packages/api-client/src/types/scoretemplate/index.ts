@@ -38,6 +38,10 @@ export interface ScoreTemplateResponse {
   items: ScoreTemplateItemResponse[];
   templatePolicy: ScoreTemplatePolicy | string;
   readiness?: TaskRuntimeReadiness | null;
+  /** Owning host tenant; null/absent for platform (admin) templates. */
+  tenantId?: string | null;
+  /** Admin default a host template was cloned from. */
+  baseDefinitionPublicId?: string | null;
 }
 
 export interface ScoreTemplateSlotFeasibilityResponse {
@@ -94,4 +98,44 @@ export interface CreateScoreTemplateRequest {
   code: string;
   name: string;
   templatePolicy?: ScoreTemplatePolicy | string;
+}
+
+export type SkillName = "SPEAKING" | "WRITING" | "READING" | "LISTENING";
+
+export interface CreateHostExamTemplateRequest {
+  name: string;
+}
+
+export interface SkillWeightItem {
+  taskTypeKey: string;
+  section: string;
+  speakingWeight: number;
+  writingWeight: number;
+  readingWeight: number;
+  listeningWeight: number;
+}
+
+export interface SkillWeightSuggestionRequest {
+  items: SkillWeightItem[];
+}
+
+export interface SkillTaskWeight {
+  taskTypeKey: string;
+  weight: number;
+}
+
+export interface SkillWeightSuggestion {
+  skill: SkillName | string;
+  currentTotal: number;
+  /** 100 - currentTotal: positive when weight is missing, negative when over. */
+  deficit: number;
+  balanced: boolean;
+  /** Keeps the old ratio between tasks. Empty when balanced. */
+  proportional: SkillTaskWeight[];
+  /** Adds the same share to every weighted task. Empty when balanced. */
+  equal: SkillTaskWeight[];
+}
+
+export interface SkillWeightSuggestionResponse {
+  skills: SkillWeightSuggestion[];
 }

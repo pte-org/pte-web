@@ -3,13 +3,16 @@
 import { useMemo, useState, type ReactElement } from "react";
 import type { ExaminerAssignmentRosterRow, UserResponse } from "@pte/api-client";
 import {
+  ActionMenu,
   Alert,
   Button,
   CollapsibleSection,
   ConfirmDialog,
   DataTable,
+  Modal,
   Select,
   useLocale,
+  UsersIcon,
   useToast,
   type DataTableColumn,
 } from "@pte/ui";
@@ -21,6 +24,7 @@ import {
   useActiveExaminers,
   useCommitExaminerAssignment,
   useExaminerAssignmentRoster,
+  useReassignExaminer,
 } from "../api";
 
 interface ExaminerAssignmentSectionProps {
@@ -45,9 +49,12 @@ export const ExaminerAssignmentSection = ({
   const [selectedExaminerIds, setSelectedExaminerIds] = useState<string[]>([]);
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [reassigning, setReassigning] = useState<ExaminerAssignmentRosterRow | null>(null);
+  const [newExaminerId, setNewExaminerId] = useState("");
   const examinersQuery = useActiveExaminers();
   const rosterQuery = useExaminerAssignmentRoster(sessionPublicId);
   const commit = useCommitExaminerAssignment(sessionPublicId);
+  const reassign = useReassignExaminer(sessionPublicId);
 
   const examiners = examinersQuery.data ?? EMPTY_USERS;
   const rows = rosterQuery.data?.rows ?? EMPTY_ROWS;
@@ -66,6 +73,19 @@ export const ExaminerAssignmentSection = ({
     noExaminers: t("tenant.examinerAssignment.noExaminers", T.NO_EXAMINERS),
     loading: t("tenant.examinerAssignment.loading", T.LOADING),
     retry: t("tenant.examinerAssignment.retry", T.RETRY),
+    progressColumn: t("tenant.examinerAssignment.progressColumn", T.PROGRESS_COLUMN),
+    statusNotStarted: t("tenant.examinerAssignment.statusNotStarted", T.STATUS_NOT_STARTED),
+    statusInProgress: t("tenant.examinerAssignment.statusInProgress", T.STATUS_IN_PROGRESS),
+    statusCompleted: t("tenant.examinerAssignment.statusCompleted", T.STATUS_COMPLETED),
+    draftCount: (count: number) => t("tenant.examinerAssignment.draftCount", T.DRAFT_COUNT, { count }),
+    changeExaminer: t("tenant.examinerAssignment.changeExaminer", T.CHANGE_EXAMINER),
+    reassignTitle: t("tenant.examinerAssignment.reassignTitle", T.REASSIGN_TITLE),
+    reassignDescription: (count: number) =>
+      t("tenant.examinerAssignment.reassignDescription", T.REASSIGN_DESCRIPTION, { count }),
+    reassignConfirm: t("tenant.examinerAssignment.reassignConfirm", T.REASSIGN_CONFIRM),
+    reassignPending: t("tenant.examinerAssignment.reassignPending", T.REASSIGN_PENDING),
+    reassignDone: t("tenant.examinerAssignment.reassignDone", T.REASSIGN_DONE),
+    newExaminer: t("tenant.examinerAssignment.newExaminer", T.NEW_EXAMINER),
     randomize: t("tenant.examinerAssignment.randomize", T.RANDOMIZE),
     commit: t("tenant.examinerAssignment.commit", T.COMMIT),
     committing: t("tenant.examinerAssignment.committing", T.COMMITTING),
@@ -127,6 +147,39 @@ export const ExaminerAssignmentSection = ({
       },
     );
 
+  const closeReassign = (): void => {
+    setReassigning(null);
+    setNewExaminerId("");
+  };
+  const submitReassign = (): void => {
+    if (!reassigning || newExaminerId.length === 0) return;
+    reassign.mutate(
+      {
+        attemptPublicId: reassigning.attemptPublicId,
+        payload: { examinerPublicId: newExaminerId },
+      },
+      {
+        onSuccess: () => {
+          closeReassign();
+          showToast(text.reassignDone, { tone: "success" });
+        },
+        onError: closeReassign,
+      },
+    );
+  };
+  const workStatusLabel = (row: ExaminerAssignmentRosterRow): string => {
+    if (row.workStatus === "COMPLETED") return text.statusCompleted;
+    if (row.workStatus === "IN_PROGRESS" || row.draftCount > 0) {
+      return row.draftCount > 0
+        ? `${text.statusInProgress} · ${text.draftCount(row.draftCount)}`
+        : text.statusInProgress;
+    }
+    return text.statusNotStarted;
+  };
+  const reassignOptions = examinerOptions.filter(
+    (option) => option.value !== reassigning?.examinerPublicId,
+  );
+
   const columns: DataTableColumn<ExaminerAssignmentRosterRow>[] = [
     {
       key: "student",
@@ -162,11 +215,20 @@ export const ExaminerAssignmentSection = ({
           (examinerLabels.get(examinerOf(row)) ?? "—")
         ),
     },
+    ...(committed
+      ? [
+          {
+            key: "progress",
+            header: text.progressColumn,
+            cell: workStatusLabel,
+          } satisfies DataTableColumn<ExaminerAssignmentRosterRow>,
+        ]
+      : []),
   ];
 
   const loadError = errorMessage(rosterQuery.error);
   const examinersError = errorMessage(examinersQuery.error);
-  const commitError = errorMessage(commit.error);
+  const commitError = errorMessage(commit.error) ?? errorMessage(reassign.error);
 
   return (
     <CollapsibleSection
@@ -239,6 +301,22 @@ export const ExaminerAssignmentSection = ({
             emptyTitle={text.empty}
             searchPlaceholder={searchText.placeholder}
             searchAriaLabel={searchText.ariaLabel}
+            rowActions={
+              committed
+                ? (row) =>
+                    row.reassignable ? (
+                      <ActionMenu
+                        items={[
+                          {
+                            label: text.changeExaminer,
+                            icon: UsersIcon,
+                            onSelect: () => setReassigning(row),
+                          },
+                        ]}
+                      />
+                    ) : null
+                : undefined
+            }
           />
         </div>
       )}
@@ -264,6 +342,40 @@ export const ExaminerAssignmentSection = ({
         onConfirm={submit}
         onClose={() => setConfirmOpen(false)}
       />
+
+      <Modal
+        open={reassigning !== null}
+        title={text.reassignTitle}
+        size="sm"
+        onClose={closeReassign}
+        isDismissDisabled={reassign.isPending}
+        footer={
+          <>
+            <Button variant="ghost" onClick={closeReassign} disabled={reassign.isPending}>
+              {text.cancel}
+            </Button>
+            <Button
+              variant="primary"
+              isLoading={reassign.isPending}
+              disabled={newExaminerId.length === 0}
+              onClick={submitReassign}
+            >
+              {reassign.isPending ? text.reassignPending : text.reassignConfirm}
+            </Button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-3 text-sm text-gray-600">
+          <p>{text.reassignDescription(reassigning?.draftCount ?? 0)}</p>
+          <Select
+            aria-label={text.newExaminer}
+            placeholder={text.examinerPlaceholder}
+            value={newExaminerId}
+            options={reassignOptions}
+            onChange={(event) => setNewExaminerId(event.target.value)}
+          />
+        </div>
+      </Modal>
     </CollapsibleSection>
   );
 };

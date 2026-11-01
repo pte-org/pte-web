@@ -8,6 +8,7 @@ import {
   SCORE_TEMPLATE_ITEM_HEADERS as RAW_SCORE_TEMPLATE_ITEM_HEADERS,
   SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
 } from "../constants";
+import type { PoolSlot } from "../poolAvailability";
 import type { ScoreTemplateItemDraft, ScoreTemplateItemResponse } from "../types";
 
 const INPUT_CLASS =
@@ -20,12 +21,17 @@ const RAW_SECTION_OPTIONS = [
   { value: "LISTENING", label: "Listening" },
 ];
 
-type ReadOnlyProps = {
+type PoolProps = {
+  /** Approved-question coverage per task type; the column is hidden when omitted. */
+  pool?: ReadonlyMap<string, PoolSlot>;
+};
+
+type ReadOnlyProps = PoolProps & {
   editable: false;
   items: ScoreTemplateItemResponse[];
 };
 
-type EditableProps = {
+type EditableProps = PoolProps & {
   editable: true;
   items: ScoreTemplateItemDraft[];
   questionTypes: QuestionTypeResponse[];
@@ -138,6 +144,36 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
         );
       },
     },
+    ...(props.pool
+      ? [
+          {
+            key: "pool",
+            header: SCORE_TEMPLATE_ITEM_HEADERS.POOL,
+            cell: (row: ScoreTemplateTableRow) => {
+              const slot = props.pool?.get(row.item.taskTypeKey ?? row.item.taskType ?? "");
+              if (!slot) return null;
+              const title = slot.ready
+                ? SCORE_TEMPLATE_TEXT.POOL_OK
+                : SCORE_TEMPLATE_TEXT.POOL_SHORT.replace("{available}", String(slot.available)).replace(
+                    "{required}",
+                    String(slot.required),
+                  );
+              return (
+                <span
+                  title={title}
+                  className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${
+                    slot.ready
+                      ? "bg-green-50 text-green-700 ring-green-200"
+                      : "bg-red-50 text-red-700 ring-red-200"
+                  }`}
+                >
+                  {slot.available}/{slot.required}
+                </span>
+              );
+            },
+          },
+        ]
+      : []),
     ...numericFields.slice(0, 4).map(({ field, header }) => ({
       key: field,
       header,

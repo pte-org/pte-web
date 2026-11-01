@@ -136,6 +136,8 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   NAME_PLACEHOLDER: "e.g. Semester 1 mock exam",
   TEMPLATE_LABEL: "Exam template",
   TEMPLATE_PLACEHOLDER: "Select an active template",
+  DEFAULT_TEMPLATE_TAG: "default",
+  TEMPLATE_PICK_HINT: "Choose which task types this exam contains. The default template contains all of them; your own templates contain the ones you kept.",
   PLAN_FALLBACK: "Plan",
   SUBSCRIPTION_LABEL: "Subscription",
   SUBSCRIPTION_PLACEHOLDER: "Select an active subscription",
@@ -389,7 +391,8 @@ export const EXAM_EDITOR_TEXT = {
 export const EXAMINER_ASSIGNMENT_TEXT = {
   SCOPE_TYPE_STUDENT: "Student",
   REQUIRES_CLOSED: "Examiners can only be assigned after the exam has closed.",
-  LOCKED_NOTICE: "The assignment is committed and can no longer be edited.",
+  LOCKED_NOTICE:
+    "The assignment is committed. You can still change the Examiner of an attempt that has not been finalized.",
   HINT: "Select Examiners and click “Randomize” to pre-fill the table, then adjust any student's Examiner. Click “Commit assignment” once every student has an Examiner.",
   EXAMINERS_LABEL: "Examiners",
   EXAMINER_LABEL: "Examiner",
@@ -407,6 +410,19 @@ export const EXAMINER_ASSIGNMENT_TEXT = {
   EMPTY: "No submitted attempts to assign yet.",
   UNKNOWN_STUDENT: "Unknown student",
   RETRY: "Retry",
+  PROGRESS_COLUMN: "Grading",
+  STATUS_NOT_STARTED: "Not started",
+  STATUS_IN_PROGRESS: "In progress",
+  STATUS_COMPLETED: "Finalized",
+  DRAFT_COUNT: "{count} drafts",
+  CHANGE_EXAMINER: "Change Examiner",
+  REASSIGN_TITLE: "Change the Examiner?",
+  REASSIGN_DESCRIPTION:
+    "The new Examiner takes over this attempt. Drafts already saved ({count}) are kept and flagged for the new Examiner to confirm; open issue reports are closed automatically. The previous Examiner loses access immediately.",
+  REASSIGN_CONFIRM: "Change Examiner",
+  REASSIGN_PENDING: "Changing...",
+  REASSIGN_DONE: "Examiner changed.",
+  NEW_EXAMINER: "New Examiner",
 } as const;
 
 export const EXAM_PREVIEW_TEXT = {
@@ -428,7 +444,6 @@ export const PROCTOR_SECTION_TEXT = {
   ASSIGN_PROCTOR: "Assign Proctor",
   EMPTY_TITLE: "No proctors assigned yet",
   UNASSIGN: "Remove from Exam",
-  ASSIGNED_COUNT: "{count} proctor(s) assigned",
 } as const;
 
 export const PROCTOR_TABLE_HEADERS = {

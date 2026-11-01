@@ -53,12 +53,15 @@ export const AnswerDetailModal = ({
       AI_SCORING: "tenant.answers.aiScoring",
       SCORING_FAILED: "tenant.answers.scoringFailed",
       SCORED: "tenant.answers.scored",
+      UNSCORED: "tenant.answers.unscored",
     };
     return t(
       keyByStatus[status] ?? "tenant.answerDetail.status",
       ANSWER_STATUS_LABELS[status] ?? status,
     );
   };
+  // Backend keeps an unscored task (Personal Introduction) PENDING; nothing is awaited for it.
+  const displayStatus = answer?.unscored && answer.status === "PENDING" ? "UNSCORED" : answer?.status;
   const text = {
     title: t("tenant.answerDetail.title", T.TITLE),
     taskType: t("tenant.answerDetail.taskType", T.TASK_TYPE_LABEL),
@@ -86,8 +89,8 @@ export const AnswerDetailModal = ({
             <div>
               <dt className="text-[var(--ink-secondary)]">{text.status}</dt>
               <dd>
-                <Badge variant={ANSWER_STATUS_VARIANT[answer.status]}>
-                  {statusLabel(answer.status)}
+                <Badge variant={ANSWER_STATUS_VARIANT[displayStatus ?? answer.status]}>
+                  {statusLabel(displayStatus ?? answer.status)}
                 </Badge>
               </dd>
             </div>
