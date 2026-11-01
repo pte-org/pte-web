@@ -155,7 +155,8 @@ describe("ScoreTemplateItemTable", () => {
         "Reading %",
         "Listening %",
       ]) {
-        expect(html).toContain(`>${header}<`);
+        // A weight column that is off carries its total after the header text.
+        expect(html).toMatch(new RegExp(`>${header}[ <]`));
       }
       for (const structureHeader of ["Questions", "Time (s)"]) {
         expect(html).not.toContain(`>${structureHeader}<`);
@@ -181,33 +182,26 @@ describe("ScoreTemplateItemTable", () => {
   });
 
   describe("skill weight totals", () => {
-    const totalsBox = (html: string): string => {
-      const start = html.indexOf('aria-label="Skill weight totals (must be 100)"');
-      return start < 0 ? "" : html.slice(start, html.indexOf("</section>", start));
-    };
-
-    it("lists every skill's total in the side column of the editor, in either view", () => {
-      for (const view of ["STRUCTURE", "WEIGHTS"] as const) {
-        const box = totalsBox(renderEditable(view));
-        // Speaking 8.91 + 15.84 = 24.75; Writing 31; Reading nobody; Listening 16.83.
-        for (const total of ["24.75", ">31<", "16.83", ">0<"]) expect(box).toContain(total);
-      }
+    it("shows 'total / 100' beside the header of each weight column that is off, and only those", () => {
+      const html = renderEditable("WEIGHTS");
+      // Speaking 8.91 + 15.84 = 24.75, Writing 31 and Listening 16.83 are off; Reading is 0 (fine).
+      for (const total of ["24.75 / 100", "31 / 100", "16.83 / 100"]) expect(html).toContain(total);
+      expect(html.match(/ \/ 100</g)).toHaveLength(3);
     });
 
-    it("sits under the skill tab rail and before the table", () => {
-      const html = renderEditable();
-      expect(html.indexOf("Skill weight totals")).toBeGreaterThan(html.indexOf("Listening<span"));
-      expect(html.indexOf("Skill weight totals")).toBeLessThan(html.indexOf("<table"));
+    it("shows nothing extra when every column totals 100 or 0", () => {
+      const balanced = [
+        draft("READ_ALOUD", "SPEAKING", { speakingWeight: "100" }),
+        draft("WRITE_ESSAY", "WRITING", { writingWeight: "100" }),
+      ];
+      const html = render(
+        createElement(ScoreTemplateItemTable, { ...editableProps, items: balanced, initialView: "WEIGHTS" }),
+      );
+      expect(html).not.toContain("/ 100");
     });
 
-    it("colours a total that is neither 0 nor 100 as an error and a 0 total as fine", () => {
-      const box = totalsBox(renderEditable());
-      expect(box).toMatch(/blush-action\)\]">24\.75</);
-      expect(box).toMatch(/mint-action\)\]">0</);
-    });
-
-    it("is not shown on the read-only detail", () => {
-      expect(renderReadOnly()).not.toContain("Skill weight totals");
+    it("does not judge the read-only detail", () => {
+      expect(renderReadOnly("WEIGHTS")).not.toContain("/ 100");
     });
   });
 

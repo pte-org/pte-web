@@ -59,7 +59,6 @@ export const SCORE_TEMPLATE_TEXT = {
     "This template cannot be activated until the question bank contains enough approved questions for every selected task type.",
   READINESS_CHECK_ERROR:
     "The readiness check could not be completed. Refresh before activating this template.",
-  WEIGHT_TOTALS_LABEL: "Skill weight totals (must be 100)",
   WEIGHT_TOTAL_MISMATCH: "Skill weights must total exactly 100. Current totals:",
   SAVE_DRAFT: "Save",
   SAVE_ERROR: "Could not save this exam template. Your changes are preserved. Please try again.",

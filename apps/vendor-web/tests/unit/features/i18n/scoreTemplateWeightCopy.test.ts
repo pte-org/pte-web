@@ -4,7 +4,6 @@ import { SCORE_TEMPLATE_TEXT } from "../../../../features/scoretemplate/constant
 
 describe("score template weight copy is bilingual", () => {
   it.each([
-    SCORE_TEMPLATE_TEXT.WEIGHT_TOTALS_LABEL,
     SCORE_TEMPLATE_TEXT.WEIGHT_TOTAL_MISMATCH,
     "Speaking",
     "Writing",

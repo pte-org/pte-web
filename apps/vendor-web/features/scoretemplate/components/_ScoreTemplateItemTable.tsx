@@ -12,8 +12,8 @@ import {
   SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
 } from "../constants";
 import type { PoolSlot } from "../poolAvailability";
+import { computeSkillWeightTotals } from "../skillWeightTotals";
 import type { ScoreTemplateItemDraft, ScoreTemplateItemResponse } from "../types";
-import { SkillWeightTotals } from "./_SkillWeightTotals";
 import {
   buildScoreTemplateColumns,
   type ScoreTemplateTableRow,
@@ -89,6 +89,15 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
     { id: "WEIGHTS", label: ROW.VIEW_WEIGHTS },
   ];
 
+  // Totals cover every row, not just the tab's: the backend checks the whole template.
+  const weightMismatches = props.editable
+    ? new Map(
+        computeSkillWeightTotals(props.items)
+          .filter((entry) => !entry.isValid)
+          .map((entry) => [`${entry.skill.toLowerCase()}Weight`, entry.total]),
+      )
+    : undefined;
+
   const columns = buildScoreTemplateColumns({
     view,
     showSection: activeTab === SCORE_TEMPLATE_ALL_TAB,
@@ -96,6 +105,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
     poolCopy: { ok: T.POOL_OK, short: T.POOL_SHORT },
     getSectionLabel,
     pool: props.pool,
+    weightMismatches,
     onChange: props.editable ? props.onChange : undefined,
   });
 
@@ -105,7 +115,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
         "grid gap-6 lg:items-start",
         // A side panel needs room for its fields; without one the rail shrinks to its labels.
         props.sidePanel
-          ? "lg:grid-cols-[16rem_minmax(0,1fr)]"
+          ? "lg:grid-cols-[15rem_minmax(0,1fr)]"
           : "lg:grid-cols-[auto_minmax(0,1fr)]",
       )}
     >
@@ -117,10 +127,6 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
           value={activeTab}
           onChange={setActiveTab}
         />
-        {/* The backend checks the whole template, so the totals ignore the selected tab. */}
-        {props.editable && (
-          <SkillWeightTotals items={props.items} getSkillLabel={getSectionLabel} />
-        )}
         {props.sidePanel}
       </div>
       <div

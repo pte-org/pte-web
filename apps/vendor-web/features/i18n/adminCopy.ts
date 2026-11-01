@@ -512,7 +512,6 @@ const ADMIN_VI: Record<string, string> = {
   "Once published, this question can be drawn into exams and will leave the Practice pool. Make sure it has been reviewed to exam standard.":
     "Sau khi phát hành, câu hỏi có thể được chọn vào đề thi và sẽ rời nhóm Practice. Hãy chắc chắn câu hỏi đã được kiểm duyệt đạt chuẩn đề thi.",
   "Change pool": "Đổi nhóm",
-  "Skill weight totals (must be 100)": "Tổng trọng số theo kỹ năng (phải bằng 100)",
   "Skill weights must total exactly 100. Current totals:":
     "Tổng trọng số mỗi kỹ năng phải đúng bằng 100. Tổng hiện tại:",
   "Keep current pool": "Giữ nhóm hiện tại",

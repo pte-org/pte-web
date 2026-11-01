@@ -2,6 +2,7 @@ import { Fragment, type ReactElement } from "react";
 import { Badge, type DataTableColumn } from "@pte/ui";
 import type { SCORE_TEMPLATE_ITEM_HEADERS } from "../constants";
 import type { PoolSlot } from "../poolAvailability";
+import { SKILL_WEIGHT_REQUIRED_TOTAL } from "../skillWeightTotals";
 import type { ScoreTemplateItem, ScoreTemplateItemDraft } from "../types";
 
 /**
@@ -57,6 +58,11 @@ export interface ScoreTemplateColumnOptions {
   getSectionLabel: (section: string) => string;
   /** Approved-question coverage per task type; the column is left out when omitted. */
   pool?: ReadonlyMap<string, PoolSlot>;
+  /**
+   * Skill weight columns that do not total 100 (field name to current total); each shows
+   * "total / 100" beside its header. A column that is fine shows nothing extra.
+   */
+  weightMismatches?: ReadonlyMap<string, number>;
   /** Present only in the DRAFT editor: the numeric cells then become inputs. */
   onChange?: (index: number, field: keyof ScoreTemplateItemDraft, value: string) => void;
 }
@@ -69,6 +75,7 @@ export function buildScoreTemplateColumns({
   poolCopy,
   getSectionLabel,
   pool,
+  weightMismatches,
   onChange,
 }: ScoreTemplateColumnOptions): DataTableColumn<ScoreTemplateTableRow>[] {
   const numberInput = (
@@ -115,13 +122,27 @@ export function buildScoreTemplateColumns({
   const weightColumn = (
     field: keyof ScoreTemplateItemDraft,
     header: string,
-  ): DataTableColumn<ScoreTemplateTableRow> => ({
-    key: field,
-    header,
-    sortable: false,
-    cell: (row) =>
-      numberInput(row, field, header, WEIGHT_INPUT_CLASS, WEIGHT_STEP) ?? fieldValue(row.item, field),
-  });
+  ): DataTableColumn<ScoreTemplateTableRow> => {
+    const mismatch = weightMismatches?.get(field);
+    return {
+      key: field,
+      label: header,
+      header:
+        mismatch === undefined ? (
+          header
+        ) : (
+          <>
+            {header}{" "}
+            <span className="whitespace-nowrap font-semibold text-[color-mix(in_srgb,var(--blush-action),#ff0000_40%)]">
+              {`${mismatch} / ${SKILL_WEIGHT_REQUIRED_TOTAL}`}
+            </span>
+          </>
+        ),
+      sortable: false,
+      cell: (row) =>
+        numberInput(row, field, header, WEIGHT_INPUT_CLASS, WEIGHT_STEP) ?? fieldValue(row.item, field),
+    };
+  };
 
   const poolColumn: DataTableColumn<ScoreTemplateTableRow> | null = pool
     ? {
