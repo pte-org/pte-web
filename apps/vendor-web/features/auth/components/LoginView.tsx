@@ -25,9 +25,9 @@ import {
   type JwtTokenResponse,
 } from "@pte/api-client";
 import { useLoginAdmin, useLoginHost, useLoginOrganizationOptions } from "../api";
-import { ADMIN_ROLES, AUTH_ROUTES, AUTH_TEXT as RAW_AUTH_TEXT, HOST_ROLES } from "../constants";
+import { AUTH_TEXT as RAW_AUTH_TEXT } from "../constants";
 import { useAdminCopy } from "../../i18n/adminCopy";
-import { hasAnyRole } from "../permissions";
+import { resolveVendorLoginDestination } from "../loginRoles";
 import type { VendorRole } from "../types";
 import { getLoginErrorMessage } from "../loginError";
 import { AuthBrandPanel } from "./_AuthBrandPanel";
@@ -82,10 +82,10 @@ export const LoginView = (): ReactElement => {
       setErrorMessage(T.GENERIC_ERROR);
       return;
     }
-    const isAdminRole = hasAnyRole(roles, ADMIN_ROLES);
-    const isHostRole = roles.some((role) => HOST_ROLES.includes(role));
-    if (!isAdminRole && !isHostRole) {
-      setErrorMessage(T.UNSUPPORTED_ROLE);
+    const destination = resolveVendorLoginDestination(roles);
+    if (destination === null) {
+      // The same copy as a wrong password, so the form does not reveal that the account exists elsewhere.
+      setErrorMessage(T.INVALID_CREDENTIALS);
       return;
     }
     saveSession({
@@ -96,7 +96,7 @@ export const LoginView = (): ReactElement => {
       expiresAt: claims.expiresAt || Date.now() + data.expiresInSeconds * 1000,
       mustChangePassword: data.mustChangePassword,
     });
-    router.replace(isAdminRole ? AUTH_ROUTES.adminDashboard : AUTH_ROUTES.hostDashboard);
+    router.replace(destination);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {

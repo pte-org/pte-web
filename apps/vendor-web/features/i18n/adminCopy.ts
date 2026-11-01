@@ -39,8 +39,6 @@ const ADMIN_VI: Record<string, string> = {
   "Please enter a valid email address.": "Vui lòng nhập địa chỉ email hợp lệ.",
   "Please enter your password.": "Vui lòng nhập mật khẩu.",
   "Username or password is incorrect.": "Tên đăng nhập hoặc mật khẩu không đúng.",
-  "This account is not allowed to use the vendor portal.":
-    "Tài khoản này không được phép sử dụng cổng quản trị.",
   "Login failed. Please try again.": "Đăng nhập thất bại. Vui lòng thử lại.",
   "Change your password": "Đổi mật khẩu",
   "Your temporary password must be replaced before you can open a workspace.":

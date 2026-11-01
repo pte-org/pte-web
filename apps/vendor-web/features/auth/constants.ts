@@ -80,6 +80,5 @@ export const AUTH_TEXT = {
   USERNAME_INVALID_EMAIL: "Please enter a valid email address.",
   PASSWORD_REQUIRED: "Please enter your password.",
   INVALID_CREDENTIALS: "Username or password is incorrect.",
-  UNSUPPORTED_ROLE: "This account is not allowed to use the vendor portal.",
   GENERIC_ERROR: "Login failed. Please try again.",
 } as const;
