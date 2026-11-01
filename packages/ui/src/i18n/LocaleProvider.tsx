@@ -465,6 +465,13 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.students.generatePasswordConfirmDescription":
       "Tạo mật khẩu tạm thời mới cho {name}? Mật khẩu hiện tại sẽ không còn hiệu lực. Mật khẩu mới không được gửi qua email và chỉ hiển thị một lần.",
     "tenant.students.generatePasswordConfirm": "Tạo mật khẩu",
+    "tenant.students.sendPasswordEmail": "Gửi mật khẩu qua email",
+    "tenant.students.sendPasswordEmailNoEmail": "Học viên này chưa có email.",
+    "tenant.students.sendPasswordEmailConfirmTitle": "Gửi mật khẩu học viên qua email",
+    "tenant.students.sendPasswordEmailConfirmDescription":
+      "Tạo mật khẩu tạm thời mới cho {name} và gửi tới {email}? Mật khẩu hiện tại sẽ không còn hiệu lực và học viên phải đổi mật khẩu mới ở lần đăng nhập đầu tiên.",
+    "tenant.students.sendPasswordEmailConfirm": "Gửi email",
+    "tenant.students.sendPasswordEmailSuccess": "Đã gửi mật khẩu tạm thời tới {email}.",
     "tenant.students.classBlocked":
       "Lớp {name} đang ở trạng thái {status}. Hãy kích hoạt lớp từ chi tiết chương trình trước khi phân công học viên.",
     "tenant.students.lockedFilterBanner":
@@ -1570,6 +1577,13 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.students.generatePasswordConfirmDescription":
       "Generate a new temporary password for {name}? The current password will stop working. The new password will not be emailed and will be shown once.",
     "tenant.students.generatePasswordConfirm": "Generate password",
+    "tenant.students.sendPasswordEmail": "Send password via email",
+    "tenant.students.sendPasswordEmailNoEmail": "This student has no email address.",
+    "tenant.students.sendPasswordEmailConfirmTitle": "Send Student password by email",
+    "tenant.students.sendPasswordEmailConfirmDescription":
+      "Generate a new temporary password for {name} and email it to {email}? The current password will stop working, and the student must change the new one at the next sign-in.",
+    "tenant.students.sendPasswordEmailConfirm": "Send email",
+    "tenant.students.sendPasswordEmailSuccess": "Temporary password sent to {email}.",
     "tenant.students.classBlocked":
       "Class {name} is {status}. Activate it from the Program detail before assigning students.",
     "tenant.students.lockedFilterBanner":

@@ -7,6 +7,7 @@ app/
   layout.tsx       # root HTML shell, fonts, globals.css — shared by every route
   (dashboard)/     # authenticated app pages (root "/" lives here for now)
   (auth)/          # public auth pages (sign-in, sign-up) — add page.tsx here when auth work starts
+    (portal)/       # sign-in, forgot-password, reset-password: one layout.tsx holds the shared frame (3D artwork stays mounted); template.tsx animates the page content
 ```
 
 Pages import their logic from the matching `features/<name>/` folder — `app/` stays

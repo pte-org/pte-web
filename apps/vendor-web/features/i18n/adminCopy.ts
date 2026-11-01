@@ -11,6 +11,32 @@ import { useLocale, type Locale } from "@pte/ui";
  * are deliberately not passed through this helper.
  */
 const ADMIN_VI: Record<string, string> = {
+  "Forgot your password?": "Quên mật khẩu?",
+  "Enter the email of your account and we will send you a link to choose a new password.":
+    "Nhập email của tài khoản, chúng tôi sẽ gửi liên kết để bạn chọn mật khẩu mới.",
+  "Send reset link": "Gửi liên kết đặt lại",
+  "Sending...": "Đang gửi...",
+  "Enter your email address.": "Vui lòng nhập địa chỉ email.",
+  "Check your inbox": "Hãy kiểm tra hộp thư",
+  "If that email belongs to an account, a reset link is on its way. The link works once and expires in 30 minutes.":
+    "Nếu email này thuộc về một tài khoản, liên kết đặt lại đang được gửi đi. Liên kết chỉ dùng được một lần và hết hạn sau 30 phút.",
+  "Choose a new password": "Chọn mật khẩu mới",
+  "Pick a password you have not used here before. The link works once.":
+    "Hãy chọn mật khẩu bạn chưa dùng ở đây trước đây. Liên kết chỉ dùng được một lần.",
+  "Enter both password fields.": "Vui lòng nhập cả hai ô mật khẩu.",
+  "This link cannot be used": "Không thể dùng liên kết này",
+  "The reset link is missing, invalid or has expired. Request a new one to continue.":
+    "Liên kết đặt lại bị thiếu, không hợp lệ hoặc đã hết hạn. Hãy yêu cầu liên kết mới để tiếp tục.",
+  "The password could not be reset. Request a new link and try again.":
+    "Không thể đặt lại mật khẩu. Hãy yêu cầu liên kết mới rồi thử lại.",
+  "Back to sign in": "Quay lại đăng nhập",
+  "Password updated. Sign in with your new password.":
+    "Đã cập nhật mật khẩu. Hãy đăng nhập bằng mật khẩu mới.",
+  "Password changed. You are now signed in.": "Đã đổi mật khẩu. Bạn đã được đăng nhập.",
+  "Request a new link": "Yêu cầu liên kết mới",
+  "Checking your link": "Đang kiểm tra liên kết",
+  "One moment while we make sure it can still be used.":
+    "Vui lòng đợi trong giây lát để chúng tôi kiểm tra liên kết còn dùng được không.",
   "Welcome Back": "Chào mừng trở lại",
   "Admin portal": "Cổng quản trị",
   "Organization portal": "Cổng tổ chức",

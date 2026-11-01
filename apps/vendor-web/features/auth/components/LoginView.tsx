@@ -1,23 +1,18 @@
 "use client";
 
 import { useMemo, useState, type FormEvent, type ReactElement } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  AuthBrandLockup,
-  AuthBrandShell,
   AuthSubmitButton,
   AuthTextField,
   EyeIcon,
-  LocaleSwitcher,
   LockIcon,
   MailIcon,
   Select,
   normalizeSessionRoles,
   useSessionManager,
   useSignInValidation,
-  type AuthFooterItem,
 } from "@pte/ui";
 import {
   decodeAccessTokenClaims,
@@ -30,15 +25,12 @@ import { useAdminCopy } from "../../i18n/adminCopy";
 import { resolveVendorLoginDestination } from "../loginRoles";
 import type { VendorRole } from "../types";
 import { getLoginErrorMessage } from "../loginError";
-import { AuthBrandPanel } from "./_AuthBrandPanel";
 
 function resolveRole(raw: string | null): VendorRole {
   return raw === "host" ? "host" : "admin";
 }
 
 const LABEL_CLASS = "text-[13px] font-semibold text-[var(--ink-secondary)]";
-const LOGO_WIDTH = 482;
-const LOGO_HEIGHT = 567;
 
 export const LoginView = (): ReactElement => {
   const T = useAdminCopy(RAW_AUTH_TEXT);
@@ -68,12 +60,6 @@ export const LoginView = (): ReactElement => {
   const isHost = role === "host";
   const mutation = isHost ? hostMutation : adminMutation;
   const organizationMutation = useLoginOrganizationOptions();
-  const footerItems: readonly AuthFooterItem[] = [
-    { label: T.FOOTER_COPYRIGHT.replace("{year}", String(new Date().getFullYear())) },
-    { label: T.FOOTER_TERMS },
-    { label: T.FOOTER_PRIVACY },
-    { label: T.FOOTER_SUPPORT },
-  ];
 
   const handleLoginSuccess = (data: JwtTokenResponse): void => {
     const claims = decodeAccessTokenClaims(data.accessToken);
@@ -138,28 +124,7 @@ export const LoginView = (): ReactElement => {
   };
 
   return (
-    <AuthBrandShell
-      artwork={<AuthBrandPanel />}
-      brand={
-        <AuthBrandLockup
-          logo={
-            <Image
-              src="/logo-mark.png"
-              alt=""
-              width={LOGO_WIDTH}
-              height={LOGO_HEIGHT}
-              priority
-              className="h-12 w-auto"
-            />
-          }
-          name={T.BRAND}
-          portalLabel={isHost ? T.PORTAL_HOST_LABEL : T.PORTAL_ADMIN_LABEL}
-        />
-      }
-      toolbar={<LocaleSwitcher />}
-      footerItems={footerItems}
-      footerLabel={T.FOOTER_LABEL}
-    >
+    <>
       <div>
         <h1 className="text-[2rem] font-extrabold leading-tight tracking-[-0.025em] text-[var(--ink-primary)]">
           {T.WELCOME_TITLE}
@@ -229,7 +194,7 @@ export const LoginView = (): ReactElement => {
             }
           />
           <Link
-            href="#"
+            href={AUTH_ROUTES.forgotPassword}
             className="self-end text-[13px] font-semibold text-[var(--brand-ink)] hover:underline"
           >
             {T.FORGOT}
@@ -258,6 +223,6 @@ export const LoginView = (): ReactElement => {
           {mutation.isPending || organizationMutation.isPending ? T.LOGGING_IN : T.LOGIN_BUTTON}
         </AuthSubmitButton>
       </form>
-    </AuthBrandShell>
+    </>
   );
 };

@@ -18,6 +18,13 @@ export type { MotionRevealProps } from "./MotionReveal";
 export { DashboardCard } from "./DashboardCard";
 export { LoginForm } from "./LoginForm";
 export type { LoginCredentials } from "./LoginForm";
+export { ForgotPasswordForm, ResetPasswordForm } from "./PasswordResetForms";
+export type {
+  ForgotPasswordFormProps,
+  ForgotPasswordFormText,
+  ResetPasswordFormProps,
+  ResetPasswordFormText,
+} from "./PasswordResetForms";
 export { AuthSubmitButton, AuthTextField } from "./AuthFormControls";
 export type { AuthSubmitButtonProps, AuthTextFieldProps } from "./AuthFormControls";
 export { CredentialDisplay } from "./CredentialDisplay";

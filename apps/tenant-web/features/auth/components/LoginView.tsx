@@ -1,12 +1,9 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  AuthBrandLockup,
-  AuthBrandShell,
   AuthSubmitButton,
   AuthTextField,
   EyeIcon,
@@ -15,7 +12,6 @@ import {
   Select,
   useSessionManager,
   useSignInValidation,
-  type AuthFooterItem,
   type SignInValidationMessages,
 } from "@pte/ui";
 import {
@@ -24,22 +20,12 @@ import {
   type JwtTokenResponse,
 } from "@pte/api-client";
 import { useLoginHost, useLoginOrganizationOptions } from "../api";
-import { AUTH_TEXT } from "../constants";
+import { AUTH_ROUTES, AUTH_TEXT } from "../constants";
 import { resolveWorkspace } from "../resolveWorkspace";
 import { decidePortalLogin } from "../sessionRoles";
 import { getLoginErrorMessage } from "../loginError";
-import { AuthBrandPanel } from "./_AuthBrandPanel";
 
 const LABEL_CLASS = "text-[13px] font-semibold text-[var(--ink-secondary)]";
-const LOGO_WIDTH = 482;
-const LOGO_HEIGHT = 567;
-
-const FOOTER_ITEMS: readonly AuthFooterItem[] = [
-  { label: AUTH_TEXT.FOOTER_COPYRIGHT.replace("{year}", String(new Date().getFullYear())) },
-  { label: AUTH_TEXT.FOOTER_TERMS },
-  { label: AUTH_TEXT.FOOTER_PRIVACY },
-  { label: AUTH_TEXT.FOOTER_SUPPORT },
-];
 
 const VALIDATION_MESSAGES: SignInValidationMessages = {
   usernameRequired: AUTH_TEXT.USERNAME_REQUIRED,
@@ -132,27 +118,7 @@ export const LoginView = (): ReactElement => {
   };
 
   return (
-    <AuthBrandShell
-      artwork={<AuthBrandPanel />}
-      brand={
-        <AuthBrandLockup
-          logo={
-            <Image
-              src="/logo-mark.png"
-              alt=""
-              width={LOGO_WIDTH}
-              height={LOGO_HEIGHT}
-              priority
-              className="h-12 w-auto"
-            />
-          }
-          name={AUTH_TEXT.BRAND}
-          portalLabel={AUTH_TEXT.PORTAL_LABEL}
-        />
-      }
-      footerItems={FOOTER_ITEMS}
-      footerLabel={AUTH_TEXT.FOOTER_LABEL}
-    >
+    <>
       <div>
         <h1 className="text-[2rem] font-extrabold leading-tight tracking-[-0.025em] text-[var(--ink-primary)]">
           {AUTH_TEXT.WELCOME_TITLE}
@@ -223,7 +189,7 @@ export const LoginView = (): ReactElement => {
             }
           />
           <Link
-            href="#"
+            href={AUTH_ROUTES.forgotPassword}
             className="self-end text-[13px] font-semibold text-[var(--brand-ink)] hover:underline"
           >
             {AUTH_TEXT.FORGOT}
@@ -254,6 +220,6 @@ export const LoginView = (): ReactElement => {
             : AUTH_TEXT.LOGIN_BUTTON}
         </AuthSubmitButton>
       </form>
-    </AuthBrandShell>
+    </>
   );
 };

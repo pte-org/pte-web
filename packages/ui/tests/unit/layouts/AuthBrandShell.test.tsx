@@ -79,3 +79,12 @@ describe("AuthBrandLockup", () => {
     expect(countMatches(html, /uppercase/)).toBe(0);
   });
 });
+
+describe("AuthBrandShell motion", () => {
+  it("does not animate itself: it persists across pages, and each page animates its own content", () => {
+    const html = renderShell({ brand: <header>BRAND</header> });
+
+    expect(html).not.toContain("animate-pte-fade-up");
+    expect(html).not.toContain("animate-pte-fade-in");
+  });
+});
