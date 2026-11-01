@@ -117,6 +117,8 @@ export interface DataTableProps<TRow> {
   onReorderRows?: (orderedKeys: string[]) => void;
   /** Accessible name of each row's drag handle. */
   reorderHandleLabel?: string;
+  /** `compact` halves the cell padding, for tables that must fit a narrow container without scrolling. */
+  density?: "default" | "compact";
 }
 
 export function DataTable<TRow>({
@@ -155,6 +157,7 @@ export function DataTable<TRow>({
   selectRowLabel,
   onReorderRows,
   reorderHandleLabel,
+  density = "default",
 }: DataTableProps<TRow>): ReactElement {
   const { t } = useLocale();
   const isReorderable = onReorderRows !== undefined;
@@ -267,8 +270,9 @@ export function DataTable<TRow>({
     setCurrentPage(1);
   };
 
-  const cellPadding = "px-4 py-2.5 sm:px-6";
-  const cellPaddingBody = "px-4 py-3 sm:px-6 sm:py-3.5";
+  const isCompact = density === "compact";
+  const cellPadding = isCompact ? "px-2 py-2 sm:px-3" : "px-4 py-2.5 sm:px-6";
+  const cellPaddingBody = isCompact ? "px-2 py-2 sm:px-3 sm:py-2.5" : "px-4 py-3 sm:px-6 sm:py-3.5";
   const shellClassName =
     "overflow-hidden rounded-xl border-[0.5px] border-[var(--table-border)] bg-[var(--table-surface-background)] shadow-none motion-safe:animate-pte-fade-up";
   const hasBuiltInSearch = showSearch && !toolbar;
@@ -393,7 +397,9 @@ export function DataTable<TRow>({
                       <th
                         scope="col"
                         className={cn(
-                          "w-20 min-w-[4.5rem] whitespace-nowrap text-right",
+                          isCompact
+                            ? "w-12 whitespace-nowrap text-right"
+                            : "w-20 min-w-[4.5rem] whitespace-nowrap text-right",
                           "border-b border-[var(--table-border)]",
                           cellPadding,
                         )}
