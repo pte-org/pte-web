@@ -20,7 +20,7 @@ import {
   type JwtTokenResponse,
 } from "@pte/api-client";
 import { useLoginAdmin, useLoginHost, useLoginOrganizationOptions } from "../api";
-import { AUTH_TEXT as RAW_AUTH_TEXT } from "../constants";
+import { AUTH_ROUTES, AUTH_TEXT as RAW_AUTH_TEXT } from "../constants";
 import { useAdminCopy } from "../../i18n/adminCopy";
 import { resolveVendorLoginDestination } from "../loginRoles";
 import type { VendorRole } from "../types";
