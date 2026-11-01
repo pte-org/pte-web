@@ -2,6 +2,7 @@
 
 import { useState, type ReactElement, type ReactNode } from "react";
 import {
+  Badge,
   Button,
   DashboardCard,
   DataTable,
@@ -19,6 +20,7 @@ import {
   SCORE_TEMPLATE_SECTION_LABELS as RAW_SECTION_LABELS,
   SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
 } from "../constants";
+import type { PoolSlot } from "../poolAvailability";
 import type {
   ScoreTemplateItem,
   ScoreTemplateItemDraft,
@@ -31,12 +33,17 @@ const INPUT_BASE_CLASS =
 const INPUT_CLASS = `w-20 ${INPUT_BASE_CLASS}`;
 const PAIR_INPUT_CLASS = `w-16 ${INPUT_BASE_CLASS}`;
 
-type ReadOnlyProps = {
+type PoolProps = {
+  /** Approved-question coverage per task type; the column is hidden when omitted. */
+  pool?: ReadonlyMap<string, PoolSlot>;
+};
+
+type ReadOnlyProps = PoolProps & {
   editable: false;
   items: ScoreTemplateItemResponse[];
 };
 
-type EditableProps = {
+type EditableProps = PoolProps & {
   editable: true;
   items: ScoreTemplateItemDraft[];
   onChange: (index: number, field: keyof ScoreTemplateItemDraft, value: string) => void;
@@ -139,6 +146,32 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
     cell: (row) => numberInput(row, field, header, INPUT_CLASS, "0.01") ?? fieldValue(row.item, field),
   });
 
+  /** Approved questions available vs needed per task type; only when the caller supplies coverage. */
+  const poolColumn: DataTableColumn<ScoreTemplateTableRow> | null = props.pool
+    ? {
+        key: "pool",
+        header: H.POOL,
+        sortable: false,
+        cell: (row) => {
+          const slot = props.pool?.get(row.item.taskTypeKey || row.item.taskType || "");
+          if (!slot) return null;
+          const title = slot.ready
+            ? T.POOL_OK
+            : T.POOL_SHORT.replace("{available}", String(slot.available)).replace(
+                "{required}",
+                String(slot.required),
+              );
+          return (
+            <span title={title}>
+              <Badge variant={slot.ready ? "success" : "danger"}>
+                {`${slot.available}/${slot.required}`}
+              </Badge>
+            </span>
+          );
+        },
+      }
+    : null;
+
   const columns: DataTableColumn<ScoreTemplateTableRow>[] = [
     // The skill tabs already group the rows, so the section only needs a column under "All".
     ...(activeTab === SCORE_TEMPLATE_ALL_TAB
@@ -175,6 +208,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
       { field: "maxCount", label: H.MAX_COUNT },
       "–",
     ),
+    ...(poolColumn ? [poolColumn] : []),
     pairColumn(
       "timing",
       H.TIME_SECONDS,

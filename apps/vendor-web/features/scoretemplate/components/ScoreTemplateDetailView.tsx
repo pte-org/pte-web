@@ -1,11 +1,11 @@
 "use client";
 
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Alert, Badge, Button, LoadingState, useDashboardBreadcrumbLabel } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
-import { useCloneScoreTemplate, useScoreTemplate } from "../api";
+import { useActivateScoreTemplate, useCloneScoreTemplate, useScoreTemplate } from "../api";
 import {
   EXAM_TEMPLATE_BASE_PATH,
   SCORE_TEMPLATE_STATUS_LABELS as RAW_SCORE_TEMPLATE_STATUS_LABELS,
@@ -13,6 +13,7 @@ import {
   SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
 } from "../constants";
 import type { ScoreTemplateStatusFilter } from "../types";
+import { ActivateTemplateModal } from "./ActivateTemplateModal";
 import { ScoreTemplateItemTable } from "./_ScoreTemplateItemTable";
 
 interface ScoreTemplateDetailViewProps {
@@ -30,6 +31,8 @@ export const ScoreTemplateDetailView = ({
   const pathname = usePathname();
   useDashboardBreadcrumbLabel(pathname, template ? `${template.name || template.code} v${template.version}` : undefined);
   const cloneMutation = useCloneScoreTemplate();
+  const activateMutation = useActivateScoreTemplate();
+  const [isActivateOpen, setIsActivateOpen] = useState(false);
 
   if (isLoading) {
     return <LoadingState rows={6} />;
@@ -47,7 +50,7 @@ export const ScoreTemplateDetailView = ({
   return (
     <div className="space-y-6">
       {/* The template name is already the breadcrumb's last segment, so this row only
-          carries what the breadcrumb does not: code/version, status and the clone action. */}
+          carries what the breadcrumb does not: code/version, status and the actions. */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant={SCORE_TEMPLATE_STATUS_VARIANT[status] ?? "neutral"}>
@@ -57,18 +60,25 @@ export const ScoreTemplateDetailView = ({
             {template.code} v{template.version}
           </span>
         </div>
-        <Button
-          variant="secondary"
-          isLoading={cloneMutation.isPending}
-          onClick={() =>
-            cloneMutation.mutate(template.publicId, {
-              onSuccess: (draft) =>
-                router.push(`${EXAM_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`),
-            })
-          }
-        >
-          {SCORE_TEMPLATE_TEXT.CLONE_ACTION}
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          {status === "RETIRED" && (
+            <Button variant="primary" onClick={() => setIsActivateOpen(true)}>
+              {SCORE_TEMPLATE_TEXT.ACTIVATE_ACTION}
+            </Button>
+          )}
+          <Button
+            variant="secondary"
+            isLoading={cloneMutation.isPending}
+            onClick={() =>
+              cloneMutation.mutate(template.publicId, {
+                onSuccess: (draft) =>
+                  router.push(`${EXAM_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`),
+              })
+            }
+          >
+            {SCORE_TEMPLATE_TEXT.CLONE_ACTION}
+          </Button>
+        </div>
       </div>
 
       {template.rejectionReason && (
@@ -84,6 +94,26 @@ export const ScoreTemplateDetailView = ({
       )}
 
       <ScoreTemplateItemTable editable={false} items={template.items} />
+
+      <ActivateTemplateModal
+        template={isActivateOpen ? template : null}
+        isActivating={activateMutation.isPending}
+        errorMessage={
+          activateMutation.isError
+            ? getScoreTemplateErrorMessage(
+                activateMutation.error,
+                SCORE_TEMPLATE_TEXT.CONCURRENT_MODIFICATION_ERROR,
+              )
+            : undefined
+        }
+        onCancel={() => {
+          activateMutation.reset();
+          setIsActivateOpen(false);
+        }}
+        onConfirm={(target) =>
+          activateMutation.mutate(target.publicId, { onSuccess: () => setIsActivateOpen(false) })
+        }
+      />
     </div>
   );
 };

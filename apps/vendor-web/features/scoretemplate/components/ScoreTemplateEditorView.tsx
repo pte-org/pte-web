@@ -35,6 +35,7 @@ import {
 } from "../constants";
 import { createDraftSnapshot } from "../draftSnapshot";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
+import { buildPoolIndex } from "../poolAvailability";
 import { applyVisibleOrder } from "../reorderSectionItems";
 import { describeSkillWeightMismatch } from "../skillWeightTotals";
 import { hasUnreadyTaskType } from "../taskTypeReadiness";
@@ -322,6 +323,7 @@ const ScoreTemplateEditorForm = ({
       <ScoreTemplateItemTable
         editable
         items={items}
+        pool={feasibility ? buildPoolIndex(feasibility) : undefined}
         onChange={handleItemChange}
         onReorder={handleReorderItems}
         onRemove={handleRemoveType}
