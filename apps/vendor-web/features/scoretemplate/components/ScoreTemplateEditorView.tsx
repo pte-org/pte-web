@@ -30,6 +30,7 @@ import { createDraftItem, taskTypeKeyOf } from "../addTaskType";
 import {
   EXAM_TEMPLATE_BASE_PATH,
   SCORE_TEMPLATE_ALL_TAB,
+  PLATFORM_TEMPLATE_POLICY,
   SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
   SCORE_TEMPLATE_VALIDATION_FAILED_CODE,
 } from "../constants";
@@ -43,13 +44,11 @@ import {
   fromDraft,
   toDraft,
   type ScoreTemplateItemDraft,
-  type ScoreTemplatePolicy,
   type ScoreTemplateResponse,
 } from "../types";
 import { ActivateTemplateModal } from "./ActivateTemplateModal";
 import { AddTaskTypeDialog } from "./AddTaskTypeDialog";
 import { ScoreTemplateItemTable } from "./_ScoreTemplateItemTable";
-import { SkillWeightTotals } from "./_SkillWeightTotals";
 import { TemplateInfoPanel } from "./TemplateInfoPanel";
 import { TemplateReadinessSummary } from "./TemplateReadinessSummary";
 import { TemplateToolbarActions } from "./TemplateToolbarActions";
@@ -172,16 +171,13 @@ const ScoreTemplateEditorForm = ({
   const replaceItemsMutation = useReplaceScoreTemplateItems();
   const activateMutation = useActivateScoreTemplate();
   const canActivate = canReviewAcademic(currentUser?.roles);
-  const initialPolicy: ScoreTemplatePolicy =
-    template.templatePolicy === "CUSTOM" ? "CUSTOM" : "STANDARD_PTE";
   const [name, setName] = useState(template.name);
-  const [templatePolicy, setTemplatePolicy] = useState<ScoreTemplatePolicy>(initialPolicy);
   const [items, setItems] = useState<ScoreTemplateItemDraft[]>(() => template.items.map(toDraft));
   // What the server holds right now; anything different on screen is unsaved.
   const [savedSnapshot, setSavedSnapshot] = useState(() =>
-    createDraftSnapshot(template.name, initialPolicy, template.items.map(toDraft)),
+    createDraftSnapshot(template.name, template.items.map(toDraft)),
   );
-  const hasUnsavedChanges = createDraftSnapshot(name, templatePolicy, items) !== savedSnapshot;
+  const hasUnsavedChanges = createDraftSnapshot(name, items) !== savedSnapshot;
   const [activateTarget, setActivateTarget] = useState<ScoreTemplateResponse | null>(null);
   const [nameError, setNameError] = useState<string>();
   // The tab the "add task type" dialog was opened from; `null` keeps it closed.
@@ -215,13 +211,10 @@ const ScoreTemplateEditorForm = ({
   // component's `useState` initializers. Synced back in explicitly here so
   // the on-screen values (Overall %) reflect what was actually just saved.
   const applySavedTemplate = (saved: ScoreTemplateResponse): void => {
-    const savedPolicy: ScoreTemplatePolicy =
-      saved.templatePolicy === "CUSTOM" ? "CUSTOM" : "STANDARD_PTE";
     const savedItems = saved.items.map(toDraft);
     setName(saved.name);
-    setTemplatePolicy(savedPolicy);
     setItems(savedItems);
-    setSavedSnapshot(createDraftSnapshot(saved.name, savedPolicy, savedItems));
+    setSavedSnapshot(createDraftSnapshot(saved.name, savedItems));
   };
 
   const handleSaveDraft = (): void => {
@@ -233,7 +226,7 @@ const ScoreTemplateEditorForm = ({
     replaceItemsMutation.mutate(
       {
         publicId: template.publicId,
-        payload: { name, items: items.map(fromDraft), templatePolicy },
+        payload: { name, items: items.map(fromDraft), templatePolicy: PLATFORM_TEMPLATE_POLICY },
       },
       {
         onError: reportError,
@@ -251,7 +244,7 @@ const ScoreTemplateEditorForm = ({
     replaceItemsMutation.mutate(
       {
         publicId: template.publicId,
-        payload: { name, items: items.map(fromDraft), templatePolicy },
+        payload: { name, items: items.map(fromDraft), templatePolicy: PLATFORM_TEMPLATE_POLICY },
       },
       {
         onSuccess: (saved) => {
@@ -318,8 +311,6 @@ const ScoreTemplateEditorForm = ({
         failed={isFeasibilityError}
       />
 
-      <SkillWeightTotals items={items} skillLabels={sectionLabels} />
-
       <ScoreTemplateItemTable
         editable
         items={items}
@@ -350,8 +341,6 @@ const ScoreTemplateEditorForm = ({
               setName(value);
               setNameError(undefined);
             }}
-            policy={templatePolicy}
-            onPolicyChange={setTemplatePolicy}
           />
         }
       />

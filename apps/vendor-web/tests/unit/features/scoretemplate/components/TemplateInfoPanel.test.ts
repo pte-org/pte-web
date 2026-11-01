@@ -2,7 +2,6 @@ import { createElement, type ReactElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import { LocaleProvider } from "@pte/ui";
-import type { ScoreTemplatePolicy } from "../../../../../features/scoretemplate/types";
 
 vi.mock("@/features/i18n/adminCopy", () => ({ useAdminCopy: (copy: unknown) => copy }));
 
@@ -13,7 +12,6 @@ const noop = (): void => undefined;
 const render = (props: {
   name?: string;
   nameError?: string;
-  policy?: ScoreTemplatePolicy;
 }): string =>
   renderToStaticMarkup(
     createElement(
@@ -23,8 +21,6 @@ const render = (props: {
         name: props.name ?? "PTE 22 task type",
         nameError: props.nameError,
         onNameChange: noop,
-        policy: props.policy ?? "STANDARD_PTE",
-        onPolicyChange: noop,
       }) as ReactElement,
     ),
   );
@@ -37,15 +33,11 @@ describe("TemplateInfoPanel", () => {
     expect(html).toContain('value="PTE 22 task type"');
   });
 
-  it("shows the policy selector", () => {
+  it("has no template policy choice: admin templates are always standard PTE", () => {
     const html = render({});
-    expect(html).toContain('id="score-template-policy"');
-    expect(html).toContain("Template policy");
-  });
-
-  it("explains the custom policy only when it is selected", () => {
-    expect(render({ policy: "CUSTOM" })).toContain("Custom templates may use selected task types");
-    expect(render({ policy: "STANDARD_PTE" })).not.toContain("Custom templates may use");
+    expect(html).not.toContain("score-template-policy");
+    expect(html).not.toContain("Template policy");
+    expect(html).not.toContain("Custom task set");
   });
 
   it("surfaces a name validation error", () => {

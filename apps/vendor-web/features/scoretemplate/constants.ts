@@ -28,11 +28,6 @@ export const SCORE_TEMPLATE_TEXT = {
   UNSAVED_STAY: "Stay on this page",
   UNSAVED_LEAVE: "Leave without saving",
   NAME_LABEL: "Name",
-  POLICY_LABEL: "Template policy",
-  STANDARD_POLICY: "Standard PTE",
-  CUSTOM_POLICY: "Custom task set",
-  CUSTOM_POLICY_NOTICE:
-    "Custom templates may use selected task types without requiring the complete standard PTE catalog.",
   CANCEL_ACTION: "Cancel",
   CREATE_ERROR: "Could not create this exam template.",
   DELETE_ERROR: "Could not delete this exam template.",
@@ -64,7 +59,7 @@ export const SCORE_TEMPLATE_TEXT = {
     "This template cannot be activated until the question bank contains enough approved questions for every selected task type.",
   READINESS_CHECK_ERROR:
     "The readiness check could not be completed. Refresh before activating this template.",
-  WEIGHT_TOTALS_LABEL: "Skill weight totals (must be 100):",
+  WEIGHT_TOTALS_LABEL: "Skill weight totals (must be 100)",
   WEIGHT_TOTAL_MISMATCH: "Skill weights must total exactly 100. Current totals:",
   SAVE_DRAFT: "Save",
   SAVE_ERROR: "Could not save this exam template. Your changes are preserved. Please try again.",
@@ -187,6 +182,9 @@ export const SCORE_TEMPLATE_ROW_TEXT = {
   NO_SKILL_WEIGHT: "—",
   QUESTIONS_SUFFIX: "questions",
   SKILL_WEIGHTS_HINT: "Skill weights",
+  VIEW_LABEL: "Table view",
+  VIEW_STRUCTURE: "Questions & timing",
+  VIEW_WEIGHTS: "Weights",
 } as const;
 
 /**
@@ -236,3 +234,9 @@ export const SCORE_TEMPLATE_STATUS_VARIANT: Record<ScoreTemplateStatusFilter, Ba
   DRAFT: "warning",
   RETIRED: "neutral",
 };
+
+/**
+ * Every template an admin authors is a platform template, which must cover the whole task-type
+ * catalog, so it is always a standard PTE one. Custom task sets belong to host templates.
+ */
+export const PLATFORM_TEMPLATE_POLICY = "STANDARD_PTE" as const;

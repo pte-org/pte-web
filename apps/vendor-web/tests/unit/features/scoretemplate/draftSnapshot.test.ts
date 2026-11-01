@@ -19,8 +19,7 @@ const item = (overrides: Partial<ScoreTemplateItemDraft> = {}): ScoreTemplateIte
   ...overrides,
 });
 
-const snapshot = (name = "PTE", items = [item()], policy = "STANDARD_PTE" as const): string =>
-  createDraftSnapshot(name, policy, items);
+const snapshot = (name = "PTE", items = [item()]): string => createDraftSnapshot(name, items);
 
 describe("createDraftSnapshot", () => {
   it("is equal for equal content, even from separate objects", () => {
@@ -29,10 +28,6 @@ describe("createDraftSnapshot", () => {
 
   it("changes when the name changes", () => {
     expect(snapshot("PTE 2")).not.toBe(snapshot("PTE"));
-  });
-
-  it("changes when the policy changes", () => {
-    expect(createDraftSnapshot("PTE", "CUSTOM", [item()])).not.toBe(snapshot());
   });
 
   it("changes when a field of a row changes", () => {
