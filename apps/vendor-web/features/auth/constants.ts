@@ -48,6 +48,7 @@ export const PASSWORD_CHANGE_TEXT = {
   SUBMIT: "Change password",
   SUBMITTING: "Changing password...",
   FAILED: "Password could not be changed. Check the current password and try again.",
+  SUCCESS: "Password changed. You are now signed in.",
 } as const;
 
 export const AUTH_TEXT = {
@@ -120,4 +121,5 @@ export const RESET_PASSWORD_TEXT: ResetPasswordFormText & { failed: string } = {
 export const PASSWORD_RESET_LINKS = {
   BACK_TO_LOGIN: "Back to sign in",
   REQUEST_NEW_LINK: "Request a new link",
+  RESET_DONE: "Password updated. Sign in with your new password.",
 } as const;

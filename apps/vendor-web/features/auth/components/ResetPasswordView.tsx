@@ -3,7 +3,7 @@
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ResetPasswordForm, resolveResetLinkState } from "@pte/ui";
+import { ResetPasswordForm, resolveResetLinkState, useToast } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useAdminCopy } from "../../i18n/adminCopy";
 import { useConfirmPasswordReset, useValidatePasswordResetToken } from "../api";
@@ -17,6 +17,7 @@ export const ResetPasswordView = (): ReactElement => {
   const token = useSearchParams().get(TOKEN_PARAM)?.trim() ?? "";
   const check = useValidatePasswordResetToken(token);
   const confirm = useConfirmPasswordReset();
+  const { showToast } = useToast();
   const linkState = resolveResetLinkState(token, check);
   const text = useAdminCopy(RESET_PASSWORD_TEXT);
   const links = useAdminCopy(PASSWORD_RESET_LINKS);
@@ -26,6 +27,7 @@ export const ResetPasswordView = (): ReactElement => {
     setError(undefined);
     try {
       await confirm.mutateAsync({ token, newPassword });
+      showToast(links.RESET_DONE, { tone: "success" });
       router.replace(AUTH_ROUTES.login);
     } catch (failure) {
       setError(getUserFacingApiErrorMessage(failure, text.failed));

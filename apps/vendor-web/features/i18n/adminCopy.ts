@@ -30,6 +30,9 @@ const ADMIN_VI: Record<string, string> = {
   "The password could not be reset. Request a new link and try again.":
     "Không thể đặt lại mật khẩu. Hãy yêu cầu liên kết mới rồi thử lại.",
   "Back to sign in": "Quay lại đăng nhập",
+  "Password updated. Sign in with your new password.":
+    "Đã cập nhật mật khẩu. Hãy đăng nhập bằng mật khẩu mới.",
+  "Password changed. You are now signed in.": "Đã đổi mật khẩu. Bạn đã được đăng nhập.",
   "Request a new link": "Yêu cầu liên kết mới",
   "Checking your link": "Đang kiểm tra liên kết",
   "One moment while we make sure it can still be used.":

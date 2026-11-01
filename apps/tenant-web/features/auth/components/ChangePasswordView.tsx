@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Button, PasswordInput, useSessionManager } from "@pte/ui";
+import { Alert, Button, PasswordInput, useSessionManager, useToast } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useChangePassword } from "../api";
 import { AUTH_ROUTES, PASSWORD_CHANGE_TEXT } from "../constants";
@@ -12,6 +12,7 @@ export const ChangePasswordView = (): ReactElement => {
   const router = useRouter();
   const { session, saveSession } = useSessionManager();
   const mutation = useChangePassword();
+  const { showToast } = useToast();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
@@ -39,6 +40,7 @@ export const ChangePasswordView = (): ReactElement => {
         refreshToken: session?.refreshToken,
       });
       if (session) saveSession({ ...session, mustChangePassword: false });
+      showToast(PASSWORD_CHANGE_TEXT.SUCCESS, { tone: "success" });
       router.replace(resolveWorkspace(session?.roles ?? []).defaultRoute || AUTH_ROUTES.login);
     } catch (error) {
       setFormError(getUserFacingApiErrorMessage(error, PASSWORD_CHANGE_TEXT.FAILED));
