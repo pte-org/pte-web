@@ -10,7 +10,7 @@ import {
 } from "react";
 import { cn } from "../utils/cn";
 import { useLocale } from "../i18n";
-import { RowReorderProvider, SortableTableRow } from "./DataTableReorder";
+import { RowReorderProvider, SortableTableRow, type RowDropOut } from "./DataTableReorder";
 import { EmptyState } from "./EmptyState";
 import { LoadingState } from "./LoadingState";
 import { Pagination } from "./Pagination";
@@ -115,6 +115,8 @@ export interface DataTableProps<TRow> {
    * rows shown take part in a drop) and keep `getRowKey` stable when a row moves.
    */
   onReorderRows?: (orderedKeys: string[]) => void;
+  /** With `onReorderRows`: a region outside the table that a dragged row can be dropped on to remove it. */
+  rowDropOut?: RowDropOut;
   /** Accessible name of each row's drag handle. */
   reorderHandleLabel?: string;
   /** `compact` halves the cell padding, for tables that must fit a narrow container without scrolling. */
@@ -156,12 +158,14 @@ export function DataTable<TRow>({
   selectAllLabel,
   selectRowLabel,
   onReorderRows,
+  rowDropOut,
   reorderHandleLabel,
   density = "default",
 }: DataTableProps<TRow>): ReactElement {
   const { t } = useLocale();
   const isReorderable = onReorderRows !== undefined;
-  const resolvedReorderHandleLabel = reorderHandleLabel ?? t("common.reorderRow", "Drag to reorder");
+  const resolvedReorderHandleLabel =
+    reorderHandleLabel ?? t("common.reorderRow", "Drag to reorder");
   const resolvedEmptyTitle = emptyTitle ?? t("common.noData", "No data");
   const resolvedSearchPlaceholder =
     searchPlaceholder ?? t("common.searchTable", "Search this table");
@@ -341,150 +345,156 @@ export function DataTable<TRow>({
               <RowReorderProvider
                 keys={visibleRows.map((row) => String(getRowKey(row)))}
                 onReorder={onReorderRows}
+                dropOut={rowDropOut}
               >
-              <table
-                className={cn(
-                  "min-w-full border-separate border-spacing-0 text-left text-sm",
-                  tableClassName,
-                )}
-              >
-                <thead className="bg-[var(--table-surface-background)] text-left text-xs leading-4 font-semibold tracking-normal text-[var(--table-header-text)]">
-                  <tr className="bg-[var(--table-surface-background)]">
-                    {isReorderable && (
-                      <th scope="col" className={cn("w-10 border-b border-[var(--table-border)]", cellPadding)}>
-                        <span className="sr-only">{resolvedReorderHandleLabel}</span>
-                      </th>
-                    )}
-                    {selectable && (
-                      <th scope="col" className={cn("w-10", cellPadding)}>
-                        <input
-                          type="checkbox"
-                          aria-label={resolvedSelectAllLabel}
-                          checked={allSelected}
-                          onChange={toggleAll}
-                          className="h-4 w-4 rounded border-[var(--table-control-border)] text-[var(--action)] focus:ring-[var(--brand)]"
-                        />
-                      </th>
-                    )}
-                    {columns.map((column) => (
-                      <th
-                        key={column.key}
-                        scope="col"
-                        aria-sort={
-                          column.sortable === false || column.key.toLowerCase() === "actions"
-                            ? undefined
-                            : sort?.key === column.key
-                              ? sort.direction === "asc"
-                                ? "ascending"
-                                : "descending"
-                              : "none"
-                        }
-                        className={cn(
-                          cellPadding,
-                          "border-b border-[var(--table-border)]",
-                          column.headerClassName,
-                        )}
-                      >
-                        {renderColumnHeader({
-                          column,
-                          sort,
-                          onSort: toggleSort,
-                          sortLabelPrefix: t("common.sortBy", "Sort by {label}"),
-                        })}
-                      </th>
-                    ))}
-                    {rowActions && (
-                      <th
-                        scope="col"
-                        className={cn(
-                          isCompact
-                            ? "w-12 whitespace-nowrap text-right"
-                            : "w-20 min-w-[4.5rem] whitespace-nowrap text-right",
-                          "border-b border-[var(--table-border)]",
-                          cellPadding,
-                        )}
-                      >
-                        {actionsHeader}
-                      </th>
-                    )}
-                  </tr>
-                </thead>
-                <tbody className="bg-[var(--table-surface-background)] text-[13px] text-[var(--table-body-text)]">
-                  {visibleRows.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={
-                          columns.length +
-                          (selectable ? 1 : 0) +
-                          (rowActions ? 1 : 0) +
-                          (isReorderable ? 1 : 0)
-                        }
-                        className="px-4 py-0 sm:px-5"
-                      >
-                        <EmptyState
-                          title={resolvedEmptyTitle}
-                          description={emptyDescription}
-                          action={emptyAction}
-                          className="rounded-none border-0 px-6 py-10 shadow-none"
-                        />
-                      </td>
-                    </tr>
-                  ) : (
-                    visibleRows.map((row) => {
-                      const key = getRowKey(row);
-                      const rowClasses = cn(
-                        "not-last:*:border-[var(--table-border)] not-last:[&>td]:border-b not-last:[&>th]:border-b transition-colors duration-150 hover:bg-[var(--table-row-hover)]",
-                        rowClassName?.(row),
-                      );
-                      const cells = (
-                        <>
-                          {selectable && (
-                            <td className={cellPaddingBody}>
-                              <input
-                                type="checkbox"
-                                aria-label={resolvedSelectRowLabel(row)}
-                                checked={selection.has(key)}
-                                onChange={() => toggleRow(key)}
-                                className="h-4 w-4 rounded border-[var(--table-control-border)] text-[var(--action)] focus:ring-[var(--brand)]"
-                              />
-                            </td>
-                          )}
-                          {columns.map((column) => (
-                            <td
-                              key={column.key}
-                              className={cn(
-                                cellPaddingBody,
-                                column.cellClassName,
-                                column.className,
-                              )}
-                            >
-                              {column.cell(row)}
-                            </td>
-                          ))}
-                          {rowActions && (
-                            <td className={cn("text-right", cellPaddingBody)}>{rowActions(row)}</td>
-                          )}
-                        </>
-                      );
-                      return isReorderable ? (
-                        <SortableTableRow
-                          key={key}
-                          id={String(key)}
-                          className={rowClasses}
-                          handleLabel={resolvedReorderHandleLabel}
-                          cellClassName={cellPaddingBody}
-                        >
-                          {cells}
-                        </SortableTableRow>
-                      ) : (
-                        <tr key={key} className={rowClasses}>
-                          {cells}
-                        </tr>
-                      );
-                    })
+                <table
+                  className={cn(
+                    "min-w-full border-separate border-spacing-0 text-left text-sm",
+                    tableClassName,
                   )}
-                </tbody>
-              </table>
+                >
+                  <thead className="bg-[var(--table-surface-background)] text-left text-xs leading-4 font-semibold tracking-normal text-[var(--table-header-text)]">
+                    <tr className="bg-[var(--table-surface-background)]">
+                      {isReorderable && (
+                        <th
+                          scope="col"
+                          className={cn("w-10 border-b border-[var(--table-border)]", cellPadding)}
+                        >
+                          <span className="sr-only">{resolvedReorderHandleLabel}</span>
+                        </th>
+                      )}
+                      {selectable && (
+                        <th scope="col" className={cn("w-10", cellPadding)}>
+                          <input
+                            type="checkbox"
+                            aria-label={resolvedSelectAllLabel}
+                            checked={allSelected}
+                            onChange={toggleAll}
+                            className="h-4 w-4 rounded border-[var(--table-control-border)] text-[var(--action)] focus:ring-[var(--brand)]"
+                          />
+                        </th>
+                      )}
+                      {columns.map((column) => (
+                        <th
+                          key={column.key}
+                          scope="col"
+                          aria-sort={
+                            column.sortable === false || column.key.toLowerCase() === "actions"
+                              ? undefined
+                              : sort?.key === column.key
+                                ? sort.direction === "asc"
+                                  ? "ascending"
+                                  : "descending"
+                                : "none"
+                          }
+                          className={cn(
+                            cellPadding,
+                            "border-b border-[var(--table-border)]",
+                            column.headerClassName,
+                          )}
+                        >
+                          {renderColumnHeader({
+                            column,
+                            sort,
+                            onSort: toggleSort,
+                            sortLabelPrefix: t("common.sortBy", "Sort by {label}"),
+                          })}
+                        </th>
+                      ))}
+                      {rowActions && (
+                        <th
+                          scope="col"
+                          className={cn(
+                            isCompact
+                              ? "w-12 whitespace-nowrap text-right"
+                              : "w-20 min-w-[4.5rem] whitespace-nowrap text-right",
+                            "border-b border-[var(--table-border)]",
+                            cellPadding,
+                          )}
+                        >
+                          {actionsHeader}
+                        </th>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody className="bg-[var(--table-surface-background)] text-[13px] text-[var(--table-body-text)]">
+                    {visibleRows.length === 0 ? (
+                      <tr>
+                        <td
+                          colSpan={
+                            columns.length +
+                            (selectable ? 1 : 0) +
+                            (rowActions ? 1 : 0) +
+                            (isReorderable ? 1 : 0)
+                          }
+                          className="px-4 py-0 sm:px-5"
+                        >
+                          <EmptyState
+                            title={resolvedEmptyTitle}
+                            description={emptyDescription}
+                            action={emptyAction}
+                            className="rounded-none border-0 px-6 py-10 shadow-none"
+                          />
+                        </td>
+                      </tr>
+                    ) : (
+                      visibleRows.map((row) => {
+                        const key = getRowKey(row);
+                        const rowClasses = cn(
+                          "not-last:*:border-[var(--table-border)] not-last:[&>td]:border-b not-last:[&>th]:border-b transition-colors duration-150 hover:bg-[var(--table-row-hover)]",
+                          rowClassName?.(row),
+                        );
+                        const cells = (
+                          <>
+                            {selectable && (
+                              <td className={cellPaddingBody}>
+                                <input
+                                  type="checkbox"
+                                  aria-label={resolvedSelectRowLabel(row)}
+                                  checked={selection.has(key)}
+                                  onChange={() => toggleRow(key)}
+                                  className="h-4 w-4 rounded border-[var(--table-control-border)] text-[var(--action)] focus:ring-[var(--brand)]"
+                                />
+                              </td>
+                            )}
+                            {columns.map((column) => (
+                              <td
+                                key={column.key}
+                                className={cn(
+                                  cellPaddingBody,
+                                  column.cellClassName,
+                                  column.className,
+                                )}
+                              >
+                                {column.cell(row)}
+                              </td>
+                            ))}
+                            {rowActions && (
+                              <td className={cn("text-right", cellPaddingBody)}>
+                                {rowActions(row)}
+                              </td>
+                            )}
+                          </>
+                        );
+                        return isReorderable ? (
+                          <SortableTableRow
+                            key={key}
+                            id={String(key)}
+                            className={rowClasses}
+                            handleLabel={resolvedReorderHandleLabel}
+                            cellClassName={cellPaddingBody}
+                          >
+                            {cells}
+                          </SortableTableRow>
+                        ) : (
+                          <tr key={key} className={rowClasses}>
+                            {cells}
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
               </RowReorderProvider>
             </div>
           </div>

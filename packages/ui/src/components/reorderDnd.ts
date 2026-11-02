@@ -30,6 +30,27 @@ export const getReorderedIds = (ids: readonly string[], event: DragEndEvent): st
   return arrayMove([...ids], from, to);
 };
 
+/** Where the dragged row's pointer is now: the point the drag began at plus how far it has travelled. */
+export const getDragPoint = (
+  event: Pick<DragEndEvent, "activatorEvent" | "delta">,
+): { x: number; y: number } | null => {
+  const origin = event.activatorEvent as Partial<MouseEvent>;
+  if (typeof origin.clientX !== "number" || typeof origin.clientY !== "number") return null;
+  return { x: origin.clientX + event.delta.x, y: origin.clientY + event.delta.y };
+};
+
+/** The element matching `selector` under the dragged row's pointer, if any. */
+export const findDropOutTarget = (
+  point: { x: number; y: number } | null,
+  selector: string,
+): Element | null =>
+  point
+    ? (document
+        .elementsFromPoint(point.x, point.y)
+        .map((element) => element.closest(selector))
+        .find((match) => match !== null) ?? null)
+    : null;
+
 /**
  * dnd-kit moves the dragged row with a per-frame transform, which cannot be a Tailwind
  * class. x is pinned to 0 so the row only travels along the list.
