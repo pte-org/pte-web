@@ -10,6 +10,7 @@ export const ADMIN_NAV_TEXT = {
   QUESTION_BANK: "Question Bank",
   TASK_TYPES: "Task Type Catalog",
   EXAM_TEMPLATES: "Exam Templates",
+  EXAM_STUDIO: "Content Hub",
   HOME_SECTION: "Home",
   TENANTS_SECTION: "Tenants",
   COMMERCIAL_SECTION: "Commercial",
