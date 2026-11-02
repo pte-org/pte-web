@@ -63,17 +63,26 @@ export function mapPool(
 }
 
 /**
- * `QuestionResponse` has no `content`/single string field — `title` is the
- * one human-readable label the backend always sets; `promptText` is null
- * for options-only task types (e.g. RE_ORDER_PARAGRAPHS), so it's a fallback,
- * not the primary source.
+ * `QuestionResponse` has no single human-readable field, so the list shows the first text a
+ * question has: the prompt, else an answer, else its first option (options-only task types such
+ * as RE_ORDER_PARAGRAPHS have no prompt text).
  */
+function summaryOf(response: QuestionResponse): string {
+  const candidates = [
+    response.promptText,
+    response.correctAnswerText,
+    response.referenceAnswerText,
+    response.options[0]?.text,
+  ];
+  return candidates.find((text) => text?.trim()) ?? "—";
+}
+
 function mapQuestion(response: QuestionResponse): Question {
   return {
     id: response.publicId,
     skill: SKILL_MAP[response.section] ?? "reading",
     taskType: response.pteTaskType,
-    content: response.title || response.promptText || "—",
+    content: summaryOf(response),
     status: mapStatus(response.status),
     pool: mapPool(response),
     rejectionReason: response.rejectionReason,

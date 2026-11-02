@@ -40,3 +40,31 @@ export interface QuestionFilter {
   skill: QuestionSkillFilter;
   status: QuestionStatusFilter;
 }
+
+/** Preparation and answer time a task type gets in an exam template. */
+export interface PreviewTiming {
+  prepSeconds: number;
+  responseSeconds: number;
+}
+
+/** What the question form holds, as the student's exam screen needs it. */
+export interface QuestionPreviewDraft {
+  taskType: string;
+  /** Task-type name and section, as the exam header shows them. */
+  taskName: string;
+  section: string;
+  instruction: string | null;
+  promptText: string;
+  options: string[];
+  /** Several options can be ticked, instead of one. */
+  multipleChoice: boolean;
+  /** The answer is typed text with a word counter. */
+  needsWordCount: boolean;
+  minWordCount: number | null;
+  maxWordCount: number | null;
+  /** The task type takes an uploaded image / audio, so the slot shows even while empty. */
+  expectsImage: boolean;
+  expectsAudio: boolean;
+  imageUrl: string | null;
+  audioUrl: string | null;
+}

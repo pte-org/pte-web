@@ -6,6 +6,26 @@
   --surface-card: #ffffff;
   --surface-subtle: #f4f4f5;
   --tab-active-background: var(--surface-card);
+  /* The candidate exam screen as the PTE app draws it (AppColors); not themed, so the preview
+     reads the same in light and dark mode. */
+  --exam-canvas: #f7f9ff;
+  --exam-surface: #ffffff;
+  --exam-border: #c9cfd9;
+  --exam-border-subtle: #e2e7ee;
+  --exam-divider: #d8dce3;
+  --exam-text: #1f2933;
+  --exam-text-secondary: #5a6473;
+  --exam-text-muted: #8a94a6;
+  --exam-primary: #0b5fae;
+  --exam-selected: #ebf3fc;
+  --exam-audio-surface: #f7f7f7;
+  --exam-audio-border: #c6cbd1;
+  --exam-audio-divider: #d5d8dc;
+  --exam-audio-status: #9b625f;
+  --exam-audio-track: #d6d8db;
+  --exam-audio-progress: #686a6d;
+  --exam-audio-meter: #78c64a;
+  --exam-record: #d93a3a;
   --shell-canvas: #f4f4f5;
   --shell-frame: #fcfcfd;
   --shell-border: #e8e8e8;
@@ -81,6 +101,7 @@ body {
   --surface-page: #09090b;
   --surface-card: #171718;
   --surface-subtle: #18181b;
+  --tab-active-background: #2e2e33;
   --shell-canvas: #09090b;
   --shell-frame: #0f0f0f;
   --shell-border: #2b2c2e;
@@ -101,7 +122,6 @@ body {
   --table-muted-text: #a1a1aa;
   --table-border: #2b2c2e;
   --table-control-background: rgba(255, 255, 255, 0.05);
-  --tab-active-background: #2e2e33;
   --table-control-border: rgba(255, 255, 255, 0.05);
   --table-control-hover: #27272a;
   --table-row-hover: #18181b;

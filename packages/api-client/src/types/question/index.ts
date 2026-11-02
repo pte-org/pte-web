@@ -33,7 +33,6 @@ export type PteTaskType =
   | "HIGHLIGHT_INCORRECT_WORDS"
   | "WRITE_FROM_DICTATION";
 
-export type QuestionVisibility = "SHARED" | "PRIVATE";
 
 /** Which product a question serves at creation; later moves use the availability flags on a draft. */
 export type QuestionPool = "EXAM" | "PRACTICE";
@@ -55,10 +54,8 @@ export interface OptionResponse extends OptionRequest {
 
 export interface CreateQuestionRequest {
   pteTaskType: PteTaskType | string;
-  visibility?: QuestionVisibility | string;
   /** Defaults to EXAM on the server; only accepted on create. */
   pool?: QuestionPool;
-  title: string;
   promptText?: string | null;
   audioPromptRef?: string | null;
   imagePromptRef?: string | null;
@@ -69,7 +66,7 @@ export interface CreateQuestionRequest {
   options?: OptionRequest[];
 }
 
-export type UpdateQuestionRequest = Omit<CreateQuestionRequest, "pteTaskType" | "visibility" | "pool"> & {
+export type UpdateQuestionRequest = Omit<CreateQuestionRequest, "pteTaskType" | "pool"> & {
   version?: number;
   /** Moves a draft between products; omit both to leave availability untouched. */
   availableForExam?: boolean;
@@ -81,11 +78,9 @@ export interface QuestionResponse {
   pteTaskType: PteTaskType | string;
   taskTypeKey?: string | null;
   section: PteSection | string;
-  visibility: QuestionVisibility | string;
   pool: QuestionPool | string;
   tenantId: string | null;
   status: QuestionStatus | string;
-  title: string;
   promptText: string | null;
   audioPromptRef: string | null;
   imagePromptRef: string | null;

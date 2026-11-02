@@ -351,6 +351,18 @@ const ADMIN_VI: Record<string, string> = {
   "Drag to reorder": "Kéo để sắp xếp",
   "Edit details": "Chỉnh chi tiết",
   "Task type details": "Chi tiết dạng bài",
+  "Question pool": "Nhóm câu hỏi",
+  Pool: "Nhóm",
+  Official: "Chính thức",
+  Practice: "Luyện tập",
+  "Exam questions can be drawn into exams; practice questions are only used for practice. This cannot be changed later.":
+    "Câu hỏi chính thức có thể được rút vào bài thi; câu hỏi luyện tập chỉ dùng để luyện tập. Không thể đổi sau khi tạo.",
+  "Repeat Sentence needs the sentence the student must repeat in the reference answer.":
+    "Repeat Sentence cần câu thí sinh phải nhắc lại, điền vào đáp án tham khảo.",
+  "Choose file": "Chọn tệp",
+  "Replace file": "Đổi tệp",
+  "No file chosen": "Chưa chọn tệp",
+  "Uploading…": "Đang tải lên…",
   "Done": "Xong",
   "Skill weights": "Trọng số kỹ năng",
   "questions": "câu",
