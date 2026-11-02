@@ -19,6 +19,7 @@ import {
   NextAdminWidget4Icon,
   NextAdminWindowIcon,
 } from "./nextAdminIcons";
+import { FileLinesIcon } from "./dashboardIcons";
 
 interface IconProps {
   className?: string;
@@ -341,6 +342,10 @@ export const NavTaskTypeIcon = ({ className }: IconProps): ReactElement => (
 );
 
 export const NavExamTemplateIcon = ({ className }: IconProps): ReactElement => (
+  <FileLinesIcon className={className} />
+);
+
+export const NavExamStudioIcon = ({ className }: IconProps): ReactElement => (
   <NextAdminCalendarIcon className={className} />
 );
 
