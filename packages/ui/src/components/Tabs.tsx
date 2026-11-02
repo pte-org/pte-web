@@ -125,7 +125,7 @@ export const Tabs = ({
                 ? selected
                   ? activeVariant === "primary"
                     ? `rounded-md px-3 py-2 ${PRIMARY_ACTION_SURFACE_CLASSES}`
-                    : "rounded-md bg-[var(--surface-card)] px-3 py-2 text-[var(--ink-primary)] shadow-xs"
+                    : "rounded-md bg-[var(--tab-active-background)] px-3 py-2 text-[var(--ink-primary)] shadow-xs"
                   : "rounded-md px-3 py-2 text-[var(--ink-secondary)] hover:bg-[var(--surface-card)]/70 hover:text-[var(--ink-primary)]"
                 : selected
                   ? "border-b-2 border-[var(--brand)] px-3 py-3.5 text-[var(--brand-ink)]"

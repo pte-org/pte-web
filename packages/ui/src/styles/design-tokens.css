@@ -5,6 +5,7 @@
   --surface-page: #f4f4f5;
   --surface-card: #ffffff;
   --surface-subtle: #f4f4f5;
+  --tab-active-background: var(--surface-card);
   --shell-canvas: #f4f4f5;
   --shell-frame: #fcfcfd;
   --shell-border: #e8e8e8;
@@ -100,6 +101,7 @@ body {
   --table-muted-text: #a1a1aa;
   --table-border: #2b2c2e;
   --table-control-background: rgba(255, 255, 255, 0.05);
+  --tab-active-background: #2e2e33;
   --table-control-border: rgba(255, 255, 255, 0.05);
   --table-control-hover: #27272a;
   --table-row-hover: #18181b;
