@@ -1,5 +1,6 @@
 import { Fragment, type ReactElement } from "react";
-import { Badge, type DataTableColumn } from "@pte/ui";
+import { Badge, Chip, type DataTableColumn } from "@pte/ui";
+import { sectionTone } from "../../../lib/chipTones";
 import type { SCORE_TEMPLATE_ITEM_HEADERS } from "../constants";
 import type { PoolSlot } from "../poolAvailability";
 import { SKILL_WEIGHT_REQUIRED_TOTAL } from "../skillWeightTotals";
@@ -140,7 +141,8 @@ export function buildScoreTemplateColumns({
         ),
       sortable: false,
       cell: (row) =>
-        numberInput(row, field, header, WEIGHT_INPUT_CLASS, WEIGHT_STEP) ?? fieldValue(row.item, field),
+        numberInput(row, field, header, WEIGHT_INPUT_CLASS, WEIGHT_STEP) ??
+        fieldValue(row.item, field),
     };
   };
 
@@ -183,9 +185,9 @@ export function buildScoreTemplateColumns({
             <WrappableKey value={row.item.taskTypeKey || row.item.taskType || "—"} />
           </span>
           {showSection && (
-            <span className="block text-xs text-[var(--ink-muted)]">
+            <Chip tone={sectionTone(row.item.section)} size="sm">
               {getSectionLabel(row.item.section)}
-            </span>
+            </Chip>
           )}
         </div>
       ),

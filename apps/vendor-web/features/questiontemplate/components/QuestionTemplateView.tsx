@@ -7,6 +7,7 @@ import {
   Alert,
   Badge,
   Button,
+  Chip,
   CheckCircleIcon,
   ConfirmDialog,
   DataTable,
@@ -29,6 +30,7 @@ import {
   QUESTION_TYPE_TEXT as RAW_QUESTION_TYPE_TEXT,
 } from "../constants";
 import { getQuestionTypeErrorMessage } from "../errorMessage";
+import { sectionTone } from "@/lib/chipTones";
 import { QuestionTypeEditorModal } from "./QuestionTypeEditorModal";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic, isPlatformAdmin } from "@/features/auth/permissions";
@@ -206,8 +208,11 @@ export const QuestionTypeView = (): ReactElement => {
               {
                 key: "section",
                 header: T.TABLE_SECTION,
-                cell: (type: QuestionTypeResponse) =>
-                  sectionLabels[type.section as keyof typeof sectionLabels] ?? type.section,
+                cell: (type: QuestionTypeResponse) => (
+                  <Chip tone={sectionTone(type.section)}>
+                    {sectionLabels[type.section as keyof typeof sectionLabels] ?? type.section}
+                  </Chip>
+                ),
                 className: "whitespace-nowrap",
               },
               {
@@ -242,12 +247,14 @@ export const QuestionTypeView = (): ReactElement => {
                 key: "status",
                 header: T.TABLE_STATUS,
                 filterOptions: statusFilterOptions,
-                filterAccessor: (type: QuestionTypeResponse) => (type.active ? "ACTIVE" : "INACTIVE"),
+                filterAccessor: (type: QuestionTypeResponse) =>
+                  type.active ? "ACTIVE" : "INACTIVE",
                 cell: (type: QuestionTypeResponse) => {
                   const status = type.lifecycleStatus ?? (type.active ? "ACTIVE" : "INACTIVE");
                   return (
                     <Badge variant={type.active ? "success" : "neutral"}>
-                      {lifecycleStatusLabels[status as keyof typeof lifecycleStatusLabels] ?? status}
+                      {lifecycleStatusLabels[status as keyof typeof lifecycleStatusLabels] ??
+                        status}
                     </Badge>
                   );
                 },
