@@ -41,6 +41,8 @@ interface QuestionTableProps {
   questions: Question[];
   isLoading?: boolean;
   toolbarActions?: ReactNode;
+  /** Hidden once the list is already narrowed to one skill, where every row would repeat it. */
+  showSkillColumn?: boolean;
 }
 
 import { useAdminCopy } from "@/features/i18n/adminCopy";
@@ -50,6 +52,7 @@ export const QuestionTable = ({
   questions,
   isLoading = false,
   toolbarActions,
+  showSkillColumn = true,
 }: QuestionTableProps): ReactElement => {
   const T = useAdminCopy(RAW_QUESTIONBANK_TEXT);
   const searchText = useAdminSearchText("questionContent");
@@ -57,13 +60,6 @@ export const QuestionTable = ({
   const skillLabels = useAdminCopy(RAW_QUESTION_SKILL_LABELS);
   const poolLabels = useAdminCopy(RAW_QUESTION_POOL_LABELS);
   const statusLabels = useAdminCopy(RAW_QUESTION_STATUS_LABELS);
-  const skillFilterOptions = useAdminCopy([
-    { value: "", label: "All skills" },
-    { value: "listening", label: "Listening" },
-    { value: "reading", label: "Reading" },
-    { value: "writing", label: "Writing" },
-    { value: "speaking", label: "Speaking" },
-  ]);
   const statusFilterOptions = useAdminCopy([
     { value: "", label: "All statuses" },
     { value: "draft", label: "Draft" },
@@ -220,14 +216,16 @@ export const QuestionTable = ({
       <DataTable
         toolbarActions={toolbarActions}
         columns={[
-          {
-            key: "skill",
-            label: H.SKILL,
-            header: H.SKILL,
-            filterOptions: skillFilterOptions,
-            filterAccessor: (question) => question.skill,
-            cell: (question) => skillLabels[question.skill],
-          },
+          ...(showSkillColumn
+            ? [
+                {
+                  key: "skill",
+                  label: H.SKILL,
+                  header: H.SKILL,
+                  cell: (question: Question) => skillLabels[question.skill],
+                },
+              ]
+            : []),
           {
             key: "content",
             label: H.CONTENT,
@@ -273,7 +271,6 @@ export const QuestionTable = ({
         title={T.ARCHIVE_CONFIRM_TITLE}
         description={
           <>
-            <p>{questionToArchive?.content}</p>
             <p>{T.ARCHIVE_CONFIRM_DESCRIPTION}</p>
             {archiveMutation.error && (
               <Alert tone="error">
@@ -295,7 +292,6 @@ export const QuestionTable = ({
         title={T.DELETE_CONFIRM_TITLE}
         description={
           <>
-            <p>{questionToDelete?.content}</p>
             <p>{T.DELETE_CONFIRM_DESCRIPTION}</p>
             {deleteMutation.error && (
               <Alert tone="error">
