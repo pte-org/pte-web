@@ -9,7 +9,6 @@ import {
 } from "@pte/api-client";
 import {
   Alert,
-  Button,
   LoadingState,
   UnsavedChangesGuard,
   useDashboardBreadcrumbLabel,
@@ -26,9 +25,15 @@ import {
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
 import { useTaskTypes } from "@/features/questiontemplate/api";
-import { createDraftItem, taskTypeKeyOf } from "../addTaskType";
+import {
+  createDraftItem,
+  findPaletteTypes,
+  getAddTaskTypeBlocker,
+  taskTypeKeyOf,
+} from "../addTaskType";
 import {
   EXAM_TEMPLATE_BASE_PATH,
+  EXAM_TEMPLATE_SECTIONS,
   SCORE_TEMPLATE_ALL_TAB,
   PLATFORM_TEMPLATE_POLICY,
   SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
@@ -47,9 +52,9 @@ import {
   type ScoreTemplateResponse,
 } from "../types";
 import { ActivateTemplateModal } from "./ActivateTemplateModal";
-import { AddTaskTypeDialog } from "./AddTaskTypeDialog";
+import { TaskTypePalette } from "./_TaskTypePalette";
 import { ScoreTemplateItemTable } from "./_ScoreTemplateItemTable";
-import { TemplateInfoPanel } from "./TemplateInfoPanel";
+import { TemplateInfoDialog } from "./TemplateInfoDialog";
 import { TemplateReadinessSummary } from "./TemplateReadinessSummary";
 import { TemplateToolbarActions } from "./TemplateToolbarActions";
 
@@ -172,6 +177,7 @@ const ScoreTemplateEditorForm = ({
   const activateMutation = useActivateScoreTemplate();
   const canActivate = canReviewAcademic(currentUser?.roles);
   const [name, setName] = useState(template.name);
+  const [infoOpen, setInfoOpen] = useState(false);
   const [items, setItems] = useState<ScoreTemplateItemDraft[]>(() => template.items.map(toDraft));
   // What the server holds right now; anything different on screen is unsaved.
   const [savedSnapshot, setSavedSnapshot] = useState(() =>
@@ -181,7 +187,6 @@ const ScoreTemplateEditorForm = ({
   const [activateTarget, setActivateTarget] = useState<ScoreTemplateResponse | null>(null);
   const [nameError, setNameError] = useState<string>();
   // The tab the "add task type" dialog was opened from; `null` keeps it closed.
-  const [addDialogTab, setAddDialogTab] = useState<string | null>(null);
   const taskTypeKey = taskTypeKeyOf;
 
   const handleItemChange = (
@@ -220,7 +225,13 @@ const ScoreTemplateEditorForm = ({
   const handleSaveDraft = (): void => {
     if (!name.trim()) {
       setNameError(SCORE_TEMPLATE_TEXT.NAME_REQUIRED);
+      setInfoOpen(true);
       showToast(SCORE_TEMPLATE_TEXT.NAME_REQUIRED, { tone: "error" });
+      return;
+    }
+    // A template with no task type cannot be used, so say what is missing when the user saves it.
+    if (items.length === 0) {
+      showToast(SCORE_TEMPLATE_TEXT.READINESS_EMPTY, { tone: "error" });
       return;
     }
     replaceItemsMutation.mutate(
@@ -274,6 +285,13 @@ const ScoreTemplateEditorForm = ({
     );
   };
 
+  // Why the palette is empty: nothing is left in the section, or the catalog offers nothing to add.
+  const paletteEmptyText = (activeTab: string): string => {
+    if (activeTab === SCORE_TEMPLATE_ALL_TAB) return SCORE_TEMPLATE_TEXT.PALETTE_ALL_USED;
+    const blocker = getAddTaskTypeBlocker(questionTypes, items, activeTab);
+    return blocker ? SCORE_TEMPLATE_TEXT[blocker] : SCORE_TEMPLATE_TEXT.NO_TYPES_TO_ADD;
+  };
+
   const handleRemoveType = (index: number): void => {
     setItems((current) =>
       current
@@ -318,31 +336,55 @@ const ScoreTemplateEditorForm = ({
         onChange={handleItemChange}
         onReorder={handleReorderItems}
         onRemove={handleRemoveType}
-        renderToolbarAction={(activeTab) => (
+        renderToolbarAction={() => (
           <TemplateToolbarActions
             onSave={handleSaveDraft}
+            onOpenInfo={() => setInfoOpen(true)}
             isSaving={replaceItemsMutation.isPending}
-            onAddTaskType={() => setAddDialogTab(activeTab)}
             canActivate={canActivate}
             isActivatable={canActivateFromCatalog}
             onActivate={handleOpenActivate}
           />
         )}
-        renderEmptyAction={(activeTab) => (
-          <Button variant="secondary" onClick={() => setAddDialogTab(activeTab)}>
-            {SCORE_TEMPLATE_TEXT.ADD_TYPE}
-          </Button>
+        renderEmptyAction={() => (
+          <p className="text-sm text-[var(--ink-muted)]">{SCORE_TEMPLATE_TEXT.DROP_HINT}</p>
         )}
-        sidePanel={
-          <TemplateInfoPanel
-            name={name}
-            nameError={nameError}
-            onNameChange={(value) => {
-              setName(value);
-              setNameError(undefined);
-            }}
+        renderPalette={(activeTab) => (
+          <TaskTypePalette
+            title={SCORE_TEMPLATE_TEXT.PALETTE_TITLE}
+            hint={SCORE_TEMPLATE_TEXT.PALETTE_HINT}
+            addLabel={SCORE_TEMPLATE_TEXT.ADD_TYPE}
+            emptyText={paletteEmptyText(activeTab)}
+            types={findPaletteTypes(
+              questionTypes,
+              items,
+              activeTab,
+              EXAM_TEMPLATE_SECTIONS,
+              SCORE_TEMPLATE_ALL_TAB,
+            )}
+            grouped={activeTab === SCORE_TEMPLATE_ALL_TAB}
+            sectionLabel={(section) =>
+              sectionLabels[section as keyof typeof sectionLabels] ?? section
+            }
+            onAdd={handleAddType}
           />
-        }
+        )}
+        onDropTaskType={(key) => {
+          const type = questionTypes.find((candidate) => taskTypeKey(candidate) === key);
+          if (type) handleAddType(type);
+        }}
+      />
+
+      <TemplateInfoDialog
+        open={infoOpen}
+        onClose={() => setInfoOpen(false)}
+        template={template}
+        name={name}
+        nameError={nameError}
+        onNameChange={(value) => {
+          setName(value);
+          setNameError(undefined);
+        }}
       />
 
       <UnsavedChangesGuard
@@ -352,15 +394,6 @@ const ScoreTemplateEditorForm = ({
         stayLabel={SCORE_TEMPLATE_TEXT.UNSAVED_STAY}
         leaveLabel={SCORE_TEMPLATE_TEXT.UNSAVED_LEAVE}
         onNavigate={(href) => router.push(href)}
-      />
-
-      <AddTaskTypeDialog
-        open={addDialogTab !== null}
-        onClose={() => setAddDialogTab(null)}
-        activeTab={addDialogTab ?? SCORE_TEMPLATE_ALL_TAB}
-        questionTypes={questionTypes}
-        items={items}
-        onAdd={handleAddType}
       />
 
       <ActivateTemplateModal

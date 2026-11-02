@@ -3,6 +3,7 @@ import type { QuestionTypeResponse } from "@pte/api-client";
 import {
   createDraftItem,
   findAvailableTaskTypes,
+  findPaletteTypes,
   getAddTaskTypeBlocker,
   taskTypeKeyOf,
 } from "../../../../features/scoretemplate/addTaskType";
@@ -14,7 +15,14 @@ const catalogType = (
   section: string,
   overrides: Record<string, unknown> = {},
 ): QuestionTypeResponse =>
-  ({ code, taskTypeKey: code, section, active: true, displayName: code, ...overrides }) as unknown as QuestionTypeResponse;
+  ({
+    code,
+    taskTypeKey: code,
+    section,
+    active: true,
+    displayName: code,
+    ...overrides,
+  }) as unknown as QuestionTypeResponse;
 
 const usedItem = (taskTypeKey: string, section: string): ScoreTemplateItemDraft =>
   createDraftItem(catalogType(taskTypeKey, section), 1);
@@ -96,5 +104,37 @@ describe("createDraftItem", () => {
       readingWeight: "0",
       listeningWeight: "0",
     });
+  });
+});
+
+describe("findPaletteTypes", () => {
+  const SECTIONS = ["SPEAKING", "WRITING"];
+  const ordered = [
+    catalogType("REPEAT_SENTENCE", "SPEAKING", { displayOrder: 2 }),
+    catalogType("READ_ALOUD", "SPEAKING", { displayOrder: 1 }),
+    catalogType("WRITE_ESSAY", "WRITING", { displayOrder: 1 }),
+  ];
+
+  it("lists only the chosen section's unused task types, in catalog order", () => {
+    expect(keys(findPaletteTypes(ordered, [], "SPEAKING", SECTIONS, "ALL"))).toEqual([
+      "READ_ALOUD",
+      "REPEAT_SENTENCE",
+    ]);
+  });
+
+  it("lists every section's, in section order, on the All tab", () => {
+    expect(keys(findPaletteTypes(ordered, [], "ALL", SECTIONS, "ALL"))).toEqual([
+      "READ_ALOUD",
+      "REPEAT_SENTENCE",
+      "WRITE_ESSAY",
+    ]);
+  });
+
+  it("leaves out what the template already holds", () => {
+    const items = [usedItem("READ_ALOUD", "SPEAKING")];
+    expect(keys(findPaletteTypes(ordered, items, "ALL", SECTIONS, "ALL"))).toEqual([
+      "REPEAT_SENTENCE",
+      "WRITE_ESSAY",
+    ]);
   });
 });

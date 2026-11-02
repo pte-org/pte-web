@@ -7,8 +7,8 @@ import { SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT } from "../constants";
 
 interface TemplateToolbarActionsProps {
   onSave: () => void;
+  onOpenInfo: () => void;
   isSaving: boolean;
-  onAddTaskType: () => void;
   /** Reviewers only; the entry is left out of the menu for everyone else. */
   canActivate: boolean;
   /** False until the template is ready to go live; the menu entry is then disabled. */
@@ -18,13 +18,14 @@ interface TemplateToolbarActionsProps {
 
 /**
  * What the editor can do to the template. Save stays a visible button because it is used
- * constantly; adding a task type and activating are rare (and activating retires the
- * current ACTIVE template), so they live in the actions menu.
+ * constantly; the rest is rare, so it lives in the actions menu: the template's details for
+ * everyone, and activating (which retires the current ACTIVE template) for reviewers only.
+ * Task types are added by dragging them in.
  */
 export const TemplateToolbarActions = ({
   onSave,
+  onOpenInfo,
   isSaving,
-  onAddTaskType,
   canActivate,
   isActivatable,
   onActivate,
@@ -39,7 +40,7 @@ export const TemplateToolbarActions = ({
       <ActionMenu
         label={T.TEMPLATE_ACTIONS_LABEL}
         items={[
-          { label: T.ADD_TYPE, onSelect: onAddTaskType },
+          { label: T.INFO_TITLE, onSelect: onOpenInfo },
           ...(canActivate
             ? [{ label: T.ACTIVATE_ACTION, onSelect: onActivate, disabled: !isActivatable }]
             : []),

@@ -38,8 +38,8 @@ const render = (props: {
       null,
       createElement(TemplateToolbarActions, {
         onSave: noop,
+        onOpenInfo: noop,
         isSaving: props.isSaving ?? false,
-        onAddTaskType: noop,
         canActivate: props.canActivate,
         isActivatable: props.isActivatable ?? true,
         onActivate: noop,
@@ -52,20 +52,20 @@ describe("TemplateToolbarActions", () => {
     expect(render({ canActivate: true })).toContain(">Save<");
   });
 
-  it("puts Add task type and Activate in the actions menu, not in visible buttons", () => {
+  it("puts Activate in the actions menu, not in a visible button", () => {
     const html = render({ canActivate: true });
     expect(html).toContain('aria-label="Template actions"');
-    expect(html).toContain(">Add task type</li>");
     expect(html).toContain(">Activate</li>");
-    expect(html).not.toContain(">Add task type</button>");
     expect(html).not.toContain(">Activate</button>");
     expect(html.match(/<button/g)).toHaveLength(1);
   });
 
-  it("leaves Activate out of the menu for users who cannot activate, but keeps Add task type", () => {
+  it("offers the template information to everyone, and Activate only to reviewers", () => {
     const html = render({ canActivate: false });
+    expect(html).toContain(">Template information</li>");
     expect(html).not.toContain("Activate");
-    expect(html).toContain(">Add task type</li>");
+    expect(html).not.toContain("Add task type");
+    expect(render({ canActivate: true })).toContain(">Template information</li>");
   });
 
   it("disables the Activate entry until the template is ready", () => {

@@ -42,6 +42,11 @@ export interface ScoreTemplateResponse {
   tenantId?: string | null;
   /** Admin default a host template was cloned from. */
   baseDefinitionPublicId?: string | null;
+  /** Audit fields of the template; the author name is resolved only on the platform detail read. */
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  authorUserPublicId?: string | null;
+  authorName?: string | null;
 }
 
 export interface ScoreTemplateSlotFeasibilityResponse {
@@ -95,7 +100,8 @@ export interface ReplaceScoreTemplateItemsRequest {
 }
 
 export interface CreateScoreTemplateRequest {
-  code: string;
+  /** Left out, the server derives one from the name. */
+  code?: string;
   name: string;
   templatePolicy?: ScoreTemplatePolicy | string;
 }

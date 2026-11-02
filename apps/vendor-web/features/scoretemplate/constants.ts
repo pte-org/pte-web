@@ -21,6 +21,14 @@ export const SCORE_TEMPLATE_TEXT = {
   CREATE_MODAL_TITLE: "Create exam template",
   CODE_LABEL: "Code",
   INFO_TITLE: "Template information",
+  INFO_DONE: "Done",
+  INFO_VERSION: "Version",
+  INFO_STATUS: "Status",
+  INFO_POLICY: "Policy",
+  INFO_CREATED_BY: "Created by",
+  INFO_CREATED_AT: "Created",
+  INFO_UPDATED_AT: "Last updated",
+  INFO_UNKNOWN: "Unknown",
   TEMPLATE_ACTIONS_LABEL: "Template actions",
   UNSAVED_TITLE: "Leave without saving?",
   UNSAVED_DESCRIPTION:
@@ -39,6 +47,10 @@ export const SCORE_TEMPLATE_TEXT = {
   EDIT_ACTION: "Edit",
   EXPORT_ACTION: "Export JSON",
   ADD_TYPE: "Add task type",
+  PALETTE_TITLE: "Task types to add",
+  PALETTE_HINT: "Drag one into the table, or press +. Drag a row back here to remove it.",
+  PALETTE_ALL_USED: "Every task type is already in the template.",
+  DROP_HINT: "Drag a task type from the left into this table.",
   ADD_SECTION_PLACEHOLDER: "Select section first",
   ADD_TYPE_PLACEHOLDER: "Select a task type",
   NO_SECTION_SELECTED: "Select a section first",
@@ -199,6 +211,12 @@ export const SCORE_TEMPLATE_ROW_COLUMNS = {
 
 /** `ALL` is a tab value, never a section: it lists every section one after another. */
 export const SCORE_TEMPLATE_ALL_TAB = "ALL";
+
+/** What a task type dragged out of the palette carries: its key. */
+export const TASK_TYPE_DRAG_TYPE = "application/x-pte-task-type";
+
+/** Marks the palette as the place a table row is dragged back to, to take it out of the template. */
+export const PALETTE_DROP_ATTRIBUTE = "data-task-type-palette";
 
 /** Which draft field carries each skill's weight; order is the display order of the chips. */
 export const SCORE_TEMPLATE_SKILL_WEIGHT_FIELDS = [

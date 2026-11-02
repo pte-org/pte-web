@@ -48,7 +48,7 @@ const noop = (): void => undefined;
 
 const withoutBreakHints = (html: string): string => html.replace(/<wbr\s*\/?>/g, "");
 
-const render =(element: ReactElement): string =>
+const render = (element: ReactElement): string =>
   renderToStaticMarkup(createElement(LocaleProvider, null, element));
 
 const editableProps = {
@@ -113,7 +113,13 @@ describe("ScoreTemplateItemTable", () => {
       for (const header of ["Task type", "Questions", "Time (s)"]) {
         expect(html).toContain(`>${header}<`);
       }
-      for (const weightHeader of ["Overall %", "Speaking %", "Writing %", "Reading %", "Listening %"]) {
+      for (const weightHeader of [
+        "Overall %",
+        "Speaking %",
+        "Writing %",
+        "Reading %",
+        "Listening %",
+      ]) {
         expect(html).not.toContain(`>${weightHeader}<`);
       }
     });
@@ -195,7 +201,11 @@ describe("ScoreTemplateItemTable", () => {
         draft("WRITE_ESSAY", "WRITING", { writingWeight: "100" }),
       ];
       const html = render(
-        createElement(ScoreTemplateItemTable, { ...editableProps, items: balanced, initialView: "WEIGHTS" }),
+        createElement(ScoreTemplateItemTable, {
+          ...editableProps,
+          items: balanced,
+          initialView: "WEIGHTS",
+        }),
       );
       expect(html).not.toContain("/ 100");
     });
@@ -205,10 +215,9 @@ describe("ScoreTemplateItemTable", () => {
     });
   });
 
-  it("puts Remove in each row's actions menu in the editor instead of a visible button", () => {
+  it("gives each row a trash button in the editor instead of an actions menu", () => {
     const html = renderEditable();
-    expect(html.match(/aria-label="Task type actions"/g)).toHaveLength(DRAFTS.length);
-    expect(html).not.toContain(">Remove<");
+    expect(html.match(/aria-label="Remove"/g)).toHaveLength(DRAFTS.length);
   });
 
   it("adds an Available / needed column with a badge per task type when pool coverage is given", () => {
@@ -220,7 +229,9 @@ describe("ScoreTemplateItemTable", () => {
     expect(html).toContain(">Available / needed<");
     expect(html).toContain(">8/6<");
     expect(html).toContain(">3/6<");
-    expect(html).toContain("Not enough approved questions for this task type: 3 available, 6 needed.");
+    expect(html).toContain(
+      "Not enough approved questions for this task type: 3 available, 6 needed.",
+    );
     expect(html).toContain("Enough approved questions for this task type.");
   });
 
@@ -228,7 +239,9 @@ describe("ScoreTemplateItemTable", () => {
     const pool = new Map([["READ_ALOUD", { available: 8, required: 6, ready: true }]]);
     expect(renderEditable()).not.toContain("Available / needed");
     expect(
-      render(createElement(ScoreTemplateItemTable, { ...editableProps, pool, initialView: "WEIGHTS" })),
+      render(
+        createElement(ScoreTemplateItemTable, { ...editableProps, pool, initialView: "WEIGHTS" }),
+      ),
     ).not.toContain("Available / needed");
   });
 
@@ -274,7 +287,6 @@ describe("ScoreTemplateItemTable", () => {
   it("is read-only on the detail view: no drag handles, no row menus and no number inputs", () => {
     const html = renderReadOnly();
     expect(html).not.toContain("Drag to reorder");
-    expect(html).not.toContain("Task type actions");
     expect(html).not.toContain('type="number"');
   });
 });

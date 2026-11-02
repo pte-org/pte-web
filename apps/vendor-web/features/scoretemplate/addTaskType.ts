@@ -4,9 +4,7 @@ import type { ScoreTemplateItemDraft } from "./types";
 
 /** Why nothing can be added to a section right now; each maps to a `SCORE_TEMPLATE_TEXT` message. */
 export type AddTaskTypeBlocker =
-  | "NO_ACTIVE_TASK_TYPES"
-  | "ALL_ACTIVE_TYPES_USED"
-  | "INCOMPATIBLE_RUNTIME_PROFILE";
+  "NO_ACTIVE_TASK_TYPES" | "ALL_ACTIVE_TYPES_USED" | "INCOMPATIBLE_RUNTIME_PROFILE";
 
 export const taskTypeKeyOf = (type: QuestionTypeResponse): string => type.taskTypeKey ?? type.code;
 
@@ -26,6 +24,25 @@ export function findAvailableTaskTypes(
       isTaskTypeRuntimeReady(type) &&
       type.section === section &&
       !used.has(taskTypeKeyOf(type)),
+  );
+}
+
+/**
+ * The task types the editor offers to drag in: what a section can still add, or, on the "All"
+ * tab, every section's in section order. Within a section they follow the catalog's own order.
+ */
+export function findPaletteTypes(
+  questionTypes: QuestionTypeResponse[],
+  items: ScoreTemplateItemDraft[],
+  activeTab: string,
+  sections: readonly string[],
+  allTab: string,
+): QuestionTypeResponse[] {
+  const shown = activeTab === allTab ? sections : [activeTab];
+  return shown.flatMap((section) =>
+    findAvailableTaskTypes(questionTypes, items, section).sort(
+      (left, right) => left.displayOrder - right.displayOrder,
+    ),
   );
 }
 
@@ -49,7 +66,10 @@ export function getAddTaskTypeBlocker(
  * A fresh row for `type`. scoringMethod is deliberately not set: it is derived by the
  * backend from the task type and never accepted as admin input.
  */
-export function createDraftItem(type: QuestionTypeResponse, sequence: number): ScoreTemplateItemDraft {
+export function createDraftItem(
+  type: QuestionTypeResponse,
+  sequence: number,
+): ScoreTemplateItemDraft {
   return {
     taskType: type.code,
     taskTypeKey: taskTypeKeyOf(type),
