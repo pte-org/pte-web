@@ -274,7 +274,7 @@ export function DataTable<TRow>({
   const cellPadding = isCompact ? "px-2 py-2 sm:px-3" : "px-4 py-2.5 sm:px-6";
   const cellPaddingBody = isCompact ? "px-2 py-2 sm:px-3 sm:py-2.5" : "px-4 py-3 sm:px-6 sm:py-3.5";
   const shellClassName =
-    "overflow-hidden rounded-xl border-[0.5px] border-[var(--table-border)] bg-[var(--table-surface-background)] shadow-none motion-safe:animate-pte-fade-up";
+    "overflow-hidden rounded-xl border-[0.5px] border-[var(--table-border)] bg-[var(--table-surface-background)] shadow-none";
   const hasBuiltInSearch = showSearch && !toolbar;
   const hasPageSizeControl = clientSidePagination && filteredRows.length > 10;
   const hasToolbar = Boolean(
