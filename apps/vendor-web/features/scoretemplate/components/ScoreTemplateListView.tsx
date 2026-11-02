@@ -82,7 +82,6 @@ export const ScoreTemplateListView = (): ReactElement => {
   const canReview = canReviewAcademic(currentUser?.roles);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ScoreTemplateResponse | null>(null);
-  const [createCode, setCreateCode] = useState("");
   const [createName, setCreateName] = useState("");
   const [createError, setCreateError] = useState<string | null>(null);
   const [rejectTarget, setRejectTarget] = useState<ScoreTemplateResponse | null>(null);
@@ -100,12 +99,10 @@ export const ScoreTemplateListView = (): ReactElement => {
     setCreateError(null);
     try {
       const draft = await createMutation.mutateAsync({
-        code: createCode.trim(),
         name: createName.trim(),
         templatePolicy: PLATFORM_TEMPLATE_POLICY,
       });
       closeCreate();
-      setCreateCode("");
       setCreateName("");
       router.push(`${EXAM_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`);
     } catch (error) {
@@ -355,14 +352,6 @@ export const ScoreTemplateListView = (): ReactElement => {
           className="space-y-4"
           onSubmit={(event) => void handleCreate(event)}
         >
-          <Input
-            id="create-exam-template-code"
-            label={T.CODE_LABEL}
-            value={createCode}
-            onChange={(event) => setCreateCode(event.target.value)}
-            required
-            maxLength={64}
-          />
           <Input
             id="create-exam-template-name"
             label={T.NAME_LABEL}
