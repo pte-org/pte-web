@@ -119,6 +119,8 @@ export { ForbiddenState } from "./ForbiddenState";
 export { Stepper } from "./Stepper";
 export type { StepItem } from "./Stepper";
 export { TabPanel, Tabs } from "./Tabs";
+export { TabRailCard } from "./TabRailCard";
+export type { TabRailCardProps } from "./TabRailCard";
 export type {
   TabItem,
   TabPanelProps,
