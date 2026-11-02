@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement, type ReactNode } from "react";
-import { ActionMenu, DashboardCard, DataTable, Tabs, cn, type TabItem } from "@pte/ui";
+import { ActionMenu, DataTable, TabRailCard, Tabs, type TabItem } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import {
   EXAM_TEMPLATE_SECTIONS,
@@ -11,6 +11,7 @@ import {
   SCORE_TEMPLATE_SECTION_LABELS as RAW_SECTION_LABELS,
   SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
 } from "../constants";
+import { useSectionTabItems } from "../useSectionTabItems";
 import type { PoolSlot } from "../poolAvailability";
 import { computeSkillWeightTotals } from "../skillWeightTotals";
 import type { ScoreTemplateItemDraft, ScoreTemplateItemResponse } from "../types";
@@ -67,7 +68,6 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
   const T = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
   const ROW = useAdminCopy(RAW_SCORE_TEMPLATE_ROW_TEXT);
   const sectionLabels = useAdminCopy(RAW_SECTION_LABELS);
-  const allSectionsLabel = useAdminCopy("All sections");
   const emptyTitle = useAdminCopy("No score template items");
   const getSectionLabel = (section: string): string =>
     sectionLabels[section as keyof typeof sectionLabels] ?? section;
@@ -76,14 +76,9 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
   const rows = allRows.filter(
     (row) => activeTab === SCORE_TEMPLATE_ALL_TAB || row.item.section === activeTab,
   );
-  const tabItems: TabItem[] = [
-    { id: SCORE_TEMPLATE_ALL_TAB, label: allSectionsLabel, count: allRows.length },
-    ...EXAM_TEMPLATE_SECTIONS.map((section) => ({
-      id: section,
-      label: getSectionLabel(section),
-      count: allRows.filter((row) => row.item.section === section).length,
-    })),
-  ];
+  const tabItems = useSectionTabItems((section) =>
+    section === null ? allRows.length : allRows.filter((row) => row.item.section === section).length,
+  );
   const viewItems: TabItem[] = [
     { id: "STRUCTURE", label: ROW.VIEW_STRUCTURE },
     { id: "WEIGHTS", label: ROW.VIEW_WEIGHTS },
@@ -110,36 +105,17 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
   });
 
   return (
-    <DashboardCard
-      className={cn(
-        "grid gap-6 lg:items-start",
-        // A side panel needs room for its fields; without one the rail shrinks to its labels.
-        props.sidePanel
-          ? "lg:grid-cols-[15rem_minmax(0,1fr)]"
-          : "lg:grid-cols-[auto_minmax(0,1fr)]",
-      )}
+    <TabRailCard
+      id={TABS_ID}
+      items={tabItems}
+      value={activeTab}
+      onChange={setActiveTab}
+      sidePanel={props.sidePanel}
     >
-      <div className="flex flex-col gap-4 lg:sticky lg:top-4">
-        <Tabs
-          id={TABS_ID}
-          orientation="vertical"
-          items={tabItems}
-          value={activeTab}
-          onChange={setActiveTab}
-        />
-        {props.sidePanel}
-      </div>
-      <div
-        role="tabpanel"
-        id={`${TABS_ID}-panel-${activeTab}`}
-        aria-labelledby={`${TABS_ID}-tab-${activeTab}`}
-        className="min-w-0"
-      >
-        {/* key resets the table's own page state when the skill tab changes.
-            The editor drags rows, so it shows every row (a drop must see the whole
-            order) and keys rows by task type: an index key would change on every move. */}
+        {/* The editor drags rows, so it shows every row (a drop must see the whole order) and keys
+            rows by task type: an index key would change on every move. The table is not re-keyed per
+            tab: remounting replays its fade-in and flickers; it returns to page 1 on its own. */}
         <DataTable
-          key={activeTab}
           showSearch={false}
           toolbar={
             <Tabs
@@ -175,7 +151,6 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
           onReorderRows={props.editable ? props.onReorder : undefined}
           reorderHandleLabel={ROW.DRAG_HANDLE}
         />
-      </div>
-    </DashboardCard>
+    </TabRailCard>
   );
 };
