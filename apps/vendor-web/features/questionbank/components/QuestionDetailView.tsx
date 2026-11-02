@@ -1,19 +1,33 @@
 "use client";
 
+import type { ReactElement } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
-import { Alert, Badge, Button, CopyableId, DetailGroup, LoadingState, cn, useDashboardBreadcrumbLabel } from "@pte/ui";
-import { getUserFacingApiErrorMessage } from "@pte/api-client";
+import {
+  Alert,
+  Badge,
+  Button,
+  CopyableId,
+  DetailGroup,
+  cn,
+  useDashboardBreadcrumbLabel,
+} from "@pte/ui";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
-import { mapPool, useMediaPreview, useQuestion } from "../api";
+import { useQuestionTypes } from "@/features/questiontemplate/api";
+import { mapPool, useQuestion } from "../api";
 import {
   QUESTION_DETAIL_TEXT as RAW_QUESTION_DETAIL_TEXT,
   QUESTION_POOL_LABELS as RAW_QUESTION_POOL_LABELS,
   QUESTION_STATUS_LABELS as RAW_QUESTION_STATUS_LABELS,
   QUESTION_STATUS_VARIANT,
 } from "../constants";
+import { usePromptMedia } from "../hooks/usePromptMediaUrl";
+import { buildQuestionPreviewDraft } from "../questionPreviewDraft";
+import { accentOf, DETAIL_CHIP_CLASS, NEUTRAL_CHIP_CLASS } from "../questionDetailStyles";
 import type { QuestionStatus } from "../types";
+import { ExamScreenPreview } from "./ExamScreenPreview";
+import { QuestionDetailSkeleton } from "./_QuestionDetailSkeleton";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 interface QuestionDetailViewProps {
@@ -25,50 +39,6 @@ function statusKey(value: string): QuestionStatus | null {
   return normalized in RAW_QUESTION_STATUS_LABELS ? normalized : null;
 }
 
-function valueOrEmpty(value: string | null | undefined): string {
-  return value?.trim() ? value : "—";
-}
-
-interface MediaPreviewProps {
-  kind: "audio" | "image";
-  publicId: string;
-}
-
-const MediaPreview = ({ kind, publicId }: MediaPreviewProps) => {
-  const T = useAdminCopy(RAW_QUESTION_DETAIL_TEXT);
-  const { data, isLoading, isError, error } = useMediaPreview(publicId);
-
-  if (isLoading) return <p className="text-sm text-slate-500">{T.MEDIA_LOADING}</p>;
-  if (isError || !data) {
-    return <Alert tone="warning">{getUserFacingApiErrorMessage(error, T.MEDIA_UNAVAILABLE)}</Alert>;
-  }
-
-  if (kind === "audio") {
-    return (
-      <div className="space-y-2">
-        <audio
-          className="w-full"
-          controls
-          preload="metadata"
-          src={data.url}
-          aria-label={T.AUDIO_LABEL}
-        />
-        {data.durationSeconds != null && (
-          <p className="text-xs text-slate-500">{T.MEDIA_DURATION(data.durationSeconds)}</p>
-        )}
-      </div>
-    );
-  }
-
-  return (
-    <img
-      className="max-h-80 w-full rounded-md border border-slate-200 bg-slate-50 object-contain"
-      src={data.url}
-      alt={T.IMAGE_ALT}
-    />
-  );
-};
-
 export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
   const T = useAdminCopy(RAW_QUESTION_DETAIL_TEXT);
   const statusLabels = useAdminCopy(RAW_QUESTION_STATUS_LABELS);
@@ -79,17 +49,31 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
     READING: "Reading",
     LISTENING: "Listening",
   });
-  const visibilityLabels = useAdminCopy({
-    PUBLIC: "Public",
-    PRIVATE: "Private",
-  });
   const { data: question, isLoading, isError } = useQuestion(publicId);
   const pathname = usePathname();
   const router = useRouter();
-  useDashboardBreadcrumbLabel(pathname, question?.title);
   const { data: currentUser } = useCurrentUser();
+  const { data: questionTypes = [], isLoading: questionTypesLoading } = useQuestionTypes(false);
+  const questionTypeCode = question?.taskTypeKey ?? question?.pteTaskType;
+  // The page is named after the task type, since a question has no title of its own.
+  useDashboardBreadcrumbLabel(
+    pathname,
+    questionTypes.find(
+      (type) => type.code === questionTypeCode || type.taskTypeKey === questionTypeCode,
+    )?.displayName ?? questionTypeCode,
+  );
+  const { url: audioUrl, isLoading: audioLoading } = usePromptMedia(
+    question?.audioPromptRef ?? null,
+  );
+  const { url: imageUrl, isLoading: imageLoading } = usePromptMedia(
+    question?.imagePromptRef ?? null,
+  );
 
-  if (isLoading) return <LoadingState rows={8} />;
+  // Wait for the task types and the media too: they name the page, supply the instruction and fill
+  // the student's screen, so showing the page without them would redraw it a moment later.
+  if (isLoading || questionTypesLoading || audioLoading || imageLoading) {
+    return <QuestionDetailSkeleton />;
+  }
   if (isError) return <Alert tone="error">{T.LOAD_ERROR}</Alert>;
   if (!question) return <Alert tone="error">{T.NOT_FOUND}</Alert>;
 
@@ -97,149 +81,175 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
   const taskType = question.taskTypeKey ?? question.pteTaskType ?? T.EMPTY_VALUE;
   const canEdit = question.status === "DRAFT" || question.status === "APPROVED";
   const showAnswerKey = canReviewAcademic(currentUser?.roles);
-  const hasMedia = Boolean(question.audioPromptRef || question.imagePromptRef);
+  const mediaId = (ref: string): ReactElement => (
+    <span className="break-all font-mono text-xs">{ref}</span>
+  );
+  // The detail page shows what a question has; fields it leaves empty are not listed.
+  const contentItems = [
+    ...(question.promptText?.trim()
+      ? [
+          {
+            label: T.PROMPT_TEXT,
+            value: <span className="whitespace-pre-wrap">{question.promptText}</span>,
+            fullWidth: true,
+          },
+        ]
+      : []),
+    ...(question.audioPromptRef
+      ? [{ label: T.AUDIO_PROMPT, value: mediaId(question.audioPromptRef), fullWidth: true }]
+      : []),
+    ...(question.imagePromptRef
+      ? [{ label: T.IMAGE_PROMPT, value: mediaId(question.imagePromptRef), fullWidth: true }]
+      : []),
+    ...(question.minWordCount != null
+      ? [{ label: T.MIN_WORD_COUNT, value: String(question.minWordCount) }]
+      : []),
+    ...(question.maxWordCount != null
+      ? [{ label: T.MAX_WORD_COUNT, value: String(question.maxWordCount) }]
+      : []),
+  ];
+  const hasAnswerKey = Boolean(
+    question.referenceAnswerText?.trim() || question.correctAnswerText?.trim(),
+  );
+  const hasAnswers = question.options.length > 0 || (showAnswerKey && hasAnswerKey);
+  const previewDraft = buildQuestionPreviewDraft(
+    question,
+    questionTypes.find((type) => type.code === taskType || type.taskTypeKey === taskType),
+    { imageUrl, audioUrl },
+  );
   const section = question.section
     ? (sectionLabels[question.section as keyof typeof sectionLabels] ?? question.section)
     : T.EMPTY_VALUE;
-  const visibility = question.visibility
-    ? (visibilityLabels[question.visibility as keyof typeof visibilityLabels] ??
-      question.visibility)
-    : T.EMPTY_VALUE;
+  const accent = accentOf(question.section);
 
   return (
-    <div className="flex flex-col gap-5">
-      <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-base font-semibold text-gray-900">{T.INFORMATION_TITLE}</h2>
-          <div className="flex flex-wrap items-center gap-2">
-            {currentStatus && (
-              <Badge variant={QUESTION_STATUS_VARIANT[currentStatus]}>
-                {statusLabels[currentStatus]}
-              </Badge>
-            )}
-            {canEdit && (
-              <Button onClick={() => router.push(`/admin/questions/${question.publicId}/edit`)}>
-                {T.EDIT}
-              </Button>
-            )}
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:items-start">
+      <div className="flex flex-col gap-5">
+        <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <h2 className="text-base font-semibold text-gray-900">{T.INFORMATION_TITLE}</h2>
+            <div className="flex flex-wrap items-center gap-2">
+              {currentStatus && (
+                <Badge variant={QUESTION_STATUS_VARIANT[currentStatus]}>
+                  {statusLabels[currentStatus]}
+                </Badge>
+              )}
+              {canEdit && (
+                <Button onClick={() => router.push(`/admin/questions/${question.publicId}/edit`)}>
+                  {T.EDIT}
+                </Button>
+              )}
+            </div>
           </div>
-        </div>
-        <DetailGroup
-          title={T.GROUP_IDENTITY}
-          items={[{ label: T.QUESTION_CODE, value: <CopyableId value={question.publicId} /> }]}
-        />
-        <DetailGroup
-          title={T.GROUP_CLASSIFICATION}
-          items={[
-            { label: T.TASK_TYPE, value: taskType },
-            { label: T.SECTION, value: section },
-            { label: T.VISIBILITY, value: visibility },
-            { label: T.POOL, value: poolLabels[mapPool(question)] },
-            { label: T.REVISION, value: String(question.revisionNumber ?? T.EMPTY_VALUE) },
-            {
-              label: T.WORD_COUNT,
-              value:
-                question.minWordCount != null && question.maxWordCount != null
-                  ? T.WORD_COUNT_RANGE(question.minWordCount, question.maxWordCount)
-                  : T.EMPTY_VALUE,
-              fullWidth: true,
-            },
-          ]}
-        />
-      </section>
-
-      <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-card">
-          <h2 className="mb-4 text-base font-semibold text-gray-900">{T.PROMPT_TITLE}</h2>
-          <div>
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              {T.PROMPT_TEXT}
-            </h3>
-            <p className="mt-2 whitespace-pre-wrap rounded-md bg-slate-50 p-4 text-sm leading-6 text-gray-800">
-              {question.promptText?.trim() ? question.promptText : T.NO_PROMPT}
-            </p>
-          </div>
+          <DetailGroup
+            title={T.GROUP_IDENTITY}
+            items={[{ label: T.QUESTION_CODE, value: <CopyableId value={question.publicId} /> }]}
+          />
+          <DetailGroup
+            title={T.GROUP_CLASSIFICATION}
+            items={[
+              { label: T.TASK_TYPE, value: taskType },
+              {
+                label: T.SECTION,
+                value: (
+                  <span className={cn(DETAIL_CHIP_CLASS, accent.tint, accent.text)}>{section}</span>
+                ),
+              },
+              {
+                label: T.POOL,
+                value: (
+                  <span className={cn(DETAIL_CHIP_CLASS, NEUTRAL_CHIP_CLASS)}>
+                    {poolLabels[mapPool(question)]}
+                  </span>
+                ),
+              },
+              {
+                label: T.REVISION,
+                value: (
+                  <span className={cn(DETAIL_CHIP_CLASS, NEUTRAL_CHIP_CLASS)}>
+                    v{question.revisionNumber ?? 1}
+                  </span>
+                ),
+              },
+              ...(question.rejectionReason?.trim()
+                ? [
+                    {
+                      label: T.REJECTION_REASON,
+                      value: question.rejectionReason,
+                      fullWidth: true,
+                    },
+                  ]
+                : []),
+            ]}
+          />
         </section>
 
-        <section className="rounded-lg border border-slate-200 bg-white p-5 shadow-card">
-          <h2 className="mb-4 text-base font-semibold text-gray-900">{T.MEDIA_TITLE}</h2>
-          {!hasMedia && <p className="text-sm text-slate-500">{T.NO_MEDIA}</p>}
-          {question.audioPromptRef && (
-            <div className="space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                {T.AUDIO_PROMPT}
-              </h3>
-              <MediaPreview kind="audio" publicId={question.audioPromptRef} />
-              <p className="break-all text-xs text-slate-500">
-                {T.MEDIA_ID(question.audioPromptRef)}
-              </p>
-            </div>
-          )}
-          {question.imagePromptRef && (
-            <div className="mt-5 space-y-2">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                {T.IMAGE_PROMPT}
-              </h3>
-              <MediaPreview kind="image" publicId={question.imagePromptRef} />
-              <p className="break-all text-xs text-slate-500">
-                {T.MEDIA_ID(question.imagePromptRef)}
-              </p>
-            </div>
-          )}
-        </section>
-      </div>
-
-      <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
-        <h2 className="text-base font-semibold text-gray-900">{T.ANSWERS_TITLE}</h2>
-        {question.options.length > 0 && (
-          <div className="space-y-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-              {T.OPTIONS}
-            </h3>
-            <ol className="space-y-2">
-              {question.options
-                .slice()
-                .sort((left, right) => left.orderIndex - right.orderIndex)
-                .map((option, index) => (
-                  <li
-                    key={option.publicId}
-                    className={cn(
-                      "flex items-center gap-3 rounded-md border px-3 py-2 text-sm",
-                      showAnswerKey && option.correct
-                        ? "border-green-200 bg-green-50"
-                        : "border-slate-200 bg-white",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
-                        showAnswerKey && option.correct
-                          ? "bg-green-600 text-white"
-                          : "bg-slate-100 text-slate-500",
-                      )}
-                    >
-                      {index + 1}
-                    </span>
-                    <span className="flex-1 text-gray-800">{option.text}</span>
-                    {showAnswerKey && option.correct && (
-                      <Badge variant="success">{T.CORRECT}</Badge>
-                    )}
-                  </li>
-                ))}
-            </ol>
-          </div>
+        {contentItems.length > 0 && (
+          <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
+            <DetailGroup title={T.GROUP_CONTENT} items={contentItems} />
+          </section>
         )}
-        {showAnswerKey &&
-          (question.referenceAnswerText?.trim() || question.correctAnswerText?.trim()) && (
-            <DetailGroup
-              title={T.GROUP_ANSWER_KEY}
-              items={[
-                { label: T.REFERENCE_ANSWER, value: valueOrEmpty(question.referenceAnswerText) },
-                { label: T.CORRECT_ANSWER, value: valueOrEmpty(question.correctAnswerText) },
-              ]}
-            />
-          )}
-      </section>
+
+        {hasAnswers && (
+          <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
+            <h2 className="text-base font-semibold text-gray-900">{T.ANSWERS_TITLE}</h2>
+            {question.options.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                  {T.OPTIONS}
+                </h3>
+                <ol className="space-y-2">
+                  {question.options
+                    .slice()
+                    .sort((left, right) => left.orderIndex - right.orderIndex)
+                    .map((option, index) => (
+                      <li
+                        key={option.publicId}
+                        className={cn(
+                          "flex items-center gap-3 rounded-md border px-3 py-2 text-sm",
+                          showAnswerKey && option.correct
+                            ? "border-green-200 bg-green-50"
+                            : "border-slate-200 bg-white",
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                            showAnswerKey && option.correct
+                              ? "bg-green-600 text-white"
+                              : "bg-slate-100 text-slate-500",
+                          )}
+                        >
+                          {index + 1}
+                        </span>
+                        <span className="flex-1 text-gray-800">{option.text}</span>
+                        {showAnswerKey && option.correct && (
+                          <Badge variant="success">{T.CORRECT}</Badge>
+                        )}
+                      </li>
+                    ))}
+                </ol>
+              </div>
+            )}
+            {showAnswerKey && hasAnswerKey && (
+              <DetailGroup
+                title={T.GROUP_ANSWER_KEY}
+                items={[
+                  ...(question.referenceAnswerText?.trim()
+                    ? [{ label: T.REFERENCE_ANSWER, value: question.referenceAnswerText }]
+                    : []),
+                  ...(question.correctAnswerText?.trim()
+                    ? [{ label: T.CORRECT_ANSWER, value: question.correctAnswerText }]
+                    : []),
+                ]}
+              />
+            )}
+          </section>
+        )}
+      </div>
+      <div className="xl:sticky xl:top-4">
+        <ExamScreenPreview draft={previewDraft} />
+      </div>
     </div>
   );
 };
