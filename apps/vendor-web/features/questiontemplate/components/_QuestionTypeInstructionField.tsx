@@ -9,12 +9,14 @@ import { useAdminCopy } from "@/features/i18n/adminCopy";
 interface QuestionTypeInstructionFieldProps {
   value: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
 }
 
-/** Never disabled: the instruction is display metadata, not part of the locked runtime contract. */
+/** Only disabled while viewing: the instruction is display metadata, so a locked runtime contract does not lock it. */
 export const QuestionTypeInstructionField = ({
   value,
   onChange,
+  disabled = false,
 }: QuestionTypeInstructionFieldProps): ReactElement => {
   const T = useAdminCopy(RAW_QUESTION_TYPE_EDITOR_TEXT);
   // Only flag whitespace-only input; an untouched empty field is already covered by the required marker.
@@ -32,6 +34,7 @@ export const QuestionTypeInstructionField = ({
         error={whitespaceOnly ? T.INSTRUCTION_REQUIRED : undefined}
         maxLength={TASK_TYPE_INSTRUCTION_MAX_LENGTH}
         rows={3}
+        disabled={disabled}
         required
       />
     </div>

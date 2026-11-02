@@ -10,7 +10,8 @@ import {
   CheckCircleIcon,
   ConfirmDialog,
   DataTable,
-  PencilIcon,
+  EyeIcon,
+  TabRailCard,
   TrashIcon,
   UploadIcon,
   useToast,
@@ -25,7 +26,6 @@ import {
 } from "../api";
 import {
   QUESTION_TYPE_REQUIREMENT_LABELS,
-  QUESTION_TYPE_SECTIONS,
   QUESTION_TYPE_TEXT as RAW_QUESTION_TYPE_TEXT,
 } from "../constants";
 import { getQuestionTypeErrorMessage } from "../errorMessage";
@@ -33,6 +33,8 @@ import { QuestionTypeEditorModal } from "./QuestionTypeEditorModal";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic, isPlatformAdmin } from "@/features/auth/permissions";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { SCORE_TEMPLATE_ALL_TAB } from "@/features/scoretemplate/constants";
+import { useSectionTabItems } from "@/features/scoretemplate/useSectionTabItems";
 
 const errorMessage = (error: unknown, fallback: string): string =>
   getQuestionTypeErrorMessage(error, fallback);
@@ -53,20 +55,6 @@ export const QuestionTypeView = (): ReactElement => {
     PENDING_APPROVAL: "Pending approval",
     RETIRED: "Retired",
   });
-  const sectionFilterOptions = useAdminCopy([
-    { label: "All sections", value: "" },
-    ...QUESTION_TYPE_SECTIONS.map((section) => ({
-      label: (
-        {
-          SPEAKING: "Speaking",
-          WRITING: "Writing",
-          READING: "Reading",
-          LISTENING: "Listening",
-        } as const
-      )[section],
-      value: section,
-    })),
-  ]);
   const statusFilterOptions = useAdminCopy([
     { label: "All statuses", value: "" },
     { label: "Active", value: "ACTIVE" },
@@ -86,7 +74,17 @@ export const QuestionTypeView = (): ReactElement => {
   const submitMutation = useSubmitTaskTypeApproval();
   const approveMutation = useApproveTaskType();
   const { showToast } = useToast();
-  const [mode, setMode] = useState<"create" | "edit" | null>(null);
+  const [section, setSection] = useState(SCORE_TEMPLATE_ALL_TAB);
+  const sectionItems = useSectionTabItems((value) =>
+    value === null
+      ? questionTypes.length
+      : questionTypes.filter((type) => type.section === value).length,
+  );
+  const visibleTypes =
+    section === SCORE_TEMPLATE_ALL_TAB
+      ? questionTypes
+      : questionTypes.filter((type) => type.section === section);
+  const [mode, setMode] = useState<"create" | "edit" | "view" | null>(null);
   const [editing, setEditing] = useState<QuestionTypeResponse | null>(null);
   const [typeToDelete, setTypeToDelete] = useState<QuestionTypeResponse | null>(null);
   const beginCreate = (): void => {
@@ -94,10 +92,13 @@ export const QuestionTypeView = (): ReactElement => {
     setMode("create");
   };
 
-  const beginEdit = (type: QuestionTypeResponse): void => {
+  const beginView = (type: QuestionTypeResponse): void => {
     setEditing(type);
-    setMode("edit");
+    setMode("view");
   };
+
+  const canEditType = (type: QuestionTypeResponse): boolean =>
+    type.lifecycleStatus === "DRAFT" || (type.lifecycleStatus === "ACTIVE" && canEditActiveType);
 
   const closeEditor = (): void => {
     setMode(null);
@@ -120,15 +121,7 @@ export const QuestionTypeView = (): ReactElement => {
     const isPendingApproval = type.lifecycleStatus === "PENDING_APPROVAL";
 
     return [
-      ...(isDraft || (type.lifecycleStatus === "ACTIVE" && canEditActiveType)
-        ? [
-            {
-              label: T.EDIT,
-              icon: PencilIcon,
-              onSelect: () => beginEdit(type),
-            },
-          ]
-        : []),
+      { label: T.VIEW, icon: EyeIcon, onSelect: () => beginView(type) },
       ...(isDraft
         ? [
             {
@@ -180,108 +173,108 @@ export const QuestionTypeView = (): ReactElement => {
           )}
         </Alert>
       )}
-      <DataTable
-        toolbarActions={
-          <Button variant="primary" onClick={beginCreate}>
-            + {T.CREATE}
-          </Button>
-        }
-        columns={
-          [
-            {
-              key: "order",
-              header: T.TABLE_ORDER,
-              filterAccessor: (type: QuestionTypeResponse) => type.displayOrder,
-              cell: (type: QuestionTypeResponse) => type.displayOrder,
-              className: "whitespace-nowrap",
-            },
-            {
-              key: "taskType",
-              header: T.TABLE_QUESTION_TYPE,
-              filterAccessor: (type: QuestionTypeResponse) =>
-                [type.displayName, type.shortName, type.taskTypeKey, type.code]
-                  .filter(Boolean)
-                  .join(" "),
-              cell: (type: QuestionTypeResponse) => (
-                <div>
-                  <p className="font-medium text-gray-900">{type.displayName}</p>
-                  <p className="mt-1 font-mono text-xs text-gray-500">
-                    {type.taskTypeKey ?? type.code} {T.SEPARATOR} {type.shortName}
-                  </p>
-                </div>
-              ),
-            },
-            {
-              key: "section",
-              header: T.TABLE_SECTION,
-              filterOptions: sectionFilterOptions,
-              filterAccessor: (type: QuestionTypeResponse) => type.section,
-              cell: (type: QuestionTypeResponse) =>
-                sectionLabels[type.section as keyof typeof sectionLabels] ?? type.section,
-              className: "whitespace-nowrap",
-            },
-            {
-              key: "requirements",
-              header: T.TABLE_REQUIREMENTS,
-              filterAccessor: (type: QuestionTypeResponse) =>
-                requirementLabels
-                  .filter(([key]) => type[key])
-                  .map(([, label]) => label)
-                  .join(" "),
-              cell: (type: QuestionTypeResponse) => (
-                <div className="flex max-w-md flex-wrap gap-1">
-                  {requirementLabels
-                    .filter(([key]) => type[key])
-                    .map(([, label]) => (
-                      <Badge key={label} variant="info">
-                        {label}
-                      </Badge>
-                    ))}
-                </div>
-              ),
-            },
-            {
-              key: "scored",
-              header: T.TABLE_SCORED,
-              filterOptions: scoredFilterOptions,
-              filterAccessor: (type: QuestionTypeResponse) => (type.scored ? "YES" : "NO"),
-              cell: (type: QuestionTypeResponse) => (type.scored ? T.YES : T.NO),
-              className: "whitespace-nowrap",
-            },
-            {
-              key: "status",
-              header: T.TABLE_STATUS,
-              filterOptions: statusFilterOptions,
-              filterAccessor: (type: QuestionTypeResponse) => (type.active ? "ACTIVE" : "INACTIVE"),
-              cell: (type: QuestionTypeResponse) => {
-                const status = type.lifecycleStatus ?? (type.active ? "ACTIVE" : "INACTIVE");
-                return (
-                  <Badge variant={type.active ? "success" : "neutral"}>
-                    {lifecycleStatusLabels[status as keyof typeof lifecycleStatusLabels] ?? status}
-                  </Badge>
-                );
+      <TabRailCard
+        id="question-type-section-tabs"
+        items={sectionItems}
+        value={section}
+        onChange={setSection}
+      >
+        <DataTable
+          toolbarActions={
+            <Button variant="primary" onClick={beginCreate}>
+              + {T.CREATE}
+            </Button>
+          }
+          columns={
+            [
+              {
+                key: "taskType",
+                header: T.TABLE_QUESTION_TYPE,
+                filterAccessor: (type: QuestionTypeResponse) =>
+                  [type.displayName, type.shortName, type.taskTypeKey, type.code]
+                    .filter(Boolean)
+                    .join(" "),
+                cell: (type: QuestionTypeResponse) => (
+                  <div>
+                    <p className="font-medium text-gray-900">{type.displayName}</p>
+                    <p className="mt-1 font-mono text-xs text-gray-500">
+                      {type.taskTypeKey ?? type.code} {T.SEPARATOR} {type.shortName}
+                    </p>
+                  </div>
+                ),
               },
-              className: "whitespace-nowrap",
-            },
-          ] satisfies DataTableColumn<QuestionTypeResponse>[]
-        }
-        rows={questionTypes}
-        getRowKey={(type) => type.publicId}
-        isLoading={isLoading}
-        searchPlaceholder={T.SEARCH_PLACEHOLDER}
-        searchAriaLabel={T.SEARCH_ARIA_LABEL}
-        rowActionsHeader={T.TABLE_ACTIONS}
-        rowActions={(type) => <ActionMenu label={T.ROW_ACTIONS} items={buildActions(type)} />}
-        emptyTitle={isLoading ? T.LOADING : T.EMPTY_LIST}
-      />
+              {
+                key: "section",
+                header: T.TABLE_SECTION,
+                cell: (type: QuestionTypeResponse) =>
+                  sectionLabels[type.section as keyof typeof sectionLabels] ?? type.section,
+                className: "whitespace-nowrap",
+              },
+              {
+                key: "requirements",
+                header: T.TABLE_REQUIREMENTS,
+                filterAccessor: (type: QuestionTypeResponse) =>
+                  requirementLabels
+                    .filter(([key]) => type[key])
+                    .map(([, label]) => label)
+                    .join(" "),
+                cell: (type: QuestionTypeResponse) => (
+                  <div className="flex max-w-md flex-wrap gap-1">
+                    {requirementLabels
+                      .filter(([key]) => type[key])
+                      .map(([, label]) => (
+                        <Badge key={label} variant="info">
+                          {label}
+                        </Badge>
+                      ))}
+                  </div>
+                ),
+              },
+              {
+                key: "scored",
+                header: T.TABLE_SCORED,
+                filterOptions: scoredFilterOptions,
+                filterAccessor: (type: QuestionTypeResponse) => (type.scored ? "YES" : "NO"),
+                cell: (type: QuestionTypeResponse) => (type.scored ? T.YES : T.NO),
+                className: "whitespace-nowrap",
+              },
+              {
+                key: "status",
+                header: T.TABLE_STATUS,
+                filterOptions: statusFilterOptions,
+                filterAccessor: (type: QuestionTypeResponse) => (type.active ? "ACTIVE" : "INACTIVE"),
+                cell: (type: QuestionTypeResponse) => {
+                  const status = type.lifecycleStatus ?? (type.active ? "ACTIVE" : "INACTIVE");
+                  return (
+                    <Badge variant={type.active ? "success" : "neutral"}>
+                      {lifecycleStatusLabels[status as keyof typeof lifecycleStatusLabels] ?? status}
+                    </Badge>
+                  );
+                },
+                className: "whitespace-nowrap",
+              },
+            ] satisfies DataTableColumn<QuestionTypeResponse>[]
+          }
+          rows={visibleTypes}
+          getRowKey={(type) => type.publicId}
+          isLoading={isLoading}
+          searchPlaceholder={T.SEARCH_PLACEHOLDER}
+          searchAriaLabel={T.SEARCH_ARIA_LABEL}
+          rowActionsHeader={T.TABLE_ACTIONS}
+          rowActions={(type) => <ActionMenu label={T.ROW_ACTIONS} items={buildActions(type)} />}
+          emptyTitle={isLoading ? T.LOADING : T.EMPTY_LIST}
+        />
+      </TabRailCard>
 
       {mode && (
         <QuestionTypeEditorModal
-          key={`${mode}-${editing?.publicId ?? "new"}`}
+          key={`${mode === "create" ? "create" : "existing"}-${editing?.publicId ?? "new"}`}
           mode={mode}
           editing={editing}
           questionTypes={questionTypes}
           capabilities={capabilities}
+          canEdit={editing !== null && canEditType(editing)}
+          onRequestEdit={() => setMode("edit")}
           onClose={closeEditor}
           onSuccess={(successMessage) => {
             showToast(successMessage);
