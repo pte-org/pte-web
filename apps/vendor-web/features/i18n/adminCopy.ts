@@ -1125,8 +1125,8 @@ const ADMIN_VI: Record<string, string> = {
   "This draft will be removed from authoring. Audit history and media are retained, but it cannot be restored from this UI.":
     "Bản nháp này sẽ bị xóa khỏi khu vực biên soạn. Lịch sử audit và tệp phương tiện vẫn được giữ lại nhưng không thể khôi phục từ giao diện này.",
   "Question draft deleted.": "Đã xóa bản nháp câu hỏi.",
-  "Draft cleanup is unavailable because publication or revision history is protected or unknown.":
-    "Không thể dọn dẹp bản nháp vì lịch sử phát hành hoặc phiên bản đang được bảo vệ hoặc chưa xác định.",
+  "This draft cannot be deleted because it has publication history or its history is unknown.":
+    "Không thể xóa bản nháp này vì nó có lịch sử phát hành hoặc chưa xác định được lịch sử.",
   "Archive this question?": "Lưu trữ câu hỏi này?",
   "This question will be excluded from new exam generation. Existing exam snapshots and publication history are retained.":
     "Câu hỏi này sẽ không được dùng để tạo kỳ thi mới. Ảnh chụp kỳ thi hiện tại và lịch sử phát hành vẫn được giữ lại.",

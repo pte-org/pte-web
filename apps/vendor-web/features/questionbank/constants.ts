@@ -38,7 +38,7 @@ export const QUESTIONBANK_TEXT = {
     "This draft will be removed from authoring. Audit history and media are retained, but it cannot be restored from this UI.",
   DELETE_SUCCESS: "Question draft deleted.",
   DELETE_BLOCKED:
-    "Draft cleanup is unavailable because publication or revision history is protected or unknown.",
+    "This draft cannot be deleted because it has publication history or its history is unknown.",
   ARCHIVE_CONFIRM_TITLE: "Archive this question?",
   ARCHIVE_CONFIRM_DESCRIPTION:
     "This question will be excluded from new exam generation. Existing exam snapshots and publication history are retained.",
