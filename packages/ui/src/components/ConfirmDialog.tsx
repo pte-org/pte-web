@@ -59,7 +59,8 @@ export const ConfirmDialog = ({
         </>
       }
     >
-      <div className="text-sm text-gray-600">{description}</div>
+      {/* select-none: the dialog opens under the pointer, so a quick second click would otherwise highlight its text. */}
+      <div className="select-none text-sm text-gray-600">{description}</div>
     </Modal>
   );
 };
