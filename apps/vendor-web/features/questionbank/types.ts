@@ -15,6 +15,8 @@ export interface Question {
   canDeleteDraft?: boolean;
   canArchive?: boolean;
   deleteBlockReason?: string | null;
+  /** When the question last changed (ISO 8601). */
+  updatedAt?: string;
 }
 
 export interface QuestionStats {

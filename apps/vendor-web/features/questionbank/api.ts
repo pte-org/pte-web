@@ -89,6 +89,7 @@ function mapQuestion(response: QuestionResponse): Question {
     canDeleteDraft: response.canDeleteDraft,
     canArchive: response.canArchive,
     deleteBlockReason: response.deleteBlockReason,
+    updatedAt: response.updatedAt,
   };
 }
 

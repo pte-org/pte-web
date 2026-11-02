@@ -102,6 +102,8 @@ export interface QuestionResponse {
   availableForPractice?: boolean;
   /** True when this or an earlier revision was ever published (exam content may already be exposed). */
   previouslyPublished?: boolean;
+  /** When the question last changed (ISO 8601). */
+  updatedAt?: string;
 }
 
 export interface QuestionFilters {

@@ -7,6 +7,7 @@ import {
   Alert,
   Badge,
   Button,
+  Chip,
   CopyableId,
   DetailGroup,
   cn,
@@ -24,7 +25,7 @@ import {
 } from "../constants";
 import { usePromptMedia } from "../hooks/usePromptMediaUrl";
 import { buildQuestionPreviewDraft } from "../questionPreviewDraft";
-import { accentOf, DETAIL_CHIP_CLASS, NEUTRAL_CHIP_CLASS } from "../questionDetailStyles";
+import { POOL_TONE, sectionTone, TASK_TYPE_TONE } from "@/lib/chipTones";
 import type { QuestionStatus } from "../types";
 import { ExamScreenPreview } from "./ExamScreenPreview";
 import { QuestionDetailSkeleton } from "./_QuestionDetailSkeleton";
@@ -81,9 +82,32 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
   const taskType = question.taskTypeKey ?? question.pteTaskType ?? T.EMPTY_VALUE;
   const canEdit = question.status === "DRAFT" || question.status === "APPROVED";
   const showAnswerKey = canReviewAcademic(currentUser?.roles);
+  // The file itself rather than its id; the id is only a fallback when the file could not be loaded.
   const mediaId = (ref: string): ReactElement => (
     <span className="break-all font-mono text-xs">{ref}</span>
   );
+  const audioValue = (ref: string): ReactElement =>
+    audioUrl ? (
+      <audio
+        className="w-full max-w-md"
+        controls
+        preload="metadata"
+        src={audioUrl}
+        aria-label={T.AUDIO_LABEL}
+      />
+    ) : (
+      mediaId(ref)
+    );
+  const imageValue = (ref: string): ReactElement =>
+    imageUrl ? (
+      <img
+        className="max-h-40 rounded-md border border-[var(--shell-border)] object-contain"
+        src={imageUrl}
+        alt={T.IMAGE_ALT}
+      />
+    ) : (
+      mediaId(ref)
+    );
   // The detail page shows what a question has; fields it leaves empty are not listed.
   const contentItems = [
     ...(question.promptText?.trim()
@@ -96,10 +120,10 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
         ]
       : []),
     ...(question.audioPromptRef
-      ? [{ label: T.AUDIO_PROMPT, value: mediaId(question.audioPromptRef), fullWidth: true }]
+      ? [{ label: T.AUDIO_PROMPT, value: audioValue(question.audioPromptRef), fullWidth: true }]
       : []),
     ...(question.imagePromptRef
-      ? [{ label: T.IMAGE_PROMPT, value: mediaId(question.imagePromptRef), fullWidth: true }]
+      ? [{ label: T.IMAGE_PROMPT, value: imageValue(question.imagePromptRef), fullWidth: true }]
       : []),
     ...(question.minWordCount != null
       ? [{ label: T.MIN_WORD_COUNT, value: String(question.minWordCount) }]
@@ -120,7 +144,6 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
   const section = question.section
     ? (sectionLabels[question.section as keyof typeof sectionLabels] ?? question.section)
     : T.EMPTY_VALUE;
-  const accent = accentOf(question.section);
 
   return (
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:items-start">
@@ -148,27 +171,24 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
           <DetailGroup
             title={T.GROUP_CLASSIFICATION}
             items={[
-              { label: T.TASK_TYPE, value: taskType },
+              {
+                label: T.TASK_TYPE,
+                value: <Chip tone={TASK_TYPE_TONE}>{taskType}</Chip>,
+              },
               {
                 label: T.SECTION,
-                value: (
-                  <span className={cn(DETAIL_CHIP_CLASS, accent.tint, accent.text)}>{section}</span>
-                ),
+                value: <Chip tone={sectionTone(question.section)}>{section}</Chip>,
               },
               {
                 label: T.POOL,
-                value: (
-                  <span className={cn(DETAIL_CHIP_CLASS, NEUTRAL_CHIP_CLASS)}>
-                    {poolLabels[mapPool(question)]}
-                  </span>
-                ),
+                value: <Chip tone={POOL_TONE}>{poolLabels[mapPool(question)]}</Chip>,
               },
               {
                 label: T.REVISION,
                 value: (
-                  <span className={cn(DETAIL_CHIP_CLASS, NEUTRAL_CHIP_CLASS)}>
-                    v{question.revisionNumber ?? 1}
-                  </span>
+                  <Chip tone={TASK_TYPE_TONE} outlined>
+                    {question.revisionNumber ?? T.EMPTY_VALUE}
+                  </Chip>
                 ),
               },
               ...(question.rejectionReason?.trim()

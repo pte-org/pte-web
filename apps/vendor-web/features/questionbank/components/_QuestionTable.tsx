@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import {
   ActionMenu,
   Alert,
+  Chip,
   BanIcon,
   Badge,
   CheckCircleIcon,
@@ -33,6 +34,7 @@ import {
 } from "../constants";
 import type { Question } from "../types";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
+import { POOL_TONE, sectionTone } from "@/lib/chipTones";
 import { RejectQuestionModal } from "./_RejectQuestionModal";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
@@ -222,7 +224,9 @@ export const QuestionTable = ({
                   key: "skill",
                   label: H.SKILL,
                   header: H.SKILL,
-                  cell: (question: Question) => skillLabels[question.skill],
+                  cell: (question: Question) => (
+                    <Chip tone={sectionTone(question.skill)}>{skillLabels[question.skill]}</Chip>
+                  ),
                 },
               ]
             : []),
@@ -238,7 +242,7 @@ export const QuestionTable = ({
             label: H.POOL,
             header: H.POOL,
             filterAccessor: (question) => question.pool,
-            cell: (question) => poolLabels[question.pool],
+            cell: (question) => <Chip tone={POOL_TONE}>{poolLabels[question.pool]}</Chip>,
           },
           {
             key: "status",
