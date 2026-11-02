@@ -13,7 +13,8 @@ import type { ScoreTemplateItem, ScoreTemplateItemDraft } from "../types";
 
 const COUNT_INPUT_CLASS =
   "w-14 rounded-md border border-[var(--control-border)] bg-[var(--surface-card)] px-2 py-1 text-sm text-[var(--ink-primary)] outline-none focus:border-[var(--brand)]";
-const META_CELL_CLASS = "flex items-center gap-1.5 whitespace-nowrap text-sm text-[var(--ink-muted)]";
+const META_CELL_CLASS =
+  "flex items-center gap-1.5 whitespace-nowrap text-sm text-[var(--ink-muted)]";
 const MIN_COUNT_VALUE = 0;
 const EMPTY_VALUE = "—";
 
@@ -26,7 +27,10 @@ export interface ScoreTemplateItemCellsProps {
   onRemove?: () => void;
 }
 
-export function itemFieldValue(item: ScoreTemplateItem, field: keyof ScoreTemplateItemDraft): string {
+export function itemFieldValue(
+  item: ScoreTemplateItem,
+  field: keyof ScoreTemplateItemDraft,
+): string {
   const value = item[field as keyof ScoreTemplateItem];
   return value === null || value === undefined ? "" : String(value);
 }

@@ -54,7 +54,10 @@ describe("reorderSectionItems", () => {
   });
 
   it("keeps every other field of the moved rows", () => {
-    const withWeight = [{ ...draft("S1", "SPEAKING", 1), speakingWeight: "12.5" }, draft("S2", "SPEAKING", 2)];
+    const withWeight = [
+      { ...draft("S1", "SPEAKING", 1), speakingWeight: "12.5" },
+      draft("S2", "SPEAKING", 2),
+    ];
     const result = reorderSectionItems(withWeight, "SPEAKING", ["S2", "S1"]);
     expect(result[1]).toMatchObject({ taskTypeKey: "S1", speakingWeight: "12.5", sequence: 2 });
   });

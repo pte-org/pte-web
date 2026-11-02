@@ -35,7 +35,11 @@ describe("createDraftSnapshot", () => {
   });
 
   it("changes when rows are added, removed or reordered", () => {
-    const other = item({ taskTypeKey: "REPEAT_SENTENCE", taskType: "REPEAT_SENTENCE", sequence: 2 });
+    const other = item({
+      taskTypeKey: "REPEAT_SENTENCE",
+      taskType: "REPEAT_SENTENCE",
+      sequence: 2,
+    });
     expect(snapshot("PTE", [item(), other])).not.toBe(snapshot());
     expect(snapshot("PTE", [])).not.toBe(snapshot());
     expect(snapshot("PTE", [item(), other])).not.toBe(snapshot("PTE", [other, item()]));

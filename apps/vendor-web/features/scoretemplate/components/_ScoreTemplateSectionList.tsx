@@ -45,7 +45,10 @@ export const ScoreTemplateSectionList = ({
   return (
     <section className="rounded-2xl border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-5">
       <div className="flex items-center gap-2.5">
-        <span className="inline-block h-2.5 w-2.5 rounded-full bg-[var(--brand)]" aria-hidden="true" />
+        <span
+          className="inline-block h-2.5 w-2.5 rounded-full bg-[var(--brand)]"
+          aria-hidden="true"
+        />
         <h2 className="text-base font-bold text-[var(--ink-primary)]">{label}</h2>
         <span className="flex size-5 items-center justify-center rounded-full bg-[var(--surface-card)] p-1 text-xs font-medium text-[var(--ink-secondary)]">
           {rows.length}
@@ -60,9 +63,7 @@ export const ScoreTemplateSectionList = ({
             item={row.item}
             skillLabels={skillLabels}
             onChange={
-              editing
-                ? (field, value) => editing.onChange(row.index, field, value)
-                : undefined
+              editing ? (field, value) => editing.onChange(row.index, field, value) : undefined
             }
             onEditDetails={editing ? () => editing.onEditDetails(row.item.taskTypeKey) : undefined}
             onRemove={editing ? () => editing.onRemove(row.index) : undefined}

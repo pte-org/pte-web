@@ -10,7 +10,10 @@ const WEIGHT_TOTAL_PATTERN = /must total exactly 100/i;
  */
 export function getScoreTemplateErrorMessage(error: unknown, fallback: string): string {
   if (error instanceof ApiError && error.code) {
-    if (error.code === "SCORE_TEMPLATE_VALIDATION_FAILED" && WEIGHT_TOTAL_PATTERN.test(error.message)) {
+    if (
+      error.code === "SCORE_TEMPLATE_VALIDATION_FAILED" &&
+      WEIGHT_TOTAL_PATTERN.test(error.message)
+    ) {
       return SCORE_TEMPLATE_ERROR_MESSAGES.SKILL_WEIGHT_TOTAL_NOT_100;
     }
     const message = SCORE_TEMPLATE_ERROR_MESSAGES[error.code];

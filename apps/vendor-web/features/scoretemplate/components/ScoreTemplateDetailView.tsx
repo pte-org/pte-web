@@ -29,7 +29,10 @@ export const ScoreTemplateDetailView = ({
   const router = useRouter();
   const { data: template, isLoading, isError, error } = useScoreTemplate(publicId);
   const pathname = usePathname();
-  useDashboardBreadcrumbLabel(pathname, template ? `${template.name || template.code} v${template.version}` : undefined);
+  useDashboardBreadcrumbLabel(
+    pathname,
+    template ? `${template.name || template.code} v${template.version}` : undefined,
+  );
   const cloneMutation = useCloneScoreTemplate();
   const activateMutation = useActivateScoreTemplate();
   const [isActivateOpen, setIsActivateOpen] = useState(false);
