@@ -25,7 +25,7 @@ import {
 } from "../constants";
 import { usePromptMedia } from "../hooks/usePromptMediaUrl";
 import { buildQuestionPreviewDraft } from "../questionPreviewDraft";
-import { POOL_TONE, sectionTone, TASK_TYPE_TONE } from "@/lib/chipTones";
+import { POOL_TONE, cefrTone, sectionTone, TASK_TYPE_TONE } from "@/lib/chipTones";
 import type { QuestionStatus } from "../types";
 import { ExamScreenPreview } from "./ExamScreenPreview";
 import { QuestionDetailSkeleton } from "./_QuestionDetailSkeleton";
@@ -182,6 +182,14 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
               {
                 label: T.POOL,
                 value: <Chip tone={POOL_TONE}>{poolLabels[mapPool(question)]}</Chip>,
+              },
+              {
+                label: T.CEFR_LEVEL,
+                value: question.cefrLevel ? (
+                  <Chip tone={cefrTone(question.cefrLevel)}>{question.cefrLevel}</Chip>
+                ) : (
+                  T.CEFR_UNSET
+                ),
               },
               {
                 label: T.REVISION,

@@ -52,7 +52,10 @@ export const QuestionEditorWithPreview = ({
         sectionFilter={section === SCORE_TEMPLATE_ALL_TAB ? undefined : section}
       />
       <div className="xl:sticky xl:top-4">
-        <ExamScreenPreview draft={draft} timing={draft ? (timingFor?.(draft.taskType) ?? null) : null} />
+        <ExamScreenPreview
+          draft={draft}
+          timing={draft ? (timingFor?.(draft.taskType) ?? null) : null}
+        />
       </div>
     </div>
   );

@@ -15,14 +15,15 @@ interface ExamScreenPreviewProps {
  * instruction, the prompt and the answer control. Coloured with the app's own palette (`--exam-*`
  * tokens), so it looks the same in light and dark mode.
  */
-export const ExamScreenPreview = ({ draft, timing = null }: ExamScreenPreviewProps): ReactElement => (
+export const ExamScreenPreview = ({
+  draft,
+  timing = null,
+}: ExamScreenPreviewProps): ReactElement => (
   <div className="overflow-hidden rounded-lg border border-[var(--exam-border)] bg-[var(--exam-canvas)] text-[var(--exam-text)]">
     <div className="space-y-4 p-6">
       <h2 className="text-3xl font-bold">{draft?.taskName ?? EXAM_SCREEN_TEXT.NO_TASK}</h2>
       <div className="min-h-72 rounded-lg border border-[var(--exam-border-subtle)] bg-[var(--exam-surface)] p-8">
-        {draft?.instruction && (
-          <p className="mb-6 text-lg font-bold italic">{draft.instruction}</p>
-        )}
+        {draft?.instruction && <p className="mb-6 text-lg font-bold italic">{draft.instruction}</p>}
         {draft && (
           <div className="space-y-6">
             <PreviewStimulus draft={draft} />

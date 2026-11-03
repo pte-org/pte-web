@@ -80,6 +80,8 @@ export const QUESTION_DETAIL_TEXT = {
   TASK_TYPE: "Task type",
   SECTION: "Section",
   POOL: "Question pool",
+  CEFR_LEVEL: "CEFR level",
+  CEFR_UNSET: "Not classified",
   REVISION: "Revision",
   REJECTION_REASON: "Rejection reason",
   MIN_WORD_COUNT: "Minimum word count",
@@ -108,6 +110,9 @@ export const QUESTION_DETAIL_TEXT = {
   IMAGE_ALT: "Question image prompt",
 } as const;
 
+/** The CEFR levels a question can be written for, easiest first. */
+export const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
+
 export const QUESTIONBANK_OVERVIEW_TEXT = {
   EMPTY_VALUE: "—",
 } as const;
@@ -120,6 +125,9 @@ export const QUESTION_EDITOR_TEXT = {
   TASK_TYPE: "Task type",
   LOADING_TASK_TYPES: "Loading task types...",
   POOL: "Question pool",
+  CEFR_LEVEL: "CEFR level",
+  CEFR_UNSET: "Not classified",
+  CEFR_HELPER: "Required before an exam question is submitted for approval.",
   POOL_HELPER_CREATE:
     "Exam questions can be drawn into exams; practice questions are only used for practice. This cannot be changed later.",
   POOL_HELPER_EDIT: "The pool can be changed only while the question is a draft.",
@@ -191,6 +199,7 @@ export const QUESTION_TABLE_HEADERS = {
   SKILL: "Skill",
   CONTENT: "Content",
   POOL: "Pool",
+  CEFR: "CEFR",
   STATUS: "Status",
   ACTIONS: "Actions",
 } as const;

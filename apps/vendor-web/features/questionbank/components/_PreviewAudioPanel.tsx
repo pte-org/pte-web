@@ -80,10 +80,20 @@ export const PreviewAudioPanel = ({
           </button>
         ) : (
           <>
-            <button type="button" className={controlCell} disabled aria-label={EXAM_SCREEN_TEXT.RECORD}>
+            <button
+              type="button"
+              className={controlCell}
+              disabled
+              aria-label={EXAM_SCREEN_TEXT.RECORD}
+            >
               <span className="size-3 rounded-full bg-[var(--exam-record)]" />
             </button>
-            <button type="button" className={controlCell} disabled aria-label={EXAM_SCREEN_TEXT.STOP}>
+            <button
+              type="button"
+              className={controlCell}
+              disabled
+              aria-label={EXAM_SCREEN_TEXT.STOP}
+            >
               ■
             </button>
           </>

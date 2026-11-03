@@ -17,6 +17,8 @@ export interface Question {
   deleteBlockReason?: string | null;
   /** When the question last changed (ISO 8601). */
   updatedAt?: string;
+  /** CEFR level the question is written for; null until classified. */
+  cefrLevel?: string | null;
 }
 
 export interface QuestionStats {

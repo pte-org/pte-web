@@ -6,6 +6,7 @@ import {
   completeCloudinaryUpload,
   getUserFacingApiErrorMessage,
   requestCloudinaryUpload,
+  type CefrLevel,
   type CreateQuestionRequest,
   type QuestionPool,
   type QuestionResponse,
@@ -20,6 +21,7 @@ import { poolToAvailability, resolveCurrentPool } from "../poolAvailability";
 import { MediaFileField } from "./_MediaFileField";
 import { PoolChangeDialog } from "./_PoolChangeDialog";
 import {
+  CEFR_LEVELS,
   QUESTION_EDITOR_ERRORS as RAW_QUESTION_EDITOR_ERRORS,
   QUESTION_EDITOR_TEXT as RAW_QUESTION_EDITOR_TEXT,
   QUESTION_POOL_LABELS,
@@ -79,6 +81,7 @@ export const QuestionEditorForm = ({
   const [taskType, setTaskType] = useState<string>(question?.pteTaskType ?? "");
   const initialPool: QuestionPool = question ? resolveCurrentPool(question) : "EXAM";
   const [pool, setPool] = useState<QuestionPool>(initialPool);
+  const [cefrLevel, setCefrLevel] = useState<string>(question?.cefrLevel ?? "");
   const [pendingUpdate, setPendingUpdate] = useState<UpdateQuestionRequest | null>(null);
   const isPoolEditable = !question || question.status === "DRAFT";
   const [promptText, setPromptText] = useState(question?.promptText ?? "");
@@ -263,6 +266,7 @@ export const QuestionEditorForm = ({
       minWordCount: minWordCount ? Number(minWordCount) : null,
       maxWordCount: maxWordCount ? Number(maxWordCount) : null,
       options: hasOptions ? options : [],
+      cefrLevel: cefrLevel ? (cefrLevel as CefrLevel) : null,
     };
     if (question) {
       const poolChanged = pool !== initialPool;
@@ -332,6 +336,18 @@ export const QuestionEditorForm = ({
         onChange={(event) => setPool(event.target.value as QuestionPool)}
         options={poolOptions}
         helperText={poolHelperText}
+      />
+      <Select
+        id="question-cefr-level"
+        label={T.CEFR_LEVEL}
+        value={cefrLevel}
+        disabled={!isPoolEditable}
+        onChange={(event) => setCefrLevel(event.target.value)}
+        options={[
+          { value: "", label: T.CEFR_UNSET },
+          ...CEFR_LEVELS.map((level) => ({ value: level, label: level })),
+        ]}
+        helperText={T.CEFR_HELPER}
       />
       <label className="text-sm font-medium text-gray-700">
         {T.PROMPT_TEXT}

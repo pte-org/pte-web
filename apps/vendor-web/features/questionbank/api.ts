@@ -90,6 +90,7 @@ function mapQuestion(response: QuestionResponse): Question {
     canArchive: response.canArchive,
     deleteBlockReason: response.deleteBlockReason,
     updatedAt: response.updatedAt,
+    cefrLevel: response.cefrLevel ?? null,
   };
 }
 

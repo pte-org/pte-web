@@ -25,6 +25,7 @@ import {
   useUnarchiveQuestion,
 } from "../api";
 import {
+  CEFR_LEVELS,
   QUESTIONBANK_TEXT as RAW_QUESTIONBANK_TEXT,
   QUESTION_POOL_LABELS as RAW_QUESTION_POOL_LABELS,
   QUESTION_SKILL_LABELS as RAW_QUESTION_SKILL_LABELS,
@@ -34,7 +35,7 @@ import {
 } from "../constants";
 import type { Question } from "../types";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
-import { POOL_TONE, sectionTone } from "@/lib/chipTones";
+import { POOL_TONE, cefrTone, sectionTone } from "@/lib/chipTones";
 import { RejectQuestionModal } from "./_RejectQuestionModal";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
@@ -60,6 +61,10 @@ export const QuestionTable = ({
   const searchText = useAdminSearchText("questionContent");
   const H = useAdminCopy(RAW_QUESTION_TABLE_HEADERS);
   const skillLabels = useAdminCopy(RAW_QUESTION_SKILL_LABELS);
+  const cefrFilterOptions = [
+    { value: "", label: H.CEFR },
+    ...CEFR_LEVELS.map((level) => ({ value: level, label: level })),
+  ];
   const poolLabels = useAdminCopy(RAW_QUESTION_POOL_LABELS);
   const statusLabels = useAdminCopy(RAW_QUESTION_STATUS_LABELS);
   const statusFilterOptions = useAdminCopy([
@@ -243,6 +248,19 @@ export const QuestionTable = ({
             header: H.POOL,
             filterAccessor: (question) => question.pool,
             cell: (question) => <Chip tone={POOL_TONE}>{poolLabels[question.pool]}</Chip>,
+          },
+          {
+            key: "cefr",
+            label: H.CEFR,
+            header: H.CEFR,
+            filterOptions: cefrFilterOptions,
+            filterAccessor: (question) => question.cefrLevel ?? "",
+            cell: (question) =>
+              question.cefrLevel ? (
+                <Chip tone={cefrTone(question.cefrLevel)}>{question.cefrLevel}</Chip>
+              ) : (
+                T.EMPTY_VALUE
+              ),
           },
           {
             key: "status",
