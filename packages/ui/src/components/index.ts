@@ -33,6 +33,12 @@ export { Badge } from "./Badge";
 export type { BadgeVariant } from "./Badge";
 export { Chip } from "./Chip";
 export { DropZone } from "./DropZone";
+export { SectionedTableCard } from "./SectionedTableCard";
+export type {
+  SectionedTableContext,
+  SectionedTableSection,
+  SectionedTableView,
+} from "./SectionedTableCard";
 export type { ChipSize, ChipTone } from "./Chip";
 export { StatusBadge } from "./StatusBadge";
 export { StatCard } from "./StatCard";
