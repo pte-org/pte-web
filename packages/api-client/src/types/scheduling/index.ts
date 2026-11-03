@@ -33,6 +33,8 @@ export interface SessionResponse {
   maxRetriesPerStudent?: number;
   /** CEFR mix chosen for this exam; empty when it follows its template. */
   cefrTargets?: { level: string; percent: number }[];
+  /** The exam prefers questions the centre has not used in its earlier exams. */
+  avoidRepeatedQuestions?: boolean;
 }
 
 export interface ExamPolicyResponse {
@@ -230,6 +232,8 @@ export interface CreateExamDraftRequest {
   lockdownMode?: LockdownMode | null;
   /** Leave out to follow the template's CEFR mix. */
   cefrTargets?: { level: string; percent: number }[];
+  /** Prefer questions the centre has not used in its earlier exams; leave out for no preference. */
+  avoidRepeatedQuestions?: boolean;
 }
 
 export interface PatchExamDraftRequest {
@@ -248,6 +252,8 @@ export interface PatchExamDraftRequest {
   lockdownMode?: LockdownMode | null;
   /** Leave out to keep the current mix; an empty list returns to the template's. */
   cefrTargets?: { level: string; percent: number }[];
+  /** Leave out to keep the current choice. */
+  avoidRepeatedQuestions?: boolean;
 }
 
 export interface PatchExamScheduleRequest {
