@@ -8,6 +8,8 @@ import { SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT } from "../constants";
 interface TemplateToolbarActionsProps {
   onSave: () => void;
   onOpenInfo: () => void;
+  onOpenTimeFrame: () => void;
+  onOpenCefrMix: () => void;
   isSaving: boolean;
   /** Reviewers only; the entry is left out of the menu for everyone else. */
   canActivate: boolean;
@@ -25,6 +27,8 @@ interface TemplateToolbarActionsProps {
 export const TemplateToolbarActions = ({
   onSave,
   onOpenInfo,
+  onOpenTimeFrame,
+  onOpenCefrMix,
   isSaving,
   canActivate,
   isActivatable,
@@ -41,6 +45,8 @@ export const TemplateToolbarActions = ({
         label={T.TEMPLATE_ACTIONS_LABEL}
         items={[
           { label: T.INFO_TITLE, onSelect: onOpenInfo },
+          { label: T.MENU_TIME_FRAME, onSelect: onOpenTimeFrame },
+          { label: T.MENU_CEFR_MIX, onSelect: onOpenCefrMix },
           ...(canActivate
             ? [{ label: T.ACTIVATE_ACTION, onSelect: onActivate, disabled: !isActivatable }]
             : []),

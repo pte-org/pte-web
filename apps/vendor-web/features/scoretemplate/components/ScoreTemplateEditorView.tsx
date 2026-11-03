@@ -54,7 +54,10 @@ import {
 import { ActivateTemplateModal } from "./ActivateTemplateModal";
 import { TaskTypePalette } from "./_TaskTypePalette";
 import { ScoreTemplateItemTable } from "./_ScoreTemplateItemTable";
+import { TemplateCefrDialog } from "./TemplateCefrDialog";
+import { TemplateDurationSummary } from "./TemplateDurationSummary";
 import { TemplateInfoDialog } from "./TemplateInfoDialog";
+import { TemplateTimeFrameDialog } from "./TemplateTimeFrameDialog";
 import { TemplateReadinessSummary } from "./TemplateReadinessSummary";
 import { TemplateToolbarActions } from "./TemplateToolbarActions";
 
@@ -178,6 +181,8 @@ const ScoreTemplateEditorForm = ({
   const canActivate = canReviewAcademic(currentUser?.roles);
   const [name, setName] = useState(template.name);
   const [infoOpen, setInfoOpen] = useState(false);
+  const [timeFrameOpen, setTimeFrameOpen] = useState(false);
+  const [cefrOpen, setCefrOpen] = useState(false);
   const [items, setItems] = useState<ScoreTemplateItemDraft[]>(() => template.items.map(toDraft));
   // What the server holds right now; anything different on screen is unsaved.
   const [savedSnapshot, setSavedSnapshot] = useState(() =>
@@ -329,6 +334,11 @@ const ScoreTemplateEditorForm = ({
         failed={isFeasibilityError}
       />
 
+      <TemplateDurationSummary
+        parts={feasibility?.parts}
+        totalMaxSeconds={feasibility?.totalMaxSeconds}
+      />
+
       <ScoreTemplateItemTable
         editable
         items={items}
@@ -340,6 +350,8 @@ const ScoreTemplateEditorForm = ({
           <TemplateToolbarActions
             onSave={handleSaveDraft}
             onOpenInfo={() => setInfoOpen(true)}
+            onOpenTimeFrame={() => setTimeFrameOpen(true)}
+            onOpenCefrMix={() => setCefrOpen(true)}
             isSaving={replaceItemsMutation.isPending}
             canActivate={canActivate}
             isActivatable={canActivateFromCatalog}
@@ -374,6 +386,14 @@ const ScoreTemplateEditorForm = ({
           if (type) handleAddType(type);
         }}
       />
+
+      <TemplateTimeFrameDialog
+        open={timeFrameOpen}
+        onClose={() => setTimeFrameOpen(false)}
+        template={template}
+      />
+
+      <TemplateCefrDialog open={cefrOpen} onClose={() => setCefrOpen(false)} template={template} />
 
       <TemplateInfoDialog
         open={infoOpen}

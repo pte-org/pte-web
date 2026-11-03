@@ -24,11 +24,39 @@ export const SCORE_TEMPLATE_TEXT = {
   INFO_DONE: "Done",
   INFO_VERSION: "Version",
   INFO_STATUS: "Status",
-  INFO_POLICY: "Policy",
   INFO_CREATED_BY: "Created by",
   INFO_CREATED_AT: "Created",
   INFO_UPDATED_AT: "Last updated",
   INFO_UNKNOWN: "Unknown",
+  MENU_TIME_FRAME: "Time frame",
+  MENU_CEFR_MIX: "CEFR mix",
+  TIME_FRAME_HINT:
+    "The minutes each part of the test may take, and the most the whole test may take. Exams built from this template are planned to fit.",
+  PART_SPEAKING_WRITING: "Speaking & Writing",
+  PART_READING: "Reading",
+  PART_LISTENING: "Listening",
+  FRAME_MIN: "Minimum (min)",
+  FRAME_MAX: "Maximum (min)",
+  FRAME_TOTAL: "Test ceiling (min)",
+  FRAME_RESTORE: "Restore Pearson window",
+  FRAME_ERROR_NUMBER: "Enter a positive number of minutes in every field.",
+  FRAME_ERROR_RANGE: "The minimum of this part must not exceed its maximum.",
+  FRAME_ERROR_TOTAL: "The ceiling must cover the three minimums together.",
+  FRAME_SAVED: "Time frame saved",
+  FRAME_SAVE_ERROR: "Could not save the time frame.",
+  CEFR_HINT:
+    "The share of questions of each CEFR level that exams built from this template aim for. The percentages must add up to 100.",
+  CEFR_TOTAL: "Total",
+  CEFR_ERROR: "Use whole numbers from 0 to 100 that add up to 100.",
+  CEFR_SAVED: "CEFR mix saved",
+  CEFR_SAVE_ERROR: "Could not save the CEFR mix.",
+  DURATION_TITLE: "Planned duration",
+  DURATION_WINDOW: "Window",
+  DURATION_FITS: "Can fit",
+  DURATION_NO_FIT: "Cannot fit",
+  DURATION_NO_FRAME: "No time frame set",
+  DURATION_CEILING: "Test ceiling",
+  MINUTES_SHORT: "min",
   TEMPLATE_ACTIONS_LABEL: "Template actions",
   UNSAVED_TITLE: "Leave without saving?",
   UNSAVED_DESCRIPTION:
@@ -155,13 +183,7 @@ export const SCORE_TEMPLATE_LIST_HEADERS = {
   NAME: "Name",
   STATUS: "Status",
   ITEMS: "Items",
-  POLICY: "Policy",
   ACTIONS: "Actions",
-} as const;
-
-export const SCORE_TEMPLATE_POLICY_LABELS = {
-  STANDARD_PTE: "Standard PTE",
-  CUSTOM: "Custom task set",
 } as const;
 
 export const SCORE_TEMPLATE_ITEM_HEADERS = {

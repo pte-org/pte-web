@@ -4,10 +4,7 @@ import type { ReactElement } from "react";
 import type { ScoreTemplateResponse } from "@pte/api-client";
 import { Badge, Button, Chip, Input, Modal, useLocale } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
-import {
-  SCORE_TEMPLATE_POLICY_LABELS,
-  SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
-} from "../constants";
+import { SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT } from "../constants";
 import { formatTemplateTimestamp } from "../templateInfo";
 
 interface TemplateInfoDialogProps {
@@ -30,12 +27,9 @@ export const TemplateInfoDialog = ({
   onNameChange,
 }: TemplateInfoDialogProps): ReactElement => {
   const T = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
-  const policyLabels = useAdminCopy(SCORE_TEMPLATE_POLICY_LABELS);
   const { locale } = useLocale();
-  const policy = template.templatePolicy as keyof typeof SCORE_TEMPLATE_POLICY_LABELS;
 
   const rows = [
-    { label: T.INFO_POLICY, value: policyLabels[policy] ?? template.templatePolicy },
     { label: T.INFO_CREATED_BY, value: template.authorName ?? T.INFO_UNKNOWN },
     { label: T.INFO_CREATED_AT, value: formatTemplateTimestamp(template.createdAt, locale) },
     { label: T.INFO_UPDATED_AT, value: formatTemplateTimestamp(template.updatedAt, locale) },

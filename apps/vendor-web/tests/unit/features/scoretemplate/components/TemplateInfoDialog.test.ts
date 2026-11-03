@@ -61,13 +61,13 @@ describe("TemplateInfoDialog", () => {
     expect(html).toContain('value="PTE 22 task type"');
   });
 
-  it("lists who made the template, when, and its version and policy (not its code)", () => {
+  it("lists who made the template, when, and its version (not its code or policy)", () => {
     const html = render({});
     expect(html).toContain("Nguyen Van A");
     expect(html).toContain("Created by");
     expect(html).not.toContain("PTE-22");
     expect(html).toContain("v3");
-    expect(html).toContain("Standard PTE");
+    expect(html).not.toContain("Standard PTE");
     expect(html).toContain("2026");
   });
 

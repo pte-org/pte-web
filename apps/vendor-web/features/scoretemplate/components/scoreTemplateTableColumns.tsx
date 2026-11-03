@@ -68,6 +68,18 @@ export interface ScoreTemplateColumnOptions {
   onChange?: (index: number, field: keyof ScoreTemplateItemDraft, value: string) => void;
 }
 
+/** Number columns stay narrow so the leading task type column takes the slack instead of spreading them apart. */
+const STRUCTURE_COLUMN_CLASS = "w-32";
+const WEIGHT_COLUMN_CLASS = "w-32";
+
+const compactColumns = <TRow,>(
+  columns: DataTableColumn<TRow>[],
+  widthClass: string,
+): DataTableColumn<TRow>[] =>
+  columns.map((column, index) =>
+    index === 0 ? column : { ...column, headerClassName: widthClass, cellClassName: widthClass },
+  );
+
 /** Columns of the item table for one view. Every column is unsortable: the order is the template's. */
 export function buildScoreTemplateColumns({
   view,
@@ -118,6 +130,17 @@ export function buildScoreTemplateColumns({
       ) : (
         `${fieldValue(row.item, first.field)} ${separator} ${fieldValue(row.item, second.field)}`
       ),
+  });
+
+  const secondsColumn = (
+    field: keyof ScoreTemplateItemDraft,
+    header: string,
+  ): DataTableColumn<ScoreTemplateTableRow> => ({
+    key: field,
+    header,
+    sortable: false,
+    cell: (row) =>
+      numberInput(row, field, header, `w-20 ${INPUT_BASE_CLASS}`, "1") ?? fieldValue(row.item, field),
   });
 
   const weightColumn = (
@@ -195,37 +218,38 @@ export function buildScoreTemplateColumns({
   ];
 
   if (view === "WEIGHTS") {
-    return [
-      ...leadingColumns,
-      {
-        key: "overallWeight",
-        header: headers.OVERALL_WEIGHT,
-        sortable: false,
-        cell: (row) => fieldValue(row.item, "overallWeight"),
-      },
-      weightColumn("speakingWeight", headers.SPEAKING_WEIGHT),
-      weightColumn("writingWeight", headers.WRITING_WEIGHT),
-      weightColumn("readingWeight", headers.READING_WEIGHT),
-      weightColumn("listeningWeight", headers.LISTENING_WEIGHT),
-    ];
+    return compactColumns(
+      [
+        ...leadingColumns,
+        {
+          key: "overallWeight",
+          header: headers.OVERALL_WEIGHT,
+          sortable: false,
+          cell: (row) => fieldValue(row.item, "overallWeight"),
+        },
+        weightColumn("speakingWeight", headers.SPEAKING_WEIGHT),
+        weightColumn("writingWeight", headers.WRITING_WEIGHT),
+        weightColumn("readingWeight", headers.READING_WEIGHT),
+        weightColumn("listeningWeight", headers.LISTENING_WEIGHT),
+      ],
+      WEIGHT_COLUMN_CLASS,
+    );
   }
 
-  return [
-    ...leadingColumns,
-    pairColumn(
-      "questionCount",
-      headers.QUESTION_COUNT,
-      { field: "minCount", label: headers.MIN_COUNT },
-      { field: "maxCount", label: headers.MAX_COUNT },
-      "–",
-    ),
-    ...(poolColumn ? [poolColumn] : []),
-    pairColumn(
-      "timing",
-      headers.TIME_SECONDS,
-      { field: "prepSeconds", label: headers.PREP_SECONDS },
-      { field: "responseSeconds", label: headers.RESPONSE_SECONDS },
-      "/",
-    ),
-  ];
+  return compactColumns(
+    [
+      ...leadingColumns,
+      pairColumn(
+        "questionCount",
+        headers.QUESTION_COUNT,
+        { field: "minCount", label: headers.MIN_COUNT },
+        { field: "maxCount", label: headers.MAX_COUNT },
+        "–",
+      ),
+      ...(poolColumn ? [poolColumn] : []),
+      secondsColumn("prepSeconds", headers.PREP_SECONDS),
+      secondsColumn("responseSeconds", headers.RESPONSE_SECONDS),
+    ],
+    STRUCTURE_COLUMN_CLASS,
+  );
 }

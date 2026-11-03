@@ -110,7 +110,7 @@ describe("ScoreTemplateItemTable", () => {
   describe("structure view", () => {
     it("shows the task type, questions and time columns, and nothing about weights", () => {
       const html = renderEditable("STRUCTURE");
-      for (const header of ["Task type", "Questions", "Time (s)"]) {
+      for (const header of ["Task type", "Questions", "Prep (s)", "Response (s)"]) {
         expect(html).toContain(`>${header}<`);
       }
       for (const weightHeader of [
@@ -124,9 +124,9 @@ describe("ScoreTemplateItemTable", () => {
       }
     });
 
-    it("has no # column, no split min/max or prep/response headers, and no sort controls", () => {
+    it("has no # column, no split min/max headers, and no sort controls", () => {
       const html = renderEditable("STRUCTURE");
-      for (const gone of ["#", "Min", "Max", "Prep (s)", "Response (s)"]) {
+      for (const gone of ["#", "Min", "Max", "Time (s)"]) {
         expect(html).not.toContain(`>${gone}<`);
       }
       expect(html).not.toContain("aria-sort");
@@ -145,7 +145,8 @@ describe("ScoreTemplateItemTable", () => {
     it("shows plain values on the detail view", () => {
       const html = renderReadOnly("STRUCTURE");
       expect(html).toContain("5 – 6");
-      expect(html).toContain("35 / 40");
+      expect(html).toContain(">35<");
+      expect(html).toContain(">40<");
       expect(html).not.toContain('type="number"');
     });
   });
@@ -164,7 +165,7 @@ describe("ScoreTemplateItemTable", () => {
         // A weight column that is off carries its total after the header text.
         expect(html).toMatch(new RegExp(`>${header}[ <]`));
       }
-      for (const structureHeader of ["Questions", "Time (s)"]) {
+      for (const structureHeader of ["Questions", "Prep (s)", "Response (s)"]) {
         expect(html).not.toContain(`>${structureHeader}<`);
       }
     });

@@ -40,7 +40,6 @@ import {
   SCORE_TEMPLATE_LIST_HEADERS as RAW_SCORE_TEMPLATE_LIST_HEADERS,
   SCORE_TEMPLATE_STATUS_LABELS as RAW_SCORE_TEMPLATE_STATUS_LABELS,
   SCORE_TEMPLATE_STATUS_VARIANT,
-  SCORE_TEMPLATE_POLICY_LABELS as RAW_SCORE_TEMPLATE_POLICY_LABELS,
   SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
   EXAM_TEMPLATE_BASE_PATH,
   PLATFORM_TEMPLATE_POLICY,
@@ -59,14 +58,9 @@ export const ScoreTemplateListView = (): ReactElement => {
   const searchText = useAdminSearchText("scoreTemplates");
   const H = useAdminCopy(RAW_SCORE_TEMPLATE_LIST_HEADERS);
   const statusLabels = useAdminCopy(RAW_SCORE_TEMPLATE_STATUS_LABELS);
-  const policyLabels = useAdminCopy(RAW_SCORE_TEMPLATE_POLICY_LABELS);
   const statusFilterOptions = useAdminCopy([
     { value: "", label: "All statuses" },
     ...Object.entries(RAW_SCORE_TEMPLATE_STATUS_LABELS).map(([value, label]) => ({ value, label })),
-  ]);
-  const policyFilterOptions = useAdminCopy([
-    { value: "", label: "All policies" },
-    ...Object.entries(RAW_SCORE_TEMPLATE_POLICY_LABELS).map(([value, label]) => ({ value, label })),
   ]);
   const emptyTitle = useAdminCopy("No exam templates found");
   const router = useRouter();
@@ -305,16 +299,6 @@ export const ScoreTemplateListView = (): ReactElement => {
             header: H.ITEMS,
             filterAccessor: (template: ScoreTemplateResponse) => template.items.length,
             cell: (template: ScoreTemplateResponse) => template.items.length,
-          },
-          {
-            key: "policy",
-            label: H.POLICY,
-            header: H.POLICY,
-            filterOptions: policyFilterOptions,
-            filterAccessor: (template: ScoreTemplateResponse) => template.templatePolicy,
-            cell: (template: ScoreTemplateResponse) =>
-              policyLabels[template.templatePolicy as keyof typeof policyLabels] ??
-              template.templatePolicy,
           },
         ]}
         rows={templates ?? []}
