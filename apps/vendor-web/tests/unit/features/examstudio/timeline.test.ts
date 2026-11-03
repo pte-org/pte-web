@@ -4,7 +4,6 @@ import {
   buildTimeline,
   distributeSpans,
   formatDuration,
-  reorderKeys,
 } from "../../../../features/examstudio/timeline";
 import { templateItem } from "./fixtures";
 
@@ -58,19 +57,6 @@ describe("buildTimeline", () => {
   });
 });
 
-describe("reorderKeys", () => {
-  const keys = ["A", "B", "C", "D"];
-
-  it("puts the moved key where the target is", () => {
-    expect(reorderKeys(keys, "D", "B")).toEqual(["A", "D", "B", "C"]);
-    expect(reorderKeys(keys, "A", "C")).toEqual(["B", "A", "C", "D"]);
-  });
-
-  it("changes nothing for an unknown key or a drop on itself", () => {
-    expect(reorderKeys(keys, "A", "A")).toEqual(keys);
-    expect(reorderKeys(keys, "Z", "A")).toEqual(keys);
-  });
-});
 
 describe("formatDuration", () => {
   it("writes minutes and zero-padded seconds", () => {

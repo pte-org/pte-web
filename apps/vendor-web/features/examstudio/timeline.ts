@@ -28,7 +28,9 @@ export function distributeSpans(seconds: readonly number[], columns: number): nu
   const budget = Math.max(columns, seconds.length);
   const spare = budget - seconds.length;
   const total = seconds.reduce((sum, value) => sum + value, 0);
-  const shares = seconds.map((value) => (total > 0 ? (value / total) * spare : spare / seconds.length));
+  const shares = seconds.map((value) =>
+    total > 0 ? (value / total) * spare : spare / seconds.length,
+  );
   const spans = shares.map((share) => 1 + Math.floor(share));
   let leftover = budget - spans.reduce((sum, span) => sum + span, 0);
   const byRemainder = shares
@@ -69,14 +71,6 @@ export function buildTimeline(items: readonly ScoreTemplateItemResponse[]): Time
       })),
     };
   });
-}
-
-/** The lane's task type keys with `moved` placed where `target` is, for the drop that reorders a lane. */
-export function reorderKeys(keys: readonly string[], moved: string, target: string): string[] {
-  if (moved === target || !keys.includes(moved) || !keys.includes(target)) return [...keys];
-  const without = keys.filter((key) => key !== moved);
-  without.splice(without.indexOf(target), 0, moved);
-  return without;
 }
 
 /** 525 seconds as "8:45". */
