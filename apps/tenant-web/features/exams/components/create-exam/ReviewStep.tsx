@@ -65,6 +65,10 @@ export function ReviewStep({
             <dd>{difficultySummary(form.difficulty, wizardText)}</dd>
           </div>
           <div>
+            <dt className="font-medium">{wizardText.REVIEW_REPEAT}</dt>
+            <dd>{form.avoidRepeats ? wizardText.REPEAT_AVOID : wizardText.REPEAT_ALLOW}</dd>
+          </div>
+          <div>
             <dt className="font-medium">{wizardText.REVIEW_AUDIENCE}</dt>
             <dd>{audienceCount}</dd>
           </div>

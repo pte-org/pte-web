@@ -59,6 +59,8 @@ export interface CreateExamWorkflowInput {
   sources: AudienceSourceRequest[];
   /** How questions are spread over CEFR levels; left out, the exam follows its template. */
   difficulty?: DifficultySelection;
+  /** Prefer questions the centre has not used in its earlier exams; off by default. */
+  avoidRepeats?: boolean;
 }
 
 export interface CreateSessionErrors {

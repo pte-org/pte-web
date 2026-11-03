@@ -310,6 +310,7 @@ export function useCreateExamWorkflow(): UseMutationResult<
         capacity: Number(input.capacity),
         // Left out for "follow the template", so the server uses the template's own CEFR mix.
         cefrTargets: difficultyTargets(input.difficulty),
+        avoidRepeatedQuestions: input.avoidRepeats === true,
       });
       assertResolvedPolicy(draft, expectedLockdownMode);
       // One atomic request: the draft never ends up with a partial audience.

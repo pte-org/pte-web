@@ -147,6 +147,13 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   CAPACITY_LABEL: "Maximum students",
   SUBSCRIPTION_CAPACITY_HINT: "This subscription allows up to {count} students per exam.",
   FULL_TEMPLATE_SCOPE: "Full template scope",
+  REPEAT_LABEL: "Questions across exams",
+  REPEAT_ALLOW: "Allow questions used in earlier exams",
+  REPEAT_AVOID: "Prefer questions not used before",
+  REPEAT_AVOID_HINT:
+    "Questions that appeared in your earlier exams are left out when enough new ones exist. A task type with too few new questions reuses some.",
+  REPEAT_ALLOW_HINT: "Every approved question can be drawn, including ones used in earlier exams.",
+  REVIEW_REPEAT: "Questions across exams",
   DIFFICULTY_LABEL: "Difficulty",
   DIFFICULTY_TEMPLATE: "Follow the template",
   DIFFICULTY_TEMPLATE_HINT: "Questions follow the CEFR mix of the template.",
