@@ -163,8 +163,11 @@ export const Dropdown = ({
                   }
                   const Icon = item.icon;
                   const itemClassName = cn(
-                    "flex min-h-10 w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors hover:bg-[var(--surface-subtle)] focus-visible:bg-[var(--surface-subtle)] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50",
-                    item.danger ? "text-[var(--blush-action)]" : "text-[var(--ink-secondary)]",
+                    "flex min-h-10 w-full items-center gap-2 px-4 py-2 text-left text-sm transition-colors focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent",
+                    // Every action lights up in its own colour on hover or focus, so the one under the pointer is clear.
+                    item.danger
+                      ? "text-[var(--blush-action)] hover:bg-[var(--blush-tint)] focus-visible:bg-[var(--blush-tint)]"
+                      : "text-[var(--ink-secondary)] hover:bg-[var(--action-tint)] hover:text-[var(--action)] focus-visible:bg-[var(--action-tint)] focus-visible:text-[var(--action)] disabled:hover:text-[var(--ink-secondary)]",
                   );
                   const content = (
                     <>
