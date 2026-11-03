@@ -44,7 +44,9 @@ export function computeSkillTotals(items: readonly ScoreTemplateItemRequest[]): 
 
 /** True when the weights break no rule and the overall score would be above 0. */
 export function areWeightsValid(totals: readonly SkillTotal[]): boolean {
-  return totals.every((entry) => entry.ok) && totals.some((entry) => entry.total > WEIGHT_TOLERANCE);
+  return (
+    totals.every((entry) => entry.ok) && totals.some((entry) => entry.total > WEIGHT_TOLERANCE)
+  );
 }
 
 export function toEditableItems(
@@ -94,7 +96,9 @@ export function setWeight(
   value: number,
 ): ScoreTemplateItemRequest[] {
   const field = WEIGHT_FIELD[skill];
-  return items.map((item) => (item.taskTypeKey === taskTypeKey ? { ...item, [field]: value } : item));
+  return items.map((item) =>
+    item.taskTypeKey === taskTypeKey ? { ...item, [field]: value } : item,
+  );
 }
 
 /** Writes a suggested column onto the rows; tasks the suggestion does not list are left as they are. */

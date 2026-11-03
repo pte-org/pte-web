@@ -1,8 +1,18 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactElement } from "react";
-import Link from "next/link";
-import { Alert, Button, ConfirmDialog, Input, LoadingState, PageHeader, useToast } from "@pte/ui";
+import { usePathname } from "next/navigation";
+import {
+  ActionMenu,
+  Alert,
+  Badge,
+  Button,
+  Chip,
+  ConfirmDialog,
+  LoadingState,
+  useDashboardBreadcrumbLabel,
+  useToast,
+} from "@pte/ui";
 import type { ScoreTemplateItemRequest, ScoreTemplateResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useActiveScoreTemplate } from "@/features/exams/api";
@@ -12,7 +22,6 @@ import {
   useHostTemplateFeasibility,
   useReplaceHostTemplateItems,
 } from "../api";
-import { HOST_TEMPLATES_ROUTE } from "../constants";
 import { useEditorText, useListText, useSkillLabels } from "../hooks/useTemplateText";
 import { templateActionError } from "../utils/actionError";
 import { buildPoolIndex, countShortTypes } from "../utils/pool";
@@ -25,6 +34,7 @@ import {
   toEditableItems,
 } from "../utils/weights";
 import { BalanceWeightsDialog } from "./BalanceWeightsDialog";
+import { HostTemplateInfoDialog } from "./HostTemplateInfoDialog";
 import { TemplateItemsEditor } from "./TemplateItemsEditor";
 
 interface HostTemplateEditorViewProps {
@@ -68,12 +78,16 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
   const skillLabels = useSkillLabels();
   const { showToast } = useToast();
   const editable = template.status === "DRAFT";
+  const pathname = usePathname();
+  // The breadcrumb's last segment names the template, so the page needs no title of its own.
+  useDashboardBreadcrumbLabel(pathname, template.name);
 
   const [name, setName] = useState(template.name);
   const [items, setItems] = useState<ScoreTemplateItemRequest[]>(() =>
     toEditableItems(template.items),
   );
   const [balanceOpen, setBalanceOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
   const [activateOpen, setActivateOpen] = useState(false);
 
   const save = useReplaceHostTemplateItems(template.publicId);
@@ -141,48 +155,46 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
 
   return (
     <div className="flex flex-col gap-5">
-      <Link href={HOST_TEMPLATES_ROUTE} className="text-sm text-[var(--action)] hover:underline">
-        ← {text.BACK}
-      </Link>
-      <PageHeader
-        title={template.name}
-        actions={
-          editable ? (
-            <>
-              <Button variant="primary" appearance="outline" onClick={() => setBalanceOpen(true)}>
-                {text.BALANCE}
-              </Button>
-              <Button onClick={handleSave} disabled={!canSave || save.isPending}>
-                {save.isPending ? text.SAVING : text.SAVE}
-              </Button>
-              <Button
-                onClick={() => setActivateOpen(true)}
-                disabled={dirty || activate.isPending}
-                title={dirty ? text.SAVE_FIRST : undefined}
-              >
-                {listText.ACTIVATE}
-              </Button>
-            </>
-          ) : undefined
-        }
-      />
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant={editable ? "warning" : "success"}>{template.status}</Badge>
+          {typeof template.pearsonStandard === "boolean" && (
+            <Chip tone={template.pearsonStandard ? "mint" : "cream"} size="sm">
+              {template.pearsonStandard ? listText.STANDARD_BADGE : listText.CUSTOMISED_BADGE}
+            </Chip>
+          )}
+          <span className="text-sm text-[var(--ink-muted)]">v{template.version}</span>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {editable && (
+            <Button onClick={handleSave} isLoading={save.isPending} disabled={!canSave}>
+              {text.SAVE}
+            </Button>
+          )}
+          <ActionMenu
+            label={text.ACTIONS_LABEL}
+            items={[
+              { label: text.INFO_TITLE, onSelect: () => setInfoOpen(true) },
+              ...(editable
+                ? [
+                    { label: text.BALANCE, onSelect: () => setBalanceOpen(true) },
+                    {
+                      label: listText.ACTIVATE,
+                      onSelect: () => setActivateOpen(true),
+                      disabled: dirty || activate.isPending,
+                    },
+                  ]
+                : []),
+            ]}
+          />
+        </div>
+      </div>
 
       {!editable && (
         <Alert tone="info">{isDefault ? text.DEFAULT_READ_ONLY : text.READ_ONLY}</Alert>
       )}
       {submitError && <Alert tone="error">{submitError}</Alert>}
       {items.length === 0 && <Alert tone="warning">{text.NO_TASKS}</Alert>}
-
-      {editable && (
-        <div className="max-w-md">
-          <Input
-            label={text.NAME_LABEL}
-            value={name}
-            maxLength={200}
-            onChange={(event) => setName(event.target.value)}
-          />
-        </div>
-      )}
 
       <section className="flex flex-col gap-2">
         <div>
@@ -206,6 +218,14 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
         />
       </section>
 
+      <HostTemplateInfoDialog
+        open={infoOpen}
+        onClose={() => setInfoOpen(false)}
+        template={template}
+        editable={editable}
+        name={name}
+        onNameChange={setName}
+      />
       <BalanceWeightsDialog
         open={balanceOpen}
         onClose={() => setBalanceOpen(false)}

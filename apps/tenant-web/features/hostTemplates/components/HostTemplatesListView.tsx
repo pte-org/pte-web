@@ -1,19 +1,25 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ScoreTemplateResponse } from "@pte/api-client";
 import {
   Alert,
+  ActionMenu,
   Badge,
+  Chip,
   Button,
+  CheckCircleIcon,
   ConfirmDialog,
-  EmptyState,
+  CopyIcon,
+  DataTable,
+  EyeIcon,
   Input,
-  LoadingState,
   Modal,
   PageHeader,
+  TrashIcon,
+  BanIcon,
+  type ActionMenuItem,
   type BadgeVariant,
 } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
@@ -30,6 +36,7 @@ import { HOST_TEMPLATES_ROUTE } from "../constants";
 import { useListText } from "../hooks/useTemplateText";
 import { templateActionError } from "../utils/actionError";
 
+type TemplateRow = { template: ScoreTemplateResponse; isDefault: boolean };
 type PendingAction = { kind: "delete" | "retire" | "activate"; template: ScoreTemplateResponse };
 
 const STATUS_VARIANT: Record<string, BadgeVariant> = {
@@ -59,6 +66,52 @@ export const HostTemplatesListView = (): ReactElement => {
     ACTIVE: text.STATUS_ACTIVE,
     RETIRED: text.STATUS_RETIRED,
     PENDING_APPROVAL: text.STATUS_PENDING_APPROVAL,
+  };
+  const statusFilterOptions = [
+    { value: "", label: text.STATUS_FILTER_ALL },
+    ...Object.entries(statusLabels).map(([value, label]) => ({ value, label })),
+  ];
+  const rows: TemplateRow[] = [
+    ...(defaultTemplate ? [{ template: defaultTemplate, isDefault: true }] : []),
+    ...(templates ?? []).map((template) => ({ template, isDefault: false })),
+  ];
+  const openRow = (row: TemplateRow): void =>
+    router.push(`${HOST_TEMPLATES_ROUTE}/${row.template.publicId}`);
+  const buildActions = ({ template, isDefault }: TemplateRow): ActionMenuItem[] => {
+    const actions: ActionMenuItem[] = [
+      { label: text.OPEN, icon: EyeIcon, onSelect: () => openRow({ template, isDefault }) },
+    ];
+    if (isDefault) return actions;
+    actions.push({
+      label: text.CLONE,
+      icon: CopyIcon,
+      disabled: clone.isPending,
+      onSelect: () => clone.mutate(template.publicId),
+    });
+    if (template.status === "DRAFT" || template.status === "RETIRED") {
+      actions.push({
+        label: text.ACTIVATE,
+        icon: CheckCircleIcon,
+        onSelect: () => setPending({ kind: "activate", template }),
+      });
+    }
+    if (template.status === "ACTIVE") {
+      actions.push({
+        label: text.RETIRE,
+        icon: BanIcon,
+        danger: true,
+        onSelect: () => setPending({ kind: "retire", template }),
+      });
+    }
+    if (template.status === "DRAFT") {
+      actions.push({
+        label: text.DELETE,
+        icon: TrashIcon,
+        danger: true,
+        onSelect: () => setPending({ kind: "delete", template }),
+      });
+    }
+    return actions;
   };
   const actionError = [clone.error, activate.error, retire.error, remove.error]
     .map((error) => templateActionError(error, text))
@@ -93,139 +146,86 @@ export const HostTemplatesListView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title={text.TITLE}
-        actions={<Button onClick={() => setCreateOpen(true)}>+ {text.CREATE}</Button>}
-      />
+      <PageHeader title={text.TITLE} />
 
       {Boolean(error) && <Alert tone="error">{errorMessage(error, text.LOAD_FAILED)}</Alert>}
       {actionError && <Alert tone="error">{actionError}</Alert>}
 
-      {isLoading ? (
-        <LoadingState rows={3} />
-      ) : !defaultTemplate && (!templates || templates.length === 0) ? (
-        <EmptyState title={text.EMPTY_TITLE} description={text.EMPTY_TEXT} />
-      ) : (
-        <div className="overflow-x-auto rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)]">
-          <table className="w-full min-w-[640px] text-left text-sm">
-            <thead className="border-b border-[var(--shell-border)] text-xs uppercase text-[var(--ink-muted)]">
-              <tr>
-                <th className="px-4 py-2">{text.COL_NAME}</th>
-                <th className="px-4 py-2">{text.COL_STATUS}</th>
-                <th className="px-4 py-2">{text.COL_TASKS}</th>
-                <th className="px-4 py-2 text-right">{text.COL_ACTIONS}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {defaultTemplate && (
-                <tr className="border-b border-[var(--shell-border)]">
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`${HOST_TEMPLATES_ROUTE}/${defaultTemplate.publicId}`}
-                      className="font-medium text-[var(--action)] hover:underline"
-                    >
-                      {defaultTemplate.name}
-                    </Link>
-                    <p className="mt-0.5 text-xs text-[var(--ink-muted)]">{text.DEFAULT_HINT}</p>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge variant="info">{text.DEFAULT_BADGE}</Badge>
-                  </td>
-                  <td className="px-4 py-3 text-[var(--ink-secondary)]">
-                    {defaultTemplate.items.length}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-wrap justify-end gap-1">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        appearance="ghost"
-                        onClick={() =>
-                          router.push(`${HOST_TEMPLATES_ROUTE}/${defaultTemplate.publicId}`)
-                        }
-                      >
-                        {text.OPEN}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              )}
-              {(templates ?? []).map((template) => (
-                <tr
-                  key={template.publicId}
-                  className="border-b border-[var(--shell-border)] last:border-0"
-                >
-                  <td className="px-4 py-3">
-                    <Link
-                      href={`${HOST_TEMPLATES_ROUTE}/${template.publicId}`}
-                      className="font-medium text-[var(--action)] hover:underline"
-                    >
-                      {template.name}
-                    </Link>
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge variant={STATUS_VARIANT[template.status] ?? "neutral"}>
-                      {statusLabels[template.status] ?? template.status}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3 text-[var(--ink-secondary)]">{template.items.length}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-wrap justify-end gap-1">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        appearance="ghost"
-                        onClick={() => router.push(`${HOST_TEMPLATES_ROUTE}/${template.publicId}`)}
-                      >
-                        {text.OPEN}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        appearance="ghost"
-                        disabled={clone.isPending}
-                        onClick={() => clone.mutate(template.publicId)}
-                      >
-                        {text.CLONE}
-                      </Button>
-                      {(template.status === "DRAFT" || template.status === "RETIRED") && (
-                        <Button
-                          size="sm"
-                          variant="primary"
-                          appearance="ghost"
-                          onClick={() => setPending({ kind: "activate", template })}
-                        >
-                          {text.ACTIVATE}
-                        </Button>
-                      )}
-                      {template.status === "ACTIVE" && (
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          appearance="ghost"
-                          onClick={() => setPending({ kind: "retire", template })}
-                        >
-                          {text.RETIRE}
-                        </Button>
-                      )}
-                      {template.status === "DRAFT" && (
-                        <Button
-                          size="sm"
-                          variant="danger"
-                          appearance="ghost"
-                          onClick={() => setPending({ kind: "delete", template })}
-                        >
-                          {text.DELETE}
-                        </Button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <DataTable
+        searchPlaceholder={text.SEARCH_PLACEHOLDER}
+        searchAriaLabel={text.SEARCH_PLACEHOLDER}
+        columns={[
+          {
+            key: "name",
+            label: text.COL_NAME,
+            header: text.COL_NAME,
+            filterAccessor: (row: TemplateRow) => row.template.name,
+            cell: (row: TemplateRow) => (
+              <div className="min-w-0">
+                <span className="font-medium">{row.template.name}</span>
+                {row.isDefault && (
+                  <p className="mt-0.5 text-xs text-[var(--ink-muted)]">{text.DEFAULT_HINT}</p>
+                )}
+                {!row.isDefault && typeof row.template.pearsonStandard === "boolean" && (
+                  <span
+                    className="mt-1 block"
+                    title={
+                      row.template.pearsonStandard
+                        ? undefined
+                        : text.CUSTOMISED_HINT.replace(
+                            "{reasons}",
+                            (row.template.standardDeviations ?? []).join(", "),
+                          )
+                    }
+                  >
+                    <Chip tone={row.template.pearsonStandard ? "mint" : "cream"} size="sm">
+                      {row.template.pearsonStandard ? text.STANDARD_BADGE : text.CUSTOMISED_BADGE}
+                    </Chip>
+                  </span>
+                )}
+              </div>
+            ),
+          },
+          {
+            key: "status",
+            label: text.COL_STATUS,
+            header: text.COL_STATUS,
+            filterOptions: statusFilterOptions,
+            filterAccessor: (row: TemplateRow) => (row.isDefault ? "DEFAULT" : row.template.status),
+            cell: (row: TemplateRow) =>
+              row.isDefault ? (
+                <Badge variant="info">{text.DEFAULT_BADGE}</Badge>
+              ) : (
+                <Badge variant={STATUS_VARIANT[row.template.status] ?? "neutral"}>
+                  {statusLabels[row.template.status] ?? row.template.status}
+                </Badge>
+              ),
+          },
+          {
+            key: "tasks",
+            label: text.COL_TASKS,
+            header: text.COL_TASKS,
+            filterAccessor: (row: TemplateRow) => row.template.items.length,
+            cell: (row: TemplateRow) => row.template.items.length,
+          },
+        ]}
+        rows={rows}
+        getRowKey={(row) => row.template.publicId}
+        isLoading={isLoading}
+        emptyTitle={text.EMPTY_TITLE}
+        toolbarActions={<Button onClick={() => setCreateOpen(true)}>{text.CREATE}</Button>}
+        tableClassName="min-w-[640px]"
+        rowActionsHeader={text.COL_ACTIONS}
+        rowActions={(row) =>
+          row.isDefault ? (
+            <Button size="sm" variant="secondary" appearance="ghost" onClick={() => openRow(row)}>
+              {text.OPEN}
+            </Button>
+          ) : (
+            <ActionMenu items={buildActions(row)} />
+          )
+        }
+      />
 
       <Modal
         open={createOpen}
@@ -247,7 +247,11 @@ export const HostTemplatesListView = (): ReactElement => {
           </>
         }
       >
-        <form id="create-host-template-form" onSubmit={handleCreate} className="flex flex-col gap-3">
+        <form
+          id="create-host-template-form"
+          onSubmit={handleCreate}
+          className="flex flex-col gap-3"
+        >
           <p className="text-sm text-[var(--ink-secondary)]">{text.CREATE_HINT}</p>
           <Input
             label={text.NAME_LABEL}

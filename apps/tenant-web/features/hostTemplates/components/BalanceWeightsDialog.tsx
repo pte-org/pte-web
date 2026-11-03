@@ -97,22 +97,21 @@ const BalanceWeightsContent = ({
                 <span className="block text-sm font-medium text-[var(--ink-primary)]">
                   {modeText[value].label}
                 </span>
-                <span className="block text-xs text-[var(--ink-muted)]">{modeText[value].hint}</span>
+                <span className="block text-xs text-[var(--ink-muted)]">
+                  {modeText[value].hint}
+                </span>
               </span>
             </label>
           ))}
         </fieldset>
 
         {isPending && <p className="text-sm text-[var(--ink-muted)]">…</p>}
-        {Boolean(error) && (
-          <Alert tone="error">{errorMessage(error, text.SUGGEST_FAILED)}</Alert>
-        )}
+        {Boolean(error) && <Alert tone="error">{errorMessage(error, text.SUGGEST_FAILED)}</Alert>}
         {data && unbalanced.length === 0 && <Alert tone="success">{text.BALANCE_ALREADY}</Alert>}
 
         {mode === "MANUAL" && unbalanced.length > 0 && (
           <Alert tone="info">{text.MANUAL_NOTE}</Alert>
         )}
-
       </div>
     </Modal>
   );

@@ -94,7 +94,11 @@ export function useReplaceHostTemplateItems(
   });
 }
 
-export function useActivateHostTemplate(): UseMutationResult<ScoreTemplateResponse, unknown, string> {
+export function useActivateHostTemplate(): UseMutationResult<
+  ScoreTemplateResponse,
+  unknown,
+  string
+> {
   const refresh = useRefreshTemplates();
   return useMutation({
     mutationFn: (publicId: string) => activateHostExamTemplate(apiClient, publicId),
@@ -125,6 +129,7 @@ export function useSuggestSkillWeights(): UseMutationResult<
   SkillWeightSuggestionRequest
 > {
   return useMutation({
-    mutationFn: (payload: SkillWeightSuggestionRequest) => suggestHostSkillWeights(apiClient, payload),
+    mutationFn: (payload: SkillWeightSuggestionRequest) =>
+      suggestHostSkillWeights(apiClient, payload),
   });
 }

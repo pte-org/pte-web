@@ -28,6 +28,11 @@ export const HOST_TEMPLATES_TEXT = {
   NAME_LABEL: "Template name",
   NAME_PLACEHOLDER: "e.g. Reading and Listening only",
   COL_NAME: "Name",
+  SEARCH_PLACEHOLDER: "Search by name",
+  STATUS_FILTER_ALL: "All statuses",
+  STANDARD_BADGE: "Pearson standard",
+  CUSTOMISED_BADGE: "Customised",
+  CUSTOMISED_HINT: "Differs from the default template: {reasons}",
   COL_STATUS: "Status",
   COL_TASKS: "Task types",
   COL_ACTIONS: "Actions",
@@ -59,7 +64,8 @@ export const HOST_TEMPLATES_TEXT = {
   STATUS_RETIRED: "Retired",
   STATUS_PENDING_APPROVAL: "Pending",
   DEFAULT_BADGE: "Default",
-  DEFAULT_HINT: "Provided by the platform. Choose it when creating an exam, or create a new template from it.",
+  DEFAULT_HINT:
+    "Provided by the platform. Choose it when creating an exam, or create a new template from it.",
 } as const;
 
 export const EDITOR_TEXT = {
@@ -69,12 +75,24 @@ export const EDITOR_TEXT = {
   DEFAULT_READ_ONLY:
     "This is the platform default template and cannot be edited. You can choose it when creating an exam, or create a new template from it to remove task types.",
   NAME_LABEL: "Template name",
+  ALL_SECTIONS: "All sections",
+  VIEW_LABEL: "Table view",
+  VIEW_STRUCTURE: "Questions",
+  VIEW_WEIGHTS: "Weights",
+  INFO_TITLE: "Template information",
+  INFO_DONE: "Done",
+  INFO_VERSION: "Version",
+  INFO_CREATED: "Created",
+  INFO_UPDATED: "Last updated",
+  ACTIONS_LABEL: "Template actions",
   TASKS_TITLE: "Task types",
   TASKS_HINT:
     "You can remove task types and adjust weights. Task types outside the default template cannot be added.",
   COL_TASK: "Task type",
   COL_COUNT: "Questions",
   COL_POOL: "Available / needed",
+  COL_PREP: "Prep (s)",
+  COL_RESPONSE: "Response (s)",
   POOL_OK: "Enough published questions for this task type.",
   POOL_SHORT:
     "Not enough published questions for this task type: {available} available, {required} needed.",
