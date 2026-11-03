@@ -1,13 +1,14 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import {
   Alert,
   Badge,
   Button,
   Chip,
+  ChevronLeftIcon,
   CopyableId,
   DetailGroup,
   cn,
@@ -53,6 +54,10 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
   const { data: question, isLoading, isError } = useQuestion(publicId);
   const pathname = usePathname();
   const router = useRouter();
+  // Where the page was opened from, so the way back leads there; only paths inside the admin area count.
+  const from = useSearchParams().get("from");
+  const backTarget =
+    from && from.startsWith("/admin/") && !from.startsWith("//") ? from : "/admin/questions";
   const { data: currentUser } = useCurrentUser();
   const { data: questionTypes = [], isLoading: questionTypesLoading } = useQuestionTypes(false);
   const questionTypeCode = question?.taskTypeKey ?? question?.pteTaskType;
@@ -146,137 +151,148 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
     : T.EMPTY_VALUE;
 
   return (
-    <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:items-start">
-      <div className="flex flex-col gap-5">
-        <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-base font-semibold text-gray-900">{T.INFORMATION_TITLE}</h2>
-            <div className="flex flex-wrap items-center gap-2">
-              {currentStatus && (
-                <Badge variant={QUESTION_STATUS_VARIANT[currentStatus]}>
-                  {statusLabels[currentStatus]}
-                </Badge>
-              )}
-              {canEdit && (
-                <Button onClick={() => router.push(`/admin/questions/${question.publicId}/edit`)}>
-                  {T.EDIT}
-                </Button>
-              )}
+    <div className="space-y-4">
+      <Button
+        size="sm"
+        variant="secondary"
+        appearance="ghost"
+        leftIcon={<ChevronLeftIcon className="h-4 w-4" />}
+        onClick={() => router.push(backTarget)}
+      >
+        {backTarget === "/admin/questions" ? T.BACK_TO_BANK : T.BACK_TO_STUDIO}
+      </Button>
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:items-start">
+        <div className="flex flex-col gap-5">
+          <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <h2 className="text-base font-semibold text-gray-900">{T.INFORMATION_TITLE}</h2>
+              <div className="flex flex-wrap items-center gap-2">
+                {currentStatus && (
+                  <Badge variant={QUESTION_STATUS_VARIANT[currentStatus]}>
+                    {statusLabels[currentStatus]}
+                  </Badge>
+                )}
+                {canEdit && (
+                  <Button onClick={() => router.push(`/admin/questions/${question.publicId}/edit`)}>
+                    {T.EDIT}
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
-          <DetailGroup
-            title={T.GROUP_IDENTITY}
-            items={[{ label: T.QUESTION_CODE, value: <CopyableId value={question.publicId} /> }]}
-          />
-          <DetailGroup
-            title={T.GROUP_CLASSIFICATION}
-            items={[
-              {
-                label: T.TASK_TYPE,
-                value: <Chip tone={TASK_TYPE_TONE}>{taskType}</Chip>,
-              },
-              {
-                label: T.SECTION,
-                value: <Chip tone={sectionTone(question.section)}>{section}</Chip>,
-              },
-              {
-                label: T.POOL,
-                value: <Chip tone={POOL_TONE}>{poolLabels[mapPool(question)]}</Chip>,
-              },
-              {
-                label: T.CEFR_LEVEL,
-                value: question.cefrLevel ? (
-                  <Chip tone={cefrTone(question.cefrLevel)}>{question.cefrLevel}</Chip>
-                ) : (
-                  T.CEFR_UNSET
-                ),
-              },
-              {
-                label: T.REVISION,
-                value: (
-                  <Chip tone={TASK_TYPE_TONE} outlined>
-                    {question.revisionNumber ?? T.EMPTY_VALUE}
-                  </Chip>
-                ),
-              },
-              ...(question.rejectionReason?.trim()
-                ? [
-                    {
-                      label: T.REJECTION_REASON,
-                      value: question.rejectionReason,
-                      fullWidth: true,
-                    },
-                  ]
-                : []),
-            ]}
-          />
-        </section>
-
-        {contentItems.length > 0 && (
-          <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
-            <DetailGroup title={T.GROUP_CONTENT} items={contentItems} />
+            <DetailGroup
+              title={T.GROUP_IDENTITY}
+              items={[{ label: T.QUESTION_CODE, value: <CopyableId value={question.publicId} /> }]}
+            />
+            <DetailGroup
+              title={T.GROUP_CLASSIFICATION}
+              items={[
+                {
+                  label: T.TASK_TYPE,
+                  value: <Chip tone={TASK_TYPE_TONE}>{taskType}</Chip>,
+                },
+                {
+                  label: T.SECTION,
+                  value: <Chip tone={sectionTone(question.section)}>{section}</Chip>,
+                },
+                {
+                  label: T.POOL,
+                  value: <Chip tone={POOL_TONE}>{poolLabels[mapPool(question)]}</Chip>,
+                },
+                {
+                  label: T.CEFR_LEVEL,
+                  value: question.cefrLevel ? (
+                    <Chip tone={cefrTone(question.cefrLevel)}>{question.cefrLevel}</Chip>
+                  ) : (
+                    T.CEFR_UNSET
+                  ),
+                },
+                {
+                  label: T.REVISION,
+                  value: (
+                    <Chip tone={TASK_TYPE_TONE} outlined>
+                      {question.revisionNumber ?? T.EMPTY_VALUE}
+                    </Chip>
+                  ),
+                },
+                ...(question.rejectionReason?.trim()
+                  ? [
+                      {
+                        label: T.REJECTION_REASON,
+                        value: question.rejectionReason,
+                        fullWidth: true,
+                      },
+                    ]
+                  : []),
+              ]}
+            />
           </section>
-        )}
 
-        {hasAnswers && (
-          <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
-            <h2 className="text-base font-semibold text-gray-900">{T.ANSWERS_TITLE}</h2>
-            {question.options.length > 0 && (
-              <div className="space-y-2">
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  {T.OPTIONS}
-                </h3>
-                <ol className="space-y-2">
-                  {question.options
-                    .slice()
-                    .sort((left, right) => left.orderIndex - right.orderIndex)
-                    .map((option, index) => (
-                      <li
-                        key={option.publicId}
-                        className={cn(
-                          "flex items-center gap-3 rounded-md border px-3 py-2 text-sm",
-                          showAnswerKey && option.correct
-                            ? "border-green-200 bg-green-50"
-                            : "border-slate-200 bg-white",
-                        )}
-                      >
-                        <span
+          {contentItems.length > 0 && (
+            <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
+              <DetailGroup title={T.GROUP_CONTENT} items={contentItems} />
+            </section>
+          )}
+
+          {hasAnswers && (
+            <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
+              <h2 className="text-base font-semibold text-gray-900">{T.ANSWERS_TITLE}</h2>
+              {question.options.length > 0 && (
+                <div className="space-y-2">
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    {T.OPTIONS}
+                  </h3>
+                  <ol className="space-y-2">
+                    {question.options
+                      .slice()
+                      .sort((left, right) => left.orderIndex - right.orderIndex)
+                      .map((option, index) => (
+                        <li
+                          key={option.publicId}
                           className={cn(
-                            "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                            "flex items-center gap-3 rounded-md border px-3 py-2 text-sm",
                             showAnswerKey && option.correct
-                              ? "bg-green-600 text-white"
-                              : "bg-slate-100 text-slate-500",
+                              ? "border-green-200 bg-green-50"
+                              : "border-slate-200 bg-white",
                           )}
                         >
-                          {index + 1}
-                        </span>
-                        <span className="flex-1 text-gray-800">{option.text}</span>
-                        {showAnswerKey && option.correct && (
-                          <Badge variant="success">{T.CORRECT}</Badge>
-                        )}
-                      </li>
-                    ))}
-                </ol>
-              </div>
-            )}
-            {showAnswerKey && hasAnswerKey && (
-              <DetailGroup
-                title={T.GROUP_ANSWER_KEY}
-                items={[
-                  ...(question.referenceAnswerText?.trim()
-                    ? [{ label: T.REFERENCE_ANSWER, value: question.referenceAnswerText }]
-                    : []),
-                  ...(question.correctAnswerText?.trim()
-                    ? [{ label: T.CORRECT_ANSWER, value: question.correctAnswerText }]
-                    : []),
-                ]}
-              />
-            )}
-          </section>
-        )}
-      </div>
-      <div className="xl:sticky xl:top-4">
-        <ExamScreenPreview draft={previewDraft} />
+                          <span
+                            className={cn(
+                              "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                              showAnswerKey && option.correct
+                                ? "bg-green-600 text-white"
+                                : "bg-slate-100 text-slate-500",
+                            )}
+                          >
+                            {index + 1}
+                          </span>
+                          <span className="flex-1 text-gray-800">{option.text}</span>
+                          {showAnswerKey && option.correct && (
+                            <Badge variant="success">{T.CORRECT}</Badge>
+                          )}
+                        </li>
+                      ))}
+                  </ol>
+                </div>
+              )}
+              {showAnswerKey && hasAnswerKey && (
+                <DetailGroup
+                  title={T.GROUP_ANSWER_KEY}
+                  items={[
+                    ...(question.referenceAnswerText?.trim()
+                      ? [{ label: T.REFERENCE_ANSWER, value: question.referenceAnswerText }]
+                      : []),
+                    ...(question.correctAnswerText?.trim()
+                      ? [{ label: T.CORRECT_ANSWER, value: question.correctAnswerText }]
+                      : []),
+                  ]}
+                />
+              )}
+            </section>
+          )}
+        </div>
+        <div className="xl:sticky xl:top-4">
+          <ExamScreenPreview draft={previewDraft} />
+        </div>
       </div>
     </div>
   );

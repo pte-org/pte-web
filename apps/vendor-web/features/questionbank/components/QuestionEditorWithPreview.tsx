@@ -18,6 +18,8 @@ interface QuestionEditorWithPreviewProps {
   onCancel?: () => void;
   /** Preparation and answer time of a task type in the exam template, shown in the preview. */
   timingFor?: (taskType: string) => PreviewTiming | null;
+  /** The exam section whose tab is selected first; every section when omitted. */
+  initialSection?: string;
 }
 
 /**
@@ -30,10 +32,11 @@ export const QuestionEditorWithPreview = ({
   onSaved,
   onCancel,
   timingFor,
+  initialSection,
 }: QuestionEditorWithPreviewProps): ReactElement => {
   const { data: questionTypes = [], isLoading } = useQuestionTypes(true);
   const [draft, setDraft] = useState<QuestionPreviewDraft | null>(null);
-  const [section, setSection] = useState(SCORE_TEMPLATE_ALL_TAB);
+  const [section, setSection] = useState(initialSection ?? SCORE_TEMPLATE_ALL_TAB);
   const handlePreview = useCallback((next: QuestionPreviewDraft) => setDraft(next), []);
   const sectionItems = useSectionTabItems((value) =>
     value === null

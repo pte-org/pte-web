@@ -1,20 +1,26 @@
 import { EXAM_TEMPLATE_SECTIONS } from "../scoretemplate/constants";
 
 export const EXAM_STUDIO_ROUTE = "/admin/exam-studio";
-export const NEW_QUESTION_ROUTE = "/admin/questions/new";
+export const QUESTION_ROUTE = "/admin/questions";
+export const NEW_QUESTION_ROUTE = `${QUESTION_ROUTE}/new`;
 
 export const STUDIO_SECTIONS = EXAM_TEMPLATE_SECTIONS;
 
 /** A task type with at least this share of the questions it needs counts as "short", below it as "missing". */
 export const STUDIO_SHORT_RATIO = 0.5;
 export const STUDIO_PERCENT_SCALE = 100;
-export const STUDIO_QUESTION_PAGE_SIZE = 100;
+export const STUDIO_QUESTION_PAGE_SIZE = 20;
+/** How long a search stays quiet before it is sent, so typing does not send a request per key. */
+export const STUDIO_SEARCH_DELAY_MS = 300;
 export const STUDIO_MAX_COUNT_LIMIT = 20;
 export const STUDIO_PREP_OPTIONS_SECONDS = [3, 10, 20, 25, 30, 35, 40] as const;
 export const STUDIO_RESPONSE_OPTIONS_SECONDS = [10, 15, 40, 60, 90, 120, 600, 1200] as const;
 export const SECONDS_PER_MINUTE = 60;
 export const STUDIO_TIMELINE_COLUMNS = 12;
-export const STUDIO_KANBAN_PAGE_SIZE = 1000;
+/** Cards a board column loads at first, and how many more each "show more" adds. */
+export const KANBAN_COLUMN_PAGE_SIZE = 20;
+/** The most cards one column loads; past it the filters narrow the board down. */
+export const KANBAN_COLUMN_MAX_SIZE = 200;
 
 export const STUDIO_TABS = {
   COVERAGE: "coverage",
@@ -51,7 +57,7 @@ export const EXAM_STUDIO_TEXT = {
   DRAWER_DESCRIPTION: "Where this task type stands in the template, and its questions",
   QUESTIONS_SECTION: "Question bank",
   IN_TEMPLATE: "In the template",
-  IN_TEMPLATE_OFF: "A platform template must hold every active task type, so add it back",
+  IN_TEMPLATE_OFF: "This task type is not in the template yet. Add it on the template page.",
   ADD_TO_TEMPLATE: "Add to the template",
   REMOVE_FROM_TEMPLATE: "Remove from the template",
   CANNOT_REMOVE_WEIGHTED:
@@ -74,6 +80,8 @@ export const EXAM_STUDIO_TEXT = {
   STATUS_PENDING: "Awaiting approval",
   STATUS_PUBLISHED: "Approved",
   STATUS_ARCHIVED: "Archived",
+  FILTER_ALL: "All",
+  QUESTION_SEARCH: "Search questions in this task type",
   FOOTER_NOTE: "Changes are saved as you make them.",
   DECREASE: "Fewer",
   INCREASE: "More",
@@ -85,6 +93,8 @@ export const EXAM_STUDIO_TEXT = {
   KANBAN_HINT: "Drag a card to the next column to move a question through review.",
   KANBAN_SEARCH: "Search questions",
   KANBAN_ALL_TYPES: "All task types",
+  KANBAN_MORE: "Show {count} more",
+  KANBAN_LIMIT: "Showing the first 200. Narrow the board with the filters.",
   KANBAN_LOAD_ERROR: "Could not load the question board.",
   EMPTY_COLUMN: "Nothing here",
   MOVE_NOT_ALLOWED: "A question moves one step at a time: draft, awaiting approval, approved.",
@@ -101,10 +111,26 @@ export const EXAM_STUDIO_TEXT = {
   PREVIEW_PREP: "Preparation: {seconds}s",
   PREVIEW_RESPONSE: "Response: {seconds}s",
   PREVIEW_NO_TEMPLATE_TIME: "Add this task type to the template to see its timing.",
-  TIMELINE_HINT:
-    "The width of a block follows its time. Drag blocks to reorder them within a skill, click one to edit it.",
+  TIMELINE_HINT: "The width of a block follows its time. Click one to see its task type.",
   TIMELINE_TOTAL: "About {minutes} minutes in {count} task types",
   TIMELINE_EMPTY: "No task types in this template yet.",
   TIMELINE_BLOCK: "{count} q · {time}",
   TIMELINE_LANE_EMPTY: "Nothing in this skill",
+  PICKER_TITLE: "Choose templates",
+  PICKER_SEARCH: "Search by name, code or version",
+  PICKER_HINT: "Pick the template to look at: the active one or a draft.",
+  PICKER_TASK_TYPES: "task types",
+  PICKER_EMPTY: "No template matches.",
+  PICKER_MORE: "Show {count} more",
+  PICKER_DONE: "Done",
+  VIEW_TEMPLATE: "View",
+  DISTINCT_EXAMS: "About {count} exams without a repeated question",
+  AVOID_REPEATS: "No repeated questions between exams",
+  AVOID_REPEATS_HINT:
+    "Tick to see how many exams the approved questions can fill without any question appearing twice.",
+  DISTINCT_EXAMS_SHORT: "≈ {count} exams",
+  DISTINCT_EXAMS_NONE: "Not enough for even one exam",
+  GAPS_TITLE: "To do: questions to write",
+  GAPS_ITEM: "{count} more needed",
+  WRITE_MORE: "Write more",
 } as const;

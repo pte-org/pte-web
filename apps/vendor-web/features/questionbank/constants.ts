@@ -71,6 +71,8 @@ export const QUESTIONBANK_TEXT = {
 
 export const QUESTION_DETAIL_TEXT = {
   BACK: "← Back to Question Bank",
+  BACK_TO_BANK: "Back to the question bank",
+  BACK_TO_STUDIO: "Back to the Content Hub",
   EDIT: "Edit question",
   INFORMATION_TITLE: "Question information",
   GROUP_IDENTITY: "Identity",

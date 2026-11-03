@@ -23,11 +23,11 @@ import {
 } from "@/features/scoretemplate/api";
 import { EXAM_TEMPLATE_BASE_PATH } from "@/features/scoretemplate/constants";
 import { buildStudioModel } from "../buildStudioModel";
-import { EXAM_STUDIO_TEXT, STUDIO_KANBAN_PAGE_SIZE, STUDIO_TABS } from "../constants";
-import { useStudioTemplateEditor } from "../hooks/useStudioTemplateEditor";
+import { EXAM_STUDIO_TEXT, STUDIO_TABS } from "../constants";
 import type { StudioTab } from "../types";
 import { isEditableTemplate, pickWorkingTemplate, selectableTemplates } from "../workingTemplate";
 import { ComposeTab } from "./ComposeTab";
+import { SERVER_STATUS } from "./questionStatus";
 import { KanbanTab } from "./KanbanTab";
 import { StudioDrawer } from "./StudioDrawer";
 import { TimelineTab } from "./TimelineTab";
@@ -43,6 +43,7 @@ export const ExamStudioView = (): ReactElement => {
   const [tab, setTab] = useState<StudioTab>(STUDIO_TABS.COVERAGE);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const [templateId, setTemplateId] = useState<string | null>(null);
+  const [composeSection, setComposeSection] = useState<string | undefined>(undefined);
   const templates = useScoreTemplates();
   const taskTypes = useTaskTypes();
   const template = pickWorkingTemplate(templates.data ?? [], templateId);
@@ -50,13 +51,10 @@ export const ExamStudioView = (): ReactElement => {
   const feasibility = useScoreTemplateFeasibility(template?.publicId ?? "");
   const cloneMutation = useCloneScoreTemplate();
   const editable = isEditableTemplate(template);
-  const editor = useStudioTemplateEditor(editable ? template : undefined);
-  // The same request as the board, so the count costs nothing extra.
-  const questions = useQuestions({}, 0, STUDIO_KANBAN_PAGE_SIZE);
   const { data: currentUser } = useCurrentUser();
-  const pendingCount = (questions.data?.data ?? []).filter(
-    (question) => question.status === "pending_approval",
-  ).length;
+  // One row is asked for: only the total is wanted.
+  const pending = useQuestions({ status: SERVER_STATUS.pending_approval }, 0, 1);
+  const pendingCount = pending.data?.meta.totalElements ?? 0;
   const showPendingNotice =
     canReviewAcademic(currentUser?.roles) && pendingCount > 0 && tab !== STUDIO_TABS.KANBAN;
 
@@ -102,17 +100,14 @@ export const ExamStudioView = (): ReactElement => {
       case STUDIO_TABS.KANBAN:
         return <KanbanTab tiles={model.tiles} templatePublicId={template.publicId} />;
       case STUDIO_TABS.COMPOSE:
-        return <ComposeTab tiles={model.tiles} />;
+        return <ComposeTab tiles={model.tiles} initialSection={composeSection} />;
       case STUDIO_TABS.TIMELINE:
         return (
           <TimelineTab
             template={template}
             tiles={model.tiles}
             selectedKey={selectedKey}
-            editable={editable}
-            isSaving={editor.isSaving}
             onSelect={setSelectedKey}
-            onEdit={editor.edit}
           />
         );
       default:
@@ -126,7 +121,10 @@ export const ExamStudioView = (): ReactElement => {
             selectedKey={selectedKey}
             onSelectTemplate={setTemplateId}
             onCreateDraft={createDraft}
-            onOpenCompose={() => setTab(STUDIO_TABS.COMPOSE)}
+            onOpenCompose={(section) => {
+              setComposeSection(section);
+              setTab(STUDIO_TABS.COMPOSE);
+            }}
             onSelect={setSelectedKey}
           />
         );
@@ -150,14 +148,11 @@ export const ExamStudioView = (): ReactElement => {
         value={tab}
         onChange={(value) => setTab(value as StudioTab)}
       />
-      <DashboardCard>{content}</DashboardCard>
+      {tab === STUDIO_TABS.COVERAGE ? content : <DashboardCard>{content}</DashboardCard>}
       {template && (
         <StudioDrawer
           tile={selected}
           templatePublicId={template.publicId}
-          editable={editable}
-          isSaving={editor.isSaving}
-          onEdit={editor.edit}
           onClose={() => setSelectedKey(null)}
         />
       )}

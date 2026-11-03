@@ -72,4 +72,12 @@ describe("buildStudioModel", () => {
     expect(model.tiles.every((tile) => tile.state === "outside")).toBe(true);
     expect(model.isReady).toBe(false);
   });
+
+  it("estimates how many exams the approved questions fill without a repeated question", () => {
+    const model = buildStudioModel(working, TYPES, feasibility({ READ_ALOUD: 9, REPEAT_SENTENCE: 3 }));
+    const exams = (key: string) => model.tiles.find((tile) => tile.key === key)?.distinctExams;
+    expect(exams("READ_ALOUD")).toBe(2);
+    expect(exams("REPEAT_SENTENCE")).toBe(0);
+    expect(exams("WRITE_ESSAY")).toBeNull();
+  });
 });

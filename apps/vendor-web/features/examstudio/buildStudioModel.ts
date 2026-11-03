@@ -33,7 +33,15 @@ export function buildStudioModel(
       const item = itemsByKey.get(key) ?? null;
       const required = item?.maxCount ?? 0;
       const available = availableByKey.get(key) ?? 0;
-      return { key, type, item, required, available, state: stateOf(item !== null, required, available) };
+      return {
+        key,
+        type,
+        item,
+        required,
+        available,
+        distinctExams: required > 0 ? Math.floor(available / required) : null,
+        state: stateOf(required > 0, required, available),
+      };
     })
     .sort(
       (a, b) =>
@@ -41,12 +49,11 @@ export function buildStudioModel(
         a.type.displayOrder - b.type.displayOrder,
     );
 
-  const inTemplate = tiles.filter((tile) => tile.item !== null);
-  const missingQuestions = inTemplate.reduce(
+  const missingQuestions = tiles.reduce(
     (sum, tile) => sum + Math.max(0, tile.required - tile.available),
     0,
   );
-  const outsideCount = tiles.length - inTemplate.length;
+  const outsideCount = tiles.filter((tile) => tile.item === null).length;
 
   return {
     tiles,

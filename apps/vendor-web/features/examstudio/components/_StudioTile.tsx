@@ -23,10 +23,17 @@ const STATE_TONE: Record<StudioTileState, ProgressTone> = {
 interface StudioTileButtonProps {
   tile: StudioTile;
   selected: boolean;
+  /** Whether to estimate how many exams the questions fill without repeating one. */
+  showDistinctExams: boolean;
   onSelect: (key: string) => void;
 }
 
-export const StudioTileButton = ({ tile, selected, onSelect }: StudioTileButtonProps): ReactElement => {
+export const StudioTileButton = ({
+  tile,
+  selected,
+  showDistinctExams,
+  onSelect,
+}: StudioTileButtonProps): ReactElement => {
   const text = useAdminCopy(EXAM_STUDIO_TEXT);
   const outside = tile.state === "outside";
 
@@ -34,6 +41,7 @@ export const StudioTileButton = ({ tile, selected, onSelect }: StudioTileButtonP
     <button
       type="button"
       aria-pressed={selected}
+      title={tile.key}
       onClick={() => onSelect(tile.key)}
       className={cn(
         "flex w-full flex-col gap-2 rounded-xl border p-3 text-left transition",
@@ -45,12 +53,13 @@ export const StudioTileButton = ({ tile, selected, onSelect }: StudioTileButtonP
       )}
     >
       <span className="flex items-start justify-between gap-2">
-        <span className="text-sm font-semibold text-[var(--ink-primary)]">{tile.type.displayName}</span>
+        <span className="text-sm font-semibold text-[var(--ink-primary)]">
+          {tile.type.displayName}
+        </span>
         <Badge variant={STATE_BADGE[tile.state]}>
           {outside ? text.OUTSIDE_BADGE : `${tile.available}/${tile.required}`}
         </Badge>
       </span>
-      <span className="font-mono text-xs text-[var(--ink-muted)]">{tile.key}</span>
       {!outside && (
         <ProgressBar
           value={Math.min(tile.available, tile.required)}
@@ -58,6 +67,18 @@ export const StudioTileButton = ({ tile, selected, onSelect }: StudioTileButtonP
           tone={STATE_TONE[tile.state]}
           label={`${tile.type.displayName} ${tile.available}/${tile.required}`}
         />
+      )}
+      {!outside && showDistinctExams && tile.distinctExams !== null && (
+        <span
+          className="text-xs text-[var(--ink-muted)]"
+          title={
+            tile.distinctExams > 0
+              ? text.DISTINCT_EXAMS.replace("{count}", String(tile.distinctExams))
+              : text.DISTINCT_EXAMS_NONE
+          }
+        >
+          {text.DISTINCT_EXAMS_SHORT.replace("{count}", String(tile.distinctExams))}
+        </span>
       )}
     </button>
   );

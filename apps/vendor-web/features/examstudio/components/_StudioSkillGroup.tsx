@@ -11,6 +11,7 @@ interface StudioSkillGroupProps {
   section: string;
   tiles: StudioTile[];
   selectedKey: string | null;
+  showDistinctExams: boolean;
   onSelect: (key: string) => void;
 }
 
@@ -18,6 +19,7 @@ export const StudioSkillGroup = ({
   section,
   tiles,
   selectedKey,
+  showDistinctExams,
   onSelect,
 }: StudioSkillGroupProps): ReactElement => {
   const labels = useAdminCopy(SCORE_TEMPLATE_SECTION_LABELS);
@@ -40,6 +42,7 @@ export const StudioSkillGroup = ({
               key={tile.key}
               tile={tile}
               selected={tile.key === selectedKey}
+              showDistinctExams={showDistinctExams}
               onSelect={onSelect}
             />
           ))}

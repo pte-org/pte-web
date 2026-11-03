@@ -10,10 +10,12 @@ import type { StudioTile } from "../types";
 
 interface ComposeTabProps {
   tiles: StudioTile[];
+  /** The skill whose task types the form lists first; every skill when omitted. */
+  initialSection?: string;
 }
 
 /** The question form with the student's view beside it, so the writer sees the result while typing. */
-export const ComposeTab = ({ tiles }: ComposeTabProps): ReactElement => {
+export const ComposeTab = ({ tiles, initialSection }: ComposeTabProps): ReactElement => {
   const text = useAdminCopy(EXAM_STUDIO_TEXT);
   const { showToast } = useToast();
   // A saved question leaves an empty form behind, ready for the next one.
@@ -30,6 +32,7 @@ export const ComposeTab = ({ tiles }: ComposeTabProps): ReactElement => {
       <QuestionEditorWithPreview
         key={formKey}
         timingFor={timingFor}
+        initialSection={initialSection}
         onSaved={() => {
           showToast(text.COMPOSE_SAVED, { tone: "success" });
           setFormKey((current) => current + 1);

@@ -1189,6 +1189,8 @@ const ADMIN_VI: Record<string, string> = {
   "Question rejected and sent back to draft.": "Câu hỏi đã bị từ chối và chuyển về bản nháp.",
   "Question archived.": "Đã lưu trữ câu hỏi.",
   "Question unarchived.": "Đã bỏ lưu trữ câu hỏi.",
+  "Back to the question bank": "Về ngân hàng câu hỏi",
+  "Back to the Content Hub": "Về Trung tâm nội dung",
   "← Back to Question Bank": "← Quay lại ngân hàng câu hỏi",
   "This question has no text prompt.": "Câu hỏi này không có đề bài dạng văn bản.",
   "Loading media preview...": "Đang tải bản xem trước tệp phương tiện...",
@@ -1259,6 +1261,23 @@ const ADMIN_VI: Record<string, string> = {
   "This version is in effect and locked. Make changes in the draft.":
     "Phiên bản này đang áp dụng và đã khóa. Hãy thay đổi trong bản nháp.",
   "Content Hub views": "Các góc nhìn của Trung tâm nội dung",
+  "Choose templates": "Chọn mẫu",
+  "Search by name, code or version": "Tìm theo tên, mã hoặc phiên bản",
+  "Pick the template to look at: the active one or a draft.": "Chọn mẫu để xem: mẫu đang hoạt động hoặc một bản nháp.",
+  "task types": "dạng bài",
+  "No template matches.": "Không có mẫu nào khớp.",
+  "Show {count} more": "Hiện thêm {count}",
+  "About {count} exams without a repeated question": "Đủ cho khoảng {count} đề không trùng câu",
+  "No repeated questions between exams": "Không trùng câu giữa các đề",
+  "Tick to see how many exams the approved questions can fill without any question appearing twice.":
+    "Đánh dấu để xem kho câu hỏi đã duyệt đủ cho bao nhiêu đề mà không câu nào xuất hiện hai lần.",
+  "≈ {count} exams": "≈ {count} đề",
+  "Not enough for even one exam": "Chưa đủ cho một đề",
+  "To do: questions to write": "Việc cần làm: câu hỏi cần soạn",
+  "{count} more needed": "cần thêm {count}",
+  "Write more": "Soạn thêm",
+  "Search questions in this task type": "Tìm câu hỏi của dạng bài này",
+  "Showing the first 200. Narrow the board with the filters.": "Đang hiện 200 câu đầu. Hãy thu hẹp bằng bộ lọc.",
   "Coverage map": "Bản đồ độ phủ",
   "Exam timeline": "Dòng thời gian đề",
   "Drag a card to the next column to move a question through review.":
@@ -1277,8 +1296,7 @@ const ADMIN_VI: Record<string, string> = {
   "Start typing to see the question.": "Hãy bắt đầu nhập để xem câu hỏi.",
   "Preparation: {seconds}s": "Chuẩn bị: {seconds}s",
   "Response: {seconds}s": "Trả lời: {seconds}s",
-  "The width of a block follows its time. Drag blocks to reorder them within a skill, click one to edit it.":
-    "Độ rộng khối tỉ lệ với thời gian. Kéo khối để đổi thứ tự trong cùng kỹ năng, bấm vào khối để chỉnh sửa.",
+  "The width of a block follows its time. Click one to see its task type.": "Độ rộng khối theo thời gian của nó. Bấm vào một khối để xem dạng bài.",
   "About {minutes} minutes in {count} task types": "Khoảng {minutes} phút cho {count} dạng bài",
   "No task types in this template yet.": "Mẫu này chưa có dạng bài nào.",
   "{count} q · {time}": "{count} câu · {time}",
@@ -1311,8 +1329,7 @@ const ADMIN_VI: Record<string, string> = {
   "Task type sections": "Các mục của dạng bài",
   "In the template": "Có trong mẫu",
   "Part of this template version": "Thuộc phiên bản mẫu này",
-  "A platform template must hold every active task type, so add it back":
-    "Mẫu nền tảng phải có mọi dạng bài đang hoạt động, hãy thêm lại dạng bài này",
+  "This task type is not in the template yet. Add it on the template page.": "Dạng bài này chưa có trong mẫu. Hãy thêm nó ở trang mẫu bài thi.",
   "Add to the template": "Thêm vào mẫu",
   "Remove from the template": "Bỏ khỏi mẫu",
   "This task type carries skill weight. Rebalance the weights on the template page before removing it.":
