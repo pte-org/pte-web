@@ -47,6 +47,31 @@ export interface ScoreTemplateResponse {
   updatedAt?: string | null;
   authorUserPublicId?: string | null;
   authorName?: string | null;
+  /** Pearson time window of the template, in seconds; null when it has none. */
+  timeFrame?: ScoreTemplateTimeFrame | null;
+  /** Host templates only: whether it still follows the platform template it came from. */
+  pearsonStandard?: boolean | null;
+  /** Why a host template is no longer Pearson standard, e.g. `WEIGHTS_CHANGED:READ_ALOUD`. */
+  standardDeviations?: string[];
+  /** CEFR mix exams built from the template aim for; empty means no mix. */
+  cefrTargets?: CefrTarget[];
+}
+
+/** Time window of a template in seconds: a range per Pearson part and a ceiling for the whole test. */
+export interface ScoreTemplateTimeFrame {
+  speakingWritingMinSeconds: number;
+  speakingWritingMaxSeconds: number;
+  readingMinSeconds: number;
+  readingMaxSeconds: number;
+  listeningMinSeconds: number;
+  listeningMaxSeconds: number;
+  totalMaxSeconds: number;
+}
+
+/** Share, in whole percent, of one CEFR level. */
+export interface CefrTarget {
+  level: string;
+  percent: number;
 }
 
 export interface ScoreTemplateSlotFeasibilityResponse {
@@ -56,6 +81,19 @@ export interface ScoreTemplateSlotFeasibilityResponse {
   available: number;
   ready: boolean;
   reason: string | null;
+  /** Questions available per CEFR level, with `UNCLASSIFIED` for those without one. */
+  cefrCounts?: Record<string, number>;
+}
+
+/** Planned duration of one Pearson part, in seconds, next to the template's window for it. */
+export interface PartTimeFeasibilityResponse {
+  part: "SPEAKING_WRITING" | "READING" | "LISTENING";
+  minSeconds: number;
+  maxSeconds: number;
+  frameMinSeconds: number | null;
+  frameMaxSeconds: number | null;
+  /** Null when the template has no time frame. */
+  canFitFrame: boolean | null;
 }
 
 export interface ScoreTemplateFeasibilityResponse {
@@ -63,6 +101,9 @@ export interface ScoreTemplateFeasibilityResponse {
   examDefinitionVersion: number;
   ready: boolean;
   slots: ScoreTemplateSlotFeasibilityResponse[];
+  parts?: PartTimeFeasibilityResponse[];
+  /** Ceiling of the whole test in seconds; null without a time frame. */
+  totalMaxSeconds?: number | null;
 }
 
 export interface RejectScoreTemplateRequest {

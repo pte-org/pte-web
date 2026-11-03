@@ -5,6 +5,8 @@ import type {
   ScoreTemplateResponse,
   RejectScoreTemplateRequest,
   ScoreTemplateFeasibilityResponse,
+  ScoreTemplateTimeFrame,
+  CefrTarget,
 } from "../../types/scoretemplate";
 
 /**
@@ -20,6 +22,8 @@ export const SCORE_TEMPLATE_ENDPOINTS = {
   template: (publicId: string) => `/api/v1/exam-definitions/${publicId}`,
   clone: (publicId: string) => `/api/v1/exam-definitions/${publicId}/clone`,
   items: (publicId: string) => `/api/v1/exam-definitions/${publicId}/items`,
+  timeFrame: (publicId: string) => `/api/v1/exam-definitions/${publicId}/time-frame`,
+  cefrTargets: (publicId: string) => `/api/v1/exam-definitions/${publicId}/cefr-targets`,
   active: "/api/v1/exam-definitions/active",
   feasibility: (publicId: string) => `/api/v1/exam-definitions/${publicId}/feasibility`,
   status: (publicId: string) => `/api/v1/exam-definitions/${publicId}/status`,
@@ -66,6 +70,28 @@ export function replaceScoreTemplateItems(
   });
 }
 
+export function updateScoreTemplateTimeFrame(
+  client: ApiClient,
+  publicId: string,
+  payload: ScoreTemplateTimeFrame,
+): Promise<ScoreTemplateResponse> {
+  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.timeFrame(publicId), {
+    method: "PUT",
+    body: payload,
+  });
+}
+
+export function updateScoreTemplateCefrTargets(
+  client: ApiClient,
+  publicId: string,
+  targets: CefrTarget[],
+): Promise<ScoreTemplateResponse> {
+  return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.cefrTargets(publicId), {
+    method: "PUT",
+    body: { targets },
+  });
+}
+
 export function deleteScoreTemplate(client: ApiClient, publicId: string): Promise<void> {
   return client.request<void>(SCORE_TEMPLATE_ENDPOINTS.template(publicId), {
     method: "DELETE",
@@ -77,7 +103,8 @@ export function activateScoreTemplate(
   publicId: string,
 ): Promise<ScoreTemplateResponse> {
   return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.status(publicId), {
-    method: "PATCH", body: { action: "ACTIVATE" },
+    method: "PATCH",
+    body: { action: "ACTIVATE" },
   });
 }
 
@@ -90,7 +117,8 @@ export function submitScoreTemplateApproval(
   publicId: string,
 ): Promise<ScoreTemplateResponse> {
   return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.status(publicId), {
-    method: "PATCH", body: { action: "SUBMIT_APPROVAL" },
+    method: "PATCH",
+    body: { action: "SUBMIT_APPROVAL" },
   });
 }
 
@@ -99,7 +127,8 @@ export function approveScoreTemplate(
   publicId: string,
 ): Promise<ScoreTemplateResponse> {
   return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.status(publicId), {
-    method: "PATCH", body: { action: "APPROVE" },
+    method: "PATCH",
+    body: { action: "APPROVE" },
   });
 }
 
@@ -109,7 +138,8 @@ export function rejectScoreTemplate(
   payload: RejectScoreTemplateRequest,
 ): Promise<ScoreTemplateResponse> {
   return client.request<ScoreTemplateResponse>(SCORE_TEMPLATE_ENDPOINTS.status(publicId), {
-    method: "PATCH", body: { action: "REJECT", ...payload },
+    method: "PATCH",
+    body: { action: "REJECT", ...payload },
   });
 }
 

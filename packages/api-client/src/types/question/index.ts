@@ -33,7 +33,6 @@ export type PteTaskType =
   | "HIGHLIGHT_INCORRECT_WORDS"
   | "WRITE_FROM_DICTATION";
 
-
 /** Which product a question serves at creation; later moves use the availability flags on a draft. */
 export type QuestionPool = "EXAM" | "PRACTICE";
 
@@ -52,6 +51,9 @@ export interface OptionResponse extends OptionRequest {
   publicId: string;
 }
 
+/** CEFR level (A1 to C2) a question is written for. */
+export type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
+
 export interface CreateQuestionRequest {
   pteTaskType: PteTaskType | string;
   /** Defaults to EXAM on the server; only accepted on create. */
@@ -64,6 +66,8 @@ export interface CreateQuestionRequest {
   minWordCount?: number | null;
   maxWordCount?: number | null;
   options?: OptionRequest[];
+  /** Required before an exam question is submitted for approval. */
+  cefrLevel?: CefrLevel | null;
 }
 
 export type UpdateQuestionRequest = Omit<CreateQuestionRequest, "pteTaskType" | "pool"> & {
@@ -104,6 +108,8 @@ export interface QuestionResponse {
   previouslyPublished?: boolean;
   /** When the question last changed (ISO 8601). */
   updatedAt?: string;
+  /** CEFR level the question is written for; null until classified. */
+  cefrLevel?: CefrLevel | null;
 }
 
 export interface QuestionFilters {
