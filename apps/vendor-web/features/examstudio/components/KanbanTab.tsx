@@ -1,20 +1,15 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Input, LoadingState, Select, useLocale } from "@pte/ui";
+import { Input, Select, useLocale } from "@pte/ui";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
-import { useQuestions } from "@/features/questionbank/api";
-import { EXAM_STUDIO_TEXT, STUDIO_KANBAN_PAGE_SIZE } from "../constants";
+import type { Question } from "@/features/questionbank/types";
+import { EXAM_STUDIO_TEXT, KANBAN_COLUMN_MAX_SIZE } from "../constants";
 import { useKanbanMoves } from "../hooks/useKanbanMoves";
-import {
-  columnOf,
-  filterBoard,
-  KANBAN_COLUMNS,
-  moveVerdict,
-  type KanbanColumn,
-} from "../kanbanTransitions";
+import { useSettled } from "../hooks/useSettled";
+import { columnOf, KANBAN_COLUMNS, moveVerdict, type KanbanColumn } from "../kanbanTransitions";
 import { formatRelativeTime } from "../relativeTime";
 import type { StudioTile } from "../types";
 import { KanbanColumnView } from "./_KanbanColumn";
@@ -28,8 +23,9 @@ export const KanbanTab = ({ tiles, templatePublicId }: KanbanTabProps): ReactEle
   const text = useAdminCopy(EXAM_STUDIO_TEXT);
   const [taskType, setTaskType] = useState("");
   const [search, setSearch] = useState("");
-  const [draggingId, setDraggingId] = useState<string | null>(null);
-  const questions = useQuestions({}, 0, STUDIO_KANBAN_PAGE_SIZE);
+  const query = useSettled(search.trim());
+  // The card being dragged is kept whole: it may come from a column the others do not load.
+  const [dragged, setDragged] = useState<Question | null>(null);
   const { move, isMoving } = useKanbanMoves(templatePublicId);
   const { locale } = useLocale();
   const { data: currentUser } = useCurrentUser();
@@ -41,15 +37,10 @@ export const KanbanTab = ({ tiles, templatePublicId }: KanbanTabProps): ReactEle
     approved: text.STATUS_PUBLISHED,
     archived: text.STATUS_ARCHIVED,
   };
-
-  if (questions.isLoading) return <LoadingState />;
-  if (questions.isError) return <Alert tone="error">{text.KANBAN_LOAD_ERROR}</Alert>;
-
-  const visible = filterBoard(questions.data?.data ?? [], taskType, search);
-  const dragged = visible.find((question) => question.id === draggingId) ?? null;
   const dropOn = (column: KanbanColumn): void => {
-    setDraggingId(null);
-    if (dragged && !isMoving && columnOf(dragged) !== column) move(dragged, column);
+    const card = dragged;
+    setDragged(null);
+    if (card && !isMoving && columnOf(card) !== column) move(card, column);
   };
 
   return (
@@ -79,9 +70,13 @@ export const KanbanTab = ({ tiles, templatePublicId }: KanbanTabProps): ReactEle
             key={column}
             column={column}
             title={titles[column]}
+            taskType={taskType}
+            query={query}
             emptyLabel={text.EMPTY_COLUMN}
-            questions={visible.filter((question) => columnOf(question) === column)}
-            draggingId={draggingId}
+            loadError={text.KANBAN_LOAD_ERROR}
+            moreLabel={(remaining) => text.KANBAN_MORE.replace("{count}", String(remaining))}
+            limitLabel={text.KANBAN_LIMIT.replace("200", String(KANBAN_COLUMN_MAX_SIZE))}
+            draggingId={dragged?.id ?? null}
             verdict={
               dragged && columnOf(dragged) !== column
                 ? moveVerdict(dragged, column, canReview)
@@ -94,8 +89,8 @@ export const KanbanTab = ({ tiles, templatePublicId }: KanbanTabProps): ReactEle
                 formatRelativeTime(question.updatedAt ?? "", new Date(), locale),
               )
             }
-            onDragStart={setDraggingId}
-            onDragEnd={() => setDraggingId(null)}
+            onDragStart={setDragged}
+            onDragEnd={() => setDragged(null)}
             onDropOn={dropOn}
           />
         ))}

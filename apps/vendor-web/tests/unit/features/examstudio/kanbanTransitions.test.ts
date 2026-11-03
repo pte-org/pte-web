@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   actionFor,
   columnOf,
-  filterBoard,
   moveVerdict,
   needsReviewerRole,
 } from "../../../../features/examstudio/kanbanTransitions";
@@ -66,19 +65,3 @@ describe("moveVerdict", () => {
   });
 });
 
-describe("filterBoard", () => {
-  const all = [
-    question("draft", { id: "1", taskType: "READ_ALOUD", content: "Urban gardens" }),
-    question("draft", { id: "2", taskType: "WRITE_ESSAY", content: "Ocean plastic" }),
-  ];
-
-  it("keeps everything with no filter", () => {
-    expect(filterBoard(all, "", "")).toHaveLength(2);
-  });
-
-  it("filters by task type and by text, ignoring case", () => {
-    expect(filterBoard(all, "WRITE_ESSAY", "").map((q) => q.id)).toEqual(["2"]);
-    expect(filterBoard(all, "", "URBAN").map((q) => q.id)).toEqual(["1"]);
-    expect(filterBoard(all, "WRITE_ESSAY", "urban")).toEqual([]);
-  });
-});

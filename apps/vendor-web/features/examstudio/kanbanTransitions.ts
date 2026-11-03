@@ -11,6 +11,14 @@ const COLUMN_OF: Record<QuestionStatus, KanbanColumn> = {
   archived: "archived",
 };
 
+/** The question status each column holds. */
+export const STATUS_OF_COLUMN: Record<KanbanColumn, QuestionStatus> = {
+  draft: "draft",
+  pending: "pending_approval",
+  approved: "published",
+  archived: "archived",
+};
+
 export const columnOf = (question: Question): KanbanColumn => COLUMN_OF[question.status];
 
 /** What the API call for a move is; `null` where the lifecycle has no such step. */
@@ -34,21 +42,12 @@ export const needsReviewerRole = (action: KanbanAction): boolean => action === "
 /** Whether the signed-in user may drop a card on a column, and if not, why. */
 export type MoveVerdict = "allowed" | "needs-reviewer" | "not-a-step";
 
-export function moveVerdict(question: Question, target: KanbanColumn, canReview: boolean): MoveVerdict {
+export function moveVerdict(
+  question: Question,
+  target: KanbanColumn,
+  canReview: boolean,
+): MoveVerdict {
   const action = actionFor(question, target);
   if (action === null) return "not-a-step";
   return needsReviewerRole(action) && !canReview ? "needs-reviewer" : "allowed";
-}
-
-export function filterBoard(
-  questions: readonly Question[],
-  taskType: string,
-  search: string,
-): Question[] {
-  const needle = search.trim().toLowerCase();
-  return questions.filter(
-    (question) =>
-      (taskType === "" || question.taskType === taskType) &&
-      (needle === "" || question.content.toLowerCase().includes(needle)),
-  );
 }
