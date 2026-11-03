@@ -96,8 +96,7 @@ export const AttemptsSection = ({ sessionPublicId }: AttemptsSectionProps): Reac
     {
       key: "submittedAt",
       header: t("tenant.answers.submitted", ATTEMPT_TABLE_HEADERS.SUBMITTED_AT),
-      cell: (row) =>
-        row.submittedAt ? formatDateTime(row.submittedAt, locale) : T.NOT_SUBMITTED,
+      cell: (row) => (row.submittedAt ? formatDateTime(row.submittedAt, locale) : T.NOT_SUBMITTED),
     },
     {
       key: "examiner",
@@ -118,14 +117,14 @@ export const AttemptsSection = ({ sessionPublicId }: AttemptsSectionProps): Reac
             {t("tenant.attempts.noAiAnswers", T.NO_AI_ANSWERS)}
           </span>
         ) : (
-        <span className="flex flex-wrap items-center gap-2">
-          <span>{T.PROGRESS(row.scoredCount, row.answerCount)}</span>
-          {row.failedCount > 0 && <Badge variant="danger">{T.FAILED(row.failedCount)}</Badge>}
-          {row.aiScoringCount > 0 && (
-            <Badge variant="info">{T.IN_PROGRESS(row.aiScoringCount)}</Badge>
-          )}
-          {row.pendingCount > 0 && <Badge variant="neutral">{T.WAITING(row.pendingCount)}</Badge>}
-        </span>
+          <span className="flex flex-wrap items-center gap-2">
+            <span>{T.PROGRESS(row.scoredCount, row.answerCount)}</span>
+            {row.failedCount > 0 && <Badge variant="danger">{T.FAILED(row.failedCount)}</Badge>}
+            {row.aiScoringCount > 0 && (
+              <Badge variant="info">{T.IN_PROGRESS(row.aiScoringCount)}</Badge>
+            )}
+            {row.pendingCount > 0 && <Badge variant="neutral">{T.WAITING(row.pendingCount)}</Badge>}
+          </span>
         ),
     },
   ];

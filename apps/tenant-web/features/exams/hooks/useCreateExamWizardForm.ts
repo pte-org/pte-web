@@ -23,7 +23,7 @@ interface CreateExamWizardFormState {
 }
 
 type UpdateFormAction = {
-  [K in keyof CreateExamWorkflowInput]: {
+  [K in keyof CreateExamWorkflowInput]-?: {
     type: "update";
     field: K;
     value: CreateExamWorkflowInput[K];
@@ -69,6 +69,8 @@ function clearFieldError(
     case "maxRetriesPerStudent":
     case "sources":
       return { ...errors, [field]: undefined };
+    case "difficulty":
+      return { ...errors, difficulty: undefined };
     default:
       return errors;
   }

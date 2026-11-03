@@ -13,12 +13,7 @@ import { ExamQuestionsTab } from "./ExamQuestionsTab";
 import { ExamSubmissionsTab } from "./ExamSubmissionsTab";
 
 type ExamDetailTab =
-  | "overview"
-  | "questions"
-  | "participants"
-  | "attendance"
-  | "submissions"
-  | "examiner";
+  "overview" | "questions" | "participants" | "attendance" | "submissions" | "examiner";
 
 const TAB_IDS: readonly ExamDetailTab[] = [
   "overview",
@@ -100,10 +95,7 @@ export const ExamDetailTabs = ({
   const keepPanelMounted = (tab: ExamDetailTab): boolean =>
     tab === "overview" ||
     (visitedTabs.has(tab) &&
-      (tab === "questions" ||
-        tab === "submissions" ||
-        tab === "examiner" ||
-        tab === "attendance"));
+      (tab === "questions" || tab === "submissions" || tab === "examiner" || tab === "attendance"));
 
   const items: TabItem[] = [
     { id: "overview", label: t("tenant.examTabs.overview", "Overview") },

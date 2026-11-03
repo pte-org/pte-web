@@ -13,7 +13,7 @@ export const CREATE_EXAM_STEP_FIELDS: Record<
   ValidatableCreateExamStep,
   readonly (keyof CreateExamWorkflowErrors)[]
 > = {
-  1: ["name", "templatePublicId", "subscriptionPublicId", "capacity"],
+  1: ["name", "templatePublicId", "subscriptionPublicId", "capacity", "difficulty"],
   2: ["opensAt", "closesAt", "maxRetriesPerStudent", "seriesKey"],
   3: ["sources"],
 };

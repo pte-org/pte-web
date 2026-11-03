@@ -1,8 +1,4 @@
-import type {
-  AnswerIntegrityLevel,
-  ReplayPolicyType,
-  ReusePolicy,
-} from "@pte/api-client";
+import type { AnswerIntegrityLevel, ReplayPolicyType, ReusePolicy } from "@pte/api-client";
 import { SINGLE_SITTING_RETRIES } from "../constants";
 import type { ExamSession, ExamSkill } from "../types";
 

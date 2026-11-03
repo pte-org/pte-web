@@ -7,6 +7,7 @@ import type {
   SessionStatus,
   UserResponse,
 } from "@pte/api-client";
+import type { DifficultySelection } from "../utils/cefrTargets";
 
 export interface ExamSession {
   id: string;
@@ -56,6 +57,8 @@ export interface CreateExamWorkflowInput {
   seriesKey: string;
   capacity: string;
   sources: AudienceSourceRequest[];
+  /** How questions are spread over CEFR levels; left out, the exam follows its template. */
+  difficulty?: DifficultySelection;
 }
 
 export interface CreateSessionErrors {

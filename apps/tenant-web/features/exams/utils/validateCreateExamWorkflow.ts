@@ -1,4 +1,5 @@
 import { CREATE_EXAM_WIZARD_ERRORS } from "../constants";
+import { isDifficultyValid } from "./cefrTargets";
 import type { CreateExamWorkflowInput } from "../types";
 
 export interface CreateExamWorkflowErrors {
@@ -11,6 +12,7 @@ export interface CreateExamWorkflowErrors {
   seriesKey?: string;
   maxRetriesPerStudent?: string;
   sources?: string;
+  difficulty?: string;
 }
 
 export function validateCreateExamWorkflow(
@@ -64,6 +66,9 @@ export function validateCreateExamWorkflow(
     retryCount > 9
   ) {
     errors.maxRetriesPerStudent = CREATE_EXAM_WIZARD_ERRORS.RETRIES_INVALID;
+  }
+  if (!isDifficultyValid(input.difficulty)) {
+    errors.difficulty = CREATE_EXAM_WIZARD_ERRORS.DIFFICULTY_INVALID;
   }
   if (requireAudience && input.sources.length === 0) {
     errors.sources = CREATE_EXAM_WIZARD_ERRORS.AUDIENCE_REQUIRED;

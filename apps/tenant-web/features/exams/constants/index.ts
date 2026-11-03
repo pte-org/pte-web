@@ -137,7 +137,8 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   TEMPLATE_LABEL: "Exam template",
   TEMPLATE_PLACEHOLDER: "Select an active template",
   DEFAULT_TEMPLATE_TAG: "default",
-  TEMPLATE_PICK_HINT: "Choose which task types this exam contains. The default template contains all of them; your own templates contain the ones you kept.",
+  TEMPLATE_PICK_HINT:
+    "Choose which task types this exam contains. The default template contains all of them; your own templates contain the ones you kept.",
   PLAN_FALLBACK: "Plan",
   SUBSCRIPTION_LABEL: "Subscription",
   SUBSCRIPTION_PLACEHOLDER: "Select an active subscription",
@@ -146,6 +147,18 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   CAPACITY_LABEL: "Maximum students",
   SUBSCRIPTION_CAPACITY_HINT: "This subscription allows up to {count} students per exam.",
   FULL_TEMPLATE_SCOPE: "Full template scope",
+  DIFFICULTY_LABEL: "Difficulty",
+  DIFFICULTY_TEMPLATE: "Follow the template",
+  DIFFICULTY_TEMPLATE_HINT: "Questions follow the CEFR mix of the template.",
+  DIFFICULTY_BAND: "A band of levels",
+  DIFFICULTY_BAND_FROM: "From level",
+  DIFFICULTY_BAND_TO: "To level",
+  DIFFICULTY_CUSTOM: "Custom mix",
+  DIFFICULTY_CUSTOM_HINT: "Percent of questions at each level. Whole numbers adding up to 100.",
+  DIFFICULTY_TOTAL: "Total",
+  DIFFICULTY_STANDARD: "Pearson standard",
+  DIFFICULTY_CUSTOMISED: "Customised",
+  REVIEW_DIFFICULTY: "Difficulty",
   RETRIES_LABEL: "Allowed retries per student",
   REUSE_POLICY_LABEL: "Student reuse rule",
   SERIES_LABEL: "Exam series",
@@ -215,6 +228,7 @@ export const CREATE_EXAM_WIZARD_TEXT = {
 } as const;
 
 export const CREATE_EXAM_WIZARD_ERRORS = {
+  DIFFICULTY_INVALID: "The CEFR percentages must be whole numbers adding up to 100.",
   NAME_REQUIRED: "Enter an exam name.",
   TEMPLATE_REQUIRED: "Select an active exam template.",
   SUBSCRIPTION_REQUIRED: "Select an active subscription.",
