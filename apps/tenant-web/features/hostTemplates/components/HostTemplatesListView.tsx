@@ -218,8 +218,16 @@ export const HostTemplatesListView = (): ReactElement => {
         rowActionsHeader={text.COL_ACTIONS}
         rowActions={(row) =>
           row.isDefault ? (
-            <Button size="sm" variant="secondary" appearance="ghost" onClick={() => openRow(row)}>
-              {text.OPEN}
+            <Button
+              size="sm"
+              variant="primary"
+              appearance="ghost"
+              iconOnly
+              aria-label={text.OPEN}
+              title={text.OPEN}
+              onClick={() => openRow(row)}
+            >
+              <EyeIcon className="h-4 w-4" />
             </Button>
           ) : (
             <ActionMenu items={buildActions(row)} />

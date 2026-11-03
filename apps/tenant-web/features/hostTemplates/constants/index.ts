@@ -39,7 +39,7 @@ export const HOST_TEMPLATES_TEXT = {
   EMPTY_TITLE: "No templates yet",
   EMPTY_TEXT: "Create a template from the default one to choose which task types an exam contains.",
   LOAD_FAILED: "Failed to load templates.",
-  OPEN: "Open",
+  OPEN: "View",
   CLONE: "Duplicate",
   ACTIVATE: "Activate",
   RETIRE: "Retire",
