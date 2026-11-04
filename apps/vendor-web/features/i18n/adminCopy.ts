@@ -271,7 +271,6 @@ const ADMIN_VI: Record<string, string> = {
   "Package granted.": "Đã cấp gói.",
   "The package could not be granted.": "Không cấp được gói.",
   Back: "Quay lại",
-  "Back to exam templates": "Về danh sách mẫu bài thi",
   Continue: "Tiếp tục",
   "Granting package...": "Đang cấp gói...",
   Main: "Cơ sở chính",

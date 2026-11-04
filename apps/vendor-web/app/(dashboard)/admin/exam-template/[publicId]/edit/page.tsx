@@ -13,7 +13,7 @@ export default async function ExamTemplateEditPage({ params }: ExamTemplateEditP
   return (
     <RequireAuth allowedRoles={ACADEMIC_ROLES}>
       <div className="space-y-4">
-        <BackLink fallbackHref="/admin/exam-template" fallbackLabel="Back to exam templates" />
+        <BackLink />
         <ScoreTemplateEditorView publicId={publicId} />
       </div>
     </RequireAuth>

@@ -13,7 +13,7 @@ export default async function ExamTemplateDetailPage({ params }: ExamTemplateDet
   return (
     <RequireAuth allowedRoles={ACADEMIC_ROLES}>
       <div className="space-y-4">
-        <BackLink fallbackHref="/admin/exam-template" fallbackLabel="Back to exam templates" />
+        <BackLink />
         <ScoreTemplateDetailView publicId={publicId} />
       </div>
     </RequireAuth>
