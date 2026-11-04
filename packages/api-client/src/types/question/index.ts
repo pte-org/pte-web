@@ -110,6 +110,8 @@ export interface QuestionResponse {
   updatedAt?: string;
   /** CEFR level the question is written for; null until classified. */
   cefrLevel?: CefrLevel | null;
+  /** The academic who wrote the question; null for legacy rows without an owner. */
+  authorUserPublicId?: string | null;
 }
 
 export interface QuestionFilters {
@@ -118,6 +120,7 @@ export interface QuestionFilters {
   status?: QuestionStatus | string;
   pool?: QuestionPool | string;
   q?: string;
+  cefrLevel?: CefrLevel | string;
 }
 
 export interface QuestionStatsResponse {
