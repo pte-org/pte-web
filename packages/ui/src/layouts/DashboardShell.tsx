@@ -143,7 +143,10 @@ export const DashboardShell = ({
             actions={headerActions}
             onMenuClick={() => setIsSidebarOpen((prev) => !prev)}
           />
-          <main className="min-h-0 flex-1 overflow-y-auto bg-[var(--shell-frame)] px-4 py-6 md:px-8 md:py-7">
+          <main
+            data-scroll-area
+            className="min-h-0 flex-1 overflow-y-auto bg-[var(--shell-frame)] px-4 py-6 md:px-8 md:py-7"
+          >
             <div className="w-full">
               {breadcrumbs && <div className="mb-5 flex justify-start">{breadcrumbs}</div>}
               {children}
