@@ -1,29 +1,39 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
-import { Input, Select, useLocale } from "@pte/ui";
+import { useState, type ReactElement, type ReactNode } from "react";
+import { Select, useLocale } from "@pte/ui";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
 import type { Question } from "@/features/questionbank/types";
 import { EXAM_STUDIO_TEXT, KANBAN_COLUMN_MAX_SIZE } from "../constants";
 import { useKanbanMoves } from "../hooks/useKanbanMoves";
-import { useSettled } from "../hooks/useSettled";
+import { useStudioLocation } from "../hooks/useStudioLocation";
+import { useUrlSearch } from "../hooks/useUrlSearch";
 import { columnOf, KANBAN_COLUMNS, moveVerdict, type KanbanColumn } from "../kanbanTransitions";
 import { formatRelativeTime } from "../relativeTime";
 import type { StudioTile } from "../types";
+import { BoardToolbar } from "./_BoardToolbar";
+import { CefrFilter, SectionFilter } from "./_BoardFilters";
 import { KanbanColumnView } from "./_KanbanColumn";
 
 interface KanbanTabProps {
   tiles: StudioTile[];
   templatePublicId: string;
+  /** What starts the toolbar row, such as the choice of board. */
+  leading?: ReactNode;
 }
 
-export const KanbanTab = ({ tiles, templatePublicId }: KanbanTabProps): ReactElement => {
+export const KanbanTab = ({ tiles, templatePublicId, leading }: KanbanTabProps): ReactElement => {
   const text = useAdminCopy(EXAM_STUDIO_TEXT);
-  const [taskType, setTaskType] = useState("");
-  const [search, setSearch] = useState("");
-  const query = useSettled(search.trim());
+  const searchText = useAdminSearchText("questionContent");
+  const viewLabel = useAdminCopy("View");
+  const { read, patch } = useStudioLocation();
+  const taskType = read("kt") ?? "";
+  const section = read("ks") ?? "";
+  const cefrLevel = read("kc") ?? "";
+  const { input: search, setInput: setSearch, settled: query } = useUrlSearch("kq");
   // The card being dragged is kept whole: it may come from a column the others do not load.
   const [dragged, setDragged] = useState<Question | null>(null);
   const { move, isMoving } = useKanbanMoves(templatePublicId);
@@ -45,25 +55,34 @@ export const KanbanTab = ({ tiles, templatePublicId }: KanbanTabProps): ReactEle
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-[var(--ink-secondary)]">{text.KANBAN_HINT}</p>
-      <div className="flex flex-wrap items-end gap-3">
+      <BoardToolbar
+        searchLabel={searchText.ariaLabel}
+        placeholder={searchText.placeholder}
+        search={search}
+        onSearch={setSearch}
+        end={leading}
+      >
+        <SectionFilter
+          value={section}
+          // A task type of another section no longer applies once the section changes.
+          onChange={(value) => patch({ ks: value || null, kt: null })}
+        />
         <Select
-          id="studio-kanban-task-type"
-          label={text.KANBAN_ALL_TYPES}
+          aria-label={text.KANBAN_ALL_TYPES}
           value={taskType}
-          onChange={(event) => setTaskType(event.target.value)}
+          onChange={(event) => patch({ kt: event.target.value || null })}
+          size="md"
+          variant="table"
+          className="min-w-[190px]"
           options={[
             { value: "", label: text.KANBAN_ALL_TYPES },
-            ...tiles.map((tile) => ({ value: tile.key, label: tile.type.displayName })),
+            ...tiles
+              .filter((tile) => section === "" || tile.type.section === section)
+              .map((tile) => ({ value: tile.key, label: tile.type.displayName })),
           ]}
         />
-        <Input
-          id="studio-kanban-search"
-          label={text.KANBAN_SEARCH}
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-      </div>
+        <CefrFilter value={cefrLevel} onChange={(value) => patch({ kc: value || null })} />
+      </BoardToolbar>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
         {KANBAN_COLUMNS.map((column) => (
           <KanbanColumnView
@@ -71,9 +90,13 @@ export const KanbanTab = ({ tiles, templatePublicId }: KanbanTabProps): ReactEle
             column={column}
             title={titles[column]}
             taskType={taskType}
+            section={section}
+            cefrLevel={cefrLevel}
             query={query}
             emptyLabel={text.EMPTY_COLUMN}
             loadError={text.KANBAN_LOAD_ERROR}
+            viewLabel={viewLabel}
+            dragLabel={text.KANBAN_DRAG}
             moreLabel={(remaining) => text.KANBAN_MORE.replace("{count}", String(remaining))}
             limitLabel={text.KANBAN_LIMIT.replace("200", String(KANBAN_COLUMN_MAX_SIZE))}
             draggingId={dragged?.id ?? null}

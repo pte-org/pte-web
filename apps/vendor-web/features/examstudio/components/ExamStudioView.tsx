@@ -24,11 +24,12 @@ import {
 import { EXAM_TEMPLATE_BASE_PATH } from "@/features/scoretemplate/constants";
 import { buildStudioModel } from "../buildStudioModel";
 import { EXAM_STUDIO_TEXT, STUDIO_TABS } from "../constants";
+import { useStudioLocation } from "../hooks/useStudioLocation";
 import type { StudioTab } from "../types";
 import { isEditableTemplate, pickWorkingTemplate, selectableTemplates } from "../workingTemplate";
 import { ComposeTab } from "./ComposeTab";
 import { SERVER_STATUS } from "./questionStatus";
-import { KanbanTab } from "./KanbanTab";
+import { BoardTab } from "./BoardTab";
 import { StudioDrawer } from "./StudioDrawer";
 import { TimelineTab } from "./TimelineTab";
 import { CoverageTab } from "./_CoverageTab";
@@ -40,8 +41,7 @@ const TABS_ID = "exam-studio-tabs";
 export const ExamStudioView = (): ReactElement => {
   const text = useAdminCopy(EXAM_STUDIO_TEXT);
   const { showToast } = useToast();
-  const [tab, setTab] = useState<StudioTab>(STUDIO_TABS.COVERAGE);
-  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const { tab, selectedKey, setTab, setSelectedKey } = useStudioLocation();
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [composeSection, setComposeSection] = useState<string | undefined>(undefined);
   const templates = useScoreTemplates();
@@ -98,7 +98,7 @@ export const ExamStudioView = (): ReactElement => {
     }
     switch (tab) {
       case STUDIO_TABS.KANBAN:
-        return <KanbanTab tiles={model.tiles} templatePublicId={template.publicId} />;
+        return <BoardTab tiles={model.tiles} templatePublicId={template.publicId} />;
       case STUDIO_TABS.COMPOSE:
         return <ComposeTab tiles={model.tiles} initialSection={composeSection} />;
       case STUDIO_TABS.TIMELINE:

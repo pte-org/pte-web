@@ -2,6 +2,7 @@ import { EXAM_TEMPLATE_SECTIONS } from "../scoretemplate/constants";
 
 export const EXAM_STUDIO_ROUTE = "/admin/exam-studio";
 export const QUESTION_ROUTE = "/admin/questions";
+export const QUESTION_TYPES_ROUTE = "/admin/question-types";
 export const NEW_QUESTION_ROUTE = `${QUESTION_ROUTE}/new`;
 
 export const STUDIO_SECTIONS = EXAM_TEMPLATE_SECTIONS;
@@ -87,12 +88,24 @@ export const EXAM_STUDIO_TEXT = {
   INCREASE: "More",
   TABS_LABEL: "Content Hub views",
   TAB_COVERAGE: "Coverage map",
-  TAB_KANBAN: "Question board",
+  TAB_KANBAN: "Approval workflow",
   TAB_COMPOSE: "Compose with preview",
   TAB_TIMELINE: "Exam timeline",
-  KANBAN_HINT: "Drag a card to the next column to move a question through review.",
-  KANBAN_SEARCH: "Search questions",
   KANBAN_ALL_TYPES: "All task types",
+  KIND_LABEL: "Board of",
+  KIND_QUESTIONS: "Question bank",
+  KIND_TASK_TYPES: "Task types",
+  KIND_TEMPLATES: "Exam templates",
+  BOARD_LOAD_ERROR: "Could not load the board.",
+  TEMPLATE_TASK_TYPES: "{count} task types",
+  FILTER_ALL_SECTIONS: "All sections",
+  FILTER_CEFR: "CEFR",
+  FILTER_ALL_SCORING: "All scoring modes",
+  FILTER_SCORED: "Scored",
+  FILTER_UNSCORED: "Not scored",
+  APPROVE_ACTIVATE: "Approve and activate",
+  APPROVED_NOT_ACTIVATED: "Approved, but it could not be activated:",
+  KANBAN_DRAG: "Drag to the next step",
   KANBAN_MORE: "Show {count} more",
   KANBAN_LIMIT: "Showing the first 200. Narrow the board with the filters.",
   KANBAN_LOAD_ERROR: "Could not load the question board.",

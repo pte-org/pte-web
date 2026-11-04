@@ -19,6 +19,8 @@ export interface Question {
   updatedAt?: string;
   /** CEFR level the question is written for; null until classified. */
   cefrLevel?: string | null;
+  /** Who wrote the question; resolved to a name from the platform user directory. */
+  authorId?: string | null;
 }
 
 export interface QuestionStats {

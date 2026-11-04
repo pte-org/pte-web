@@ -91,6 +91,7 @@ function mapQuestion(response: QuestionResponse): Question {
     deleteBlockReason: response.deleteBlockReason,
     updatedAt: response.updatedAt,
     cefrLevel: response.cefrLevel ?? null,
+    authorId: response.authorUserPublicId ?? null,
   };
 }
 
@@ -144,6 +145,7 @@ export function useQuestions(
       filters.status ?? "",
       filters.pool ?? "",
       filters.q ?? "",
+      filters.cefrLevel ?? "",
       page,
       size,
     ],

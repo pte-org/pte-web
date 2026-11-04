@@ -32,3 +32,6 @@ export interface StudioGap {
 }
 
 export type StudioTab = "coverage" | "kanban" | "compose" | "timeline";
+
+/** The kind of content the hub is following. */
+export type StudioKind = "questions" | "taskTypes" | "templates";

@@ -57,7 +57,7 @@ export const TemplateSection = ({ tile }: TemplateSectionProps): ReactElement =>
 
   return (
     <div className="space-y-3">
-      <dl className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+      <dl className="flex flex-wrap items-baseline justify-start gap-x-6 gap-y-1">
         {facts.map((fact) => (
           <div key={fact.label} className="flex items-baseline gap-1.5">
             <dt className="text-xs text-[var(--ink-muted)]">{fact.label}</dt>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type ReactElement } from "react";
+import type { ReactElement } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Alert,
@@ -25,14 +25,10 @@ import {
 import type { QuestionStatus } from "@/features/questionbank/types";
 import { SCORE_TEMPLATE_QUERY_KEY } from "@/features/scoretemplate/constants";
 import { cefrTone } from "@/lib/chipTones";
-import {
-  EXAM_STUDIO_ROUTE,
-  EXAM_STUDIO_TEXT,
-  QUESTION_ROUTE,
-  STUDIO_QUESTION_PAGE_SIZE,
-} from "../constants";
+import { EXAM_STUDIO_TEXT, QUESTION_ROUTE, STUDIO_QUESTION_PAGE_SIZE } from "../constants";
 import type { StudioTile } from "../types";
-import { useSettled } from "../hooks/useSettled";
+import { useUrlSearch } from "../hooks/useUrlSearch";
+import { useStudioLocation } from "../hooks/useStudioLocation";
 import { SERVER_STATUS, STATUS_BADGE, statusLabelsOf } from "./questionStatus";
 
 interface QuestionsSectionProps {
@@ -67,13 +63,13 @@ export const QuestionsSection = ({
   const text = useAdminCopy(EXAM_STUDIO_TEXT);
   const statusLabels = statusLabelsOf(text);
   const router = useRouter();
+  const { here, read, patch } = useStudioLocation();
   const { showToast } = useToast();
   const queryClient = useQueryClient();
   const { data: currentUser } = useCurrentUser();
-  const [filter, setFilter] = useState<string>(ALL);
-  const [search, setSearch] = useState("");
-  const [page, setPage] = useState(0);
-  const query = useSettled(search.trim());
+  const filter = read("qs") ?? ALL;
+  const page = Number(read("qp") ?? 0) || 0;
+  const { input: search, setInput: setSearch, settled: query } = useUrlSearch("qq", ["qp"]);
   const status = filter === ALL ? null : (filter as QuestionStatus);
   const questions = useQuestions(
     {
@@ -125,10 +121,7 @@ export const QuestionsSection = ({
           })),
         ]}
         value={filter}
-        onChange={(value) => {
-          setFilter(value);
-          setPage(0);
-        }}
+        onChange={(value) => patch({ qs: value === ALL ? null : value, qp: null })}
         className="px-2"
       />
       <div className="border-t border-[var(--shell-border)] p-2">
@@ -137,10 +130,7 @@ export const QuestionsSection = ({
           aria-label={text.QUESTION_SEARCH}
           placeholder={text.QUESTION_SEARCH}
           value={search}
-          onChange={(event) => {
-            setSearch(event.target.value);
-            setPage(0);
-          }}
+          onChange={(event) => setSearch(event.target.value)}
         />
       </div>
       {questions.isLoading && <LoadingState />}
@@ -156,7 +146,7 @@ export const QuestionsSection = ({
               <button
                 type="button"
                 onClick={() =>
-                  router.push(`${QUESTION_ROUTE}/${question.id}?from=${EXAM_STUDIO_ROUTE}`)
+                  router.push(`${QUESTION_ROUTE}/${question.id}?from=${encodeURIComponent(here)}`)
                 }
                 className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-2 text-left transition hover:bg-[var(--action-tint)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35"
                 title={question.content}
@@ -201,7 +191,7 @@ export const QuestionsSection = ({
           <Pagination
             currentPage={page + 1}
             totalPages={totalPages}
-            onPageChange={(next) => setPage(next - 1)}
+            onPageChange={(next) => patch({ qp: next > 1 ? String(next - 1) : null })}
             sideLayout="icon"
           />
         </div>

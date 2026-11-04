@@ -2,37 +2,29 @@
 
 import { useRouter } from "next/navigation";
 import { useState, type DragEvent, type ReactElement } from "react";
-import { Alert, Button, Chip, LockIcon, LoadingState, cn } from "@pte/ui";
+import { Alert, Button, Chip, EyeIcon, LockIcon, LoadingState, cn } from "@pte/ui";
 import { useQuestions } from "@/features/questionbank/api";
 import type { Question } from "@/features/questionbank/types";
 import { cefrTone, sectionTone } from "@/lib/chipTones";
-import {
-  EXAM_STUDIO_ROUTE,
-  KANBAN_COLUMN_PAGE_SIZE,
-  KANBAN_COLUMN_MAX_SIZE,
-  QUESTION_ROUTE,
-} from "../constants";
+import { KANBAN_COLUMN_PAGE_SIZE, KANBAN_COLUMN_MAX_SIZE, QUESTION_ROUTE } from "../constants";
 import { STATUS_OF_COLUMN, type KanbanColumn, type MoveVerdict } from "../kanbanTransitions";
+import { useAuthorNames } from "../hooks/useAuthorNames";
+import { useStudioLocation } from "../hooks/useStudioLocation";
+import { BoardCard } from "./_BoardCard";
+import {
+  BOARD_COLUMN_FRAME,
+  BOARD_COUNT_CLASS,
+  BOARD_HEADER_CLASS,
+  BOARD_TONE,
+  type BoardTone,
+} from "./boardTone";
 import { SERVER_STATUS } from "./questionStatus";
 
-/** What marks each column: the colour of its top edge, its count and its tint while a card hovers over it. */
-const COLUMN_TONE: Record<KanbanColumn, { edge: string; count: string }> = {
-  draft: {
-    edge: "border-t-[var(--ink-muted)]",
-    count: "bg-[var(--surface-card)] text-[var(--ink-secondary)]",
-  },
-  pending: {
-    edge: "border-t-[var(--cream-action)]",
-    count: "bg-[var(--cream-tint)] text-[var(--cream-action)]",
-  },
-  approved: {
-    edge: "border-t-[var(--mint-action)]",
-    count: "bg-[var(--mint-tint)] text-[var(--mint-action)]",
-  },
-  archived: {
-    edge: "border-t-[var(--sky-action)]",
-    count: "bg-[var(--sky-tint)] text-[var(--sky-action)]",
-  },
+const COLUMN_TONE: Record<KanbanColumn, BoardTone> = {
+  draft: "neutral",
+  pending: "warning",
+  approved: "success",
+  archived: "info",
 };
 
 interface KanbanColumnViewProps {
@@ -40,9 +32,15 @@ interface KanbanColumnViewProps {
   title: string;
   /** What narrows the cards; the server does the filtering, so a column holds only what matches. */
   taskType: string;
+  section: string;
+  cefrLevel: string;
   query: string;
   emptyLabel: string;
   loadError: string;
+  /** The label of the "open" entry in a card's menu. */
+  viewLabel: string;
+  /** The hint on a card's drag grip. */
+  dragLabel: string;
   /** "Show N more" for the button that loads further cards. */
   moreLabel: (remaining: number) => string;
   /** Shown when the column holds as many cards as the board will load; the filters narrow it down. */
@@ -67,9 +65,13 @@ export const KanbanColumnView = ({
   column,
   title,
   taskType,
+  section,
+  cefrLevel,
   query,
   emptyLabel,
   loadError,
+  viewLabel,
+  dragLabel,
   moreLabel,
   limitLabel,
   draggingId,
@@ -81,12 +83,16 @@ export const KanbanColumnView = ({
   onDropOn,
 }: KanbanColumnViewProps): ReactElement => {
   const router = useRouter();
+  const authorName = useAuthorNames();
+  const { here } = useStudioLocation();
   const [isOver, setIsOver] = useState(false);
   const [size, setSize] = useState(KANBAN_COLUMN_PAGE_SIZE);
   const result = useQuestions(
     {
       status: SERVER_STATUS[STATUS_OF_COLUMN[column]],
       taskType: taskType || undefined,
+      section: section || undefined,
+      cefrLevel: cefrLevel || undefined,
       q: query || undefined,
     },
     0,
@@ -94,7 +100,7 @@ export const KanbanColumnView = ({
   );
   const cards = result.data?.data ?? [];
   const total = result.data?.meta.totalElements ?? 0;
-  const tone = COLUMN_TONE[column];
+  const tone = BOARD_TONE[COLUMN_TONE[column]];
   // A column that cannot take the dragged card does not accept a drop, so the browser shows
   // the "not allowed" cursor straight away instead of the user finding out after letting go.
   const accepts = verdict === null || verdict === "allowed";
@@ -116,18 +122,18 @@ export const KanbanColumnView = ({
       onDragLeave={() => setIsOver(false)}
       onDrop={handleDrop}
       className={cn(
-        "flex min-h-64 flex-col gap-2 rounded-xl border-t-4 bg-[var(--surface-subtle)] p-3 outline-2 outline-dashed outline-transparent transition",
-        tone.edge,
+        "flex min-h-64 flex-col gap-3 outline-2 outline-dashed outline-transparent transition",
+        BOARD_COLUMN_FRAME,
+        tone.column,
         verdict === "allowed" && "outline-[var(--brand)]/40",
         isOver && "bg-[var(--action-tint)] outline-[var(--brand)]",
         (verdict === "needs-reviewer" || verdict === "not-a-step") && "opacity-60",
       )}
     >
-      <h3 className="flex items-center justify-between text-sm font-semibold text-[var(--ink-primary)]">
+      <h3 className={BOARD_HEADER_CLASS}>
+        <span className={cn("h-2 w-2 rounded-full", tone.dot)} aria-hidden="true" />
         {title}
-        <span className={cn("rounded-full px-2 py-0.5 text-xs font-semibold", tone.count)}>
-          {total}
-        </span>
+        <span className={BOARD_COUNT_CLASS}>({total})</span>
       </h3>
       {verdict === "needs-reviewer" && (
         <p className="flex items-center gap-1.5 text-xs text-[var(--ink-secondary)]">
@@ -140,40 +146,49 @@ export const KanbanColumnView = ({
       {!result.isLoading && !result.isError && cards.length === 0 && (
         <p className="text-xs text-[var(--ink-muted)]">{emptyLabel}</p>
       )}
-      <div className="flex max-h-[65vh] flex-col gap-2 overflow-y-auto pr-0.5">
+      <div className="flex max-h-[65vh] flex-col gap-3 overflow-y-auto pr-0.5">
         {cards.map((question) => (
-          <article
+          <BoardCard
             key={question.id}
             draggable
+            grip
+            gripLabel={dragLabel}
             onDragStart={(event) => {
               event.dataTransfer.setData("text/plain", question.id);
               onDragStart(question);
             }}
             onDragEnd={onDragEnd}
             onClick={() =>
-              router.push(`${QUESTION_ROUTE}/${question.id}?from=${EXAM_STUDIO_ROUTE}`)
+              router.push(`${QUESTION_ROUTE}/${question.id}?from=${encodeURIComponent(here)}`)
             }
             className={cn(
-              "cursor-grab space-y-1.5 rounded-lg border border-[var(--shell-border)] border-l-4 bg-[var(--surface-card)] p-3 shadow-sm transition hover:shadow-md active:cursor-grabbing",
-              SKILL_EDGE[question.skill],
+              "cursor-grab active:cursor-grabbing",
               draggingId === question.id && "opacity-40",
             )}
-          >
-            <div className="flex flex-wrap items-center gap-1.5">
-              <Chip tone={sectionTone(question.skill)} size="sm">
-                {question.taskType}
-              </Chip>
-              {question.cefrLevel && (
-                <Chip tone={cefrTone(question.cefrLevel)} size="sm">
-                  {question.cefrLevel}
+            tags={
+              <>
+                <Chip tone={sectionTone(question.skill)} size="sm">
+                  {question.taskType}
                 </Chip>
-              )}
-            </div>
-            <p className="line-clamp-3 text-sm text-[var(--ink-primary)]">{question.content}</p>
-            {question.updatedAt && (
-              <p className="text-[11px] text-[var(--ink-muted)]">{updatedLabel(question)}</p>
-            )}
-          </article>
+                {question.cefrLevel && (
+                  <Chip tone={cefrTone(question.cefrLevel)} size="sm">
+                    {question.cefrLevel}
+                  </Chip>
+                )}
+              </>
+            }
+            title={question.content}
+            menu={[
+              {
+                label: viewLabel,
+                icon: EyeIcon,
+                onSelect: () =>
+                  router.push(`${QUESTION_ROUTE}/${question.id}?from=${encodeURIComponent(here)}`),
+              },
+            ]}
+            authorName={authorName(question.authorId)}
+            meta={question.updatedAt ? updatedLabel(question) : undefined}
+          />
         ))}
         {total > cards.length && size < KANBAN_COLUMN_MAX_SIZE && (
           <Button
@@ -195,12 +210,4 @@ export const KanbanColumnView = ({
       </div>
     </section>
   );
-};
-
-/** The left edge of a card takes the colour of its skill, so the mix of a column reads at a glance. */
-const SKILL_EDGE: Record<Question["skill"], string> = {
-  speaking: "border-l-violet-500",
-  writing: "border-l-cyan-500",
-  reading: "border-l-green-500",
-  listening: "border-l-orange-500",
 };
