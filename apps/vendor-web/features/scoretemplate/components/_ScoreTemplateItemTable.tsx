@@ -4,7 +4,7 @@ import type { ReactElement, ReactNode } from "react";
 import {
   Button,
   DataTable,
-  GripVerticalIcon,
+  RowDragPreview,
   TrashIcon,
   DropZone,
   SectionedTableCard,
@@ -181,12 +181,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
                       const row = allRows.find((candidate) => candidate.item.taskTypeKey === key);
                       if (row) props.onRemove(row.index);
                     },
-                    renderPreview: (key) => (
-                      <div className="flex cursor-grabbing items-center gap-2 rounded-lg border border-[var(--brand)] bg-[var(--surface-card)] px-3 py-2 font-mono text-xs shadow-lg">
-                        <GripVerticalIcon className="h-4 w-4 text-[var(--ink-muted)]" />
-                        {key}
-                      </div>
-                    ),
+                    renderPreview: (key) => <RowDragPreview label={key} />,
                   }
                 : undefined
             }

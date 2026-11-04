@@ -69,7 +69,7 @@ export function TemplateReadinessSummary({
     otherSlots.length === 0 &&
     shortSlots.length > 0;
   if (onlyShortage) {
-    return <p className="text-sm text-red-700">{poolSummary}</p>;
+    return <p className="text-sm text-[var(--blush-action)]">{poolSummary}</p>;
   }
 
   return (

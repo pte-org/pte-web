@@ -44,18 +44,20 @@ export const ActivateTemplateModal = ({
         </>
       }
     >
-      <p className="text-sm text-gray-600">{SCORE_TEMPLATE_TEXT.ACTIVATE_MODAL_WARNING}</p>
+      <p className="text-sm text-[var(--ink-secondary)]">
+        {SCORE_TEMPLATE_TEXT.ACTIVATE_MODAL_WARNING}
+      </p>
       {errorMessage && (
         <Alert tone="error" className="mt-4">
           {errorMessage}
         </Alert>
       )}
       {template && (
-        <div className="mt-4 rounded-lg bg-gray-50 p-3">
-          <p className="font-semibold text-gray-900">
+        <div className="mt-4 rounded-lg bg-[var(--surface-subtle)] p-3">
+          <p className="font-semibold text-[var(--ink-primary)]">
             {template.code} v{template.version}
           </p>
-          <p className="text-sm text-gray-600">{template.name}</p>
+          <p className="text-sm text-[var(--ink-secondary)]">{template.name}</p>
         </div>
       )}
     </Modal>

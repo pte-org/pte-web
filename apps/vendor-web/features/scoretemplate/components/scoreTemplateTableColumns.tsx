@@ -1,5 +1,5 @@
 import { Fragment, type ReactElement } from "react";
-import { Badge, Chip, type DataTableColumn } from "@pte/ui";
+import { Badge, Chip, TableNumberInput, type DataTableColumn } from "@pte/ui";
 import { sectionTone } from "../../../lib/chipTones";
 import type { SCORE_TEMPLATE_ITEM_HEADERS } from "../constants";
 import type { PoolSlot } from "../poolAvailability";
@@ -17,12 +17,6 @@ export type ScoreTemplateTableRow = { item: ScoreTemplateItem; index: number };
 
 type ItemHeaders = Record<keyof typeof SCORE_TEMPLATE_ITEM_HEADERS, string>;
 
-// The spin buttons are dropped: they take about 15px of a field that is only 56 to 64px wide
-// and clip the last digit of a value like 15.84. The arrow keys still step the value.
-const INPUT_BASE_CLASS =
-  "rounded-md border border-[var(--control-border)] bg-[var(--surface-card)] px-2 py-1 text-sm text-[var(--ink-primary)] outline-none focus:border-[var(--brand)] [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none";
-const WEIGHT_INPUT_CLASS = `w-16 ${INPUT_BASE_CLASS}`;
-const PAIR_INPUT_CLASS = `w-14 ${INPUT_BASE_CLASS}`;
 const WEIGHT_STEP = "0.01";
 
 /** A SNAKE_CASE key with a line-break opportunity after each underscore. */
@@ -95,15 +89,14 @@ export function buildScoreTemplateColumns({
     row: ScoreTemplateTableRow,
     field: keyof ScoreTemplateItemDraft,
     label: string,
-    className: string,
+    width: "sm" | "md",
     step?: string,
   ): ReactElement | null =>
     onChange ? (
-      <input
-        type="number"
+      <TableNumberInput
         step={step}
         aria-label={label}
-        className={className}
+        width={width}
         value={fieldValue(row.item, field)}
         onChange={(event) => onChange(row.index, field, event.target.value)}
       />
@@ -123,9 +116,9 @@ export function buildScoreTemplateColumns({
     cell: (row) =>
       onChange ? (
         <div className="flex items-center gap-1.5">
-          {numberInput(row, first.field, first.label, PAIR_INPUT_CLASS)}
+          {numberInput(row, first.field, first.label, "sm")}
           <span aria-hidden="true">{separator}</span>
-          {numberInput(row, second.field, second.label, PAIR_INPUT_CLASS)}
+          {numberInput(row, second.field, second.label, "sm")}
         </div>
       ) : (
         `${fieldValue(row.item, first.field)} ${separator} ${fieldValue(row.item, second.field)}`
@@ -140,7 +133,8 @@ export function buildScoreTemplateColumns({
     header,
     sortable: false,
     cell: (row) =>
-      numberInput(row, field, header, `w-20 ${INPUT_BASE_CLASS}`, "1") ?? fieldValue(row.item, field),
+      numberInput(row, field, header, "md", "1") ??
+      fieldValue(row.item, field),
   });
 
   const weightColumn = (
@@ -164,8 +158,7 @@ export function buildScoreTemplateColumns({
         ),
       sortable: false,
       cell: (row) =>
-        numberInput(row, field, header, WEIGHT_INPUT_CLASS, WEIGHT_STEP) ??
-        fieldValue(row.item, field),
+        numberInput(row, field, header, "sm", WEIGHT_STEP) ?? fieldValue(row.item, field),
     };
   };
 

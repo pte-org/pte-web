@@ -9,6 +9,7 @@ import {
 } from "@pte/api-client";
 import {
   Alert,
+  ItemPalette,
   LoadingState,
   UnsavedChangesGuard,
   useDashboardBreadcrumbLabel,
@@ -16,6 +17,7 @@ import {
   useToast,
 } from "@pte/ui";
 import { translateAdminText, useAdminCopy } from "@/features/i18n/adminCopy";
+import { sectionTone } from "@/lib/chipTones";
 import {
   useActivateScoreTemplate,
   useReplaceScoreTemplateItems,
@@ -34,10 +36,12 @@ import {
 import {
   EXAM_TEMPLATE_BASE_PATH,
   EXAM_TEMPLATE_SECTIONS,
+  PALETTE_DROP_ATTRIBUTE,
   SCORE_TEMPLATE_ALL_TAB,
   PLATFORM_TEMPLATE_POLICY,
   SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
   SCORE_TEMPLATE_VALIDATION_FAILED_CODE,
+  TASK_TYPE_DRAG_TYPE,
 } from "../constants";
 import { createDraftSnapshot } from "../draftSnapshot";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
@@ -52,7 +56,6 @@ import {
   type ScoreTemplateResponse,
 } from "../types";
 import { ActivateTemplateModal } from "./ActivateTemplateModal";
-import { TaskTypePalette } from "./_TaskTypePalette";
 import { ScoreTemplateItemTable } from "./_ScoreTemplateItemTable";
 import { TemplateCefrDialog } from "./TemplateCefrDialog";
 import { TemplateDurationSummary } from "./TemplateDurationSummary";
@@ -332,11 +335,6 @@ const ScoreTemplateEditorForm = ({
         failed={isFeasibilityError}
       />
 
-      <TemplateDurationSummary
-        parts={feasibility?.parts}
-        totalMaxSeconds={feasibility?.totalMaxSeconds}
-      />
-
       <ScoreTemplateItemTable
         editable
         items={items}
@@ -345,16 +343,22 @@ const ScoreTemplateEditorForm = ({
         onReorder={handleReorderItems}
         onRemove={handleRemoveType}
         sidePanel={
-          <TemplateInfoPanel
-            template={template}
-            defaultOpen={false}
-            name={name}
-            nameError={nameError}
-            onNameChange={(value) => {
-              setName(value);
-              setNameError(undefined);
-            }}
-          />
+          <>
+            <TemplateInfoPanel
+              template={template}
+              defaultOpen={false}
+              name={name}
+              nameError={nameError}
+              onNameChange={(value) => {
+                setName(value);
+                setNameError(undefined);
+              }}
+            />
+            <TemplateDurationSummary
+              parts={feasibility?.parts}
+              totalMaxSeconds={feasibility?.totalMaxSeconds}
+            />
+          </>
         }
         renderToolbarAction={() => (
           <TemplateToolbarActions
@@ -371,23 +375,33 @@ const ScoreTemplateEditorForm = ({
           <p className="text-sm text-[var(--ink-muted)]">{SCORE_TEMPLATE_TEXT.DROP_HINT}</p>
         )}
         renderPalette={(activeTab) => (
-          <TaskTypePalette
+          <ItemPalette
             title={SCORE_TEMPLATE_TEXT.PALETTE_TITLE}
             hint={SCORE_TEMPLATE_TEXT.PALETTE_HINT}
             addLabel={SCORE_TEMPLATE_TEXT.ADD_TYPE}
             emptyText={paletteEmptyText(activeTab)}
-            types={findPaletteTypes(
+            entries={findPaletteTypes(
               questionTypes,
               items,
               activeTab,
               EXAM_TEMPLATE_SECTIONS,
               SCORE_TEMPLATE_ALL_TAB,
-            )}
+            ).map((type) => ({
+              id: taskTypeKey(type),
+              label: type.displayName,
+              section: type.section,
+            }))}
             grouped={activeTab === SCORE_TEMPLATE_ALL_TAB}
             sectionLabel={(section) =>
               sectionLabels[section as keyof typeof sectionLabels] ?? section
             }
-            onAdd={handleAddType}
+            sectionTone={sectionTone}
+            dragType={TASK_TYPE_DRAG_TYPE}
+            dropAttribute={PALETTE_DROP_ATTRIBUTE}
+            onAdd={(key) => {
+              const type = questionTypes.find((candidate) => taskTypeKey(candidate) === key);
+              if (type) handleAddType(type);
+            }}
           />
         )}
         onDropTaskType={(key) => {
