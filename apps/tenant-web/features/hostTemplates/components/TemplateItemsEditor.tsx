@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import type { ScoreTemplateItemRequest } from "@pte/api-client";
 import { DataTable, SectionedTableCard } from "@pte/ui";
 import { SKILLS } from "../constants";
@@ -13,6 +13,8 @@ import {
 } from "./templateItemColumns";
 
 interface TemplateItemsEditorProps {
+  /** Shown under the skill rail, such as the template's details. */
+  sidePanel?: ReactNode;
   items: readonly ScoreTemplateItemRequest[];
   editable: boolean;
   onRemove: (taskTypeKey: string) => void;
@@ -32,6 +34,7 @@ const SECTION_ORDER = ["SPEAKING", "WRITING", "READING", "LISTENING"] as const;
  * structure (counts, stock) and the weights of every skill.
  */
 export const TemplateItemsEditor = ({
+  sidePanel,
   items,
   editable,
   onRemove,
@@ -57,6 +60,7 @@ export const TemplateItemsEditor = ({
       ]}
       defaultView="STRUCTURE"
       viewAriaLabel={text.VIEW_LABEL}
+      sidePanel={() => sidePanel}
     >
       {({ activeTab, showSection, view, viewTabs }) => (
         <DataTable

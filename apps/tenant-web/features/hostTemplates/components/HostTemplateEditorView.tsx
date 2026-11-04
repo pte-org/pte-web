@@ -34,7 +34,7 @@ import {
   toEditableItems,
 } from "../utils/weights";
 import { BalanceWeightsDialog } from "./BalanceWeightsDialog";
-import { HostTemplateInfoDialog } from "./HostTemplateInfoDialog";
+import { HostTemplateInfoPanel } from "./HostTemplateInfoPanel";
 import { TemplateItemsEditor } from "./TemplateItemsEditor";
 
 interface HostTemplateEditorViewProps {
@@ -87,7 +87,6 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
     toEditableItems(template.items),
   );
   const [balanceOpen, setBalanceOpen] = useState(false);
-  const [infoOpen, setInfoOpen] = useState(false);
   const [activateOpen, setActivateOpen] = useState(false);
 
   const save = useReplaceHostTemplateItems(template.publicId);
@@ -174,7 +173,6 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
           <ActionMenu
             label={text.ACTIONS_LABEL}
             items={[
-              { label: text.INFO_TITLE, onSelect: () => setInfoOpen(true) },
               ...(editable
                 ? [
                     { label: text.BALANCE, onSelect: () => setBalanceOpen(true) },
@@ -205,6 +203,14 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
           )}
         </div>
         <TemplateItemsEditor
+          sidePanel={
+            <HostTemplateInfoPanel
+              template={template}
+              editable={editable}
+              name={name}
+              onNameChange={setName}
+            />
+          }
           items={items}
           editable={editable}
           isWeightEditable={isWeightEditable}
@@ -216,14 +222,6 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
         />
       </section>
 
-      <HostTemplateInfoDialog
-        open={infoOpen}
-        onClose={() => setInfoOpen(false)}
-        template={template}
-        editable={editable}
-        name={name}
-        onNameChange={setName}
-      />
       <BalanceWeightsDialog
         open={balanceOpen}
         onClose={() => setBalanceOpen(false)}
