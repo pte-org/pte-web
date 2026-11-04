@@ -190,9 +190,7 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
         </div>
       </div>
 
-      {!editable && (
-        <Alert tone="info">{isDefault ? text.DEFAULT_READ_ONLY : text.READ_ONLY}</Alert>
-      )}
+      {!editable && !isDefault && <Alert tone="info">{text.READ_ONLY}</Alert>}
       {submitError && <Alert tone="error">{submitError}</Alert>}
       {items.length === 0 && <Alert tone="warning">{text.NO_TASKS}</Alert>}
 

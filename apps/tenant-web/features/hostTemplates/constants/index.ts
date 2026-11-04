@@ -72,8 +72,6 @@ export const EDITOR_TEXT = {
   BACK: "Back to templates",
   NOT_FOUND: "Template not found.",
   READ_ONLY: "Only a draft can be edited. Duplicate this template to change it.",
-  DEFAULT_READ_ONLY:
-    "This is the platform default template and cannot be edited. You can choose it when creating an exam, or create a new template from it to remove task types.",
   NAME_LABEL: "Template name",
   ALL_SECTIONS: "All sections",
   VIEW_LABEL: "Table view",

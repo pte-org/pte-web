@@ -1048,7 +1048,6 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.hostTemplates.list.STATUS_PENDING_APPROVAL": "Chờ duyệt",
     "tenant.hostTemplates.list.DEFAULT_BADGE": "Mặc định",
     "tenant.hostTemplates.list.DEFAULT_HINT": "Do hệ thống cung cấp. Bạn có thể chọn mẫu này khi tạo kỳ thi, hoặc tạo mẫu mới từ nó.",
-    "tenant.hostTemplates.editor.DEFAULT_READ_ONLY": "Đây là mẫu mặc định của hệ thống nên không chỉnh sửa được. Bạn có thể chọn mẫu này khi tạo kỳ thi, hoặc tạo mẫu mới từ nó để bỏ bớt dạng bài.",
     "tenant.hostTemplates.editor.BACK": "Quay lại danh sách mẫu",
     "tenant.hostTemplates.editor.NOT_FOUND": "Không tìm thấy mẫu.",
     "tenant.hostTemplates.editor.READ_ONLY": "Chỉ chỉnh được bản nháp. Hãy nhân bản mẫu này để thay đổi.",
