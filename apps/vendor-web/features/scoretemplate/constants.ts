@@ -21,7 +21,6 @@ export const SCORE_TEMPLATE_TEXT = {
   CREATE_MODAL_TITLE: "Create exam template",
   CODE_LABEL: "Code",
   INFO_TITLE: "Template information",
-  INFO_DONE: "Done",
   INFO_VERSION: "Version",
   INFO_STATUS: "Status",
   INFO_CREATED_BY: "Created by",

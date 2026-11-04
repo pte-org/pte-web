@@ -38,7 +38,6 @@ const render = (props: {
       null,
       createElement(TemplateToolbarActions, {
         onSave: noop,
-        onOpenInfo: noop,
         onOpenTimeFrame: noop,
         onOpenCefrMix: noop,
         isSaving: props.isSaving ?? false,
@@ -62,14 +61,15 @@ describe("TemplateToolbarActions", () => {
     expect(html.match(/<button/g)).toHaveLength(1);
   });
 
-  it("offers the template information to everyone, and Activate only to reviewers", () => {
+  it("offers the time frame and the CEFR mix to everyone, and Activate only to reviewers", () => {
     const html = render({ canActivate: false });
-    expect(html).toContain(">Template information</li>");
+    // The template's details sit under the skill rail now, not in this menu.
+    expect(html).not.toContain("Template information");
     expect(html).toContain(">Time frame</li>");
     expect(html).toContain(">CEFR mix</li>");
     expect(html).not.toContain("Activate");
     expect(html).not.toContain("Add task type");
-    expect(render({ canActivate: true })).toContain(">Template information</li>");
+    expect(render({ canActivate: true })).toContain(">Time frame</li>");
   });
 
   it("disables the Activate entry until the template is ready", () => {

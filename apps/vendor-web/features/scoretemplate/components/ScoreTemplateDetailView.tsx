@@ -15,6 +15,7 @@ import {
 import type { ScoreTemplateStatusFilter } from "../types";
 import { ActivateTemplateModal } from "./ActivateTemplateModal";
 import { ScoreTemplateItemTable } from "./_ScoreTemplateItemTable";
+import { TemplateInfoPanel } from "./TemplateInfoPanel";
 
 interface ScoreTemplateDetailViewProps {
   publicId: string;
@@ -96,7 +97,11 @@ export const ScoreTemplateDetailView = ({
         </Alert>
       )}
 
-      <ScoreTemplateItemTable editable={false} items={template.items} />
+      <ScoreTemplateItemTable
+        editable={false}
+        items={template.items}
+        sidePanel={<TemplateInfoPanel template={template} defaultOpen />}
+      />
 
       <ActivateTemplateModal
         template={isActivateOpen ? template : null}

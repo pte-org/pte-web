@@ -7,7 +7,6 @@ import { SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT } from "../constants";
 
 interface TemplateToolbarActionsProps {
   onSave: () => void;
-  onOpenInfo: () => void;
   onOpenTimeFrame: () => void;
   onOpenCefrMix: () => void;
   isSaving: boolean;
@@ -20,13 +19,12 @@ interface TemplateToolbarActionsProps {
 
 /**
  * What the editor can do to the template. Save stays a visible button because it is used
- * constantly; the rest is rare, so it lives in the actions menu: the template's details for
- * everyone, and activating (which retires the current ACTIVE template) for reviewers only.
+ * constantly; the rest is rare, so it lives in the actions menu: the time frame and the CEFR mix, and
+ * activating (which retires the current ACTIVE template) for reviewers only.
  * Task types are added by dragging them in.
  */
 export const TemplateToolbarActions = ({
   onSave,
-  onOpenInfo,
   onOpenTimeFrame,
   onOpenCefrMix,
   isSaving,
@@ -44,7 +42,6 @@ export const TemplateToolbarActions = ({
       <ActionMenu
         label={T.TEMPLATE_ACTIONS_LABEL}
         items={[
-          { label: T.INFO_TITLE, onSelect: onOpenInfo },
           { label: T.MENU_TIME_FRAME, onSelect: onOpenTimeFrame },
           { label: T.MENU_CEFR_MIX, onSelect: onOpenCefrMix },
           ...(canActivate

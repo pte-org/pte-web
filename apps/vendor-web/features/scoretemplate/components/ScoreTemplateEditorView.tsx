@@ -56,7 +56,7 @@ import { TaskTypePalette } from "./_TaskTypePalette";
 import { ScoreTemplateItemTable } from "./_ScoreTemplateItemTable";
 import { TemplateCefrDialog } from "./TemplateCefrDialog";
 import { TemplateDurationSummary } from "./TemplateDurationSummary";
-import { TemplateInfoDialog } from "./TemplateInfoDialog";
+import { TemplateInfoPanel } from "./TemplateInfoPanel";
 import { TemplateTimeFrameDialog } from "./TemplateTimeFrameDialog";
 import { TemplateReadinessSummary } from "./TemplateReadinessSummary";
 import { TemplateToolbarActions } from "./TemplateToolbarActions";
@@ -180,7 +180,6 @@ const ScoreTemplateEditorForm = ({
   const activateMutation = useActivateScoreTemplate();
   const canActivate = canReviewAcademic(currentUser?.roles);
   const [name, setName] = useState(template.name);
-  const [infoOpen, setInfoOpen] = useState(false);
   const [timeFrameOpen, setTimeFrameOpen] = useState(false);
   const [cefrOpen, setCefrOpen] = useState(false);
   const [items, setItems] = useState<ScoreTemplateItemDraft[]>(() => template.items.map(toDraft));
@@ -230,7 +229,6 @@ const ScoreTemplateEditorForm = ({
   const handleSaveDraft = (): void => {
     if (!name.trim()) {
       setNameError(SCORE_TEMPLATE_TEXT.NAME_REQUIRED);
-      setInfoOpen(true);
       showToast(SCORE_TEMPLATE_TEXT.NAME_REQUIRED, { tone: "error" });
       return;
     }
@@ -346,10 +344,21 @@ const ScoreTemplateEditorForm = ({
         onChange={handleItemChange}
         onReorder={handleReorderItems}
         onRemove={handleRemoveType}
+        sidePanel={
+          <TemplateInfoPanel
+            template={template}
+            defaultOpen={false}
+            name={name}
+            nameError={nameError}
+            onNameChange={(value) => {
+              setName(value);
+              setNameError(undefined);
+            }}
+          />
+        }
         renderToolbarAction={() => (
           <TemplateToolbarActions
             onSave={handleSaveDraft}
-            onOpenInfo={() => setInfoOpen(true)}
             onOpenTimeFrame={() => setTimeFrameOpen(true)}
             onOpenCefrMix={() => setCefrOpen(true)}
             isSaving={replaceItemsMutation.isPending}
@@ -394,18 +403,6 @@ const ScoreTemplateEditorForm = ({
       />
 
       <TemplateCefrDialog open={cefrOpen} onClose={() => setCefrOpen(false)} template={template} />
-
-      <TemplateInfoDialog
-        open={infoOpen}
-        onClose={() => setInfoOpen(false)}
-        template={template}
-        name={name}
-        nameError={nameError}
-        onNameChange={(value) => {
-          setName(value);
-          setNameError(undefined);
-        }}
-      />
 
       <UnsavedChangesGuard
         isDirty={hasUnsavedChanges}
