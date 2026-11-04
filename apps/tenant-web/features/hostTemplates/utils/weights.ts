@@ -135,3 +135,29 @@ export function buildWeightEditableCheck(
 export function formatWeight(value: number): string {
   return Number.isInteger(value) ? String(value) : value.toFixed(2).replace(/\.?0+$/, "");
 }
+
+/** The task types of the default template that this template no longer holds, in the default's order. */
+export function findAddableItems(
+  baseItems: readonly ScoreTemplateItemRequest[],
+  items: readonly ScoreTemplateItemRequest[],
+): ScoreTemplateItemRequest[] {
+  const held = new Set(items.map((item) => item.taskTypeKey));
+  return baseItems.filter((item) => !held.has(item.taskTypeKey));
+}
+
+/**
+ * Puts a task type of the default template back, with the counts, times and weights the default gives it,
+ * in the default's order; `sequence` stays contiguous. A task type the default does not have is not added.
+ */
+export function addBackItem(
+  items: readonly ScoreTemplateItemRequest[],
+  baseItems: readonly ScoreTemplateItemRequest[],
+  taskTypeKey: string,
+): ScoreTemplateItemRequest[] {
+  const base = baseItems.find((item) => item.taskTypeKey === taskTypeKey);
+  if (!base || items.some((item) => item.taskTypeKey === taskTypeKey)) return [...items];
+  const order = new Map(baseItems.map((item, index) => [item.taskTypeKey, index]));
+  return [...items, base]
+    .sort((a, b) => (order.get(a.taskTypeKey) ?? 0) - (order.get(b.taskTypeKey) ?? 0))
+    .map((item, index) => ({ ...item, sequence: index + 1 }));
+}

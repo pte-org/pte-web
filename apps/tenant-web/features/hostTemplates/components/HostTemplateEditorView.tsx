@@ -9,12 +9,14 @@ import {
   Button,
   Chip,
   ConfirmDialog,
+  ItemPalette,
   LoadingState,
   useDashboardBreadcrumbLabel,
   useToast,
 } from "@pte/ui";
 import type { ScoreTemplateItemRequest, ScoreTemplateResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
+import { sectionTone } from "@/lib/chipTones";
 import { useActiveScoreTemplate } from "@/features/exams/api";
 import {
   useActivateHostTemplate,
@@ -29,11 +31,16 @@ import {
   areWeightsValid,
   buildWeightEditableCheck,
   computeSkillTotals,
+  addBackItem,
+  findAddableItems,
   removeItem,
   setWeight,
   toEditableItems,
 } from "../utils/weights";
+import { applyVisibleOrder } from "@pte/api-client";
+import { PALETTE_DROP_ATTRIBUTE, TASK_TYPE_DRAG_TYPE } from "../constants";
 import { BalanceWeightsDialog } from "./BalanceWeightsDialog";
+import { HostTemplateDurationSummary } from "./HostTemplateDurationSummary";
 import { HostTemplateInfoPanel } from "./HostTemplateInfoPanel";
 import { TemplateItemsEditor } from "./TemplateItemsEditor";
 
@@ -164,28 +171,6 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
           )}
           <span className="text-sm text-[var(--ink-muted)]">v{template.version}</span>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          {editable && (
-            <Button onClick={handleSave} isLoading={save.isPending} disabled={!canSave}>
-              {text.SAVE}
-            </Button>
-          )}
-          <ActionMenu
-            label={text.ACTIONS_LABEL}
-            items={[
-              ...(editable
-                ? [
-                    { label: text.BALANCE, onSelect: () => setBalanceOpen(true) },
-                    {
-                      label: listText.ACTIVATE,
-                      onSelect: () => setActivateOpen(true),
-                      disabled: dirty || activate.isPending,
-                    },
-                  ]
-                : []),
-            ]}
-          />
-        </div>
       </div>
 
       {!editable && !isDefault && <Alert tone="info">{text.READ_ONLY}</Alert>}
@@ -194,22 +179,81 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
 
       <section className="flex flex-col gap-2">
         <div>
-          <h2 className="text-base font-semibold text-[var(--ink-primary)]">{text.TASKS_TITLE}</h2>
-          {editable && <p className="text-xs text-[var(--ink-muted)]">{text.TASKS_HINT}</p>}
           {editable && shortTypes > 0 && (
-            <p className="mt-1 text-xs text-red-700">
+            <p className="mt-1 text-xs text-[var(--blush-action)]">
               {text.POOL_SUMMARY.replace("{count}", String(shortTypes))}
             </p>
           )}
         </div>
         <TemplateItemsEditor
+          toolbarActions={
+            <>
+              {editable && (
+                <Button onClick={handleSave} isLoading={save.isPending} disabled={!canSave}>
+                  {text.SAVE}
+                </Button>
+              )}
+              {editable && (
+                <ActionMenu
+                  label={text.ACTIONS_LABEL}
+                  items={[
+                    { label: text.BALANCE, onSelect: () => setBalanceOpen(true) },
+                    {
+                      label: listText.ACTIVATE,
+                      onSelect: () => setActivateOpen(true),
+                      disabled: dirty || activate.isPending,
+                    },
+                  ]}
+                />
+              )}
+            </>
+          }
+          onReorder={(keys) => setItems((current) => applyVisibleOrder(current, keys))}
+          renderPalette={
+            isDefault || !baseItems
+              ? undefined
+              : (activeTab) => (
+                  <ItemPalette
+                    title={text.PALETTE_TITLE}
+                    hint={text.PALETTE_HINT}
+                    addLabel={text.ADD_TYPE}
+                    emptyText={text.PALETTE_EMPTY}
+                    entries={findAddableItems(baseItems, items)
+                      .filter((item) => activeTab === "ALL" || item.section === activeTab)
+                      .map((item) => ({
+                        id: item.taskTypeKey,
+                        label: item.taskTypeKey,
+                        section: item.section,
+                      }))}
+                    grouped={activeTab === "ALL"}
+                    sectionLabel={(section) =>
+                      skillLabels[section as keyof typeof skillLabels] ?? section
+                    }
+                    sectionTone={sectionTone}
+                    dragType={TASK_TYPE_DRAG_TYPE}
+                    dropAttribute={PALETTE_DROP_ATTRIBUTE}
+                    onAdd={(key) => setItems((current) => addBackItem(current, baseItems, key))}
+                  />
+                )
+          }
+          onDropTaskType={(key) =>
+            baseItems && setItems((current) => addBackItem(current, baseItems, key))
+          }
           sidePanel={
-            <HostTemplateInfoPanel
-              template={template}
-              editable={editable}
-              name={name}
-              onNameChange={setName}
-            />
+            <>
+              <HostTemplateInfoPanel
+                template={template}
+                editable={editable}
+                name={name}
+                onNameChange={setName}
+              />
+              {!isDefault && (
+                <HostTemplateDurationSummary
+                  parts={feasibility.data?.parts}
+                  totalMaxSeconds={feasibility.data?.totalMaxSeconds}
+                />
+              )}
+            </>
           }
           items={items}
           editable={editable}

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { ScoreTemplateItemRequest } from "@pte/api-client";
-import { Button, Chip, TrashIcon, type DataTableColumn } from "@pte/ui";
+import { Button, Chip, TableNumberInput, TrashIcon, type DataTableColumn } from "@pte/ui";
 import { sectionTone } from "@/lib/chipTones";
 import { SKILLS } from "../constants";
 import type { PoolSlot } from "../utils/pool";
@@ -8,9 +8,6 @@ import { WEIGHT_FIELD } from "../utils/weights";
 
 export type TemplateTableView = "STRUCTURE" | "WEIGHTS";
 type Skill = (typeof SKILLS)[number];
-
-const WEIGHT_INPUT_CLASS =
-  "w-20 rounded border border-[var(--control-border)] bg-[var(--surface-card)] px-2 py-1 text-sm text-[var(--ink-primary)] outline-none focus:border-[var(--action)] disabled:bg-transparent disabled:border-transparent";
 
 /** Number columns stay narrow so the leading task type column takes the slack instead of spreading them apart. */
 const STRUCTURE_COLUMN_CLASS = "w-44";
@@ -21,7 +18,9 @@ const compactColumns = <TRow,>(
   widthClass: string,
 ): DataTableColumn<TRow>[] =>
   columns.map((column, index) =>
-    index === 0 ? column : { ...column, headerClassName: widthClass, cellClassName: widthClass },
+    index === 0
+      ? { ...column, sortable: false }
+      : { ...column, sortable: false, headerClassName: widthClass, cellClassName: widthClass },
   );
 
 interface ColumnOptions {
@@ -86,14 +85,12 @@ export const buildTemplateColumns = (
         return (
           // The tooltip sits on a wrapper: a disabled input does not reliably show its own title.
           <span title={locked ? options.weightLockedText : undefined}>
-            <input
-              type="number"
+            <TableNumberInput
               min={0}
               max={100}
               step="0.01"
               disabled={!options.editable || locked}
               aria-label={`${item.taskTypeKey} ${options.skillLabels[skill]}`}
-              className={WEIGHT_INPUT_CLASS}
               value={item[WEIGHT_FIELD[skill]]}
               onChange={(event) => {
                 const parsed = Number(event.target.value);
@@ -110,6 +107,7 @@ export const buildTemplateColumns = (
     }));
     return compactColumns([task, ...weights], WEIGHT_COLUMN_CLASS);
   }
+  const pool = options.pool;
   const structure: DataTableColumn<ScoreTemplateItemRequest>[] = [
     task,
     {
@@ -119,6 +117,17 @@ export const buildTemplateColumns = (
       cell: (item) =>
         item.minCount === item.maxCount ? item.maxCount : `${item.minCount}–${item.maxCount}`,
     },
+    ...(pool
+      ? [
+          {
+            key: "pool",
+            label: options.headers.pool,
+            header: options.headers.pool,
+            cell: (item: ScoreTemplateItemRequest) =>
+              poolChip(pool.get(item.taskTypeKey), options.poolCopy),
+          },
+        ]
+      : []),
     {
       key: "prepSeconds",
       label: options.headers.prep,
@@ -132,15 +141,6 @@ export const buildTemplateColumns = (
       cell: (item) => item.responseSeconds,
     },
   ];
-  if (options.pool) {
-    const pool = options.pool;
-    structure.push({
-      key: "pool",
-      label: options.headers.pool,
-      header: options.headers.pool,
-      cell: (item) => poolChip(pool.get(item.taskTypeKey), options.poolCopy),
-    });
-  }
   return compactColumns(structure, STRUCTURE_COLUMN_CLASS);
 };
 

@@ -13,11 +13,13 @@ import {
   ConfirmDialog,
   CopyIcon,
   DataTable,
+  DocumentIcon,
   EyeIcon,
+  PencilIcon,
   Input,
   Modal,
-  PageHeader,
   TrashIcon,
+  downloadJson,
   BanIcon,
   type ActionMenuItem,
   type BadgeVariant,
@@ -78,16 +80,30 @@ export const HostTemplatesListView = (): ReactElement => {
   const openRow = (row: TemplateRow): void =>
     router.push(`${HOST_TEMPLATES_ROUTE}/${row.template.publicId}`);
   const buildActions = ({ template, isDefault }: TemplateRow): ActionMenuItem[] => {
+    const isDraft = template.status === "DRAFT";
     const actions: ActionMenuItem[] = [
-      { label: text.OPEN, icon: EyeIcon, onSelect: () => openRow({ template, isDefault }) },
+      {
+        label: isDraft ? text.EDIT : text.OPEN,
+        icon: isDraft ? PencilIcon : EyeIcon,
+        onSelect: () => openRow({ template, isDefault }),
+      },
+      {
+        label: text.EXPORT,
+        icon: DocumentIcon,
+        onSelect: () => downloadJson(`${template.code}-v${template.version}.json`, template),
+      },
     ];
+    // A draft is changed in place; any other template starts a new draft. The default has no copy of its own to
+    // clone, so a new draft from it asks for a name, like the Create button.
+    if (!isDraft) {
+      actions.push({
+        label: text.CLONE,
+        icon: CopyIcon,
+        disabled: !isDefault && clone.isPending,
+        onSelect: () => (isDefault ? setCreateOpen(true) : clone.mutate(template.publicId)),
+      });
+    }
     if (isDefault) return actions;
-    actions.push({
-      label: text.CLONE,
-      icon: CopyIcon,
-      disabled: clone.isPending,
-      onSelect: () => clone.mutate(template.publicId),
-    });
     if (template.status === "DRAFT" || template.status === "RETIRED") {
       actions.push({
         label: text.ACTIVATE,
@@ -103,7 +119,7 @@ export const HostTemplatesListView = (): ReactElement => {
         onSelect: () => setPending({ kind: "retire", template }),
       });
     }
-    if (template.status === "DRAFT") {
+    if (isDraft) {
       actions.push({
         label: text.DELETE,
         icon: TrashIcon,
@@ -146,15 +162,29 @@ export const HostTemplatesListView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={text.TITLE} />
-
       {Boolean(error) && <Alert tone="error">{errorMessage(error, text.LOAD_FAILED)}</Alert>}
       {actionError && <Alert tone="error">{actionError}</Alert>}
 
       <DataTable
         searchPlaceholder={text.SEARCH_PLACEHOLDER}
-        searchAriaLabel={text.SEARCH_PLACEHOLDER}
+        searchAriaLabel={text.SEARCH_ARIA_LABEL}
         columns={[
+          {
+            key: "code",
+            label: text.COL_CODE,
+            header: text.COL_CODE,
+            filterAccessor: (row: TemplateRow) => row.template.code,
+            cell: (row: TemplateRow) => (
+              <span className="font-mono text-xs">{row.template.code}</span>
+            ),
+          },
+          {
+            key: "version",
+            label: text.COL_VERSION,
+            header: text.COL_VERSION,
+            filterAccessor: (row: TemplateRow) => row.template.version,
+            cell: (row: TemplateRow) => row.template.version,
+          },
           {
             key: "name",
             label: text.COL_NAME,
@@ -163,9 +193,6 @@ export const HostTemplatesListView = (): ReactElement => {
             cell: (row: TemplateRow) => (
               <div className="min-w-0">
                 <span className="font-medium">{row.template.name}</span>
-                {row.isDefault && (
-                  <p className="mt-0.5 text-xs text-[var(--ink-muted)]">{text.DEFAULT_HINT}</p>
-                )}
                 {!row.isDefault && typeof row.template.pearsonStandard === "boolean" && (
                   <span
                     className="mt-1 block"
@@ -194,7 +221,9 @@ export const HostTemplatesListView = (): ReactElement => {
             filterAccessor: (row: TemplateRow) => (row.isDefault ? "DEFAULT" : row.template.status),
             cell: (row: TemplateRow) =>
               row.isDefault ? (
-                <Badge variant="info">{text.DEFAULT_BADGE}</Badge>
+                <span title={text.DEFAULT_HINT}>
+                  <Badge variant="info">{text.DEFAULT_BADGE}</Badge>
+                </span>
               ) : (
                 <Badge variant={STATUS_VARIANT[row.template.status] ?? "neutral"}>
                   {statusLabels[row.template.status] ?? row.template.status}
@@ -214,25 +243,9 @@ export const HostTemplatesListView = (): ReactElement => {
         isLoading={isLoading}
         emptyTitle={text.EMPTY_TITLE}
         toolbarActions={<Button onClick={() => setCreateOpen(true)}>{text.CREATE}</Button>}
-        tableClassName="min-w-[640px]"
+        tableClassName="min-w-[720px]"
         rowActionsHeader={text.COL_ACTIONS}
-        rowActions={(row) =>
-          row.isDefault ? (
-            <Button
-              size="sm"
-              variant="primary"
-              appearance="ghost"
-              iconOnly
-              aria-label={text.OPEN}
-              title={text.OPEN}
-              onClick={() => openRow(row)}
-            >
-              <EyeIcon className="h-4 w-4" />
-            </Button>
-          ) : (
-            <ActionMenu items={buildActions(row)} />
-          )
-        }
+        rowActions={(row) => <ActionMenu items={buildActions(row)} />}
       />
 
       <Modal

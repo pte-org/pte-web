@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { ScoreTemplateItemRequest, ScoreTemplateItemResponse } from "@pte/api-client";
 import {
+  addBackItem,
   applySuggestedColumn,
   areWeightsValid,
   buildWeightEditableCheck,
   computeSkillTotals,
+  findAddableItems,
   formatWeight,
   removeItem,
 } from "../../../../../features/hostTemplates/utils/weights";
@@ -90,6 +92,38 @@ describe("editing helpers", () => {
       ["A", 1],
       ["C", 2],
     ]);
+  });
+
+  it("lists the task types of the default that the template no longer holds, in the default's order", () => {
+    const base = [item("A", "SPEAKING", {}, 1), item("B", "WRITING", {}, 2), item("C", "READING", {}, 3)];
+    const held = [item("B", "WRITING", {}, 1)];
+    expect(findAddableItems(base, held).map((row) => row.taskTypeKey)).toEqual(["A", "C"]);
+    expect(findAddableItems(base, base)).toEqual([]);
+  });
+
+  it("puts a task type back in the default's order with the default's values, keeping sequence contiguous", () => {
+    const base = [
+      item("A", "SPEAKING", { speakingWeight: 10 }, 1),
+      item("B", "WRITING", { writingWeight: 20 }, 2),
+      item("C", "READING", { readingWeight: 30 }, 3),
+    ];
+    const held = [item("A", "SPEAKING", { speakingWeight: 99 }, 1), item("C", "READING", {}, 2)];
+    const rows = addBackItem(held, base, "B");
+    expect(rows.map((row) => [row.taskTypeKey, row.sequence])).toEqual([
+      ["A", 1],
+      ["B", 2],
+      ["C", 3],
+    ]);
+    expect(rows[1].writingWeight).toBe(20);
+    // What the host changed on the others is left as it is.
+    expect(rows[0].speakingWeight).toBe(99);
+  });
+
+  it("does not add a task type the default lacks, or one already held", () => {
+    const base = [item("A", "SPEAKING", {}, 1)];
+    const held = [item("A", "SPEAKING", {}, 1)];
+    expect(addBackItem(held, base, "Z")).toEqual(held);
+    expect(addBackItem(held, base, "A")).toEqual(held);
   });
 
   it("applies a suggested column only to the listed tasks", () => {

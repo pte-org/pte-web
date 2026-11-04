@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import type { ScoreTemplateResponse } from "@pte/api-client";
-import { Input, useLocale } from "@pte/ui";
+import { InfoPanel, Input, useLocale } from "@pte/ui";
 import { useEditorText } from "../hooks/useTemplateText";
 
 interface HostTemplateInfoPanelProps {
@@ -23,7 +23,7 @@ const formatTimestamp = (instant: string | null | undefined, locale: string): st
   }).format(date);
 };
 
-/** The template's own details, under the skill rail: its name (editable on a draft), version and dates. */
+/** The details of a centre's template: its name (editable on a draft), version and dates. */
 export const HostTemplateInfoPanel = ({
   template,
   editable,
@@ -32,20 +32,16 @@ export const HostTemplateInfoPanel = ({
 }: HostTemplateInfoPanelProps): ReactElement => {
   const text = useEditorText();
   const { locale } = useLocale();
-  const rows = [
-    { label: text.INFO_VERSION, value: `v${template.version}` },
-    { label: text.INFO_CREATED, value: formatTimestamp(template.createdAt, locale) },
-    { label: text.INFO_UPDATED, value: formatTimestamp(template.updatedAt, locale) },
-  ];
 
   return (
-    <section
-      aria-label={text.INFO_TITLE}
-      className="space-y-3 rounded-xl border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-3"
+    <InfoPanel
+      title={text.INFO_TITLE}
+      rows={[
+        { label: text.INFO_VERSION, value: `v${template.version}` },
+        { label: text.INFO_CREATED, value: formatTimestamp(template.createdAt, locale) },
+        { label: text.INFO_UPDATED, value: formatTimestamp(template.updatedAt, locale) },
+      ]}
     >
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">
-        {text.INFO_TITLE}
-      </h3>
       <Input
         id="host-template-name"
         label={text.NAME_LABEL}
@@ -54,14 +50,6 @@ export const HostTemplateInfoPanel = ({
         disabled={!editable}
         onChange={(event) => onNameChange(event.target.value)}
       />
-      <dl className="space-y-2">
-        {rows.map((row) => (
-          <div key={row.label}>
-            <dt className="text-xs text-[var(--ink-muted)]">{row.label}</dt>
-            <dd className="text-sm font-medium text-[var(--ink-primary)]">{row.value}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
+    </InfoPanel>
   );
 };
