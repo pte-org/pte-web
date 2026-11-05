@@ -1,0 +1,17 @@
+"use client";
+import type { ReactElement } from "react";
+import { ErrorState, LoadingState, TableRoot, TableHeader, TableHead, TableBody, TableCell, TableRow } from "@pte/ui";
+import { useRubricActivationHistory } from "../versionApi";
+import type { RubricEditText } from "../versionTypes";
+
+interface ActivationHistoryProps { id: string; text: RubricEditText }
+export const ActivationHistory = ({ id, text: T }: ActivationHistoryProps): ReactElement => {
+  const query = useRubricActivationHistory(id);
+  return <section className="space-y-3"><h2>{T.history}</h2>
+    {query.isLoading && <LoadingState rows={2} />}{query.isError && <ErrorState title={T.error} />}
+    {query.data?.length === 0 && <p>{T.emptyHistory}</p>}
+    {Boolean(query.data?.length) && <TableRoot><TableHeader><TableRow><TableHead>{T.actor}</TableHead><TableHead>{T.time}</TableHead><TableHead>{T.diff}</TableHead></TableRow></TableHeader>
+      <TableBody>{query.data?.map((row) => <TableRow key={row.publicId}><TableCell>{row.actorUserPublicId}</TableCell>
+        <TableCell>{row.activatedAt}</TableCell><TableCell>{row.diffSummary}</TableCell></TableRow>)}</TableBody></TableRoot>}
+  </section>;
+};
