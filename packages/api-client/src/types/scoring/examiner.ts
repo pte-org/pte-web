@@ -1,3 +1,4 @@
+import type { ExaminerRubricResponse } from "./examinerWorkflow";
 import type { AiScoreDetailResponse } from "./index";
 
 export type ExaminerQueueStatus = "ALL" | "PENDING" | "IN_PROGRESS" | "COMPLETED";
@@ -15,6 +16,9 @@ export type ExaminerAiAvailability = "AVAILABLE" | "PENDING" | "FAILED" | "UNAVA
 export type ExaminerDecisionKind = "CONFIRM_AI" | "MANUAL" | "LEGACY_IMPORTED";
 
 export interface ExaminerAiReferenceResponse {
+  traitMaxima?: Record<string, number>;
+  traitScores?: Record<string, number>;
+  rubricVersionPublicId?: string | null;
   availability: ExaminerAiAvailability;
   score: number | null;
   version: string | null;
@@ -23,6 +27,8 @@ export interface ExaminerAiReferenceResponse {
 }
 
 export interface ExaminerDecisionResponse {
+  traitScores?: Record<string, number>;
+  rubricVersionPublicId?: string | null;
   decisionKind: ExaminerDecisionKind;
   /** Alias for backward compatibility */
   kind?: ExaminerDecisionKind;
@@ -123,6 +129,7 @@ export interface ExaminerAnswerPayloadResponse {
 }
 
 export interface ExaminerAnswerDetailResponse {
+  rubric?: ExaminerRubricResponse | null;
   answerPublicId: string;
   taskType: string;
   prompt: ExaminerPromptResponse;
@@ -159,212 +166,5 @@ export type ExaminerGradingIssueType =
 
 export type ExaminerGradingIssueStatus = "OPEN" | "RESOLVED";
 
-export interface ExaminerDraftResponse {
-  answerPublicId: string;
-  draftVersion: number;
-  score: number | null;
-  comment: string | null;
-  decisionKind: ExaminerDecisionKind | null;
-  expectedReviewVersion: string | null;
-  reviewedAiVersion: string | null;
-  savedAt: string;
-  /** True for a draft inherited from the previous Examiner; saving it again clears the flag. */
-  carriedOver: boolean;
-}
 
-export interface ExaminerWorkflowView {
-  mode: "ATOMIC_DRAFT" | string;
-  status: ExaminerWorkflowStatus;
-  workVersion: number;
-  startedAt: string | null;
-  finalizedAt: string | null;
-  readOnly: boolean;
-  canStart: boolean;
-  canSaveDraft: boolean;
-  canFinalize: boolean;
-  blockingReason: string | null;
-  drafts: ExaminerDraftResponse[];
-}
-
-export interface ExaminerAttemptDetailResponse {
-  attemptPublicId: string;
-  sessionPublicId: string;
-  assignedAt: string;
-  eligibleAnswerCount: number;
-  submittedAnswerCount: number;
-  answers: ExaminerAnswerDetailResponse[];
-  cohortMode?: string | null;
-  markingMode?: string | null;
-  cohortStatus: string | null;
-  publicationState: "UNPUBLISHED" | "PUBLISHED" | "DRAFT";
-  canFinalize: boolean;
-  blockingReason: string | null;
-  workflow?: ExaminerWorkflowView | null;
-  sessionName?: string | null;
-  attemptOrdinal?: number;
-}
-
-export interface ExaminerCommandReceiptChild {
-  answerPublicId: string;
-  requestPublicId: string;
-}
-
-export interface ExaminerCommandReceiptResponse {
-  requestPublicId: string;
-  operation: ExaminerGradingOperation;
-  committedAt: string;
-  workVersion: number;
-  answerPublicId?: string | null;
-  draftVersion?: number | null;
-  childRequests?: ExaminerCommandReceiptChild[];
-}
-
-export interface ExaminerCommandResponse {
-  receipt: ExaminerCommandReceiptResponse;
-  current: ExaminerWorkflowView;
-  draft?: ExaminerDraftResponse | null;
-}
-
-export interface StartExaminerWorkRequest {
-  requestPublicId: string;
-  expectedWorkVersion: number;
-}
-
-export interface SaveExaminerDraftRequest {
-  requestPublicId: string;
-  expectedWorkVersion: number;
-  expectedDraftVersion: number;
-  score: number | null;
-  comment?: string | null;
-  decisionKind?: ExaminerDecisionKind | null;
-  expectedReviewVersion?: string | null;
-  reviewedAiVersion?: string | null;
-}
-
-export interface FinalizeExaminerWorkItem {
-  answerPublicId: string;
-  expectedDraftVersion: number;
-  expectedReviewVersion?: string | null;
-  reviewedAiVersion?: string | null;
-}
-
-export interface FinalizeExaminerWorkRequest {
-  requestPublicId: string;
-  expectedWorkVersion: number;
-  answers: FinalizeExaminerWorkItem[];
-}
-
-export interface ReportGradingIssueRequest {
-  requestPublicId: string;
-  expectedWorkVersion: number;
-  answerPublicId?: string | null;
-  type: ExaminerGradingIssueType;
-  description: string;
-}
-
-export interface ResolveGradingIssueRequest {
-  requestPublicId: string;
-  resolution: string;
-}
-
-export interface ExaminerGradingIssueResponse {
-  issuePublicId: string;
-  sessionPublicId: string;
-  attemptPublicId: string;
-  answerPublicId: string | null;
-  type: ExaminerGradingIssueType;
-  description: string;
-  status: ExaminerGradingIssueStatus;
-  reportedAt: string;
-  resolvedAt: string | null;
-  resolution: string | null;
-}
-
-export interface ExaminerHistoryItemResponse {
-  eventPublicId: string;
-  sessionPublicId: string;
-  attemptPublicId: string;
-  answerPublicId: string | null;
-  operation: ExaminerGradingOperation;
-  occurredAt: string;
-  workVersion: number;
-  draftVersion: number | null;
-  actorPublicId?: string | null;
-  actorRole?: string | null;
-  assignmentPublicId?: string | null;
-  previousScore?: number | null;
-  newScore?: number | null;
-  rubricVersion?: number | null;
-  reason?: string | null;
-}
-
-export interface ExaminerReportSummary {
-  finalizedCount: number;
-  inProgressCount: number;
-  pendingCount: number;
-  totalAssignedCount: number;
-  avgGradingDurationMinutes: number;
-  regradeCount: number;
-}
-
-export interface ExaminerReportTaskTypeBreakdown {
-  taskType: string;
-  totalQuestions: number;
-  scoredQuestions: number;
-  averageScore: number | null;
-}
-
-export interface ExaminerReportRecentItem {
-  attemptPublicId: string;
-  sessionPublicId: string;
-  finalizedAt: string;
-  scoreCount: number;
-  averageScore: number | null;
-  workVersion: number;
-  sessionName?: string | null;
-  attemptOrdinal?: number;
-}
-
-export interface ExaminerReportsResponse {
-  summary: ExaminerReportSummary;
-  taskTypeBreakdowns: ExaminerReportTaskTypeBreakdown[];
-  recentFinalizedItems: ExaminerReportRecentItem[];
-}
-
-export interface ExaminerHistoryResponse {
-  items: ExaminerHistoryItemResponse[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-}
-
-export interface ExaminerTemplateGuidelineItem {
-  examDefinitionPublicId: string;
-  items: unknown[];
-}
-
-export interface ExaminerGuidelinesResponse {
-  scaleMin: number;
-  scaleMax: number;
-  limitation: string;
-  templates: ExaminerTemplateGuidelineItem[];
-}
-
-export interface SubmitExaminerScoreRequest {
-  score: number;
-  decisionKind?: ExaminerDecisionKind;
-  reviewedAiVersion?: string | null;
-  expectedReviewVersion?: string;
-  requestPublicId?: string;
-}
-
-export interface ExaminerScoreSubmissionResponse {
-  answerPublicId: string;
-  myScore: number;
-  status: "SUBMITTED" | string;
-  submittedAt: string;
-  decision?: ExaminerDecisionResponse | null;
-  selectedScoreSource?: string | null;
-  reviewVersion: string | null;
-}
+export * from "./examinerWorkflow";
