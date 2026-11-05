@@ -6,6 +6,9 @@ import type {
 
 export interface DraftEntry {
   score: string;
+  traitScores?: Record<string, number | null>;
+  itemScore?: number | null;
+  scoreTrace?: import("@pte/api-client").ScoreTraceResponse | null;
   comment?: string;
   decisionKind: ExaminerDecisionKind;
   reviewedAiVersion: string | null;

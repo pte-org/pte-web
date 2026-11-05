@@ -63,13 +63,14 @@ export const AiReferencePanel = ({
             variant="secondary"
             appearance="outline"
             disabled={disabled}
-            onClick={() => onApplyAiScore(reference.score as number, reference.version)}
+            onClick={() => { if (reference.score !== null) onApplyAiScore(reference.score, reference.version); }}
           >
             {T.USE_AI_SCORE}
           </Button>
         )}
       </div>
 
+      <ul className="mt-3 text-xs">{Object.entries(reference.traitScores ?? {}).map(([key, value]) => <li key={key}>{key}: {value}{reference.traitMaxima?.[key] !== undefined ? ` / ${reference.traitMaxima[key]}` : ""}</li>)}</ul>
       <div className="mt-3 flex flex-wrap items-baseline gap-4 text-sm">
         <div className="flex items-baseline gap-1">
           <span className="text-xs text-slate-500">{T.SCORE_LABEL_SHORT}</span>
