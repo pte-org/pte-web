@@ -7,6 +7,7 @@ import { useAttemptReviews } from "../api/attemptReviews";
 import { ATTEMPT_TABLE_HEADERS, ATTEMPTS_SECTION_TEXT as T } from "../constants/attemptReviews";
 import { AnswersSection } from "./AnswersSection";
 import { AttemptScoreSummary } from "./AttemptScoreSummary";
+import { ScoreExplanationLink } from "@/features/scoreexplanation/components";
 
 function formatDateTime(value: string, locale: "vi" | "en"): string {
   const date = new Date(value);
@@ -138,14 +139,21 @@ export const AttemptsSection = ({ sessionPublicId }: AttemptsSectionProps): Reac
       emptyTitle={t("tenant.attempts.empty", T.EMPTY_TITLE)}
       rowActionsHeader={t("tenant.answers.actions", ATTEMPT_TABLE_HEADERS.ACTIONS)}
       rowActions={(row) => (
-        <Button
-          type="button"
-          variant="secondary"
-          className="whitespace-nowrap"
-          onClick={() => setSelectedId(row.attemptPublicId)}
-        >
-          {t("tenant.attempts.viewAnswers", T.VIEW)}
-        </Button>
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            className="whitespace-nowrap"
+            onClick={() => setSelectedId(row.attemptPublicId)}
+          >
+            {t("tenant.attempts.viewAnswers", T.VIEW)}
+          </Button>
+          <ScoreExplanationLink
+            role="HOST_ADMIN"
+            sessionPublicId={sessionPublicId}
+            attemptPublicId={row.attemptPublicId}
+          />
+        </div>
       )}
     />
   );

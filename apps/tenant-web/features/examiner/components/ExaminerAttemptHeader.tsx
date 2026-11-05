@@ -2,6 +2,7 @@
 
 import type { ReactElement } from "react";
 import { Alert, BackButton } from "@pte/ui";
+import { ScoreExplanationLink } from "@/features/scoreexplanation/components";
 import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
 interface ExaminerAttemptHeaderProps {
@@ -11,6 +12,8 @@ interface ExaminerAttemptHeaderProps {
   eligibleCount: number;
   statusBadge?: React.ReactNode;
   actions?: React.ReactNode;
+  /** Opens the score explanation of this attempt; the backend checks the examiner's assignment. */
+  scoreExplanation?: { sessionPublicId: string; attemptPublicId: string };
   onBack: () => void;
 }
 
@@ -21,6 +24,7 @@ export const ExaminerAttemptHeader = ({
   eligibleCount,
   statusBadge,
   actions,
+  scoreExplanation,
   onBack,
 }: ExaminerAttemptHeaderProps): ReactElement => {
   const T = useExaminerWorkText();
@@ -44,7 +48,12 @@ export const ExaminerAttemptHeader = ({
             {T.PROGRESS_LABEL}: {submittedCount}/{eligibleCount}
           </p>
         </div>
-        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+        {(actions || scoreExplanation) && (
+          <div className="flex flex-wrap items-center gap-2">
+            {scoreExplanation && <ScoreExplanationLink role="EXAMINER" {...scoreExplanation} />}
+            {actions}
+          </div>
+        )}
       </div>
 
       {publicationState === "PUBLISHED" && (
