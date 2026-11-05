@@ -1,6 +1,7 @@
 import type { SimulationTextMetrics } from "@pte/api-client";
 
 export interface SimulatorState {
+  selectedTraits: string[];
   traitScores: Record<string, number>;
   textMetrics: SimulationTextMetrics;
   wordCount: number;
