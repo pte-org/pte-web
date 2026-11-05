@@ -29,14 +29,13 @@ const mapping = (overrides: Partial<AzureMappingResponse> = {}): AzureMappingRes
 });
 
 describe("TraitTable", () => {
-  it("shows every trait's scale, scorer, weight, pages and folded level descriptions", () => {
+  it("shows every trait's scale, scorer, weight and folded level descriptions", () => {
     const html = render(
       createElement(TraitTable, {
         traits: [
           trait("CONTENT", 6, false, {
             displayNameVi: "Nội dung",
             weight: 6,
-            pearsonPages: "20-21",
             levels: [
               { level: 0, text: "Does not deal properly with the prompt." },
               { level: 6, text: "Fully addresses the prompt." },
@@ -49,7 +48,6 @@ describe("TraitTable", () => {
     expect(html).toContain("Nội dung");
     expect(html).toContain("Phát âm");
     expect(html).toContain("Azure chấm phát âm");
-    expect(html).toContain("20-21");
     expect(html).toContain("<details");
     expect(html).toContain("Fully addresses the prompt.");
     expect(html.indexOf("Mức 6")).toBeLessThan(html.indexOf("Mức 0"));
@@ -130,7 +128,7 @@ describe("gates, form, objective rule and weights", () => {
   it("shows the objective formula from the API", () => {
     const html = render(
       createElement(ObjectiveRuleCard, {
-        rule: { code: "PLUS_MINUS", descriptionVi: "+1 mỗi đáp án đúng, −1 mỗi đáp án sai, thấp nhất 0.", pearsonPages: "35" },
+        rule: { code: "PLUS_MINUS", descriptionVi: "+1 mỗi đáp án đúng, −1 mỗi đáp án sai, thấp nhất 0." },
       }),
     );
     expect(html).toContain("+1 mỗi đáp án đúng");

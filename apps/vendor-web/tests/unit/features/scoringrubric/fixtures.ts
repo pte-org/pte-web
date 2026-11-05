@@ -17,7 +17,6 @@ export const trait = (
   maxScore,
   perWord,
   source: "AI_LLM",
-  pearsonPages: "20-21",
   weight: maxScore ?? 1,
   levels: [],
   ...overrides,
@@ -30,7 +29,6 @@ export const rubric = (
 ): TaskTypeRubricResponse => ({
   taskType,
   skills,
-  pearsonPages: "15-16",
   versionPublicId: "version-1",
   versionNo: 1,
   catalogVersion: 1,

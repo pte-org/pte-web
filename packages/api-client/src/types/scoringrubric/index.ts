@@ -41,7 +41,6 @@ export interface RubricTraitDetailsResponse {
   maxScore: number | null;
   perWord: boolean;
   source: RubricTraitSource | string;
-  pearsonPages: string;
   weight: number;
   levels: RubricLevelResponse[];
 }
@@ -63,7 +62,6 @@ export interface RubricFormBandResponse {
 export interface RubricObjectiveRuleResponse {
   code: string;
   descriptionVi: string;
-  pearsonPages: string;
 }
 
 /** The lowest Azure score (0-100, inclusive) that earns a band of Pronunciation or Oral Fluency. */
@@ -93,7 +91,6 @@ export interface AzureMappingResponse {
 export interface TaskTypeRubricResponse {
   taskType: string;
   skills: string[];
-  pearsonPages: string;
   versionPublicId: string;
   versionNo: number;
   catalogVersion: number;

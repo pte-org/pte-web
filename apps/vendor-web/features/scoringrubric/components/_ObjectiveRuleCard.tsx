@@ -11,14 +11,13 @@ interface ObjectiveRuleCardProps {
 
 /** The answer-key formula as the rubric catalog describes it; it is not configurable. */
 export const ObjectiveRuleCard = ({ rule }: ObjectiveRuleCardProps): ReactElement => {
-  const { messages: M, format } = useScoringRubricText();
+  const { messages: M } = useScoringRubricText();
 
   return (
     <RubricSection title={M.objectiveTitle}>
       <p className="text-sm text-[var(--ink-primary)]">{rule.descriptionVi}</p>
       <p className="text-xs text-[var(--ink-secondary)]">
-        {M.objectiveCode}: <span className="font-mono">{rule.code}</span> ·{" "}
-        {format("objectivePages", { pages: rule.pearsonPages })}
+        {M.objectiveCode}: <span className="font-mono">{rule.code}</span>
       </p>
     </RubricSection>
   );

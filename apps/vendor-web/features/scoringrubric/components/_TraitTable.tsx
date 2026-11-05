@@ -57,7 +57,6 @@ export const TraitTable = ({ traits }: TraitTableProps): ReactElement => {
                 <TableHead>{M.traitMax}</TableHead>
                 <TableHead>{M.traitSource}</TableHead>
                 <TableHead>{M.traitWeight}</TableHead>
-                <TableHead>{M.traitPages}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -72,7 +71,6 @@ export const TraitTable = ({ traits }: TraitTableProps): ReactElement => {
                   <TableCell>{trait.perWord ? M.perWordMax : trait.maxScore}</TableCell>
                   <TableCell>{codeLabel("source", trait.source)}</TableCell>
                   <TableCell>{trait.weight}</TableCell>
-                  <TableCell>{trait.pearsonPages}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
