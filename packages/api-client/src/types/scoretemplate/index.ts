@@ -55,6 +55,8 @@ export interface ScoreTemplateResponse {
   standardDeviations?: string[];
   /** CEFR mix exams built from the template aim for; empty means no mix. */
   cefrTargets?: CefrTarget[];
+  /** Scoring rubric version pinned when the template was created; null only for legacy templates. */
+  rubricVersionPublicId?: string | null;
 }
 
 /** Time window of a template in seconds: a range per Pearson part and a ceiling for the whole test. */
