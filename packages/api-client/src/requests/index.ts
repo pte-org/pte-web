@@ -19,6 +19,8 @@ export * from "./scoring/assignments";
 export * from "./reporting/reports";
 export * from "./scoring/examiner";
 export * from "./scoretemplate";
+export * from "./scoringrubric";
+export * from "./scoreexplanation";
 export * from "./hostexamtemplate";
 export * from "./assessment";
 export * from "./admin/organizations";

@@ -15,6 +15,8 @@ export * from "./authoring";
 export * from "./scoring";
 export * from "./reporting";
 export * from "./scoretemplate";
+export * from "./scoringrubric";
+export * from "./scoreexplanation";
 export * from "./assessment";
 export * from "./admin";
 export * from "./billing";
