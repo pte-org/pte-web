@@ -1,4 +1,5 @@
-import { createElement } from "react";
+import { createElement, type ReactElement } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { ExaminerAnswerDetailResponse, ExaminerWorkflowView } from "@pte/api-client";
@@ -24,6 +25,10 @@ import { useExaminerDraftState } from "@/features/examiner/useExaminerDraftState
 import { useExaminerSubmissionActions } from "@/features/examiner/useExaminerSubmissionActions";
 import { useExaminerSubmissions } from "@/features/examiner/useExaminerSubmissions";
 
+/** The submission hooks read the query client (trait drafts refresh the attempt), so every render needs a provider. */
+const renderWithClient = (element: ReactElement): string =>
+  renderToStaticMarkup(createElement(QueryClientProvider, { client: new QueryClient() }, element));
+
 const sampleAnswer: ExaminerAnswerDetailResponse = {
   answerPublicId: "ans-1",
   questionPublicId: "q-1",
@@ -47,7 +52,7 @@ describe("features/examiner - Submission Hooks", () => {
   describe("useExaminerDraftState", () => {
     it("initializes activeDraft from currentAnswer fallback", () => {
       let state!: ReturnType<typeof useExaminerDraftState>;
-      renderToStaticMarkup(
+      renderWithClient(
         createElement(() => {
           state = useExaminerDraftState({
             currentAnswer: sampleAnswer,
@@ -74,7 +79,7 @@ describe("features/examiner - Submission Hooks", () => {
 
     it("handles null currentAnswer cleanly", () => {
       let state!: ReturnType<typeof useExaminerDraftState>;
-      renderToStaticMarkup(
+      renderWithClient(
         createElement(() => {
           state = useExaminerDraftState({ currentAnswer: null });
           return null;
@@ -96,7 +101,7 @@ describe("features/examiner - Submission Hooks", () => {
       let actions!: ReturnType<typeof useExaminerSubmissionActions>;
       const refetchAttempt = vi.fn().mockResolvedValue(undefined);
 
-      renderToStaticMarkup(
+      renderWithClient(
         createElement(() => {
           draftState = useExaminerDraftState({
             currentAnswer: sampleAnswer,
@@ -144,7 +149,7 @@ describe("features/examiner - Submission Hooks", () => {
       let actions!: ReturnType<typeof useExaminerSubmissionActions>;
       const refetchAttempt = vi.fn().mockResolvedValue(undefined);
 
-      renderToStaticMarkup(
+      renderWithClient(
         createElement(() => {
           draftState = useExaminerDraftState({
             currentAnswer: sampleAnswer,
@@ -174,7 +179,7 @@ describe("features/examiner - Submission Hooks", () => {
     it("aggregates draft state and actions", () => {
       let combined!: ReturnType<typeof useExaminerSubmissions>;
 
-      renderToStaticMarkup(
+      renderWithClient(
         createElement(() => {
           combined = useExaminerSubmissions({
             answers: [sampleAnswer],
