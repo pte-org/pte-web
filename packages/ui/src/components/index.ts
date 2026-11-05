@@ -173,3 +173,7 @@ export type { TrendChartBaseProps, TrendChartDatum, TrendChartSeries } from "./t
 export { MailIcon, LockIcon, GradCapIcon, EyeIcon } from "./AuthIcons";
 export { PteOrbitPanel } from "./PteOrbitPanel";
 export type { PteOrbitPanelProps } from "./PteOrbitPanel";
+
+export { OrganizationIcon, PackageIcon, KeyRoundIcon, PanelsTopLeftIcon, ShapesIcon, LayoutTemplateIcon, SlidersHorizontalIcon, CalculatorIcon, LibraryBigIcon, GearIcon, HeadsetIcon, HistoryIcon, MessageSquareTextIcon, ClipboardCheckIcon } from "./SidebarIcons";
+
+export { IdCardIcon, PresentationIcon, ClipboardListIcon, CreditCardIcon } from "./SidebarIcons";
