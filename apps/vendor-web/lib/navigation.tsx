@@ -20,6 +20,7 @@ import {
   PLATFORM_ADMIN_ONLY,
   PLATFORM_OPERATIONS_ROLES,
 } from "@/features/auth/constants";
+import { SCORING_RUBRIC_BASE_PATH } from "@/features/scoringrubric/constants";
 import { ADMIN_NAV_TEXT as T } from "./navigationConstants";
 
 export const ADMIN_NAV: NavItem[] = [
@@ -88,6 +89,16 @@ export const ADMIN_NAV: NavItem[] = [
     sectionKey: "nav.content",
     requiredRoles: ACADEMIC_ROLES,
   },
+  {
+    label: T.SCORING_RUBRIC,
+    labelKey: "nav.scoringRubric",
+    href: SCORING_RUBRIC_BASE_PATH,
+    icon: <NavAuditLogIcon />,
+    section: T.CONTENT_SECTION,
+    sectionKey: "nav.content",
+    requiredRoles: ACADEMIC_ROLES,
+  },
+  { label: T.SCORING_SIMULATOR, labelKey: "nav.scoringSimulator", href: "/admin/scoring-simulator", icon: <NavAuditLogIcon />, section: T.CONTENT_SECTION, sectionKey: "nav.content", requiredRoles: ACADEMIC_ROLES },
   {
     label: T.QUESTION_BANK,
     labelKey: "nav.questionBank",
