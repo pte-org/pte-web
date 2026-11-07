@@ -92,6 +92,7 @@ function mapQuestion(response: QuestionResponse): Question {
     updatedAt: response.updatedAt,
     cefrLevel: response.cefrLevel ?? null,
     authorId: response.authorUserPublicId ?? null,
+    generationMeta: response.generationMeta ?? null,
   };
 }
 
@@ -146,6 +147,7 @@ export function useQuestions(
       filters.pool ?? "",
       filters.q ?? "",
       filters.cefrLevel ?? "",
+      filters.aiGenerated ?? "",
       page,
       size,
     ],

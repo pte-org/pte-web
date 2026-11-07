@@ -21,6 +21,8 @@ export interface Question {
   cefrLevel?: string | null;
   /** Who wrote the question; resolved to a name from the platform user directory. */
   authorId?: string | null;
+  /** AI provenance and review sheet; null for hand-written questions. */
+  generationMeta?: unknown | null;
 }
 
 export interface QuestionStats {
@@ -40,11 +42,13 @@ export interface QuestionStats {
 
 export type QuestionSkillFilter = QuestionSkill | "all";
 export type QuestionStatusFilter = QuestionStatus | "all";
+export type QuestionSourceFilter = "all" | "ai" | "manual";
 
 export interface QuestionFilter {
   query: string;
   skill: QuestionSkillFilter;
   status: QuestionStatusFilter;
+  source: QuestionSourceFilter;
 }
 
 /** Preparation and answer time a task type gets in an exam template. */

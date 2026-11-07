@@ -240,7 +240,14 @@ export const QuestionTable = ({
             label: H.CONTENT,
             header: H.CONTENT,
             filterAccessor: (question) => question.content,
-            cell: (question) => <span className="line-clamp-1 max-w-xl">{question.content}</span>,
+            cell: (question: Question) => (
+              <div className="flex items-center gap-2">
+                <span className="line-clamp-1 max-w-xl">{question.content}</span>
+                {question.generationMeta != null && (
+                  <Badge variant="info">AI Generated</Badge>
+                )}
+              </div>
+            ),
           },
           {
             key: "pool",
