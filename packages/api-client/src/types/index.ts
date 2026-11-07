@@ -27,3 +27,15 @@ export * from "./attendance";
 export * from "./incidents";
 export * from "./dashboard";
 export * from "./location";
+// Question generation (com.pte.itembank.internal.generation)
+export type {
+  QuestionGenerationJobStatus,
+  QuestionGenerationItemStage,
+  QuestionGenerationJobAction,
+  QuestionGenerationTaskTypeResponse,
+  QuestionGenerationItemResponse,
+  QuestionGenerationJobResponse,
+  QuestionGenerationQuotaResponse,
+  QuestionGenerationJobCreateRequest,
+  QuestionGenerationJobStatusRequest,
+} from "./generation";

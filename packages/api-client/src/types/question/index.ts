@@ -77,6 +77,43 @@ export type UpdateQuestionRequest = Omit<CreateQuestionRequest, "pteTaskType" | 
   availableForPractice?: boolean;
 };
 
+export interface GenerationMetricsResponse {
+  words: number;
+  avgSentenceLength: number;
+  fleschKincaid: number;
+}
+
+export interface GenerationMediaResponse {
+  voice: string;
+  speed: number;
+  durationSec: number;
+}
+
+export interface CheckResultResponse {
+  ok: boolean;
+  note?: string | null;
+}
+
+export interface ReviewVerdictResponse {
+  verdict: string;
+  checks: Record<string, CheckResultResponse>;
+  fixSuggestion?: string | null;
+}
+
+export interface GenerationMetaResponse {
+  schema: number;
+  jobPublicId: string;
+  model: Record<string, string>;
+  promptVersion: string;
+  topic: string;
+  attempts: number;
+  review: ReviewVerdictResponse;
+  metrics: GenerationMetricsResponse;
+  keyPoints: string[];
+  media: GenerationMediaResponse;
+  editedByHuman: boolean;
+}
+
 export interface QuestionResponse {
   publicId: string;
   pteTaskType: PteTaskType | string;
@@ -112,6 +149,8 @@ export interface QuestionResponse {
   cefrLevel?: CefrLevel | null;
   /** The academic who wrote the question; null for legacy rows without an owner. */
   authorUserPublicId?: string | null;
+  /** AI provenance and review sheet; null for hand-written questions. Only exposed to authoring callers. */
+  generationMeta?: GenerationMetaResponse | null;
 }
 
 export interface QuestionFilters {
@@ -121,6 +160,7 @@ export interface QuestionFilters {
   pool?: QuestionPool | string;
   q?: string;
   cefrLevel?: CefrLevel | string;
+  aiGenerated?: boolean;
 }
 
 export interface QuestionStatsResponse {

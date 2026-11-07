@@ -50,3 +50,13 @@ export * from "./attendance";
 export * from "./incidents";
 export * from "./dashboard";
 export * from "./location";
+// Question generation (com.pte.itembank.internal.generation)
+export {
+  QUESTION_GENERATION_ENDPOINTS,
+  createQuestionGenerationJob,
+  getQuestionGenerationJob,
+  listQuestionGenerationJobs,
+  updateQuestionGenerationJobStatus,
+  getQuestionGenerationTaskTypes,
+  getQuestionGenerationQuota,
+} from "./generation";
