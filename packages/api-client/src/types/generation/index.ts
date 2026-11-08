@@ -13,7 +13,8 @@ export type QuestionGenerationItemStage =
   | "REVIEWING"
   | "RENDERING_MEDIA"
   | "SAVED"
-  | "FAILED";
+  | "FAILED"
+  | "CANCELLED";
 
 export type QuestionGenerationJobAction = "CANCEL";
 
@@ -49,6 +50,36 @@ export interface QuestionGenerationJobResponse {
   finishedAt: string | null; // ISO 8601
   items: QuestionGenerationItemResponse[];
 }
+
+/** The agent that wrote a piece of text in the live view of a job. */
+export type QuestionGenerationLiveAgent = "GENERATOR" | "REVIEWER";
+
+/** What an agent wrote in its current call for an item, and how many calls it made for it. */
+export interface QuestionGenerationLiveText {
+  attempt: number;
+  text: string;
+}
+
+export interface QuestionGenerationLiveItem {
+  index: number;
+  stage: QuestionGenerationItemStage | null;
+  /** The agent that started last; the writer may rewrite a rejected draft while the stage is still REVIEWING. */
+  activeAgent: QuestionGenerationLiveAgent | null;
+  generator: QuestionGenerationLiveText | null;
+  reviewer: QuestionGenerationLiveText | null;
+  audioRef: string | null;
+  imageRef: string | null;
+}
+
+/** The events of `GET /question-generation/jobs/{id}/live`, by name. */
+export type QuestionGenerationLiveEvent =
+  | { type: "snapshot"; items: QuestionGenerationLiveItem[]; finished: boolean }
+  | { type: "begin"; index: number; agent: QuestionGenerationLiveAgent; attempt: number }
+  | { type: "token"; index: number; agent: QuestionGenerationLiveAgent; delta: string }
+  | { type: "stage"; index: number; stage: QuestionGenerationItemStage }
+  | { type: "media"; index: number; audioRef: string | null; imageRef: string | null }
+  | { type: "item"; index: number }
+  | { type: "end"; finished: boolean };
 
 export interface QuestionGenerationQuotaResponse {
   usedToday: number;

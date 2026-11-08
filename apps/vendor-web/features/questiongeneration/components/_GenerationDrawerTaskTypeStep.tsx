@@ -1,6 +1,6 @@
 "use client";
 
-import { FormField, RadioCard } from "@pte/ui";
+import { FormField, Select } from "@pte/ui";
 import { generationMessages } from "../messages/en";
 import type { GenerationFormState, GenerationTaskType } from "../types";
 
@@ -23,22 +23,17 @@ export const _GenerationDrawerTaskTypeStep = ({
 
   return (
     <FormField label={generationMessages.taskTypeLabel} error={error}>
-      <div className="grid grid-cols-1 gap-3">
-        {taskTypes.length > 0 ? (
-          taskTypes.map((taskType) => (
-            <RadioCard
-              key={taskType.taskType}
-              name="taskType"
-              label={taskType.taskType}
-              hint={`${taskType.needsAudio ? "🔊 " : ""}${taskType.needsImage ? "🖼️ " : ""}`}
-              checked={value === taskType.taskType}
-              onChange={() => onChange(taskType.taskType)}
-            />
-          ))
-        ) : (
-          <p className="text-sm text-gray-500">{generationMessages.taskTypesLoadError}</p>
-        )}
-      </div>
+      {taskTypes.length > 0 ? (
+        <Select
+          name="taskType"
+          aria-label={generationMessages.taskTypeLabel}
+          options={taskTypes.map((taskType) => ({ label: taskType.taskType, value: taskType.taskType }))}
+          value={value ?? ""}
+          onChange={(event) => onChange(event.target.value as GenerationFormState["taskType"])}
+        />
+      ) : (
+        <p className="text-sm text-gray-500">{generationMessages.taskTypesLoadError}</p>
+      )}
     </FormField>
   );
 };

@@ -10,7 +10,16 @@ interface CefrStepProps {
   error?: string;
 }
 
-const CEFR_LEVELS = ["B1", "B2", "C1", "C2"] as const;
+const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
+
+const CEFR_LABELS: Record<(typeof CEFR_LEVELS)[number], string> = {
+  A1: generationMessages.cefrA1,
+  A2: generationMessages.cefrA2,
+  B1: generationMessages.cefrB1,
+  B2: generationMessages.cefrB2,
+  C1: generationMessages.cefrC1,
+  C2: generationMessages.cefrC2,
+};
 
 export const _GenerationDrawerCefrStep = ({
   value,
@@ -31,13 +40,7 @@ export const _GenerationDrawerCefrStep = ({
                 : "border-gray-200 bg-white text-gray-700 hover:border-gray-300"
             }`}
           >
-            {level === "B1"
-              ? generationMessages.cefrB1
-              : level === "B2"
-                ? generationMessages.cefrB2
-                : level === "C1"
-                  ? generationMessages.cefrC1
-                  : generationMessages.cefrC2}
+            {CEFR_LABELS[level]}
           </button>
         ))}
       </div>

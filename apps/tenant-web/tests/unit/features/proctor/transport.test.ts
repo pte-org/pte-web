@@ -10,7 +10,7 @@ describe("ProctorTransport", () => {
       upload: vi.fn(),
       uploadDownload: vi.fn(),
       download: vi.fn(),
-      ensureFreshAccessToken: vi.fn().mockResolvedValue(token),
+      ensureFreshAccessToken: vi.fn().mockResolvedValue(token), openStream: vi.fn(),
     };
   }
 

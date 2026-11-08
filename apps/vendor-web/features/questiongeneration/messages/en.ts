@@ -34,6 +34,8 @@ export const generationMessages = {
   poolExam: "Exam",
 
   // CEFR Levels
+  cefrA1: "A1",
+  cefrA2: "A2",
   cefrB1: "B1",
   cefrB2: "B2 (Default)",
   cefrC1: "C1",

@@ -18,7 +18,7 @@ interface ReviewPanelTabsProps {
 /**
  * Right panel: Tabs showing generation item details (Preview | Review AI | Edit)
  */
-export const _ReviewPanelTabs = ({
+export const ReviewPanelTabs = ({
   item,
 }: ReviewPanelTabsProps) => {
   const [activeTab, setActiveTab] = useState("preview");
@@ -53,7 +53,7 @@ export const _ReviewPanelTabs = ({
       try {
         await submitMutation.mutateAsync(item.questionPublicId);
         showToast("Question submitted");
-      } catch (error) {
+      } catch {
         showToast("Failed to submit question");
       }
     }
@@ -65,7 +65,7 @@ export const _ReviewPanelTabs = ({
         await deleteMutation.mutateAsync(item.questionPublicId);
         showToast("Question deleted");
         setShowDeleteConfirm(false);
-      } catch (error) {
+      } catch {
         showToast("Failed to delete question");
       }
     }

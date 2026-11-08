@@ -52,13 +52,14 @@ export const GenerationDrawer = ({
 
   // Filter task types by selected skill
   const filteredTaskTypes: GenerationTaskType[] = useMemo(() => {
-    if (!formState.skill) return [];
+    const skill = formState.skill;
+    if (!skill) return [];
     return taskTypesData
-      .filter((tt) => tt.section === formState.skill)
+      .filter((tt) => tt.section === skill)
       .map((tt) => ({
         ...tt,
         displayName: tt.taskType,
-        section: tt.section as any,
+        section: skill,
       }));
   }, [formState.skill, taskTypesData]);
 

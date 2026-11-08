@@ -2,7 +2,6 @@
 
 import { useState, useMemo } from "react";
 import { Button, ConfirmDialog, useToast } from "@pte/ui";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { generationMessages } from "../messages/en";
 import { useDeleteQuestion, useSubmitQuestionApproval } from "@/features/questionbank/api";
 import type { QuestionGenerationJobResponse } from "@pte/api-client";
@@ -17,7 +16,7 @@ interface BulkActionsBarProps {
  * Toolbar for bulk actions: submit/delete selected
  * Only shows for items with questionPublicId (saved items)
  */
-export const _BulkActionsBar = ({
+export const BulkActionsBar = ({
   job,
   selectedIndices,
   onBulkActionComplete,

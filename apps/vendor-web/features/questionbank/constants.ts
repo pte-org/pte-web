@@ -202,6 +202,7 @@ export const QUESTION_TABLE_HEADERS = {
   CONTENT: "Content",
   POOL: "Pool",
   CEFR: "CEFR",
+  SOURCE: "Source",
   STATUS: "Status",
   ACTIONS: "Actions",
 } as const;

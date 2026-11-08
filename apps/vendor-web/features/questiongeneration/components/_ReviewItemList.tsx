@@ -20,7 +20,7 @@ interface ReviewItemListProps {
  * Shows index, topic, verdict chip, status
  * Supports keyboard navigation (↑/↓) when focused
  */
-export const _ReviewItemList = ({
+export const ReviewItemList = ({
   items,
   selectedIndex,
   selectedIndices,

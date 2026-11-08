@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState, type ReactElement } from "react";
+import { useCallback, useState, type ReactElement, type ReactNode } from "react";
 import { LoadingState, TabRailCard } from "@pte/ui";
 import type { QuestionResponse } from "@pte/api-client";
 import { useQuestionTypes } from "@/features/questiontemplate/api";
@@ -20,6 +20,8 @@ interface QuestionEditorWithPreviewProps {
   timingFor?: (taskType: string) => PreviewTiming | null;
   /** The exam section whose tab is selected first; every section when omitted. */
   initialSection?: string;
+  /** Shown under the section rail (a new question only). */
+  sidePanel?: ReactNode;
 }
 
 /**
@@ -33,6 +35,7 @@ export const QuestionEditorWithPreview = ({
   onCancel,
   timingFor,
   initialSection,
+  sidePanel,
 }: QuestionEditorWithPreviewProps): ReactElement => {
   const { data: questionTypes = [], isLoading } = useQuestionTypes(true);
   const [draft, setDraft] = useState<QuestionPreviewDraft | null>(null);
@@ -72,6 +75,7 @@ export const QuestionEditorWithPreview = ({
       items={sectionItems}
       value={section}
       onChange={setSection}
+      sidePanel={sidePanel}
     >
       {workspace}
     </TabRailCard>

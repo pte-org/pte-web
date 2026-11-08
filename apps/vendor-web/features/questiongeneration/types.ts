@@ -1,8 +1,6 @@
 import type {
   QuestionGenerationItemResponse,
   QuestionGenerationJobResponse,
-  QuestionGenerationJobStatus,
-  QuestionGenerationItemStage,
   QuestionGenerationTaskTypeResponse,
 } from "@pte/api-client";
 
@@ -28,7 +26,7 @@ export interface GenerationJob extends QuestionGenerationJobResponse {
 export interface GenerationFormState {
   skill?: "SPEAKING" | "WRITING" | "READING" | "LISTENING";
   taskType?: string;
-  cefrLevel?: string; // B1, B2, C1, C2
+  cefrLevel?: string; // A1, A2, B1, B2, C1, C2
   pool?: string; // PRACTICE or EXAM
   topicHint?: string;
   count: number;

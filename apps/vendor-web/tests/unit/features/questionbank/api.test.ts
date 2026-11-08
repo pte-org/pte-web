@@ -88,7 +88,7 @@ describe("useQuestions", () => {
   it("keys the page by every filter with empty defaults", () => {
     questionApi.useQuestions({}, 0, 20);
 
-    expect(opts().queryKey).toEqual([...QUESTIONS_QUERY_KEY, "", "", "", "", "", "", 0, 20]);
+    expect(opts().queryKey).toEqual([...QUESTIONS_QUERY_KEY, "", "", "", "", "", "", "", 0, 20]);
     expect(opts().placeholderData).toBe(hoisted.keepPreviousData);
   });
 

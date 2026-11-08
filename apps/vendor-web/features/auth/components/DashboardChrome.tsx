@@ -26,6 +26,7 @@ import {
   type SessionRole,
 } from "@pte/ui";
 import { NotificationBellContainer } from "@/features/notifications";
+import { GenerationActivityIndicator } from "@/features/questiongeneration/components";
 import { hasAnyRole, roleLabel } from "../permissions";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
@@ -99,7 +100,13 @@ const SidebarBrand = ({ collapsed = false }: { collapsed?: boolean }): ReactElem
 };
 
 const isActive = (pathname: string | null, href: string): boolean =>
-  href === "/admin" ? pathname === "/admin" : Boolean(pathname?.startsWith(href));
+  href === "/admin"
+    ? pathname === "/admin"
+    : Boolean(pathname && (pathname === href || pathname.startsWith(`${href}/`)));
+
+/** The one item that owns the current page: the longest matching href, so a parent route does not light up with its child. */
+const activeHref = (pathname: string | null, hrefs: readonly string[]): string | undefined =>
+  hrefs.filter((href) => isActive(pathname, href)).sort((a, b) => b.length - a.length)[0];
 
 const SidebarNav = ({
   navItems,
@@ -119,12 +126,16 @@ const SidebarNav = ({
     (item) => !item.requiredRoles || hasAnyRole(roles, item.requiredRoles),
   );
 
+  const currentHref = activeHref(
+    pathname,
+    visibleItems.map((item) => item.href),
+  );
   const sidebarItems = visibleItems.map((item) => ({
     label: item.labelKey ? t(item.labelKey, item.label) : item.label,
     href: item.href,
     icon: item.icon,
     section: item.sectionKey ? t(item.sectionKey, item.section ?? "Pages") : item.section,
-    isActive: isActive(pathname, item.href),
+    isActive: item.href === currentHref,
   }));
 
   return (
@@ -187,6 +198,7 @@ const HeaderActions = (): ReactElement => {
 
   return (
     <>
+      <GenerationActivityIndicator enabled={Boolean(user?.roles.includes("PLATFORM_ADMIN"))} />
       <LocaleSwitcher />
       <ThemeToggle />
       <NotificationBellContainer />

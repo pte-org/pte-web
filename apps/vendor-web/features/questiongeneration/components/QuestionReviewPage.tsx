@@ -6,9 +6,9 @@ import { Alert, Skeleton } from "@pte/ui";
 import { useQuestionGenerationJob } from "../api";
 import { generationMessages } from "../messages/en";
 import type { QuestionGenerationItemResponse } from "@pte/api-client";
-import { _ReviewItemList } from "./_ReviewItemList";
-import { _ReviewPanelTabs } from "./_ReviewPanelTabs";
-import { _BulkActionsBar } from "./_BulkActionsBar";
+import { ReviewItemList } from "./_ReviewItemList";
+import { ReviewPanelTabs } from "./_ReviewPanelTabs";
+import { BulkActionsBar } from "./_BulkActionsBar";
 
 const REVIEW_CONTAINER_MAX_HEIGHT = "calc(100vh - 200px)";
 
@@ -66,7 +66,7 @@ export const QuestionReviewPage = () => {
       </div>
 
       {/* Bulk Actions Bar */}
-      <_BulkActionsBar
+      <BulkActionsBar
         job={job}
         selectedIndices={selectedIndices}
         onBulkActionComplete={() => setSelectedIndices(new Set())}
@@ -79,7 +79,7 @@ export const QuestionReviewPage = () => {
       >
         {/* Left: Item List */}
         <div className="border rounded-lg overflow-hidden flex flex-col">
-          <_ReviewItemList
+          <ReviewItemList
             items={items}
             selectedIndex={selectedIndex}
             selectedIndices={selectedIndices}
@@ -109,7 +109,7 @@ export const QuestionReviewPage = () => {
         {/* Right: Preview/Review/Edit Tabs */}
         <div className="border rounded-lg overflow-hidden flex flex-col">
           {selectedItem ? (
-            <_ReviewPanelTabs
+            <ReviewPanelTabs
               item={selectedItem}
               jobId={job.publicId}
             />

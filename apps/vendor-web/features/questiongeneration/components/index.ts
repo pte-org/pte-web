@@ -1,7 +1,8 @@
 export { GenerationDrawer } from "./GenerationDrawer";
-export { GenerationProgressTray } from "./GenerationProgressTray";
 export { ReviewPanel } from "./ReviewPanel";
 export { QuestionReviewPage } from "./QuestionReviewPage";
-export { _ReviewItemList } from "./_ReviewItemList";
-export { _ReviewPanelTabs } from "./_ReviewPanelTabs";
-export { _BulkActionsBar } from "./_BulkActionsBar";
+export { ReviewItemList } from "./_ReviewItemList";
+export { ReviewPanelTabs } from "./_ReviewPanelTabs";
+export { BulkActionsBar } from "./_BulkActionsBar";
+export { LiveGenerationView } from "./LiveGenerationView";
+export { GenerationActivityIndicator } from "./GenerationActivityIndicator";

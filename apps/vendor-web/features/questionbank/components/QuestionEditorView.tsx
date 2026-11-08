@@ -1,8 +1,11 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import type { ReactElement } from "react";
-import { Alert, LoadingState, useDashboardBreadcrumbLabel } from "@pte/ui";
+import { useState, type ReactElement } from "react";
+import { Alert, Button, LoadingState, useDashboardBreadcrumbLabel } from "@pte/ui";
+import { GenerationDrawer } from "@/features/questiongeneration/components";
+import { generationLiveHref } from "@/features/questiongeneration/liveConstants";
+import { generationMessages } from "@/features/questiongeneration/messages/en";
 import { useQuestion } from "../api";
 import {
   QUESTION_EDITOR_ERRORS as RAW_QUESTION_EDITOR_ERRORS,
@@ -15,12 +18,27 @@ export const NewQuestionView = (): ReactElement => {
   const T = useAdminCopy(RAW_QUESTION_EDITOR_TEXT);
   const router = useRouter();
   const pathname = usePathname();
+  const [drawerOpen, setDrawerOpen] = useState(false);
   useDashboardBreadcrumbLabel(pathname, T.NEW_TITLE);
   return (
     <div className="space-y-5">
       <QuestionEditorWithPreview
         onSaved={() => router.push("/admin/questions")}
         onCancel={() => router.push("/admin/questions")}
+        sidePanel={
+          <Button type="button" className="w-full" onClick={() => setDrawerOpen(true)}>
+            ✦ {generationMessages.generatingTitle}
+          </Button>
+        }
+      />
+      <GenerationDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onJobCreated={(jobId) => {
+          setDrawerOpen(false);
+          // The run is followed on its own page, where each agent's work shows as it is written.
+          router.push(generationLiveHref(jobId));
+        }}
       />
     </div>
   );

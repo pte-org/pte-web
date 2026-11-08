@@ -65,6 +65,12 @@ export const QuestionTable = ({
     { value: "", label: H.CEFR },
     ...CEFR_LEVELS.map((level) => ({ value: level, label: level })),
   ];
+  const sourceFilterOptions = useAdminCopy([
+    { value: "", label: "All sources" },
+    { value: "ai", label: "AI generated" },
+    { value: "manual", label: "Manual" },
+  ]);
+  const sourceLabels = useAdminCopy({ ai: "AI generated", manual: "Manual" } as const);
   const poolLabels = useAdminCopy(RAW_QUESTION_POOL_LABELS);
   const statusLabels = useAdminCopy(RAW_QUESTION_STATUS_LABELS);
   const statusFilterOptions = useAdminCopy([
@@ -241,12 +247,7 @@ export const QuestionTable = ({
             header: H.CONTENT,
             filterAccessor: (question) => question.content,
             cell: (question: Question) => (
-              <div className="flex items-center gap-2">
-                <span className="line-clamp-1 max-w-xl">{question.content}</span>
-                {question.generationMeta != null && (
-                  <Badge variant="info">AI Generated</Badge>
-                )}
-              </div>
+              <span className="line-clamp-1 max-w-xl">{question.content}</span>
             ),
           },
           {
@@ -267,6 +268,19 @@ export const QuestionTable = ({
                 <Chip tone={cefrTone(question.cefrLevel)}>{question.cefrLevel}</Chip>
               ) : (
                 T.EMPTY_VALUE
+              ),
+          },
+          {
+            key: "source",
+            label: H.SOURCE,
+            header: H.SOURCE,
+            filterOptions: sourceFilterOptions,
+            filterAccessor: (question) => (question.generationMeta != null ? "ai" : "manual"),
+            cell: (question) =>
+              question.generationMeta != null ? (
+                <Badge variant="info">{sourceLabels.ai}</Badge>
+              ) : (
+                <span>{sourceLabels.manual}</span>
               ),
           },
           {
