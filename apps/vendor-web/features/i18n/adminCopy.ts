@@ -66,6 +66,12 @@ const ADMIN_VI: Record<string, string> = {
   "Please enter your password.": "Vui lòng nhập mật khẩu.",
   "Username or password is incorrect.": "Tên đăng nhập hoặc mật khẩu không đúng.",
   "Login failed. Please try again.": "Đăng nhập thất bại. Vui lòng thử lại.",
+  "Unable to connect to the server. Check your connection and try again.":
+    "Không thể kết nối máy chủ. Kiểm tra kết nối và thử lại.",
+  "Sign-in is temporarily unavailable. Please try again later.":
+    "Chức năng đăng nhập tạm thời không khả dụng. Vui lòng thử lại sau.",
+  "Too many sign-in attempts. Please wait a moment and try again.":
+    "Đăng nhập quá nhiều lần. Vui lòng đợi một lát rồi thử lại.",
   "Change your password": "Đổi mật khẩu",
   "Your temporary password must be replaced before you can open a workspace.":
     "Bạn phải thay mật khẩu tạm thời trước khi mở workspace.",
@@ -141,6 +147,10 @@ const ADMIN_VI: Record<string, string> = {
   "Tenant applications": "Đơn đăng ký tenant",
   "Filter applications by status": "Lọc đơn đăng ký theo trạng thái",
   "All statuses": "Tất cả trạng thái",
+  "All sources": "Tất cả nguồn",
+  Source: "Nguồn",
+  "AI generated": "AI tạo",
+  Manual: "Thủ công",
   Pending: "Đang chờ",
   Approved: "Đã duyệt",
   Rejected: "Bị từ chối",
@@ -201,7 +211,6 @@ const ADMIN_VI: Record<string, string> = {
   "Save changes": "Lưu thay đổi",
   "Create draft": "Tạo bản nháp",
   Cancel: "Hủy",
-  "Published catalog": "Danh mục đã phát hành",
   "Filter plans by type": "Lọc gói theo loại",
   All: "Tất cả",
   "Capacity add-ons": "Gói bổ sung sức chứa",
@@ -310,7 +319,6 @@ const ADMIN_VI: Record<string, string> = {
   Reset: "Đặt lại",
   Previous: "Trước",
   Next: "Sau",
-  "Refresh list": "Làm mới danh sách",
   "Find a code safely": "Tra cứu mã an toàn",
   "License code": "Mã bản quyền",
   "Activation code": "Mã kích hoạt",

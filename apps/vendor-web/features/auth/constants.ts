@@ -84,6 +84,9 @@ export const AUTH_TEXT = {
   PASSWORD_REQUIRED: "Please enter your password.",
   INVALID_CREDENTIALS: "Username or password is incorrect.",
   GENERIC_ERROR: "Login failed. Please try again.",
+  NETWORK_ERROR: "Unable to connect to the server. Check your connection and try again.",
+  SERVICE_UNAVAILABLE: "Sign-in is temporarily unavailable. Please try again later.",
+  RATE_LIMITED: "Too many sign-in attempts. Please wait a moment and try again.",
 } as const;
 
 export const FORGOT_PASSWORD_TEXT: ForgotPasswordFormText = {

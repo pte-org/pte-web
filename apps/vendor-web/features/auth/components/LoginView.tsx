@@ -13,6 +13,7 @@ import {
   normalizeSessionRoles,
   useSessionManager,
   useSignInValidation,
+  useToast,
 } from "@pte/ui";
 import {
   decodeAccessTokenClaims,
@@ -38,6 +39,8 @@ export const LoginView = (): ReactElement => {
   const searchParams = useSearchParams();
   const role = resolveRole(searchParams.get("role"));
   const { saveSession } = useSessionManager();
+  const { showToast } = useToast();
+  const notifyError = (message: string): void => showToast(message, { tone: "error" });
   const validationMessages = useMemo(
     () => ({
       usernameRequired: T.USERNAME_REQUIRED,
@@ -53,7 +56,6 @@ export const LoginView = (): ReactElement => {
   const [organizationOptions, setOrganizationOptions] = useState<LoginOrganizationOption[]>([]);
   const [organizationId, setOrganizationId] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string>();
 
   const adminMutation = useLoginAdmin();
   const hostMutation = useLoginHost();
@@ -65,13 +67,13 @@ export const LoginView = (): ReactElement => {
     const claims = decodeAccessTokenClaims(data.accessToken);
     const roles = claims ? normalizeSessionRoles(claims.roles) : [];
     if (!claims || roles.length === 0) {
-      setErrorMessage(T.GENERIC_ERROR);
+      notifyError(T.GENERIC_ERROR);
       return;
     }
     const destination = resolveVendorLoginDestination(roles);
     if (destination === null) {
       // The same copy as a wrong password, so the form does not reveal that the account exists elsewhere.
-      setErrorMessage(T.INVALID_CREDENTIALS);
+      notifyError(T.INVALID_CREDENTIALS);
       return;
     }
     saveSession({
@@ -89,15 +91,13 @@ export const LoginView = (): ReactElement => {
     event.preventDefault();
     const fieldErrors = validation.validateAll({ username, password });
     if (fieldErrors.username || fieldErrors.password) {
-      setErrorMessage(undefined);
       document.getElementById(fieldErrors.username ? "username" : "password")?.focus();
       return;
     }
     if (organizationOptions.length > 0 && !organizationId) {
-      setErrorMessage(T.ORGANIZATION_REQUIRED);
+      notifyError(T.ORGANIZATION_REQUIRED);
       return;
     }
-    setErrorMessage(undefined);
     try {
       const trimmedUsername = username.trim();
       let selectedOrganizationId = organizationId || undefined;
@@ -119,7 +119,7 @@ export const LoginView = (): ReactElement => {
       });
       handleLoginSuccess(data);
     } catch (error) {
-      setErrorMessage(getLoginErrorMessage(error));
+      notifyError(getLoginErrorMessage(error, T));
     }
   };
 
@@ -133,15 +133,6 @@ export const LoginView = (): ReactElement => {
           {T.WELCOME_SUBTITLE}
         </p>
       </div>
-
-      {errorMessage && (
-        <div
-          role="alert"
-          className="rounded-md bg-[var(--blush-tint)] px-3 py-2 text-sm text-[var(--blush-action)]"
-        >
-          {errorMessage}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-[18px]">
         {/* type="text", NOT type="email": a STUDENT's username is
