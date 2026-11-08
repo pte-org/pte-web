@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   ActionMenu,
@@ -29,6 +29,8 @@ interface TenantTableProps {
   onReactivate: (tenant: Tenant) => void;
   onGrantQuota?: (tenant: Tenant) => void;
   onViewQuotaHistory?: (tenant: Tenant) => void;
+  /** Actions on the right of the table toolbar, e.g. the add button. */
+  toolbarActions?: ReactNode;
 }
 
 export const TenantTable = ({
@@ -37,6 +39,7 @@ export const TenantTable = ({
   onReactivate,
   onGrantQuota,
   onViewQuotaHistory,
+  toolbarActions,
 }: TenantTableProps): ReactElement => {
   const H = useAdminCopy(RAW_TENANT_TABLE_HEADERS);
   const T = useAdminCopy(RAW_TENANCY_TEXT);
@@ -108,6 +111,7 @@ export const TenantTable = ({
     <DataTable
       columns={columns}
       rows={tenants}
+      toolbarActions={toolbarActions}
       getRowKey={(tenant) => tenant.id}
       searchPlaceholder={searchText.placeholder}
       searchAriaLabel={searchText.ariaLabel}

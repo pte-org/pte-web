@@ -8,7 +8,6 @@ import {
   Button,
   DataTable,
   ErrorState,
-  PageHeader,
   PaginationControls,
   StatusBadge,
   type DataTableColumn,
@@ -120,18 +119,14 @@ export function IncidentListView({ sessionPublicId }: IncidentListViewProps): Re
 
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-      <PageHeader
-        title={`${T.TITLE_PREFIX}${sessionPublicId.slice(0, 8).toUpperCase()}`}
-        subtitle={T.SUBTITLE}
-        actions={
-          <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
+        <div className="flex flex-wrap items-center gap-3">
             <BackButton href="/proctor/incidents" label={T.BACK_BTN} />
             <Button variant="primary" size="sm" onClick={() => setIsReportModalOpen(true)}>
               {T.REPORT_NEW_BTN}
             </Button>
           </div>
-        }
-      />
+      </div>
 
       {/* Status Filter Tabs Toolbar */}
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">

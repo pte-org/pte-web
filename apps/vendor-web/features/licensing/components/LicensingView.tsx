@@ -2,7 +2,6 @@
 
 import { useState, type ReactElement } from "react";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
-import { PageHeader } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import {
   GRANT_QUOTA_TEXT as RAW_GRANT_QUOTA_TEXT,
@@ -39,17 +38,6 @@ export const LicensingView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title={T.TITLE}
-        actions={
-          <button
-            type="button"
-            className="rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
-          >
-            {T.EXPORT}
-          </button>
-        }
-      />
       <LicenseTable
         licenses={licenses ?? []}
         onGrant={setGrantTarget}

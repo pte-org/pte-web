@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Alert, BackButton, Button, PageHeader, PaginationControls } from "@pte/ui";
+import { Alert, BackButton, Button, PaginationControls } from "@pte/ui";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
 import { PROCTOR_ATTENDANCE_VIEW_TEXT as T } from "../constants";
 import { useAttendanceRoster, useRecordIdentityVerificationMutation } from "../api";
@@ -83,11 +83,8 @@ export function ProctorAttendanceView({
 
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-      <PageHeader
-        title={`${T.TITLE_PREFIX}${sessionPublicId}`}
-        subtitle={T.SUBTITLE}
-        actions={
-          <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
+        <div className="flex flex-wrap items-center gap-3">
             <BackButton href="/proctor/attendance" label={T.BACK_BTN} />
             {data?.asOf && (
               <span className="text-xs text-[var(--ink-muted)]">
@@ -95,8 +92,7 @@ export function ProctorAttendanceView({
               </span>
             )}
           </div>
-        }
-      />
+      </div>
 
       {!canEditSession && data?.sessionBlockingReason && (
         <Alert tone="warning" title={T.PORTAL_LOCKED_TITLE}>

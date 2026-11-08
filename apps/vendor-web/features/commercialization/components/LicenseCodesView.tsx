@@ -312,34 +312,23 @@ export const LicenseCodesView = (): ReactElement => {
     }
   };
 
-  const refreshLicenseCodes = (): void => {
-    clearReveal();
-    void codePageQuery.refetch();
-  };
-
   return (
     <div className="flex flex-col gap-5">
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       {codePageQuery.isFetching && codePageQuery.data && <Alert tone="info">{T.STALE_DATA}</Alert>}
 
-      <CommercialPanel
-        title={T.TITLE}
-        subtitle={T.INVENTORY_SUBTITLE}
-        actions={
-          <>
-            <Button type="button" onClick={() => setGrantOpen(true)}>
-              {T.CREATE_ACTION}
-            </Button>
-            <Button type="button" variant="secondary" onClick={() => setLookupDialogOpen(true)}>
-              {T.LOOKUP_ACTION}
-            </Button>
-            <Button type="button" variant="secondary" onClick={refreshLicenseCodes}>
-              {T.REFRESH_LIST}
-            </Button>
-          </>
-        }
-      >
+      <CommercialPanel>
         <DataTable
+          toolbarActions={
+            <>
+              <Button type="button" variant="secondary" onClick={() => setLookupDialogOpen(true)}>
+                {T.LOOKUP_ACTION}
+              </Button>
+              <Button type="button" onClick={() => setGrantOpen(true)}>
+                {T.CREATE_ACTION}
+              </Button>
+            </>
+          }
           searchPlaceholder={searchText.placeholder}
           searchAriaLabel={searchText.ariaLabel}
           searchValue={search}

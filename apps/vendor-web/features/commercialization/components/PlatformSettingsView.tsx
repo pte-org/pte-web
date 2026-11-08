@@ -7,7 +7,6 @@ import {
   ConfirmDialog,
   DashboardPanel,
   FormActions,
-  PageHeader,
   useToast,
 } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
@@ -91,7 +90,6 @@ export const PlatformSettingsView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={T.TITLE} />
       <DashboardPanel
         title={T.PANEL_TITLE}
         subtitle={T.PANEL_SUBTITLE}

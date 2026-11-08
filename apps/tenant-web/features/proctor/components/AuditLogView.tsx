@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Button, DataTable, ErrorState, PageHeader, type DataTableColumn } from "@pte/ui";
+import { Button, DataTable, ErrorState, type DataTableColumn } from "@pte/ui";
 import { useProctorAuditLog, useProctorSecurityAudit, type ProctorSecurityAuditPage } from "../api";
 import { AUDIT_ACTION_LABELS, PROCTOR_AUDIT_TEXT as T } from "../constants";
 import type { ProctorAuditLogEntry, ProctorSecurityAuditEntry } from "../types";
@@ -89,11 +89,8 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
 
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-      <PageHeader
-        title={T.TITLE}
-        subtitle={T.SUBTITLE}
-        actions={
-          <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
+        <div className="flex items-center gap-2">
             <Link href={`/proctor/sessions/${sessionPublicId}`}>
               <Button variant="secondary" size="sm">
                 {T.ENTER_MONITORING}
@@ -105,8 +102,7 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
               </Button>
             </Link>
           </div>
-        }
-      />
+      </div>
 
       <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] px-4 py-3 text-sm text-[var(--ink-secondary)] shadow-sm">
         <span>

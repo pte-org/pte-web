@@ -68,8 +68,6 @@ export const OrdersView = (): ReactElement => {
     t(`tenant.billing.status.${status.toLowerCase()}`, BILLING_STATUS_LABELS[status] ?? status);
   const text = {
     loadError: t("tenant.billing.ordersLoadError", T.ORDERS_LOAD_ERROR),
-    panelTitle: t("tenant.billing.transactionHistoryTitle", T.ORDERS_PANEL_TITLE),
-    panelSubtitle: t("tenant.billing.transactionHistorySubtitle", T.TRANSACTION_HISTORY_SUBTITLE),
     orderColumn: t("tenant.billing.orderColumn", T.ORDER_COLUMN),
     planColumn: t("tenant.billing.planColumn", T.PLAN_COLUMN),
     amountColumn: t("tenant.billing.amountColumn", T.AMOUNT_COLUMN),
@@ -85,7 +83,7 @@ export const OrdersView = (): ReactElement => {
   return (
     <div className="flex flex-col gap-5">
       {isError && <Alert tone="error">{text.loadError}</Alert>}
-      <BillingPanel title={text.panelTitle} subtitle={text.panelSubtitle}>
+      <BillingPanel>
         <DataTable
           columns={[
             {

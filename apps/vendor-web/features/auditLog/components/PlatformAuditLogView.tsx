@@ -87,7 +87,6 @@ export function PlatformAuditLogView(): ReactElement {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={T.TITLE} />
       {auditLogs.error && (
         <Alert tone="error">{getUserFacingApiErrorMessage(auditLogs.error, T.LOAD_FAILED)}</Alert>
       )}

@@ -10,7 +10,6 @@ import {
   ErrorState,
   LoadingState,
   Modal,
-  PageHeader,
   StatusBadge,
   Textarea,
   type DataTableColumn,
@@ -121,15 +120,12 @@ export function IncidentDetailView({
   if (detailQuery.isLoading) {
     return (
       <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-        <PageHeader
-          title={T.LOADING}
-          actions={
-            <BackButton
+        <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
+          <BackButton
               href={`/proctor/incidents/${sessionPublicId}`}
               label={T.BACK_BTN}
             />
-          }
-        />
+        </div>
         <LoadingState variant="rows" label={T.LOADING} />
       </div>
     );
@@ -138,15 +134,12 @@ export function IncidentDetailView({
   if (detailQuery.isError || !incident) {
     return (
       <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-        <PageHeader
-          title={T.ERROR_TITLE}
-          actions={
-            <BackButton
+        <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
+          <BackButton
               href={`/proctor/incidents/${sessionPublicId}`}
               label={T.BACK_BTN}
             />
-          }
-        />
+        </div>
         <ErrorState
           title={T.ERROR_TITLE}
           description={T.ERROR_DESC}
@@ -162,11 +155,8 @@ export function IncidentDetailView({
 
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-      <PageHeader
-        title={incident?.title ?? T.LOADING}
-        subtitle={`${T.CATEGORY_LABEL}${incident?.category ?? "—"} • ${T.REPORTER_LABEL}${incident?.reporterName ?? "—"} (${incident?.reporterRole ?? "—"}) • ${T.TIME_LABEL}${incident?.createdAt ? new Date(incident.createdAt).toLocaleString("vi-VN") : "—"}`}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
+        <div className="flex flex-wrap items-center gap-2">
             <BackButton
               href={`/proctor/incidents/${sessionPublicId}`}
               label={T.BACK_BTN}
@@ -223,8 +213,7 @@ export function IncidentDetailView({
               {T.BTN_ADD_NOTE}
             </Button>
           </div>
-        }
-      />
+      </div>
 
       {errorMessage && (
         <Alert tone="error" title={T.ACTION_FAILED_TITLE}>

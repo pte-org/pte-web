@@ -8,7 +8,6 @@ import {
   ChevronRightIcon,
   ClipboardIcon,
   LicenseIcon,
-  PageHeader,
   useLocale,
   UsersIcon,
 } from "@pte/ui";
@@ -44,7 +43,6 @@ export const PlanCatalogView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={text.title} subtitle={text.subtitle} />
       {isError && <Alert tone="error">{text.loadFailed}</Alert>}
       <BillingPanel title={text.examPackages} subtitle={text.examPackagesSubtitle}>
         {isLoading ? (

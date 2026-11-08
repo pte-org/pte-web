@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Alert, Button, Input, PageHeader, ProgressBar } from "@pte/ui";
+import { Alert, Button, Input, ProgressBar } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useStudentImportPreview, useStudentQuotaQuery } from "../api";
 import { BILLING_TEXT as T, PLANS_HOME_HREF } from "../constants";
@@ -27,18 +27,14 @@ export const QuotaView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title={T.QUOTA_TITLE}
-        subtitle={T.QUOTA_SUBTITLE}
-        actions={
-          <Link
+      <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
+        <Link
             href={PLANS_HOME_HREF}
             className="text-sm font-semibold text-action hover:underline"
           >
             {T.ADD_CAPACITY}
           </Link>
-        }
-      />
+      </div>
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       {isLoading && <p className="text-sm text-slate-500">{T.LOADING_QUOTA}</p>}
       {quota && (

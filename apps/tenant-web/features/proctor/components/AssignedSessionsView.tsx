@@ -10,7 +10,6 @@ import {
   Button,
   DataTable,
   ErrorState,
-  PageHeader,
   PaginationControls,
   StatusBadge,
   type DataTableColumn,
@@ -247,17 +246,13 @@ export function AssignedSessionsView(): ReactElement {
 
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-      <PageHeader
-        title={text.pageTitle}
-        subtitle={text.pageSubtitle}
-        actions={
-          <Link href="/proctor/sessions">
+      <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
+        <Link href="/proctor/sessions">
             <Button variant="secondary" size="sm">
               {text.overviewTitle}
             </Button>
           </Link>
-        }
-      />
+      </div>
 
       {/* Scope Filter Tabs Toolbar */}
       <div className="flex flex-wrap items-center gap-2 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-4 shadow-sm">

@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
-import { Alert, Button, ConfirmDialog, ErrorState, LoadingState, PageHeader, StatCard } from "@pte/ui";
+import { Alert, Button, ConfirmDialog, ErrorState, LoadingState, StatCard } from "@pte/ui";
 import { useMonitoringSnapshot } from "../api";
 import { useProctorRoom } from "../useProctorRoom";
 import { MonitoringConnectionBanner } from "./MonitoringConnectionBanner";
@@ -20,15 +20,6 @@ import {
 
 interface LiveMonitoringViewProps {
   sessionPublicId: string;
-}
-
-function formatDateTime(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  return new Intl.DateTimeFormat("vi-VN", {
-    dateStyle: "short",
-    timeStyle: "short",
-  }).format(date);
 }
 
 export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps): ReactElement {
@@ -50,7 +41,6 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
   const room = useProctorRoom(sessionPublicId);
 
   const snapshot = snapshotQuery.data;
-  const session = snapshot?.session;
   const summary = snapshot?.summary;
   const students = snapshot?.students.data ?? [];
   const meta = snapshot?.students.meta;
@@ -141,17 +131,13 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
   if (snapshotQuery.isLoading && !snapshot) {
     return (
       <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-        <PageHeader
-          title={PROCTOR_LIVE_TEXT.TITLE}
-          subtitle={`${PROCTOR_LIVE_TEXT.ROOM_CODE_PREFIX}${sessionPublicId.slice(0, 8).toUpperCase()}`}
-          actions={
-            <Link href="/proctor/sessions">
+        <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
+          <Link href="/proctor/sessions">
               <Button variant="secondary" size="sm">
                 {PROCTOR_LIVE_TEXT.BACK_TO_SESSIONS_BTN}
               </Button>
             </Link>
-          }
-        />
+        </div>
         <LoadingState variant="table" label={PROCTOR_LIVE_TEXT.LOADING} />
       </div>
     );
@@ -160,17 +146,13 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
   if (snapshotQuery.isError && !snapshot) {
     return (
       <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-        <PageHeader
-          title={PROCTOR_LIVE_TEXT.TITLE}
-          subtitle={`${PROCTOR_LIVE_TEXT.ROOM_CODE_PREFIX}${sessionPublicId.slice(0, 8).toUpperCase()}`}
-          actions={
-            <Link href="/proctor/sessions">
+        <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
+          <Link href="/proctor/sessions">
               <Button variant="secondary" size="sm">
                 {PROCTOR_LIVE_TEXT.BACK_TO_SESSIONS_BTN}
               </Button>
             </Link>
-          }
-        />
+        </div>
         <ErrorState
           title={PROCTOR_LIVE_TEXT.ERROR_TITLE}
           description={PROCTOR_LIVE_TEXT.ERROR_DESCRIPTION}
@@ -187,11 +169,8 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
       {/* Page Header */}
-      <PageHeader
-        title={session?.name ?? PROCTOR_LIVE_TEXT.TITLE}
-        subtitle={`${PROCTOR_LIVE_TEXT.ROOM_CODE_PREFIX}${sessionPublicId.slice(0, 8).toUpperCase()}${session ? ` • ${PROCTOR_LIVE_TEXT.OPEN_PREFIX}${formatDateTime(session.opensAt)}${PROCTOR_LIVE_TEXT.CLOSE_PREFIX}${formatDateTime(session.closesAt)}${session.timeLimitMinutes ? ` (${session.timeLimitMinutes}${PROCTOR_LIVE_TEXT.MINUTES_SUFFIX})` : ""}` : ""}`}
-        actions={
-          <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
+        <div className="flex flex-wrap items-center gap-2">
             <Link href="/proctor/sessions">
               <Button variant="secondary" size="sm">
                 {PROCTOR_LIVE_TEXT.BACK_TO_SESSIONS_BTN}
@@ -223,8 +202,7 @@ export function LiveMonitoringView({ sessionPublicId }: LiveMonitoringViewProps)
               </Button>
             )}
           </div>
-        }
-      />
+      </div>
 
       {/* Real-time connection status banner */}
       <MonitoringConnectionBanner

@@ -11,8 +11,7 @@ import {
   NavAuditLogIcon,
   NavSupportTicketIcon,
   NavUserGroupIcon,
-  PageHeader,
-} from "@pte/ui";
+  } from "@pte/ui";
 import { useProctorWorkspaceOverview } from "../api";
 import { useClientTimezone, useMidnightBoundaryRefresh } from "../hooks/useClientTimezone";
 import { useProctorWorkspaceText } from "../hooks/useProctorWorkspaceText";
@@ -74,17 +73,13 @@ export function ProctorOverviewView(): ReactElement {
 
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-      <PageHeader
-        title={text.overviewTitle}
-        subtitle={text.overviewSubtitle}
-        actions={
-          <Link href="/proctor/sessions?scope=ALL">
+      <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
+        <Link href="/proctor/sessions?scope=ALL">
             <Button variant="secondary" size="sm">
               {text.filterAll}
             </Button>
           </Link>
-        }
-      />
+      </div>
 
       {/* Overview Stat Cards */}
       <ProctorWorkspaceOverview

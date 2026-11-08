@@ -3,7 +3,7 @@
 import type { ReactElement } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Alert, CheckCircleIcon, PageHeader } from "@pte/ui";
+import { Alert, CheckCircleIcon } from "@pte/ui";
 import { useOrderQuery, useTenantPlansQuery } from "../api";
 import { BILLING_TEXT as T, PAYMENT_STATE_MESSAGES } from "../constants";
 import { BillingPanel } from "./BillingPanel";
@@ -23,7 +23,6 @@ export const PaymentStatusView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={T.PAYMENT_STATUS_TITLE} subtitle={T.PAYMENT_STATUS_SUBTITLE} />
       {isError && <Alert tone="error">{T.PAYMENT_STATUS_ERROR}</Alert>}
       {isLoading && <p className="text-sm text-slate-500">{T.LOADING_PAYMENT_STATUS}</p>}
       {!isLoading && !order && (
