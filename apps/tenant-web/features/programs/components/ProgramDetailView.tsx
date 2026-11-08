@@ -11,6 +11,7 @@ import {
   TabPanel,
   useToast,
   useDashboardBreadcrumbLabel,
+  useRememberedState,
 } from "@pte/ui";
 import { ClassesSection } from "@/features/classes/components";
 import { useProgram, useProgramDashboard, useProgramStatusMutations } from "../api";
@@ -50,7 +51,7 @@ const ProgramDetailContent = ({
   useDashboardBreadcrumbLabel(pathname, query.data?.name);
   const dashboard = useProgramDashboard(organizationPublicId, programPublicId);
   const mutations = useProgramStatusMutations(organizationPublicId, programPublicId);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useRememberedState<string>("tab", "overview");
   const [command, setCommand] = useState<ProgramCommand | null>(null);
   const pending =
     mutations.activate.isPending || mutations.suspend.isPending || mutations.archive.isPending;

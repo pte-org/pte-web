@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 
-import { useState, type ReactElement } from "react";
+import type { ReactElement } from "react";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import {
   Alert,
@@ -14,6 +14,7 @@ import {
   useLocale,
   useToast,
   useDashboardBreadcrumbLabel,
+  useRememberedState,
 } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useCurrentUser } from "@/features/auth/api";
@@ -57,7 +58,7 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
   useDashboardBreadcrumbLabel(pathname, tenant?.name);
   const updateBranding = useUpdateBranding(tenantPublicId);
 
-  const [activeSection, setActiveSection] = useState("tenant");
+  const [activeSection, setActiveSection] = useRememberedState<string>("section", "tenant");
   const { t } = useLocale();
   const { showToast } = useToast();
 

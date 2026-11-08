@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, type ReactElement, type ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
+import { useRememberedState } from "../hooks/useRememberedState";
 import { TabRailCard } from "./TabRailCard";
 import { Tabs, type TabItem } from "./Tabs";
 
@@ -58,8 +59,8 @@ export const SectionedTableCard = <TView extends string>({
   sidePanel,
   children,
 }: SectionedTableCardProps<TView>): ReactElement => {
-  const [activeTab, setActiveTab] = useState(allTabId);
-  const [view, setView] = useState<TView>(defaultView);
+  const [activeTab, setActiveTab] = useRememberedState(`${id}:tab`, allTabId);
+  const [view, setView] = useRememberedState<TView>(`${id}:view`, defaultView);
   const tabItems: TabItem[] = [
     { id: allTabId, label: allLabel, count: countOf(null) },
     ...sections.map((section) => ({

@@ -16,6 +16,7 @@ import {
   TrashIcon,
   UploadIcon,
   useToast,
+  useRememberedState,
 } from "@pte/ui";
 import type { ActionMenuItem, DataTableColumn } from "@pte/ui";
 import {
@@ -76,7 +77,7 @@ export const QuestionTypeView = (): ReactElement => {
   const submitMutation = useSubmitTaskTypeApproval();
   const approveMutation = useApproveTaskType();
   const { showToast } = useToast();
-  const [section, setSection] = useState(SCORE_TEMPLATE_ALL_TAB);
+  const [section, setSection] = useRememberedState<string>("section", SCORE_TEMPLATE_ALL_TAB);
   const sectionItems = useSectionTabItems((value) =>
     value === null
       ? questionTypes.length
