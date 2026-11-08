@@ -42,9 +42,6 @@ export const HOME_TEXT = {
   permanent: "Permanent access",
   existingOrganization: "Existing organization?",
   manageSubscriptions: "Sign in to manage your subscriptions",
-  closingTitle: "Make space for a smoother exam day.",
-  closingDescription: "Start with your organization. Bring your team along.",
-  footer: "Organization portal · Practice today. Higher tomorrow.",
 } as const;
 
 export const HOME_STEPS = [

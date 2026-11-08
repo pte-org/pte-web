@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 import { PublicShell } from "./PublicShell";
 import { HomeHero } from "./HomeHero";
 import { HomePlans } from "./HomePlans";
-import { HomeClosing, HomeTeam, HomeWorkflow } from "./HomeStory";
+import { HomeTeam, HomeWorkflow } from "./HomeStory";
 
 export const HomeView = (): ReactElement => (
   <PublicShell home>
@@ -10,6 +10,5 @@ export const HomeView = (): ReactElement => (
     <HomeWorkflow />
     <HomeTeam />
     <HomePlans />
-    <HomeClosing />
   </PublicShell>
 );

@@ -44,9 +44,6 @@ export const HOME_TEXT_VI = {
   permanent: "Sử dụng vĩnh viễn",
   existingOrganization: "Đã có tổ chức?",
   manageSubscriptions: "Đăng nhập để quản lý gói dịch vụ",
-  closingTitle: "Cùng chuẩn bị cho một kỳ thi thuận lợi hơn.",
-  closingDescription: "Bắt đầu với tổ chức của bạn. Kết nối cả đội ngũ.",
-  footer: "Cổng tổ chức · Luyện tập hôm nay. Tiến xa ngày mai.",
 } as const;
 
 export const HOME_STEPS_VI = [
