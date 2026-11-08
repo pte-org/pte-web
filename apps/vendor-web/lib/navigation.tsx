@@ -15,6 +15,7 @@ import {
   OrganizationIcon,
   NavUserGroupIcon,
   SparklesIcon,
+  MessageSquareTextIcon,
 } from "@pte/ui";
 import type { NavItem } from "@/features/auth/components";
 import {
@@ -123,7 +124,7 @@ export const ADMIN_NAV: NavItem[] = [
     label: T.AI_PROMPTS,
     labelKey: "nav.aiPrompts",
     href: AI_PROMPTS_PATH,
-    icon: <LayoutTemplateIcon />,
+    icon: <MessageSquareTextIcon />,
     section: T.AI_SECTION,
     sectionKey: "nav.ai",
     requiredRoles: ACADEMIC_ROLES,
