@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ChatUsageDayResponse } from "@pte/api-client";
-import { activeDays, chartRows, failedTone, failureReasons, isSameRange, usagePresets } from "./presentation";
+import { activeDays, chartRows, failedTone, failureReasons } from "./presentation";
 
 function day(overrides: Partial<ChatUsageDayResponse> = {}): ChatUsageDayResponse {
   return {
@@ -78,30 +78,5 @@ describe("failedTone", () => {
     [30, "danger"],
   ] as const)("a failed rate of %s%% is %s", (rate, tone) => {
     expect(failedTone(rate)).toBe(tone);
-  });
-});
-
-describe("usagePresets", () => {
-  // 2026-10-29 03:00 UTC is 10:00 on the same day in Vietnam.
-  const now = new Date("2026-10-29T03:00:00Z");
-
-  it("offers the last 7 days, the last 30 days and this month, ending today in Vietnam", () => {
-    expect(usagePresets(now)).toEqual([
-      { key: "last7", from: "2026-10-23", to: "2026-10-29" },
-      { key: "last30", from: "2026-09-30", to: "2026-10-29" },
-      { key: "thisMonth", from: "2026-10-01", to: "2026-10-29" },
-    ]);
-  });
-
-  it("uses the Vietnam calendar day, which is already tomorrow late in the evening UTC", () => {
-    const late = new Date("2026-10-29T20:00:00Z"); // 03:00 on the 30th in Vietnam
-    expect(usagePresets(late)[2]).toEqual({ key: "thisMonth", from: "2026-10-01", to: "2026-10-30" });
-  });
-});
-
-describe("isSameRange", () => {
-  it("compares both ends", () => {
-    expect(isSameRange({ from: "2026-10-01", to: "2026-10-29" }, { from: "2026-10-01", to: "2026-10-29" })).toBe(true);
-    expect(isSameRange({ from: "2026-10-01", to: "2026-10-29" }, { from: "2026-10-02", to: "2026-10-29" })).toBe(false);
   });
 });

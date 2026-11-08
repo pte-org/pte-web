@@ -11,7 +11,6 @@ export const ADMIN_NAV_TEXT = {
   TASK_TYPES: "Task Type Catalog",
   EXAM_TEMPLATES: "Exam Templates",
   SCORING_RUBRIC: "Criteria & scoring",
-  SCORING_SIMULATOR: "Try scoring",
   EXAM_STUDIO: "Content Hub",
   HOME_SECTION: "Home",
   TENANTS_SECTION: "Tenants",
@@ -21,4 +20,8 @@ export const ADMIN_NAV_TEXT = {
   SUPPORT_TICKETS: "Support Tickets",
   SYSTEM_LOG: "System log",
   CHAT_USAGE: "AI chat usage",
+  AI_SECTION: "AI",
+  AI_OVERVIEW: "AI overview",
+  AI_QUESTION_GENERATION: "AI question generation",
+  AI_PROMPTS: "AI prompts",
 } as const;

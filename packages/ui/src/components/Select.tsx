@@ -46,8 +46,8 @@ interface ListPosition {
 
 const GAP_PX = 4;
 const VIEWPORT_PADDING_PX = 8;
-const SELECT_BACKDROP_Z_INDEX = 55;
-const SELECT_LIST_Z_INDEX = 60;
+const SELECT_BACKDROP_Z_INDEX = 105;
+const SELECT_LIST_Z_INDEX = 110;
 
 /**
  * Shared listbox select. It keeps the native form-facing API used by both

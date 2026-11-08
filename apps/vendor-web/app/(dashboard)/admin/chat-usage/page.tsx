@@ -1,11 +1,7 @@
-import { RequireAuth } from "@/features/auth/components";
-import { PLATFORM_ADMIN_ONLY } from "@/features/auth/constants";
-import { ChatUsageView } from "@/features/chatUsage/components";
+import { redirect } from "next/navigation";
+import { AI_ADMIN_BASE_PATH } from "@/features/aiadmin/constants";
 
-export default function ChatUsagePage() {
-  return (
-    <RequireAuth allowedRoles={PLATFORM_ADMIN_ONLY}>
-      <ChatUsageView />
-    </RequireAuth>
-  );
+/** Question generation and chatbot usage are tabs of the AI overview now; an old link lands there. */
+export default function ChatUsagePage(): never {
+  redirect(AI_ADMIN_BASE_PATH);
 }

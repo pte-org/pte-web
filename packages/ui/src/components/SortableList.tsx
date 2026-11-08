@@ -22,6 +22,13 @@ export interface SortableListProps<T> {
   dragHandleLabel: string;
   /** Tailwind grid columns for the row card from `sm` up, e.g. `sm:grid-cols-[1fr_120px_40px]`. */
   columnsClassName: string;
+  /**
+   * Draw the drag handle inside the card's border instead of beside it, for rows that hold a form and are
+   * laid out freely (the columns class is then ignored).
+   */
+  handleInside?: boolean;
+  /** Rows that cannot be dragged: they show no handle and keep their place while the others move. */
+  isLocked?: (item: T) => boolean;
   ariaLabel?: string;
   emptyContent?: ReactNode;
   className?: string;
@@ -33,10 +40,15 @@ const CARD_CLASS =
 const HANDLE_CLASS =
   "flex h-8 w-6 shrink-0 cursor-grab touch-none items-center justify-center rounded-md text-[var(--ink-muted)] transition-colors hover:text-[var(--ink-primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35 active:cursor-grabbing";
 
+const INSIDE_CARD_CLASS =
+  "flex min-w-0 items-start gap-2.5 rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] px-3 py-4 shadow-xs transition-shadow duration-200 hover:shadow-sm";
+
 interface SortableRowProps {
   id: string;
   handleLabel: string;
   columnsClassName: string;
+  handleInside: boolean;
+  locked: boolean;
   children: ReactNode;
 }
 
@@ -44,10 +56,40 @@ const SortableRow = ({
   id,
   handleLabel,
   columnsClassName,
+  handleInside,
+  locked,
   children,
 }: SortableRowProps): ReactElement => {
   const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } =
-    useSortable({ id });
+    useSortable({ id, disabled: locked });
+
+  const handle = locked ? (
+    <span className="h-8 w-6 shrink-0" aria-hidden="true" />
+  ) : (
+    <button
+      type="button"
+      ref={setActivatorNodeRef}
+      aria-label={handleLabel}
+      className={HANDLE_CLASS}
+      {...attributes}
+      {...listeners}
+    >
+      <GripVerticalIcon className="h-5 w-5" />
+    </button>
+  );
+
+  if (handleInside) {
+    return (
+      <li
+        ref={setNodeRef}
+        style={getRowDragStyle(transform, transition)}
+        className={cn(INSIDE_CARD_CLASS, isDragging && "relative z-10 opacity-70")}
+      >
+        {handle}
+        <div className="min-w-0 flex-1">{children}</div>
+      </li>
+    );
+  }
 
   return (
     <li
@@ -55,16 +97,7 @@ const SortableRow = ({
       style={getRowDragStyle(transform, transition)}
       className={cn(ROW_CLASS, isDragging && "relative z-10 opacity-70")}
     >
-      <button
-        type="button"
-        ref={setActivatorNodeRef}
-        aria-label={handleLabel}
-        className={HANDLE_CLASS}
-        {...attributes}
-        {...listeners}
-      >
-        <GripVerticalIcon className="h-5 w-5" />
-      </button>
+      {handle}
       <div className={cn(CARD_CLASS, columnsClassName)}>{children}</div>
     </li>
   );
@@ -77,6 +110,8 @@ export const SortableList = <T,>({
   onReorder,
   dragHandleLabel,
   columnsClassName,
+  handleInside = false,
+  isLocked,
   ariaLabel,
   emptyContent,
   className,
@@ -101,6 +136,8 @@ export const SortableList = <T,>({
         id={ids[index]}
         handleLabel={dragHandleLabel}
         columnsClassName={columnsClassName}
+        handleInside={handleInside}
+        locked={isLocked?.(item) ?? false}
       >
         {renderCells(item, index)}
       </SortableRow>

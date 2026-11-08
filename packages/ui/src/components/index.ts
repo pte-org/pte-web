@@ -87,6 +87,8 @@ export type {
   DataTableSortValue,
 } from "./DataTable";
 export { DateRangePicker } from "./DateRangePicker";
+export { DateRangeFilter, calendarDate, lastDaysRange, standardDateRangePresets } from "./DateRangeFilter";
+export type { DateRangeFilterProps, DateRangePreset } from "./DateRangeFilter";
 export type { DateRangePickerProps, DateRangeValue } from "./DateRangePicker";
 export { PaginationControls, PaginationPageSizeSelect } from "./PaginationControls";
 export type { PageMeta, PaginationPageSizeSelectProps } from "./PaginationControls";
@@ -178,6 +180,6 @@ export { MailIcon, LockIcon, GradCapIcon, EyeIcon } from "./AuthIcons";
 export { PteOrbitPanel } from "./PteOrbitPanel";
 export type { PteOrbitPanelProps } from "./PteOrbitPanel";
 
-export { OrganizationIcon, PackageIcon, KeyRoundIcon, PanelsTopLeftIcon, ShapesIcon, LayoutTemplateIcon, SlidersHorizontalIcon, CalculatorIcon, LibraryBigIcon, GearIcon, HeadsetIcon, HistoryIcon, MessageSquareTextIcon, ClipboardCheckIcon } from "./SidebarIcons";
+export { OrganizationIcon, PackageIcon, KeyRoundIcon, PanelsTopLeftIcon, ShapesIcon, LayoutTemplateIcon, SlidersHorizontalIcon, CalculatorIcon, LibraryBigIcon, GearIcon, HeadsetIcon, HistoryIcon, MessageSquareTextIcon, ClipboardCheckIcon, SparklesIcon } from "./SidebarIcons";
 
 export { IdCardIcon, PresentationIcon, ClipboardListIcon, CreditCardIcon } from "./SidebarIcons";

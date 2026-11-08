@@ -59,4 +59,19 @@ export {
   updateQuestionGenerationJobStatus,
   getQuestionGenerationTaskTypes,
   getQuestionGenerationQuota,
+  followQuestionGenerationJob,
 } from "./generation";
+
+// AI administration
+export {
+  AI_ADMIN_ENDPOINTS,
+  getAiStatus,
+  getPromptCatalog,
+  getPromptDocument,
+  getGenerationStats,
+  getPromptWorkspace,
+  savePromptProposal,
+  getPromptVersion,
+  testPromptVersion,
+  changePromptVersionStatus,
+} from "./ai";

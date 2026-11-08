@@ -11,11 +11,10 @@ import {
   HeadsetIcon,
   HistoryIcon,
   SlidersHorizontalIcon,
-  CalculatorIcon,
-  MessageSquareTextIcon,
   ShapesIcon,
   OrganizationIcon,
   NavUserGroupIcon,
+  SparklesIcon,
 } from "@pte/ui";
 import type { NavItem } from "@/features/auth/components";
 import {
@@ -23,6 +22,7 @@ import {
   PLATFORM_ADMIN_ONLY,
   PLATFORM_OPERATIONS_ROLES,
 } from "@/features/auth/constants";
+import { AI_ADMIN_BASE_PATH, AI_PROMPTS_PATH } from "@/features/aiadmin/constants";
 import { SCORING_RUBRIC_BASE_PATH } from "@/features/scoringrubric/constants";
 import { ADMIN_NAV_TEXT as T } from "./navigationConstants";
 
@@ -93,6 +93,15 @@ export const ADMIN_NAV: NavItem[] = [
     requiredRoles: ACADEMIC_ROLES,
   },
   {
+    label: T.QUESTION_BANK,
+    labelKey: "nav.questionBank",
+    href: "/admin/questions",
+    icon: <LibraryBigIcon />,
+    section: T.CONTENT_SECTION,
+    sectionKey: "nav.content",
+    requiredRoles: ACADEMIC_ROLES,
+  },
+  {
     label: T.SCORING_RUBRIC,
     labelKey: "nav.scoringRubric",
     href: SCORING_RUBRIC_BASE_PATH,
@@ -101,14 +110,22 @@ export const ADMIN_NAV: NavItem[] = [
     sectionKey: "nav.content",
     requiredRoles: ACADEMIC_ROLES,
   },
-  { label: T.SCORING_SIMULATOR, labelKey: "nav.scoringSimulator", href: "/admin/scoring-simulator", icon: <CalculatorIcon />, section: T.CONTENT_SECTION, sectionKey: "nav.content", requiredRoles: ACADEMIC_ROLES },
   {
-    label: T.QUESTION_BANK,
-    labelKey: "nav.questionBank",
-    href: "/admin/questions",
-    icon: <LibraryBigIcon />,
-    section: T.CONTENT_SECTION,
-    sectionKey: "nav.content",
+    label: T.AI_OVERVIEW,
+    labelKey: "nav.aiOverview",
+    href: AI_ADMIN_BASE_PATH,
+    icon: <SparklesIcon />,
+    section: T.AI_SECTION,
+    sectionKey: "nav.ai",
+    requiredRoles: PLATFORM_ADMIN_ONLY,
+  },
+  {
+    label: T.AI_PROMPTS,
+    labelKey: "nav.aiPrompts",
+    href: AI_PROMPTS_PATH,
+    icon: <LayoutTemplateIcon />,
+    section: T.AI_SECTION,
+    sectionKey: "nav.ai",
     requiredRoles: ACADEMIC_ROLES,
   },
   {
@@ -146,15 +163,6 @@ export const ADMIN_NAV: NavItem[] = [
     section: T.SYSTEM_SECTION,
     sectionKey: "nav.system",
     requiredRoles: PLATFORM_OPERATIONS_ROLES,
-  },
-  {
-    label: T.CHAT_USAGE,
-    labelKey: "nav.chatUsage",
-    href: "/admin/chat-usage",
-    icon: <MessageSquareTextIcon />,
-    section: T.SYSTEM_SECTION,
-    sectionKey: "nav.system",
-    requiredRoles: PLATFORM_ADMIN_ONLY,
   },
 ];
 
