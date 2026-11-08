@@ -4,6 +4,8 @@
  * (Not to be confused with exam form generation in scheduling)
  */
 
+import type { CreateQuestionRequest } from "../question";
+
 export type QuestionGenerationJobStatus = "QUEUED" | "RUNNING" | "COMPLETED" | "FAILED" | "CANCELLING" | "CANCELLED";
 
 export type QuestionGenerationItemStage =
@@ -12,6 +14,8 @@ export type QuestionGenerationItemStage =
   | "VALIDATING"
   | "REVIEWING"
   | "RENDERING_MEDIA"
+  /** Written into the question form it was asked from and not saved: the person decides. */
+  | "READY"
   | "SAVED"
   | "FAILED"
   | "CANCELLED";
@@ -69,6 +73,27 @@ export interface QuestionGenerationLiveItem {
   reviewer: QuestionGenerationLiveText | null;
   audioRef: string | null;
   imageRef: string | null;
+  /** The generator's latest draft as the question form's fields (absent from an older server). */
+  draft?: QuestionGenerationLiveDraft | null;
+  /** The last verdict of a reviewer. */
+  review?: QuestionGenerationLiveReview | null;
+}
+
+export interface QuestionGenerationLiveDraft {
+  index: number;
+  /** 1 for the first draft, 2 for the rewrite after a rejection. */
+  attempt: number;
+  fields: CreateQuestionRequest;
+}
+
+export interface QuestionGenerationLiveReview {
+  index: number;
+  /** CONTENT for the text, IMAGE for a drawn chart. */
+  kind: "CONTENT" | "IMAGE";
+  passed: boolean;
+  fixSuggestion: string | null;
+  /** The note of every check that failed, by check name. */
+  notes: Record<string, string>;
 }
 
 /** The events of `GET /question-generation/jobs/{id}/live`, by name. */
@@ -78,6 +103,8 @@ export type QuestionGenerationLiveEvent =
   | { type: "token"; index: number; agent: QuestionGenerationLiveAgent; delta: string }
   | { type: "stage"; index: number; stage: QuestionGenerationItemStage }
   | { type: "media"; index: number; audioRef: string | null; imageRef: string | null }
+  | ({ type: "draft" } & QuestionGenerationLiveDraft)
+  | ({ type: "review" } & QuestionGenerationLiveReview)
   | { type: "item"; index: number }
   | { type: "end"; finished: boolean };
 
@@ -92,6 +119,8 @@ export interface QuestionGenerationJobCreateRequest {
   pool: string; // PRACTICE or EXAM
   topicHint?: string | null;
   count: number;
+  /** False for a question written into the form only; the person saves it. Defaults to true. */
+  saveQuestions?: boolean;
 }
 
 export interface QuestionGenerationJobStatusRequest {

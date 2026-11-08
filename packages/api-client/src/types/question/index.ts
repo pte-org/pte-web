@@ -84,9 +84,10 @@ export interface GenerationMetricsResponse {
 }
 
 export interface GenerationMediaResponse {
-  voice: string;
-  speed: number;
-  durationSec: number;
+  voice: string | null;
+  speed: number | null;
+  durationSec: number | null;
+  chartType: string | null;
 }
 
 export interface CheckResultResponse {
