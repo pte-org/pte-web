@@ -19,9 +19,9 @@ describe("simulator boundaries", () => {
       expect(text, path).not.toMatch(/Math\.round|reduce\(|\.achieved\s*\/|\.effectiveWeight\s*\*/);
     }
   });
-  it("provides matching translated keys and complete route files", () => {
+  it("provides matching translated keys and the page that redirects to the rubric screen", () => {
     expect(Object.keys(SIMULATOR_TEXT.vi)).toEqual(Object.keys(SIMULATOR_TEXT.en));
-    for (const name of ["page.tsx", "loading.tsx", "error.tsx"]) {
+    for (const name of ["page.tsx"]) {
       expect(existsSync(fileURLToPath(new URL(`../../../../app/(dashboard)/admin/scoring-simulator/${name}`, import.meta.url)))).toBe(true);
     }
   });

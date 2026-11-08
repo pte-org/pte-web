@@ -1,7 +1,7 @@
-import type { ReactElement } from "react";
-import { RequireAuth } from "@/features/auth/components";
-import { ACADEMIC_ROLES } from "@/features/auth/constants";
-import { RubricVersionListView } from "@/features/scoringrubric/components/RubricVersionListView";
+import { redirect } from "next/navigation";
+import { SCORING_RUBRIC_BASE_PATH } from "@/features/scoringrubric/constants";
 
-const RubricVersionsPage = (): ReactElement => <RequireAuth allowedRoles={ACADEMIC_ROLES}><RubricVersionListView /></RequireAuth>;
-export default RubricVersionsPage;
+/** The versions are the rubric screen's own list now; an old link or bookmark lands there. */
+export default function RubricVersionsPage(): never {
+  redirect(SCORING_RUBRIC_BASE_PATH);
+}

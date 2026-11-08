@@ -24,7 +24,7 @@ it("uses an exact number input for per-word content rather than dozens of option
   expect(html).toContain('type="number"'); expect(html).toContain('max="60"');
   expect(html).not.toContain('aria-pressed="true"');
 });
-it("shows the API item score, translates the gate and initially collapses calculation details", () => {
+it("shows the API item score, translates the gate and keeps calculation details in a popup that starts closed", () => {
   const html = renderToStaticMarkup(<LocaleProvider><SimulationTrace rubric={task} text={SIMULATOR_TEXT.vi} result={{
     rubricVersionPublicId: "v1", rawScore: 0, formBand: null,
     scoreTrace: { itemScore: 0, rawPercent: 32.123456, gateTriggeredBy: "CONTENT", contributions: [
@@ -32,7 +32,7 @@ it("shows the API item score, translates the gate and initially collapses calcul
     ] },
   }} /></LocaleProvider>);
   expect(html).toContain("0 / 100"); expect(html).toContain(SIMULATOR_TEXT.vi.gateReason);
-  expect(html).toContain('aria-expanded="false"');
+  expect(html).toContain(SIMULATOR_TEXT.vi.details); expect(html).not.toContain('role="dialog"');
   expect(html).not.toContain("32.123456");
 });
 

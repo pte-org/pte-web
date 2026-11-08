@@ -4,7 +4,7 @@ import { createRubricVersion, updateRubricVersion, changeRubricVersionStatus, ge
 
 it("uses version create/update/status/diff/audit endpoints and preserves confirmation and optimistic version", async () => {
   const request = vi.fn().mockResolvedValue({});
-  const client: ApiClient = { request, upload: vi.fn(), download: vi.fn(), uploadDownload: vi.fn(), ensureFreshAccessToken: vi.fn() };
+  const client: ApiClient = { request, upload: vi.fn(), download: vi.fn(), uploadDownload: vi.fn(), ensureFreshAccessToken: vi.fn(), openStream: vi.fn() };
   const payload = { parameters: { azureBandMappingVersion: 1, taskTypes: {} }, expectedLockVersion: 4 };
   await createRubricVersion(client, payload);
   await updateRubricVersion(client, "v1", payload);

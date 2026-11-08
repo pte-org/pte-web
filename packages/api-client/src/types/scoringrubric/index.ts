@@ -115,6 +115,13 @@ export interface RubricVersionResponse {
   decidedAt: string | null;
   activatedAt: string | null;
   retiredAt: string | null;
+  /** When the version was made and last changed; null only in an answer to a change, which carries no names either. */
+  createdAt?: string | null;
+  updatedAt?: string | null;
+  /** Who last changed it (the author for a version nobody changed since). */
+  updatedByUserPublicId?: string | null;
+  authorName?: string | null;
+  updatedByName?: string | null;
 }
 
 export interface RubricTaskParameters {
@@ -146,4 +153,5 @@ export interface RubricActivationAuditResponse {
   actorUserPublicId: string;
   activatedAt: string;
   diffSummary: string | null;
+  reason: string | null;
 }

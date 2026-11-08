@@ -1,11 +1,11 @@
 import { RequireAuth } from "@/features/auth/components";
 import { ACADEMIC_ROLES } from "@/features/auth/constants";
-import { RubricTaskTypeListView } from "@/features/scoringrubric/components";
+import { RubricVersionListView } from "@/features/scoringrubric/components/RubricVersionListView";
 
 export default function ScoringRubricPage() {
   return (
     <RequireAuth allowedRoles={ACADEMIC_ROLES}>
-      <RubricTaskTypeListView />
+      <RubricVersionListView />
     </RequireAuth>
   );
 }

@@ -2,9 +2,10 @@
 
 import { useState, type ReactElement } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Badge, DashboardCard, ErrorState, LoadingState, TabPanel, Tabs, type TabItem } from "@pte/ui";
+import { Badge, DashboardCard, ErrorState, LoadingState, TabPanel, Tabs, useDashboardBreadcrumbLabel, useLocale, type TabItem } from "@pte/ui";
 import { useScoreTemplates } from "@/features/scoretemplate/api";
 import { useRubricTaskType, useRubricVersions } from "../api";
+import { RUBRIC_VERSION_PARAM } from "../constants";
 import { useScoringRubricText } from "../hooks/useScoringRubricText";
 import { findTemplateWeights, resolveSelectedTemplate } from "../rubricView";
 import { RubricOverviewTab } from "./_RubricOverviewTab";
@@ -17,6 +18,7 @@ interface RubricDetailViewProps {
   taskType: string;
 }
 
+import { RUBRIC_EDIT_TEXT, versionDetailHref } from "../versionConstants";
 const TAB_PARAM = "tab";
 const TABS_ID = "scoring-rubric-detail-tabs";
 type DetailTab = "overview" | "criteria" | "levels" | "weights";
@@ -31,15 +33,22 @@ const isDetailTab = (value: string | null): value is DetailTab =>
  */
 export const RubricDetailView = ({ taskType }: RubricDetailViewProps): ReactElement => {
   const { messages: M, codeLabel } = useScoringRubricText();
+  const { locale } = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const templatesQuery = useScoreTemplates();
   const versionsQuery = useRubricVersions();
+  const versionParam = searchParams.get(RUBRIC_VERSION_PARAM);
+  const openedFrom = versionsQuery.data?.find((version) => version.publicId === versionParam);
+  // Opened from a version: the trail goes through it, so the way back is one click.
+  useDashboardBreadcrumbLabel(pathname, taskType, openedFrom
+    ? [{ label: `${RUBRIC_EDIT_TEXT[locale === "vi" ? "vi" : "en"].title} ${openedFrom.versionNo}`, href: versionDetailHref(openedFrom.publicId) }]
+    : undefined);
   const templates = templatesQuery.data ?? [];
   const selected = resolveSelectedTemplate(templates, selectedId);
-  const rubricQuery = useRubricTaskType(taskType, selected?.rubricVersionPublicId ?? null, !templatesQuery.isLoading);
+  const rubricQuery = useRubricTaskType(taskType, versionParam ?? selected?.rubricVersionPublicId ?? null, versionParam !== null || !templatesQuery.isLoading);
   const rubric = rubricQuery.data;
 
   const isObjective = Boolean(rubric?.objectiveRule);

@@ -24,5 +24,9 @@ export const SCORING_RUBRIC_QUERY_KEYS = {
   versions: () => [...SCORING_RUBRIC_QUERY_KEYS.all, "versions"] as const,
 };
 
-export const scoringRubricDetailHref = (taskType: string): string =>
-  `${SCORING_RUBRIC_BASE_PATH}/${encodeURIComponent(taskType)}`;
+/** The page of one task type; {@code versionId} shows that version's rubric instead of the active one. */
+export const scoringRubricDetailHref = (taskType: string, versionId?: string): string =>
+  `${SCORING_RUBRIC_BASE_PATH}/${encodeURIComponent(taskType)}${versionId ? `?${RUBRIC_VERSION_PARAM}=${encodeURIComponent(versionId)}` : ""}`;
+
+/** Query parameter that names the rubric version a task type page shows. */
+export const RUBRIC_VERSION_PARAM = "version";

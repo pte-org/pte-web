@@ -26,7 +26,7 @@ export const SIMULATOR_TEXT = {
     caps: "Toàn chữ hoa", punctuation: "Có dấu câu", bullets: "Chỉ gạch đầu dòng", error: "Không thể mô phỏng với đầu vào này.",
     score: "Điểm câu", raw: "Trước làm tròn", form: "Band Form", contribution: "Đóng góp (trọng số × đạt / tối đa)",
     trait: "Tiêu chí", achieved: "Đạt / tối đa", weight: "Trọng số hiệu lực", gate: "Điểm câu = 0 vì điều kiện chặn: ",
-    pending: "Đang cập nhật kết quả…", empty: "Chọn đủ điểm tiêu chí bên trái để xem điểm câu và cách tính.",
+    close: "Đóng", pending: "Đang cập nhật kết quả…", empty: "Chọn đủ điểm tiêu chí bên phải để xem điểm câu và cách tính.",
   },
   en: {
     intro: "Change trait scores to explore how an item score is calculated.",
@@ -45,22 +45,10 @@ export const SIMULATOR_TEXT = {
     caps: "All capitals", punctuation: "Has punctuation", bullets: "Bullet points only", error: "Cannot simulate these inputs.",
     score: "Item score", raw: "Before rounding", form: "Form band", contribution: "Contribution (weight × achieved / max)",
     trait: "Trait", achieved: "Achieved / maximum", weight: "Effective weight", gate: "Item score = 0 because of gate: ",
-    pending: "Updating result…", empty: "Select trait scores to view the server trace.",
+    close: "Close", pending: "Updating result…", empty: "Select trait scores on the right to view the server trace.",
   },
 } as const;
 
-export const SIMULATOR_TASK_LABELS: Record<string, { vi: string; en: string }> = {
-  READ_ALOUD: { vi: "Đọc thành tiếng", en: "Read Aloud" },
-  REPEAT_SENTENCE: { vi: "Lặp lại câu", en: "Repeat Sentence" },
-  DESCRIBE_IMAGE: { vi: "Mô tả hình ảnh", en: "Describe Image" },
-  RE_TELL_LECTURE: { vi: "Kể lại bài giảng", en: "Re-tell Lecture" },
-  RESPOND_TO_A_SITUATION: { vi: "Phản hồi tình huống", en: "Respond to a Situation" },
-  SUMMARIZE_GROUP_DISCUSSION: { vi: "Tóm tắt thảo luận nhóm", en: "Summarize Group Discussion" },
-  SUMMARIZE_WRITTEN_TEXT: { vi: "Tóm tắt văn bản", en: "Summarize Written Text" },
-  WRITE_ESSAY: { vi: "Viết luận", en: "Write Essay" },
-  SUMMARIZE_SPOKEN_TEXT: { vi: "Tóm tắt bài nói", en: "Summarize Spoken Text" },
-  ANSWER_SHORT_QUESTION: { vi: "Trả lời câu hỏi ngắn", en: "Answer Short Question" },
-};
 export const SIMULATOR_STATUS_LABELS: Record<string, { vi: string; en: string }> = {
   DRAFT: { vi: "Bản nháp", en: "Draft" }, PENDING: { vi: "Chờ duyệt", en: "Pending" },
   ACTIVE: { vi: "Đang hiệu lực", en: "Active" }, REJECTED: { vi: "Bị từ chối", en: "Rejected" },

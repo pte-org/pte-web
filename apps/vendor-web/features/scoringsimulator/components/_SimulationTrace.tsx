@@ -1,7 +1,7 @@
 "use client";
 
-import type { ReactElement } from "react";
-import { Alert, CollapsibleSection, StatCard, TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow, useLocale } from "@pte/ui";
+import { useState, type ReactElement } from "react";
+import { Alert, Button, Modal, StatCard, TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow, useLocale } from "@pte/ui";
 import type { RubricSimulationResponse, TaskTypeRubricResponse } from "@pte/api-client";
 import type { SimulatorText } from "../types";
 
@@ -13,12 +13,15 @@ export const SimulationTrace = ({ result, rubric, text: T }: SimulationTraceProp
     const trait = rubric.traits.find((entry) => entry.key === key);
     return (locale === "vi" ? trait?.displayNameVi : trait?.displayNameEn) ?? key;
   };
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const gate = result.scoreTrace.gateTriggeredBy;
   return <div className="space-y-5" aria-live="polite">
     <StatCard label={T.score} value={`${result.rawScore} ${T.scale}`} footnote={T.scoreHint} />
     {gate && <Alert tone="warning">{traitLabel(gate)} {T.gateReason}</Alert>}
     {result.formBand !== null && <p className="text-sm text-[var(--ink-secondary)]">{T.form}: {result.formBand}</p>}
-    <CollapsibleSection title={T.details} defaultExpanded={false}>
+    <Button variant="secondary" size="sm" fullWidth onClick={() => setDetailsOpen(true)}>{T.details}</Button>
+    <Modal open={detailsOpen} title={T.details} size="xl" closeOnBackdropClick onClose={() => setDetailsOpen(false)}
+      footer={<Button variant="ghost" onClick={() => setDetailsOpen(false)}>{T.close}</Button>}>
       <div className="space-y-3 overflow-x-auto">
         <p className="text-sm text-[var(--ink-secondary)]">{T.raw}: {result.scoreTrace.rawPercent}</p>
         <TableRoot><TableHeader><TableRow>
@@ -30,6 +33,6 @@ export const SimulationTrace = ({ result, rubric, text: T }: SimulationTraceProp
           </TableRow>)}
         </TableBody></TableRoot>
       </div>
-    </CollapsibleSection>
+    </Modal>
   </div>;
 };

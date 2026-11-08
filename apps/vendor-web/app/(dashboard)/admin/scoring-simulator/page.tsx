@@ -1,9 +1,7 @@
-import type { ReactElement } from "react";
-import { RequireAuth } from "@/features/auth/components";
-import { ACADEMIC_ROLES } from "@/features/auth/constants";
-import { ScoringSimulatorView } from "@/features/scoringsimulator/components/ScoringSimulatorView";
+import { redirect } from "next/navigation";
+import { SCORING_RUBRIC_BASE_PATH } from "@/features/scoringrubric/constants";
 
-const ScoringSimulatorPage = (): ReactElement => (
-  <RequireAuth allowedRoles={ACADEMIC_ROLES}><ScoringSimulatorView /></RequireAuth>
-);
-export default ScoringSimulatorPage;
+/** The simulator is a dialog on the rubric screen now; an old link or bookmark lands there. */
+export default function ScoringSimulatorPage(): never {
+  redirect(SCORING_RUBRIC_BASE_PATH);
+}
