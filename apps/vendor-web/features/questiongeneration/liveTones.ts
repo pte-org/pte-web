@@ -6,6 +6,8 @@ export interface LaneTone {
   header: string;
   dot: string;
   cursor: string;
+  /** A form field the agent is writing or reviewing: tinted and outlined in the agent's colour. */
+  mark: string;
 }
 
 export const LANE_TONES: Record<LiveLane, LaneTone> = {
@@ -14,30 +16,35 @@ export const LANE_TONES: Record<LiveLane, LaneTone> = {
     header: "text-indigo-700 dark:text-indigo-200",
     dot: "bg-indigo-500 dark:bg-indigo-300",
     cursor: "bg-indigo-500",
+    mark: "rounded-md bg-indigo-500/10 ring-2 ring-indigo-500/60 transition-colors duration-300",
   },
   REVIEWER: {
     frame: "border-rose-500/40 bg-rose-500/5",
     header: "text-rose-700 dark:text-rose-200",
     dot: "bg-rose-500 dark:bg-rose-300",
     cursor: "bg-rose-500",
+    mark: "rounded-md bg-rose-500/10 ring-2 ring-rose-500/60 transition-colors duration-300",
   },
   AUDIO: {
     frame: "border-teal-500/40 bg-teal-500/5",
     header: "text-teal-700 dark:text-teal-200",
     dot: "bg-teal-500 dark:bg-teal-300",
     cursor: "bg-teal-500",
+    mark: "rounded-md bg-teal-500/10 ring-2 ring-teal-500/60 transition-colors duration-300",
   },
   IMAGE: {
     frame: "border-amber-500/40 bg-amber-500/5",
     header: "text-amber-700 dark:text-amber-200",
     dot: "bg-amber-500 dark:bg-amber-300",
     cursor: "bg-amber-500",
+    mark: "rounded-md bg-amber-500/10 ring-2 ring-amber-500/60 transition-colors duration-300",
   },
   SAVE: {
     frame: "border-emerald-500/40 bg-emerald-500/5",
     header: "text-emerald-700 dark:text-emerald-200",
     dot: "bg-emerald-500 dark:bg-emerald-300",
     cursor: "bg-emerald-500",
+    mark: "rounded-md bg-emerald-500/10 ring-2 ring-emerald-500/60 transition-colors duration-300",
   },
 };
 

@@ -62,6 +62,7 @@ export const generationMessages = {
 
   // Progress tray
   generatingTitle: "Generating",
+  generateWithAi: "Generate with AI",
   generationProgressLabel: "{completed}/{total}",
   successCount: "{count} ✓",
   failureCount: "{count} ✗",

@@ -1,6 +1,10 @@
 import type { QuestionGenerationItemStage, QuestionGenerationJobStatus } from "@pte/api-client";
 
 /** The page where a job is followed while the agents write. */
+/** How long the finished run stays on screen before its question goes back to the form. */
+export const FORM_RETURN_PAUSE_MS = 1500;
+/** The new-question form, filled with what a form-started job wrote. */
+export const formFillHref = (jobId: string): string => `/admin/questions/new?fromJob=${jobId}`;
 export const generationLiveHref = (jobId: string): string => `/admin/questions/ai-generation/${jobId}`;
 /** The page where the drafts of a finished job are reviewed. */
 export const generationReviewHref = (jobId: string): string => `/admin/questions/ai-review?job=${jobId}`;
@@ -21,7 +25,7 @@ export const TYPING_CATCH_UP_FRAMES = 40;
 
 export const TERMINAL_JOB_STATUSES: readonly QuestionGenerationJobStatus[] = ["COMPLETED", "FAILED", "CANCELLED"];
 export const ACTIVE_JOB_STATUSES: readonly QuestionGenerationJobStatus[] = ["QUEUED", "RUNNING", "CANCELLING"];
-export const TERMINAL_ITEM_STAGES: readonly string[] = ["SAVED", "FAILED", "CANCELLED"];
+export const TERMINAL_ITEM_STAGES: readonly string[] = ["READY", "SAVED", "FAILED", "CANCELLED"];
 
 /** The steps of one item, each done by its own agent, in the order they run. */
 export type LiveLane = "GENERATOR" | "REVIEWER" | "AUDIO" | "IMAGE" | "SAVE";
@@ -109,11 +113,11 @@ export const STAGE_LABELS: {
 } = {
   vi: {
     QUEUED: "Đang chờ", GENERATING: "Đang viết đề", VALIDATING: "Đang kiểm tra", REVIEWING: "Đang review",
-    RENDERING_MEDIA: "Đang tạo media", SAVED: "Đã lưu", FAILED: "Lỗi", CANCELLED: "Đã dừng",
+    RENDERING_MEDIA: "Đang tạo media", READY: "Đã soạn xong", SAVED: "Đã lưu", FAILED: "Lỗi", CANCELLED: "Đã dừng",
   },
   en: {
     QUEUED: "Waiting", GENERATING: "Writing", VALIDATING: "Checking", REVIEWING: "Reviewing",
-    RENDERING_MEDIA: "Making media", SAVED: "Saved", FAILED: "Failed", CANCELLED: "Stopped",
+    RENDERING_MEDIA: "Making media", READY: "Written", SAVED: "Saved", FAILED: "Failed", CANCELLED: "Stopped",
   },
 };
 
@@ -150,3 +154,6 @@ export const REVIEW_CHECK_LABELS: { vi: Record<string, string>; en: Record<strin
     scorability: "Can be scored", clarity: "Clear wording", safety: "Safe content",
   },
 };
+
+
+

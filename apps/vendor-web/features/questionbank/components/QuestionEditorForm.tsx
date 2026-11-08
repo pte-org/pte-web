@@ -19,6 +19,9 @@ import { useCreateQuestion, useCreateQuestionRevision, useUpdateQuestion } from 
 import { usePromptMediaUrl } from "../hooks/usePromptMediaUrl";
 import { poolToAvailability, resolveCurrentPool } from "../poolAvailability";
 import { MediaFileField } from "./_MediaFileField";
+import { AgentMark } from "./_AgentMark";
+import { useAgentValues } from "../hooks/useAgentValues";
+import type { AgentFill } from "@/features/questiongeneration/editorAgent";
 import { PoolChangeDialog } from "./_PoolChangeDialog";
 import {
   CEFR_LEVELS,
@@ -49,6 +52,8 @@ interface QuestionEditorFormProps {
   saveAsRevision?: boolean;
   /** Limits the task type dropdown to one exam section; omit to list every task type. */
   sectionFilter?: string;
+  /** AI agents writing this question: their values fill the form, marked fields show who works where. */
+  agent?: AgentFill | null;
 }
 
 const fieldClass =
@@ -61,6 +66,7 @@ export const QuestionEditorForm = ({
   onPreviewChange,
   saveAsRevision = false,
   sectionFilter,
+  agent,
 }: QuestionEditorFormProps): ReactElement => {
   const T = useAdminCopy(RAW_QUESTION_EDITOR_TEXT);
   const E = useAdminCopy(RAW_QUESTION_EDITOR_ERRORS);
@@ -113,6 +119,11 @@ export const QuestionEditorForm = ({
       ],
   );
   const [error, setError] = useState<string | null>(null);
+  const marks = agent?.marks ?? {};
+  useAgentValues(agent?.values, {
+    setTaskType, setPool, setCefrLevel, setPromptText, setReferenceAnswerText, setCorrectAnswerText,
+    setMinWordCount, setMaxWordCount, setAudioPromptRef, setImagePromptRef, setOptions,
+  });
   const [uploadingKind, setUploadingKind] = useState<"AUDIO_PROMPT" | "IMAGE_PROMPT" | null>(null);
   const isPending =
     createMutation.isPending || updateMutation.isPending || revisionMutation.isPending;
@@ -303,7 +314,8 @@ export const QuestionEditorForm = ({
       : T.POOL_HELPER_LOCKED;
 
   return (
-    <form className="flex max-w-4xl flex-col gap-4" onSubmit={submit}>
+    <form className="flex max-w-4xl flex-col gap-4" onSubmit={submit} aria-busy={agent?.locked || undefined}>
+      <fieldset disabled={agent?.locked} className="contents">
       <h2 className="text-xl font-semibold text-gray-900">
         {question ? T.FORM_EDIT_TITLE : T.FORM_CREATE_TITLE}
       </h2>
@@ -349,14 +361,16 @@ export const QuestionEditorForm = ({
         ]}
         helperText={T.CEFR_HELPER}
       />
-      <label className="text-sm font-medium text-gray-700">
-        {T.PROMPT_TEXT}
-        <textarea
-          className={`${fieldClass} mt-1 min-h-28`}
-          value={promptText}
-          onChange={(event) => setPromptText(event.target.value)}
-        />
-      </label>
+      <AgentMark lane={marks.promptText}>
+        <label className="text-sm font-medium text-gray-700">
+          {T.PROMPT_TEXT}
+          <textarea
+            className={`${fieldClass} mt-1 min-h-28`}
+            value={promptText}
+            onChange={(event) => setPromptText(event.target.value)}
+          />
+        </label>
+      </AgentMark>
       {questionType?.requiresAudioPrompt && (
         <MediaFileField
           id="question-audio-prompt"
@@ -386,6 +400,7 @@ export const QuestionEditorForm = ({
         />
       )}
       {questionType?.requiresWordCount && (
+        <AgentMark lane={marks.wordCount}>
         <div className="grid gap-4 md:grid-cols-2">
           <Input
             label={T.MIN_WORD_COUNT}
@@ -400,20 +415,26 @@ export const QuestionEditorForm = ({
             onChange={(event) => setMaxWordCount(event.target.value)}
           />
         </div>
+        </AgentMark>
       )}
-      <Input
-        label={T.REFERENCE_ANSWER}
-        value={referenceAnswerText}
-        onChange={(event) => setReferenceAnswerText(event.target.value)}
-      />
-      {(!hasOptions || questionType?.requiresCorrectAnswer) && (
+      <AgentMark lane={marks.referenceAnswerText}>
         <Input
-          label={T.CORRECT_ANSWER}
-          value={correctAnswerText}
-          onChange={(event) => setCorrectAnswerText(event.target.value)}
+          label={T.REFERENCE_ANSWER}
+          value={referenceAnswerText}
+          onChange={(event) => setReferenceAnswerText(event.target.value)}
         />
+      </AgentMark>
+      {(!hasOptions || questionType?.requiresCorrectAnswer) && (
+        <AgentMark lane={marks.correctAnswerText}>
+          <Input
+            label={T.CORRECT_ANSWER}
+            value={correctAnswerText}
+            onChange={(event) => setCorrectAnswerText(event.target.value)}
+          />
+        </AgentMark>
       )}
       {hasOptions && (
+        <AgentMark lane={marks.options}>
         <fieldset className="flex flex-col gap-3 rounded-md border border-gray-200 p-4">
           <legend className="px-1 text-sm font-medium text-gray-700">{T.OPTIONS}</legend>
           {options.map((option, index) => (
@@ -455,6 +476,7 @@ export const QuestionEditorForm = ({
             {T.ADD_OPTION}
           </Button>
         </fieldset>
+        </AgentMark>
       )}
       <div className="flex flex-wrap gap-2">
         {onCancel && (
@@ -474,6 +496,7 @@ export const QuestionEditorForm = ({
         onConfirm={() => pendingUpdate && saveUpdate(pendingUpdate)}
         onClose={() => setPendingUpdate(null)}
       />
+      </fieldset>
     </form>
   );
 };

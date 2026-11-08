@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
+import { useEffect, useState, type ReactElement } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { Alert, Button, ConfirmDialog, DashboardCard, Skeleton, cn, useDashboardBreadcrumbLabel, useLocale, useToast } from "@pte/ui";
@@ -8,12 +8,15 @@ import { QUESTIONS_QUERY_KEY } from "@/features/questionbank/constants";
 import { useCancelQuestionGenerationJob, useQuestionGenerationTaskTypes } from "../api";
 import { useLiveJob } from "../hooks/useLiveJob";
 import {
+  FORM_RETURN_PAUSE_MS,
   LIVE_TEXT,
   STAGE_LABELS,
+  formFillHref,
   TERMINAL_JOB_STATUSES,
   generationReviewHref,
 } from "../liveConstants";
 import { ITEM_CHIP_TONES } from "../liveTones";
+import { generatedValues, storeGeneratedFill } from "../utils/generatedFill";
 import { followedIndex } from "../utils/liveItems";
 import { LiveItemPanel } from "./_LiveItemPanel";
 
@@ -37,6 +40,18 @@ export const LiveGenerationView = ({ jobId }: LiveGenerationViewProps): ReactEle
   const [confirmingCancel, setConfirmingCancel] = useState(false);
   const job = jobQuery.data;
   useDashboardBreadcrumbLabel(pathname, job ? `${text.title}: ${job.taskType}` : undefined);
+  // A job started from the question form ends READY, unsaved: take its question back to the form to be checked.
+  // The question is handed over in this tab, since the live feed is not followed once the job is over.
+  const readyIndex = job?.items.find((record) => record.stage === "READY")?.index;
+  const readyValues = readyIndex === undefined ? null : generatedValues(items[readyIndex]);
+  // Compared as text, so a re-render with the same question does not restart the pause.
+  const readyJson = readyValues ? JSON.stringify(readyValues) : null;
+  useEffect(() => {
+    if (!readyJson) return;
+    storeGeneratedFill(jobId, readyJson);
+    const timer = setTimeout(() => router.replace(formFillHref(jobId)), FORM_RETURN_PAUSE_MS);
+    return () => clearTimeout(timer);
+  }, [readyJson, jobId, router]);
 
   if (jobQuery.isError) return <Alert tone="error">{text.jobLoadError}</Alert>;
   if (!job) return <Skeleton className="h-96 w-full" />;

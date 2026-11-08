@@ -1,5 +1,6 @@
 "use client";
 
+import type { AgentFill } from "@/features/questiongeneration/editorAgent";
 import { useCallback, useState, type ReactElement, type ReactNode } from "react";
 import { LoadingState, TabRailCard } from "@pte/ui";
 import type { QuestionResponse } from "@pte/api-client";
@@ -22,6 +23,8 @@ interface QuestionEditorWithPreviewProps {
   initialSection?: string;
   /** Shown under the section rail (a new question only). */
   sidePanel?: ReactNode;
+  /** A question an AI run wrote, put into the form for the person to check and save. */
+  agent?: AgentFill | null;
 }
 
 /**
@@ -36,6 +39,7 @@ export const QuestionEditorWithPreview = ({
   timingFor,
   initialSection,
   sidePanel,
+  agent,
 }: QuestionEditorWithPreviewProps): ReactElement => {
   const { data: questionTypes = [], isLoading } = useQuestionTypes(true);
   const [draft, setDraft] = useState<QuestionPreviewDraft | null>(null);
@@ -48,6 +52,7 @@ export const QuestionEditorWithPreview = ({
   );
 
   const workspace = (
+    <div className="space-y-4">
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:items-start">
       <QuestionEditorForm
         question={question}
@@ -55,7 +60,9 @@ export const QuestionEditorWithPreview = ({
         onSaved={onSaved}
         onCancel={onCancel}
         onPreviewChange={handlePreview}
-        sectionFilter={section === SCORE_TEMPLATE_ALL_TAB ? undefined : section}
+        // The AI question's task type may sit in another section than the selected tab: show every type.
+        sectionFilter={agent || section === SCORE_TEMPLATE_ALL_TAB ? undefined : section}
+        agent={agent}
       />
       <div className="xl:sticky xl:top-4">
         <ExamScreenPreview
@@ -63,6 +70,7 @@ export const QuestionEditorWithPreview = ({
           timing={draft ? (timingFor?.(draft.taskType) ?? null) : null}
         />
       </div>
+    </div>
     </div>
   );
 

@@ -1,11 +1,13 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, type ReactElement } from "react";
-import { Alert, Button, LoadingState, useDashboardBreadcrumbLabel } from "@pte/ui";
+import { Alert, Button, LoadingState, useDashboardBreadcrumbLabel, useLocale } from "@pte/ui";
 import { GenerationDrawer } from "@/features/questiongeneration/components";
+import { useGeneratedFill } from "@/features/questiongeneration/hooks/useGeneratedFill";
 import { generationLiveHref } from "@/features/questiongeneration/liveConstants";
-import { generationMessages } from "@/features/questiongeneration/messages/en";
+import { generationMessages as generationEn } from "@/features/questiongeneration/messages/en";
+import { generationMessages as generationVi } from "@/features/questiongeneration/messages/vi";
 import { useQuestion } from "../api";
 import {
   QUESTION_EDITOR_ERRORS as RAW_QUESTION_EDITOR_ERRORS,
@@ -16,27 +18,33 @@ import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 export const NewQuestionView = (): ReactElement => {
   const T = useAdminCopy(RAW_QUESTION_EDITOR_TEXT);
+  const { locale } = useLocale();
   const router = useRouter();
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // Back from the AI run's page: the question it wrote fills the form, nothing is saved until the person says so.
+  const fill = useGeneratedFill(useSearchParams().get("fromJob"));
   useDashboardBreadcrumbLabel(pathname, T.NEW_TITLE);
+
   return (
     <div className="space-y-5">
       <QuestionEditorWithPreview
         onSaved={() => router.push("/admin/questions")}
         onCancel={() => router.push("/admin/questions")}
+        agent={fill}
         sidePanel={
           <Button type="button" className="w-full" onClick={() => setDrawerOpen(true)}>
-            ✦ {generationMessages.generatingTitle}
+            ✦ {(locale === "vi" ? generationVi : generationEn).generateWithAi}
           </Button>
         }
       />
       <GenerationDrawer
         open={drawerOpen}
+        single
         onClose={() => setDrawerOpen(false)}
         onJobCreated={(jobId) => {
           setDrawerOpen(false);
-          // The run is followed on its own page, where each agent's work shows as it is written.
+          // The run is followed on its own page; when it is done that page brings the question back to this form.
           router.push(generationLiveHref(jobId));
         }}
       />

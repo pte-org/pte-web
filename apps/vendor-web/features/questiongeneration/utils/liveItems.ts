@@ -40,6 +40,15 @@ export function applyLiveEvent(items: LiveItems, event: QuestionGenerationLiveEv
         ({ ...item, [agentKey(event.agent)]: appended(item[agentKey(event.agent)], event.delta) }));
     case "stage":
       return update(items, event.index, (item) => ({ ...item, stage: event.stage }));
+    case "draft":
+      return update(items, event.index, (item) =>
+        ({ ...item, draft: { index: event.index, attempt: event.attempt, fields: event.fields } }));
+    case "review":
+      return update(items, event.index, (item) => ({
+        ...item,
+        review: { index: event.index, kind: event.kind, passed: event.passed, fixSuggestion: event.fixSuggestion,
+          notes: event.notes },
+      }));
     case "media":
       return update(items, event.index, (item) =>
         ({ ...item, audioRef: event.audioRef, imageRef: event.imageRef }));

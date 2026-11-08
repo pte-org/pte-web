@@ -27,6 +27,8 @@ interface GenerationDrawerProps {
   open: boolean;
   onClose: () => void;
   onJobCreated?: (jobId: string) => void;
+  /** One question, written into the form it was opened from: no count to choose. */
+  single?: boolean;
 }
 
 /**
@@ -38,9 +40,11 @@ export const GenerationDrawer = ({
   open,
   onClose,
   onJobCreated,
+  single = false,
 }: GenerationDrawerProps) => {
+  const initialCount = single ? 1 : 5;
   const [formState, setFormState] = useState<GenerationFormState>({
-    count: 5,
+    count: initialCount,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -107,6 +111,8 @@ export const GenerationDrawer = ({
         pool: formState.pool!,
         topicHint: formState.topicHint?.trim() || null,
         count: formState.count,
+        // One question for the form on screen: the person reads it and decides whether to save it.
+        ...(single ? { saveQuestions: false } : {}),
       },
       {
         onSuccess: (job) => {
@@ -114,13 +120,13 @@ export const GenerationDrawer = ({
           onJobCreated?.(job.publicId);
           onClose();
           // Reset form
-          setFormState({ count: 5 });
+          setFormState({ count: initialCount });
           setErrors({});
           setTouched({});
         },
       },
     );
-  }, [createJob, formState, validateForm, onJobCreated, onClose, showToast]);
+  }, [createJob, formState, validateForm, onJobCreated, onClose, showToast, initialCount, single]);
 
   const remaining = quota ? quota.dailyLimit - quota.usedToday : 0;
   const showQuotaWarning = remaining > 0 && remaining < formState.count;
@@ -186,11 +192,13 @@ export const GenerationDrawer = ({
         />
 
         {/* Step 6: Count Selection */}
-        <_GenerationDrawerCountStep
-          value={formState.count}
-          onChange={(value) => handleFieldChange("count", value)}
-          error={errors.count}
-        />
+        {!single && (
+          <_GenerationDrawerCountStep
+            value={formState.count}
+            onChange={(value) => handleFieldChange("count", value)}
+            error={errors.count}
+          />
+        )}
 
         {/* Info Panel */}
         <InfoPanel
