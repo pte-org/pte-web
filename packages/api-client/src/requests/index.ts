@@ -32,7 +32,6 @@ export * from "./admin/chatUsage";
 export * from "./admin/studentRoster";
 export * from "./admin/studentWorkspace";
 export * from "./admin/examStaffWorkspace";
-export * from "./admin/studentRosterImport";
 export * from "./billing/applications";
 export * from "./billing/plans";
 export * from "./billing/subscriptions";
