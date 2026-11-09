@@ -6,6 +6,7 @@ import { Alert, BackButton, Button, PaginationControls } from "@pte/ui";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
 import { PROCTOR_ATTENDANCE_VIEW_TEXT as T } from "../constants";
 import { useAttendanceRoster, useRecordIdentityVerificationMutation } from "../api";
+import { useForceSubmitDialog } from "../hooks/useForceSubmitDialog";
 import { AttendanceSummaryCards } from "./AttendanceSummaryCards";
 import { AttendanceFilterToolbar } from "./AttendanceFilterToolbar";
 import { AttendanceRosterTable } from "./AttendanceRosterTable";
@@ -49,6 +50,7 @@ export function ProctorAttendanceView({
   });
 
   const identityMutation = useRecordIdentityVerificationMutation(sessionPublicId);
+  const forceSubmit = useForceSubmitDialog(sessionPublicId);
 
   const updateQueryParams = useCallback(
     (updates: { status?: string; search?: string; page?: number }) => {
@@ -141,6 +143,7 @@ export function ProctorAttendanceView({
         onRecordAttendance={(row, targetStatus) => setActiveAction({ row, targetStatus })}
         onViewHistory={(row) => setActiveHistory(row)}
         onVerifyIdentity={(row) => setActiveVerification(row)}
+        onForceSubmit={forceSubmit.request}
       />
 
       {meta && meta.totalPages > 1 && (
@@ -188,6 +191,8 @@ export function ProctorAttendanceView({
           refetch();
         }}
       />
+
+      {forceSubmit.dialog}
     </div>
   );
 }

@@ -28,20 +28,10 @@ describe("PROCTOR_QUERY_KEYS", () => {
     ]);
   });
 
-  it("monitoring snapshot adds paging only when a page or size is given", () => {
-    expect(PROCTOR_QUERY_KEYS.monitoringSnapshot("s1")).toEqual(["proctor", "monitoring", "s1"]);
-    expect(PROCTOR_QUERY_KEYS.monitoringSnapshot("s1", 0, 20)).toEqual(["proctor", "monitoring", "s1", { page: 0, size: 20 }]);
-    expect(PROCTOR_QUERY_KEYS.monitoringSnapshot("s1", undefined, 20)).toEqual([
-      "proctor", "monitoring", "s1", { page: undefined, size: 20 },
-    ]);
+  it("the assigned session is keyed by its id", () => {
+    expect(PROCTOR_QUERY_KEYS.assignment("s1")).toEqual(["proctor", "assignment", "s1"]);
   });
 
-  it("student attempts are keyed by student and session, with optional paging", () => {
-    expect(PROCTOR_QUERY_KEYS.studentAttempts("s1", "stu")).toEqual(["proctor", "students", "stu", "attempts", "s1"]);
-    expect(PROCTOR_QUERY_KEYS.studentAttempts("s1", "stu", 1)).toEqual([
-      "proctor", "students", "stu", "attempts", "s1", { page: 1, size: undefined },
-    ]);
-  });
 
   it("security audit adds the limit only when it is given, including zero", () => {
     expect(PROCTOR_QUERY_KEYS.securityAudit("s1")).toEqual(["proctor", "security-audit", "s1"]);

@@ -7,14 +7,15 @@ import {
   useQueryClient,
   type InfiniteData,
   type UseInfiniteQueryResult,
+  type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
 import {
   decodeAccessTokenClaims,
-  getMonitoringSnapshot,
+  forceSubmitAttempt,
+  getMyProctorAssignment,
   getProctorSecurityAudit,
   getProctorWorkspaceOverview,
-  getStudentAttemptHistory,
   listAssignedProctorSessions,
   listViolations,
   getAttendanceRoster,
@@ -31,6 +32,8 @@ import {
   listIncidents,
   updateIncidentStatus,
   type AssignedProctorSessionPage,
+  type AssignedProctorSessionResponse,
+  type AttemptActionResultResponse,
   type AttendanceCommandReceiptResponse,
   type AttendanceHistoryResponse,
   type AttendancePageResponse,
@@ -40,8 +43,6 @@ import {
   type IncidentPageResponse,
   type IncidentResponse,
   type UpdateIncidentStatusRequest,
-  type MonitoringAttemptHistoryPage,
-  type MonitoringSnapshotResponse,
   type ProctorScope,
   type ProctorWorkspaceOverviewResponse,
   type AttendanceRowResponse,
@@ -56,7 +57,6 @@ import { POLL_INTERVAL_MS } from "./constants";
 import { PROCTOR_QUERY_KEYS } from "./queryKeys";
 import type {
   ProctorAuditLogEntry,
-  ProctorLiveAttempt,
   ProctorSecurityAuditEntry,
 } from "./types";
 
@@ -134,36 +134,34 @@ export function useAssignedProctorSessions(
   });
 }
 
-export function useMonitoringSnapshot(
+/** The assigned exam session behind the workspace header; polled so status changes show without reload. */
+export function useMyProctorAssignment(
   sessionPublicId: string,
-  page = 0,
-  size = 50,
-  options?: { poll?: boolean },
-): UseQueryResult<MonitoringSnapshotResponse> {
+): UseQueryResult<AssignedProctorSessionResponse> {
   const { refetchInterval, refetchIntervalInBackground } = usePollingInterval({
-    intervalMs: options?.poll ? POLL_INTERVAL_MS : 0,
+    intervalMs: POLL_INTERVAL_MS,
   });
 
-  return useQuery<MonitoringSnapshotResponse>({
-    queryKey: PROCTOR_QUERY_KEYS.monitoringSnapshot(sessionPublicId, page, size),
-    queryFn: () => getMonitoringSnapshot(apiClient, sessionPublicId, page, size),
+  return useQuery<AssignedProctorSessionResponse>({
+    queryKey: PROCTOR_QUERY_KEYS.assignment(sessionPublicId),
+    queryFn: () => getMyProctorAssignment(apiClient, sessionPublicId),
     enabled: Boolean(sessionPublicId),
     refetchInterval,
     refetchIntervalInBackground,
   });
 }
 
-export function useStudentAttemptHistory(
+export function useForceSubmitMutation(
   sessionPublicId: string,
-  studentPublicId: string,
-  page = 0,
-  size = 20,
-): UseQueryResult<MonitoringAttemptHistoryPage> {
-  return useQuery<MonitoringAttemptHistoryPage>({
-    queryKey: PROCTOR_QUERY_KEYS.studentAttempts(sessionPublicId, studentPublicId, page, size),
-    queryFn: () =>
-      getStudentAttemptHistory(apiClient, sessionPublicId, studentPublicId, page, size),
-    enabled: Boolean(sessionPublicId && studentPublicId),
+): UseMutationResult<AttemptActionResultResponse, Error, string> {
+  const queryClient = useQueryClient();
+  return useMutation<AttemptActionResultResponse, Error, string>({
+    mutationFn: (attemptPublicId) => forceSubmitAttempt(apiClient, sessionPublicId, attemptPublicId),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: PROCTOR_QUERY_KEYS.attendanceRosterPrefix(sessionPublicId),
+      });
+    },
   });
 }
 
@@ -200,42 +198,6 @@ export function useProctorSecurityAudit(
     },
     getNextPageParam: (lastPage) => lastPage.cursor ?? undefined,
     enabled: Boolean(sessionPublicId),
-  });
-}
-
-/**
- * Adapter hook for existing LiveMonitoringView component.
- * Maps live snapshot roster students to ProctorLiveAttempt shapes.
- */
-export function useProctorLiveAttempts(
-  sessionPublicId: string,
-): UseQueryResult<ProctorLiveAttempt[]> {
-  const { refetchInterval, refetchIntervalInBackground } = usePollingInterval({
-    intervalMs: POLL_INTERVAL_MS,
-  });
-
-  return useQuery<MonitoringSnapshotResponse, Error, ProctorLiveAttempt[]>({
-    queryKey: PROCTOR_QUERY_KEYS.monitoringSnapshot(sessionPublicId, 0, 50),
-    queryFn: () => getMonitoringSnapshot(apiClient, sessionPublicId, 0, 50),
-    enabled: Boolean(sessionPublicId),
-    refetchInterval,
-    refetchIntervalInBackground,
-    select: (snapshot) =>
-      (snapshot.students.data ?? []).map((s) => ({
-        attemptPublicId: s.attemptPublicId ?? s.studentPublicId,
-        studentPublicId: s.studentPublicId,
-        studentName: s.displayName,
-        status:
-          s.status === "SUBMITTED"
-            ? "COMPLETED"
-            : s.status === "IN_PROGRESS"
-              ? "IN_PROGRESS"
-              : "PENDING",
-        startedAt: s.startedAt,
-        lastHeartbeatAt: s.lastSeenAt,
-        flagged: s.manualViolationCount > 0,
-        notesCount: s.attemptCount,
-      })),
   });
 }
 

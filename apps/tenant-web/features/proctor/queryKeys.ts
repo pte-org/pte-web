@@ -28,18 +28,8 @@ export const PROCTOR_QUERY_KEYS = {
     if (params.timezone !== undefined) cleanParams.timezone = params.timezone;
     return Object.keys(cleanParams).length > 0 ? ([...base, cleanParams] as const) : base;
   },
-  monitoringSnapshotPrefix: (sessionPublicId: string) =>
-    [...PROCTOR_QUERY_KEYS.all, "monitoring", sessionPublicId] as const,
-  monitoringSnapshot: (sessionPublicId: string, page?: number, size?: number) =>
-    page !== undefined || size !== undefined
-      ? ([...PROCTOR_QUERY_KEYS.monitoringSnapshotPrefix(sessionPublicId), { page, size }] as const)
-      : PROCTOR_QUERY_KEYS.monitoringSnapshotPrefix(sessionPublicId),
-  studentAttemptsPrefix: (sessionPublicId: string, studentPublicId: string) =>
-    [...PROCTOR_QUERY_KEYS.all, "students", studentPublicId, "attempts", sessionPublicId] as const,
-  studentAttempts: (sessionPublicId: string, studentPublicId: string, page?: number, size?: number) =>
-    page !== undefined || size !== undefined
-      ? ([...PROCTOR_QUERY_KEYS.studentAttemptsPrefix(sessionPublicId, studentPublicId), { page, size }] as const)
-      : PROCTOR_QUERY_KEYS.studentAttemptsPrefix(sessionPublicId, studentPublicId),
+  assignment: (sessionPublicId: string) =>
+    [...PROCTOR_QUERY_KEYS.all, "assignment", sessionPublicId] as const,
   violations: (sessionPublicId: string) =>
     [...PROCTOR_QUERY_KEYS.all, "violations", sessionPublicId] as const,
   securityAuditPrefix: (sessionPublicId: string) =>

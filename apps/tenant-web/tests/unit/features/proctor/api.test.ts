@@ -145,26 +145,32 @@ describe("useAssignedProctorSessions", () => {
 });
 
 describe("session scoped queries", () => {
-  it("monitoring snapshot polls only when asked to", async () => {
-    api.getMonitoringSnapshot.mockResolvedValue({});
-    proctorApi.useMonitoringSnapshot("s1", 1, 10, { poll: true });
+  it("the assigned session behind the header is polled so status changes show", async () => {
+    api.getMyProctorAssignment.mockResolvedValue({});
+    proctorApi.useMyProctorAssignment("s1");
     await opts().queryFn?.();
 
     expect(hoisted.polling).toHaveBeenCalledWith({ intervalMs: POLL_INTERVAL_MS });
     expect(opts().refetchInterval).toBe(1234);
-    expect(api.getMonitoringSnapshot).toHaveBeenCalledWith(hoisted.apiClient, "s1", 1, 10);
+    expect(opts().queryKey).toEqual(["proctor", "assignment", "s1"]);
+    expect(api.getMyProctorAssignment).toHaveBeenCalledWith(hoisted.apiClient, "s1");
+  });
 
-    proctorApi.useMonitoringSnapshot("s1");
-    expect(hoisted.polling).toHaveBeenLastCalledWith({ intervalMs: 0 });
+  it("force submit sends the attempt id and refreshes the attendance roster", async () => {
+    api.forceSubmitAttempt.mockResolvedValue({ attemptPublicId: "att", outcome: "APPLIED" });
+    proctorApi.useForceSubmitMutation("s1");
+    await opts().mutationFn?.("att" as never);
+    opts().onSuccess?.();
+
+    expect(api.forceSubmitAttempt).toHaveBeenCalledWith(hoisted.apiClient, "s1", "att");
+    expect(hoisted.invalidate).toHaveBeenCalledWith({ queryKey: ["proctor", "attendance", "s1"] });
   });
 
   it("every session query is disabled for an empty session id", () => {
     const calls: Array<() => unknown> = [
-      () => proctorApi.useMonitoringSnapshot(""),
-      () => proctorApi.useStudentAttemptHistory("", "stu"),
+      () => proctorApi.useMyProctorAssignment(""),
       () => proctorApi.useProctorViolations(""),
       () => proctorApi.useProctorSecurityAudit(""),
-      () => proctorApi.useProctorLiveAttempts(""),
       () => proctorApi.useProctorAuditLog(""),
       () => proctorApi.useAttendanceRoster(""),
       () => proctorApi.useAttendanceHistory("", "stu"),
@@ -182,7 +188,6 @@ describe("session scoped queries", () => {
 
   it("queries that also need a student or incident id stay disabled without it", () => {
     for (const call of [
-      () => proctorApi.useStudentAttemptHistory("s1", ""),
       () => proctorApi.useAttendanceHistory("s1", ""),
       () => proctorApi.useHostAttendanceHistory("s1", ""),
       () => proctorApi.useIncidentDetail("s1", ""),
@@ -193,11 +198,7 @@ describe("session scoped queries", () => {
     }
   });
 
-  it("student attempt history, violations and incidents call the matching api with their ids", async () => {
-    proctorApi.useStudentAttemptHistory("s1", "stu", 2, 5);
-    await opts().queryFn?.();
-    expect(api.getStudentAttemptHistory).toHaveBeenCalledWith(hoisted.apiClient, "s1", "stu", 2, 5);
-
+  it("violations and incidents call the matching api with their ids", async () => {
     proctorApi.useProctorViolations("s1");
     await opts().queryFn?.();
     expect(api.listViolations).toHaveBeenCalledWith(hoisted.apiClient, "s1");
@@ -275,45 +276,6 @@ describe("useProctorSecurityAudit", () => {
     expect(opts().initialPageParam).toBeUndefined();
     expect(opts().getNextPageParam?.({ cursor: "c2" })).toBe("c2");
     expect(opts().getNextPageParam?.({ cursor: null })).toBeUndefined();
-  });
-});
-
-describe("useProctorLiveAttempts", () => {
-  const select = (students: unknown[]) => {
-    proctorApi.useProctorLiveAttempts("s1");
-    return opts().select?.({ students: { data: students } } as never) as Array<Record<string, unknown>>;
-  };
-
-  it("maps SUBMITTED to COMPLETED, IN_PROGRESS to IN_PROGRESS and anything else to PENDING", () => {
-    const rows = select([
-      { studentPublicId: "a", displayName: "A", status: "SUBMITTED", manualViolationCount: 0, attemptCount: 1 },
-      { studentPublicId: "b", displayName: "B", status: "IN_PROGRESS", manualViolationCount: 0, attemptCount: 0 },
-      { studentPublicId: "c", displayName: "C", status: "NOT_STARTED", manualViolationCount: 0, attemptCount: 0 },
-    ]);
-
-    expect(rows.map((row) => row.status)).toEqual(["COMPLETED", "IN_PROGRESS", "PENDING"]);
-  });
-
-  it("flags a student with at least one manual violation and uses the student id when there is no attempt id", () => {
-    const [flagged, clean] = select([
-      { studentPublicId: "a", displayName: "A", status: "IN_PROGRESS", manualViolationCount: 1, attemptCount: 2 },
-      { studentPublicId: "b", attemptPublicId: "att-b", displayName: "B", status: "IN_PROGRESS", manualViolationCount: 0, attemptCount: 0 },
-    ]);
-
-    expect(flagged).toMatchObject({ flagged: true, attemptPublicId: "a", notesCount: 2 });
-    expect(clean).toMatchObject({ flagged: false, attemptPublicId: "att-b" });
-  });
-
-  it("returns an empty list when the snapshot has no student data", () => {
-    proctorApi.useProctorLiveAttempts("s1");
-
-    expect(opts().select?.({ students: {} } as never)).toEqual([]);
-  });
-
-  it("polls on the standard interval", () => {
-    proctorApi.useProctorLiveAttempts("s1");
-
-    expect(hoisted.polling).toHaveBeenCalledWith({ intervalMs: POLL_INTERVAL_MS });
   });
 });
 

@@ -7,6 +7,8 @@ import {
   getAttendanceBadgeVariant,
   getAttendanceStatusLabel as getAttendanceLabel,
   getIdentityBadgeProps,
+  ATTEMPT_IN_PROGRESS,
+  PROCTOR_FORCE_SUBMIT_TEXT,
   PROCTOR_ROSTER_TEXT as T,
 } from "../constants";
 
@@ -17,6 +19,8 @@ interface AttendanceRosterTableProps {
   onRecordAttendance: (row: AttendanceRowResponse, targetStatus: AttendanceStatus) => void;
   onViewHistory: (row: AttendanceRowResponse) => void;
   onVerifyIdentity?: (row: AttendanceRowResponse) => void;
+  /** Offered only for a Student whose latest attempt is in progress. */
+  onForceSubmit?: (row: AttendanceRowResponse) => void;
 }
 
 export function AttendanceRosterTable({
@@ -26,6 +30,7 @@ export function AttendanceRosterTable({
   onRecordAttendance,
   onViewHistory,
   onVerifyIdentity,
+  onForceSubmit,
 }: AttendanceRosterTableProps): ReactElement {
   const columns: DataTableColumn<AttendanceRowResponse>[] = useMemo(
     () => [
@@ -150,6 +155,16 @@ export function AttendanceRosterTable({
       actionItems.push({
         label: T.ACTION_VERIFY_IDENTITY,
         onClick: () => onVerifyIdentity(row),
+      });
+    }
+    if (
+      onForceSubmit &&
+      row.latestAttemptPublicId &&
+      row.latestAttemptActivityStatus === ATTEMPT_IN_PROGRESS
+    ) {
+      actionItems.push({
+        label: PROCTOR_FORCE_SUBMIT_TEXT.ACTION,
+        onClick: () => onForceSubmit(row),
       });
     }
     actionItems.push({
