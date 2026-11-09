@@ -27,7 +27,7 @@ import {
 } from "@pte/ui";
 import { NotificationBellContainer } from "@/features/notifications";
 import { GenerationActivityIndicator } from "@/features/questiongeneration/components";
-import { hasAnyRole, roleLabel } from "../permissions";
+import { canAuthorAcademic, hasAnyRole, roleLabel } from "../permissions";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
 import { AUTH_ROUTES } from "../constants";
@@ -198,7 +198,7 @@ const HeaderActions = (): ReactElement => {
 
   return (
     <>
-      <GenerationActivityIndicator enabled={Boolean(user?.roles.includes("PLATFORM_ADMIN"))} />
+      <GenerationActivityIndicator enabled={canAuthorAcademic(user?.roles)} />
       <LocaleSwitcher />
       <ThemeToggle />
       <NotificationBellContainer />
