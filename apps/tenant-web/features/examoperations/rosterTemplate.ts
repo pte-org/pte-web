@@ -8,12 +8,16 @@ import {
 } from "./constants";
 
 const MIN_COLUMN_WIDTH = 14;
+const MAX_COLUMN_WIDTH = 48;
 const HEADER_WIDTH_PADDING = 4;
 /** Excel's built-in "Text" number format code. */
 const TEXT_NUMBER_FORMAT = "@";
 const NOTES_COLUMN_WIDTH = 60;
 const FORMAT_COLUMN_WIDTH = 36;
 const EXAMPLE_COLUMN_WIDTH = 24;
+
+/** Row 1 is the header and row 2 the sample row, so student data starts at array index 2. */
+const FIRST_DATA_ROW_INDEX = 2;
 
 /**
  * SheetJS community edition cannot style a whole column, so the cells under the Text
@@ -23,7 +27,8 @@ const EXAMPLE_COLUMN_WIDTH = 24;
 function applyTextFormat(sheet: XLSX.WorkSheet): void {
   ROSTER_TEMPLATE_COLUMNS.forEach((column, columnIndex) => {
     if (!column.forceText) return;
-    for (let row = 1; row <= ROSTER_TEMPLATE_FORMATTED_ROWS; row += 1) {
+    const lastRow = FIRST_DATA_ROW_INDEX + ROSTER_TEMPLATE_FORMATTED_ROWS - 1;
+    for (let row = FIRST_DATA_ROW_INDEX; row <= lastRow; row += 1) {
       sheet[XLSX.utils.encode_cell({ r: row, c: columnIndex })] = {
         t: "s",
         v: "",
@@ -33,15 +38,22 @@ function applyTextFormat(sheet: XLSX.WorkSheet): void {
   });
   sheet["!ref"] = XLSX.utils.encode_range({
     s: { r: 0, c: 0 },
-    e: { r: ROSTER_TEMPLATE_FORMATTED_ROWS, c: ROSTER_TEMPLATE_COLUMNS.length - 1 },
+    e: {
+      r: FIRST_DATA_ROW_INDEX + ROSTER_TEMPLATE_FORMATTED_ROWS - 1,
+      c: ROSTER_TEMPLATE_COLUMNS.length - 1,
+    },
   });
 }
 
 function buildStudentsSheet(): XLSX.WorkSheet {
   const headers = ROSTER_TEMPLATE_COLUMNS.map((column) => column.header);
-  const sheet = XLSX.utils.aoa_to_sheet([headers]);
-  sheet["!cols"] = headers.map((header) => ({
-    wch: Math.max(header.length + HEADER_WIDTH_PADDING, MIN_COLUMN_WIDTH),
+  const sampleRow = ROSTER_TEMPLATE_COLUMNS.map((column) => column.sample);
+  const sheet = XLSX.utils.aoa_to_sheet([headers, sampleRow]);
+  sheet["!cols"] = ROSTER_TEMPLATE_COLUMNS.map((column) => ({
+    wch: Math.min(
+      Math.max(column.header.length + HEADER_WIDTH_PADDING, column.sample.length, MIN_COLUMN_WIDTH),
+      MAX_COLUMN_WIDTH,
+    ),
   }));
   applyTextFormat(sheet);
   return sheet;
@@ -73,9 +85,9 @@ function buildInstructionsSheet(): XLSX.WorkSheet {
 }
 
 /**
- * The `Students` sheet holds the header row only: example values live on the
- * `Instructions` sheet so a template that is uploaded untouched can never import
- * a sample row as a real student.
+ * The `Students` sheet holds the header row and one sample row carrying short notes. The
+ * sample row's Email cell is `ROSTER_SAMPLE_ROW_MARKER`, which the parser always skips, so a
+ * template uploaded untouched never creates an account.
  */
 export function buildRosterTemplateWorkbook(): XLSX.WorkBook {
   const workbook = XLSX.utils.book_new();

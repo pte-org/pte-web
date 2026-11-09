@@ -8,6 +8,7 @@ import { PendingImportBanner } from "./PendingImportBanner";
 import { EnrollmentConflictNotice } from "./EnrollmentConflictNotice";
 import { RosterColumnWarnings } from "./RosterColumnWarnings";
 import { RosterTemplateButton } from "./RosterTemplateButton";
+import { RosterCreateControls } from "./RosterCreateControls";
 import { ROSTER_REVIEW_TABLE_HEADERS, ROSTER_TEXT } from "./constants";
 import {
   clearPendingImport,
@@ -18,7 +19,13 @@ import {
 import { errorMessage } from "../errorMessage";
 import { downloadCredentials } from "../downloadCredentials";
 import { parseRosterFile } from "../cleanRosterFile";
-import type { CreatedAccount, RosterColumnIssues, RosterRow, SkippedRow } from "../types";
+import type {
+  CreatedAccount,
+  RosterColumnIssues,
+  RosterRow,
+  RosterRowIssue,
+  SkippedRow,
+} from "../types";
 
 interface RosterImportProps {
   sessionPublicId: string;
@@ -29,6 +36,8 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
   const [file, setFile] = useState<File | null>(null);
   const [rows, setRows] = useState<RosterRow[] | null>(null);
   const [columnIssues, setColumnIssues] = useState<RosterColumnIssues | null>(null);
+  const [rowIssues, setRowIssues] = useState<RosterRowIssue[]>([]);
+  const [sendCredentialsEmail, setSendCredentialsEmail] = useState(false);
   const [parseError, setParseError] = useState<string | undefined>();
   const [created, setCreated] = useState<CreatedAccount[] | null>(null);
   const [skipped, setSkipped] = useState<SkippedRow[]>([]);
@@ -49,6 +58,7 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
       const result = await parseRosterFile(file);
       setRows(result.rows);
       setColumnIssues(result);
+      setRowIssues(result.rowIssues);
     } catch (error) {
       setParseError(errorMessage(error));
     }
@@ -56,7 +66,7 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
 
   const handleCreateAccounts = (): void => {
     if (!rows) return;
-    createAccounts.mutate(rows, {
+    createAccounts.mutate({ rows, sendCredentialsEmail }, {
       onSuccess: (response) => {
         showToast(
           ROSTER_TEXT.ACCOUNTS_CREATED.replace("{count}", String(response.created.length)),
@@ -113,6 +123,8 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
           setFile(selected);
           setRows(null);
           setColumnIssues(null);
+          setRowIssues([]);
+          createAccounts.reset();
           setCreated(null);
         }}
       />
@@ -160,17 +172,18 @@ export const RosterImport = ({ sessionPublicId }: RosterImportProps): ReactEleme
             showSearch={false}
             tableClassName="min-w-max"
           />
-          {!!createAccounts.error && (
-            <Alert tone="error">{errorMessage(createAccounts.error)}</Alert>
-          )}
-          <Button
-            type="button"
-            onClick={handleCreateAccounts}
-            isLoading={createAccounts.isPending}
-            loadingText={ROSTER_TEXT.CREATING}
-          >
-            {ROSTER_TEXT.CREATE_ACCOUNTS}
-          </Button>
+          <RosterCreateControls
+            rows={rows}
+            rowIssues={rowIssues}
+            sendCredentialsEmail={sendCredentialsEmail}
+            onSendCredentialsEmailChange={setSendCredentialsEmail}
+            onCreate={handleCreateAccounts}
+            isPending={createAccounts.isPending}
+            error={createAccounts.error}
+            createLabel={ROSTER_TEXT.CREATE_ACCOUNTS}
+            creatingLabel={ROSTER_TEXT.CREATING}
+            checkboxId="session-roster-send-credentials"
+          />
         </div>
       )}
 

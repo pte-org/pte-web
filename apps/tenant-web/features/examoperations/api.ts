@@ -22,7 +22,8 @@ import { apiClient } from "@/lib/apiClient";
 import { ENROLLMENTS_QUERY_KEY, TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
 import { HOST_DASHBOARD_QUERY_KEY } from "@/features/hostDashboard/constants";
 import { UserFacingError } from "./errorMessage";
-import type { CreatedAccount, RosterRow } from "./types";
+import { buildBulkCreateRequest } from "./rosterRequest";
+import type { CreatedAccount, RosterCreateInput } from "./types";
 
 const PENDING_IMPORT_KEY_PREFIX = "pte.pendingImport.";
 const STUDENT_ROLE = "STUDENT";
@@ -61,22 +62,12 @@ export function clearPendingImport(sessionPublicId: string): void {
  * sessionStorage immediately on success — see `savePendingImport`. */
 export function useCreateRosterAccounts(
   sessionPublicId: string,
-): UseMutationResult<BulkCreateUsersResponse, unknown, RosterRow[]> {
+): UseMutationResult<BulkCreateUsersResponse, unknown, RosterCreateInput> {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (rows) =>
-      bulkCreateUsers(apiClient, {
-        rows: rows.map((row) => ({
-          email: row.email || null,
-          fullName: row.fullName || null,
-          studentCode: row.studentCode || null,
-          className: row.className || null,
-          phone: row.phone || null,
-          dateOfBirth: row.dateOfBirth || null,
-        })),
-        tenantId: null,
-      }),
+    mutationFn: (input) =>
+      bulkCreateUsers(apiClient, buildBulkCreateRequest(input)),
     onSuccess: (response) => {
       savePendingImport(sessionPublicId, response.created);
       void queryClient.invalidateQueries({ queryKey: HOST_DASHBOARD_QUERY_KEY });
@@ -146,19 +137,10 @@ export function useCreateStudent(): UseMutationResult<CreatedAccount, unknown, A
 
   return useMutation({
     mutationFn: async (input) => {
-      const response = await bulkCreateUsers(apiClient, {
-        rows: [
-          {
-            email: input.email || null,
-            fullName: input.fullName || null,
-            studentCode: input.studentCode || null,
-            className: input.className || null,
-            phone: input.phone || null,
-            dateOfBirth: input.dateOfBirth || null,
-          },
-        ],
-        tenantId: null,
-      });
+      const response = await bulkCreateUsers(
+        apiClient,
+        buildBulkCreateRequest({ rows: [input], sendCredentialsEmail: false }),
+      );
       const [created] = response.created;
       if (!created) {
         const [skipped] = response.skipped;

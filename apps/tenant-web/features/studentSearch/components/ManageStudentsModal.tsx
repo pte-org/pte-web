@@ -97,7 +97,7 @@ export const ManageStudentsModal = ({
   const handleAdd = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     setResult(undefined);
-    createStudents.mutate([form], {
+    createStudents.mutate({ rows: [form], sendCredentialsEmail: false }, {
       onSuccess: (response) => {
         setResult({ created: response.created, skipped: response.skipped });
         setForm(EMPTY_FORM);
@@ -137,11 +137,13 @@ export const ManageStudentsModal = ({
               <Input
                 label={MANAGE_STUDENTS_TEXT.emailLabel}
                 type="email"
+                required
                 value={form.email}
                 onChange={(event) => handleFormChange("email", event.target.value)}
               />
               <Input
                 label={MANAGE_STUDENTS_TEXT.fullNameLabel}
+                required
                 value={form.fullName}
                 onChange={(event) => handleFormChange("fullName", event.target.value)}
               />
