@@ -38,7 +38,6 @@ export const useExaminerAttemptController = ({
   const [finalizeOpen, setFinalizeOpen] = useState(false);
   const [reportIssueOpen, setReportIssueOpen] = useState(false);
   const [guidelinesOpen, setGuidelinesOpen] = useState(false);
-  const [historyOpen, setHistoryOpen] = useState(false);
   const [promptMedia, setPromptMedia] = useState<MediaState>("ready");
   const [responseMedia, setResponseMedia] = useState<MediaState>("ready");
 
@@ -114,9 +113,10 @@ export const useExaminerAttemptController = ({
     void query.refetch();
   };
 
-  const handleSaveClick = async (): Promise<void> => {
+  const handleSaveClick = async (): Promise<boolean> => {
     const saved = await handleSaveDraft();
     showToast(saved ? T.SAVE_SUCCESS : T.SAVE_FAILED, { tone: saved ? "success" : "error" });
+    return saved;
   };
 
   const handleConfirmFinalize = async () => {
@@ -143,6 +143,6 @@ export const useExaminerAttemptController = ({
   const hasOpenIssue = issuesQuery.data?.some((i) => i.status === "OPEN");
   const workflowStatus = workflow?.status ?? (query.data?.submittedAnswerCount === query.data?.eligibleAnswerCount ? "COMPLETED" : "IN_PROGRESS");
 
-  return { T, query, startMutation, reportIssueMutation, guidelinesQuery, currentIndex, confirmLeaveOpen, finalizeOpen, reportIssueOpen, guidelinesOpen, historyOpen, promptMedia, responseMedia, answers, workflow, carriedOverIds, currentAnswer, attemptTitle, drafts, activeDraft, hasUnsaved, isStale, isSavingDraft, isFinalizing, handleScoreChange, handleTraitChange, handleCommentChange, handleApplyAiScore, handleAcknowledgeStale, handleBack, handleSelectIndex, handleStartWork, handleSaveClick, handleConfirmFinalize, handleReportIssue, hasOpenIssue, workflowStatus, executeBack, setConfirmLeaveOpen, setFinalizeOpen, setReportIssueOpen, setGuidelinesOpen, setHistoryOpen, setPromptMedia, setResponseMedia, sessionPublicId, attemptPublicId };
+  return { T, query, startMutation, reportIssueMutation, guidelinesQuery, currentIndex, confirmLeaveOpen, finalizeOpen, reportIssueOpen, guidelinesOpen, promptMedia, responseMedia, answers, workflow, carriedOverIds, currentAnswer, attemptTitle, drafts, activeDraft, hasUnsaved, isStale, isSavingDraft, isFinalizing, handleScoreChange, handleTraitChange, handleCommentChange, handleApplyAiScore, handleAcknowledgeStale, handleBack, handleSelectIndex, handleStartWork, handleSaveClick, handleConfirmFinalize, handleReportIssue, hasOpenIssue, workflowStatus, executeBack, setConfirmLeaveOpen, setFinalizeOpen, setReportIssueOpen, setGuidelinesOpen, setPromptMedia, setResponseMedia, sessionPublicId, attemptPublicId };
 };
 export type ExaminerAttemptController = ReturnType<typeof useExaminerAttemptController>;

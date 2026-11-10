@@ -41,6 +41,9 @@ export const EXAMINER_WORK_TEXT = {
   LOADING_MEDIA: "Loading media…",
   IMAGE_ALT: "Question image prompt",
   AI_REFERENCE_TITLE: "AI Scoring Reference",
+  AI_DETAILS: "Score details and version",
+  SAVE_AND_NEXT: "Save & next question",
+  UNSAVED_DRAFT: "Unsaved changes",
   AI_STATUS_AVAILABLE: "AI reference available",
   AI_STATUS_PENDING: "AI scoring in progress",
   AI_STATUS_FAILED: "AI scoring failed",
@@ -100,6 +103,7 @@ export const EXAMINER_WORK_TEXT = {
   GUIDELINES: "Marking guidelines",
   GUIDELINES_TITLE: "Examiner scoring guidelines",
   HISTORY_AUDIT: "Grading History & Audit",
+  MARKING_TAB: "Marking",
   ISSUES_BLOCKING: "Grading is blocked by an unresolved issue on this attempt.",
   SUBMISSION_BLOCKED: "Submission Blocked",
   PROPOSED_SCORE: "Proposed Score:",
@@ -175,11 +179,15 @@ export function buildExaminerQueueHref(
   page: number,
   search: string,
   sort: string,
+  fromDate = "",
+  toDate = "",
 ): string {
   const params = new URLSearchParams({ status });
   if (page > 0) params.set("page", String(page));
   if (search.trim()) params.set("search", search.trim());
   if (sort && sort !== "ASSIGNED_ASC") params.set("sort", sort);
+  if (fromDate) params.set("fromDate", fromDate);
+  if (toDate) params.set("toDate", toDate);
   return `/examiner/work?${params.toString()}`;
 }
 

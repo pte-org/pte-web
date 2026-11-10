@@ -1,6 +1,7 @@
 "use client";
-import type { ReactElement } from "react";
-import { Alert, Badge, Button } from "@pte/ui";
+import { useState, type ReactElement } from "react";
+import { Alert, Badge, Button, TabPanel, Tabs } from "@pte/ui";
+import { ExaminerGradingHistoryTable } from "./components/ExaminerGradingHistoryTable";
 import { getExaminerBlockingText } from "./hooks/useExaminerWorkText";
 import { ExaminerAttemptHeader } from "./components/ExaminerAttemptHeader";
 import { ExaminerAttemptContent } from "./components/ExaminerAttemptContent";
@@ -8,7 +9,9 @@ import { ExaminerAttemptDialogs } from "./components/ExaminerAttemptDialogs";
 import { useExaminerAttemptController } from "./useExaminerAttemptController";
 export const ExaminerAttemptDetailView = (props: { sessionPublicId: string; attemptPublicId: string; onBack?: () => void }): ReactElement => {
   const state = useExaminerAttemptController(props);
-  const { T, query, attemptTitle, workflowStatus, setGuidelinesOpen, setHistoryOpen, setReportIssueOpen, workflow, startMutation, handleStartWork, isFinalizing, hasOpenIssue, hasUnsaved, isSavingDraft, setFinalizeOpen, sessionPublicId, attemptPublicId, handleBack } = state;
+  const { T, query, attemptTitle, workflowStatus, setReportIssueOpen, workflow, hasOpenIssue } = state;
+  const [activeTab, setActiveTab] = useState("marking");
+  const [historyVisited, setHistoryVisited] = useState(false);
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
       <ExaminerAttemptHeader
@@ -26,40 +29,10 @@ export const ExaminerAttemptDetailView = (props: { sessionPublicId: string; atte
           )
         }
         actions={
-          <>
-            <Button variant="secondary" size="sm" onClick={() => setGuidelinesOpen(true)}>
-              {T.GUIDELINES}
-            </Button>
-            <Button variant="secondary" size="sm" onClick={() => setHistoryOpen(true)}>
-              {T.HISTORY_AUDIT}
-            </Button>
-            <Button variant="secondary" size="sm" onClick={() => setReportIssueOpen(true)}>
-              {T.REPORT_ISSUE}
-            </Button>
-            {workflow?.canStart && (
-              <Button
-                variant="primary"
-                size="sm"
-                disabled={startMutation.isPending}
-                onClick={handleStartWork}
-              >
-                {startMutation.isPending ? T.STARTING_WORK : T.START_WORK}
-              </Button>
-            )}
-            {workflow?.canFinalize && (
-              <Button
-                variant="primary"
-                size="sm"
-                disabled={isFinalizing || hasOpenIssue || hasUnsaved || isSavingDraft}
-                onClick={() => setFinalizeOpen(true)}
-              >
-                {isFinalizing ? T.FINALIZING : T.FINALIZE_WORK}
-              </Button>
-            )}
-          </>
+          <Button variant="primary" size="sm" className="whitespace-nowrap" onClick={() => setReportIssueOpen(true)}>
+            {T.REPORT_ISSUE}
+          </Button>
         }
-        scoreExplanation={{ sessionPublicId, attemptPublicId }}
-        onBack={handleBack}
       />
 
       {hasOpenIssue && (
@@ -74,7 +47,15 @@ export const ExaminerAttemptDetailView = (props: { sessionPublicId: string; atte
         </Alert>
       )}
 
-      <ExaminerAttemptContent state={state} />
+      <Tabs id="examiner-attempt" variant="minimal" value={activeTab}
+        items={[{ id: "marking", label: T.MARKING_TAB }, { id: "history", label: T.HISTORY_AUDIT }]}
+        onChange={(tab) => { setActiveTab(tab); if (tab === "history") setHistoryVisited(true); }} />
+      <TabPanel id="examiner-attempt-panel-marking" labelledBy="examiner-attempt-tab-marking" active={activeTab === "marking"} keepMounted>
+        <ExaminerAttemptContent state={state} />
+      </TabPanel>
+      {historyVisited && <TabPanel id="examiner-attempt-panel-history" labelledBy="examiner-attempt-tab-history" active={activeTab === "history"} keepMounted>
+        <ExaminerGradingHistoryTable sessionPublicId={state.sessionPublicId} attemptPublicId={state.attemptPublicId} />
+      </TabPanel>}
 
       <ExaminerAttemptDialogs state={state} />
     </div>

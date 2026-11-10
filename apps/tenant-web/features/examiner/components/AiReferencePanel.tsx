@@ -1,11 +1,12 @@
 "use client";
 
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import type { ExaminerAiReferenceResponse } from "@pte/api-client";
-import { Badge, Button } from "@pte/ui";
+import { Badge, Button, Disclosure } from "@pte/ui";
 import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
 interface AiReferencePanelProps {
+  detail?: ReactNode;
   reference: ExaminerAiReferenceResponse | null;
   readOnly: boolean;
   disabled?: boolean;
@@ -17,6 +18,7 @@ export const AiReferencePanel = ({
   readOnly,
   disabled = false,
   onApplyAiScore,
+  detail,
 }: AiReferencePanelProps): ReactElement => {
   const T = useExaminerWorkText();
   if (!reference || reference.availability === "UNAVAILABLE") {
@@ -70,7 +72,6 @@ export const AiReferencePanel = ({
         )}
       </div>
 
-      <ul className="mt-3 text-xs">{Object.entries(reference.traitScores ?? {}).map(([key, value]) => <li key={key}>{key}: {value}{reference.traitMaxima?.[key] !== undefined ? ` / ${reference.traitMaxima[key]}` : ""}</li>)}</ul>
       <div className="mt-3 flex flex-wrap items-baseline gap-4 text-sm">
         <div className="flex items-baseline gap-1">
           <span className="text-xs text-slate-500">{T.SCORE_LABEL_SHORT}</span>
@@ -78,13 +79,24 @@ export const AiReferencePanel = ({
             {hasScore ? `${reference.score}/100` : "—"}
           </span>
         </div>
+      </div>
+      <Disclosure title={T.AI_DETAILS} className="mt-2">
+        <ul className="grid grid-cols-1 gap-2 py-3 text-xs sm:grid-cols-2">
+          {Object.entries(reference.traitScores ?? {}).map(([key, value]) => (
+            <li key={key} className="flex items-center justify-between gap-3">
+              <span>{key.replaceAll("_", " ")}</span>
+              <span className="font-medium tabular-nums">{value}{reference.traitMaxima?.[key] !== undefined ? ` / ${reference.traitMaxima[key]}` : ""}</span>
+            </li>
+          ))}
+        </ul>
+        {detail}
         {reference.version && (
           <div className="flex items-baseline gap-1">
             <span className="text-xs text-slate-500">{T.AI_REVISION_LABEL}</span>
-            <span className="font-mono text-xs text-slate-700">{reference.version}</span>
+            <span className="min-w-0 break-all font-mono text-xs text-slate-700">{reference.version}</span>
           </div>
         )}
-      </div>
+      </Disclosure>
     </aside>
   );
 };

@@ -4,10 +4,9 @@ import { ConfirmDialog } from "@pte/ui";
 import { ConfirmAttemptFinalizeDialog } from "./ConfirmAttemptFinalizeDialog";
 import { ReportIssueDialog } from "./ReportIssueDialog";
 import { ExaminerGuidelinesDialog } from "./ExaminerGuidelinesDialog";
-import { ExaminerGradingHistoryDialog } from "./ExaminerGradingHistoryDialog";
 import type { ExaminerAttemptController } from "../useExaminerAttemptController";
 export function ExaminerAttemptDialogs({ state }: { state: ExaminerAttemptController }): ReactElement {
-  const { T, confirmLeaveOpen, setConfirmLeaveOpen, executeBack, finalizeOpen, answers, isFinalizing, handleConfirmFinalize, setFinalizeOpen, reportIssueOpen, reportIssueMutation, handleReportIssue, setReportIssueOpen, guidelinesOpen, guidelinesQuery, setGuidelinesOpen, historyOpen, sessionPublicId, attemptPublicId, attemptTitle, setHistoryOpen } = state;
+  const { T, confirmLeaveOpen, setConfirmLeaveOpen, executeBack, finalizeOpen, answers, isFinalizing, handleConfirmFinalize, setFinalizeOpen, reportIssueOpen, reportIssueMutation, handleReportIssue, setReportIssueOpen, guidelinesOpen, guidelinesQuery, setGuidelinesOpen } = state;
   return <>
       <ConfirmDialog
         open={confirmLeaveOpen}
@@ -45,12 +44,5 @@ export function ExaminerAttemptDialogs({ state }: { state: ExaminerAttemptContro
         onClose={() => setGuidelinesOpen(false)}
       />
 
-      <ExaminerGradingHistoryDialog
-        open={historyOpen}
-        sessionPublicId={sessionPublicId}
-        attemptPublicId={attemptPublicId}
-        attemptTitle={attemptTitle}
-        onClose={() => setHistoryOpen(false)}
-      />
   </>;
 }

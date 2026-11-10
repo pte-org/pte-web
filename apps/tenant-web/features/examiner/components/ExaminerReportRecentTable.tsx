@@ -81,6 +81,7 @@ export function ExaminerReportRecentTable({
                     <Button
                       variant="secondary"
                       size="sm"
+                      className="shrink-0 whitespace-nowrap"
                       onClick={() =>
                         router.push(`/examiner/work/${item.sessionPublicId}/${item.attemptPublicId}`)
                       }

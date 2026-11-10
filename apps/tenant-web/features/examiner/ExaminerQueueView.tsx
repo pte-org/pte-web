@@ -1,302 +1,188 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { ExaminerQueueItemResponse, ExaminerQueueStatus } from "@pte/api-client";
-import {
-  Badge,
-  Button,
-  EmptyState,
-  ErrorState,
-  LoadingState,
-  Pagination,
-  Select,
-} from "@pte/ui";
+import { Button, ErrorState, type DateRangeValue } from "@pte/ui";
 import { useExaminerQueue } from "./api";
 import { buildExaminerQueueHref, parseExaminerQueueStatus } from "./constants";
-import { useExaminerWorkspaceText } from "./hooks/useExaminerWorkspaceText";
-import { formatAttemptTitle } from "./utils/attemptLabels";
+import { useExaminerWorkspaceText, type ExaminerWorkspaceText } from "./hooks/useExaminerWorkspaceText";
+import { useDebouncedSearch } from "../search/useDebouncedSearch";
+import { ExaminerQueueFilters } from "./components/ExaminerQueueFilters";
+import { ExaminerQueueTable } from "./components/ExaminerQueueTable";
 
-function formatDate(value: string, locale: string): string {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
+function parseDateQuery(value: string | null): string {
+  if (!value || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return "";
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
     ? value
-    : new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-GB", {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }).format(date);
+    : "";
+}
+
+function toQueueBoundary(value: string, endExclusive: boolean): string | undefined {
+  if (!value) return undefined;
+  const [year, month, day] = value.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) {
+    return undefined;
+  }
+  if (endExclusive) date.setDate(date.getDate() + 1);
+  return date.toISOString();
+}
+
+function getStatusOptions(text: ExaminerWorkspaceText): Array<{ value: ExaminerQueueStatus; label: string }> {
+  return [
+    { value: "ALL", label: text.statusAll },
+    { value: "PENDING", label: text.statusPending },
+    { value: "IN_PROGRESS", label: text.statusInProgress },
+    { value: "COMPLETED", label: text.statusCompleted },
+  ];
+}
+
+function getSortOptions(text: ExaminerWorkspaceText): Array<{ value: string; label: string }> {
+  return [
+    { value: "ASSIGNED_ASC", label: text.sortAssignedAsc },
+    { value: "ASSIGNED_DESC", label: text.sortAssignedDesc },
+  ];
 }
 
 export const ExaminerQueueView = (): ReactElement => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const text = useExaminerWorkspaceText();
-
   const status = parseExaminerQueueStatus(searchParams?.get("status"));
   const rawPage = parseInt(searchParams?.get("page") ?? "0", 10);
   const page = Number.isInteger(rawPage) && rawPage >= 0 ? rawPage : 0;
   const searchParam = searchParams?.get("search") ?? "";
   const sortParam = searchParams?.get("sort") ?? "ASSIGNED_ASC";
-
+  const fromDate = parseDateQuery(searchParams?.get("fromDate") ?? null);
+  const toDate = parseDateQuery(searchParams?.get("toDate") ?? null);
   const [startingAttemptId, setStartingAttemptId] = useState<string | null>(null);
+  const search = searchParam;
+  const debouncedSearch = useDebouncedSearch(search);
+  const queueFromDate = toQueueBoundary(fromDate, false);
+  const queueToDate = toQueueBoundary(toDate, true);
+
+  const updateUrl = useCallback(
+    (
+      nextStatus: ExaminerQueueStatus,
+      nextPage: number,
+      nextSearch: string,
+      nextSort: string,
+      nextFromDate = fromDate,
+      nextToDate = toDate,
+    ): void => {
+      router.replace(
+        buildExaminerQueueHref(
+          nextStatus,
+          nextPage,
+          nextSearch,
+          nextSort,
+          nextFromDate,
+          nextToDate,
+        ),
+      );
+    },
+    [fromDate, router, toDate],
+  );
 
   const queue = useExaminerQueue({
     status,
     page,
     size: 20,
-    search: searchParam || undefined,
+    search: debouncedSearch || undefined,
     sort: sortParam,
+    fromDate: queueFromDate,
+    toDate: queueToDate,
   });
-
-  const queuePage = queue.data?.page ?? page;
-  const queueTotalItems = queue.data?.totalItems ?? queue.data?.items?.length ?? 0;
-  const queueTotalPages = Math.max(queue.data?.totalPages ?? 1, 1);
-
-  const updateUrl = useCallback(
-    (nextStatus: ExaminerQueueStatus, nextPage: number, nextSearch: string, nextSort: string): void => {
-      router.replace(buildExaminerQueueHref(nextStatus, nextPage, nextSearch, nextSort));
-    },
-    [router],
-  );
+  const totalItems = queue.data?.totalItems ?? queue.data?.items?.length ?? 0;
+  const totalPages = Math.max(queue.data?.totalPages ?? 1, 1);
+  const currentPage = queue.data?.page ?? page;
 
   useEffect(() => {
-    if (queue.data && queueTotalItems > 0 && page >= queueTotalPages) {
-      updateUrl(status, Math.max(0, queueTotalPages - 1), searchParam, sortParam);
+    if (queue.data && totalItems > 0 && page >= totalPages) {
+      updateUrl(status, Math.max(0, totalPages - 1), search, sortParam, fromDate, toDate);
     }
-  }, [page, queue.data, queueTotalItems, queueTotalPages, status, searchParam, sortParam, updateUrl]);
+  }, [fromDate, page, queue.data, search, sortParam, status, toDate, totalItems, totalPages, updateUrl]);
 
-  const chooseStatus = useCallback(
-    (next: ExaminerQueueStatus): void => {
-      updateUrl(next, 0, searchParam, sortParam);
-    },
-    [searchParam, sortParam, updateUrl],
+  const filters = (
+    <ExaminerQueueFilters
+      status={status}
+      sort={sortParam}
+      dateRange={{ from: fromDate, to: toDate }}
+      statusOptions={getStatusOptions(text)}
+      sortOptions={getSortOptions(text)}
+      text={text}
+      onStatusChange={(nextStatus) => updateUrl(nextStatus, 0, search, sortParam)}
+      onSortChange={(nextSort) => updateUrl(status, 0, search, nextSort)}
+      onDateRangeChange={(range: DateRangeValue) =>
+        updateUrl(status, 0, search, sortParam, range.from, range.to)
+      }
+    />
   );
 
-  const choosePage = useCallback(
-    (nextPage: number): void => {
-      updateUrl(status, nextPage, searchParam, sortParam);
-    },
-    [searchParam, sortParam, status, updateUrl],
-  );
-
-  const chooseSort = (nextSort: string) => {
-    updateUrl(status, 0, searchParam, nextSort);
-  };
-
-  const handleOpenAttempt = useCallback(
-    (sessionPublicId: string, attemptPublicId: string): void => {
+  const openAttempt = useCallback(
+    (item: ExaminerQueueItemResponse): void => {
       router.push(
-        `/examiner/work/${sessionPublicId}/${attemptPublicId}?fromStatus=${status}&fromPage=${page}`,
+        `/examiner/work/${item.sessionPublicId}/${item.attemptPublicId}?fromStatus=${status}&fromPage=${page}`,
       );
     },
     [page, router, status],
   );
 
-  const handleStartAttempt = async (sessionPublicId: string, attemptPublicId: string) => {
-    try {
-      setStartingAttemptId(attemptPublicId);
-      const { startExaminerWork } = await import("@pte/api-client");
-      const { apiClient } = await import("@/lib/apiClient");
-      await startExaminerWork(apiClient, sessionPublicId, attemptPublicId, {
-        requestPublicId: crypto.randomUUID(),
-        expectedWorkVersion: 0,
-      });
-      handleOpenAttempt(sessionPublicId, attemptPublicId);
-    } catch {
-      handleOpenAttempt(sessionPublicId, attemptPublicId);
-    } finally {
-      setStartingAttemptId(null);
-    }
-  };
-
-  const statusOptions = useMemo(
-    () => [
-      { value: "ALL", label: text.statusAll },
-      { value: "PENDING", label: text.statusPending },
-      { value: "IN_PROGRESS", label: text.statusInProgress },
-      { value: "COMPLETED", label: text.statusCompleted },
-    ],
-    [text],
+  const startAttempt = useCallback(
+    async (item: ExaminerQueueItemResponse): Promise<void> => {
+      try {
+        setStartingAttemptId(item.attemptPublicId);
+        const { startExaminerWork } = await import("@pte/api-client");
+        const { apiClient } = await import("@/lib/apiClient");
+        await startExaminerWork(apiClient, item.sessionPublicId, item.attemptPublicId, {
+          requestPublicId: crypto.randomUUID(),
+          expectedWorkVersion: 0,
+        });
+      } catch {
+        // Opening the work item still lets the Examiner retry or reconcile the start command.
+      } finally {
+        setStartingAttemptId(null);
+        openAttempt(item);
+      }
+    },
+    [openAttempt],
   );
-
-  const sortOptions = useMemo(
-    () => [
-      { value: "ASSIGNED_ASC", label: text.sortAssignedAsc },
-      { value: "ASSIGNED_DESC", label: text.sortAssignedDesc },
-    ],
-    [text],
-  );
-
-  const getBlockingText = (reason: string | null | undefined): string => {
-    if (!reason) return "";
-    if (reason === "WAITING_FOR_HOST_FREEZE") return text.waitingForHostFreeze;
-    if (reason === "CARRIED_OVER_DRAFTS_UNCONFIRMED") return text.carriedOverDrafts;
-    return `${text.blockedReasonPrefix}${reason}`;
-  };
 
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-      <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
-        <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => router.push("/examiner/work")}
-          >
-            {text.backToOverview}
-          </Button>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="w-48">
-            <label htmlFor="examiner-queue-status" className="block text-xs font-medium text-slate-700 mb-1">
-              {text.filterLabel}
-            </label>
-            <Select
-              id="examiner-queue-status"
-              value={status}
-              onChange={(e) => chooseStatus(e.target.value as ExaminerQueueStatus)}
-              options={statusOptions}
-            />
-          </div>
-
-          <div className="w-48">
-            <label htmlFor="examiner-queue-sort" className="block text-xs font-medium text-slate-700 mb-1">
-              {text.sortLabel}
-            </label>
-            <Select
-              id="examiner-queue-sort"
-              value={sortParam}
-              onChange={(e) => chooseSort(e.target.value)}
-              options={sortOptions}
-            />
-          </div>
-        </div>
-      </div>
-
-      <section className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
-        {queue.isLoading ? (
-          <div className="p-4">
-            <LoadingState variant="table" label={text.loadingQueue} />
-          </div>
-        ) : queue.isError ? (
-          <div className="p-4">
-            <ErrorState
-              title={text.queueError}
-              action={
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="sm"
-                  disabled={queue.isFetching}
-                  onClick={() => void queue.refetch()}
-                >
-                  {text.retry}
-                </Button>
-              }
-            />
-          </div>
-        ) : !queue.data || queue.data.items?.length === 0 ? (
-          <div className="p-4">
-            <EmptyState title={text.emptyQueue} />
-          </div>
-        ) : (
-          <>
-            <ul className="divide-y divide-slate-100">
-              {queue.data?.items?.map((item: ExaminerQueueItemResponse) => {
-                const isZeroEligible = item.eligibleAnswerCount === 0;
-                const blockingLabel = getBlockingText(item.blockingReason);
-                const isStarting = startingAttemptId === item.attemptPublicId;
-
-                return (
-                  <li
-                    key={`${item.sessionPublicId}:${item.attemptPublicId}`}
-                    className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between transition-colors hover:bg-slate-50"
-                  >
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-medium text-slate-900">
-                          {formatAttemptTitle(text.attemptLabel, item)}
-                        </p>
-                        {item.status === "PENDING" ? (
-                          <Badge variant="neutral">{text.statusPending}</Badge>
-                        ) : item.status === "IN_PROGRESS" ? (
-                          <Badge variant="warning">{text.statusInProgress}</Badge>
-                        ) : (
-                          <Badge variant="success">{text.statusCompleted}</Badge>
-                        )}
-                      </div>
-
-                      <p className="mt-1 text-sm text-slate-600">
-                        {text.progressLabel}: {item.submittedAnswerCount}/{item.eligibleAnswerCount}
-                      </p>
-
-                      <div className="mt-1 flex flex-wrap items-center gap-x-3 text-xs text-slate-500">
-                        <span>
-                          {text.assignedAt} {formatDate(item.assignedAt, text.locale)}
-                        </span>
-                        {isZeroEligible && (
-                          <span className="text-slate-400 italic">{text.noEligibleWork}</span>
-                        )}
-                        {blockingLabel && (
-                          <span className="text-amber-700 font-medium">{blockingLabel}</span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      {!isZeroEligible ? (
-                        item.status === "PENDING" ? (
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            disabled={isStarting}
-                            onClick={() => handleStartAttempt(item.sessionPublicId, item.attemptPublicId)}
-                          >
-                            {isStarting ? text.startingWork : text.startMarking}
-                          </Button>
-                        ) : item.status === "IN_PROGRESS" ? (
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            onClick={() => handleOpenAttempt(item.sessionPublicId, item.attemptPublicId)}
-                          >
-                            {text.continueMarking}
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => handleOpenAttempt(item.sessionPublicId, item.attemptPublicId)}
-                          >
-                            {text.viewWork}
-                          </Button>
-                        )
-                      ) : (
-                        <span className="text-xs text-slate-400">{text.noEligibleWork}</span>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-
-            <div className="flex flex-col gap-3 border-t border-slate-100 px-4 py-3 text-sm text-slate-600 sm:flex-row sm:items-center sm:justify-between">
-              <span className="tabular-nums">
-                {text.format("totalRecords", { total: queueTotalItems })}
-              </span>
-              <Pagination
-                currentPage={queuePage + 1}
-                totalPages={queueTotalPages}
-                onPageChange={(nextPage) => choosePage(nextPage - 1)}
-                sideLayout="icon"
-                grouped
-                className="!mx-0 !w-auto !justify-end gap-1"
-              />
-            </div>
-          </>
-        )}
-      </section>
+      {queue.isError ? (
+        <ErrorState
+          title={text.queueError}
+          action={
+            <Button type="button" variant="secondary" size="sm" onClick={() => void queue.refetch()}>
+              {text.retry}
+            </Button>
+          }
+        />
+      ) : (
+        <ExaminerQueueTable
+          items={queue.data?.items ?? []}
+          text={text}
+          isLoading={queue.isLoading}
+          isFetching={queue.isFetching}
+          emptyTitle={text.emptyQueue}
+          search={search}
+          totalItems={totalItems}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          startingAttemptId={startingAttemptId}
+          filters={filters}
+          onSearchChange={(value) => {
+            updateUrl(status, 0, value, sortParam);
+          }}
+          onStart={(item) => void startAttempt(item)}
+          onOpen={openAttempt}
+          onPageChange={(nextPage) => updateUrl(status, nextPage, search, sortParam)}
+        />
+      )}
     </div>
   );
 };

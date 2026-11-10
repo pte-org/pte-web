@@ -87,6 +87,8 @@ export interface UseExaminerQueueParams {
   size?: number;
   search?: string;
   sort?: string;
+  fromDate?: string;
+  toDate?: string;
   sessionPublicId?: string;
 }
 

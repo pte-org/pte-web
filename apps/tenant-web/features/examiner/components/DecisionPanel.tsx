@@ -11,12 +11,13 @@ interface DecisionPanelProps {
   answer: ExaminerAnswerDetailResponse; draftScore: string; draftComment?: string; draftSavedAt?: string | null;
   traitScores?: Record<string, number | null>; itemScore?: number | null; scoreTrace?: ScoreTraceResponse | null; dirty?: boolean;
   carriedOver?: boolean; isStale: boolean; isMediaBroken?: boolean; isMediaLoading?: boolean; isSavingDraft?: boolean;
+  showSaveAction?: boolean;
   onScoreChange: (score: string) => void; onTraitChange?: (key: string, value: number | null) => void;
   onCommentChange?: (comment: string) => void; onSaveDraft?: () => void; onAcknowledgeStale?: () => void;
 }
 export const DecisionPanel = ({ answer, draftScore, draftComment = "", draftSavedAt, traitScores = {}, itemScore, scoreTrace,
   dirty = false, carriedOver = false, isStale, isMediaBroken = false, isMediaLoading = false, isSavingDraft = false,
-  onScoreChange, onTraitChange, onCommentChange, onSaveDraft, onAcknowledgeStale }: DecisionPanelProps): ReactElement => {
+  onScoreChange, onTraitChange, onCommentChange, onSaveDraft, onAcknowledgeStale, showSaveAction = true }: DecisionPanelProps): ReactElement => {
   const text = useExaminerWorkText();
   const saved = answer.myScore !== null || answer.decision !== null;
   const score = draftScore.trim() === "" ? Number.NaN : Number(draftScore);
@@ -38,7 +39,7 @@ export const DecisionPanel = ({ answer, draftScore, draftComment = "", draftSave
       value={draftScore} disabled={disabled} onChange={(event) => onScoreChange(event.target.value)} placeholder={text.SCORE_PLACEHOLDER} />}
     {onCommentChange && <Textarea id="examiner-comment-input" label={text.COMMENT_LABEL} rows={2} maxLength={2000}
       value={draftComment} onChange={(event) => onCommentChange(event.target.value)} placeholder={text.COMMENT_PLACEHOLDER} />}
-    {onSaveDraft && <Button variant="secondary" disabled={!valid || disabled} onClick={onSaveDraft}>{isSavingDraft ? text.SAVING_DRAFT : text.SAVE_DRAFT}</Button>}
+    {showSaveAction && onSaveDraft && <Button variant="secondary" disabled={!valid || disabled} onClick={onSaveDraft}>{isSavingDraft ? text.SAVING_DRAFT : text.SAVE_DRAFT}</Button>}
     {draftSavedAt && <p className="text-xs text-slate-500">{text.DRAFT_SAVED}: {new Date(draftSavedAt).toLocaleTimeString()}</p>}
     {!answer.rubric && !valid && draftScore.length > 0 && <p className="text-xs text-red-600">{text.SCORE_INVALID}</p>}
   </section>;

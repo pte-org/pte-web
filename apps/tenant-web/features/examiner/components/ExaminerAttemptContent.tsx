@@ -1,13 +1,16 @@
 "use client";
 import type { ReactElement } from "react";
-import { Button, EmptyState, ErrorState, LoadingState } from "@pte/ui";
+import { Button, Disclosure, EmptyState, ErrorState, LoadingState } from "@pte/ui";
+import { ScoreExplanationLink } from "@/features/scoreexplanation/components";
 import { AiScoreDetail } from "@/features/aiScore";
+import { ExaminerMarkingToolbar } from "./ExaminerMarkingToolbar";
 import { PromptRenderer, ResponseRenderer } from "./AnswerContentRenderer";
 import { QuestionNavigator } from "./QuestionNavigator";
 import { AiReferencePanel } from "./AiReferencePanel";
 import { DecisionPanel } from "./DecisionPanel";
 import type { ExaminerAttemptController } from "../useExaminerAttemptController";
-export function ExaminerAttemptContent({ state }: { state: ExaminerAttemptController }): ReactElement {
+interface ExaminerAttemptContentProps { state: ExaminerAttemptController }
+export const ExaminerAttemptContent = ({ state }: ExaminerAttemptContentProps): ReactElement => {
   const { T, query, answers, currentAnswer, currentIndex, drafts, isSavingDraft, handleSelectIndex, setPromptMedia, setResponseMedia, handleApplyAiScore, activeDraft, handleTraitChange, carriedOverIds, isStale, promptMedia, responseMedia, handleScoreChange, handleCommentChange, handleSaveClick, handleAcknowledgeStale } = state;
   return <>
       {query.isLoading ? (
@@ -30,8 +33,9 @@ export function ExaminerAttemptContent({ state }: { state: ExaminerAttemptContro
         <EmptyState title={T.NO_ANSWERS} />
       ) : currentAnswer ? (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 xl:grid-cols-5">
-          <div className="lg:col-span-1 xl:col-span-1">
+          <div className="min-w-0 self-start lg:sticky lg:top-4 lg:col-span-1 xl:col-span-1">
             <QuestionNavigator
+              disabled={isSavingDraft || state.isFinalizing}
               answers={answers}
               currentIndex={currentIndex}
               drafts={Object.fromEntries(
@@ -48,7 +52,7 @@ export function ExaminerAttemptContent({ state }: { state: ExaminerAttemptContro
             />
           </div>
 
-          <div className="space-y-4 lg:col-span-3 xl:col-span-4">
+          <div className="min-w-0 space-y-4 lg:col-span-3 xl:col-span-4">
             <PromptRenderer
               key={`prompt-${currentAnswer.answerPublicId}`}
               prompt={currentAnswer.prompt}
@@ -66,10 +70,19 @@ export function ExaminerAttemptContent({ state }: { state: ExaminerAttemptContro
               disabled={Boolean(currentAnswer.rubric && (!currentAnswer.aiReference?.rubricVersionPublicId || currentAnswer.aiReference.rubricVersionPublicId !== currentAnswer.rubric.rubricVersionPublicId))}
               readOnly={currentAnswer.myScore !== null}
               onApplyAiScore={handleApplyAiScore}
+              detail={currentAnswer.ai ? <AiScoreDetail ai={currentAnswer.ai} /> : undefined}
             />
-            {currentAnswer.ai && <AiScoreDetail ai={currentAnswer.ai} />}
+            {currentAnswer.ai && currentAnswer.aiReference?.availability !== "AVAILABLE" && (
+              <Disclosure title={T.AI_DETAILS}><AiScoreDetail ai={currentAnswer.ai} /></Disclosure>
+            )}
+            <ScoreExplanationLink role="EXAMINER" sessionPublicId={state.sessionPublicId} attemptPublicId={state.attemptPublicId}
+              renderAction={(action) => <button type="button" onClick={action.onSelect} className="text-xs text-[var(--action)] hover:underline">{action.label}</button>} />
+            <div className="flex justify-end">
+              <Button variant="ghost" size="sm" onClick={() => state.setGuidelinesOpen(true)}>{T.GUIDELINES}</Button>
+            </div>
             <DecisionPanel
               answer={currentAnswer}
+              showSaveAction={false}
               draftScore={activeDraft?.score ?? ""}
               traitScores={activeDraft?.traitScores}
               itemScore={activeDraft?.itemScore}
@@ -88,9 +101,10 @@ export function ExaminerAttemptContent({ state }: { state: ExaminerAttemptContro
               onSaveDraft={() => void handleSaveClick()}
               onAcknowledgeStale={handleAcknowledgeStale}
             />
+            <ExaminerMarkingToolbar state={state} />
           </div>
         </div>
       ) : null}
 
   </>;
-}
+};

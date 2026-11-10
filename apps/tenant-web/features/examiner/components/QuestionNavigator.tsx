@@ -2,10 +2,10 @@
 
 import type { ReactElement } from "react";
 import type { ExaminerAnswerDetailResponse } from "@pte/api-client";
-import { Button } from "@pte/ui";
 import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
 interface QuestionNavigatorProps {
+  disabled?: boolean;
   answers: ExaminerAnswerDetailResponse[];
   currentIndex: number;
   drafts: Record<string, { score: string; isSaved: boolean; carriedOver?: boolean }>;
@@ -17,33 +17,14 @@ export const QuestionNavigator = ({
   currentIndex,
   drafts,
   onSelectIndex,
+  disabled = false,
 }: QuestionNavigatorProps): ReactElement => {
   const T = useExaminerWorkText();
-  const canGoPrev = currentIndex > 0;
-  const canGoNext = currentIndex < answers.length - 1;
 
   return (
     <nav className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" aria-label={T.NAV_TITLE}>
       <div className="flex items-center justify-between pb-3 border-b border-slate-100">
         <h3 className="text-sm font-semibold text-slate-800">{T.NAV_TITLE}</h3>
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={!canGoPrev}
-            onClick={() => onSelectIndex(currentIndex - 1)}
-          >
-            {T.PREV_QUESTION}
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={!canGoNext}
-            onClick={() => onSelectIndex(currentIndex + 1)}
-          >
-            {T.NEXT_QUESTION}
-          </Button>
-        </div>
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-1">
@@ -57,14 +38,16 @@ export const QuestionNavigator = ({
             <button
               key={answer.answerPublicId}
               type="button"
+              disabled={disabled}
+              aria-current={isSelected ? "step" : undefined}
               onClick={() => onSelectIndex(index)}
-              className={`flex items-center justify-between rounded-md px-3 py-2 text-left text-xs transition-colors ${
+              className={`flex items-center justify-between rounded-md px-3 py-2 text-left text-xs transition-colors disabled:cursor-wait disabled:opacity-60 ${
                 isSelected
                   ? "bg-blue-50 font-semibold text-blue-900 ring-1 ring-blue-600/30"
                   : "hover:bg-slate-50 text-slate-700"
               }`}
             >
-              <div className="truncate">
+              <div className="min-w-0 whitespace-normal break-words leading-relaxed">
                 <span>{index + 1}. </span>
                 <span>{answer.taskType.replaceAll("_", " ")}</span>
               </div>

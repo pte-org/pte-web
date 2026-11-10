@@ -11,6 +11,8 @@ interface ScoreExplanationLinkProps {
   role: ScoreExplanationRole;
   sessionPublicId: string;
   attemptPublicId: string;
+  /** Lets a table reuse this authorized entry point inside its common action menu. */
+  renderAction?: (action: { label: string; onSelect: () => void }) => ReactElement;
 }
 
 /**
@@ -21,9 +23,14 @@ export const ScoreExplanationLink = ({
   role,
   sessionPublicId,
   attemptPublicId,
+  renderAction,
 }: ScoreExplanationLinkProps): ReactElement => {
   const { messages: M } = useScoreExplanationText();
   const router = useRouter();
+  const onSelect = (): void =>
+    router.push(scoreExplanationHref(role, sessionPublicId, attemptPublicId));
+
+  if (renderAction) return renderAction({ label: M.openLink, onSelect });
 
   return (
     <Button
@@ -31,7 +38,7 @@ export const ScoreExplanationLink = ({
       variant="secondary"
       size="sm"
       className="whitespace-nowrap"
-      onClick={() => router.push(scoreExplanationHref(role, sessionPublicId, attemptPublicId))}
+      onClick={onSelect}
     >
       {M.openLink}
     </Button>

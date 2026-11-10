@@ -6,6 +6,7 @@ import type { ExaminerQueueStatus } from "@pte/api-client";
 import { useExaminerOverview } from "./api";
 import { ExaminerPriorityWork } from "./components/ExaminerPriorityWork";
 import { ExaminerWorkspaceOverview } from "./components/ExaminerWorkspaceOverview";
+import { ExaminerOverviewStatistics } from "./components/ExaminerOverviewStatistics";
 
 export const ExaminerOverviewView = (): ReactElement => {
   const router = useRouter();
@@ -38,7 +39,6 @@ export const ExaminerOverviewView = (): ReactElement => {
         onRetry={() => void overview.refetch()}
         selectedStatus="ALL"
         onSelectStatus={handleSelectStatus}
-        onRefresh={() => void overview.refetch()}
       />
 
       <ExaminerPriorityWork
@@ -46,6 +46,7 @@ export const ExaminerOverviewView = (): ReactElement => {
         isLoading={overview.isLoading}
         onOpenAttempt={handleOpenAttempt}
       />
+      <ExaminerOverviewStatistics />
     </div>
   );
 };
