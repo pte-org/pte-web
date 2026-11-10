@@ -1,5 +1,7 @@
 "use client";
 
+import { useFeedbackToast } from "../hooks/useFeedbackToast";
+
 import { useState, type ReactElement } from "react";
 import { Alert, Button, Modal, StatusBadge, Textarea } from "@pte/ui";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
@@ -46,6 +48,8 @@ export function RecordAttendanceModal({
   const [isIntentFrozen, setIsIntentFrozen] = useState(false);
   const [isStaleConflict, setIsStaleConflict] = useState(false);
 
+  useFeedbackToast(open && !isStaleConflict ? errorMessage : null);
+
   const proctorMutation = useRecordAttendanceMutation(sessionPublicId);
   const hostMutation = useRecordHostAttendanceMutation(sessionPublicId);
   const mutation = isHost ? hostMutation : proctorMutation;
@@ -65,8 +69,7 @@ export function RecordAttendanceModal({
 
   const isCorrection = row.status !== "UNMARKED" || targetStatus === "UNMARKED";
   const isReasonRequired = isHost || isCorrection;
-  const hasDiscrepancy =
-    targetStatus === "ABSENT" && Boolean(row.latestAttemptActivityStatus);
+  const hasDiscrepancy = targetStatus === "ABSENT" && Boolean(row.latestAttemptActivityStatus);
 
   const handleSubmit = async () => {
     if (isReasonRequired && !reason.trim()) {
@@ -90,7 +93,12 @@ export function RecordAttendanceModal({
       onClose();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes("409") || msg.includes("Conflict") || msg.includes("stale") || msg.includes("version")) {
+      if (
+        msg.includes("409") ||
+        msg.includes("Conflict") ||
+        msg.includes("stale") ||
+        msg.includes("version")
+      ) {
         setIsStaleConflict(true);
         setErrorMessage(T.STALE_CONFLICT_ERROR);
       } else {
@@ -122,8 +130,8 @@ export function RecordAttendanceModal({
               {mutation.isPending
                 ? T.PROCESSING_BTN
                 : isIntentFrozen
-                ? T.RETRY_EXACT_BTN
-                : T.CONFIRM_BTN}
+                  ? T.RETRY_EXACT_BTN
+                  : T.CONFIRM_BTN}
             </Button>
           )}
         </div>
@@ -175,18 +183,11 @@ export function RecordAttendanceModal({
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           placeholder={
-            isReasonRequired
-              ? T.REASON_REQUIRED_PLACEHOLDER
-              : T.REASON_OPTIONAL_PLACEHOLDER
+            isReasonRequired ? T.REASON_REQUIRED_PLACEHOLDER : T.REASON_OPTIONAL_PLACEHOLDER
           }
           className="w-full"
         />
-
-        {errorMessage && (
-          <Alert tone={isStaleConflict ? "warning" : "error"}>
-            {errorMessage}
-          </Alert>
-        )}
+        {isStaleConflict && errorMessage && <Alert tone="warning">{errorMessage}</Alert>}
       </div>
     </Modal>
   );

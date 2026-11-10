@@ -21,21 +21,31 @@ export const DEFAULT_REDISTRIBUTION_MODE: RedistributionMode = "PROPORTIONAL";
 
 export const HOST_TEMPLATES_TEXT = {
   TITLE: "Exam templates",
-  CREATE: "New template",
+  CREATE: "Create template",
   CREATE_TITLE: "New template from the default",
   CREATE_HINT:
     "A new template starts as a copy of the default template. You can then remove task types and adjust the weights.",
   NAME_LABEL: "Template name",
   NAME_PLACEHOLDER: "e.g. Reading and Listening only",
+  COL_CODE: "Code",
+  COL_VERSION: "Version",
   COL_NAME: "Name",
+  SEARCH_PLACEHOLDER: "Search by template name, code, or version",
+  SEARCH_ARIA_LABEL: "Search templates by name, code, or version",
+  STATUS_FILTER_ALL: "All statuses",
+  STANDARD_BADGE: "Pearson standard",
+  CUSTOMISED_BADGE: "Customised",
+  CUSTOMISED_HINT: "Differs from the default template: {reasons}",
   COL_STATUS: "Status",
   COL_TASKS: "Task types",
   COL_ACTIONS: "Actions",
   EMPTY_TITLE: "No templates yet",
   EMPTY_TEXT: "Create a template from the default one to choose which task types an exam contains.",
   LOAD_FAILED: "Failed to load templates.",
-  OPEN: "Open",
-  CLONE: "Duplicate",
+  OPEN: "View",
+  CLONE: "Clone to new draft",
+  EXPORT: "Export JSON",
+  EDIT: "Edit",
   ACTIVATE: "Activate",
   RETIRE: "Retire",
   DELETE: "Delete",
@@ -59,22 +69,45 @@ export const HOST_TEMPLATES_TEXT = {
   STATUS_RETIRED: "Retired",
   STATUS_PENDING_APPROVAL: "Pending",
   DEFAULT_BADGE: "Default",
-  DEFAULT_HINT: "Provided by the platform. Choose it when creating an exam, or create a new template from it.",
+  DEFAULT_HINT:
+    "Provided by the platform. Choose it when creating an exam, or create a new template from it.",
 } as const;
 
 export const EDITOR_TEXT = {
   BACK: "Back to templates",
   NOT_FOUND: "Template not found.",
   READ_ONLY: "Only a draft can be edited. Duplicate this template to change it.",
-  DEFAULT_READ_ONLY:
-    "This is the platform default template and cannot be edited. You can choose it when creating an exam, or create a new template from it to remove task types.",
   NAME_LABEL: "Template name",
+  ALL_SECTIONS: "All sections",
+  VIEW_LABEL: "Table view",
+  VIEW_STRUCTURE: "Questions",
+  VIEW_WEIGHTS: "Weights",
+  INFO_TITLE: "Template information",
+  INFO_STATUS: "Status",
+  INFO_VERSION: "Version",
+  INFO_CREATED: "Created",
+  INFO_UPDATED: "Last updated",
+  ACTIONS_LABEL: "Template actions",
   TASKS_TITLE: "Task types",
-  TASKS_HINT:
-    "You can remove task types and adjust weights. Task types outside the default template cannot be added.",
+  PALETTE_TITLE: "Task types to add",
+  PALETTE_HINT: "Drag one into the table, or press +. Drag a row back here to remove it.",
+  PALETTE_EMPTY: "Every task type of the default template is already here.",
+  ADD_TYPE: "Add task type",
+  DRAG_HANDLE: "Drag to reorder",
+  DURATION_TITLE: "Planned duration",
+  PART_SPEAKING_WRITING: "Speaking & Writing",
+  PART_READING: "Reading",
+  PART_LISTENING: "Listening",
+  MINUTES_SHORT: "min",
+  DURATION_WINDOW: "Window",
+  DURATION_FITS: "Can fit",
+  DURATION_NO_FIT: "Cannot fit",
+  DURATION_CEILING: "Test ceiling",
   COL_TASK: "Task type",
   COL_COUNT: "Questions",
   COL_POOL: "Available / needed",
+  COL_PREP: "Prep (s)",
+  COL_RESPONSE: "Response (s)",
   POOL_OK: "Enough published questions for this task type.",
   POOL_SHORT:
     "Not enough published questions for this task type: {available} available, {required} needed.",
@@ -117,3 +150,9 @@ export const MODE_TEXT: Record<RedistributionMode, { label: string; hint: string
     hint: "Nothing is changed for you. Edit the weights in the table until each skill totals 100.",
   },
 };
+
+/** What a task type dragged out of the palette carries: its key. */
+export const TASK_TYPE_DRAG_TYPE = "application/x-pte-task-type";
+
+/** Marks the palette as the place a table row is dragged back to, to take it out of the template. */
+export const PALETTE_DROP_ATTRIBUTE = "data-task-type-palette";

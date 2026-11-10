@@ -519,7 +519,7 @@ export const PlanCatalogView = (): ReactElement => {
           </section>
         </form>
       </Modal>
-      <CommercialPanel title={T.CATALOG_TITLE}>
+      <CommercialPanel>
         <DataTable
           toolbarActions={
             <Button type="button" onClick={beginCreate} disabled={isBusy}>

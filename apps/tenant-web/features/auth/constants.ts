@@ -82,6 +82,9 @@ export const AUTH_TEXT = {
   STUDENT_ACCOUNT_NOT_ALLOWED:
     "Student accounts cannot sign in to this portal. Your results are sent to your email when they are published.",
   GENERIC_ERROR: "Login failed. Please try again.",
+  NETWORK_ERROR: "Unable to connect to the server. Check your connection and try again.",
+  SERVICE_UNAVAILABLE: "Sign-in is temporarily unavailable. Please try again later.",
+  RATE_LIMITED: "Too many sign-in attempts. Please wait a moment and try again.",
 } as const;
 
 export const REGISTRATION_TEXT = {

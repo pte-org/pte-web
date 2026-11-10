@@ -16,7 +16,12 @@ interface ScoreCardProps {
   insufficientLabel: string;
 }
 
-const ScoreCard = ({ label, score, sufficient, insufficientLabel }: ScoreCardProps): ReactElement => (
+const ScoreCard = ({
+  label,
+  score,
+  sufficient,
+  insufficientLabel,
+}: ScoreCardProps): ReactElement => (
   <div className="rounded-md bg-[var(--surface-subtle)] p-4">
     <div className="text-xs font-medium uppercase tracking-wide text-[var(--ink-secondary)]">
       {label}
@@ -29,7 +34,9 @@ const ScoreCard = ({ label, score, sufficient, insufficientLabel }: ScoreCardPro
 );
 
 /** One student's overall and per-skill scores, shown above the answers of that attempt. */
-export const AttemptScoreSummary = ({ attemptPublicId }: AttemptScoreSummaryProps): ReactElement => {
+export const AttemptScoreSummary = ({
+  attemptPublicId,
+}: AttemptScoreSummaryProps): ReactElement => {
   const { t } = useLocale();
   const { data: report, isLoading, isError } = useAttemptReport(attemptPublicId);
 

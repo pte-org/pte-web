@@ -6,7 +6,6 @@ export const QUOTA_HISTORY_QUERY_KEY = ["quotaHistory"] as const;
 
 export const LICENSING_TEXT = {
   TITLE: "Licenses",
-  EXPORT: "Export report",
   ACTION_RENEW: "Renew",
   ACTION_HISTORY: "View History",
   ACTION_EXPORT_PDF: "Export PDF",

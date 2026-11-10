@@ -77,7 +77,8 @@ export const ExaminerAssignmentSection = ({
     statusNotStarted: t("tenant.examinerAssignment.statusNotStarted", T.STATUS_NOT_STARTED),
     statusInProgress: t("tenant.examinerAssignment.statusInProgress", T.STATUS_IN_PROGRESS),
     statusCompleted: t("tenant.examinerAssignment.statusCompleted", T.STATUS_COMPLETED),
-    draftCount: (count: number) => t("tenant.examinerAssignment.draftCount", T.DRAFT_COUNT, { count }),
+    draftCount: (count: number) =>
+      t("tenant.examinerAssignment.draftCount", T.DRAFT_COUNT, { count }),
     changeExaminer: t("tenant.examinerAssignment.changeExaminer", T.CHANGE_EXAMINER),
     reassignTitle: t("tenant.examinerAssignment.reassignTitle", T.REASSIGN_TITLE),
     reassignDescription: (count: number) =>
@@ -100,7 +101,8 @@ export const ExaminerAssignmentSection = ({
   };
 
   const examinerOptions = useMemo(
-    () => examiners.map((examiner) => ({ value: examiner.publicId, label: examinerName(examiner) })),
+    () =>
+      examiners.map((examiner) => ({ value: examiner.publicId, label: examinerName(examiner) })),
     [examiners],
   );
   const examinerLabels = useMemo(
@@ -111,7 +113,8 @@ export const ExaminerAssignmentSection = ({
   const examinerOf = (row: ExaminerAssignmentRosterRow): string =>
     committed ? (row.examinerPublicId ?? "") : (draft[row.attemptPublicId] ?? "");
   const assignedCount = rows.filter((row) => examinerOf(row).length > 0).length;
-  const canCommit = editable && rows.length > 0 && assignedCount === rows.length && !commit.isPending;
+  const canCommit =
+    editable && rows.length > 0 && assignedCount === rows.length && !commit.isPending;
   const canRandomize = editable && rows.length > 0 && selectedExaminerIds.length > 0;
 
   const toggleExaminer = (publicId: string): void =>
@@ -188,7 +191,9 @@ export const ExaminerAssignmentSection = ({
       sortAccessor: (row) => row.studentName ?? "",
       cell: (row) => (
         <div className="flex flex-col">
-          <span className="text-[var(--ink-primary)]">{row.studentName ?? text.unknownStudent}</span>
+          <span className="text-[var(--ink-primary)]">
+            {row.studentName ?? text.unknownStudent}
+          </span>
           {row.studentEmail && (
             <span className="text-xs text-[var(--ink-secondary)]">{row.studentEmail}</span>
           )}
@@ -283,7 +288,11 @@ export const ExaminerAssignmentSection = ({
       )}
 
       {rosterQuery.isError ? (
-        <Button variant="secondary" className="self-start" onClick={() => void rosterQuery.refetch()}>
+        <Button
+          variant="secondary"
+          className="self-start"
+          onClick={() => void rosterQuery.refetch()}
+        >
           {text.retry}
         </Button>
       ) : (

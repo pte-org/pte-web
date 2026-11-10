@@ -33,9 +33,7 @@ export type PteTaskType =
   | "HIGHLIGHT_INCORRECT_WORDS"
   | "WRITE_FROM_DICTATION";
 
-export type QuestionVisibility = "SHARED" | "PRIVATE";
-
-/** Which product a question serves; fixed at creation and never changed afterwards. */
+/** Which product a question serves at creation; later moves use the availability flags on a draft. */
 export type QuestionPool = "EXAM" | "PRACTICE";
 
 /** Real enum (`services/authoring/domain/enums/QuestionStatus.java`) — not the previous fictitious DRAFT|ACTIVE|ARCHIVED. */
@@ -53,12 +51,13 @@ export interface OptionResponse extends OptionRequest {
   publicId: string;
 }
 
+/** CEFR level (A1 to C2) a question is written for. */
+export type CefrLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
+
 export interface CreateQuestionRequest {
   pteTaskType: PteTaskType | string;
-  visibility?: QuestionVisibility | string;
   /** Defaults to EXAM on the server; only accepted on create. */
   pool?: QuestionPool;
-  title: string;
   promptText?: string | null;
   audioPromptRef?: string | null;
   imagePromptRef?: string | null;
@@ -67,22 +66,63 @@ export interface CreateQuestionRequest {
   minWordCount?: number | null;
   maxWordCount?: number | null;
   options?: OptionRequest[];
+  /** Required before an exam question is submitted for approval. */
+  cefrLevel?: CefrLevel | null;
 }
 
-export type UpdateQuestionRequest = Omit<CreateQuestionRequest, "pteTaskType" | "visibility" | "pool"> & {
+export type UpdateQuestionRequest = Omit<CreateQuestionRequest, "pteTaskType" | "pool"> & {
   version?: number;
+  /** Moves a draft between products; omit both to leave availability untouched. */
+  availableForExam?: boolean;
+  availableForPractice?: boolean;
 };
+
+export interface GenerationMetricsResponse {
+  words: number;
+  avgSentenceLength: number;
+  fleschKincaid: number;
+}
+
+export interface GenerationMediaResponse {
+  voice: string | null;
+  speed: number | null;
+  durationSec: number | null;
+  chartType: string | null;
+}
+
+export interface CheckResultResponse {
+  ok: boolean;
+  note?: string | null;
+}
+
+export interface ReviewVerdictResponse {
+  verdict: string;
+  checks: Record<string, CheckResultResponse>;
+  fixSuggestion?: string | null;
+}
+
+export interface GenerationMetaResponse {
+  schema: number;
+  jobPublicId: string;
+  model: Record<string, string>;
+  promptVersion: string;
+  topic: string;
+  attempts: number;
+  review: ReviewVerdictResponse;
+  metrics: GenerationMetricsResponse;
+  keyPoints: string[];
+  media: GenerationMediaResponse;
+  editedByHuman: boolean;
+}
 
 export interface QuestionResponse {
   publicId: string;
   pteTaskType: PteTaskType | string;
   taskTypeKey?: string | null;
   section: PteSection | string;
-  visibility: QuestionVisibility | string;
   pool: QuestionPool | string;
   tenantId: string | null;
   status: QuestionStatus | string;
-  title: string;
   promptText: string | null;
   audioPromptRef: string | null;
   imagePromptRef: string | null;
@@ -100,6 +140,18 @@ export interface QuestionResponse {
   canDeleteDraft?: boolean;
   canArchive?: boolean;
   deleteBlockReason?: string | null;
+  availableForExam?: boolean;
+  availableForPractice?: boolean;
+  /** True when this or an earlier revision was ever published (exam content may already be exposed). */
+  previouslyPublished?: boolean;
+  /** When the question last changed (ISO 8601). */
+  updatedAt?: string;
+  /** CEFR level the question is written for; null until classified. */
+  cefrLevel?: CefrLevel | null;
+  /** The academic who wrote the question; null for legacy rows without an owner. */
+  authorUserPublicId?: string | null;
+  /** AI provenance and review sheet; null for hand-written questions. Only exposed to authoring callers. */
+  generationMeta?: GenerationMetaResponse | null;
 }
 
 export interface QuestionFilters {
@@ -108,6 +160,8 @@ export interface QuestionFilters {
   status?: QuestionStatus | string;
   pool?: QuestionPool | string;
   q?: string;
+  cefrLevel?: CefrLevel | string;
+  aiGenerated?: boolean;
 }
 
 export interface QuestionStatsResponse {

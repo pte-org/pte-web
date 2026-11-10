@@ -51,15 +51,17 @@ export const ReportPublicationPanel = ({
     success: t("tenant.publication.success", "Reports were published for the session cohort."),
     checking: t("tenant.publication.checking", "Checking…"),
     notReady: (count: number) =>
-      t("tenant.publication.notReady", `Cannot publish yet: ${count} answer(s) without a final score`, {
+      t(
+        "tenant.publication.notReady",
+        `Cannot publish yet: ${count} answer(s) without a final score`,
+        {
+          count,
+        },
+      ),
+    allReady: (count: number) =>
+      t("tenant.publication.allReady", `All ${count} submitted attempts are ready to publish.`, {
         count,
       }),
-    allReady: (count: number) =>
-      t(
-        "tenant.publication.allReady",
-        `All ${count} submitted attempts are ready to publish.`,
-        { count },
-      ),
     publishConfirm: (count: number) =>
       t(
         "tenant.publication.publishConfirm",

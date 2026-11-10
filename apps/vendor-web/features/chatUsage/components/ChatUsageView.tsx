@@ -6,8 +6,8 @@ import {
   Badge,
   DashboardCard,
   DataTable,
-  DateRangePicker,
-  PageHeader,
+  DateRangeFilter,
+  standardDateRangePresets,
   TrendBarChart,
   useLocale,
   type DataTableColumn,
@@ -21,19 +21,10 @@ import {
   activeDays,
   chartRows,
   failureReasons,
-  isSameRange,
-  usagePresets,
   type FailureReasonKey,
-  type UsagePresetKey,
 } from "../utils/presentation";
 import { defaultUsageRange, formatUsd, summarizeChatUsage } from "../utils/summarize";
 import { ChatUsageSummaryCards } from "./_ChatUsageSummary";
-
-const PRESET_COPY_KEY = {
-  last7: "PRESET_LAST7",
-  last30: "PRESET_LAST30",
-  thisMonth: "PRESET_THIS_MONTH",
-} as const satisfies Record<UsagePresetKey, string>;
 
 const FAILURE_COPY_KEY = {
   timeout: "FAIL_TIMEOUT",
@@ -62,7 +53,10 @@ export const ChatUsageView = (): ReactElement => {
   const summary = useMemo(() => summarizeChatUsage(days), [days]);
   const rows = useMemo(() => (showAllDays ? days : activeDays(days)), [days, showAllDays]);
   const bars = useMemo(() => chartRows(days), [days]);
-  const presets = useMemo(() => usagePresets(new Date()), []);
+  const presets = useMemo(
+    () => standardDateRangePresets(new Date(), { last7: T.PRESET_LAST7, last30: T.PRESET_LAST30, thisMonth: T.PRESET_THIS_MONTH }),
+    [T],
+  );
   const number = new Intl.NumberFormat(locale === "vi" ? "vi-VN" : "en-US");
 
   const series: TrendChartSeries[] = [
@@ -105,35 +99,16 @@ export const ChatUsageView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={T.TITLE} />
       <p className="text-sm text-[var(--table-muted-text)]">{T.ESTIMATE_NOTE}</p>
       <ChatUsageSummaryCards summary={summary} locale={locale} />
-      <DashboardCard>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="w-full sm:w-auto sm:min-w-[220px]">
-            <DateRangePicker
-              id="chat-usage-date-filter"
-              ariaLabel={t("common.filterDateRange", T.FILTER_DATE_RANGE)}
-              value={range}
-              onChange={setRange}
-              placeholder={t("common.dateRange", T.DATE_RANGE)}
-            />
-          </div>
-          <div className="flex flex-wrap gap-2" role="group" aria-label={T.DATE_RANGE}>
-            {presets.map((preset) => (
-              <button
-                key={preset.key}
-                type="button"
-                className={chipClass(isSameRange(range, preset))}
-                aria-pressed={isSameRange(range, preset)}
-                onClick={() => setRange({ from: preset.from, to: preset.to })}
-              >
-                {T[PRESET_COPY_KEY[preset.key]]}
-              </button>
-            ))}
-          </div>
-        </div>
-      </DashboardCard>
+      <DateRangeFilter
+        id="chat-usage-date-filter"
+        value={range}
+        onChange={setRange}
+        presets={presets}
+        ariaLabel={t("common.filterDateRange", T.FILTER_DATE_RANGE)}
+        placeholder={t("common.dateRange", T.DATE_RANGE)}
+      />
       <DashboardCard>
         <h2 className="mb-3 text-base font-semibold">{T.CHART_TITLE}</h2>
         <TrendBarChart

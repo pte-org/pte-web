@@ -1,91 +1,67 @@
 "use client";
 
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import type { ExaminerAnswerDetailResponse } from "@pte/api-client";
-import { Button } from "@pte/ui";
+import { Tabs } from "@pte/ui";
 import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
+import type { DraftEntry } from "../submissionTypes";
+import { QuestionTile, type QuestionStatus } from "./QuestionTile";
 
 interface QuestionNavigatorProps {
+  disabled?: boolean;
   answers: ExaminerAnswerDetailResponse[];
   currentIndex: number;
-  drafts: Record<string, { score: string; isSaved: boolean; carriedOver?: boolean }>;
+  drafts: Record<string, DraftEntry>;
+  carriedOverIds: ReadonlySet<string>;
   onSelectIndex: (index: number) => void;
 }
 
+const FILTERS = ["all", "todo", "done"] as const;
+type Filter = (typeof FILTERS)[number];
+const isFilter = (value: string): value is Filter => FILTERS.some((filter) => filter === value);
+
+const statusOf = (answer: ExaminerAnswerDetailResponse, draft: DraftEntry | undefined,
+  carriedOver: boolean): QuestionStatus => {
+  if (carriedOver && answer.myScore === null) return "carried";
+  if (answer.myScore !== null || answer.decision !== null) return "saved";
+  if (draft?.score.trim() || draft?.savedAt) return "draft";
+  return "todo";
+};
+
+/**
+ * Every question of the attempt as compact numbered tiles grouped by skill, so even a full-length exam fits in one
+ * popup; a filter narrows the grid to the questions still to mark.
+ */
 export const QuestionNavigator = ({
-  answers,
-  currentIndex,
-  drafts,
-  onSelectIndex,
+  answers, currentIndex, drafts, carriedOverIds, onSelectIndex, disabled = false,
 }: QuestionNavigatorProps): ReactElement => {
   const T = useExaminerWorkText();
-  const canGoPrev = currentIndex > 0;
-  const canGoNext = currentIndex < answers.length - 1;
+  const [filter, setFilter] = useState<Filter>("all");
+  const entries = answers.map((answer, index) => ({ answer, index,
+    status: statusOf(answer, drafts[answer.answerPublicId], carriedOverIds.has(answer.answerPublicId)) }));
+  const doneCount = entries.filter((entry) => entry.status === "saved").length;
+  const visible = entries.filter((entry) => filter === "all" || (filter === "done") === (entry.status === "saved"));
+  const sections = [...new Set(visible.map((entry) => entry.answer.prompt.section))];
 
   return (
-    <nav className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm" aria-label={T.NAV_TITLE}>
-      <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-        <h3 className="text-sm font-semibold text-slate-800">{T.NAV_TITLE}</h3>
-        <div className="flex items-center gap-2">
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={!canGoPrev}
-            onClick={() => onSelectIndex(currentIndex - 1)}
-          >
-            {T.PREV_QUESTION}
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={!canGoNext}
-            onClick={() => onSelectIndex(currentIndex + 1)}
-          >
-            {T.NEXT_QUESTION}
-          </Button>
-        </div>
-      </div>
-
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-1">
-        {answers.map((answer, index) => {
-          const isSelected = index === currentIndex;
-          const draft = drafts[answer.answerPublicId];
-          const isSaved = answer.myScore !== null || answer.decision !== null || Boolean(draft?.isSaved);
-          const hasDraft = !isSaved && Boolean(draft?.score.trim());
-
-          return (
-            <button
-              key={answer.answerPublicId}
-              type="button"
-              onClick={() => onSelectIndex(index)}
-              className={`flex items-center justify-between rounded-md px-3 py-2 text-left text-xs transition-colors ${
-                isSelected
-                  ? "bg-blue-50 font-semibold text-blue-900 ring-1 ring-blue-600/30"
-                  : "hover:bg-slate-50 text-slate-700"
-              }`}
-            >
-              <div className="truncate">
-                <span>{index + 1}. </span>
-                <span>{answer.taskType.replaceAll("_", " ")}</span>
-              </div>
-              <div className="ml-2 shrink-0">
-                {draft?.carriedOver && answer.myScore === null ? (
-                  <span
-                    className="inline-block h-2 w-2 rounded-full bg-violet-500"
-                    title={T.CARRIED_OVER_BADGE}
-                  />
-                ) : isSaved ? (
-                  <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" title={T.STATUS_SAVED} />
-                ) : hasDraft ? (
-                  <span className="inline-block h-2 w-2 rounded-full bg-amber-500" title={T.STATUS_DRAFT} />
-                ) : (
-                  <span className="inline-block h-2 w-2 rounded-full bg-slate-300" title={T.NOT_STARTED_TITLE} />
-                )}
-              </div>
-            </button>
-          );
-        })}
-      </div>
+    <nav aria-label={T.NAV_TITLE} className="space-y-4">
+      <Tabs id="examiner-question-filter" variant="minimal" value={filter} onChange={(value) => { if (isFilter(value)) setFilter(value); }}
+        items={[{ id: "all", label: T.NAV_FILTER_ALL, count: entries.length },
+          { id: "todo", label: T.NAV_FILTER_TODO, count: entries.length - doneCount },
+          { id: "done", label: T.NAV_FILTER_DONE, count: doneCount }]} />
+      {visible.length === 0 && <p className="text-sm text-slate-500">{T.NAV_EMPTY}</p>}
+      {sections.map((section) => (
+        <section key={section} aria-label={section}>
+          <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{section}</h4>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+            {visible.filter((entry) => entry.answer.prompt.section === section).map((entry) => (
+              <QuestionTile key={entry.answer.answerPublicId} number={entry.index + 1}
+                taskType={entry.answer.taskType} status={entry.status} selected={entry.index === currentIndex}
+                disabled={disabled} onSelect={() => onSelectIndex(entry.index)} />
+            ))}
+          </div>
+        </section>
+      ))}
     </nav>
   );
 };

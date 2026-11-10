@@ -18,6 +18,7 @@ export interface AttendanceRowResponse {
   blockingReason: string | null;
   latestAttemptActivityStatus: string | null;
   latestAttemptActivityAt: string | null;
+  latestAttemptPublicId: string | null;
   identityStatus?: IdentityVerificationStatus;
   identityNote?: string | null;
 }

@@ -1,7 +1,5 @@
-"use client";
-
-import { ExaminerReportsView } from "@/features/examiner/ExaminerReportsView";
+import { redirect } from "next/navigation";
 
 export default function ExaminerReportsPage() {
-  return <ExaminerReportsView />;
+  redirect("/examiner/work");
 }

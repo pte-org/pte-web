@@ -8,7 +8,6 @@ import {
   ChevronRightIcon,
   Input,
   LicenseIcon,
-  PageHeader,
   useLocale,
   useToast,
 } from "@pte/ui";
@@ -52,7 +51,6 @@ export const RedeemLicenseView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={T.REDEEM_TITLE} subtitle={T.REDEEM_SUBTITLE} />
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       <BillingPanel title={T.LICENSE_CODE_PANEL} subtitle={T.LICENSE_CODE_SUBTITLE}>
         <form className="max-w-xl space-y-4" onSubmit={(event) => void submit(event)}>

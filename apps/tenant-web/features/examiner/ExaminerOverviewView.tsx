@@ -3,15 +3,13 @@
 import { useCallback, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import type { ExaminerQueueStatus } from "@pte/api-client";
-import { PageHeader } from "@pte/ui";
 import { useExaminerOverview } from "./api";
 import { ExaminerPriorityWork } from "./components/ExaminerPriorityWork";
 import { ExaminerWorkspaceOverview } from "./components/ExaminerWorkspaceOverview";
-import { useExaminerWorkspaceText } from "./hooks/useExaminerWorkspaceText";
+import { ExaminerOverviewStatistics } from "./components/ExaminerOverviewStatistics";
 
 export const ExaminerOverviewView = (): ReactElement => {
   const router = useRouter();
-  const text = useExaminerWorkspaceText();
   const overview = useExaminerOverview();
 
   const handleSelectStatus = useCallback(
@@ -30,10 +28,6 @@ export const ExaminerOverviewView = (): ReactElement => {
 
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-      <PageHeader
-        title={text.overviewTitle}
-        subtitle={text.overviewSubtitle}
-      />
 
       <ExaminerWorkspaceOverview
         counts={overview.data?.counts}
@@ -45,7 +39,6 @@ export const ExaminerOverviewView = (): ReactElement => {
         onRetry={() => void overview.refetch()}
         selectedStatus="ALL"
         onSelectStatus={handleSelectStatus}
-        onRefresh={() => void overview.refetch()}
       />
 
       <ExaminerPriorityWork
@@ -53,6 +46,7 @@ export const ExaminerOverviewView = (): ReactElement => {
         isLoading={overview.isLoading}
         onOpenAttempt={handleOpenAttempt}
       />
+      <ExaminerOverviewStatistics />
     </div>
   );
 };

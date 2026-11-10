@@ -12,7 +12,6 @@ import {
   Alert,
   Button,
   NotificationHistory,
-  PageHeader,
   PaginationControls,
   Select,
   useToast,
@@ -78,11 +77,7 @@ function NotificationHistoryContent(): ReactElement {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title="Notifications"
-        subtitle="Platform, session, and account updates for your organization."
-        actions={
-          <>
+      <div className="flex flex-wrap items-center gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
             <Select
               id="notification-filter"
               aria-label="Notification filter"
@@ -111,9 +106,7 @@ function NotificationHistoryContent(): ReactElement {
             <Button variant="secondary" onClick={markAll} isLoading={markAllRead.isPending}>
               Mark all read
             </Button>
-          </>
-        }
-      />
+      </div>
       {history.error && <Alert tone="error">{getUserFacingApiErrorMessage(history.error)}</Alert>}
       <NotificationHistory
         items={history.data?.page.data ?? []}

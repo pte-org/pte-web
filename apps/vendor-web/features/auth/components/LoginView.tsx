@@ -13,6 +13,7 @@ import {
   normalizeSessionRoles,
   useSessionManager,
   useSignInValidation,
+  useToast,
 } from "@pte/ui";
 import {
   decodeAccessTokenClaims,
@@ -20,9 +21,9 @@ import {
   type JwtTokenResponse,
 } from "@pte/api-client";
 import { useLoginAdmin, useLoginHost, useLoginOrganizationOptions } from "../api";
-import { ADMIN_ROLES, AUTH_ROUTES, AUTH_TEXT as RAW_AUTH_TEXT, HOST_ROLES } from "../constants";
+import { AUTH_ROUTES, AUTH_TEXT as RAW_AUTH_TEXT } from "../constants";
 import { useAdminCopy } from "../../i18n/adminCopy";
-import { hasAnyRole } from "../permissions";
+import { resolveVendorLoginDestination } from "../loginRoles";
 import type { VendorRole } from "../types";
 import { getLoginErrorMessage } from "../loginError";
 
@@ -38,6 +39,8 @@ export const LoginView = (): ReactElement => {
   const searchParams = useSearchParams();
   const role = resolveRole(searchParams.get("role"));
   const { saveSession } = useSessionManager();
+  const { showToast } = useToast();
+  const notifyError = (message: string): void => showToast(message, { tone: "error" });
   const validationMessages = useMemo(
     () => ({
       usernameRequired: T.USERNAME_REQUIRED,
@@ -53,7 +56,6 @@ export const LoginView = (): ReactElement => {
   const [organizationOptions, setOrganizationOptions] = useState<LoginOrganizationOption[]>([]);
   const [organizationId, setOrganizationId] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string>();
 
   const adminMutation = useLoginAdmin();
   const hostMutation = useLoginHost();
@@ -65,13 +67,13 @@ export const LoginView = (): ReactElement => {
     const claims = decodeAccessTokenClaims(data.accessToken);
     const roles = claims ? normalizeSessionRoles(claims.roles) : [];
     if (!claims || roles.length === 0) {
-      setErrorMessage(T.GENERIC_ERROR);
+      notifyError(T.GENERIC_ERROR);
       return;
     }
-    const isAdminRole = hasAnyRole(roles, ADMIN_ROLES);
-    const isHostRole = roles.some((role) => HOST_ROLES.includes(role));
-    if (!isAdminRole && !isHostRole) {
-      setErrorMessage(T.UNSUPPORTED_ROLE);
+    const destination = resolveVendorLoginDestination(roles);
+    if (destination === null) {
+      // The same copy as a wrong password, so the form does not reveal that the account exists elsewhere.
+      notifyError(T.INVALID_CREDENTIALS);
       return;
     }
     saveSession({
@@ -82,22 +84,20 @@ export const LoginView = (): ReactElement => {
       expiresAt: claims.expiresAt || Date.now() + data.expiresInSeconds * 1000,
       mustChangePassword: data.mustChangePassword,
     });
-    router.replace(isAdminRole ? AUTH_ROUTES.adminDashboard : AUTH_ROUTES.hostDashboard);
+    router.replace(destination);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     const fieldErrors = validation.validateAll({ username, password });
     if (fieldErrors.username || fieldErrors.password) {
-      setErrorMessage(undefined);
       document.getElementById(fieldErrors.username ? "username" : "password")?.focus();
       return;
     }
     if (organizationOptions.length > 0 && !organizationId) {
-      setErrorMessage(T.ORGANIZATION_REQUIRED);
+      notifyError(T.ORGANIZATION_REQUIRED);
       return;
     }
-    setErrorMessage(undefined);
     try {
       const trimmedUsername = username.trim();
       let selectedOrganizationId = organizationId || undefined;
@@ -119,7 +119,7 @@ export const LoginView = (): ReactElement => {
       });
       handleLoginSuccess(data);
     } catch (error) {
-      setErrorMessage(getLoginErrorMessage(error));
+      notifyError(getLoginErrorMessage(error, T));
     }
   };
 
@@ -133,15 +133,6 @@ export const LoginView = (): ReactElement => {
           {T.WELCOME_SUBTITLE}
         </p>
       </div>
-
-      {errorMessage && (
-        <div
-          role="alert"
-          className="rounded-md bg-[var(--blush-tint)] px-3 py-2 text-sm text-[var(--blush-action)]"
-        >
-          {errorMessage}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-[18px]">
         {/* type="text", NOT type="email": a STUDENT's username is

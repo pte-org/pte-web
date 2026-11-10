@@ -31,6 +31,9 @@ export interface ScoreTemplateItemDraft {
   listeningWeight: string;
 }
 
+/** A row as the read-only detail (API response) or the DRAFT editor (string-typed draft) holds it. */
+export type ScoreTemplateItem = ScoreTemplateItemDraft | ScoreTemplateItemResponse;
+
 export function toDraft(item: ScoreTemplateItemResponse): ScoreTemplateItemDraft {
   return {
     taskType: item.taskType ?? item.taskTypeKey,

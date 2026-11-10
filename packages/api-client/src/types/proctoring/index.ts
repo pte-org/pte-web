@@ -3,8 +3,6 @@ import type { ProctorRole, SessionStatus } from "../scheduling";
 
 export type AttemptStatus = "NOT_STARTED" | "IN_PROGRESS" | "SUBMITTED" | "ABANDONED";
 export type SecurityAuditSource = "PROCTOR" | "STUDENT_LOCKDOWN";
-/** Watching a session has no stored lifecycle: opening it always answers ACTIVE. */
-export type ProctorSessionStatus = "ACTIVE";
 
 export interface AssignedProctorSessionResponse {
   assignmentPublicId: string;
@@ -65,58 +63,6 @@ export interface ProctorAssignedSessionsPageResponse extends PagedResult<Assigne
   dayEnd?: string;
 }
 
-export interface ProctorMonitoringSessionView {
-  sessionPublicId: string;
-  name: string;
-  status: SessionStatus;
-  opensAt: string;
-  closesAt: string;
-  timeLimitMinutes: number | null;
-  totalEnrolled: number;
-}
-
-export interface MonitoringSummaryResponse {
-  registeredCount: number;
-  notStartedCount: number;
-  inProgressCount: number;
-  submittedCount: number;
-  createdCount: number;
-  snapshotAt: string;
-}
-
-export interface MonitoringStudentResponse {
-  studentPublicId: string;
-  displayName: string;
-  email: string | null;
-  attemptPublicId: string | null;
-  attemptNumber: number | null;
-  status: AttemptStatus | null;
-  startedAt: string | null;
-  submittedAt: string | null;
-  lastSeenAt: string | null;
-  attemptCount: number;
-  manualViolationCount: number;
-}
-
-export interface MonitoringSnapshotResponse {
-  session: ProctorMonitoringSessionView;
-  summary: MonitoringSummaryResponse;
-  students: PagedResult<MonitoringStudentResponse>;
-  snapshotAt: string;
-}
-
-export interface MonitoringAttemptSummaryView {
-  attemptPublicId: string;
-  studentPublicId: string;
-  attemptNumber: number;
-  status: AttemptStatus;
-  startedAt: string;
-  submittedAt: string | null;
-  lastSeenAt: string | null;
-}
-
-export type MonitoringAttemptHistoryPage = PagedResult<MonitoringAttemptSummaryView>;
-
 export interface SecurityAuditEntryResponse {
   publicId: string;
   source: SecurityAuditSource;
@@ -147,27 +93,8 @@ export interface ViolationEventResponse {
   createdAt?: string;
 }
 
-export interface ProctorSessionResponse {
-  publicId: string;
-  sessionPublicId: string;
-  proctorPublicId: string;
-  status: ProctorSessionStatus;
-  openedAt: string;
-}
-
-export interface ProctorOperationResultResponse {
-  requestId: string;
-  operation: "OPEN" | "FORCE_SUBMIT" | "FLAG_VIOLATION";
-  targetPublicId: string;
-  outcome: "OPENED" | "APPLIED" | "NO_OP" | "SAVED";
-  eventPublicId?: string | null;
-  occurredAt: string;
-}
-
-export interface ProctorOperationErrorResponse {
-  requestId: string;
-  operation: string;
-  targetPublicId?: string | null;
-  status: number;
-  code: string;
+/** Result of a proctor action on one attempt: NO_OP when the attempt was no longer in progress. */
+export interface AttemptActionResultResponse {
+  attemptPublicId: string;
+  outcome: "APPLIED" | "NO_OP";
 }

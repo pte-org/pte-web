@@ -1,5 +1,6 @@
 import { RequireAuth } from "@/features/auth/components";
 import { ACADEMIC_ROLES } from "@/features/auth/constants";
+import { BackLink } from "@/lib/BackLink";
 import { ScoreTemplateEditorView } from "@/features/scoretemplate/components";
 
 interface ExamTemplateEditPageProps {
@@ -11,7 +12,10 @@ export default async function ExamTemplateEditPage({ params }: ExamTemplateEditP
 
   return (
     <RequireAuth allowedRoles={ACADEMIC_ROLES}>
-      <ScoreTemplateEditorView publicId={publicId} />
+      <div className="space-y-4">
+        <BackLink />
+        <ScoreTemplateEditorView publicId={publicId} />
+      </div>
     </RequireAuth>
   );
 }

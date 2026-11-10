@@ -166,6 +166,20 @@ describe("useExaminerQueue", () => {
     expect(api.listExaminerWork).toHaveBeenCalledWith(hoisted.apiClient, { page: 0, size: 20, status: "IN_PROGRESS", search: "an" });
   });
 
+  it("passes assignment date boundaries to the queue request", async () => {
+    api.listExaminerWork.mockResolvedValue({});
+    examinerApi.useExaminerQueue({ fromDate: "2026-11-01", toDate: "2026-11-07" });
+
+    await opts().queryFn?.();
+
+    expect(api.listExaminerWork).toHaveBeenCalledWith(hoisted.apiClient, {
+      page: 0,
+      size: 20,
+      fromDate: "2026-11-01",
+      toDate: "2026-11-07",
+    });
+  });
+
   it("lets explicit paging override the defaults", async () => {
     api.listExaminerWork.mockResolvedValue({});
     examinerApi.useExaminerQueue({ page: 4, size: 5 });

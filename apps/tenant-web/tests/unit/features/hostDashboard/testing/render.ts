@@ -113,7 +113,7 @@ export function regionOf(html: string, title: string): string | undefined {
 
 /** `<h2>` titles in document order. */
 export function panelTitles(html: string): string[] {
-  return [...html.matchAll(/<h2 [^>]*>([^<]*)<\/h2>/g)].map((match) => match[1]);
+  return [...html.matchAll(/<h2\b[^>]*>([\s\S]*?)<\/h2>/g)].map((match) => textOf(match[1]));
 }
 
 /** Text of every aria-label / title attribute (screen-reader copy that textOf cannot see). */

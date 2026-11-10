@@ -19,6 +19,8 @@ export * from "./scoring/assignments";
 export * from "./reporting/reports";
 export * from "./scoring/examiner";
 export * from "./scoretemplate";
+export * from "./scoringrubric";
+export * from "./scoreexplanation";
 export * from "./hostexamtemplate";
 export * from "./assessment";
 export * from "./admin/organizations";
@@ -30,7 +32,6 @@ export * from "./admin/chatUsage";
 export * from "./admin/studentRoster";
 export * from "./admin/studentWorkspace";
 export * from "./admin/examStaffWorkspace";
-export * from "./admin/studentRosterImport";
 export * from "./billing/applications";
 export * from "./billing/plans";
 export * from "./billing/subscriptions";
@@ -48,3 +49,28 @@ export * from "./attendance";
 export * from "./incidents";
 export * from "./dashboard";
 export * from "./location";
+// Question generation (com.pte.itembank.internal.generation)
+export {
+  QUESTION_GENERATION_ENDPOINTS,
+  createQuestionGenerationJob,
+  getQuestionGenerationJob,
+  listQuestionGenerationJobs,
+  updateQuestionGenerationJobStatus,
+  getQuestionGenerationTaskTypes,
+  getQuestionGenerationQuota,
+  followQuestionGenerationJob,
+} from "./generation";
+
+// AI administration
+export {
+  AI_ADMIN_ENDPOINTS,
+  getAiStatus,
+  getPromptCatalog,
+  getPromptDocument,
+  getGenerationStats,
+  getPromptWorkspace,
+  savePromptProposal,
+  getPromptVersion,
+  testPromptVersion,
+  changePromptVersionStatus,
+} from "./ai";

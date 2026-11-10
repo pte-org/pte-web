@@ -7,6 +7,9 @@ export const QUESTION_TYPE_TEXT = {
   TITLE: "Task Type Catalog",
   CREATE: "Create task type",
   EDIT: "Edit",
+  VIEW: "View",
+  CLOSE: "Close",
+  VIEW_TITLE: "Task type details",
   DELETE: "Delete",
   SUBMIT_APPROVAL: "Submit for approval",
   APPROVE: "Approve and activate",
@@ -48,8 +51,6 @@ export const QUESTION_TYPE_TEXT = {
   NO: "No",
   EMPTY_LIST: "No task types are currently in the catalog.",
   LOADING: "Loading task type catalog...",
-  CATALOG_BOUNDARY_NOTICE:
-    "Task type keys are configurable metadata. Interaction and scoring behavior come from a released screen contract selected below.",
   SEPARATOR: "·",
 } as const;
 

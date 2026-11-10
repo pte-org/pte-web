@@ -62,7 +62,7 @@ beforeEach(() => {
 
 const response = (over: Record<string, unknown> = {}) => ({
   publicId: "q1", section: "SPEAKING", pteTaskType: "READ_ALOUD", title: "Read this", promptText: "prompt",
-  status: "DRAFT", pool: "EXAM", rejectionReason: null, canDeleteDraft: true, canArchive: false, deleteBlockReason: null,
+  status: "DRAFT", pool: "EXAM", options: [], rejectionReason: null, canDeleteDraft: true, canArchive: false, deleteBlockReason: null,
   ...over,
 });
 
@@ -73,9 +73,14 @@ const page = (items: unknown[], totalPages = 1) => ({
 
 describe("mapPool", () => {
   it("maps PRACTICE to practice and anything else to exam", () => {
-    expect(questionApi.mapPool("PRACTICE")).toBe("practice");
-    expect(questionApi.mapPool("EXAM")).toBe("exam");
+    expect(questionApi.mapPool({ pool: "PRACTICE" })).toBe("practice");
+    expect(questionApi.mapPool({ pool: "EXAM" })).toBe("exam");
     expect(questionApi.mapPool(undefined)).toBe("exam");
+  });
+
+  it("lets the availability flags win over the creation pool", () => {
+    expect(questionApi.mapPool({ pool: "EXAM", availableForExam: false, availableForPractice: true })).toBe("practice");
+    expect(questionApi.mapPool({ pool: "PRACTICE", availableForExam: true, availableForPractice: false })).toBe("exam");
   });
 });
 
@@ -83,11 +88,11 @@ describe("useQuestions", () => {
   it("keys the page by every filter with empty defaults", () => {
     questionApi.useQuestions({}, 0, 20);
 
-    expect(opts().queryKey).toEqual([...QUESTIONS_QUERY_KEY, "", "", "", "", "", 0, 20]);
+    expect(opts().queryKey).toEqual([...QUESTIONS_QUERY_KEY, "", "", "", "", "", "", "", 0, 20]);
     expect(opts().placeholderData).toBe(hoisted.keepPreviousData);
   });
 
-  it("maps server rows to UI questions: skill, status, pool and the label fallback", async () => {
+  it("maps server rows to UI questions: skill, status, pool and the first text as the label", async () => {
     api.listQuestions.mockResolvedValue(page([
       response(),
       response({ publicId: "q2", section: "LISTENING", status: "APPROVED", pool: "PRACTICE", title: "", promptText: "Fallback text" }),
@@ -101,11 +106,11 @@ describe("useQuestions", () => {
 
     expect(api.listQuestions).toHaveBeenCalledWith(hoisted.apiClient, { taskType: "READ_ALOUD" }, 1, 10);
     expect(result.data.map((q) => [q.id, q.skill, q.status, q.pool, q.content])).toEqual([
-      ["q1", "speaking", "draft", "exam", "Read this"],
+      ["q1", "speaking", "draft", "exam", "prompt"],
       ["q2", "listening", "published", "practice", "Fallback text"],
       ["q3", "reading", "draft", "exam", "—"],
-      ["q4", "writing", "pending_approval", "exam", "Read this"],
-      ["q5", "reading", "archived", "exam", "Read this"],
+      ["q4", "writing", "pending_approval", "exam", "prompt"],
+      ["q5", "reading", "archived", "exam", "prompt"],
     ]);
   });
 

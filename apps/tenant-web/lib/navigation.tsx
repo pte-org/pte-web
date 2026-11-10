@@ -1,23 +1,20 @@
 import type { NavItem } from "@/features/auth/components";
 import type { OrgLabels } from "@/features/orgLabels/constants";
 import {
-  NavAuditLogIcon,
-  NavBillingIcon,
-  NavClassIcon,
   NavDashboardIcon,
-  NavExamTemplateIcon,
-  NavQuestionBankIcon,
-  NavSupportTicketIcon,
   NavTaskTypeIcon,
   NavUserIcon,
-  NavUserGroupIcon,
-  ShieldIcon,
+  GradCapIcon,
+  IdCardIcon,
+  BookOpenIcon,
+  PresentationIcon,
+  ClipboardListIcon,
+  LayoutTemplateIcon,
+  CreditCardIcon,
+  HeadsetIcon,
+  HistoryIcon,
 } from "@pte/ui";
-import {
-  EXAMINER_NAV_TEXT,
-  HOST_NAV_TEXT as T,
-  PROCTOR_NAV_TEXT,
-} from "./navigationConstants";
+import { EXAMINER_NAV_TEXT, HOST_NAV_TEXT as T, PROCTOR_NAV_TEXT } from "./navigationConstants";
 
 /**
  * Non-label entries stay static; the Program entry's label is org-type-driven.
@@ -42,7 +39,7 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       label: T.LEARNERS,
       labelKey: "nav.learners",
       href: "/host/students",
-      icon: <NavUserIcon />,
+      icon: <GradCapIcon />,
       section: T.USERS_SECTION,
       sectionKey: "nav.users",
     },
@@ -50,7 +47,7 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       label: T.EXAM_STAFF,
       labelKey: "nav.examStaff",
       href: "/host/exam-staff",
-      icon: <NavUserGroupIcon />,
+      icon: <IdCardIcon />,
       section: T.USERS_SECTION,
       sectionKey: "nav.users",
     },
@@ -58,7 +55,7 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       label: labels.program,
       labelKey: "nav.program",
       href: "/host/programs",
-      icon: <NavQuestionBankIcon />,
+      icon: <BookOpenIcon />,
       section: T.DELIVERY_SECTION,
       sectionKey: "nav.delivery",
     },
@@ -66,7 +63,7 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       label: labels.class,
       labelKey: "nav.class",
       href: "/host/classes",
-      icon: <NavClassIcon />,
+      icon: <PresentationIcon />,
       section: T.DELIVERY_SECTION,
       sectionKey: "nav.delivery",
     },
@@ -74,7 +71,7 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       label: T.EXAMS,
       labelKey: "nav.exams",
       href: "/host/exams",
-      icon: <NavExamTemplateIcon />,
+      icon: <ClipboardListIcon />,
       section: T.DELIVERY_SECTION,
       sectionKey: "nav.delivery",
     },
@@ -82,7 +79,7 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       label: T.EXAM_TEMPLATES,
       labelKey: "nav.hostTemplates",
       href: "/host/exam-templates",
-      icon: <NavTaskTypeIcon />,
+      icon: <LayoutTemplateIcon />,
       section: T.DELIVERY_SECTION,
       sectionKey: "nav.delivery",
       requiredRoles: ["HOST_ADMIN"],
@@ -91,7 +88,7 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       label: T.PLANS_AND_BILLING,
       labelKey: "nav.plansBilling",
       href: "/host/billing",
-      icon: <NavBillingIcon />,
+      icon: <CreditCardIcon />,
       section: T.ACCOUNT_SECTION,
       sectionKey: "nav.account",
       requiredRoles: ["HOST_ADMIN"],
@@ -100,7 +97,7 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       label: T.SUPPORT_TICKETS,
       labelKey: "nav.supportTickets",
       href: "/host/support-tickets",
-      icon: <NavSupportTicketIcon />,
+      icon: <HeadsetIcon />,
       section: T.DATA_SECTION,
       sectionKey: "nav.data",
       requiredRoles: ["HOST_ADMIN"],
@@ -109,7 +106,7 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       label: T.AUDIT_LOG,
       labelKey: "nav.auditLog",
       href: "/host/audit-log",
-      icon: <NavAuditLogIcon />,
+      icon: <HistoryIcon />,
       section: T.DATA_SECTION,
       sectionKey: "nav.data",
       requiredRoles: ["HOST_ADMIN"],
@@ -117,7 +114,7 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
   ];
 }
 
-/** Examiner navigation: Overview, the marking queue (status is filtered in-page) and reports. */
+/** Examiner navigation: overview with statistics and the marking queue. */
 export function buildExaminerNav(): NavItem[] {
   return [
     {
@@ -136,21 +133,10 @@ export function buildExaminerNav(): NavItem[] {
       section: EXAMINER_NAV_TEXT.QUEUE_SECTION,
       sectionKey: "nav.markingQueue",
     },
-    {
-      label: EXAMINER_NAV_TEXT.REPORTS,
-      labelKey: "nav.examinerReports",
-      href: "/examiner/reports",
-      icon: <NavAuditLogIcon />,
-      section: EXAMINER_NAV_TEXT.REPORTS_SECTION,
-      sectionKey: "nav.reports",
-    },
   ];
 }
 
-/**
- * Proctor navigation. PROCTOR accounts land in the proctor console
- * with overview, accessible monitoring, attendance picker, and audit log picker.
- */
+/** Session-first Proctor navigation; tools live inside the selected session. */
 export function buildProctorNav(): NavItem[] {
   return [
     {
@@ -162,42 +148,18 @@ export function buildProctorNav(): NavItem[] {
       sectionKey: "nav.home",
     },
     {
-      label: PROCTOR_NAV_TEXT.MONITORING,
-      labelKey: "nav.proctorMonitoring",
-      href: "/proctor/sessions?scope=ACCESSIBLE",
-      icon: <NavExamTemplateIcon />,
+      label: PROCTOR_NAV_TEXT.SESSIONS,
+      labelKey: "nav.proctorSessions",
+      href: "/proctor/sessions?scope=ALL",
+      icon: <ClipboardListIcon />,
       section: PROCTOR_NAV_TEXT.SUPERVISION_SECTION,
       sectionKey: "nav.supervision",
-    },
-    {
-      label: PROCTOR_NAV_TEXT.ATTENDANCE,
-      labelKey: "nav.proctorAttendance",
-      href: "/proctor/attendance",
-      icon: <NavUserGroupIcon />,
-      section: PROCTOR_NAV_TEXT.SUPERVISION_SECTION,
-      sectionKey: "nav.supervision",
-    },
-    {
-      label: PROCTOR_NAV_TEXT.INCIDENTS,
-      labelKey: "nav.proctorIncidents",
-      href: "/proctor/incidents",
-      icon: <NavSupportTicketIcon />,
-      section: PROCTOR_NAV_TEXT.SUPERVISION_SECTION,
-      sectionKey: "nav.supervision",
-    },
-    {
-      label: PROCTOR_NAV_TEXT.AUDIT_LOG,
-      labelKey: "nav.proctorAuditLog",
-      href: "/proctor/audit-log",
-      icon: <NavAuditLogIcon />,
-      section: PROCTOR_NAV_TEXT.DATA_SECTION,
-      sectionKey: "nav.data",
     },
     {
       label: PROCTOR_NAV_TEXT.PROFILE,
       labelKey: "nav.proctorProfile",
       href: "/proctor/profile",
-      icon: <ShieldIcon />,
+      icon: <NavUserIcon />,
       section: PROCTOR_NAV_TEXT.ACCOUNT_SECTION,
       sectionKey: "nav.account",
     },

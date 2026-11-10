@@ -23,7 +23,8 @@ import {
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
 import { TENANT_USERS_QUERY_KEY } from "@/features/exams/constants";
-import type { RosterRow } from "@/features/examoperations/types";
+import { buildBulkCreateRequest } from "@/features/examoperations/rosterRequest";
+import type { RosterCreateInput } from "@/features/examoperations/types";
 import { HOST_DASHBOARD_QUERY_KEY } from "@/features/hostDashboard/constants";
 import { CLASS_MEMBERSHIPS_QUERY_KEY, STUDENT_ROSTER_QUERY_KEY } from "../constants";
 
@@ -42,23 +43,13 @@ export function useClassMemberships(): UseQueryResult<ClassMembershipResponse[]>
 export function useCreateTenantStudents(): UseMutationResult<
   BulkCreateUsersResponse,
   unknown,
-  RosterRow[]
+  RosterCreateInput
 > {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (rows) =>
-      bulkCreateUsers(apiClient, {
-        rows: rows.map((row) => ({
-          email: row.email || null,
-          fullName: row.fullName || null,
-          studentCode: row.studentCode || null,
-          className: row.className || null,
-          phone: row.phone || null,
-          dateOfBirth: row.dateOfBirth || null,
-        })),
-        tenantId: null,
-      }),
+    mutationFn: (input) =>
+      bulkCreateUsers(apiClient, buildBulkCreateRequest(input)),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: TENANT_USERS_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: STUDENT_ROSTER_QUERY_KEY });

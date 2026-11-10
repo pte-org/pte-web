@@ -76,4 +76,19 @@ describe("examiner work requests", () => {
       `${EXAMINER_WORK_ENDPOINTS.queue}?status=COMPLETED&sort=ASSIGNED_DESC`,
     );
   });
+
+  it("includes assignment date boundaries in queue requests", async () => {
+    const client = fakeClient();
+    await listExaminerWork(client, {
+      status: "ALL",
+      fromDate: "2026-11-01",
+      toDate: "2026-11-07",
+      page: 0,
+      size: 20,
+    });
+
+    expect(client.request).toHaveBeenCalledWith(
+      `${EXAMINER_WORK_ENDPOINTS.queue}?status=ALL&fromDate=2026-11-01&toDate=2026-11-07&page=0&size=20`,
+    );
+  });
 });

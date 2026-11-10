@@ -3,7 +3,6 @@
 import type { ReactElement } from "react";
 import Link from "next/link";
 import { CheckCircleIcon, ChevronRightIcon } from "@pte/ui";
-import { AUTH_ROUTES } from "@/features/auth/constants";
 import { HOME_LAYOUT } from "../homeConstants";
 import { useHomeCopy } from "../useHomeCopy";
 
@@ -94,31 +93,6 @@ export const HomeTeam = (): ReactElement => {
             <ChevronRightIcon className="h-4 w-4" />
           </Link>
         </div>
-      </div>
-    </section>
-  );
-};
-
-export const HomeClosing = (): ReactElement => {
-  const { HOME_TEXT } = useHomeCopy();
-  return (
-    <section aria-labelledby="closing-title" className="bg-[var(--home-navy)] py-14 text-white">
-      <div
-        className={`${HOME_LAYOUT.container} flex flex-col justify-between gap-7 lg:flex-row lg:items-center`}
-      >
-        <div>
-          <h2 id="closing-title" className="text-3xl font-medium tracking-tight">
-            {HOME_TEXT.closingTitle}
-          </h2>
-          <p className="mt-3 text-sm text-slate-300">{HOME_TEXT.closingDescription}</p>
-        </div>
-        <Link
-          href={AUTH_ROUTES.register}
-          className={`${HOME_LAYOUT.secondaryLink} shrink-0 self-start`}
-        >
-          {HOME_TEXT.register}
-          <ChevronRightIcon className="h-4 w-4" />
-        </Link>
       </div>
     </section>
   );

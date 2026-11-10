@@ -80,6 +80,8 @@ export interface ListExaminerWorkParams {
   sessionPublicId?: string;
   search?: string;
   sort?: string;
+  fromDate?: string;
+  toDate?: string;
   page?: number;
   size?: number;
 }
@@ -93,6 +95,8 @@ export function listExaminerWork(
   if (params.sessionPublicId) query.set("sessionPublicId", params.sessionPublicId);
   if (params.search) query.set("search", params.search);
   if (params.sort) query.set("sort", params.sort);
+  if (params.fromDate) query.set("fromDate", params.fromDate);
+  if (params.toDate) query.set("toDate", params.toDate);
   if (params.page !== undefined) query.set("page", String(params.page));
   if (params.size !== undefined || params.page !== undefined) {
     query.set("size", String(params.size ?? 20));

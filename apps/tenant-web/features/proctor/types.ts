@@ -8,19 +8,6 @@
  * and these local types are deleted. The view layer does not change.
  */
 
-export type AttemptStatus = "PENDING" | "IN_PROGRESS" | "COMPLETED";
-
-export interface ProctorLiveAttempt {
-  attemptPublicId: string;
-  studentPublicId: string;
-  studentName: string;
-  status: AttemptStatus;
-  startedAt: string | null;
-  lastHeartbeatAt: string | null;
-  flagged: boolean;
-  notesCount: number;
-}
-
 export type ProctorAuditAction = "FORCE_SUBMIT" | "FLAG_VIOLATION" | "CLOSE_SESSION";
 
 export interface ProctorAuditLogEntry {

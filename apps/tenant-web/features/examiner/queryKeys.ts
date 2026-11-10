@@ -33,6 +33,8 @@ export const EXAMINER_QUERY_KEYS = {
       sessionPublicId?: string;
       search?: string;
       sort?: string;
+      fromDate?: string;
+      toDate?: string;
     },
   ) =>
     params

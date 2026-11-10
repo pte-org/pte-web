@@ -103,6 +103,11 @@ export interface ApiClient {
     options?: RequestInit,
   ): Promise<DownloadResponse>;
   download(path: string, options?: RequestOptions): Promise<DownloadResponse>;
+  /**
+   * Opens a long-lived response (server-sent events) with the same Bearer token and 401 refresh as `request`,
+   * and returns its body unread. An error answer is thrown as an `ApiError` before any of it is read.
+   */
+  openStream(path: string, options?: RequestInit): Promise<ReadableStream<Uint8Array>>;
   ensureFreshAccessToken(options?: EnsureFreshTokenOptions): Promise<string | null>;
 }
 
@@ -424,6 +429,33 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     };
   }
 
+  async function openStream(
+    path: string,
+    requestOptions: RequestInit = {},
+    isRetry = false,
+  ): Promise<ReadableStream<Uint8Array>> {
+    const requestGeneration = getSessionGeneration?.();
+    const { headers: customHeaders, ...rest } = requestOptions;
+    const response = await send(path, { ...rest, headers: buildHeaders(path, customHeaders, false) });
+
+    if (response.status === 401 && !isRetry) {
+      const refreshOutcome = await tryRefresh(requestGeneration);
+      if (refreshOutcome === "refreshed" && (requestGeneration === undefined
+          || getSessionGeneration?.() === requestGeneration)) {
+        return openStream(path, requestOptions, true);
+      }
+      if (refreshOutcome === "stale" || (requestGeneration !== undefined
+          && getSessionGeneration?.() !== requestGeneration)) {
+        throw new StaleSessionRequestError();
+      }
+    }
+    await assertOk(response);
+    if (!response.body) {
+      throw new ApiError("network", response.status, NETWORK_ERROR_MESSAGE);
+    }
+    return response.body;
+  }
+
   async function ensureFreshAccessToken(options?: EnsureFreshTokenOptions): Promise<string | null> {
     const currentToken = getToken?.() ?? null;
     const minValidityMs = (options?.minValiditySeconds ?? 0) * 1000;
@@ -450,5 +482,5 @@ export function createApiClient(options: ApiClientOptions): ApiClient {
     return currentToken;
   }
 
-  return { request, upload, uploadDownload, download, ensureFreshAccessToken };
+  return { request, upload, uploadDownload, download, openStream, ensureFreshAccessToken };
 }

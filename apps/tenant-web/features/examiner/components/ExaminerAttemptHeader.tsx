@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { Alert, BackButton } from "@pte/ui";
+import { Alert } from "@pte/ui";
 import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
 interface ExaminerAttemptHeaderProps {
@@ -11,7 +11,6 @@ interface ExaminerAttemptHeaderProps {
   eligibleCount: number;
   statusBadge?: React.ReactNode;
   actions?: React.ReactNode;
-  onBack: () => void;
 }
 
 export const ExaminerAttemptHeader = ({
@@ -21,22 +20,13 @@ export const ExaminerAttemptHeader = ({
   eligibleCount,
   statusBadge,
   actions,
-  onBack,
 }: ExaminerAttemptHeaderProps): ReactElement => {
   const T = useExaminerWorkText();
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
         <div>
-          <BackButton
-            href="/examiner/work"
-            onClick={(e) => {
-              e.preventDefault();
-              onBack();
-            }}
-            label={T.BACK_TO_QUEUE}
-          />
-          <div className="mt-2 flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <h2 className="text-xl font-bold text-slate-900">{title}</h2>
             {statusBadge}
           </div>
@@ -44,7 +34,11 @@ export const ExaminerAttemptHeader = ({
             {T.PROGRESS_LABEL}: {submittedCount}/{eligibleCount}
           </p>
         </div>
-        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+        {actions && (
+          <div className="flex flex-wrap items-center gap-2">
+            {actions}
+          </div>
+        )}
       </div>
 
       {publicationState === "PUBLISHED" && (

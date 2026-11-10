@@ -9,6 +9,13 @@ export function resolveActiveNavItem(
 ): string | null {
   if (!pathname) return null;
 
+  const sessionList = navItems.find((item) => item.href === "/proctor/sessions?scope=ALL");
+  if (sessionList && /^\/proctor\/(sessions|attendance|incidents|audit-log)(\/|$)/.test(pathname)) {
+    return pathname === "/proctor/sessions" && !searchParams?.has("scope")
+      ? (navItems.find((item) => item.href === "/proctor/sessions")?.href ?? sessionList.href)
+      : sessionList.href;
+  }
+
   // 1. Host program -> classes override
   if (pathname.includes("/classes/") || pathname.endsWith("/classes")) {
     const classItem = navItems.find((item) => item.href === "/host/classes");
@@ -31,13 +38,6 @@ export function resolveActiveNavItem(
     if (auditItem) return auditItem.href;
   }
 
-  if (pathname.startsWith("/proctor/sessions/") && pathname !== "/proctor/sessions") {
-    const monitoringItem = navItems.find((item) => item.href === "/proctor/sessions?scope=ACCESSIBLE");
-    if (monitoringItem) return monitoringItem.href;
-    const overviewItem = navItems.find((item) => item.href === "/proctor/sessions");
-    if (overviewItem) return overviewItem.href;
-  }
-
   // 3. Examiner detail routes
   if (pathname.startsWith("/examiner/work/") && pathname !== "/examiner/work") {
     if (searchParams?.get("fromStatus")) {
@@ -52,7 +52,9 @@ export function resolveActiveNavItem(
   if (pathname === "/proctor/sessions") {
     const scope = searchParams?.get("scope");
     if (scope === "ACCESSIBLE") {
-      const accessibleItem = navItems.find((item) => item.href === "/proctor/sessions?scope=ACCESSIBLE");
+      const accessibleItem = navItems.find(
+        (item) => item.href === "/proctor/sessions?scope=ACCESSIBLE",
+      );
       if (accessibleItem) return accessibleItem.href;
     }
     const overviewItem = navItems.find((item) => item.href === "/proctor/sessions");
@@ -82,7 +84,10 @@ export function resolveActiveNavItem(
       continue;
     }
 
-    if (itemPath === "/host/programs" && (pathname.includes("/classes/") || pathname.endsWith("/classes"))) {
+    if (
+      itemPath === "/host/programs" &&
+      (pathname.includes("/classes/") || pathname.endsWith("/classes"))
+    ) {
       continue;
     }
 

@@ -122,7 +122,7 @@ const HOOKS: HookCase[] = [
       if (outcome === "success") mocks.api.bulkCreateUsers.mockResolvedValue({ created: [], skipped: [] });
       else mocks.api.bulkCreateUsers.mockRejectedValue(rejection);
     },
-    variables: rosterRows,
+    variables: { rows: rosterRows, sendCredentialsEmail: false },
   },
   {
     name: "useCreateStudent (add one learner)",
@@ -140,7 +140,7 @@ const HOOKS: HookCase[] = [
       if (outcome === "success") mocks.api.bulkCreateUsers.mockResolvedValue({ created: [created], skipped: [] });
       else mocks.api.bulkCreateUsers.mockRejectedValue(rejection);
     },
-    variables: rosterRows,
+    variables: { rows: rosterRows, sendCredentialsEmail: false },
   },
   {
     name: "useCreateRosterAccountsForClass (class roster import)",
@@ -149,7 +149,7 @@ const HOOKS: HookCase[] = [
       if (outcome === "success") mocks.api.bulkCreateUsers.mockResolvedValue({ created: [created], skipped: [] });
       else mocks.api.bulkCreateUsers.mockRejectedValue(rejection);
     },
-    variables: rosterRows,
+    variables: { rows: rosterRows, sendCredentialsEmail: false },
   },
   {
     name: "useCreateClass",

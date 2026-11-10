@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { finalizeExaminerWork, saveExaminerDraft } from "@pte/api-client";
-import { apiClient } from "@/lib/apiClient";
+import { useRef, useState } from "react";
+import { useFinalizeExaminerWork, useSaveExaminerDraft } from "./api";
+import { applySavedDraft, traitRequest } from "./traitDraft";
 import type { ExaminerDraftState } from "./useExaminerDraftState";
 import type { UseExaminerSubmissionParams } from "./submissionTypes";
 
@@ -19,6 +19,10 @@ export const useExaminerSubmissionActions = ({
   refetchAttempt,
   draftState,
 }: UseExaminerSubmissionActionsParams) => {
+  const saveMutation = useSaveExaminerDraft(sessionPublicId, attemptPublicId);
+  const finalizeMutation = useFinalizeExaminerWork(sessionPublicId, attemptPublicId);
+  const saving = useRef(false);
+  const retryKeys = useRef(new Map<string, string>());
   const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [isFinalizing, setIsFinalizing] = useState(false);
 
@@ -29,49 +33,50 @@ export const useExaminerSubmissionActions = ({
     if (!targetAnswer) return false;
     const answerId = targetAnswer.answerPublicId;
     const draft = draftState.drafts[answerId];
-    if (!draft) return false;
+    if (!draft || saving.current) return false;
+    const traitScores = targetAnswer.rubric ? traitRequest(targetAnswer.rubric, draft.traitScores) : undefined;
+    if (traitScores === null) return false;
 
-    const parsedScore = draft.score.trim() === "" ? null : Number(draft.score);
+    const parsedScore = targetAnswer.rubric || draft.score.trim() === "" ? null : Number(draft.score);
     if (parsedScore !== null && (!Number.isInteger(parsedScore) || parsedScore < 0 || parsedScore > 100)) {
       return false;
     }
 
     try {
+      saving.current = true;
       setIsSavingDraft(true);
-      const response = await saveExaminerDraft(apiClient, sessionPublicId, attemptPublicId, answerId, {
-        requestPublicId: crypto.randomUUID(),
+      const payload = {
         expectedWorkVersion: workflow?.workVersion ?? 0,
         expectedDraftVersion: draft.draftVersion ?? 0,
         score: parsedScore,
+        traitScores,
         comment: draft.comment || null,
+        aiGapReasons: draft.aiGapReasons ?? null,
         decisionKind: draft.decisionKind,
-        expectedReviewVersion: targetAnswer.reviewVersion,
+        expectedReviewVersion: draft.initialReviewVersion,
         reviewedAiVersion: draft.reviewedAiVersion,
-      });
-
+      };
+      const fingerprint = JSON.stringify({ answerId, ...payload });
+      const requestPublicId = retryKeys.current.get(fingerprint) ?? crypto.randomUUID();
+      retryKeys.current.set(fingerprint, requestPublicId);
+      const response = await saveMutation.mutateAsync({ answerPublicId: answerId, payload: { ...payload, requestPublicId } });
+      retryKeys.current.delete(fingerprint);
       draftState.setDrafts((previous) => {
         const current = previous[answerId];
         if (!current) return previous;
-        const hasUnsavedChanges = current.score !== draft.score || current.comment !== draft.comment;
-        return {
-          ...previous,
-          [answerId]: {
-            ...current,
-            draftVersion: response.draft?.draftVersion ?? (draft.draftVersion ?? 0) + 1,
-            savedAt: response.draft?.savedAt ?? new Date().toISOString(),
-            isDirty: hasUnsavedChanges,
-          },
-        };
+        return { ...previous, [answerId]: applySavedDraft(current, draft, response) };
       });
       return true;
     } catch {
       return false;
     } finally {
+      saving.current = false;
       setIsSavingDraft(false);
     }
   };
 
   const handleFinalizeAttempt = async (): Promise<boolean> => {
+    if (saving.current || draftState.hasUnsaved) return false;
     try {
       setIsFinalizing(true);
       const items = answers.map((answer) => {
@@ -79,12 +84,12 @@ export const useExaminerSubmissionActions = ({
         return {
           answerPublicId: answer.answerPublicId,
           expectedDraftVersion: draft?.draftVersion ?? 0,
-          expectedReviewVersion: answer.reviewVersion,
+          expectedReviewVersion: draft?.initialReviewVersion ?? answer.reviewVersion,
           reviewedAiVersion: draft?.reviewedAiVersion ?? null,
         };
       });
 
-      await finalizeExaminerWork(apiClient, sessionPublicId, attemptPublicId, {
+      await finalizeMutation.mutateAsync({
         requestPublicId: crypto.randomUUID(),
         expectedWorkVersion: workflow?.workVersion ?? 0,
         answers: items,

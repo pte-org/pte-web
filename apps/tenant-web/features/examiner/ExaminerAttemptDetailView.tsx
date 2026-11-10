@@ -1,173 +1,19 @@
 "use client";
-
-import { useMemo, useState, type ReactElement } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import type { ExaminerAnswerDetailResponse } from "@pte/api-client";
-import {
-  Alert,
-  Badge,
-  Button,
-  ConfirmDialog,
-  EmptyState,
-  ErrorState,
-  LoadingState,
-  useToast,
-} from "@pte/ui";
-import { getExaminerBlockingText, useExaminerWorkText } from "./hooks/useExaminerWorkText";
-import {
-  useExaminerAttempt,
-  useExaminerGuidelines,
-  useExaminerIssues,
-  useReportExaminerIssue,
-  useStartExaminerWork,
-} from "./api";
-import { PromptRenderer, ResponseRenderer, type MediaState } from "./components/AnswerContentRenderer";
-import { AiReferencePanel } from "./components/AiReferencePanel";
-import { AiScoreDetail } from "@/features/aiScore";
-import { DecisionPanel } from "./components/DecisionPanel";
-import { QuestionNavigator } from "./components/QuestionNavigator";
+import { useState, type ReactElement } from "react";
+import { Alert, Badge, Button, TabPanel, Tabs } from "@pte/ui";
+import { ExaminerGradingHistoryTable } from "./components/ExaminerGradingHistoryTable";
+import { getExaminerBlockingText } from "./hooks/useExaminerWorkText";
 import { ExaminerAttemptHeader } from "./components/ExaminerAttemptHeader";
-import { ConfirmAttemptFinalizeDialog } from "./components/ConfirmAttemptFinalizeDialog";
-import { ReportIssueDialog } from "./components/ReportIssueDialog";
-import { ExaminerGuidelinesDialog } from "./components/ExaminerGuidelinesDialog";
-import { ExaminerGradingHistoryDialog } from "./components/ExaminerGradingHistoryDialog";
-import { useExaminerSubmissions } from "./useExaminerSubmissions";
-import { formatAttemptTitle } from "./utils/attemptLabels";
-
-/** Stable reference: a fresh `[]` per render makes the draft hook's `answers !== prevAnswers` check loop forever. */
-const NO_ANSWERS: ExaminerAnswerDetailResponse[] = [];
-
-export const ExaminerAttemptDetailView = ({
-  sessionPublicId,
-  attemptPublicId,
-  onBack,
-}: {
-  sessionPublicId: string;
-  attemptPublicId: string;
-  onBack?: () => void;
-}): ReactElement => {
-  const T = useExaminerWorkText();
-  const { showToast } = useToast();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const fromStatus = searchParams?.get("fromStatus");
-  const fromPage = searchParams?.get("fromPage");
-
-  const query = useExaminerAttempt(sessionPublicId, attemptPublicId);
-  const startMutation = useStartExaminerWork(sessionPublicId, attemptPublicId);
-  const reportIssueMutation = useReportExaminerIssue(sessionPublicId, attemptPublicId);
-  const guidelinesQuery = useExaminerGuidelines(sessionPublicId, attemptPublicId);
-  const issuesQuery = useExaminerIssues(sessionPublicId, attemptPublicId);
-
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false);
-  const [finalizeOpen, setFinalizeOpen] = useState(false);
-  const [reportIssueOpen, setReportIssueOpen] = useState(false);
-  const [guidelinesOpen, setGuidelinesOpen] = useState(false);
-  const [historyOpen, setHistoryOpen] = useState(false);
-  const [promptMedia, setPromptMedia] = useState<MediaState>("ready");
-  const [responseMedia, setResponseMedia] = useState<MediaState>("ready");
-
-  const answers = query.data?.answers ?? NO_ANSWERS;
-  const workflow = query.data?.workflow;
-  const carriedOverIds = useMemo(
-    () => new Set((workflow?.drafts ?? []).filter((d) => d.carriedOver).map((d) => d.answerPublicId)),
-    [workflow?.drafts],
-  );
-  const currentAnswer = answers[currentIndex] ?? null;
-  const attemptTitle = query.data
-    ? formatAttemptTitle(T.ATTEMPT_LABEL, {
-        attemptPublicId,
-        sessionName: query.data.sessionName,
-        attemptOrdinal: query.data.attemptOrdinal,
-      })
-    : T.ATTEMPT_LABEL;
-
-  const {
-    drafts,
-    activeDraft,
-    hasUnsaved,
-    isStale,
-    isSavingDraft,
-    isFinalizing,
-    handleScoreChange,
-    handleCommentChange,
-    handleApplyAiScore,
-    handleAcknowledgeStale,
-    handleSaveDraft,
-    handleFinalizeAttempt,
-  } = useExaminerSubmissions({
-    answers,
-    currentAnswer,
-    workflow,
-    sessionPublicId,
-    attemptPublicId,
-    refetchAttempt: () => query.refetch(),
-  });
-
-  const executeBack = (): void => {
-    if (onBack) {
-      onBack();
-    } else {
-      const params = new URLSearchParams();
-      if (fromStatus) params.set("status", fromStatus);
-      if (fromPage) params.set("page", fromPage);
-      const qs = params.toString();
-      router.push(qs ? `/examiner/work?${qs}` : "/examiner/work");
-    }
-  };
-
-  const handleBack = (): void => {
-    if (hasUnsaved) {
-      setConfirmLeaveOpen(true);
-    } else {
-      executeBack();
-    }
-  };
-
-  const handleSelectIndex = (index: number): void => {
-    setCurrentIndex(index);
-    setPromptMedia("ready");
-    setResponseMedia("ready");
-  };
-
-  const handleStartWork = async () => {
-    await startMutation.mutateAsync({
-      requestPublicId: crypto.randomUUID(),
-      expectedWorkVersion: workflow?.workVersion ?? 0,
-    });
-    void query.refetch();
-  };
-
-  const handleSaveClick = async (): Promise<void> => {
-    const saved = await handleSaveDraft();
-    showToast(saved ? T.SAVE_SUCCESS : T.SAVE_FAILED, { tone: saved ? "success" : "error" });
-  };
-
-  const handleConfirmFinalize = async () => {
-    const success = await handleFinalizeAttempt();
-    if (success) {
-      setFinalizeOpen(false);
-    } else {
-      showToast(T.FINALIZE_FAILED, { tone: "error" });
-    }
-  };
-
-  const handleReportIssue = async (type: import("@pte/api-client").ExaminerGradingIssueType, description: string) => {
-    await reportIssueMutation.mutateAsync({
-      requestPublicId: crypto.randomUUID(),
-      expectedWorkVersion: workflow?.workVersion ?? 0,
-      answerPublicId: currentAnswer?.answerPublicId ?? null,
-      type,
-      description,
-    });
-    setReportIssueOpen(false);
-    void query.refetch();
-  };
-
-  const hasOpenIssue = issuesQuery.data?.some((i) => i.status === "OPEN");
-  const workflowStatus = workflow?.status ?? (query.data?.submittedAnswerCount === query.data?.eligibleAnswerCount ? "COMPLETED" : "IN_PROGRESS");
-
+import { ExaminerAttemptContent } from "./components/ExaminerAttemptContent";
+import { ExaminerAttemptDialogs } from "./components/ExaminerAttemptDialogs";
+import { QuestionListButton } from "./components/QuestionListButton";
+import { useExaminerAttemptController } from "./useExaminerAttemptController";
+export const ExaminerAttemptDetailView = (props: { sessionPublicId: string; attemptPublicId: string; onBack?: () => void }): ReactElement => {
+  const state = useExaminerAttemptController(props);
+  const { T, query, attemptTitle, workflowStatus, setReportIssueOpen, workflow, hasOpenIssue, isFinalizing, hasUnsaved,
+    isSavingDraft } = state;
+  const [activeTab, setActiveTab] = useState("marking");
+  const [historyVisited, setHistoryVisited] = useState(false);
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
       <ExaminerAttemptHeader
@@ -184,40 +30,17 @@ export const ExaminerAttemptDetailView = ({
             <Badge variant="success">{T.STATUS_COMPLETED}</Badge>
           )
         }
-        actions={
-          <>
-            <Button variant="secondary" size="sm" onClick={() => setGuidelinesOpen(true)}>
-              {T.GUIDELINES}
-            </Button>
-            <Button variant="secondary" size="sm" onClick={() => setHistoryOpen(true)}>
-              {T.HISTORY_AUDIT}
-            </Button>
-            <Button variant="secondary" size="sm" onClick={() => setReportIssueOpen(true)}>
-              {T.REPORT_ISSUE}
-            </Button>
-            {workflow?.canStart && (
-              <Button
-                variant="primary"
-                size="sm"
-                disabled={startMutation.isPending}
-                onClick={handleStartWork}
-              >
-                {startMutation.isPending ? T.STARTING_WORK : T.START_WORK}
-              </Button>
-            )}
-            {workflow?.canFinalize && (
-              <Button
-                variant="primary"
-                size="sm"
-                disabled={isFinalizing || hasOpenIssue}
-                onClick={() => setFinalizeOpen(true)}
-              >
-                {isFinalizing ? T.FINALIZING : T.FINALIZE_WORK}
-              </Button>
-            )}
-          </>
-        }
-        onBack={handleBack}
+        actions={<div className="flex items-center gap-2">
+          <QuestionListButton state={state} />
+          <Button variant="primary" size="sm" className="whitespace-nowrap" onClick={() => setReportIssueOpen(true)}>
+            {T.REPORT_ISSUE}
+          </Button>
+          {workflow?.canFinalize && (
+            <Button variant="primary" size="sm" className="whitespace-nowrap"
+              disabled={isFinalizing || Boolean(hasOpenIssue) || hasUnsaved || isSavingDraft}
+              onClick={() => state.setFinalizeOpen(true)}>{isFinalizing ? T.FINALIZING : T.FINALIZE_WORK}</Button>
+          )}
+        </div>}
       />
 
       {hasOpenIssue && (
@@ -232,125 +55,17 @@ export const ExaminerAttemptDetailView = ({
         </Alert>
       )}
 
-      {query.isLoading ? (
-        <LoadingState variant="table" label={T.LOADING_DETAIL} />
-      ) : query.isError ? (
-        <ErrorState
-          title={T.DETAIL_ERROR}
-          action={
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => void query.refetch()}
-            >
-              {T.RETRY}
-            </Button>
-          }
-        />
-      ) : answers.length === 0 ? (
-        <EmptyState title={T.NO_ANSWERS} />
-      ) : currentAnswer ? (
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 xl:grid-cols-5">
-          <div className="lg:col-span-1 xl:col-span-1">
-            <QuestionNavigator
-              answers={answers}
-              currentIndex={currentIndex}
-              drafts={Object.fromEntries(
-                Object.entries(drafts).map(([k, v]) => [
-                  k,
-                  {
-                    score: v.score,
-                    isSaved: Boolean(v.savedAt) && !v.isDirty,
-                    carriedOver: carriedOverIds.has(k),
-                  },
-                ]),
-              )}
-              onSelectIndex={handleSelectIndex}
-            />
-          </div>
+      <Tabs id="examiner-attempt" variant="minimal" value={activeTab}
+        items={[{ id: "marking", label: T.MARKING_TAB }, { id: "history", label: T.HISTORY_AUDIT }]}
+        onChange={(tab) => { setActiveTab(tab); if (tab === "history") setHistoryVisited(true); }} />
+      <TabPanel id="examiner-attempt-panel-marking" labelledBy="examiner-attempt-tab-marking" active={activeTab === "marking"} keepMounted>
+        <ExaminerAttemptContent state={state} />
+      </TabPanel>
+      {historyVisited && <TabPanel id="examiner-attempt-panel-history" labelledBy="examiner-attempt-tab-history" active={activeTab === "history"} keepMounted>
+        <ExaminerGradingHistoryTable sessionPublicId={state.sessionPublicId} attemptPublicId={state.attemptPublicId} />
+      </TabPanel>}
 
-          <div className="space-y-4 lg:col-span-3 xl:col-span-4">
-            <PromptRenderer
-              key={`prompt-${currentAnswer.answerPublicId}`}
-              prompt={currentAnswer.prompt}
-              onMediaStateChange={setPromptMedia}
-              onRefreshMedia={() => void query.refetch()}
-            />
-            <ResponseRenderer
-              key={`response-${currentAnswer.answerPublicId}`}
-              response={currentAnswer.response}
-              onMediaStateChange={setResponseMedia}
-              onRefreshMedia={() => void query.refetch()}
-            />
-            <AiReferencePanel
-              reference={currentAnswer.aiReference}
-              readOnly={currentAnswer.myScore !== null}
-              onApplyAiScore={handleApplyAiScore}
-            />
-            {currentAnswer.ai && <AiScoreDetail ai={currentAnswer.ai} />}
-            <DecisionPanel
-              answer={currentAnswer}
-              draftScore={activeDraft?.score ?? ""}
-              draftComment={activeDraft?.comment ?? ""}
-              draftSavedAt={activeDraft?.savedAt}
-              carriedOver={carriedOverIds.has(currentAnswer.answerPublicId)}
-              isStale={isStale}
-              isMediaBroken={promptMedia === "failed" || responseMedia === "failed"}
-              isMediaLoading={promptMedia === "loading" || responseMedia === "loading"}
-              isSavingDraft={isSavingDraft}
-              onScoreChange={handleScoreChange}
-              onCommentChange={handleCommentChange}
-              onSaveDraft={() => void handleSaveClick()}
-              onAcknowledgeStale={handleAcknowledgeStale}
-            />
-          </div>
-        </div>
-      ) : null}
-
-      <ConfirmDialog
-        open={confirmLeaveOpen}
-        title={T.UNSAVED_CHANGES_TITLE}
-        tone="danger"
-        confirmLabel={T.DISCARD_AND_LEAVE}
-        cancelLabel={T.CANCEL}
-        description={T.UNSAVED_CHANGES_WARNING}
-        onConfirm={() => {
-          setConfirmLeaveOpen(false);
-          executeBack();
-        }}
-        onClose={() => setConfirmLeaveOpen(false)}
-      />
-
-      <ConfirmAttemptFinalizeDialog
-        open={finalizeOpen}
-        totalAnswers={answers.length}
-        isFinalizing={isFinalizing}
-        onConfirm={handleConfirmFinalize}
-        onClose={() => setFinalizeOpen(false)}
-      />
-
-      <ReportIssueDialog
-        open={reportIssueOpen}
-        isSubmitting={reportIssueMutation.isPending}
-        onSubmit={handleReportIssue}
-        onClose={() => setReportIssueOpen(false)}
-      />
-
-      <ExaminerGuidelinesDialog
-        open={guidelinesOpen}
-        guidelines={guidelinesQuery.data}
-        isLoading={guidelinesQuery.isLoading}
-        onClose={() => setGuidelinesOpen(false)}
-      />
-
-      <ExaminerGradingHistoryDialog
-        open={historyOpen}
-        sessionPublicId={sessionPublicId}
-        attemptPublicId={attemptPublicId}
-        attemptTitle={attemptTitle}
-        onClose={() => setHistoryOpen(false)}
-      />
+      <ExaminerAttemptDialogs state={state} />
     </div>
   );
 };

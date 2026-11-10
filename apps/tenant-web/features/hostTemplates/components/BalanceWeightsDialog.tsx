@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactElement } from "react";
 import type { ScoreTemplateItemRequest, SkillWeightSuggestion } from "@pte/api-client";
-import { Alert, Button, Modal } from "@pte/ui";
+import { Alert, Button, Modal, RadioCard } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useSuggestSkillWeights } from "../api";
 import { DEFAULT_REDISTRIBUTION_MODE, type RedistributionMode } from "../constants";
@@ -82,37 +82,24 @@ const BalanceWeightsContent = ({
 
         <fieldset className="flex flex-col gap-2">
           {MODES.map((value) => (
-            <label
+            <RadioCard
               key={value}
-              className="flex cursor-pointer items-start gap-2 rounded-lg border border-[var(--shell-border)] p-3 has-[:checked]:border-[var(--action)]"
-            >
-              <input
-                type="radio"
-                name="redistribution-mode"
-                className="mt-1"
-                checked={mode === value}
-                onChange={() => setMode(value)}
-              />
-              <span>
-                <span className="block text-sm font-medium text-[var(--ink-primary)]">
-                  {modeText[value].label}
-                </span>
-                <span className="block text-xs text-[var(--ink-muted)]">{modeText[value].hint}</span>
-              </span>
-            </label>
+              name="redistribution-mode"
+              label={modeText[value].label}
+              hint={modeText[value].hint}
+              checked={mode === value}
+              onChange={() => setMode(value)}
+            />
           ))}
         </fieldset>
 
         {isPending && <p className="text-sm text-[var(--ink-muted)]">…</p>}
-        {Boolean(error) && (
-          <Alert tone="error">{errorMessage(error, text.SUGGEST_FAILED)}</Alert>
-        )}
+        {Boolean(error) && <Alert tone="error">{errorMessage(error, text.SUGGEST_FAILED)}</Alert>}
         {data && unbalanced.length === 0 && <Alert tone="success">{text.BALANCE_ALREADY}</Alert>}
 
         {mode === "MANUAL" && unbalanced.length > 0 && (
           <Alert tone="info">{text.MANUAL_NOTE}</Alert>
         )}
-
       </div>
     </Modal>
   );

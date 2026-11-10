@@ -1,17 +1,31 @@
 "use client";
 
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import type { ScoreTemplateItemRequest } from "@pte/api-client";
-import { Button } from "@pte/ui";
-import { SKILLS } from "../constants";
+import { DataTable, DropZone, RowDragPreview, SectionedTableCard } from "@pte/ui";
+import { PALETTE_DROP_ATTRIBUTE, SKILLS, TASK_TYPE_DRAG_TYPE } from "../constants";
 import { useEditorText, useSkillLabels } from "../hooks/useTemplateText";
 import type { PoolSlot } from "../utils/pool";
-import { WEIGHT_FIELD } from "../utils/weights";
+import {
+  buildTemplateColumns,
+  removeRowButton,
+  type TemplateTableView,
+} from "./templateItemColumns";
 
 interface TemplateItemsEditorProps {
+  /** Shown under the skill rail, such as the template's details. */
+  sidePanel?: ReactNode;
+  /** What can be added back, drawn above the side panel for the selected tab. */
+  renderPalette?: (activeTab: string) => ReactNode;
+  /** Called with the key of a task type dragged from the palette into the table. */
+  onDropTaskType?: (key: string) => void;
   items: readonly ScoreTemplateItemRequest[];
   editable: boolean;
   onRemove: (taskTypeKey: string) => void;
+  /** Called with the keys of every row in their new order, after a row is dragged to a new place. */
+  onReorder?: (orderedKeys: string[]) => void;
+  /** Buttons at the right end of the table's toolbar, such as Save. */
+  toolbarActions?: ReactNode;
   onWeightChange: (taskTypeKey: string, skill: (typeof SKILLS)[number], value: number) => void;
   /** Cells the host may not change; omitted means every cell follows `editable`. */
   isWeightEditable?: (taskTypeKey: string, skill: (typeof SKILLS)[number]) => boolean;
@@ -19,118 +33,111 @@ interface TemplateItemsEditorProps {
   pool?: ReadonlyMap<string, PoolSlot>;
 }
 
-function PoolBadge({
-  slot,
-  ok,
-  short,
-}: {
-  slot: PoolSlot | undefined;
-  ok: string;
-  short: string;
-}): ReactElement | null {
-  if (!slot) return null;
-  const tone = slot.ready
-    ? "bg-green-50 text-green-700 ring-green-200"
-    : "bg-red-50 text-red-700 ring-red-200";
-  const title = slot.ready
-    ? ok
-    : short.replace("{available}", String(slot.available)).replace("{required}", String(slot.required));
-  return (
-    <span
-      title={title}
-      className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${tone}`}
-    >
-      {slot.available}/{slot.required}
-    </span>
-  );
-}
+const ALL_TAB = "ALL";
+const SECTION_ORDER = ["SPEAKING", "WRITING", "READING", "LISTENING"] as const;
 
-const WEIGHT_INPUT_CLASS =
-  "w-20 rounded border border-[var(--control-border)] bg-[var(--surface-card)] px-2 py-1 text-sm text-[var(--ink-primary)] outline-none focus:border-[var(--action)] disabled:bg-transparent disabled:border-transparent";
-
+/**
+ * Task types of a template in the common sectioned table (the same frame the admin's template screen uses):
+ * a skill rail on the left and the selected skill's rows on the right, with a switch between the exam
+ * structure (counts, stock) and the weights of every skill.
+ */
 export const TemplateItemsEditor = ({
+  sidePanel,
+  renderPalette,
+  onDropTaskType,
   items,
   editable,
   onRemove,
+  onReorder,
+  toolbarActions,
   onWeightChange,
   isWeightEditable,
   pool,
 }: TemplateItemsEditorProps): ReactElement => {
   const text = useEditorText();
   const labels = useSkillLabels();
-  const lockedByRule = (taskTypeKey: string, skill: (typeof SKILLS)[number]): boolean =>
-    editable && isWeightEditable?.(taskTypeKey, skill) === false;
+  const rowsOf = (tab: string): ScoreTemplateItemRequest[] =>
+    items.filter((item) => tab === ALL_TAB || item.section === tab);
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)]">
-      <table className="w-full min-w-[720px] text-left text-sm">
-        <thead className="border-b border-[var(--shell-border)] text-xs uppercase text-[var(--ink-muted)]">
-          <tr>
-            <th className="px-3 py-2">{text.COL_TASK}</th>
-            <th className="px-3 py-2">{text.COL_COUNT}</th>
-            {pool && <th className="px-3 py-2">{text.COL_POOL}</th>}
-            {SKILLS.map((skill) => (
-              <th key={skill} className="px-3 py-2">
-                {labels[skill]}
-              </th>
-            ))}
-            {editable && <th className="px-3 py-2" />}
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item) => (
-            <tr key={item.taskTypeKey} className="border-b border-[var(--shell-border)] last:border-0">
-              <td className="px-3 py-2">
-                <span className="font-mono text-xs text-[var(--ink-primary)]">{item.taskTypeKey}</span>
-                <span className="ml-2 text-xs text-[var(--ink-muted)]">{labels[item.section as keyof typeof labels] ?? item.section}</span>
-              </td>
-              <td className="px-3 py-2 text-[var(--ink-secondary)]">
-                {item.minCount === item.maxCount ? item.maxCount : `${item.minCount}–${item.maxCount}`}
-              </td>
-              {pool && (
-                <td className="px-3 py-2">
-                  <PoolBadge
-                    slot={pool.get(item.taskTypeKey)}
-                    ok={text.POOL_OK}
-                    short={text.POOL_SHORT}
-                  />
-                </td>
-              )}
-              {SKILLS.map((skill) => (
-                <td key={skill} className="px-3 py-2">
-                  {/* The tooltip sits on a wrapper: a disabled input does not reliably show its own title. */}
-                  <span
-                    className="inline-block"
-                    title={lockedByRule(item.taskTypeKey, skill) ? text.WEIGHT_LOCKED : undefined}
-                  >
-                    <input
-                      type="number"
-                      min={0}
-                      max={100}
-                      step="0.01"
-                      disabled={!editable || lockedByRule(item.taskTypeKey, skill)}
-                      aria-label={`${item.taskTypeKey} ${labels[skill]}`}
-                      className={WEIGHT_INPUT_CLASS}
-                      value={item[WEIGHT_FIELD[skill]]}
-                      onChange={(event) => {
-                        const parsed = Number(event.target.value);
-                        onWeightChange(item.taskTypeKey, skill, Number.isFinite(parsed) && parsed >= 0 ? parsed : 0);
-                      }}
-                    />
-                  </span>
-                </td>
-              ))}
-              {editable && (
-                <td className="px-3 py-2 text-right">
-                  <Button variant="danger" appearance="ghost" size="sm" onClick={() => onRemove(item.taskTypeKey)}>
-                    {text.REMOVE}
-                  </Button>
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <SectionedTableCard<TemplateTableView>
+      id="host-template-sections"
+      sections={SECTION_ORDER.map((section) => ({ id: section, label: labels[section] }))}
+      allTabId={ALL_TAB}
+      allLabel={text.ALL_SECTIONS}
+      countOf={(section) => rowsOf(section ?? ALL_TAB).length}
+      views={[
+        { id: "STRUCTURE", label: text.VIEW_STRUCTURE },
+        { id: "WEIGHTS", label: text.VIEW_WEIGHTS },
+      ]}
+      defaultView="STRUCTURE"
+      viewAriaLabel={text.VIEW_LABEL}
+      sidePanel={({ activeTab }) => (
+        <>
+          {editable && renderPalette?.(activeTab)}
+          {sidePanel}
+        </>
+      )}
+    >
+      {({ activeTab, showSection, view, viewTabs }) => {
+        const table = (
+          <DataTable
+            showSearch={false}
+            density="compact"
+            toolbar={viewTabs}
+            toolbarActions={toolbarActions}
+            columns={buildTemplateColumns({
+              view,
+              showSection,
+              editable,
+              headers: {
+                task: text.COL_TASK,
+                count: text.COL_COUNT,
+                pool: text.COL_POOL,
+                prep: text.COL_PREP,
+                response: text.COL_RESPONSE,
+              },
+              skillLabels: labels,
+              sectionLabel: (section) => labels[section as keyof typeof labels] ?? section,
+              pool,
+              poolCopy: { ok: text.POOL_OK, short: text.POOL_SHORT },
+              weightLockedText: text.WEIGHT_LOCKED,
+              isWeightLocked: (key, skill) => editable && isWeightEditable?.(key, skill) === false,
+              onWeightChange,
+              removeLabel: text.REMOVE,
+              onRemove,
+            })}
+            rows={rowsOf(activeTab)}
+            getRowKey={(item) => item.taskTypeKey}
+            emptyTitle={text.NO_TASKS}
+            clientSidePagination={!editable}
+            rowActions={
+              editable
+                ? (item) => removeRowButton({ removeLabel: text.REMOVE, onRemove }, item)
+                : undefined
+            }
+            rowActionsHeader={<span className="sr-only">{text.REMOVE}</span>}
+            onReorderRows={editable ? onReorder : undefined}
+            rowDropOut={
+              editable && onReorder
+                ? {
+                    targetSelector: `[${PALETTE_DROP_ATTRIBUTE}]`,
+                    onDrop: onRemove,
+                    renderPreview: (key) => <RowDragPreview label={key} />,
+                  }
+                : undefined
+            }
+            reorderHandleLabel={text.DRAG_HANDLE}
+          />
+        );
+        return editable && onDropTaskType ? (
+          <DropZone accept={TASK_TYPE_DRAG_TYPE} onDropPayload={onDropTaskType}>
+            {table}
+          </DropZone>
+        ) : (
+          table
+        );
+      }}
+    </SectionedTableCard>
   );
 };

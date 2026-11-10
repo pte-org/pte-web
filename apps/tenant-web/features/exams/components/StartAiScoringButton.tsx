@@ -23,8 +23,7 @@ export const StartAiScoringButton = ({
   };
 
   return (
-    <div className="mb-4 flex flex-col gap-2 rounded-md bg-[var(--surface-subtle)] p-4 text-sm">
-      <p>{T.DESCRIPTION}</p>
+    <div className="flex flex-col items-end gap-2">
       {scoring.isSuccess && <Alert tone="success">{T.QUEUED}</Alert>}
       {scoring.isError && <Alert tone="error">{errorMessage(scoring.error)}</Alert>}
       <div>

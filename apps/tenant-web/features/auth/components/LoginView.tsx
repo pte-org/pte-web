@@ -12,6 +12,7 @@ import {
   Select,
   useSessionManager,
   useSignInValidation,
+  useToast,
   type SignInValidationMessages,
 } from "@pte/ui";
 import {
@@ -22,7 +23,7 @@ import {
 import { useLoginHost, useLoginOrganizationOptions } from "../api";
 import { AUTH_ROUTES, AUTH_TEXT } from "../constants";
 import { resolveWorkspace } from "../resolveWorkspace";
-import { isStudentOnlyAccount, toSessionRoles } from "../sessionRoles";
+import { decidePortalLogin } from "../sessionRoles";
 import { getLoginErrorMessage } from "../loginError";
 
 const LABEL_CLASS = "text-[13px] font-semibold text-[var(--ink-secondary)]";
@@ -36,6 +37,8 @@ const VALIDATION_MESSAGES: SignInValidationMessages = {
 export const LoginView = (): ReactElement => {
   const router = useRouter();
   const { saveSession } = useSessionManager();
+  const { showToast } = useToast();
+  const notifyError = (message: string): void => showToast(message, { tone: "error" });
   const validation = useSignInValidation(VALIDATION_MESSAGES);
 
   const [username, setUsername] = useState("");
@@ -43,23 +46,29 @@ export const LoginView = (): ReactElement => {
   const [organizationOptions, setOrganizationOptions] = useState<LoginOrganizationOption[]>([]);
   const [organizationId, setOrganizationId] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string>();
 
   const mutation = useLoginHost();
   const organizationMutation = useLoginOrganizationOptions();
 
   const handleLoginSuccess = (data: JwtTokenResponse): void => {
     const claims = decodeAccessTokenClaims(data.accessToken);
-    if (claims && isStudentOnlyAccount(claims.roles)) {
-      // No session is saved: a student's scores arrive by email, never through this portal.
-      setErrorMessage(AUTH_TEXT.STUDENT_ACCOUNT_NOT_ALLOWED);
+    if (!claims) {
+      notifyError(AUTH_TEXT.GENERIC_ERROR);
       return;
     }
-    const roles = claims ? toSessionRoles(claims.roles) : [];
-    if (!claims || roles.length === 0) {
-      setErrorMessage(AUTH_TEXT.GENERIC_ERROR);
+    // No session is saved in either refusal below.
+    const decision = decidePortalLogin(claims.roles);
+    if (decision.kind === "student") {
+      // A student's scores arrive by email, never through this portal.
+      notifyError(AUTH_TEXT.STUDENT_ACCOUNT_NOT_ALLOWED);
       return;
     }
+    if (decision.kind === "denied") {
+      // The same copy as a wrong password, so the form does not reveal that the account exists elsewhere.
+      notifyError(AUTH_TEXT.INVALID_CREDENTIALS);
+      return;
+    }
+    const { roles } = decision;
     saveSession({
       accessToken: data.accessToken,
       refreshToken: data.refreshToken,
@@ -76,15 +85,13 @@ export const LoginView = (): ReactElement => {
     event.preventDefault();
     const fieldErrors = validation.validateAll({ username, password });
     if (fieldErrors.username || fieldErrors.password) {
-      setErrorMessage(undefined);
       document.getElementById(fieldErrors.username ? "username" : "password")?.focus();
       return;
     }
     if (organizationOptions.length > 0 && !organizationId) {
-      setErrorMessage(AUTH_TEXT.ORGANIZATION_REQUIRED);
+      notifyError(AUTH_TEXT.ORGANIZATION_REQUIRED);
       return;
     }
-    setErrorMessage(undefined);
     try {
       const trimmedUsername = username.trim();
       let selectedOrganizationId = organizationId || undefined;
@@ -106,7 +113,7 @@ export const LoginView = (): ReactElement => {
       });
       handleLoginSuccess(data);
     } catch (error) {
-      setErrorMessage(getLoginErrorMessage(error));
+      notifyError(getLoginErrorMessage(error, AUTH_TEXT));
     }
   };
 
@@ -120,15 +127,6 @@ export const LoginView = (): ReactElement => {
           {AUTH_TEXT.WELCOME_SUBTITLE}
         </p>
       </div>
-
-      {errorMessage && (
-        <div
-          role="alert"
-          className="rounded-md bg-[var(--blush-tint)] px-3 py-2 text-sm text-[var(--blush-action)]"
-        >
-          {errorMessage}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-[18px]">
         {/* type="text", NOT type="email": a STUDENT's username is

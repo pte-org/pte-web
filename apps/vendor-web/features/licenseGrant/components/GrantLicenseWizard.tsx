@@ -8,7 +8,6 @@ import { useGrantLicenseFlow } from "../hooks/useGrantLicenseFlow";
 import type { GrantLicenseFlow } from "../types";
 import { GrantConfirmStep } from "./_GrantConfirmStep";
 import { GrantDetailsStep } from "./_GrantDetailsStep";
-import { GrantPreviewStep } from "./_GrantPreviewStep";
 import { GrantTenantSearchStep } from "./_GrantTenantSearchStep";
 
 interface GrantLicenseWizardProps {
@@ -22,7 +21,6 @@ const STEP_CONTENT: Record<GrantStepId, (flow: GrantLicenseFlow) => ReactElement
   tenant: (flow) => <GrantTenantSearchStep flow={flow} />,
   confirm: (flow) => <GrantConfirmStep flow={flow} />,
   details: (flow) => <GrantDetailsStep flow={flow} />,
-  preview: (flow) => <GrantPreviewStep flow={flow} />,
 };
 
 /** Admin grant of a package to one organization under contract; activation is immediate. */
@@ -37,7 +35,7 @@ export const GrantLicenseWizard = ({
   const flow = useGrantLicenseFlow(() => {
     showToast(T.SUCCESS, { tone: "success" });
     onClose();
-  }, initialCode);
+  }, initialCode, open);
   const pending = flow.grant.isPending;
   const close = (): void => {
     if (pending) return;
@@ -45,7 +43,7 @@ export const GrantLicenseWizard = ({
     onClose();
   };
   const isFirst = flow.step === "tenant";
-  const isLast = flow.step === "preview";
+  const isLast = flow.step === "confirm";
 
   return (
     <Modal
@@ -65,7 +63,7 @@ export const GrantLicenseWizard = ({
               type="button"
               isLoading={pending}
               loadingText={T.SUBMITTING}
-              disabled={!flow.preview.data}
+              disabled={!flow.preview.data || flow.preview.isFetching || flow.preview.isError}
               onClick={() => void flow.submit()}
             >
               {T.SUBMIT}

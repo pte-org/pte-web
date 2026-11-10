@@ -1,7 +1,9 @@
 "use client";
 
+import { useFeedbackToast } from "../hooks/useFeedbackToast";
+
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Button, Input, Modal, Textarea } from "@pte/ui";
+import { Button, Input, Modal, Textarea } from "@pte/ui";
 import type { IncidentCategory, IncidentSeverity } from "@pte/api-client";
 import {
   PROCTOR_INCIDENT_CATEGORY_OPTIONS,
@@ -31,6 +33,13 @@ export function IncidentReportModal({
   const [description, setDescription] = useState("");
   const [studentPublicId, setStudentPublicId] = useState(initialStudentPublicId ?? "");
   const [error, setError] = useState<string | null>(null);
+  const [previousOpen, setPreviousOpen] = useState(open);
+  if (previousOpen !== open) {
+    setPreviousOpen(open);
+    setError(null);
+  }
+
+  useFeedbackToast(open ? error : null);
 
   const createMutation = useCreateIncidentMutation(sessionPublicId);
 
@@ -72,7 +81,12 @@ export function IncidentReportModal({
       isDismissDisabled={createMutation.isPending}
       footer={
         <div className="flex justify-end gap-2">
-          <Button type="button" variant="secondary" onClick={onClose} disabled={createMutation.isPending}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onClose}
+            disabled={createMutation.isPending}
+          >
             {T.CANCEL_BTN}
           </Button>
           <Button
@@ -87,14 +101,11 @@ export function IncidentReportModal({
       }
     >
       <div className="space-y-4 py-1">
-        {error && (
-          <Alert tone="error" title={T.ERROR_TITLE}>
-            {error}
-          </Alert>
-        )}
-
         <div>
-          <label htmlFor="incident-title" className="block text-xs font-medium text-[var(--ink-secondary)] mb-1">
+          <label
+            htmlFor="incident-title"
+            className="block text-xs font-medium text-[var(--ink-secondary)] mb-1"
+          >
             {T.FIELD_TITLE}
           </label>
           <Input
@@ -108,7 +119,10 @@ export function IncidentReportModal({
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label htmlFor="incident-category" className="block text-xs font-medium text-[var(--ink-secondary)] mb-1">
+            <label
+              htmlFor="incident-category"
+              className="block text-xs font-medium text-[var(--ink-secondary)] mb-1"
+            >
               {T.FIELD_CATEGORY}
             </label>
             <select
@@ -127,7 +141,10 @@ export function IncidentReportModal({
           </div>
 
           <div>
-            <label htmlFor="incident-severity" className="block text-xs font-medium text-[var(--ink-secondary)] mb-1">
+            <label
+              htmlFor="incident-severity"
+              className="block text-xs font-medium text-[var(--ink-secondary)] mb-1"
+            >
               {T.FIELD_SEVERITY}
             </label>
             <select
@@ -147,7 +164,10 @@ export function IncidentReportModal({
         </div>
 
         <div>
-          <label htmlFor="incident-student" className="block text-xs font-medium text-[var(--ink-secondary)] mb-1">
+          <label
+            htmlFor="incident-student"
+            className="block text-xs font-medium text-[var(--ink-secondary)] mb-1"
+          >
             {T.FIELD_STUDENT_ID}
           </label>
           <Input
@@ -160,7 +180,10 @@ export function IncidentReportModal({
         </div>
 
         <div>
-          <label htmlFor="incident-description" className="block text-xs font-medium text-[var(--ink-secondary)] mb-1">
+          <label
+            htmlFor="incident-description"
+            className="block text-xs font-medium text-[var(--ink-secondary)] mb-1"
+          >
             {T.FIELD_DESCRIPTION}
           </label>
           <Textarea

@@ -65,6 +65,7 @@ import { apiClient } from "@/lib/apiClient";
 import { UserFacingError } from "@/features/examoperations/errorMessage";
 import { HOST_DASHBOARD_QUERY_KEY } from "@/features/hostDashboard/constants";
 import { useHostTemplates } from "@/features/hostTemplates/api";
+import { difficultyTargets } from "../utils/cefrTargets";
 import { ExamPreflightBlockedError } from "../utils/examPreflight";
 import {
   CREATE_EXAM_WIZARD_ERRORS,
@@ -307,6 +308,9 @@ export function useCreateExamWorkflow(): UseMutationResult<
         reusePolicy: input.reusePolicy,
         seriesKey: input.seriesKey.trim() || null,
         capacity: Number(input.capacity),
+        // Left out for "follow the template", so the server uses the template's own CEFR mix.
+        cefrTargets: difficultyTargets(input.difficulty),
+        avoidRepeatedQuestions: input.avoidRepeats === true,
       });
       assertResolvedPolicy(draft, expectedLockdownMode);
       // One atomic request: the draft never ends up with a partial audience.

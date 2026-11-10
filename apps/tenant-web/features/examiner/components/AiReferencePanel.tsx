@@ -1,15 +1,19 @@
 "use client";
 
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import type { ExaminerAiReferenceResponse } from "@pte/api-client";
-import { Badge, Button } from "@pte/ui";
+import { Badge, Button, Disclosure } from "@pte/ui";
 import { useExaminerWorkText } from "../hooks/useExaminerWorkText";
 
 interface AiReferencePanelProps {
+  detail?: ReactNode;
   reference: ExaminerAiReferenceResponse | null;
   readOnly: boolean;
   disabled?: boolean;
   onApplyAiScore: (score: number, version: string | null) => void;
+  /** Trait key to its display name; keys without one are shown as they are. */
+  traitLabels?: Record<string, string>;
+  feedback?: string | null;
 }
 
 export const AiReferencePanel = ({
@@ -17,6 +21,9 @@ export const AiReferencePanel = ({
   readOnly,
   disabled = false,
   onApplyAiScore,
+  detail,
+  traitLabels = {},
+  feedback,
 }: AiReferencePanelProps): ReactElement => {
   const T = useExaminerWorkText();
   if (!reference || reference.availability === "UNAVAILABLE") {
@@ -63,27 +70,33 @@ export const AiReferencePanel = ({
             variant="secondary"
             appearance="outline"
             disabled={disabled}
-            onClick={() => onApplyAiScore(reference.score as number, reference.version)}
+            onClick={() => { if (reference.score !== null) onApplyAiScore(reference.score, reference.version); }}
           >
             {T.USE_AI_SCORE}
           </Button>
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-baseline gap-4 text-sm">
+      <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-3">
         <div className="flex items-baseline gap-1">
-          <span className="text-xs text-slate-500">{T.SCORE_LABEL_SHORT}</span>
-          <span className="text-lg font-bold text-indigo-950">
-            {hasScore ? `${reference.score}/100` : "—"}
-          </span>
+          <span className="text-2xl font-bold tabular-nums text-indigo-950">{hasScore ? reference.score : "—"}</span>
+          <span className="text-sm text-slate-500">/ 100</span>
         </div>
-        {reference.version && (
-          <div className="flex items-baseline gap-1">
-            <span className="text-xs text-slate-500">{T.AI_REVISION_LABEL}</span>
-            <span className="font-mono text-xs text-slate-700">{reference.version}</span>
-          </div>
-        )}
+        <dl className="flex flex-wrap gap-2">
+          {Object.entries(reference.traitScores ?? {}).map(([key, value]) => (
+            <div key={key} className="rounded-lg border border-indigo-100 bg-white px-3 py-1.5">
+              <dt className="text-[11px] text-slate-500">{traitLabels[key] ?? key.replaceAll("_", " ")}</dt>
+              <dd className="text-sm font-semibold tabular-nums text-indigo-950">
+                {value}{reference.traitMaxima?.[key] !== undefined ? ` / ${reference.traitMaxima[key]}` : ""}
+              </dd>
+            </div>
+          ))}
+        </dl>
       </div>
+      {feedback && <p className="mt-3 rounded-lg bg-white/70 px-3 py-2 text-sm text-slate-700">{feedback}</p>}
+      <Disclosure title={T.AI_DETAILS} className="mt-2">
+        {detail}
+      </Disclosure>
     </aside>
   );
 };

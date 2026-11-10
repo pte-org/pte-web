@@ -2,11 +2,7 @@
 
 import type { ReactElement } from "react";
 import { DateTimeInput, Input, Checkbox, Select, useLocale } from "@pte/ui";
-import {
-  EXAM_EDITOR_TEXT,
-  EXAM_SKILL_OPTIONS,
-  REUSE_POLICY_OPTIONS,
-} from "../constants";
+import { EXAM_EDITOR_TEXT, EXAM_SKILL_OPTIONS, REUSE_POLICY_OPTIONS } from "../constants";
 import type { ExamSession } from "../types";
 import type { DraftFormValues } from "./ExamEditTypes";
 

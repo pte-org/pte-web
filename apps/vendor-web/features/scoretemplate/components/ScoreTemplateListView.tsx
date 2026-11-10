@@ -17,7 +17,6 @@ import {
   Input,
   Modal,
   PencilIcon,
-  Select,
   TrashIcon,
   UploadIcon,
   useToast,
@@ -41,15 +40,11 @@ import {
   SCORE_TEMPLATE_LIST_HEADERS as RAW_SCORE_TEMPLATE_LIST_HEADERS,
   SCORE_TEMPLATE_STATUS_LABELS as RAW_SCORE_TEMPLATE_STATUS_LABELS,
   SCORE_TEMPLATE_STATUS_VARIANT,
-  SCORE_TEMPLATE_POLICY_LABELS as RAW_SCORE_TEMPLATE_POLICY_LABELS,
   SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
   EXAM_TEMPLATE_BASE_PATH,
+  PLATFORM_TEMPLATE_POLICY,
 } from "../constants";
-import type {
-  ScoreTemplatePolicy,
-  ScoreTemplateResponse,
-  ScoreTemplateStatusFilter,
-} from "../types";
+import type { ScoreTemplateResponse, ScoreTemplateStatusFilter } from "../types";
 import { downloadScoreTemplateJson } from "../serialization";
 
 function detailHref(template: ScoreTemplateResponse): string {
@@ -63,14 +58,9 @@ export const ScoreTemplateListView = (): ReactElement => {
   const searchText = useAdminSearchText("scoreTemplates");
   const H = useAdminCopy(RAW_SCORE_TEMPLATE_LIST_HEADERS);
   const statusLabels = useAdminCopy(RAW_SCORE_TEMPLATE_STATUS_LABELS);
-  const policyLabels = useAdminCopy(RAW_SCORE_TEMPLATE_POLICY_LABELS);
   const statusFilterOptions = useAdminCopy([
     { value: "", label: "All statuses" },
     ...Object.entries(RAW_SCORE_TEMPLATE_STATUS_LABELS).map(([value, label]) => ({ value, label })),
-  ]);
-  const policyFilterOptions = useAdminCopy([
-    { value: "", label: "All policies" },
-    ...Object.entries(RAW_SCORE_TEMPLATE_POLICY_LABELS).map(([value, label]) => ({ value, label })),
   ]);
   const emptyTitle = useAdminCopy("No exam templates found");
   const router = useRouter();
@@ -86,9 +76,7 @@ export const ScoreTemplateListView = (): ReactElement => {
   const canReview = canReviewAcademic(currentUser?.roles);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ScoreTemplateResponse | null>(null);
-  const [createCode, setCreateCode] = useState("");
   const [createName, setCreateName] = useState("");
-  const [createPolicy, setCreatePolicy] = useState<ScoreTemplatePolicy>("STANDARD_PTE");
   const [createError, setCreateError] = useState<string | null>(null);
   const [rejectTarget, setRejectTarget] = useState<ScoreTemplateResponse | null>(null);
   const [rejectReason, setRejectReason] = useState("");
@@ -105,14 +93,11 @@ export const ScoreTemplateListView = (): ReactElement => {
     setCreateError(null);
     try {
       const draft = await createMutation.mutateAsync({
-        code: createCode.trim(),
         name: createName.trim(),
-        templatePolicy: createPolicy,
+        templatePolicy: PLATFORM_TEMPLATE_POLICY,
       });
       closeCreate();
-      setCreateCode("");
       setCreateName("");
-      setCreatePolicy("STANDARD_PTE");
       router.push(`${EXAM_TEMPLATE_BASE_PATH}/${draft.publicId}/edit`);
     } catch (error) {
       setCreateError(getScoreTemplateErrorMessage(error, T.CREATE_ERROR));
@@ -315,16 +300,6 @@ export const ScoreTemplateListView = (): ReactElement => {
             filterAccessor: (template: ScoreTemplateResponse) => template.items.length,
             cell: (template: ScoreTemplateResponse) => template.items.length,
           },
-          {
-            key: "policy",
-            label: H.POLICY,
-            header: H.POLICY,
-            filterOptions: policyFilterOptions,
-            filterAccessor: (template: ScoreTemplateResponse) => template.templatePolicy,
-            cell: (template: ScoreTemplateResponse) =>
-              policyLabels[template.templatePolicy as keyof typeof policyLabels] ??
-              template.templatePolicy,
-          },
         ]}
         rows={templates ?? []}
         getRowKey={(template) => template.publicId}
@@ -362,14 +337,6 @@ export const ScoreTemplateListView = (): ReactElement => {
           onSubmit={(event) => void handleCreate(event)}
         >
           <Input
-            id="create-exam-template-code"
-            label={T.CODE_LABEL}
-            value={createCode}
-            onChange={(event) => setCreateCode(event.target.value)}
-            required
-            maxLength={64}
-          />
-          <Input
             id="create-exam-template-name"
             label={T.NAME_LABEL}
             value={createName}
@@ -377,21 +344,6 @@ export const ScoreTemplateListView = (): ReactElement => {
             required
             maxLength={255}
           />
-          <div>
-            <Select
-              id="create-exam-template-policy"
-              label={T.POLICY_LABEL}
-              value={createPolicy}
-              onChange={(event) => setCreatePolicy(event.target.value as ScoreTemplatePolicy)}
-              options={[
-                { value: "STANDARD_PTE", label: T.STANDARD_POLICY },
-                { value: "CUSTOM", label: T.CUSTOM_POLICY },
-              ]}
-            />
-            {createPolicy === "CUSTOM" && (
-              <p className="mt-1 text-xs text-gray-500">{T.CUSTOM_POLICY_NOTICE}</p>
-            )}
-          </div>
           {createError && <Alert tone="error">{createError}</Alert>}
         </form>
       </Modal>

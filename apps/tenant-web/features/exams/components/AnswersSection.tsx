@@ -79,7 +79,9 @@ export const AnswersSection = ({
   ];
 
   const review = useHostScoreReview(sessionPublicId);
-  const reviewByAnswer = new Map((review.data?.answers ?? []).map((view) => [view.answerPublicId, view]));
+  const reviewByAnswer = new Map(
+    (review.data?.answers ?? []).map((view) => [view.answerPublicId, view]),
+  );
   const examinerScoreByAnswer = new Map(
     (review.data?.answers ?? []).map((view) => [
       view.answerPublicId,
@@ -88,7 +90,9 @@ export const AnswersSection = ({
   );
 
   /** The score this answer counts for: its own for objective items, the chosen source for AI-scored ones. */
-  const answerScore = (row: AnswerListItemResponse): { value: number | null; provisional: boolean } => {
+  const answerScore = (
+    row: AnswerListItemResponse,
+  ): { value: number | null; provisional: boolean } => {
     if (!row.aiScored) return { value: row.unscored ? null : row.rawScore, provisional: false };
     const view = reviewByAnswer.get(row.answerPublicId);
     if (view?.selectedScoreSource === "EXAMINER") {

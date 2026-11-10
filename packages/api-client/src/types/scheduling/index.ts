@@ -1,7 +1,6 @@
 import type { ScoreTemplateFeasibilityResponse } from "../scoretemplate";
 
-export type SessionStatus =
-  "DRAFT" | "READY" | "SCHEDULED" | "OPEN" | "CLOSED" | "CANCELLED";
+export type SessionStatus = "DRAFT" | "READY" | "SCHEDULED" | "OPEN" | "CLOSED" | "CANCELLED";
 
 /**
  * Matches scheduling's real `SessionResponse` record exactly (Plan B, Phase
@@ -32,6 +31,10 @@ export interface SessionResponse {
   /** Additive fields; optional so older API fixtures/clients remain source-compatible. */
   selectedSkills?: string[] | null;
   maxRetriesPerStudent?: number;
+  /** CEFR mix chosen for this exam; empty when it follows its template. */
+  cefrTargets?: { level: string; percent: number }[];
+  /** The exam prefers questions the centre has not used in its earlier exams. */
+  avoidRepeatedQuestions?: boolean;
 }
 
 export interface ExamPolicyResponse {
@@ -227,6 +230,10 @@ export interface CreateExamDraftRequest {
   selectedSkills?: string[];
   maxRetriesPerStudent?: number;
   lockdownMode?: LockdownMode | null;
+  /** Leave out to follow the template's CEFR mix. */
+  cefrTargets?: { level: string; percent: number }[];
+  /** Prefer questions the centre has not used in its earlier exams; leave out for no preference. */
+  avoidRepeatedQuestions?: boolean;
 }
 
 export interface PatchExamDraftRequest {
@@ -243,6 +250,10 @@ export interface PatchExamDraftRequest {
   selectedSkills?: string[];
   maxRetriesPerStudent?: number;
   lockdownMode?: LockdownMode | null;
+  /** Leave out to keep the current mix; an empty list returns to the template's. */
+  cefrTargets?: { level: string; percent: number }[];
+  /** Leave out to keep the current choice. */
+  avoidRepeatedQuestions?: boolean;
 }
 
 export interface PatchExamScheduleRequest {

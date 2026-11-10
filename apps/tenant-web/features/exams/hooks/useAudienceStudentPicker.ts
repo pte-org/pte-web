@@ -76,7 +76,9 @@ export function useAudienceStudentPicker({
 
   const membershipByStudent = useMemo(
     () =>
-      new Map(classMemberships.map((membership) => [membership.studentPublicId, membership] as const)),
+      new Map(
+        classMemberships.map((membership) => [membership.studentPublicId, membership] as const),
+      ),
     [classMemberships],
   );
 
@@ -93,7 +95,8 @@ export function useAudienceStudentPicker({
         .filter(
           (studentClass) =>
             studentClass.status === "ACTIVE" &&
-            (programFilter === AUDIENCE_FILTER_ALL || studentClass.programPublicId === programFilter),
+            (programFilter === AUDIENCE_FILTER_ALL ||
+              studentClass.programPublicId === programFilter),
         )
         .map((studentClass) => ({
           label:
@@ -114,12 +117,18 @@ export function useAudienceStudentPicker({
           if (excludedStudentIds?.has(student.publicId)) return [];
           if (allowedStudentIds && !allowedStudentIds.has(student.publicId)) return [];
           const membership = membershipByStudent.get(student.publicId);
-          if (programFilter !== AUDIENCE_FILTER_ALL && membership?.programPublicId !== programFilter) {
+          if (
+            programFilter !== AUDIENCE_FILTER_ALL &&
+            membership?.programPublicId !== programFilter
+          ) {
             return [];
           }
           if (classFilter === AUDIENCE_FILTER_NO_CLASS) {
             if (membership) return [];
-          } else if (classFilter !== AUDIENCE_FILTER_ALL && membership?.classPublicId !== classFilter) {
+          } else if (
+            classFilter !== AUDIENCE_FILTER_ALL &&
+            membership?.classPublicId !== classFilter
+          ) {
             return [];
           }
           if (

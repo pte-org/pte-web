@@ -11,7 +11,7 @@ interface PageHeaderProps {
 export const PageHeader = ({ title, actions, className }: PageHeaderProps): ReactElement => (
   <div
     className={cn(
-      "flex flex-col gap-4 motion-safe:animate-pte-fade-up sm:flex-row sm:items-end sm:justify-between",
+      "flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
       className,
     )}
   >

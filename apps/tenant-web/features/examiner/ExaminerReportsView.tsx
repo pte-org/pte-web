@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState, type ReactElement } from "react";
-import { useRouter } from "next/navigation";
-import { Button, ErrorState, Input, LoadingState, PageHeader, Select } from "@pte/ui";
+import { Button, ErrorState, Input, LoadingState, Select } from "@pte/ui";
 import type { ExaminerQueueStatus } from "@pte/api-client";
 import { useExaminerReports } from "./api";
 import { useExaminerWorkspaceText } from "./hooks/useExaminerWorkspaceText";
@@ -22,7 +21,6 @@ const TASK_TYPE_OPTIONS = [
 ];
 
 export const ExaminerReportsView = (): ReactElement => {
-  const router = useRouter();
   const text = useExaminerWorkspaceText();
 
   const [fromDate, setFromDate] = useState<string>("");
@@ -70,19 +68,6 @@ export const ExaminerReportsView = (): ReactElement => {
 
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-      <PageHeader
-        title={text.reportsTitle}
-        subtitle={text.reportsSubtitle}
-        actions={
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => router.push("/examiner/work")}
-          >
-            {text.title}
-          </Button>
-        }
-      />
 
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

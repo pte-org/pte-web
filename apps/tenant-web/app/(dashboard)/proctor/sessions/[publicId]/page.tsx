@@ -1,14 +1,11 @@
-"use client";
-
-import type { ReactElement } from "react";
-import { use } from "react";
-import { LiveMonitoringView } from "@/features/proctor/components/LiveMonitoringView";
+import { redirect } from "next/navigation";
 
 interface PageProps {
   params: Promise<{ publicId: string }>;
 }
 
-export default function ProctorSessionDetailPage({ params }: PageProps): ReactElement {
-  const { publicId } = use(params);
-  return <LiveMonitoringView sessionPublicId={publicId} />;
+/** Old live-monitoring link: the session now opens on its attendance tab. */
+export default async function ProctorSessionDetailPage({ params }: PageProps): Promise<never> {
+  const { publicId } = await params;
+  redirect(`/proctor/attendance/${encodeURIComponent(publicId)}`);
 }

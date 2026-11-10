@@ -13,20 +13,54 @@ vi.mock("@/features/i18n/adminCopy", () => ({ useAdminCopy: (copy: unknown) => c
 import { TemplateReadinessSummary } from "../../../../../features/scoretemplate/components/TemplateReadinessSummary";
 
 const item: ScoreTemplateItemDraft = {
-  taskType: "READ_ALOUD", taskTypeKey: "READ_ALOUD", section: "SPEAKING", sequence: 1,
-  minCount: "1", maxCount: "2", prepSeconds: "35", responseSeconds: "40",
-  overallWeight: "0", speakingWeight: "100", writingWeight: "0", readingWeight: "0", listeningWeight: "0",
+  taskType: "READ_ALOUD",
+  taskTypeKey: "READ_ALOUD",
+  section: "SPEAKING",
+  sequence: 1,
+  minCount: "1",
+  maxCount: "2",
+  prepSeconds: "35",
+  responseSeconds: "40",
+  overallWeight: "0",
+  speakingWeight: "100",
+  writingWeight: "0",
+  readingWeight: "0",
+  listeningWeight: "0",
 };
 
-const readyType = { code: "READ_ALOUD", taskTypeKey: "READ_ALOUD", active: true } as QuestionTypeResponse;
+const readyType = {
+  code: "READ_ALOUD",
+  taskTypeKey: "READ_ALOUD",
+  active: true,
+} as QuestionTypeResponse;
 
-function render(reason: string, repeat = false, questionTypes: QuestionTypeResponse[] = []): string {
-  const slot = { taskType: "READ_ALOUD", section: "SPEAKING", required: 2, available: 1, ready: false, reason };
-  return renderToStaticMarkup(createElement(TemplateReadinessSummary, {
-    items: repeat ? [item, { ...item, sequence: 2 }] : [item],
-    questionTypes, loading: false, failed: false,
-    feasibility: { examDefinitionPublicId: "template", examDefinitionVersion: 2, ready: false, slots: repeat ? [slot, slot] : [slot] },
-  }));
+function render(
+  reason: string,
+  repeat = false,
+  questionTypes: QuestionTypeResponse[] = [],
+): string {
+  const slot = {
+    taskType: "READ_ALOUD",
+    section: "SPEAKING",
+    required: 2,
+    available: 1,
+    ready: false,
+    reason,
+  };
+  return renderToStaticMarkup(
+    createElement(TemplateReadinessSummary, {
+      items: repeat ? [item, { ...item, sequence: 2 }] : [item],
+      questionTypes,
+      loading: false,
+      failed: false,
+      feasibility: {
+        examDefinitionPublicId: "template",
+        examDefinitionVersion: 2,
+        ready: false,
+        slots: repeat ? [slot, slot] : [slot],
+      },
+    }),
+  );
 }
 
 describe("template readiness feedback", () => {

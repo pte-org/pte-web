@@ -19,6 +19,7 @@ interface TemplateReadinessSummaryProps {
 /**
  * Blockers that need an explanation get a list. A plain question shortage is already shown per row (the
  * Available / needed column), so on its own it collapses to a single line instead of a list.
+ * A template with no task type yet shows nothing: it is new, and saving it empty says what is missing.
  */
 export function TemplateReadinessSummary({
   items,
@@ -49,8 +50,8 @@ export function TemplateReadinessSummary({
   ];
   const shortSlots = blockedSlots.filter((slot) => slot.reason === "INSUFFICIENT_POOL");
   const otherSlots = blockedSlots.filter((slot) => slot.reason !== "INSUFFICIENT_POOL");
+  if (items.length === 0) return null;
   if (
-    items.length > 0 &&
     duplicates.length === 0 &&
     unavailable.length === 0 &&
     !loading &&
@@ -61,7 +62,6 @@ export function TemplateReadinessSummary({
 
   const poolSummary = text.READINESS_POOL_SUMMARY.replace("{count}", String(shortSlots.length));
   const onlyShortage =
-    items.length > 0 &&
     duplicates.length === 0 &&
     unavailable.length === 0 &&
     !loading &&
@@ -69,13 +69,12 @@ export function TemplateReadinessSummary({
     otherSlots.length === 0 &&
     shortSlots.length > 0;
   if (onlyShortage) {
-    return <p className="text-sm text-red-700">{poolSummary}</p>;
+    return <p className="text-sm text-[var(--blush-action)]">{poolSummary}</p>;
   }
 
   return (
     <CollapsibleSection title={text.READINESS_TITLE} subtitle={text.READINESS_SAVED_NOTICE}>
       <ul className="list-disc space-y-2 pl-5 text-sm text-[var(--ink-secondary)]">
-        {items.length === 0 && <li>{text.READINESS_EMPTY}</li>}
         {duplicates.length > 0 && (
           <li>
             {text.READINESS_DUPLICATE}: {duplicates.join(", ")}

@@ -80,6 +80,8 @@ export interface QuestionTypeResponse {
   lifecycleStatus?: "DRAFT" | "PENDING_APPROVAL" | "ACTIVE" | "RETIRED" | string;
   /** Student-facing instruction; null for task types created before it existed. */
   instruction?: string | null;
+  /** When the task type last changed (ISO 8601). */
+  updatedAt?: string | null;
 }
 
 /** Terminology aliases for the catalog migration; old names remain valid. */

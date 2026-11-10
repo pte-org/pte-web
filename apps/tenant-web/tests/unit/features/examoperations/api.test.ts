@@ -140,11 +140,27 @@ describe("useCreateRosterAccounts", () => {
     hoisted.bulkCreateUsers.mockResolvedValue({ created: [], skipped: [] });
     useCreateRosterAccounts("s1");
 
-    await lastMutation().mutationFn?.([{ email: "", fullName: "An", studentCode: "", className: "A1", phone: "", dateOfBirth: "" }] as never);
+    await lastMutation().mutationFn?.({
+      rows: [
+        {
+          email: "",
+          fullName: "An",
+          studentCode: "",
+          programName: "PTE",
+          className: "A1",
+          phone: "",
+          dateOfBirth: "",
+          sourceRow: 3,
+        },
+      ],
+      sendCredentialsEmail: true,
+    } as never);
 
+    // programName and sourceRow stay in the browser.
     expect(hoisted.bulkCreateUsers).toHaveBeenCalledWith(hoisted.apiClient, {
       rows: [{ email: null, fullName: "An", studentCode: null, className: "A1", phone: null, dateOfBirth: null }],
       tenantId: null,
+      sendCredentialsEmail: true,
     });
   });
 
@@ -245,6 +261,7 @@ describe("useCreateStudent", () => {
     expect(hoisted.bulkCreateUsers).toHaveBeenCalledWith(hoisted.apiClient, {
       rows: [{ email: null, fullName: "An", studentCode: "S1", className: null, phone: null, dateOfBirth: null }],
       tenantId: null,
+      sendCredentialsEmail: false,
     });
   });
 

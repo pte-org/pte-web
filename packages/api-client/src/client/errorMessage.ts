@@ -23,6 +23,8 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   STUDENT_ALREADY_IN_CLASS: "This student is already enrolled in the selected class.",
   EMAIL_ALREADY_USED: "An account with this email already exists.",
   DUPLICATE_EMAIL_IN_BATCH: "Some email addresses appear more than once in the uploaded file.",
+  ROSTER_VALIDATION_FAILED:
+    "Some student details are missing or not valid. Every student needs a valid email and a full name.",
   INVALID_LOGIN: "The username or password is incorrect.",
   ACCESS_DENIED: "You do not have permission to complete this action.",
   TENANT_SUSPENDED:

@@ -4,6 +4,9 @@ import { Alert, Input, Select } from "@pte/ui";
 import { subscriptionPeriod } from "@/features/commercialization/utils/subscriptionStatus";
 import { CREATE_EXAM_WIZARD_TEXT, EXAM_SKILL_OPTIONS } from "../../constants";
 import type { CreateExamWorkflowInput, ExamSkill } from "../../types";
+import { defaultDifficulty } from "../../utils/cefrTargets";
+import { RepeatPolicyField } from "./RepeatPolicyField";
+import { DifficultyPicker } from "./DifficultyPicker";
 import type { CreateExamWorkflowErrors } from "../../utils/validateCreateExamWorkflow";
 
 type WizardText = typeof CREATE_EXAM_WIZARD_TEXT;
@@ -47,6 +50,9 @@ export function ExamDetailsStep({
 }: ExamDetailsStepProps): ReactElement {
   const selectedSubscription = activeSubscriptions.find(
     (subscription) => subscription.publicId === form.subscriptionPublicId,
+  );
+  const selectedTemplate = templates.find(
+    (template) => template.publicId === form.templatePublicId,
   );
   return (
     <>
@@ -113,6 +119,18 @@ export function ExamDetailsStep({
           )}
         </p>
       )}
+      <DifficultyPicker
+        wizardText={wizardText}
+        selection={form.difficulty ?? defaultDifficulty()}
+        templateIsStandard={selectedTemplate?.pearsonStandard}
+        error={localizeError(errors.difficulty)}
+        onChange={(selection) => onUpdate("difficulty", selection)}
+      />
+      <RepeatPolicyField
+        wizardText={wizardText}
+        avoidRepeats={form.avoidRepeats === true}
+        onChange={(value) => onUpdate("avoidRepeats", value)}
+      />
       <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-5">
         <div className="text-sm font-medium text-[var(--ink-primary)]">
           {wizardText.FULL_TEMPLATE_SCOPE}

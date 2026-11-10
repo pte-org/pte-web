@@ -5,3 +5,6 @@ export * from "./layouts";
 export * from "./runtime";
 export * from "./theme";
 export * from "./utils";
+
+export { Disclosure } from "./components/Disclosure";
+export { DisclosureChevron } from "./components/DisclosureChevron";

@@ -14,7 +14,8 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
-import type { RosterRow } from "@/features/examoperations/types";
+import { buildBulkCreateRequest } from "@/features/examoperations/rosterRequest";
+import type { RosterCreateInput } from "@/features/examoperations/types";
 import { HOST_DASHBOARD_QUERY_KEY } from "@/features/hostDashboard/constants";
 
 /** Backs the Transfer flow's pending-exam-request warning (Phase 3's new `scheduling` endpoint) — read-only, never blocks the transfer. */
@@ -44,23 +45,13 @@ export function useStudentEnrollments(
 export function useCreateRosterAccountsForClass(): UseMutationResult<
   BulkCreateUsersResponse,
   unknown,
-  RosterRow[]
+  RosterCreateInput
 > {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (rows) =>
-      bulkCreateUsers(apiClient, {
-        rows: rows.map((row) => ({
-          email: row.email || null,
-          fullName: row.fullName || null,
-          studentCode: row.studentCode || null,
-          className: row.className || null,
-          phone: row.phone || null,
-          dateOfBirth: row.dateOfBirth || null,
-        })),
-        tenantId: null,
-      }),
+    mutationFn: (input) =>
+      bulkCreateUsers(apiClient, buildBulkCreateRequest(input)),
     // Only refreshes the overview's learner counts; the pending-assignment write stays with the caller.
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: HOST_DASHBOARD_QUERY_KEY });

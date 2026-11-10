@@ -61,7 +61,8 @@ export const AnswerDetailModal = ({
     );
   };
   // Backend keeps an unscored task (Personal Introduction) PENDING; nothing is awaited for it.
-  const displayStatus = answer?.unscored && answer.status === "PENDING" ? "UNSCORED" : answer?.status;
+  const displayStatus =
+    answer?.unscored && answer.status === "PENDING" ? "UNSCORED" : answer?.status;
   const text = {
     title: t("tenant.answerDetail.title", T.TITLE),
     taskType: t("tenant.answerDetail.taskType", T.TASK_TYPE_LABEL),

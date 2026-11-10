@@ -127,8 +127,11 @@ describe("studentSearch Mutations", () => {
         dateOfBirth: "2000-01-01",
       },
     ];
-    await lastMutation().mutationFn?.(rows as never);
-    expect(api.bulkCreateUsers).toHaveBeenCalled();
+    await lastMutation().mutationFn?.({ rows, sendCredentialsEmail: false } as never);
+    expect(api.bulkCreateUsers).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ sendCredentialsEmail: false, tenantId: null }),
+    );
 
     lastMutation().onSuccess?.();
     expect(hoisted.invalidateQueries).toHaveBeenCalledWith({ queryKey: TENANT_USERS_QUERY_KEY });
