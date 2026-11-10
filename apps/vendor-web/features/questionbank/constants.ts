@@ -202,6 +202,7 @@ export const QUESTION_TABLE_HEADERS = {
   CONTENT: "Content",
   POOL: "Pool",
   CEFR: "CEFR",
+  TASK_TYPE: "Task type",
   SOURCE: "Source",
   STATUS: "Status",
   ACTIONS: "Actions",

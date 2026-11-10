@@ -3,9 +3,7 @@ import { useRouter } from "next/navigation";
 import {
   ActionMenu,
   Alert,
-  Chip,
   BanIcon,
-  Badge,
   CheckCircleIcon,
   ConfirmDialog,
   DataTable,
@@ -25,17 +23,12 @@ import {
   useUnarchiveQuestion,
 } from "../api";
 import {
-  CEFR_LEVELS,
   QUESTIONBANK_TEXT as RAW_QUESTIONBANK_TEXT,
-  QUESTION_POOL_LABELS as RAW_QUESTION_POOL_LABELS,
-  QUESTION_SKILL_LABELS as RAW_QUESTION_SKILL_LABELS,
-  QUESTION_STATUS_LABELS as RAW_QUESTION_STATUS_LABELS,
-  QUESTION_STATUS_VARIANT,
   QUESTION_TABLE_HEADERS as RAW_QUESTION_TABLE_HEADERS,
 } from "../constants";
 import type { Question } from "../types";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
-import { POOL_TONE, cefrTone, sectionTone } from "@/lib/chipTones";
+import { useQuestionTableColumns } from "./_questionTableColumns";
 import { RejectQuestionModal } from "./_RejectQuestionModal";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
@@ -58,28 +51,9 @@ export const QuestionTable = ({
   showSkillColumn = true,
 }: QuestionTableProps): ReactElement => {
   const T = useAdminCopy(RAW_QUESTIONBANK_TEXT);
-  const searchText = useAdminSearchText("questionContent");
   const H = useAdminCopy(RAW_QUESTION_TABLE_HEADERS);
-  const skillLabels = useAdminCopy(RAW_QUESTION_SKILL_LABELS);
-  const cefrFilterOptions = [
-    { value: "", label: H.CEFR },
-    ...CEFR_LEVELS.map((level) => ({ value: level, label: level })),
-  ];
-  const sourceFilterOptions = useAdminCopy([
-    { value: "", label: "All sources" },
-    { value: "ai", label: "AI generated" },
-    { value: "manual", label: "Manual" },
-  ]);
-  const sourceLabels = useAdminCopy({ ai: "AI generated", manual: "Manual" } as const);
-  const poolLabels = useAdminCopy(RAW_QUESTION_POOL_LABELS);
-  const statusLabels = useAdminCopy(RAW_QUESTION_STATUS_LABELS);
-  const statusFilterOptions = useAdminCopy([
-    { value: "", label: "All statuses" },
-    { value: "draft", label: "Draft" },
-    { value: "pending_approval", label: "Pending approval" },
-    { value: "published", label: "Published" },
-    { value: "archived", label: "Archived" },
-  ]);
+  const columns = useQuestionTableColumns(questions, showSkillColumn);
+  const searchText = useAdminSearchText("questionContent");
   const router = useRouter();
   const { data: currentUser } = useCurrentUser();
   const { showToast } = useToast();
@@ -228,74 +202,7 @@ export const QuestionTable = ({
       {hasMutationError && <Alert tone="error">{T.STATUS_UPDATE_ERROR}</Alert>}
       <DataTable
         toolbarActions={toolbarActions}
-        columns={[
-          ...(showSkillColumn
-            ? [
-                {
-                  key: "skill",
-                  label: H.SKILL,
-                  header: H.SKILL,
-                  cell: (question: Question) => (
-                    <Chip tone={sectionTone(question.skill)}>{skillLabels[question.skill]}</Chip>
-                  ),
-                },
-              ]
-            : []),
-          {
-            key: "content",
-            label: H.CONTENT,
-            header: H.CONTENT,
-            filterAccessor: (question) => question.content,
-            cell: (question: Question) => (
-              <span className="line-clamp-1 max-w-xl">{question.content}</span>
-            ),
-          },
-          {
-            key: "pool",
-            label: H.POOL,
-            header: H.POOL,
-            filterAccessor: (question) => question.pool,
-            cell: (question) => <Chip tone={POOL_TONE}>{poolLabels[question.pool]}</Chip>,
-          },
-          {
-            key: "cefr",
-            label: H.CEFR,
-            header: H.CEFR,
-            filterOptions: cefrFilterOptions,
-            filterAccessor: (question) => question.cefrLevel ?? "",
-            cell: (question) =>
-              question.cefrLevel ? (
-                <Chip tone={cefrTone(question.cefrLevel)}>{question.cefrLevel}</Chip>
-              ) : (
-                T.EMPTY_VALUE
-              ),
-          },
-          {
-            key: "source",
-            label: H.SOURCE,
-            header: H.SOURCE,
-            filterOptions: sourceFilterOptions,
-            filterAccessor: (question) => (question.generationMeta != null ? "ai" : "manual"),
-            cell: (question) =>
-              question.generationMeta != null ? (
-                <Badge variant="info">{sourceLabels.ai}</Badge>
-              ) : (
-                <span>{sourceLabels.manual}</span>
-              ),
-          },
-          {
-            key: "status",
-            label: H.STATUS,
-            header: H.STATUS,
-            filterOptions: statusFilterOptions,
-            filterAccessor: (question) => question.status,
-            cell: (question) => (
-              <Badge variant={QUESTION_STATUS_VARIANT[question.status]}>
-                {statusLabels[question.status]}
-              </Badge>
-            ),
-          },
-        ]}
+        columns={columns}
         rows={questions}
         getRowKey={(question) => question.id}
         isLoading={isLoading}
