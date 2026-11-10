@@ -10,12 +10,17 @@ import type { GrantFieldErrors, GrantLicenseFlow } from "../types";
 import { buildGrantRequest, contractDayToIso, toContractDay } from "../utils";
 
 /**
- * State for the four-step grant wizard; one Idempotency-Key per opened wizard makes a retry safe.
+ * State for the three-step grant wizard; one Idempotency-Key per opened wizard makes a retry safe.
  * `initialCode` (e.g. a tenant just created) pre-fills the search and selects that exact organization.
  */
-export function useGrantLicenseFlow(onGranted: () => void, initialCode = ""): GrantLicenseFlow {
+export function useGrantLicenseFlow(
+  onGranted: () => void,
+  initialCode = "",
+  open = true,
+): GrantLicenseFlow {
   const [pickedStepIndex, setStepIndex] = useState(0);
   const [search, setSearch] = useState(initialCode);
+  const [tenantPage, setTenantPage] = useState(0);
   const [pickedTenant, setTenant] = useState<OrganizationResponse | null>(null);
   const [autoDismissed, setAutoDismissed] = useState(false);
   const [planId, setPlanId] = useState("");
@@ -26,11 +31,16 @@ export function useGrantLicenseFlow(onGranted: () => void, initialCode = ""): Gr
   const [idempotencyKey, setIdempotencyKey] = useState(() => crypto.randomUUID());
 
   const debouncedSearch = useDebouncedSearch(search);
-  const tenantSearch = useTenantSearchQuery(debouncedSearch);
+  const searchPending = debouncedSearch !== search.trim();
+  const tenantSearch = useTenantSearchQuery(debouncedSearch, tenantPage, open && !searchPending);
+  const changeSearch = (value: string): void => {
+    setSearch(value);
+    setTenantPage(0);
+  };
   // Only an exact, active code match is preselected (derived, not stored, until the admin moves on).
   const autoTenant =
     initialCode && !autoDismissed && pickedTenant === null
-      ? (tenantSearch.data?.find(
+      ? (tenantSearch.data?.data.find(
           (candidate) => candidate.code === initialCode && candidate.status === "ACTIVE",
         ) ?? null)
       : null;
@@ -42,7 +52,6 @@ export function useGrantLicenseFlow(onGranted: () => void, initialCode = ""): Gr
   const examPackage = selectedPlan?.type === "EXAM_PACKAGE";
 
   const tenantId = tenant?.publicId ?? "";
-  const hostsPreview = useLicenseGrantPreviewQuery(tenantId, "", "");
   // The default preview fixes the default day; a changed day previews the admin's own start.
   const defaultPreview = useLicenseGrantPreviewQuery(tenantId, planId, "");
   const defaultStartDay = defaultPreview.data?.defaultStartsAt
@@ -63,6 +72,7 @@ export function useGrantLicenseFlow(onGranted: () => void, initialCode = ""): Gr
   const reset = (): void => {
     setStepIndex(0);
     setSearch("");
+    setTenantPage(0);
     setTenant(null);
     setPlanId("");
     setStartDay("");
@@ -110,7 +120,16 @@ export function useGrantLicenseFlow(onGranted: () => void, initialCode = ""): Gr
   };
 
   const submit = async (): Promise<void> => {
-    if (!tenant || !validateDetails()) return;
+    if (
+      step !== "confirm" ||
+      !tenant ||
+      !validateDetails() ||
+      preview.isFetching ||
+      preview.isError ||
+      preview.data?.tenantId !== tenant.publicId ||
+      preview.data?.planId !== planId
+    )
+      return;
     const payload = buildGrantRequest({
       tenantId: tenant.publicId,
       planId,
@@ -132,12 +151,12 @@ export function useGrantLicenseFlow(onGranted: () => void, initialCode = ""): Gr
   return {
     step,
     search,
-    setSearch,
+    setSearch: changeSearch,
+    setTenantPage,
+    searchPending,
     tenantSearch,
     tenant,
     selectTenant,
-    hosts: hostsPreview.data?.hosts ?? [],
-    hostsLoading: hostsPreview.isLoading,
     activePlans,
     plansLoading,
     selectedPlan,

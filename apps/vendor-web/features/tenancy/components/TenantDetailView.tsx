@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 
 import type { ReactElement } from "react";
-import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
+import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import {
   Alert,
   Badge,
@@ -12,7 +12,6 @@ import {
   LoadingState,
   Tabs,
   useLocale,
-  useToast,
   useDashboardBreadcrumbLabel,
   useRememberedState,
 } from "@pte/ui";
@@ -20,24 +19,13 @@ import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useCurrentUser } from "@/features/auth/api";
 import { isPlatformAdmin } from "@/features/auth/permissions";
 import {
-  CREATE_TENANT_CONFLICT_TEXT as RAW_CREATE_TENANT_CONFLICT_TEXT,
   ORGANIZATION_TYPE_OPTIONS as RAW_ORGANIZATION_TYPE_OPTIONS,
   TENANT_DETAIL_TEXT as RAW_TENANT_DETAIL_TEXT,
   TENANT_STATUS_LABELS as RAW_TENANT_STATUS_LABELS,
   TENANT_STATUS_VARIANT,
 } from "../constants";
-import { useTenant, useUpdateBranding } from "../api";
-import type { BrandingInput } from "../types";
-import { BrandingEditor } from "./BrandingEditor";
+import { useTenant } from "../api";
 import { TenantLoginAccountSection } from "./TenantLoginAccountSection";
-
-function mutationErrorMessage(error: unknown, conflictMessage: string): string | undefined {
-  if (!error) return undefined;
-  if (error instanceof ApiError && error.kind === "conflict") {
-    return getUserFacingApiErrorMessage(error, conflictMessage);
-  }
-  return getUserFacingApiErrorMessage(error);
-}
 
 interface TenantDetailViewProps {
   tenantPublicId: string;
@@ -45,7 +33,6 @@ interface TenantDetailViewProps {
 
 export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): ReactElement => {
   const T = useAdminCopy(RAW_TENANT_DETAIL_TEXT);
-  const tenantConflictText = useAdminCopy(RAW_CREATE_TENANT_CONFLICT_TEXT);
   const organizationTypeOptions = useAdminCopy(RAW_ORGANIZATION_TYPE_OPTIONS);
   const tenantStatusLabels = useAdminCopy(RAW_TENANT_STATUS_LABELS);
   const organizationTypeLabel = (value: string): string =>
@@ -56,17 +43,9 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
   const { data: tenant, isLoading } = tenantQuery;
   const pathname = usePathname();
   useDashboardBreadcrumbLabel(pathname, tenant?.name);
-  const updateBranding = useUpdateBranding(tenantPublicId);
 
   const [activeSection, setActiveSection] = useRememberedState<string>("section", "tenant");
   const { t } = useLocale();
-  const { showToast } = useToast();
-
-  const submitBranding = (input: BrandingInput): void => {
-    updateBranding.mutate(input, {
-      onSuccess: () => showToast(T.BRANDING_SAVED, { tone: "success" }),
-    });
-  };
 
   if (isLoading) {
     return <LoadingState />;
@@ -155,13 +134,6 @@ export const TenantDetailView = ({ tenantPublicId }: TenantDetailViewProps): Rea
               />
             </section>
 
-            <BrandingEditor
-              key={`${tenant.logoUrl ?? ""}|${tenant.primaryColor ?? ""}`}
-              tenant={tenant}
-              onSubmit={submitBranding}
-              isSubmitting={updateBranding.isPending}
-              error={mutationErrorMessage(updateBranding.error, tenantConflictText.CONFLICT)}
-            />
           </>
         )}
 

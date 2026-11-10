@@ -3,11 +3,12 @@
 import {
   grantLicense,
   previewLicenseGrant,
-  searchTenants,
+  searchTenantsPage,
   type LicenseGrantPreviewResponse,
   type LicenseGrantRequest,
   type LicenseGrantResponse,
   type OrganizationResponse,
+  type PagedResult,
 } from "@pte/api-client";
 import {
   useMutation,
@@ -20,16 +21,20 @@ import { apiClient } from "@/lib/apiClient";
 import { LICENSE_CODES_QUERY_KEY } from "@/features/commercialization/constants";
 import {
   LICENSE_GRANT_PREVIEW_QUERY_KEY,
-  MIN_TENANT_SEARCH_LENGTH,
+  TENANT_SEARCH_PAGE_SIZE,
   TENANT_SEARCH_QUERY_KEY,
 } from "./constants";
 
-export function useTenantSearchQuery(q: string): UseQueryResult<OrganizationResponse[]> {
+export function useTenantSearchQuery(
+  q: string,
+  page: number,
+  enabled: boolean,
+): UseQueryResult<PagedResult<OrganizationResponse>> {
   const term = q.trim();
   return useQuery({
-    queryKey: TENANT_SEARCH_QUERY_KEY(term),
-    queryFn: () => searchTenants(apiClient, term),
-    enabled: term.length >= MIN_TENANT_SEARCH_LENGTH,
+    queryKey: TENANT_SEARCH_QUERY_KEY(term, page),
+    queryFn: () => searchTenantsPage(apiClient, term, page, TENANT_SEARCH_PAGE_SIZE),
+    enabled,
   });
 }
 

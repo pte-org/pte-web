@@ -160,6 +160,13 @@ const ADMIN_VI: Record<string, string> = {
   "Applications could not be loaded. Try again shortly.":
     "Không thể tải danh sách đơn đăng ký. Vui lòng thử lại sau.",
   Retry: "Thử lại",
+  "Recipient organization": "Tổ chức nhận gói",
+  "Package to grant": "Gói được cấp",
+  "Contract information": "Thông tin hợp đồng",
+  "Check the organization and package details against the contract before granting.":
+    "Đối chiếu thông tin tổ chức và gói với hợp đồng trước khi cấp gói.",
+  "Could not load organizations. Please try again.":
+    "Không thể tải danh sách tổ chức. Vui lòng thử lại.",
   "Total applications": "Tổng số đơn đăng ký",
   "Needs review": "Cần xem xét",
   "No applications found": "Không tìm thấy đơn đăng ký",
@@ -625,6 +632,9 @@ const ADMIN_VI: Record<string, string> = {
     "Mẫu tùy chỉnh có thể dùng các dạng bài đã chọn mà không cần toàn bộ danh mục PTE tiêu chuẩn.",
   "Could not create this exam template.": "Không thể tạo mẫu bài thi này.",
   "Could not delete this exam template.": "Không thể xóa mẫu bài thi này.",
+  "Delete this exam template?": "Xóa mẫu bài thi này?",
+  "This DRAFT exam template will be permanently deleted. This cannot be undone.":
+    "Mẫu bài thi ở trạng thái BẢN NHÁP này sẽ bị xóa vĩnh viễn. Thao tác này không thể hoàn tác.",
   "Delete this DRAFT exam template? This cannot be undone.":
     "Xóa mẫu bài thi BẢN NHÁP này? Thao tác không thể hoàn tác.",
   "Back to list": "Quay lại danh sách",

@@ -1,7 +1,15 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { TableBody, TableCell, TableHead, TableHeader, TableRoot, TableRow } from "@pte/ui";
+import {
+  Disclosure,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRoot,
+  TableRow,
+} from "@pte/ui";
 import { useScoringRubricText } from "../hooks/useScoringRubricText";
 import { traitDisplayName } from "../rubricView";
 import type { RubricTraitDetailsResponse } from "../types";
@@ -19,10 +27,10 @@ interface TraitLevelsProps {
 const TraitLevels = ({ trait }: TraitLevelsProps): ReactElement => {
   const { locale, messages: M, format } = useScoringRubricText();
   return (
-    <details className="rounded-lg border border-[var(--shell-border)] px-4 py-3">
-      <summary className="cursor-pointer text-sm font-medium text-[var(--ink-primary)]">
-        {format("levelsSummary", { trait: traitDisplayName(trait, locale) })}
-      </summary>
+    <Disclosure
+      title={format("levelsSummary", { trait: traitDisplayName(trait, locale) })}
+      className="rounded-lg border border-[var(--shell-border)] px-4 py-3"
+    >
       <p className="mt-2 text-xs text-[var(--ink-muted)]">{M.levelsNote}</p>
       <ol className="mt-2 space-y-2">
         {[...trait.levels]
@@ -36,7 +44,7 @@ const TraitLevels = ({ trait }: TraitLevelsProps): ReactElement => {
             </li>
           ))}
       </ol>
-    </details>
+    </Disclosure>
   );
 };
 
