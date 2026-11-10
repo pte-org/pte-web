@@ -6,10 +6,12 @@ import { getExaminerBlockingText } from "./hooks/useExaminerWorkText";
 import { ExaminerAttemptHeader } from "./components/ExaminerAttemptHeader";
 import { ExaminerAttemptContent } from "./components/ExaminerAttemptContent";
 import { ExaminerAttemptDialogs } from "./components/ExaminerAttemptDialogs";
+import { QuestionListButton } from "./components/QuestionListButton";
 import { useExaminerAttemptController } from "./useExaminerAttemptController";
 export const ExaminerAttemptDetailView = (props: { sessionPublicId: string; attemptPublicId: string; onBack?: () => void }): ReactElement => {
   const state = useExaminerAttemptController(props);
-  const { T, query, attemptTitle, workflowStatus, setReportIssueOpen, workflow, hasOpenIssue } = state;
+  const { T, query, attemptTitle, workflowStatus, setReportIssueOpen, workflow, hasOpenIssue, isFinalizing, hasUnsaved,
+    isSavingDraft } = state;
   const [activeTab, setActiveTab] = useState("marking");
   const [historyVisited, setHistoryVisited] = useState(false);
   return (
@@ -28,11 +30,17 @@ export const ExaminerAttemptDetailView = (props: { sessionPublicId: string; atte
             <Badge variant="success">{T.STATUS_COMPLETED}</Badge>
           )
         }
-        actions={
+        actions={<div className="flex items-center gap-2">
+          <QuestionListButton state={state} />
           <Button variant="primary" size="sm" className="whitespace-nowrap" onClick={() => setReportIssueOpen(true)}>
             {T.REPORT_ISSUE}
           </Button>
-        }
+          {workflow?.canFinalize && (
+            <Button variant="primary" size="sm" className="whitespace-nowrap"
+              disabled={isFinalizing || Boolean(hasOpenIssue) || hasUnsaved || isSavingDraft}
+              onClick={() => state.setFinalizeOpen(true)}>{isFinalizing ? T.FINALIZING : T.FINALIZE_WORK}</Button>
+          )}
+        </div>}
       />
 
       {hasOpenIssue && (

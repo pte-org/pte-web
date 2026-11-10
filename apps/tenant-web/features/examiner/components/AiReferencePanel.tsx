@@ -11,6 +11,9 @@ interface AiReferencePanelProps {
   readOnly: boolean;
   disabled?: boolean;
   onApplyAiScore: (score: number, version: string | null) => void;
+  /** Trait key to its display name; keys without one are shown as they are. */
+  traitLabels?: Record<string, string>;
+  feedback?: string | null;
 }
 
 export const AiReferencePanel = ({
@@ -19,6 +22,8 @@ export const AiReferencePanel = ({
   disabled = false,
   onApplyAiScore,
   detail,
+  traitLabels = {},
+  feedback,
 }: AiReferencePanelProps): ReactElement => {
   const T = useExaminerWorkText();
   if (!reference || reference.availability === "UNAVAILABLE") {
@@ -72,30 +77,25 @@ export const AiReferencePanel = ({
         )}
       </div>
 
-      <div className="mt-3 flex flex-wrap items-baseline gap-4 text-sm">
+      <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-3">
         <div className="flex items-baseline gap-1">
-          <span className="text-xs text-slate-500">{T.SCORE_LABEL_SHORT}</span>
-          <span className="text-lg font-bold text-indigo-950">
-            {hasScore ? `${reference.score}/100` : "—"}
-          </span>
+          <span className="text-2xl font-bold tabular-nums text-indigo-950">{hasScore ? reference.score : "—"}</span>
+          <span className="text-sm text-slate-500">/ 100</span>
         </div>
-      </div>
-      <Disclosure title={T.AI_DETAILS} className="mt-2">
-        <ul className="grid grid-cols-1 gap-2 py-3 text-xs sm:grid-cols-2">
+        <dl className="flex flex-wrap gap-2">
           {Object.entries(reference.traitScores ?? {}).map(([key, value]) => (
-            <li key={key} className="flex items-center justify-between gap-3">
-              <span>{key.replaceAll("_", " ")}</span>
-              <span className="font-medium tabular-nums">{value}{reference.traitMaxima?.[key] !== undefined ? ` / ${reference.traitMaxima[key]}` : ""}</span>
-            </li>
+            <div key={key} className="rounded-lg border border-indigo-100 bg-white px-3 py-1.5">
+              <dt className="text-[11px] text-slate-500">{traitLabels[key] ?? key.replaceAll("_", " ")}</dt>
+              <dd className="text-sm font-semibold tabular-nums text-indigo-950">
+                {value}{reference.traitMaxima?.[key] !== undefined ? ` / ${reference.traitMaxima[key]}` : ""}
+              </dd>
+            </div>
           ))}
-        </ul>
+        </dl>
+      </div>
+      {feedback && <p className="mt-3 rounded-lg bg-white/70 px-3 py-2 text-sm text-slate-700">{feedback}</p>}
+      <Disclosure title={T.AI_DETAILS} className="mt-2">
         {detail}
-        {reference.version && (
-          <div className="flex items-baseline gap-1">
-            <span className="text-xs text-slate-500">{T.AI_REVISION_LABEL}</span>
-            <span className="min-w-0 break-all font-mono text-xs text-slate-700">{reference.version}</span>
-          </div>
-        )}
       </Disclosure>
     </aside>
   );

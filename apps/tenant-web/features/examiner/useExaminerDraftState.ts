@@ -18,6 +18,7 @@ export interface ExaminerDraftState {
   handleScoreChange: (score: string) => void;
   handleTraitChange: (key: string, value: number | null) => void;
   handleCommentChange: (comment: string) => void;
+  handleGapReasonChange: (key: string, reason: string) => void;
   handleApplyAiScore: (score: number, version: string | null) => void;
   handleAcknowledgeStale: () => void;
 }
@@ -31,7 +32,7 @@ export const useExaminerDraftState = ({ currentAnswer, workflow }: UseExaminerDr
       const next = { ...previous };
       for (const draft of workflow.drafts) {
         if (!next[draft.answerPublicId]?.isDirty) next[draft.answerPublicId] = {
-          score: draft.score !== null ? String(draft.score) : "", comment: draft.comment ?? "",
+          score: draft.score !== null ? String(draft.score) : "", comment: draft.comment ?? "", aiGapReasons: draft.aiGapReasons ?? {},
           traitScores: draft.traitScores ?? {}, itemScore: draft.score,
           decisionKind: draft.decisionKind ?? "MANUAL", reviewedAiVersion: draft.reviewedAiVersion,
           initialReviewVersion: draft.expectedReviewVersion, draftVersion: draft.draftVersion,
@@ -74,6 +75,7 @@ export const useExaminerDraftState = ({ currentAnswer, workflow }: UseExaminerDr
     handleTraitChange: (key, value) => update({ traitScores: { ...activeDraft?.traitScores, [key]: value },
       decisionKind: "MANUAL", itemScore: null, scoreTrace: null }),
     handleCommentChange: (comment) => update({ comment }), handleApplyAiScore,
+    handleGapReasonChange: (key, reason) => update({ aiGapReasons: { ...activeDraft?.aiGapReasons, [key]: reason } }),
     handleAcknowledgeStale: () => update({ initialReviewVersion: currentAnswer?.reviewVersion ?? null,
       reviewedAiVersion: currentAnswer?.aiReference?.version ?? null, decisionKind: "MANUAL", itemScore: null, scoreTrace: null }),
   };

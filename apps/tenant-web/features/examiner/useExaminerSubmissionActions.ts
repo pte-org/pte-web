@@ -51,6 +51,7 @@ export const useExaminerSubmissionActions = ({
         score: parsedScore,
         traitScores,
         comment: draft.comment || null,
+        aiGapReasons: draft.aiGapReasons ?? null,
         decisionKind: draft.decisionKind,
         expectedReviewVersion: draft.initialReviewVersion,
         reviewedAiVersion: draft.reviewedAiVersion,

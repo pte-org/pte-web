@@ -4,7 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { ExaminerAnswerDetailResponse } from "@pte/api-client";
 import { useToast } from "@pte/ui";
 import { useExaminerWorkText } from "./hooks/useExaminerWorkText";
-import { useExaminerAttempt, useExaminerGuidelines, useExaminerIssues, useReportExaminerIssue, useStartExaminerWork } from "./api";
+import { useExaminerAttempt, useExaminerIssues, useReportExaminerIssue, useStartExaminerWork } from "./api";
 import type { MediaState } from "./components/AnswerContentRenderer";
 import { useExaminerSubmissions } from "./useExaminerSubmissions";
 import { formatAttemptTitle } from "./utils/attemptLabels";
@@ -30,14 +30,12 @@ export const useExaminerAttemptController = ({
   const query = useExaminerAttempt(sessionPublicId, attemptPublicId);
   const startMutation = useStartExaminerWork(sessionPublicId, attemptPublicId);
   const reportIssueMutation = useReportExaminerIssue(sessionPublicId, attemptPublicId);
-  const guidelinesQuery = useExaminerGuidelines(sessionPublicId, attemptPublicId);
   const issuesQuery = useExaminerIssues(sessionPublicId, attemptPublicId);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false);
   const [finalizeOpen, setFinalizeOpen] = useState(false);
   const [reportIssueOpen, setReportIssueOpen] = useState(false);
-  const [guidelinesOpen, setGuidelinesOpen] = useState(false);
   const [promptMedia, setPromptMedia] = useState<MediaState>("ready");
   const [responseMedia, setResponseMedia] = useState<MediaState>("ready");
 
@@ -65,6 +63,7 @@ export const useExaminerAttemptController = ({
     isFinalizing,
     handleScoreChange,
     handleTraitChange,
+    handleGapReasonChange,
     handleCommentChange,
     handleApplyAiScore,
     handleAcknowledgeStale,
@@ -119,6 +118,19 @@ export const useExaminerAttemptController = ({
     return saved;
   };
 
+  /** Saves every answer with unsaved changes, then leaves; stays (with an error) if any of them cannot be saved. */
+  const handleSaveAndLeave = async (): Promise<void> => {
+    const dirtyIds = Object.entries(drafts).filter(([, draft]) => draft.isDirty).map(([answerId]) => answerId);
+    for (const answerId of dirtyIds) {
+      if (!(await handleSaveDraft(answerId))) {
+        showToast(T.SAVE_BEFORE_LEAVE_FAILED, { tone: "error" });
+        return;
+      }
+    }
+    setConfirmLeaveOpen(false);
+    executeBack();
+  };
+
   const handleConfirmFinalize = async () => {
     const success = await handleFinalizeAttempt();
     if (success) {
@@ -143,6 +155,6 @@ export const useExaminerAttemptController = ({
   const hasOpenIssue = issuesQuery.data?.some((i) => i.status === "OPEN");
   const workflowStatus = workflow?.status ?? (query.data?.submittedAnswerCount === query.data?.eligibleAnswerCount ? "COMPLETED" : "IN_PROGRESS");
 
-  return { T, query, startMutation, reportIssueMutation, guidelinesQuery, currentIndex, confirmLeaveOpen, finalizeOpen, reportIssueOpen, guidelinesOpen, promptMedia, responseMedia, answers, workflow, carriedOverIds, currentAnswer, attemptTitle, drafts, activeDraft, hasUnsaved, isStale, isSavingDraft, isFinalizing, handleScoreChange, handleTraitChange, handleCommentChange, handleApplyAiScore, handleAcknowledgeStale, handleBack, handleSelectIndex, handleStartWork, handleSaveClick, handleConfirmFinalize, handleReportIssue, hasOpenIssue, workflowStatus, executeBack, setConfirmLeaveOpen, setFinalizeOpen, setReportIssueOpen, setGuidelinesOpen, setPromptMedia, setResponseMedia, sessionPublicId, attemptPublicId };
+  return { T, query, startMutation, reportIssueMutation, currentIndex, confirmLeaveOpen, finalizeOpen, reportIssueOpen, promptMedia, responseMedia, answers, workflow, carriedOverIds, currentAnswer, attemptTitle, drafts, activeDraft, hasUnsaved, isStale, isSavingDraft, isFinalizing, handleScoreChange, handleTraitChange, handleGapReasonChange, handleCommentChange, handleApplyAiScore, handleAcknowledgeStale, handleBack, handleSelectIndex, handleStartWork, handleSaveClick, handleSaveAndLeave, handleConfirmFinalize, handleReportIssue, hasOpenIssue, workflowStatus, executeBack, setConfirmLeaveOpen, setFinalizeOpen, setReportIssueOpen, setPromptMedia, setResponseMedia, sessionPublicId, attemptPublicId };
 };
 export type ExaminerAttemptController = ReturnType<typeof useExaminerAttemptController>;

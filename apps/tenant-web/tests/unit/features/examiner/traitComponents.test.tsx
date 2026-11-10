@@ -37,3 +37,31 @@ it("explains why saving is blocked when the same-version machine traits are miss
     disabled={true} /></LocaleProvider>);
   expect(html).toMatch(/pronunciation and fluency|phát âm và độ trôi chảy/);
 });
+const withAi = { ...answer, aiReference: { availability: "AVAILABLE" as const, score: 60, version: "ai", rubricVersionPublicId: "v1", traitScores: { CONTENT: 5, PRONUNCIATION: 3 } } };
+it("lists every band of an editable trait with its description instead of a dropdown", () => {
+  const html = renderToStaticMarkup(<LocaleProvider><ExaminerTraitFields answer={answer} values={{}} disabled={false} /></LocaleProvider>);
+  expect(html).not.toContain("<select");
+  for (let band = 0; band <= 6; band++) expect(html).toContain(`id="trait-CONTENT-${band}"`);
+  expect(html).toContain("No content");
+});
+it("marks the AI band only after the AI is revealed", () => {
+  const blind = renderToStaticMarkup(<LocaleProvider><ExaminerTraitFields answer={withAi} values={{ CONTENT: 2 }} disabled={false} /></LocaleProvider>);
+  expect(blind).not.toContain("border-l-violet-500");
+  const open = renderToStaticMarkup(<LocaleProvider><ExaminerTraitFields answer={withAi} values={{ CONTENT: 2 }} disabled={false} aiRevealed /></LocaleProvider>);
+  expect(open).toContain("border-l-violet-500");
+  expect(open).toMatch(/2 or more away|lệch AI từ 2 mức/);
+});
+it("asks for no reason when the examiner is within one band of the AI", () => {
+  const html = renderToStaticMarkup(<LocaleProvider><ExaminerTraitFields answer={withAi} values={{ CONTENT: 4 }} disabled={false} aiRevealed /></LocaleProvider>);
+  expect(html).not.toMatch(/2 or more away|lệch AI từ 2 mức/);
+});
+it("shows the AI reason and quote under its trait once revealed, and a reason box for a large gap", () => {
+  const scored = { ...withAi, ai: { status: "SCORED" as const, score: 60, criteria: {}, feedback: null, transcript: null, fallback: false, failureReason: null,
+    detail: { traitRationales: { CONTENT: { reason: "Matches level 5", evidence: "rising temperatures" } } } } };
+  const blind = renderToStaticMarkup(<LocaleProvider><ExaminerTraitFields answer={scored} values={{ CONTENT: 2 }} disabled={false} /></LocaleProvider>);
+  expect(blind).not.toContain("Matches level 5");
+  const open = renderToStaticMarkup(<LocaleProvider><ExaminerTraitFields answer={scored} values={{ CONTENT: 2 }} disabled={false} aiRevealed
+    gapReasons={{ CONTENT: "Off topic" }} /></LocaleProvider>);
+  expect(open).toContain("Matches level 5"); expect(open).toContain("rising temperatures");
+  expect(open).toContain('id="gap-reason-CONTENT"'); expect(open).toContain("Off topic");
+});

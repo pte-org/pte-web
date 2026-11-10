@@ -10,6 +10,8 @@ export interface DraftEntry {
   itemScore?: number | null;
   scoreTrace?: import("@pte/api-client").ScoreTraceResponse | null;
   comment?: string;
+  /** Trait key to the reason for differing from the AI band by two or more levels. */
+  aiGapReasons?: Record<string, string>;
   decisionKind: ExaminerDecisionKind;
   reviewedAiVersion: string | null;
   initialReviewVersion: string | null;

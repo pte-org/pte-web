@@ -23,6 +23,7 @@ export const useExaminerSubmissions = (params: UseExaminerSubmissionParams) => {
     handleScoreChange: draftState.handleScoreChange,
     handleTraitChange: draftState.handleTraitChange,
     handleCommentChange: draftState.handleCommentChange,
+    handleGapReasonChange: draftState.handleGapReasonChange,
     handleApplyAiScore: draftState.handleApplyAiScore,
     handleAcknowledgeStale: draftState.handleAcknowledgeStale,
     handleSaveDraft: actions.handleSaveDraft,

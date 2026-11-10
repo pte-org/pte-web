@@ -94,18 +94,15 @@ describe("access boundaries", () => {
     expect(users).toEqual(["features/scoreexplanation/api.ts"]);
   });
 
-  it("links to the explanation only from the Host submissions and the Examiner marking header", () => {
+  it("links to the whole-attempt explanation only from the Host submissions", () => {
     const users = APP_SOURCES.filter(
       (path) => !path.startsWith(FEATURE_ROOT) && /<ScoreExplanationLink\b/.test(read(path)),
     )
       .map(name)
       .sort();
-    expect(users).toEqual([
-      "features/examiner/components/ExaminerAttemptHeader.tsx",
-      "features/exams/components/AttemptsSection.tsx",
-    ]);
-    expect(read(join(TENANT_ROOT, users[0]))).toContain('role="EXAMINER"');
-    expect(read(join(TENANT_ROOT, users[1]))).toContain('role="HOST_ADMIN"');
+    // The Examiner sees the current answer's explanation folded into the marking screen instead.
+    expect(users).toEqual(["features/exams/components/AttemptsSection.tsx"]);
+    expect(read(join(TENANT_ROOT, users[0]))).toContain('role="HOST_ADMIN"');
   });
 
   it("explanation routes live only under the Host and Examiner areas", () => {

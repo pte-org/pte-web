@@ -8,13 +8,14 @@ import { traitRequest } from "../traitDraft";
 interface ExaminerMarkingToolbarProps { state: ExaminerAttemptController }
 
 export const ExaminerMarkingToolbar = ({ state }: ExaminerMarkingToolbarProps): ReactElement => {
-  const { T, currentIndex, answers, handleSelectIndex, workflow, hasUnsaved, isSavingDraft, isFinalizing, hasOpenIssue } = state;
+  const { T, currentIndex, answers, handleSelectIndex, workflow, isSavingDraft, isFinalizing } = state;
   const { currentAnswer: answer, activeDraft: draft } = state;
   const hasNext = currentIndex < answers.length - 1;
   const saved = Boolean(answer && (answer.myScore !== null || answer.decision !== null));
   const score = draft?.score.trim() ? Number(draft.score) : Number.NaN;
   const valid = answer?.rubric ? traitRequest(answer.rubric, draft?.traitScores ?? {}) !== null : Number.isInteger(score) && score >= 0 && score <= 100;
   const machineReady = !answer?.rubric || answer.rubric.traits.filter((trait) => trait.useAiWhenNull).every((trait) =>
+    draft?.traitScores?.[trait.key] != null ||
     answer.aiReference?.availability === "AVAILABLE" && answer.aiReference.rubricVersionPublicId === answer.rubric?.rubricVersionPublicId && answer.aiReference.traitScores?.[trait.key] !== undefined);
   const canSave = Boolean(answer?.canFinalize && valid && machineReady && !state.isStale && state.promptMedia !== "failed" && state.responseMedia !== "failed" && state.promptMedia !== "loading" && state.responseMedia !== "loading");
   const needsSave = !saved && (draft?.isDirty || !draft?.savedAt);
@@ -37,8 +38,6 @@ export const ExaminerMarkingToolbar = ({ state }: ExaminerMarkingToolbarProps): 
           onClick={() => handleSelectIndex(currentIndex + 1)}>{T.NEXT_QUESTION}</Button>}
         {needsSave && !workflow?.canStart && <Button size="sm" className="whitespace-nowrap" disabled={!canSave || isSavingDraft || isFinalizing}
           onClick={saveAndNext}>{isSavingDraft ? T.SAVING_DRAFT : hasNext ? T.SAVE_AND_NEXT : T.SAVE_DRAFT}</Button>}
-        {workflow?.canFinalize && <Button variant={hasNext || needsSave ? "secondary" : "primary"} size="sm" className="whitespace-nowrap" disabled={isFinalizing || Boolean(hasOpenIssue) || hasUnsaved || isSavingDraft}
-          onClick={() => state.setFinalizeOpen(true)}>{isFinalizing ? T.FINALIZING : T.FINALIZE_WORK}</Button>}
       </div>
     </div>
   );
