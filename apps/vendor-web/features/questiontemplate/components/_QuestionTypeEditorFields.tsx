@@ -6,7 +6,7 @@ import type { QuestionTypeFormDraft } from "../taskTypeDraft";
 import { QuestionTypeInstructionField } from "./_QuestionTypeInstructionField";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 
-export type EditorMode = "create" | "edit";
+export type EditorMode = "create" | "edit" | "view";
 
 interface QuestionTypeEditorFieldsProps {
   mode: EditorMode;
@@ -14,6 +14,8 @@ interface QuestionTypeEditorFieldsProps {
   capabilities: TaskTypeCapabilityResponse[];
   sectionOptions: SelectOption[];
   runtimeLocked: boolean;
+  /** Every control is disabled: the modal is only showing the task type. */
+  readOnly: boolean;
   onChange: (
     key: keyof QuestionTypeFormDraft,
     value: QuestionTypeFormDraft[keyof QuestionTypeFormDraft],
@@ -26,6 +28,7 @@ export const QuestionTypeEditorFields = ({
   capabilities,
   sectionOptions,
   runtimeLocked,
+  readOnly,
   onChange,
 }: QuestionTypeEditorFieldsProps): ReactElement => {
   const T = useAdminCopy(RAW_QUESTION_TYPE_EDITOR_TEXT);
@@ -58,7 +61,7 @@ export const QuestionTypeEditorFields = ({
         label={T.TASK_TYPE_KEY}
         value={draft.taskTypeKey}
         onChange={(event) => onChange("taskTypeKey", event.target.value.toUpperCase())}
-        disabled={mode === "edit"}
+        disabled={mode !== "create"}
         required
       />
       <Select
@@ -68,13 +71,14 @@ export const QuestionTypeEditorFields = ({
         onChange={(event) => onChange("section", event.target.value as QuestionTypeSection)}
         options={sectionOptions}
         required
-        disabled={runtimeLocked}
+        disabled={runtimeLocked || readOnly}
       />
       <Input
         id="question-type-display-name"
         label={T.DISPLAY_NAME}
         value={draft.displayName}
         onChange={(event) => onChange("displayName", event.target.value)}
+        disabled={readOnly}
         required
       />
       <Input
@@ -82,11 +86,13 @@ export const QuestionTypeEditorFields = ({
         label={T.SHORT_NAME}
         value={draft.shortName}
         onChange={(event) => onChange("shortName", event.target.value)}
+        disabled={readOnly}
         required
       />
       <QuestionTypeInstructionField
         value={draft.instruction}
         onChange={(value) => onChange("instruction", value)}
+        disabled={readOnly}
       />
       <Select
         id="task-type-screen-key"
@@ -101,7 +107,7 @@ export const QuestionTypeEditorFields = ({
         options={screenOptions}
         placeholder={T.SELECT_SCREEN_KEY}
         required
-        disabled={runtimeLocked}
+        disabled={runtimeLocked || readOnly}
       />
       <Select
         id="task-type-contract-version"
@@ -111,7 +117,7 @@ export const QuestionTypeEditorFields = ({
         options={contractOptions}
         placeholder={T.SELECT_CONTRACT_VERSION}
         required
-        disabled={runtimeLocked || contractOptions.length === 0}
+        disabled={runtimeLocked || readOnly || contractOptions.length === 0}
       />
       <Input
         id="question-type-display-order"
@@ -120,6 +126,7 @@ export const QuestionTypeEditorFields = ({
         min={0}
         value={draft.displayOrder}
         onChange={(event) => onChange("displayOrder", Number(event.target.value) || 0)}
+        disabled={readOnly}
       />
       <div className="flex items-end">
         <label className="flex items-center gap-2 pb-2 text-sm font-medium text-gray-700">
@@ -127,6 +134,7 @@ export const QuestionTypeEditorFields = ({
             type="checkbox"
             checked={draft.active}
             onChange={(event) => onChange("active", event.target.checked)}
+            disabled={readOnly}
           />
           {T.AVAILABLE_FOR_NEW_QUESTIONS}
         </label>

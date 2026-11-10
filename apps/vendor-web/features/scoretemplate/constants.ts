@@ -6,6 +6,13 @@ export const SCORE_TEMPLATE_QUERY_KEY = ["scoreTemplate"] as const;
 export const EXAM_TEMPLATE_BASE_PATH = "/admin/exam-template";
 export const EXAM_TEMPLATE_SECTIONS = ["SPEAKING", "WRITING", "READING", "LISTENING"] as const;
 
+export const SCORE_TEMPLATE_SECTION_LABELS = {
+  SPEAKING: "Speaking",
+  WRITING: "Writing",
+  READING: "Reading",
+  LISTENING: "Listening",
+};
+
 export const SCORE_TEMPLATE_TEXT = {
   LIST_TITLE: "Exam Templates",
   CLONE_ACTION: "Clone to new draft",
@@ -13,12 +20,49 @@ export const SCORE_TEMPLATE_TEXT = {
   DELETE_ACTION: "Delete",
   CREATE_MODAL_TITLE: "Create exam template",
   CODE_LABEL: "Code",
+  INFO_TITLE: "Template information",
+  INFO_VERSION: "Version",
+  INFO_STATUS: "Status",
+  INFO_CREATED_BY: "Created by",
+  INFO_CREATED_AT: "Created",
+  INFO_UPDATED_AT: "Last updated",
+  INFO_UNKNOWN: "Unknown",
+  MENU_TIME_FRAME: "Time frame",
+  MENU_CEFR_MIX: "CEFR mix",
+  TIME_FRAME_HINT:
+    "The minutes each part of the test may take, and the most the whole test may take. Exams built from this template are planned to fit.",
+  PART_SPEAKING_WRITING: "Speaking & Writing",
+  PART_READING: "Reading",
+  PART_LISTENING: "Listening",
+  FRAME_MIN: "Minimum (min)",
+  FRAME_MAX: "Maximum (min)",
+  FRAME_TOTAL: "Test ceiling (min)",
+  FRAME_RESTORE: "Restore Pearson window",
+  FRAME_ERROR_NUMBER: "Enter a positive number of minutes in every field.",
+  FRAME_ERROR_RANGE: "The minimum of this part must not exceed its maximum.",
+  FRAME_ERROR_TOTAL: "The ceiling must cover the three minimums together.",
+  FRAME_SAVED: "Time frame saved",
+  FRAME_SAVE_ERROR: "Could not save the time frame.",
+  CEFR_HINT:
+    "The share of questions of each CEFR level that exams built from this template aim for. The percentages must add up to 100.",
+  CEFR_TOTAL: "Total",
+  CEFR_ERROR: "Use whole numbers from 0 to 100 that add up to 100.",
+  CEFR_SAVED: "CEFR mix saved",
+  CEFR_SAVE_ERROR: "Could not save the CEFR mix.",
+  DURATION_TITLE: "Planned duration",
+  DURATION_WINDOW: "Window",
+  DURATION_FITS: "Can fit",
+  DURATION_NO_FIT: "Cannot fit",
+  DURATION_NO_FRAME: "No time frame set",
+  DURATION_CEILING: "Test ceiling",
+  MINUTES_SHORT: "min",
+  TEMPLATE_ACTIONS_LABEL: "Template actions",
+  UNSAVED_TITLE: "Leave without saving?",
+  UNSAVED_DESCRIPTION:
+    "You have unsaved changes to this template. If you leave now, they will be lost.",
+  UNSAVED_STAY: "Stay on this page",
+  UNSAVED_LEAVE: "Leave without saving",
   NAME_LABEL: "Name",
-  POLICY_LABEL: "Template policy",
-  STANDARD_POLICY: "Standard PTE",
-  CUSTOM_POLICY: "Custom task set",
-  CUSTOM_POLICY_NOTICE:
-    "Custom templates may use selected task types without requiring the complete standard PTE catalog.",
   CANCEL_ACTION: "Cancel",
   CREATE_ERROR: "Could not create this exam template.",
   DELETE_ERROR: "Could not delete this exam template.",
@@ -30,6 +74,10 @@ export const SCORE_TEMPLATE_TEXT = {
   EDIT_ACTION: "Edit",
   EXPORT_ACTION: "Export JSON",
   ADD_TYPE: "Add task type",
+  PALETTE_TITLE: "Task types to add",
+  PALETTE_HINT: "Drag one into the table, or press +. Drag a row back here to remove it.",
+  PALETTE_ALL_USED: "Every task type is already in the template.",
+  DROP_HINT: "Drag a task type from the left into this table.",
   ADD_SECTION_PLACEHOLDER: "Select section first",
   ADD_TYPE_PLACEHOLDER: "Select a task type",
   NO_SECTION_SELECTED: "Select a section first",
@@ -42,8 +90,6 @@ export const SCORE_TEMPLATE_TEXT = {
     "All active task types in this section are already in the template. Choose another section or remove one before adding it again.",
   INCOMPATIBLE_RUNTIME_PROFILE:
     "The available task types in this section are not compatible with the current app runtime. Ask the platform team to release support before using them.",
-  TASK_TYPE_CATALOG_NOTICE:
-    "Task types come from the active platform catalog. Their screen, authoring, and scoring behavior comes from the released runtime contract.",
   TASK_TYPES_LOAD_ERROR:
     "Could not load the active task type catalog. Please refresh before editing.",
   TEMPLATE_READINESS_BLOCKED:
@@ -52,6 +98,7 @@ export const SCORE_TEMPLATE_TEXT = {
     "This template cannot be activated until the question bank contains enough approved questions for every selected task type.",
   READINESS_CHECK_ERROR:
     "The readiness check could not be completed. Refresh before activating this template.",
+  WEIGHT_TOTAL_MISMATCH: "Skill weights must total exactly 100. Current totals:",
   SAVE_DRAFT: "Save",
   SAVE_ERROR: "Could not save this exam template. Your changes are preserved. Please try again.",
   NAME_REQUIRED: "Enter a template name.",
@@ -64,6 +111,11 @@ export const SCORE_TEMPLATE_TEXT = {
   READINESS_DUPLICATE: "Repeated task types: keep one configuration per task type",
   READINESS_SHORTAGE: "Insufficient approved questions",
   READINESS_UNKNOWN: "Question availability has not been confirmed. Save and check again.",
+  READINESS_POOL_SUMMARY:
+    "{count} task type(s) do not have enough approved questions yet. Activation stays blocked until the Available / needed column is complete.",
+  POOL_OK: "Enough approved questions for this task type.",
+  POOL_SHORT:
+    "Not enough approved questions for this task type: {available} available, {required} needed.",
   REQUIRED_COUNT: "Required",
   AVAILABLE_COUNT: "Available",
   ACTIVATE_ACTION: "Activate",
@@ -93,6 +145,8 @@ export const SCORE_TEMPLATE_TEXT = {
   CLONE_ERROR: "Could not clone this template. Please try again.",
 } as const;
 
+export const SCORE_TEMPLATE_VALIDATION_FAILED_CODE = "SCORE_TEMPLATE_VALIDATION_FAILED";
+
 export const SCORE_TEMPLATE_ERROR_MESSAGES: Record<string, string> = {
   SCORE_TEMPLATE_NOT_FOUND:
     "This exam template could not be found. Refresh the list and try again.",
@@ -103,6 +157,8 @@ export const SCORE_TEMPLATE_ERROR_MESSAGES: Record<string, string> = {
   SCORE_TEMPLATE_PENDING_APPROVAL: "This template is already awaiting platform admin review.",
   SCORE_TEMPLATE_VALIDATION_FAILED:
     "This template is not ready yet. Review the selected task types, counts, timing, and skill weights.",
+  SKILL_WEIGHT_TOTAL_NOT_100:
+    "Could not save: each skill's weight column (Speaking, Writing, Reading, Listening) must total exactly 100. Adjust the weights and save again.",
   TASK_RUNTIME_PROFILE_NOT_FOUND:
     "One selected task type has no runtime profile. Ask the platform team to enable it before activating this template.",
   TASK_RUNTIME_PROFILE_NOT_ACTIVE:
@@ -126,18 +182,12 @@ export const SCORE_TEMPLATE_LIST_HEADERS = {
   NAME: "Name",
   STATUS: "Status",
   ITEMS: "Items",
-  POLICY: "Policy",
   ACTIONS: "Actions",
 } as const;
 
-export const SCORE_TEMPLATE_POLICY_LABELS = {
-  STANDARD_PTE: "Standard PTE",
-  CUSTOM: "Custom task set",
-} as const;
-
 export const SCORE_TEMPLATE_ITEM_HEADERS = {
-  SEQUENCE: "#",
   TASK_TYPE: "Task type",
+  POOL: "Available / needed",
   SECTION: "Section",
   MIN_COUNT: "Min",
   MAX_COUNT: "Max",
@@ -148,7 +198,66 @@ export const SCORE_TEMPLATE_ITEM_HEADERS = {
   WRITING_WEIGHT: "Writing %",
   READING_WEIGHT: "Reading %",
   LISTENING_WEIGHT: "Listening %",
+  QUESTION_COUNT: "Questions",
+  TIME_SECONDS: "Time (s)",
 } as const;
+
+export const SCORE_TEMPLATE_ROW_TEXT = {
+  DRAG_HANDLE: "Drag to reorder",
+  ACTIONS_LABEL: "Task type actions",
+  EDIT_DETAILS: "Edit details",
+  DETAILS_TITLE: "Task type details",
+  DETAILS_DONE: "Done",
+  PREP: "Prep",
+  RESPONSE: "Response",
+  SECTION_EMPTY: "No task types in this section yet.",
+  NO_SKILL_WEIGHT: "—",
+  QUESTIONS_SUFFIX: "questions",
+  SKILL_WEIGHTS_HINT: "Skill weights",
+  VIEW_LABEL: "Table view",
+  VIEW_STRUCTURE: "Questions & timing",
+  VIEW_WEIGHTS: "Weights",
+} as const;
+
+/**
+ * Row grid from `sm` up: task type, timing, overall weight, skill weights, question
+ * count (and the actions menu in the editor). The title takes the free width and the
+ * small columns stay fixed so they line up from row to row. Literal strings so Tailwind
+ * can see them.
+ */
+export const SCORE_TEMPLATE_ROW_COLUMNS = {
+  EDITABLE: "sm:grid-cols-[minmax(0,1fr)_7.5rem_6rem_13rem_12rem_2rem]",
+  READ_ONLY: "sm:grid-cols-[minmax(0,1fr)_7.5rem_6rem_13rem_8rem]",
+} as const;
+
+/** `ALL` is a tab value, never a section: it lists every section one after another. */
+export const SCORE_TEMPLATE_ALL_TAB = "ALL";
+
+/** What a task type dragged out of the palette carries: its key. */
+export const TASK_TYPE_DRAG_TYPE = "application/x-pte-task-type";
+
+/** Marks the palette as the place a table row is dragged back to, to take it out of the template. */
+export const PALETTE_DROP_ATTRIBUTE = "data-task-type-palette";
+
+/** Which draft field carries each skill's weight; order is the display order of the chips. */
+export const SCORE_TEMPLATE_SKILL_WEIGHT_FIELDS = [
+  { section: "SPEAKING", field: "speakingWeight" },
+  { section: "WRITING", field: "writingWeight" },
+  { section: "READING", field: "readingWeight" },
+  { section: "LISTENING", field: "listeningWeight" },
+] as const;
+
+/** Numeric fields of the details dialog, in the order they are shown. */
+export const SCORE_TEMPLATE_DETAIL_FIELDS = [
+  { field: "minCount", header: "MIN_COUNT", step: "1" },
+  { field: "maxCount", header: "MAX_COUNT", step: "1" },
+  { field: "prepSeconds", header: "PREP_SECONDS", step: "1" },
+  { field: "responseSeconds", header: "RESPONSE_SECONDS", step: "1" },
+  { field: "speakingWeight", header: "SPEAKING_WEIGHT", step: "0.01" },
+  { field: "writingWeight", header: "WRITING_WEIGHT", step: "0.01" },
+  { field: "readingWeight", header: "READING_WEIGHT", step: "0.01" },
+  { field: "listeningWeight", header: "LISTENING_WEIGHT", step: "0.01" },
+] as const;
 
 export const SCORE_TEMPLATE_STATUS_LABELS: Record<ScoreTemplateStatusFilter, string> = {
   ACTIVE: "Active",
@@ -163,3 +272,9 @@ export const SCORE_TEMPLATE_STATUS_VARIANT: Record<ScoreTemplateStatusFilter, Ba
   DRAFT: "warning",
   RETIRED: "neutral",
 };
+
+/**
+ * Every template an admin authors is a platform template, which must cover the whole task-type
+ * catalog, so it is always a standard PTE one. Custom task sets belong to host templates.
+ */
+export const PLATFORM_TEMPLATE_POLICY = "STANDARD_PTE" as const;

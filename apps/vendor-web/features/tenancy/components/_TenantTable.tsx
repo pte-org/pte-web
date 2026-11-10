@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactElement } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
   ActionMenu,
@@ -29,6 +29,8 @@ interface TenantTableProps {
   onReactivate: (tenant: Tenant) => void;
   onGrantQuota?: (tenant: Tenant) => void;
   onViewQuotaHistory?: (tenant: Tenant) => void;
+  /** Actions on the right of the table toolbar, e.g. the add button. */
+  toolbarActions?: ReactNode;
 }
 
 export const TenantTable = ({
@@ -37,6 +39,7 @@ export const TenantTable = ({
   onReactivate,
   onGrantQuota,
   onViewQuotaHistory,
+  toolbarActions,
 }: TenantTableProps): ReactElement => {
   const H = useAdminCopy(RAW_TENANT_TABLE_HEADERS);
   const T = useAdminCopy(RAW_TENANCY_TEXT);
@@ -86,7 +89,7 @@ export const TenantTable = ({
       className: "whitespace-nowrap font-mono text-xs text-slate-500",
     },
     {
-      // The student limit is what actually binds a tenant; packages are granted on the Package grants page.
+      // The student limit is what actually binds a tenant; packages are granted on the License code page.
       key: "studentLimit",
       header: H.STUDENT_LIMIT,
       cell: (tenant) => tenant.seatsTotal,
@@ -108,6 +111,7 @@ export const TenantTable = ({
     <DataTable
       columns={columns}
       rows={tenants}
+      toolbarActions={toolbarActions}
       getRowKey={(tenant) => tenant.id}
       searchPlaceholder={searchText.placeholder}
       searchAriaLabel={searchText.ariaLabel}

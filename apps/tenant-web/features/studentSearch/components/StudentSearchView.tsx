@@ -12,6 +12,7 @@ import {
   Button,
   CheckCircleIcon,
   ConfirmDialog,
+  MailIcon,
   DataTable,
   EyeIcon,
   LockIcon,
@@ -39,6 +40,12 @@ import { useReactivateStudent, useStudentRoster, useSuspendStudent } from "../ap
 import { ManageStudentsModal } from "./ManageStudentsModal";
 import { LockedFilterBanner } from "./LockedFilterBanner";
 import { ClassBlockedAlert } from "./ClassBlockedAlert";
+import { SendPasswordEmailDialog } from "./SendPasswordEmailDialog";
+import {
+  buildSendPasswordEmailTarget,
+  getSendPasswordEmailState,
+  type SendPasswordEmailTarget,
+} from "../utils/sendPasswordEmail";
 import { useAssignStudentsDeeplink } from "./useAssignStudentsDeeplink";
 import {
   GeneratedCredentialsModal,
@@ -67,6 +74,14 @@ export const StudentSearchView = (): ReactElement => {
     generatePassword: t(
       "tenant.students.generatePassword",
       STUDENT_ROSTER_FILTER_TEXT.generatePassword,
+    ),
+    sendPasswordEmail: t(
+      "tenant.students.sendPasswordEmail",
+      STUDENT_ROSTER_FILTER_TEXT.sendPasswordEmail,
+    ),
+    sendPasswordEmailNoEmail: t(
+      "tenant.students.sendPasswordEmailNoEmail",
+      STUDENT_ROSTER_FILTER_TEXT.sendPasswordEmailNoEmail,
     ),
     suspend: t("tenant.students.suspend", STUDENT_ROSTER_FILTER_TEXT.suspend),
     reactivate: t("tenant.students.reactivate", STUDENT_ROSTER_FILTER_TEXT.reactivate),
@@ -141,6 +156,7 @@ export const StudentSearchView = (): ReactElement => {
   const [guardOpen, setGuardOpen] = useState(false);
   const [studentToSuspend, setStudentToSuspend] = useState<StudentRosterRow | null>(null);
   const [passwordTarget, setPasswordTarget] = useState<StudentRosterRow | null>(null);
+  const [emailTarget, setEmailTarget] = useState<SendPasswordEmailTarget | null>(null);
   const [credentials, setCredentials] = useState<GeneratedCredentials | null>(null);
   const [keepPreviousRows, setKeepPreviousRows] = useState(false);
 
@@ -456,6 +472,18 @@ export const StudentSearchView = (): ReactElement => {
                 disabled: generateCredentials.isPending,
                 onSelect: () => setPasswordTarget(row),
               },
+              {
+                label: text.sendPasswordEmail,
+                icon: MailIcon,
+                disabled: !getSendPasswordEmailState(row).enabled,
+                title: getSendPasswordEmailState(row).enabled
+                  ? undefined
+                  : text.sendPasswordEmailNoEmail,
+                onSelect: () =>
+                  setEmailTarget(
+                    buildSendPasswordEmailTarget(row.studentPublicId, row.fullName, row.email),
+                  ),
+              },
               row.status === "SUSPENDED"
                 ? {
                     label: text.reactivate,
@@ -514,6 +542,8 @@ export const StudentSearchView = (): ReactElement => {
         }}
         onClose={() => setPasswordTarget(null)}
       />
+
+      <SendPasswordEmailDialog student={emailTarget} onClose={() => setEmailTarget(null)} />
 
       <GeneratedCredentialsModal
         open={credentials !== null}

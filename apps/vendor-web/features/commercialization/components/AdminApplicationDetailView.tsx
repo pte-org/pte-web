@@ -36,14 +36,14 @@ const AdminApplicationDetailContent = ({
   const [rejectionReason, setRejectionReason] = useState("");
   const [lastAction, setLastAction] = useState<ReviewAction | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [refreshFailed, setRefreshFailed] = useState(false);
 
   const mutationError =
     lastAction === "approve" ? approve.error : lastAction === "reject" ? reject.error : undefined;
   const errorMessage = mutationError
-    ? mutationError instanceof ApiError && mutationError.kind === "conflict"
-      ? T.UNCERTAIN
-      : getUserFacingApiErrorMessage(mutationError, T.UPDATE_ERROR)
+    ? getUserFacingApiErrorMessage(
+        mutationError,
+        mutationError instanceof ApiError && mutationError.kind === "conflict" ? T.UNCERTAIN : T.UPDATE_ERROR,
+      )
     : undefined;
 
   if (applicationQuery.isLoading) return <p className="text-sm text-slate-500">{T.LOADING}</p>;
@@ -88,13 +88,13 @@ const AdminApplicationDetailContent = ({
   const canReview = application.status === "PENDING";
   const isReviewing = approve.isPending || reject.isPending || isRefreshing;
   const refreshAfterUncertainResult = (action: ReviewAction): void => {
-    setRefreshFailed(false);
     setIsRefreshing(true);
     void applicationQuery.refetch().then(
       (result) => {
         if (result.error) {
-          setRefreshFailed(true);
-        } else {
+          showToast(T.REFRESH_ERROR, { tone: "error" });
+        } else if (result.data?.status !== "PENDING") {
+          // The decision was already settled elsewhere; a still-pending application keeps its rejection reason on screen.
           if (action === "approve") approve.reset();
           if (action === "reject") reject.reset();
           setLastAction(null);
@@ -102,7 +102,7 @@ const AdminApplicationDetailContent = ({
         setIsRefreshing(false);
       },
       () => {
-        setRefreshFailed(true);
+        showToast(T.REFRESH_ERROR, { tone: "error" });
         setIsRefreshing(false);
       },
     );
@@ -135,7 +135,6 @@ const AdminApplicationDetailContent = ({
 
   return (
     <div className="flex flex-col gap-5">
-      {refreshFailed && <Alert tone="error">{T.REFRESH_ERROR}</Alert>}
       {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
       <div className="grid gap-5 lg:grid-cols-[1.35fr_1fr]">
         <CommercialPanel title={T.DETAILS_TITLE}>

@@ -1,23 +1,23 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
+  ApiError,
   type QuestionTypeResponse,
-  type QuestionTypeSection,
   type ScoreTemplateFeasibilityResponse,
 } from "@pte/api-client";
 import {
   Alert,
-  Button,
-  Input,
+  ItemPalette,
   LoadingState,
-  PageHeader,
-  Select,
+  UnsavedChangesGuard,
+  useDashboardBreadcrumbLabel,
   useLocale,
   useToast,
 } from "@pte/ui";
 import { translateAdminText, useAdminCopy } from "@/features/i18n/adminCopy";
+import { sectionTone } from "@/lib/chipTones";
 import {
   useActivateScoreTemplate,
   useReplaceScoreTemplateItems,
@@ -28,22 +28,41 @@ import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
 import { useTaskTypes } from "@/features/questiontemplate/api";
 import {
+  createDraftItem,
+  findPaletteTypes,
+  getAddTaskTypeBlocker,
+  taskTypeKeyOf,
+} from "../addTaskType";
+import {
   EXAM_TEMPLATE_BASE_PATH,
   EXAM_TEMPLATE_SECTIONS,
+  PALETTE_DROP_ATTRIBUTE,
+  SCORE_TEMPLATE_ALL_TAB,
+  PLATFORM_TEMPLATE_POLICY,
   SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
+  SCORE_TEMPLATE_VALIDATION_FAILED_CODE,
+  TASK_TYPE_DRAG_TYPE,
 } from "../constants";
+import { createDraftSnapshot } from "../draftSnapshot";
 import { getScoreTemplateErrorMessage } from "../errorMessage";
-import { hasUnreadyTaskType, isTaskTypeRuntimeReady } from "../taskTypeReadiness";
+import { buildPoolIndex } from "../poolAvailability";
+import { applyVisibleOrder } from "../reorderSectionItems";
+import { describeSkillWeightMismatch } from "../skillWeightTotals";
+import { hasUnreadyTaskType } from "../taskTypeReadiness";
 import {
   fromDraft,
   toDraft,
   type ScoreTemplateItemDraft,
-  type ScoreTemplatePolicy,
   type ScoreTemplateResponse,
 } from "../types";
 import { ActivateTemplateModal } from "./ActivateTemplateModal";
 import { ScoreTemplateItemTable } from "./_ScoreTemplateItemTable";
+import { TemplateCefrDialog } from "./TemplateCefrDialog";
+import { TemplateDurationSummary } from "./TemplateDurationSummary";
+import { TemplateInfoPanel } from "./TemplateInfoPanel";
+import { TemplateTimeFrameDialog } from "./TemplateTimeFrameDialog";
 import { TemplateReadinessSummary } from "./TemplateReadinessSummary";
+import { TemplateToolbarActions } from "./TemplateToolbarActions";
 
 interface ScoreTemplateEditorViewProps {
   publicId: string;
@@ -55,6 +74,14 @@ export const ScoreTemplateEditorView = ({
 }: ScoreTemplateEditorViewProps): ReactElement => {
   const SCORE_TEMPLATE_TEXT = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
   const { data: template, isLoading, isError, error } = useScoreTemplate(publicId);
+  const pathname = usePathname();
+  // The breadcrumb's last segment names the template, so the page needs no title of its own.
+  useDashboardBreadcrumbLabel(
+    pathname,
+    template
+      ? `${template.code} v${template.version} (${SCORE_TEMPLATE_TEXT.DRAFT_STATUS_LABEL})`
+      : undefined,
+  );
   const {
     data: questionTypes = [],
     isLoading: isTaskTypesLoading,
@@ -128,39 +155,46 @@ const ScoreTemplateEditorForm = ({
   const SCORE_TEMPLATE_TEXT = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
   const { locale } = useLocale();
   const { showToast } = useToast();
-  const reportError = (error: unknown): void => {
-    showToast(
-      translateAdminText(
-        getScoreTemplateErrorMessage(error, SCORE_TEMPLATE_TEXT.SAVE_ERROR),
-        locale,
-      ),
-      { tone: "error" },
-    );
-  };
   const sectionLabels = useAdminCopy({
     SPEAKING: "Speaking",
     WRITING: "Writing",
     READING: "Reading",
     LISTENING: "Listening",
   });
+  // The API's generic validation failure hides which column is off; name it from the on-screen totals.
+  const reportError = (error: unknown): void => {
+    const mismatch =
+      error instanceof ApiError && error.code === SCORE_TEMPLATE_VALIDATION_FAILED_CODE
+        ? describeSkillWeightMismatch(items, sectionLabels)
+        : null;
+    showToast(
+      mismatch
+        ? `${SCORE_TEMPLATE_TEXT.WEIGHT_TOTAL_MISMATCH} ${mismatch}.`
+        : translateAdminText(
+            getScoreTemplateErrorMessage(error, SCORE_TEMPLATE_TEXT.SAVE_ERROR),
+            locale,
+          ),
+      { tone: "error" },
+    );
+  };
   const router = useRouter();
   const { data: currentUser } = useCurrentUser();
   const replaceItemsMutation = useReplaceScoreTemplateItems();
   const activateMutation = useActivateScoreTemplate();
   const canActivate = canReviewAcademic(currentUser?.roles);
   const [name, setName] = useState(template.name);
-  const [templatePolicy, setTemplatePolicy] = useState<ScoreTemplatePolicy>(
-    template.templatePolicy === "CUSTOM" ? "CUSTOM" : "STANDARD_PTE",
-  );
+  const [timeFrameOpen, setTimeFrameOpen] = useState(false);
+  const [cefrOpen, setCefrOpen] = useState(false);
   const [items, setItems] = useState<ScoreTemplateItemDraft[]>(() => template.items.map(toDraft));
+  // What the server holds right now; anything different on screen is unsaved.
+  const [savedSnapshot, setSavedSnapshot] = useState(() =>
+    createDraftSnapshot(template.name, template.items.map(toDraft)),
+  );
+  const hasUnsavedChanges = createDraftSnapshot(name, items) !== savedSnapshot;
   const [activateTarget, setActivateTarget] = useState<ScoreTemplateResponse | null>(null);
   const [nameError, setNameError] = useState<string>();
-  const [newSection, setNewSection] = useState<QuestionTypeSection | "">("");
-  const [newTypeCode, setNewTypeCode] = useState("");
-  const taskTypeKey = (type: QuestionTypeResponse): string => type.taskTypeKey ?? type.code;
-  const selectableQuestionTypes = questionTypes.filter(
-    (type) => type.active && isTaskTypeRuntimeReady(type),
-  );
+  // The tab the "add task type" dialog was opened from; `null` keeps it closed.
+  const taskTypeKey = taskTypeKeyOf;
 
   const handleItemChange = (
     index: number,
@@ -178,25 +212,8 @@ const ScoreTemplateEditorForm = ({
     );
   };
 
-  const handleItemSectionChange = (index: number, section: string): void => {
-    setItems((current) => {
-      const usedByOtherItems = new Set(
-        current.filter((_, itemIndex) => itemIndex !== index).map((item) => item.taskTypeKey),
-      );
-      const firstAvailableType = selectableQuestionTypes.find(
-        (type) => type.section === section && !usedByOtherItems.has(taskTypeKey(type)),
-      );
-      return current.map((item, itemIndex) =>
-        itemIndex === index
-          ? {
-              ...item,
-              section,
-              taskType: firstAvailableType ? taskTypeKey(firstAvailableType) : "",
-              taskTypeKey: firstAvailableType ? taskTypeKey(firstAvailableType) : "",
-            }
-          : item,
-      );
-    });
+  const handleReorderItems = (orderedTaskTypeKeys: string[]): void => {
+    setItems((current) => applyVisibleOrder(current, orderedTaskTypeKeys));
   };
 
   // `items`/`name` are local form state, initialized once from the template
@@ -205,24 +222,32 @@ const ScoreTemplateEditorForm = ({
   // react-query refetching the underlying query does not re-run this
   // component's `useState` initializers. Synced back in explicitly here so
   // the on-screen values (Overall %) reflect what was actually just saved.
+  const applySavedTemplate = (saved: ScoreTemplateResponse): void => {
+    const savedItems = saved.items.map(toDraft);
+    setName(saved.name);
+    setItems(savedItems);
+    setSavedSnapshot(createDraftSnapshot(saved.name, savedItems));
+  };
+
   const handleSaveDraft = (): void => {
     if (!name.trim()) {
       setNameError(SCORE_TEMPLATE_TEXT.NAME_REQUIRED);
       showToast(SCORE_TEMPLATE_TEXT.NAME_REQUIRED, { tone: "error" });
       return;
     }
+    // A template with no task type cannot be used, so say what is missing when the user saves it.
+    if (items.length === 0) {
+      showToast(SCORE_TEMPLATE_TEXT.READINESS_EMPTY, { tone: "error" });
+      return;
+    }
     replaceItemsMutation.mutate(
       {
         publicId: template.publicId,
-        payload: { name, items: items.map(fromDraft), templatePolicy },
+        payload: { name, items: items.map(fromDraft), templatePolicy: PLATFORM_TEMPLATE_POLICY },
       },
       {
         onError: reportError,
-        onSuccess: (response) => {
-          setName(response.name);
-          setTemplatePolicy(response.templatePolicy === "CUSTOM" ? "CUSTOM" : "STANDARD_PTE");
-          setItems(response.items.map(toDraft));
-        },
+        onSuccess: applySavedTemplate,
       },
     );
   };
@@ -236,7 +261,7 @@ const ScoreTemplateEditorForm = ({
     replaceItemsMutation.mutate(
       {
         publicId: template.publicId,
-        payload: { name, items: items.map(fromDraft), templatePolicy },
+        payload: { name, items: items.map(fromDraft), templatePolicy: PLATFORM_TEMPLATE_POLICY },
       },
       {
         onSuccess: (saved) => {
@@ -244,9 +269,7 @@ const ScoreTemplateEditorForm = ({
           // state before proceeding — if `activate` below then fails, the
           // form stays on screen showing what's actually in the DB now,
           // not stale pre-save values.
-          setName(saved.name);
-          setTemplatePolicy(saved.templatePolicy === "CUSTOM" ? "CUSTOM" : "STANDARD_PTE");
-          setItems(saved.items.map(toDraft));
+          applySavedTemplate(saved);
           activateMutation.mutate(target.publicId, {
             onSuccess: () => {
               setActivateTarget(null);
@@ -260,41 +283,19 @@ const ScoreTemplateEditorForm = ({
     );
   };
 
-  // scoringMethod is deliberately not set here — it's backend-derived from
-  // taskType (never accepted as admin input), and timingMode no longer
-  // exists at all (column dropped) — see ScoreTemplateItemDraft.
-  const handleAddType = (): void => {
-    const type = selectableQuestionTypes.find(
-      (candidate) => taskTypeKey(candidate) === newTypeCode,
+  const handleAddType = (type: QuestionTypeResponse): void => {
+    setItems((current) =>
+      current.some((item) => item.taskTypeKey === taskTypeKey(type))
+        ? current
+        : [...current, createDraftItem(type, current.length + 1)],
     );
-    const selectedKey = type ? taskTypeKey(type) : "";
-    if (
-      !type ||
-      type.section !== newSection ||
-      items.some((item) => item.taskTypeKey === selectedKey)
-    )
-      return;
+  };
 
-    setItems((current) => [
-      ...current,
-      {
-        taskType: type.code,
-        taskTypeKey: selectedKey,
-        section: type.section,
-        sequence: current.length + 1,
-        minCount: "1",
-        maxCount: "1",
-        prepSeconds: "0",
-        responseSeconds: "0",
-        overallWeight: "0",
-        speakingWeight: "0",
-        writingWeight: "0",
-        readingWeight: "0",
-        listeningWeight: "0",
-      },
-    ]);
-    setNewSection("");
-    setNewTypeCode("");
+  // Why the palette is empty: nothing is left in the section, or the catalog offers nothing to add.
+  const paletteEmptyText = (activeTab: string): string => {
+    if (activeTab === SCORE_TEMPLATE_ALL_TAB) return SCORE_TEMPLATE_TEXT.PALETTE_ALL_USED;
+    const blocker = getAddTaskTypeBlocker(questionTypes, items, activeTab);
+    return blocker ? SCORE_TEMPLATE_TEXT[blocker] : SCORE_TEMPLATE_TEXT.NO_TYPES_TO_ADD;
   };
 
   const handleRemoveType = (index: number): void => {
@@ -305,10 +306,6 @@ const ScoreTemplateEditorForm = ({
     );
   };
 
-  const availableTypes = selectableQuestionTypes.filter(
-    (type) =>
-      type.section === newSection && !items.some((item) => item.taskTypeKey === taskTypeKey(type)),
-  );
   const activeCatalogTypes = questionTypes.filter((type) => type.active);
   const selectedTypeUnavailable =
     items.some(
@@ -324,49 +321,12 @@ const ScoreTemplateEditorForm = ({
     !isFeasibilityLoading &&
     !isFeasibilityError &&
     feasibilityReady;
-  const addTypeDiagnostic = !newSection
-    ? null
-    : activeCatalogTypes.length === 0 ||
-        questionTypes.filter((type) => type.active && type.section === newSection).length === 0
-      ? SCORE_TEMPLATE_TEXT.NO_ACTIVE_TASK_TYPES
-      : availableTypes.length > 0
-        ? null
-        : questionTypes
-              .filter((type) => type.active && type.section === newSection)
-              .every((type) => items.some((item) => item.taskTypeKey === taskTypeKey(type)))
-          ? SCORE_TEMPLATE_TEXT.ALL_ACTIVE_TYPES_USED
-          : SCORE_TEMPLATE_TEXT.INCOMPATIBLE_RUNTIME_PROFILE;
-
   const handleOpenActivate = (): void => {
     setActivateTarget(template);
   };
 
   return (
     <div className="space-y-6">
-      <PageHeader
-        title={`${template.code} v${template.version} (${SCORE_TEMPLATE_TEXT.DRAFT_STATUS_LABEL})`}
-        actions={
-          <>
-            <Button
-              variant="secondary"
-              isLoading={replaceItemsMutation.isPending}
-              onClick={handleSaveDraft}
-            >
-              {SCORE_TEMPLATE_TEXT.SAVE_DRAFT}
-            </Button>
-            {canActivate && (
-              <Button
-                variant="primary"
-                onClick={handleOpenActivate}
-                disabled={!canActivateFromCatalog}
-              >
-                {SCORE_TEMPLATE_TEXT.ACTIVATE_ACTION}
-              </Button>
-            )}
-          </>
-        }
-      />
-
       <TemplateReadinessSummary
         items={items}
         questionTypes={questionTypes}
@@ -375,86 +335,96 @@ const ScoreTemplateEditorForm = ({
         failed={isFeasibilityError}
       />
 
-      <div>
-        <Input
-          id="score-template-name"
-          label={SCORE_TEMPLATE_TEXT.NAME_LABEL}
-          error={nameError}
-          value={name}
-          onChange={(event) => {
-            setName(event.target.value);
-            setNameError(undefined);
-          }}
-        />
-      </div>
-
-      <div className="max-w-md">
-        <Select
-          id="score-template-policy"
-          label={SCORE_TEMPLATE_TEXT.POLICY_LABEL}
-          value={templatePolicy}
-          onChange={(event) => setTemplatePolicy(event.target.value as ScoreTemplatePolicy)}
-          options={[
-            { value: "STANDARD_PTE", label: SCORE_TEMPLATE_TEXT.STANDARD_POLICY },
-            { value: "CUSTOM", label: SCORE_TEMPLATE_TEXT.CUSTOM_POLICY },
-          ]}
-        />
-        {templatePolicy === "CUSTOM" && (
-          <p className="mt-1 text-xs text-gray-500">{SCORE_TEMPLATE_TEXT.CUSTOM_POLICY_NOTICE}</p>
-        )}
-      </div>
-
-      <div className="rounded-lg border border-blue-100 bg-blue-50/60 p-4">
-        <p className="mb-3 text-sm text-blue-900">{SCORE_TEMPLATE_TEXT.TASK_TYPE_CATALOG_NOTICE}</p>
-        <div className="flex flex-col gap-3 md:flex-row md:items-end">
-          <div className="flex flex-1 flex-col gap-2">
-            <Select
-              id="exam-template-add-section"
-              label={SCORE_TEMPLATE_TEXT.ADD_TYPE}
-              value={newSection}
-              onChange={(event) => {
-                setNewSection(event.target.value as QuestionTypeSection | "");
-                setNewTypeCode("");
-              }}
-              placeholder={SCORE_TEMPLATE_TEXT.ADD_SECTION_PLACEHOLDER}
-              options={EXAM_TEMPLATE_SECTIONS.map((section) => ({
-                value: section,
-                label: sectionLabels[section],
-              }))}
-            />
-            <Select
-              id="exam-template-add-type"
-              value={newTypeCode}
-              onChange={(event) => setNewTypeCode(event.target.value)}
-              disabled={!newSection || availableTypes.length === 0}
-              placeholder={
-                !newSection
-                  ? SCORE_TEMPLATE_TEXT.NO_SECTION_SELECTED
-                  : (addTypeDiagnostic ?? SCORE_TEMPLATE_TEXT.ADD_TYPE_PLACEHOLDER)
-              }
-              options={availableTypes.map((type) => ({
-                value: taskTypeKey(type),
-                label: `${type.displayName} (${taskTypeKey(type)})`,
-              }))}
-            />
-          </div>
-          <Button
-            variant="secondary"
-            onClick={handleAddType}
-            disabled={!newSection || newTypeCode.length === 0 || availableTypes.length === 0}
-          >
-            {SCORE_TEMPLATE_TEXT.ADD_TYPE}
-          </Button>
-        </div>
-      </div>
-
       <ScoreTemplateItemTable
         editable
         items={items}
-        questionTypes={selectableQuestionTypes}
+        pool={feasibility ? buildPoolIndex(feasibility) : undefined}
         onChange={handleItemChange}
-        onSectionChange={handleItemSectionChange}
+        onReorder={handleReorderItems}
         onRemove={handleRemoveType}
+        sidePanel={
+          <>
+            <TemplateInfoPanel
+              template={template}
+              defaultOpen={false}
+              name={name}
+              nameError={nameError}
+              onNameChange={(value) => {
+                setName(value);
+                setNameError(undefined);
+              }}
+            />
+            <TemplateDurationSummary
+              parts={feasibility?.parts}
+              totalMaxSeconds={feasibility?.totalMaxSeconds}
+            />
+          </>
+        }
+        renderToolbarAction={() => (
+          <TemplateToolbarActions
+            onSave={handleSaveDraft}
+            onOpenTimeFrame={() => setTimeFrameOpen(true)}
+            onOpenCefrMix={() => setCefrOpen(true)}
+            isSaving={replaceItemsMutation.isPending}
+            canActivate={canActivate}
+            isActivatable={canActivateFromCatalog}
+            onActivate={handleOpenActivate}
+          />
+        )}
+        renderEmptyAction={() => (
+          <p className="text-sm text-[var(--ink-muted)]">{SCORE_TEMPLATE_TEXT.DROP_HINT}</p>
+        )}
+        renderPalette={(activeTab) => (
+          <ItemPalette
+            title={SCORE_TEMPLATE_TEXT.PALETTE_TITLE}
+            hint={SCORE_TEMPLATE_TEXT.PALETTE_HINT}
+            addLabel={SCORE_TEMPLATE_TEXT.ADD_TYPE}
+            emptyText={paletteEmptyText(activeTab)}
+            entries={findPaletteTypes(
+              questionTypes,
+              items,
+              activeTab,
+              EXAM_TEMPLATE_SECTIONS,
+              SCORE_TEMPLATE_ALL_TAB,
+            ).map((type) => ({
+              id: taskTypeKey(type),
+              label: type.displayName,
+              section: type.section,
+            }))}
+            grouped={activeTab === SCORE_TEMPLATE_ALL_TAB}
+            sectionLabel={(section) =>
+              sectionLabels[section as keyof typeof sectionLabels] ?? section
+            }
+            sectionTone={sectionTone}
+            dragType={TASK_TYPE_DRAG_TYPE}
+            dropAttribute={PALETTE_DROP_ATTRIBUTE}
+            onAdd={(key) => {
+              const type = questionTypes.find((candidate) => taskTypeKey(candidate) === key);
+              if (type) handleAddType(type);
+            }}
+          />
+        )}
+        onDropTaskType={(key) => {
+          const type = questionTypes.find((candidate) => taskTypeKey(candidate) === key);
+          if (type) handleAddType(type);
+        }}
+      />
+
+      <TemplateTimeFrameDialog
+        open={timeFrameOpen}
+        onClose={() => setTimeFrameOpen(false)}
+        template={template}
+      />
+
+      <TemplateCefrDialog open={cefrOpen} onClose={() => setCefrOpen(false)} template={template} />
+
+      <UnsavedChangesGuard
+        isDirty={hasUnsavedChanges}
+        title={SCORE_TEMPLATE_TEXT.UNSAVED_TITLE}
+        description={SCORE_TEMPLATE_TEXT.UNSAVED_DESCRIPTION}
+        stayLabel={SCORE_TEMPLATE_TEXT.UNSAVED_STAY}
+        leaveLabel={SCORE_TEMPLATE_TEXT.UNSAVED_LEAVE}
+        onNavigate={(href) => router.push(href)}
       />
 
       <ActivateTemplateModal

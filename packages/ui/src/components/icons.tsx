@@ -19,6 +19,7 @@ import {
   NextAdminWidget4Icon,
   NextAdminWindowIcon,
 } from "./nextAdminIcons";
+import { FileLinesIcon } from "./dashboardIcons";
 
 interface IconProps {
   className?: string;
@@ -185,6 +186,18 @@ export const DotsVerticalIcon = ({ className }: IconProps): ReactElement => (
   <NextAdminMenuDotsIcon className={className} />
 );
 
+/** Two columns of three dots: the conventional drag-handle glyph. */
+export const GripVerticalIcon = ({ className }: IconProps): ReactElement => (
+  <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}>
+    <circle cx="9" cy="6" r="1.6" />
+    <circle cx="15" cy="6" r="1.6" />
+    <circle cx="9" cy="12" r="1.6" />
+    <circle cx="15" cy="12" r="1.6" />
+    <circle cx="9" cy="18" r="1.6" />
+    <circle cx="15" cy="18" r="1.6" />
+  </svg>
+);
+
 export const DotsHorizontalIcon = ({ className }: IconProps): ReactElement => (
   <NextAdminThreeDots className={className} />
 );
@@ -329,6 +342,10 @@ export const NavTaskTypeIcon = ({ className }: IconProps): ReactElement => (
 );
 
 export const NavExamTemplateIcon = ({ className }: IconProps): ReactElement => (
+  <FileLinesIcon className={className} />
+);
+
+export const NavExamStudioIcon = ({ className }: IconProps): ReactElement => (
   <NextAdminCalendarIcon className={className} />
 );
 

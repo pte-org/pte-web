@@ -8,12 +8,16 @@ export const ANSWERS_SECTION_TEXT = {
   STATUS_FILTER_LABEL: "Status",
   STATUS_FILTER_ALL: "All statuses",
   VIEW: "View",
+  FINAL_SCORE_PROVISIONAL: "Provisional: AI score, no score source chosen yet",
+  COVERAGE: "The student answered {answered}/{expected} questions, {blank} left blank",
 } as const;
 
 export const ANSWER_TABLE_HEADERS = {
+  QUESTION_NUMBER: "No.",
   TASK_TYPE: "Task Type",
   STATUS: "Status",
   EXAMINER_SCORE: "Examiner score",
+  FINAL_SCORE: "Score",
   SUBMITTED_AT: "Submitted",
   ACTIONS: "Actions",
 } as const;
@@ -23,10 +27,12 @@ export const ANSWER_STATUS_LABELS: Record<string, string> = {
   AI_SCORING: "AI Scoring",
   SCORING_FAILED: "Scoring Failed",
   SCORED: "Scored",
+  UNSCORED: "Not scored",
 };
 
 export const ANSWER_STATUS_VARIANT: Record<string, "info" | "success" | "neutral" | "danger"> = {
   PENDING: "neutral",
+  UNSCORED: "neutral",
   AI_SCORING: "info",
   SCORING_FAILED: "danger",
   SCORED: "success",

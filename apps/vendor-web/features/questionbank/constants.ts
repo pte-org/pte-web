@@ -38,7 +38,7 @@ export const QUESTIONBANK_TEXT = {
     "This draft will be removed from authoring. Audit history and media are retained, but it cannot be restored from this UI.",
   DELETE_SUCCESS: "Question draft deleted.",
   DELETE_BLOCKED:
-    "Draft cleanup is unavailable because publication or revision history is protected or unknown.",
+    "This draft cannot be deleted because it has publication history or its history is unknown.",
   ARCHIVE_CONFIRM_TITLE: "Archive this question?",
   ARCHIVE_CONFIRM_DESCRIPTION:
     "This question will be excluded from new exam generation. Existing exam snapshots and publication history are retained.",
@@ -71,18 +71,23 @@ export const QUESTIONBANK_TEXT = {
 
 export const QUESTION_DETAIL_TEXT = {
   BACK: "← Back to Question Bank",
+  BACK_TO_BANK: "Back to the question bank",
+  BACK_TO_STUDIO: "Back to the Content Hub",
   EDIT: "Edit question",
   INFORMATION_TITLE: "Question information",
   GROUP_IDENTITY: "Identity",
   GROUP_CLASSIFICATION: "Classification",
+  GROUP_CONTENT: "Content",
   QUESTION_CODE: "Question code",
   TASK_TYPE: "Task type",
   SECTION: "Section",
-  VISIBILITY: "Visibility",
   POOL: "Question pool",
+  CEFR_LEVEL: "CEFR level",
+  CEFR_UNSET: "Not classified",
   REVISION: "Revision",
-  WORD_COUNT: "Word count",
-  WORD_COUNT_RANGE: (min: number, max: number) => `${min}–${max} words`,
+  REJECTION_REASON: "Rejection reason",
+  MIN_WORD_COUNT: "Minimum word count",
+  MAX_WORD_COUNT: "Maximum word count",
   PROMPT_TITLE: "Prompt",
   PROMPT_TEXT: "Prompt text",
   NO_PROMPT: "This question has no text prompt.",
@@ -99,6 +104,7 @@ export const QUESTION_DETAIL_TEXT = {
   CORRECT: "Correct answer",
   GROUP_ANSWER_KEY: "Answer key",
   REFERENCE_ANSWER: "Reference answer",
+  AUDIO_TRANSCRIPT: "Audio transcript",
   CORRECT_ANSWER: "Correct answer text",
   EMPTY_VALUE: "—",
   LOAD_ERROR: "Could not load this question. Please try again.",
@@ -107,6 +113,9 @@ export const QUESTION_DETAIL_TEXT = {
   IMAGE_ALT: "Question image prompt",
 } as const;
 
+/** The CEFR levels a question can be written for, easiest first. */
+export const CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
+
 export const QUESTIONBANK_OVERVIEW_TEXT = {
   EMPTY_VALUE: "—",
 } as const;
@@ -114,23 +123,32 @@ export const QUESTIONBANK_OVERVIEW_TEXT = {
 export const QUESTION_EDITOR_TEXT = {
   NEW_TITLE: "New question",
   EDIT_TITLE: "Edit question",
-  FORM_EDIT_TITLE: "Edit Question Revision",
+  FORM_EDIT_TITLE: "Edit question",
   FORM_CREATE_TITLE: "Create PTE Question",
   TASK_TYPE: "Task type",
   LOADING_TASK_TYPES: "Loading task types...",
   POOL: "Question pool",
+  CEFR_LEVEL: "CEFR level",
+  CEFR_UNSET: "Not classified",
+  CEFR_HELPER: "Required before an exam question is submitted for approval.",
   POOL_HELPER_CREATE:
     "Exam questions can be drawn into exams; practice questions are only used for practice. This cannot be changed later.",
-  POOL_HELPER_EDIT: "The pool is fixed when a question is created.",
-  TITLE: "Title",
+  POOL_HELPER_EDIT: "The pool can be changed only while the question is a draft.",
+  POOL_HELPER_LOCKED:
+    "The pool is locked once a question is submitted. Open a new draft revision to change it.",
   PROMPT_TEXT: "Prompt text",
   AUDIO_PROMPT: "Audio prompt",
   IMAGE_PROMPT: "Image prompt",
   UPLOADED_MEDIA: (mediaId: string) => `Uploaded media: ${mediaId}`,
+  CHOOSE_FILE: "Choose file",
+  REPLACE_FILE: "Replace file",
+  NO_FILE: "No file chosen",
+  UPLOADING: "Uploading…",
   PROMPT_PREVIEW_ALT: "Question prompt preview",
   MIN_WORD_COUNT: "Minimum word count",
   MAX_WORD_COUNT: "Maximum word count",
   REFERENCE_ANSWER: "Reference answer",
+  AUDIO_TRANSCRIPT: "Audio transcript",
   CORRECT_ANSWER: "Correct answer",
   OPTIONS: "Options",
   CORRECT_OPTION: (index: number) => `Correct option ${index}`,
@@ -144,11 +162,23 @@ export const QUESTION_EDITOR_TEXT = {
   UPDATE_SUCCESS: "Question draft saved.",
 } as const;
 
+export const POOL_CHANGE_TEXT = {
+  TO_PRACTICE_TITLE: "Move this question to Practice?",
+  TO_PRACTICE_BODY:
+    "Practice questions show answers and feedback to learners. Once published, this question will leave the Official pool and can no longer be drawn into exams.",
+  TO_PRACTICE_RISK:
+    "This question has already been published. If it was used in a real exam, moving it to Practice may leak exam content.",
+  TO_OFFICIAL_TITLE: "Move this question to Official?",
+  TO_OFFICIAL_BODY:
+    "Once published, this question can be drawn into exams and will leave the Practice pool. Make sure it has been reviewed to exam standard.",
+  CONFIRM: "Change pool",
+  CANCEL: "Keep current pool",
+} as const;
+
 export const QUESTION_EDITOR_ERRORS = {
   MEDIA_UPLOAD: "Media upload failed. Please try again.",
   QUESTION_TYPES_UNAVAILABLE:
     "Task type configuration is unavailable. Please refresh and try again.",
-  TITLE_REQUIRED: "Title is required.",
   PROMPT_REQUIRED: "Prompt text is required for this task.",
   AUDIO_REQUIRED: "An audio prompt is required for this task.",
   IMAGE_REQUIRED: "An image prompt is required for this task.",
@@ -172,7 +202,10 @@ export const QUESTION_EDITOR_ERRORS = {
 export const QUESTION_TABLE_HEADERS = {
   SKILL: "Skill",
   CONTENT: "Content",
+  TASK_TYPE: "Task type",
   POOL: "Pool",
+  CEFR: "CEFR",
+  SOURCE: "Source",
   STATUS: "Status",
   ACTIONS: "Actions",
 } as const;

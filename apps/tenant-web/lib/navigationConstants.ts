@@ -4,6 +4,7 @@ export const HOST_NAV_TEXT = {
   EXAM_STAFF: "Exam Staff",
   PROGRAMS: "Delivery",
   EXAMS: "Exams",
+  EXAM_TEMPLATES: "Exam templates",
   PLANS_AND_BILLING: "Plans & billing",
   AUDIT_LOG: "System log",
   SUPPORT_TICKETS: "Support Tickets",
@@ -25,6 +26,7 @@ export const EXAMINER_NAV_TEXT = {
 } as const;
 
 export const PROCTOR_NAV_TEXT = {
+  SESSIONS: "Assigned sessions",
   OVERVIEW: "Overview",
   MONITORING: "Monitoring",
   ATTENDANCE: "Attendance",

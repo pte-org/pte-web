@@ -3,14 +3,18 @@ import {
   BYTES_PER_MEGABYTE,
   ROSTER_FILE_ERRORS,
   ROSTER_MAX_FILE_SIZE_BYTES,
+  ROSTER_SAMPLE_ROW_MARKER,
   ROSTER_TEMPLATE_COLUMNS,
+  ROSTER_TEMPLATE_SHEETS,
 } from "./constants";
 import { UserFacingError } from "./errorMessage";
-import type { RosterFileResult, RosterRow } from "./types";
+import { validateRosterRows } from "./validateRosterRows";
+import type { RosterField, RosterFileResult, RosterRow } from "./types";
 
 const MAX_SHEETS_TO_SCAN = 20;
 
-const HEADER_ALIASES: Record<string, keyof RosterRow> = {
+/** Lenient names, kept only for matching existing accounts (`allowUsername`); create flows use the template. */
+const HEADER_ALIASES: Record<string, RosterField> = {
   email: "email",
   username: "username",
   account: "username",
@@ -35,9 +39,18 @@ function normalizeHeader(header: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
+const TEMPLATE_FIELD_BY_HEADER: ReadonlyMap<string, RosterField> = new Map(
+  ROSTER_TEMPLATE_COLUMNS.map((column) => [normalizeHeader(column.header), column.field]),
+);
+
 /** Maps a raw header cell to the roster field it fills, or undefined when it is not a known column. */
-export function resolveRosterField(header: string): keyof RosterRow | undefined {
+export function resolveRosterField(header: string): RosterField | undefined {
   return HEADER_ALIASES[normalizeHeader(header)];
+}
+
+/** Exact template header (case, spaces and punctuation ignored); no aliases. */
+export function resolveTemplateField(header: string): RosterField | undefined {
+  return TEMPLATE_FIELD_BY_HEADER.get(normalizeHeader(header));
 }
 
 function formatIsoDate(date: Date): string {
@@ -65,6 +78,16 @@ export interface ParseRosterFileOptions {
   allowUsername?: boolean;
 }
 
+function sheetRows(sheet: XLSX.WorkSheet): unknown[][] {
+  // blankrows: true keeps array index = spreadsheet row - 1, so a row error can name the row the Host sees.
+  return XLSX.utils.sheet_to_json<unknown[]>(sheet, {
+    header: 1,
+    blankrows: true,
+    defval: "",
+    raw: true,
+  });
+}
+
 export async function parseRosterFile(
   file: File,
   { allowUsername = false }: ParseRosterFileOptions = {},
@@ -79,91 +102,77 @@ export async function parseRosterFile(
     type: "array",
     cellDates: true,
   });
+  return allowUsername ? parseLenient(file.name, workbook) : parseTemplate(file.name, workbook);
+}
 
-  let foundKnownHeaders = false;
+/**
+ * Create flows accept only the PTEPrep template: the Students sheet (or the first sheet) must carry exactly the
+ * template headers, and every row is checked before anything is sent. The sample row is skipped.
+ */
+function parseTemplate(fileName: string, workbook: XLSX.WorkBook): RosterFileResult {
+  const sheetName = workbook.SheetNames.includes(ROSTER_TEMPLATE_SHEETS.STUDENTS)
+    ? ROSTER_TEMPLATE_SHEETS.STUDENTS
+    : workbook.SheetNames[0];
+  const sheet = sheetName ? workbook.Sheets[sheetName] : undefined;
+  const rawRows = sheet ? sheetRows(sheet) : [];
+  const rawHeaders = (rawRows[0] ?? []).map((header) => toCellText(header));
+  const fieldByColumn = rawHeaders.map((header) => (header ? resolveTemplateField(header) : undefined));
+
+  const unknownColumns = [...new Set(rawHeaders.filter((header, index) => header && !fieldByColumn[index]))];
+  const presentFields = new Set(fieldByColumn.filter(Boolean));
+  const missingColumns = ROSTER_TEMPLATE_COLUMNS.filter(
+    (column) => column.required && !presentFields.has(column.field),
+  ).map((column) => column.header);
+  if (unknownColumns.length > 0 || missingColumns.length > 0) {
+    throw new UserFacingError(ROSTER_FILE_ERRORS.COLUMNS_MISMATCH(unknownColumns, missingColumns));
+  }
+
+  const rows = rawRows.slice(1).flatMap((rawRow, index) => {
+    const row = readRow(rawRow, fieldByColumn);
+    if (!row || row.email === ROSTER_SAMPLE_ROW_MARKER) return [];
+    // +2: array index 0 is spreadsheet row 2 (row 1 is the header).
+    return [{ ...row, sourceRow: index + 2 }];
+  });
+  if (rows.length === 0) throw new UserFacingError(ROSTER_FILE_ERRORS.NO_DATA_ROWS);
+
+  return { fileName, rows, ignoredColumns: [], missingColumns: [], rowIssues: validateRosterRows(rows) };
+}
+
+function readRow(rawRow: unknown[], fieldByColumn: readonly (RosterField | undefined)[]): RosterRow | null {
+  const row: RosterRow = {};
+  fieldByColumn.forEach((field, index) => {
+    if (!field) return;
+    const value = toCellText(rawRow[index]);
+    if (value) row[field] = value;
+  });
+  return Object.keys(row).length > 0 ? row : null;
+}
+
+/** Matching existing accounts: any sheet whose headers resolve through the lenient aliases. */
+function parseLenient(fileName: string, workbook: XLSX.WorkBook): RosterFileResult {
   let firstSheetHeaders: string[] | undefined;
   for (const sheetName of workbook.SheetNames.slice(0, MAX_SHEETS_TO_SCAN)) {
     const sheet = workbook.Sheets[sheetName];
     if (!sheet) continue;
+    const rawRows = sheetRows(sheet);
+    const rawHeaders = (rawRows[0] ?? []).map((header) => toCellText(header));
+    if (!firstSheetHeaders) firstSheetHeaders = rawHeaders.filter(Boolean);
+    const fieldByColumn = rawHeaders.map((header) => resolveRosterField(header));
+    if (!fieldByColumn.some(Boolean)) continue;
 
-    const rawRows = XLSX.utils.sheet_to_json<unknown[]>(sheet, {
-      header: 1,
-      blankrows: false,
-      defval: "",
-      raw: true,
+    const rows = rawRows.slice(1).flatMap((rawRow, index) => {
+      const row = readRow(rawRow, fieldByColumn);
+      return row ? [{ ...row, sourceRow: index + 2 }] : [];
     });
-    const extraction = extractRosterRows(rawRows, allowUsername);
-    if (extraction.hasKnownHeaders) foundKnownHeaders = true;
-    if (!firstSheetHeaders && extraction.headers.length > 0) firstSheetHeaders = extraction.headers;
-    if (extraction.rows.length > 0) {
-      return {
-        fileName: file.name,
-        rows: extraction.rows,
-        ignoredColumns: extraction.ignoredColumns,
-        missingColumns: extraction.missingColumns,
-      };
-    }
+    if (rows.length === 0) continue;
+    const ignoredColumns = [...new Set(rawHeaders.filter((header, index) => header && !fieldByColumn[index]))];
+    return { fileName, rows, ignoredColumns, missingColumns: [], rowIssues: [] };
   }
 
   throw new UserFacingError(
-    foundKnownHeaders
-      ? ROSTER_FILE_ERRORS.NO_DATA_ROWS
-      : ROSTER_FILE_ERRORS.TEMPLATE_REQUIRED(
-          firstSheetHeaders ?? [],
-          ROSTER_TEMPLATE_COLUMNS.map((column) => column.header),
-        ),
+    ROSTER_FILE_ERRORS.TEMPLATE_REQUIRED(
+      firstSheetHeaders ?? [],
+      ROSTER_TEMPLATE_COLUMNS.map((column) => column.header),
+    ),
   );
-}
-
-interface SheetExtraction {
-  hasKnownHeaders: boolean;
-  /** Non-empty header cells exactly as written in the file. */
-  headers: string[];
-  ignoredColumns: string[];
-  missingColumns: string[];
-  rows: RosterRow[];
-}
-
-/**
- * A sheet only counts when its first row maps to at least one known column, and a
- * data row only counts when at least one of those columns has a value — otherwise
- * an arbitrary spreadsheet would import as blank rows (anonymous accounts that
- * consume tenant quota). `username` is a known column only when the caller matches
- * existing accounts by it; the create flows never send it, so it cannot make a row real.
- * Required template columns are only reported missing for the create flows, since
- * matching existing accounts needs an identifier, not a full name.
- */
-function extractRosterRows(rawRows: unknown[][], allowUsername: boolean): SheetExtraction {
-  const rawHeaders = (rawRows[0] ?? []).map((header) => toCellText(header));
-  const headers = rawHeaders.filter((header) => header.length > 0);
-  const fieldByColumn = rawHeaders.map((header) => {
-    const field = resolveRosterField(header);
-    return field === "username" && !allowUsername ? undefined : field;
-  });
-  if (!fieldByColumn.some(Boolean)) {
-    return { hasKnownHeaders: false, headers, ignoredColumns: [], missingColumns: [], rows: [] };
-  }
-
-  const knownFields = new Set(fieldByColumn.filter(Boolean));
-  const ignoredColumns = [
-    ...new Set(rawHeaders.filter((header, index) => header && !fieldByColumn[index])),
-  ];
-  const missingColumns = allowUsername
-    ? []
-    : ROSTER_TEMPLATE_COLUMNS.filter(
-        (column) => column.required && !knownFields.has(column.field),
-      ).map((column) => column.header);
-
-  const rows = rawRows.slice(1).flatMap((rawRow) => {
-    const row: Partial<RosterRow> = {};
-    fieldByColumn.forEach((field, index) => {
-      if (!field) return;
-      const value = toCellText(rawRow[index]);
-      if (value) row[field] = value;
-    });
-
-    return Object.keys(row).length > 0 ? [row as RosterRow] : [];
-  });
-
-  return { hasKnownHeaders: true, headers, ignoredColumns, missingColumns, rows };
 }

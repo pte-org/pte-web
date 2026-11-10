@@ -4,6 +4,7 @@ import { useState, type ReactElement } from "react";
 import { Alert, Button, useToast } from "@pte/ui";
 import {
   RosterColumnWarnings,
+  RosterCreateControls,
   RosterTemplateButton,
   SkippedRowsReport,
 } from "@/features/examoperations/components";
@@ -14,6 +15,7 @@ import type {
   CreatedAccount,
   RosterColumnIssues,
   RosterRow,
+  RosterRowIssue,
   SkippedRow,
 } from "@/features/examoperations/types";
 import { useBulkAssignStudents, useCreateRosterAccountsForClass } from "../api";
@@ -48,6 +50,8 @@ export const ImportExcelTab = ({
   const [file, setFile] = useState<File | null>(null);
   const [rows, setRows] = useState<RosterRow[] | null>(null);
   const [columnIssues, setColumnIssues] = useState<RosterColumnIssues | null>(null);
+  const [rowIssues, setRowIssues] = useState<RosterRowIssue[]>([]);
+  const [sendCredentialsEmail, setSendCredentialsEmail] = useState(false);
   const [parseError, setParseError] = useState<string | undefined>();
   const [lastResult, setLastResult] = useState<{
     created: CreatedAccount[];
@@ -64,6 +68,7 @@ export const ImportExcelTab = ({
       const result = await parseRosterFile(file);
       setRows(result.rows);
       setColumnIssues(result);
+      setRowIssues(result.rowIssues);
     } catch (error) {
       setParseError(errorMessage(error));
     }
@@ -71,7 +76,7 @@ export const ImportExcelTab = ({
 
   const handleCreateAccounts = (): void => {
     if (!rows) return;
-    createAccounts.mutate(rows, {
+    createAccounts.mutate({ rows, sendCredentialsEmail }, {
       onSuccess: (response) => {
         showToast(text.accountsCreated.replace("{count}", String(response.created.length)), {
           tone: "success",
@@ -106,6 +111,8 @@ export const ImportExcelTab = ({
           setFile(selected);
           setRows(null);
           setColumnIssues(null);
+          setRowIssues([]);
+          createAccounts.reset();
           setLastResult(null);
         }}
       />
@@ -126,19 +133,18 @@ export const ImportExcelTab = ({
             {text.reviewRows}: {rows.length}
           </p>
           <RosterColumnWarnings issues={columnIssues} />
-          {!!createAccounts.error && (
-            <Alert tone="error">{errorMessage(createAccounts.error)}</Alert>
-          )}
-          <div>
-            <Button
-              type="button"
-              onClick={handleCreateAccounts}
-              isLoading={createAccounts.isPending}
-              loadingText={text.creating}
-            >
-              {text.createAccounts}
-            </Button>
-          </div>
+          <RosterCreateControls
+            rows={rows}
+            rowIssues={rowIssues}
+            sendCredentialsEmail={sendCredentialsEmail}
+            onSendCredentialsEmailChange={setSendCredentialsEmail}
+            onCreate={handleCreateAccounts}
+            isPending={createAccounts.isPending}
+            error={createAccounts.error}
+            createLabel={text.createAccounts}
+            creatingLabel={text.creating}
+            checkboxId="class-roster-send-credentials"
+          />
         </div>
       )}
 

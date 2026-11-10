@@ -1,9 +1,15 @@
 import * as XLSX from "xlsx";
 import { describe, expect, it } from "vitest";
-import { parseRosterFile, resolveRosterField } from "../../../../features/examoperations/cleanRosterFile";
+import {
+  parseRosterFile,
+  resolveRosterField,
+  resolveTemplateField,
+} from "../../../../features/examoperations/cleanRosterFile";
 import {
   ROSTER_FILE_ERRORS,
   ROSTER_MAX_FILE_SIZE_BYTES,
+  ROSTER_ROW_MESSAGES,
+  ROSTER_SAMPLE_ROW_MARKER,
   ROSTER_TEMPLATE_COLUMNS,
 } from "../../../../features/examoperations/constants";
 
@@ -14,41 +20,47 @@ const TEMPLATE_HEADERS = ROSTER_TEMPLATE_COLUMNS.map((column) => column.header);
 function toXlsxFile(sheets: Record<string, SheetRows>, fileName = "roster.xlsx"): File {
   const workbook = XLSX.utils.book_new();
   Object.entries(sheets).forEach(([name, rows]) => {
-    XLSX.utils.book_append_sheet(
-      workbook,
-      XLSX.utils.aoa_to_sheet(rows, { cellDates: true }),
-      name,
-    );
+    XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(rows, { cellDates: true }), name);
   });
   const bytes: ArrayBuffer = XLSX.write(workbook, { type: "array", bookType: "xlsx" });
   return new File([bytes], fileName);
 }
 
-describe("resolveRosterField", () => {
+/** A template-shaped row: Email, Full Name, Student Code, Program Name, Class Name, Phone, Date of Birth. */
+function templateRow(values: Partial<Record<(typeof TEMPLATE_HEADERS)[number], unknown>>): unknown[] {
+  return TEMPLATE_HEADERS.map((header) => values[header] ?? "");
+}
+
+describe("resolveRosterField (lenient, existing-account matching)", () => {
   it.each([
     ["Full Name", "fullName"],
     ["  e-mail ", "email"],
-    ["Student Code", "studentCode"],
-    ["CLASS NAME", "className"],
     ["Phone Number", "phone"],
-    ["Date of Birth", "dateOfBirth"],
     ["Account", "username"],
   ])("maps %j to %s", (header, field) => {
     expect(resolveRosterField(header)).toBe(field);
   });
+});
 
-  it("returns undefined for an unknown header", () => {
-    expect(resolveRosterField("Ghi chu")).toBeUndefined();
+describe("resolveTemplateField (strict, create flows)", () => {
+  it("accepts every template header, ignoring case and spacing", () => {
+    expect(resolveTemplateField("  EMAIL ")).toBe("email");
+    expect(resolveTemplateField("program name")).toBe("programName");
+    expect(resolveTemplateField("Date of Birth")).toBe("dateOfBirth");
+  });
+
+  it.each(["name", "dob", "e-mail address", "Account"])("rejects the alias %j", (header) => {
+    expect(resolveTemplateField(header)).toBeUndefined();
   });
 });
 
-describe("parseRosterFile", () => {
-  it("maps known headers to roster fields and skips blank cells", async () => {
+describe("parseRosterFile (template)", () => {
+  it("reads template rows, skips blank cells and records the spreadsheet row", async () => {
     const file = toXlsxFile({
       Students: [
-        ["Full Name", "Email", "Student Code"],
-        ["Alice", "alice@example.com", ""],
-        ["Bob", "", "SE001"],
+        TEMPLATE_HEADERS,
+        templateRow({ Email: "alice@example.com", "Full Name": "Alice" }),
+        templateRow({ Email: "bob@example.com", "Full Name": "Bob", "Student Code": "SE001" }),
       ],
     });
 
@@ -56,176 +68,124 @@ describe("parseRosterFile", () => {
 
     expect(result.fileName).toBe("roster.xlsx");
     expect(result.rows).toEqual([
-      { fullName: "Alice", email: "alice@example.com" },
-      { fullName: "Bob", studentCode: "SE001" },
+      { email: "alice@example.com", fullName: "Alice", sourceRow: 2 },
+      { email: "bob@example.com", fullName: "Bob", studentCode: "SE001", sourceRow: 3 },
     ]);
+    expect(result.rowIssues).toEqual([]);
+  });
+
+  it("skips the template's sample row", async () => {
+    const sample = ROSTER_TEMPLATE_COLUMNS.map((column) => column.sample);
+    const file = toXlsxFile({
+      Students: [TEMPLATE_HEADERS, sample, templateRow({ Email: "a@example.com", "Full Name": "A" })],
+    });
+
+    const result = await parseRosterFile(file);
+
+    expect(result.rows).toEqual([{ email: "a@example.com", fullName: "A", sourceRow: 3 }]);
+    expect(sample[0]).toBe(ROSTER_SAMPLE_ROW_MARKER);
+  });
+
+  it("refuses an untouched template because it only holds the sample row", async () => {
+    const sample = ROSTER_TEMPLATE_COLUMNS.map((column) => column.sample);
+    await expect(parseRosterFile(toXlsxFile({ Students: [TEMPLATE_HEADERS, sample] }))).rejects.toMatchObject({
+      userMessage: ROSTER_FILE_ERRORS.NO_DATA_ROWS,
+    });
   });
 
   it("formats an Excel date cell as ISO yyyy-MM-dd", async () => {
     const file = toXlsxFile({
       Students: [
-        ["Full Name", "Date of Birth"],
-        ["Alice", new Date(2008, 0, 15, 12, 0, 0)],
+        TEMPLATE_HEADERS,
+        templateRow({ Email: "a@example.com", "Full Name": "A", "Date of Birth": new Date(2008, 0, 15) }),
       ],
     });
 
-    const result = await parseRosterFile(file);
-
-    expect(result.rows).toEqual([{ fullName: "Alice", dateOfBirth: "2008-01-15" }]);
+    expect((await parseRosterFile(file)).rows[0]?.dateOfBirth).toBe("2008-01-15");
   });
 
-  it("drops rows that only carry values in unknown columns", async () => {
-    const file = toXlsxFile({
-      Students: [
-        ["Full Name", "Notes"],
-        ["", "just a note"],
-        ["Alice", ""],
-      ],
-    });
-
-    const result = await parseRosterFile(file);
-
-    expect(result.rows).toEqual([{ fullName: "Alice" }]);
-  });
-
-  it("does not treat a username-only sheet as importable by default", async () => {
-    const file = toXlsxFile({
-      Sheet1: [
-        ["User", "Last login"],
-        ["alice", "2026-01-01"],
-        ["bob", "2026-01-02"],
-      ],
-    });
+  it("rejects a file with a column that is not in the template", async () => {
+    const file = toXlsxFile({ Students: [[...TEMPLATE_HEADERS, "Ghi chu"], ["a@example.com", "A"]] });
 
     await expect(parseRosterFile(file)).rejects.toMatchObject({
-      userMessage: ROSTER_FILE_ERRORS.TEMPLATE_REQUIRED(["User", "Last login"], TEMPLATE_HEADERS),
+      userMessage: ROSTER_FILE_ERRORS.COLUMNS_MISMATCH(["Ghi chu"], []),
     });
   });
 
-  it("keeps username-only rows when matching existing accounts", async () => {
-    const file = toXlsxFile({
-      Sheet1: [["Username"], ["alice"], ["bob"]],
-    });
-
-    const result = await parseRosterFile(file, { allowUsername: true });
-
-    expect(result.rows).toEqual([{ username: "alice" }, { username: "bob" }]);
-  });
-
-  it("rejects a file with no recognised header and asks for the template", async () => {
-    const file = toXlsxFile({
-      Sheet1: [
-        ["Ho ten", "Ghi chu"],
-        ["Alice", "x"],
-      ],
-    });
+  it("rejects a file that misses a required column", async () => {
+    const file = toXlsxFile({ Students: [["Full Name", "Phone"], ["A", "0901234567"]] });
 
     await expect(parseRosterFile(file)).rejects.toMatchObject({
-      userMessage: ROSTER_FILE_ERRORS.TEMPLATE_REQUIRED(["Ho ten", "Ghi chu"], TEMPLATE_HEADERS),
+      userMessage: ROSTER_FILE_ERRORS.COLUMNS_MISMATCH([], ["Email"]),
     });
   });
 
-  it("names the columns found and the columns expected when it rejects a file", async () => {
-    const file = toXlsxFile({
-      Sheet1: [
-        ["Ho ten", "Ghi chu"],
-        ["Alice", "x"],
-      ],
-    });
-
-    const error = await parseRosterFile(file).catch((caught: unknown) => caught);
-
-    expect(error).toMatchObject({ userMessage: expect.stringContaining("Ho ten, Ghi chu") });
-    expect(error).toMatchObject({ userMessage: expect.stringContaining("Full Name, Email") });
-  });
-
-  it("says so when a rejected file has no header row at all", async () => {
-    const file = toXlsxFile({ Sheet1: [[]] });
+  it("rejects lenient aliases such as Name instead of Full Name", async () => {
+    const file = toXlsxFile({ Students: [["Email", "Name"], ["a@example.com", "A"]] });
 
     await expect(parseRosterFile(file)).rejects.toMatchObject({
-      userMessage: ROSTER_FILE_ERRORS.TEMPLATE_REQUIRED([], TEMPLATE_HEADERS),
+      userMessage: ROSTER_FILE_ERRORS.COLUMNS_MISMATCH(["Name"], ["Full Name"]),
     });
   });
 
-  it("reports columns that are not in the template as ignored", async () => {
+  it("reads the Students sheet even when another sheet comes first", async () => {
+    const file = toXlsxFile({
+      Instructions: [["How to fill in"]],
+      Students: [TEMPLATE_HEADERS, templateRow({ Email: "a@example.com", "Full Name": "A" })],
+    });
+
+    expect((await parseRosterFile(file)).rows).toHaveLength(1);
+  });
+
+  it("reports broken cells with their spreadsheet row instead of rejecting the file", async () => {
     const file = toXlsxFile({
       Students: [
-        ["Full Name", "Ghi chu", "Email", "Lop"],
-        ["Alice", "x", "alice@example.com", "A"],
+        TEMPLATE_HEADERS,
+        templateRow({ "Full Name": "No Email" }),
+        templateRow({ Email: "dup@example.com", "Full Name": "A", Phone: "12ab" }),
+        templateRow({ Email: "DUP@example.com", "Full Name": "B", "Date of Birth": "2999-01-01" }),
       ],
     });
 
     const result = await parseRosterFile(file);
 
-    expect(result.ignoredColumns).toEqual(["Ghi chu", "Lop"]);
-    expect(result.missingColumns).toEqual([]);
+    expect(result.rows).toHaveLength(3);
+    expect(result.rowIssues).toEqual([
+      { row: 2, field: "email", message: ROSTER_ROW_MESSAGES.EMAIL_REQUIRED },
+      { row: 3, field: "phone", message: ROSTER_ROW_MESSAGES.PHONE_INVALID },
+      { row: 4, field: "email", message: ROSTER_ROW_MESSAGES.DUPLICATE_EMAIL_IN_BATCH },
+      { row: 4, field: "dateOfBirth", message: ROSTER_ROW_MESSAGES.DATE_OF_BIRTH_INVALID },
+    ]);
   });
 
-  it("lists a repeated unknown column only once", async () => {
-    const file = toXlsxFile({
-      Students: [
-        ["Full Name", "Notes", "Notes"],
-        ["Alice", "x", "y"],
-      ],
-    });
-
-    const result = await parseRosterFile(file);
-
-    expect(result.ignoredColumns).toEqual(["Notes"]);
-  });
-
-  it("reports a missing required column", async () => {
-    const file = toXlsxFile({ Students: [["Email"], ["alice@example.com"]] });
-
-    const result = await parseRosterFile(file);
-
-    expect(result.missingColumns).toEqual(["Full Name"]);
-  });
-
-  it("does not require Full Name when matching existing accounts", async () => {
-    const file = toXlsxFile({ Students: [["Email"], ["alice@example.com"]] });
-
-    const result = await parseRosterFile(file, { allowUsername: true });
-
-    expect(result.missingColumns).toEqual([]);
-  });
-
-  it("treats a username column as ignored unless existing accounts are matched", async () => {
-    const file = toXlsxFile({
-      Students: [
-        ["Full Name", "Username"],
-        ["Alice", "alice"],
-      ],
-    });
-
-    expect((await parseRosterFile(file)).ignoredColumns).toEqual(["Username"]);
-    expect((await parseRosterFile(file, { allowUsername: true })).ignoredColumns).toEqual([]);
-  });
-
-  it("reports missing data rows when the headers are known but nothing is filled in", async () => {
-    const file = toXlsxFile({ Students: [["Full Name", "Email"]] });
-
-    await expect(parseRosterFile(file)).rejects.toMatchObject({
-      userMessage: ROSTER_FILE_ERRORS.NO_DATA_ROWS,
-    });
-  });
-
-  it("skips a sheet without known headers and reads the next sheet", async () => {
-    const file = toXlsxFile({
-      Notes: [["Read me"], ["Some text"]],
-      Students: [["Full Name"], ["Alice"]],
-    });
-
-    const result = await parseRosterFile(file);
-
-    expect(result.rows).toEqual([{ fullName: "Alice" }]);
-  });
-
-  it("rejects a file above the size limit before reading it", async () => {
+  it("rejects an oversized file before reading it", async () => {
     const file = new File([new Uint8Array(ROSTER_MAX_FILE_SIZE_BYTES + 1)], "big.xlsx");
 
     await expect(parseRosterFile(file)).rejects.toMatchObject({
-      userMessage: ROSTER_FILE_ERRORS.TOO_LARGE(5),
+      userMessage: ROSTER_FILE_ERRORS.TOO_LARGE(ROSTER_MAX_FILE_SIZE_BYTES / (1024 * 1024)),
+    });
+  });
+});
+
+describe("parseRosterFile (matching existing accounts)", () => {
+  it("keeps username-only rows and lists unknown columns as ignored", async () => {
+    const file = toXlsxFile({ Sheet1: [["Username", "Ghi chu"], ["alice", "x"], ["bob", ""]] });
+
+    const result = await parseRosterFile(file, { allowUsername: true });
+
+    expect(result.rows).toEqual([
+      { username: "alice", sourceRow: 2 },
+      { username: "bob", sourceRow: 3 },
+    ]);
+    expect(result.ignoredColumns).toEqual(["Ghi chu"]);
+    expect(result.rowIssues).toEqual([]);
+  });
+
+  it("asks for the template when no sheet has a recognised header", async () => {
+    const file = toXlsxFile({ Sheet1: [["Ghi chu"], ["x"]] });
+
+    await expect(parseRosterFile(file, { allowUsername: true })).rejects.toMatchObject({
+      userMessage: ROSTER_FILE_ERRORS.TEMPLATE_REQUIRED(["Ghi chu"], TEMPLATE_HEADERS),
     });
   });
 });

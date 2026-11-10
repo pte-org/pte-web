@@ -21,6 +21,12 @@ describe("chat usage copy", () => {
     expect(CHAT_USAGE_COPY.vi.LOAD_FAILED).toMatch(/chat/i);
   });
 
+  it("no longer mentions a cache, because answers are not cached", () => {
+    for (const copy of [CHAT_USAGE_COPY.en, CHAT_USAGE_COPY.vi]) {
+      expect(Object.keys(copy).filter((key) => key.includes("CACHE"))).toEqual([]);
+    }
+  });
+
   it("looks back thirty days by default and has its own cache key", () => {
     expect(CHAT_USAGE_RANGE_DAYS).toBe(30);
     expect(CHAT_USAGE_QUERY_KEY).toEqual(["chatUsage"]);

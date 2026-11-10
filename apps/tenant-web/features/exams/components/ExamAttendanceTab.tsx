@@ -3,7 +3,12 @@
 import { useEffect, useState, type ReactElement } from "react";
 import { Alert, Button, PaginationControls } from "@pte/ui";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
-import { useHostAttendanceRoster, useRecordHostIdentityVerificationMutation } from "@/features/proctor/api";
+import {
+  useHostAttendanceRoster,
+  useRecordHostIdentityVerificationMutation,
+} from "@/features/proctor/api";
+import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
+import { PROCTOR_TOOLBAR_TEXT } from "@/features/proctor/constants";
 import { AttendanceSummaryCards } from "@/features/proctor/components/AttendanceSummaryCards";
 import { AttendanceFilterToolbar } from "@/features/proctor/components/AttendanceFilterToolbar";
 import { AttendanceRosterTable } from "@/features/proctor/components/AttendanceRosterTable";
@@ -22,6 +27,7 @@ export function ExamAttendanceTab({
 }: ExamAttendanceTabProps): ReactElement {
   const [currentStatus, setCurrentStatus] = useState<AttendanceStatus | "ALL">("ALL");
   const [currentSearch, setCurrentSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(currentSearch);
   const [page, setPage] = useState(0);
 
   const [activeAction, setActiveAction] = useState<{
@@ -33,7 +39,7 @@ export function ExamAttendanceTab({
 
   const { data, isLoading, isError, refetch } = useHostAttendanceRoster(sessionPublicId, {
     status: currentStatus,
-    search: currentSearch || undefined,
+    search: debouncedSearch || undefined,
     page,
     size: 20,
   });
@@ -56,8 +62,8 @@ export function ExamAttendanceTab({
     <div className="space-y-5 motion-safe:animate-pte-fade-up">
       {isSessionClosed && (
         <Alert tone="info" title="Lưu ý quyền Host điều chỉnh ca thi đã đóng">
-          Ca thi này đã đóng. Quyền Host cho phép bạn cập nhật hoặc đính chính điểm danh vì mục
-          đích hành chính. Thao tác này không mở lại ca thi hay thay đổi kết quả bài thi. Lý do điều
+          Ca thi này đã đóng. Quyền Host cho phép bạn cập nhật hoặc đính chính điểm danh vì mục đích
+          hành chính. Thao tác này không mở lại ca thi hay thay đổi kết quả bài thi. Lý do điều
           chỉnh là bắt buộc cho mọi thay đổi.
         </Alert>
       )}
@@ -75,33 +81,39 @@ export function ExamAttendanceTab({
 
       <AttendanceSummaryCards summary={data?.summary} isLoading={isLoading} />
 
-      <AttendanceFilterToolbar
-        currentStatus={currentStatus}
-        summary={data?.summary}
-        currentSearch={currentSearch}
-        onFilterChange={(status) => {
-          setCurrentStatus(status);
-          setPage(0);
-        }}
-        onSearchChange={(search) => {
-          setCurrentSearch(search);
-          setPage(0);
-        }}
-        onRefresh={() => void refetch()}
-      />
-
       <AttendanceRosterTable
         rows={rows}
         isLoading={isLoading}
         canEditSession={canEditSession}
+        searchValue={currentSearch}
+        onSearchChange={(search) => {
+          setCurrentSearch(search);
+          setPage(0);
+        }}
+        filters={
+          <AttendanceFilterToolbar
+            currentStatus={currentStatus}
+            summary={data?.summary}
+            onFilterChange={(status) => {
+              setCurrentStatus(status);
+              setPage(0);
+            }}
+          />
+        }
+        toolbarActions={
+          <Button variant="secondary" size="sm" onClick={() => void refetch()}>
+            {PROCTOR_TOOLBAR_TEXT.REFRESH_BTN}
+          </Button>
+        }
+        pagination={
+          meta && meta.totalPages > 1 ? (
+            <PaginationControls meta={meta} onPageChange={setPage} />
+          ) : undefined
+        }
         onRecordAttendance={(row, targetStatus) => setActiveAction({ row, targetStatus })}
         onViewHistory={(row) => setActiveHistory(row)}
         onVerifyIdentity={(row) => setActiveVerification(row)}
       />
-
-      {meta && meta.totalPages > 1 && (
-        <PaginationControls meta={meta} onPageChange={(nextPage) => setPage(nextPage)} />
-      )}
 
       <RecordAttendanceModal
         open={Boolean(activeAction)}

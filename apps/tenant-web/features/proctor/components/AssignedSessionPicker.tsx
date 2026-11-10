@@ -8,20 +8,16 @@ import {
   Button,
   DataTable,
   ErrorState,
-  PageHeader,
   PaginationControls,
   StatusBadge,
   type DataTableColumn,
 } from "@pte/ui";
 import { useAssignedProctorSessions } from "../api";
-import { PROCTOR_PICKER_TEXT } from "../constants";
 import { useClientTimezone } from "../hooks/useClientTimezone";
 import { useProctorWorkspaceText } from "../hooks/useProctorWorkspaceText";
 
 interface AssignedSessionPickerProps {
   mode: "attendance" | "audit-log" | "incidents";
-  title?: string;
-  subtitle?: string;
 }
 
 function getStatusBadgeVariant(status: string): "success" | "info" | "neutral" | "danger" {
@@ -40,23 +36,12 @@ function getStatusBadgeVariant(status: string): "success" | "info" | "neutral" |
 
 export function AssignedSessionPicker({
   mode,
-  title,
-  subtitle,
 }: AssignedSessionPickerProps): ReactElement {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const text = useProctorWorkspaceText();
   const { timezone, isResolved } = useClientTimezone();
-
-  const pickerMeta =
-    mode === "attendance"
-      ? PROCTOR_PICKER_TEXT.ATTENDANCE
-      : mode === "incidents"
-        ? PROCTOR_PICKER_TEXT.INCIDENTS
-        : PROCTOR_PICKER_TEXT.AUDIT_LOG;
-  const resolvedTitle = title ?? pickerMeta.TITLE;
-  const resolvedSubtitle = subtitle ?? pickerMeta.SUBTITLE;
 
   const rawPage = parseInt(searchParams.get("page") ?? "0", 10);
   const page = Number.isInteger(rawPage) && rawPage >= 0 ? rawPage : 0;
@@ -202,17 +187,6 @@ export function AssignedSessionPicker({
 
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-      <PageHeader
-        title={resolvedTitle}
-        subtitle={resolvedSubtitle}
-        actions={
-          <Link href="/proctor/sessions">
-            <Button variant="secondary" size="sm">
-              {text.overviewTitle}
-            </Button>
-          </Link>
-        }
-      />
 
       {isError ? (
         <ErrorState

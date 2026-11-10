@@ -1,8 +1,7 @@
-import { DEFAULT_PAGE_SIZE, type ApiClient, type PagedResult } from "../client/client";
+import { DEFAULT_PAGE_SIZE, type ApiClient } from "../client/client";
 import type {
   AssignedProctorSessionResponse,
-  MonitoringAttemptSummaryView,
-  MonitoringSnapshotResponse,
+  AttemptActionResultResponse,
   ProctorAssignedSessionsPageResponse,
   ProctorScope,
   ProctorWorkspaceOverviewResponse,
@@ -13,10 +12,10 @@ import type {
 export const PROCTORING_ENDPOINTS = {
   myAssignments: "/api/v1/proctor-assignments/mine",
   myOverview: "/api/v1/proctor-assignments/mine/overview",
-  monitoringSnapshot: (sessionPublicId: string) =>
-    `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/monitoring`,
-  studentAttempts: (sessionPublicId: string, studentPublicId: string) =>
-    `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/monitoring/students/${encodeURIComponent(studentPublicId)}/attempts`,
+  myAssignment: (sessionPublicId: string) =>
+    `/api/v1/proctor-assignments/mine/${encodeURIComponent(sessionPublicId)}`,
+  attemptStatus: (sessionPublicId: string, attemptPublicId: string) =>
+    `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/attempts/${encodeURIComponent(attemptPublicId)}/status`,
   securityAudit: (sessionPublicId: string) =>
     `/api/v1/exam-sessions/${encodeURIComponent(sessionPublicId)}/security-audit`,
   violations: (sessionPublicId: string) =>
@@ -57,32 +56,25 @@ export function getProctorWorkspaceOverview(
   );
 }
 
-export function getMonitoringSnapshot(
+/** One exam session assigned to the current proctor; 403 when the proctor is not assigned. */
+export function getMyProctorAssignment(
   client: ApiClient,
   sessionPublicId: string,
-  page = 0,
-  size = 25,
-): Promise<MonitoringSnapshotResponse> {
-  const params = new URLSearchParams();
-  params.set("page", String(page));
-  params.set("size", String(size));
-  return client.request<MonitoringSnapshotResponse>(
-    `${PROCTORING_ENDPOINTS.monitoringSnapshot(sessionPublicId)}?${params.toString()}`,
+): Promise<AssignedProctorSessionResponse> {
+  return client.request<AssignedProctorSessionResponse>(
+    PROCTORING_ENDPOINTS.myAssignment(sessionPublicId),
   );
 }
 
-export function getStudentAttemptHistory(
+/** Submits a Student's in-progress attempt on the proctor's behalf. */
+export function forceSubmitAttempt(
   client: ApiClient,
   sessionPublicId: string,
-  studentPublicId: string,
-  page = 0,
-  size = DEFAULT_PAGE_SIZE,
-): Promise<PagedResult<MonitoringAttemptSummaryView>> {
-  const params = new URLSearchParams();
-  params.set("page", String(page));
-  params.set("size", String(size));
-  return client.request<PagedResult<MonitoringAttemptSummaryView>>(
-    `${PROCTORING_ENDPOINTS.studentAttempts(sessionPublicId, studentPublicId)}?${params.toString()}`,
+  attemptPublicId: string,
+): Promise<AttemptActionResultResponse> {
+  return client.request<AttemptActionResultResponse>(
+    PROCTORING_ENDPOINTS.attemptStatus(sessionPublicId, attemptPublicId),
+    { method: "PATCH", body: { action: "FORCE_SUBMIT" } },
   );
 }
 

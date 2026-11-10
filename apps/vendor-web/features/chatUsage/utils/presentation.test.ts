@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { ChatUsageDayResponse } from "@pte/api-client";
-import { activeDays, chartRows, failedTone, isSameRange, usagePresets } from "./presentation";
+import { activeDays, chartRows, failedTone, failureReasons } from "./presentation";
 
 function day(overrides: Partial<ChatUsageDayResponse> = {}): ChatUsageDayResponse {
   return {
@@ -9,7 +9,7 @@ function day(overrides: Partial<ChatUsageDayResponse> = {}): ChatUsageDayRespons
     ok: 0,
     refused: 0,
     failed: 0,
-    cacheHits: 0,
+    failures: { timeout: 0, rateLimited: 0, authFailed: 0, unavailable: 0, truncated: 0, other: 0 },
     tokensIn: 0,
     tokensOut: 0,
     tokensThinking: 0,
@@ -17,6 +17,28 @@ function day(overrides: Partial<ChatUsageDayResponse> = {}): ChatUsageDayRespons
     ...overrides,
   };
 }
+
+describe("failureReasons", () => {
+  it("lists only the reasons that happened, most common first", () => {
+    const failures = { timeout: 1, rateLimited: 0, authFailed: 0, unavailable: 3, truncated: 0, other: 2 };
+
+    expect(failureReasons(failures)).toEqual([
+      { key: "unavailable", count: 3 },
+      { key: "other", count: 2 },
+      { key: "timeout", count: 1 },
+    ]);
+  });
+
+  it("keeps the fixed order when counts tie", () => {
+    const failures = { timeout: 2, rateLimited: 2, authFailed: 2, unavailable: 0, truncated: 0, other: 0 };
+
+    expect(failureReasons(failures).map((reason) => reason.key)).toEqual(["timeout", "rateLimited", "authFailed"]);
+  });
+
+  it("is empty when nothing failed", () => {
+    expect(failureReasons(day().failures)).toEqual([]);
+  });
+});
 
 describe("activeDays", () => {
   it("keeps only the days that had messages", () => {
@@ -56,30 +78,5 @@ describe("failedTone", () => {
     [30, "danger"],
   ] as const)("a failed rate of %s%% is %s", (rate, tone) => {
     expect(failedTone(rate)).toBe(tone);
-  });
-});
-
-describe("usagePresets", () => {
-  // 2026-10-29 03:00 UTC is 10:00 on the same day in Vietnam.
-  const now = new Date("2026-10-29T03:00:00Z");
-
-  it("offers the last 7 days, the last 30 days and this month, ending today in Vietnam", () => {
-    expect(usagePresets(now)).toEqual([
-      { key: "last7", from: "2026-10-23", to: "2026-10-29" },
-      { key: "last30", from: "2026-09-30", to: "2026-10-29" },
-      { key: "thisMonth", from: "2026-10-01", to: "2026-10-29" },
-    ]);
-  });
-
-  it("uses the Vietnam calendar day, which is already tomorrow late in the evening UTC", () => {
-    const late = new Date("2026-10-29T20:00:00Z"); // 03:00 on the 30th in Vietnam
-    expect(usagePresets(late)[2]).toEqual({ key: "thisMonth", from: "2026-10-01", to: "2026-10-30" });
-  });
-});
-
-describe("isSameRange", () => {
-  it("compares both ends", () => {
-    expect(isSameRange({ from: "2026-10-01", to: "2026-10-29" }, { from: "2026-10-01", to: "2026-10-29" })).toBe(true);
-    expect(isSameRange({ from: "2026-10-01", to: "2026-10-29" }, { from: "2026-10-02", to: "2026-10-29" })).toBe(false);
   });
 });

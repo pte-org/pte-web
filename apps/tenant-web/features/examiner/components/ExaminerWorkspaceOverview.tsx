@@ -19,29 +19,19 @@ export interface ExaminerWorkspaceOverviewProps {
   onRetry?: () => void;
   selectedStatus: ExaminerQueueStatus;
   onSelectStatus: (status: ExaminerQueueStatus) => void;
-  onRefresh?: () => void;
 }
 
-export function ExaminerWorkspaceOverview({
+export const ExaminerWorkspaceOverview = ({
   counts,
   progress,
-  asOf,
   isLoading,
   isError,
   error,
   onRetry,
   selectedStatus,
   onSelectStatus,
-  onRefresh,
-}: ExaminerWorkspaceOverviewProps): ReactElement {
+}: ExaminerWorkspaceOverviewProps): ReactElement => {
   const text = useExaminerWorkspaceText();
-
-  const formattedAsOf = asOf
-    ? new Intl.DateTimeFormat(text.locale === "vi" ? "vi-VN" : "en-US", {
-        timeStyle: "medium",
-        dateStyle: "short",
-      }).format(new Date(asOf))
-    : null;
 
   if (isError) {
     return (
@@ -60,13 +50,21 @@ export function ExaminerWorkspaceOverview({
   }
 
   const cards: Array<{
-    status: Exclude<ExaminerQueueStatus, "ALL">;
+    status: ExaminerQueueStatus;
     title: string;
     count: number | undefined;
     description: string;
     borderActiveClass: string;
     accentClass: string;
   }> = [
+    {
+      status: "ALL",
+      title: text.kpiTotalAssigned,
+      count: counts ? (counts.pending ?? counts.unstartedCount ?? 0) + (counts.inProgress ?? counts.inProgressCount ?? 0) + (counts.completed ?? counts.finalizedCount ?? 0) : undefined,
+      description: text.progressSubtitle,
+      borderActiveClass: "border-[var(--sky-action)] bg-[var(--sky-tint)]",
+      accentClass: "text-[var(--sky-action)]",
+    },
     {
       status: "PENDING",
       title: text.cardPendingTitle,
@@ -99,8 +97,7 @@ export function ExaminerWorkspaceOverview({
 
   return (
     <div className="flex flex-col gap-5">
-      {/* 3 Progress Cards */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((c) => {
           const isSelected = selectedStatus === c.status;
           return (
@@ -171,25 +168,6 @@ export function ExaminerWorkspaceOverview({
         <p className="mt-2 text-[11px] text-slate-400">{text.progressNote}</p>
       </div>
 
-      {/* Metadata bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-1 text-xs text-slate-500">
-        <div>
-          {formattedAsOf && (
-            <span>
-              {text.asOfLabel}: <span className="font-medium text-slate-700">{formattedAsOf}</span>
-            </span>
-          )}
-        </div>
-        {onRefresh && (
-          <button
-            type="button"
-            onClick={onRefresh}
-            className="font-medium text-blue-600 underline hover:text-blue-800"
-          >
-            {text.refresh}
-          </button>
-        )}
-      </div>
     </div>
   );
-}
+};

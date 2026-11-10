@@ -18,12 +18,28 @@ export type { MotionRevealProps } from "./MotionReveal";
 export { DashboardCard } from "./DashboardCard";
 export { LoginForm } from "./LoginForm";
 export type { LoginCredentials } from "./LoginForm";
+export { ForgotPasswordForm, ResetPasswordForm } from "./PasswordResetForms";
+export type {
+  ForgotPasswordFormProps,
+  ForgotPasswordFormText,
+  ResetPasswordFormProps,
+  ResetPasswordFormText,
+} from "./PasswordResetForms";
 export { AuthSubmitButton, AuthTextField } from "./AuthFormControls";
 export type { AuthSubmitButtonProps, AuthTextFieldProps } from "./AuthFormControls";
 export { CredentialDisplay } from "./CredentialDisplay";
 export { ProtectedRoute } from "./ProtectedRoute";
 export { Badge } from "./Badge";
 export type { BadgeVariant } from "./Badge";
+export { Chip } from "./Chip";
+export { DropZone } from "./DropZone";
+export { SectionedTableCard } from "./SectionedTableCard";
+export type {
+  SectionedTableContext,
+  SectionedTableSection,
+  SectionedTableView,
+} from "./SectionedTableCard";
+export type { ChipSize, ChipTone } from "./Chip";
 export { StatusBadge } from "./StatusBadge";
 export { StatCard } from "./StatCard";
 export type { StatCardDeltaDirection, StatCardDeltaTone } from "./StatCardDelta";
@@ -71,6 +87,8 @@ export type {
   DataTableSortValue,
 } from "./DataTable";
 export { DateRangePicker } from "./DateRangePicker";
+export { DateRangeFilter, calendarDate, lastDaysRange, standardDateRangePresets } from "./DateRangeFilter";
+export type { DateRangeFilterProps, DateRangePreset } from "./DateRangeFilter";
 export type { DateRangePickerProps, DateRangeValue } from "./DateRangePicker";
 export { PaginationControls, PaginationPageSizeSelect } from "./PaginationControls";
 export type { PageMeta, PaginationPageSizeSelectProps } from "./PaginationControls";
@@ -92,6 +110,15 @@ export type { BreadcrumbItem } from "./Breadcrumbs";
 export { UserMenu } from "./UserMenu";
 export type { UserMenuProps } from "./UserMenu";
 export { Avatar } from "./Avatar";
+export { DurationSummary } from "./DurationSummary";
+export type { DurationPart } from "./DurationSummary";
+export { InfoPanel } from "./InfoPanel";
+export { ItemPalette } from "./ItemPalette";
+export type { PaletteEntry } from "./ItemPalette";
+export { RadioCard } from "./RadioCard";
+export { RowDragPreview } from "./RowDragPreview";
+export { TableNumberInput } from "./TableNumberInput";
+export type { InfoPanelRow } from "./InfoPanel";
 export { ProfileHeader } from "./ProfileHeader";
 export type { ProfileHeaderProps } from "./ProfileHeader";
 export { ProfileLayout } from "./ProfileLayout";
@@ -111,8 +138,25 @@ export { Drawer } from "./Drawer";
 export { ForbiddenState } from "./ForbiddenState";
 export { Stepper } from "./Stepper";
 export type { StepItem } from "./Stepper";
+export { StepTimeline } from "./StepTimeline";
+export type { Step, StepTimelineProps, StepStatus } from "./StepTimeline";
+export { QuantityStepper } from "./QuantityStepper";
+export type { QuantityStepperProps } from "./QuantityStepper";
 export { TabPanel, Tabs } from "./Tabs";
-export type { TabItem, TabPanelProps, TabsActiveVariant, TabsProps, TabsVariant } from "./Tabs";
+export { TabRailCard } from "./TabRailCard";
+export type { TabRailCardProps } from "./TabRailCard";
+export type {
+  TabItem,
+  TabPanelProps,
+  TabsActiveVariant,
+  TabsOrientation,
+  TabsProps,
+  TabsVariant,
+} from "./Tabs";
+export { UnsavedChangesGuard } from "./UnsavedChangesGuard";
+export type { UnsavedChangesGuardProps } from "./UnsavedChangesGuard";
+export { SortableList } from "./SortableList";
+export type { SortableListProps } from "./SortableList";
 export { HeaderSearch } from "./HeaderSearch";
 export type { HeaderSearchItem, HeaderSearchProps } from "./HeaderSearch";
 export { DEFAULT_TOAST_DURATION_MS, ToastProvider, useToast } from "./Toast";
@@ -135,3 +179,7 @@ export type { TrendChartBaseProps, TrendChartDatum, TrendChartSeries } from "./t
 export { MailIcon, LockIcon, GradCapIcon, EyeIcon } from "./AuthIcons";
 export { PteOrbitPanel } from "./PteOrbitPanel";
 export type { PteOrbitPanelProps } from "./PteOrbitPanel";
+
+export { OrganizationIcon, PackageIcon, KeyRoundIcon, PanelsTopLeftIcon, ShapesIcon, LayoutTemplateIcon, SlidersHorizontalIcon, CalculatorIcon, LibraryBigIcon, GearIcon, HeadsetIcon, HistoryIcon, MessageSquareTextIcon, ClipboardCheckIcon, SparklesIcon } from "./SidebarIcons";
+
+export { IdCardIcon, PresentationIcon, ClipboardListIcon, CreditCardIcon } from "./SidebarIcons";

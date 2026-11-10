@@ -55,4 +55,10 @@ describe("Examiner queue parameters and status resolution", () => {
       expect(new URL(href, "http://localhost").searchParams.get("status")).toBe(status);
     }
   });
+
+  it("keeps the assignment date range in the queue URL", () => {
+    expect(buildExaminerQueueHref("ALL", 0, "", "ASSIGNED_ASC", "2026-11-01", "2026-11-07")).toBe(
+      "/examiner/work?status=ALL&fromDate=2026-11-01&toDate=2026-11-07",
+    );
+  });
 });

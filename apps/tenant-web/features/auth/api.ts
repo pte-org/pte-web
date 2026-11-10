@@ -9,12 +9,18 @@ import {
 import {
   getCurrentUser,
   changePassword,
+  confirmPasswordReset,
+  requestPasswordReset,
+  validatePasswordResetToken,
   listLoginOrganizations,
   loginHost,
   type LoginOrganizationOption,
   type LoginOrganizationOptionsRequest,
   type CurrentUser,
   type ChangePasswordRequest,
+  type PasswordResetConfirmRequest,
+  type PasswordResetRequest,
+  type PasswordResetTokenStatus,
   type HostLoginRequest,
   type JwtTokenResponse,
 } from "@pte/api-client";
@@ -49,5 +55,35 @@ export function useCurrentUser(): UseQueryResult<CurrentUser> {
     queryKey: CURRENT_USER_QUERY_KEY,
     queryFn: () => getCurrentUser(apiClient),
     retry: false,
+  });
+}
+
+export function useRequestPasswordReset(): UseMutationResult<void, unknown, PasswordResetRequest> {
+  return useMutation({
+    mutationFn: (payload: PasswordResetRequest) => requestPasswordReset(apiClient, payload),
+  });
+}
+
+export function useConfirmPasswordReset(): UseMutationResult<
+  void,
+  unknown,
+  PasswordResetConfirmRequest
+> {
+  return useMutation({
+    mutationFn: (payload: PasswordResetConfirmRequest) => confirmPasswordReset(apiClient, payload),
+  });
+}
+
+/** Checks a reset link without spending it, so a used or expired one is refused as soon as the page opens. */
+export function useValidatePasswordResetToken(token: string): UseQueryResult<PasswordResetTokenStatus> {
+  return useQuery({
+    queryKey: ["passwordResetToken", token],
+    queryFn: () => validatePasswordResetToken(apiClient, { token }),
+    enabled: token.length > 0,
+    retry: false,
+    // Never reuse an answer: coming back to the page after the link was spent must ask the server again.
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnWindowFocus: false,
   });
 }

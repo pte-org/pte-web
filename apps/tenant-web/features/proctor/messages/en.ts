@@ -7,7 +7,7 @@ export const PROCTOR_WORKSPACE_EN = {
   cardUpcomingDescription: "Scheduled sessions assigned to you",
   cardTodayTitle: "Today's Schedule",
   cardTodayDescription: "Sessions scheduled for today in your local timezone",
-  overlapExplanation: "Sessions assigned to you. Counts may overlap across categories.",
+  overlapExplanation: "A session may appear in more than one group.",
   priorityTitle: "Priority Sessions",
   prioritySubtitle: "Up to 5 active or nearest upcoming sessions",
   priorityEmpty: "No sessions requiring immediate attention",
@@ -48,7 +48,7 @@ export const PROCTOR_WORKSPACE_EN = {
   prevPage: "Previous",
   nextPage: "Next",
   pageIndicator: "Page {page} of {totalPages}",
-  overviewTitle: "Proctor Workspace Overview",
+  overviewTitle: "Proctor overview",
   overviewSubtitle: "Summary of your proctoring responsibilities and daily schedule",
   quickActions: "Quick Access",
   viewMonitoring: "Assigned Sessions",
@@ -60,6 +60,20 @@ export const PROCTOR_WORKSPACE_EN = {
   actionRecordAttendance: "Take Attendance",
   actionViewAudit: "View Audit Log",
   actionViewIncidents: "View Incidents",
+  upcomingEmpty: "No upcoming sessions in your priority list",
+  otherSessions: "Other assigned sessions",
+  monitoringOpensAt: "Monitoring opens at {time}",
+  monitoringWindowClosed: "The monitoring window has ended.",
+  monitoringUnavailable: "Monitoring is not available for this session yet.",
+  openSession: "Open session",
+  sessionAttendance: "Attendance",
+  sessionIncidents: "Incidents",
+  sessionAuditLog: "Audit log",
+  sessionTools: "Session workspace",
+  backToSessionList: "Back to assigned sessions",
+  sessionLoadError: "Could not open this assigned session. Check your assignment or try again.",
+  sessionRefreshError:
+    "Session information could not be refreshed. Your current work is preserved; updates will resume automatically.",
 };
 
 export type ProctorWorkspaceMessageKey = keyof typeof PROCTOR_WORKSPACE_EN;

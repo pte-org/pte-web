@@ -106,6 +106,13 @@ export const STUDENT_ROSTER_FILTER_TEXT = {
   generatePasswordConfirmDescription: (fullName: string) =>
     `Generate a new temporary password for ${fullName}? The current password will stop working. The new password will not be emailed and will be shown once.`,
   generatePasswordConfirm: "Generate password",
+  sendPasswordEmail: "Send password via email",
+  sendPasswordEmailNoEmail: "This student has no email address.",
+  sendPasswordEmailConfirmTitle: "Send Student password by email",
+  sendPasswordEmailConfirmDescription: (fullName: string, email: string) =>
+    `Generate a new temporary password for ${fullName} and email it to ${email}? The current password will stop working, and the student must change the new one at the next sign-in.`,
+  sendPasswordEmailConfirm: "Send email",
+  sendPasswordEmailSuccess: (email: string) => `Temporary password sent to ${email}.`,
   loadFailed: "Unable to load students. Please try again.",
   emptyDescription: "No students match the current search and filters.",
   noPrograms: "No programs available",

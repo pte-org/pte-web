@@ -1,0 +1,56 @@
+export const SIMULATOR_CONFIG = {
+  path: "/admin/scoring-simulator",
+  debounceMs: 350,
+  initialWordCount: 60,
+  maxWordCount: 600,
+  maxPassageWords: 150,
+  formKey: "FORM",
+  maxButtonBand: 8,
+} as const;
+
+export const SIMULATOR_TEXT = {
+  vi: {
+    intro: "Thay đổi điểm từng tiêu chí để xem điểm câu được tính như thế nào.",
+    inputs: "Chọn điểm tiêu chí", context: "Thông tin bài viết", result: "Kết quả tính điểm", details: "Xem cách tính chi tiết",
+    choose: "Chưa chọn mức điểm", maximum: "Tối đa", description: "Mô tả mức đang chọn · Score Guide",
+    perWordHint: "Nhập điểm nội dung trong khoảng 0 đến số từ của đoạn đọc.",
+    passageHint: "Số từ trong đoạn đọc quyết định điểm nội dung tối đa.",
+    formHint: "Form được tính tự động từ thông tin bài viết dưới đây.",
+    sampleHint: "Dữ liệu minh họa theo thang điểm đang chọn.",
+    scoreHint: "Điểm của một câu trên thang 100, chưa phải điểm kỹ năng PTE.",
+    gateReason: "đạt 0 nên điểm cả câu bằng 0.", scale: "/ 100", noValue: "—",
+    versionNo: "Phiên bản", invalidBand: "Nhập số nguyên từ 0 đến {max}.",
+    invalidPassage: "Nhập số nguyên từ 1 đến 150.", invalidWords: "Nhập số nguyên từ 0 đến 600.",
+    title: "Thử tính điểm", task: "Dạng bài", version: "Bộ quy tắc", active: "Đang hiệu lực",
+    example: "Nạp ví dụ mẫu", words: "Số từ", sentences: "Số câu", passage: "Số từ đoạn đọc (N)",
+    caps: "Toàn chữ hoa", punctuation: "Có dấu câu", bullets: "Chỉ gạch đầu dòng", error: "Không thể mô phỏng với đầu vào này.",
+    score: "Điểm câu", raw: "Trước làm tròn", form: "Band Form", contribution: "Đóng góp (trọng số × đạt / tối đa)",
+    trait: "Tiêu chí", achieved: "Đạt / tối đa", weight: "Trọng số hiệu lực", gate: "Điểm câu = 0 vì điều kiện chặn: ",
+    close: "Đóng", pending: "Đang cập nhật kết quả…", empty: "Chọn đủ điểm tiêu chí bên phải để xem điểm câu và cách tính.",
+  },
+  en: {
+    intro: "Change trait scores to explore how an item score is calculated.",
+    inputs: "Choose trait scores", context: "Writing information", result: "Calculated result", details: "View calculation details",
+    choose: "Choose a score band", maximum: "Maximum", description: "Selected band description · Score Guide",
+    perWordHint: "Enter a content score from 0 to the passage word count.",
+    passageHint: "The passage word count determines the maximum content score.",
+    formHint: "Form is calculated automatically from the writing information below.",
+    sampleHint: "Illustrative inputs within the selected scoring scales.",
+    scoreHint: "One item's score out of 100, before PTE skill aggregation.",
+    gateReason: "is 0, so the entire item receives 0.", scale: "/ 100", noValue: "—",
+    versionNo: "Version", invalidBand: "Enter a whole number from 0 to {max}.",
+    invalidPassage: "Enter a whole number from 1 to 150.", invalidWords: "Enter a whole number from 0 to 600.",
+    title: "Try scoring", task: "Task type", version: "Rubric version", active: "Active",
+    example: "Load sample inputs", words: "Word count", sentences: "Sentence count", passage: "Passage word count (N)",
+    caps: "All capitals", punctuation: "Has punctuation", bullets: "Bullet points only", error: "Cannot simulate these inputs.",
+    score: "Item score", raw: "Before rounding", form: "Form band", contribution: "Contribution (weight × achieved / max)",
+    trait: "Trait", achieved: "Achieved / maximum", weight: "Effective weight", gate: "Item score = 0 because of gate: ",
+    close: "Close", pending: "Updating result…", empty: "Select trait scores on the right to view the server trace.",
+  },
+} as const;
+
+export const SIMULATOR_STATUS_LABELS: Record<string, { vi: string; en: string }> = {
+  DRAFT: { vi: "Bản nháp", en: "Draft" }, PENDING: { vi: "Chờ duyệt", en: "Pending" },
+  ACTIVE: { vi: "Đang hiệu lực", en: "Active" }, REJECTED: { vi: "Bị từ chối", en: "Rejected" },
+  RETIRED: { vi: "Ngừng áp dụng", en: "Retired" },
+};

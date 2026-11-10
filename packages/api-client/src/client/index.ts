@@ -11,6 +11,8 @@ export type {
   PagedResult,
 } from "./client";
 export { ApiError } from "./apiError";
+export { readServerSentEvents } from "./serverSentEvents";
+export type { ServerSentEvent } from "./serverSentEvents";
 export type { ApiErrorKind, ApiErrorMetadata } from "./apiError";
 export { getUserFacingApiErrorMessage } from "./errorMessage";
 export { decodeAccessTokenClaims } from "./jwt";

@@ -18,7 +18,6 @@ export function ExaminerReportBreakdownTable({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold text-slate-800">{text.breakdownTitle}</h3>
       {breakdown.length === 0 ? (
         <EmptyState title={text.noData} />
       ) : (

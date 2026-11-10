@@ -11,7 +11,7 @@ interface GrantDetailsStepProps {
   flow: GrantLicenseFlow;
 }
 
-/** Step 3: plan, contract start, contract number and note. */
+/** Step 2: plan, contract start, contract number and note. */
 export const GrantDetailsStep = ({ flow }: GrantDetailsStepProps): ReactElement => {
   const T = useAdminCopy(GRANT_TEXT);
   const bounds = startDayBounds();

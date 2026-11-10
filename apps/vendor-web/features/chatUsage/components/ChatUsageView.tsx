@@ -6,8 +6,8 @@ import {
   Badge,
   DashboardCard,
   DataTable,
-  DateRangePicker,
-  PageHeader,
+  DateRangeFilter,
+  standardDateRangePresets,
   TrendBarChart,
   useLocale,
   type DataTableColumn,
@@ -17,15 +17,23 @@ import {
 import { useChatUsage } from "../api";
 import { CHAT_USAGE_COPY } from "../constants";
 import { useChatUsageErrorToast } from "../hooks/useChatUsageErrorToast";
-import { activeDays, chartRows, isSameRange, usagePresets, type UsagePresetKey } from "../utils/presentation";
+import {
+  activeDays,
+  chartRows,
+  failureReasons,
+  type FailureReasonKey,
+} from "../utils/presentation";
 import { defaultUsageRange, formatUsd, summarizeChatUsage } from "../utils/summarize";
 import { ChatUsageSummaryCards } from "./_ChatUsageSummary";
 
-const PRESET_COPY_KEY = {
-  last7: "PRESET_LAST7",
-  last30: "PRESET_LAST30",
-  thisMonth: "PRESET_THIS_MONTH",
-} as const satisfies Record<UsagePresetKey, string>;
+const FAILURE_COPY_KEY = {
+  timeout: "FAIL_TIMEOUT",
+  rateLimited: "FAIL_RATE_LIMITED",
+  authFailed: "FAIL_AUTH",
+  unavailable: "FAIL_UNAVAILABLE",
+  truncated: "FAIL_TRUNCATED",
+  other: "FAIL_OTHER",
+} as const satisfies Record<FailureReasonKey, string>;
 
 const chipClass = (selected: boolean): string =>
   `rounded-full border px-3 py-1 text-sm font-medium transition-colors ${
@@ -45,7 +53,10 @@ export const ChatUsageView = (): ReactElement => {
   const summary = useMemo(() => summarizeChatUsage(days), [days]);
   const rows = useMemo(() => (showAllDays ? days : activeDays(days)), [days, showAllDays]);
   const bars = useMemo(() => chartRows(days), [days]);
-  const presets = useMemo(() => usagePresets(new Date()), []);
+  const presets = useMemo(
+    () => standardDateRangePresets(new Date(), { last7: T.PRESET_LAST7, last30: T.PRESET_LAST30, thisMonth: T.PRESET_THIS_MONTH }),
+    [T],
+  );
   const number = new Intl.NumberFormat(locale === "vi" ? "vi-VN" : "en-US");
 
   const series: TrendChartSeries[] = [
@@ -63,8 +74,20 @@ export const ChatUsageView = (): ReactElement => {
     { key: "messages", header: T.MESSAGES, cell: (day) => number.format(day.messages) },
     { key: "ok", header: T.ANSWERED, cell: (day) => number.format(day.ok) },
     { key: "refused", header: T.REFUSED, cell: (day) => flagged(day.refused, "warning") },
-    { key: "failed", header: T.FAILED, cell: (day) => flagged(day.failed, "danger") },
-    { key: "cacheHits", header: T.FROM_CACHE, cell: (day) => number.format(day.cacheHits) },
+    {
+      key: "failed",
+      header: T.FAILED,
+      cell: (day) => (
+        <div className="flex flex-col items-start gap-1">
+          {flagged(day.failed, "danger")}
+          {failureReasons(day.failures).map((reason) => (
+            <span key={reason.key} className="text-xs text-[var(--table-muted-text)]">
+              {T[FAILURE_COPY_KEY[reason.key]]}: {number.format(reason.count)}
+            </span>
+          ))}
+        </div>
+      ),
+    },
     { key: "tokensIn", header: T.TOKENS_IN, cell: (day) => number.format(day.tokensIn) },
     {
       key: "tokensOut",
@@ -76,35 +99,16 @@ export const ChatUsageView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={T.TITLE} />
       <p className="text-sm text-[var(--table-muted-text)]">{T.ESTIMATE_NOTE}</p>
       <ChatUsageSummaryCards summary={summary} locale={locale} />
-      <DashboardCard>
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div className="w-full sm:w-auto sm:min-w-[220px]">
-            <DateRangePicker
-              id="chat-usage-date-filter"
-              ariaLabel={t("common.filterDateRange", T.FILTER_DATE_RANGE)}
-              value={range}
-              onChange={setRange}
-              placeholder={t("common.dateRange", T.DATE_RANGE)}
-            />
-          </div>
-          <div className="flex flex-wrap gap-2" role="group" aria-label={T.DATE_RANGE}>
-            {presets.map((preset) => (
-              <button
-                key={preset.key}
-                type="button"
-                className={chipClass(isSameRange(range, preset))}
-                aria-pressed={isSameRange(range, preset)}
-                onClick={() => setRange({ from: preset.from, to: preset.to })}
-              >
-                {T[PRESET_COPY_KEY[preset.key]]}
-              </button>
-            ))}
-          </div>
-        </div>
-      </DashboardCard>
+      <DateRangeFilter
+        id="chat-usage-date-filter"
+        value={range}
+        onChange={setRange}
+        presets={presets}
+        ariaLabel={t("common.filterDateRange", T.FILTER_DATE_RANGE)}
+        placeholder={t("common.dateRange", T.DATE_RANGE)}
+      />
       <DashboardCard>
         <h2 className="mb-3 text-base font-semibold">{T.CHART_TITLE}</h2>
         <TrendBarChart

@@ -1,4 +1,4 @@
-import type { AttemptStatus, ProctorAuditAction } from "./types";
+import type { ProctorAuditAction } from "./types";
 import type {
   AttendanceStatus,
   IdentityVerificationStatus,
@@ -13,25 +13,8 @@ import type {
  * Named constants per this repo's established convention (avoids raw-string
  * query-key drift/collisions across the proctor feature and shared features).
  */
-export const PROCTOR_LIVE_ATTEMPTS_QUERY_KEY = ["proctor", "liveAttempts"] as const;
-export const PROCTOR_AUDIT_LOG_QUERY_KEY = ["proctor", "auditLog"] as const;
-export const PROCTOR_AUDIT_SECURITY_QUERY_KEY = ["proctor", "securityAudit"] as const;
-
-/** Default poll cadence for the live monitoring view. */
+/** Poll cadence for the session header and other proctor views that must follow status changes. */
 export const POLL_INTERVAL_MS = 3000;
-
-export const ATTEMPT_STATUS_LABELS: Record<AttemptStatus, string> = {
-  PENDING: "Pending",
-  IN_PROGRESS: "In progress",
-  COMPLETED: "Completed",
-};
-
-export const ATTEMPT_STATUS_FILTER_OPTIONS = [
-  { value: "", label: "All statuses" },
-  { value: "PENDING", label: ATTEMPT_STATUS_LABELS.PENDING },
-  { value: "IN_PROGRESS", label: ATTEMPT_STATUS_LABELS.IN_PROGRESS },
-  { value: "COMPLETED", label: ATTEMPT_STATUS_LABELS.COMPLETED },
-] as const;
 
 export const AUDIT_ACTION_LABELS: Record<ProctorAuditAction, string> = {
   FORCE_SUBMIT: "Force submit",
@@ -39,140 +22,47 @@ export const AUDIT_ACTION_LABELS: Record<ProctorAuditAction, string> = {
   CLOSE_SESSION: "Close session",
 };
 
-export const PROCTOR_MONITORING_PAGE_SIZES = [25, 50, 100] as const;
-export const DEFAULT_PROCTOR_PAGE_SIZE = 50;
+/** Attempt status (from the attendance row) for which force submit is offered. */
+export const ATTEMPT_IN_PROGRESS = "IN_PROGRESS";
 
-export const PROCTOR_VIOLATION_TYPES = [
-  { value: "TAB_SWITCH", label: "Chuyển tab / ứng dụng khác" },
-  { value: "MULTIPLE_FACES", label: "Nhiều khuôn mặt trong camera" },
-  { value: "FACE_NOT_VISIBLE", label: "Không nhận diện được khuôn mặt / rời vị trí" },
-  { value: "SUSPICIOUS_AUDIO", label: "Âm thanh bất thường / tiếng nói" },
-  { value: "TECHNICAL_ISSUE", label: "Sự cố kỹ thuật thiết bị" },
-  { value: "OTHER", label: "Hành vi vi phạm quy chế khác" },
-] as const;
-
-export const PROCTOR_LIVE_TEXT = {
-  TITLE: "Giám sát phòng thi",
-  ROOM_CODE_PREFIX: "Mã phòng: #",
-  OPEN_PREFIX: "Mở: ",
-  CLOSE_PREFIX: " — Đóng: ",
-  MINUTES_SUFFIX: " phút",
-  LOADING: "Đang tải dữ liệu phòng giám sát…",
-  ERROR_TITLE: "Không thể tải dữ liệu phòng giám sát",
-  ERROR_DESCRIPTION: "Đã có lỗi xảy ra khi truy vấn dữ liệu từ máy chủ. Vui lòng thử lại.",
-  BACK_TO_SESSIONS_BTN: "Danh sách ca thi",
-  AUDIT_LOG_BTN: "Nhật ký phòng thi",
-  REFRESH_BTN: "Làm mới",
-  UPDATING_TEXT: "Đang cập nhật...",
-  RETRY: "Thử lại",
-  LEAVE_ROOM_BTN: "Rời phòng giám sát",
-  CLOSE_SESSION_CONFIRM_TITLE: "Xác nhận rời phòng giám sát",
-  CLOSE_SESSION_CONFIRM_DESC:
-    "Bạn có chắc chắn muốn kết thúc phiên giám sát của mình? Ca thi vẫn tiếp tục với các giám thị khác.",
-  CLOSE_SESSION_CONFIRM_ACTION: "Xác nhận rời phòng",
-  CANCEL: "Hủy bỏ",
-  CONNECTING_ROOM: "Đang kết nối tới máy chủ giám sát...",
-  RECONNECTING_ROOM: "Mất kết nối thời gian thực. Đang tự động kết nối lại...",
-  DENIED_ROOM: "Phiên giám sát bị từ chối hoặc phân công đã bị thu hồi.",
-  DISCONNECTED_ROOM: "Mất kết nối với kênh thông báo thời gian thực.",
-  RECONNECT_BTN: "Kết nối lại",
-  SESSION_OPEN_PENDING: "Đang kết nối và khởi tạo phiên giám sát với hệ thống...",
-  SESSION_OPEN_RETRY: "Thử lại mở phiên",
-  UNCONFIRMED_FORCE_SUBMIT_TITLE: "Chưa xác nhận nộp bài:",
-  UNCONFIRMED_FORCE_SUBMIT_MSG:
-    "Lệnh ép nộp đã được gửi nhưng máy thí sinh chưa xác nhận hoàn tất nộp bài. Vui lòng bấm kiểm tra lại.",
-  RECHECK_BTN: "Làm mới kiểm tra",
-  CHECKING_BTN: "Đang kiểm tra...",
-  SUMMARY_LABEL: "Thống kê phòng thi",
-  SUMMARY_REGISTERED: "Đã đăng ký",
-  SUMMARY_NOT_STARTED: "Chưa bắt đầu",
-  SUMMARY_IN_PROGRESS: "Đang làm bài",
-  SUMMARY_SUBMITTED: "Đã nộp bài",
-  STUDENTS_SECTION_LABEL: "Danh sách thí sinh",
-  STUDENTS_TABLE_TITLE: "Danh sách thí sinh",
-  PER_PAGE_SUFFIX: "/ trang",
-  PER_PAGE_ARIA: "Số thí sinh mỗi trang",
-  EMPTY_STUDENTS_TITLE: "Không có thí sinh nào trong danh sách phòng thi.",
-  COL_STUDENT: "Thí sinh",
-  COL_ATTEMPT: "Lượt thi",
-  COL_STATUS: "Trạng thái",
-  COL_STARTED_AT: "Bắt đầu",
-  COL_LAST_SEEN: "Tín hiệu cuối",
-  COL_VIOLATIONS: "Vi phạm",
-  ACTION_DETAILS: "Chi tiết",
-  STATUS_IN_PROGRESS: "Đang thi",
-  STATUS_SUBMITTED: "Đã nộp",
-  STATUS_ABANDONED: "Bỏ dở",
-  STATUS_NOT_STARTED: "Chưa thi",
-  BACK_TO_PROFILE: "Quay lại hồ sơ",
-  PANEL_TITLE: "Chi tiết thí sinh",
-  PANEL_CLOSE_ARIA: "Đóng",
-  PANEL_NO_EMAIL: "Không có email",
-  PANEL_CURRENT_ATTEMPT: "Lượt làm bài hiện tại",
-  PANEL_ATTEMPT_ID: "Mã lượt thi",
-  PANEL_NOT_AVAILABLE: "Chưa có",
-  PANEL_ATTEMPT_COUNT: "Lần thi",
-  PANEL_STATUS: "Trạng thái",
-  PANEL_VIOLATIONS_RECORDED: "Vi phạm ghi nhận",
-  PANEL_STARTED_AT: "Bắt đầu lúc",
-  PANEL_LAST_SEEN: "Tín hiệu cuối (Heartbeat)",
-  PANEL_FLAG_VIOLATION_BTN: "Ghi nhận vi phạm quy chế",
-  PANEL_FORCE_SUBMIT_BTN: "Đình chỉ & Nộp bài bắt buộc",
-  PANEL_DISCONNECTED_TOOLTIP: "Không thể thực hiện khi mất kết nối",
-  PANEL_ATTEMPT_HISTORY_TITLE: "Lịch sử các lần thi",
-  PANEL_LOADING_HISTORY: "Đang tải lịch sử...",
-  PANEL_EMPTY_HISTORY_TITLE: "Chưa có lịch sử làm bài",
-  PANEL_EMPTY_HISTORY_DESC: "Thí sinh chưa có lượt thi nào trước đây.",
-  PANEL_ATTEMPT_NUMBER_PREFIX: "Lần thi #",
-  FORCE_SUBMIT_CONFIRM_MSG_PREFIX: "Bạn có chắc chắn muốn nộp bài bắt buộc cho thí sinh ",
-  FORCE_SUBMIT_EXAM_LABEL: " (Bài thi: ",
-  FORCE_SUBMIT_CONFIRM_MSG_SUFFIX: ")? Thí sinh sẽ không thể tiếp tục làm bài.",
-  FORCE_SUBMIT_TITLE: "Xác nhận đình chỉ & Nộp bài bắt buộc",
-  FORCE_SUBMIT_CONFIRM_BTN: "Xác nhận nộp bài",
-  FORCE_SUBMIT_PROCESSING: "Đang xử lý...",
-  FORCE_SUBMIT_REASON_LABEL: "Lý do đình chỉ (tùy chọn)",
-  FORCE_SUBMIT_REASON_PLACEHOLDER: "Nhập lý do nộp bài bắt buộc hoặc căn cứ biên bản...",
-  FORCE_SUBMIT_ERROR: "Không thể đình chỉ bài làm. Vui lòng thử lại.",
-  VIOLATION_TITLE: "Ghi nhận vi phạm quy chế thi",
-  VIOLATION_CONFIRM_BTN: "Lưu biên bản vi phạm",
-  VIOLATION_PROCESSING: "Đang xử lý...",
-  VIOLATION_TYPE_LABEL: "Loại vi phạm *",
-  VIOLATION_DETAIL_LABEL: "Mô tả chi tiết vi phạm",
-  VIOLATION_DETAIL_PLACEHOLDER: "Mô tả hành vi, mốc thời gian hoặc diễn biến...",
-  VIOLATION_NO_ATTEMPT_ERROR: "Thí sinh chưa có bài thi để ghi nhận vi phạm.",
-  VIOLATION_SUBMIT_ERROR: "Không thể ghi nhận vi phạm. Vui lòng thử lại.",
-  STUDENT_PREFIX: "Thí sinh: ",
-  PANEL_STARTED_PREFIX: "Bắt đầu: ",
-  PANEL_SUBMITTED_PREFIX: "Nộp: ",
+/** Force submit from the attendance roster: only for a Student whose attempt is in progress. */
+export const PROCTOR_FORCE_SUBMIT_TEXT = {
+  ACTION: "Buộc nộp bài",
+  TITLE: "Xác nhận buộc nộp bài",
+  MESSAGE_PREFIX: "Bài làm của thí sinh ",
+  MESSAGE_SUFFIX: " sẽ được nộp ngay và thí sinh không thể tiếp tục làm bài.",
+  CONFIRM: "Nộp bài",
+  CANCEL: "Hủy",
+  PROCESSING: "Đang xử lý...",
+  ERROR: "Không thể buộc nộp bài. Vui lòng thử lại.",
 } as const;
+
 export const PROCTOR_AUDIT_TEXT = {
-  TITLE: "Session audit log",
-  SUBTITLE:
-    "Post-hoc review of proctor actions and security audit events for this session.",
-  TAB_VIOLATIONS: "Violations",
-  TAB_SECURITY: "Security audit",
-  LOADING_VIOLATIONS: "Loading violations…",
-  LOADING_AUDIT: "Loading security audit…",
-  EMPTY_VIOLATIONS_TITLE: "No violations flagged",
-  EMPTY_VIOLATIONS_DESCRIPTION:
-    "Violations will appear here once the backend endpoint is wired up. The UI shape ships first.",
-  EMPTY_AUDIT_TITLE: "No security audit entries",
-  EMPTY_AUDIT_DESCRIPTION:
-    "Security audit entries will appear here once the backend endpoint is wired up.",
-  LOAD_MORE: "Load more",
-  END_OF_AUDIT: "End of audit log",
-  COL_TIME: "Time",
-  COL_TYPE: "Type",
-  COL_PROCTOR: "Proctor",
-  COL_DESCRIPTION: "Description",
-  BACK_TO_PROFILE: "Back to profile",
-  ENTER_MONITORING: "Live monitoring",
-  SESSION_LIST: "Assigned sessions",
-  ERROR_TITLE: "Could not load audit data",
-  ERROR_DESC: "An error occurred while loading audit entries. Please try again.",
-  RETRY: "Retry",
-  FILTER_DATE_RANGE: "Date range",
-  TABS_ARIA_LABEL: "Audit log tabs",
+  TITLE: "Nhật ký ca thi",
+  SUBTITLE: "Tra cứu vi phạm và sự kiện bảo mật của ca thi.",
+  TAB_VIOLATIONS: "Vi phạm do giám thị ghi nhận",
+  TAB_SECURITY: "Nhật ký bảo mật",
+  LOADING_VIOLATIONS: "Đang tải vi phạm…",
+  LOADING_AUDIT: "Đang tải nhật ký bảo mật…",
+  EMPTY_VIOLATIONS_TITLE: "Chưa có vi phạm được ghi nhận",
+  EMPTY_VIOLATIONS_DESCRIPTION: "Các vi phạm do giám thị ghi nhận sẽ xuất hiện tại đây.",
+  EMPTY_AUDIT_TITLE: "Chưa có sự kiện bảo mật",
+  EMPTY_AUDIT_DESCRIPTION: "Các sự kiện bảo mật của ca thi sẽ xuất hiện tại đây.",
+  LOAD_MORE: "Tải thêm",
+  END_OF_AUDIT: "Đã tải hết nhật ký",
+  COL_TIME: "Thời gian",
+  COL_TYPE: "Loại",
+  COL_PROCTOR: "Giám thị",
+  COL_DESCRIPTION: "Nội dung",
+  BACK_TO_PROFILE: "Về hồ sơ",
+  ENTER_MONITORING: "Giám sát trực tiếp",
+  SESSION_LIST: "Ca thi được phân công",
+  ERROR_TITLE: "Không thể tải nhật ký",
+  ERROR_DESC: "Đã xảy ra lỗi khi tải nhật ký. Vui lòng thử lại.",
+  RETRY: "Thử lại",
+  FILTER_DATE_RANGE: "Khoảng ngày",
+  FILTER_LOG_TYPE: "Loại nhật ký",
+  TABS_ARIA_LABEL: "Loại nhật ký",
 } as const;
 
 export const PROCTOR_PROFILE_TEXT = {
@@ -266,7 +156,7 @@ export function getIncidentStatusBadge(
 } {
   switch (status) {
     case "NEW":
-      return { label: "Mới tiếp nhận", variant: "warning" };
+      return { label: "Mới báo cáo", variant: "warning" };
     case "IN_PROGRESS":
       return { label: "Đang xử lý", variant: "info" };
     case "ESCALATED":
@@ -293,6 +183,7 @@ export const PROCTOR_ATTENDANCE_SUMMARY_TEXT = {
 } as const;
 
 export const PROCTOR_TOOLBAR_TEXT = {
+  FILTER_STATUS_LABEL: "Trạng thái điểm danh",
   ALL_TAB: "Tất cả",
   SEARCH_PLACEHOLDER: "Tìm tên hoặc email...",
   SEARCH_BTN: "Tìm",
@@ -301,6 +192,12 @@ export const PROCTOR_TOOLBAR_TEXT = {
 } as const;
 
 export const PROCTOR_ROSTER_TEXT = {
+  ACTIVITY_IN_PROGRESS: "Đang làm bài",
+  ACTIVITY_SUBMITTED: "Đã nộp bài",
+  ACTIVITY_ABANDONED: "Đã rời bài thi",
+  ACTIVITY_CREATED: "Đã tạo lượt thi",
+  ACTIVITY_UNKNOWN: "Chưa có thông tin",
+  BLOCKED_GENERIC: "Hiện không thể chỉnh sửa điểm danh.",
   COL_STUDENT: "Thí sinh",
   COL_ATTENDANCE: "Điểm danh",
   COL_IDENTITY: "Xác minh danh tính",
@@ -319,6 +216,10 @@ export const PROCTOR_ROSTER_TEXT = {
 } as const;
 
 export const PROCTOR_HISTORY_MODAL_TEXT = {
+  TITLE: "Lịch sử điểm danh",
+  SUBTITLE: "Theo dõi các lần cập nhật trạng thái và lý do điều chỉnh của thí sinh.",
+  NO_NOTE: "Không có ghi chú bổ sung.",
+  RECORDS: "lần cập nhật",
   TITLE_PREFIX: "Lịch sử điểm danh: ",
   CLOSE_BTN: "Đóng",
   EMAIL_PREFIX: "Email: ",
@@ -427,6 +328,7 @@ export const PROCTOR_INCIDENT_STATUS_TABS: ReadonlyArray<{
 ];
 
 export const PROCTOR_INCIDENT_LIST_TEXT = {
+  SEARCH_PLACEHOLDER: "Tìm tiêu đề hoặc nội dung sự cố...",
   BACK_BTN: "Danh sách ca thi",
   REPORT_NEW_BTN: "+ Báo cáo sự cố mới",
   FILTER_STATUS_LABEL: "Trạng thái",

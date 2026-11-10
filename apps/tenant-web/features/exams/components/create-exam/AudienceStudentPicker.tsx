@@ -1,10 +1,11 @@
 import type { ReactElement } from "react";
 import { Input, Select } from "@pte/ui";
-import { AUDIENCE_FILTER_ALL, AUDIENCE_FILTER_NO_CLASS, CREATE_EXAM_WIZARD_TEXT } from "../../constants";
-import type {
-  AudienceOption,
-  AudienceStudent,
-} from "../../hooks/useAudienceStudentPicker";
+import {
+  AUDIENCE_FILTER_ALL,
+  AUDIENCE_FILTER_NO_CLASS,
+  CREATE_EXAM_WIZARD_TEXT,
+} from "../../constants";
+import type { AudienceOption, AudienceStudent } from "../../hooks/useAudienceStudentPicker";
 import { fillTemplate } from "../../utils/fillTemplate";
 
 type WizardText = typeof CREATE_EXAM_WIZARD_TEXT;

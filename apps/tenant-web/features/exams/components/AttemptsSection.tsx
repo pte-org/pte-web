@@ -2,11 +2,22 @@
 
 import { useState, type ReactElement } from "react";
 import type { AttemptReviewItemResponse } from "@pte/api-client";
-import { Badge, Button, DataTable, useLocale, type DataTableColumn } from "@pte/ui";
+import {
+  ActionMenu,
+  Badge,
+  Button,
+  ClipboardIcon,
+  DataTable,
+  EyeIcon,
+  useLocale,
+  type DataTableColumn,
+} from "@pte/ui";
 import { useAttemptReviews } from "../api/attemptReviews";
 import { ATTEMPT_TABLE_HEADERS, ATTEMPTS_SECTION_TEXT as T } from "../constants/attemptReviews";
 import { AnswersSection } from "./AnswersSection";
+import { StartAiScoringButton } from "./StartAiScoringButton";
 import { AttemptScoreSummary } from "./AttemptScoreSummary";
+import { ScoreExplanationLink } from "@/features/scoreexplanation/components";
 
 function formatDateTime(value: string, locale: "vi" | "en"): string {
   const date = new Date(value);
@@ -96,8 +107,7 @@ export const AttemptsSection = ({ sessionPublicId }: AttemptsSectionProps): Reac
     {
       key: "submittedAt",
       header: t("tenant.answers.submitted", ATTEMPT_TABLE_HEADERS.SUBMITTED_AT),
-      cell: (row) =>
-        row.submittedAt ? formatDateTime(row.submittedAt, locale) : T.NOT_SUBMITTED,
+      cell: (row) => (row.submittedAt ? formatDateTime(row.submittedAt, locale) : T.NOT_SUBMITTED),
     },
     {
       key: "examiner",
@@ -112,21 +122,27 @@ export const AttemptsSection = ({ sessionPublicId }: AttemptsSectionProps): Reac
     {
       key: "progress",
       header: t("tenant.attempts.scoring", ATTEMPT_TABLE_HEADERS.PROGRESS),
-      cell: (row) => (
-        <span className="flex flex-wrap items-center gap-2">
-          <span>{T.PROGRESS(row.scoredCount, row.answerCount)}</span>
-          {row.failedCount > 0 && <Badge variant="danger">{T.FAILED(row.failedCount)}</Badge>}
-          {row.aiScoringCount > 0 && (
-            <Badge variant="info">{T.IN_PROGRESS(row.aiScoringCount)}</Badge>
-          )}
-          {row.pendingCount > 0 && <Badge variant="neutral">{T.WAITING(row.pendingCount)}</Badge>}
-        </span>
-      ),
+      cell: (row) =>
+        row.answerCount === 0 ? (
+          <span className="text-[var(--ink-secondary)]">
+            {t("tenant.attempts.noAiAnswers", T.NO_AI_ANSWERS)}
+          </span>
+        ) : (
+          <span className="flex flex-wrap items-center gap-2">
+            <span>{T.PROGRESS(row.scoredCount, row.answerCount)}</span>
+            {row.failedCount > 0 && <Badge variant="danger">{T.FAILED(row.failedCount)}</Badge>}
+            {row.aiScoringCount > 0 && (
+              <Badge variant="info">{T.IN_PROGRESS(row.aiScoringCount)}</Badge>
+            )}
+            {row.pendingCount > 0 && <Badge variant="neutral">{T.WAITING(row.pendingCount)}</Badge>}
+          </span>
+        ),
     },
   ];
 
   return (
     <DataTable
+      toolbarActions={<StartAiScoringButton sessionPublicId={sessionPublicId} />}
       columns={columns}
       rows={attempts ?? []}
       getRowKey={(row) => row.attemptPublicId}
@@ -134,14 +150,25 @@ export const AttemptsSection = ({ sessionPublicId }: AttemptsSectionProps): Reac
       emptyTitle={t("tenant.attempts.empty", T.EMPTY_TITLE)}
       rowActionsHeader={t("tenant.answers.actions", ATTEMPT_TABLE_HEADERS.ACTIONS)}
       rowActions={(row) => (
-        <Button
-          type="button"
-          variant="secondary"
-          className="whitespace-nowrap"
-          onClick={() => setSelectedId(row.attemptPublicId)}
-        >
-          {t("tenant.attempts.viewAnswers", T.VIEW)}
-        </Button>
+        <ScoreExplanationLink
+          role="HOST_ADMIN"
+          sessionPublicId={sessionPublicId}
+          attemptPublicId={row.attemptPublicId}
+          renderAction={(explanation) => (
+            <ActionMenu
+              label={t("tenant.answers.actions", ATTEMPT_TABLE_HEADERS.ACTIONS)}
+              items={[
+                {
+                  label: t("tenant.attempts.viewAnswers", T.VIEW),
+                  icon: EyeIcon,
+                  tone: "info",
+                  onSelect: () => setSelectedId(row.attemptPublicId),
+                },
+                { ...explanation, icon: ClipboardIcon, tone: "success" },
+              ]}
+            />
+          )}
+        />
       )}
     />
   );

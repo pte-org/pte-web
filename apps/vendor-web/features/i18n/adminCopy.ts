@@ -11,6 +11,32 @@ import { useLocale, type Locale } from "@pte/ui";
  * are deliberately not passed through this helper.
  */
 const ADMIN_VI: Record<string, string> = {
+  "Forgot your password?": "Quên mật khẩu?",
+  "Enter the email of your account and we will send you a link to choose a new password.":
+    "Nhập email của tài khoản, chúng tôi sẽ gửi liên kết để bạn chọn mật khẩu mới.",
+  "Send reset link": "Gửi liên kết đặt lại",
+  "Sending...": "Đang gửi...",
+  "Enter your email address.": "Vui lòng nhập địa chỉ email.",
+  "Check your inbox": "Hãy kiểm tra hộp thư",
+  "If that email belongs to an account, a reset link is on its way. The link works once and expires in 30 minutes.":
+    "Nếu email này thuộc về một tài khoản, liên kết đặt lại đang được gửi đi. Liên kết chỉ dùng được một lần và hết hạn sau 30 phút.",
+  "Choose a new password": "Chọn mật khẩu mới",
+  "Pick a password you have not used here before. The link works once.":
+    "Hãy chọn mật khẩu bạn chưa dùng ở đây trước đây. Liên kết chỉ dùng được một lần.",
+  "Enter both password fields.": "Vui lòng nhập cả hai ô mật khẩu.",
+  "This link cannot be used": "Không thể dùng liên kết này",
+  "The reset link is missing, invalid or has expired. Request a new one to continue.":
+    "Liên kết đặt lại bị thiếu, không hợp lệ hoặc đã hết hạn. Hãy yêu cầu liên kết mới để tiếp tục.",
+  "The password could not be reset. Request a new link and try again.":
+    "Không thể đặt lại mật khẩu. Hãy yêu cầu liên kết mới rồi thử lại.",
+  "Back to sign in": "Quay lại đăng nhập",
+  "Password updated. Sign in with your new password.":
+    "Đã cập nhật mật khẩu. Hãy đăng nhập bằng mật khẩu mới.",
+  "Password changed. You are now signed in.": "Đã đổi mật khẩu. Bạn đã được đăng nhập.",
+  "Request a new link": "Yêu cầu liên kết mới",
+  "Checking your link": "Đang kiểm tra liên kết",
+  "One moment while we make sure it can still be used.":
+    "Vui lòng đợi trong giây lát để chúng tôi kiểm tra liên kết còn dùng được không.",
   "Welcome Back": "Chào mừng trở lại",
   "Admin portal": "Cổng quản trị",
   "Organization portal": "Cổng tổ chức",
@@ -39,9 +65,13 @@ const ADMIN_VI: Record<string, string> = {
   "Please enter a valid email address.": "Vui lòng nhập địa chỉ email hợp lệ.",
   "Please enter your password.": "Vui lòng nhập mật khẩu.",
   "Username or password is incorrect.": "Tên đăng nhập hoặc mật khẩu không đúng.",
-  "This account is not allowed to use the vendor portal.":
-    "Tài khoản này không được phép sử dụng cổng quản trị.",
   "Login failed. Please try again.": "Đăng nhập thất bại. Vui lòng thử lại.",
+  "Unable to connect to the server. Check your connection and try again.":
+    "Không thể kết nối máy chủ. Kiểm tra kết nối và thử lại.",
+  "Sign-in is temporarily unavailable. Please try again later.":
+    "Chức năng đăng nhập tạm thời không khả dụng. Vui lòng thử lại sau.",
+  "Too many sign-in attempts. Please wait a moment and try again.":
+    "Đăng nhập quá nhiều lần. Vui lòng đợi một lát rồi thử lại.",
   "Change your password": "Đổi mật khẩu",
   "Your temporary password must be replaced before you can open a workspace.":
     "Bạn phải thay mật khẩu tạm thời trước khi mở workspace.",
@@ -117,6 +147,10 @@ const ADMIN_VI: Record<string, string> = {
   "Tenant applications": "Đơn đăng ký tenant",
   "Filter applications by status": "Lọc đơn đăng ký theo trạng thái",
   "All statuses": "Tất cả trạng thái",
+  "All sources": "Tất cả nguồn",
+  Source: "Nguồn",
+  "AI generated": "AI tạo",
+  Manual: "Thủ công",
   Pending: "Đang chờ",
   Approved: "Đã duyệt",
   Rejected: "Bị từ chối",
@@ -126,6 +160,13 @@ const ADMIN_VI: Record<string, string> = {
   "Applications could not be loaded. Try again shortly.":
     "Không thể tải danh sách đơn đăng ký. Vui lòng thử lại sau.",
   Retry: "Thử lại",
+  "Recipient organization": "Tổ chức nhận gói",
+  "Package to grant": "Gói được cấp",
+  "Contract information": "Thông tin hợp đồng",
+  "Check the organization and package details against the contract before granting.":
+    "Đối chiếu thông tin tổ chức và gói với hợp đồng trước khi cấp gói.",
+  "Could not load organizations. Please try again.":
+    "Không thể tải danh sách tổ chức. Vui lòng thử lại.",
   "Total applications": "Tổng số đơn đăng ký",
   "Needs review": "Cần xem xét",
   "No applications found": "Không tìm thấy đơn đăng ký",
@@ -177,7 +218,6 @@ const ADMIN_VI: Record<string, string> = {
   "Save changes": "Lưu thay đổi",
   "Create draft": "Tạo bản nháp",
   Cancel: "Hủy",
-  "Published catalog": "Danh mục đã phát hành",
   "Filter plans by type": "Lọc gói theo loại",
   All: "Tất cả",
   "Capacity add-ons": "Gói bổ sung sức chứa",
@@ -199,7 +239,7 @@ const ADMIN_VI: Record<string, string> = {
 
   "License codes": "Mã bản quyền",
   "Activation codes": "Mã kích hoạt",
-  "Package grants": "Cấp gói",
+  "License Code": "Mã kịch hoạt",
   "Host email": "Email Host",
   "The first host account is created for this email and its password is sent there.":
     "Tài khoản Host đầu tiên được tạo theo email này và mật khẩu được gửi tới đó.",
@@ -220,7 +260,8 @@ const ADMIN_VI: Record<string, string> = {
   "Organization code, tax code or contact email": "Mã tổ chức, mã số thuế hoặc email liên hệ",
   "Type at least 2 characters to search.": "Nhập ít nhất 2 ký tự để tìm.",
   "No organization matches this search.": "Không tìm thấy tổ chức phù hợp.",
-  "Only active organizations can receive a package.": "Chỉ tổ chức đang hoạt động mới được cấp gói.",
+  "Only active organizations can receive a package.":
+    "Chỉ tổ chức đang hoạt động mới được cấp gói.",
   "Searching...": "Đang tìm...",
   Select: "Chọn",
   "Organization name": "Tên tổ chức",
@@ -254,8 +295,6 @@ const ADMIN_VI: Record<string, string> = {
     "Theo dõi và quản lý các mã được phát hành bởi nền tảng.",
   "Create code": "Tạo mã",
   "Lookup code": "Tra cứu mã",
-  "Advanced filters": "Bộ lọc nâng cao",
-  "Hide advanced filters": "Ẩn bộ lọc nâng cao",
   "Create activation code": "Tạo mã kích hoạt",
   "Code created": "Đã tạo mã",
   "The code was created securely. Reveal it only when you are ready to share it.":
@@ -284,12 +323,9 @@ const ADMIN_VI: Record<string, string> = {
   "Loading codes...": "Đang tải mã...",
   "No license codes found": "Không tìm thấy mã bản quyền",
   "No codes match these filters.": "Không có mã phù hợp với bộ lọc.",
-  "Recipient tenant ID": "ID tenant nhận",
-  "Apply filters": "Áp dụng bộ lọc",
   Reset: "Đặt lại",
   Previous: "Trước",
   Next: "Sau",
-  "Refresh list": "Làm mới danh sách",
   "Find a code safely": "Tra cứu mã an toàn",
   "License code": "Mã bản quyền",
   "Activation code": "Mã kích hoạt",
@@ -327,6 +363,29 @@ const ADMIN_VI: Record<string, string> = {
   Requirements: "Yêu cầu",
   Scored: "Tính điểm",
   "Task type actions": "Thao tác dạng bài",
+  "Drag to reorder": "Kéo để sắp xếp",
+  "Edit details": "Chỉnh chi tiết",
+  "Task type details": "Chi tiết dạng bài",
+  "Question pool": "Nhóm câu hỏi",
+  Pool: "Nhóm",
+  Official: "Chính thức",
+  Practice: "Luyện tập",
+  "Exam questions can be drawn into exams; practice questions are only used for practice. This cannot be changed later.":
+    "Câu hỏi chính thức có thể được rút vào bài thi; câu hỏi luyện tập chỉ dùng để luyện tập. Không thể đổi sau khi tạo.",
+  "Repeat Sentence needs the sentence the student must repeat in the reference answer.":
+    "Repeat Sentence cần câu thí sinh phải nhắc lại, điền vào đáp án tham khảo.",
+  "Choose file": "Chọn tệp",
+  "Replace file": "Đổi tệp",
+  "No file chosen": "Chưa chọn tệp",
+  "Uploading…": "Đang tải lên…",
+  Done: "Xong",
+  "Skill weights": "Trọng số kỹ năng",
+  questions: "câu",
+  Questions: "Số câu",
+  "Time (s)": "Thời gian (giây)",
+  Prep: "Chuẩn bị",
+  Response: "Trả lời",
+  "No task types in this section yet.": "Chưa có dạng bài nào trong phần này.",
   "Search task types, keys, or sections": "Tìm dạng bài, mã hoặc phần thi",
   "Search task types": "Tìm dạng bài",
   "Filter task types by section": "Lọc dạng bài theo phần thi",
@@ -464,9 +523,26 @@ const ADMIN_VI: Record<string, string> = {
   "Image prompt": "Hình ảnh đề bài",
   "Question prompt preview": "Xem trước đề bài",
   "Reference answer": "Đáp án tham khảo",
+  "Audio transcript": "Lời thoại audio",
   "Correct answer text": "Nội dung đáp án đúng",
   "Question created as a draft.": "Đã tạo câu hỏi ở trạng thái bản nháp.",
   "Question draft saved.": "Đã lưu bản nháp câu hỏi.",
+  "The pool can be changed only while the question is a draft.":
+    "Chỉ đổi được nhóm câu hỏi khi câu hỏi còn là bản nháp.",
+  "The pool is locked once a question is submitted. Open a new draft revision to change it.":
+    "Nhóm câu hỏi bị khóa sau khi gửi duyệt. Hãy tạo bản nháp chỉnh sửa mới để đổi.",
+  "Move this question to Practice?": "Chuyển câu hỏi này sang Practice?",
+  "Practice questions show answers and feedback to learners. Once published, this question will leave the Official pool and can no longer be drawn into exams.":
+    "Câu hỏi Practice hiển thị đáp án và phản hồi cho học viên. Sau khi phát hành, câu hỏi sẽ rời nhóm Official và không thể được chọn vào đề thi nữa.",
+  "This question has already been published. If it was used in a real exam, moving it to Practice may leak exam content.":
+    "Câu hỏi này đã từng được phát hành. Nếu đã dùng trong kỳ thi thật, chuyển sang Practice có thể làm lộ đề thi.",
+  "Move this question to Official?": "Chuyển câu hỏi này sang Official?",
+  "Once published, this question can be drawn into exams and will leave the Practice pool. Make sure it has been reviewed to exam standard.":
+    "Sau khi phát hành, câu hỏi có thể được chọn vào đề thi và sẽ rời nhóm Practice. Hãy chắc chắn câu hỏi đã được kiểm duyệt đạt chuẩn đề thi.",
+  "Change pool": "Đổi nhóm",
+  "Skill weights must total exactly 100. Current totals:":
+    "Tổng trọng số mỗi kỹ năng phải đúng bằng 100. Tổng hiện tại:",
+  "Keep current pool": "Giữ nhóm hiện tại",
   "Media upload failed. Please try again.": "Tải tệp phương tiện thất bại. Vui lòng thử lại.",
   "Task type configuration is unavailable. Please refresh and try again.":
     "Không có cấu hình dạng bài. Vui lòng làm mới và thử lại.",
@@ -495,19 +571,71 @@ const ADMIN_VI: Record<string, string> = {
   "Cloudinary upload failed": "Tải lên Cloudinary thất bại",
 
   "Exam Templates": "Mẫu bài thi",
-  "Clone to new draft": "Nhân bản thành bản nháp mới",
+  "Clone to new draft": "Tạo bản nháp mới",
   "Create template": "Tạo mẫu",
   Delete: "Xóa",
   "Create exam template": "Tạo mẫu bài thi",
   Code: "Mã",
   Name: "Tên",
   "Template policy": "Chính sách mẫu",
+  "Template information": "Thông tin mẫu",
+  "Created by": "Người tạo",
+  "Time frame": "Khung thời gian",
+  "CEFR mix": "Tỉ lệ CEFR",
+  "The minutes each part of the test may take, and the most the whole test may take. Exams built from this template are planned to fit.":
+    "Số phút mỗi phần của bài thi được dùng và tổng tối đa của cả bài. Đề tạo từ mẫu này được lập kế hoạch để nằm trong khung.",
+  "Speaking & Writing": "Nói & Viết",
+  "Minimum (min)": "Tối thiểu (phút)",
+  "Maximum (min)": "Tối đa (phút)",
+  "Test ceiling (min)": "Trần cả bài (phút)",
+  "Restore Pearson window": "Khôi phục khung Pearson",
+  "Enter a positive number of minutes in every field.": "Nhập số phút dương ở mọi ô.",
+  "The minimum of this part must not exceed its maximum.":
+    "Tối thiểu của phần này không được vượt tối đa.",
+  "The ceiling must cover the three minimums together.":
+    "Trần cả bài phải đủ cho tổng ba mức tối thiểu.",
+  "Time frame saved": "Đã lưu khung thời gian",
+  "Could not save the time frame.": "Không thể lưu khung thời gian.",
+  "The share of questions of each CEFR level that exams built from this template aim for. The percentages must add up to 100.":
+    "Tỉ lệ câu hỏi theo từng mức CEFR mà đề tạo từ mẫu này hướng tới. Tổng các phần trăm phải bằng 100.",
+  Total: "Tổng",
+  "Use whole numbers from 0 to 100 that add up to 100.":
+    "Dùng số nguyên từ 0 đến 100 và cộng lại bằng 100.",
+  "CEFR mix saved": "Đã lưu tỉ lệ CEFR",
+  "Could not save the CEFR mix.": "Không thể lưu tỉ lệ CEFR.",
+  "Planned duration": "Thời lượng dự kiến",
+  Window: "Khung",
+  "Can fit": "Đạt được",
+  "Cannot fit": "Không đạt được",
+  "No time frame set": "Chưa đặt khung thời gian",
+  "Test ceiling": "Trần cả bài",
+  min: "phút",
+  "CEFR level": "Mức CEFR",
+  "Not classified": "Chưa phân loại",
+  "Required before an exam question is submitted for approval.":
+    "Bắt buộc trước khi gửi duyệt câu hỏi thi.",
+  CEFR: "CEFR",
+  Created: "Ngày tạo",
+  Unknown: "Không rõ",
+  "Template actions": "Thao tác mẫu",
+  "Table view": "Chế độ xem bảng",
+  "Questions & timing": "Số câu & thời gian",
+  Weights: "Trọng số",
+  "Leave without saving?": "Rời đi mà không lưu?",
+  "You have unsaved changes to this template. If you leave now, they will be lost.":
+    "Bạn có thay đổi chưa lưu trong mẫu này. Nếu rời đi bây giờ, các thay đổi sẽ bị mất.",
+  "Stay on this page": "Ở lại trang này",
+  "Leave without saving": "Rời đi, không lưu",
+  Save: "Lưu",
   "Standard PTE": "PTE tiêu chuẩn",
   "Custom task set": "Bộ dạng bài tùy chỉnh",
   "Custom templates may use selected task types without requiring the complete standard PTE catalog.":
     "Mẫu tùy chỉnh có thể dùng các dạng bài đã chọn mà không cần toàn bộ danh mục PTE tiêu chuẩn.",
   "Could not create this exam template.": "Không thể tạo mẫu bài thi này.",
   "Could not delete this exam template.": "Không thể xóa mẫu bài thi này.",
+  "Delete this exam template?": "Xóa mẫu bài thi này?",
+  "This DRAFT exam template will be permanently deleted. This cannot be undone.":
+    "Mẫu bài thi ở trạng thái BẢN NHÁP này sẽ bị xóa vĩnh viễn. Thao tác này không thể hoàn tác.",
   "Delete this DRAFT exam template? This cannot be undone.":
     "Xóa mẫu bài thi BẢN NHÁP này? Thao tác không thể hoàn tác.",
   "Back to list": "Quay lại danh sách",
@@ -525,8 +653,6 @@ const ADMIN_VI: Record<string, string> = {
     "Tất cả dạng bài đang hoạt động trong phần thi này đã có trong mẫu. Hãy chọn phần thi khác hoặc xóa một dạng bài trước khi thêm lại.",
   "The available task types in this section are not compatible with the current app runtime. Ask the platform team to release support before using them.":
     "Các dạng bài khả dụng trong phần thi này không tương thích với runtime hiện tại. Hãy nhờ đội nền tảng phát hành hỗ trợ trước khi sử dụng.",
-  "Task types come from the active platform catalog. Their screen, authoring, and scoring behavior comes from the released runtime contract.":
-    "Dạng bài được lấy từ danh mục nền tảng đang hoạt động. Màn hình, cách nhập liệu và hành vi tính điểm do contract runtime đã phát hành quyết định.",
   "Could not load the active task type catalog. Please refresh before editing.":
     "Không thể tải danh mục dạng bài đang hoạt động. Vui lòng làm mới trước khi chỉnh sửa.",
   "This template cannot be activated until every selected task type has a supported active runtime profile. Review the task type catalog and try again.":
@@ -570,6 +696,8 @@ const ADMIN_VI: Record<string, string> = {
     "Mẫu này đang chờ quản trị viên nền tảng xét duyệt.",
   "This template is not ready yet. Review the selected task types, counts, timing, and skill weights.":
     "Mẫu chưa sẵn sàng. Hãy kiểm tra dạng bài, số lượng, thời lượng và trọng số kỹ năng đã chọn.",
+  "Could not save: each skill's weight column (Speaking, Writing, Reading, Listening) must total exactly 100. Adjust the weights and save again.":
+    "Không lưu được: tổng trọng số của mỗi kỹ năng (Nói, Viết, Đọc, Nghe) phải đúng bằng 100. Hãy chỉnh lại trọng số rồi lưu lại.",
   "One selected task type has no runtime profile. Ask the platform team to enable it before activating this template.":
     "Một dạng bài đã chọn chưa có runtime profile. Hãy nhờ đội nền tảng bật profile trước khi kích hoạt mẫu.",
   "One selected task type is retired for new templates. Choose an active standard task type.":
@@ -936,8 +1064,6 @@ const ADMIN_VI: Record<string, string> = {
   "Confirming the issuance result…": "Đang xác nhận kết quả cấp mã…",
   "Clear this rejected request": "Xóa yêu cầu bị từ chối này",
   "Enter a valid future date and time.": "Nhập ngày giờ hợp lệ trong tương lai.",
-  "Optional UUID filter; this never searches bearer values.":
-    "Bộ lọc UUID tùy chọn; bộ lọc này không bao giờ tìm trong giá trị mã.",
   "Showing the last successful page...": "Đang hiển thị trang tải thành công gần nhất...",
   "Plans could not be loaded...": "Không thể tải danh sách gói...",
   "The bearer is shown locally...": "Mã cấp quyền chỉ được hiển thị cục bộ...",
@@ -1056,8 +1182,8 @@ const ADMIN_VI: Record<string, string> = {
   "This draft will be removed from authoring. Audit history and media are retained, but it cannot be restored from this UI.":
     "Bản nháp này sẽ bị xóa khỏi khu vực biên soạn. Lịch sử audit và tệp phương tiện vẫn được giữ lại nhưng không thể khôi phục từ giao diện này.",
   "Question draft deleted.": "Đã xóa bản nháp câu hỏi.",
-  "Draft cleanup is unavailable because publication or revision history is protected or unknown.":
-    "Không thể dọn dẹp bản nháp vì lịch sử phát hành hoặc phiên bản đang được bảo vệ hoặc chưa xác định.",
+  "This draft cannot be deleted because it has publication history or its history is unknown.":
+    "Không thể xóa bản nháp này vì nó có lịch sử phát hành hoặc chưa xác định được lịch sử.",
   "Archive this question?": "Lưu trữ câu hỏi này?",
   "This question will be excluded from new exam generation. Existing exam snapshots and publication history are retained.":
     "Câu hỏi này sẽ không được dùng để tạo kỳ thi mới. Ảnh chụp kỳ thi hiện tại và lịch sử phát hành vẫn được giữ lại.",
@@ -1082,6 +1208,8 @@ const ADMIN_VI: Record<string, string> = {
   "Question rejected and sent back to draft.": "Câu hỏi đã bị từ chối và chuyển về bản nháp.",
   "Question archived.": "Đã lưu trữ câu hỏi.",
   "Question unarchived.": "Đã bỏ lưu trữ câu hỏi.",
+  "Back to the question bank": "Về ngân hàng câu hỏi",
+  "Back to the Content Hub": "Về Trung tâm nội dung",
   "← Back to Question Bank": "← Quay lại ngân hàng câu hỏi",
   "This question has no text prompt.": "Câu hỏi này không có đề bài dạng văn bản.",
   "Loading media preview...": "Đang tải bản xem trước tệp phương tiện...",
@@ -1089,8 +1217,6 @@ const ADMIN_VI: Record<string, string> = {
     "Không thể tải bản xem trước tệp phương tiện. Tham chiếu tệp vẫn được lưu.",
   "No audio or image is attached to this question.":
     "Câu hỏi này không có âm thanh hoặc hình ảnh đính kèm.",
-  "Task type keys are configurable metadata. Interaction and scoring behavior come from a released screen contract selected below.":
-    "Khóa dạng bài là siêu dữ liệu có thể cấu hình. Hành vi tương tác và chấm điểm lấy từ hợp đồng màn hình đã phát hành được chọn bên dưới.",
   "· contributes to scoring": "· tham gia chấm điểm",
   "· not scored": "· không chấm điểm",
   "Authoring requirements": "Yêu cầu biên soạn",
@@ -1131,6 +1257,132 @@ const ADMIN_VI: Record<string, string> = {
   "Search score templates by name, code, or version": "Tìm mẫu điểm theo tên, mã hoặc phiên bản",
   "Search by question content": "Tìm theo nội dung câu hỏi",
   "Search questions by content": "Tìm câu hỏi theo nội dung",
+  "Question bank": "Ngân hàng câu hỏi",
+  "Approval workflow": "Quy trình duyệt",
+  "Compose with preview": "Soạn câu có xem trước",
+  "Could not load the question board.": "Không thể tải bảng câu hỏi.",
+  "Question saved as a draft": "Đã lưu câu hỏi thành bản nháp",
+  "Add this task type to the template to see its timing.":
+    "Thêm dạng bài này vào mẫu để xem thời gian.",
+  "Only an academic manager can approve": "Chỉ quản lý học thuật mới duyệt được",
+  "Updated {time}": "Cập nhật {time}",
+  "{count} questions are waiting for your review": "Có {count} câu hỏi đang chờ bạn duyệt",
+  "Open the board": "Mở bảng duyệt",
+  "Task types to add": "Dạng bài có thể thêm",
+  "Drag one into the table, or press +. Drag a row back here to remove it.":
+    "Kéo một dạng bài vào bảng, hoặc bấm +. Kéo một dòng về đây để bỏ nó.",
+  "Every task type is already in the template.": "Mọi dạng bài đã có trong mẫu.",
+  "Drag a task type from the left into this table.": "Kéo một dạng bài từ bên trái vào bảng này.",
+  "Template version": "Phiên bản mẫu",
+  "Write the missing questions": "Soạn câu còn thiếu",
+  "Activate on the template page": "Kích hoạt ở trang mẫu bài thi",
+  "Switch to the draft": "Chuyển sang bản nháp",
+  "This version is in effect and locked. Make changes in the draft.":
+    "Phiên bản này đang áp dụng và đã khóa. Hãy thay đổi trong bản nháp.",
+  "Content Hub views": "Các góc nhìn của Trung tâm nội dung",
+  "Choose templates": "Chọn mẫu",
+  "Search by name, code or version": "Tìm theo tên, mã hoặc phiên bản",
+  "Pick the template to look at: the active one or a draft.": "Chọn mẫu để xem: mẫu đang hoạt động hoặc một bản nháp.",
+  "task types": "dạng bài",
+  "No template matches.": "Không có mẫu nào khớp.",
+  "Board of": "Bảng của",
+  "Task types": "Dạng bài",
+  "Exam templates": "Mẫu bài thi",
+  "Search by name or code": "Tìm theo tên hoặc mã",
+  "Could not load the board.": "Không tải được bảng.",
+  "{count} task types": "{count} dạng bài",
+  "Approved, but it could not be activated:": "Đã duyệt nhưng chưa kích hoạt được:",
+  "Drag to the next step": "Kéo sang bước kế tiếp",
+  "Show {count} more": "Hiện thêm {count}",
+  "About {count} exams without a repeated question": "Đủ cho khoảng {count} đề không trùng câu",
+  "No repeated questions between exams": "Không trùng câu giữa các đề",
+  "Tick to see how many exams the approved questions can fill without any question appearing twice.":
+    "Đánh dấu để xem kho câu hỏi đã duyệt đủ cho bao nhiêu đề mà không câu nào xuất hiện hai lần.",
+  "≈ {count} exams": "≈ {count} đề",
+  "Not enough for even one exam": "Chưa đủ cho một đề",
+  "To do: questions to write": "Việc cần làm: câu hỏi cần soạn",
+  "{count} more needed": "cần thêm {count}",
+  "Write more": "Soạn thêm",
+  "Search questions in this task type": "Tìm câu hỏi của dạng bài này",
+  "Showing the first 200. Narrow the board with the filters.": "Đang hiện 200 câu đầu. Hãy thu hẹp bằng bộ lọc.",
+  "Coverage map": "Bản đồ độ phủ",
+  "Exam timeline": "Dòng thời gian đề",
+  "Drag a card to the next column to move a question through review.":
+    "Kéo thẻ sang cột kế tiếp để chuyển câu hỏi qua các bước duyệt.",
+  "Search questions": "Tìm câu hỏi",
+  "All task types": "Tất cả dạng bài",
+  "Nothing here": "Chưa có gì",
+  "A question moves one step at a time: draft, awaiting approval, approved.":
+    "Câu hỏi chỉ đi từng bước: bản nháp, chờ duyệt, đã duyệt.",
+  "Only an academic manager can approve a question.":
+    "Chỉ quản lý học thuật mới duyệt được câu hỏi.",
+  "Question updated": "Đã cập nhật câu hỏi",
+  "Fill in the form; the preview shows what the student will see.":
+    "Điền vào biểu mẫu, phần xem trước cho thấy học sinh sẽ thấy gì.",
+  "Student view": "Màn hình học sinh",
+  "Start typing to see the question.": "Hãy bắt đầu nhập để xem câu hỏi.",
+  "Preparation: {seconds}s": "Chuẩn bị: {seconds}s",
+  "Response: {seconds}s": "Trả lời: {seconds}s",
+  "The width of a block follows its time. Click one to see its task type.": "Độ rộng khối theo thời gian của nó. Bấm vào một khối để xem dạng bài.",
+  "About {minutes} minutes in {count} task types": "Khoảng {minutes} phút cho {count} dạng bài",
+  "No task types in this template yet.": "Mẫu này chưa có dạng bài nào.",
+  "{count} q · {time}": "{count} câu · {time}",
+  "Nothing in this skill": "Kỹ năng này chưa có dạng bài",
+  "Where this task type stands in the template, and its questions":
+    "Tình trạng của dạng bài này trong mẫu bài thi và các câu hỏi của nó",
+  "Working template": "Mẫu đang làm việc",
+  "No platform template yet": "Chưa có mẫu bài thi nền tảng",
+  "Create a draft from the exam template page to start.":
+    "Hãy tạo bản nháp từ trang mẫu bài thi để bắt đầu.",
+  "This version is locked. Create a new draft to change it.":
+    "Phiên bản này đã khóa. Hãy tạo bản nháp mới để chỉnh sửa.",
+  "Create a new draft": "Tạo bản nháp mới",
+  "Could not create a draft from this template.": "Không thể tạo bản nháp từ mẫu này.",
+  "{ready} of {total} task types are ready": "{ready}/{total} dạng bài đã sẵn sàng",
+  "The template is ready to activate": "Mẫu bài thi đã sẵn sàng để kích hoạt",
+  "{count} approved questions are still missing": "Còn thiếu {count} câu hỏi đã duyệt",
+  "{count} task types are not in the template yet": "{count} dạng bài chưa có trong mẫu",
+  "Every task type has enough approved questions.": "Mọi dạng bài đều đủ câu hỏi đã duyệt.",
+  "Open the template page": "Mở trang mẫu bài thi",
+  "Enough approved questions": "Đủ câu hỏi đã duyệt",
+  "A few short": "Thiếu một ít",
+  "Many missing": "Thiếu nhiều",
+  "Not in the template": "Chưa có trong mẫu",
+  "not in template": "ngoài mẫu",
+  "Could not load the studio data.": "Không thể tải dữ liệu Trung tâm nội dung.",
+  "Template, questions and catalog entry of this task type":
+    "Mẫu bài thi, câu hỏi và mục danh mục của dạng bài này",
+  Template: "Mẫu bài thi",
+  "Task type sections": "Các mục của dạng bài",
+  "In the template": "Có trong mẫu",
+  "Part of this template version": "Thuộc phiên bản mẫu này",
+  "This task type is not in the template yet. Add it on the template page.": "Dạng bài này chưa có trong mẫu. Hãy thêm nó ở trang mẫu bài thi.",
+  "Add to the template": "Thêm vào mẫu",
+  "Remove from the template": "Bỏ khỏi mẫu",
+  "This task type carries skill weight. Rebalance the weights on the template page before removing it.":
+    "Dạng bài này đang góp trọng số kỹ năng. Hãy chia lại trọng số ở trang mẫu bài thi trước khi bỏ.",
+  "Questions per exam": "Số câu mỗi đề",
+  "Minimum {count}": "Tối thiểu {count}",
+  "Preparation time": "Thời gian chuẩn bị",
+  "Response time": "Thời gian trả lời",
+  "Enough approved questions: {available} available.": "Đủ câu hỏi đã duyệt: có {available} câu.",
+  "Only {available} approved questions, {missing} more needed. Open the Questions tab.":
+    "Chỉ có {available} câu đã duyệt, cần thêm {missing} câu. Hãy mở tab Câu hỏi.",
+  "Could not save the template.": "Không thể lưu mẫu bài thi.",
+  "{approved} approved, {pending} not yet": "{approved} đã duyệt, {pending} chưa duyệt",
+  "Compose a question": "Soạn câu hỏi mới",
+  "No questions yet for this task type.": "Dạng bài này chưa có câu hỏi nào.",
+  "Could not load the questions.": "Không thể tải câu hỏi.",
+  Submit: "Gửi duyệt",
+  "Could not update the question.": "Không thể cập nhật câu hỏi.",
+  "Awaiting approval": "Chờ duyệt",
+  Scoring: "Cách chấm",
+  "Not scored": "Không chấm điểm",
+  "No instruction written yet.": "Chưa có hướng dẫn nào.",
+  "Open the task type catalog": "Mở danh mục dạng bài",
+  "Changes are saved as you make them.": "Thay đổi được lưu ngay khi bạn thao tác.",
+  Fewer: "Giảm",
+  More: "Tăng",
 };
 
 const translatePattern = (value: string): string | undefined => {
@@ -1209,6 +1461,12 @@ const SCORE_TEMPLATE_FEEDBACK_VI: Record<string, string> = {
   "Insufficient approved questions": "Chưa đủ câu hỏi đã duyệt",
   "Question availability has not been confirmed. Save and check again.":
     "Chưa xác nhận được số câu hỏi. Hãy lưu và kiểm tra lại.",
+  "{count} task type(s) do not have enough approved questions yet. Activation stays blocked until the Available / needed column is complete.":
+    "{count} dạng bài chưa đủ câu hỏi đã duyệt. Chưa kích hoạt được cho đến khi cột “Có / cần” đủ.",
+  "Enough approved questions for this task type.": "Đủ câu hỏi đã duyệt cho dạng bài này.",
+  "Not enough approved questions for this task type: {available} available, {required} needed.":
+    "Chưa đủ câu hỏi đã duyệt cho dạng bài này: có {available}, cần {required}.",
+  "Available / needed": "Có / cần",
   Required: "Cần có",
   Available: "Hiện có",
 };

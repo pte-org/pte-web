@@ -1,192 +1,203 @@
 "use client";
 
-import type { ReactElement } from "react";
-import { Button, DataTable, Select, type DataTableColumn } from "@pte/ui";
-import type { QuestionTypeResponse } from "@pte/api-client";
+import type { ReactElement, ReactNode } from "react";
+import {
+  Button,
+  DataTable,
+  RowDragPreview,
+  TrashIcon,
+  DropZone,
+  SectionedTableCard,
+} from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import {
+  EXAM_TEMPLATE_SECTIONS,
+  SCORE_TEMPLATE_ALL_TAB,
+  PALETTE_DROP_ATTRIBUTE,
+  TASK_TYPE_DRAG_TYPE,
   SCORE_TEMPLATE_ITEM_HEADERS as RAW_SCORE_TEMPLATE_ITEM_HEADERS,
+  SCORE_TEMPLATE_ROW_TEXT as RAW_SCORE_TEMPLATE_ROW_TEXT,
+  SCORE_TEMPLATE_SECTION_LABELS as RAW_SECTION_LABELS,
   SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
 } from "../constants";
+import type { PoolSlot } from "../poolAvailability";
+import { computeSkillWeightTotals } from "../skillWeightTotals";
 import type { ScoreTemplateItemDraft, ScoreTemplateItemResponse } from "../types";
+import {
+  buildScoreTemplateColumns,
+  type ScoreTemplateTableRow,
+  type ScoreTemplateTableView,
+} from "./scoreTemplateTableColumns";
 
-const INPUT_CLASS =
-  "w-20 rounded border border-gray-300 px-2 py-1 text-sm outline-none focus:border-blue-500";
+const TABS_ID = "score-template-section-tabs";
 
-const RAW_SECTION_OPTIONS = [
-  { value: "SPEAKING", label: "Speaking" },
-  { value: "WRITING", label: "Writing" },
-  { value: "READING", label: "Reading" },
-  { value: "LISTENING", label: "Listening" },
-];
+type PoolProps = {
+  /** Approved-question coverage per task type; the column is hidden when omitted. */
+  pool?: ReadonlyMap<string, PoolSlot>;
+};
 
-type ReadOnlyProps = {
+type ReadOnlyProps = PoolProps & {
   editable: false;
   items: ScoreTemplateItemResponse[];
 };
 
-type EditableProps = {
+type EditableProps = PoolProps & {
   editable: true;
   items: ScoreTemplateItemDraft[];
-  questionTypes: QuestionTypeResponse[];
   onChange: (index: number, field: keyof ScoreTemplateItemDraft, value: string) => void;
-  onSectionChange: (index: number, section: string) => void;
   onRemove: (index: number) => void;
+  /** Task type keys of the rows shown, in the order the admin just dragged them into. */
+  onReorder: (orderedTaskTypeKeys: string[]) => void;
+  /** Rendered at the right of the table's toolbar; receives the current tab ("ALL" or a skill). */
+  renderToolbarAction?: (activeTab: string) => ReactNode;
+  /** Rendered in the empty state of a tab that has no rows yet, e.g. a button to add the first one. */
+  renderEmptyAction?: (activeTab: string) => ReactNode;
+  /** Rendered in the side column under the tab rail; receives the current tab, so it can follow the filter. */
+  renderPalette?: (activeTab: string) => ReactNode;
+  /** Receives what an item dragged from the palette carries when it is dropped on the rows. */
+  onDropTaskType?: (payload: string) => void;
 };
 
-type ScoreTemplateItemTableProps = ReadOnlyProps | EditableProps;
-type ScoreTemplateItem = ScoreTemplateItemDraft | ScoreTemplateItemResponse;
-type ScoreTemplateTableRow = { item: ScoreTemplateItem; index: number };
+type ScoreTemplateItemTableProps = (ReadOnlyProps | EditableProps) & {
+  /** Shown under the skill tab rail, in the same side column (e.g. the template's details). */
+  sidePanel?: ReactNode;
+  /** Page actions of a read-only template, placed at the right of the table header. */
+  headerActions?: ReactNode;
+  /** The view the table opens on; defaults to the exam structure (counts and timing). */
+  initialView?: ScoreTemplateTableView;
+};
 
-function fieldValue(item: ScoreTemplateItem, field: keyof ScoreTemplateItemDraft): string {
-  const value = item[field as keyof ScoreTemplateItem];
-  return value === null || value === undefined ? "" : String(value);
-}
-
-/** Shared table for the read-only detail view and the DRAFT editor. Both use
- * the common DataTable shell, search, per-column filters and responsive rules;
- * only the editable cell controls differ. */
+/**
+ * Task types of a score template: a vertical skill tab rail on the left and, on the right,
+ * the selected skill's rows in the common DataTable ("All" lists every skill). A switch above
+ * the table picks which fields the rows show (structure or weights), so a row never needs
+ * more columns than fit. Shared by the read-only detail view and the DRAFT editor, where the
+ * numeric cells become inputs and each row gets a menu to remove it.
+ */
 export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): ReactElement => {
-  const SCORE_TEMPLATE_ITEM_HEADERS = useAdminCopy(RAW_SCORE_TEMPLATE_ITEM_HEADERS);
-  const SCORE_TEMPLATE_TEXT = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
-  const SECTION_OPTIONS = useAdminCopy(RAW_SECTION_OPTIONS);
-  const sectionLabels = useAdminCopy({
-    SPEAKING: "Speaking",
-    WRITING: "Writing",
-    READING: "Reading",
-    LISTENING: "Listening",
-  });
-  const getSectionLabel = (section: string): string =>
-    sectionLabels[section as keyof typeof sectionLabels] ?? section;
+  const H = useAdminCopy(RAW_SCORE_TEMPLATE_ITEM_HEADERS);
+  const T = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
+  const ROW = useAdminCopy(RAW_SCORE_TEMPLATE_ROW_TEXT);
+  const sectionLabels = useAdminCopy(RAW_SECTION_LABELS);
   const allSectionsLabel = useAdminCopy("All sections");
   const emptyTitle = useAdminCopy("No score template items");
-  const numericFields: { field: keyof ScoreTemplateItemDraft; header: string }[] = [
-    { field: "minCount", header: SCORE_TEMPLATE_ITEM_HEADERS.MIN_COUNT },
-    { field: "maxCount", header: SCORE_TEMPLATE_ITEM_HEADERS.MAX_COUNT },
-    { field: "prepSeconds", header: SCORE_TEMPLATE_ITEM_HEADERS.PREP_SECONDS },
-    { field: "responseSeconds", header: SCORE_TEMPLATE_ITEM_HEADERS.RESPONSE_SECONDS },
-    { field: "speakingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.SPEAKING_WEIGHT },
-    { field: "writingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.WRITING_WEIGHT },
-    { field: "readingWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.READING_WEIGHT },
-    { field: "listeningWeight", header: SCORE_TEMPLATE_ITEM_HEADERS.LISTENING_WEIGHT },
-  ];
-  const rows: ScoreTemplateTableRow[] = props.items.map((item, index) => ({ item, index }));
-  const columns: DataTableColumn<ScoreTemplateTableRow>[] = [
-    {
-      key: "sequence",
-      header: SCORE_TEMPLATE_ITEM_HEADERS.SEQUENCE,
-      filterAccessor: (row) => row.item.sequence,
-      cell: (row) => row.item.sequence,
-    },
-    {
-      key: "section",
-      header: SCORE_TEMPLATE_ITEM_HEADERS.SECTION,
-      filterOptions: [{ value: "", label: allSectionsLabel }, ...SECTION_OPTIONS],
-      filterAccessor: (row) => row.item.section,
-      cell: (row) => {
-        if (!props.editable) return getSectionLabel(row.item.section);
-        const item = row.item as ScoreTemplateItemDraft;
-        return (
-          <Select
-            value={item.section}
-            onChange={(event) => props.onSectionChange(row.index, event.target.value)}
-            placeholder={SCORE_TEMPLATE_TEXT.ADD_SECTION_PLACEHOLDER}
-            options={SECTION_OPTIONS}
-          />
-        );
-      },
-    },
-    {
-      key: "taskType",
-      header: SCORE_TEMPLATE_ITEM_HEADERS.TASK_TYPE,
-      filterAccessor: (row) => row.item.taskTypeKey || row.item.taskType || "",
-      cell: (row) => {
-        if (!props.editable) {
-          const item = row.item as ScoreTemplateItemResponse;
-          return (
-            <span className="font-mono text-xs">{item.taskTypeKey ?? item.taskType ?? "—"}</span>
-          );
-        }
+  const getSectionLabel = (section: string): string =>
+    sectionLabels[section as keyof typeof sectionLabels] ?? section;
 
-        const item = row.item as ScoreTemplateItemDraft;
-        return (
-          <div className="flex flex-col items-start gap-1">
-            <Select
-              value={item.taskTypeKey}
-              disabled={!item.section}
-              onChange={(event) => props.onChange(row.index, "taskTypeKey", event.target.value)}
-              placeholder={SCORE_TEMPLATE_TEXT.ADD_TYPE_PLACEHOLDER}
-              options={[
-                ...props.questionTypes
-                  .filter((type) => type.active && type.section === item.section)
-                  .map((type) => ({
-                    value: type.taskTypeKey ?? type.code,
-                    label: type.taskTypeKey ?? type.code,
-                  })),
-                ...(item.taskTypeKey &&
-                !props.questionTypes.some(
-                  (type) => (type.taskTypeKey ?? type.code) === item.taskTypeKey,
-                )
-                  ? [{ value: item.taskTypeKey, label: item.taskTypeKey }]
-                  : []),
-              ]}
-            />
-            <Button variant="ghost" size="sm" onClick={() => props.onRemove(row.index)}>
-              {SCORE_TEMPLATE_TEXT.REMOVE_TYPE}
-            </Button>
-          </div>
-        );
-      },
-    },
-    ...numericFields.slice(0, 4).map(({ field, header }) => ({
-      key: field,
-      header,
-      filterAccessor: (row: ScoreTemplateTableRow) => fieldValue(row.item, field),
-      cell: (row: ScoreTemplateTableRow) =>
-        props.editable ? (
-          <input
-            type="number"
-            className={INPUT_CLASS}
-            value={fieldValue(row.item, field)}
-            onChange={(event) => props.onChange(row.index, field, event.target.value)}
-          />
-        ) : (
-          fieldValue(row.item, field)
-        ),
-    })),
-    {
-      key: "overallWeight",
-      header: SCORE_TEMPLATE_ITEM_HEADERS.OVERALL_WEIGHT,
-      filterAccessor: (row) => fieldValue(row.item, "overallWeight"),
-      cell: (row) => fieldValue(row.item, "overallWeight"),
-    },
-    ...numericFields.slice(4).map(({ field, header }) => ({
-      key: field,
-      header,
-      filterAccessor: (row: ScoreTemplateTableRow) => fieldValue(row.item, field),
-      cell: (row: ScoreTemplateTableRow) =>
-        props.editable ? (
-          <input
-            type="number"
-            step="0.01"
-            className={INPUT_CLASS}
-            value={fieldValue(row.item, field)}
-            onChange={(event) => props.onChange(row.index, field, event.target.value)}
-          />
-        ) : (
-          fieldValue(row.item, field)
-        ),
-    })),
-  ];
+  const allRows: ScoreTemplateTableRow[] = props.items.map((item, index) => ({ item, index }));
+  // Totals cover every row, not just the tab's: the backend checks the whole template.
+  const weightMismatches = props.editable
+    ? new Map(
+        computeSkillWeightTotals(props.items)
+          .filter((entry) => !entry.isValid)
+          .map((entry) => [`${entry.skill.toLowerCase()}Weight`, entry.total]),
+      )
+    : undefined;
+  // Only the editor takes dragged-in task types; the read-only page shows the rows as they are.
+  const dropHandler = props.editable ? props.onDropTaskType : undefined;
 
   return (
-    <DataTable
-      showSearch={false}
-      columns={columns}
-      rows={rows}
-      getRowKey={(row) => `${row.item.taskTypeKey}-${row.index}`}
-      emptyTitle={emptyTitle}
-      tableClassName="min-w-[1100px]"
-    />
+    <SectionedTableCard<ScoreTemplateTableView>
+      id={TABS_ID}
+      sections={EXAM_TEMPLATE_SECTIONS.map((section) => ({
+        id: section,
+        label: getSectionLabel(section),
+      }))}
+      allTabId={SCORE_TEMPLATE_ALL_TAB}
+      allLabel={allSectionsLabel}
+      countOf={(section) =>
+        section === null
+          ? allRows.length
+          : allRows.filter((row) => row.item.section === section).length
+      }
+      views={[
+        { id: "STRUCTURE", label: ROW.VIEW_STRUCTURE },
+        { id: "WEIGHTS", label: ROW.VIEW_WEIGHTS },
+      ]}
+      defaultView={props.initialView ?? "STRUCTURE"}
+      viewAriaLabel={ROW.VIEW_LABEL}
+      sidePanel={({ activeTab }) => {
+        const palette = props.editable ? props.renderPalette?.(activeTab) : undefined;
+        return palette ? (
+          <>
+            {palette}
+            {props.sidePanel}
+          </>
+        ) : (
+          props.sidePanel
+        );
+      }}
+    >
+      {({ activeTab, showSection, view, viewTabs }) => {
+        const rows = allRows.filter(
+          (row) => activeTab === SCORE_TEMPLATE_ALL_TAB || row.item.section === activeTab,
+        );
+        const columns = buildScoreTemplateColumns({
+          view,
+          showSection,
+          headers: H,
+          poolCopy: { ok: T.POOL_OK, short: T.POOL_SHORT },
+          getSectionLabel,
+          pool: props.pool,
+          weightMismatches,
+          onChange: props.editable ? props.onChange : undefined,
+        });
+        // The editor drags rows, so it shows every row (a drop must see the whole order) and keys
+        // rows by task type: an index key would change on every move. The table is not re-keyed per
+        // tab: remounting replays its fade-in and flickers; it returns to page 1 on its own.
+        const table = (
+          <DataTable
+            showSearch={false}
+            toolbar={viewTabs}
+            columns={columns}
+            rows={rows}
+            getRowKey={(row) => row.item.taskTypeKey}
+            emptyTitle={emptyTitle}
+            density="compact"
+            clientSidePagination={!props.editable}
+            toolbarActions={props.editable ? props.renderToolbarAction?.(activeTab) : props.headerActions}
+            emptyAction={props.editable ? props.renderEmptyAction?.(activeTab) : undefined}
+            rowActions={
+              props.editable
+                ? (row) => (
+                    <Button
+                      variant="danger"
+                      appearance="ghost"
+                      size="sm"
+                      iconOnly
+                      aria-label={T.REMOVE_TYPE}
+                      onClick={() => props.onRemove(row.index)}
+                    >
+                      <TrashIcon className="h-4 w-4" />
+                    </Button>
+                  )
+                : undefined
+            }
+            rowActionsHeader={<span className="sr-only">{ROW.ACTIONS_LABEL}</span>}
+            onReorderRows={props.editable ? props.onReorder : undefined}
+            rowDropOut={
+              props.editable
+                ? {
+                    targetSelector: `[${PALETTE_DROP_ATTRIBUTE}]`,
+                    onDrop: (key) => {
+                      const row = allRows.find((candidate) => candidate.item.taskTypeKey === key);
+                      if (row) props.onRemove(row.index);
+                    },
+                    renderPreview: (key) => <RowDragPreview label={key} />,
+                  }
+                : undefined
+            }
+            reorderHandleLabel={ROW.DRAG_HANDLE}
+          />
+        );
+        return dropHandler ? (
+          <DropZone accept={TASK_TYPE_DRAG_TYPE} onDropPayload={dropHandler}>
+            {table}
+          </DropZone>
+        ) : (
+          table
+        );
+      }}
+    </SectionedTableCard>
   );
 };

@@ -1,23 +1,19 @@
 "use client";
 
 import { useMemo, useState, type FormEvent, type ReactElement } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  AuthBrandLockup,
-  AuthBrandShell,
   AuthSubmitButton,
   AuthTextField,
   EyeIcon,
-  LocaleSwitcher,
   LockIcon,
   MailIcon,
   Select,
   normalizeSessionRoles,
   useSessionManager,
   useSignInValidation,
-  type AuthFooterItem,
+  useToast,
 } from "@pte/ui";
 import {
   decodeAccessTokenClaims,
@@ -25,20 +21,17 @@ import {
   type JwtTokenResponse,
 } from "@pte/api-client";
 import { useLoginAdmin, useLoginHost, useLoginOrganizationOptions } from "../api";
-import { ADMIN_ROLES, AUTH_ROUTES, AUTH_TEXT as RAW_AUTH_TEXT, HOST_ROLES } from "../constants";
+import { AUTH_ROUTES, AUTH_TEXT as RAW_AUTH_TEXT } from "../constants";
 import { useAdminCopy } from "../../i18n/adminCopy";
-import { hasAnyRole } from "../permissions";
+import { resolveVendorLoginDestination } from "../loginRoles";
 import type { VendorRole } from "../types";
 import { getLoginErrorMessage } from "../loginError";
-import { AuthBrandPanel } from "./_AuthBrandPanel";
 
 function resolveRole(raw: string | null): VendorRole {
   return raw === "host" ? "host" : "admin";
 }
 
 const LABEL_CLASS = "text-[13px] font-semibold text-[var(--ink-secondary)]";
-const LOGO_WIDTH = 482;
-const LOGO_HEIGHT = 567;
 
 export const LoginView = (): ReactElement => {
   const T = useAdminCopy(RAW_AUTH_TEXT);
@@ -46,6 +39,8 @@ export const LoginView = (): ReactElement => {
   const searchParams = useSearchParams();
   const role = resolveRole(searchParams.get("role"));
   const { saveSession } = useSessionManager();
+  const { showToast } = useToast();
+  const notifyError = (message: string): void => showToast(message, { tone: "error" });
   const validationMessages = useMemo(
     () => ({
       usernameRequired: T.USERNAME_REQUIRED,
@@ -61,31 +56,24 @@ export const LoginView = (): ReactElement => {
   const [organizationOptions, setOrganizationOptions] = useState<LoginOrganizationOption[]>([]);
   const [organizationId, setOrganizationId] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string>();
 
   const adminMutation = useLoginAdmin();
   const hostMutation = useLoginHost();
   const isHost = role === "host";
   const mutation = isHost ? hostMutation : adminMutation;
   const organizationMutation = useLoginOrganizationOptions();
-  const footerItems: readonly AuthFooterItem[] = [
-    { label: T.FOOTER_COPYRIGHT.replace("{year}", String(new Date().getFullYear())) },
-    { label: T.FOOTER_TERMS },
-    { label: T.FOOTER_PRIVACY },
-    { label: T.FOOTER_SUPPORT },
-  ];
 
   const handleLoginSuccess = (data: JwtTokenResponse): void => {
     const claims = decodeAccessTokenClaims(data.accessToken);
     const roles = claims ? normalizeSessionRoles(claims.roles) : [];
     if (!claims || roles.length === 0) {
-      setErrorMessage(T.GENERIC_ERROR);
+      notifyError(T.GENERIC_ERROR);
       return;
     }
-    const isAdminRole = hasAnyRole(roles, ADMIN_ROLES);
-    const isHostRole = roles.some((role) => HOST_ROLES.includes(role));
-    if (!isAdminRole && !isHostRole) {
-      setErrorMessage(T.UNSUPPORTED_ROLE);
+    const destination = resolveVendorLoginDestination(roles);
+    if (destination === null) {
+      // The same copy as a wrong password, so the form does not reveal that the account exists elsewhere.
+      notifyError(T.INVALID_CREDENTIALS);
       return;
     }
     saveSession({
@@ -96,22 +84,20 @@ export const LoginView = (): ReactElement => {
       expiresAt: claims.expiresAt || Date.now() + data.expiresInSeconds * 1000,
       mustChangePassword: data.mustChangePassword,
     });
-    router.replace(isAdminRole ? AUTH_ROUTES.adminDashboard : AUTH_ROUTES.hostDashboard);
+    router.replace(destination);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     const fieldErrors = validation.validateAll({ username, password });
     if (fieldErrors.username || fieldErrors.password) {
-      setErrorMessage(undefined);
       document.getElementById(fieldErrors.username ? "username" : "password")?.focus();
       return;
     }
     if (organizationOptions.length > 0 && !organizationId) {
-      setErrorMessage(T.ORGANIZATION_REQUIRED);
+      notifyError(T.ORGANIZATION_REQUIRED);
       return;
     }
-    setErrorMessage(undefined);
     try {
       const trimmedUsername = username.trim();
       let selectedOrganizationId = organizationId || undefined;
@@ -133,33 +119,12 @@ export const LoginView = (): ReactElement => {
       });
       handleLoginSuccess(data);
     } catch (error) {
-      setErrorMessage(getLoginErrorMessage(error));
+      notifyError(getLoginErrorMessage(error, T));
     }
   };
 
   return (
-    <AuthBrandShell
-      artwork={<AuthBrandPanel />}
-      brand={
-        <AuthBrandLockup
-          logo={
-            <Image
-              src="/logo-mark.png"
-              alt=""
-              width={LOGO_WIDTH}
-              height={LOGO_HEIGHT}
-              priority
-              className="h-12 w-auto"
-            />
-          }
-          name={T.BRAND}
-          portalLabel={isHost ? T.PORTAL_HOST_LABEL : T.PORTAL_ADMIN_LABEL}
-        />
-      }
-      toolbar={<LocaleSwitcher />}
-      footerItems={footerItems}
-      footerLabel={T.FOOTER_LABEL}
-    >
+    <>
       <div>
         <h1 className="text-[2rem] font-extrabold leading-tight tracking-[-0.025em] text-[var(--ink-primary)]">
           {T.WELCOME_TITLE}
@@ -168,15 +133,6 @@ export const LoginView = (): ReactElement => {
           {T.WELCOME_SUBTITLE}
         </p>
       </div>
-
-      {errorMessage && (
-        <div
-          role="alert"
-          className="rounded-md bg-[var(--blush-tint)] px-3 py-2 text-sm text-[var(--blush-action)]"
-        >
-          {errorMessage}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-[18px]">
         {/* type="text", NOT type="email": a STUDENT's username is
@@ -229,7 +185,7 @@ export const LoginView = (): ReactElement => {
             }
           />
           <Link
-            href="#"
+            href={AUTH_ROUTES.forgotPassword}
             className="self-end text-[13px] font-semibold text-[var(--brand-ink)] hover:underline"
           >
             {T.FORGOT}
@@ -258,6 +214,6 @@ export const LoginView = (): ReactElement => {
           {mutation.isPending || organizationMutation.isPending ? T.LOGGING_IN : T.LOGIN_BUTTON}
         </AuthSubmitButton>
       </form>
-    </AuthBrandShell>
+    </>
   );
 };

@@ -1,4 +1,4 @@
-import type { ApiClient } from "../../client/client";
+import type { ApiClient, PagedResult } from "../../client/client";
 import type {
   DirectOnboardRequest,
   DirectOnboardResponse,
@@ -11,6 +11,7 @@ import type { OrganizationResponse } from "../../types/organization";
 
 export const TENANT_ENDPOINTS = {
   tenants: "/api/v1/organizations",
+  page: "/api/v1/organizations/page",
   directOnboard: "/api/v1/admin/organizations",
   tenant: (publicId: string) => `/api/v1/organizations/${publicId}`,
   suspensionImpact: (publicId: string, days?: number) =>
@@ -41,6 +42,21 @@ export function listTenants(client: ApiClient): Promise<TenantResponse[]> {
 export function searchTenants(client: ApiClient, q: string): Promise<OrganizationResponse[]> {
   const query = new URLSearchParams({ q: q.trim() });
   return client.request<OrganizationResponse[]>(`${TENANT_ENDPOINTS.tenants}?${query.toString()}`);
+}
+
+/** Platform-only organization lookup with database pagination, including an empty search. */
+export function searchTenantsPage(
+  client: ApiClient,
+  q: string,
+  page: number,
+  size: number,
+): Promise<PagedResult<OrganizationResponse>> {
+  const query = new URLSearchParams({ page: String(page), size: String(size) });
+  const term = q.trim();
+  if (term) query.set("q", term);
+  return client.request<PagedResult<OrganizationResponse>>(
+    `${TENANT_ENDPOINTS.page}?${query.toString()}`,
+  );
 }
 
 export function getTenant(client: ApiClient, publicId: string): Promise<TenantResponse> {

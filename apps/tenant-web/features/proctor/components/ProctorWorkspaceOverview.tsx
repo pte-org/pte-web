@@ -2,153 +2,103 @@
 
 import type { ReactElement } from "react";
 import type { ProctorOverviewCounts, ProctorScope } from "@pte/api-client";
-import { Button, ErrorState, Skeleton } from "@pte/ui";
+import { Button, DashboardCard, ErrorState, Skeleton } from "@pte/ui";
 import { useProctorWorkspaceText } from "../hooks/useProctorWorkspaceText";
 
-export interface ProctorWorkspaceOverviewProps {
+interface ProctorWorkspaceOverviewProps {
   counts?: ProctorOverviewCounts;
   asOf?: string;
   timezone?: string;
   isLoading: boolean;
   isError: boolean;
-  error?: unknown;
-  onRetry?: () => void;
+  onRetry: () => void;
   selectedScope: ProctorScope;
   onSelectScope: (scope: ProctorScope) => void;
-  onRefresh?: () => void;
 }
 
-export function ProctorWorkspaceOverview({
+export const ProctorWorkspaceOverview = ({
   counts,
   asOf,
   timezone,
   isLoading,
   isError,
-  error,
   onRetry,
   selectedScope,
   onSelectScope,
-  onRefresh,
-}: ProctorWorkspaceOverviewProps): ReactElement {
+}: ProctorWorkspaceOverviewProps): ReactElement => {
   const text = useProctorWorkspaceText();
-
-  const formattedAsOf = asOf
-    ? new Intl.DateTimeFormat(text.locale === "vi" ? "vi-VN" : "en-US", {
-        timeStyle: "medium",
-        dateStyle: "short",
-      }).format(new Date(asOf))
-    : null;
-
-  if (isError) {
+  if (isError)
     return (
       <ErrorState
         title={text.overviewError}
-        description={error instanceof Error ? error.message : undefined}
         action={
-          onRetry ? (
-            <Button variant="secondary" size="sm" onClick={onRetry}>
-              {text.retry}
-            </Button>
-          ) : undefined
+          <Button variant="secondary" size="sm" onClick={onRetry}>
+            {text.retry}
+          </Button>
         }
       />
     );
-  }
 
-  const cards: Array<{
-    scope: ProctorScope;
-    title: string;
-    count: number | undefined;
-    description: string;
-    borderActiveClass: string;
-    accentClass: string;
-  }> = [
+  const summaries: { scope: ProctorScope; title: string; count?: number }[] = [
     {
       scope: "ACCESSIBLE",
       title: text.cardAccessibleTitle,
       count: counts?.accessible ?? counts?.accessibleCount,
-      description: text.cardAccessibleDescription,
-      borderActiveClass: "border-emerald-500 bg-emerald-50/40 ring-1 ring-emerald-500",
-      accentClass: "text-emerald-700",
     },
     {
       scope: "UPCOMING",
       title: text.cardUpcomingTitle,
       count: counts?.upcoming ?? counts?.upcomingCount,
-      description: text.cardUpcomingDescription,
-      borderActiveClass: "border-blue-500 bg-blue-50/40 ring-1 ring-blue-500",
-      accentClass: "text-blue-700",
     },
-    {
-      scope: "TODAY",
-      title: text.cardTodayTitle,
-      count: counts?.today ?? counts?.todayCount,
-      description: text.cardTodayDescription,
-      borderActiveClass: "border-indigo-500 bg-indigo-50/40 ring-1 ring-indigo-500",
-      accentClass: "text-indigo-700",
-    },
+    { scope: "TODAY", title: text.cardTodayTitle, count: counts?.today ?? counts?.todayCount },
   ];
+  const updated = asOf
+    ? new Intl.DateTimeFormat(text.locale === "vi" ? "vi-VN" : "en-US", {
+        timeZone: timezone,
+        hour: "2-digit",
+        minute: "2-digit",
+      }).format(new Date(asOf))
+    : null;
 
   return (
-    <div className="flex flex-col gap-3">
-      {/* Cards Row */}
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {cards.map((c) => {
-          const isSelected = selectedScope === c.scope;
-          return (
+    <div className="space-y-3">
+      <DashboardCard>
+        <div className="grid gap-2 sm:grid-cols-3 sm:gap-6">
+          {summaries.map((summary) => (
             <button
-              key={c.scope}
+              key={summary.scope}
               type="button"
-              onClick={() => onSelectScope(c.scope)}
-              className={`flex flex-col justify-between rounded-xl border p-5 text-left transition-all hover:border-slate-400 hover:shadow-sm ${
-                isSelected ? c.borderActiveClass : "border-slate-200 bg-white shadow-sm"
-              }`}
+              aria-pressed={selectedScope === summary.scope}
+              onClick={() => onSelectScope(summary.scope)}
+              className="flex min-h-11 items-center gap-3 rounded-lg px-2 py-1 text-left transition-colors hover:bg-[var(--surface-subtle)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--action)]"
             >
-              <div>
-                <div className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                  {c.title}
-                </div>
-                <div className="mt-2 flex items-baseline gap-2">
-                  {isLoading ? (
-                    <Skeleton className="h-9 w-16" />
-                  ) : (
-                    <span className={`text-3xl font-bold tracking-tight ${c.accentClass}`}>
-                      {c.count ?? 0}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <p className="mt-3 text-xs text-slate-500">{c.description}</p>
+              {isLoading ? (
+                <Skeleton className="h-8 w-8" />
+              ) : (
+                <span className="text-2xl font-semibold tabular-nums text-[var(--ink-primary)]">
+                  {summary.count ?? 0}
+                </span>
+              )}
+              <span className="text-sm text-[var(--ink-secondary)]">{summary.title}</span>
             </button>
-          );
-        })}
-      </div>
-
-      {/* Meta context and overlap explanation */}
-      <div className="flex flex-col justify-between gap-2 px-1 text-xs text-slate-500 sm:flex-row sm:items-center">
+          ))}
+        </div>
+      </DashboardCard>
+      <div className="flex flex-wrap justify-between gap-x-6 gap-y-1 text-xs text-[var(--ink-muted)]">
         <span>{text.overlapExplanation}</span>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap gap-x-4 gap-y-1">
+          {updated && (
+            <span>
+              {text.asOfLabel}: {updated}
+            </span>
+          )}
           {timezone && (
             <span>
-              {text.timezoneLabel}: <span className="font-mono text-slate-700">{timezone}</span>
+              {text.timezoneLabel}: {timezone}
             </span>
-          )}
-          {formattedAsOf && (
-            <span>
-              {text.asOfLabel}: <span className="font-medium text-slate-700">{formattedAsOf}</span>
-            </span>
-          )}
-          {onRefresh && (
-            <button
-              type="button"
-              onClick={onRefresh}
-              className="font-medium text-blue-600 underline hover:text-blue-800"
-            >
-              {text.refresh}
-            </button>
           )}
         </div>
       </div>
     </div>
   );
-}
+};

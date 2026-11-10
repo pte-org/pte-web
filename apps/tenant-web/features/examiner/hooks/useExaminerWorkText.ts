@@ -78,6 +78,8 @@ export const getExaminerBlockingText = (T: ExaminerWorkText, reason: string): st
       return T.BLOCK_COHORT_NOT_MANUAL;
     case "EXCLUDED_FROM_COHORT":
       return T.BLOCK_EXCLUDED_FROM_COHORT;
+    case "CARRIED_OVER_DRAFTS_UNCONFIRMED":
+      return T.BLOCK_CARRIED_OVER_DRAFTS;
     default:
       return reason;
   }

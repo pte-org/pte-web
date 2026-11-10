@@ -3,7 +3,7 @@
 import { useMemo, type ReactElement } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Alert, Button, CheckCircleIcon, PageHeader, useToast } from "@pte/ui";
+import { Alert, Button, CheckCircleIcon, useToast } from "@pte/ui";
 import { getUserFacingApiErrorMessage, type OrderResponse } from "@pte/api-client";
 import { useCreateOrder, useOrdersQuery, useTenantPlansQuery } from "../api";
 import { BILLING_TEXT as T } from "../constants";
@@ -44,7 +44,6 @@ export const CheckoutView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader title={T.CHECKOUT_TITLE} subtitle={T.CHECKOUT_SUBTITLE} />
       {!isLoading && !plan && <Alert tone="warning">{T.SELECT_ACTIVE_PLAN}</Alert>}
       {pendingOrder && (
         <Alert tone="info" title={T.PENDING_PAYMENT_TITLE}>

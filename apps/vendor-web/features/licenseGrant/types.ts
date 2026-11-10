@@ -1,9 +1,9 @@
 import type {
-  LicenseGrantHost,
   LicenseGrantPreviewResponse,
   LicenseGrantRequest,
   LicenseGrantResponse,
   OrganizationResponse,
+  PagedResult,
   PlanResponse,
 } from "@pte/api-client";
 import type { UseMutationResult, UseQueryResult } from "@tanstack/react-query";
@@ -20,16 +20,16 @@ export type GrantMutation = UseMutationResult<
   { payload: LicenseGrantRequest; idempotencyKey: string }
 >;
 
-/** View model of the four-step grant wizard. */
+/** View model of the three-step grant wizard. */
 export interface GrantLicenseFlow {
   step: GrantStepId;
   search: string;
   setSearch: (value: string) => void;
-  tenantSearch: UseQueryResult<OrganizationResponse[]>;
+  tenantSearch: UseQueryResult<PagedResult<OrganizationResponse>>;
+  setTenantPage: (page: number) => void;
+  searchPending: boolean;
   tenant: OrganizationResponse | null;
   selectTenant: (tenant: OrganizationResponse) => void;
-  hosts: LicenseGrantHost[];
-  hostsLoading: boolean;
   activePlans: PlanResponse[];
   plansLoading: boolean;
   selectedPlan: PlanResponse | null;

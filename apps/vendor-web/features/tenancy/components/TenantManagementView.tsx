@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
-import { Alert, Button, DashboardLoadingState, MotionReveal, PageHeader, useToast } from "@pte/ui";
+import { Alert, Button, DashboardLoadingState, MotionReveal, useToast } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { TENANCY_TEXT as RAW_TENANCY_TEXT } from "../constants";
 import { useReactivateTenant, useSuspendTenant, useTenants } from "../api";
@@ -89,15 +89,6 @@ export const TenantManagementView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <PageHeader
-        title={T.TITLE}
-        actions={
-          <Button type="button" onClick={createFlow.openModal}>
-            + {T.ADD_TENANT}
-          </Button>
-        }
-      />
-
       {lifecycleError && (
         <MotionReveal delayMs={100}>
           <Alert tone="error">{lifecycleError}</Alert>
@@ -112,6 +103,11 @@ export const TenantManagementView = (): ReactElement => {
             onReactivate={confirmReactivate}
             onGrantQuota={canManageQuota ? setGrantTarget : undefined}
             onViewQuotaHistory={canManageQuota ? setHistoryTarget : undefined}
+            toolbarActions={
+              <Button type="button" onClick={createFlow.openModal}>
+                + {T.ADD_TENANT}
+              </Button>
+            }
           />
         </MotionReveal>
       ) : (

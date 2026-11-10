@@ -26,6 +26,9 @@ interface QuestionTypeEditorModalProps {
   editing: QuestionTypeResponse | null;
   questionTypes: QuestionTypeResponse[];
   capabilities: TaskTypeCapabilityResponse[];
+  /** While viewing, an Edit button shows when the signed-in user may edit this task type. */
+  canEdit: boolean;
+  onRequestEdit: () => void;
   onClose: () => void;
   onSuccess: (message: string) => void;
 }
@@ -37,6 +40,8 @@ export const QuestionTypeEditorModal = ({
   editing,
   questionTypes,
   capabilities,
+  canEdit,
+  onRequestEdit,
   onClose,
   onSuccess,
 }: QuestionTypeEditorModalProps): ReactElement => {
@@ -49,7 +54,8 @@ export const QuestionTypeEditorModal = ({
       ? newDraft(Math.max(0, ...questionTypes.map((type) => type.displayOrder)) + 1)
       : toDraft(editing as QuestionTypeResponse),
   );
-  const runtimeLocked = mode === "edit" && editing?.editability?.runtimeFields === false;
+  const isViewing = mode === "view";
+  const runtimeLocked = mode !== "create" && editing?.editability?.runtimeFields === false;
   const availability = useTaskTypeAvailability({
     taskTypeKey: draft.taskTypeKey,
     displayName: draft.displayName,
@@ -119,33 +125,48 @@ export const QuestionTypeEditorModal = ({
       title={
         mode === "create"
           ? T.CREATE_TITLE
-          : `${T.EDIT_TITLE}: ${editing?.taskTypeKey ?? editing?.code ?? ""}`
+          : `${isViewing ? T.VIEW_TITLE : T.EDIT_TITLE}: ${editing?.taskTypeKey ?? editing?.code ?? ""}`
       }
       size="xl"
       footer={
-        <>
-          <Button variant="ghost" onClick={closeEditor} disabled={isSaving}>
-            {T.CANCEL}
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => void save()}
-            isLoading={isSaving}
-            disabled={!canSave}
-          >
-            {mode === "create" ? T.CREATE : T.SAVE}
-          </Button>
-        </>
+        isViewing ? (
+          <>
+            <Button variant="ghost" onClick={closeEditor}>
+              {T.CLOSE}
+            </Button>
+            {canEdit && (
+              <Button variant="primary" onClick={onRequestEdit}>
+                {T.EDIT}
+              </Button>
+            )}
+          </>
+        ) : (
+          <>
+            <Button variant="ghost" onClick={closeEditor} disabled={isSaving}>
+              {T.CANCEL}
+            </Button>
+            <Button
+              variant="primary"
+              onClick={() => void save()}
+              isLoading={isSaving}
+              disabled={!canSave}
+            >
+              {mode === "create" ? T.CREATE : T.SAVE}
+            </Button>
+          </>
+        )
       }
     >
       <div className="space-y-4">
-        <Alert tone="info">
-          {mode === "create"
-            ? E.CREATE_NOTICE
-            : runtimeLocked
-              ? E.RUNTIME_LOCKED_NOTICE
-              : E.EDIT_NOTICE}
-        </Alert>
+        {!isViewing && (
+          <Alert tone="info">
+            {mode === "create"
+              ? E.CREATE_NOTICE
+              : runtimeLocked
+                ? E.RUNTIME_LOCKED_NOTICE
+                : E.EDIT_NOTICE}
+          </Alert>
+        )}
         {invalidKey && draft.taskTypeKey.length > 0 && (
           <Alert tone="warning">{E.INVALID_KEY_FORMAT}</Alert>
         )}
@@ -165,6 +186,7 @@ export const QuestionTypeEditorModal = ({
           capabilities={capabilities}
           sectionOptions={sectionOptions}
           runtimeLocked={runtimeLocked}
+          readOnly={isViewing}
           onChange={handleDraftChange}
         />
       </div>

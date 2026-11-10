@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import type { ScoreTemplateResponse } from "@pte/api-client";
 import { CREATE_EXAM_WIZARD_TEXT } from "../../constants";
 import type { CreateExamWorkflowInput, ExamSkill } from "../../types";
+import { difficultyTargets, type DifficultySelection } from "../../utils/cefrTargets";
 
 type WizardText = typeof CREATE_EXAM_WIZARD_TEXT;
 type SkillOption = { value: ExamSkill; label: string };
@@ -13,6 +14,17 @@ export interface ReviewStepProps {
   localizedSkillOptions: readonly SkillOption[];
   templateSkills: readonly ExamSkill[];
   audienceCount: number;
+}
+
+/** The chosen difficulty in words, e.g. "B1 50%, B2 50%"; "Follow the template" when none was set. */
+function difficultySummary(
+  selection: DifficultySelection | undefined,
+  wizardText: WizardText,
+): string {
+  const targets = difficultyTargets(selection);
+  return targets
+    ? targets.map((target) => `${target.level} ${target.percent}%`).join(", ")
+    : wizardText.DIFFICULTY_TEMPLATE;
 }
 
 export function ReviewStep({
@@ -47,6 +59,14 @@ export function ReviewStep({
                 .filter(Boolean)
                 .join(", ") || wizardText.EMPTY_VALUE}
             </dd>
+          </div>
+          <div>
+            <dt className="font-medium">{wizardText.REVIEW_DIFFICULTY}</dt>
+            <dd>{difficultySummary(form.difficulty, wizardText)}</dd>
+          </div>
+          <div>
+            <dt className="font-medium">{wizardText.REVIEW_REPEAT}</dt>
+            <dd>{form.avoidRepeats ? wizardText.REPEAT_AVOID : wizardText.REPEAT_ALLOW}</dd>
           </div>
           <div>
             <dt className="font-medium">{wizardText.REVIEW_AUDIENCE}</dt>

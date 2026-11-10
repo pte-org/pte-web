@@ -10,6 +10,7 @@ import {
   TabPanel,
   useLocale,
   useDashboardBreadcrumbLabel,
+  useRememberedState,
 } from "@pte/ui";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import { useProgram } from "@/features/programs/api";
@@ -43,7 +44,7 @@ const ClassDetailContent = ({
   const { t } = useLocale();
   const labels = useOrgLabels();
   const classLabel = t("nav.class", labels.class);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useRememberedState<string>("tab", "overview");
   const [importOpen, setImportOpen] = useState(false);
   const query = useClasses(organizationPublicId, programPublicId);
   const program = useProgram(organizationPublicId, programPublicId);

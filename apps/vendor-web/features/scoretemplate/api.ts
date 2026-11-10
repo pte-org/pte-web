@@ -14,6 +14,10 @@ import {
   getScoreTemplateFeasibility,
   type RejectScoreTemplateRequest,
   type ReplaceScoreTemplateItemsRequest,
+  type ScoreTemplateTimeFrame,
+  type CefrTarget,
+  updateScoreTemplateTimeFrame,
+  updateScoreTemplateCefrTargets,
   type CreateScoreTemplateRequest,
   type ScoreTemplateResponse,
   type ScoreTemplateFeasibilityResponse,
@@ -116,6 +120,38 @@ export function useReplaceScoreTemplateItems(): UseMutationResult<
       replaceScoreTemplateItems(apiClient, publicId, payload),
     onSuccess: (_data, { publicId }) => {
       void queryClient.invalidateQueries({ queryKey: SCORE_TEMPLATES_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: [...SCORE_TEMPLATE_QUERY_KEY, publicId] });
+    },
+  });
+}
+
+export function useUpdateScoreTemplateTimeFrame(): UseMutationResult<
+  ScoreTemplateResponse,
+  unknown,
+  { publicId: string; timeFrame: ScoreTemplateTimeFrame }
+> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ publicId, timeFrame }) =>
+      updateScoreTemplateTimeFrame(apiClient, publicId, timeFrame),
+    onSuccess: (_data, { publicId }) => {
+      void queryClient.invalidateQueries({ queryKey: [...SCORE_TEMPLATE_QUERY_KEY, publicId] });
+    },
+  });
+}
+
+export function useUpdateScoreTemplateCefrTargets(): UseMutationResult<
+  ScoreTemplateResponse,
+  unknown,
+  { publicId: string; targets: CefrTarget[] }
+> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ publicId, targets }) =>
+      updateScoreTemplateCefrTargets(apiClient, publicId, targets),
+    onSuccess: (_data, { publicId }) => {
       void queryClient.invalidateQueries({ queryKey: [...SCORE_TEMPLATE_QUERY_KEY, publicId] });
     },
   });

@@ -6,7 +6,6 @@ import {
   Button,
   DashboardLoadingState,
   ErrorState,
-  PageHeader,
   ProfileLayout,
   TabPanel,
   useLocale,
@@ -58,7 +57,6 @@ export const ProfileView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title={t("tenant.profile.title", PROFILE_TEXT.title)} />
       <ProfileLayout
         id="tenant-profile-tabs"
         items={tabs}

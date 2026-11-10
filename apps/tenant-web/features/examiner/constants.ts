@@ -7,6 +7,39 @@ import type {
 export const EXAMINER_QUEUE_QUERY_KEY = ["examinerWorkQueue"] as const;
 export const EXAMINER_ATTEMPT_QUERY_KEY = ["examinerAttemptWork"] as const;
 
+/** A band gap to the AI at or above this asks the examiner to note the reason (AI calibration data). */
+export const AI_GAP_THRESHOLD = 2;
+/** Matches the server limit on one reason (RubricConstants.MAX_AI_GAP_REASON_LENGTH). */
+export const AI_GAP_REASON_MAX_LENGTH = 500;
+
+/**
+ * One marking column on wide screens: as tall as the viewport minus the page header and the marking toolbar, so each
+ * column scrolls on its own instead of the whole page.
+ */
+export const EXAMINER_COLUMN_CLASS =
+  "min-w-0 space-y-3 rounded-2xl border p-3 lg:max-h-[calc(100dvh-14rem)] lg:overflow-y-auto";
+
+export type ExaminerColumnTone = "prompt" | "ai" | "examiner";
+
+/**
+ * Each column is a light wash of its own colour with a hairline edge of the same hue, as the vendor question board
+ * does, so the white cards stand out and the three areas read apart at a glance. The header dot repeats the colour.
+ */
+export const EXAMINER_COLUMN_TONE: Record<ExaminerColumnTone, { column: string; dot: string }> = {
+  prompt: {
+    column: "bg-[color-mix(in_srgb,#0ea5e9_6%,var(--surface-card))] border-[color-mix(in_srgb,#0ea5e9_16%,var(--shell-border))]",
+    dot: "bg-sky-500",
+  },
+  ai: {
+    column: "bg-[color-mix(in_srgb,#8b5cf6_6%,var(--surface-card))] border-[color-mix(in_srgb,#8b5cf6_16%,var(--shell-border))]",
+    dot: "bg-violet-500",
+  },
+  examiner: {
+    column: "bg-[color-mix(in_srgb,#22c55e_6%,var(--surface-card))] border-[color-mix(in_srgb,#22c55e_16%,var(--shell-border))]",
+    dot: "bg-green-500",
+  },
+};
+
 export const EXAMINER_WORK_TEXT = {
   TITLE: "Examiner marking queue",
   FILTER_LABEL: "Queue status",
@@ -26,6 +59,11 @@ export const EXAMINER_WORK_TEXT = {
   DETAIL_ERROR: "Attempt work could not be loaded.",
   NO_ANSWERS: "This assignment has no currently available eligible answers.",
   PROMPT: "Question prompt",
+  PROMPT_TRANSCRIPT: "Audio transcript",
+  REFERENCE_ANSWER: "Reference answer",
+  CORRECT_ANSWER: "Correct answer",
+  OPTION_CORRECT: "(correct)",
+  TRANSCRIPT_MISSING: "No transcript is available; listen to the recording.",
   STUDENT_RESPONSE: "Student response",
   SCORE_LABEL: "Your score (0–100)",
   SUBMIT_SCORE: "Submit score",
@@ -41,6 +79,9 @@ export const EXAMINER_WORK_TEXT = {
   LOADING_MEDIA: "Loading media…",
   IMAGE_ALT: "Question image prompt",
   AI_REFERENCE_TITLE: "AI Scoring Reference",
+  AI_DETAILS: "AI score details",
+  SAVE_AND_NEXT: "Save & next question",
+  UNSAVED_DRAFT: "Unsaved changes",
   AI_STATUS_AVAILABLE: "AI reference available",
   AI_STATUS_PENDING: "AI scoring in progress",
   AI_STATUS_FAILED: "AI scoring failed",
@@ -63,14 +104,19 @@ export const EXAMINER_WORK_TEXT = {
   EXPECTED_VERSION: "Review version",
   REQUEST_ID: "Request key",
   NAV_TITLE: "Question List",
+  NAV_FILTER_ALL: "All",
+  NAV_FILTER_TODO: "Not marked",
+  NAV_FILTER_DONE: "Marked",
+  NAV_EMPTY: "No questions in this view.",
   PREV_QUESTION: "Previous",
   NEXT_QUESTION: "Next",
   STATUS_SAVED: "Saved",
   STATUS_DRAFT: "Draft",
   PUBLISHED_WARNING: "This cohort has already been published. Scoring is closed.",
   UNSAVED_CHANGES_TITLE: "Unsaved Changes",
-  UNSAVED_CHANGES_WARNING: "You have unsaved changes in your score draft. Leaving will discard this work.",
-  DISCARD_AND_LEAVE: "Discard and leave",
+  UNSAVED_CHANGES_WARNING: "Some marks are not saved yet. Save them before leaving, or cancel to keep marking.",
+  SAVE_AND_LEAVE: "Save and leave",
+  SAVE_BEFORE_LEAVE_FAILED: "Some marks could not be saved. Choose every trait of the open questions, then try again.",
   MEDIA_ERROR_WARNING: "Required prompt or response media failed to load. Please retry loading before scoring.",
   REFRESH_MEDIA: "Refresh media URLs",
   UNKNOWN_OUTCOME_TITLE: "Submission Outcome Unresolved",
@@ -100,6 +146,7 @@ export const EXAMINER_WORK_TEXT = {
   GUIDELINES: "Marking guidelines",
   GUIDELINES_TITLE: "Examiner scoring guidelines",
   HISTORY_AUDIT: "Grading History & Audit",
+  MARKING_TAB: "Marking",
   ISSUES_BLOCKING: "Grading is blocked by an unresolved issue on this attempt.",
   SUBMISSION_BLOCKED: "Submission Blocked",
   PROPOSED_SCORE: "Proposed Score:",
@@ -119,7 +166,6 @@ export const EXAMINER_WORK_TEXT = {
   SELECTED_WORD_INDEXES_PREFIX: "Selected word indexes: ",
   NOT_STARTED_TITLE: "Not started",
   SCORE_LABEL_SHORT: "Score:",
-  AI_REVISION_LABEL: "AI revision:",
   ISSUE_TYPE_AUDIO: "Audio unavailable or unplayable",
   ISSUE_TYPE_MEDIA: "Image or media unavailable",
   ISSUE_TYPE_DATA: "Corrupted or missing response data",
@@ -134,6 +180,11 @@ export const EXAMINER_WORK_TEXT = {
   BLOCK_WAITING_FOR_HOST_FREEZE: "Waiting for the Host to freeze the cohort.",
   BLOCK_COHORT_NOT_MANUAL: "This cohort is not marked manually by examiners.",
   BLOCK_EXCLUDED_FROM_COHORT: "This attempt was excluded from the grading cohort.",
+  BLOCK_CARRIED_OVER_DRAFTS:
+    "Some drafts were carried over from the previous Examiner. Review each flagged question and save it (even with the same score) before finalizing.",
+  CARRIED_OVER_BADGE: "From previous Examiner",
+  CARRIED_OVER_HINT:
+    "This draft was saved by the previous Examiner. Review it and save it to confirm.",
 } as const;
 
 export const EXAMINER_ISSUE_OPTIONS: { value: ExaminerGradingIssueType; label: string }[] = [
@@ -170,11 +221,15 @@ export function buildExaminerQueueHref(
   page: number,
   search: string,
   sort: string,
+  fromDate = "",
+  toDate = "",
 ): string {
   const params = new URLSearchParams({ status });
   if (page > 0) params.set("page", String(page));
   if (search.trim()) params.set("search", search.trim());
   if (sort && sort !== "ASSIGNED_ASC") params.set("sort", sort);
+  if (fromDate) params.set("fromDate", fromDate);
+  if (toDate) params.set("toDate", toDate);
   return `/examiner/work?${params.toString()}`;
 }
 

@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, type ChangeEvent, type FormEvent, type ReactElement } from "react";
+import { useEffect, useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Button, Input, Select, useToast } from "@pte/ui";
 import {
   completeCloudinaryUpload,
-  getMediaPreview,
   getUserFacingApiErrorMessage,
   requestCloudinaryUpload,
+  type CefrLevel,
   type CreateQuestionRequest,
   type QuestionPool,
   type QuestionResponse,
@@ -15,12 +15,21 @@ import {
 import { apiClient } from "@/lib/apiClient";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useQuestionTypes } from "@/features/questiontemplate/api";
-import { useCreateQuestion, useUpdateQuestion } from "../api";
+import { useCreateQuestion, useCreateQuestionRevision, useUpdateQuestion } from "../api";
+import { usePromptMediaUrl } from "../hooks/usePromptMediaUrl";
+import { poolToAvailability, resolveCurrentPool } from "../poolAvailability";
+import { MediaFileField } from "./_MediaFileField";
+import { AgentMark } from "./_AgentMark";
+import { useAgentValues } from "../hooks/useAgentValues";
+import type { AgentFill } from "@/features/questiongeneration/editorAgent";
+import { PoolChangeDialog } from "./_PoolChangeDialog";
 import {
+  CEFR_LEVELS,
   QUESTION_EDITOR_ERRORS as RAW_QUESTION_EDITOR_ERRORS,
   QUESTION_EDITOR_TEXT as RAW_QUESTION_EDITOR_TEXT,
   QUESTION_POOL_LABELS,
 } from "../constants";
+import type { QuestionPreviewDraft } from "../types";
 
 interface DraftOption {
   text: string;
@@ -34,12 +43,18 @@ interface QuestionEditorFormProps {
   question?: QuestionResponse;
   onSaved?: (question: QuestionResponse) => void;
   onCancel?: () => void;
+  /** Called with what the form holds each time it changes, for a live preview next to it. */
+  onPreviewChange?: (preview: QuestionPreviewDraft) => void;
+  /**
+   * The question is published, so saving first opens a draft revision of it and puts the edits
+   * there. Nothing is created on the server until the writer saves.
+   */
+  saveAsRevision?: boolean;
+  /** Limits the task type dropdown to one exam section; omit to list every task type. */
+  sectionFilter?: string;
+  /** AI agents writing this question: their values fill the form, marked fields show who works where. */
+  agent?: AgentFill | null;
 }
-
-const POOL_OPTIONS: { value: QuestionPool; label: string }[] = [
-  { value: "EXAM", label: QUESTION_POOL_LABELS.exam },
-  { value: "PRACTICE", label: QUESTION_POOL_LABELS.practice },
-];
 
 const fieldClass =
   "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100";
@@ -48,10 +63,20 @@ export const QuestionEditorForm = ({
   question,
   onSaved,
   onCancel,
+  onPreviewChange,
+  saveAsRevision = false,
+  sectionFilter,
+  agent,
 }: QuestionEditorFormProps): ReactElement => {
   const T = useAdminCopy(RAW_QUESTION_EDITOR_TEXT);
   const E = useAdminCopy(RAW_QUESTION_EDITOR_ERRORS);
+  const poolLabels = useAdminCopy(QUESTION_POOL_LABELS);
+  const poolOptions: { value: QuestionPool; label: string }[] = [
+    { value: "EXAM", label: poolLabels.exam },
+    { value: "PRACTICE", label: poolLabels.practice },
+  ];
   const createMutation = useCreateQuestion();
+  const revisionMutation = useCreateQuestionRevision();
   const updateMutation = useUpdateQuestion();
   const { showToast } = useToast();
   const {
@@ -60,10 +85,11 @@ export const QuestionEditorForm = ({
     isError: questionTypesError,
   } = useQuestionTypes(!question);
   const [taskType, setTaskType] = useState<string>(question?.pteTaskType ?? "");
-  const [pool, setPool] = useState<QuestionPool>(
-    question?.pool === "PRACTICE" ? "PRACTICE" : "EXAM",
-  );
-  const [title, setTitle] = useState(question?.title ?? "");
+  const initialPool: QuestionPool = question ? resolveCurrentPool(question) : "EXAM";
+  const [pool, setPool] = useState<QuestionPool>(initialPool);
+  const [cefrLevel, setCefrLevel] = useState<string>(question?.cefrLevel ?? "");
+  const [pendingUpdate, setPendingUpdate] = useState<UpdateQuestionRequest | null>(null);
+  const isPoolEditable = !question || question.status === "DRAFT";
   const [promptText, setPromptText] = useState(question?.promptText ?? "");
   const [referenceAnswerText, setReferenceAnswerText] = useState(
     question?.referenceAnswerText ?? "",
@@ -77,9 +103,8 @@ export const QuestionEditorForm = ({
   const [imagePromptRef, setImagePromptRef] = useState<string | null>(
     question?.imagePromptRef ?? null,
   );
-  const [mediaPreview, setMediaPreview] = useState<{ kind: "audio" | "image"; url: string } | null>(
-    null,
-  );
+  const audioUrl = usePromptMediaUrl(audioPromptRef);
+  const imageUrl = usePromptMediaUrl(imagePromptRef);
   const [options, setOptions] = useState<DraftOption[]>(
     () =>
       question?.options.map((option) => ({
@@ -94,18 +119,59 @@ export const QuestionEditorForm = ({
       ],
   );
   const [error, setError] = useState<string | null>(null);
-  const isPending = createMutation.isPending || updateMutation.isPending;
-  const selectedTaskType = taskType || questionTypes[0]?.code || "";
+  const marks = agent?.marks ?? {};
+  useAgentValues(agent?.values, {
+    setTaskType, setPool, setCefrLevel, setPromptText, setReferenceAnswerText, setCorrectAnswerText,
+    setMinWordCount, setMaxWordCount, setAudioPromptRef, setImagePromptRef, setOptions,
+  });
+  const [uploadingKind, setUploadingKind] = useState<"AUDIO_PROMPT" | "IMAGE_PROMPT" | null>(null);
+  const isPending =
+    createMutation.isPending || updateMutation.isPending || revisionMutation.isPending;
+  const listedTypes = sectionFilter
+    ? questionTypes.filter((type) => type.section === sectionFilter)
+    : questionTypes;
+  // A type outside the chosen section is replaced by that section's first one.
+  const selectedTaskType =
+    (listedTypes.some((type) => type.code === taskType) ? taskType : listedTypes[0]?.code) ||
+    taskType ||
+    questionTypes[0]?.code ||
+    "";
   const questionType = questionTypes.find((type) => type.code === selectedTaskType);
   const hasOptions = questionType?.requiresOptions ?? false;
 
-  const uploadMedia = async (
-    event: ChangeEvent<HTMLInputElement>,
-    kind: "AUDIO_PROMPT" | "IMAGE_PROMPT",
-  ) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  useEffect(() => {
+    onPreviewChange?.({
+      taskType: selectedTaskType,
+      taskName: questionType?.displayName ?? selectedTaskType,
+      section: questionType?.section ?? "",
+      instruction: questionType?.instruction ?? null,
+      promptText,
+      options: hasOptions ? options.map((option) => option.text) : [],
+      multipleChoice: hasOptions && !questionType?.requiresSingleCorrectOption,
+      needsWordCount: questionType?.requiresWordCount ?? false,
+      minWordCount: minWordCount ? Number(minWordCount) : null,
+      maxWordCount: maxWordCount ? Number(maxWordCount) : null,
+      expectsImage: questionType?.requiresImagePrompt ?? false,
+      expectsAudio: questionType?.requiresAudioPrompt ?? false,
+      imageUrl,
+      audioUrl,
+    });
+  }, [
+    onPreviewChange,
+    selectedTaskType,
+    questionType,
+    promptText,
+    options,
+    hasOptions,
+    minWordCount,
+    maxWordCount,
+    imageUrl,
+    audioUrl,
+  ]);
+
+  const uploadMedia = async (file: File, kind: "AUDIO_PROMPT" | "IMAGE_PROMPT") => {
     setError(null);
+    setUploadingKind(kind);
     try {
       const signed = await requestCloudinaryUpload(apiClient, {
         contentType: file.type,
@@ -145,21 +211,38 @@ export const QuestionEditorForm = ({
       });
       if (kind === "AUDIO_PROMPT") setAudioPromptRef(signed.mediaPublicId);
       else setImagePromptRef(signed.mediaPublicId);
-      const preview = await getMediaPreview(apiClient, signed.mediaPublicId);
-      setMediaPreview({
-        kind: kind === "AUDIO_PROMPT" ? "audio" : "image",
-        url: preview.url,
-      });
     } catch (uploadError) {
       setError(getUserFacingApiErrorMessage(uploadError, E.MEDIA_UPLOAD));
+    } finally {
+      setUploadingKind(null);
     }
+  };
+
+  const saveUpdate = (payload: UpdateQuestionRequest): void => {
+    if (!question) return;
+    const saveInto = (target: QuestionResponse, body: UpdateQuestionRequest): void =>
+      updateMutation.mutate(
+        { id: target.publicId, payload: body },
+        {
+          onSuccess: (saved) => {
+            setPendingUpdate(null);
+            showToast(T.UPDATE_SUCCESS);
+            onSaved?.(saved);
+          },
+          onError: () => setPendingUpdate(null),
+        },
+      );
+    if (!saveAsRevision) return saveInto(question, payload);
+    revisionMutation.mutate(question.publicId, {
+      onSuccess: (revision) => saveInto(revision, { ...payload, version: revision.version ?? 0 }),
+      onError: () => setPendingUpdate(null),
+    });
   };
 
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
     if (!questionType) return setError(E.QUESTION_TYPES_UNAVAILABLE);
-    if (!title.trim()) return setError(E.TITLE_REQUIRED);
     if (questionType.requiresPromptText && !promptText.trim()) return setError(E.PROMPT_REQUIRED);
     if (questionType.requiresAudioPrompt && !audioPromptRef) return setError(E.AUDIO_REQUIRED);
     if (questionType.requiresImagePrompt && !imagePromptRef) return setError(E.IMAGE_REQUIRED);
@@ -186,7 +269,6 @@ export const QuestionEditorForm = ({
       return setError(E.SINGLE_CORRECT_REQUIRED);
     }
     const content = {
-      title: title.trim(),
       promptText: promptText || null,
       audioPromptRef,
       imagePromptRef,
@@ -195,18 +277,17 @@ export const QuestionEditorForm = ({
       minWordCount: minWordCount ? Number(minWordCount) : null,
       maxWordCount: maxWordCount ? Number(maxWordCount) : null,
       options: hasOptions ? options : [],
+      cefrLevel: cefrLevel ? (cefrLevel as CefrLevel) : null,
     };
     if (question) {
-      const payload: UpdateQuestionRequest = { ...content, version: question.version };
-      updateMutation.mutate(
-        { id: question.publicId, payload },
-        {
-          onSuccess: (saved) => {
-            showToast(T.UPDATE_SUCCESS);
-            onSaved?.(saved);
-          },
-        },
-      );
+      const poolChanged = pool !== initialPool;
+      const payload: UpdateQuestionRequest = {
+        ...content,
+        version: question.version,
+        ...(poolChanged ? poolToAvailability(pool) : {}),
+      };
+      if (poolChanged) setPendingUpdate(payload);
+      else saveUpdate(payload);
     } else {
       const payload: CreateQuestionRequest = { pteTaskType: selectedTaskType, pool, ...content };
       createMutation.mutate(payload, {
@@ -226,13 +307,21 @@ export const QuestionEditorForm = ({
     );
   };
 
+  const poolHelperText = !question
+    ? T.POOL_HELPER_CREATE
+    : isPoolEditable
+      ? T.POOL_HELPER_EDIT
+      : T.POOL_HELPER_LOCKED;
+
   return (
-    <form className="flex max-w-4xl flex-col gap-4" onSubmit={submit}>
+    <form className="flex max-w-4xl flex-col gap-4" onSubmit={submit} aria-busy={agent?.locked || undefined}>
+      <fieldset disabled={agent?.locked} className="contents">
       <h2 className="text-xl font-semibold text-gray-900">
         {question ? T.FORM_EDIT_TITLE : T.FORM_CREATE_TITLE}
       </h2>
       {error && <Alert tone="error">{error}</Alert>}
       {questionTypesError && <Alert tone="error">{E.LOAD_TYPES}</Alert>}
+      {revisionMutation.isError && <Alert tone="error">{E.CREATE_REVISION}</Alert>}
       {(createMutation.isError || updateMutation.isError) && <Alert tone="error">{E.SAVE}</Alert>}
       <Select
         id="question-task-type"
@@ -242,11 +331,11 @@ export const QuestionEditorForm = ({
         onChange={(event) => setTaskType(event.target.value)}
         placeholder={!taskType ? T.LOADING_TASK_TYPES : undefined}
         options={[
-          ...questionTypes.map((type) => ({
+          ...listedTypes.map((type) => ({
             value: type.code,
             label: `${type.displayName} (${type.shortName})`,
           })),
-          ...(selectedTaskType && !questionTypes.some((type) => type.code === selectedTaskType)
+          ...(selectedTaskType && !listedTypes.some((type) => type.code === selectedTaskType)
             ? [{ value: selectedTaskType, label: selectedTaskType }]
             : []),
         ]}
@@ -255,61 +344,63 @@ export const QuestionEditorForm = ({
         id="question-pool"
         label={T.POOL}
         value={pool}
-        disabled={Boolean(question)}
+        disabled={!isPoolEditable}
         onChange={(event) => setPool(event.target.value as QuestionPool)}
-        options={POOL_OPTIONS}
-        helperText={question ? T.POOL_HELPER_EDIT : T.POOL_HELPER_CREATE}
+        options={poolOptions}
+        helperText={poolHelperText}
       />
-      <Input label={T.TITLE} value={title} onChange={(event) => setTitle(event.target.value)} />
-      <label className="text-sm font-medium text-gray-700">
-        {T.PROMPT_TEXT}
-        <textarea
-          className={`${fieldClass} mt-1 min-h-28`}
-          value={promptText}
-          onChange={(event) => setPromptText(event.target.value)}
-        />
-      </label>
-      {questionType?.requiresAudioPrompt && (
+      <Select
+        id="question-cefr-level"
+        label={T.CEFR_LEVEL}
+        value={cefrLevel}
+        disabled={!isPoolEditable}
+        onChange={(event) => setCefrLevel(event.target.value)}
+        options={[
+          { value: "", label: T.CEFR_UNSET },
+          ...CEFR_LEVELS.map((level) => ({ value: level, label: level })),
+        ]}
+        helperText={T.CEFR_HELPER}
+      />
+      <AgentMark lane={marks.promptText}>
         <label className="text-sm font-medium text-gray-700">
-          {T.AUDIO_PROMPT}
-          <input
-            className="mt-1 block text-sm"
-            type="file"
-            accept="audio/wav,audio/mpeg"
-            onChange={(event) => void uploadMedia(event, "AUDIO_PROMPT")}
+          {T.PROMPT_TEXT}
+          <textarea
+            className={`${fieldClass} mt-1 min-h-28`}
+            value={promptText}
+            onChange={(event) => setPromptText(event.target.value)}
           />
-          {audioPromptRef && (
-            <span className="mt-1 block text-xs text-green-700">
-              {T.UPLOADED_MEDIA(audioPromptRef)}
-            </span>
-          )}
         </label>
+      </AgentMark>
+      {questionType?.requiresAudioPrompt && (
+        <MediaFileField
+          id="question-audio-prompt"
+          label={T.AUDIO_PROMPT}
+          accept="audio/wav,audio/mpeg"
+          uploadedLabel={audioPromptRef ? T.UPLOADED_MEDIA(audioPromptRef) : null}
+          isUploading={uploadingKind === "AUDIO_PROMPT"}
+          chooseLabel={T.CHOOSE_FILE}
+          replaceLabel={T.REPLACE_FILE}
+          noFileLabel={T.NO_FILE}
+          uploadingLabel={T.UPLOADING}
+          onSelect={(file) => void uploadMedia(file, "AUDIO_PROMPT")}
+        />
       )}
       {questionType?.requiresImagePrompt && (
-        <label className="text-sm font-medium text-gray-700">
-          {T.IMAGE_PROMPT}
-          <input
-            className="mt-1 block text-sm"
-            type="file"
-            accept="image/png,image/jpeg,image/webp"
-            onChange={(event) => void uploadMedia(event, "IMAGE_PROMPT")}
-          />
-          {imagePromptRef && (
-            <span className="mt-1 block text-xs text-green-700">
-              {T.UPLOADED_MEDIA(imagePromptRef)}
-            </span>
-          )}
-        </label>
-      )}
-      {mediaPreview?.kind === "audio" && <audio controls src={mediaPreview.url} />}
-      {mediaPreview?.kind === "image" && (
-        <img
-          className="max-h-56 rounded border object-contain"
-          src={mediaPreview.url}
-          alt={T.PROMPT_PREVIEW_ALT}
+        <MediaFileField
+          id="question-image-prompt"
+          label={T.IMAGE_PROMPT}
+          accept="image/png,image/jpeg,image/webp"
+          uploadedLabel={imagePromptRef ? T.UPLOADED_MEDIA(imagePromptRef) : null}
+          isUploading={uploadingKind === "IMAGE_PROMPT"}
+          chooseLabel={T.CHOOSE_FILE}
+          replaceLabel={T.REPLACE_FILE}
+          noFileLabel={T.NO_FILE}
+          uploadingLabel={T.UPLOADING}
+          onSelect={(file) => void uploadMedia(file, "IMAGE_PROMPT")}
         />
       )}
       {questionType?.requiresWordCount && (
+        <AgentMark lane={marks.wordCount}>
         <div className="grid gap-4 md:grid-cols-2">
           <Input
             label={T.MIN_WORD_COUNT}
@@ -324,20 +415,26 @@ export const QuestionEditorForm = ({
             onChange={(event) => setMaxWordCount(event.target.value)}
           />
         </div>
+        </AgentMark>
       )}
-      <Input
-        label={T.REFERENCE_ANSWER}
-        value={referenceAnswerText}
-        onChange={(event) => setReferenceAnswerText(event.target.value)}
-      />
-      {(!hasOptions || questionType?.requiresCorrectAnswer) && (
+      <AgentMark lane={marks.referenceAnswerText}>
         <Input
-          label={T.CORRECT_ANSWER}
-          value={correctAnswerText}
-          onChange={(event) => setCorrectAnswerText(event.target.value)}
+          label={questionType?.requiresAudioPrompt ? T.AUDIO_TRANSCRIPT : T.REFERENCE_ANSWER}
+          value={referenceAnswerText}
+          onChange={(event) => setReferenceAnswerText(event.target.value)}
         />
+      </AgentMark>
+      {(!hasOptions || correctAnswerText.trim() !== "") && (
+        <AgentMark lane={marks.correctAnswerText}>
+          <Input
+            label={T.CORRECT_ANSWER}
+            value={correctAnswerText}
+            onChange={(event) => setCorrectAnswerText(event.target.value)}
+          />
+        </AgentMark>
       )}
       {hasOptions && (
+        <AgentMark lane={marks.options}>
         <fieldset className="flex flex-col gap-3 rounded-md border border-gray-200 p-4">
           <legend className="px-1 text-sm font-medium text-gray-700">{T.OPTIONS}</legend>
           {options.map((option, index) => (
@@ -379,6 +476,7 @@ export const QuestionEditorForm = ({
             {T.ADD_OPTION}
           </Button>
         </fieldset>
+        </AgentMark>
       )}
       <div className="flex flex-wrap gap-2">
         {onCancel && (
@@ -390,6 +488,15 @@ export const QuestionEditorForm = ({
           {question ? T.SAVE_DRAFT : T.CREATE_DRAFT}
         </Button>
       </div>
+      <PoolChangeDialog
+        open={pendingUpdate !== null}
+        targetPool={pool}
+        previouslyPublished={question?.previouslyPublished === true}
+        isConfirming={updateMutation.isPending}
+        onConfirm={() => pendingUpdate && saveUpdate(pendingUpdate)}
+        onClose={() => setPendingUpdate(null)}
+      />
+      </fieldset>
     </form>
   );
 };

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isStudentOnlyAccount, toSessionRoles } from "../../../../features/auth/sessionRoles";
+import { decidePortalLogin, toSessionRoles } from "../../../../features/auth/sessionRoles";
 
 describe("portal session roles", () => {
   it("never keeps STUDENT as a portal role", () => {
@@ -7,20 +7,52 @@ describe("portal session roles", () => {
     expect(toSessionRoles(["HOST_ADMIN", "STUDENT"])).toEqual(["HOST_ADMIN"]);
   });
 
-  it("keeps every staff role and drops unknown ones", () => {
+  it("keeps only the roles that have a workspace in this portal", () => {
     expect(
-      toSessionRoles(["PLATFORM_ADMIN", "PLATFORM_AUTHOR", "HOST_ADMIN", "EXAMINER", "PROCTOR", "OTHER"]),
-    ).toEqual(["PLATFORM_ADMIN", "PLATFORM_AUTHOR", "HOST_ADMIN", "EXAMINER", "PROCTOR"]);
+      toSessionRoles([
+        "PLATFORM_ADMIN",
+        "PLATFORM_MANAGER",
+        "PLATFORM_AUTHOR",
+        "ACADEMIC_MANAGER",
+        "ACADEMIC_STAFF",
+        "HOST_ADMIN",
+        "EXAMINER",
+        "PROCTOR",
+        "OTHER",
+      ]),
+    ).toEqual(["HOST_ADMIN", "EXAMINER", "PROCTOR"]);
+  });
+});
+
+describe("decidePortalLogin", () => {
+  it.each(["HOST_ADMIN", "EXAMINER", "PROCTOR"])("lets %s in", (role) => {
+    expect(decidePortalLogin([role])).toEqual({ kind: "allowed", roles: [role] });
   });
 
-  it("recognises a student-only account so login can refuse it with a specific message", () => {
-    expect(isStudentOnlyAccount(["STUDENT"])).toBe(true);
+  it.each(["PLATFORM_ADMIN", "PLATFORM_MANAGER", "PLATFORM_AUTHOR", "ACADEMIC_MANAGER", "ACADEMIC_STAFF"])(
+    "denies %s, which belongs to the vendor portal",
+    (role) => {
+      expect(decidePortalLogin([role])).toEqual({ kind: "denied" });
+    },
+  );
+
+  it("denies an account with no recognised role", () => {
+    expect(decidePortalLogin([])).toEqual({ kind: "denied" });
+    expect(decidePortalLogin(["OTHER"])).toEqual({ kind: "denied" });
   });
 
-  it("does not flag staff accounts, unknown accounts or staff who also hold STUDENT", () => {
-    expect(isStudentOnlyAccount(["HOST_ADMIN"])).toBe(false);
-    expect(isStudentOnlyAccount(["HOST_ADMIN", "STUDENT"])).toBe(false);
-    expect(isStudentOnlyAccount([])).toBe(false);
-    expect(isStudentOnlyAccount(["OTHER"])).toBe(false);
+  it("keeps the specific student message for a student-only account", () => {
+    expect(decidePortalLogin(["STUDENT"])).toEqual({ kind: "student" });
+  });
+
+  it("lets a host through even if the account is also a platform admin or a student", () => {
+    expect(decidePortalLogin(["PLATFORM_ADMIN", "HOST_ADMIN"])).toEqual({
+      kind: "allowed",
+      roles: ["HOST_ADMIN"],
+    });
+    expect(decidePortalLogin(["HOST_ADMIN", "STUDENT"])).toEqual({
+      kind: "allowed",
+      roles: ["HOST_ADMIN"],
+    });
   });
 });

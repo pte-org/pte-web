@@ -1,13 +1,17 @@
 "use client";
 
-import { useMemo, useState, type ReactElement } from "react";
-import { Badge, Button, DataTable, ErrorState, Modal, PaginationControls, StatusBadge, type DataTableColumn } from "@pte/ui";
-import type { AttendanceHistoryItemResponse } from "@pte/api-client";
+import { useState, type ReactElement } from "react";
 import {
-  getAttendanceBadgeVariant,
-  getAttendanceStatusLabel,
-  PROCTOR_HISTORY_MODAL_TEXT as T,
-} from "../constants";
+  Button,
+  Chip,
+  EmptyState,
+  ErrorState,
+  LoadingState,
+  Modal,
+  PaginationControls,
+} from "@pte/ui";
+import { PROCTOR_HISTORY_MODAL_TEXT as T } from "../constants";
+import { AttendanceHistoryEntry } from "./AttendanceHistoryEntry";
 import { useAttendanceHistory, useHostAttendanceHistory } from "../api";
 
 interface AttendanceHistoryModalProps {
@@ -55,72 +59,17 @@ export function AttendanceHistoryModal({
   const historyItems = data?.data ?? [];
   const meta = data?.meta;
 
-  const columns: DataTableColumn<AttendanceHistoryItemResponse>[] = useMemo(
-    () => [
-      {
-        key: "time",
-        header: T.COL_TIME,
-        cell: (row) => (
-          <span className="text-xs text-[var(--ink-secondary)]">
-            {new Date(row.serverActionAt).toLocaleString("vi-VN")}
-          </span>
-        ),
-      },
-      {
-        key: "actor",
-        header: T.COL_ACTOR,
-        cell: (row) => (
-          <div>
-            <div className="font-medium text-xs text-[var(--ink-primary)]">
-              {row.actorDisplayName || row.actorPublicId}
-            </div>
-            <Badge variant="neutral" className="mt-0.5 text-[10px]">
-              {row.actorRole}
-            </Badge>
-          </div>
-        ),
-      },
-      {
-        key: "change",
-        header: T.COL_CHANGE,
-        cell: (row) => (
-          <div className="flex items-center gap-1.5">
-            <StatusBadge
-              label={getAttendanceStatusLabel(row.previousStatus)}
-              variant={getAttendanceBadgeVariant(row.previousStatus)}
-            />
-            <span className="text-[var(--ink-muted)]">→</span>
-            <StatusBadge
-              label={getAttendanceStatusLabel(row.newStatus)}
-              variant={getAttendanceBadgeVariant(row.newStatus)}
-            />
-          </div>
-        ),
-      },
-      {
-        key: "reason",
-        header: T.COL_REASON,
-        cell: (row) => (
-          <span className="text-xs text-[var(--ink-secondary)]">
-            {row.reasonOrNote || "—"}
-          </span>
-        ),
-      },
-    ],
-    [],
-  );
-
   return (
     <Modal
       open={open}
       onClose={onClose}
-      size="lg"
-      title={`${T.TITLE_PREFIX}${studentName || studentEmail || studentPublicId || ""}`}
+      size="full"
+      title={T.TITLE}
       footer={
         <div className="flex w-full items-center justify-between">
           <div>
             {meta && meta.totalPages > 1 && (
-              <PaginationControls meta={meta} onPageChange={setPage} />
+              <PaginationControls meta={meta} onPageChange={setPage} disabled={isLoading} />
             )}
           </div>
           <Button variant="secondary" size="sm" onClick={onClose}>
@@ -129,11 +78,23 @@ export function AttendanceHistoryModal({
         </div>
       }
     >
-      <div className="space-y-4 py-2">
-        {studentEmail && (
-          <p className="text-xs text-[var(--ink-secondary)]">{T.EMAIL_PREFIX}{studentEmail}</p>
-        )}
-
+      <div className="space-y-5">
+        <div className="flex flex-wrap items-start justify-between gap-3 rounded-xl bg-[var(--sky-tint)] p-4">
+          <div className="min-w-0 space-y-1">
+            <h3 className="break-words text-base font-semibold text-[var(--ink-primary)]">
+              {studentName || studentEmail || T.TITLE}
+            </h3>
+            {studentEmail && (
+              <p className="break-all text-sm text-[var(--ink-secondary)]">{studentEmail}</p>
+            )}
+            <p className="text-xs text-[var(--ink-secondary)]">{T.SUBTITLE}</p>
+          </div>
+          {meta && (
+            <Chip tone="sky">
+              {meta.totalElements} {T.RECORDS}
+            </Chip>
+          )}
+        </div>
         {isError ? (
           <ErrorState
             title={T.ERROR_TITLE}
@@ -143,18 +104,16 @@ export function AttendanceHistoryModal({
               </Button>
             }
           />
+        ) : isLoading ? (
+          <LoadingState variant="rows" />
+        ) : historyItems.length === 0 ? (
+          <EmptyState title={T.EMPTY_TITLE} />
         ) : (
-          <DataTable
-            columns={columns}
-            rows={historyItems}
-            getRowKey={(row) => row.id}
-            isLoading={isLoading}
-            emptyTitle={T.EMPTY_TITLE}
-            clientSideFiltering={false}
-            clientSideSorting={false}
-            clientSidePagination={false}
-            showSearch={false}
-          />
+          <ol className="space-y-3">
+            {historyItems.map((entry) => (
+              <AttendanceHistoryEntry key={entry.id} entry={entry} />
+            ))}
+          </ol>
         )}
       </div>
     </Modal>

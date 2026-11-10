@@ -91,6 +91,18 @@ export interface BulkCreateUserRow {
 export interface BulkCreateUsersRequest {
   rows: BulkCreateUserRow[];
   tenantId: string | null;
+  /** E-mail each created Student their username and temporary password after the roster is saved. */
+  sendCredentialsEmail?: boolean;
+}
+
+/** Machine code of a rejected roster; the error `details` is a {@link RosterRowError} list. */
+export const ROSTER_VALIDATION_FAILED = "ROSTER_VALIDATION_FAILED";
+
+/** One broken field of a rejected roster; `rowIndex` is 0-based in the request's `rows`. */
+export interface RosterRowError {
+  rowIndex: number;
+  field: string;
+  code: string;
 }
 
 /** Matches iam's real `BulkCreateUsersResponse` record exactly. */

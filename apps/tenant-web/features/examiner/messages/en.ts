@@ -3,6 +3,7 @@ export const EXAMINER_WORKSPACE_EN = {
   overviewTitle: "Examiner Marking Workspace",
   overviewSubtitle: "Manage assigned marking tasks, monitor completion progress, and jump directly into active attempts.",
   filterLabel: "Queue status",
+  filterDateRange: "Assignment date range",
   statusAll: "All assignments",
   statusPending: "Not started",
   statusInProgress: "In progress",
@@ -25,6 +26,7 @@ export const EXAMINER_WORKSPACE_EN = {
   startMarking: "Start Marking",
   noEligibleWork: "No eligible answers to mark",
   waitingForHostFreeze: "Waiting for Host to freeze cohort",
+  carriedOverDrafts: "Review drafts from the previous Examiner",
   blockedReasonPrefix: "Blocked: ",
   attemptLabel: "Attempt",
   sessionLabel: "Session",
@@ -40,6 +42,7 @@ export const EXAMINER_WORKSPACE_EN = {
   asOfLabel: "Updated as of",
   refresh: "Refresh",
   reportsTitle: "Examiner Marking Reports",
+  statisticsDateRange: "Statistics date range",
   reportsSubtitle: "Personal grading performance statistics, finalized count, average duration, and regrade metrics.",
   filterDateFrom: "From Date",
   filterDateTo: "To Date",
@@ -75,6 +78,10 @@ export const EXAMINER_WORKSPACE_EN = {
   sortAssignedDesc: "Newest assigned",
   startingWork: "Starting…",
   viewWork: "View marking",
+  attemptColumn: "Attempt",
+  progressColumn: "Progress",
+  assignedColumn: "Assigned",
+  actionsLabel: "Actions",
 };
 
 export type ExaminerWorkspaceMessageKey = keyof typeof EXAMINER_WORKSPACE_EN;

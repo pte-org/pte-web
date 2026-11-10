@@ -33,6 +33,7 @@ vi.mock("@/features/hostDashboard/constants", async () => await import("../../..
 vi.mock("@/features/examoperations/errorMessage", async () => await import("../../../../features/examoperations/errorMessage"));
 vi.mock("@/features/examoperations/api", async () => await import("../../../../features/examoperations/api"));
 vi.mock("@/features/classes/api", async () => await import("../../../../features/classes/api"));
+vi.mock("@/features/hostTemplates/api", async () => await import("../../../../features/hostTemplates/api"));
 vi.mock("@/features/studentSearch/constants", async () => await import("../../../../features/studentSearch/constants"));
 vi.mock("@/features/orgLabels/constants", async () => await import("../../../../features/orgLabels/constants"));
 vi.mock("@pte/api-client", async (importOriginal) => ({
@@ -121,7 +122,7 @@ const HOOKS: HookCase[] = [
       if (outcome === "success") mocks.api.bulkCreateUsers.mockResolvedValue({ created: [], skipped: [] });
       else mocks.api.bulkCreateUsers.mockRejectedValue(rejection);
     },
-    variables: rosterRows,
+    variables: { rows: rosterRows, sendCredentialsEmail: false },
   },
   {
     name: "useCreateStudent (add one learner)",
@@ -139,7 +140,7 @@ const HOOKS: HookCase[] = [
       if (outcome === "success") mocks.api.bulkCreateUsers.mockResolvedValue({ created: [created], skipped: [] });
       else mocks.api.bulkCreateUsers.mockRejectedValue(rejection);
     },
-    variables: rosterRows,
+    variables: { rows: rosterRows, sendCredentialsEmail: false },
   },
   {
     name: "useCreateRosterAccountsForClass (class roster import)",
@@ -148,7 +149,7 @@ const HOOKS: HookCase[] = [
       if (outcome === "success") mocks.api.bulkCreateUsers.mockResolvedValue({ created: [created], skipped: [] });
       else mocks.api.bulkCreateUsers.mockRejectedValue(rejection);
     },
-    variables: rosterRows,
+    variables: { rows: rosterRows, sendCredentialsEmail: false },
   },
   {
     name: "useCreateClass",

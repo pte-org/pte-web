@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
-import { Alert, TabPanel, Tabs, useLocale } from "@pte/ui";
+import type { ReactElement } from "react";
+import { Alert, TabPanel, Tabs, useLocale, useRememberedState } from "@pte/ui";
 import { useStudentQuotaQuery, useSubscriptionsQuery, useTenantPlansQuery } from "../api";
 import { BILLING_TEXT as T } from "../constants";
 import { BillingPlanTab } from "./BillingPlanTab";
@@ -12,7 +12,7 @@ const HISTORY_TAB_ID = "history";
 
 export const BillingOverviewView = (): ReactElement => {
   const { t } = useLocale();
-  const [activeTab, setActiveTab] = useState(PLAN_TAB_ID);
+  const [activeTab, setActiveTab] = useRememberedState<string>("tab", PLAN_TAB_ID);
   const {
     data: subscriptions = [],
     isLoading: subscriptionsLoading,

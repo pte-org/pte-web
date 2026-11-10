@@ -6,3 +6,5 @@ export { AddStudentForm } from "./AddStudentForm";
 export { StudentRosterTable } from "./StudentRosterTable";
 export { SkippedRowsReport } from "./SkippedRowsReport";
 export { ResetStudentPasswordModal } from "./ResetStudentPasswordModal";
+export { RosterRowIssues } from "./RosterRowIssues";
+export { RosterCreateControls } from "./RosterCreateControls";

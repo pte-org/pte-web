@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Button, PasswordInput, useSessionManager } from "@pte/ui";
+import { Alert, Button, PasswordInput, useSessionManager, useToast } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useChangePassword } from "../api";
@@ -18,6 +18,7 @@ export const ChangePasswordView = (): ReactElement => {
   const router = useRouter();
   const { session, saveSession } = useSessionManager();
   const mutation = useChangePassword();
+  const { showToast } = useToast();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
@@ -39,8 +40,13 @@ export const ChangePasswordView = (): ReactElement => {
     }
     setFormError(undefined);
     try {
-      await mutation.mutateAsync({ currentPassword, newPassword });
+      await mutation.mutateAsync({
+        currentPassword,
+        newPassword,
+        refreshToken: session?.refreshToken,
+      });
       if (session) saveSession({ ...session, mustChangePassword: false });
+      showToast(T.SUCCESS, { tone: "success" });
       const destination = session?.roles.some((role) => ADMIN_ROLES.includes(role))
         ? AUTH_ROUTES.adminDashboard
         : session?.roles.some((role) => HOST_ROLES.includes(role))

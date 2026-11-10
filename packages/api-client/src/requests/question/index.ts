@@ -40,6 +40,8 @@ export function listQuestions(
   if (filters.status) params.set("status", filters.status);
   if (filters.pool) params.set("pool", filters.pool);
   if (filters.q) params.set("q", filters.q);
+  if (filters.cefrLevel) params.set("cefrLevel", filters.cefrLevel);
+  if (filters.aiGenerated !== undefined) params.set("aiGenerated", String(filters.aiGenerated));
   const suffix = params.toString() ? `?${params.toString()}` : "";
   return client.request<PagedResult<QuestionResponse>>(`${QUESTION_ENDPOINTS.questions}${suffix}`);
 }

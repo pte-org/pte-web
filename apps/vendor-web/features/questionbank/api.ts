@@ -32,6 +32,7 @@ import {
 } from "@pte/api-client";
 import { apiClient } from "@/lib/apiClient";
 import { QUESTION_STATS_QUERY_KEY, QUESTIONS_QUERY_KEY } from "./constants";
+import { resolveCurrentPool } from "./poolAvailability";
 import type { Question, QuestionPool, QuestionSkill, QuestionStats, QuestionStatus } from "./types";
 
 const SKILL_MAP: Partial<Record<string, QuestionSkill>> = {
@@ -55,28 +56,43 @@ function mapStatus(value: QuestionResponse["status"]): QuestionStatus {
   return STATUS_MAP[value] ?? "draft";
 }
 
-export function mapPool(value: QuestionResponse["pool"] | undefined): QuestionPool {
-  return value === "PRACTICE" ? "practice" : "exam";
+export function mapPool(
+  value: Pick<QuestionResponse, "pool" | "availableForExam" | "availableForPractice"> | undefined,
+): QuestionPool {
+  return value && resolveCurrentPool(value) === "PRACTICE" ? "practice" : "exam";
 }
 
 /**
- * `QuestionResponse` has no `content`/single string field — `title` is the
- * one human-readable label the backend always sets; `promptText` is null
- * for options-only task types (e.g. RE_ORDER_PARAGRAPHS), so it's a fallback,
- * not the primary source.
+ * `QuestionResponse` has no single human-readable field, so the list shows the first text a
+ * question has: the prompt, else an answer, else its first option (options-only task types such
+ * as RE_ORDER_PARAGRAPHS have no prompt text).
  */
+function summaryOf(response: QuestionResponse): string {
+  const candidates = [
+    response.promptText,
+    response.correctAnswerText,
+    response.referenceAnswerText,
+    response.options[0]?.text,
+  ];
+  return candidates.find((text) => text?.trim()) ?? "—";
+}
+
 function mapQuestion(response: QuestionResponse): Question {
   return {
     id: response.publicId,
     skill: SKILL_MAP[response.section] ?? "reading",
     taskType: response.pteTaskType,
-    content: response.title || response.promptText || "—",
+    content: summaryOf(response),
     status: mapStatus(response.status),
-    pool: mapPool(response.pool),
+    pool: mapPool(response),
     rejectionReason: response.rejectionReason,
     canDeleteDraft: response.canDeleteDraft,
     canArchive: response.canArchive,
     deleteBlockReason: response.deleteBlockReason,
+    updatedAt: response.updatedAt,
+    cefrLevel: response.cefrLevel ?? null,
+    authorId: response.authorUserPublicId ?? null,
+    generationMeta: response.generationMeta ?? null,
   };
 }
 
@@ -130,6 +146,8 @@ export function useQuestions(
       filters.status ?? "",
       filters.pool ?? "",
       filters.q ?? "",
+      filters.cefrLevel ?? "",
+      filters.aiGenerated ?? "",
       page,
       size,
     ],

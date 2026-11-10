@@ -4,7 +4,6 @@ import {
   ActionMenu,
   Alert,
   BanIcon,
-  Badge,
   CheckCircleIcon,
   ConfirmDialog,
   DataTable,
@@ -25,14 +24,11 @@ import {
 } from "../api";
 import {
   QUESTIONBANK_TEXT as RAW_QUESTIONBANK_TEXT,
-  QUESTION_POOL_LABELS as RAW_QUESTION_POOL_LABELS,
-  QUESTION_SKILL_LABELS as RAW_QUESTION_SKILL_LABELS,
-  QUESTION_STATUS_LABELS as RAW_QUESTION_STATUS_LABELS,
-  QUESTION_STATUS_VARIANT,
   QUESTION_TABLE_HEADERS as RAW_QUESTION_TABLE_HEADERS,
 } from "../constants";
 import type { Question } from "../types";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
+import { useQuestionTableColumns } from "./_questionTableColumns";
 import { RejectQuestionModal } from "./_RejectQuestionModal";
 import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic } from "@/features/auth/permissions";
@@ -41,6 +37,8 @@ interface QuestionTableProps {
   questions: Question[];
   isLoading?: boolean;
   toolbarActions?: ReactNode;
+  /** Hidden once the list is already narrowed to one skill, where every row would repeat it. */
+  showSkillColumn?: boolean;
 }
 
 import { useAdminCopy } from "@/features/i18n/adminCopy";
@@ -50,27 +48,12 @@ export const QuestionTable = ({
   questions,
   isLoading = false,
   toolbarActions,
+  showSkillColumn = true,
 }: QuestionTableProps): ReactElement => {
   const T = useAdminCopy(RAW_QUESTIONBANK_TEXT);
-  const searchText = useAdminSearchText("questionContent");
   const H = useAdminCopy(RAW_QUESTION_TABLE_HEADERS);
-  const skillLabels = useAdminCopy(RAW_QUESTION_SKILL_LABELS);
-  const poolLabels = useAdminCopy(RAW_QUESTION_POOL_LABELS);
-  const statusLabels = useAdminCopy(RAW_QUESTION_STATUS_LABELS);
-  const skillFilterOptions = useAdminCopy([
-    { value: "", label: "All skills" },
-    { value: "listening", label: "Listening" },
-    { value: "reading", label: "Reading" },
-    { value: "writing", label: "Writing" },
-    { value: "speaking", label: "Speaking" },
-  ]);
-  const statusFilterOptions = useAdminCopy([
-    { value: "", label: "All statuses" },
-    { value: "draft", label: "Draft" },
-    { value: "pending_approval", label: "Pending approval" },
-    { value: "published", label: "Published" },
-    { value: "archived", label: "Archived" },
-  ]);
+  const columns = useQuestionTableColumns(questions, showSkillColumn);
+  const searchText = useAdminSearchText("questionContent");
   const router = useRouter();
   const { data: currentUser } = useCurrentUser();
   const { showToast } = useToast();
@@ -219,42 +202,7 @@ export const QuestionTable = ({
       {hasMutationError && <Alert tone="error">{T.STATUS_UPDATE_ERROR}</Alert>}
       <DataTable
         toolbarActions={toolbarActions}
-        columns={[
-          {
-            key: "skill",
-            label: H.SKILL,
-            header: H.SKILL,
-            filterOptions: skillFilterOptions,
-            filterAccessor: (question) => question.skill,
-            cell: (question) => skillLabels[question.skill],
-          },
-          {
-            key: "content",
-            label: H.CONTENT,
-            header: H.CONTENT,
-            filterAccessor: (question) => question.content,
-            cell: (question) => <span className="line-clamp-1 max-w-xl">{question.content}</span>,
-          },
-          {
-            key: "pool",
-            label: H.POOL,
-            header: H.POOL,
-            filterAccessor: (question) => question.pool,
-            cell: (question) => poolLabels[question.pool],
-          },
-          {
-            key: "status",
-            label: H.STATUS,
-            header: H.STATUS,
-            filterOptions: statusFilterOptions,
-            filterAccessor: (question) => question.status,
-            cell: (question) => (
-              <Badge variant={QUESTION_STATUS_VARIANT[question.status]}>
-                {statusLabels[question.status]}
-              </Badge>
-            ),
-          },
-        ]}
+        columns={columns}
         rows={questions}
         getRowKey={(question) => question.id}
         isLoading={isLoading}
@@ -273,7 +221,6 @@ export const QuestionTable = ({
         title={T.ARCHIVE_CONFIRM_TITLE}
         description={
           <>
-            <p>{questionToArchive?.content}</p>
             <p>{T.ARCHIVE_CONFIRM_DESCRIPTION}</p>
             {archiveMutation.error && (
               <Alert tone="error">
@@ -295,7 +242,6 @@ export const QuestionTable = ({
         title={T.DELETE_CONFIRM_TITLE}
         description={
           <>
-            <p>{questionToDelete?.content}</p>
             <p>{T.DELETE_CONFIRM_DESCRIPTION}</p>
             {deleteMutation.error && (
               <Alert tone="error">
