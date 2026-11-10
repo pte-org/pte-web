@@ -98,6 +98,9 @@ export interface ExaminerPromptOptionResponse {
   orderIndex: number;
   text: string;
   blankIndex: number | null;
+  /** Answer key, examiner-only. */
+  correct?: boolean;
+  correctGapIndex?: number | null;
 }
 
 export interface ExaminerResponseOptionResponse {
@@ -117,6 +120,12 @@ export interface ExaminerPromptResponse {
   minWordCount: number | null;
   maxWordCount: number | null;
   options: ExaminerPromptOptionResponse[];
+  /** CEFR level of the bank question (A1..C2); null when the question has none. */
+  cefrLevel?: string | null;
+  /** Model answer, or the transcript of the prompt audio for listening items; examiner-only. */
+  referenceAnswerText?: string | null;
+  /** Correct answer of an objective item; examiner-only. */
+  correctAnswerText?: string | null;
 }
 
 export interface ExaminerAnswerPayloadResponse {

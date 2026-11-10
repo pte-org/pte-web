@@ -12,6 +12,8 @@ export interface ExaminerDraftResponse {
   savedAt: string;
   /** True for a draft inherited from the previous Examiner; saving it again clears the flag. */
   carriedOver: boolean;
+  /** Trait key to the examiner's reason for differing from the AI band. */
+  aiGapReasons?: Record<string, string>;
 }
 
 export interface ExaminerWorkflowView {
@@ -86,6 +88,7 @@ export interface SaveExaminerDraftRequest {
   decisionKind?: ExaminerDecisionKind | null;
   expectedReviewVersion?: string | null;
   reviewedAiVersion?: string | null;
+  aiGapReasons?: Record<string, string> | null;
 }
 
 export interface FinalizeExaminerWorkItem {
