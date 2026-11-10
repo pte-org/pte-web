@@ -5,9 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   ActionMenu,
   Alert,
-  Badge,
   Button,
-  Chip,
   ConfirmDialog,
   ItemPalette,
   LoadingState,
@@ -161,18 +159,6 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={editable ? "warning" : "success"}>{template.status}</Badge>
-          {typeof template.pearsonStandard === "boolean" && (
-            <Chip tone={template.pearsonStandard ? "mint" : "cream"} size="sm">
-              {template.pearsonStandard ? listText.STANDARD_BADGE : listText.CUSTOMISED_BADGE}
-            </Chip>
-          )}
-          <span className="text-sm text-[var(--ink-muted)]">v{template.version}</span>
-        </div>
-      </div>
-
       {!editable && !isDefault && <Alert tone="info">{text.READ_ONLY}</Alert>}
       {submitError && <Alert tone="error">{submitError}</Alert>}
       {items.length === 0 && <Alert tone="warning">{text.NO_TASKS}</Alert>}

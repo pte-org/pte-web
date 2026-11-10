@@ -1067,6 +1067,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.hostTemplates.editor.VIEW_WEIGHTS": "Trọng số",
     "tenant.hostTemplates.editor.INFO_TITLE": "Thông tin mẫu",
     "tenant.hostTemplates.editor.INFO_VERSION": "Phiên bản",
+    "tenant.hostTemplates.editor.INFO_STATUS": "Trạng thái",
     "tenant.hostTemplates.editor.INFO_CREATED": "Ngày tạo",
     "tenant.hostTemplates.editor.INFO_UPDATED": "Cập nhật lần cuối",
     "tenant.hostTemplates.editor.ACTIONS_LABEL": "Thao tác mẫu",

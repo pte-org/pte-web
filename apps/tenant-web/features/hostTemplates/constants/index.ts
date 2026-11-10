@@ -83,6 +83,7 @@ export const EDITOR_TEXT = {
   VIEW_STRUCTURE: "Questions",
   VIEW_WEIGHTS: "Weights",
   INFO_TITLE: "Template information",
+  INFO_STATUS: "Status",
   INFO_VERSION: "Version",
   INFO_CREATED: "Created",
   INFO_UPDATED: "Last updated",
