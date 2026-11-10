@@ -5,7 +5,7 @@ import { useScoringRubricText } from "../hooks/useScoringRubricText";
 import { traitDisplayName } from "../rubricView";
 import type { TaskTypeRubricResponse } from "../types";
 import { AzureBandMapping } from "./_AzureBandMapping";
-import { levelDotClass, traitTone } from "./_traitTone";
+import { levelDotClass, traitTone } from "@pte/ui";
 
 interface TraitLevelsTabProps {
   rubric: TaskTypeRubricResponse;

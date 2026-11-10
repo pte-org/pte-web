@@ -5,7 +5,7 @@ import { useScoringRubricText } from "../hooks/useScoringRubricText";
 import { traitDisplayName } from "../rubricView";
 import type { TaskTypeRubricResponse } from "../types";
 import { ObjectiveRuleCard } from "./_ObjectiveRuleCard";
-import { traitTone } from "./_traitTone";
+import { traitTone } from "@pte/ui";
 
 interface RubricOverviewTabProps {
   rubric: TaskTypeRubricResponse;

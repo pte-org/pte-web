@@ -1,5 +1,5 @@
 /**
- * One fixed accent per trait position, so a trait keeps the same colour on every tab of the rubric detail page.
+ * One fixed accent per trait position, so a trait keeps the same colour wherever a rubric is shown.
  * Each entry pairs the top stripe of a card with the dot used in chips and level lists.
  */
 const TRAIT_TONES = [
