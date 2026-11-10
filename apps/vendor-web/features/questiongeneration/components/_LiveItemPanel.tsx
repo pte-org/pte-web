@@ -78,7 +78,8 @@ export const LiveItemPanel = ({ live, record, locale, text, needsAudio, needsIma
           <MediaBody lane={lane as "AUDIO" | "IMAGE"} mediaId={lane === "AUDIO" ? (live?.audioRef ?? null) : (live?.imageRef ?? null)} text={text} />
         </LiveLaneCard>
       ))}
-      <LiveLaneCard lane="SAVE" label={labels.SAVE} status={status("SAVE")}>
+      {/* The form flow saves nothing here (the person saves from the form), so the card shows only a real outcome. */}
+      {outcome !== null && <LiveLaneCard lane="SAVE" label={labels.SAVE} status={status("SAVE")}>
         {outcome === "SAVED" && record?.questionPublicId ? (
           <p className="text-sm">
             {text.saved}{" "}
@@ -86,10 +87,10 @@ export const LiveItemPanel = ({ live, record, locale, text, needsAudio, needsIma
           </p>
         ) : (
           <p className="text-sm text-[var(--ink-muted)]">
-            {outcome === "FAILED" ? text.failed : outcome === "CANCELLED" ? text.cancelledItem : "…"}
+            {outcome === "FAILED" ? text.failed : text.cancelledItem}
           </p>
         )}
-      </LiveLaneCard>
+      </LiveLaneCard>}
     </div>
   );
 };

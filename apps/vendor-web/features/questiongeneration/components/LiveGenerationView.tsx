@@ -13,7 +13,6 @@ import {
   STAGE_LABELS,
   formFillHref,
   TERMINAL_JOB_STATUSES,
-  generationReviewHref,
 } from "../liveConstants";
 import { ITEM_CHIP_TONES } from "../liveTones";
 import { generatedValues, storeGeneratedFill } from "../utils/generatedFill";
@@ -84,11 +83,6 @@ export const LiveGenerationView = ({ jobId }: LiveGenerationViewProps): ReactEle
         )}
         <div className="ml-auto flex gap-2">
           {!finished && <Button variant="secondary" onClick={() => setConfirmingCancel(true)} disabled={cancel.isPending}>{text.cancel}</Button>}
-          {finished && job.succeededCount > 0 && (
-            <Button onClick={() => router.push(generationReviewHref(jobId))}>
-              {text.review.replace("{count}", String(job.succeededCount))}
-            </Button>
-          )}
         </div>
       </div>
       <div className="flex flex-wrap gap-2" role="tablist" aria-label={text.items}>
