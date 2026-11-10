@@ -26,6 +26,7 @@ export const EXAMINER_NAV_TEXT = {
 } as const;
 
 export const PROCTOR_NAV_TEXT = {
+  SESSIONS: "Assigned sessions",
   OVERVIEW: "Overview",
   MONITORING: "Monitoring",
   ATTENDANCE: "Attendance",

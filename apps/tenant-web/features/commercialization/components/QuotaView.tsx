@@ -27,7 +27,7 @@ export const QuotaView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
+      <div className="flex flex-wrap items-center gap-3">
         <Link
             href={PLANS_HOME_HREF}
             className="text-sm font-semibold text-action hover:underline"
