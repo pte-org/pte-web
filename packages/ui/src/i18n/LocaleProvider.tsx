@@ -1173,7 +1173,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.proctorAttendance": "Điểm danh ca thi",
     "nav.proctorIncidents": "Sự cố phòng thi",
     "nav.proctorAuditLog": "Nhật ký ca thi",
-    "nav.proctorSessions": "Phòng thi được phân công",
+    "nav.proctorSessions": "Ca thi được phân công",
     "nav.proctorProfile": "Hồ sơ giám thị",
     "nav.supervision": "Giám sát",
     "workspace.host": "Quản trị cơ sở",

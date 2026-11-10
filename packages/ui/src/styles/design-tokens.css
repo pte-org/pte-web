@@ -29,6 +29,7 @@
   --shell-canvas: #f4f4f5;
   --shell-frame: #fcfcfd;
   --shell-border: #e8e8e8;
+  --border-subtle: var(--shell-border);
   --shell-surface-border: #e5e5e5;
   --sidebar-nav-hover-background: rgba(0, 0, 0, 0.05);
   --sidebar-nav-active-background: var(--action);
@@ -105,6 +106,7 @@ body {
   --shell-canvas: #09090b;
   --shell-frame: #0f0f0f;
   --shell-border: #2b2c2e;
+  --border-subtle: var(--shell-border);
   --shell-surface-border: #1d1d1f;
   --sidebar-nav-hover-background: rgba(255, 255, 255, 0.05);
   --sidebar-nav-active-background: var(--action);

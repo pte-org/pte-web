@@ -2,7 +2,7 @@
 
 import type { ReactElement, ReactNode } from "react";
 import { cn } from "../utils/cn";
-import { ChevronRightIcon } from "./icons";
+import { Disclosure } from "./Disclosure";
 
 export interface InfoPanelRow {
   label: string;
@@ -34,19 +34,16 @@ export const InfoPanel = ({
   rows = [],
   className,
 }: InfoPanelProps): ReactElement => (
-  <details
-    open={defaultOpen || forceOpen}
+  <Disclosure
+    title={title}
+    defaultOpen={defaultOpen}
+    forceOpen={forceOpen}
+    titleClassName="text-xs uppercase tracking-wide text-[var(--ink-muted)]"
     className={cn(
       "group rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-3",
       className,
     )}
   >
-    <summary className="-my-1 flex min-h-8 cursor-pointer list-none items-center justify-between gap-2 text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)] marker:hidden">
-      {title}
-      <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-[var(--ink-secondary)] transition hover:bg-[var(--surface-subtle)]">
-        <ChevronRightIcon className="h-4 w-4 transition-transform group-open:rotate-90" />
-      </span>
-    </summary>
     <div className="mt-3 space-y-3">
       {children}
       {rows.length > 0 && (
@@ -62,5 +59,5 @@ export const InfoPanel = ({
         </dl>
       )}
     </div>
-  </details>
+  </Disclosure>
 );

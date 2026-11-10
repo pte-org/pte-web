@@ -2,6 +2,7 @@
 
 import type { ReactElement } from "react";
 import { useLocale } from "../i18n";
+import { DisclosureChevron } from "./DisclosureChevron";
 import { Button } from "./Button";
 
 interface NotificationFooterProps {
@@ -33,9 +34,11 @@ export const NotificationFooter = ({
           size="sm"
           fullWidth
           className={canLoadMore ? "flex-1" : undefined}
+          aria-label={t("common.collapseNotifications", "Collapse")}
+          title={t("common.collapseNotifications", "Collapse")}
           onClick={onCollapse}
         >
-          {t("common.collapseNotifications", "Collapse")}
+          <DisclosureChevron expanded />
         </Button>
       )}
       {canLoadMore && (

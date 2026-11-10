@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, type ReactElement, type ReactNode } from "react";
+import { DisclosureChevron } from "./DisclosureChevron";
 import { Button } from "./Button";
 import { Chip, type ChipTone } from "./Chip";
 import { DashboardCard } from "./DashboardCard";
-import { ChevronDownIcon, ChevronRightIcon, GripVerticalIcon } from "./icons";
+import { GripVerticalIcon } from "./icons";
 
 export interface PaletteEntry {
   id: string;
@@ -49,7 +50,6 @@ interface PaletteGroupProps {
 /** One section's entries under a header that folds them away; open by default. */
 const PaletteGroup = ({ title, tone, count, children }: PaletteGroupProps): ReactElement => {
   const [isOpen, setIsOpen] = useState(true);
-  const Chevron = isOpen ? ChevronDownIcon : ChevronRightIcon;
 
   return (
     <section className="space-y-1">
@@ -59,11 +59,11 @@ const PaletteGroup = ({ title, tone, count, children }: PaletteGroupProps): Reac
         onClick={() => setIsOpen((current) => !current)}
         className="flex w-full items-center gap-1.5 rounded-md px-1 py-1 text-left hover:bg-[var(--surface-subtle)]"
       >
-        <Chevron className="h-3.5 w-3.5 shrink-0 text-[var(--ink-muted)]" />
         <Chip tone={tone} size="sm">
           {title}
         </Chip>
         <span className="ml-auto text-xs text-[var(--ink-muted)]">{count}</span>
+        <DisclosureChevron expanded={isOpen} />
       </button>
       {isOpen && children}
     </section>

@@ -11,6 +11,19 @@ import {
 } from "react";
 import { cn } from "../utils/cn";
 import { DotsVerticalIcon } from "./icons";
+import type { BadgeVariant } from "./Badge";
+
+const ACTION_TONE_CLASS: Record<BadgeVariant, string> = {
+  success:
+    "hover:bg-[var(--mint-tint)] hover:text-[var(--mint-action)] focus-visible:bg-[var(--mint-tint)] focus-visible:text-[var(--mint-action)]",
+  warning:
+    "hover:bg-[var(--cream-tint)] hover:text-[var(--cream-action)] focus-visible:bg-[var(--cream-tint)] focus-visible:text-[var(--cream-action)]",
+  danger:
+    "hover:bg-[var(--blush-tint)] hover:text-[var(--blush-action)] focus-visible:bg-[var(--blush-tint)] focus-visible:text-[var(--blush-action)]",
+  info: "hover:bg-[var(--sky-tint)] hover:text-[var(--sky-action)] focus-visible:bg-[var(--sky-tint)] focus-visible:text-[var(--sky-action)]",
+  neutral:
+    "hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)] focus-visible:bg-[var(--surface-subtle)] focus-visible:text-[var(--ink-primary)]",
+};
 
 export interface DropdownActionItem {
   label: string;
@@ -20,6 +33,8 @@ export interface DropdownActionItem {
   target?: string;
   rel?: string;
   danger?: boolean;
+  /** Semantic highlight when hovered or focused; existing menus keep their default appearance. */
+  tone?: BadgeVariant;
   icon?: ComponentType<{ className?: string }>;
   disabled?: boolean;
   /** Native tooltip; use it to explain why an item is disabled. */
@@ -167,7 +182,9 @@ export const Dropdown = ({
                     // Every action lights up in its own colour on hover or focus, so the one under the pointer is clear.
                     item.danger
                       ? "text-[var(--blush-action)] hover:bg-[var(--blush-tint)] focus-visible:bg-[var(--blush-tint)]"
-                      : "text-[var(--ink-secondary)] hover:bg-[var(--action-tint)] hover:text-[var(--action)] focus-visible:bg-[var(--action-tint)] focus-visible:text-[var(--action)] disabled:hover:text-[var(--ink-secondary)]",
+                      : item.tone
+                        ? cn("text-[var(--ink-secondary)]", ACTION_TONE_CLASS[item.tone])
+                        : "text-[var(--ink-secondary)] hover:bg-[var(--action-tint)] hover:text-[var(--action)] focus-visible:bg-[var(--action-tint)] focus-visible:text-[var(--action)] disabled:hover:text-[var(--ink-secondary)]",
                   );
                   const content = (
                     <>
