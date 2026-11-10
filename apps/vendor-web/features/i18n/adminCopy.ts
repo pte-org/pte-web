@@ -523,6 +523,7 @@ const ADMIN_VI: Record<string, string> = {
   "Image prompt": "Hình ảnh đề bài",
   "Question prompt preview": "Xem trước đề bài",
   "Reference answer": "Đáp án tham khảo",
+  "Audio transcript": "Lời thoại audio",
   "Correct answer text": "Nội dung đáp án đúng",
   "Question created as a draft.": "Đã tạo câu hỏi ở trạng thái bản nháp.",
   "Question draft saved.": "Đã lưu bản nháp câu hỏi.",

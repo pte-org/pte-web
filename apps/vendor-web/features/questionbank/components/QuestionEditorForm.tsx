@@ -419,12 +419,12 @@ export const QuestionEditorForm = ({
       )}
       <AgentMark lane={marks.referenceAnswerText}>
         <Input
-          label={T.REFERENCE_ANSWER}
+          label={questionType?.requiresAudioPrompt ? T.AUDIO_TRANSCRIPT : T.REFERENCE_ANSWER}
           value={referenceAnswerText}
           onChange={(event) => setReferenceAnswerText(event.target.value)}
         />
       </AgentMark>
-      {(!hasOptions || questionType?.requiresCorrectAnswer) && (
+      {(!hasOptions || correctAnswerText.trim() !== "") && (
         <AgentMark lane={marks.correctAnswerText}>
           <Input
             label={T.CORRECT_ANSWER}

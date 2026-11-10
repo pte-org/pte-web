@@ -279,7 +279,8 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
                   title={T.GROUP_ANSWER_KEY}
                   items={[
                     ...(question.referenceAnswerText?.trim()
-                      ? [{ label: T.REFERENCE_ANSWER, value: question.referenceAnswerText }]
+                      ? [{ label: question.audioPromptRef ? T.AUDIO_TRANSCRIPT : T.REFERENCE_ANSWER,
+                          value: question.referenceAnswerText }]
                       : []),
                     ...(question.correctAnswerText?.trim()
                       ? [{ label: T.CORRECT_ANSWER, value: question.correctAnswerText }]
