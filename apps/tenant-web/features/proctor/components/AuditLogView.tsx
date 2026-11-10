@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import Link from "next/link";
-import { Button, DataTable, ErrorState, type DataTableColumn } from "@pte/ui";
+import { Button, DataTable, ErrorState, Select, type DataTableColumn } from "@pte/ui";
 import { useProctorAuditLog, useProctorSecurityAudit, type ProctorSecurityAuditPage } from "../api";
 import { AUDIT_ACTION_LABELS, PROCTOR_AUDIT_TEXT as T } from "../constants";
 import type { ProctorAuditLogEntry, ProctorSecurityAuditEntry } from "../types";
@@ -22,11 +21,6 @@ function formatTimestamp(value: string): string {
   if (Number.isNaN(date.getTime())) return value;
   return new Intl.DateTimeFormat("en-GB", { dateStyle: "short", timeStyle: "medium" }).format(date);
 }
-
-const TABS: { key: TabKey; label: string }[] = [
-  { key: "violations", label: T.TAB_VIOLATIONS },
-  { key: "security", label: T.TAB_SECURITY },
-];
 
 export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactElement => {
   const [activeTab, setActiveTab] = useState<TabKey>("violations");
@@ -51,7 +45,9 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
     {
       key: "performedBy",
       header: T.COL_PROCTOR,
-      cell: (row) => row.performedBy.fullName || (row.performedBy.publicId ? shortId(row.performedBy.publicId) : "—"),
+      cell: (row) =>
+        row.performedBy.fullName ||
+        (row.performedBy.publicId ? shortId(row.performedBy.publicId) : "—"),
     },
     {
       key: "note",
@@ -87,56 +83,26 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
   const securityHasNext = security.data?.pages.at(-1)?.hasNext ?? false;
   const securityIsEmpty = securityItems.length === 0;
 
+  const logFilter = (
+    <Select
+      aria-label={T.FILTER_LOG_TYPE}
+      value={activeTab}
+      options={[
+        { value: "violations", label: T.TAB_VIOLATIONS },
+        { value: "security", label: T.TAB_SECURITY },
+      ]}
+      onChange={(event) => {
+        const value = event.target.value;
+        if (value === "violations" || value === "security") setActiveTab(value);
+      }}
+    />
+  );
+
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-      <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
-        <div className="flex items-center gap-2">
-            <Link href={`/proctor/sessions/${sessionPublicId}`}>
-              <Button variant="secondary" size="sm">
-                {T.ENTER_MONITORING}
-              </Button>
-            </Link>
-            <Link href="/proctor/sessions">
-              <Button variant="secondary" size="sm">
-                {T.SESSION_LIST}
-              </Button>
-            </Link>
-          </div>
-      </div>
-
-      <section className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] px-4 py-3 text-sm text-[var(--ink-secondary)] shadow-sm">
-        <span>
-          {T.COL_PROCTOR}: <code className="font-mono text-xs text-[var(--ink-primary)]">#{shortId(sessionPublicId)}</code>
-        </span>
-      </section>
-
-      <div
-        role="tablist"
-        aria-label={T.TABS_ARIA_LABEL}
-        className="flex gap-1 border-b border-[var(--border-subtle)]"
-      >
-        {TABS.map((tab) => {
-          const isActive = activeTab === tab.key;
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              role="tab"
-              aria-selected={isActive}
-              onClick={() => setActiveTab(tab.key)}
-              className={
-                "border-b-2 px-4 py-2 text-sm font-medium transition-colors " +
-                (isActive
-                  ? "border-blue-600 text-[var(--ink-primary)] font-semibold"
-                  : "border-transparent text-[var(--ink-secondary)] hover:text-[var(--ink-primary)]")
-              }
-            >
-              {tab.label}
-            </button>
-          );
-        })}
-      </div>
-
+      {(activeTab === "violations" ? audit.isError : security.isError) && (
+        <div className="flex flex-wrap gap-3">{logFilter}</div>
+      )}
       {activeTab === "violations" ? (
         audit.isError ? (
           <ErrorState
@@ -150,11 +116,12 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
           />
         ) : (
           <DataTable<ProctorAuditLogEntry>
+            filters={logFilter}
             showSearch={false}
             columns={violationColumns}
             rows={violations}
             getRowKey={(row) => row.publicId}
-            isLoading={audit.isFetching}
+            isLoading={audit.isLoading}
             emptyTitle={T.EMPTY_VIOLATIONS_TITLE}
             emptyDescription={T.EMPTY_VIOLATIONS_DESCRIPTION}
           />
@@ -172,18 +139,19 @@ export const AuditLogView = ({ sessionPublicId }: AuditLogViewProps): ReactEleme
       ) : (
         <div className="flex flex-col gap-4">
           <DataTable<ProctorSecurityAuditEntry>
+            filters={logFilter}
             showSearch={false}
             columns={securityColumns}
             rows={securityItems}
             getRowKey={(row) => row.publicId}
-            isLoading={security.isFetching}
+            isLoading={security.isLoading}
             emptyTitle={T.EMPTY_AUDIT_TITLE}
             emptyDescription={T.EMPTY_AUDIT_DESCRIPTION}
           />
           <div className="flex items-center justify-end">
             <Button
               variant="secondary"
-              disabled={!securityHasNext || securityIsEmpty}
+              disabled={!securityHasNext || securityIsEmpty || security.isFetchingNextPage}
               onClick={() => {
                 if (security.hasNextPage) void security.fetchNextPage();
               }}

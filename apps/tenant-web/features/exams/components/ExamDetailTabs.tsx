@@ -10,16 +10,25 @@ import { ExamOverviewTab, type ExamOverviewLifecycle } from "./ExamOverviewTab";
 import { ExamParticipantsTab } from "./ExamParticipantsTab";
 import { ExamAttendanceTab } from "./ExamAttendanceTab";
 import { ExamQuestionsTab } from "./ExamQuestionsTab";
+import { ExamIncidentsTab } from "./ExamIncidentsTab";
+import { HOST_INCIDENT_TEXT } from "../constants/incidents";
 import { ExamSubmissionsTab } from "./ExamSubmissionsTab";
 
 type ExamDetailTab =
-  "overview" | "questions" | "participants" | "attendance" | "submissions" | "examiner";
+  | "overview"
+  | "questions"
+  | "participants"
+  | "attendance"
+  | "submissions"
+  | "examiner"
+  | "incidents";
 
 const TAB_IDS: readonly ExamDetailTab[] = [
   "overview",
   "questions",
   "participants",
   "attendance",
+  "incidents",
   "submissions",
   "examiner",
 ];
@@ -95,16 +104,41 @@ export const ExamDetailTabs = ({
   const keepPanelMounted = (tab: ExamDetailTab): boolean =>
     tab === "overview" ||
     (visitedTabs.has(tab) &&
-      (tab === "questions" || tab === "submissions" || tab === "examiner" || tab === "attendance"));
+      (tab === "questions" ||
+        tab === "submissions" ||
+        tab === "examiner" ||
+        tab === "attendance" ||
+        tab === "incidents"));
 
   const items: TabItem[] = [
     { id: "overview", label: t("tenant.examTabs.overview", "Overview") },
     { id: "questions", label: t("tenant.examTabs.questions", "Questions") },
     { id: "participants", label: t("tenant.examTabs.participants", "Participants & proctors") },
     { id: "attendance", label: t("tenant.examTabs.attendance", "Attendance") },
+    { id: "incidents", label: HOST_INCIDENT_TEXT.TAB },
     { id: "submissions", label: t("tenant.examTabs.submissions", "Submissions") },
     { id: "examiner", label: t("tenant.examTabs.examiner", "Examiner") },
   ];
+
+  const panels: Record<ExamDetailTab, ReactElement> = {
+    overview: <ExamOverviewTab session={session} lifecycle={lifecycle} />,
+    questions: <ExamQuestionsTab session={session} sessionPublicId={sessionPublicId} />,
+    participants: (
+      <ExamParticipantsTab
+        session={session}
+        sessionPublicId={sessionPublicId}
+        onOpenStudentAssignment={() => setStudentAssignmentOpen(true)}
+      />
+    ),
+    attendance: (
+      <ExamAttendanceTab sessionPublicId={sessionPublicId} sessionStatus={session.status} />
+    ),
+    submissions: (
+      <ExamSubmissionsTab sessionPublicId={sessionPublicId} sessionStatus={session.status} />
+    ),
+    examiner: <ExaminerTab sessionPublicId={sessionPublicId} sessionStatus={session.status} />,
+    incidents: <ExamIncidentsTab sessionPublicId={sessionPublicId} />,
+  };
 
   return (
     <section className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-3 sm:p-4">
@@ -119,64 +153,21 @@ export const ExamDetailTabs = ({
         ariaLabel={t("tenant.examTabs.ariaLabel", "Exam sections")}
       />
 
-      <TabPanel
-        id="exam-detail-tabs-panel-overview"
-        labelledBy="exam-detail-tabs-tab-overview"
-        active={activeTab === "overview"}
-        keepMounted={keepPanelMounted("overview")}
-        className="mt-5"
-      >
-        <ExamOverviewTab session={session} lifecycle={lifecycle} />
-      </TabPanel>
-      <TabPanel
-        id="exam-detail-tabs-panel-questions"
-        labelledBy="exam-detail-tabs-tab-questions"
-        active={activeTab === "questions"}
-        keepMounted={keepPanelMounted("questions")}
-        className="mt-5 min-w-0"
-      >
-        <ExamQuestionsTab session={session} sessionPublicId={sessionPublicId} />
-      </TabPanel>
-      <TabPanel
-        id="exam-detail-tabs-panel-participants"
-        labelledBy="exam-detail-tabs-tab-participants"
-        active={activeTab === "participants"}
-        keepMounted={keepPanelMounted("participants")}
-        className="mt-5"
-      >
-        <ExamParticipantsTab
-          session={session}
-          sessionPublicId={sessionPublicId}
-          onOpenStudentAssignment={() => setStudentAssignmentOpen(true)}
-        />
-      </TabPanel>
-      <TabPanel
-        id="exam-detail-tabs-panel-attendance"
-        labelledBy="exam-detail-tabs-tab-attendance"
-        active={activeTab === "attendance"}
-        keepMounted={keepPanelMounted("attendance")}
-        className="mt-5"
-      >
-        <ExamAttendanceTab sessionPublicId={sessionPublicId} sessionStatus={session.status} />
-      </TabPanel>
-      <TabPanel
-        id="exam-detail-tabs-panel-submissions"
-        labelledBy="exam-detail-tabs-tab-submissions"
-        active={activeTab === "submissions"}
-        keepMounted={keepPanelMounted("submissions")}
-        className="mt-5"
-      >
-        <ExamSubmissionsTab sessionPublicId={sessionPublicId} sessionStatus={session.status} />
-      </TabPanel>
-      <TabPanel
-        id="exam-detail-tabs-panel-examiner"
-        labelledBy="exam-detail-tabs-tab-examiner"
-        active={activeTab === "examiner"}
-        keepMounted={keepPanelMounted("examiner")}
-        className="mt-5"
-      >
-        <ExaminerTab sessionPublicId={sessionPublicId} sessionStatus={session.status} />
-      </TabPanel>
+      {items.map(
+        (item) =>
+          isExamDetailTab(item.id) && (
+            <TabPanel
+              key={item.id}
+              id={`exam-detail-tabs-panel-${item.id}`}
+              labelledBy={`exam-detail-tabs-tab-${item.id}`}
+              active={activeTab === item.id}
+              keepMounted={keepPanelMounted(item.id)}
+              className="mt-5 min-w-0"
+            >
+              {panels[item.id]}
+            </TabPanel>
+          ),
+      )}
 
       <AddExamStudentsModal
         open={studentAssignmentOpen}

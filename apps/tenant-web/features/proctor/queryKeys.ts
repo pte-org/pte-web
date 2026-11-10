@@ -66,7 +66,7 @@ export const PROCTOR_QUERY_KEYS = {
     [...PROCTOR_QUERY_KEYS.all, "incidents", sessionPublicId] as const,
   incidentsList: (
     sessionPublicId: string,
-    params?: { status?: string; page?: number; size?: number },
+    params?: { status?: string; search?: string; page?: number; size?: number },
   ) => {
     const base = PROCTOR_QUERY_KEYS.incidentsListPrefix(sessionPublicId);
     if (!params) return base;

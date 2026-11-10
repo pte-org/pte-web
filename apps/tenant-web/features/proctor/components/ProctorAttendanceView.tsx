@@ -1,13 +1,15 @@
 "use client";
 
+import { useFeedbackToast } from "../hooks/useFeedbackToast";
+
 import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Alert, BackButton, Button, PaginationControls } from "@pte/ui";
+import { Button, ErrorState, PaginationControls } from "@pte/ui";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
 import { PROCTOR_ATTENDANCE_VIEW_TEXT as T } from "../constants";
 import { useAttendanceRoster, useRecordIdentityVerificationMutation } from "../api";
 import { useForceSubmitDialog } from "../hooks/useForceSubmitDialog";
-import { AttendanceSummaryCards } from "./AttendanceSummaryCards";
+import { useAttendanceSearch } from "../hooks/useAttendanceSearch";
 import { AttendanceFilterToolbar } from "./AttendanceFilterToolbar";
 import { AttendanceRosterTable } from "./AttendanceRosterTable";
 import { RecordAttendanceModal } from "./RecordAttendanceModal";
@@ -32,6 +34,7 @@ export function ProctorAttendanceView({
       : "ALL"
   ) as AttendanceStatus | "ALL";
   const currentSearch = searchParams.get("search") ?? "";
+  const search = useAttendanceSearch(currentSearch);
   const rawPage = parseInt(searchParams.get("page") ?? "0", 10);
   const currentPage = Number.isInteger(rawPage) && rawPage >= 0 ? rawPage : 0;
 
@@ -48,6 +51,8 @@ export function ProctorAttendanceView({
     page: currentPage,
     size: 20,
   });
+
+  useFeedbackToast(isError && data ? T.ERROR_DESC : null);
 
   const identityMutation = useRecordIdentityVerificationMutation(sessionPublicId);
   const forceSubmit = useForceSubmitDialog(sessionPublicId);
@@ -83,59 +88,24 @@ export function ProctorAttendanceView({
   const meta = data?.meta;
   const canEditSession = data?.canEditSession ?? false;
 
-  return (
-    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-      <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
-        <div className="flex flex-wrap items-center gap-3">
-            <BackButton href="/proctor/attendance" label={T.BACK_BTN} />
-            {data?.asOf && (
-              <span className="text-xs text-[var(--ink-muted)]">
-                {T.UPDATED_PREFIX}{new Date(data.asOf).toLocaleTimeString("vi-VN")}
-              </span>
-            )}
-          </div>
-      </div>
-
-      {!canEditSession && data?.sessionBlockingReason && (
-        <Alert tone="warning" title={T.PORTAL_LOCKED_TITLE}>
-          {data.sessionBlockingReason.includes("TIMING_PRE_OPEN") || data.sessionBlockingReason.includes("before 30 minutes")
-            ? T.REASON_PRE_OPEN
-            : data.sessionBlockingReason.includes("TIMING_CLOSED") || data.sessionBlockingReason.includes("closed after")
-            ? T.REASON_CLOSED
-            : data.sessionBlockingReason.includes("CANCELLED")
-            ? T.REASON_CANCELLED
-            : data.sessionBlockingReason}
-          {data.attendanceWindowOpensAt && (
-            <div className="mt-1 text-xs">
-              {T.WINDOW_OPENS_AT_PREFIX}
-              {new Date(data.attendanceWindowOpensAt).toLocaleString("vi-VN")}
-            </div>
-          )}
-        </Alert>
-      )}
-
-      {isError && (
-        <Alert tone="error" title={T.ERROR_TITLE}>
-          <div className="flex items-center gap-3">
-            <span>{T.ERROR_DESC}</span>
-            <Button variant="secondary" size="sm" onClick={() => void refetch()}>
+  if (isError && !data) {
+    return (
+      <div className="p-4 sm:p-6 lg:p-8">
+        <ErrorState
+          title={T.ERROR_TITLE}
+          description={T.ERROR_DESC}
+          action={
+            <Button variant="secondary" onClick={() => void refetch()}>
               {T.RETRY_BTN}
             </Button>
-          </div>
-        </Alert>
-      )}
+          }
+        />
+      </div>
+    );
+  }
 
-      <AttendanceSummaryCards summary={data?.summary} isLoading={isLoading} />
-
-      <AttendanceFilterToolbar
-        currentStatus={currentStatus}
-        summary={data?.summary}
-        currentSearch={currentSearch}
-        onFilterChange={(status) => updateQueryParams({ status, page: 0 })}
-        onSearchChange={(search) => updateQueryParams({ search, page: 0 })}
-        onRefresh={() => void refetch()}
-      />
-
+  return (
+    <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
       <AttendanceRosterTable
         rows={rows}
         isLoading={isLoading}
@@ -144,14 +114,24 @@ export function ProctorAttendanceView({
         onViewHistory={(row) => setActiveHistory(row)}
         onVerifyIdentity={(row) => setActiveVerification(row)}
         onForceSubmit={forceSubmit.request}
+        searchValue={search.value}
+        onSearchChange={search.onChange}
+        filters={
+          <AttendanceFilterToolbar
+            currentStatus={currentStatus}
+            summary={data?.summary}
+            onFilterChange={(status) => updateQueryParams({ status, page: 0 })}
+          />
+        }
+        pagination={
+          meta && meta.totalPages > 1 ? (
+            <PaginationControls
+              meta={meta}
+              onPageChange={(nextPage) => updateQueryParams({ page: nextPage })}
+            />
+          ) : undefined
+        }
       />
-
-      {meta && meta.totalPages > 1 && (
-        <PaginationControls
-          meta={meta}
-          onPageChange={(nextPage) => updateQueryParams({ page: nextPage })}
-        />
-      )}
 
       <RecordAttendanceModal
         open={Boolean(activeAction)}

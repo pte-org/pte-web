@@ -359,7 +359,7 @@ export function useHostAttendanceHistory(
 
 export function useIncidentsList(
   sessionPublicId: string,
-  params?: { status?: string; page?: number; size?: number },
+  params?: { status?: string; search?: string; page?: number; size?: number },
 ): UseQueryResult<IncidentPageResponse> {
   return useQuery<IncidentPageResponse>({
     queryKey: PROCTOR_QUERY_KEYS.incidentsList(sessionPublicId, params),

@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactElement, ReactNode } from "react";
-import Link from "next/link";
 import { Button, ErrorState, LoadingState } from "@pte/ui";
 import { useCurrentUser } from "@/features/auth/api";
 import { PROCTOR_PROFILE_TEXT as T } from "../constants";
@@ -48,13 +47,6 @@ export const ProctorProfileView = (): ReactElement => {
 
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-      <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
-        <Link href="/proctor/sessions">
-            <Button variant="secondary" size="sm">
-              {T.VIEW_ASSIGNED_SESSIONS}
-            </Button>
-          </Link>
-      </div>
 
       <dl className="grid grid-cols-1 gap-5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-6 shadow-sm sm:grid-cols-2">
         <Field label={T.FULL_NAME_LABEL}>{data.fullName || T.EMPTY_FULL_NAME}</Field>

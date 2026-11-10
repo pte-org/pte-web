@@ -2,10 +2,20 @@
 
 import { useState, type ReactElement } from "react";
 import type { AttemptReviewItemResponse } from "@pte/api-client";
-import { Badge, Button, DataTable, useLocale, type DataTableColumn } from "@pte/ui";
+import {
+  ActionMenu,
+  Badge,
+  Button,
+  ClipboardIcon,
+  DataTable,
+  EyeIcon,
+  useLocale,
+  type DataTableColumn,
+} from "@pte/ui";
 import { useAttemptReviews } from "../api/attemptReviews";
 import { ATTEMPT_TABLE_HEADERS, ATTEMPTS_SECTION_TEXT as T } from "../constants/attemptReviews";
 import { AnswersSection } from "./AnswersSection";
+import { StartAiScoringButton } from "./StartAiScoringButton";
 import { AttemptScoreSummary } from "./AttemptScoreSummary";
 import { ScoreExplanationLink } from "@/features/scoreexplanation/components";
 
@@ -132,6 +142,7 @@ export const AttemptsSection = ({ sessionPublicId }: AttemptsSectionProps): Reac
 
   return (
     <DataTable
+      toolbarActions={<StartAiScoringButton sessionPublicId={sessionPublicId} />}
       columns={columns}
       rows={attempts ?? []}
       getRowKey={(row) => row.attemptPublicId}
@@ -139,21 +150,25 @@ export const AttemptsSection = ({ sessionPublicId }: AttemptsSectionProps): Reac
       emptyTitle={t("tenant.attempts.empty", T.EMPTY_TITLE)}
       rowActionsHeader={t("tenant.answers.actions", ATTEMPT_TABLE_HEADERS.ACTIONS)}
       rowActions={(row) => (
-        <div className="flex flex-wrap justify-end gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            className="whitespace-nowrap"
-            onClick={() => setSelectedId(row.attemptPublicId)}
-          >
-            {t("tenant.attempts.viewAnswers", T.VIEW)}
-          </Button>
-          <ScoreExplanationLink
-            role="HOST_ADMIN"
-            sessionPublicId={sessionPublicId}
-            attemptPublicId={row.attemptPublicId}
-          />
-        </div>
+        <ScoreExplanationLink
+          role="HOST_ADMIN"
+          sessionPublicId={sessionPublicId}
+          attemptPublicId={row.attemptPublicId}
+          renderAction={(explanation) => (
+            <ActionMenu
+              label={t("tenant.answers.actions", ATTEMPT_TABLE_HEADERS.ACTIONS)}
+              items={[
+                {
+                  label: t("tenant.attempts.viewAnswers", T.VIEW),
+                  icon: EyeIcon,
+                  tone: "info",
+                  onSelect: () => setSelectedId(row.attemptPublicId),
+                },
+                { ...explanation, icon: ClipboardIcon, tone: "success" },
+              ]}
+            />
+          )}
+        />
       )}
     />
   );

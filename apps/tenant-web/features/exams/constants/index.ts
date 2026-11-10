@@ -32,6 +32,8 @@ export const EXAMS_TEXT = {
   ADD_EXAM: "Create Exam",
   EMPTY_TITLE: "No exams yet",
   EMPTY_TEXT: "Create your first exam session to start adding students.",
+  LOAD_ERROR: "Không thể tải danh sách kỳ thi",
+  RETRY: "Thử lại",
 } as const;
 
 export const EXAM_TABLE_HEADERS = {

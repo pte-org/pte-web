@@ -34,9 +34,10 @@ export function createIncident(
 export function listIncidents(
   client: ApiClient,
   sessionPublicId: string,
-  params?: { status?: string; page?: number; size?: number },
+  params?: { status?: string; search?: string; page?: number; size?: number },
 ): Promise<IncidentPageResponse> {
   const query = new URLSearchParams();
+  if (params?.search?.trim()) query.set("search", params.search.trim());
   if (params?.status && params.status !== "ALL") query.set("status", params.status);
   if (params?.page !== undefined) query.set("page", String(params.page));
   if (params?.size !== undefined) query.set("size", String(params.size));

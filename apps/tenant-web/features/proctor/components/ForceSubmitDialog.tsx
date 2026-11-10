@@ -1,7 +1,9 @@
 "use client";
 
+import { useFeedbackToast } from "../hooks/useFeedbackToast";
+
 import type { ReactElement } from "react";
-import { Alert, Button, Modal } from "@pte/ui";
+import { Button, Modal } from "@pte/ui";
 import { PROCTOR_FORCE_SUBMIT_TEXT } from "../constants";
 
 interface ForceSubmitDialogProps {
@@ -19,31 +21,33 @@ export const ForceSubmitDialog = ({
   errorMessage,
   onClose,
   onConfirm,
-}: ForceSubmitDialogProps): ReactElement => (
-  <Modal
-    open={studentName !== null}
-    onClose={onClose}
-    title={PROCTOR_FORCE_SUBMIT_TEXT.TITLE}
-    size="md"
-    isDismissDisabled={isLoading}
-    footer={
-      <div className="flex justify-end gap-2">
-        <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
-          {PROCTOR_FORCE_SUBMIT_TEXT.CANCEL}
-        </Button>
-        <Button type="button" variant="danger" disabled={isLoading} onClick={onConfirm}>
-          {isLoading ? PROCTOR_FORCE_SUBMIT_TEXT.PROCESSING : PROCTOR_FORCE_SUBMIT_TEXT.CONFIRM}
-        </Button>
+}: ForceSubmitDialogProps): ReactElement => {
+  useFeedbackToast(studentName ? errorMessage : null);
+  return (
+    <Modal
+      open={studentName !== null}
+      onClose={onClose}
+      title={PROCTOR_FORCE_SUBMIT_TEXT.TITLE}
+      size="md"
+      isDismissDisabled={isLoading}
+      footer={
+        <div className="flex justify-end gap-2">
+          <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
+            {PROCTOR_FORCE_SUBMIT_TEXT.CANCEL}
+          </Button>
+          <Button type="button" variant="danger" disabled={isLoading} onClick={onConfirm}>
+            {isLoading ? PROCTOR_FORCE_SUBMIT_TEXT.PROCESSING : PROCTOR_FORCE_SUBMIT_TEXT.CONFIRM}
+          </Button>
+        </div>
+      }
+    >
+      <div className="space-y-4">
+        <p className="text-sm text-[var(--ink-secondary)]">
+          {PROCTOR_FORCE_SUBMIT_TEXT.MESSAGE_PREFIX}
+          <strong className="text-[var(--ink-primary)]">{studentName}</strong>
+          {PROCTOR_FORCE_SUBMIT_TEXT.MESSAGE_SUFFIX}
+        </p>
       </div>
-    }
-  >
-    <div className="space-y-4">
-      <p className="text-sm text-[var(--ink-secondary)]">
-        {PROCTOR_FORCE_SUBMIT_TEXT.MESSAGE_PREFIX}
-        <strong className="text-[var(--ink-primary)]">{studentName}</strong>
-        {PROCTOR_FORCE_SUBMIT_TEXT.MESSAGE_SUFFIX}
-      </p>
-      {errorMessage && <Alert tone="error">{errorMessage}</Alert>}
-    </div>
-  </Modal>
-);
+    </Modal>
+  );
+};

@@ -7,6 +7,8 @@ import {
   useHostAttendanceRoster,
   useRecordHostIdentityVerificationMutation,
 } from "@/features/proctor/api";
+import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
+import { PROCTOR_TOOLBAR_TEXT } from "@/features/proctor/constants";
 import { AttendanceSummaryCards } from "@/features/proctor/components/AttendanceSummaryCards";
 import { AttendanceFilterToolbar } from "@/features/proctor/components/AttendanceFilterToolbar";
 import { AttendanceRosterTable } from "@/features/proctor/components/AttendanceRosterTable";
@@ -25,6 +27,7 @@ export function ExamAttendanceTab({
 }: ExamAttendanceTabProps): ReactElement {
   const [currentStatus, setCurrentStatus] = useState<AttendanceStatus | "ALL">("ALL");
   const [currentSearch, setCurrentSearch] = useState("");
+  const debouncedSearch = useDebouncedSearch(currentSearch);
   const [page, setPage] = useState(0);
 
   const [activeAction, setActiveAction] = useState<{
@@ -36,7 +39,7 @@ export function ExamAttendanceTab({
 
   const { data, isLoading, isError, refetch } = useHostAttendanceRoster(sessionPublicId, {
     status: currentStatus,
-    search: currentSearch || undefined,
+    search: debouncedSearch || undefined,
     page,
     size: 20,
   });
@@ -78,33 +81,39 @@ export function ExamAttendanceTab({
 
       <AttendanceSummaryCards summary={data?.summary} isLoading={isLoading} />
 
-      <AttendanceFilterToolbar
-        currentStatus={currentStatus}
-        summary={data?.summary}
-        currentSearch={currentSearch}
-        onFilterChange={(status) => {
-          setCurrentStatus(status);
-          setPage(0);
-        }}
-        onSearchChange={(search) => {
-          setCurrentSearch(search);
-          setPage(0);
-        }}
-        onRefresh={() => void refetch()}
-      />
-
       <AttendanceRosterTable
         rows={rows}
         isLoading={isLoading}
         canEditSession={canEditSession}
+        searchValue={currentSearch}
+        onSearchChange={(search) => {
+          setCurrentSearch(search);
+          setPage(0);
+        }}
+        filters={
+          <AttendanceFilterToolbar
+            currentStatus={currentStatus}
+            summary={data?.summary}
+            onFilterChange={(status) => {
+              setCurrentStatus(status);
+              setPage(0);
+            }}
+          />
+        }
+        toolbarActions={
+          <Button variant="secondary" size="sm" onClick={() => void refetch()}>
+            {PROCTOR_TOOLBAR_TEXT.REFRESH_BTN}
+          </Button>
+        }
+        pagination={
+          meta && meta.totalPages > 1 ? (
+            <PaginationControls meta={meta} onPageChange={setPage} />
+          ) : undefined
+        }
         onRecordAttendance={(row, targetStatus) => setActiveAction({ row, targetStatus })}
         onViewHistory={(row) => setActiveHistory(row)}
         onVerifyIdentity={(row) => setActiveVerification(row)}
       />
-
-      {meta && meta.totalPages > 1 && (
-        <PaginationControls meta={meta} onPageChange={(nextPage) => setPage(nextPage)} />
-      )}
 
       <RecordAttendanceModal
         open={Boolean(activeAction)}

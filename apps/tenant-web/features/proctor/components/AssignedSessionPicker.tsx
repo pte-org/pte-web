@@ -187,13 +187,6 @@ export function AssignedSessionPicker({
 
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-      <div className="flex flex-wrap items-center justify-end gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
-        <Link href="/proctor/sessions">
-            <Button variant="secondary" size="sm">
-              {text.overviewTitle}
-            </Button>
-          </Link>
-      </div>
 
       {isError ? (
         <ErrorState

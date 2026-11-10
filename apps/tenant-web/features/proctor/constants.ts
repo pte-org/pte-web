@@ -38,33 +38,31 @@ export const PROCTOR_FORCE_SUBMIT_TEXT = {
 } as const;
 
 export const PROCTOR_AUDIT_TEXT = {
-  TITLE: "Session audit log",
-  SUBTITLE:
-    "Post-hoc review of proctor actions and security audit events for this session.",
-  TAB_VIOLATIONS: "Violations",
-  TAB_SECURITY: "Security audit",
-  LOADING_VIOLATIONS: "Loading violations…",
-  LOADING_AUDIT: "Loading security audit…",
-  EMPTY_VIOLATIONS_TITLE: "No violations flagged",
-  EMPTY_VIOLATIONS_DESCRIPTION:
-    "Violations will appear here once the backend endpoint is wired up. The UI shape ships first.",
-  EMPTY_AUDIT_TITLE: "No security audit entries",
-  EMPTY_AUDIT_DESCRIPTION:
-    "Security audit entries will appear here once the backend endpoint is wired up.",
-  LOAD_MORE: "Load more",
-  END_OF_AUDIT: "End of audit log",
-  COL_TIME: "Time",
-  COL_TYPE: "Type",
-  COL_PROCTOR: "Proctor",
-  COL_DESCRIPTION: "Description",
-  BACK_TO_PROFILE: "Back to profile",
-  ENTER_MONITORING: "Live monitoring",
-  SESSION_LIST: "Assigned sessions",
-  ERROR_TITLE: "Could not load audit data",
-  ERROR_DESC: "An error occurred while loading audit entries. Please try again.",
-  RETRY: "Retry",
-  FILTER_DATE_RANGE: "Date range",
-  TABS_ARIA_LABEL: "Audit log tabs",
+  TITLE: "Nhật ký ca thi",
+  SUBTITLE: "Tra cứu vi phạm và sự kiện bảo mật của ca thi.",
+  TAB_VIOLATIONS: "Vi phạm do giám thị ghi nhận",
+  TAB_SECURITY: "Nhật ký bảo mật",
+  LOADING_VIOLATIONS: "Đang tải vi phạm…",
+  LOADING_AUDIT: "Đang tải nhật ký bảo mật…",
+  EMPTY_VIOLATIONS_TITLE: "Chưa có vi phạm được ghi nhận",
+  EMPTY_VIOLATIONS_DESCRIPTION: "Các vi phạm do giám thị ghi nhận sẽ xuất hiện tại đây.",
+  EMPTY_AUDIT_TITLE: "Chưa có sự kiện bảo mật",
+  EMPTY_AUDIT_DESCRIPTION: "Các sự kiện bảo mật của ca thi sẽ xuất hiện tại đây.",
+  LOAD_MORE: "Tải thêm",
+  END_OF_AUDIT: "Đã tải hết nhật ký",
+  COL_TIME: "Thời gian",
+  COL_TYPE: "Loại",
+  COL_PROCTOR: "Giám thị",
+  COL_DESCRIPTION: "Nội dung",
+  BACK_TO_PROFILE: "Về hồ sơ",
+  ENTER_MONITORING: "Giám sát trực tiếp",
+  SESSION_LIST: "Ca thi được phân công",
+  ERROR_TITLE: "Không thể tải nhật ký",
+  ERROR_DESC: "Đã xảy ra lỗi khi tải nhật ký. Vui lòng thử lại.",
+  RETRY: "Thử lại",
+  FILTER_DATE_RANGE: "Khoảng ngày",
+  FILTER_LOG_TYPE: "Loại nhật ký",
+  TABS_ARIA_LABEL: "Loại nhật ký",
 } as const;
 
 export const PROCTOR_PROFILE_TEXT = {
@@ -158,7 +156,7 @@ export function getIncidentStatusBadge(
 } {
   switch (status) {
     case "NEW":
-      return { label: "Mới tiếp nhận", variant: "warning" };
+      return { label: "Mới báo cáo", variant: "warning" };
     case "IN_PROGRESS":
       return { label: "Đang xử lý", variant: "info" };
     case "ESCALATED":
@@ -185,6 +183,7 @@ export const PROCTOR_ATTENDANCE_SUMMARY_TEXT = {
 } as const;
 
 export const PROCTOR_TOOLBAR_TEXT = {
+  FILTER_STATUS_LABEL: "Trạng thái điểm danh",
   ALL_TAB: "Tất cả",
   SEARCH_PLACEHOLDER: "Tìm tên hoặc email...",
   SEARCH_BTN: "Tìm",
@@ -193,6 +192,12 @@ export const PROCTOR_TOOLBAR_TEXT = {
 } as const;
 
 export const PROCTOR_ROSTER_TEXT = {
+  ACTIVITY_IN_PROGRESS: "Đang làm bài",
+  ACTIVITY_SUBMITTED: "Đã nộp bài",
+  ACTIVITY_ABANDONED: "Đã rời bài thi",
+  ACTIVITY_CREATED: "Đã tạo lượt thi",
+  ACTIVITY_UNKNOWN: "Chưa có thông tin",
+  BLOCKED_GENERIC: "Hiện không thể chỉnh sửa điểm danh.",
   COL_STUDENT: "Thí sinh",
   COL_ATTENDANCE: "Điểm danh",
   COL_IDENTITY: "Xác minh danh tính",
@@ -211,6 +216,10 @@ export const PROCTOR_ROSTER_TEXT = {
 } as const;
 
 export const PROCTOR_HISTORY_MODAL_TEXT = {
+  TITLE: "Lịch sử điểm danh",
+  SUBTITLE: "Theo dõi các lần cập nhật trạng thái và lý do điều chỉnh của thí sinh.",
+  NO_NOTE: "Không có ghi chú bổ sung.",
+  RECORDS: "lần cập nhật",
   TITLE_PREFIX: "Lịch sử điểm danh: ",
   CLOSE_BTN: "Đóng",
   EMAIL_PREFIX: "Email: ",
@@ -319,6 +328,7 @@ export const PROCTOR_INCIDENT_STATUS_TABS: ReadonlyArray<{
 ];
 
 export const PROCTOR_INCIDENT_LIST_TEXT = {
+  SEARCH_PLACEHOLDER: "Tìm tiêu đề hoặc nội dung sự cố...",
   BACK_BTN: "Danh sách ca thi",
   REPORT_NEW_BTN: "+ Báo cáo sự cố mới",
   FILTER_STATUS_LABEL: "Trạng thái",

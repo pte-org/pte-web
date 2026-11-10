@@ -1,5 +1,7 @@
 "use client";
 
+import { useFeedbackToast } from "../hooks/useFeedbackToast";
+
 import { useState, type FormEvent, type ReactElement } from "react";
 import Link from "next/link";
 import { Alert, Button, Modal, StatusBadge, Textarea } from "@pte/ui";
@@ -28,21 +30,38 @@ export function IdentityVerificationModal({
   sessionPublicId,
   onConfirmVerification,
 }: IdentityVerificationModalProps): ReactElement {
-  const [targetStatus, setTargetStatus] = useState<IdentityVerificationStatus>(
-    () => (row?.identityStatus === "VERIFIED" ? "VERIFIED" : row?.identityStatus === "FAILED" ? "FAILED" : "VERIFIED")
+  const [targetStatus, setTargetStatus] = useState<IdentityVerificationStatus>(() =>
+    row?.identityStatus === "VERIFIED"
+      ? "VERIFIED"
+      : row?.identityStatus === "FAILED"
+        ? "FAILED"
+        : "VERIFIED",
   );
   const [note, setNote] = useState(() => row?.identityNote ?? "");
   const [error, setError] = useState<string | null>(null);
+  const [previousOpen, setPreviousOpen] = useState(open);
+  if (previousOpen !== open) {
+    setPreviousOpen(open);
+    setError(null);
+  }
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [prevRowId, setPrevRowId] = useState<string | null>(row?.studentPublicId ?? null);
   if (row && row.studentPublicId !== prevRowId) {
     setPrevRowId(row.studentPublicId);
-    setTargetStatus(row.identityStatus === "VERIFIED" ? "VERIFIED" : row.identityStatus === "FAILED" ? "FAILED" : "VERIFIED");
+    setTargetStatus(
+      row.identityStatus === "VERIFIED"
+        ? "VERIFIED"
+        : row.identityStatus === "FAILED"
+          ? "FAILED"
+          : "VERIFIED",
+    );
     setNote(row.identityNote ?? "");
     setError(null);
     setIsSubmitting(false);
   }
+
+  useFeedbackToast(open ? error : null);
 
   if (!row) return <></>;
 
@@ -110,12 +129,6 @@ export function IdentityVerificationModal({
           <StatusBadge label={currentLabel} variant={currentVariant} />
         </div>
 
-        {error && (
-          <Alert tone="error" title={T.VALIDATION_ERROR_TITLE}>
-            {error}
-          </Alert>
-        )}
-
         <div>
           <label className="block text-xs font-medium text-[var(--ink-secondary)] mb-1.5">
             {T.RESULT_LABEL}
@@ -158,8 +171,12 @@ export function IdentityVerificationModal({
         </div>
 
         <div>
-          <label htmlFor="identity-note" className="block text-xs font-medium text-[var(--ink-secondary)] mb-1">
-            {T.NOTE_LABEL_PREFIX}{targetStatus === "FAILED" ? T.NOTE_REQUIRED_SUFFIX : T.NOTE_OPTIONAL_SUFFIX}
+          <label
+            htmlFor="identity-note"
+            className="block text-xs font-medium text-[var(--ink-secondary)] mb-1"
+          >
+            {T.NOTE_LABEL_PREFIX}
+            {targetStatus === "FAILED" ? T.NOTE_REQUIRED_SUFFIX : T.NOTE_OPTIONAL_SUFFIX}
           </label>
           <Textarea
             id="identity-note"
