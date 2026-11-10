@@ -61,6 +61,8 @@ type EditableProps = PoolProps & {
 type ScoreTemplateItemTableProps = (ReadOnlyProps | EditableProps) & {
   /** Shown under the skill tab rail, in the same side column (e.g. the template's details). */
   sidePanel?: ReactNode;
+  /** Page actions of a read-only template, placed at the right of the table header. */
+  headerActions?: ReactNode;
   /** The view the table opens on; defaults to the exam structure (counts and timing). */
   initialView?: ScoreTemplateTableView;
 };
@@ -153,7 +155,7 @@ export const ScoreTemplateItemTable = (props: ScoreTemplateItemTableProps): Reac
             emptyTitle={emptyTitle}
             density="compact"
             clientSidePagination={!props.editable}
-            toolbarActions={props.editable ? props.renderToolbarAction?.(activeTab) : undefined}
+            toolbarActions={props.editable ? props.renderToolbarAction?.(activeTab) : props.headerActions}
             emptyAction={props.editable ? props.renderEmptyAction?.(activeTab) : undefined}
             rowActions={
               props.editable

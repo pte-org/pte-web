@@ -68,7 +68,7 @@ describe("TemplateInfoPanel", () => {
     expect(html).toContain("Created by");
     expect(html).toContain("Nguyen Van A");
     expect(html).toContain("v3");
-    expect(html).toContain("DRAFT");
+    expect(html).toContain("Draft");
     expect(html).toContain("2026");
   });
 

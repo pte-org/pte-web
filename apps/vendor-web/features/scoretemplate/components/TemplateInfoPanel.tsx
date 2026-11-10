@@ -4,7 +4,12 @@ import type { ReactElement } from "react";
 import type { ScoreTemplateResponse } from "@pte/api-client";
 import { Badge, Chip, InfoPanel, Input, useLocale } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
-import { SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT } from "../constants";
+import {
+  SCORE_TEMPLATE_STATUS_LABELS as RAW_SCORE_TEMPLATE_STATUS_LABELS,
+  SCORE_TEMPLATE_STATUS_VARIANT,
+  SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
+} from "../constants";
+import type { ScoreTemplateStatusFilter } from "../types";
 import { formatTemplateTimestamp } from "../templateInfo";
 
 interface TemplateInfoPanelProps {
@@ -29,6 +34,8 @@ export const TemplateInfoPanel = ({
   onNameChange,
 }: TemplateInfoPanelProps): ReactElement => {
   const T = useAdminCopy(RAW_SCORE_TEMPLATE_TEXT);
+  const statusLabels = useAdminCopy(RAW_SCORE_TEMPLATE_STATUS_LABELS);
+  const status = template.status as ScoreTemplateStatusFilter;
   const { locale } = useLocale();
   const author = template.authorName;
 
@@ -75,8 +82,8 @@ export const TemplateInfoPanel = ({
         <Chip tone="neutral" outlined size="sm">
           v{template.version}
         </Chip>
-        <Badge variant={template.status === "ACTIVE" ? "success" : "warning"}>
-          {template.status}
+        <Badge variant={SCORE_TEMPLATE_STATUS_VARIANT[status] ?? "neutral"}>
+          {statusLabels[status] ?? template.status}
         </Badge>
       </div>
     </InfoPanel>
