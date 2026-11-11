@@ -20,7 +20,9 @@ import { _GenerationDrawerSkillStep } from "./_GenerationDrawerSkillStep";
 import { _GenerationDrawerTaskTypeStep } from "./_GenerationDrawerTaskTypeStep";
 import { _GenerationDrawerCefrStep } from "./_GenerationDrawerCefrStep";
 import { _GenerationDrawerPoolStep } from "./_GenerationDrawerPoolStep";
+import { _GenerationDrawerImageKindStep } from "./_GenerationDrawerImageKindStep";
 import { _GenerationDrawerTopicStep } from "./_GenerationDrawerTopicStep";
+import { DESCRIBE_IMAGE_TASK, GENERATION_TOPIC_MAX_LENGTH } from "../constants";
 import { _GenerationDrawerCountStep } from "./_GenerationDrawerCountStep";
 
 interface GenerationDrawerProps {
@@ -85,7 +87,7 @@ export const GenerationDrawer = ({
     if (formState.count < 1 || formState.count > 10) {
       newErrors.count = generationMessages.countInvalid;
     }
-    if (formState.topicHint && formState.topicHint.length > 200) {
+    if (formState.topicHint && formState.topicHint.length > GENERATION_TOPIC_MAX_LENGTH) {
       newErrors.topicHint = generationMessages.topicTooLong;
     }
 
@@ -111,6 +113,7 @@ export const GenerationDrawer = ({
         pool: formState.pool!,
         topicHint: formState.topicHint?.trim() || null,
         count: formState.count,
+        ...(formState.taskType === DESCRIBE_IMAGE_TASK ? { imageKind: formState.imageKind ?? "AUTO" } : {}),
         // One question for the form on screen: the person reads it and decides whether to save it.
         ...(single ? { saveQuestions: false } : {}),
       },
@@ -190,6 +193,13 @@ export const GenerationDrawer = ({
           onChange={(value) => handleFieldChange("topicHint", value)}
           error={errors.topicHint}
         />
+
+        {formState.taskType === DESCRIBE_IMAGE_TASK && (
+          <_GenerationDrawerImageKindStep
+            value={formState.imageKind}
+            onChange={(value) => handleFieldChange("imageKind", value)}
+          />
+        )}
 
         {/* Step 6: Count Selection */}
         {!single && (

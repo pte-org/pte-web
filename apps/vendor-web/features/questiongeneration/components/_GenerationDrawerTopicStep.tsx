@@ -1,6 +1,7 @@
 "use client";
 
-import { FormField, Input } from "@pte/ui";
+import { FormField, Textarea } from "@pte/ui";
+import { GENERATION_TOPIC_MAX_LENGTH, GENERATION_TOPIC_MIN_ROWS } from "../constants";
 import { generationMessages } from "../messages/en";
 import type { GenerationFormState } from "../types";
 
@@ -20,12 +21,13 @@ export const _GenerationDrawerTopicStep = ({
   return (
     <FormField label={generationMessages.topicLabel} error={error}>
       <div className="space-y-2">
-        <Input
-          type="text"
+        <Textarea
+          aria-label={generationMessages.topicLabel}
           placeholder={generationMessages.topicPlaceholder}
           value={value || ""}
           onChange={(e) => onChange(e.target.value)}
-          maxLength={200}
+          maxLength={GENERATION_TOPIC_MAX_LENGTH}
+          rows={GENERATION_TOPIC_MIN_ROWS}
           className="w-full"
         />
         <p className="text-xs text-gray-500">{generationMessages.topicHint}</p>

@@ -18,6 +18,7 @@ export function getFailureReasonTranslation(failureCode: string): string {
     GENERATION_VALIDATION_FAILED: "Question failed validation checks",
     GENERATION_REVIEW_FAILED: "AI reviewer rejected this question",
     GENERATION_IMAGE_REVIEW_FAILED: "AI reviewer rejected the chart image",
+    GENERATION_IMAGE_FAILED: "The AI could not make the picture",
     GENERATION_REVIEW_PARSING_FAILED: "Could not parse reviewer feedback",
     GENERATION_NO_GENERATOR: "Generator not available for this task type",
     GENERATION_INTERNAL_ERROR: "Internal error during generation",

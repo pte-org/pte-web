@@ -17,6 +17,7 @@ import {
 import { ITEM_CHIP_TONES } from "../liveTones";
 import { generatedValues, storeGeneratedFill } from "../utils/generatedFill";
 import { followedIndex } from "../utils/liveItems";
+import { ImageFallbackDialog } from "./_ImageFallbackDialog";
 import { LiveItemPanel } from "./_LiveItemPanel";
 
 interface LiveGenerationViewProps {
@@ -100,6 +101,7 @@ export const LiveGenerationView = ({ jobId }: LiveGenerationViewProps): ReactEle
       </div>
       <LiveItemPanel live={items[current]} record={records.find((record) => record.index === current)} locale={lang}
         text={text} needsAudio={taskType?.needsAudio ?? false} needsImage={taskType?.needsImage ?? false} />
+      <ImageFallbackDialog job={job} finished={finished} text={text} />
       <ConfirmDialog open={confirmingCancel} title={text.cancelTitle} description={text.cancelBody}
         confirmLabel={text.cancelConfirm} cancelLabel={text.cancelBack} tone="warning" isConfirming={cancel.isPending}
         onConfirm={stop} onClose={() => setConfirmingCancel(false)} />
