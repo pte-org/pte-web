@@ -9,6 +9,7 @@ import {
   EyeIcon,
   LockIcon,
   MailIcon,
+  returnPath,
   Select,
   useSessionManager,
   useSignInValidation,
@@ -25,6 +26,7 @@ import { AUTH_ROUTES, AUTH_TEXT } from "../constants";
 import { resolveWorkspace } from "../resolveWorkspace";
 import { decidePortalLogin } from "../sessionRoles";
 import { getLoginErrorMessage } from "../loginError";
+import { clearSigningOut } from "../signOutIntent";
 
 const LABEL_CLASS = "text-[13px] font-semibold text-[var(--ink-secondary)]";
 
@@ -78,7 +80,8 @@ export const LoginView = (): ReactElement => {
       mustChangePassword: data.mustChangePassword,
     });
     const { defaultRoute } = resolveWorkspace(roles);
-    router.replace(defaultRoute);
+    clearSigningOut();
+    router.replace(returnPath(window.location.search, AUTH_ROUTES.login) ?? defaultRoute);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {

@@ -30,6 +30,7 @@ import { GenerationActivityIndicator } from "@/features/questiongeneration/compo
 import { canAuthorAcademic, hasAnyRole, roleLabel } from "../permissions";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
+import { markSigningOut } from "../signOutIntent";
 import { AUTH_ROUTES } from "../constants";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 
@@ -178,6 +179,7 @@ const HeaderActions = (): ReactElement => {
 
   const logout = (): void => {
     queryClient.clear();
+    markSigningOut();
     clearToken();
     router.replace(AUTH_ROUTES.login);
   };
