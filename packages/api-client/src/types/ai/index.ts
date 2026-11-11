@@ -182,6 +182,8 @@ export interface PromptWorkspaceResponse {
   live: PromptVersionResponse;
   proposal: PromptVersionResponse | null;
   history: PromptVersionSummary[];
+  /** Sections the system depends on: shown read-only, and the server refuses a proposal that changes them. */
+  lockedSectionIds?: string[];
 }
 
 export interface PromptStatusRequest {

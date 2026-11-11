@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type ReactElement } from "react";
 import { Alert, Button, ConfirmDialog, DashboardCard, Tabs, useLocale } from "@pte/ui";
+import { PROMPT_GUIDE_COPY } from "../promptGuide";
 import {
   getUserFacingApiErrorMessage,
   type CurrentUser,
@@ -15,6 +16,7 @@ import { hasPromptTest, mayPropose, promptActions } from "../promptEditing";
 import { draftChanged, draftIsComplete, toContent, toDraft, type PromptDocumentDraft } from "../promptText";
 import { PromptDiffView } from "./_PromptDiffView";
 import { PromptDocumentEditor } from "./_PromptDocumentEditor";
+import { PromptGuideDialog } from "./_PromptGuideDialog";
 import { PromptHistoryTab } from "./_PromptHistoryTab";
 import { PromptProposalPanel } from "./_PromptProposalPanel";
 import { PromptRejectDialog } from "./_PromptRejectDialog";
@@ -36,6 +38,8 @@ type Dialog = "accept" | "drop" | "return" | null;
  */
 export const PromptWorkspace = ({ category, promptKey, workspace, user }: PromptWorkspaceProps): ReactElement => {
   const { live, proposal, history } = workspace;
+  const lockedIds = workspace.lockedSectionIds ?? [];
+  const [guideOpen, setGuideOpen] = useState(false);
   const { locale } = useLocale();
   const copy = PROMPT_EDIT_COPY[locale === "vi" ? "vi" : "en"];
   const caller = { publicId: user.publicId, roles: user.roles };
@@ -75,6 +79,9 @@ export const PromptWorkspace = ({ category, promptKey, workspace, user }: Prompt
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-sm font-medium">{fill(copy.IN_USE, { n: live.versionNo })}</span>
           {dirty && <span className="text-xs text-[var(--cream-action)]">{copy.NOT_SAVED}</span>}
+          <Button variant="secondary" size="sm" className="ml-auto" onClick={() => setGuideOpen(true)}>
+            {PROMPT_GUIDE_COPY[locale === "vi" ? "vi" : "en"].BUTTON}
+          </Button>
         </div>
         <Tabs
           id="prompt-workspace-tabs"
@@ -91,7 +98,7 @@ export const PromptWorkspace = ({ category, promptKey, workspace, user }: Prompt
         {tab === "content" && (
           <div className="space-y-4">
             {notice && <Alert tone="info">{notice}</Alert>}
-            <PromptDocumentEditor draft={draft} copy={copy} readOnly={!canEdit} onChange={setDraft} />
+            <PromptDocumentEditor draft={draft} copy={copy} readOnly={!canEdit} lockedIds={lockedIds} onChange={setDraft} />
             {canEdit && dirty && (
               <div className="sticky bottom-0 flex flex-wrap items-center justify-end gap-2 rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] p-3">
                 {!complete && <span className="mr-auto text-xs text-[var(--blush-action)]">{copy.INCOMPLETE}</span>}
@@ -148,12 +155,10 @@ export const PromptWorkspace = ({ category, promptKey, workspace, user }: Prompt
             onRun={() => test.mutate(undefined, { onSuccess: setLatestTest })}
           />
         )}
-        {live.placeholders.length > 0 && (
-          <p className="px-1 text-xs text-[var(--ink-secondary)]">
-            {copy.TOKENS}: {live.placeholders.join(", ")}. {copy.TOKENS_HELP}
-          </p>
-        )}
       </div>
+      <PromptGuideDialog open={guideOpen} sections={draft.sections} lockedIds={lockedIds}
+        hasOutput={draft.sections.some((section) => section.fields !== null)}
+        hasTokens={live.placeholders.length > 0} onClose={() => setGuideOpen(false)} />
       <ConfirmDialog
         open={dialog === "accept"}
         title={copy.CONFIRM_ACCEPT_TITLE}
