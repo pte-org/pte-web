@@ -68,6 +68,10 @@ export interface CreateQuestionRequest {
   options?: OptionRequest[];
   /** Required before an exam question is submitted for approval. */
   cefrLevel?: CefrLevel | null;
+  /** Student hint (Vietnamese) shown on request in practice; it explains the approach, never the answer. */
+  answerHintVi?: string | null;
+  /** Student hint (English) shown on request in practice. */
+  answerHintEn?: string | null;
 }
 
 export type UpdateQuestionRequest = Omit<CreateQuestionRequest, "pteTaskType" | "pool"> & {
@@ -152,6 +156,8 @@ export interface QuestionResponse {
   authorUserPublicId?: string | null;
   /** AI provenance and review sheet; null for hand-written questions. Only exposed to authoring callers. */
   generationMeta?: GenerationMetaResponse | null;
+  answerHintVi?: string | null;
+  answerHintEn?: string | null;
 }
 
 export interface QuestionFilters {

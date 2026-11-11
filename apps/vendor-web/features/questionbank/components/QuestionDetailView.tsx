@@ -30,6 +30,7 @@ import { POOL_TONE, cefrTone, sectionTone, TASK_TYPE_TONE } from "@/lib/chipTone
 import type { QuestionStatus } from "../types";
 import { ExamScreenPreview } from "./ExamScreenPreview";
 import { QuestionDetailSkeleton } from "./_QuestionDetailSkeleton";
+import { AnswerKeyGroups, hasAnswerHints } from "./_AnswerKeyGroups";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 interface QuestionDetailViewProps {
@@ -140,7 +141,7 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
   const hasAnswerKey = Boolean(
     question.referenceAnswerText?.trim() || question.correctAnswerText?.trim(),
   );
-  const hasAnswers = question.options.length > 0 || (showAnswerKey && hasAnswerKey);
+  const hasAnswers = question.options.length > 0 || (showAnswerKey && hasAnswerKey) || hasAnswerHints(question);
   const previewDraft = buildQuestionPreviewDraft(
     question,
     questionTypes.find((type) => type.code === taskType || type.taskTypeKey === taskType),
@@ -274,20 +275,7 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
                   </ol>
                 </div>
               )}
-              {showAnswerKey && hasAnswerKey && (
-                <DetailGroup
-                  title={T.GROUP_ANSWER_KEY}
-                  items={[
-                    ...(question.referenceAnswerText?.trim()
-                      ? [{ label: question.audioPromptRef ? T.AUDIO_TRANSCRIPT : T.REFERENCE_ANSWER,
-                          value: question.referenceAnswerText }]
-                      : []),
-                    ...(question.correctAnswerText?.trim()
-                      ? [{ label: T.CORRECT_ANSWER, value: question.correctAnswerText }]
-                      : []),
-                  ]}
-                />
-              )}
+              <AnswerKeyGroups question={question} showAnswerKey={showAnswerKey} />
             </section>
           )}
         </div>

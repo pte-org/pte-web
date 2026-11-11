@@ -20,6 +20,7 @@ import { usePromptMediaUrl } from "../hooks/usePromptMediaUrl";
 import { poolToAvailability, resolveCurrentPool } from "../poolAvailability";
 import { MediaFileField } from "./_MediaFileField";
 import { AgentMark } from "./_AgentMark";
+import { AnswerHintFields } from "./_AnswerHintFields";
 import { useAgentValues } from "../hooks/useAgentValues";
 import type { AgentFill } from "@/features/questiongeneration/editorAgent";
 import { PoolChangeDialog } from "./_PoolChangeDialog";
@@ -95,6 +96,8 @@ export const QuestionEditorForm = ({
     question?.referenceAnswerText ?? "",
   );
   const [correctAnswerText, setCorrectAnswerText] = useState(question?.correctAnswerText ?? "");
+  const [answerHintVi, setAnswerHintVi] = useState(question?.answerHintVi ?? "");
+  const [answerHintEn, setAnswerHintEn] = useState(question?.answerHintEn ?? "");
   const [minWordCount, setMinWordCount] = useState(question?.minWordCount?.toString() ?? "");
   const [maxWordCount, setMaxWordCount] = useState(question?.maxWordCount?.toString() ?? "");
   const [audioPromptRef, setAudioPromptRef] = useState<string | null>(
@@ -122,7 +125,8 @@ export const QuestionEditorForm = ({
   const marks = agent?.marks ?? {};
   useAgentValues(agent?.values, {
     setTaskType, setPool, setCefrLevel, setPromptText, setReferenceAnswerText, setCorrectAnswerText,
-    setMinWordCount, setMaxWordCount, setAudioPromptRef, setImagePromptRef, setOptions,
+    setMinWordCount, setMaxWordCount, setAudioPromptRef, setImagePromptRef, setOptions, setAnswerHintVi,
+    setAnswerHintEn,
   });
   const [uploadingKind, setUploadingKind] = useState<"AUDIO_PROMPT" | "IMAGE_PROMPT" | null>(null);
   const isPending =
@@ -278,6 +282,8 @@ export const QuestionEditorForm = ({
       maxWordCount: maxWordCount ? Number(maxWordCount) : null,
       options: hasOptions ? options : [],
       cefrLevel: cefrLevel ? (cefrLevel as CefrLevel) : null,
+      answerHintVi: answerHintVi.trim() || null,
+      answerHintEn: answerHintEn.trim() || null,
     };
     if (question) {
       const poolChanged = pool !== initialPool;
@@ -477,6 +483,10 @@ export const QuestionEditorForm = ({
           </Button>
         </fieldset>
         </AgentMark>
+      )}
+      {pool === "PRACTICE" && (
+        <AnswerHintFields hintVi={answerHintVi} hintEn={answerHintEn} lane={marks.answerHint}
+          onHintViChange={setAnswerHintVi} onHintEnChange={setAnswerHintEn} />
       )}
       <div className="flex flex-wrap gap-2">
         {onCancel && (

@@ -16,6 +16,8 @@ export interface AgentValueSetters {
   setAudioPromptRef: (value: string | null) => void;
   setImagePromptRef: (value: string | null) => void;
   setOptions: (value: OptionRequest[]) => void;
+  setAnswerHintVi: (value: string) => void;
+  setAnswerHintEn: (value: string) => void;
 }
 
 const numberText = (value: number | null | undefined): string => (value == null ? "" : String(value));
@@ -46,5 +48,7 @@ export function useAgentValues(values: Partial<CreateQuestionRequest> | undefine
     if (values.audioPromptRef) set.setAudioPromptRef(values.audioPromptRef);
     if (values.imagePromptRef) set.setImagePromptRef(values.imagePromptRef);
     if (values.options) set.setOptions(values.options);
+    set.setAnswerHintVi(values.answerHintVi ?? "");
+    set.setAnswerHintEn(values.answerHintEn ?? "");
   }, [contentKey]);
 }
