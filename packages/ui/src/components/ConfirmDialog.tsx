@@ -16,6 +16,8 @@ interface ConfirmDialogProps {
   isConfirming?: boolean;
   onConfirm: () => void;
   onClose: () => void;
+  /** Action of the secondary button when it differs from closing; the close (x) button still calls onClose. */
+  onCancel?: () => void;
 }
 
 export const ConfirmDialog = ({
@@ -28,6 +30,7 @@ export const ConfirmDialog = ({
   isConfirming = false,
   onConfirm,
   onClose,
+  onCancel,
 }: ConfirmDialogProps): ReactElement => {
   const { t } = useLocale();
   return (
@@ -46,7 +49,7 @@ export const ConfirmDialog = ({
       size="sm"
       footer={
         <>
-          <Button variant="ghost" onClick={onClose} disabled={isConfirming}>
+          <Button variant="ghost" onClick={onCancel ?? onClose} disabled={isConfirming}>
             {cancelLabel ?? t("common.cancel", "Cancel")}
           </Button>
           <Button

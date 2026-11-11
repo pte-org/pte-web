@@ -5,6 +5,8 @@ export interface DescriptionItem {
   value: ReactNode;
   /** Spans both columns — use on a trailing odd-one-out item so it doesn't leave the other column's row empty. */
   fullWidth?: boolean;
+  /** Keeps the label for screen readers only — for a group whose title already names its single value. */
+  hideLabel?: boolean;
 }
 
 export type DescriptionListVariant = "stacked" | "inline";
@@ -42,7 +44,7 @@ export const DescriptionList = ({
         >
           <dt
             className={
-              isInline
+              item.hideLabel ? "sr-only" : isInline
                 ? "min-w-0 text-[11px] font-semibold uppercase tracking-wide text-[var(--ink-muted)]"
                 : "text-xs font-semibold uppercase text-gray-500"
             }
@@ -53,7 +55,7 @@ export const DescriptionList = ({
             className={
               isInline
                 ? "min-w-0 break-words text-sm font-medium text-[var(--ink-primary)] max-[383px]:mt-0"
-                : "mt-1 text-sm text-gray-900"
+                : item.hideLabel ? "text-sm text-gray-900" : "mt-1 text-sm text-gray-900"
             }
           >
             {item.value}
