@@ -79,7 +79,7 @@ export const PromptWorkspace = ({ category, promptKey, workspace, user }: Prompt
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-sm font-medium">{fill(copy.IN_USE, { n: live.versionNo })}</span>
           {dirty && <span className="text-xs text-[var(--cream-action)]">{copy.NOT_SAVED}</span>}
-          <Button variant="secondary" size="sm" className="ml-auto" onClick={() => setGuideOpen(true)}>
+          <Button variant="primary" size="sm" className="ml-auto" onClick={() => setGuideOpen(true)}>
             {PROMPT_GUIDE_COPY[locale === "vi" ? "vi" : "en"].BUTTON}
           </Button>
         </div>
