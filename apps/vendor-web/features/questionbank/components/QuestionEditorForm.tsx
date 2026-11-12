@@ -181,6 +181,7 @@ export const QuestionEditorForm = ({
         contentType: file.type,
         assetKind: kind,
         sizeBytes: file.size,
+        pool,
       });
       const body = new FormData();
       body.append("file", file);
