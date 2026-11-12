@@ -4,6 +4,7 @@ import { useEffect, useState, type ReactElement } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { Alert, Button, ConfirmDialog, DashboardCard, Skeleton, cn, useDashboardBreadcrumbLabel, useLocale, useToast } from "@pte/ui";
+import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { QUESTIONS_QUERY_KEY } from "@/features/questionbank/constants";
 import { useCancelQuestionGenerationJob, useQuestionGenerationTaskTypes } from "../api";
 import { useLiveJob } from "../hooks/useLiveJob";
@@ -17,6 +18,7 @@ import {
 import { ITEM_CHIP_TONES } from "../liveTones";
 import { generatedValues, storeGeneratedFill } from "../utils/generatedFill";
 import { followedIndex } from "../utils/liveItems";
+import { ImageFallbackDialog } from "./_ImageFallbackDialog";
 import { LiveItemPanel } from "./_LiveItemPanel";
 
 interface LiveGenerationViewProps {
@@ -67,7 +69,10 @@ export const LiveGenerationView = ({ jobId }: LiveGenerationViewProps): ReactEle
       setConfirmingCancel(false);
       void queryClient.invalidateQueries({ queryKey: QUESTIONS_QUERY_KEY });
     },
-    onError: () => showToast(text.jobLoadError),
+    onError: (error) => {
+      setConfirmingCancel(false);
+      showToast(getUserFacingApiErrorMessage(error, text.cancelError), { tone: "error" });
+    },
   });
 
   return (
@@ -100,6 +105,7 @@ export const LiveGenerationView = ({ jobId }: LiveGenerationViewProps): ReactEle
       </div>
       <LiveItemPanel live={items[current]} record={records.find((record) => record.index === current)} locale={lang}
         text={text} needsAudio={taskType?.needsAudio ?? false} needsImage={taskType?.needsImage ?? false} />
+      <ImageFallbackDialog job={job} finished={finished} text={text} />
       <ConfirmDialog open={confirmingCancel} title={text.cancelTitle} description={text.cancelBody}
         confirmLabel={text.cancelConfirm} cancelLabel={text.cancelBack} tone="warning" isConfirming={cancel.isPending}
         onConfirm={stop} onClose={() => setConfirmingCancel(false)} />

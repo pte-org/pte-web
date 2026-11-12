@@ -30,7 +30,12 @@ import { POOL_TONE, cefrTone, sectionTone, TASK_TYPE_TONE } from "@/lib/chipTone
 import type { QuestionStatus } from "../types";
 import { ExamScreenPreview } from "./ExamScreenPreview";
 import { QuestionDetailSkeleton } from "./_QuestionDetailSkeleton";
+import { AnswerKeyGroups, hasAnswerHints } from "./_AnswerKeyGroups";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+
+/** One card of the detail column; every group (content, options, transcript, answer, hints) gets its own. */
+const DETAIL_CARD_CLASS =
+  "flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card";
 
 interface QuestionDetailViewProps {
   publicId: string;
@@ -140,7 +145,8 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
   const hasAnswerKey = Boolean(
     question.referenceAnswerText?.trim() || question.correctAnswerText?.trim(),
   );
-  const hasAnswers = question.options.length > 0 || (showAnswerKey && hasAnswerKey);
+  const hasAnswers =
+    question.options.length > 0 || (showAnswerKey && hasAnswerKey) || hasAnswerHints(question);
   const previewDraft = buildQuestionPreviewDraft(
     question,
     questionTypes.find((type) => type.code === taskType || type.taskTypeKey === taskType),
@@ -228,67 +234,53 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
           </section>
 
           {contentItems.length > 0 && (
-            <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
+            <section className={DETAIL_CARD_CLASS}>
               <DetailGroup title={T.GROUP_CONTENT} items={contentItems} />
             </section>
           )}
 
-          {hasAnswers && (
-            <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">
-              <h2 className="text-base font-semibold text-gray-900">{T.ANSWERS_TITLE}</h2>
-              {question.options.length > 0 && (
-                <div className="space-y-2">
-                  <h3 className="text-xs font-semibold uppercase tracking-wide text-gray-500">
-                    {T.OPTIONS}
-                  </h3>
-                  <ol className="space-y-2">
-                    {question.options
-                      .slice()
-                      .sort((left, right) => left.orderIndex - right.orderIndex)
-                      .map((option, index) => (
-                        <li
-                          key={option.publicId}
-                          className={cn(
-                            "flex items-center gap-3 rounded-md border px-3 py-2 text-sm",
-                            showAnswerKey && option.correct
-                              ? "border-green-200 bg-green-50"
-                              : "border-slate-200 bg-white",
-                          )}
-                        >
-                          <span
-                            className={cn(
-                              "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
-                              showAnswerKey && option.correct
-                                ? "bg-green-600 text-white"
-                                : "bg-slate-100 text-slate-500",
-                            )}
-                          >
-                            {index + 1}
-                          </span>
-                          <span className="flex-1 text-gray-800">{option.text}</span>
-                          {showAnswerKey && option.correct && (
-                            <Badge variant="success">{T.CORRECT}</Badge>
-                          )}
-                        </li>
-                      ))}
-                  </ol>
-                </div>
-              )}
-              {showAnswerKey && hasAnswerKey && (
-                <DetailGroup
-                  title={T.GROUP_ANSWER_KEY}
-                  items={[
-                    ...(question.referenceAnswerText?.trim()
-                      ? [{ label: question.audioPromptRef ? T.AUDIO_TRANSCRIPT : T.REFERENCE_ANSWER,
-                          value: question.referenceAnswerText }]
-                      : []),
-                    ...(question.correctAnswerText?.trim()
-                      ? [{ label: T.CORRECT_ANSWER, value: question.correctAnswerText }]
-                      : []),
-                  ]}
-                />
-              )}
+          {question.options.length > 0 && (
+            <section className={DETAIL_CARD_CLASS}>
+              <h3 className="text-sm font-semibold text-[var(--ink-primary)]">{T.OPTIONS}</h3>
+              <ol className="space-y-2">
+                {question.options
+                  .slice()
+                  .sort((left, right) => left.orderIndex - right.orderIndex)
+                  .map((option, index) => (
+                    <li
+                      key={option.publicId}
+                      className={cn(
+                        "flex items-center gap-3 rounded-md border px-3 py-2 text-sm",
+                        showAnswerKey && option.correct
+                          ? "border-green-200 bg-green-50"
+                          : "border-slate-200 bg-white",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+                          showAnswerKey && option.correct
+                            ? "bg-green-600 text-white"
+                            : "bg-slate-100 text-slate-500",
+                        )}
+                      >
+                        {index + 1}
+                      </span>
+                      <span className="flex-1 text-gray-800">{option.text}</span>
+                      {showAnswerKey && option.correct && (
+                        <Badge variant="success">{T.CORRECT}</Badge>
+                      )}
+                    </li>
+                  ))}
+              </ol>
             </section>
+          )}
+          {hasAnswers && (
+            <AnswerKeyGroups
+              question={question}
+              showAnswerKey={showAnswerKey}
+              cardClassName={DETAIL_CARD_CLASS}
+            />
           )}
         </div>
         <div className="xl:sticky xl:top-4">

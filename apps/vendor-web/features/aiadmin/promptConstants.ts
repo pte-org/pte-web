@@ -40,6 +40,7 @@ const COPY_EN = {
   ENGINE_LLM: "LLM",
   ENGINE_TTS: "Kokoro TTS",
   ENGINE_CHART: "Chart renderer",
+  ENGINE_AI_AUDIO: "AI listens (practice)",
   BACK: "Back to prompts",
 } as const;
 
@@ -78,6 +79,7 @@ const COPY_VI: PromptCopy = {
   ENGINE_LLM: "LLM",
   ENGINE_TTS: "Kokoro TTS",
   ENGINE_CHART: "Vẽ biểu đồ",
+  ENGINE_AI_AUDIO: "AI nghe audio (practice)",
   BACK: "Về danh sách prompt",
 };
 

@@ -9,6 +9,7 @@ import {
   EyeIcon,
   LockIcon,
   MailIcon,
+  returnPath,
   Select,
   normalizeSessionRoles,
   useSessionManager,
@@ -26,6 +27,7 @@ import { useAdminCopy } from "../../i18n/adminCopy";
 import { resolveVendorLoginDestination } from "../loginRoles";
 import type { VendorRole } from "../types";
 import { getLoginErrorMessage } from "../loginError";
+import { clearSigningOut } from "../signOutIntent";
 
 function resolveRole(raw: string | null): VendorRole {
   return raw === "host" ? "host" : "admin";
@@ -84,7 +86,8 @@ export const LoginView = (): ReactElement => {
       expiresAt: claims.expiresAt || Date.now() + data.expiresInSeconds * 1000,
       mustChangePassword: data.mustChangePassword,
     });
-    router.replace(destination);
+    clearSigningOut();
+    router.replace(returnPath(window.location.search, AUTH_ROUTES.login) ?? destination);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {

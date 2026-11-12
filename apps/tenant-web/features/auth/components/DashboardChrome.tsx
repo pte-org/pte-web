@@ -29,6 +29,7 @@ import { NotificationBellContainer } from "@/features/notifications";
 import { RequireAuth } from "./RequireAuth";
 import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 import { useCurrentUser } from "../api";
+import { markSigningOut } from "../signOutIntent";
 import { AUTH_ROUTES } from "../constants";
 import { resolveActiveNavItem } from "../utils/resolveActiveNavItem";
 
@@ -191,6 +192,7 @@ const HeaderActions = (): ReactElement => {
 
   const logout = (): void => {
     queryClient.clear();
+    markSigningOut();
     clearToken();
     router.replace(AUTH_ROUTES.login);
   };

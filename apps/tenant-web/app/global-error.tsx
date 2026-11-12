@@ -1,28 +1,26 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { ERROR_PAGE_TEXT as TEXT } from "@/lib/errorPageConstants";
+import { LocaleProvider, PTE_UI_BOOTSTRAP_SCRIPT } from "@pte/ui";
+import { AppErrorPage } from "@/lib/AppErrorPage";
+import "./globals.css";
 
 interface GlobalErrorProps {
   error: Error & { digest?: string };
-  reset: () => void;
+  unstable_retry: () => void;
 }
 
-export default function GlobalError({ reset }: GlobalErrorProps): ReactElement {
+/** Replaces the root layout when it fails, so it brings its own document, styles, theme and language. */
+export default function GlobalError({ error, unstable_retry }: GlobalErrorProps): ReactElement {
   return (
-    <html lang="en">
-      <body className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="flex flex-col items-center gap-4 text-center">
-          <h1 className="text-xl font-semibold text-gray-900">{TEXT.SYSTEM_TITLE}</h1>
-          <p className="text-sm text-gray-600">{TEXT.SYSTEM_DESCRIPTION}</p>
-          <button
-            type="button"
-            onClick={reset}
-            className="rounded-md bg-action px-4 py-2 text-white hover:bg-action-hover"
-          >
-            {TEXT.RELOAD}
-          </button>
-        </div>
+    <html lang="vi" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: PTE_UI_BOOTSTRAP_SCRIPT }} />
+      </head>
+      <body>
+        <LocaleProvider>
+          <AppErrorPage error={error} kind="server" onRetry={unstable_retry} fullScreen />
+        </LocaleProvider>
       </body>
     </html>
   );

@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState, type ReactElement } from "react";
-import { Button, cn } from "@pte/ui";
-import { diffLines, hasChanges, sideBySide, withContext, type DiffLine } from "../promptDiff";
+import { useMemo, type ReactElement } from "react";
+import { cn } from "@pte/ui";
+import { diffLines, hasChanges, sideBySide, type DiffLine } from "../promptDiff";
 import { fill, type PromptEditCopy } from "../promptEditConstants";
 
 interface PromptDiffViewProps {
@@ -26,17 +26,12 @@ const Cell = ({ line }: { line: DiffLine | null }): ReactElement => (
   </div>
 );
 
-const Fold = ({ count, copy }: { count: number; copy: PromptEditCopy }): ReactElement => (
-  <div className="bg-[var(--surface-subtle)] px-3 py-1 text-center text-xs text-[var(--ink-secondary)]">
-    {fill(copy.DIFF_FOLDED, { n: count })}
-  </div>
-);
-
-/** What changed between two versions of a prompt, drawn like the changes of a code review: added and removed lines. */
+/**
+ * What changed between two versions of a prompt, side by side: the older version on the left, the newer on the right,
+ * with a line between them so each side is easy to follow.
+ */
 export const PromptDiffView = ({ before, after, copy }: PromptDiffViewProps): ReactElement => {
-  const [sideMode, setSideMode] = useState(false);
   const lines = useMemo(() => diffLines(before, after), [before, after]);
-  const items = useMemo(() => withContext(lines), [lines]);
   const rows = useMemo(() => sideBySide(lines), [lines]);
   if (!hasChanges(lines)) return <p className="text-sm text-[var(--ink-secondary)]">{copy.DIFF_NONE}</p>;
 
@@ -47,26 +42,14 @@ export const PromptDiffView = ({ before, after, copy }: PromptDiffViewProps): Re
       <div className="flex flex-wrap items-center gap-3 text-sm">
         <span className="font-medium text-emerald-700 dark:text-emerald-300">+ {fill(copy.DIFF_ADDED, { n: added })}</span>
         <span className="font-medium text-red-700 dark:text-red-300">− {fill(copy.DIFF_REMOVED, { n: removed })}</span>
-        <div className="ml-auto flex gap-1">
-          <Button size="sm" variant={sideMode ? "ghost" : "secondary"} onClick={() => setSideMode(false)}>{copy.DIFF_ONE_COLUMN}</Button>
-          <Button size="sm" variant={sideMode ? "secondary" : "ghost"} onClick={() => setSideMode(true)}>{copy.DIFF_SIDE_BY_SIDE}</Button>
-        </div>
       </div>
-      <div className="overflow-hidden rounded-lg border border-[var(--shell-border)]">
-        {sideMode ? (
-          <div className="grid grid-cols-2 divide-x divide-[var(--shell-border)]">
-            {rows.map((row, index) => (
-              <div key={index} className="contents">
-                <Cell line={row.left} />
-                <Cell line={row.right} />
-              </div>
-            ))}
+      <div className="grid grid-cols-2 overflow-hidden rounded-lg border border-[var(--shell-border)]">
+        {rows.map((row, index) => (
+          <div key={index} className="contents">
+            <div className="min-w-0 border-r border-[var(--shell-border)]"><Cell line={row.left} /></div>
+            <Cell line={row.right} />
           </div>
-        ) : (
-          items.map((item, index) =>
-            item.type === "fold" ? <Fold key={index} count={item.count} copy={copy} /> : <Cell key={index} line={item.line} />,
-          )
-        )}
+        ))}
       </div>
     </div>
   );
