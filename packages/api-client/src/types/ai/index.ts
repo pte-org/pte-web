@@ -14,8 +14,12 @@ export interface AiStatusResponse {
   generatorModel: string;
   reviewerModel: string;
   providerHost: string;
+  /** The provider's web page (no user info or query); empty when not configured. */
+  providerWebUrl: string;
   providerKeyConfigured: boolean;
   speechHost: string;
+  /** The speech service's web page (no user info or query); empty when not configured. */
+  speechWebUrl: string;
   speechKeyConfigured: boolean;
   promptVersion: number;
   supportedTaskTypes: number;
@@ -182,6 +186,8 @@ export interface PromptWorkspaceResponse {
   live: PromptVersionResponse;
   proposal: PromptVersionResponse | null;
   history: PromptVersionSummary[];
+  /** Sections the system depends on: shown read-only, and the server refuses a proposal that changes them. */
+  lockedSectionIds?: string[];
 }
 
 export interface PromptStatusRequest {

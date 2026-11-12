@@ -29,6 +29,8 @@ export interface GenerationFormState {
   cefrLevel?: string; // A1, A2, B1, B2, C1, C2
   pool?: string; // PRACTICE or EXAM
   topicHint?: string;
+  /** Describe Image only. */
+  imageKind?: "AUTO" | "CHART" | "PICTURE";
   count: number;
 }
 

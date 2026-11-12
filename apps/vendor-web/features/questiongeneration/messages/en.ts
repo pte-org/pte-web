@@ -18,10 +18,15 @@ export const generationMessages = {
   taskTypeLabel: "Task Type",
   cefrLevelLabel: "CEFR Level",
   poolLabel: "Pool",
+  imageKindLabel: "Image type",
+  imageKindAuto: "Auto",
+  imageKindChart: "Chart",
+  imageKindPicture: "AI picture",
+  imageKindHint: "Auto makes a chart when the topic asks for data, otherwise an AI picture. If the AI cannot make the picture, you are asked whether to make a chart instead.",
   topicLabel: "Topic (Optional)",
   countLabel: "Number of Questions",
-  topicPlaceholder: "e.g., Technology, Environment, Education",
-  topicHint: "Maximum 200 characters",
+  topicPlaceholder: "e.g., Economy: IT workers and jobs today, shown as a chart",
+  topicHint: "Describe the subject, the angle and, for Describe Image, the picture you want. Maximum 500 characters",
 
   // Skills
   skillSpeaking: "Speaking",
@@ -47,7 +52,7 @@ export const generationMessages = {
   cefrLevelRequired: "Please select a CEFR level",
   poolRequired: "Please select a pool",
   countInvalid: "Please enter a number between 1 and 10",
-  topicTooLong: "Topic cannot exceed 200 characters",
+  topicTooLong: "Topic cannot exceed 500 characters",
 
   // Info panel
   estimatedTimePerQuestion: "≈ 1–2 minutes per question",

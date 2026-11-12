@@ -1,9 +1,12 @@
 import type { ApiClient } from "../../client/client";
+import type { QuestionPool } from "../../types/question";
 
 export interface CloudinaryUploadRequest {
   contentType: string;
   assetKind: "AUDIO_PROMPT" | "IMAGE_PROMPT";
   sizeBytes: number;
+  /** Pool of the question the file is for; the server files it under that pool's folder. */
+  pool?: QuestionPool;
 }
 
 export interface CloudinaryUploadResponse {

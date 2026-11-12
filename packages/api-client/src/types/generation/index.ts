@@ -44,6 +44,10 @@ export interface QuestionGenerationJobResponse {
   cefrLevel: string; // B1, B2, C1, C2
   pool: string; // PRACTICE or EXAM
   topicHint: string | null;
+  /** Describe Image only: AUTO, CHART or PICTURE. */
+  imageKind?: string | null;
+  /** False for a job started from the question form: its question goes back to the form, not into the bank. */
+  saveQuestions?: boolean;
   requestedCount: number;
   status: QuestionGenerationJobStatus;
   succeededCount: number;
@@ -121,6 +125,8 @@ export interface QuestionGenerationJobCreateRequest {
   count: number;
   /** False for a question written into the form only; the person saves it. Defaults to true. */
   saveQuestions?: boolean;
+  /** Describe Image only: a chart from data, an AI-painted picture, or AUTO (chosen from the topic). */
+  imageKind?: "AUTO" | "CHART" | "PICTURE";
 }
 
 export interface QuestionGenerationJobStatusRequest {

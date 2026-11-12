@@ -1,17 +1,20 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { Button, Input, SortableList } from "@pte/ui";
+import { Badge, Button, Input, SortableList } from "@pte/ui";
 import type { PromptEditCopy } from "../promptEditConstants";
 import { newSectionId, removeAt, reorderByIds, replaceAt } from "../promptEditing";
 import type { DocumentSection, PromptDocumentDraft } from "../promptText";
 import { AutoGrowTextarea } from "./_AutoGrowTextarea";
-import { PromptOutputView } from "./_PromptOutputView";
+import { PromptOutputEditor } from "./_PromptOutputEditor";
+import { SectionFold, isLongSection } from "./_SectionFold";
 
 interface PromptDocumentEditorProps {
   draft: PromptDocumentDraft;
   copy: PromptEditCopy;
   readOnly: boolean;
+  /** Sections the system depends on: shown, never edited, moved or removed. */
+  lockedIds: readonly string[];
   onChange: (draft: PromptDocumentDraft) => void;
 }
 
@@ -24,7 +27,11 @@ const isOutput = (section: DocumentSection): boolean => section.fields !== null;
  * text. Sections are added and removed with one click and reordered by dragging. The output section of a prompt is only
  * shown: its field names are read by code.
  */
-export const PromptDocumentEditor = ({ draft, copy, readOnly, onChange }: PromptDocumentEditorProps): ReactElement => (
+export const PromptDocumentEditor = ({
+  draft, copy, readOnly, lockedIds, onChange,
+}: PromptDocumentEditorProps): ReactElement => {
+  const isLocked = (section: DocumentSection): boolean => lockedIds.includes(section.id);
+  return (
   <div className="space-y-5">
     <Input
       aria-label={copy.TITLE_LABEL}
@@ -44,42 +51,48 @@ export const PromptDocumentEditor = ({ draft, copy, readOnly, onChange }: Prompt
       items={draft.sections}
       getId={(section) => section.id}
       onReorder={readOnly ? undefined : (ids) => onChange({ ...draft, sections: reorderByIds(draft.sections, ids) })}
-      isLocked={isOutput}
+      isLocked={(section) => isOutput(section) || isLocked(section)}
       dragHandleLabel={copy.DRAG_HANDLE}
       columnsClassName="sm:grid-cols-1"
       handleInside
-      renderCells={(section, index) =>
-        section.fields ? (
-          <div className="min-w-0 space-y-3">
-            <h3 className="px-1 text-sm font-semibold text-[var(--ink-primary)]">{section.title}</h3>
-            <PromptOutputView text={section.text} rows={section.fields} />
-          </div>
-        ) : (
-          <div className="min-w-0 space-y-2">
-            <div className="flex items-center gap-2">
-              <Input
-                aria-label={copy.SECTION_TITLE}
-                placeholder={copy.SECTION_TITLE}
-                className="flex-1 font-semibold"
-                value={section.title}
-                disabled={readOnly}
-                onChange={(event) => onChange({ ...draft, sections: replaceAt(draft.sections, index, { ...section, title: event.target.value }) })}
-              />
-              {!readOnly && (
-                <Button variant="danger" appearance="ghost" size="sm" iconOnly aria-label={copy.DELETE_SECTION}
-                  onClick={() => onChange({ ...draft, sections: removeAt(draft.sections, index) })}>✕</Button>
-              )}
-            </div>
-            <AutoGrowTextarea
-              aria-label={section.title || copy.SECTION_TITLE}
-              placeholder={copy.SECTION_PLACEHOLDER}
-              value={section.text}
-              disabled={readOnly}
-              onChange={(event) => onChange({ ...draft, sections: replaceAt(draft.sections, index, { ...section, text: event.target.value }) })}
-            />
-          </div>
-        )
-      }
+      renderCells={(section, index) => {
+        const update = (next: DocumentSection): void =>
+          onChange({ ...draft, sections: replaceAt(draft.sections, index, next) });
+        const label = section.title || copy.SECTION_TITLE;
+        if (section.fields) {
+          const fields = section.fields;
+          return (
+            <SectionFold long={isLongSection(section)} label={label}
+              header={<h3 className="px-1 text-sm font-semibold text-[var(--ink-primary)]">{section.title}</h3>}>
+              <PromptOutputEditor text={section.text} rows={fields} copy={copy} readOnly={readOnly}
+                onRowsChange={(rows) => update({ ...section, fields: rows })} />
+            </SectionFold>
+          );
+        }
+        if (isLocked(section)) {
+          return (
+            <SectionFold long={isLongSection(section)} label={label} header={<>
+              <h3 className="px-1 text-sm font-semibold text-[var(--ink-primary)]">{section.title}</h3>
+              <Badge>{copy.LOCKED}</Badge>
+            </>}>
+              <AutoGrowTextarea aria-label={section.title} value={section.text} disabled readOnly />
+            </SectionFold>
+          );
+        }
+        return (
+          <SectionFold long={isLongSection(section)} label={label} header={<>
+            <Input aria-label={copy.SECTION_TITLE} placeholder={copy.SECTION_TITLE} className="flex-1 font-semibold"
+              value={section.title} disabled={readOnly} onChange={(event) => update({ ...section, title: event.target.value })} />
+            {!readOnly && (
+              <Button variant="danger" appearance="ghost" size="sm" iconOnly aria-label={copy.DELETE_SECTION}
+                onClick={() => onChange({ ...draft, sections: removeAt(draft.sections, index) })}>✕</Button>
+            )}
+          </>}>
+            <AutoGrowTextarea aria-label={label} placeholder={copy.SECTION_PLACEHOLDER} value={section.text}
+              disabled={readOnly} onChange={(event) => update({ ...section, text: event.target.value })} />
+          </SectionFold>
+        );
+      }}
     />
     {!readOnly && (
       <Button
@@ -95,4 +108,5 @@ export const PromptDocumentEditor = ({ draft, copy, readOnly, onChange }: Prompt
       </Button>
     )}
   </div>
-);
+  );
+};

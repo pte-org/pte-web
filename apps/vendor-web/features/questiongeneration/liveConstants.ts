@@ -5,6 +5,8 @@ import type { QuestionGenerationItemStage, QuestionGenerationJobStatus } from "@
 export const FORM_RETURN_PAUSE_MS = 1500;
 /** The new-question form, filled with what a form-started job wrote. */
 export const formFillHref = (jobId: string): string => `/admin/questions/new?fromJob=${jobId}`;
+/** A Describe Image picture the image model could not paint; the person may make it as a chart instead. */
+export const IMAGE_FAILED_CODE = "GENERATION_IMAGE_FAILED";
 export const generationLiveHref = (jobId: string): string => `/admin/questions/ai-generation/${jobId}`;
 /** The page where the drafts of a finished job are reviewed. */
 export const generationReviewHref = (jobId: string): string => `/admin/questions/ai-review?job=${jobId}`;
@@ -48,7 +50,13 @@ const LIVE_TEXT_EN = {
   reconnecting: "Connection lost, reconnecting…",
   noText: "Nothing written yet.",
   noLiveText: "This question was made before this page was opened; open it in the bank to read it.",
+  imageFallbackTitle: "The AI could not make the picture",
+  imageFallbackBody: "The image model could not paint the picture for {count} Describe Image question(s). Make them as charts instead, with the same topic and level?",
+  imageFallbackConfirm: "Make charts",
+  imageFallbackCancel: "Not now",
+  imageFallbackError: "The chart questions could not be started.",
   jobLoadError: "The generation could not be loaded.",
+  cancelError: "The generation could not be stopped. Please try again.",
   verdictPass: "Approved",
   verdictFail: "Rejected",
   fixSuggestion: "What to fix",
@@ -84,7 +92,13 @@ export const LIVE_TEXT: { vi: LiveText; en: LiveText } = {
     reconnecting: "Mất kết nối, đang nối lại…",
     noText: "Chưa viết gì.",
     noLiveText: "Câu này được tạo trước khi mở trang; mở trong ngân hàng để xem nội dung.",
+    imageFallbackTitle: "AI không tạo được ảnh",
+    imageFallbackBody: "Model tạo ảnh không vẽ được ảnh cho {count} câu Describe Image. Bạn có muốn tạo các câu này dưới dạng biểu đồ, cùng chủ đề và trình độ không?",
+    imageFallbackConfirm: "Tạo biểu đồ",
+    imageFallbackCancel: "Để sau",
+    imageFallbackError: "Không bắt đầu tạo câu biểu đồ được.",
     jobLoadError: "Không tải được lần sinh đề này.",
+    cancelError: "Không dừng được lần sinh đề này. Vui lòng thử lại.",
     verdictPass: "Đạt",
     verdictFail: "Không đạt",
     fixSuggestion: "Cần sửa",

@@ -61,9 +61,6 @@ const COPY_EN = {
   DIFF_TITLE: "Proposed changes compared with version {n} (in use)",
   DIFF_NONE: "No changes from that version.",
   DIFF_UNSAVED: "Unsaved edits are not shown here. Save the proposal to update the changes.",
-  DIFF_ONE_COLUMN: "One column",
-  DIFF_SIDE_BY_SIDE: "Side by side",
-  DIFF_FOLDED: "{n} unchanged lines",
   DIFF_ADDED: "{n} added",
   DIFF_REMOVED: "{n} removed",
   HISTORY_EMPTY: "No accepted changes yet.",
@@ -72,12 +69,12 @@ const COPY_EN = {
   HISTORY_BY: "by {name}",
   HISTORY_APPROVED_BY: "accepted by {name}",
   HISTORY_CURRENT: "In use",
-  TOKENS: "Tokens the system fills in",
-  TOKENS_HELP: "Keep them exactly as written; they are replaced when a question is made.",
   NO_TEST_YET: "Testing a scoring prompt is not available yet.",
   LOAD_ERROR: "This prompt could not be loaded.",
   SAVE_ERROR: "The change could not be saved.",
   INCOMPLETE: "Fill in every title and section before saving.",
+  LOCKED: "Read-only",
+  OUTPUT_TEXT: "Output instructions",
 } as const;
 
 export type PromptEditCopy = { [K in keyof typeof COPY_EN]: string };
@@ -134,9 +131,6 @@ const COPY_VI: PromptEditCopy = {
   DIFF_TITLE: "Thay đổi đề xuất so với phiên bản {n} (đang dùng)",
   DIFF_NONE: "Không có thay đổi so với phiên bản đó.",
   DIFF_UNSAVED: "Phần chưa lưu không hiện ở đây. Hãy lưu đề xuất để cập nhật các thay đổi.",
-  DIFF_ONE_COLUMN: "Một cột",
-  DIFF_SIDE_BY_SIDE: "Hai cột",
-  DIFF_FOLDED: "{n} dòng không đổi",
   DIFF_ADDED: "thêm {n}",
   DIFF_REMOVED: "bớt {n}",
   HISTORY_EMPTY: "Chưa có thay đổi nào được chấp nhận.",
@@ -145,12 +139,12 @@ const COPY_VI: PromptEditCopy = {
   HISTORY_BY: "bởi {name}",
   HISTORY_APPROVED_BY: "chấp nhận bởi {name}",
   HISTORY_CURRENT: "Đang dùng",
-  TOKENS: "Thông tin hệ thống tự điền",
-  TOKENS_HELP: "Giữ nguyên như đang viết; chúng được thay bằng giá trị thật khi tạo câu hỏi.",
   NO_TEST_YET: "Chưa có test cho prompt chấm điểm.",
   LOAD_ERROR: "Không tải được prompt này.",
   SAVE_ERROR: "Không lưu được thay đổi.",
   INCOMPLETE: "Hãy điền đủ mọi tiêu đề và phần trước khi lưu.",
+  LOCKED: "Chỉ xem",
+  OUTPUT_TEXT: "Hướng dẫn output",
 };
 
 export const PROMPT_EDIT_COPY = { en: COPY_EN as PromptEditCopy, vi: COPY_VI } as const;

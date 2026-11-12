@@ -11,6 +11,7 @@ import {
   getPromptCatalog,
   getPromptDocument,
   listQuestionGenerationJobs,
+  updatePlatformSettings,
   type AiStatusResponse,
   type GenerationStatsResponse,
   type PagedResult,
@@ -123,5 +124,16 @@ export function useChangePromptStatus(versionId: string): UseMutationResult<Prom
   return useMutation({
     mutationFn: (request) => changePromptVersionStatus(apiClient, versionId, request),
     onSuccess: refresh,
+  });
+}
+
+/** Saves the changed generation limits (platform settings) in one request and reloads the AI status. */
+export function useUpdateGenerationLimits(): UseMutationResult<unknown, Error, { settingKey: string; value: number }[]> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (changes) => updatePlatformSettings(apiClient, {
+      settings: changes.map(({ settingKey, value }) => ({ key: settingKey, value: String(value) })),
+    }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [...AI_ADMIN_QUERY_KEY, "status"] }),
   });
 }

@@ -46,6 +46,8 @@ export function tagLabel(copy: PromptCopy, tag: string): string {
       return copy.ENGINE_TTS;
     case "CHART":
       return copy.ENGINE_CHART;
+    case "AI_AUDIO":
+      return copy.ENGINE_AI_AUDIO;
     default:
       return tag;
   }
@@ -64,8 +66,9 @@ export function splitLabeled(entry: string): LabeledValue | null {
   return label.length <= MAX_LABEL_LENGTH ? { label, value: match[2].trim() } : null;
 }
 
-const AI_SCORING_ENGINE = "GEMINI";
+/** Scoring prompts a model reads: the exam text scorer, and practice speaking where the model hears the audio. */
+const AI_SCORING_ENGINES = ["GEMINI", "AI_AUDIO"];
 
 /** Only a scoring entry that an AI model scores has a prompt; the others are scored by code or the speech engine. */
 export const hasPrompt = (entry: PromptSummary): boolean =>
-  entry.category !== "SCORING" || entry.tags.includes(AI_SCORING_ENGINE);
+  entry.category !== "SCORING" || entry.tags.some((tag) => AI_SCORING_ENGINES.includes(tag));

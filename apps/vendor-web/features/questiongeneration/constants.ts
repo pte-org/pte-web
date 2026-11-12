@@ -9,6 +9,15 @@ export const GENERATION_TASK_TYPES_QUERY_KEY = "generationTaskTypes";
  */
 export const GENERATION_POLL_INTERVAL_MS = 3000;
 
+/** A topic may be a short brief: the subject, the angle and the kind of picture wanted. */
+export const GENERATION_TOPIC_MAX_LENGTH = 500;
+export const GENERATION_TOPIC_MIN_ROWS = 3;
+
+/** How a Describe Image question gets its picture; AUTO lets the topic decide. */
+export const GENERATION_IMAGE_KINDS = ["AUTO", "CHART", "PICTURE"] as const;
+export type GenerationImageKind = (typeof GENERATION_IMAGE_KINDS)[number];
+export const DESCRIBE_IMAGE_TASK = "DESCRIBE_IMAGE";
+
 /**
  * Backoff factor for polling when user is not actively watching
  * (tab hidden, stale window, etc.)

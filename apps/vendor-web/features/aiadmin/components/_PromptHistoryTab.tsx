@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Badge, Button, LoadingState } from "@pte/ui";
+import { Badge, DisclosureChevron, LoadingState } from "@pte/ui";
 import type { PromptVersionSummary } from "@pte/api-client";
 import { usePromptVersion } from "../api";
 import { fill, type PromptEditCopy } from "../promptEditConstants";
@@ -27,7 +27,9 @@ const HistoryEntry = ({ entry, previous, copy }: EntryProps): ReactElement => {
   const loading = open && (after.isLoading || before.isLoading);
   return (
     <li className="rounded-lg border border-[var(--shell-border)]">
-      <div className="flex flex-wrap items-center gap-2 px-4 py-3 text-sm">
+      <button type="button" aria-expanded={open} aria-label={fill(copy.HISTORY_VERSION, { n: entry.versionNo })}
+        onClick={() => setOpen((value) => !value)}
+        className="flex w-full flex-wrap items-center gap-2 px-4 py-3 text-left text-sm">
         <span className="font-medium">{fill(copy.HISTORY_VERSION, { n: entry.versionNo })}</span>
         {entry.status === "ACTIVE" && <Badge variant="success">{copy.HISTORY_CURRENT}</Badge>}
         <span className="text-xs text-[var(--ink-secondary)]">
@@ -37,10 +39,8 @@ const HistoryEntry = ({ entry, previous, copy }: EntryProps): ReactElement => {
         <span className="ml-auto text-xs text-[var(--ink-secondary)]">
           {new Date(entry.activatedAt ?? entry.createdAt).toLocaleString()}
         </span>
-        <Button variant="ghost" size="sm" onClick={() => setOpen((value) => !value)}>
-          {open ? "−" : "+"}
-        </Button>
-      </div>
+        <DisclosureChevron expanded={open} />
+      </button>
       {open && (
         <div className="border-t border-[var(--shell-border)] p-4">
           {loading && <LoadingState rows={3} />}

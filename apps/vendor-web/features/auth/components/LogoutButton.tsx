@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { Button, useLocale, useTokenManager } from "@pte/ui";
+import { markSigningOut } from "../signOutIntent";
 import { AUTH_ROUTES } from "../constants";
 
 export const LogoutButton = (): ReactElement => {
@@ -11,6 +12,7 @@ export const LogoutButton = (): ReactElement => {
   const { t } = useLocale();
 
   const handleLogout = (): void => {
+    markSigningOut();
     clearToken();
     router.replace(AUTH_ROUTES.login);
   };

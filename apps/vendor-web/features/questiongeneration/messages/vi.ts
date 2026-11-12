@@ -18,10 +18,15 @@ export const generationMessages = {
   taskTypeLabel: "Dạng bài",
   cefrLevelLabel: "Cấp CEFR",
   poolLabel: "Pool",
+  imageKindLabel: "Kiểu ảnh",
+  imageKindAuto: "Tự chọn",
+  imageKindChart: "Biểu đồ",
+  imageKindPicture: "Ảnh minh họa AI",
+  imageKindHint: "Tự chọn sẽ làm biểu đồ khi chủ đề nhắc tới số liệu, còn lại là ảnh minh họa AI. Nếu AI không tạo được ảnh, hệ thống sẽ hỏi bạn có muốn chuyển sang biểu đồ không.",
   topicLabel: "Chủ đề (Tùy chọn)",
   countLabel: "Số lượng câu hỏi",
-  topicPlaceholder: "VD: Công nghệ, Môi trường, Giáo dục",
-  topicHint: "Tối đa 200 ký tự",
+  topicPlaceholder: "VD: Kinh tế: người lao động và việc làm IT hiện nay, dạng biểu đồ",
+  topicHint: "Mô tả chủ đề, góc nhìn và (với Describe Image) kiểu hình bạn muốn. Tối đa 500 ký tự",
 
   // Skills
   skillSpeaking: "Speaking",
@@ -47,7 +52,7 @@ export const generationMessages = {
   cefrLevelRequired: "Vui lòng chọn cấp CEFR",
   poolRequired: "Vui lòng chọn pool",
   countInvalid: "Vui lòng nhập số từ 1 đến 10",
-  topicTooLong: "Chủ đề không được vượt quá 200 ký tự",
+  topicTooLong: "Chủ đề không được vượt quá 500 ký tự",
 
   // Info panel
   estimatedTimePerQuestion: "≈ 1–2 phút mỗi câu",

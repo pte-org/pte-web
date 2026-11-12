@@ -78,6 +78,17 @@ export const AI_ADMIN_COPY = {
     MAX_PER_DAY: "All admins per day",
     MAX_JOBS: "Jobs running at once",
     MAX_CALLS: "AI calls per question",
+    LIMIT_EDIT: "Edit",
+    LIMIT_EXIT: "Exit",
+    LIMIT_SAVE: "Save",
+    LIMIT_LEAVE_TITLE: "Leave without saving?",
+    LIMIT_LEAVE_BODY: "The limits you changed have not been saved.",
+    LIMIT_LEAVE_DISCARD: "Exit without saving",
+    LIMIT_LEAVE_SAVE: "Save and exit",
+    LIMIT_SAVED: "The limits were saved. They apply to jobs started from now on.",
+    LIMIT_INVALID: "Enter a whole number from {min} to {max}.",
+    LIMIT_ERROR: "The limits could not be saved. Please try again.",
+    MAX_CALLS_HINT: "Writing, review and media all count. When a question runs out, it stops rewriting.",
     SECRETS_NOTE: "Keys are set in the server environment and are never shown here.",
     LOAD_ERROR_TITLE: "Could not load the AI settings",
     LOAD_ERROR_RETRY: "Try again",
@@ -142,6 +153,17 @@ export const AI_ADMIN_COPY = {
     MAX_PER_DAY: "Tất cả admin mỗi ngày",
     MAX_JOBS: "Số job chạy cùng lúc",
     MAX_CALLS: "Số lần gọi AI mỗi câu",
+    LIMIT_EDIT: "Sửa",
+    LIMIT_EXIT: "Thoát",
+    LIMIT_SAVE: "Lưu",
+    LIMIT_LEAVE_TITLE: "Thoát mà chưa lưu?",
+    LIMIT_LEAVE_BODY: "Các giới hạn bạn vừa sửa chưa được lưu.",
+    LIMIT_LEAVE_DISCARD: "Thoát không lưu",
+    LIMIT_LEAVE_SAVE: "Lưu và thoát",
+    LIMIT_SAVED: "Đã lưu giới hạn. Áp dụng cho các lần sinh đề bắt đầu từ bây giờ.",
+    LIMIT_INVALID: "Nhập số nguyên từ {min} đến {max}.",
+    LIMIT_ERROR: "Không lưu được giới hạn. Vui lòng thử lại.",
+    MAX_CALLS_HINT: "Tính cả lần viết, duyệt và tạo media. Hết lượt thì câu đó dừng viết lại.",
     SECRETS_NOTE: "Key được đặt trong môi trường của server và không bao giờ hiển thị ở đây.",
     LOAD_ERROR_TITLE: "Không tải được cấu hình AI",
     LOAD_ERROR_RETRY: "Thử lại",
@@ -185,4 +207,18 @@ export const AI_ADMIN_COPY = {
 } as const;
 
 /** The same keys in every language; the values are plain strings, not the literal English text. */
+/**
+ * The generation limits edited on the overview page: the platform setting behind each and the range the server
+ * accepts (an AI call allowance below 5 would allow no write-review round at all).
+ */
+export const GENERATION_LIMITS = [
+  { field: "maxItemsPerJob", settingKey: "question_generation_max_items_per_job", label: "MAX_PER_JOB", min: 1, max: 50 },
+  { field: "maxItemsPerUserPerDay", settingKey: "question_generation_max_items_per_user_per_day", label: "MAX_PER_USER_DAY", min: 1, max: 10_000 },
+  { field: "maxItemsPerDayGlobal", settingKey: "question_generation_max_items_per_day", label: "MAX_PER_DAY", min: 1, max: 100_000 },
+  { field: "maxConcurrentJobs", settingKey: "question_generation_max_concurrent_jobs", label: "MAX_JOBS", min: 1, max: 20 },
+  { field: "maxCallsPerItem", settingKey: "question_generation_max_calls_per_item", label: "MAX_CALLS", min: 5, max: 200 },
+] as const;
+
+export type GenerationLimit = (typeof GENERATION_LIMITS)[number];
+
 export type AiAdminCopy = { readonly [K in keyof (typeof AI_ADMIN_COPY)["en"]]: string };

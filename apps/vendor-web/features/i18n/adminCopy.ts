@@ -524,6 +524,11 @@ const ADMIN_VI: Record<string, string> = {
   "Question prompt preview": "Xem trước đề bài",
   "Reference answer": "Đáp án tham khảo",
   "Audio transcript": "Lời thoại audio",
+  "Answer hints": "Gợi ý trả lời",
+  "Shown to students in practice on request. Explain how to approach the item; never give the answer.":
+    "Học viên luyện tập xem khi bấm gợi ý. Hướng dẫn cách làm, không đưa đáp án.",
+  "Answer hint (Vietnamese)": "Gợi ý trả lời (Tiếng Việt)",
+  "Answer hint (English)": "Gợi ý trả lời (Tiếng Anh)",
   "Correct answer text": "Nội dung đáp án đúng",
   "Question created as a draft.": "Đã tạo câu hỏi ở trạng thái bản nháp.",
   "Question draft saved.": "Đã lưu bản nháp câu hỏi.",
