@@ -38,9 +38,9 @@ export const validateSignInField = (
 
 export interface SignInValidation {
   errors: SignInErrors;
-  /** Validate a field when it loses focus and remember it was visited. */
+  /** Validate a field when it loses focus. */
   onBlur: (field: SignInField, value: string) => void;
-  /** Re-validate while typing, but only once the field has been visited or shown an error. */
+  /** Validate while typing, so a mistake shows as soon as it is made. */
   onChange: (field: SignInField, value: string) => void;
   /** Validate every field (on submit); returns the errors so the caller can focus the first one. */
   validateAll: (values: SignInValues) => SignInErrors;
@@ -48,7 +48,6 @@ export interface SignInValidation {
 
 export const useSignInValidation = (messages: SignInValidationMessages): SignInValidation => {
   const [errors, setErrors] = useState<SignInErrors>({});
-  const [touched, setTouched] = useState<Partial<Record<SignInField, boolean>>>({});
 
   const check = useCallback(
     (field: SignInField, value: string): string | undefined => {
@@ -61,7 +60,6 @@ export const useSignInValidation = (messages: SignInValidationMessages): SignInV
 
   const onBlur = useCallback(
     (field: SignInField, value: string): void => {
-      setTouched((previous) => ({ ...previous, [field]: true }));
       check(field, value);
     },
     [check],
@@ -69,14 +67,13 @@ export const useSignInValidation = (messages: SignInValidationMessages): SignInV
 
   const onChange = useCallback(
     (field: SignInField, value: string): void => {
-      if (touched[field] || errors[field]) check(field, value);
+      check(field, value);
     },
-    [check, errors, touched],
+    [check],
   );
 
   const validateAll = useCallback(
     (values: SignInValues): SignInErrors => {
-      setTouched({ username: true, password: true });
       return {
         username: check("username", values.username),
         password: check("password", values.password),
