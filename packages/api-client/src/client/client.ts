@@ -210,6 +210,10 @@ const PUBLIC_AUTH_PATHS: readonly string[] = [
   "/api/v1/auth/login-options",
   "/api/v1/auth/refresh",
   "/api/v1/auth/logout",
+  // A reset link is often opened in a browser that still holds an expired session; its token made the link hang.
+  "/api/v1/auth/password-reset/request",
+  "/api/v1/auth/password-reset/validate",
+  "/api/v1/auth/password-reset/confirm",
 ];
 
 function isPublicAuthPath(path: string): boolean {
