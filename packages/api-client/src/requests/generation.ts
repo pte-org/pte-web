@@ -73,7 +73,7 @@ export function getQuestionGenerationQuota(
 }
 
 const LIVE_EVENT_TYPES: ReadonlySet<string> = new Set([
-  "snapshot", "begin", "token", "stage", "media", "draft", "review", "item", "end",
+  "snapshot", "begin", "token", "stage", "media", "draft", "review", "check", "item", "end",
 ]);
 // An unknown job or a missing permission answers with the usual JSON error instead of a stream.
 const LIVE_ACCEPT = "text/event-stream, application/json";
