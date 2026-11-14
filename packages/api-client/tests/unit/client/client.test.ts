@@ -234,7 +234,14 @@ describe("ApiClient bearer token on public auth endpoints", () => {
     return new Headers(requestInit.headers).get("Authorization");
   }
 
-  it.each(["/api/v1/auth/login", "/api/v1/auth/login-options", "/api/v1/auth/refresh"])(
+  it.each([
+    "/api/v1/auth/login",
+    "/api/v1/auth/login-options",
+    "/api/v1/auth/refresh",
+    "/api/v1/auth/password-reset/request",
+    "/api/v1/auth/password-reset/validate",
+    "/api/v1/auth/password-reset/confirm",
+  ])(
     "does not send the stored token to %s",
     async (path) => {
       expect(await authorizationFor(path)).toBeNull();
