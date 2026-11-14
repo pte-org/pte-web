@@ -165,6 +165,10 @@ export const QUESTION_EDITOR_TEXT = {
   CREATE_DRAFT: "Create Draft",
   CANCEL: "Cancel",
   CREATE_SUCCESS: "Question created as a draft.",
+  UNSAVED_TITLE: "Leave without saving?",
+  UNSAVED_DESCRIPTION: "This question has changes that are not saved. If you leave now, they will be lost.",
+  UNSAVED_STAY: "Stay on this page",
+  UNSAVED_LEAVE: "Leave without saving",
   UPDATE_SUCCESS: "Question draft saved.",
 } as const;
 
