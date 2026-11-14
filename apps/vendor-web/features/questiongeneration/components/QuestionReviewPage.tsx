@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import { Alert, Skeleton } from "@pte/ui";
 import { useQuestionGenerationJob } from "../api";
-import { generationMessages } from "../messages/en";
+import { useGenerationMessages } from "../messages/useGenerationMessages";
 import type { QuestionGenerationItemResponse } from "@pte/api-client";
 import { ReviewItemList } from "./_ReviewItemList";
 import { ReviewPanelTabs } from "./_ReviewPanelTabs";
@@ -18,6 +18,7 @@ const REVIEW_CONTAINER_MAX_HEIGHT = "calc(100vh - 200px)";
  * Responsive: split view ≥1280px, stacked below
  */
 export const QuestionReviewPage = () => {
+  const generationMessages = useGenerationMessages();
   const searchParams = useSearchParams();
   const jobId = searchParams.get("job");
 

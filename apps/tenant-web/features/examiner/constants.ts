@@ -131,6 +131,7 @@ export const EXAMINER_WORK_TEXT = {
   DRAFT_SAVED: "Saved",
   SAVE_SUCCESS: "Score saved. Remember to finalize the attempt when every answer is marked.",
   SAVE_FAILED: "Could not save the score. Please check your connection and try again.",
+  TRAITS_INVALID: "Every trait score must be a whole number within its allowed range.",
   FINALIZE_FAILED: "Could not finalize the attempt. Please reload the page and try again.",
   COMMENT_LABEL: "Examiner feedback / comment",
   COMMENT_PLACEHOLDER: "Optional note or rationale (max 2000 chars)",

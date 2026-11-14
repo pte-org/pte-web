@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useFinalizeExaminerWork, useSaveExaminerDraft } from "./api";
-import { applySavedDraft, traitRequest } from "./traitDraft";
+import { applySavedDraft, draftInputError, traitRequest } from "./traitDraft";
 import type { ExaminerDraftState } from "./useExaminerDraftState";
 import type { UseExaminerSubmissionParams } from "./submissionTypes";
 
@@ -37,10 +37,8 @@ export const useExaminerSubmissionActions = ({
     const traitScores = targetAnswer.rubric ? traitRequest(targetAnswer.rubric, draft.traitScores) : undefined;
     if (traitScores === null) return false;
 
+    if (draftInputError(targetAnswer.rubric, draft) === "SCORE") return false;
     const parsedScore = targetAnswer.rubric || draft.score.trim() === "" ? null : Number(draft.score);
-    if (parsedScore !== null && (!Number.isInteger(parsedScore) || parsedScore < 0 || parsedScore > 100)) {
-      return false;
-    }
 
     try {
       saving.current = true;

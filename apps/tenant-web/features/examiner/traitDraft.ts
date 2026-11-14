@@ -14,6 +14,19 @@ export function traitRequest(rubric: ExaminerRubricResponse, values: Record<stri
   return requested;
 }
 
+export type DraftInputError = "TRAITS" | "SCORE";
+
+/** Why a draft cannot be saved yet, or null; the same rules the save request applies (whole numbers in range). */
+export function draftInputError(
+  rubric: ExaminerRubricResponse | null | undefined,
+  draft: { score: string; traitScores?: Record<string, number | null> },
+): DraftInputError | null {
+  if (rubric) return traitRequest(rubric, draft.traitScores) === null ? "TRAITS" : null;
+  if (draft.score.trim() === "") return null;
+  const score = Number(draft.score);
+  return !Number.isInteger(score) || score < 0 || score > 100 ? "SCORE" : null;
+}
+
 export function aiTraitDraft(rubric: ExaminerRubricResponse, ai: ExaminerAiReferenceResponse | null): Record<string, number | null> | null {
   if (ai?.availability !== "AVAILABLE" || ai.rubricVersionPublicId !== rubric.rubricVersionPublicId) return null;
   const values = ai.traitScores ?? {};
