@@ -22,6 +22,8 @@ export const NewQuestionView = (): ReactElement => {
   const router = useRouter();
   const pathname = usePathname();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  // Bumped after a save: the form opens again empty, ready for the next question.
+  const [formRound, setFormRound] = useState(0);
   // Back from the AI run's page: the question it wrote fills the form, nothing is saved until the person says so.
   const fill = useGeneratedFill(useSearchParams().get("fromJob"));
   useDashboardBreadcrumbLabel(pathname, T.NEW_TITLE);
@@ -29,9 +31,15 @@ export const NewQuestionView = (): ReactElement => {
   return (
     <div className="space-y-5">
       <QuestionEditorWithPreview
-        onSaved={() => router.push("/admin/questions")}
+        key={formRound}
+        onSaved={() => {
+          // The question written by an AI run is saved: drop it from the address so the new form starts empty.
+          if (fill) router.replace(pathname);
+          setFormRound((round) => round + 1);
+        }}
         onCancel={() => router.push("/admin/questions")}
-        agent={fill}
+        // Only the first form takes the AI run's question; the forms opened after saving start empty.
+        agent={formRound === 0 ? fill : null}
         sidePanel={
           <Button type="button" className="w-full" onClick={() => setDrawerOpen(true)}>
             ✦ {(locale === "vi" ? generationVi : generationEn).generateWithAi}
