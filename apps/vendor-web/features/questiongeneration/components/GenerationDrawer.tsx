@@ -6,6 +6,7 @@ import {
   FormActions,
   Button,
   useToast,
+  useLocale,
   InfoPanel,
   Alert,
 } from "@pte/ui";
@@ -16,6 +17,8 @@ import {
 } from "../api";
 import type { GenerationFormState, GenerationTaskType } from "../types";
 import { generationMessages } from "../messages/en";
+import { generationMessages as viMessages } from "../messages/vi";
+import { generationStartError } from "../utils/generationStartError";
 import { _GenerationDrawerSkillStep } from "./_GenerationDrawerSkillStep";
 import { _GenerationDrawerTaskTypeStep } from "./_GenerationDrawerTaskTypeStep";
 import { _GenerationDrawerCefrStep } from "./_GenerationDrawerCefrStep";
@@ -55,6 +58,8 @@ export const GenerationDrawer = ({
   const { data: quota } = useQuestionGenerationQuota();
   const { data: taskTypesData = [] } = useQuestionGenerationTaskTypes();
   const { showToast } = useToast();
+  const { locale } = useLocale();
+  const startMessages = locale === "vi" ? viMessages : generationMessages;
 
   // Filter task types by selected skill
   const filteredTaskTypes: GenerationTaskType[] = useMemo(() => {
@@ -127,9 +132,11 @@ export const GenerationDrawer = ({
           setErrors({});
           setTouched({});
         },
+        // Refused by the server (a job of the person still runs, a limit is reached): say why, never stay silent.
+        onError: (error) => showToast(generationStartError(error, startMessages), { tone: "error" }),
       },
     );
-  }, [createJob, formState, validateForm, onJobCreated, onClose, showToast, initialCount, single]);
+  }, [createJob, formState, validateForm, onJobCreated, onClose, showToast, initialCount, single, startMessages]);
 
   const remaining = quota ? quota.dailyLimit - quota.usedToday : 0;
   const showQuotaWarning = remaining > 0 && remaining < formState.count;
