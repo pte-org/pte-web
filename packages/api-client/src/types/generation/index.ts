@@ -81,6 +81,36 @@ export interface QuestionGenerationLiveItem {
   draft?: QuestionGenerationLiveDraft | null;
   /** The last verdict of a reviewer. */
   review?: QuestionGenerationLiveReview | null;
+  /** The checks of the current round of writing, in the order they started (absent from an older server). */
+  checks?: QuestionGenerationLiveCheck[];
+}
+
+/** A step inside writing a draft: the prompt, the model writing, the JSON, the task type's rules, duplicates. */
+export type QuestionGenerationCheckStep =
+  | "PROMPT" | "WRITE" | "JSON" | "RULES" | "DUPLICATE"
+  /** The reviewer's steps. */
+  | "REVIEW_PROMPT" | "REVIEW_WRITE" | "REVIEW_VERDICT";
+
+export interface QuestionGenerationLiveCheck {
+  index: number;
+  step: QuestionGenerationCheckStep;
+  status: "RUNNING" | "PASSED" | "FAILED";
+  /** Facts shown next to the check, by name: cefr, topic, avoidedTopics, feedback, retry, fixed, issues. */
+  facts: Record<string, string>;
+  /** Lines listed under the check, in order (absent from an older server). */
+  details?: QuestionGenerationCheckDetail[];
+}
+
+/**
+ * One line under a check. CHARS, WORDS and ITEMS come with `count`; TEXT with `text`; PRESENT only names `key`, a
+ * field the model wrote. `key` is a draft field or one of: systemPrompt, taskPrompt, promptKey, cefr, topicHint,
+ * avoidedTopics, feedback, output, answerHintVi, answerHintEn, contentHash, taskType.
+ */
+export interface QuestionGenerationCheckDetail {
+  key: string;
+  unit: "CHARS" | "WORDS" | "ITEMS" | "TEXT" | "PRESENT";
+  text: string | null;
+  count: number | null;
 }
 
 export interface QuestionGenerationLiveDraft {
@@ -109,6 +139,7 @@ export type QuestionGenerationLiveEvent =
   | { type: "media"; index: number; audioRef: string | null; imageRef: string | null }
   | ({ type: "draft" } & QuestionGenerationLiveDraft)
   | ({ type: "review" } & QuestionGenerationLiveReview)
+  | ({ type: "check" } & QuestionGenerationLiveCheck)
   | { type: "item"; index: number }
   | { type: "end"; finished: boolean };
 
