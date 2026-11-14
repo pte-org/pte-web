@@ -49,6 +49,7 @@ export const generationMessages = {
   // Form validation
   skillRequired: "Please select a skill",
   taskTypeRequired: "Please select a task type",
+  taskTypePlaceholder: "Choose a task type…",
   cefrLevelRequired: "Please select a CEFR level",
   poolRequired: "Please select a pool",
   countInvalid: "Please enter a number between 1 and 10",
@@ -64,6 +65,11 @@ export const generationMessages = {
   cancelButton: "Cancel",
   startButton: "Start Generation",
   startingGenerationMessage: "Starting question generation...",
+  startErrorAlreadyRunning: "A generation job of yours is still running. Wait for it to finish, or stop it, then try again.",
+  startErrorTooManyJobs: "Too many generation jobs are running on the platform. Try again in a few minutes.",
+  startErrorDailyLimit: "You reached today's generation limit.",
+  startErrorGlobalLimit: "The platform reached today's generation limit.",
+  startError: "The generation could not be started. Please try again.",
 
   // Progress tray
   generatingTitle: "Generating",
