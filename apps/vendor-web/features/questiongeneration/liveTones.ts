@@ -1,4 +1,4 @@
-import type { LaneStatus, LiveLane } from "./liveConstants";
+import type { LiveLane } from "./liveConstants";
 
 /** One colour per agent, so a step looks the same wherever it appears; the status only changes the frame. */
 export interface LaneTone {
@@ -48,20 +48,13 @@ export const LANE_TONES: Record<LiveLane, LaneTone> = {
   },
 };
 
-/** A step that has not started is dimmed; the one running is ringed; a failed one turns red. */
-export const STATUS_FRAME: Record<LaneStatus, string> = {
-  waiting: "opacity-50",
-  active: "ring-2 ring-slate-400/30",
-  done: "",
-  failed: "border-red-500/60 bg-red-500/5",
-};
-
 export const ITEM_CHIP_TONES: Record<string, string> = {
   QUEUED: "bg-slate-500/10 text-slate-700 dark:text-slate-200",
   GENERATING: "bg-indigo-500/15 text-indigo-700 dark:text-indigo-200",
   VALIDATING: "bg-indigo-500/15 text-indigo-700 dark:text-indigo-200",
   REVIEWING: "bg-rose-500/15 text-rose-700 dark:text-rose-200",
   RENDERING_MEDIA: "bg-teal-500/15 text-teal-700 dark:text-teal-200",
+  READY: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-200",
   SAVED: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-200",
   FAILED: "bg-red-500/15 text-red-700 dark:text-red-200",
   CANCELLED: "bg-slate-500/10 text-slate-700 dark:text-slate-200",

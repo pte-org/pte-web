@@ -18,8 +18,10 @@ import {
 import { ITEM_CHIP_TONES } from "../liveTones";
 import { generatedValues, storeGeneratedFill } from "../utils/generatedFill";
 import { followedIndex } from "../utils/liveItems";
+import { itemStatus } from "../utils/stepPacing";
 import { ImageFallbackDialog } from "./_ImageFallbackDialog";
 import { LiveItemPanel } from "./_LiveItemPanel";
+import { PlanTaskRow } from "./_PlanTaskRow";
 
 interface LiveGenerationViewProps {
   jobId: string;
@@ -63,10 +65,16 @@ export const LiveGenerationView = ({ jobId }: LiveGenerationViewProps): ReactEle
   const current = picked ?? followedIndex(records.map((record) => ({ index: record.index, stage: stageOf(record.index) })));
   const taskType = taskTypes.find((type) => type.taskType === job.taskType);
   const done = job.succeededCount + job.failedCount;
+  const stageLabel = (stage: string): string => STAGE_LABELS[lang][stage as keyof typeof STAGE_LABELS.en] ?? stage;
+  const panel = (record: (typeof records)[number]): ReactElement => (
+    <LiveItemPanel live={items[record.index]} record={record} locale={lang} text={text}
+      needsAudio={taskType?.needsAudio ?? false} needsImage={taskType?.needsImage ?? false} imageKind={job.imageKind} />
+  );
 
   const stop = (): void => cancel.mutate(jobId, {
     onSuccess: () => {
       setConfirmingCancel(false);
+      showToast(text.stopRequested);
       void queryClient.invalidateQueries({ queryKey: QUESTIONS_QUERY_KEY });
     },
     onError: (error) => {
@@ -87,24 +95,38 @@ export const LiveGenerationView = ({ jobId }: LiveGenerationViewProps): ReactEle
           <span className="text-xs text-[var(--ink-muted)]">{connection === "reconnecting" ? text.reconnecting : text.connecting}</span>
         )}
         <div className="ml-auto flex gap-2">
-          {!finished && <Button variant="secondary" onClick={() => setConfirmingCancel(true)} disabled={cancel.isPending}>{text.cancel}</Button>}
+          {!finished && (
+            <Button variant="secondary" onClick={() => setConfirmingCancel(true)}
+              disabled={cancel.isPending || job.status === "CANCELLING"}>
+              {job.status === "CANCELLING" ? text.stopping : text.cancel}
+            </Button>
+          )}
         </div>
       </div>
-      <div className="flex flex-wrap gap-2" role="tablist" aria-label={text.items}>
-        {records.map((record) => {
-          const stage = stageOf(record.index);
-          return (
-            <button key={record.index} type="button" role="tab" aria-selected={record.index === current}
-              onClick={() => setPicked(record.index)}
-              className={cn("rounded-lg px-3 py-1.5 text-sm font-medium", ITEM_CHIP_TONES[stage] ?? ITEM_CHIP_TONES.QUEUED,
-                record.index === current && "ring-2 ring-[var(--action-primary)]")}>
-              {text.item} {record.index + 1} · {STAGE_LABELS[lang][stage as keyof typeof STAGE_LABELS.en] ?? stage}
-            </button>
-          );
-        })}
-      </div>
-      <LiveItemPanel live={items[current]} record={records.find((record) => record.index === current)} locale={lang}
-        text={text} needsAudio={taskType?.needsAudio ?? false} needsImage={taskType?.needsImage ?? false} />
+      {records.length === 1 && records[0] ? (
+        // One question (always so from the question form): its steps directly, no list of questions to pick from.
+        <div className="rounded-xl border border-[var(--border-subtle)] p-4">
+          <div className="mb-3 flex justify-end">
+            <span className={cn("rounded-md px-2 py-0.5 text-xs font-medium", ITEM_CHIP_TONES[stageOf(records[0].index)] ?? ITEM_CHIP_TONES.QUEUED)}>
+              {stageLabel(stageOf(records[0].index))}
+            </span>
+          </div>
+          {panel(records[0])}
+        </div>
+      ) : (
+        <ol className="space-y-1 rounded-xl border border-[var(--border-subtle)] p-2" aria-label={text.items}>
+          {records.map((record) => {
+            const stage = stageOf(record.index);
+            return (
+              <PlanTaskRow key={record.index} label={`${text.item} ${record.index + 1}`} status={itemStatus(stage)}
+                stageLabel={stageLabel(stage)} stageTone={ITEM_CHIP_TONES[stage] ?? ITEM_CHIP_TONES.QUEUED}
+                expanded={record.index === current} onSelect={() => setPicked(record.index)}>
+                {panel(record)}
+              </PlanTaskRow>
+            );
+          })}
+        </ol>
+      )}
       <ImageFallbackDialog job={job} finished={finished} text={text} />
       <ConfirmDialog open={confirmingCancel} title={text.cancelTitle} description={text.cancelBody}
         confirmLabel={text.cancelConfirm} cancelLabel={text.cancelBack} tone="warning" isConfirming={cancel.isPending}
