@@ -1,31 +1,48 @@
 "use client";
 
-import type { ReactElement, ReactNode } from "react";
-import { cn } from "@pte/ui";
+import { useState, type ReactElement, type ReactNode } from "react";
+import { DisclosureChevron, MotionReveal, cn } from "@pte/ui";
 import type { LaneStatus, LiveLane } from "../liveConstants";
-import { LANE_TONES, STATUS_FRAME } from "../liveTones";
+import { LANE_TONES } from "../liveTones";
+import { PlanStatusIcon } from "./_PlanStatusIcon";
 
 interface LiveLaneCardProps {
   lane: LiveLane;
   label: string;
   status: LaneStatus;
-  /** Shown at the right of the header, e.g. the attempt number. */
+  /** Shown at the right of the step, e.g. the attempt number. */
   aside?: string;
   children: ReactNode;
 }
 
-/** The frame of one agent's work on an item, in that agent's colour. */
+/**
+ * One step of a question in the plan: its status icon and name, and once it has started, what its agent wrote. The
+ * name opens and closes what was written, so a long step can be folded away.
+ */
 export const LiveLaneCard = ({ lane, label, status, aside, children }: LiveLaneCardProps): ReactElement => {
-  const tone = LANE_TONES[lane];
+  const [open, setOpen] = useState(true);
+  const started = status !== "waiting";
   return (
-    <section className={cn("rounded-xl border p-4 transition-opacity", tone.frame, STATUS_FRAME[status])}>
-      <header className={cn("mb-3 flex items-center gap-2 text-sm font-semibold", tone.header)}>
-        <span className={cn("h-2.5 w-2.5 rounded-full", tone.dot, status === "active" && "animate-pulse")} />
-        <span>{label}</span>
-        {aside && <span className="ml-auto text-xs font-normal opacity-80">{aside}</span>}
-      </header>
-      {children}
-    </section>
+    <li className="space-y-2">
+      <button type="button" aria-expanded={started ? open : undefined} disabled={!started}
+        onClick={() => setOpen((current) => !current)}
+        className="flex w-full items-center gap-2 rounded-md text-left text-sm enabled:hover:bg-[var(--surface-subtle)]">
+        <PlanStatusIcon status={status} size="sm" />
+        <span className={cn(
+          status === "waiting" && "text-[var(--ink-muted)]",
+          status === "active" && cn("font-medium", LANE_TONES[lane].header),
+          status === "done" && "text-[var(--ink-muted)] line-through",
+          status === "failed" && "text-red-600 dark:text-red-300",
+        )}>{label}</span>
+        <span className="ml-auto flex items-center gap-1">
+          {aside && <span className="text-xs text-[var(--ink-muted)]">{aside}</span>}
+          {started && <DisclosureChevron expanded={open} />}
+        </span>
+      </button>
+      {started && open && (
+        <MotionReveal className={cn("ml-5 rounded-lg border p-3", LANE_TONES[lane].frame)}>{children}</MotionReveal>
+      )}
+    </li>
   );
 };
 
