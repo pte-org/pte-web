@@ -630,6 +630,8 @@ const ADMIN_VI: Record<string, string> = {
   "You have unsaved changes to this template. If you leave now, they will be lost.":
     "Bạn có thay đổi chưa lưu trong mẫu này. Nếu rời đi bây giờ, các thay đổi sẽ bị mất.",
   "Stay on this page": "Ở lại trang này",
+  "This question has changes that are not saved. If you leave now, they will be lost.":
+    "Câu hỏi có thay đổi chưa lưu. Nếu rời đi bây giờ, các thay đổi sẽ bị mất.",
   "Leave without saving": "Rời đi, không lưu",
   Save: "Lưu",
   "Standard PTE": "PTE tiêu chuẩn",
