@@ -49,6 +49,19 @@ export function applyLiveEvent(items: LiveItems, event: QuestionGenerationLiveEv
         review: { index: event.index, kind: event.kind, passed: event.passed, fixSuggestion: event.fixSuggestion,
           notes: event.notes },
       }));
+    case "check": {
+      const check = { index: event.index, step: event.step, status: event.status, facts: event.facts,
+        details: event.details };
+      return update(items, event.index, (item) => {
+        // A new prompt starts a new round of writing: the checks of the round before are dropped.
+        const kept = check.step === "PROMPT" ? [] : item.checks ?? [];
+        const checks = kept.some((earlier) => earlier.step === check.step)
+          ? kept.map((earlier) => (earlier.step === check.step ? check : earlier))
+          : [...kept, check];
+        // A new round: the media of the last one was refused and removed, so it is no longer loaded.
+        return check.step === "PROMPT" ? { ...item, checks, audioRef: null, imageRef: null } : { ...item, checks };
+      });
+    }
     case "media":
       return update(items, event.index, (item) =>
         ({ ...item, audioRef: event.audioRef, imageRef: event.imageRef }));
