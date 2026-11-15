@@ -117,10 +117,10 @@ describe("useCreateExamStaff", () => {
     hoisted.createUser.mockResolvedValue({ publicId: "u1" });
     useCreateExamStaff();
 
-    await mutation().mutationFn({ email: "  a@b.vn ", fullName: " An Nguyen ", password: "Secret-123", role: "PROCTOR" } as never);
+    await mutation().mutationFn({ email: "  a@b.vn ", fullName: " An Nguyen ", role: "PROCTOR" } as never);
 
     expect(hoisted.createUser).toHaveBeenCalledWith(hoisted.apiClient, {
-      email: "a@b.vn", fullName: "An Nguyen", password: "Secret-123", roles: ["PROCTOR"], tenantId: null,
+      email: "a@b.vn", fullName: "An Nguyen", roles: ["PROCTOR"], tenantId: null,
     });
   });
 
@@ -138,7 +138,7 @@ describe("useCreateExamStaff", () => {
     hoisted.createUser.mockRejectedValue(new Error("409"));
     useCreateExamStaff();
 
-    await expect(mutation().mutationFn({ email: "a@b.vn", fullName: "An", password: "x", role: "EXAMINER" } as never)).rejects.toThrow("409");
+    await expect(mutation().mutationFn({ email: "a@b.vn", fullName: "An", role: "EXAMINER" } as never)).rejects.toThrow("409");
     expect(hoisted.invalidate).not.toHaveBeenCalled();
   });
 });

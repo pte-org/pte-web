@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Button, Input, Modal, PasswordInput, Select } from "@pte/ui";
+import { Alert, Button, Input, Modal, Select } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { EXAM_STAFF_ROLE_OPTIONS, EXAM_STAFF_TEXT } from "../constants";
 import { useCreateExamStaff } from "../api";
@@ -15,7 +15,6 @@ interface AddExamStaffModalProps {
 const EMPTY_FORM: CreateExamStaffInput = {
   email: "",
   fullName: "",
-  password: "",
   role: "PROCTOR",
 };
 
@@ -34,8 +33,6 @@ export const AddExamStaffModal = ({ open, onClose }: AddExamStaffModalProps): Re
     if (!form.email.trim()) next.email = EXAM_STAFF_TEXT.emailRequired;
     else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) next.email = EXAM_STAFF_TEXT.emailInvalid;
     if (!form.fullName.trim()) next.fullName = EXAM_STAFF_TEXT.fullNameRequired;
-    if (!form.password) next.password = EXAM_STAFF_TEXT.passwordRequired;
-    else if (form.password.length < 8) next.password = EXAM_STAFF_TEXT.passwordMinLength;
     return next;
   };
 
@@ -101,13 +98,6 @@ export const AddExamStaffModal = ({ open, onClose }: AddExamStaffModalProps): Re
           value={form.fullName}
           error={errors.fullName}
           onChange={(event) => handleChange("fullName", event.target.value)}
-        />
-        <PasswordInput
-          label={EXAM_STAFF_TEXT.passwordLabel}
-          helperText={EXAM_STAFF_TEXT.passwordHelper}
-          value={form.password}
-          error={errors.password}
-          onChange={(event) => handleChange("password", event.target.value)}
         />
       </form>
     </Modal>
