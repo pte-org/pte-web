@@ -9,11 +9,13 @@ import {
 
 const forgotText: ForgotPasswordFormText = {
   title: "Forgot your password?",
-  subtitle: "Enter your email and we will send you a link.",
+  subtitle: "Enter your username and email and we will send you a link.",
+  usernameLabel: "Username",
   emailLabel: "Email",
   submit: "Send reset link",
   submitting: "Sending...",
   required: "Enter your email address.",
+  usernameRequired: "Enter your username.",
   sentTitle: "Check your inbox",
   sentMessage: "If the email is registered, a reset link is on its way.",
 };
@@ -37,12 +39,13 @@ const resetText: ResetPasswordFormText = {
 };
 
 describe("ForgotPasswordForm", () => {
-  it("asks for an email and offers the footer link", () => {
+  it("asks for a username and an email and offers the footer link", () => {
     const html = renderHtml(
       <ForgotPasswordForm text={forgotText} onSubmit={async () => undefined} footer={<a href="/login">Back</a>} />,
     );
 
     expect(html).toContain("Forgot your password?");
+    expect(html).toMatch(/<label for="forgot-username"[^>]*>Username<\/label>/);
     expect(html).toMatch(/<label for="forgot-email"[^>]*>Email<\/label>/);
     expect(html).toContain("Send reset link");
     expect(html).toContain('href="/login"');

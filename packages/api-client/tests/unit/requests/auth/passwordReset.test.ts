@@ -18,15 +18,15 @@ function fakeClient(): ApiClient & { request: ReturnType<typeof vi.fn> } {
 }
 
 describe("password reset request contract", () => {
-  it("asks for a reset link by e-mail", async () => {
+  it("asks for a reset link by e-mail and username", async () => {
     const client = fakeClient();
 
-    await requestPasswordReset(client, { email: "host@x.vn" });
+    await requestPasswordReset(client, { email: "host@x.vn", username: "demo.abc" });
 
     expect(AUTH_ENDPOINTS.passwordResetRequest).toBe("/api/v1/auth/password-reset/request");
     expect(client.request).toHaveBeenCalledWith(AUTH_ENDPOINTS.passwordResetRequest, {
       method: "POST",
-      body: { email: "host@x.vn" },
+      body: { email: "host@x.vn", username: "demo.abc" },
     });
   });
 
