@@ -47,7 +47,8 @@ export const useStaffAccountForm = (account: ExamStaffAccountResponse, text: Sta
   return {
     form, editing, dirty, pending: update.isPending, saved, save,
     error: invalid ? text.invalidProfile : update.error instanceof ApiError && update.error.kind === "conflict"
-      ? text.emailConflict : update.error ? text.genericError : null,
+      ? text.emailConflict : update.error instanceof ApiError && update.error.kind === "forbidden"
+        ? text.forbiddenEdit : update.error ? text.genericError : null,
     start: () => { reset(); setEditing(true); },
     cancel: () => { if (!update.isPending) { reset(); setEditing(false); } },
     change: (key, value) => { setInvalid(false); setForm((current) => ({ ...current, [key]: value })); },
