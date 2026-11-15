@@ -12,14 +12,15 @@ import { useLocale, type Locale } from "@pte/ui";
  */
 const ADMIN_VI: Record<string, string> = {
   "Forgot your password?": "Quên mật khẩu?",
-  "Enter the email of your account and we will send you a link to choose a new password.":
-    "Nhập email của tài khoản, chúng tôi sẽ gửi liên kết để bạn chọn mật khẩu mới.",
+  "Enter your username and the email on that account and we will send you a link to choose a new password. Platform accounts use their email as the username.":
+    "Nhập tên đăng nhập và email của tài khoản đó, chúng tôi sẽ gửi liên kết để bạn chọn mật khẩu mới. Tài khoản nền tảng dùng email làm tên đăng nhập.",
+  "Enter your username.": "Vui lòng nhập tên đăng nhập.",
   "Send reset link": "Gửi liên kết đặt lại",
   "Sending...": "Đang gửi...",
   "Enter your email address.": "Vui lòng nhập địa chỉ email.",
   "Check your inbox": "Hãy kiểm tra hộp thư",
-  "If that email belongs to an account, a reset link is on its way. The link works once and expires in 30 minutes.":
-    "Nếu email này thuộc về một tài khoản, liên kết đặt lại đang được gửi đi. Liên kết chỉ dùng được một lần và hết hạn sau 30 phút.",
+  "If that username and email belong to the same account, a reset link is on its way. The link works once and expires in 30 minutes.":
+    "Nếu tên đăng nhập và email này thuộc cùng một tài khoản, liên kết đặt lại đang được gửi đi. Liên kết chỉ dùng được một lần và hết hạn sau 30 phút.",
   "Choose a new password": "Chọn mật khẩu mới",
   "Pick a password you have not used here before. The link works once.":
     "Hãy chọn mật khẩu bạn chưa dùng ở đây trước đây. Liên kết chỉ dùng được một lần.",
@@ -51,8 +52,6 @@ const ADMIN_VI: Record<string, string> = {
     "Đăng nhập để truy cập bảng điều khiển tổ chức, quản lý kỳ thi và theo dõi kết quả.",
   Username: "Tên đăng nhập",
   Organization: "Tổ chức",
-  "Select your organization": "Chọn tổ chức",
-  "Please select your organization.": "Vui lòng chọn tổ chức.",
   Password: "Mật khẩu",
   "Enter your password": "Nhập mật khẩu của bạn",
   "Forgot password?": "Quên mật khẩu?",
@@ -61,8 +60,8 @@ const ADMIN_VI: Record<string, string> = {
   "Show password": "Hiện mật khẩu",
   "Hide password": "Ẩn mật khẩu",
   "Please enter username and password.": "Vui lòng nhập tên đăng nhập và mật khẩu.",
-  "Please enter your email.": "Vui lòng nhập email.",
-  "Please enter a valid email address.": "Vui lòng nhập địa chỉ email hợp lệ.",
+  "Please enter your username.": "Vui lòng nhập tên đăng nhập.",
+  "Username or admin@institution.edu": "Tên đăng nhập hoặc admin@institution.edu",
   "Please enter your password.": "Vui lòng nhập mật khẩu.",
   "Username or password is incorrect.": "Tên đăng nhập hoặc mật khẩu không đúng.",
   "Login failed. Please try again.": "Đăng nhập thất bại. Vui lòng thử lại.",
@@ -839,7 +838,8 @@ const ADMIN_VI: Record<string, string> = {
     "Đã đặt lại mật khẩu. Hãy gửi trực tiếp cho Host vì mật khẩu sẽ không hiển thị lại.",
   "The reset result could not be confirmed. Verify the target account manually before trying again.":
     "Không thể xác nhận kết quả đặt lại. Hãy xác minh thủ công tài khoản đích trước khi thử lại.",
-  "Initial Password": "Mật khẩu ban đầu",
+  "A username and a temporary password are generated and emailed to this address. The Host must change the password at first sign-in.":
+    "Tên đăng nhập và mật khẩu tạm được tạo tự động và gửi tới email này. Host phải đổi mật khẩu ở lần đăng nhập đầu tiên.",
   "At least 8 characters. Relay it to the Host directly.":
     "Ít nhất 8 ký tự. Hãy gửi trực tiếp cho Host.",
   "Full Name": "Họ và tên",

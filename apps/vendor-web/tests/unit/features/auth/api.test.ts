@@ -54,7 +54,6 @@ describe("auth mutations", () => {
   it.each([
     ["admin login", () => authApi.useLoginAdmin(), "loginAdmin"],
     ["host login", () => authApi.useLoginHost(), "loginHost"],
-    ["organization options", () => authApi.useLoginOrganizationOptions(), "listLoginOrganizations"],
     ["change password", () => authApi.useChangePassword(), "changePassword"],
     ["request password reset", () => authApi.useRequestPasswordReset(), "requestPasswordReset"],
     ["confirm password reset", () => authApi.useConfirmPasswordReset(), "confirmPasswordReset"],
