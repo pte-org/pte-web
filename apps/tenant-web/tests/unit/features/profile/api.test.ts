@@ -67,7 +67,6 @@ import {
   VIETNAM_PROVINCES_QUERY_KEY,
 } from "../../../../features/profile/api";
 import { CURRENT_USER_QUERY_KEY } from "@/features/auth/constants";
-import { MY_ORGANIZATIONS_QUERY_KEY } from "@/features/programs/constants";
 
 const query = () => hoisted.queryOptions!;
 const lastMutation = () => hoisted.mutations[hoisted.mutations.length - 1];
