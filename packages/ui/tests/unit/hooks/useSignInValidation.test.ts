@@ -3,26 +3,20 @@ import { validateSignInField, type SignInValidationMessages } from "../../../src
 
 const MESSAGES: SignInValidationMessages = {
   usernameRequired: "USERNAME_REQUIRED",
-  usernameInvalidEmail: "USERNAME_INVALID_EMAIL",
   passwordRequired: "PASSWORD_REQUIRED",
 };
 
 describe("validateSignInField", () => {
-  it.each(["", "   ", "\t"])("requires an email (%j)", (value) => {
+  it.each(["", "   ", "\t"])("requires a username (%j)", (value) => {
     expect(validateSignInField("username", value, MESSAGES)).toBe("USERNAME_REQUIRED");
   });
 
-  it.each(["host", "host@", "host@school", "host admin@school.vn", "@school.vn"])(
-    "rejects an invalid email (%j)",
+  it.each(["acme.k7m2p9qx", "  acme.k7m2p9qx  ", "host@school.edu.vn", "admin@platform.local", "host"])(
+    "accepts a generated username or an email without enforcing a format (%j)",
     (value) => {
-      expect(validateSignInField("username", value, MESSAGES)).toBe("USERNAME_INVALID_EMAIL");
+      expect(validateSignInField("username", value, MESSAGES)).toBeUndefined();
     },
   );
-
-  it("accepts a valid email, ignoring surrounding whitespace", () => {
-    expect(validateSignInField("username", "host@school.edu.vn", MESSAGES)).toBeUndefined();
-    expect(validateSignInField("username", "  host@school.vn  ", MESSAGES)).toBeUndefined();
-  });
 
   it("requires a password but applies no length rule", () => {
     expect(validateSignInField("password", "", MESSAGES)).toBe("PASSWORD_REQUIRED");

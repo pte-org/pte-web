@@ -21,6 +21,13 @@ export const MailIcon = ({ className }: IconProps): ReactElement => (
   </svg>
 );
 
+export const UserIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...baseProps} className={className}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 21a8 8 0 0 1 16 0" />
+  </svg>
+);
+
 export const LockIcon = ({ className }: IconProps): ReactElement => (
   <svg {...baseProps} className={className}>
     <rect x="5" y="11" width="14" height="10" rx="2" />
