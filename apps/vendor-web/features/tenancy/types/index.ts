@@ -101,7 +101,6 @@ export interface LoginAccountLookup {
 export interface CreateLoginAccountInput {
   email: string;
   fullName: string;
-  password: string;
 }
 
 export type CreateLoginAccountErrors = Partial<Record<keyof CreateLoginAccountInput, string>>;
