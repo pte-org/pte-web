@@ -207,7 +207,6 @@ function filenameFromDisposition(disposition: string | null): string | undefined
  */
 const PUBLIC_AUTH_PATHS: readonly string[] = [
   "/api/v1/auth/login",
-  "/api/v1/auth/login-options",
   "/api/v1/auth/refresh",
   "/api/v1/auth/logout",
   // A reset link is often opened in a browser that still holds an expired session; its token made the link hang.

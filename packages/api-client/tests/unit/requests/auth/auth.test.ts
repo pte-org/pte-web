@@ -2,7 +2,6 @@ import { describe, expect, it, vi } from "vitest";
 import type { ApiClient } from "../../../../src/client/client";
 import {
   AUTH_ENDPOINTS,
-  listLoginOrganizations,
   login,
   loginAdmin,
   loginHost,
@@ -72,34 +71,20 @@ describe("auth requests", () => {
     expect(hostClient.request.mock.calls[0][0]).toBe(AUTH_ENDPOINTS.login);
   });
 
-  it("sends the selected tenant when duplicate credentials are disambiguated", async () => {
+  it("sends only username and password: one username belongs to one organization", async () => {
     const client = fakeClient();
 
-    await loginHost(client, {
-      username: "host@school.edu.vn",
-      password: "pw",
-      tenantId: "tenant-2",
-    });
+    await loginHost(client, { username: "acme-school.k7m2p9qr", password: "pw" });
 
     expect(client.request.mock.calls[0][1].body).toEqual({
-      username: "host@school.edu.vn",
+      username: "acme-school.k7m2p9qr",
       password: "pw",
-      tenantId: "tenant-2",
     });
   });
 
-  it("posts credentials to the organization-options endpoint", async () => {
-    const client = fakeClient();
-
-    await listLoginOrganizations(client, {
-      username: "host@school.edu.vn",
-      password: "pw",
-    });
-
-    expect(client.request).toHaveBeenCalledWith(AUTH_ENDPOINTS.loginOptions, {
-      method: "POST",
-      body: { username: "host@school.edu.vn", password: "pw" },
-    });
+  it("has no organization-options endpoint any more", () => {
+    expect(AUTH_ENDPOINTS).not.toHaveProperty("loginOptions");
+    expect(Object.values(AUTH_ENDPOINTS)).not.toContain("/api/v1/auth/login-options");
   });
 
   it("targets the versioned /api/v1/auth paths", () => {
