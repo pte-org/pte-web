@@ -30,6 +30,7 @@ import {
   QUESTION_POOL_LABELS,
 } from "../constants";
 import type { QuestionPreviewDraft } from "../types";
+import { correctAnswerFormatError, correctAnswerHint } from "../correctAnswerFormat";
 
 interface DraftOption {
   text: string;
@@ -250,6 +251,8 @@ export const QuestionEditorForm = ({
       return setError(E.WORD_COUNTS_REQUIRED);
     if (questionType.requiresCorrectAnswer && !hasOptions && !correctAnswerText.trim())
       return setError(E.CORRECT_ANSWER_REQUIRED);
+    const formatError = hasOptions ? null : correctAnswerFormatError(selectedTaskType, correctAnswerText);
+    if (formatError) return setError(formatError);
     if (questionType.requiresReferenceAnswer && !referenceAnswerText.trim())
       return setError(E.REFERENCE_ANSWER_REQUIRED);
     if (hasOptions && (options.length === 0 || options.some((option) => !option.text.trim()))) {
@@ -429,6 +432,7 @@ export const QuestionEditorForm = ({
           <Input
             label={T.CORRECT_ANSWER}
             value={correctAnswerText}
+            helperText={correctAnswerHint(selectedTaskType) ?? undefined}
             onChange={(event) => setCorrectAnswerText(event.target.value)}
           />
         </AgentMark>
