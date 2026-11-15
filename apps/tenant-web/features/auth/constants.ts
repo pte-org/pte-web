@@ -56,18 +56,13 @@ export const AUTH_TEXT = {
   FOOTER_SUPPORT: "Contact support",
   WELCOME_TITLE: "Welcome Back",
   WELCOME_SUBTITLE: "Sign in to manage learners and exams for your organization.",
-  // Username, not email: the backend login key moved off email in Phase 1
-  // of the commercialization work. A HOST_ADMIN's username IS their email
-  // (the backend sets username = email for every non-STUDENT role), which
-  // is why the placeholder still shows one — but a STUDENT signing in uses
-  // `{tenant.code}.{random}`, so the field must not be email-typed or
-  // email-validated.
-  USERNAME_LABEL: "Email",
-  USERNAME_PLACEHOLDER: "host@school.edu.vn",
-  USERNAME_HINT: "Use your email address, or the account issued by your organization.",
-  ORGANIZATION_LABEL: "Organization",
-  ORGANIZATION_PLACEHOLDER: "Select your organization",
-  ORGANIZATION_REQUIRED: "Please select your organization.",
+  // Every organization account (Host, proctor, examiner, student) signs in with the generated
+  // `{tenant.code}.{random}` username that was e-mailed when the account was created — the e-mail
+  // address is not the login key for new accounts, so the field is not e-mail-typed or e-mail-validated.
+  // Accounts created before generated usernames keep their e-mail as username.
+  USERNAME_LABEL: "Username",
+  USERNAME_PLACEHOLDER: "school.k7m2p9qx",
+  USERNAME_HINT: "Use the username your organization sent to your email.",
   PASSWORD_LABEL: "Password",
   PASSWORD_PLACEHOLDER: "Enter your password",
   FORGOT: "Forgot password?",
@@ -75,8 +70,7 @@ export const AUTH_TEXT = {
   LOGGING_IN: "Signing in...",
   SHOW_PASSWORD: "Show password",
   HIDE_PASSWORD: "Hide password",
-  USERNAME_REQUIRED: "Please enter your email.",
-  USERNAME_INVALID_EMAIL: "Please enter a valid email address.",
+  USERNAME_REQUIRED: "Please enter your username.",
   PASSWORD_REQUIRED: "Please enter your password.",
   INVALID_CREDENTIALS: "Username or password is incorrect.",
   STUDENT_ACCOUNT_NOT_ALLOWED:
@@ -134,14 +128,17 @@ export const REGISTRATION_ORGANIZATION_TYPES = [
 
 export const FORGOT_PASSWORD_TEXT: ForgotPasswordFormText = {
   title: "Forgot your password?",
-  subtitle: "Enter the email of your account and we will send you a link to choose a new password.",
+  subtitle:
+    "Enter your username and the email on that account and we will send you a link to choose a new password. Forgot your username? Ask your centre administrator.",
+  usernameLabel: "Username",
   emailLabel: "Email",
   submit: "Send reset link",
   submitting: "Sending...",
   required: "Enter your email address.",
+  usernameRequired: "Enter your username.",
   sentTitle: "Check your inbox",
   sentMessage:
-    "If that email belongs to an account, a reset link is on its way. The link works once and expires in 30 minutes.",
+    "If that username and email belong to the same account, a reset link is on its way. The link works once and expires in 30 minutes.",
 };
 
 export const RESET_PASSWORD_TEXT: ResetPasswordFormText & { failed: string } = {
