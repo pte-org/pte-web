@@ -31,6 +31,7 @@ import {
 } from "../constants";
 import type { QuestionPreviewDraft } from "../types";
 import { correctAnswerFormatError, correctAnswerHint } from "../correctAnswerFormat";
+import { wordCountBoundsError } from "../wordCountBounds";
 
 interface DraftOption {
   text: string;
@@ -249,6 +250,8 @@ export const QuestionEditorForm = ({
     if (questionType.requiresImagePrompt && !imagePromptRef) return setError(E.IMAGE_REQUIRED);
     if (questionType.requiresWordCount && (!minWordCount || !maxWordCount))
       return setError(E.WORD_COUNTS_REQUIRED);
+    const boundsError = wordCountBoundsError(minWordCount, maxWordCount);
+    if (boundsError) return setError(boundsError);
     if (questionType.requiresCorrectAnswer && !hasOptions && !correctAnswerText.trim())
       return setError(E.CORRECT_ANSWER_REQUIRED);
     const formatError = hasOptions ? null : correctAnswerFormatError(selectedTaskType, correctAnswerText);
@@ -421,11 +424,23 @@ export const QuestionEditorForm = ({
         </AgentMark>
       )}
       <AgentMark lane={marks.referenceAnswerText}>
-        <Input
-          label={questionType?.requiresAudioPrompt ? T.AUDIO_TRANSCRIPT : T.REFERENCE_ANSWER}
-          value={referenceAnswerText}
-          onChange={(event) => setReferenceAnswerText(event.target.value)}
-        />
+        {questionType?.requiresAudioPrompt || questionType?.requiresReferenceAnswer ? (
+          // A transcript runs to hundreds of words, so it gets a multi-line box like the prompt text.
+          <label className="text-sm font-medium text-gray-700">
+            {questionType.requiresAudioPrompt ? T.AUDIO_TRANSCRIPT : T.REFERENCE_ANSWER}
+            <textarea
+              className={`${fieldClass} mt-1 min-h-28`}
+              value={referenceAnswerText}
+              onChange={(event) => setReferenceAnswerText(event.target.value)}
+            />
+          </label>
+        ) : (
+          <Input
+            label={T.REFERENCE_ANSWER}
+            value={referenceAnswerText}
+            onChange={(event) => setReferenceAnswerText(event.target.value)}
+          />
+        )}
       </AgentMark>
       {(!hasOptions || correctAnswerText.trim() !== "") && (
         <AgentMark lane={marks.correctAnswerText}>

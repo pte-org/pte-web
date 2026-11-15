@@ -193,6 +193,8 @@ export const QUESTION_EDITOR_ERRORS = {
   AUDIO_REQUIRED: "An audio prompt is required for this task.",
   IMAGE_REQUIRED: "An image prompt is required for this task.",
   WORD_COUNTS_REQUIRED: "Minimum and maximum word counts are required for this task.",
+  WORD_COUNTS_INVALID:
+    "Word counts must be whole numbers of 0 or more, and the minimum cannot be greater than the maximum.",
   CORRECT_ANSWER_REQUIRED: "A correct answer is required for this task.",
   INVALID_CORRECT_ANSWER_FORMAT:
     "The correct answer is not in the format this task type needs. See the hint under the field.",
