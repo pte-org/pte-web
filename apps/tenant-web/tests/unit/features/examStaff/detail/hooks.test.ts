@@ -89,6 +89,7 @@ const dummyAccount: ExamStaffAccountResponse = {
   roles: ["EXAMINER"],
   mustChangePassword: false,
   canSendCredentials: true,
+  editable: true,
 };
 
 describe("features/examStaff/detail/hooks", () => {
