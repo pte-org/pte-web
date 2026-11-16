@@ -172,6 +172,16 @@ export const QUESTION_EDITOR_TEXT = {
   UPDATE_SUCCESS: "Question draft saved.",
 } as const;
 
+/** Format of "Correct answer text" for the task types the automatic scorers read as text. */
+export const CORRECT_ANSWER_HINTS = {
+  FILL_IN_THE_BLANKS_TYPE_IN:
+    'A JSON list with one word per gap, in order. Example: ["London", "ecosystem"]',
+  HIGHLIGHT_INCORRECT_WORDS:
+    "A JSON list of the positions of the wrong words, counting from 0. Example: [3, 8, 14]",
+  ANSWER_SHORT_QUESTION:
+    "The accepted answers separated by /, best answer first. Example: thermometer / a thermometer",
+} as const;
+
 export const POOL_CHANGE_TEXT = {
   TO_PRACTICE_TITLE: "Move this question to Practice?",
   TO_PRACTICE_BODY:
@@ -193,9 +203,13 @@ export const QUESTION_EDITOR_ERRORS = {
   AUDIO_REQUIRED: "An audio prompt is required for this task.",
   IMAGE_REQUIRED: "An image prompt is required for this task.",
   WORD_COUNTS_REQUIRED: "Minimum and maximum word counts are required for this task.",
+  WORD_COUNTS_INVALID:
+    "Word counts must be whole numbers of 0 or more, and the minimum cannot be greater than the maximum.",
   CORRECT_ANSWER_REQUIRED: "A correct answer is required for this task.",
+  INVALID_CORRECT_ANSWER_FORMAT:
+    "The correct answer is not in the format this task type needs. See the hint under the field.",
   REFERENCE_ANSWER_REQUIRED:
-    "Repeat Sentence needs the sentence the student must repeat in the reference answer.",
+    "This task needs its source text: the sentence to repeat, or the transcript of the audio the student retells or summarises.",
   OPTION_TEXT_REQUIRED: "Every option must contain text.",
   CORRECT_OPTION_REQUIRED: "Select at least one correct option.",
   SINGLE_CORRECT_REQUIRED: "Single-choice tasks require exactly one correct option.",

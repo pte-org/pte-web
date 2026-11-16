@@ -52,7 +52,7 @@ export const GenerationDrawer = ({
     count: initialCount,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [, setTouched] = useState<Record<string, boolean>>({});
 
   const { mutate: createJob, isPending } = useCreateQuestionGenerationJob();
   const { data: quota } = useQuestionGenerationQuota();

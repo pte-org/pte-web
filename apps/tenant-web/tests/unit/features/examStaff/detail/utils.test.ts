@@ -150,6 +150,7 @@ describe("features/examStaff/detail/utils and constants", () => {
         roles: ["EXAMINER"],
         mustChangePassword: false,
         canSendCredentials: true,
+        editable: true,
       };
 
       expect(staffProfileForm(account)).toEqual({
@@ -170,6 +171,7 @@ describe("features/examStaff/detail/utils and constants", () => {
         roles: ["PROCTOR"],
         mustChangePassword: false,
         canSendCredentials: false,
+        editable: true,
       };
 
       expect(staffProfileForm(emptyAccount)).toEqual({
