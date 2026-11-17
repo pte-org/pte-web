@@ -10,29 +10,21 @@ import {
   LockIcon,
   MailIcon,
   returnPath,
-  Select,
   useSessionManager,
   useSignInValidation,
   useToast,
   type SignInValidationMessages,
 } from "@pte/ui";
-import {
-  decodeAccessTokenClaims,
-  type LoginOrganizationOption,
-  type JwtTokenResponse,
-} from "@pte/api-client";
-import { useLoginHost, useLoginOrganizationOptions } from "../api";
+import { decodeAccessTokenClaims, type JwtTokenResponse } from "@pte/api-client";
+import { useLoginHost } from "../api";
 import { AUTH_ROUTES, AUTH_TEXT } from "../constants";
 import { resolveWorkspace } from "../resolveWorkspace";
 import { decidePortalLogin } from "../sessionRoles";
 import { getLoginErrorMessage } from "../loginError";
 import { clearSigningOut } from "../signOutIntent";
 
-const LABEL_CLASS = "text-[13px] font-semibold text-[var(--ink-secondary)]";
-
 const VALIDATION_MESSAGES: SignInValidationMessages = {
   usernameRequired: AUTH_TEXT.USERNAME_REQUIRED,
-  usernameInvalidEmail: AUTH_TEXT.USERNAME_INVALID_EMAIL,
   passwordRequired: AUTH_TEXT.PASSWORD_REQUIRED,
 };
 
@@ -45,12 +37,9 @@ export const LoginView = (): ReactElement => {
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [organizationOptions, setOrganizationOptions] = useState<LoginOrganizationOption[]>([]);
-  const [organizationId, setOrganizationId] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const mutation = useLoginHost();
-  const organizationMutation = useLoginOrganizationOptions();
 
   const handleLoginSuccess = (data: JwtTokenResponse): void => {
     const claims = decodeAccessTokenClaims(data.accessToken);
@@ -91,29 +80,9 @@ export const LoginView = (): ReactElement => {
       document.getElementById(fieldErrors.username ? "username" : "password")?.focus();
       return;
     }
-    if (organizationOptions.length > 0 && !organizationId) {
-      notifyError(AUTH_TEXT.ORGANIZATION_REQUIRED);
-      return;
-    }
     try {
-      const trimmedUsername = username.trim();
-      let selectedOrganizationId = organizationId || undefined;
-      if (!selectedOrganizationId && organizationOptions.length === 0) {
-        const options = await organizationMutation.mutateAsync({
-          username: trimmedUsername,
-          password,
-        });
-        if (options.length > 1) {
-          setOrganizationOptions(options);
-          return;
-        }
-        selectedOrganizationId = options[0]?.tenantId;
-      }
-      const data = await mutation.mutateAsync({
-        username: trimmedUsername,
-        password,
-        ...(selectedOrganizationId ? { tenantId: selectedOrganizationId } : {}),
-      });
+      // One username belongs to one organization: no organization choice, a single request.
+      const data = await mutation.mutateAsync({ username: username.trim(), password });
       handleLoginSuccess(data);
     } catch (error) {
       notifyError(getLoginErrorMessage(error, AUTH_TEXT));
@@ -147,8 +116,6 @@ export const LoginView = (): ReactElement => {
           onChange={(event) => {
             setUsername(event.target.value);
             validation.onChange("username", event.target.value);
-            setOrganizationOptions([]);
-            setOrganizationId("");
           }}
           onBlur={(event) => validation.onBlur("username", event.target.value)}
           placeholder={AUTH_TEXT.USERNAME_PLACEHOLDER}
@@ -167,8 +134,6 @@ export const LoginView = (): ReactElement => {
             onChange={(event) => {
               setPassword(event.target.value);
               validation.onChange("password", event.target.value);
-              setOrganizationOptions([]);
-              setOrganizationId("");
             }}
             onBlur={(event) => validation.onBlur("password", event.target.value)}
             trailing={
@@ -190,28 +155,8 @@ export const LoginView = (): ReactElement => {
           </Link>
         </div>
 
-        {organizationOptions.length > 0 && (
-          <div className="flex flex-col gap-1">
-            <label htmlFor="organization" className={LABEL_CLASS}>
-              {AUTH_TEXT.ORGANIZATION_LABEL}
-            </label>
-            <Select
-              id="organization"
-              value={organizationId}
-              onChange={(event) => setOrganizationId(event.target.value)}
-              placeholder={AUTH_TEXT.ORGANIZATION_PLACEHOLDER}
-              options={organizationOptions.map((option) => ({
-                value: option.tenantId,
-                label: `${option.organizationName} (${option.tenantCode})`,
-              }))}
-            />
-          </div>
-        )}
-
-        <AuthSubmitButton disabled={mutation.isPending || organizationMutation.isPending}>
-          {mutation.isPending || organizationMutation.isPending
-            ? AUTH_TEXT.LOGGING_IN
-            : AUTH_TEXT.LOGIN_BUTTON}
+        <AuthSubmitButton disabled={mutation.isPending}>
+          {mutation.isPending ? AUTH_TEXT.LOGGING_IN : AUTH_TEXT.LOGIN_BUTTON}
         </AuthSubmitButton>
       </form>
     </>

@@ -17,6 +17,8 @@ export const STAFF_DETAIL_VI: StaffDetailMessages = {
   suspendDescription: "Tạm khóa {name}? Người này không thể đăng nhập cho đến khi được kích hoạt lại.",
   reactivateTitle: "Kích hoạt lại tài khoản", reactivateDescription: "Cho phép {name} đăng nhập trở lại?",
   loadFailed: "Không thể tải hồ sơ nhân sự.", unavailableProfile: "Hồ sơ không còn tồn tại hoặc bạn không có quyền truy cập.",
+  sharedAccountLocked: "Người này còn làm việc cho tổ chức khác, nên thông tin cá nhân chỉ do chính họ hoặc đội ngũ nền tảng thay đổi.",
+  forbiddenEdit: "Bạn không có quyền thay đổi thông tin cá nhân của tài khoản này.",
   genericError: "Không thể thực hiện yêu cầu. Vui lòng thử lại.", retry: "Thử lại",
   emailConflict: "Email đã được sử dụng bởi tài khoản khác trong tổ chức.",
   invalidProfile: "Nhập họ tên, email hợp lệ và ngày sinh hợp lệ không nằm trong tương lai.",

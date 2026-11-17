@@ -17,6 +17,8 @@ export const STAFF_DETAIL_EN = {
   loadFailed: "Unable to load this staff profile.", unavailableProfile: "This staff profile is unavailable or you do not have access.",
   genericError: "Unable to complete the request. Please try again.", retry: "Try again",
   emailConflict: "This email is already used by another account in your organization.",
+  sharedAccountLocked: "This person also works for another organization, so their personal details can only be changed by that person or the platform team.",
+  forbiddenEdit: "You are not allowed to change this account's personal details.",
   invalidProfile: "Enter a full name, valid email, and a valid date of birth that is not in the future.",
   unsavedTitle: "Discard changes?", unsavedDescription: "Your account edits have not been saved.",
   discard: "Discard changes", dateRange: "Date range", from: "From date", to: "To date", allSessions: "All sessions",

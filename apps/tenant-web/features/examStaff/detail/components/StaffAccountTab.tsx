@@ -17,8 +17,9 @@ export const StaffAccountTab = ({ account, text, onEditState }: StaffAccountTabP
   useEffect(() => { onEditState(editor.dirty, editor.pending); }, [editor.dirty, editor.pending, onEditState]);
   useEffect(() => { if (editor.saved) showToast(text.saved, { tone: "success" }); }, [editor.saved, showToast, text.saved]);
   return <ProfileAccountPanel title={text.account} description={text.accountDescription}
-    actions={!editor.editing && <Button variant="secondary" size="sm" leftIcon={<PencilIcon />}
+    actions={!editor.editing && account.editable && <Button variant="secondary" size="sm" leftIcon={<PencilIcon />}
       onClick={editor.start}>{text.edit}</Button>}>
+    {!account.editable && <Alert tone="info">{text.sharedAccountLocked}</Alert>}
     {editor.error && <Alert tone="error">{editor.error}</Alert>}
     {editor.editing ? <div className="flex flex-col gap-5">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

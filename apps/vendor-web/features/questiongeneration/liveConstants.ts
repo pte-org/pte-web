@@ -1,8 +1,11 @@
 import type { QuestionGenerationItemStage, QuestionGenerationJobStatus } from "@pte/api-client";
 
 /** The page where a job is followed while the agents write. */
-/** How long the finished run stays on screen before its question goes back to the form. */
-export const FORM_RETURN_PAUSE_MS = 1500;
+/** How long the finished run stays on screen before its question goes back to the form; long enough for every step
+ * of the plan to be shown done (see STEP_MIN_VISIBLE_MS). */
+export const FORM_RETURN_PAUSE_MS = 4000;
+/** Each step of a question stays on screen at least this long, so a fast run can still be followed step by step. */
+export const STEP_MIN_VISIBLE_MS = 800;
 /** The new-question form, filled with what a form-started job wrote. */
 export const formFillHref = (jobId: string): string => `/admin/questions/new?fromJob=${jobId}`;
 /** A Describe Image picture the image model could not paint; the person may make it as a chart instead. */
@@ -43,6 +46,8 @@ const LIVE_TEXT_EN = {
   cancelTitle: "Stop this generation?",
   cancelBody: "The question being written is dropped; the questions already saved stay in the bank.",
   cancelConfirm: "Stop",
+  stopping: "Stopping…",
+  stopRequested: "Stopping: the question being written is finished off first, then the run stops.",
   cancelBack: "Keep going",
   openQuestion: "Open the question",
   attempt: "Attempt {n}",
@@ -66,6 +71,10 @@ const LIVE_TEXT_EN = {
   cancelledItem: "Stopped before it was made.",
   mediaAudio: "Reading the text aloud…",
   mediaImage: "Drawing the chart…",
+  mediaPicture: "The image model is painting the picture…",
+  mediaFailed: "The media could not be made, so the question stopped here.",
+  imageLanePicture: "Make the picture",
+  imageLaneAuto: "Make a chart or picture",
   topic: "Topic",
   activity: "AI is writing questions",
   activityProgress: "{done}/{total}",
@@ -85,6 +94,8 @@ export const LIVE_TEXT: { vi: LiveText; en: LiveText } = {
     cancelTitle: "Dừng lần sinh đề này?",
     cancelBody: "Câu đang viết sẽ bị bỏ; các câu đã lưu vẫn ở trong ngân hàng.",
     cancelConfirm: "Dừng",
+    stopping: "Đang dừng…",
+    stopRequested: "Đang dừng: câu đang viết sẽ được kết thúc rồi lần sinh đề dừng lại.",
     cancelBack: "Tiếp tục",
     openQuestion: "Mở câu hỏi",
     attempt: "Lần {n}",
@@ -108,6 +119,10 @@ export const LIVE_TEXT: { vi: LiveText; en: LiveText } = {
     cancelledItem: "Đã dừng trước khi tạo.",
     mediaAudio: "Đang đọc thành tiếng…",
     mediaImage: "Đang vẽ biểu đồ…",
+    mediaPicture: "Model đang tạo ảnh…",
+    mediaFailed: "Không tạo được media, câu hỏi dừng ở bước này.",
+    imageLanePicture: "Tạo ảnh",
+    imageLaneAuto: "Tạo biểu đồ hoặc ảnh",
     topic: "Chủ đề",
     activity: "AI đang sinh đề",
     activityProgress: "{done}/{total}",

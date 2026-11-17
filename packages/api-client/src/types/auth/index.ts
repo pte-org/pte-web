@@ -1,49 +1,33 @@
 /**
  * Matches identity's real `LoginRequest` record exactly
- * (`{username, password, tenantId?}` —
- * `com/pte/identity/internal/dto/request/LoginRequest.java`).
+ * (`{username, password}` —
+ * `com/pte/identity/internal/dto/request/auth/LoginRequest.java`).
  *
- * <p>`username` — NOT `email`. The login key moved off email in Phase 1 of
- * the commercialization work: a STUDENT's username is
- * `{tenant.code}.{random}` and is not an email address at all, and two
- * tenants may now hold the same email. For every non-STUDENT role the
- * backend sets `username = email`, so those users still type their email
- * here — but the field name and its validation are username semantics.
+ * <p>`username` — NOT `email`. Every organization account (student, Host,
+ * proctor, examiner) has a generated `{tenant.code}.{random}` username that is
+ * not an email address; one username belongs to exactly one organization, so
+ * there is no organization to choose at sign-in. Only platform operator
+ * accounts still use their email as the username — so the field carries
+ * username semantics and no email validation.
  */
 export interface LoginRequest {
   username: string;
   password: string;
-  tenantId?: string | null;
 }
 
 export interface AdminLoginRequest {
   username: string;
   password: string;
-  tenantId?: string | null;
 }
 
 export interface HostLoginRequest {
   username: string;
   password: string;
-  tenantId?: string | null;
 }
 
 export interface StudentLoginRequest {
   username: string;
   password: string;
-  tenantId?: string | null;
-}
-
-export interface LoginOrganizationOptionsRequest {
-  username: string;
-  password: string;
-}
-
-export interface LoginOrganizationOption {
-  tenantId: string;
-  tenantCode: string;
-  organizationName: string;
-  organizationType: string;
 }
 
 /**
@@ -78,6 +62,8 @@ export interface ChangePasswordRequest {
 
 export interface PasswordResetRequest {
   email: string;
+  /** The account to reset; the server requires it because one e-mail can belong to several accounts. */
+  username: string;
 }
 
 export interface PasswordResetConfirmRequest {

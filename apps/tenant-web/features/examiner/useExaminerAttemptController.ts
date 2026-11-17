@@ -7,6 +7,7 @@ import { useExaminerWorkText } from "./hooks/useExaminerWorkText";
 import { useExaminerAttempt, useExaminerIssues, useReportExaminerIssue, useStartExaminerWork } from "./api";
 import type { MediaState } from "./components/AnswerContentRenderer";
 import { useExaminerSubmissions } from "./useExaminerSubmissions";
+import { draftInputError } from "./traitDraft";
 import { formatAttemptTitle } from "./utils/attemptLabels";
 /** Stable reference: a fresh `[]` per render makes the draft hook's `answers !== prevAnswers` check loop forever. */
 const NO_ANSWERS: ExaminerAnswerDetailResponse[] = [];
@@ -113,6 +114,12 @@ export const useExaminerAttemptController = ({
   };
 
   const handleSaveClick = async (): Promise<boolean> => {
+    const draft = currentAnswer ? drafts[currentAnswer.answerPublicId] : undefined;
+    const problem = currentAnswer && draft ? draftInputError(currentAnswer.rubric, draft) : null;
+    if (problem) {
+      showToast(problem === "SCORE" ? T.SCORE_INVALID : T.TRAITS_INVALID, { tone: "error" });
+      return false;
+    }
     const saved = await handleSaveDraft();
     showToast(saved ? T.SAVE_SUCCESS : T.SAVE_FAILED, { tone: saved ? "success" : "error" });
     return saved;

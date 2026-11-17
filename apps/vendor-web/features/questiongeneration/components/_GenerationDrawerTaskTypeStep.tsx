@@ -28,6 +28,7 @@ export const _GenerationDrawerTaskTypeStep = ({
           name="taskType"
           aria-label={generationMessages.taskTypeLabel}
           options={taskTypes.map((taskType) => ({ label: taskType.taskType, value: taskType.taskType }))}
+          placeholder={generationMessages.taskTypePlaceholder}
           value={value ?? ""}
           onChange={(event) => onChange(event.target.value as GenerationFormState["taskType"])}
         />

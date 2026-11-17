@@ -43,6 +43,9 @@ export type {
   QuestionGenerationLiveItem,
   QuestionGenerationLiveDraft,
   QuestionGenerationLiveReview,
+  QuestionGenerationLiveCheck,
+  QuestionGenerationCheckStep,
+  QuestionGenerationCheckDetail,
   QuestionGenerationLiveEvent,
 } from "./generation";
 

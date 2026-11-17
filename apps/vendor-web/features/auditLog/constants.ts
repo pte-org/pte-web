@@ -35,9 +35,9 @@ export const PLATFORM_AUDIT_LOG_COPY = {
 } as const;
 
 export const PLATFORM_AUDIT_RESOURCE_TYPES = [
-  { value: "Tenant", label: { en: "Tenant", vi: "Tenant" } },
+  { value: "Tenant", label: { en: "Tenant", vi: "Tổ chức" } },
   { value: "Organization", label: { en: "Organization", vi: "Tổ chức" } },
-  { value: "TENANT_APPLICATION", label: { en: "Tenant application", vi: "Đơn đăng ký tenant" } },
+  { value: "TENANT_APPLICATION", label: { en: "Tenant application", vi: "Đơn đăng ký tổ chức" } },
   { value: "Plan", label: { en: "Plan", vi: "Gói" } },
   { value: "LicenseCode", label: { en: "License code", vi: "Mã bản quyền" } },
   { value: "Order", label: { en: "Order", vi: "Đơn hàng" } },
@@ -52,12 +52,12 @@ export const PLATFORM_AUDIT_RESOURCE_TYPES = [
 ] as const;
 
 export const PLATFORM_AUDIT_ACTION_LABELS: Record<string, { en: string; vi: string }> = {
-  TenantOnboarded: { en: "Tenant onboarded", vi: "Đã khởi tạo tenant" },
-  TenantSuspended: { en: "Tenant suspended", vi: "Đã tạm ngưng tenant" },
-  TenantReactivated: { en: "Tenant reactivated", vi: "Đã kích hoạt lại tenant" },
+  TenantOnboarded: { en: "Tenant onboarded", vi: "Đã khởi tạo tổ chức" },
+  TenantSuspended: { en: "Tenant suspended", vi: "Đã tạm ngưng tổ chức" },
+  TenantReactivated: { en: "Tenant reactivated", vi: "Đã kích hoạt lại tổ chức" },
   TenantBrandingUpdated: {
     en: "Tenant branding updated",
-    vi: "Đã cập nhật nhận diện tenant",
+    vi: "Đã cập nhật nhận diện tổ chức",
   },
   PlatformUserCreated: { en: "Platform user created", vi: "Đã tạo người dùng platform" },
   PlatformUserRolesUpdated: {

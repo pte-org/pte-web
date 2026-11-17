@@ -30,9 +30,6 @@ import { useProctorWorkspaceText } from "../../../../features/proctor/hooks/useP
 import {
   PROCTOR_WORKSPACE_EN,
 } from "../../../../features/proctor/messages/en";
-import {
-  PROCTOR_WORKSPACE_VI,
-} from "../../../../features/proctor/messages/vi";
 
 beforeEach(() => {
   hoisted.locale = "en";

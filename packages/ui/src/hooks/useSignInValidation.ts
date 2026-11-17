@@ -5,11 +5,8 @@ import { useCallback, useState } from "react";
 export type SignInField = "username" | "password";
 export type SignInErrors = Partial<Record<SignInField, string>>;
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
 export interface SignInValidationMessages {
   usernameRequired: string;
-  usernameInvalidEmail: string;
   passwordRequired: string;
 }
 
@@ -19,7 +16,8 @@ export interface SignInValues {
 }
 
 /**
- * Field rules for sign-in: the username field takes an email address and must be a valid one.
+ * Field rules for sign-in: the username field is required but not shaped — organization accounts use a
+ * generated `{code}.{random}` username and platform accounts use their email, so no format is enforced.
  * No password length rule, so older short passwords still work.
  */
 export const validateSignInField = (
@@ -28,10 +26,7 @@ export const validateSignInField = (
   messages: SignInValidationMessages,
 ): string | undefined => {
   if (field === "username") {
-    const username = value.trim();
-    if (!username) return messages.usernameRequired;
-    if (!EMAIL_PATTERN.test(username)) return messages.usernameInvalidEmail;
-    return undefined;
+    return value.trim() ? undefined : messages.usernameRequired;
   }
   return value.length === 0 ? messages.passwordRequired : undefined;
 };

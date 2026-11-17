@@ -15,8 +15,9 @@ interface ExamStaffRowActionsProps { user: UserResponse; text: ExamStaffListText
 export const ExamStaffRowActions = ({ user, text }: ExamStaffRowActionsProps): ReactElement => {
   const router = useRouter();
   const detailText = useStaffDetailText();
+  // The row menu never edits the profile, so `editable` is not used here.
   const actions = useStaffAccountActions({ ...user, canSendCredentials: Boolean(user.email)
-    && !user.roles.includes("STUDENT") }, detailText);
+    && !user.roles.includes("STUDENT"), editable: false }, detailText);
   return <>
     <ActionMenu label={`${text.actions}: ${user.fullName}`} items={[
       { label: text.viewDetails, icon: EyeIcon, onSelect: () => router.push(STAFF_DETAIL_ROUTES.detail(user.publicId)) },

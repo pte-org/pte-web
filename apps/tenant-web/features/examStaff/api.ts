@@ -67,7 +67,6 @@ export function useCreateExamStaff(): UseMutationResult<
       createUser(apiClient, {
         email: input.email.trim(),
         fullName: input.fullName.trim(),
-        password: input.password,
         roles: [input.role],
         tenantId: null,
       }),

@@ -7,9 +7,10 @@ import {
   type NewPasswordProblem,
 } from "../utils/passwordReset";
 import { AuthSubmitButton, AuthTextField } from "./AuthFormControls";
-import { EyeIcon, LockIcon, MailIcon } from "./AuthIcons";
+import { EyeIcon, LockIcon, MailIcon, UserIcon } from "./AuthIcons";
 
 const EMAIL_FIELD_ID = "forgot-email";
+const USERNAME_FIELD_ID = "forgot-username";
 
 // These forms render only their content. The app places them in `AuthBrandShell`, the same frame as the
 // sign-in page (artwork, animated backdrop, theme toggle), so the content must not bring its own page.
@@ -35,28 +36,33 @@ const ErrorNotice = ({ message }: { message: string }): ReactElement => (
 export interface ForgotPasswordFormText {
   title: string;
   subtitle: string;
+  usernameLabel: string;
   emailLabel: string;
   submit: string;
   submitting: string;
+  /** Shown when the e-mail is blank. */
   required: string;
+  /** Shown when the username is blank. */
+  usernameRequired: string;
   sentTitle: string;
   sentMessage: string;
 }
 
 export interface ForgotPasswordFormProps {
   text: ForgotPasswordFormText;
-  /** Asks the server for a reset link. Any failure is hidden from the user on purpose. */
-  onSubmit: (email: string) => Promise<unknown>;
+  /** Asks the server for a reset link for one account. Any failure is hidden from the user on purpose. */
+  onSubmit: (email: string, username: string) => Promise<unknown>;
   /** Usually the "back to sign in" link, rendered by the app so it can use its own router link. */
   footer?: ReactNode;
 }
 
-/** Asks for an email and always ends on the same "check your inbox" notice. */
+/** Asks for a username and its email, and always ends on the same "check your inbox" notice. */
 export const ForgotPasswordForm = ({
   text,
   onSubmit,
   footer,
 }: ForgotPasswordFormProps): ReactElement => {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [pending, setPending] = useState(false);
@@ -65,10 +71,10 @@ export const ForgotPasswordForm = ({
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
     setPending(true);
-    const outcome = await submitForgotPassword(email, onSubmit);
+    const outcome = await submitForgotPassword(email, username, onSubmit);
     setPending(false);
-    if (outcome === "EMAIL_REQUIRED") {
-      setError(text.required);
+    if (outcome === "USERNAME_REQUIRED" || outcome === "EMAIL_REQUIRED") {
+      setError(outcome === "USERNAME_REQUIRED" ? text.usernameRequired : text.required);
       return;
     }
     setError(undefined);
@@ -89,6 +95,15 @@ export const ForgotPasswordForm = ({
       <Heading title={text.title} subtitle={text.subtitle} />
       {error && <ErrorNotice message={error} />}
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-[18px]">
+        <AuthTextField
+          id={USERNAME_FIELD_ID}
+          type="text"
+          autoComplete="username"
+          label={text.usernameLabel}
+          icon={<UserIcon />}
+          value={username}
+          onChange={(event) => setUsername(event.target.value)}
+        />
         <AuthTextField
           id={EMAIL_FIELD_ID}
           type="email"

@@ -5,8 +5,6 @@ import type {
   ChangePasswordRequest,
   HostLoginRequest,
   LoginRequest,
-  LoginOrganizationOption,
-  LoginOrganizationOptionsRequest,
   LogoutRequest,
   PasswordResetConfirmRequest,
   PasswordResetRequest,
@@ -18,7 +16,6 @@ import type {
 
 export const AUTH_ENDPOINTS = {
   login: "/api/v1/auth/login",
-  loginOptions: "/api/v1/auth/login-options",
   refresh: "/api/v1/auth/refresh",
   logout: "/api/v1/auth/logout",
   changePassword: "/api/v1/auth/change-password",
@@ -35,29 +32,11 @@ export function login(client: ApiClient, payload: LoginRequest): Promise<AuthRes
 }
 
 export function loginAdmin(client: ApiClient, payload: AdminLoginRequest): Promise<AuthResponse> {
-  return login(client, {
-    username: payload.username,
-    password: payload.password,
-    ...(payload.tenantId ? { tenantId: payload.tenantId } : {}),
-  });
+  return login(client, { username: payload.username, password: payload.password });
 }
 
 export function loginHost(client: ApiClient, payload: HostLoginRequest): Promise<AuthResponse> {
-  return login(client, {
-    username: payload.username,
-    password: payload.password,
-    ...(payload.tenantId ? { tenantId: payload.tenantId } : {}),
-  });
-}
-
-export function listLoginOrganizations(
-  client: ApiClient,
-  payload: LoginOrganizationOptionsRequest,
-): Promise<LoginOrganizationOption[]> {
-  return client.request<LoginOrganizationOption[]>(AUTH_ENDPOINTS.loginOptions, {
-    method: "POST",
-    body: payload,
-  });
+  return login(client, { username: payload.username, password: payload.password });
 }
 
 /** A STUDENT username is a tenant-code-prefixed identifier, not an email. */
@@ -65,11 +44,7 @@ export function loginStudent(
   client: ApiClient,
   payload: StudentLoginRequest,
 ): Promise<AuthResponse> {
-  return login(client, {
-    username: payload.username,
-    password: payload.password,
-    ...(payload.tenantId ? { tenantId: payload.tenantId } : {}),
-  });
+  return login(client, { username: payload.username, password: payload.password });
 }
 
 export function refreshAuth(

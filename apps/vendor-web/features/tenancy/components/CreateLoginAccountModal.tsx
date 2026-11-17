@@ -107,21 +107,7 @@ export const CreateLoginAccountModal = ({
           />
         </TenantFormField>
 
-        <TenantFormField
-          label={T.PASSWORD_LABEL}
-          htmlFor="login-password"
-          required
-          helper={T.PASSWORD_HELPER}
-          error={localizedErrors.password}
-        >
-          <input
-            id="login-password"
-            type="password"
-            value={form.password}
-            onChange={(event) => handleChange("password", event.target.value)}
-            className={fieldInputClass(errors.password)}
-          />
-        </TenantFormField>
+        <p className="text-sm text-gray-600">{T.CREDENTIALS_NOTE}</p>
       </form>
     </Modal>
   );

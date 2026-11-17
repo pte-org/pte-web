@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Button, Input, Select, useToast } from "@pte/ui";
+import { useRouter } from "next/navigation";
+import { Alert, Button, Input, Select, Textarea, UnsavedChangesGuard, useToast } from "@pte/ui";
 import {
   completeCloudinaryUpload,
   getUserFacingApiErrorMessage,
@@ -22,6 +23,7 @@ import { MediaFileField } from "./_MediaFileField";
 import { AgentMark } from "./_AgentMark";
 import { AnswerHintFields } from "./_AnswerHintFields";
 import { useAgentValues } from "../hooks/useAgentValues";
+import { useFormDirty } from "../hooks/useFormDirty";
 import type { AgentFill } from "@/features/questiongeneration/editorAgent";
 import { PoolChangeDialog } from "./_PoolChangeDialog";
 import {
@@ -31,6 +33,8 @@ import {
   QUESTION_POOL_LABELS,
 } from "../constants";
 import type { QuestionPreviewDraft } from "../types";
+import { correctAnswerFormatError, correctAnswerHint } from "../correctAnswerFormat";
+import { wordCountBoundsError } from "../wordCountBounds";
 
 interface DraftOption {
   text: string;
@@ -129,6 +133,9 @@ export const QuestionEditorForm = ({
     setAnswerHintEn,
   });
   const [uploadingKind, setUploadingKind] = useState<"AUDIO_PROMPT" | "IMAGE_PROMPT" | null>(null);
+  const router = useRouter();
+  const isDirty = useFormDirty(JSON.stringify([taskType, pool, cefrLevel, promptText, referenceAnswerText,
+    correctAnswerText, answerHintVi, answerHintEn, minWordCount, maxWordCount, audioPromptRef, imagePromptRef, options]));
   const isPending =
     createMutation.isPending || updateMutation.isPending || revisionMutation.isPending;
   const listedTypes = sectionFilter
@@ -253,8 +260,12 @@ export const QuestionEditorForm = ({
     if (questionType.requiresImagePrompt && !imagePromptRef) return setError(E.IMAGE_REQUIRED);
     if (questionType.requiresWordCount && (!minWordCount || !maxWordCount))
       return setError(E.WORD_COUNTS_REQUIRED);
+    const boundsError = wordCountBoundsError(minWordCount, maxWordCount);
+    if (boundsError) return setError(boundsError);
     if (questionType.requiresCorrectAnswer && !hasOptions && !correctAnswerText.trim())
       return setError(E.CORRECT_ANSWER_REQUIRED);
+    const formatError = hasOptions ? null : correctAnswerFormatError(selectedTaskType, correctAnswerText);
+    if (formatError) return setError(formatError);
     if (questionType.requiresReferenceAnswer && !referenceAnswerText.trim())
       return setError(E.REFERENCE_ANSWER_REQUIRED);
     if (hasOptions && (options.length === 0 || options.some((option) => !option.text.trim()))) {
@@ -425,7 +436,7 @@ export const QuestionEditorForm = ({
         </AgentMark>
       )}
       <AgentMark lane={marks.referenceAnswerText}>
-        <Input
+        <Textarea
           label={questionType?.requiresAudioPrompt ? T.AUDIO_TRANSCRIPT : T.REFERENCE_ANSWER}
           value={referenceAnswerText}
           onChange={(event) => setReferenceAnswerText(event.target.value)}
@@ -436,6 +447,7 @@ export const QuestionEditorForm = ({
           <Input
             label={T.CORRECT_ANSWER}
             value={correctAnswerText}
+            helperText={correctAnswerHint(selectedTaskType) ?? undefined}
             onChange={(event) => setCorrectAnswerText(event.target.value)}
           />
         </AgentMark>
@@ -499,6 +511,8 @@ export const QuestionEditorForm = ({
           {question ? T.SAVE_DRAFT : T.CREATE_DRAFT}
         </Button>
       </div>
+      <UnsavedChangesGuard isDirty={isDirty && !isPending} title={T.UNSAVED_TITLE} description={T.UNSAVED_DESCRIPTION}
+        stayLabel={T.UNSAVED_STAY} leaveLabel={T.UNSAVED_LEAVE} onNavigate={(href) => router.push(href)} />
       <PoolChangeDialog
         open={pendingUpdate !== null}
         targetPool={pool}

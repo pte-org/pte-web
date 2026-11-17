@@ -282,7 +282,6 @@ export function useCreateLoginAccount(
       const payload: CreateUserRequest = {
         email: input.email.trim(),
         fullName: input.fullName.trim(),
-        password: input.password,
         roles: ["HOST_ADMIN"],
         tenantId: tenantPublicId,
       };

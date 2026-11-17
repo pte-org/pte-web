@@ -12,14 +12,15 @@ import { useLocale, type Locale } from "@pte/ui";
  */
 const ADMIN_VI: Record<string, string> = {
   "Forgot your password?": "Quên mật khẩu?",
-  "Enter the email of your account and we will send you a link to choose a new password.":
-    "Nhập email của tài khoản, chúng tôi sẽ gửi liên kết để bạn chọn mật khẩu mới.",
+  "Enter your username and the email on that account and we will send you a link to choose a new password. Platform accounts use their email as the username.":
+    "Nhập tên đăng nhập và email của tài khoản đó, chúng tôi sẽ gửi liên kết để bạn chọn mật khẩu mới. Tài khoản nền tảng dùng email làm tên đăng nhập.",
+  "Enter your username.": "Vui lòng nhập tên đăng nhập.",
   "Send reset link": "Gửi liên kết đặt lại",
   "Sending...": "Đang gửi...",
   "Enter your email address.": "Vui lòng nhập địa chỉ email.",
   "Check your inbox": "Hãy kiểm tra hộp thư",
-  "If that email belongs to an account, a reset link is on its way. The link works once and expires in 30 minutes.":
-    "Nếu email này thuộc về một tài khoản, liên kết đặt lại đang được gửi đi. Liên kết chỉ dùng được một lần và hết hạn sau 30 phút.",
+  "If that username and email belong to the same account, a reset link is on its way. The link works once and expires in 30 minutes.":
+    "Nếu tên đăng nhập và email này thuộc cùng một tài khoản, liên kết đặt lại đang được gửi đi. Liên kết chỉ dùng được một lần và hết hạn sau 30 phút.",
   "Choose a new password": "Chọn mật khẩu mới",
   "Pick a password you have not used here before. The link works once.":
     "Hãy chọn mật khẩu bạn chưa dùng ở đây trước đây. Liên kết chỉ dùng được một lần.",
@@ -51,8 +52,6 @@ const ADMIN_VI: Record<string, string> = {
     "Đăng nhập để truy cập bảng điều khiển tổ chức, quản lý kỳ thi và theo dõi kết quả.",
   Username: "Tên đăng nhập",
   Organization: "Tổ chức",
-  "Select your organization": "Chọn tổ chức",
-  "Please select your organization.": "Vui lòng chọn tổ chức.",
   Password: "Mật khẩu",
   "Enter your password": "Nhập mật khẩu của bạn",
   "Forgot password?": "Quên mật khẩu?",
@@ -61,8 +60,8 @@ const ADMIN_VI: Record<string, string> = {
   "Show password": "Hiện mật khẩu",
   "Hide password": "Ẩn mật khẩu",
   "Please enter username and password.": "Vui lòng nhập tên đăng nhập và mật khẩu.",
-  "Please enter your email.": "Vui lòng nhập email.",
-  "Please enter a valid email address.": "Vui lòng nhập địa chỉ email hợp lệ.",
+  "Please enter your username.": "Vui lòng nhập tên đăng nhập.",
+  "Username or admin@institution.edu": "Tên đăng nhập hoặc admin@institution.edu",
   "Please enter your password.": "Vui lòng nhập mật khẩu.",
   "Username or password is incorrect.": "Tên đăng nhập hoặc mật khẩu không đúng.",
   "Login failed. Please try again.": "Đăng nhập thất bại. Vui lòng thử lại.",
@@ -87,24 +86,24 @@ const ADMIN_VI: Record<string, string> = {
     "Không thể đổi mật khẩu. Hãy kiểm tra mật khẩu hiện tại và thử lại.",
 
   "Good morning, Administrator": "Chào buổi sáng, Quản trị viên",
-  "Add Tenant": "Thêm tenant",
+  "Add Tenant": "Thêm tổ chức",
   "System Notice": "Thông báo hệ thống",
   "The system is operating normally. The next scheduled maintenance window is Sunday, 00:00 - 04:00 (GMT+7).":
     "Hệ thống đang hoạt động bình thường. Khung bảo trì tiếp theo là Chủ nhật, 00:00 - 04:00 (GMT+7).",
-  "Recently Updated Tenants": "Tenant cập nhật gần đây",
+  "Recently Updated Tenants": "Tổ chức cập nhật gần đây",
   "View all ->": "Xem tất cả ->",
-  "Total Tenants": "Tổng số tenant",
+  "Total Tenants": "Tổng số tổ chức",
   "Active Learners": "Học viên đang hoạt động",
-  "Tenants Expiring Soon": "Tenant sắp hết hạn",
+  "Tenants Expiring Soon": "Tổ chức sắp hết hạn",
   "Renewal required": "Cần gia hạn",
-  "Tenant Distribution": "Phân bổ tenant",
+  "Tenant Distribution": "Phân bổ tổ chức",
   Mapped: "Đã gắn vị trí",
   "New tenants will appear on the map after a province or city is selected in the tenant creation form.":
-    "Tenant mới sẽ xuất hiện trên bản đồ sau khi chọn tỉnh hoặc thành phố trong biểu mẫu tạo tenant.",
-  "Vietnam map showing tenant locations": "Bản đồ Việt Nam hiển thị vị trí tenant",
-  tenant: "tenant",
-  "Tenant Details": "Chi tiết tenant",
-  "Tenant Name": "Tên tenant",
+    "Tổ chức mới sẽ xuất hiện trên bản đồ sau khi chọn tỉnh hoặc thành phố trong biểu mẫu tạo tổ chức.",
+  "Vietnam map showing tenant locations": "Bản đồ Việt Nam hiển thị vị trí tổ chức",
+  tenant: "tổ chức",
+  "Tenant Details": "Chi tiết tổ chức",
+  "Tenant Name": "Tên tổ chức",
   Slug: "Slug",
   "Login Email": "Email đăng nhập",
   Plan: "Gói",
@@ -119,7 +118,7 @@ const ADMIN_VI: Record<string, string> = {
   "Platform settings": "Cài đặt nền tảng",
   "Commercial and approvals": "Thương mại và phê duyệt",
   "Manage business policies used by new tenant applications.":
-    "Quản lý chính sách nghiệp vụ áp dụng cho các đơn đăng ký tenant mới.",
+    "Quản lý chính sách nghiệp vụ áp dụng cho các đơn đăng ký tổ chức mới.",
   "Loading settings...": "Đang tải cài đặt...",
   "Saving changes...": "Đang lưu thay đổi...",
   "Reset to defaults": "Khôi phục giá trị mặc định",
@@ -134,17 +133,17 @@ const ADMIN_VI: Record<string, string> = {
   "Platform settings saved.": "Đã lưu cài đặt nền tảng.",
   "Free student limit": "Hạn mức học viên miễn phí",
   "The number of learner seats granted when a tenant application is approved.":
-    "Số chỗ học viên được cấp khi đơn đăng ký tenant được duyệt.",
+    "Số chỗ học viên được cấp khi đơn đăng ký tổ chức được duyệt.",
   "Applies to tenant applications approved after this value is saved.":
-    "Áp dụng cho các đơn đăng ký tenant được duyệt sau khi lưu giá trị này.",
-  "Tenant application response time": "Thời gian phản hồi hồ sơ tenant",
+    "Áp dụng cho các đơn đăng ký tổ chức được duyệt sau khi lưu giá trị này.",
+  "Tenant application response time": "Thời gian phản hồi hồ sơ tổ chức",
   "The response time promised to applicants in the application email.":
     "Thời gian phản hồi được cam kết với người đăng ký trong email hồ sơ.",
   "Applies to application notifications sent after this value is saved.":
     "Áp dụng cho các thông báo hồ sơ được gửi sau khi lưu giá trị này.",
   students: "học viên",
   hours: "giờ",
-  "Tenant applications": "Đơn đăng ký tenant",
+  "Tenant applications": "Đơn đăng ký tổ chức",
   "Filter applications by status": "Lọc đơn đăng ký theo trạng thái",
   "All statuses": "Tất cả trạng thái",
   "All sources": "Tất cả nguồn",
@@ -187,7 +186,7 @@ const ADMIN_VI: Record<string, string> = {
   "Rejecting...": "Đang từ chối...",
   "Reject application": "Từ chối đơn đăng ký",
   "Organization type": "Loại tổ chức",
-  "Requested tenant code": "Mã tenant yêu cầu",
+  "Requested tenant code": "Mã tổ chức yêu cầu",
   "Work email": "Email công việc",
   "Phone number": "Số điện thoại",
   "Reviewed by": "Người xét duyệt",
@@ -244,7 +243,7 @@ const ADMIN_VI: Record<string, string> = {
   "The first host account is created for this email and its password is sent there.":
     "Tài khoản Host đầu tiên được tạo theo email này và mật khẩu được gửi tới đó.",
   "The student limit starts at the free limit in Platform settings. Grant packages after the tenant is created.":
-    "Hạn mức học viên lấy theo mức miễn phí trong Platform settings. Cấp gói sau khi tạo tenant.",
+    "Hạn mức học viên lấy theo mức miễn phí trong Platform settings. Cấp gói sau khi tạo tổ chức.",
   "Host account": "Tài khoản Host",
   "The host password has been emailed to this address.": "Mật khẩu Host đã được gửi tới email này.",
   "Grant package now": "Cấp gói ngay",
@@ -630,6 +629,8 @@ const ADMIN_VI: Record<string, string> = {
   "You have unsaved changes to this template. If you leave now, they will be lost.":
     "Bạn có thay đổi chưa lưu trong mẫu này. Nếu rời đi bây giờ, các thay đổi sẽ bị mất.",
   "Stay on this page": "Ở lại trang này",
+  "This question has changes that are not saved. If you leave now, they will be lost.":
+    "Câu hỏi có thay đổi chưa lưu. Nếu rời đi bây giờ, các thay đổi sẽ bị mất.",
   "Leave without saving": "Rời đi, không lưu",
   Save: "Lưu",
   "Standard PTE": "PTE tiêu chuẩn",
@@ -733,17 +734,17 @@ const ADMIN_VI: Record<string, string> = {
   Items: "Số mục",
   Policy: "Chính sách",
 
-  Tenants: "Tenant",
-  "Search by tenant name, code, or tax code": "Tìm theo tên, mã hoặc mã số thuế tenant",
+  Tenants: "Tổ chức",
+  "Search by tenant name, code, or tax code": "Tìm theo tên, mã hoặc mã số thuế tổ chức",
   "Grant quota": "Cấp hạn mức",
   "View quota history": "Xem lịch sử hạn mức",
-  "No tenants yet": "Chưa có tenant",
+  "No tenants yet": "Chưa có tổ chức",
   "Start by adding the first partner or school to set up a managed learning environment.":
     "Hãy bắt đầu bằng cách thêm đối tác hoặc trường học đầu tiên để thiết lập môi trường học tập được quản lý.",
-  "Tenant suspended.": "Đã tạm ngưng tenant.",
-  "Tenant reactivated.": "Đã kích hoạt lại tenant.",
-  "Tenant created.": "Đã tạo tenant.",
-  "Tenant Code": "Mã tenant",
+  "Tenant suspended.": "Đã tạm ngưng tổ chức.",
+  "Tenant reactivated.": "Đã kích hoạt lại tổ chức.",
+  "Tenant created.": "Đã tạo tổ chức.",
+  "Tenant Code": "Mã tổ chức",
   "Organization Type": "Loại tổ chức",
   "Student Limit": "Giới hạn học viên",
   "All plans": "Tất cả gói",
@@ -763,9 +764,9 @@ const ADMIN_VI: Record<string, string> = {
   "View Logs": "Xem nhật ký",
   "Confirm Suspension": "Xác nhận tạm ngưng",
   "This action blocks new tenant activity. Attempts already in progress can still submit and read published reports.":
-    "Thao tác này chặn hoạt động mới của tenant. Các lượt thi đang diễn ra vẫn có thể nộp bài và đọc báo cáo đã công bố.",
-  "To confirm, enter the exact tenant name:": "Để xác nhận, hãy nhập chính xác tên tenant:",
-  "Tenant name": "Tên tenant",
+    "Thao tác này chặn hoạt động mới của tổ chức. Các lượt thi đang diễn ra vẫn có thể nộp bài và đọc báo cáo đã công bố.",
+  "To confirm, enter the exact tenant name:": "Để xác nhận, hãy nhập chính xác tên tổ chức:",
+  "Tenant name": "Tên tổ chức",
   "Suspension duration (days)": "Thời hạn tạm ngưng (ngày)",
   "Leave blank to use the platform default. Enter 0 for an indefinite suspension.":
     "Để trống để dùng mặc định của nền tảng. Nhập 0 để tạm ngưng vô thời hạn.",
@@ -778,7 +779,7 @@ const ADMIN_VI: Record<string, string> = {
     "Không thể tính ảnh hưởng đến gói đăng ký. Hãy thử lại trước khi tạm ngưng.",
   "Subscriptions that may expire before reactivation:":
     "Các gói đăng ký có thể hết hạn trước khi kích hoạt lại:",
-  "Enter tenant name to confirm": "Nhập tên tenant để xác nhận",
+  "Enter tenant name to confirm": "Nhập tên tổ chức để xác nhận",
   "General Information": "Thông tin chung",
   "e.g. fpt-university": "Ví dụ: fpt-university",
   "3–32 lowercase letters, numbers, or hyphens. This code cannot change later.":
@@ -789,16 +790,16 @@ const ADMIN_VI: Record<string, string> = {
   "Required for organization verification.": "Bắt buộc để xác minh tổ chức.",
   "Select a plan": "Chọn gói",
   "e.g. 500": "Ví dụ: 500",
-  "Create Tenant": "Tạo tenant",
-  "Total tenants": "Tổng số tenant",
-  "Active tenants": "Tenant đang hoạt động",
-  "Suspended tenants": "Tenant đã tạm ngưng",
-  "Tenant Created Successfully": "Tạo tenant thành công",
-  "The new tenant has been added to the platform.": "Tenant mới đã được thêm vào nền tảng.",
-  "Tenant information": "Thông tin tenant",
+  "Create Tenant": "Tạo tổ chức",
+  "Total tenants": "Tổng số tổ chức",
+  "Active tenants": "Tổ chức đang hoạt động",
+  "Suspended tenants": "Tổ chức đã tạm ngưng",
+  "Tenant Created Successfully": "Tạo tổ chức thành công",
+  "The new tenant has been added to the platform.": "Tổ chức mới đã được thêm vào nền tảng.",
+  "Tenant information": "Thông tin tổ chức",
   "Plan & capacity": "Gói và sức chứa",
-  "Tenant ID": "ID tenant",
-  "Tenant code": "Mã tenant",
+  "Tenant ID": "ID tổ chức",
+  "Tenant code": "Mã tổ chức",
   "Student limit": "Giới hạn học viên",
   "White-Label Branding": "Thương hiệu white-label",
   "Logo URL": "URL logo",
@@ -810,21 +811,21 @@ const ADMIN_VI: Record<string, string> = {
   "Branding saved.": "Đã lưu thương hiệu.",
   "Organization not provisioned": "Tổ chức chưa được khởi tạo",
   "A default organization is created automatically with the tenant.":
-    "Một tổ chức mặc định sẽ được tự động tạo cùng tenant.",
+    "Một đơn vị mặc định sẽ được tự động tạo cùng tổ chức.",
   "Facility Type": "Loại cơ sở",
   Address: "Địa chỉ",
   "Main Campus": "Cơ sở chính",
   Branch: "Chi nhánh",
   "Test Center": "Trung tâm khảo thí",
-  "Tenant admin account": "Tài khoản quản trị tenant",
+  "Tenant admin account": "Tài khoản quản trị tổ chức",
   "No login account yet": "Chưa có tài khoản đăng nhập",
   "Create the Host's first login so they can sign in.":
     "Tạo tài khoản đăng nhập đầu tiên cho Host để họ có thể đăng nhập.",
-  "Verifying the tenant's Host account...": "Đang xác minh tài khoản Host của tenant...",
+  "Verifying the tenant's Host account...": "Đang xác minh tài khoản Host của tổ chức...",
   "The Host account could not be verified. Retry before changing credentials.":
     "Không thể xác minh tài khoản Host. Hãy thử lại trước khi thay đổi thông tin đăng nhập.",
   "More than one HOST_ADMIN account is linked to this tenant. Verify the target manually before creating or resetting an account.":
-    "Có nhiều hơn một tài khoản HOST_ADMIN được liên kết với tenant này. Hãy xác minh thủ công tài khoản đích trước khi tạo hoặc đặt lại tài khoản.",
+    "Có nhiều hơn một tài khoản HOST_ADMIN được liên kết với tổ chức này. Hãy xác minh thủ công tài khoản đích trước khi tạo hoặc đặt lại tài khoản.",
   "Create Login": "Tạo tài khoản đăng nhập",
   "Reset Password": "Đặt lại mật khẩu",
   Account: "Tài khoản",
@@ -839,7 +840,8 @@ const ADMIN_VI: Record<string, string> = {
     "Đã đặt lại mật khẩu. Hãy gửi trực tiếp cho Host vì mật khẩu sẽ không hiển thị lại.",
   "The reset result could not be confirmed. Verify the target account manually before trying again.":
     "Không thể xác nhận kết quả đặt lại. Hãy xác minh thủ công tài khoản đích trước khi thử lại.",
-  "Initial Password": "Mật khẩu ban đầu",
+  "A username and a temporary password are generated and emailed to this address. The Host must change the password at first sign-in.":
+    "Tên đăng nhập và mật khẩu tạm được tạo tự động và gửi tới email này. Host phải đổi mật khẩu ở lần đăng nhập đầu tiên.",
   "At least 8 characters. Relay it to the Host directly.":
     "Ít nhất 8 ký tự. Hãy gửi trực tiếp cho Host.",
   "Full Name": "Họ và tên",
@@ -853,14 +855,14 @@ const ADMIN_VI: Record<string, string> = {
   "Target roles": "Vai trò tài khoản đích",
   "I confirm this is the account I intend to reset.": "Tôi xác nhận đây là tài khoản cần đặt lại.",
   "Confirm the tenant, username, and role before resetting the password.":
-    "Hãy xác nhận tenant, tên đăng nhập và vai trò trước khi đặt lại mật khẩu.",
+    "Hãy xác nhận tổ chức, tên đăng nhập và vai trò trước khi đặt lại mật khẩu.",
 
   Licenses: "Bản quyền",
   "No licenses found": "Không tìm thấy bản quyền",
   "Grant Quota": "Cấp hạn mức",
   "Added on top of the current student limit.": "Được cộng thêm vào giới hạn học viên hiện tại.",
   "This tenant's quota was just changed by someone else. Please review the current value and try again.":
-    "Hạn mức của tenant vừa được người khác thay đổi. Hãy kiểm tra giá trị hiện tại và thử lại.",
+    "Hạn mức của tổ chức vừa được người khác thay đổi. Hãy kiểm tra giá trị hiện tại và thử lại.",
   "No quota transactions yet.": "Chưa có giao dịch hạn mức.",
 
   "Export report": "Xuất báo cáo",
@@ -903,15 +905,15 @@ const ADMIN_VI: Record<string, string> = {
     "Sử dụng 3–32 ký tự chữ thường, số hoặc dấu gạch ngang.",
   "Enter a whole number of at least 1.": "Nhập số nguyên ít nhất bằng 1.",
   "This tenant code already exists. Please use another code.":
-    "Mã tenant này đã tồn tại. Vui lòng dùng mã khác.",
+    "Mã tổ chức này đã tồn tại. Vui lòng dùng mã khác.",
   "This tenant name already exists. Please use another name.":
-    "Tên tenant này đã tồn tại. Vui lòng dùng tên khác.",
+    "Tên tổ chức này đã tồn tại. Vui lòng dùng tên khác.",
   "This tax code is already used by another tenant. Please check and try again.":
-    "Mã số thuế này đã được tenant khác sử dụng. Hãy kiểm tra và thử lại.",
+    "Mã số thuế này đã được tổ chức khác sử dụng. Hãy kiểm tra và thử lại.",
   "The tenant code or name already exists. Please check the information and try again.":
-    "Mã hoặc tên tenant đã tồn tại. Hãy kiểm tra thông tin và thử lại.",
+    "Mã hoặc tên tổ chức đã tồn tại. Hãy kiểm tra thông tin và thử lại.",
   "The tenant name already exists. Please check the information and try again.":
-    "Tên tenant đã tồn tại. Hãy kiểm tra thông tin và thử lại.",
+    "Tên tổ chức đã tồn tại. Hãy kiểm tra thông tin và thử lại.",
   "Enter a valid email address.": "Nhập địa chỉ email hợp lệ.",
   "Enter at least 8 characters.": "Nhập ít nhất 8 ký tự.",
   "No score template items": "Chưa có mục nào trong mẫu chấm điểm",
@@ -959,7 +961,7 @@ const ADMIN_VI: Record<string, string> = {
   "Published announcement": "Thông báo đã phát hành",
   "Draft version": "Phiên bản bản nháp",
   "This announcement is no longer available.": "Thông báo này không còn khả dụng.",
-  "Eligible tenants": "Tenant đủ điều kiện",
+  "Eligible tenants": "Tổ chức đủ điều kiện",
   "Delivered / audience": "Đã gửi / đối tượng",
   "Reload the latest server version before trying again.":
     "Hãy tải lại phiên bản mới nhất từ máy chủ trước khi thử lại.",
@@ -967,13 +969,13 @@ const ADMIN_VI: Record<string, string> = {
 
   "Support Tickets": "Yêu cầu hỗ trợ",
   "Review and manage support requests from tenants.":
-    "Xem xét và quản lý yêu cầu hỗ trợ từ các tenant.",
+    "Xem xét và quản lý yêu cầu hỗ trợ từ các tổ chức.",
   "No support tickets": "Không có yêu cầu hỗ trợ",
   "Failed to load support tickets.": "Không thể tải yêu cầu hỗ trợ.",
   "No tickets match the current filters.": "Không có yêu cầu phù hợp với bộ lọc hiện tại.",
   "All categories": "Tất cả danh mục",
-  "All tenants": "Tất cả tenant",
-  Tenant: "Tenant",
+  "All tenants": "Tất cả tổ chức",
+  Tenant: "Tổ chức",
   Category: "Danh mục",
   Submitted: "Đã gửi",
   Open: "Mở",
@@ -994,7 +996,7 @@ const ADMIN_VI: Record<string, string> = {
   "Add the first note to document your findings.":
     "Thêm ghi chú đầu tiên để lưu lại kết quả xử lý.",
   "Add a note": "Thêm ghi chú",
-  "Write a note visible to the tenant…": "Viết ghi chú hiển thị cho tenant…",
+  "Write a note visible to the tenant…": "Viết ghi chú hiển thị cho tổ chức…",
   "Add note": "Thêm ghi chú",
   "Note added.": "Đã thêm ghi chú.",
   "Status updated.": "Đã cập nhật trạng thái.",
@@ -1016,9 +1018,9 @@ const ADMIN_VI: Record<string, string> = {
   Private: "Riêng tư",
   "All policies": "Tất cả chính sách",
   "No exam templates found": "Không tìm thấy mẫu bài thi",
-  "Back to Tenants": "Quay lại danh sách tenant",
+  "Back to Tenants": "Quay lại danh sách tổ chức",
   "Tenant details could not be loaded. Retry before changing access.":
-    "Không thể tải chi tiết tenant. Hãy thử lại trước khi thay đổi quyền truy cập.",
+    "Không thể tải chi tiết tổ chức. Hãy thử lại trước khi thay đổi quyền truy cập.",
   "← Back to tickets": "← Quay lại danh sách yêu cầu",
   "Loading ticket…": "Đang tải yêu cầu hỗ trợ…",
   "Ticket not found.": "Không tìm thấy yêu cầu hỗ trợ.",
@@ -1225,17 +1227,17 @@ const ADMIN_VI: Record<string, string> = {
   "· contributes to scoring": "· tham gia chấm điểm",
   "· not scored": "· không chấm điểm",
   "Authoring requirements": "Yêu cầu biên soạn",
-  "Search by tenant, plan, or license identifier": "Tìm theo tenant, gói hoặc mã bản quyền",
+  "Search by tenant, plan, or license identifier": "Tìm theo tổ chức, gói hoặc mã bản quyền",
   "Search licenses by tenant, plan, or license identifier":
-    "Tìm bản quyền theo tenant, gói hoặc mã bản quyền",
-  "Search by tenant, plan, or status": "Tìm theo tenant, gói hoặc trạng thái",
-  "Search licenses by tenant, plan, or status": "Tìm bản quyền theo tenant, gói hoặc trạng thái",
+    "Tìm bản quyền theo tổ chức, gói hoặc mã bản quyền",
+  "Search by tenant, plan, or status": "Tìm theo tổ chức, gói hoặc trạng thái",
+  "Search licenses by tenant, plan, or status": "Tìm bản quyền theo tổ chức, gói hoặc trạng thái",
   "Search by plan name, description, type, or status":
     "Tìm theo tên gói, mô tả, loại hoặc trạng thái",
   "Search plans by name, description, type, or status":
     "Tìm gói theo tên, mô tả, loại hoặc trạng thái",
-  "Search by activation code or tenant ID": "Tìm theo mã kích hoạt hoặc ID tenant",
-  "Search license codes by activation code or tenant ID": "Tìm mã kích hoạt hoặc ID tenant",
+  "Search by activation code or tenant ID": "Tìm theo mã kích hoạt hoặc ID tổ chức",
+  "Search license codes by activation code or tenant ID": "Tìm mã kích hoạt hoặc ID tổ chức",
   "Activation code created.": "Đã tạo mã kích hoạt.",
   "Activation code issuance confirmed.": "Đã xác nhận phát hành mã kích hoạt.",
   "Activation code revoked.": "Đã thu hồi mã kích hoạt.",
@@ -1250,14 +1252,14 @@ const ADMIN_VI: Record<string, string> = {
   "Search support tickets by ticket ID, description, category, or status":
     "Tìm yêu cầu hỗ trợ theo mã, nội dung, danh mục hoặc trạng thái",
   "Search by ticket, description, requester, or tenant":
-    "Tìm theo ticket, nội dung, người gửi hoặc tenant",
+    "Tìm theo ticket, nội dung, người gửi hoặc tổ chức",
   "Search support tickets by ticket, description, requester, or tenant":
-    "Tìm yêu cầu hỗ trợ theo ticket, nội dung, người gửi hoặc tenant",
+    "Tìm yêu cầu hỗ trợ theo ticket, nội dung, người gửi hoặc tổ chức",
   "Search by organization name or address": "Tìm theo tên hoặc địa chỉ tổ chức",
   "Search organizations by name or address": "Tìm tổ chức theo tên hoặc địa chỉ",
-  "Search tenants by name, code, or tax code": "Tìm tenant theo tên, mã hoặc mã số thuế",
-  "Search by tenant name": "Tìm theo tên tenant",
-  "Search recent tenants by name": "Tìm tenant gần đây theo tên",
+  "Search tenants by name, code, or tax code": "Tìm tổ chức theo tên, mã hoặc mã số thuế",
+  "Search by tenant name": "Tìm theo tên tổ chức",
+  "Search recent tenants by name": "Tìm tổ chức gần đây theo tên",
   "Search by template name, code, or version": "Tìm theo tên, mã hoặc phiên bản mẫu",
   "Search score templates by name, code, or version": "Tìm mẫu điểm theo tên, mã hoặc phiên bản",
   "Search by question content": "Tìm theo nội dung câu hỏi",
@@ -1400,9 +1402,9 @@ const translatePattern = (value: string): string | undefined => {
   match = value.match(/^Version (\d+)$/);
   if (match) return `Phiên bản ${match[1]}`;
   match = value.match(/^Showing 0 of (\d+) tenants$/);
-  if (match) return `Đang hiển thị 0 trên ${match[1]} tenant`;
+  if (match) return `Đang hiển thị 0 trên ${match[1]} tổ chức`;
   match = value.match(/^Showing 1-(\d+) of (\d+) tenants$/);
-  if (match) return `Đang hiển thị 1-${match[1]} trên ${match[2]} tenant`;
+  if (match) return `Đang hiển thị 1-${match[1]} trên ${match[2]} tổ chức`;
   match = value.match(/^(\d+) ticket(?:s)?$/);
   if (match) return `${match[1]} yêu cầu hỗ trợ`;
   match = value.match(/^Requested code (.+)$/);

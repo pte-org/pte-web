@@ -26,21 +26,28 @@ describe("submitForgotPassword", () => {
   it("does not call the server for a blank address", async () => {
     const send = vi.fn();
 
-    expect(await submitForgotPassword("   ", send)).toBe("EMAIL_REQUIRED");
+    expect(await submitForgotPassword("   ", "demo.abc", send)).toBe("EMAIL_REQUIRED");
     expect(send).not.toHaveBeenCalled();
   });
 
-  it("sends the trimmed address and reports SENT", async () => {
+  it("does not call the server for a blank username", async () => {
+    const send = vi.fn();
+
+    expect(await submitForgotPassword("host@x.vn", "  ", send)).toBe("USERNAME_REQUIRED");
+    expect(send).not.toHaveBeenCalled();
+  });
+
+  it("sends the trimmed address and username and reports SENT", async () => {
     const send = vi.fn().mockResolvedValue(undefined);
 
-    expect(await submitForgotPassword("  host@x.vn ", send)).toBe("SENT");
-    expect(send).toHaveBeenCalledWith("host@x.vn");
+    expect(await submitForgotPassword("  host@x.vn ", " demo.abc ", send)).toBe("SENT");
+    expect(send).toHaveBeenCalledWith("host@x.vn", "demo.abc");
   });
 
   it("reports SENT even when the call fails, so the screen never reveals whether an account exists", async () => {
     const send = vi.fn().mockRejectedValue(new Error("boom"));
 
-    expect(await submitForgotPassword("host@x.vn", send)).toBe("SENT");
+    expect(await submitForgotPassword("host@x.vn", "demo.abc", send)).toBe("SENT");
   });
 });
 

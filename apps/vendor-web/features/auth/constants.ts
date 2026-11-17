@@ -62,16 +62,11 @@ export const AUTH_TEXT = {
   FOOTER_SUPPORT: "Contact support",
   WELCOME_TITLE: "Welcome Back",
   WELCOME_SUBTITLE: "Please enter your institutional credentials to continue.",
-  // Username, not email: the backend login key moved off email in Phase 1
-  // of the commercialization work. A PLATFORM_ADMIN's username IS their
-  // email (the backend sets username = email for every non-STUDENT role),
-  // which is why the placeholder still shows one — but the field carries
-  // username semantics and must not be email-typed or email-validated.
-  USERNAME_LABEL: "Email",
-  USERNAME_PLACEHOLDER: "admin@institution.edu",
-  ORGANIZATION_LABEL: "Organization",
-  ORGANIZATION_PLACEHOLDER: "Select your organization",
-  ORGANIZATION_REQUIRED: "Please select your organization.",
+  // Platform operators sign in with their e-mail (their username), Hosts with the generated
+  // `{tenant.code}.{random}` username e-mailed to them — so the field is a plain username, not
+  // e-mail-typed or e-mail-validated.
+  USERNAME_LABEL: "Username",
+  USERNAME_PLACEHOLDER: "Username or admin@institution.edu",
   PASSWORD_LABEL: "Password",
   PASSWORD_PLACEHOLDER: "Enter your password",
   FORGOT: "Forgot password?",
@@ -79,8 +74,7 @@ export const AUTH_TEXT = {
   LOGGING_IN: "Signing in...",
   SHOW_PASSWORD: "Show password",
   HIDE_PASSWORD: "Hide password",
-  USERNAME_REQUIRED: "Please enter your email.",
-  USERNAME_INVALID_EMAIL: "Please enter a valid email address.",
+  USERNAME_REQUIRED: "Please enter your username.",
   PASSWORD_REQUIRED: "Please enter your password.",
   INVALID_CREDENTIALS: "Username or password is incorrect.",
   GENERIC_ERROR: "Login failed. Please try again.",
@@ -91,14 +85,17 @@ export const AUTH_TEXT = {
 
 export const FORGOT_PASSWORD_TEXT: ForgotPasswordFormText = {
   title: "Forgot your password?",
-  subtitle: "Enter the email of your account and we will send you a link to choose a new password.",
+  subtitle:
+    "Enter your username and the email on that account and we will send you a link to choose a new password. Platform accounts use their email as the username.",
+  usernameLabel: "Username",
   emailLabel: "Email",
   submit: "Send reset link",
   submitting: "Sending...",
   required: "Enter your email address.",
+  usernameRequired: "Enter your username.",
   sentTitle: "Check your inbox",
   sentMessage:
-    "If that email belongs to an account, a reset link is on its way. The link works once and expires in 30 minutes.",
+    "If that username and email belong to the same account, a reset link is on its way. The link works once and expires in 30 minutes.",
 };
 
 export const RESET_PASSWORD_TEXT: ResetPasswordFormText & { failed: string } = {
