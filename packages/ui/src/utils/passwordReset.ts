@@ -14,17 +14,21 @@ export function validateNewPassword(
 }
 
 /**
- * Sends the reset request and always answers SENT once it was attempted, even if the call failed: the screen must
- * look the same whether or not the address has an account, and a failure would otherwise be a signal.
+ * Sends the reset request for one account (its username and the e-mail on it) and always answers SENT once it was
+ * attempted, even if the call failed: the screen must look the same whether or not the account exists, and a
+ * failure would otherwise be a signal.
  */
 export async function submitForgotPassword(
   email: string,
-  send: (email: string) => Promise<unknown>,
-): Promise<"SENT" | "EMAIL_REQUIRED"> {
+  username: string,
+  send: (email: string, username: string) => Promise<unknown>,
+): Promise<"SENT" | "EMAIL_REQUIRED" | "USERNAME_REQUIRED"> {
   const address = email.trim();
+  const account = username.trim();
   if (!address) return "EMAIL_REQUIRED";
+  if (!account) return "USERNAME_REQUIRED";
   try {
-    await send(address);
+    await send(address, account);
   } catch {
     // Deliberately swallowed; see above.
   }

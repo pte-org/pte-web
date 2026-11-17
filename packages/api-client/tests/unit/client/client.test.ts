@@ -236,7 +236,6 @@ describe("ApiClient bearer token on public auth endpoints", () => {
 
   it.each([
     "/api/v1/auth/login",
-    "/api/v1/auth/login-options",
     "/api/v1/auth/refresh",
     "/api/v1/auth/password-reset/request",
     "/api/v1/auth/password-reset/validate",

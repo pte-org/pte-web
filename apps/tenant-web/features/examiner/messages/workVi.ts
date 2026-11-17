@@ -95,6 +95,7 @@ export const EXAMINER_WORK_TEXT_VI: ExaminerWorkText = {
   DRAFT_SAVED: "Đã lưu",
   SAVE_SUCCESS: "Đã lưu điểm. Nhớ bấm \"Chốt bài thi\" khi đã chấm xong tất cả câu.",
   SAVE_FAILED: "Không lưu được điểm. Hãy kiểm tra kết nối và thử lại.",
+  TRAITS_INVALID: "Mỗi điểm thành phần phải là số nguyên trong khoảng cho phép.",
   FINALIZE_FAILED: "Không chốt được bài thi. Hãy tải lại trang và thử lại.",
   COMMENT_LABEL: "Nhận xét của giám khảo",
   COMMENT_PLACEHOLDER: "Ghi chú hoặc lý do (tùy chọn, tối đa 2000 ký tự)",

@@ -39,6 +39,22 @@ export function createSessionApiClient(baseUrl: string): ApiClient {
   });
 }
 
+const HTTP_REQUEST_TIMEOUT = 408;
+const HTTP_TOO_MANY_REQUESTS = 429;
+const HTTP_CLIENT_ERROR_MIN = 400;
+const HTTP_SERVER_ERROR_MIN = 500;
+
+/**
+ * A 4xx answer means the server looked at the refresh token and said no
+ * (identity answers 401 INVALID_REFRESH_TOKEN for an expired or revoked
+ * one). 408 and 429 are the exceptions: the token was never judged, so the
+ * attempt simply did not complete.
+ */
+function isRefreshRefusal(status: number): boolean {
+  if (status === HTTP_REQUEST_TIMEOUT || status === HTTP_TOO_MANY_REQUESTS) return false;
+  return status >= HTTP_CLIENT_ERROR_MIN && status < HTTP_SERVER_ERROR_MIN;
+}
+
 /**
  * Raw `fetch` (not routed through the `apiClient` instance being
  * constructed by `createSessionApiClient` above, which doesn't exist yet
@@ -53,14 +69,24 @@ export function createSessionApiClient(baseUrl: string): ApiClient {
  * must be kept in sync by hand. It silently breaks every session at the
  * 15-minute access-token expiry, not at login, which is why it is easy to
  * miss when endpoints move.
+ *
+ * <p>Follows the `refreshAccessToken` contract of `@pte/api-client`:
+ * `null` when the server refused the refresh token (the session is over),
+ * a thrown error when the refresh could not be completed (the session is
+ * kept, so a network blip or a server outage never signs the user out).
  */
-async function refreshAccessToken(baseUrl: string, refreshToken: string): Promise<RefreshedTokens> {
+async function refreshAccessToken(
+  baseUrl: string,
+  refreshToken: string,
+): Promise<RefreshedTokens | null> {
   const response = await fetch(`${baseUrl}/api/v1/auth/refresh`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refreshToken }),
   });
+  if (isRefreshRefusal(response.status)) return null;
   if (!response.ok) throw new Error(`Token refresh failed (${response.status})`);
+  // The body is untrusted JSON: typed loosely here, and the token fields are checked just below.
   const envelope = (await response.json()) as { data?: RefreshedTokens } & Partial<RefreshedTokens>;
   const data = envelope.data ?? envelope;
   if (!data.accessToken || !data.refreshToken) throw new Error("Malformed refresh response");

@@ -262,9 +262,9 @@ describe("login account of an organization", () => {
     api.createUser.mockResolvedValue(user("new", ["HOST_ADMIN"]));
     tenancyApi.useCreateLoginAccount("t1");
 
-    const account = await opts().mutationFn?.({ email: " a@b.vn ", fullName: " An ", password: "Secret-123" } as never);
+    const account = await opts().mutationFn?.({ email: " a@b.vn ", fullName: " An " } as never);
 
-    expect(api.createUser).toHaveBeenCalledWith(hoisted.apiClient, { email: "a@b.vn", fullName: "An", password: "Secret-123", roles: ["HOST_ADMIN"], tenantId: "t1" });
+    expect(api.createUser).toHaveBeenCalledWith(hoisted.apiClient, { email: "a@b.vn", fullName: "An", roles: ["HOST_ADMIN"], tenantId: "t1" });
     expect(account).toMatchObject({ id: "new" });
 
     opts().onSuccess?.({ id: "new" } as never);

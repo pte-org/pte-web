@@ -61,7 +61,6 @@ import {
   OFFICIAL_EXAM_LOCKDOWN_MODE,
   SESSIONS_QUERY_KEY,
 } from "../../../../features/exams/constants";
-import { HOST_DASHBOARD_QUERY_KEY } from "../../../../features/hostDashboard/constants";
 
 const query = () => hoisted.queryOptions!;
 const mutation = () => hoisted.mutationOptions!;

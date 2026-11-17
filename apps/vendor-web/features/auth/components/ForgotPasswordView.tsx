@@ -16,7 +16,7 @@ export const ForgotPasswordView = (): ReactElement => {
   return (
     <ForgotPasswordForm
       text={text}
-      onSubmit={(email) => request.mutateAsync({ email })}
+      onSubmit={(email, username) => request.mutateAsync({ email, username })}
       footer={
         <Link
           href={AUTH_ROUTES.login}

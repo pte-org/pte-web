@@ -5,7 +5,6 @@ import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import {
   GRANT_QUOTA_TEXT as RAW_GRANT_QUOTA_TEXT,
-  LICENSING_TEXT as RAW_LICENSING_TEXT,
 } from "../constants";
 import { useGrantQuota, useLicenses } from "../api";
 import type { GrantQuotaInput, License } from "../types";
@@ -22,7 +21,6 @@ function grantErrorMessage(error: unknown, conflictMessage: string): string | un
 }
 
 export const LicensingView = (): ReactElement => {
-  const T = useAdminCopy(RAW_LICENSING_TEXT);
   const grantText = useAdminCopy(RAW_GRANT_QUOTA_TEXT);
   const { data: licenses } = useLicenses();
   const [grantTarget, setGrantTarget] = useState<License | null>(null);

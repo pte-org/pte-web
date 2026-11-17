@@ -92,14 +92,14 @@ describe("error propagation through the real client", () => {
     expect(onUnauthorized).not.toHaveBeenCalled();
   });
 
-  it("surfaces unauthorized when the refresh itself fails", async () => {
+  it("surfaces unauthorized when the server refuses the refresh", async () => {
     const onUnauthorized = vi.fn();
     const fetchFn = vi.fn().mockResolvedValue(jsonResponse({ success: false, data: null, message: "expired" }, 401));
     const client = createApiClient({
       baseUrl: BASE_URL,
       fetchFn,
       getRefreshToken: () => "refresh-1",
-      refreshAccessToken: vi.fn().mockRejectedValue(new Error("refresh rejected")),
+      refreshAccessToken: vi.fn().mockResolvedValue(null),
       onUnauthorized,
     });
 
@@ -107,6 +107,23 @@ describe("error propagation through the real client", () => {
 
     expect(error).toMatchObject({ kind: "unauthorized", status: 401 });
     expect(onUnauthorized).toHaveBeenCalledTimes(1);
+  });
+
+  it("surfaces a network error and keeps the session when the refresh cannot be completed", async () => {
+    const onUnauthorized = vi.fn();
+    const fetchFn = vi.fn().mockResolvedValue(jsonResponse({ success: false, data: null, message: "expired" }, 401));
+    const client = createApiClient({
+      baseUrl: BASE_URL,
+      fetchFn,
+      getRefreshToken: () => "refresh-1",
+      refreshAccessToken: vi.fn().mockRejectedValue(new Error("refresh unreachable")),
+      onUnauthorized,
+    });
+
+    const error = await failure(() => getHostDashboard(client));
+
+    expect(error).toMatchObject({ kind: "network", status: 0 });
+    expect(onUnauthorized).not.toHaveBeenCalled();
   });
 
   it("maps 500 and a non-JSON gateway error to a server error with the default message", async () => {

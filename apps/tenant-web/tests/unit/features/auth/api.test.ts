@@ -47,7 +47,6 @@ import {
   useConfirmPasswordReset,
   useCurrentUser,
   useLoginHost,
-  useLoginOrganizationOptions,
   useRequestPasswordReset,
   useValidatePasswordResetToken,
 } from "../../../../features/auth/api";
@@ -102,15 +101,6 @@ describe("Auth Mutations", () => {
     expect(api.loginHost).toHaveBeenCalledWith(hoisted.apiClient, payload);
   });
 
-  it("useLoginOrganizationOptions lists organizations for username", async () => {
-    api.listLoginOrganizations.mockResolvedValue([]);
-    useLoginOrganizationOptions();
-
-    const payload = { username: "admin" };
-    await lastMutation().mutationFn?.(payload as never);
-    expect(api.listLoginOrganizations).toHaveBeenCalledWith(hoisted.apiClient, payload);
-  });
-
   it("useChangePassword changes password", async () => {
     api.changePassword.mockResolvedValue(undefined);
     useChangePassword();
@@ -123,9 +113,10 @@ describe("Auth Mutations", () => {
   it("useRequestPasswordReset and useConfirmPasswordReset execute reset flow", async () => {
     api.requestPasswordReset.mockResolvedValue(undefined);
     useRequestPasswordReset();
-    await lastMutation().mutationFn?.({ email: "user@test.com" } as never);
+    await lastMutation().mutationFn?.({ email: "user@test.com", username: "demo.abc" } as never);
     expect(api.requestPasswordReset).toHaveBeenCalledWith(hoisted.apiClient, {
       email: "user@test.com",
+      username: "demo.abc",
     });
 
     api.confirmPasswordReset.mockResolvedValue(undefined);

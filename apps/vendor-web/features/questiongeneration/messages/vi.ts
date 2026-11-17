@@ -49,6 +49,7 @@ export const generationMessages = {
   // Form validation
   skillRequired: "Vui lòng chọn kỹ năng",
   taskTypeRequired: "Vui lòng chọn dạng bài",
+  taskTypePlaceholder: "Chọn dạng bài…",
   cefrLevelRequired: "Vui lòng chọn cấp CEFR",
   poolRequired: "Vui lòng chọn pool",
   countInvalid: "Vui lòng nhập số từ 1 đến 10",
@@ -64,6 +65,11 @@ export const generationMessages = {
   cancelButton: "Hủy",
   startButton: "Bắt đầu tạo",
   startingGenerationMessage: "Đang bắt đầu tạo câu hỏi...",
+  startErrorAlreadyRunning: "Bạn đang có một lần sinh đề chưa xong. Hãy chờ nó chạy xong hoặc dừng nó rồi thử lại.",
+  startErrorTooManyJobs: "Hệ thống đang chạy quá nhiều lần sinh đề. Vui lòng thử lại sau vài phút.",
+  startErrorDailyLimit: "Bạn đã dùng hết lượt sinh đề hôm nay.",
+  startErrorGlobalLimit: "Hệ thống đã dùng hết lượt sinh đề hôm nay.",
+  startError: "Không bắt đầu sinh đề được. Vui lòng thử lại.",
 
   // Progress tray
   generatingTitle: "Đang tạo",

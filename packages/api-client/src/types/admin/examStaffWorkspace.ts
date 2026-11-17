@@ -16,6 +16,8 @@ export interface ExamStaffAccountResponse {
   status: "ACTIVE" | "SUSPENDED";
   mustChangePassword: boolean;
   canSendCredentials: boolean;
+  /** False when the account is shared by several organizations and its personal details cannot be edited here. */
+  editable: boolean;
 }
 
 export interface UpdateExamStaffProfileRequest {

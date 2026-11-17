@@ -317,8 +317,8 @@ export const CREATE_LOGIN_ACCOUNT_TEXT = {
   EMAIL_PLACEHOLDER: "host@example.com",
   FULL_NAME_LABEL: "Full Name",
   FULL_NAME_PLACEHOLDER: "Enter the Host's name...",
-  PASSWORD_LABEL: "Initial Password",
-  PASSWORD_HELPER: "At least 8 characters. Relay it to the Host directly.",
+  CREDENTIALS_NOTE:
+    "A username and a temporary password are generated and emailed to this address. The Host must change the password at first sign-in.",
   CANCEL: "Cancel",
   SUBMIT: "Create Login",
   CONFLICT: "This email is already in use. Please use another email.",
@@ -327,13 +327,11 @@ export const CREATE_LOGIN_ACCOUNT_TEXT = {
 export const CREATE_LOGIN_ACCOUNT_ERRORS = {
   REQUIRED: "This field is required.",
   EMAIL_INVALID: "Enter a valid email address.",
-  PASSWORD_TOO_SHORT: "Enter at least 8 characters.",
 } as const;
 
 export const EMPTY_CREATE_LOGIN_ACCOUNT: CreateLoginAccountInput = {
   email: "",
   fullName: "",
-  password: "",
 };
 
 export const RESET_PASSWORD_TEXT = {

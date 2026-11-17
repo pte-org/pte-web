@@ -12,10 +12,7 @@ import {
   confirmPasswordReset,
   requestPasswordReset,
   validatePasswordResetToken,
-  listLoginOrganizations,
   loginHost,
-  type LoginOrganizationOption,
-  type LoginOrganizationOptionsRequest,
   type CurrentUser,
   type ChangePasswordRequest,
   type PasswordResetConfirmRequest,
@@ -30,17 +27,6 @@ import { CURRENT_USER_QUERY_KEY } from "./constants";
 export function useLoginHost(): UseMutationResult<JwtTokenResponse, unknown, HostLoginRequest> {
   return useMutation({
     mutationFn: (payload: HostLoginRequest) => loginHost(apiClient, payload),
-  });
-}
-
-export function useLoginOrganizationOptions(): UseMutationResult<
-  LoginOrganizationOption[],
-  unknown,
-  LoginOrganizationOptionsRequest
-> {
-  return useMutation({
-    mutationFn: (payload: LoginOrganizationOptionsRequest) =>
-      listLoginOrganizations(apiClient, payload),
   });
 }
 

@@ -42,11 +42,13 @@ export interface ExamStaffQuery {
 
 export type ExamStaffPage = PagedResult<UserResponse>;
 
-/** Matches iam's real `CreateUserRequest` record exactly. */
+/**
+ * Matches iam's real `CreateUserRequest` record exactly. There is no credential field: the API generates the
+ * username and a temporary password and e-mails both to `email`.
+ */
 export interface CreateUserRequest {
   email: string;
   fullName: string;
-  password: string;
   roles: string[];
   tenantId: string | null;
   studentCode?: string | null;
