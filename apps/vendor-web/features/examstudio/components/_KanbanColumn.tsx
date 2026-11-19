@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, type DragEvent, type ReactElement } from "react";
+import { useState, type DragEvent, type ReactElement, type ReactNode } from "react";
 import { Alert, Button, Chip, EyeIcon, LockIcon, LoadingState, cn } from "@pte/ui";
 import { useQuestions } from "@/features/questionbank/api";
 import type { Question } from "@/features/questionbank/types";
@@ -55,6 +55,8 @@ interface KanbanColumnViewProps {
   onDragStart: (question: Question) => void;
   onDragEnd: () => void;
   onDropOn: (column: KanbanColumn) => void;
+  /** Quick buttons under a card (next step, delete), so a card can move without dragging. */
+  cardActions?: (question: Question) => ReactNode;
 }
 
 /**
@@ -81,6 +83,7 @@ export const KanbanColumnView = ({
   onDragStart,
   onDragEnd,
   onDropOn,
+  cardActions,
 }: KanbanColumnViewProps): ReactElement => {
   const router = useRouter();
   const authorName = useAuthorNames();
@@ -188,6 +191,7 @@ export const KanbanColumnView = ({
             ]}
             authorName={authorName(question.authorId)}
             meta={question.updatedAt ? updatedLabel(question) : undefined}
+            actions={cardActions?.(question)}
           />
         ))}
         {total > cards.length && size < KANBAN_COLUMN_MAX_SIZE && (

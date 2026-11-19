@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { getFailureReasonTranslation } from "../utils/failureCodeTranslator";
+import { getFailureReasonTranslation } from "../../../../features/questiongeneration/utils/failureCodeTranslator";
 
 describe("failureCodeTranslator", () => {
   describe("provider failure codes", () => {

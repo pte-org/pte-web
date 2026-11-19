@@ -40,3 +40,7 @@ export const buildQuestionPreviewDraft = (
     audioUrl: media.audioUrl,
   };
 };
+
+/** The author typed something (prompt or an option) that leaving the page would lose. */
+export const hasTypedContent = (draft: QuestionPreviewDraft | null): boolean =>
+  draft !== null && (draft.promptText.trim().length > 0 || draft.options.some((option) => option.trim().length > 0));

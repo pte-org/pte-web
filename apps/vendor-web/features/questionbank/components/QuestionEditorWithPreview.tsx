@@ -25,6 +25,8 @@ interface QuestionEditorWithPreviewProps {
   sidePanel?: ReactNode;
   /** A question an AI run wrote, put into the form for the person to check and save. */
   agent?: AgentFill | null;
+  /** Every form change, as the preview sees it (task type, typed text). */
+  onDraftChange?: (draft: QuestionPreviewDraft) => void;
 }
 
 /**
@@ -40,11 +42,15 @@ export const QuestionEditorWithPreview = ({
   initialSection,
   sidePanel,
   agent,
+  onDraftChange,
 }: QuestionEditorWithPreviewProps): ReactElement => {
   const { data: questionTypes = [], isLoading } = useQuestionTypes(true);
   const [draft, setDraft] = useState<QuestionPreviewDraft | null>(null);
   const [section, setSection] = useState(initialSection ?? SCORE_TEMPLATE_ALL_TAB);
-  const handlePreview = useCallback((next: QuestionPreviewDraft) => setDraft(next), []);
+  const handlePreview = useCallback((next: QuestionPreviewDraft) => {
+    setDraft(next);
+    onDraftChange?.(next);
+  }, [onDraftChange]);
   const sectionItems = useSectionTabItems((value) =>
     value === null
       ? questionTypes.length
