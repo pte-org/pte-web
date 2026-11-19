@@ -5,6 +5,7 @@ import type {
   QuestionGenerationJobResponse,
   QuestionGenerationJobStatusRequest,
   QuestionGenerationLiveEvent,
+  QuestionGenerationPreset,
   QuestionGenerationQuotaResponse,
   QuestionGenerationTaskTypeResponse,
 } from "../types/generation";
@@ -16,6 +17,7 @@ export const QUESTION_GENERATION_ENDPOINTS = {
   jobLive: (id: string) => `/api/v1/question-generation/jobs/${id}/live`,
   taskTypes: "/api/v1/question-generation/task-types",
   quota: "/api/v1/question-generation/quota",
+  presets: "/api/v1/question-generation/presets",
 } as const;
 
 export function createQuestionGenerationJob(
@@ -39,10 +41,13 @@ export function listQuestionGenerationJobs(
   client: ApiClient,
   page = 0,
   size = 10,
+  includeBatchChildren = false,
 ): Promise<PagedResult<QuestionGenerationJobResponse>> {
   const params = new URLSearchParams();
   params.set("page", String(page));
   params.set("size", String(size));
+  // The server hides batch children unless asked for them.
+  if (includeBatchChildren) params.set("includeBatchChildren", "true");
   const suffix = params.toString() ? `?${params.toString()}` : "";
   return client.request<PagedResult<QuestionGenerationJobResponse>>(
     `${QUESTION_GENERATION_ENDPOINTS.jobs}${suffix}`,
@@ -70,6 +75,11 @@ export function getQuestionGenerationQuota(
   client: ApiClient,
 ): Promise<QuestionGenerationQuotaResponse> {
   return client.request<QuestionGenerationQuotaResponse>(QUESTION_GENERATION_ENDPOINTS.quota);
+}
+
+/** The active exam template's task types and counts ("Full 1 exam" preset); empty when none is active. */
+export function getQuestionGenerationPresets(client: ApiClient): Promise<QuestionGenerationPreset[]> {
+  return client.request<QuestionGenerationPreset[]>(QUESTION_GENERATION_ENDPOINTS.presets);
 }
 
 const LIVE_EVENT_TYPES: ReadonlySet<string> = new Set([

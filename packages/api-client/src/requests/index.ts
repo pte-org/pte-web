@@ -58,8 +58,17 @@ export {
   updateQuestionGenerationJobStatus,
   getQuestionGenerationTaskTypes,
   getQuestionGenerationQuota,
+  getQuestionGenerationPresets,
   followQuestionGenerationJob,
 } from "./generation";
+export {
+  QUESTION_GENERATION_BATCH_ENDPOINTS,
+  createQuestionGenerationBatch,
+  getQuestionGenerationBatch,
+  listQuestionGenerationBatches,
+  cancelQuestionGenerationBatch,
+  deleteQuestionGenerationBatchDrafts,
+} from "./generationBatch";
 
 // AI administration
 export {
