@@ -1,0 +1,1 @@
+export { BatchDetailView } from "./BatchDetailView";

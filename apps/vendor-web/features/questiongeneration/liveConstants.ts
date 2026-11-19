@@ -13,7 +13,12 @@ export const IMAGE_FAILED_CODE = "GENERATION_IMAGE_FAILED";
 export const generationLiveHref = (jobId: string): string => `/admin/questions/ai-generation/${jobId}`;
 /** The page where the drafts of a finished job are reviewed. */
 export const generationReviewHref = (jobId: string): string => `/admin/questions/ai-review?job=${jobId}`;
-export const questionDetailHref = (questionId: string): string => `/admin/questions/${questionId}`;
+/** The detail page of an AI batch, where the header pill leads while a batch runs. */
+export const batchDetailHref = (batchId: string): string => `/admin/questions/ai-batches/${batchId}`;
+
+/** A question opened from an AI batch carries the batch, so its breadcrumb leads back to that batch. */
+export const questionDetailHref = (questionId: string, batchId?: string | null): string =>
+  batchId ? `/admin/questions/${questionId}?batch=${encodeURIComponent(batchId)}` : `/admin/questions/${questionId}`;
 
 /** A stream that closed while the job still runs is opened again after this pause. */
 export const LIVE_RECONNECT_DELAY_MS = 2000;
@@ -29,7 +34,7 @@ export const TYPING_MIN_CHARS_PER_FRAME = 2;
 export const TYPING_CATCH_UP_FRAMES = 40;
 
 export const TERMINAL_JOB_STATUSES: readonly QuestionGenerationJobStatus[] = ["COMPLETED", "FAILED", "CANCELLED"];
-export const ACTIVE_JOB_STATUSES: readonly QuestionGenerationJobStatus[] = ["QUEUED", "RUNNING", "CANCELLING"];
+export const ACTIVE_JOB_STATUSES: readonly QuestionGenerationJobStatus[] = ["PENDING", "QUEUED", "RUNNING", "CANCELLING"];
 export const TERMINAL_ITEM_STAGES: readonly string[] = ["READY", "SAVED", "FAILED", "CANCELLED"];
 
 /** The steps of one item, each done by its own agent, in the order they run. */
@@ -78,6 +83,9 @@ const LIVE_TEXT_EN = {
   topic: "Topic",
   activity: "AI is writing questions",
   activityProgress: "{done}/{total}",
+  results: "Results",
+  reviewAll: "Review the saved questions",
+  failedBecause: "Not saved: {reason}",
 } as const;
 
 export type LiveText = { [K in keyof typeof LIVE_TEXT_EN]: string };
@@ -126,6 +134,9 @@ export const LIVE_TEXT: { vi: LiveText; en: LiveText } = {
     topic: "Chủ đề",
     activity: "AI đang sinh đề",
     activityProgress: "{done}/{total}",
+    results: "Kết quả",
+    reviewAll: "Duyệt các câu đã lưu",
+    failedBecause: "Không lưu: {reason}",
   },
 };
 

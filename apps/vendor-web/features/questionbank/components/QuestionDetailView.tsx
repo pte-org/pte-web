@@ -32,6 +32,7 @@ import { ExamScreenPreview } from "./ExamScreenPreview";
 import { QuestionDetailSkeleton } from "./_QuestionDetailSkeleton";
 import { AnswerKeyGroups, hasAnswerHints } from "./_AnswerKeyGroups";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import { batchReturnTrail } from "../batchReturnTrail";
 
 /** One card of the detail column; every group (content, options, transcript, answer, hints) gets its own. */
 const DETAIL_CARD_CLASS =
@@ -60,9 +61,12 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
   const pathname = usePathname();
   const router = useRouter();
   // Where the page was opened from, so the way back leads there; only paths inside the admin area count.
-  const from = useSearchParams().get("from");
+  const searchParams = useSearchParams();
+  const from = searchParams.get("from");
   const backTarget =
     from && from.startsWith("/admin/") && !from.startsWith("//") ? from : "/admin/questions";
+  // Opened from an AI batch: the breadcrumb leads back to that batch, so no back button is shown.
+  const batchTrail = batchReturnTrail(searchParams.get("batch"), T.AI_BATCH_CRUMB);
   const { data: currentUser } = useCurrentUser();
   const { data: questionTypes = [], isLoading: questionTypesLoading } = useQuestionTypes(false);
   const questionTypeCode = question?.taskTypeKey ?? question?.pteTaskType;
@@ -72,6 +76,7 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
     questionTypes.find(
       (type) => type.code === questionTypeCode || type.taskTypeKey === questionTypeCode,
     )?.displayName ?? questionTypeCode,
+    batchTrail,
   );
   const { url: audioUrl, isLoading: audioLoading } = usePromptMedia(
     question?.audioPromptRef ?? null,
@@ -158,15 +163,17 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
 
   return (
     <div className="space-y-4">
-      <Button
-        size="sm"
-        variant="secondary"
-        appearance="ghost"
-        leftIcon={<ChevronLeftIcon className="h-4 w-4" />}
-        onClick={() => router.push(backTarget)}
-      >
-        {backTarget === "/admin/questions" ? T.BACK_TO_BANK : T.BACK_TO_STUDIO}
-      </Button>
+      {!batchTrail && (
+        <Button
+          size="sm"
+          variant="secondary"
+          appearance="ghost"
+          leftIcon={<ChevronLeftIcon className="h-4 w-4" />}
+          onClick={() => router.push(backTarget)}
+        >
+          {backTarget === "/admin/questions" ? T.BACK_TO_BANK : T.BACK_TO_STUDIO}
+        </Button>
+      )}
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 xl:items-start">
         <div className="flex flex-col gap-5">
           <section className="flex flex-col gap-4 rounded-lg border border-slate-200 bg-white p-5 shadow-card">

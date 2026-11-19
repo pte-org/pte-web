@@ -73,6 +73,7 @@ export const QUESTION_DETAIL_TEXT = {
   BACK: "← Back to Question Bank",
   BACK_TO_BANK: "Back to the question bank",
   BACK_TO_STUDIO: "Back to the Content Hub",
+  AI_BATCH_CRUMB: "AI question batch",
   EDIT: "Edit question",
   INFORMATION_TITLE: "Question information",
   GROUP_IDENTITY: "Identity",
