@@ -21,20 +21,6 @@ export interface GenerationJob extends QuestionGenerationJobResponse {
 }
 
 /**
- * Form state for the generation drawer
- */
-export interface GenerationFormState {
-  skill?: "SPEAKING" | "WRITING" | "READING" | "LISTENING";
-  taskType?: string;
-  cefrLevel?: string; // A1, A2, B1, B2, C1, C2
-  pool?: string; // PRACTICE or EXAM
-  topicHint?: string;
-  /** Describe Image only. */
-  imageKind?: "AUTO" | "CHART" | "PICTURE";
-  count: number;
-}
-
-/**
  * Item with UI state for the progress tray
  */
 export interface GenerationItemUI extends QuestionGenerationItemResponse {
