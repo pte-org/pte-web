@@ -51,3 +51,11 @@ export function moveVerdict(
   if (action === null) return "not-a-step";
   return needsReviewerRole(action) && !canReview ? "needs-reviewer" : "allowed";
 }
+
+const NEXT_COLUMN: Partial<Record<KanbanColumn, KanbanColumn>> = { draft: "pending", pending: "approved", approved: "archived" };
+
+/** The column a card's quick button moves it to, when this user may take that step; null otherwise. */
+export function nextQuickStep(question: Question, canReview: boolean): KanbanColumn | null {
+  const target = NEXT_COLUMN[columnOf(question)];
+  return target && moveVerdict(question, target, canReview) === "allowed" ? target : null;
+}
