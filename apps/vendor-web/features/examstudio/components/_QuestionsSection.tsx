@@ -5,9 +5,7 @@ import type { ReactElement } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Alert,
-  Badge,
   Button,
-  Chip,
   Input,
   LoadingState,
   Pagination,
@@ -15,7 +13,7 @@ import {
   useToast,
 } from "@pte/ui";
 import { useCurrentUser } from "@/features/auth/api";
-import { canReviewAcademic } from "@/features/auth/permissions";
+import { canAuthorAcademic, canReviewAcademic } from "@/features/auth/permissions";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import {
   useApproveQuestion,
@@ -24,12 +22,15 @@ import {
 } from "@/features/questionbank/api";
 import type { QuestionStatus } from "@/features/questionbank/types";
 import { SCORE_TEMPLATE_QUERY_KEY } from "@/features/scoretemplate/constants";
-import { cefrTone } from "@/lib/chipTones";
 import { EXAM_STUDIO_TEXT, QUESTION_ROUTE, STUDIO_QUESTION_PAGE_SIZE } from "../constants";
 import type { StudioTile } from "../types";
 import { useUrlSearch } from "../hooks/useUrlSearch";
 import { useStudioLocation } from "../hooks/useStudioLocation";
-import { SERVER_STATUS, STATUS_BADGE, statusLabelsOf } from "./questionStatus";
+import { deletableIds, isBulkDeletable } from "../draftBulkDelete";
+import { useDraftBulkDelete } from "../hooks/useDraftBulkDelete";
+import { DraftBulkDeleteBar } from "./_DraftBulkDeleteBar";
+import { QuestionRow } from "./_QuestionRow";
+import { SERVER_STATUS, statusLabelsOf } from "./questionStatus";
 
 interface QuestionsSectionProps {
   tile: StudioTile;
@@ -88,7 +89,9 @@ export const QuestionsSection = ({
   };
   const submitMutation = useSubmitQuestionApproval();
   const approveMutation = useApproveQuestion();
-  const busy = submitMutation.isPending || approveMutation.isPending;
+  const bulk = useDraftBulkDelete();
+  const canBulkDelete = canAuthorAcademic(currentUser?.roles);
+  const busy = submitMutation.isPending || approveMutation.isPending || bulk.isDeleting;
 
   // Approving changes how many questions the template can draw, so the coverage must be read again.
   const refreshCoverage = (): void => {
@@ -105,6 +108,7 @@ export const QuestionsSection = ({
 
   const shown = questions.data?.data ?? [];
   const totalPages = questions.data?.meta.totalPages ?? 1;
+  const pageDraftIds = canBulkDelete ? deletableIds(shown) : [];
 
   return (
     <div className="overflow-hidden rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)]">
@@ -142,49 +146,38 @@ export const QuestionsSection = ({
       {shown.length > 0 && (
         <ul className="max-h-[50vh] divide-y divide-[var(--shell-border)] overflow-y-auto border-t border-[var(--shell-border)]">
           {shown.map((question) => (
-            <li key={question.id} className="flex items-center gap-2 px-1 py-1">
-              <button
-                type="button"
-                onClick={() =>
-                  router.push(`${QUESTION_ROUTE}/${question.id}?from=${encodeURIComponent(here)}`)
-                }
-                className="flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-2 text-left transition hover:bg-[var(--action-tint)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35"
-                title={question.content}
-              >
-                <span className="min-w-0 flex-1 truncate text-sm text-[var(--ink-primary)]">
-                  {question.content}
-                </span>
-                {question.cefrLevel && (
-                  <Chip tone={cefrTone(question.cefrLevel)} size="sm">
-                    {question.cefrLevel}
-                  </Chip>
-                )}
-                <Badge variant={STATUS_BADGE[question.status]}>
-                  {statusLabels[question.status]}
-                </Badge>
-              </button>
-              {question.status === "draft" && (
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  disabled={busy}
-                  onClick={() => submitMutation.mutate(question.id, options)}
-                >
-                  {text.SUBMIT_APPROVAL}
-                </Button>
-              )}
-              {question.status === "pending_approval" && canReviewAcademic(currentUser?.roles) && (
-                <Button
-                  size="sm"
-                  disabled={busy}
-                  onClick={() => approveMutation.mutate(question.id, options)}
-                >
-                  {text.APPROVE}
-                </Button>
-              )}
-            </li>
+            <QuestionRow
+              key={question.id}
+              question={question}
+              statusLabel={statusLabels[question.status]}
+              onOpen={() => router.push(`${QUESTION_ROUTE}/${question.id}?from=${encodeURIComponent(here)}`)}
+              selection={canBulkDelete && isBulkDeletable(question) ? {
+                checked: bulk.selected.has(question.id),
+                label: text.BULK_SELECT_ONE,
+                disabled: bulk.isDeleting,
+                onToggle: () => bulk.toggle(question.id),
+              } : undefined}
+              actions={
+                <>
+                  {question.status === "draft" && (
+                    <Button size="sm" variant="secondary" disabled={busy}
+                      onClick={() => submitMutation.mutate(question.id, options)}>
+                      {text.SUBMIT_APPROVAL}
+                    </Button>
+                  )}
+                  {question.status === "pending_approval" && canReviewAcademic(currentUser?.roles) && (
+                    <Button size="sm" disabled={busy} onClick={() => approveMutation.mutate(question.id, options)}>
+                      {text.APPROVE}
+                    </Button>
+                  )}
+                </>
+              }
+            />
           ))}
         </ul>
+      )}
+      {(pageDraftIds.length > 0 || bulk.selected.size > 0 || bulk.result) && (
+        <DraftBulkDeleteBar pageIds={pageDraftIds} bulk={bulk} />
       )}
       {totalPages > 1 && (
         <div className="border-t border-[var(--shell-border)] p-2">

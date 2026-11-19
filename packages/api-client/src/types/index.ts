@@ -36,6 +36,8 @@ export type {
   QuestionGenerationItemResponse,
   QuestionGenerationJobResponse,
   QuestionGenerationQuotaResponse,
+  QuestionGenerationQuotaScope,
+  QuestionGenerationPreset,
   QuestionGenerationJobCreateRequest,
   QuestionGenerationJobStatusRequest,
   QuestionGenerationLiveAgent,
@@ -47,6 +49,17 @@ export type {
   QuestionGenerationCheckStep,
   QuestionGenerationCheckDetail,
   QuestionGenerationLiveEvent,
+  QuestionGenerationBatchStatus,
+  QuestionGenerationImageKind,
+  QuestionGenerationBatchRow,
+  QuestionGenerationBatchCreateRequest,
+  QuestionGenerationBatchChildResponse,
+  QuestionGenerationBatchResponse,
+  QuestionGenerationBatchDraftDeleteRequest,
+  QuestionGenerationBatchDraftDeleteResult,
+  QuestionGenerationBatchDraftDeleteItem,
+  QuestionGenerationBatchDraftDeleteResponse,
+  QuestionGenerationBatchListParams,
 } from "./generation";
 
 // AI administration (com.pte.itembank.internal.generation.controller.AiAdminController)

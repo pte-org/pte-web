@@ -3,12 +3,14 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, type ReactElement } from "react";
 import { Alert, Button, LoadingState, useDashboardBreadcrumbLabel, useLocale } from "@pte/ui";
-import { GenerationDrawer } from "@/features/questiongeneration/components";
+import { GenerationDialog } from "@/features/questiongeneration/components";
 import { useGeneratedFill } from "@/features/questiongeneration/hooks/useGeneratedFill";
 import { generationLiveHref } from "@/features/questiongeneration/liveConstants";
 import { generationMessages as generationEn } from "@/features/questiongeneration/messages/en";
 import { generationMessages as generationVi } from "@/features/questiongeneration/messages/vi";
 import { useQuestion } from "../api";
+import { hasTypedContent } from "../questionPreviewDraft";
+import type { QuestionPreviewDraft } from "../types";
 import {
   QUESTION_EDITOR_ERRORS as RAW_QUESTION_EDITOR_ERRORS,
   QUESTION_EDITOR_TEXT as RAW_QUESTION_EDITOR_TEXT,
@@ -21,7 +23,9 @@ export const NewQuestionView = (): ReactElement => {
   const { locale } = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  // What the form holds now: its task type is pre-ticked in the popup, typed text asks before a batch leaves.
+  const [draft, setDraft] = useState<QuestionPreviewDraft | null>(null);
   // Bumped after a save: the form opens again empty, ready for the next question.
   const [formRound, setFormRound] = useState(0);
   // Back from the AI run's page: the question it wrote fills the form, nothing is saved until the person says so.
@@ -40,18 +44,20 @@ export const NewQuestionView = (): ReactElement => {
         onCancel={() => router.push("/admin/questions")}
         // Only the first form takes the AI run's question; the forms opened after saving start empty.
         agent={formRound === 0 ? fill : null}
+        onDraftChange={setDraft}
         sidePanel={
-          <Button type="button" className="w-full" onClick={() => setDrawerOpen(true)}>
+          <Button type="button" className="w-full" onClick={() => setDialogOpen(true)}>
             ✦ {(locale === "vi" ? generationVi : generationEn).generateWithAi}
           </Button>
         }
       />
-      <GenerationDrawer
-        open={drawerOpen}
-        single
-        onClose={() => setDrawerOpen(false)}
-        onJobCreated={(jobId) => {
-          setDrawerOpen(false);
+      <GenerationDialog
+        open={dialogOpen}
+        currentTaskType={draft?.taskType || undefined}
+        isEditorDirty={hasTypedContent(draft)}
+        onClose={() => setDialogOpen(false)}
+        onSingleJobCreated={(jobId) => {
+          setDialogOpen(false);
           // The run is followed on its own page; when it is done that page brings the question back to this form.
           router.push(generationLiveHref(jobId));
         }}

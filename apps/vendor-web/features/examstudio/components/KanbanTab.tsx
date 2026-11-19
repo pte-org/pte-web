@@ -8,6 +8,7 @@ import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useAdminSearchText } from "@/features/i18n/adminSearchCopy";
 import type { Question } from "@/features/questionbank/types";
 import { EXAM_STUDIO_TEXT, KANBAN_COLUMN_MAX_SIZE } from "../constants";
+import { KanbanCardActions } from "./_KanbanCardActions";
 import { useKanbanMoves } from "../hooks/useKanbanMoves";
 import { useStudioLocation } from "../hooks/useStudioLocation";
 import { useUrlSearch } from "../hooks/useUrlSearch";
@@ -115,6 +116,9 @@ export const KanbanTab = ({ tiles, templatePublicId, leading }: KanbanTabProps):
             onDragStart={setDragged}
             onDragEnd={() => setDragged(null)}
             onDropOn={dropOn}
+            cardActions={(question) => (
+              <KanbanCardActions question={question} canReview={canReview} isMoving={isMoving} onMove={move} />
+            )}
           />
         ))}
       </div>

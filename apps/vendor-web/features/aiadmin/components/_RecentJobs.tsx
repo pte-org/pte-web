@@ -13,6 +13,7 @@ const STATUS_VARIANT: Record<string, BadgeVariant> = {
   CANCELLED: "neutral",
   RUNNING: "info",
   QUEUED: "info",
+  PENDING: "neutral",
   CANCELLING: "warning",
 };
 

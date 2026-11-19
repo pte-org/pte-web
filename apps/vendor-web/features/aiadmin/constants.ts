@@ -209,12 +209,12 @@ export const AI_ADMIN_COPY = {
 /** The same keys in every language; the values are plain strings, not the literal English text. */
 /**
  * The generation limits edited on the overview page: the platform setting behind each and the range the server
- * accepts (an AI call allowance below 5 would allow no write-review round at all).
+ * accepts (an AI call allowance below 5 would allow no write-review round at all). A daily limit of 0 is unlimited.
  */
 export const GENERATION_LIMITS = [
   { field: "maxItemsPerJob", settingKey: "question_generation_max_items_per_job", label: "MAX_PER_JOB", min: 1, max: 50 },
-  { field: "maxItemsPerUserPerDay", settingKey: "question_generation_max_items_per_user_per_day", label: "MAX_PER_USER_DAY", min: 1, max: 10_000 },
-  { field: "maxItemsPerDayGlobal", settingKey: "question_generation_max_items_per_day", label: "MAX_PER_DAY", min: 1, max: 100_000 },
+  { field: "maxItemsPerUserPerDay", settingKey: "question_generation_max_items_per_user_per_day", label: "MAX_PER_USER_DAY", min: 0, max: 10_000 },
+  { field: "maxItemsPerDayGlobal", settingKey: "question_generation_max_items_per_day", label: "MAX_PER_DAY", min: 0, max: 100_000 },
   { field: "maxConcurrentJobs", settingKey: "question_generation_max_concurrent_jobs", label: "MAX_JOBS", min: 1, max: 20 },
   { field: "maxCallsPerItem", settingKey: "question_generation_max_calls_per_item", label: "MAX_CALLS", min: 5, max: 200 },
 ] as const;

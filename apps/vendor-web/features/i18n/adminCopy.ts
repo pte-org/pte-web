@@ -1217,6 +1217,7 @@ const ADMIN_VI: Record<string, string> = {
   "Question unarchived.": "Đã bỏ lưu trữ câu hỏi.",
   "Back to the question bank": "Về ngân hàng câu hỏi",
   "Back to the Content Hub": "Về Trung tâm nội dung",
+  "AI question batch": "Lô sinh đề bằng AI",
   "← Back to Question Bank": "← Quay lại ngân hàng câu hỏi",
   "This question has no text prompt.": "Câu hỏi này không có đề bài dạng văn bản.",
   "Loading media preview...": "Đang tải bản xem trước tệp phương tiện...",
@@ -1476,6 +1477,18 @@ const SCORE_TEMPLATE_FEEDBACK_VI: Record<string, string> = {
   "Available / needed": "Có / cần",
   Required: "Cần có",
   Available: "Hiện có",
+  "Select all deletable drafts on this page": "Chọn mọi bản nháp xóa được trên trang này",
+  "Select this draft": "Chọn bản nháp này",
+  "{count} drafts selected": "Đã chọn {count} bản nháp",
+  "Delete selected drafts": "Xóa các bản nháp đã chọn",
+  "Delete this draft?": "Xóa bản nháp này?",
+  "The draft is deleted for good. This cannot be undone.": "Bản nháp sẽ bị xóa vĩnh viễn và không thể khôi phục.",
+  "Draft deleted": "Đã xóa bản nháp",
+  "Delete the selected drafts?": "Xóa các bản nháp đã chọn?",
+  "{count} draft questions, including drafts written by AI, are deleted for good. Only drafts can be deleted; submitted and approved questions are kept.":
+    "{count} câu hỏi nháp, kể cả bản nháp do AI viết, sẽ bị xóa vĩnh viễn. Chỉ xóa được bản nháp; câu đã gửi duyệt hoặc đã duyệt được giữ lại.",
+  "Delete drafts": "Xóa bản nháp",
+  "{deleted} deleted, {failed} could not be deleted.": "Đã xóa {deleted}, {failed} câu không xóa được.",
 };
 
 type LocalizableFunction = (...args: never[]) => unknown;

@@ -6,7 +6,8 @@
 
 import type { CreateQuestionRequest } from "../question";
 
-export type QuestionGenerationJobStatus = "QUEUED" | "RUNNING" | "COMPLETED" | "FAILED" | "CANCELLING" | "CANCELLED";
+/** PENDING: a batch child waiting for its turn. */
+export type QuestionGenerationJobStatus = "PENDING" | "QUEUED" | "RUNNING" | "COMPLETED" | "FAILED" | "CANCELLING" | "CANCELLED";
 
 export type QuestionGenerationItemStage =
   | "QUEUED"
@@ -57,6 +58,10 @@ export interface QuestionGenerationJobResponse {
   startedAt: string | null; // ISO 8601
   finishedAt: string | null; // ISO 8601
   items: QuestionGenerationItemResponse[];
+  /** The batch this job belongs to, or null for a job started on its own. */
+  batchPublicId?: string | null;
+  /** The run order of the job inside its batch. */
+  batchSeq?: number | null;
 }
 
 /** The agent that wrote a piece of text in the live view of a job. */
@@ -143,9 +148,28 @@ export type QuestionGenerationLiveEvent =
   | { type: "item"; index: number }
   | { type: "end"; finished: boolean };
 
+/** Which daily limit binds the caller: their own or the one shared by all authors. */
+export type QuestionGenerationQuotaScope = "USER" | "GLOBAL";
+
+/**
+ * Today's use (UTC day). `remaining`/`scope` come from the tighter non-zero daily limit and are null when
+ * `unlimited`; read `remaining`, never `dailyLimit - usedToday` (the global limit may bind). `dailyLimit` 0 =
+ * unlimited. `maxItemsPerBatch` is the batch cap in force. Older servers omit the new fields.
+ */
 export interface QuestionGenerationQuotaResponse {
   usedToday: number;
   dailyLimit: number;
+  remaining?: number | null;
+  unlimited?: boolean;
+  scope?: QuestionGenerationQuotaScope | null;
+  maxItemsPerBatch?: number;
+}
+
+/** One task type of the active exam template and how many items one exam uses. */
+export interface QuestionGenerationPreset {
+  taskType: string;
+  section: string;
+  maxCount: number;
 }
 
 export interface QuestionGenerationJobCreateRequest {
@@ -163,6 +187,8 @@ export interface QuestionGenerationJobCreateRequest {
 export interface QuestionGenerationJobStatusRequest {
   action: QuestionGenerationJobAction;
 }
+
+export type * from "./batch";
 
 // Export legacy names for backward compatibility (but deprecated)
 /** @deprecated Use QuestionGenerationJobStatus */
