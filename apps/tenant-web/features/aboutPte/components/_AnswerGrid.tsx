@@ -11,9 +11,10 @@ interface AnswerGridProps {
 }
 
 const OUTCOME_CLASS: Record<Outcome, string> = {
-  correct: "border-emerald-300 bg-emerald-50 text-emerald-800 hover:bg-emerald-100",
-  partial: "border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100",
-  wrong: "border-rose-300 bg-rose-50 text-rose-800 hover:bg-rose-100",
+  // Same theme-aware tokens as @pte/ui Badge, so the chips stay readable in light and dark mode.
+  correct: "border-[var(--mint-action)] bg-[var(--mint-tint)] text-[var(--mint-action)]",
+  partial: "border-[var(--cream-action)] bg-[var(--cream-tint)] text-[var(--cream-action)]",
+  wrong: "border-[var(--blush-action)] bg-[var(--blush-tint)] text-[var(--blush-action)]",
 };
 
 /** Stage 1: every item, side by side for the three students; each answer is clickable. */
@@ -53,7 +54,7 @@ export const AnswerGrid = ({ answers, onToggle, copy }: AnswerGridProps): ReactE
                       <button
                         type="button"
                         onClick={() => onToggle(student, task.key, item)}
-                        className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${OUTCOME_CLASS[outcome]}`}
+                        className={`rounded-full border px-3 py-1 text-xs font-semibold transition hover:opacity-80 ${OUTCOME_CLASS[outcome]}`}
                       >
                         {text.outcomes[outcome]}
                       </button>
