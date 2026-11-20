@@ -2,8 +2,9 @@
 
 import { useState, type ReactElement } from "react";
 import type { QuestionGenerationTaskTypeResponse } from "@pte/api-client";
-import { Alert, CollapsibleSection, Tabs } from "@pte/ui";
-import { GENERATION_SECTIONS, TASK_ROW_GRID } from "../dialogConstants";
+import { Alert, CollapsibleSection, Select, Tabs } from "@pte/ui";
+import { GENERATION_CEFR_LEVELS, GENERATION_SECTIONS, TASK_ROW_GRID } from "../dialogConstants";
+import { skillCefrValue } from "../utils/generationCefr";
 import type { DialogMessages } from "../messages/dialog.en";
 import { formatMessage } from "../messages/useDialogMessages";
 import type { GenerationSelectionState } from "../hooks/useGenerationSelection";
@@ -27,6 +28,22 @@ const SkillColumnHeader = ({ messages }: { messages: DialogMessages }): ReactEle
   </div>
 );
 
+/**
+ * "CEFR for the whole skill": shows the level the skill's ticked rows share (else "mixed"); choosing one sets those
+ * rows and the level of rows ticked later. Rows split over several levels are left as they are.
+ */
+const SkillCefrControl = ({ section, state, messages }: Pick<SkillGridProps, "state" | "messages"> & { section: string }): ReactElement => (
+  <div className="flex items-center justify-end gap-2 pb-2">
+    <span className="text-xs text-[var(--ink-muted)]">{messages.skillCefrLabel}</span>
+    <div className="w-44">
+      <Select id={`generation-skill-cefr-${section}`} aria-label={messages.skillCefrLabel} size="sm"
+        value={skillCefrValue(state.selection, section) ?? ""} placeholder={messages.skillCefrMixed}
+        options={GENERATION_CEFR_LEVELS.map((level) => ({ value: level, label: level }))}
+        onChange={(event) => state.setSkillCefr(section, event.target.value)} />
+    </div>
+  </div>
+);
+
 /** One collapsible block: a tab per skill (with how many of its types are ticked) and that skill's task-type list. */
 export const GenerationDialogSkillGrid = ({ taskTypes, state, messages }: SkillGridProps): ReactElement => {
   const sections = GENERATION_SECTIONS.filter((section) => taskTypes.some((type) => type.section === section));
@@ -44,6 +61,7 @@ export const GenerationDialogSkillGrid = ({ taskTypes, state, messages }: SkillG
     <CollapsibleSection title={messages.typesTitle} subtitle={summary}>
       <Tabs items={tabs} value={activeSection} onChange={setActiveSection} variant="minimal" ariaLabel={messages.typesTitle} />
       <div className="pt-3">
+        <SkillCefrControl section={activeSection} state={state} messages={messages} />
         <SkillColumnHeader messages={messages} />
         <div className="divide-y divide-[var(--shell-border)] overflow-hidden rounded-lg border border-[var(--shell-border)]">
           {taskTypes.filter((type) => type.section === activeSection).map((type) => (
@@ -54,6 +72,8 @@ export const GenerationDialogSkillGrid = ({ taskTypes, state, messages }: SkillG
               messages={messages}
               onToggle={() => state.toggle(type.taskType, activeSection)}
               onChange={(patch) => state.update(type.taskType, patch)}
+              onSplitChange={(split) => state.setSplit(type.taskType, split)}
+              onLevelChange={(level, value) => state.setLevel(type.taskType, level, value)}
             />
           ))}
         </div>

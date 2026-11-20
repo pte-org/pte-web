@@ -2,7 +2,8 @@
 
 import { useState, type ReactElement } from "react";
 import { getUserFacingApiErrorMessage, type AiStatusLimits } from "@pte/api-client";
-import { Button, ConfirmDialog, DashboardPanel, DescriptionList, useToast } from "@pte/ui";
+import { Button, DashboardPanel, DescriptionList, UnsavedChangesDialog, UnsavedChangesGuard, useLeaveAfterSave, useToast } from "@pte/ui";
+import { useRouter } from "next/navigation";
 import { useUpdateGenerationLimits } from "../api";
 import { GENERATION_LIMITS, type AiAdminCopy } from "../constants";
 import { useLimitsEditing } from "../hooks/useLimitsEditing";
@@ -22,6 +23,8 @@ export const AiLimitsPanel = ({ limits, copy }: AiLimitsPanelProps): ReactElemen
   const update = useUpdateGenerationLimits();
   const { showToast } = useToast();
   const [leaving, setLeaving] = useState(false);
+  const leaveAfterSave = useLeaveAfterSave();
+  const router = useRouter();
 
   const save = (): void => {
     if (edit.changes.length === 0) {
@@ -33,6 +36,7 @@ export const AiLimitsPanel = ({ limits, copy }: AiLimitsPanelProps): ReactElemen
         setLeaving(false);
         edit.stop();
         showToast(copy.LIMIT_SAVED, { tone: "success" });
+        leaveAfterSave.settle();
       },
       onError: (error) => showToast(getUserFacingApiErrorMessage(error, copy.LIMIT_ERROR), { tone: "error" }),
     });
@@ -66,9 +70,10 @@ export const AiLimitsPanel = ({ limits, copy }: AiLimitsPanelProps): ReactElemen
           ) : limits[limit.field],
         }))}
       />
-      <ConfirmDialog open={leaving} tone="warning" title={copy.LIMIT_LEAVE_TITLE} description={copy.LIMIT_LEAVE_BODY}
-        confirmLabel={copy.LIMIT_LEAVE_SAVE} cancelLabel={copy.LIMIT_LEAVE_DISCARD} isConfirming={update.isPending}
-        onConfirm={save} onCancel={discard} onClose={() => setLeaving(false)} />
+      <UnsavedChangesDialog open={leaving} isSaving={update.isPending} onSaveAndLeave={save} onLeave={discard}
+        onStay={() => setLeaving(false)} />
+      <UnsavedChangesGuard isDirty={edit.editing && edit.changes.length > 0} isSaving={update.isPending}
+        onSaveAndLeave={(proceed) => leaveAfterSave.request(proceed, save)} onNavigate={(href) => router.push(href)} />
     </DashboardPanel>
   );
 };

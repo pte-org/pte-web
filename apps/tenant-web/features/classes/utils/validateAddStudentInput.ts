@@ -9,16 +9,19 @@ const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  * Students are created without a local password. Other fields collected by
  * the form (studentCode, phone, dateOfBirth) are optional.
  */
-export function validateAddStudentInput(input: AddStudentInput): AddStudentErrors {
+export function validateAddStudentInput(
+  input: AddStudentInput,
+  messages: Record<keyof typeof ADD_STUDENT_ERRORS, string> = ADD_STUDENT_ERRORS,
+): AddStudentErrors {
   const errors: AddStudentErrors = {};
 
   if (!input.email.trim()) {
-    errors.email = ADD_STUDENT_ERRORS.emailRequired;
+    errors.email = messages.emailRequired;
   } else if (!EMAIL_PATTERN.test(input.email.trim())) {
-    errors.email = ADD_STUDENT_ERRORS.emailInvalid;
+    errors.email = messages.emailInvalid;
   }
   if (!input.fullName.trim()) {
-    errors.fullName = ADD_STUDENT_ERRORS.fullNameRequired;
+    errors.fullName = messages.fullNameRequired;
   }
 
   return errors;

@@ -1,12 +1,9 @@
 "use client";
 
-import { useMemo, useState, type FormEvent, type ReactElement } from "react";
-import {
-  type PatchExamDraftRequest,
-  type PatchExamPolicyRequest,
-  type PatchExamScheduleRequest,
-} from "@pte/api-client";
-import { Alert, Button, DescriptionList, Select, useLocale, useToast } from "@pte/ui";
+import { useMemo, useRef, useState, type FormEvent, type ReactElement } from "react";
+import { useRouter } from "next/navigation";
+import type { PatchExamDraftRequest, PatchExamPolicyRequest, PatchExamScheduleRequest } from "@pte/api-client";
+import { Alert, Button, DescriptionList, Select, UnsavedChangesGuard, useLeaveAfterSave, useLocale, useToast } from "@pte/ui";
 import {
   useTransitionExamStatus,
   useUpdateExamDraft,
@@ -50,6 +47,8 @@ interface ExamEditFormProps {
 export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps): ReactElement => {
   const { t } = useLocale();
   const { showToast } = useToast();
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const draftUpdate = useUpdateExamDraft(session.id);
   const policyUpdate = useUpdateExamPolicy(session.id);
   const scheduleUpdate = useUpdateExamSchedule(session.id);
@@ -57,6 +56,7 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
   const isDraft = session.status === "DRAFT";
   const isReady = session.status === "READY";
   const isScheduled = session.status === "SCHEDULED";
+  const leaveAfterSave = useLeaveAfterSave();
   const [draftForm, setDraftForm] = useState(() => draftFormFromSession(session));
   const [policyForm, setPolicyForm] = useState(() => policyFormFromSession(session));
   const [scheduleForm, setScheduleForm] = useState(() => scheduleFormFromSession(session));
@@ -130,6 +130,7 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
   const handleSaved = (): void => {
     showToast(t("tenant.examDetails.saved", EXAM_EDITOR_TEXT.SAVED), { tone: "success" });
     onSaved();
+    leaveAfterSave.settle();
   };
 
   const commitSave = async (): Promise<void> => {
@@ -235,7 +236,7 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
 
   return (
     <>
-      <form className="flex flex-col gap-5" onSubmit={save} noValidate>
+      <form ref={formRef} className="flex flex-col gap-5" onSubmit={save} noValidate>
         <ExamScheduleTimingGuard
           state={scheduleTimingState}
           confirmation={closeTimeConfirmation}
@@ -298,6 +299,8 @@ export const ExamEditForm = ({ session, onCancel, onSaved }: ExamEditFormProps):
           </Button>
         </div>
       </form>
+      <UnsavedChangesGuard isDirty={dirty} onSaveAndLeave={(proceed) => leaveAfterSave.request(proceed, () => formRef.current?.requestSubmit())} isSaving={isPending}
+        onNavigate={(href) => router.push(href)} />
     </>
   );
 };

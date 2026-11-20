@@ -5,6 +5,7 @@ export type GenerationSection = (typeof GENERATION_SECTIONS)[number];
 
 export const GENERATION_POOLS = ["PRACTICE", "EXAM"] as const;
 export const GENERATION_CEFR_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
+export type GenerationCefrLevel = (typeof GENERATION_CEFR_LEVELS)[number];
 export const GENERATION_DEFAULT_POOL = "PRACTICE";
 export const GENERATION_DEFAULT_CEFR = "B2";
 
@@ -30,4 +31,4 @@ export const GENERATION_ALREADY_RUNNING_CODE = "GENERATION_JOB_ALREADY_RUNNING";
 
 
 /** Columns of a task-type line in the popup: name, count, CEFR, picture kind, own-topics toggle. */
-export const TASK_ROW_GRID = "grid grid-cols-[minmax(0,1fr)_6rem_7rem_9rem_8rem] gap-3";
+export const TASK_ROW_GRID = "grid grid-cols-[minmax(0,1fr)_6rem_12rem_9rem_8rem] gap-3";

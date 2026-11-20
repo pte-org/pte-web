@@ -4,7 +4,7 @@ import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
-import { Alert, LoadingState, ProfileLayout, TabPanel, useDashboardBreadcrumbLabel } from "@pte/ui";
+import { Alert, LoadingState, ProfileLayout, TabPanel, useDashboardBreadcrumbLabel, type BreadcrumbItem } from "@pte/ui";
 import type { StudentDetailTab } from "../constants";
 import { useStudentDetail } from "../api";
 import { useStudentDetailActions } from "../hooks/useStudentDetailActions";
@@ -15,16 +15,20 @@ import { StudentDetailHeader } from "./StudentDetailHeader";
 import { StudentHistoryTab } from "./StudentHistoryTab";
 import { StudentOverviewTab } from "./StudentOverviewTab";
 
-interface StudentDetailViewProps { studentPublicId: string }
+interface StudentDetailViewProps {
+  studentPublicId: string;
+  /** Steps between the sidebar page and this learner, e.g. the class the learner was opened from. */
+  breadcrumbTrail?: readonly BreadcrumbItem[];
+}
 
-export const StudentDetailView = ({ studentPublicId }: StudentDetailViewProps): ReactElement => {
+export const StudentDetailView = ({ studentPublicId, breadcrumbTrail }: StudentDetailViewProps): ReactElement => {
   const text = useStudentDetailText();
   const detail = useStudentDetail(studentPublicId);
   const [activeTab, setActiveTab] = useState<StudentDetailTab>("overview");
   const account = detail.data;
   const actions = useStudentDetailActions(studentPublicId, account, text);
   const pathname = usePathname();
-  useDashboardBreadcrumbLabel(pathname, account?.fullName || account?.username);
+  useDashboardBreadcrumbLabel(pathname, account?.fullName || account?.username, breadcrumbTrail);
   if (detail.isLoading) return <LoadingState rows={8} />;
   if (detail.isError || !account) return (
     <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-6">

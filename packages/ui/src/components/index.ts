@@ -156,6 +156,8 @@ export type {
   TabsProps,
   TabsVariant,
 } from "./Tabs";
+export { UnsavedChangesDialog } from "./UnsavedChangesDialog";
+export type { UnsavedChangesDialogProps } from "./UnsavedChangesDialog";
 export { UnsavedChangesGuard } from "./UnsavedChangesGuard";
 export type { UnsavedChangesGuardProps } from "./UnsavedChangesGuard";
 export { SortableList } from "./SortableList";

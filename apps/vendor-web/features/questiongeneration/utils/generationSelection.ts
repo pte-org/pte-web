@@ -13,13 +13,18 @@ import {
   GENERATION_FALLBACK_SECONDS_PER_ITEM,
   type GenerationSection,
 } from "../dialogConstants";
+import { expandLevels, isSplitRow, rowTotal, type CefrLevelCounts } from "./generationCefr";
 
-/** One ticked task type of the popup; it becomes exactly one batch row. */
+/** One ticked task type of the popup; it becomes one batch row, or one per CEFR level when split. */
 export interface SelectionRow {
   taskType: string;
   section: string;
+  /** The total; for a split row it always equals the sum of `levels`. */
   count: number;
+  /** Ignored while `levels` is set. */
   cefrLevel: string;
+  /** "Mixed levels": questions per CEFR level instead of one level. */
+  levels?: CefrLevelCounts;
   /** Own topics, one per line; empty = the shared topics. */
   topicText: string;
   imageKind: QuestionGenerationImageKind;
@@ -28,6 +33,8 @@ export interface SelectionRow {
 export interface GenerationSelection {
   pool: string;
   defaultCefr: string;
+  /** "CEFR for the whole skill": the level of rows ticked later in that skill (falls back to defaultCefr). */
+  skillCefr?: Readonly<Record<string, string>>;
   /** Topics for every row without its own, one per line. */
   sharedTopicText: string;
   rows: readonly SelectionRow[];
@@ -36,7 +43,7 @@ export interface GenerationSelection {
 export type PresetKind = "FULL" | GenerationSection;
 export type PresetResult = { ok: true; selection: GenerationSelection } | { ok: false; reason: "OVER_CAP"; total: number };
 export type SubmitMode = "single" | "batch";
-export type SelectionProblem = "EMPTY" | "COUNT" | "TOPICS" | "OVER_CAP" | "OVER_QUOTA";
+export type SelectionProblem = "EMPTY" | "COUNT" | "SPLIT_EMPTY" | "TOPICS" | "OVER_CAP" | "OVER_QUOTA";
 
 export function newRow(taskType: string, section: string, cefrLevel: string, count = 1): SelectionRow {
   return { taskType, section, count, cefrLevel, topicText: "", imageKind: "AUTO" };
@@ -49,7 +56,7 @@ export function isTicked(selection: GenerationSelection, taskType: string): bool
 export function toggleRow(selection: GenerationSelection, taskType: string, section: string): GenerationSelection {
   const rows = isTicked(selection, taskType)
     ? selection.rows.filter((row) => row.taskType !== taskType)
-    : [...selection.rows, newRow(taskType, section, selection.defaultCefr)];
+    : [...selection.rows, newRow(taskType, section, selection.skillCefr?.[section] ?? selection.defaultCefr)];
   return { ...selection, rows };
 }
 
@@ -62,7 +69,7 @@ export function updateRow(
 }
 
 export function selectionTotal(selection: GenerationSelection): number {
-  return selection.rows.reduce((sum, row) => sum + (Number.isInteger(row.count) && row.count > 0 ? row.count : 0), 0);
+  return selection.rows.reduce((sum, row) => sum + rowTotal(row), 0);
 }
 
 /** The batch cap in force: what the server reports, or its default for an older server. */
@@ -132,7 +139,8 @@ export function rescalePresetRows(
 ): PresetResult {
   const rows = selection.rows.map((row) => {
     const preset = presets.find((candidate) => candidate.taskType === row.taskType);
-    return preset && row.count === preset.maxCount * from ? { ...row, count: preset.maxCount * to } : row;
+    // A split row was spread over levels by hand, so it keeps its counts.
+    return preset && !isSplitRow(row) && row.count === preset.maxCount * from ? { ...row, count: preset.maxCount * to } : row;
   });
   const next = { ...selection, rows };
   const total = selectionTotal(next);
@@ -142,7 +150,7 @@ export function rescalePresetRows(
 /** U1: one item of the editor's own task type keeps the in-form preview; anything else is a batch. */
 export function resolveSubmitMode(selection: GenerationSelection, currentTaskType: string | undefined): SubmitMode {
   const [only] = selection.rows;
-  const singleItem = selection.rows.length === 1 && only.count === 1;
+  const singleItem = selection.rows.length === 1 && !isSplitRow(only) && only.count === 1;
   return singleItem && (currentTaskType === undefined || only.taskType === currentTaskType) ? "single" : "batch";
 }
 
@@ -150,12 +158,18 @@ function rowTopics(selection: GenerationSelection, row: SelectionRow): string[] 
   return parseTopicHints(row.topicText.trim() ? row.topicText : selection.sharedTopicText);
 }
 
+function hasInvalidCount(row: SelectionRow): boolean {
+  if (!isSplitRow(row)) return !Number.isInteger(row.count) || row.count < 1;
+  return Object.values(row.levels).some((value) => !Number.isInteger(value) || value < 0);
+}
+
 export function validateSelection(
   selection: GenerationSelection,
   quota: QuestionGenerationQuotaResponse | undefined,
 ): SelectionProblem | null {
   if (selection.rows.length === 0) return "EMPTY";
-  if (selection.rows.some((row) => !Number.isInteger(row.count) || row.count < 1)) return "COUNT";
+  if (selection.rows.some(hasInvalidCount)) return "COUNT";
+  if (selection.rows.some((row) => isSplitRow(row) && rowTotal(row) === 0)) return "SPLIT_EMPTY";
   if (selection.rows.some((row) => topicHintsError(rowTopics(selection, row)))) return "TOPICS";
   const total = selectionTotal(selection);
   if (total > maxItemsPerBatch(quota)) return "OVER_CAP";
@@ -164,17 +178,17 @@ export function validateSelection(
   return null;
 }
 
-/** One batch row per ticked task type (the server splits large rows itself). */
+/** One batch row per ticked task type, or per level holding questions of a split one (the server splits large rows). */
 export function toBatchRequest(selection: GenerationSelection): QuestionGenerationBatchCreateRequest {
   return {
     pool: selection.pool,
-    rows: selection.rows.map((row) => ({
+    rows: selection.rows.flatMap((row) => expandLevels(row).map(({ cefrLevel, count }) => ({
       taskType: row.taskType,
-      cefrLevel: row.cefrLevel,
-      count: row.count,
+      cefrLevel,
+      count,
       topicHints: rowTopics(selection, row),
       imageKind: row.taskType === DESCRIBE_IMAGE_TASK ? row.imageKind : null,
-    })),
+    }))),
   };
 }
 
@@ -199,7 +213,7 @@ export function estimateSeconds(
 ): number {
   const perItem = new Map(taskTypes.map((type) => [type.taskType, type.estimatedSecondsPerItem]));
   return selection.rows.reduce(
-    (sum, row) => sum + Math.max(0, row.count) * (perItem.get(row.taskType) ?? GENERATION_FALLBACK_SECONDS_PER_ITEM),
+    (sum, row) => sum + rowTotal(row) * (perItem.get(row.taskType) ?? GENERATION_FALLBACK_SECONDS_PER_ITEM),
     0,
   );
 }

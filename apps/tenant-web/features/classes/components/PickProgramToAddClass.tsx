@@ -1,7 +1,7 @@
 "use client";
 
 import { type ReactElement } from "react";
-import { CLASSES_LIST_TEXT } from "../constants";
+import { useClassFlowText } from "../hooks/useClassFlowText";
 
 export interface ProgramOption {
   value: string;
@@ -20,14 +20,17 @@ export const PickProgramToAddClass = ({
   classLabel,
   programLabel,
   onRequestCreateClass,
-}: PickProgramToAddClassProps): ReactElement => (
+}: PickProgramToAddClassProps): ReactElement => {
+  const tf = useClassFlowText(classLabel);
+  const program = programLabel.toLowerCase();
+  return (
   <div className="flex flex-col gap-5">
     <div className="flex flex-col gap-1">
       <h3 className="text-base font-semibold text-slate-900">
-        {CLASSES_LIST_TEXT.pickProgramHeading(classLabel)}
+        {tf("pickProgramHeading")}
       </h3>
       <p className="text-sm text-slate-500">
-        {CLASSES_LIST_TEXT.pickProgramSubheading(programLabel)}
+        {tf("pickProgramSubheading", { program })}
       </p>
     </div>
 
@@ -43,10 +46,11 @@ export const PickProgramToAddClass = ({
             onClick={() => onRequestCreateClass(program.value)}
             className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover"
           >
-            {CLASSES_LIST_TEXT.pickProgramRowCta}
+            {tf("pickProgramRowCta")}
           </button>
         </li>
       ))}
     </ul>
   </div>
-);
+  );
+};

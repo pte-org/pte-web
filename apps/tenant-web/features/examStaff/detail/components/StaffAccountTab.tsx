@@ -8,13 +8,14 @@ import { StaffAccountDescription } from "./StaffAccountDescription";
 interface StaffAccountTabProps {
   account: ExamStaffAccountResponse;
   text: StaffDetailText;
-  onEditState: (dirty: boolean, pending: boolean) => void;
+  onEditState: (dirty: boolean, pending: boolean, save: (onSaved: () => void) => void) => void;
 }
 
 export const StaffAccountTab = ({ account, text, onEditState }: StaffAccountTabProps): ReactElement => {
   const editor = useStaffAccountForm(account, text);
   const { showToast } = useToast();
-  useEffect(() => { onEditState(editor.dirty, editor.pending); }, [editor.dirty, editor.pending, onEditState]);
+  const { save } = editor;
+  useEffect(() => { onEditState(editor.dirty, editor.pending, save); }, [editor.dirty, editor.pending, save, onEditState]);
   useEffect(() => { if (editor.saved) showToast(text.saved, { tone: "success" }); }, [editor.saved, showToast, text.saved]);
   return <ProfileAccountPanel title={text.account} description={text.accountDescription}
     actions={!editor.editing && account.editable && <Button variant="secondary" size="sm" leftIcon={<PencilIcon />}
@@ -35,7 +36,7 @@ export const StaffAccountTab = ({ account, text, onEditState }: StaffAccountTabP
       <StaffAccountDescription account={account} text={text} />
       <div className="flex flex-wrap justify-end gap-2">
         <Button variant="secondary" disabled={editor.pending} onClick={editor.cancel}>{text.cancel}</Button>
-        <Button disabled={!editor.dirty} isLoading={editor.pending} onClick={editor.save}>{text.save}</Button>
+        <Button disabled={!editor.dirty} isLoading={editor.pending} onClick={() => editor.save()}>{text.save}</Button>
       </div>
     </div> : <StaffAccountDescription account={account} text={text} />}
   </ProfileAccountPanel>;

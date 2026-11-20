@@ -123,8 +123,8 @@ export function AnnouncementDetailView({ publicId }: { publicId: string }): Reac
   const save = async (
     payload: AnnouncementCreateRequest,
     expectedDraftVersion?: number,
-  ): Promise<void> => {
-    if (expectedDraftVersion === undefined) return;
+  ): Promise<boolean> => {
+    if (expectedDraftVersion === undefined) return false;
     try {
       await update.mutateAsync({
         publicId,
@@ -141,9 +141,11 @@ export function AnnouncementDetailView({ publicId }: { publicId: string }): Reac
       setEditing(false);
       setConflict(false);
       showToast(T.DRAFT_SAVED);
+      return true;
     } catch (error) {
       if (error instanceof ApiError && error.kind === "conflict") setConflict(true);
       showToast(getUserFacingApiErrorMessage(error), { tone: "error" });
+      return false;
     }
   };
 

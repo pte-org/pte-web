@@ -100,7 +100,7 @@ export const ItemPalette = ({
           className="flex cursor-grab items-center gap-1.5 rounded-lg border border-[var(--shell-border)] bg-[var(--surface-card)] py-1.5 pl-1 pr-1.5 active:cursor-grabbing"
         >
           <GripVerticalIcon className="h-4 w-4 shrink-0 text-[var(--ink-muted)]" />
-          <span className="min-w-0 flex-1 text-sm text-[var(--ink-primary)]">{entry.label}</span>
+          <span className="min-w-0 flex-1 text-sm text-[var(--ink-primary)] [overflow-wrap:anywhere]">{entry.label}</span>
           <Button
             size="sm"
             variant="secondary"

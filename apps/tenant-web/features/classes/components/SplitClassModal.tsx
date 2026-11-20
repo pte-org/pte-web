@@ -3,7 +3,7 @@
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Button, Input, Modal, useToast } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
-import { SPLIT_CLASS_ERRORS, SPLIT_CLASS_TEXT } from "../constants";
+import { useClassFlowText } from "../hooks/useClassFlowText";
 import { useSplitClass } from "../api";
 
 interface SplitClassModalProps {
@@ -18,8 +18,6 @@ interface SplitClassModalProps {
   onSplit: () => void;
 }
 
-const T = SPLIT_CLASS_TEXT;
-
 export const SplitClassModal = ({
   open,
   onClose,
@@ -31,6 +29,7 @@ export const SplitClassModal = ({
   onSplit,
 }: SplitClassModalProps): ReactElement => {
   const { showToast } = useToast();
+  const tf = useClassFlowText(classLabel);
   const [newClassName, setNewClassName] = useState("");
   const [nameError, setNameError] = useState<string | undefined>();
   const split = useSplitClass(organizationPublicId, programPublicId, sourceClassPublicId);
@@ -52,7 +51,7 @@ export const SplitClassModal = ({
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     if (!newClassName.trim()) {
-      setNameError(SPLIT_CLASS_ERRORS.newClassNameRequired(classLabel));
+      setNameError(tf("splitNameRequired"));
       return;
     }
     setNameError(undefined);
@@ -60,7 +59,7 @@ export const SplitClassModal = ({
       { newClassName: newClassName.trim(), studentPublicIds: selectedStudentPublicIds },
       {
         onSuccess: (result) => {
-          showToast(T.successTitle(result.movedStudentPublicIds.length, result.newClass.name), {
+          showToast(tf("splitSuccess", { count: result.movedStudentPublicIds.length, className: result.newClass.name }), {
             tone: "success",
           });
           onSplit();
@@ -71,10 +70,10 @@ export const SplitClassModal = ({
 
   if (split.isSuccess) {
     return (
-      <Modal open={open} onClose={handleClose} title={T.title(classLabel)}>
+      <Modal open={open} onClose={handleClose} title={tf("splitTitle")}>
         <div className="flex flex-col gap-4">
           <Button type="button" onClick={handleClose}>
-            {T.done}
+            {tf("done")}
           </Button>
         </div>
       </Modal>
@@ -85,7 +84,7 @@ export const SplitClassModal = ({
     <Modal
       open={open}
       onClose={handleClose}
-      title={T.title(classLabel)}
+      title={tf("splitTitle")}
       footer={
         <>
           <button
@@ -93,7 +92,7 @@ export const SplitClassModal = ({
             onClick={handleClose}
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            {T.cancel}
+            {tf("cancel")}
           </button>
           <button
             type="submit"
@@ -101,7 +100,7 @@ export const SplitClassModal = ({
             disabled={split.isPending}
             className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {split.isPending ? T.submitting : T.submit}
+            {split.isPending ? tf("splitSubmitting") : tf("splitSubmit")}
           </button>
         </>
       }
@@ -111,11 +110,11 @@ export const SplitClassModal = ({
           <Alert tone="error">{submitError}</Alert>
         </div>
       )}
-      <p className="mb-4 text-sm text-gray-600">{T.movingCount(selectedStudentPublicIds.length)}</p>
+      <p className="mb-4 text-sm text-gray-600">{tf("splitMovingCount", { count: selectedStudentPublicIds.length })}</p>
       <form id="split-class-form" onSubmit={handleSubmit} noValidate>
         <Input
-          label={T.newClassNameLabel(classLabel)}
-          placeholder={T.newClassNamePlaceholder}
+          label={tf("splitNameLabel")}
+          placeholder={tf("splitNamePlaceholder")}
           value={newClassName}
           error={nameError}
           onChange={(event) => handleNameChange(event.target.value)}

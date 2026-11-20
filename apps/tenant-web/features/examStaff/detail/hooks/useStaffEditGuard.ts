@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type RefObject } from "react";
 import { useRouter } from "next/navigation";
 
 /** Explicit tab/link discard dialog; browser reload/close uses its native beforeunload prompt. */
-export const useStaffEditGuard = (dirty: boolean, pending: boolean): {
+export const useStaffEditGuard = (
+  dirty: boolean, pending: boolean, saveRef: RefObject<((onSaved: () => void) => void) | null>,
+): {
   open: boolean; request: (proceed: () => void) => void; confirm: () => void; close: () => void;
+  /** Runs the edit's save (from `saveRef`) and continues only once it succeeds. */
+  saveAndLeave: () => void;
 } => {
   const router = useRouter();
   const [continuation, setContinuation] = useState<(() => void) | null>(null);
@@ -37,5 +41,10 @@ export const useStaffEditGuard = (dirty: boolean, pending: boolean): {
     open: continuation !== null, request,
     confirm: () => { if (!pending) { setContinuation(null); continuation?.(); } },
     close: () => setContinuation(null),
+    saveAndLeave: () => {
+      const proceed = continuation;
+      if (pending || proceed === null) return;
+      saveRef.current?.(() => { setContinuation(null); proceed(); });
+    },
   };
 };

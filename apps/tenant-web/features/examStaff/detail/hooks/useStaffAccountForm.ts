@@ -11,7 +11,7 @@ import type { StaffDetailText } from "./useStaffDetailText";
 export const useStaffAccountForm = (account: ExamStaffAccountResponse, text: StaffDetailText): {
   form: StaffProfileForm; editing: boolean; dirty: boolean; pending: boolean;
   error: string | null; saved: boolean; start: () => void; cancel: () => void;
-  change: (key: keyof StaffProfileForm, value: string) => void; save: () => void;
+  change: (key: keyof StaffProfileForm, value: string) => void; save: (onSaved?: () => void) => void;
 } => {
   const update = useUpdateStaffProfile();
   const [form, setForm] = useState(() => staffProfileForm(account));
@@ -24,7 +24,7 @@ export const useStaffAccountForm = (account: ExamStaffAccountResponse, text: Sta
     const original = staffProfileForm(account);
     setForm(original); setBaseline(original); setSaved(false); setInvalid(false); update.reset();
   };
-  const save = (): void => {
+  const save = (onSaved?: () => void): void => {
     if (!dirty || update.isPending) return;
     const parsedDate = Date.parse(form.dateOfBirth);
     const today = new Date(Date.now() + STAFF_WORKSPACE_UTC_OFFSET_MINUTES * 60_000).toISOString().slice(0, 10);
@@ -41,7 +41,7 @@ export const useStaffAccountForm = (account: ExamStaffAccountResponse, text: Sta
     } }, { onSuccess: (result) => {
       setForm(staffProfileForm(result));
       setBaseline(staffProfileForm(result));
-      setSaved(true); setEditing(false);
+      setSaved(true); setEditing(false); onSaved?.();
     } });
   };
   return {

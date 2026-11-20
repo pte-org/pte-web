@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Badge, Button, Modal, isTypedConfirmValid, useToast } from "@pte/ui";
+import { Alert, Badge, Button, Modal, isTypedConfirmValid, useLocale, useToast } from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
-import { CLASS_STATUS_LABELS, CLASS_STATUS_VARIANT, MERGE_CLASSES_TEXT } from "../constants";
+import { CLASS_STATUS_LABELS, CLASS_STATUS_VARIANT } from "../constants";
+import { useClassFlowText } from "../hooks/useClassFlowText";
 import { useMergeClasses } from "../api";
 import { isNonActiveClass } from "../utils/nonActiveTarget";
 import { NonActiveTargetConfirm } from "./NonActiveTargetConfirm";
@@ -21,8 +22,6 @@ interface MergeClassesModalProps {
   onMerged: () => void;
 }
 
-const T = MERGE_CLASSES_TEXT;
-
 export const MergeClassesModal = ({
   open,
   onClose,
@@ -33,6 +32,8 @@ export const MergeClassesModal = ({
   onMerged,
 }: MergeClassesModalProps): ReactElement => {
   const { showToast } = useToast();
+  const { t } = useLocale();
+  const tf = useClassFlowText(classLabel);
   const [targetClassPublicId, setTargetClassPublicId] = useState(
     selectedClasses[0]?.publicId ?? "",
   );
@@ -68,7 +69,7 @@ export const MergeClassesModal = ({
       sourceClasses.map((studentClass) => studentClass.publicId),
       {
         onSuccess: (result) => {
-          showToast(T.successTitle(result.movedStudentPublicIds.length), { tone: "success" });
+          showToast(tf("mergeSuccess", { count: result.movedStudentPublicIds.length }), { tone: "success" });
           onMerged();
         },
       },
@@ -77,10 +78,10 @@ export const MergeClassesModal = ({
 
   if (merge.isSuccess) {
     return (
-      <Modal open={open} onClose={handleClose} title={T.title(classLabel)}>
+      <Modal open={open} onClose={handleClose} title={tf("mergeTitle")}>
         <div className="flex flex-col gap-4">
           <Button type="button" onClick={handleClose}>
-            {T.done}
+            {tf("done")}
           </Button>
         </div>
       </Modal>
@@ -91,7 +92,7 @@ export const MergeClassesModal = ({
     <Modal
       open={open}
       onClose={handleClose}
-      title={T.title(classLabel)}
+      title={tf("mergeTitle")}
       footer={
         <>
           <button
@@ -99,7 +100,7 @@ export const MergeClassesModal = ({
             onClick={handleClose}
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            {T.cancel}
+            {tf("cancel")}
           </button>
           <button
             type="button"
@@ -107,7 +108,7 @@ export const MergeClassesModal = ({
             disabled={merge.isPending || sourceClasses.length === 0 || !typedConfirmSatisfied}
             className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {merge.isPending ? T.submitting : T.submit}
+            {merge.isPending ? tf("mergeSubmitting") : tf("mergeSubmit")}
           </button>
         </>
       }
@@ -119,7 +120,7 @@ export const MergeClassesModal = ({
       )}
       <fieldset className="flex flex-col gap-2">
         <legend className="mb-1 text-sm font-medium text-gray-700">
-          {T.destinationLabel(classLabel)}
+          {tf("mergeDestination")}
         </legend>
         {selectedClasses.map((studentClass) => (
           <label
@@ -137,7 +138,7 @@ export const MergeClassesModal = ({
             {studentClass.name}
             {isNonActiveClass(studentClass.status) && (
               <Badge variant={CLASS_STATUS_VARIANT[studentClass.status]}>
-                {CLASS_STATUS_LABELS[studentClass.status]}
+                {t(`tenant.classes.${studentClass.status.toLowerCase()}`, CLASS_STATUS_LABELS[studentClass.status])}
               </Badge>
             )}
           </label>
@@ -150,7 +151,7 @@ export const MergeClassesModal = ({
           onTypedChange={setTypedConfirm}
         />
       )}
-      <p className="mt-4 text-sm text-gray-500">{T.sourcesLabel(classLabel)}</p>
+      <p className="mt-4 text-sm text-gray-500">{tf("mergeSources")}</p>
     </Modal>
   );
 };

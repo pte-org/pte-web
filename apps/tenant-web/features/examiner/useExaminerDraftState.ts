@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import type { ExaminerAnswerDetailResponse, ExaminerWorkflowView } from "@pte/api-client";
 import type { DraftEntry } from "./submissionTypes";
 import { aiTraitDraft } from "./traitDraft";
@@ -43,11 +43,6 @@ export const useExaminerDraftState = ({ currentAnswer, workflow }: UseExaminerDr
     });
   }
   const hasUnsaved = Object.values(drafts).some((draft) => draft.isDirty);
-  useEffect(() => {
-    const handler = (event: BeforeUnloadEvent): void => { if (hasUnsaved) event.preventDefault(); };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
-  }, [hasUnsaved]);
   const activeDraft: DraftEntry | null = currentAnswer ? drafts[currentAnswer.answerPublicId] ?? {
     score: currentAnswer.myScore !== null ? String(currentAnswer.myScore) : "",
     traitScores: currentAnswer.decision?.traitScores ?? {}, itemScore: currentAnswer.myScore,

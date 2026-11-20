@@ -105,6 +105,11 @@ export const EDITOR_TEXT = {
   DURATION_CEILING: "Test ceiling",
   COL_TASK: "Task type",
   COL_COUNT: "Questions",
+  COUNT_MIN: "minimum questions",
+  COUNT_MAX: "maximum questions",
+  COUNT_INVALID: "The minimum number of questions cannot be greater than the maximum.",
+  COUNTS_INVALID:
+    "Each task type needs at least 1 question and a minimum no greater than its maximum. Check:",
   COL_POOL: "Available / needed",
   COL_PREP: "Prep (s)",
   COL_RESPONSE: "Response (s)",

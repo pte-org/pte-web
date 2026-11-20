@@ -1,7 +1,7 @@
 "use client";
 import { useState, type ReactElement } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Alert, DashboardCard, ErrorState, Select, useDashboardBreadcrumbLabel, useLocale } from "@pte/ui";
+import { Alert, DashboardCard, ErrorState, Select, UnsavedChangesGuard, useDashboardBreadcrumbLabel, useLeaveAfterSave, useLocale } from "@pte/ui";
 import type { RubricStatusRequest, RubricVersionResponse, TaskTypeRubricResponse } from "@pte/api-client";
 import { useCurrentUser } from "@/features/auth/api";
 import { useCreateRubricVersion, useUpdateRubricVersion, useRubricVersionStatus } from "../versionApi";
@@ -22,6 +22,7 @@ export const RubricVersionEditor = ({ version, rubrics }: RubricVersionEditorPro
   const T = RUBRIC_EDIT_TEXT[locale === "vi" ? "vi" : "en"];
   const router = useRouter();
   const current = useCurrentUser();
+  const leaveAfterSave = useLeaveAfterSave();
   const [parameters, setParameters] = useState(() => parametersFromRubrics(rubrics));
   const [baseline, setBaseline] = useState(() => JSON.stringify(parameters));
   // Capture the version that produced this editor, not a background query's newer lock version.
@@ -46,6 +47,7 @@ export const RubricVersionEditor = ({ version, rubrics }: RubricVersionEditorPro
   const save = (): void => update.mutate({ parameters, expectedLockVersion }, { onSuccess: (saved) => {
     setExpectedLockVersion(saved.lockVersion ?? expectedLockVersion);
     setBaseline(JSON.stringify(parameters));
+    leaveAfterSave.settle();
   } });
   const change = (request: RubricStatusRequest): void => status.mutate(request, { onSuccess: () => {
     setDialog(null);
@@ -73,6 +75,8 @@ export const RubricVersionEditor = ({ version, rubrics }: RubricVersionEditorPro
           taskTypes: { ...parameters.taskTypes, [selected]: { ...value, formBands: bands } } })} />}
     </div>}
     <ActivationHistory id={version.publicId} text={T} />
+    <UnsavedChangesGuard isDirty={dirty} isSaving={update.isPending} onSaveAndLeave={(proceed) => leaveAfterSave.request(proceed, save)}
+      onNavigate={(href) => router.push(href)} />
     {dialog === "ACTIVATE" && <ActivateConfirmDialog id={version.publicId} pending={status.isPending} text={T} error={message} onClose={() => setDialog(null)} onConfirm={change} />}
     {dialog === "REJECT" && <RejectDialog pending={status.isPending} text={T} error={message} onClose={() => setDialog(null)} onReject={(reason) => change({ action: "REJECT", reason })} />}
   </DashboardCard>;

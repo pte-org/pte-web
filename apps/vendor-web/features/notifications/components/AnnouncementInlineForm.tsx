@@ -1,15 +1,17 @@
 "use client";
 
-import { useState, type FormEvent, type ReactElement } from "react";
+import { useRef, useState, type FormEvent, type ReactElement } from "react";
+import { useRouter } from "next/navigation";
 import type { AnnouncementCreateRequest, AnnouncementResponse } from "@pte/api-client";
-import { Button, DateTimeInput, FormActions, Input, Select, Textarea } from "@pte/ui";
+import { Button, DateTimeInput, FormActions, Input, Select, Textarea, UnsavedChangesGuard, useLeaveAfterSave } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 interface AnnouncementInlineFormProps {
   announcement: AnnouncementResponse;
   isSaving: boolean;
   onCancel: () => void;
-  onSubmit: (payload: AnnouncementCreateRequest, expectedDraftVersion: number) => Promise<void>;
+  /** Resolves true once the draft is saved. */
+  onSubmit: (payload: AnnouncementCreateRequest, expectedDraftVersion: number) => Promise<boolean>;
 }
 
 const toLocalValue = (value: string | null): string =>
@@ -54,6 +56,17 @@ export function AnnouncementInlineForm({
   const [affectedFrom, setAffectedFrom] = useState(toLocalValue(announcement.affectedFrom));
   const [affectedUntil, setAffectedUntil] = useState(toLocalValue(announcement.affectedUntil));
 
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
+  const leaveAfterSave = useLeaveAfterSave();
+  const isDirty =
+    title !== announcement.title ||
+    body !== announcement.body ||
+    category !== announcement.category ||
+    importance !== announcement.importance ||
+    affectedFrom !== toLocalValue(announcement.affectedFrom) ||
+    affectedUntil !== toLocalValue(announcement.affectedUntil);
+
   const submit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     void onSubmit(
@@ -67,11 +80,13 @@ export function AnnouncementInlineForm({
         correctionOfPublicId: announcement.correctionOfPublicId ?? null,
       },
       announcement.version,
-    );
+    ).then((saved) => {
+      if (saved) leaveAfterSave.settle();
+    });
   };
 
   return (
-    <form className="space-y-4" onSubmit={submit}>
+    <form ref={formRef} className="space-y-4" onSubmit={submit}>
       <Input
         id="announcement-title-inline"
         label={T.TITLE}
@@ -134,6 +149,12 @@ export function AnnouncementInlineForm({
           {T.SAVE}
         </Button>
       </FormActions>
+      <UnsavedChangesGuard
+        isDirty={isDirty}
+        isSaving={isSaving}
+        onSaveAndLeave={(proceed) => leaveAfterSave.request(proceed, () => formRef.current?.requestSubmit())}
+        onNavigate={(href) => router.push(href)}
+      />
     </form>
   );
 }

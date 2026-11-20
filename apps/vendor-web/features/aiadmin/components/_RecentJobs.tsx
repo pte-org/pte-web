@@ -1,9 +1,12 @@
 import type { ReactElement } from "react";
 import { useState } from "react";
+import Link from "next/link";
 import type { GenerationFailureStats, QuestionGenerationJobResponse } from "@pte/api-client";
 import { Badge, DashboardPanel, DataTable, Select, type BadgeVariant, type DataTableColumn } from "@pte/ui";
 import type { AiAdminCopy } from "../constants";
 import { failureLabel } from "../utils/presentation";
+import { taskTypeLabel } from "../../questiongeneration/utils/taskTypeLabel";
+import { aiBatchDetailHref } from "../constants";
 
 const ALL = "";
 
@@ -28,6 +31,17 @@ interface RecentJobsProps {
 const hasFailure = (job: QuestionGenerationJobResponse, code: string): boolean =>
   job.failureCode === code || job.items.some((item) => item.failureCode === code);
 
+const JobType = ({ job, copy }: { job: QuestionGenerationJobResponse; copy: AiAdminCopy }): ReactElement => (
+  <span className="flex flex-wrap items-center gap-2">
+    {taskTypeLabel(job.taskType)}
+    {job.batchPublicId && (
+      <Link href={aiBatchDetailHref(job.batchPublicId)} title={copy.JOB_BATCH_TITLE}>
+        <Badge variant="neutral">{copy.JOB_BATCH.replace("{seq}", String(job.batchSeq ?? ""))}</Badge>
+      </Link>
+    )}
+  </span>
+);
+
 export const RecentJobs = ({ jobs, taskTypes, failures, copy, locale }: RecentJobsProps): ReactElement => {
   const [taskType, setTaskType] = useState(ALL);
   const [status, setStatus] = useState(ALL);
@@ -40,7 +54,7 @@ export const RecentJobs = ({ jobs, taskTypes, failures, copy, locale }: RecentJo
   );
   const typeOptions = [
     { value: ALL, label: copy.FILTER_ALL_TYPES },
-    ...[...new Set([...taskTypes, ...jobs.map((job) => job.taskType)])].sort().map((value) => ({ value, label: value })),
+    ...[...new Set([...taskTypes, ...jobs.map((job) => job.taskType)])].sort().map((value) => ({ value, label: taskTypeLabel(value) })),
   ];
   const statusOptions = [
     { value: ALL, label: copy.FILTER_ALL_STATUSES },
@@ -51,7 +65,7 @@ export const RecentJobs = ({ jobs, taskTypes, failures, copy, locale }: RecentJo
     ...failures.map((row) => ({ value: row.code, label: `${failureLabel(row.code, locale)} (${row.count})` })),
   ];
   const columns: DataTableColumn<QuestionGenerationJobResponse>[] = [
-    { key: "type", header: copy.JOB_TYPE, cell: (job) => job.taskType, sortable: false },
+    { key: "type", header: copy.JOB_TYPE, cell: (job) => <JobType job={job} copy={copy} />, sortable: false },
     { key: "level", header: copy.JOB_LEVEL, cell: (job) => job.cefrLevel, sortable: false },
     {
       key: "result",

@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState, type ReactElement } from "react";
+import { useRouter } from "next/navigation";
 import type { FacilityType, OrganizationResponse } from "@pte/api-client";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
-import { Alert, Button, Input, Select, useLocale } from "@pte/ui";
+import { Alert, Button, Input, Select, UnsavedChangesGuard, useLeaveAfterSave, useLocale } from "@pte/ui";
 import { useUpdateMyOrganization } from "../api";
 import { PROFILE_LABEL_KEYS, PROFILE_TEXT } from "../constants";
 import { OrganizationLocationFields } from "./OrganizationLocationFields";
@@ -40,6 +41,7 @@ export const OrganizationProfileEditor = ({
   const { t } = useLocale();
   const update = useUpdateMyOrganization();
   const text = PROFILE_TEXT.organization;
+  const leaveAfterSave = useLeaveAfterSave();
   const [form, setForm] = useState<OrganizationProfileForm>(() => formFromOrganization(organization));
   const [validationError, setValidationError] = useState<string | null>(null);
   const original = useMemo(() => formFromOrganization(organization), [organization]);
@@ -79,9 +81,15 @@ export const OrganizationProfileEditor = ({
           facilityType: form.facilityType,
         },
       },
-      { onSuccess: onSaved },
+      {
+        onSuccess: () => {
+          onSaved();
+          leaveAfterSave.settle();
+        },
+      },
     );
   };
+  const router = useRouter();
 
   return (
     <form
@@ -136,6 +144,12 @@ export const OrganizationProfileEditor = ({
           {t("tenant.profile.organization.save", text.save)}
         </Button>
       </div>
+      <UnsavedChangesGuard
+        isDirty={isDirty}
+        onSaveAndLeave={(proceed) => leaveAfterSave.request(proceed, save)}
+        isSaving={update.isPending}
+        onNavigate={(href) => router.push(href)}
+      />
     </form>
   );
 };
