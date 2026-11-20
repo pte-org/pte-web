@@ -97,6 +97,8 @@ export const ABOUT_PTE_EN = {
       { title: "4 · Skill and Overall, 10–90", text: "Each question type adds average × weight ÷ 100 to every skill it tests. The total is divided by the sum of weights and mapped to 10–90: 10 + 80 × percentage." },
     ],
     story: {
+      previous: "Previous",
+      next: "Next",
       captions: ["Describe Image · trait scores", "Item score 0–100", "Average of the question type", "Skill scores · Student B"],
       gateNote: "If Content were 0, the whole item would score 0 regardless of the other traits.",
       sampleNote: "from the simulation below",

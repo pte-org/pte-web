@@ -99,6 +99,8 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
       { title: "4 · Điểm kỹ năng và Overall 10–90", text: "Mỗi dạng góp trung bình × trọng số ÷ 100 vào từng kỹ năng nó kiểm tra. Tổng được chia cho tổng trọng số rồi đổi ra 10–90: 10 + 80 × tỉ lệ." },
     ],
     story: {
+      previous: "Bước trước",
+      next: "Bước tiếp",
       captions: ["Describe Image · điểm từng tiêu chí", "Điểm câu 0–100", "Trung bình của dạng câu", "Điểm kỹ năng · Học viên B"],
       gateNote: "Nếu Content bằng 0 thì cả câu được 0, bất kể các tiêu chí còn lại.",
       sampleNote: "lấy từ phần giả lập bên dưới",

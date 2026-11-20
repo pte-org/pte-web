@@ -1,5 +1,5 @@
 import type { ReactElement } from "react";
-import { CircularProgressChart, MotionReveal } from "@pte/ui";
+import { CircularProgressChart, MotionReveal, ProgressBar } from "@pte/ui";
 import type { AboutPteCopy } from "../constants/aboutPteCopy.en";
 import { INITIAL_ANSWERS, SIM_TASKS, toItemScores } from "../constants/miniExam";
 import { SCORE_FLOOR, SCORE_SPAN, SKILLS } from "../constants/scoringWeights";
@@ -19,21 +19,21 @@ const TRAITS = [
 const ITEM_SCORE = 56;
 const SECOND_ITEM = 94;
 const AVERAGE = (ITEM_SCORE + SECOND_ITEM) / 2;
-const BAR_WIDTH = 220;
 const SAMPLE = scoreAttempt(SIM_TASKS, toItemScores(INITIAL_ANSWERS[1]));
 const SKILL_TONE = { speaking: "brand", writing: "brand", reading: "success", listening: "warning" } as const;
 
 const TraitBars = (): ReactElement => (
-  <svg viewBox={`0 0 ${BAR_WIDTH + 120} 120`} className="w-full" aria-hidden="true">
-    {TRAITS.map((trait, index) => (
-      <g key={trait.name} transform={`translate(0 ${index * 40})`}>
-        <text x="0" y="14" className="fill-slate-600 text-xs">{trait.name}</text>
-        <rect x="0" y="20" width={BAR_WIDTH} height="10" rx="5" className="fill-slate-200" />
-        <rect x="0" y="20" width={(BAR_WIDTH * trait.achieved) / trait.max} height="10" rx="5" className="fill-action transition-all duration-700" />
-        <text x={BAR_WIDTH + 12} y="30" className="fill-slate-900 text-sm font-semibold">{`${trait.achieved}/${trait.max}`}</text>
-      </g>
+  <ul className="space-y-4">
+    {TRAITS.map((trait) => (
+      <li key={trait.name}>
+        <div className="mb-1.5 flex items-baseline justify-between text-sm">
+          <span className="font-medium text-[var(--ink-secondary)]">{trait.name}</span>
+          <span className="font-bold tabular-nums text-[var(--ink-primary)]">{`${trait.achieved} / ${trait.max}`}</span>
+        </div>
+        <ProgressBar value={trait.achieved} max={trait.max} label={trait.name} />
+      </li>
     ))}
-  </svg>
+  </ul>
 );
 
 const scoreRing = (score: number | null): number | null => (score === null ? null : score - SCORE_FLOOR);
@@ -41,8 +41,8 @@ const scoreRing = (score: number | null): number | null => (score === null ? nul
 export const StoryVisual = ({ step, copy }: StoryVisualProps): ReactElement => {
   const story = copy.flow.story;
   return (
-    <MotionReveal key={step} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-      <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-action">{story.captions[step]}</p>
+    <MotionReveal key={step}>
+      <p className="mb-5 text-xs font-semibold uppercase tracking-widest text-action">{story.captions[step]}</p>
       {step === 0 && <TraitBars />}
       {step === 1 && (
         <div className="flex items-center gap-6">
@@ -52,15 +52,15 @@ export const StoryVisual = ({ step, copy }: StoryVisualProps): ReactElement => {
       )}
       {step === 2 && (
         <div className="flex flex-wrap items-center gap-3 text-lg font-semibold tabular-nums">
-          <span className="rounded-lg bg-slate-100 px-3 py-2">{ITEM_SCORE}</span>
+          <span className="rounded-lg bg-[var(--surface-card)] px-3 py-2 shadow-sm">{ITEM_SCORE}</span>
           <span className="text-slate-400">+</span>
-          <span className="rounded-lg bg-slate-100 px-3 py-2">{SECOND_ITEM}</span>
+          <span className="rounded-lg bg-[var(--surface-card)] px-3 py-2 shadow-sm">{SECOND_ITEM}</span>
           <span className="text-slate-400">÷ 2 =</span>
           <span className="rounded-lg bg-action px-3 py-2 text-white">{AVERAGE}</span>
         </div>
       )}
       {step === 3 && (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="grid grid-cols-2 justify-items-center gap-4">
           {SKILLS.map((skill) => (
             <CircularProgressChart
               key={skill}
@@ -76,7 +76,7 @@ export const StoryVisual = ({ step, copy }: StoryVisualProps): ReactElement => {
         </div>
       )}
       {step === 3 && (
-        <p className="mt-4 text-sm text-slate-600">{`${copy.skills.overall}: ${SAMPLE.overall.score ?? "—"} · ${story.sampleNote}`}</p>
+        <p className="mt-4 text-center text-sm font-medium text-[var(--ink-secondary)]">{`${copy.skills.overall}: ${SAMPLE.overall.score ?? "—"} · ${story.sampleNote}`}</p>
       )}
     </MotionReveal>
   );
