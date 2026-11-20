@@ -1,10 +1,18 @@
-import { IMPORT_OR_ASSIGN_TEXT, PENDING_CLASS_ASSIGNMENT_TEXT } from "../constants";
+import { ADD_STUDENT_ERRORS, IMPORT_OR_ASSIGN_TEXT, PENDING_CLASS_ASSIGNMENT_TEXT } from "../constants";
 
 export const STUDENT_IMPORT_EN = {
   ...IMPORT_OR_ASSIGN_TEXT,
   ...PENDING_CLASS_ASSIGNMENT_TEXT,
+  ...ADD_STUDENT_ERRORS,
   tabsLabel: "Student addition methods",
   importHelper: "Fill in the system template: one student per row, starting on row 2.",
+  existingSearch: "Search by name or email",
+  selectAllExisting: "Select all shown",
+  existingSelected: "{count} selected",
+  assignSelected: "Assign {count} to class",
+  bulkAssigned: "Assigned {assigned} students to the class.",
+  bulkAlreadyIn: "{count} were already in this class.",
+  noExistingMatch: "No student matches this search.",
 } as const;
 
 export type StudentImportMessages = Record<keyof typeof STUDENT_IMPORT_EN, string>;
@@ -18,8 +26,16 @@ export const STUDENT_IMPORT_VI: StudentImportMessages = {
   tabAdd: "Thêm từng học viên",
   close: "Đóng",
   existingLabel: "Học viên",
+  existingSearch: "Tìm theo tên hoặc email",
+  selectAllExisting: "Chọn tất cả đang hiển thị",
+  existingSelected: "Đã chọn {count}",
+  assignSelected: "Phân công {count} học viên vào lớp",
+  bulkAssigned: "Đã phân công {assigned} học viên vào lớp.",
+  bulkAlreadyIn: "{count} học viên đã có trong lớp này.",
+  noExistingMatch: "Không có học viên nào khớp.",
   existingPlaceholder: "Chọn học viên",
-  noExisting: "Chưa có học viên chưa được phân công — hãy nhập hoặc thêm mới bên dưới.",
+  noExisting: "Tổ chức chưa có học viên nào. Hãy dùng tab Nhập từ Excel hoặc Thêm từng học viên để tạo mới.",
+  allAssigned: "Cả {count} học viên đều đã được phân công vào lớp. Hãy dùng tab Nhập từ Excel hoặc Thêm từng học viên để thêm học viên mới.",
   assign: "Phân công vào lớp",
   assigning: "Đang phân công...",
   alreadyInAnotherClass:
@@ -51,4 +67,7 @@ export const STUDENT_IMPORT_VI: StudentImportMessages = {
   dismiss: "Bỏ qua (sẽ phân công sau)",
   tabsLabel: "Cách thêm học viên",
   importHelper: "Điền mẫu hệ thống: mỗi dòng một học viên, bắt đầu từ dòng 2.",
+  emailRequired: "Vui lòng nhập email.",
+  emailInvalid: "Vui lòng nhập địa chỉ email hợp lệ.",
+  fullNameRequired: "Vui lòng nhập họ và tên.",
 };

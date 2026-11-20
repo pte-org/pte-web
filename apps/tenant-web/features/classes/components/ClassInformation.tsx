@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   Badge,
   Button,
@@ -8,6 +9,8 @@ import {
   DescriptionList,
   Input,
   ProfileAccountPanel,
+  UnsavedChangesGuard,
+  useLeaveAfterSave,
   useLocale,
   useToast,
 } from "@pte/ui";
@@ -42,6 +45,8 @@ export const ClassInformation = ({
     studentClass.programPublicId,
     studentClass.publicId,
   );
+  const router = useRouter();
+  const leaveAfterSave = useLeaveAfterSave();
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(studentClass.name);
   const [nameError, setNameError] = useState<string>();
@@ -65,6 +70,7 @@ export const ClassInformation = ({
         onSuccess: () => {
           setEditing(false);
           showToast(text.saved, { tone: "success" });
+          leaveAfterSave.settle();
         },
         onError: () => showToast(text.saveFailed, { tone: "error" }),
       },
@@ -148,6 +154,12 @@ export const ClassInformation = ({
           ]}
         />
       )}
+      <UnsavedChangesGuard
+        isDirty={editing && name !== studentClass.name}
+        onSaveAndLeave={(proceed) => leaveAfterSave.request(proceed, save)}
+        isSaving={update.isPending}
+        onNavigate={(href) => router.push(href)}
+      />
     </ProfileAccountPanel>
   );
 };

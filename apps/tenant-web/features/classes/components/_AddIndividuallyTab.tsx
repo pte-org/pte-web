@@ -61,7 +61,7 @@ export const AddIndividuallyTab = ({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    const nextErrors = validateAddStudentInput(form);
+    const nextErrors = validateAddStudentInput(form, text);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
     createStudent.mutate(

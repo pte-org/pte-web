@@ -10,6 +10,7 @@ import {
   getGenerationStats,
   getPromptCatalog,
   getPromptDocument,
+  listQuestionGenerationBatches,
   listQuestionGenerationJobs,
   updatePlatformSettings,
   type AiStatusResponse,
@@ -23,6 +24,7 @@ import {
   type PromptTestResponse,
   type PromptVersionResponse,
   type PromptWorkspaceResponse,
+  type QuestionGenerationBatchResponse,
   type QuestionGenerationJobResponse,
 } from "@pte/api-client";
 import {
@@ -35,7 +37,8 @@ import {
 } from "@tanstack/react-query";
 import type { DateRangeValue } from "@pte/ui";
 import { apiClient } from "@/lib/apiClient";
-import { AI_ADMIN_QUERY_KEY, RECENT_JOB_COUNT } from "./constants";
+import { AI_ADMIN_QUERY_KEY, BATCH_HISTORY_FETCH_SIZE, BATCH_HISTORY_POLL_MS, RECENT_JOB_COUNT } from "./constants";
+import { hasOpenBatch } from "./utils/batchHistory";
 import { PROMPT_QUERY_KEY } from "./promptConstants";
 import { PROMPT_VERSIONS_QUERY_KEY } from "./promptEditConstants";
 
@@ -71,7 +74,17 @@ export function useGenerationStats(range: DateRangeValue): UseQueryResult<Genera
 export function useRecentGenerationJobs(): UseQueryResult<PagedResult<QuestionGenerationJobResponse>> {
   return useQuery({
     queryKey: [...AI_ADMIN_QUERY_KEY, "recent-jobs"],
-    queryFn: () => listQuestionGenerationJobs(apiClient, 0, RECENT_JOB_COUNT),
+    // The list hides jobs started by a batch unless asked; this admin table shows every job.
+    queryFn: () => listQuestionGenerationJobs(apiClient, 0, RECENT_JOB_COUNT, true),
+  });
+}
+
+/** Every admin's batches, newest first; refreshes while a batch on the page is still open. */
+export function useBatchHistory(): UseQueryResult<PagedResult<QuestionGenerationBatchResponse>> {
+  return useQuery({
+    queryKey: [...AI_ADMIN_QUERY_KEY, "batch-history"],
+    queryFn: () => listQuestionGenerationBatches(apiClient, { page: 0, size: BATCH_HISTORY_FETCH_SIZE, mine: false }),
+    refetchInterval: (query) => (hasOpenBatch(query.state.data?.data ?? []) ? BATCH_HISTORY_POLL_MS : false),
   });
 }
 

@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, type FormEvent, type ReactElement } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Button, Input, Select, Textarea, UnsavedChangesGuard, useToast } from "@pte/ui";
+import { Alert, Button, Input, Select, Textarea, UnsavedChangesGuard, useLeaveAfterSave, useToast } from "@pte/ui";
 import {
   completeCloudinaryUpload,
   getUserFacingApiErrorMessage,
@@ -89,6 +89,7 @@ export const QuestionEditorForm = ({
     isLoading: questionTypesLoading,
     isError: questionTypesError,
   } = useQuestionTypes(!question);
+  const leaveAfterSave = useLeaveAfterSave();
   const [taskType, setTaskType] = useState<string>(question?.pteTaskType ?? "");
   const initialPool: QuestionPool = question ? resolveCurrentPool(question) : "EXAM";
   const [pool, setPool] = useState<QuestionPool>(initialPool);
@@ -136,6 +137,7 @@ export const QuestionEditorForm = ({
   const router = useRouter();
   const isDirty = useFormDirty(JSON.stringify([taskType, pool, cefrLevel, promptText, referenceAnswerText,
     correctAnswerText, answerHintVi, answerHintEn, minWordCount, maxWordCount, audioPromptRef, imagePromptRef, options]));
+  const formRef = useRef<HTMLFormElement>(null);
   const isPending =
     createMutation.isPending || updateMutation.isPending || revisionMutation.isPending;
   const listedTypes = sectionFilter
@@ -240,6 +242,7 @@ export const QuestionEditorForm = ({
             setPendingUpdate(null);
             showToast(T.UPDATE_SUCCESS);
             onSaved?.(saved);
+            leaveAfterSave.settle();
           },
           onError: () => setPendingUpdate(null),
         },
@@ -312,6 +315,7 @@ export const QuestionEditorForm = ({
         onSuccess: (saved) => {
           showToast(T.CREATE_SUCCESS);
           onSaved?.(saved);
+          leaveAfterSave.settle();
         },
       });
     }
@@ -332,7 +336,7 @@ export const QuestionEditorForm = ({
       : T.POOL_HELPER_LOCKED;
 
   return (
-    <form className="flex max-w-4xl flex-col gap-4" onSubmit={submit} aria-busy={agent?.locked || undefined}>
+    <form ref={formRef} className="flex max-w-4xl flex-col gap-4" onSubmit={submit} aria-busy={agent?.locked || undefined}>
       <fieldset disabled={agent?.locked} className="contents">
       <h2 className="text-xl font-semibold text-gray-900">
         {question ? T.FORM_EDIT_TITLE : T.FORM_CREATE_TITLE}
@@ -511,8 +515,8 @@ export const QuestionEditorForm = ({
           {question ? T.SAVE_DRAFT : T.CREATE_DRAFT}
         </Button>
       </div>
-      <UnsavedChangesGuard isDirty={isDirty && !isPending} title={T.UNSAVED_TITLE} description={T.UNSAVED_DESCRIPTION}
-        stayLabel={T.UNSAVED_STAY} leaveLabel={T.UNSAVED_LEAVE} onNavigate={(href) => router.push(href)} />
+      <UnsavedChangesGuard isDirty={isDirty} onSaveAndLeave={(proceed) => leaveAfterSave.request(proceed, () => formRef.current?.requestSubmit())} isSaving={isPending}
+        onNavigate={(href) => router.push(href)} />
       <PoolChangeDialog
         open={pendingUpdate !== null}
         targetPool={pool}

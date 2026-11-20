@@ -7,6 +7,11 @@ import type { ClassRosterEntry } from "./api";
  * endpoint). Column headers match `HEADER_ALIASES` in `cleanRosterFile.ts`
  * exactly so a re-imported export round-trips to the same students.
  */
+/** File-system safe name: characters Windows/macOS refuse in file names are replaced, spaces kept. */
+export function safeFileName(name: string): string {
+  return name.replace(/[\\/:*?"<>|]+/g, "-").replace(/\s+/g, " ").trim();
+}
+
 export function exportClassRosterToExcel(entries: ClassRosterEntry[], fileNameBase: string): void {
   const rows = entries.map((entry) => ({
     Email: entry.student.email,
@@ -20,5 +25,5 @@ export function exportClassRosterToExcel(entries: ClassRosterEntry[], fileNameBa
   const worksheet = XLSX.utils.json_to_sheet(rows);
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Roster");
-  XLSX.writeFile(workbook, `${fileNameBase}.xlsx`);
+  XLSX.writeFile(workbook, `${safeFileName(fileNameBase)}.xlsx`);
 }

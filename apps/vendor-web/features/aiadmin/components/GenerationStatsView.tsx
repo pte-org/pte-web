@@ -13,6 +13,7 @@ import {
 } from "@pte/ui";
 import { useGenerationStats, useRecentGenerationJobs } from "../api";
 import { AI_ADMIN_COPY, DEFAULT_STATS_WINDOW_DAYS } from "../constants";
+import { BatchHistory } from "./_BatchHistory";
 import { OutcomeCards } from "./_OutcomeCards";
 import { RecentJobs } from "./_RecentJobs";
 
@@ -71,6 +72,7 @@ export const GenerationStatsView = (): ReactElement => {
         copy={copy}
         locale={locale}
       />
+      <BatchHistory range={range} copy={copy} />
     </div>
   );
 };

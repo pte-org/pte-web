@@ -5,7 +5,9 @@ import type { QuestionGenerationImageKind } from "@pte/api-client";
 import { Button, Checkbox, Input, Select, Textarea } from "@pte/ui";
 import { taskTypeLabel } from "../utils/taskTypeLabel";
 import { DESCRIBE_IMAGE_TASK, GENERATION_IMAGE_KINDS } from "../constants";
-import { GENERATION_CEFR_LEVELS, TASK_ROW_GRID } from "../dialogConstants";
+import { TASK_ROW_GRID, type GenerationCefrLevel } from "../dialogConstants";
+import { isSplitRow } from "../utils/generationCefr";
+import { GenerationDialogCefrCell, GenerationDialogLevelSplit } from "./_GenerationDialogCefrCell";
 import type { DialogMessages } from "../messages/dialog.en";
 import type { SelectionRow } from "../utils/generationSelection";
 
@@ -15,10 +17,12 @@ interface TaskTypeRowProps {
   messages: DialogMessages;
   onToggle: () => void;
   onChange: (patch: Partial<Omit<SelectionRow, "taskType" | "section">>) => void;
+  onSplitChange: (split: boolean) => void;
+  onLevelChange: (level: GenerationCefrLevel, value: number) => void;
 }
 
 /** One line per task type: tick, then count / CEFR / picture kind inline; own topics open on demand. */
-export const GenerationDialogTaskTypeRow = ({ taskType, row, messages, onToggle, onChange }: TaskTypeRowProps): ReactElement => {
+export const GenerationDialogTaskTypeRow = ({ taskType, row, messages, onToggle, onChange, onSplitChange, onLevelChange }: TaskTypeRowProps): ReactElement => {
   const [isTopicsOpen, setTopicsOpen] = useState(false);
   const id = `generation-type-${taskType}`;
   const isDescribeImage = taskType === DESCRIBE_IMAGE_TASK;
@@ -32,17 +36,14 @@ export const GenerationDialogTaskTypeRow = ({ taskType, row, messages, onToggle,
               id={`${id}-count`}
               type="number"
               min={1}
+              // A split row's count is the sum of its levels, edited on the line below.
+              readOnly={isSplitRow(row)}
               aria-label={messages.countLabel}
               value={Number.isFinite(row.count) ? row.count : ""}
               onChange={(event) => onChange({ count: Number.parseInt(event.target.value, 10) })}
             />
-            <Select
-              id={`${id}-cefr`}
-              aria-label={messages.cefrLabel}
-              value={row.cefrLevel}
-              options={GENERATION_CEFR_LEVELS.map((level) => ({ value: level, label: level }))}
-              onChange={(event) => onChange({ cefrLevel: event.target.value })}
-            />
+            <GenerationDialogCefrCell id={id} row={row} messages={messages}
+              onCefrChange={(cefrLevel) => onChange({ cefrLevel })} onSplitChange={onSplitChange} />
             {isDescribeImage ? (
               <Select
                 id={`${id}-image`}
@@ -61,6 +62,7 @@ export const GenerationDialogTaskTypeRow = ({ taskType, row, messages, onToggle,
           </>
         ) : null}
       </div>
+      {row ? <GenerationDialogLevelSplit id={id} row={row} messages={messages} onLevelChange={onLevelChange} /> : null}
       {row && isTopicsOpen ? (
         <div className="px-3 pb-3">
           <Textarea

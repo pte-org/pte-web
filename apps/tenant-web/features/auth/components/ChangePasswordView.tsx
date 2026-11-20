@@ -17,6 +17,9 @@ export const ChangePasswordView = (): ReactElement => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [formError, setFormError] = useState<string>();
+  // A forced change (temporary password) has nowhere to go back to; a voluntary one can be cancelled.
+  const isForced = Boolean(session?.mustChangePassword);
+  const homeRoute = resolveWorkspace(session?.roles ?? []).defaultRoute || AUTH_ROUTES.login;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
@@ -40,8 +43,8 @@ export const ChangePasswordView = (): ReactElement => {
         refreshToken: session?.refreshToken,
       });
       if (session) saveSession({ ...session, mustChangePassword: false });
-      showToast(PASSWORD_CHANGE_TEXT.SUCCESS, { tone: "success" });
-      router.replace(resolveWorkspace(session?.roles ?? []).defaultRoute || AUTH_ROUTES.login);
+      showToast(isForced ? PASSWORD_CHANGE_TEXT.SUCCESS : PASSWORD_CHANGE_TEXT.SUCCESS_VOLUNTARY, { tone: "success" });
+      router.replace(homeRoute);
     } catch (error) {
       setFormError(getUserFacingApiErrorMessage(error, PASSWORD_CHANGE_TEXT.FAILED));
     }
@@ -55,7 +58,9 @@ export const ChangePasswordView = (): ReactElement => {
       >
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">{PASSWORD_CHANGE_TEXT.TITLE}</h1>
-          <p className="mt-1 text-sm text-gray-600">{PASSWORD_CHANGE_TEXT.SUBTITLE}</p>
+          <p className="mt-1 text-sm text-gray-600">
+            {isForced ? PASSWORD_CHANGE_TEXT.SUBTITLE : PASSWORD_CHANGE_TEXT.VOLUNTARY_SUBTITLE}
+          </p>
         </div>
         {formError && <Alert tone="error">{formError}</Alert>}
         <div className="flex flex-col gap-4">
@@ -84,6 +89,11 @@ export const ChangePasswordView = (): ReactElement => {
         <Button type="submit" fullWidth isLoading={mutation.isPending} loadingText={PASSWORD_CHANGE_TEXT.SUBMITTING}>
           {PASSWORD_CHANGE_TEXT.SUBMIT}
         </Button>
+        {!isForced && (
+          <Button type="button" variant="secondary" fullWidth onClick={() => router.replace(homeRoute)}>
+            {PASSWORD_CHANGE_TEXT.CANCEL}
+          </Button>
+        )}
       </form>
     </main>
   );

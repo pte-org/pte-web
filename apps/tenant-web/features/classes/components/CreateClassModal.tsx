@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Input, Modal, Select } from "@pte/ui";
-import { CREATE_CLASS_ERRORS, CREATE_CLASS_TEXT } from "../constants";
+import { useClassFlowText } from "../hooks/useClassFlowText";
 import { validateClassName } from "../utils/validateClassName";
 
 interface CreateClassModalProps {
@@ -36,7 +36,7 @@ export const CreateClassModal = ({
   const [name, setName] = useState("");
   const [nameError, setNameError] = useState<string | undefined>();
   const [programError, setProgramError] = useState<string | undefined>();
-  const T = CREATE_CLASS_TEXT;
+  const tf = useClassFlowText(classLabel);
   const showPicker = programs !== undefined && programLabel !== undefined && onProgramChange !== undefined;
 
   const handleNameChange = (value: string): void => {
@@ -50,10 +50,10 @@ export const CreateClassModal = ({
     // pre-selected, so the picker must be validated here. Silently returning
     // (the old behaviour) left the Host staring at a modal that did nothing.
     if (showPicker && !selectedProgramPublicId) {
-      setProgramError(CREATE_CLASS_ERRORS.programRequired(programLabel));
+      setProgramError(tf("programRequired", { program: programLabel.toLowerCase() }));
       return;
     }
-    const nameError = validateClassName(name, classLabel);
+    const nameError = validateClassName(name, classLabel, tf("nameRequired"));
     if (nameError) {
       setNameError(nameError);
       return;
@@ -67,7 +67,7 @@ export const CreateClassModal = ({
     <Modal
       open={open}
       onClose={onClose}
-      title={T.title(classLabel)}
+      title={tf("createTitle")}
       footer={
         <>
           <button
@@ -75,7 +75,7 @@ export const CreateClassModal = ({
             onClick={onClose}
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            {T.cancel}
+            {tf("cancel")}
           </button>
           <button
             type="submit"
@@ -83,7 +83,7 @@ export const CreateClassModal = ({
             disabled={isSubmitting}
             className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? T.submitting : T.submit(classLabel)}
+            {isSubmitting ? tf("createSubmitting") : tf("createSubmit")}
           </button>
         </>
       }
@@ -107,8 +107,8 @@ export const CreateClassModal = ({
           />
         )}
         <Input
-          label={T.nameLabel(classLabel)}
-          placeholder={T.namePlaceholder}
+          label={tf("createNameLabel")}
+          placeholder={tf("createNamePlaceholder")}
           value={name}
           error={nameError}
           onChange={(event) => handleNameChange(event.target.value)}

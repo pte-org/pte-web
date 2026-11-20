@@ -13,6 +13,7 @@ import {
   DashboardBreadcrumbProvider,
   DashboardShell,
   useDashboardBreadcrumbItems,
+  KeyRoundIcon,
   LogoutIcon,
   UserCircleIcon,
   SidebarNav as SharedSidebarNav,
@@ -22,7 +23,6 @@ import {
   cn,
   useLocale,
   useTokenManager,
-  type DropdownItem,
   type SessionRole,
 } from "@pte/ui";
 import { NotificationBellContainer } from "@/features/notifications";
@@ -32,6 +32,7 @@ import { useCurrentUser } from "../api";
 import { markSigningOut } from "../signOutIntent";
 import { AUTH_ROUTES } from "../constants";
 import { resolveActiveNavItem } from "../utils/resolveActiveNavItem";
+import { buildUserMenuItems } from "../utils/buildUserMenuItems";
 
 export interface NavItem {
   label: string;
@@ -68,8 +69,6 @@ const BRAND_SUBTITLE = "School Portal";
 
 const HEADER_TEXT = {
   ACCOUNT: "Account",
-  PROFILE: "Profile & organization",
-  LOGOUT: "Log out",
 } as const;
 
 // "/" has no page and bounces to login; keep the logo inside the current workspace.
@@ -197,21 +196,11 @@ const HeaderActions = (): ReactElement => {
     router.replace(AUTH_ROUTES.login);
   };
 
-  const userMenuItems: DropdownItem[] = [];
-  if (user?.roles.includes("HOST_ADMIN")) {
-    userMenuItems.push(
-      {
-        label: t("common.profileAndOrganization", HEADER_TEXT.PROFILE),
-        href: "/host/profile",
-        icon: UserCircleIcon,
-      },
-      { separator: true, key: "profile-logout" },
-    );
-  }
-  userMenuItems.push({
-    label: t("common.logout", HEADER_TEXT.LOGOUT),
-    onSelect: logout,
-    icon: LogoutIcon,
+  const userMenuItems = buildUserMenuItems({
+    roles: user?.roles,
+    translate: t,
+    onLogout: logout,
+    icons: { profile: UserCircleIcon, changePassword: KeyRoundIcon, logout: LogoutIcon },
   });
 
   return (

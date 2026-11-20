@@ -1,21 +1,19 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ActionMenu, Alert, Button, ConfirmDialog, DataTable, type DataTableColumn } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { useClassActionText } from "../hooks/useClassActionText";
-import {
-  CLASS_ROSTER_ROW_ACTIONS_TEXT,
-  CLASS_ROSTER_TABLE_HEADERS,
-  CLASS_ROSTER_TEXT,
-  SPLIT_CLASS_SELECTION_TEXT,
-} from "../constants";
-import { CLASS_ROSTER_UNASSIGN_CONFIRM_TEXT } from "../constants/confirmText";
+import { useClassFlowText } from "../hooks/useClassFlowText";
+import { CLASS_ROSTER_TEXT } from "../constants";
 import { useClassRoster, useUnassignStudent, type ClassRosterEntry } from "../api";
 import { exportClassRosterToExcel } from "../exportClassRoster";
 import { TransferStudentModal } from "./TransferStudentModal";
 import { SplitClassModal } from "./SplitClassModal";
+import { classStudentHref } from "../utils/classStudentHref";
 
 interface ClassRosterTableProps {
   organizationPublicId: string;
@@ -36,8 +34,6 @@ interface RowActionsProps {
   entry: ClassRosterEntry;
 }
 
-const U = CLASS_ROSTER_UNASSIGN_CONFIRM_TEXT;
-
 const RowActions = ({
   organizationPublicId,
   programPublicId,
@@ -46,6 +42,8 @@ const RowActions = ({
   className,
   entry,
 }: RowActionsProps): ReactElement => {
+  const tf = useClassFlowText(classLabel);
+  const router = useRouter();
   const [transferOpen, setTransferOpen] = useState(false);
   const [unassignConfirmOpen, setUnassignConfirmOpen] = useState(false);
   const unassign = useUnassignStudent(organizationPublicId, programPublicId, classPublicId);
@@ -60,15 +58,20 @@ const RowActions = ({
   return (
     <div className="flex flex-col gap-1">
       <ActionMenu
-        label={`${CLASS_ROSTER_TABLE_HEADERS.ACTIONS}: ${entry.student.fullName}`}
+        label={tf("rowActionsLabel", { name: entry.student.fullName })}
         items={[
           {
-            label: CLASS_ROSTER_ROW_ACTIONS_TEXT.transfer,
+            label: tf("rowViewDetail"),
+            onSelect: () =>
+              router.push(classStudentHref(organizationPublicId, programPublicId, classPublicId, entry.student.publicId)),
+          },
+          {
+            label: tf("rowTransfer"),
             onSelect: () => setTransferOpen(true),
           },
           { separator: true, key: "roster-danger-divider" },
           {
-            label: CLASS_ROSTER_ROW_ACTIONS_TEXT.unassign,
+            label: tf("rowUnassign"),
             danger: true,
             disabled: unassign.isPending,
             onSelect: () => setUnassignConfirmOpen(true),
@@ -90,10 +93,10 @@ const RowActions = ({
 
       <ConfirmDialog
         open={unassignConfirmOpen}
-        title={U.title}
-        description={U.description(entry.student.fullName, className)}
-        confirmLabel={U.confirmButton}
-        cancelLabel={U.cancel}
+        title={tf("unassignTitle")}
+        description={tf("unassignDescription", { student: entry.student.fullName, className })}
+        confirmLabel={tf("unassignConfirm")}
+        cancelLabel={tf("cancel")}
         tone="danger"
         isConfirming={unassign.isPending}
         onConfirm={handleUnassignConfirm}
@@ -112,6 +115,7 @@ export const ClassRosterTable = ({
   onAddStudents,
 }: ClassRosterTableProps): ReactElement => {
   const text = useClassActionText();
+  const tf = useClassFlowText(classLabel);
   const searchText = useTenantSearchText("roster");
   const {
     data: roster,
@@ -124,7 +128,7 @@ export const ClassRosterTable = ({
   const [splitModalOpen, setSplitModalOpen] = useState(false);
 
   if (isError) {
-    return <Alert tone="error">{errorMessage(error, CLASS_ROSTER_TEXT.loadFailed)}</Alert>;
+    return <Alert tone="error">{errorMessage(error, tf("rosterLoadFailed"))}</Alert>;
   }
 
   const selectedStudentPublicIds = (roster ?? [])
@@ -140,7 +144,14 @@ export const ClassRosterTable = ({
     {
       key: "name",
       header: text.fullName,
-      cell: (entry) => entry.student.fullName,
+      cell: (entry) => (
+        <Link
+          href={classStudentHref(organizationPublicId, programPublicId, classPublicId, entry.student.publicId)}
+          className="font-medium text-[var(--action)] hover:underline"
+        >
+          {entry.student.fullName}
+        </Link>
+      ),
     },
     {
       key: "email",
@@ -159,7 +170,7 @@ export const ClassRosterTable = ({
       {splitMode && (
         <div className="flex flex-col gap-2 rounded-md border border-blue-200 bg-blue-50 px-3 py-2 sm:flex-row sm:items-center sm:justify-between sm:px-4">
           <span className="text-sm text-blue-800">
-            {SPLIT_CLASS_SELECTION_TEXT.selectedCount(selectedKeys.size)}
+            {tf("selectedCount", { count: selectedKeys.size })}
           </span>
           <div className="flex items-center gap-3">
             <button
@@ -167,7 +178,7 @@ export const ClassRosterTable = ({
               onClick={exitSplitMode}
               className="text-sm text-gray-600 hover:underline"
             >
-              {SPLIT_CLASS_SELECTION_TEXT.cancelSelection}
+              {tf("cancel")}
             </button>
             <button
               type="button"
@@ -175,7 +186,7 @@ export const ClassRosterTable = ({
               onClick={() => setSplitModalOpen(true)}
               className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {SPLIT_CLASS_SELECTION_TEXT.confirmButton}
+              {tf("splitConfirm")}
             </button>
           </div>
         </div>
@@ -196,14 +207,14 @@ export const ClassRosterTable = ({
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => exportClassRosterToExcel(roster ?? [], `${classLabel}-roster`)}
+                onClick={() => exportClassRosterToExcel(roster ?? [], tf("exportFileName", { className, date: new Date().toISOString().slice(0, 10) }))}
               >
-                {CLASS_ROSTER_TEXT.exportButton}
+                {tf("exportButton")}
               </Button>
             )}
             {!splitMode && (roster ?? []).length > 0 && (
               <Button type="button" variant="secondary" onClick={() => setSplitMode(true)}>
-                {SPLIT_CLASS_SELECTION_TEXT.startButton}
+                {tf("splitStart")}
               </Button>
             )}
             <Button type="button" onClick={onAddStudents}>

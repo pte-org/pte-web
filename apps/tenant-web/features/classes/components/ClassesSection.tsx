@@ -9,8 +9,8 @@ import {
   CLASS_TABLE_HEADERS,
   CLASSES_LIST_TEXT,
   CLASSES_SECTION_TEXT,
-  MERGE_CLASSES_SELECTION_TEXT,
 } from "../constants";
+import { useClassFlowText } from "../hooks/useClassFlowText";
 import { useClasses } from "../api";
 import { useClassSectionColumns } from "../hooks/useClassSectionColumns";
 import { ClassRowActions } from "./ClassRowActions";
@@ -36,6 +36,7 @@ export const ClassesSection = ({
 }: ClassesSectionProps): ReactElement => {
   const router = useRouter();
   const { t } = useLocale();
+  const tf = useClassFlowText(classLabel);
   const columns = useClassSectionColumns(studentCountByClassPublicId);
   const searchText = useTenantSearchText("classSection");
   const createLabel = t("tenant.classes.create", CLASSES_LIST_TEXT.createClassButton);
@@ -73,7 +74,7 @@ export const ClassesSection = ({
       {mergeMode && (
         <div className="flex items-center justify-between rounded-md border border-blue-200 bg-blue-50 px-4 py-2">
           <span className="text-sm text-blue-800">
-            {MERGE_CLASSES_SELECTION_TEXT.selectedCount(selectedKeys.size)}
+            {tf("selectedCount", { count: selectedKeys.size })}
           </span>
           <div className="flex items-center gap-3">
             <button
@@ -81,7 +82,7 @@ export const ClassesSection = ({
               onClick={exitMergeMode}
               className="text-sm text-gray-600 hover:underline"
             >
-              {MERGE_CLASSES_SELECTION_TEXT.cancelSelection}
+              {tf("cancel")}
             </button>
             <button
               type="button"
@@ -89,7 +90,7 @@ export const ClassesSection = ({
               onClick={() => setMergeModalOpen(true)}
               className="rounded-md bg-action px-3 py-1.5 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {MERGE_CLASSES_SELECTION_TEXT.confirmButton}
+              {tf("mergeConfirm")}
             </button>
           </div>
         </div>
@@ -112,7 +113,7 @@ export const ClassesSection = ({
           <div className="flex flex-wrap items-center gap-2">
             {!mergeMode && (classes?.length ?? 0) >= 2 && (
               <Button variant="secondary" size="sm" onClick={() => setMergeMode(true)}>
-                {MERGE_CLASSES_SELECTION_TEXT.startButton(classLabel)}
+                {tf("mergeStart")}
               </Button>
             )}
             <Button

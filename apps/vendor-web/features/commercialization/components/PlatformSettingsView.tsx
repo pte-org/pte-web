@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState, type FormEvent, type ReactElement } from "react";
+import { useMemo, useRef, useState, type FormEvent, type ReactElement } from "react";
+import { useRouter } from "next/navigation";
 import {
   Alert,
   Button,
@@ -8,6 +9,8 @@ import {
   DashboardPanel,
   FormActions,
   useToast,
+  UnsavedChangesGuard,
+  useLeaveAfterSave,
 } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { usePlatformSettingsQuery, useUpdatePlatformSettings } from "../api";
@@ -35,6 +38,9 @@ export const PlatformSettingsView = (): ReactElement => {
   const update = useUpdatePlatformSettings();
   const [values, setValues] = useState<DraftValues>({});
   const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
+  const leaveAfterSave = useLeaveAfterSave();
+  const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
 
   const editableSettings = useMemo(
     () =>
@@ -67,6 +73,7 @@ export const PlatformSettingsView = (): ReactElement => {
         })),
       });
       showToast(T.SAVED, { tone: "success" });
+      leaveAfterSave.settle();
     } catch (error) {
       showToast(getUserFacingApiErrorMessage(error, T.ERROR), { tone: "error" });
     }
@@ -104,7 +111,7 @@ export const PlatformSettingsView = (): ReactElement => {
         empty={{ title: T.NO_SETTINGS }}
       >
         {updateError && <Alert tone="error">{updateError}</Alert>}
-        <form className="flex flex-col gap-5" onSubmit={(event) => void save(event)}>
+        <form ref={formRef} className="flex flex-col gap-5" onSubmit={(event) => void save(event)}>
           <div className="divide-y divide-[var(--shell-border)]">
             {editableSettings.map((setting) => {
               const presentation = presentations[setting.key as PlatformSettingKey];
@@ -143,6 +150,12 @@ export const PlatformSettingsView = (): ReactElement => {
             </Button>
           </FormActions>
         </form>
+        <UnsavedChangesGuard
+          isDirty={hasChanges}
+          isSaving={update.isPending}
+          onSaveAndLeave={(proceed) => leaveAfterSave.request(proceed, () => formRef.current?.requestSubmit())}
+          onNavigate={(href) => router.push(href)}
+        />
       </DashboardPanel>
       <ConfirmDialog
         open={isResetDialogOpen}
