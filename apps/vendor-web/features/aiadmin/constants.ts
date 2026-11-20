@@ -6,6 +6,14 @@ export const AI_ADMIN_QUERY_KEY = ["ai-admin"] as const;
 export const DEFAULT_STATS_WINDOW_DAYS = 30;
 /** How many of the latest jobs the generation page lists. */
 export const RECENT_JOB_COUNT = 100;
+/** One page of the batch history, and how often it refreshes while a shown batch is still open. */
+/** How many recent batches the history loads; it is filtered, sorted and paged in the browser. */
+export const BATCH_HISTORY_FETCH_SIZE = 100;
+/** Rows per page of the batch history table. */
+export const BATCH_HISTORY_PAGE_SIZE = 10;
+export const BATCH_HISTORY_POLL_MS = 10_000;
+/** A batch opened from the AI overview stays under it, so the breadcrumb leads back to the overview. */
+export const aiBatchDetailHref = (batchId: string): string => `/admin/ai/batches/${batchId}`;
 
 const FAILURE_LABELS_EN: Record<string, string> = {
   GENERATION_PROVIDER_AUTH: "AI service rejected the key",
@@ -128,6 +136,17 @@ export const AI_ADMIN_COPY = {
     FILTER_ALL_STATUSES: "All statuses",
     FILTER_ALL_REASONS: "All failure reasons",
     NO_JOBS: "No jobs yet.",
+    JOB_BATCH: "Batch #{seq}",
+    JOB_BATCH_TITLE: "Open the batch this job belongs to",
+    BATCH_HISTORY: "Batch history",
+    BATCH_POOL: "Pool",
+    BATCH_CONTENT: "Content",
+    BATCH_CONTENT_VALUE: "Task types: {types} · Questions: {questions}",
+    BATCH_SEARCH: "Search by date or content",
+    FILTER_ALL_POOLS: "All pools",
+    BATCH_PROGRESS: "Progress",
+    NO_BATCHES: "No batches in this range.",
+    BATCH_LOAD_ERROR: "Could not load the batch history",
   },
   vi: {
     OVERVIEW_TITLE: "Tổng quan AI",
@@ -203,6 +222,17 @@ export const AI_ADMIN_COPY = {
     FILTER_ALL_STATUSES: "Tất cả trạng thái",
     FILTER_ALL_REASONS: "Tất cả lý do thất bại",
     NO_JOBS: "Chưa có lần tạo nào.",
+    JOB_BATCH: "Lô #{seq}",
+    JOB_BATCH_TITLE: "Mở lô sinh đề chứa job này",
+    BATCH_HISTORY: "Lịch sử lô sinh đề",
+    BATCH_POOL: "Kho đề",
+    BATCH_CONTENT: "Nội dung",
+    BATCH_CONTENT_VALUE: "{types} dạng bài · {questions} câu",
+    BATCH_SEARCH: "Tìm theo ngày hoặc nội dung",
+    FILTER_ALL_POOLS: "Tất cả kho",
+    BATCH_PROGRESS: "Tiến độ",
+    NO_BATCHES: "Không có lô nào trong khoảng này.",
+    BATCH_LOAD_ERROR: "Không tải được lịch sử lô sinh đề",
   },
 } as const;
 
