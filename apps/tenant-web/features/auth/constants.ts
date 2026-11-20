@@ -27,13 +27,23 @@ export const AUTH_ROUTES = {
   changePassword: "/change-password",
   register: "/register",
   hostDashboard: "/host/dashboard",
+  hostProfile: "/host/profile",
   examinerWork: "/examiner/work",
   proctorSessions: "/proctor/sessions",
+} as const;
+
+export const USER_MENU_TEXT = {
+  PROFILE: "Profile & organization",
+  CHANGE_PASSWORD: "Change password",
+  LOGOUT: "Log out",
 } as const;
 
 export const PASSWORD_CHANGE_TEXT = {
   TITLE: "Change your password",
   SUBTITLE: "Your temporary password must be replaced before you can open a workspace.",
+  VOLUNTARY_SUBTITLE: "Enter your current password, then choose a new one.",
+  CANCEL: "Cancel",
+  SUCCESS_VOLUNTARY: "Password changed.",
   CURRENT_LABEL: "Current password",
   NEW_LABEL: "New password",
   CONFIRM_LABEL: "Confirm new password",
