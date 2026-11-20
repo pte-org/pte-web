@@ -4,10 +4,11 @@ import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { Badge, Button } from "@pte/ui";
 import type { AboutPteCopy } from "../constants/aboutPteCopy.en";
-import { SKILL_TONES } from "../constants/aboutPteLayout";
+import { SKILL_CHIPS } from "../constants/aboutPteLayout";
 import { TASK_NAMES } from "../constants/miniExam";
 import { OFFICIAL_RULES, type ScoringKind } from "../constants/officialScoring";
 import { contributingSkills, type TaskWeight } from "../constants/scoringWeights";
+import { RuleDetail } from "./_RuleDetail";
 import { TraitDetails } from "./_TraitDetails";
 
 interface ScoringRuleRowProps {
@@ -35,7 +36,7 @@ export const ScoringRuleRow = ({ task, copy, locale, columnCount }: ScoringRuleR
       <tr className="border-t border-slate-100 align-top">
         <td className="px-3 py-2">
           <p className="font-semibold text-slate-900">{TASK_NAMES[task.key]}</p>
-          <Button size="sm" variant="ghost" onClick={() => setIsOpen((open) => !open)} aria-expanded={isOpen}>
+          <Button size="sm" variant="secondary" onClick={() => setIsOpen((open) => !open)} aria-expanded={isOpen}>
             {isOpen ? flow.hideLevels : flow.showLevels}
           </Button>
         </td>
@@ -50,11 +51,13 @@ export const ScoringRuleRow = ({ task, copy, locale, columnCount }: ScoringRuleR
             </span>
           ))}
         </td>
-        <td className="px-3 py-2 text-slate-600">{rule[locale]}</td>
+        <td className="min-w-80 px-3 py-2">
+          <RuleDetail taskKey={task.key} copy={copy} locale={locale} />
+        </td>
         <td className="px-3 py-2">
           <span className="flex flex-wrap gap-1">
             {contributingSkills(task).map((skill) => (
-              <span key={skill} className={`rounded-full px-2 py-0.5 text-xs font-semibold text-white ${SKILL_TONES[skill].bg}`}>
+              <span key={skill} className={`rounded-md px-2 py-0.5 text-xs font-semibold ${SKILL_CHIPS[skill]}`}>
                 {copy.skills[skill]}
               </span>
             ))}
