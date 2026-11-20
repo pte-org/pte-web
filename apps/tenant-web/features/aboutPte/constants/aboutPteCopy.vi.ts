@@ -75,6 +75,7 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
   comparison: {
     title: "So sánh PTE với các chứng chỉ khác",
     caption: "Số liệu chính thức khi có; lệ phí khác nhau theo quốc gia.",
+    featured: "Đề tài này",
     headers: ["", "PTE Academic", "IELTS Academic", "TOEFL iBT", "PTE Core"],
     rows: [
       ["Tổ chức", "Pearson", "British Council, IDP, Cambridge", "ETS", "Pearson"],

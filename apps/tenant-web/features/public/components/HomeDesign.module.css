@@ -46,6 +46,17 @@
   --cream-action: #9c6400;
   --blush-tint: #fdede8;
   --blush-action: #be452b;
+  --shell-surface-border: #e5e5e5;
+  --table-header-background: #ffffff;
+  --table-surface-background: #ffffff;
+  --table-header-text: #52525b;
+  --table-body-text: #18181b;
+  --table-muted-text: #71717a;
+  --table-border: #e8e8e8;
+  --table-control-background: #ffffff;
+  --table-control-border: #d4d4d8;
+  --table-control-hover: #f4f4f5;
+  --table-row-hover: #fafafa;
 }
 
 .banner {

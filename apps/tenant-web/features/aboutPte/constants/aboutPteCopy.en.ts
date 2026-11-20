@@ -73,6 +73,7 @@ export const ABOUT_PTE_EN = {
   comparison: {
     title: "PTE vs other English tests",
     caption: "Official figures where available; costs vary by country.",
+    featured: "This project",
     headers: ["", "PTE Academic", "IELTS Academic", "TOEFL iBT", "PTE Core"],
     rows: [
       ["Organisation", "Pearson", "British Council, IDP, Cambridge", "ETS", "Pearson"],
