@@ -42,7 +42,8 @@ export const ScoringFlow = (): ReactElement => {
         </Alert>
       </div>
       <h3 className="mt-10 text-xl font-semibold text-slate-900">{flow.rulesTitle}</h3>
-      <p className={`mb-4 mt-1 ${ABOUT_PTE_LAYOUT.muted}`}>{flow.rulesIntro}</p>
+      <p className={`mt-1 ${ABOUT_PTE_LAYOUT.muted}`}>{flow.rulesIntro}</p>
+      <p className="mb-4 mt-1 text-xs text-slate-500">{flow.levelsNote}</p>
       <ScoringRules copy={copy} locale={locale === "vi" ? "vi" : "en"} />
       <div className={`mt-8 ${ABOUT_PTE_LAYOUT.card}`}>
         <h3 className="font-semibold text-slate-900">{flow.integratedTitle}</h3>

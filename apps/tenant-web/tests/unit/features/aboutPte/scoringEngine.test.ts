@@ -10,6 +10,7 @@ import {
 import { ABOUT_PTE_EN } from "../../../../features/aboutPte/constants/aboutPteCopy.en";
 import { ABOUT_PTE_VI } from "../../../../features/aboutPte/constants/aboutPteCopy.vi";
 import { OFFICIAL_RULES } from "../../../../features/aboutPte/constants/officialScoring";
+import { traitInfoFor } from "../../../../features/aboutPte/constants/traitLevels";
 import { TASK_GUIDE } from "../../../../features/aboutPte/constants/taskGuide";
 import { ABOUT_PTE_SOURCES } from "../../../../features/aboutPte/constants/aboutPteSources";
 
@@ -137,5 +138,16 @@ describe("official scoring rules", () => {
       "SUMMARIZE_WRITTEN_TEXT",
       "WRITE_ESSAY",
     ]);
+  });
+
+  it("has a description with levels for every trait of every question type", () => {
+    for (const [key, rule] of Object.entries(OFFICIAL_RULES)) {
+      for (const trait of rule.traits) {
+        const info = traitInfoFor(key, trait.name);
+        expect(info, `${key}:${trait.name}`).toBeDefined();
+        expect(info?.meaning.vi, `${key}:${trait.name}`).toBeTruthy();
+        expect(info?.levels.length, `${key}:${trait.name}`).toBeGreaterThan(1);
+      }
+    }
   });
 });
