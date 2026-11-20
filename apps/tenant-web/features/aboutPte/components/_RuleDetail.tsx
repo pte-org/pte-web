@@ -9,12 +9,12 @@ interface RuleDetailProps {
 }
 
 const GATED_TRAITS = new Set(["Content", "Form"]);
-/** Speaking/writing traits with a fixed maximum; Read Aloud's Content max is the passage length N. */
-const READ_ALOUD_EXTRA = 10;
-
-const totalMax = (maxima: readonly string[]): string => {
-  const fixed = maxima.filter((max) => /^\d+$/.test(max)).reduce((sum, max) => sum + Number(max), 0);
-  return maxima.some((max) => !/^\d+$/.test(max)) ? `(N + ${READ_ALOUD_EXTRA})` : String(fixed);
+/** "(6 + 5 + 5 = 16)", or "(N + 5 + 5)" when a maximum depends on the item (Read Aloud's passage length N). */
+const maxBreakdown = (maxima: readonly string[]): string => {
+  const sum = maxima.join(" + ");
+  return maxima.every((max) => /^\d+$/.test(max))
+    ? `(${sum} = ${maxima.reduce((total, max) => total + Number(max), 0)})`
+    : `(${sum})`;
 };
 
 /** How one question type is scored: the item formula, the zero gate, and what each trait measures. */
@@ -28,7 +28,7 @@ export const RuleDetail = ({ taskKey, copy, locale }: RuleDetailProps): ReactEle
       <p className="text-[var(--ink-primary)]">{rule[locale]}</p>
       {isTraitBased && (
         <p className="rounded-md bg-[var(--surface-subtle)] px-2 py-1 font-mono text-xs text-[var(--ink-primary)]">
-          {`${flow.itemFormula} = (${rule.traits.map((trait) => trait.name).join(" + ")}) ÷ ${totalMax(rule.traits.map((trait) => trait.max))} × 100`}
+          {`${flow.itemFormula} = (${rule.traits.map((trait) => trait.name).join(" + ")}) ÷ ${maxBreakdown(rule.traits.map((trait) => trait.max))} × 100`}
         </p>
       )}
       {gated.length > 0 && <p className="text-xs font-medium text-rose-600">{flow.gateLine(gated.join(flow.or))}</p>}
