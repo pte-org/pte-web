@@ -37,6 +37,8 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
     ],
     guideTitle: "22 dạng câu hỏi trong một bảng",
     guideIntro: "Thí sinh phải làm gì ở mỗi dạng câu và dạng đó được tính điểm cho kỹ năng nào trên nền tảng này. Mỗi ô màu là một kỹ năng; có hai ô màu = dạng tích hợp.",
+    integrated: "Tích hợp",
+    typeCount: (count: number) => `${count} dạng câu`,
     feeds: "Tính điểm cho",
   },
   history: {

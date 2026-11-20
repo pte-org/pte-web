@@ -36,6 +36,16 @@
   --ink-secondary: #52525b;
   --ink-muted: #71717a;
   --control-border: #d4d4d8;
+  --divider: #e8e8e8;
+  --brand-tint: #ecf2ff;
+  --sky-tint: #e8f7ff;
+  --sky-action: #0e729f;
+  --mint-tint: #e6fffa;
+  --mint-action: #088068;
+  --cream-tint: #fef5e5;
+  --cream-action: #9c6400;
+  --blush-tint: #fdede8;
+  --blush-action: #be452b;
 }
 
 .banner {

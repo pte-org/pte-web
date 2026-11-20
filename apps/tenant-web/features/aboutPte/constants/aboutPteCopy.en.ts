@@ -35,6 +35,8 @@ export const ABOUT_PTE_EN = {
     ],
     guideTitle: "The 22 question types at a glance",
     guideIntro: "What the candidate does in each question type and which skill scores it feeds in this platform. Coloured chips are the skills; two chips = integrated.",
+    integrated: "Integrated",
+    typeCount: (count: number) => `${count} question types`,
     feeds: "Counts for",
   },
   history: {

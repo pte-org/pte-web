@@ -34,3 +34,15 @@ export const OUTCOME_TONES = {
   partial: "border-[var(--cream-action)] bg-[var(--cream-tint)] text-[var(--cream-action)]",
   wrong: "border-[var(--blush-action)] bg-[var(--blush-tint)] text-[var(--blush-action)]",
 } as const;
+
+/** Theme-aware skill chips (tint background + action text), readable in light and dark mode. */
+export const SKILL_CHIPS = {
+  speaking: "bg-[var(--sky-tint)] text-[var(--sky-action)]",
+  writing: "bg-[var(--brand-tint)] text-[var(--brand-ink)]",
+  reading: "bg-[var(--mint-tint)] text-[var(--mint-action)]",
+  listening: "bg-[var(--cream-tint)] text-[var(--cream-action)]",
+} as const;
+
+/** Theme-aware card surface used by the guide cards. */
+export const THEMED_CARD =
+  "rounded-2xl border border-[var(--shell-border)] bg-[var(--surface-card)] text-[var(--ink-primary)]";
