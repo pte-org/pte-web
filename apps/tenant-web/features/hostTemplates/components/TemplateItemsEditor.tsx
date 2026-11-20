@@ -5,6 +5,7 @@ import type { ScoreTemplateItemRequest } from "@pte/api-client";
 import { DataTable, DropZone, RowDragPreview, SectionedTableCard } from "@pte/ui";
 import { PALETTE_DROP_ATTRIBUTE, SKILLS, TASK_TYPE_DRAG_TYPE } from "../constants";
 import { useEditorText, useSkillLabels } from "../hooks/useTemplateText";
+import type { CountField } from "../utils/counts";
 import type { PoolSlot } from "../utils/pool";
 import {
   buildTemplateColumns,
@@ -27,6 +28,8 @@ interface TemplateItemsEditorProps {
   /** Buttons at the right end of the table's toolbar, such as Save. */
   toolbarActions?: ReactNode;
   onWeightChange: (taskTypeKey: string, skill: (typeof SKILLS)[number], value: number) => void;
+  /** Called when the host changes the minimum or maximum number of questions of a task type. */
+  onCountChange: (taskTypeKey: string, field: CountField, value: number) => void;
   /** Cells the host may not change; omitted means every cell follows `editable`. */
   isWeightEditable?: (taskTypeKey: string, skill: (typeof SKILLS)[number]) => boolean;
   /** Published-question coverage per task type; the column is hidden when omitted. */
@@ -51,9 +54,10 @@ export const TemplateItemsEditor = ({
   onReorder,
   toolbarActions,
   onWeightChange,
+  onCountChange,
   isWeightEditable,
   pool,
-}: TemplateItemsEditorProps): ReactElement => {
+}:TemplateItemsEditorProps): ReactElement => {
   const text = useEditorText();
   const labels = useSkillLabels();
   const rowsOf = (tab: string): ScoreTemplateItemRequest[] =>
@@ -104,6 +108,9 @@ export const TemplateItemsEditor = ({
               weightLockedText: text.WEIGHT_LOCKED,
               isWeightLocked: (key, skill) => editable && isWeightEditable?.(key, skill) === false,
               onWeightChange,
+              countLabels: { minCount: text.COUNT_MIN, maxCount: text.COUNT_MAX },
+              countInvalidText: text.COUNT_INVALID,
+              onCountChange,
               removeLabel: text.REMOVE,
               onRemove,
             })}

@@ -1,10 +1,12 @@
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import type { ScoreTemplateItemRequest } from "@pte/api-client";
 import { Button, Chip, TableNumberInput, TrashIcon, type DataTableColumn } from "@pte/ui";
 import { sectionTone } from "@/lib/chipTones";
 import { SKILLS } from "../constants";
+import { MIN_QUESTION_COUNT, parseCount, type CountField } from "../utils/counts";
 import type { PoolSlot } from "../utils/pool";
 import { WEIGHT_FIELD } from "../utils/weights";
+import { taskTypeLabel } from "../utils/taskTypeLabel";
 
 export type TemplateTableView = "STRUCTURE" | "WEIGHTS";
 type Skill = (typeof SKILLS)[number];
@@ -36,6 +38,9 @@ interface ColumnOptions {
   weightLockedText: string;
   isWeightLocked: (taskTypeKey: string, skill: Skill) => boolean;
   onWeightChange: (taskTypeKey: string, skill: Skill, value: number) => void;
+  countLabels: Record<CountField, string>;
+  countInvalidText: string;
+  onCountChange: (taskTypeKey: string, field: CountField, value: number) => void;
   removeLabel: string;
   onRemove: (taskTypeKey: string) => void;
 }
@@ -56,6 +61,35 @@ const poolChip = (slot: PoolSlot | undefined, copy: { ok: string; short: string 
   );
 };
 
+const COUNT_FIELDS: readonly CountField[] = ["minCount", "maxCount"];
+
+/** The question count as text when read-only, or a min–max pair of inputs on a draft. */
+const countCell = (item: ScoreTemplateItemRequest, options: ColumnOptions): ReactNode => {
+  if (!options.editable) {
+    return item.minCount === item.maxCount ? item.maxCount : `${item.minCount}–${item.maxCount}`;
+  }
+  const invalid = item.minCount > item.maxCount;
+  return (
+    <span className="flex items-center gap-1" title={invalid ? options.countInvalidText : undefined}>
+      {COUNT_FIELDS.map((field, index) => (
+        <Fragment key={field}>
+          {index > 0 && <span aria-hidden="true">–</span>}
+          <TableNumberInput
+            min={MIN_QUESTION_COUNT}
+            step="1"
+            aria-label={`${item.taskTypeKey} ${options.countLabels[field]}`}
+            aria-invalid={invalid || undefined}
+            value={item[field]}
+            onChange={(event) =>
+              options.onCountChange(item.taskTypeKey, field, parseCount(event.target.value))
+            }
+          />
+        </Fragment>
+      ))}
+    </span>
+  );
+};
+
 /** Columns of the template table: the exam structure (counts, stock) or the weights of every skill. */
 export const buildTemplateColumns = (
   options: ColumnOptions,
@@ -65,8 +99,8 @@ export const buildTemplateColumns = (
     label: options.headers.task,
     header: options.headers.task,
     cell: (item) => (
-      <div className="min-w-0">
-        <span className="block font-mono text-xs [overflow-wrap:anywhere]">{item.taskTypeKey}</span>
+      <div className="min-w-40">
+        <span className="block text-sm font-medium" title={item.taskTypeKey}>{taskTypeLabel(item.taskTypeKey)}</span>
         {options.showSection && (
           <Chip tone={sectionTone(item.section)} size="sm">
             {options.sectionLabel(item.section)}
@@ -114,8 +148,7 @@ export const buildTemplateColumns = (
       key: "count",
       label: options.headers.count,
       header: options.headers.count,
-      cell: (item) =>
-        item.minCount === item.maxCount ? item.maxCount : `${item.minCount}–${item.maxCount}`,
+      cell: (item) => countCell(item, options),
     },
     ...(pool
       ? [

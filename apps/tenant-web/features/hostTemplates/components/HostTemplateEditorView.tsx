@@ -24,7 +24,8 @@ import {
 } from "../api";
 import { useEditorText, useListText, useSkillLabels } from "../hooks/useTemplateText";
 import { templateActionError } from "../utils/actionError";
-import { buildPoolIndex, countShortTypes } from "../utils/pool";
+import { findInvalidCounts, setCount } from "../utils/counts";
+import { buildLivePool, countShortTypes, rememberAvailable } from "../utils/pool";
 import {
   areWeightsValid,
   buildWeightEditableCheck,
@@ -41,6 +42,7 @@ import { BalanceWeightsDialog } from "./BalanceWeightsDialog";
 import { HostTemplateDurationSummary } from "./HostTemplateDurationSummary";
 import { HostTemplateInfoPanel } from "./HostTemplateInfoPanel";
 import { TemplateItemsEditor } from "./TemplateItemsEditor";
+import { taskTypeLabel } from "../utils/taskTypeLabel";
 
 interface HostTemplateEditorViewProps {
   publicId: string;
@@ -98,7 +100,15 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
   const activate = useActivateHostTemplate();
   // Only the host's own templates have a tenant-scoped feasibility route; the platform default does not.
   const feasibility = useHostTemplateFeasibility(template.publicId, !isDefault);
-  const pool = useMemo(() => buildPoolIndex(feasibility.data), [feasibility.data]);
+  // Keep every bank count the server has reported (React's "adjust state when a prop changes" pattern),
+  // then judge the rows as they are being edited.
+  const [available, setAvailable] = useState<ReadonlyMap<string, number>>(() => new Map());
+  const [seenFeasibility, setSeenFeasibility] = useState(feasibility.data);
+  if (feasibility.data !== seenFeasibility) {
+    setSeenFeasibility(feasibility.data);
+    setAvailable(rememberAvailable(available, feasibility.data));
+  }
+  const pool = useMemo(() => buildLivePool(available, items), [available, items]);
   const shortTypes = useMemo(
     () =>
       countShortTypes(
@@ -132,6 +142,11 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
     templateActionError(save.error, listText) ?? templateActionError(activate.error, listText);
 
   const handleSave = (): void => {
+    const badCounts = findInvalidCounts(items);
+    if (badCounts.length > 0) {
+      showToast(`${text.COUNTS_INVALID} ${badCounts.join(", ")}`, { tone: "error" });
+      return;
+    }
     const badSkills = totals.filter((entry) => !entry.ok).map((entry) => skillLabels[entry.skill]);
     if (badSkills.length > 0 || !areWeightsValid(totals)) {
       const message =
@@ -208,7 +223,7 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
                       .filter((item) => activeTab === "ALL" || item.section === activeTab)
                       .map((item) => ({
                         id: item.taskTypeKey,
-                        label: item.taskTypeKey,
+                        label: taskTypeLabel(item.taskTypeKey),
                         section: item.section,
                       }))}
                     grouped={activeTab === "ALL"}
@@ -248,6 +263,9 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
           onRemove={(key) => setItems((current) => removeItem(current, key))}
           onWeightChange={(key, skill, value) =>
             setItems((current) => setWeight(current, key, skill, value))
+          }
+          onCountChange={(key, field, value) =>
+            setItems((current) => setCount(current, key, field, value))
           }
         />
       </section>
