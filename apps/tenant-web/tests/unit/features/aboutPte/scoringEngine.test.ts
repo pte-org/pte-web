@@ -9,6 +9,7 @@ import {
 } from "../../../../features/aboutPte/utils/scoringEngine";
 import { ABOUT_PTE_EN } from "../../../../features/aboutPte/constants/aboutPteCopy.en";
 import { ABOUT_PTE_VI } from "../../../../features/aboutPte/constants/aboutPteCopy.vi";
+import { OFFICIAL_RULES } from "../../../../features/aboutPte/constants/officialScoring";
 import { TASK_GUIDE } from "../../../../features/aboutPte/constants/taskGuide";
 import { ABOUT_PTE_SOURCES } from "../../../../features/aboutPte/constants/aboutPteSources";
 
@@ -111,5 +112,30 @@ describe("copy catalogs", () => {
     for (const group of cited) {
       for (const id of group.match(/\d+/g) ?? []) expect(ids.has(Number(id)), id).toBe(true);
     }
+  });
+});
+
+describe("official scoring rules", () => {
+  it("describes every question type in both languages with a Score Guide page", () => {
+    for (const task of STANDARD_TASK_WEIGHTS) {
+      const rule = OFFICIAL_RULES[task.key];
+      expect(rule, task.key).toBeDefined();
+      expect(rule.en && rule.vi, task.key).toBeTruthy();
+      expect(rule.page, task.key).toBeGreaterThanOrEqual(15);
+      expect(rule.page, task.key).toBeLessThanOrEqual(44);
+    }
+  });
+
+  it("gates exactly the trait-scored tasks the Score Guide gates on Content or Form", () => {
+    const gated = Object.entries(OFFICIAL_RULES).filter(([, rule]) => rule.gate).map(([key]) => key).sort();
+    expect(gated).toEqual([
+      "DESCRIBE_IMAGE",
+      "RESPOND_TO_A_SITUATION",
+      "RE_TELL_LECTURE",
+      "SUMMARIZE_GROUP_DISCUSSION",
+      "SUMMARIZE_SPOKEN_TEXT",
+      "SUMMARIZE_WRITTEN_TEXT",
+      "WRITE_ESSAY",
+    ]);
   });
 });
