@@ -6,8 +6,8 @@ import { ActionMenu, EyeIcon, useToast, type DropdownItem } from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
 import { useClassActionText } from "../hooks/useClassActionText";
 import { useClassStatusMutations } from "../api";
-import { buildAssignStudentsUrl } from "../utils/assignStudentsUrl";
 import { ClassStatusConfirmDialogs, type ClassStatusAction } from "./ClassStatusConfirmDialogs";
+import { ImportOrAssignModal } from "./ImportOrAssignModal";
 
 interface ClassRowActionsProps {
   organizationPublicId: string;
@@ -44,6 +44,8 @@ export const ClassRowActions = ({
   const text = useClassActionText();
   const { showToast } = useToast();
   const [confirmAction, setConfirmAction] = useState<ClassStatusAction | null>(null);
+  // Assigning opens the same "add learners" dialog as the class detail page, right here.
+  const [assignOpen, setAssignOpen] = useState(false);
   const mutations = useClassStatusMutations(
     organizationPublicId,
     programPublicId,
@@ -75,14 +77,7 @@ export const ClassRowActions = ({
   }
   items.push({
     label: text.assignStudents,
-    onSelect: () =>
-      router.push(
-        buildAssignStudentsUrl("/host/students", {
-          organizationPublicId,
-          programPublicId,
-          classPublicId: studentClass.publicId,
-        }),
-      ),
+    onSelect: () => setAssignOpen(true),
     disabled: assignDisabled,
     ...(assignDisabled && {
       title: text.assignDisabled,
@@ -148,6 +143,15 @@ export const ClassRowActions = ({
         onConfirm={handleConfirm}
         onClose={() => setConfirmAction(null)}
       />
+      {assignOpen && (
+        <ImportOrAssignModal
+          open
+          onClose={() => setAssignOpen(false)}
+          organizationPublicId={organizationPublicId}
+          programPublicId={programPublicId}
+          classPublicId={studentClass.publicId}
+        />
+      )}
     </div>
   );
 };

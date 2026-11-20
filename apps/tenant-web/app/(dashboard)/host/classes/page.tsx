@@ -1,22 +1,26 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useLocale } from "@pte/ui";
-import { ClassesListView } from "@/features/classes/components";
+import { ClassesListView, ImportOrAssignModal } from "@/features/classes/components";
 import { CreateClassModal } from "@/features/classes/components/CreateClassModal";
-import { buildAssignStudentsUrl } from "@/features/classes/utils/assignStudentsUrl";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import { useMyOrganizations, usePrograms } from "@/features/programs/api";
 import { useCreateClass } from "@/features/classes/api";
+
+interface AssignTarget {
+  organizationPublicId: string;
+  programPublicId: string;
+  classPublicId: string;
+}
 
 export default function ClassesPage() {
   const labels = useOrgLabels();
   const { t } = useLocale();
   const classLabel = t("nav.class", labels.class);
   const programLabel = t("nav.program", labels.program);
-  const router = useRouter();
   const searchParams = useSearchParams();
   const linkedOrganization = searchParams.get("organizationPublicId") ?? "";
   const linkedProgram = searchParams.get("programPublicId") ?? "";
@@ -72,16 +76,10 @@ export default function ClassesPage() {
     onRequestCreateClass(linkedProgram);
   }, [linkedProgram, onRequestCreateClass, openCreateFromLink, programs]);
 
-  // Navigate to the Students page with the row's class pre-filled.
-  // The Students page reads the query params, prefills Program + Class
-  // filters, and auto-opens the Add Individually modal.
-  const onRequestAssignStudents = (input: {
-    organizationPublicId: string;
-    programPublicId: string;
-    classPublicId: string;
-  }): void => {
-    router.push(buildAssignStudentsUrl("/host/students", input));
-  };
+  // Assigning opens the same "add learners" dialog as the class detail page (pick existing,
+  // import or add one), instead of sending the Host to the Students page.
+  const [assignTarget, setAssignTarget] = useState<AssignTarget | null>(null);
+  const onRequestAssignStudents = (input: AssignTarget): void => setAssignTarget(input);
 
   const onConfirmCreate = (name: string): void => {
     // `CreateClassModal` already blocks submit with a field error when no
@@ -114,6 +112,16 @@ export default function ClassesPage() {
         onRequestCreateClass={onRequestCreateClass}
         onRequestAssignStudents={onRequestAssignStudents}
       />
+
+      {assignTarget && (
+        <ImportOrAssignModal
+          open
+          onClose={() => setAssignTarget(null)}
+          organizationPublicId={assignTarget.organizationPublicId}
+          programPublicId={assignTarget.programPublicId}
+          classPublicId={assignTarget.classPublicId}
+        />
+      )}
 
       <CreateClassModal
         key={createOpen ? "createClass-open" : "createClass-closed"}
