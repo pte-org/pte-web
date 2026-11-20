@@ -13,6 +13,7 @@ import {
   LoadingState,
   UnsavedChangesGuard,
   useDashboardBreadcrumbLabel,
+  useLeaveAfterSave,
   useLocale,
   useToast,
 } from "@pte/ui";
@@ -182,6 +183,7 @@ const ScoreTemplateEditorForm = ({
   const replaceItemsMutation = useReplaceScoreTemplateItems();
   const activateMutation = useActivateScoreTemplate();
   const canActivate = canReviewAcademic(currentUser?.roles);
+  const leaveAfterSave = useLeaveAfterSave();
   const [name, setName] = useState(template.name);
   const [timeFrameOpen, setTimeFrameOpen] = useState(false);
   const [cefrOpen, setCefrOpen] = useState(false);
@@ -247,7 +249,10 @@ const ScoreTemplateEditorForm = ({
       },
       {
         onError: reportError,
-        onSuccess: applySavedTemplate,
+        onSuccess: (saved) => {
+          applySavedTemplate(saved);
+          leaveAfterSave.settle();
+        },
       },
     );
   };
@@ -420,10 +425,8 @@ const ScoreTemplateEditorForm = ({
 
       <UnsavedChangesGuard
         isDirty={hasUnsavedChanges}
-        title={SCORE_TEMPLATE_TEXT.UNSAVED_TITLE}
-        description={SCORE_TEMPLATE_TEXT.UNSAVED_DESCRIPTION}
-        stayLabel={SCORE_TEMPLATE_TEXT.UNSAVED_STAY}
-        leaveLabel={SCORE_TEMPLATE_TEXT.UNSAVED_LEAVE}
+        onSaveAndLeave={(proceed) => leaveAfterSave.request(proceed, handleSaveDraft)}
+        isSaving={replaceItemsMutation.isPending}
         onNavigate={(href) => router.push(href)}
       />
 

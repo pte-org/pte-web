@@ -57,11 +57,6 @@ export const SCORE_TEMPLATE_TEXT = {
   DURATION_CEILING: "Test ceiling",
   MINUTES_SHORT: "min",
   TEMPLATE_ACTIONS_LABEL: "Template actions",
-  UNSAVED_TITLE: "Leave without saving?",
-  UNSAVED_DESCRIPTION:
-    "You have unsaved changes to this template. If you leave now, they will be lost.",
-  UNSAVED_STAY: "Stay on this page",
-  UNSAVED_LEAVE: "Leave without saving",
   NAME_LABEL: "Name",
   CANCEL_ACTION: "Cancel",
   CREATE_ERROR: "Could not create this exam template.",
