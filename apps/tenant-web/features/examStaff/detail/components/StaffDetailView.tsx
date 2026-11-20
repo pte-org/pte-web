@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactElement } from "react";
 import { usePathname } from "next/navigation";
 import { ApiError } from "@pte/api-client";
-import { Alert, ConfirmDialog, DashboardLoadingState, ProfileLayout, TabPanel, useDashboardBreadcrumbLabel, useToast } from "@pte/ui";
+import { Alert, DashboardLoadingState, ProfileLayout, TabPanel, UnsavedChangesDialog, useDashboardBreadcrumbLabel, useToast } from "@pte/ui";
 import { useStaffDetail } from "../api";
 import { useStaffAccountActions } from "../hooks/useStaffAccountActions";
 import { useStaffDetailText } from "../hooks/useStaffDetailText";
@@ -30,11 +30,13 @@ export const StaffDetailView = ({ staffPublicId }: StaffDetailViewProps): ReactE
   const [tab, setTab] = useState<StaffDetailTab>("overview");
   const [editState, setEditState] = useState({ dirty: false, pending: false });
   const [editVersion, setEditVersion] = useState(0);
-  const onEditState = useCallback((dirty: boolean, pending: boolean): void => {
+  const saveRef = useRef<((onSaved: () => void) => void) | null>(null);
+  const onEditState = useCallback((dirty: boolean, pending: boolean, save: (onSaved: () => void) => void): void => {
+    saveRef.current = save;
     setEditState((previous) => previous.dirty === dirty && previous.pending === pending
       ? previous : { dirty, pending });
   }, []);
-  const guard = useStaffEditGuard(editState.dirty, editState.pending);
+  const guard = useStaffEditGuard(editState.dirty, editState.pending, saveRef);
   useEffect(() => { if (actions.sent) showToast(text.sent, { tone: "success" }); }, [actions.sent, showToast, text.sent]);
   if (query.isPending) return <DashboardLoadingState variant="detail" />;
   const accessRevoked = query.error instanceof ApiError && [401, 403, 404].includes(query.error.status);
@@ -78,7 +80,7 @@ export const StaffDetailView = ({ staffPublicId }: StaffDetailViewProps): ReactE
       </TabPanel>
     </ProfileLayout>
     <StaffActionDialogs actions={actions} name={account.fullName || account.username} text={text} />
-    <ConfirmDialog open={guard.open} title={text.unsavedTitle} description={text.unsavedDescription}
-      confirmLabel={text.discard} cancelLabel={text.cancel} onConfirm={guard.confirm} onClose={guard.close} />
+    <UnsavedChangesDialog open={guard.open} isSaving={editState.pending} onSaveAndLeave={guard.saveAndLeave}
+      onLeave={guard.confirm} onStay={guard.close} />
   </div>;
 };

@@ -147,7 +147,7 @@ describe("features/examStaff/detail/hooks", () => {
     it("executes continuation immediately if not dirty", () => {
       let guard!: ReturnType<typeof useStaffEditGuard>;
       renderToStaticMarkup(createElement(() => {
-        guard = useStaffEditGuard(false, false);
+        guard = useStaffEditGuard(false, false, { current: null });
         return null;
       }));
 
@@ -160,7 +160,7 @@ describe("features/examStaff/detail/hooks", () => {
     it("opens confirmation dialog when dirty", () => {
       let guard!: ReturnType<typeof useStaffEditGuard>;
       renderToStaticMarkup(createElement(() => {
-        guard = useStaffEditGuard(true, false);
+        guard = useStaffEditGuard(true, false, { current: null });
         return null;
       }));
 

@@ -1,7 +1,7 @@
-"use client";
+﻿"use client";
 
-import { useEffect, useMemo, useState, type ReactElement } from "react";
-import { usePathname } from "next/navigation";
+import { useMemo, useState, type ReactElement } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   ActionMenu,
   Alert,
@@ -9,6 +9,7 @@ import {
   ConfirmDialog,
   ItemPalette,
   LoadingState,
+  UnsavedChangesGuard,
   useDashboardBreadcrumbLabel,
   useToast,
 } from "@pte/ui";
@@ -96,6 +97,7 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
   const [balanceOpen, setBalanceOpen] = useState(false);
   const [activateOpen, setActivateOpen] = useState(false);
 
+  const router = useRouter();
   const save = useReplaceHostTemplateItems(template.publicId);
   const activate = useActivateHostTemplate();
   // Only the host's own templates have a tenant-scoped feasibility route; the platform default does not.
@@ -131,17 +133,10 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
   );
   const canSave = editable && dirty && items.length > 0 && name.trim().length > 0;
 
-  useEffect(() => {
-    if (!dirty) return;
-    const warn = (event: BeforeUnloadEvent): void => event.preventDefault();
-    window.addEventListener("beforeunload", warn);
-    return () => window.removeEventListener("beforeunload", warn);
-  }, [dirty]);
-
   const submitError =
     templateActionError(save.error, listText) ?? templateActionError(activate.error, listText);
 
-  const handleSave = (): void => {
+  const handleSave = (onSaved?: () => void): void => {
     const badCounts = findInvalidCounts(items);
     if (badCounts.length > 0) {
       showToast(`${text.COUNTS_INVALID} ${badCounts.join(", ")}`, { tone: "error" });
@@ -158,7 +153,7 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
     }
     save.mutate(
       { name: name.trim(), items, templatePolicy: template.templatePolicy },
-      { onSuccess: () => showToast(text.SAVED, { tone: "success" }) },
+      { onSuccess: () => { showToast(text.SAVED, { tone: "success" }); onSaved?.(); } },
     );
   };
 
@@ -174,6 +169,12 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
 
   return (
     <div className="flex flex-col gap-5">
+      <UnsavedChangesGuard
+        isDirty={dirty && editable}
+        isSaving={save.isPending}
+        onSaveAndLeave={handleSave}
+        onNavigate={(href) => router.push(href)}
+      />
       {!editable && !isDefault && <Alert tone="info">{text.READ_ONLY}</Alert>}
       {submitError && <Alert tone="error">{submitError}</Alert>}
       {items.length === 0 && <Alert tone="warning">{text.NO_TASKS}</Alert>}
@@ -190,7 +191,7 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
           toolbarActions={
             <>
               {editable && (
-                <Button onClick={handleSave} isLoading={save.isPending} disabled={!canSave}>
+                <Button onClick={() => handleSave()} isLoading={save.isPending} disabled={!canSave}>
                   {text.SAVE}
                 </Button>
               )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
+import { useRouter } from "next/navigation";
 import {
   ActionMenu,
   Badge,
@@ -13,6 +14,8 @@ import {
   Textarea,
   useToast,
   type BadgeVariant,
+  UnsavedChangesGuard,
+  useLeaveAfterSave,
 } from "@pte/ui";
 import type { ProgramResponse, UpdateProgramRequest } from "@pte/api-client";
 import { PROGRAM_STATUS_VARIANT } from "../constants";
@@ -142,6 +145,8 @@ export const ProgramInformation = ({
   const text = useProgramDetailText();
   const { showToast } = useToast();
   const update = useUpdateProgram(organizationPublicId, program.publicId);
+  const router = useRouter();
+  const leaveAfterSave = useLeaveAfterSave();
   const [editing, setEditing] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [form, setForm] = useState<ProgramFormValues>(() => formFromProgram(program));
@@ -163,8 +168,7 @@ export const ProgramInformation = ({
     setSubmitted(false);
     setEditing(false);
   };
-  const submit = (event: FormEvent<HTMLFormElement>): void => {
-    event.preventDefault();
+  const persist = (): void => {
     setSubmitted(true);
     if (!form.name.trim() || dateError) return;
     const payload: UpdateProgramRequest = {
@@ -178,9 +182,15 @@ export const ProgramInformation = ({
         setEditing(false);
         setSubmitted(false);
         showToast(text.saved, { tone: "success" });
+        leaveAfterSave.settle();
       },
       onError: () => showToast(text.failed, { tone: "error" }),
     });
+  };
+
+  const submit = (event: FormEvent<HTMLFormElement>): void => {
+    event.preventDefault();
+    persist();
   };
 
   return (
@@ -252,6 +262,12 @@ export const ProgramInformation = ({
           ]}
         />
       )}
+      <UnsavedChangesGuard
+        isDirty={editing && JSON.stringify(form) !== JSON.stringify(formFromProgram(program))}
+        onSaveAndLeave={(proceed) => leaveAfterSave.request(proceed, persist)}
+        isSaving={update.isPending}
+        onNavigate={(href) => router.push(href)}
+      />
     </ProfileAccountPanel>
   );
 };

@@ -126,17 +126,23 @@ export const useExaminerAttemptController = ({
   };
 
   /** Saves every answer with unsaved changes, then leaves; stays (with an error) if any of them cannot be saved. */
-  const handleSaveAndLeave = async (): Promise<void> => {
+  const saveAllDirty = async (): Promise<boolean> => {
     const dirtyIds = Object.entries(drafts).filter(([, draft]) => draft.isDirty).map(([answerId]) => answerId);
     for (const answerId of dirtyIds) {
       if (!(await handleSaveDraft(answerId))) {
         showToast(T.SAVE_BEFORE_LEAVE_FAILED, { tone: "error" });
-        return;
+        return false;
       }
     }
+    return true;
+  };
+  const handleSaveAndLeave = async (): Promise<void> => {
+    if (!(await saveAllDirty())) return;
     setConfirmLeaveOpen(false);
     executeBack();
   };
+  /** Same as "save and leave" for a sidebar link or the browser's Back button (via UnsavedChangesGuard). */
+  const saveThen = (proceed: () => void): void => { void saveAllDirty().then((saved) => { if (saved) proceed(); }); };
 
   const handleConfirmFinalize = async () => {
     const success = await handleFinalizeAttempt();
@@ -162,6 +168,6 @@ export const useExaminerAttemptController = ({
   const hasOpenIssue = issuesQuery.data?.some((i) => i.status === "OPEN");
   const workflowStatus = workflow?.status ?? (query.data?.submittedAnswerCount === query.data?.eligibleAnswerCount ? "COMPLETED" : "IN_PROGRESS");
 
-  return { T, query, startMutation, reportIssueMutation, currentIndex, confirmLeaveOpen, finalizeOpen, reportIssueOpen, promptMedia, responseMedia, answers, workflow, carriedOverIds, currentAnswer, attemptTitle, drafts, activeDraft, hasUnsaved, isStale, isSavingDraft, isFinalizing, handleScoreChange, handleTraitChange, handleGapReasonChange, handleCommentChange, handleApplyAiScore, handleAcknowledgeStale, handleBack, handleSelectIndex, handleStartWork, handleSaveClick, handleSaveAndLeave, handleConfirmFinalize, handleReportIssue, hasOpenIssue, workflowStatus, executeBack, setConfirmLeaveOpen, setFinalizeOpen, setReportIssueOpen, setPromptMedia, setResponseMedia, sessionPublicId, attemptPublicId };
+  return { T, query, startMutation, reportIssueMutation, currentIndex, confirmLeaveOpen, finalizeOpen, reportIssueOpen, promptMedia, responseMedia, answers, workflow, carriedOverIds, currentAnswer, attemptTitle, drafts, activeDraft, hasUnsaved, isStale, isSavingDraft, isFinalizing, handleScoreChange, handleTraitChange, handleGapReasonChange, handleCommentChange, handleApplyAiScore, handleAcknowledgeStale, handleBack, handleSelectIndex, handleStartWork, handleSaveClick, handleSaveAndLeave, saveThen, handleConfirmFinalize, handleReportIssue, hasOpenIssue, workflowStatus, executeBack, setConfirmLeaveOpen, setFinalizeOpen, setReportIssueOpen, setPromptMedia, setResponseMedia, sessionPublicId, attemptPublicId };
 };
 export type ExaminerAttemptController = ReturnType<typeof useExaminerAttemptController>;

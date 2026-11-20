@@ -1,21 +1,22 @@
 "use client";
 import type { ReactElement } from "react";
-import { ConfirmDialog } from "@pte/ui";
+import { UnsavedChangesDialog, UnsavedChangesGuard } from "@pte/ui";
+import { useRouter } from "next/navigation";
 import { ConfirmAttemptFinalizeDialog } from "./ConfirmAttemptFinalizeDialog";
 import { ReportIssueDialog } from "./ReportIssueDialog";
 import type { ExaminerAttemptController } from "../useExaminerAttemptController";
 export function ExaminerAttemptDialogs({ state }: { state: ExaminerAttemptController }): ReactElement {
-  const { T, confirmLeaveOpen, setConfirmLeaveOpen, handleSaveAndLeave, isSavingDraft, finalizeOpen, answers, isFinalizing, handleConfirmFinalize, setFinalizeOpen, reportIssueOpen, reportIssueMutation, handleReportIssue, setReportIssueOpen } = state;
+  const { T, confirmLeaveOpen, setConfirmLeaveOpen, handleSaveAndLeave, saveThen, hasUnsaved, executeBack, isSavingDraft, finalizeOpen, answers, isFinalizing, handleConfirmFinalize, setFinalizeOpen, reportIssueOpen, reportIssueMutation, handleReportIssue, setReportIssueOpen } = state;
+  const router = useRouter();
   return <>
-      <ConfirmDialog
+      <UnsavedChangesGuard isDirty={hasUnsaved} onSaveAndLeave={saveThen} isSaving={isSavingDraft}
+        onNavigate={(href) => router.push(href)} />
+      <UnsavedChangesDialog
         open={confirmLeaveOpen}
-        title={T.UNSAVED_CHANGES_TITLE}
-        confirmLabel={T.SAVE_AND_LEAVE}
-        cancelLabel={T.CANCEL}
-        description={T.UNSAVED_CHANGES_WARNING}
-        isConfirming={isSavingDraft}
-        onConfirm={() => void handleSaveAndLeave()}
-        onClose={() => { if (!isSavingDraft) setConfirmLeaveOpen(false); }}
+        isSaving={isSavingDraft}
+        onSaveAndLeave={() => void handleSaveAndLeave()}
+        onLeave={() => { setConfirmLeaveOpen(false); executeBack(); }}
+        onStay={() => { if (!isSavingDraft) setConfirmLeaveOpen(false); }}
       />
 
       <ConfirmAttemptFinalizeDialog

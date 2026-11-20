@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState, type ReactElement } from "react";
+import { useRouter } from "next/navigation";
 import type { CurrentUser } from "@pte/api-client";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
-import { Alert, Button, Input, useLocale } from "@pte/ui";
+import { Alert, Button, Input, UnsavedChangesGuard, useLeaveAfterSave, useLocale } from "@pte/ui";
 import { useUpdateOwnProfile } from "../api";
 import { PROFILE_TEXT } from "../constants";
 
@@ -33,6 +34,7 @@ export const PersonalProfileEditor = ({
   const { t } = useLocale();
   const update = useUpdateOwnProfile();
   const text = PROFILE_TEXT.personal;
+  const leaveAfterSave = useLeaveAfterSave();
   const [form, setForm] = useState<PersonalProfileForm>(() => formFromUser(user));
   const [validationError, setValidationError] = useState<string | null>(null);
   const original = useMemo(() => formFromUser(user), [user]);
@@ -56,9 +58,15 @@ export const PersonalProfileEditor = ({
         phone: form.phone.trim() || null,
         dateOfBirth: form.dateOfBirth || null,
       },
-      { onSuccess: onSaved },
+      {
+        onSuccess: () => {
+          onSaved();
+          leaveAfterSave.settle();
+        },
+      },
     );
   };
+  const router = useRouter();
 
   return (
     <form
@@ -106,6 +114,12 @@ export const PersonalProfileEditor = ({
           {t("tenant.profile.personal.save", text.save)}
         </Button>
       </div>
+      <UnsavedChangesGuard
+        isDirty={isDirty}
+        onSaveAndLeave={(proceed) => leaveAfterSave.request(proceed, save)}
+        isSaving={update.isPending}
+        onNavigate={(href) => router.push(href)}
+      />
     </form>
   );
 };
