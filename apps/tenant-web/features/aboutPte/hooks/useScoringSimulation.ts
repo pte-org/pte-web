@@ -3,7 +3,7 @@
 import { useState } from "react";
 import {
   INITIAL_ANSWERS,
-  MINI_TASKS,
+  SIM_TASKS,
   OUTCOME_CYCLE,
   toItemScores,
   type StudentAnswers,
@@ -45,7 +45,7 @@ export const useScoringSimulation = (): ScoringSimulation => {
 
   return {
     answers,
-    results: answers.map((studentAnswers) => scoreAttempt(MINI_TASKS, toItemScores(studentAnswers))),
+    results: answers.map((studentAnswers) => scoreAttempt(SIM_TASKS, toItemScores(studentAnswers))),
     stage,
     selected,
     toggle,

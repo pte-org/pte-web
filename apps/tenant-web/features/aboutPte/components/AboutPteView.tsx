@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PublicShell } from "@/features/public/components/PublicShell";
 import { ABOUT_PTE_LAYOUT, ABOUT_PTE_SECTION_IDS } from "../constants/aboutPteLayout";
 import { useAboutPteCopy } from "../hooks/useAboutPteCopy";
+import { AboutBasics } from "./AboutBasics";
 import { AboutHistory, AboutOverview, AboutRecognition, AboutVietnam } from "./AboutIntroSections";
 import { ComparisonTable } from "./ComparisonTable";
 import { ScoringFlow } from "./ScoringFlow";
@@ -38,6 +39,7 @@ export const AboutPteView = (): ReactElement => (
     <div className={ABOUT_PTE_LAYOUT.container}>
       <AboutHero />
       <AboutOverview />
+      <AboutBasics />
       <AboutHistory />
       <AboutRecognition />
       <AboutVietnam />

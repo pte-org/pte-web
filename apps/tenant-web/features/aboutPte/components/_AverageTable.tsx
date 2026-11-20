@@ -1,6 +1,6 @@
 import type { ReactElement } from "react";
 import type { AboutPteCopy } from "../constants/aboutPteCopy.en";
-import { MINI_TASKS, OUTCOME_SCORE, type StudentAnswers } from "../constants/miniExam";
+import { SIM_TASKS, TASK_NAMES, OUTCOME_SCORE, type StudentAnswers } from "../constants/miniExam";
 import { SKILLS } from "../constants/scoringWeights";
 import { formatNumber } from "../utils/scoringEngine";
 
@@ -14,7 +14,6 @@ export const AverageTable = ({ answers, copy }: AverageTableProps): ReactElement
   const text = copy.simulation;
   return (
     <div className="space-y-2">
-      <p className="text-sm text-slate-600">{text.averageHint}</p>
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 text-left text-slate-600">
@@ -29,9 +28,9 @@ export const AverageTable = ({ answers, copy }: AverageTableProps): ReactElement
             </tr>
           </thead>
           <tbody>
-            {MINI_TASKS.map((task) => (
+            {SIM_TASKS.map((task) => (
               <tr key={task.key} className="border-t border-slate-100">
-                <td className="px-3 py-2 font-medium text-slate-900">{copy.taskNames[task.key]}</td>
+                <td className="px-3 py-2 font-medium text-slate-900">{TASK_NAMES[task.key]}</td>
                 <td className="px-3 py-2 tabular-nums text-slate-500">
                   {SKILLS.map((skill) => formatNumber(task[skill])).join(" / ")}
                 </td>

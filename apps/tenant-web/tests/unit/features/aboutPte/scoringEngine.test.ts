@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SKILLS, STANDARD_TASK_WEIGHTS, type TaskWeight } from "../../../../features/aboutPte/constants/scoringWeights";
-import { INITIAL_ANSWERS, MINI_TASKS, toItemScores } from "../../../../features/aboutPte/constants/miniExam";
+import { INITIAL_ANSWERS, SIM_TASKS, TASK_NAMES, toItemScores } from "../../../../features/aboutPte/constants/miniExam";
 import {
   breakdown,
   scoreAttempt,
@@ -9,6 +9,7 @@ import {
 } from "../../../../features/aboutPte/utils/scoringEngine";
 import { ABOUT_PTE_EN } from "../../../../features/aboutPte/constants/aboutPteCopy.en";
 import { ABOUT_PTE_VI } from "../../../../features/aboutPte/constants/aboutPteCopy.vi";
+import { TASK_GUIDE } from "../../../../features/aboutPte/constants/taskGuide";
 import { ABOUT_PTE_SOURCES } from "../../../../features/aboutPte/constants/aboutPteSources";
 
 const uniform = (score: number): Record<string, number[]> =>
@@ -63,12 +64,16 @@ describe("scoring engine (AggregationCore formula)", () => {
 });
 
 describe("mini exam simulation", () => {
+  it("covers all 22 question types", () => {
+    expect(SIM_TASKS).toHaveLength(22);
+  });
+
   it("scores a half-correct Write From Dictation into both Writing and Listening", () => {
     const answers = {
       ...INITIAL_ANSWERS[0],
       WRITE_FROM_DICTATION: ["correct", "wrong"] as const,
     };
-    const result = scoreAttempt(MINI_TASKS, toItemScores({ ...answers, WRITE_FROM_DICTATION: [...answers.WRITE_FROM_DICTATION] }));
+    const result = scoreAttempt(SIM_TASKS, toItemScores({ ...answers, WRITE_FROM_DICTATION: [...answers.WRITE_FROM_DICTATION] }));
     const writing = result.skills.writing.terms.find((term) => term.key === "WRITE_FROM_DICTATION");
     const listening = result.skills.listening.terms.find((term) => term.key === "WRITE_FROM_DICTATION");
     expect(writing).toEqual({ key: "WRITE_FROM_DICTATION", weight: 26, average: 50, contribution: 13 });
@@ -76,14 +81,14 @@ describe("mini exam simulation", () => {
   });
 
   it("normalizes over the question types present (Writing = SWT + WFD only)", () => {
-    const writing = breakdown(MINI_TASKS, { SUMMARIZE_WRITTEN_TEXT: 100, WRITE_FROM_DICTATION: 0 }, (task) => task.writing);
+    const writing = breakdown(SIM_TASKS, { SUMMARIZE_WRITTEN_TEXT: 100, WRITE_FROM_DICTATION: 0 }, (task) => task.writing);
     expect(writing.totalWeight).toBe(51.5);
     expect(writing.weightedSum).toBe(25.5);
     expect(writing.score).toBe(Math.floor(10 + (80 * 25.5) / 51.5 + 0.5));
   });
 
   it("ranks the three preset students strong > mixed > weak", () => {
-    const overall = INITIAL_ANSWERS.map((answers) => scoreAttempt(MINI_TASKS, toItemScores(answers)).overall.score ?? 0);
+    const overall = INITIAL_ANSWERS.map((answers) => scoreAttempt(SIM_TASKS, toItemScores(answers)).overall.score ?? 0);
     expect(overall[0]).toBeGreaterThan(overall[1]);
     expect(overall[1]).toBeGreaterThan(overall[2]);
   });
@@ -94,9 +99,9 @@ describe("copy catalogs", () => {
     expect(ABOUT_PTE_VI.hero.toc).toHaveLength(ABOUT_PTE_EN.hero.toc.length);
     expect(ABOUT_PTE_VI.comparison.rows).toHaveLength(ABOUT_PTE_EN.comparison.rows.length);
     expect(ABOUT_PTE_VI.simulation.stages).toHaveLength(ABOUT_PTE_EN.simulation.stages.length);
-    for (const task of MINI_TASKS) {
-      expect(ABOUT_PTE_EN.taskNames[task.key], task.key).toBeTruthy();
-      expect(ABOUT_PTE_VI.taskNames[task.key], task.key).toBeTruthy();
+    for (const task of SIM_TASKS) {
+      expect(TASK_NAMES[task.key], task.key).toBeTruthy();
+      expect(TASK_GUIDE[task.key]?.vi, task.key).toBeTruthy();
     }
   });
 

@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { Badge } from "@pte/ui";
 import type { AboutPteCopy } from "../constants/aboutPteCopy.en";
-import { MINI_TASKS, type Outcome, type StudentAnswers } from "../constants/miniExam";
+import { SIM_TASKS, TASK_NAMES, type Outcome, type StudentAnswers } from "../constants/miniExam";
 import { contributingSkills } from "../constants/scoringWeights";
 
 interface AnswerGridProps {
@@ -34,13 +34,13 @@ export const AnswerGrid = ({ answers, onToggle, copy }: AnswerGridProps): ReactE
           </tr>
         </thead>
         <tbody>
-          {MINI_TASKS.flatMap((task) =>
+          {SIM_TASKS.flatMap((task) =>
             Array.from({ length: task.items }, (_, item) => (
               <tr key={`${task.key}-${item}`} className="border-t border-slate-100">
                 <td className="px-3 py-2">
                   {item === 0 && (
                     <span className="flex flex-wrap items-center gap-2 font-medium text-slate-900">
-                      {copy.taskNames[task.key]}
+                      {TASK_NAMES[task.key]}
                       {contributingSkills(task).length > 1 && <Badge variant="info">{text.integrated}</Badge>}
                     </span>
                   )}

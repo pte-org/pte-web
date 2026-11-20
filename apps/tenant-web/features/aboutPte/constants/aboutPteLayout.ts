@@ -2,6 +2,7 @@ export const ABOUT_PTE_ROUTE = "/about-pte";
 
 export const ABOUT_PTE_SECTION_IDS = [
   "overview",
+  "basics",
   "history",
   "recognition",
   "vietnam",
