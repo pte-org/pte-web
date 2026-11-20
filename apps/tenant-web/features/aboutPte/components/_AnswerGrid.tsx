@@ -1,8 +1,9 @@
 import type { ReactElement } from "react";
 import { Badge } from "@pte/ui";
 import type { AboutPteCopy } from "../constants/aboutPteCopy.en";
-import { SIM_TASKS, TASK_NAMES, type Outcome, type StudentAnswers } from "../constants/miniExam";
+import { SIM_TASKS, TASK_NAMES, type StudentAnswers } from "../constants/miniExam";
 import { contributingSkills } from "../constants/scoringWeights";
+import { OUTCOME_TONES } from "../constants/aboutPteLayout";
 
 interface AnswerGridProps {
   answers: readonly StudentAnswers[];
@@ -10,12 +11,6 @@ interface AnswerGridProps {
   copy: AboutPteCopy;
 }
 
-const OUTCOME_CLASS: Record<Outcome, string> = {
-  // Same theme-aware tokens as @pte/ui Badge, so the chips stay readable in light and dark mode.
-  correct: "border-[var(--mint-action)] bg-[var(--mint-tint)] text-[var(--mint-action)]",
-  partial: "border-[var(--cream-action)] bg-[var(--cream-tint)] text-[var(--cream-action)]",
-  wrong: "border-[var(--blush-action)] bg-[var(--blush-tint)] text-[var(--blush-action)]",
-};
 
 /** Stage 1: every item, side by side for the three students; each answer is clickable. */
 export const AnswerGrid = ({ answers, onToggle, copy }: AnswerGridProps): ReactElement => {
@@ -54,7 +49,7 @@ export const AnswerGrid = ({ answers, onToggle, copy }: AnswerGridProps): ReactE
                       <button
                         type="button"
                         onClick={() => onToggle(student, task.key, item)}
-                        className={`rounded-full border px-3 py-1 text-xs font-semibold transition hover:opacity-80 ${OUTCOME_CLASS[outcome]}`}
+                        className={`rounded-full border px-3 py-1 text-xs font-semibold transition hover:opacity-80 ${OUTCOME_TONES[outcome]}`}
                       >
                         {text.outcomes[outcome]}
                       </button>

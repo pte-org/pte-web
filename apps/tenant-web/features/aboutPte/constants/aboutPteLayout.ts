@@ -27,3 +27,10 @@ export const SKILL_TONES = {
   reading: { stroke: "stroke-emerald-500", fill: "fill-emerald-500", bg: "bg-emerald-500", text: "text-emerald-700" },
   listening: { stroke: "stroke-amber-500", fill: "fill-amber-500", bg: "bg-amber-500", text: "text-amber-700" },
 } as const;
+
+/** Same theme-aware tokens as @pte/ui Badge, so answer chips stay readable in light and dark mode. */
+export const OUTCOME_TONES = {
+  correct: "border-[var(--mint-action)] bg-[var(--mint-tint)] text-[var(--mint-action)]",
+  partial: "border-[var(--cream-action)] bg-[var(--cream-tint)] text-[var(--cream-action)]",
+  wrong: "border-[var(--blush-action)] bg-[var(--blush-tint)] text-[var(--blush-action)]",
+} as const;

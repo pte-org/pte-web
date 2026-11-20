@@ -95,6 +95,11 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
       { title: "3 · Trung bình theo dạng", text: "Các câu cùng một dạng được lấy trung bình. Câu bỏ trống tính 0." },
       { title: "4 · Điểm kỹ năng và Overall 10–90", text: "Mỗi dạng góp trung bình × trọng số ÷ 100 vào từng kỹ năng nó kiểm tra. Tổng được chia cho tổng trọng số rồi đổi ra 10–90: 10 + 80 × tỉ lệ." },
     ],
+    story: {
+      captions: ["Describe Image · điểm từng tiêu chí", "Điểm câu 0–100", "Trung bình của dạng câu", "Điểm kỹ năng · Học viên B"],
+      gateNote: "Nếu Content bằng 0 thì cả câu được 0, bất kể các tiêu chí còn lại.",
+      sampleNote: "lấy từ phần giả lập bên dưới",
+    },
     exampleTitle: "Ví dụ (Score Guide trang 8)",
     example: [
       "Describe Image: Content 4/6, Pronunciation 3/5, Oral Fluency 2/5 → (4 + 3 + 2) ÷ 16 = 56,25% → điểm câu 56.",
@@ -121,9 +126,25 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
     ],
   },
   simulation: {
-    title: "Giả lập: chấm điểm 3 học viên với đủ 22 dạng câu hỏi",
+    title: "Giả lập chấm điểm",
     intro:
-      "Ba học viên làm cùng một đề gồm đủ 22 dạng câu hỏi của PTE. Đi qua 4 bước để thấy bài làm biến thành điểm 10–90 như thế nào. Bạn có thể bấm vào bất kỳ câu trả lời nào để đổi kết quả; mọi con số phía sau sẽ tự tính lại. Mọi thứ chạy trên trình duyệt.",
+      "Hai cách khám phá cùng một công thức chấm với đủ 22 dạng câu: phòng thí nghiệm cho thấy ngay mỗi câu trả lời ảnh hưởng điểm thế nào; phép tính từng bước hiện mọi con số cho 3 học viên. Mọi thứ chạy trên trình duyệt.",
+    modes: { lab: "Phòng thí nghiệm điểm", steps: "Phép tính từng bước" },
+    lab: {
+      intro:
+        "Chọn Đúng, Một nửa hoặc Sai cho từng dạng câu, điểm bên phải cập nhật ngay. Rê chuột vào một dạng câu để xem nó góp điểm cho kỹ năng nào — dạng tích hợp sẽ làm sáng hai kỹ năng cùng lúc.",
+      short: { correct: "Đúng", partial: "Một nửa", wrong: "Sai" },
+      allCorrect: "Đúng hết",
+      allPartial: "Một nửa hết",
+      allWrong: "Sai hết",
+      reset: "Đặt lại",
+      overallHint: "Overall được tính từ cả 22 dạng câu theo trọng số tổng — không phải lấy trung bình 4 kỹ năng.",
+      hoverHint: "Rê chuột hoặc chọn một dạng câu để xem nó được tính cho kỹ năng nào.",
+      focusText: (task: string, skills: number) =>
+        skills > 1
+          ? `${task} là dạng tích hợp: điểm trung bình của nó được tính cho ${skills} kỹ năng, mỗi kỹ năng một trọng số (w) riêng.`
+          : `${task} chỉ được tính cho một kỹ năng.`,
+    },
     students: ["Học viên A", "Học viên B", "Học viên C"],
     outcomes: { correct: "Đúng · 100", partial: "Đúng một nửa · 50", wrong: "Sai · 0" },
     stages: ["Bài làm", "Trung bình theo dạng", "Điểm kỹ năng", "Điểm tổng"],

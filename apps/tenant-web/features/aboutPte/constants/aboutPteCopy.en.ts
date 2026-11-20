@@ -93,6 +93,11 @@ export const ABOUT_PTE_EN = {
       { title: "3 · Average per question type", text: "All items of the same question type are averaged. A skipped item counts as 0." },
       { title: "4 · Skill and Overall, 10–90", text: "Each question type adds average × weight ÷ 100 to every skill it tests. The total is divided by the sum of weights and mapped to 10–90: 10 + 80 × percentage." },
     ],
+    story: {
+      captions: ["Describe Image · trait scores", "Item score 0–100", "Average of the question type", "Skill scores · Student B"],
+      gateNote: "If Content were 0, the whole item would score 0 regardless of the other traits.",
+      sampleNote: "from the simulation below",
+    },
     exampleTitle: "Worked example (Score Guide p. 8)",
     example: [
       "Describe Image: Content 4/6, Pronunciation 3/5, Oral Fluency 2/5 → (4 + 3 + 2) ÷ 16 = 56.25% → item score 56.",
@@ -119,9 +124,25 @@ export const ABOUT_PTE_EN = {
     ],
   },
   simulation: {
-    title: "Simulation: scoring three students across all 22 question types",
+    title: "Scoring simulation",
     intro:
-      "Three students sit the same exam with all 22 PTE question types. Follow the four steps to see how their answers become a 10–90 score. You can click any answer to change it; every number afterwards is recalculated. Everything runs in your browser.",
+      "Two ways to explore the same scoring formula with all 22 question types: the score lab shows the effect of each answer instantly; the step-by-step view shows every number of the calculation for three students. Everything runs in your browser.",
+    modes: { lab: "Score lab", steps: "Step-by-step calculation" },
+    lab: {
+      intro:
+        "Set each question type to Correct, Half or Wrong and the scores on the right update instantly. Hover a question type to see which skills it feeds — an integrated type lights up two skills at once.",
+      short: { correct: "Correct", partial: "Half", wrong: "Wrong" },
+      allCorrect: "All correct",
+      allPartial: "All half",
+      allWrong: "All wrong",
+      reset: "Reset",
+      overallHint: "Overall is calculated from all 22 question types with their overall weights — not by averaging the four skills.",
+      hoverHint: "Hover or focus a question type to see which skills it counts towards.",
+      focusText: (task: string, skills: number) =>
+        skills > 1
+          ? `${task} is integrated: its average counts towards ${skills} skills, each with its own weight (w).`
+          : `${task} counts towards one skill only.`,
+    },
     students: ["Student A", "Student B", "Student C"],
     outcomes: { correct: "Correct · 100", partial: "Half · 50", wrong: "Wrong · 0" },
     stages: ["Answers", "Question-type averages", "Skill scores", "Overall"],

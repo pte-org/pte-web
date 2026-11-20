@@ -1,11 +1,12 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { Alert, ChevronRightIcon, useLocale } from "@pte/ui";
+import { Alert, useLocale } from "@pte/ui";
 import { ABOUT_PTE_LAYOUT } from "../constants/aboutPteLayout";
 import { useAboutPteCopy } from "../hooks/useAboutPteCopy";
 import { AboutSection } from "./_AboutSection";
 import { ScoringRules } from "./_ScoringRules";
+import { ScoringStory } from "./_ScoringStory";
 import { SkillFlowDiagram } from "./_SkillFlowDiagram";
 import { SourceRefs } from "./_SourceRefs";
 
@@ -21,17 +22,7 @@ export const ScoringFlow = (): ReactElement => {
         {flow.intro}
         <SourceRefs ids={SCORE_GUIDE_SOURCE} label={copy.sourceLabel} />
       </p>
-      <ol className="mt-6 grid gap-3 lg:grid-cols-4">
-        {flow.steps.map((step, index) => (
-          <li key={step.title} className={`${ABOUT_PTE_LAYOUT.card} relative`}>
-            <h3 className="font-semibold text-action">{step.title}</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-600">{step.text}</p>
-            {index < flow.steps.length - 1 && (
-              <ChevronRightIcon className="absolute -right-3 top-1/2 hidden h-5 w-5 -translate-y-1/2 text-slate-400 lg:block" />
-            )}
-          </li>
-        ))}
-      </ol>
+      <ScoringStory copy={copy} />
       <div className="mt-6">
         <Alert tone="info" title={flow.exampleTitle}>
           <ul className="list-disc space-y-1 pl-5">
