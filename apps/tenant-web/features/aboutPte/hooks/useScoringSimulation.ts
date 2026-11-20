@@ -1,63 +1,56 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import { STANDARD_TASK_WEIGHTS } from "../constants/scoringWeights";
-import { generateStudents, type MockStudent } from "../utils/mockStudents";
+import { useState } from "react";
+import {
+  INITIAL_ANSWERS,
+  MINI_TASKS,
+  OUTCOME_CYCLE,
+  toItemScores,
+  type StudentAnswers,
+} from "../constants/miniExam";
 import { scoreAttempt, type ScoredResult } from "../utils/scoringEngine";
 
-export const COHORT_SIZE = 50;
 export const LAST_STAGE = 3;
-const INITIAL_SEED = 2026;
-const SEED_RANGE = 1_000_000;
-
-export interface ScoredStudent extends MockStudent {
-  result: ScoredResult;
-}
 
 export interface ScoringSimulation {
-  seed: number | null;
+  answers: readonly StudentAnswers[];
+  results: ScoredResult[];
   stage: number;
-  students: ScoredStudent[];
-  selectedId: number | null;
-  generate: () => void;
-  advance: () => void;
-  finish: () => void;
-  select: (id: number) => void;
+  selected: number;
+  toggle: (student: number, taskKey: string, item: number) => void;
+  select: (student: number) => void;
+  setStage: (stage: number) => void;
+  reset: () => void;
 }
 
-/** Stage 0 = answers submitted; 1 = task averages; 2 = skill scores; 3 = overall. */
+/** Stage 0 = answers; 1 = question-type averages; 2 = skill scores; 3 = overall. */
 export const useScoringSimulation = (): ScoringSimulation => {
-  const [seed, setSeed] = useState<number | null>(null);
-  const [stage, setStage] = useState(0);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<readonly StudentAnswers[]>(INITIAL_ANSWERS);
+  const [stage, setStageState] = useState(0);
+  const [selected, setSelected] = useState(0);
 
-  const students = useMemo<ScoredStudent[]>(
-    () =>
-      seed === null
-        ? []
-        : generateStudents(COHORT_SIZE, seed).map((student) => ({
-            ...student,
-            result: scoreAttempt(STANDARD_TASK_WEIGHTS, student.scores),
-          })),
-    [seed],
-  );
-
-  const generate = useCallback(() => {
-    setSeed((current) =>
-      current === null ? INITIAL_SEED : Math.floor(Math.random() * SEED_RANGE),
+  const toggle = (student: number, taskKey: string, item: number): void =>
+    setAnswers((current) =>
+      current.map((studentAnswers, index) =>
+        index !== student
+          ? studentAnswers
+          : {
+              ...studentAnswers,
+              [taskKey]: studentAnswers[taskKey].map((outcome, position) =>
+                position === item ? OUTCOME_CYCLE[outcome] : outcome,
+              ),
+            },
+      ),
     );
-    setStage(0);
-    setSelectedId(1);
-  }, []);
 
   return {
-    seed,
+    answers,
+    results: answers.map((studentAnswers) => scoreAttempt(MINI_TASKS, toItemScores(studentAnswers))),
     stage,
-    students,
-    selectedId,
-    generate,
-    advance: () => setStage((current) => Math.min(LAST_STAGE, current + 1)),
-    finish: () => setStage(LAST_STAGE),
-    select: setSelectedId,
+    selected,
+    toggle,
+    select: setSelected,
+    setStage: (next) => setStageState(Math.min(LAST_STAGE, Math.max(0, next))),
+    reset: () => setAnswers(INITIAL_ANSWERS),
   };
 };

@@ -1,10 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { SKILLS, STANDARD_TASK_WEIGHTS, type TaskWeight } from "../../../../features/aboutPte/constants/scoringWeights";
-import { generateStudents } from "../../../../features/aboutPte/utils/mockStudents";
+import { INITIAL_ANSWERS, MINI_TASKS, toItemScores } from "../../../../features/aboutPte/constants/miniExam";
 import {
-  histogram,
+  breakdown,
   scoreAttempt,
-  summarize,
   taskAverages,
   weightedScore,
 } from "../../../../features/aboutPte/utils/scoringEngine";
@@ -33,11 +32,11 @@ describe("standard template weights", () => {
 
 describe("scoring engine (AggregationCore formula)", () => {
   it("maps 0% to 10, 100% to 90 and 50% to 50", () => {
-    expect(scoreAttempt(STANDARD_TASK_WEIGHTS, uniform(0)).overall).toBe(10);
-    expect(scoreAttempt(STANDARD_TASK_WEIGHTS, uniform(100)).overall).toBe(90);
+    expect(scoreAttempt(STANDARD_TASK_WEIGHTS, uniform(0)).overall.score).toBe(10);
+    expect(scoreAttempt(STANDARD_TASK_WEIGHTS, uniform(100)).overall.score).toBe(90);
     const half = scoreAttempt(STANDARD_TASK_WEIGHTS, uniform(50));
-    expect(half.overall).toBe(50);
-    for (const skill of SKILLS) expect(half.skills[skill]).toBe(50);
+    expect(half.overall.score).toBe(50);
+    for (const skill of SKILLS) expect(half.skills[skill].score).toBe(50);
   });
 
   it("counts blanks as 0 in the task average", () => {
@@ -57,27 +56,36 @@ describe("scoring engine (AggregationCore formula)", () => {
     const scores = uniform(0);
     scores.WRITE_FROM_DICTATION = [100, 100, 100];
     const result = scoreAttempt(STANDARD_TASK_WEIGHTS, scores);
-    expect(result.skills.writing).toBe(Math.floor(10 + 80 * 0.26 + 0.5));
-    expect(result.skills.listening).toBe(Math.floor(10 + 80 * 0.14 + 0.5));
-    expect(result.skills.reading).toBe(10);
+    expect(result.skills.writing.score).toBe(Math.floor(10 + 80 * 0.26 + 0.5));
+    expect(result.skills.listening.score).toBe(Math.floor(10 + 80 * 0.14 + 0.5));
+    expect(result.skills.reading.score).toBe(10);
   });
 });
 
-describe("mock cohort", () => {
-  it("is deterministic per seed and has 50 students scored within 10–90", () => {
-    const first = generateStudents(50, 7);
-    expect(first).toEqual(generateStudents(50, 7));
-    expect(first).toHaveLength(50);
-    const overall = first.map((student) => scoreAttempt(STANDARD_TASK_WEIGHTS, student.scores).overall);
-    for (const value of overall) {
-      expect(value).toBeGreaterThanOrEqual(10);
-      expect(value).toBeLessThanOrEqual(90);
-    }
-    expect(histogram(overall).reduce((sum, bucket) => sum + bucket.count, 0)).toBe(50);
+describe("mini exam simulation", () => {
+  it("scores a half-correct Write From Dictation into both Writing and Listening", () => {
+    const answers = {
+      ...INITIAL_ANSWERS[0],
+      WRITE_FROM_DICTATION: ["correct", "wrong"] as const,
+    };
+    const result = scoreAttempt(MINI_TASKS, toItemScores({ ...answers, WRITE_FROM_DICTATION: [...answers.WRITE_FROM_DICTATION] }));
+    const writing = result.skills.writing.terms.find((term) => term.key === "WRITE_FROM_DICTATION");
+    const listening = result.skills.listening.terms.find((term) => term.key === "WRITE_FROM_DICTATION");
+    expect(writing).toEqual({ key: "WRITE_FROM_DICTATION", weight: 26, average: 50, contribution: 13 });
+    expect(listening).toEqual({ key: "WRITE_FROM_DICTATION", weight: 14, average: 50, contribution: 7 });
   });
 
-  it("summarizes a cohort", () => {
-    expect(summarize([10, 50, 90, 30])).toEqual({ mean: 45, median: 40, min: 10, max: 90 });
+  it("normalizes over the question types present (Writing = SWT + WFD only)", () => {
+    const writing = breakdown(MINI_TASKS, { SUMMARIZE_WRITTEN_TEXT: 100, WRITE_FROM_DICTATION: 0 }, (task) => task.writing);
+    expect(writing.totalWeight).toBe(51.5);
+    expect(writing.weightedSum).toBe(25.5);
+    expect(writing.score).toBe(Math.floor(10 + (80 * 25.5) / 51.5 + 0.5));
+  });
+
+  it("ranks the three preset students strong > mixed > weak", () => {
+    const overall = INITIAL_ANSWERS.map((answers) => scoreAttempt(MINI_TASKS, toItemScores(answers)).overall.score ?? 0);
+    expect(overall[0]).toBeGreaterThan(overall[1]);
+    expect(overall[1]).toBeGreaterThan(overall[2]);
   });
 });
 
@@ -86,6 +94,10 @@ describe("copy catalogs", () => {
     expect(ABOUT_PTE_VI.hero.toc).toHaveLength(ABOUT_PTE_EN.hero.toc.length);
     expect(ABOUT_PTE_VI.comparison.rows).toHaveLength(ABOUT_PTE_EN.comparison.rows.length);
     expect(ABOUT_PTE_VI.simulation.stages).toHaveLength(ABOUT_PTE_EN.simulation.stages.length);
+    for (const task of MINI_TASKS) {
+      expect(ABOUT_PTE_EN.taskNames[task.key], task.key).toBeTruthy();
+      expect(ABOUT_PTE_VI.taskNames[task.key], task.key).toBeTruthy();
+    }
   });
 
   it("cites only sources that exist", () => {
