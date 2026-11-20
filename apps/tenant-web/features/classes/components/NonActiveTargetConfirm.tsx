@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import { Alert, TypedConfirmInput } from "@pte/ui";
-import { NON_ACTIVE_TARGET_CONFIRM_TEXT } from "../constants/confirmText";
+import { useClassFlowText } from "../hooks/useClassFlowText";
 
 interface NonActiveTargetConfirmProps {
   /** The destination Class name the Host must type verbatim. */
@@ -22,22 +22,26 @@ export const NonActiveTargetConfirm = ({
   targetName,
   typed,
   onTypedChange,
-}: NonActiveTargetConfirmProps): ReactElement => (
+}: NonActiveTargetConfirmProps): ReactElement => {
+  const tf = useClassFlowText();
+  const values = { name: targetName };
+  return (
   <div className="mt-3 flex flex-col gap-2" data-testid="non-active-target-confirm">
-    <Alert tone="warning" title={NON_ACTIVE_TARGET_CONFIRM_TEXT.warningChip}>
-      {NON_ACTIVE_TARGET_CONFIRM_TEXT.warningBody(targetName)}
+    <Alert tone="warning" title={tf("nonActiveChip")}>
+      {tf("nonActiveBody", values)}
     </Alert>
     <TypedConfirmInput
       expectedValue={targetName}
-      label={NON_ACTIVE_TARGET_CONFIRM_TEXT.typeToConfirmLabel(targetName)}
-      placeholder={NON_ACTIVE_TARGET_CONFIRM_TEXT.placeholder(targetName)}
+      label={tf("typeToConfirm", values)}
+      placeholder={targetName}
       helperText={
         typed.length > 0 && typed !== targetName
-          ? NON_ACTIVE_TARGET_CONFIRM_TEXT.mismatchHint(targetName)
+          ? tf("mismatchHint", values)
           : undefined
       }
       value={typed}
       onValueChange={onTypedChange}
     />
   </div>
-);
+  );
+};

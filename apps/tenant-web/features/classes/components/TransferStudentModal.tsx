@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Select, LoadingState, Modal, isTypedConfirmValid } from "@pte/ui";
+import { Alert, Select, LoadingState, Modal, isTypedConfirmValid, useLocale } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
-import { CLASS_STATUS_LABELS, TRANSFER_STUDENT_TEXT } from "../constants";
+import { CLASS_STATUS_LABELS } from "../constants";
+import { useClassFlowText } from "../hooks/useClassFlowText";
 import { useAllTenantClasses, useStudentEnrollments, useTransferStudent } from "../api";
 import { isNonActiveClass } from "../utils/nonActiveTarget";
 import { NonActiveTargetConfirm } from "./NonActiveTargetConfirm";
@@ -19,7 +20,6 @@ interface TransferStudentModalProps {
   studentPublicId: string;
 }
 
-const T = TRANSFER_STUDENT_TEXT;
 const FORM_ID = "transfer-student-form";
 
 function isPendingEnrollment(status: string, opensAt: string): boolean {
@@ -36,6 +36,8 @@ export const TransferStudentModal = ({
   membershipPublicId,
   studentPublicId,
 }: TransferStudentModalProps): ReactElement => {
+  const { t } = useLocale();
+  const tf = useClassFlowText(classLabel);
   const [targetClassPublicId, setTargetClassPublicId] = useState("");
   const [typedConfirm, setTypedConfirm] = useState("");
   const { data: classes, isLoading: classesLoading } = useAllTenantClasses();
@@ -48,7 +50,7 @@ export const TransferStudentModal = ({
     .map((option) => ({
       // Non-ACTIVE targets are annotated inline so the Host sees the state before picking.
       label: isNonActiveClass(option.status)
-        ? `${option.className} (${option.programName}) — ${CLASS_STATUS_LABELS[option.status]}`
+        ? `${option.className} (${option.programName}) — ${t(`tenant.classes.${option.status.toLowerCase()}`, CLASS_STATUS_LABELS[option.status])}`
         : `${option.className} (${option.programName})`,
       value: option.classPublicId,
     }));
@@ -79,7 +81,7 @@ export const TransferStudentModal = ({
     <Modal
       open={open}
       onClose={onClose}
-      title={T.title(classLabel)}
+      title={tf("transferTitle")}
       footer={
         <>
           <button
@@ -87,7 +89,7 @@ export const TransferStudentModal = ({
             onClick={onClose}
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            {T.cancel}
+            {tf("cancel")}
           </button>
           <button
             type="submit"
@@ -95,7 +97,7 @@ export const TransferStudentModal = ({
             disabled={!targetClassPublicId || !typedConfirmSatisfied || transfer.isPending}
             className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {transfer.isPending ? T.submitting : T.submit}
+            {transfer.isPending ? tf("transferSubmitting") : tf("transferSubmit")}
           </button>
         </>
       }
@@ -111,8 +113,8 @@ export const TransferStudentModal = ({
       ) : (
         pendingEnrollments.length > 0 && (
           <div className="mb-4">
-            <Alert tone="warning" title={T.pendingEnrollmentTitle}>
-              <p className="mb-2">{T.pendingEnrollmentText}</p>
+            <Alert tone="warning" title={tf("pendingEnrollmentTitle")}>
+              <p className="mb-2">{tf("pendingEnrollmentText")}</p>
               <ul className="list-inside list-disc">
                 {pendingEnrollments.map((enrollment) => (
                   <li key={enrollment.enrollmentPublicId}>{enrollment.sessionName}</li>
@@ -125,8 +127,8 @@ export const TransferStudentModal = ({
 
       <form id={FORM_ID} onSubmit={handleSubmit} noValidate>
         <Select
-          label={T.targetLabel}
-          placeholder={T.targetPlaceholder}
+          label={tf("transferTarget")}
+          placeholder={tf("transferTargetPlaceholder")}
           value={targetClassPublicId}
           disabled={classesLoading}
           onChange={(event) => handleTargetChange(event.target.value)}
