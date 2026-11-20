@@ -8,9 +8,12 @@ import { AUTH_ROUTES } from "@/features/auth/constants";
 import { PUBLIC_TEXT } from "../constants";
 import { HOME_LAYOUT } from "../homeConstants";
 import { useHomeCopy } from "../useHomeCopy";
+import { ABOUT_PTE_ROUTE } from "@/features/aboutPte/constants/aboutPteLayout";
+import { useAboutPteCopy } from "@/features/aboutPte/hooks/useAboutPteCopy";
 
 export const HomePublicHeader = (): ReactElement => {
   const { HOME_TEXT } = useHomeCopy();
+  const aboutPte = useAboutPteCopy();
   const { isReady, session } = useSessionManager();
   const authenticated = isReady && Boolean(session?.accessToken);
   return (
@@ -45,6 +48,9 @@ export const HomePublicHeader = (): ReactElement => {
           </Link>
           <Link href="/#plans" className="hover:text-action">
             {HOME_TEXT.plans}
+          </Link>
+          <Link href={ABOUT_PTE_ROUTE} className="hover:text-action">
+            {aboutPte.nav}
           </Link>
         </nav>
         <div className="flex items-center gap-2 sm:gap-5">
