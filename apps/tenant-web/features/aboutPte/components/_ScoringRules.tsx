@@ -1,34 +1,30 @@
 import type { ReactElement } from "react";
 import type { AboutPteCopy } from "../constants/aboutPteCopy.en";
-import { STANDARD_TASK_WEIGHTS } from "../constants/scoringWeights";
-import { ScoringRuleRow } from "./_ScoringRuleRow";
+import { STANDARD_TASK_WEIGHTS, type SectionKey } from "../constants/scoringWeights";
+import { ScoringRuleCard } from "./_ScoringRuleCard";
 
 interface ScoringRulesProps {
   copy: AboutPteCopy;
   locale: "en" | "vi";
 }
 
-/** The official scoring rule of all 22 question types, one row each, expandable to level descriptions. */
-export const ScoringRules = ({ copy, locale }: ScoringRulesProps): ReactElement => {
-  const columns = copy.flow.rulesColumns;
-  return (
-    <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-      <table className="w-full text-xs sm:text-sm">
-        <thead className="bg-slate-50 text-left text-slate-600">
-          <tr>
-            {columns.map((column) => (
-              <th key={column} className="px-3 py-2 font-medium">
-                {column}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {STANDARD_TASK_WEIGHTS.map((task) => (
-            <ScoringRuleRow key={task.key} task={task} copy={copy} locale={locale} columnCount={columns.length} />
+const SECTIONS: readonly SectionKey[] = ["speakingWriting", "reading", "listening"];
+
+/** The official scoring rule of all 22 question types as cards, grouped by exam part. */
+export const ScoringRules = ({ copy, locale }: ScoringRulesProps): ReactElement => (
+  <div className="space-y-10">
+    {SECTIONS.map((section, index) => (
+      <div key={section}>
+        <div className="mb-4 flex items-baseline gap-3">
+          <span className="text-3xl font-bold tabular-nums text-action">{`0${index + 1}`}</span>
+          <h4 className="text-lg font-semibold text-[var(--ink-primary)]">{copy.sections[section]}</h4>
+        </div>
+        <ul className="grid gap-4 lg:grid-cols-2">
+          {STANDARD_TASK_WEIGHTS.filter((task) => task.section === section).map((task) => (
+            <ScoringRuleCard key={task.key} task={task} copy={copy} locale={locale} />
           ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
+        </ul>
+      </div>
+    ))}
+  </div>
+);

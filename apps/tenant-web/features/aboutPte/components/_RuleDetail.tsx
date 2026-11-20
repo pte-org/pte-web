@@ -1,7 +1,6 @@
 import type { ReactElement } from "react";
 import type { AboutPteCopy } from "../constants/aboutPteCopy.en";
 import { OFFICIAL_RULES } from "../constants/officialScoring";
-import { traitInfoFor } from "../constants/traitLevels";
 
 interface RuleDetailProps {
   taskKey: string;
@@ -34,11 +33,14 @@ export const RuleDetail = ({ taskKey, copy, locale }: RuleDetailProps): ReactEle
       )}
       {gated.length > 0 && <p className="text-xs font-medium text-rose-600">{flow.gateLine(gated.join(flow.or))}</p>}
       {rule.traits.length > 0 && (
-        <ul className="space-y-1 text-xs text-[var(--ink-secondary)]">
+        <ul className="flex flex-wrap gap-1.5">
           {rule.traits.map((trait) => (
-            <li key={trait.name}>
-              <span className="font-semibold text-[var(--ink-primary)]">{`${trait.name}: `}</span>
-              {traitInfoFor(taskKey, trait.name)?.meaning[locale]}
+            <li
+              key={trait.name}
+              className="rounded-full border border-[var(--shell-border)] px-2.5 py-0.5 text-xs text-[var(--ink-secondary)]"
+            >
+              {`${trait.name} 0–${trait.max}`}
+              {gated.includes(trait.name) && <span className="ml-1 font-semibold text-rose-600">{`· ${flow.gate}`}</span>}
             </li>
           ))}
         </ul>
