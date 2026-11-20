@@ -34,8 +34,8 @@ export const ScoringRuleRow = ({ task, copy, locale, columnCount }: ScoringRuleR
   return (
     <>
       <tr className="border-t border-slate-100 align-top">
-        <td className="px-3 py-2">
-          <p className="font-semibold text-slate-900">{TASK_NAMES[task.key]}</p>
+        <td className="min-w-60 px-3 py-2">
+          <p className="mb-2 font-semibold text-slate-900">{TASK_NAMES[task.key]}</p>
           <Button size="sm" variant="secondary" onClick={() => setIsOpen((open) => !open)} aria-expanded={isOpen}>
             {isOpen ? flow.hideLevels : flow.showLevels}
           </Button>
