@@ -19,14 +19,11 @@ export const ScoreLab = ({ copy }: ScoreLabProps): ReactElement => {
     <div className="space-y-4">
       <p className="text-sm leading-6 text-slate-600">{text.intro}</p>
       <div className="flex flex-wrap gap-2">
-        <Button size="sm" variant="secondary" onClick={() => lab.setAll("correct")}>
-          {text.allCorrect}
+        <Button size="sm" variant="secondary" onClick={() => lab.setAll(true)}>
+          {text.allBest}
         </Button>
-        <Button size="sm" variant="secondary" onClick={() => lab.setAll("partial")}>
-          {text.allPartial}
-        </Button>
-        <Button size="sm" variant="secondary" onClick={() => lab.setAll("wrong")}>
-          {text.allWrong}
+        <Button size="sm" variant="secondary" onClick={() => lab.setAll(false)}>
+          {text.allWorst}
         </Button>
         <Button size="sm" variant="ghost" onClick={lab.reset}>
           {text.reset}

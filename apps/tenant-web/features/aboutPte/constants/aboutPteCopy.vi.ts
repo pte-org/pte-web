@@ -140,24 +140,38 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
     modes: { lab: "Phòng thí nghiệm điểm", steps: "Phép tính từng bước" },
     lab: {
       intro:
-        "Chọn Đúng, Một nửa hoặc Sai cho từng dạng câu, điểm bên phải cập nhật ngay. Rê chuột vào một dạng câu để xem nó góp điểm cho kỹ năng nào — dạng tích hợp sẽ làm sáng hai kỹ năng cùng lúc.",
-      short: { correct: "Đúng", partial: "Một nửa", wrong: "Sai" },
-      allCorrect: "Đúng hết",
-      allPartial: "Một nửa hết",
-      allWrong: "Sai hết",
+        "Mỗi dạng câu có một câu mẫu được chấm đúng theo quy tắc của dạng đó: chấm theo tiêu chí với bài nói và bài viết, đếm số ô / cặp / từ đúng, chọn đúng +1 chọn sai −1, hoặc đơn giản là đúng/sai. Bấm vào một dạng câu để chỉnh câu trả lời; điểm câu và điểm kỹ năng bên phải cập nhật ngay. Rê chuột vào một dạng để xem nó góp điểm cho kỹ năng nào.",
+      allBest: "Làm tốt nhất",
+      allWorst: "Làm kém nhất",
       reset: "Đặt lại",
+      counters: {
+        blanks: "Số ô điền đúng",
+        pairs: "Số cặp đoạn liền kề đúng thứ tự",
+        words: "Số từ viết đúng",
+        correctPicks: "Số lựa chọn đúng (+1)",
+        wrongPicks: "Số lựa chọn sai (−1)",
+        correct: "Đúng",
+        incorrect: "Sai",
+      },
+      ruleHint: {
+        traits: "Chỉnh mức của từng tiêu chí. Điểm câu = điểm đạt ÷ điểm tối đa × 100; tiêu chí cổng bằng 0 thì cả câu được 0. Read Aloud dùng đoạn văn mẫu 10 từ.",
+        ratio: "Mỗi ô, cặp hoặc từ đúng được 1 điểm; điểm câu là tỉ lệ điểm đạt được.",
+        plusMinus: "Chọn đúng +1, chọn sai −1, thấp nhất là 0.",
+        single: "Chỉ có một đáp án đúng: được 1 điểm hoặc 0.",
+      },
+      gateHit: "có tiêu chí cổng bằng 0 → 0",
       overallHint: "Overall được tính từ cả 22 dạng câu theo trọng số tổng — không phải lấy trung bình 4 kỹ năng.",
-      hoverHint: "Rê chuột hoặc chọn một dạng câu để xem nó được tính cho kỹ năng nào.",
+      hoverHint: "Rê chuột hoặc mở một dạng câu để xem nó được tính cho kỹ năng nào.",
       focusText: (task: string, skills: number) =>
         skills > 1
           ? `${task} là dạng tích hợp: điểm trung bình của nó được tính cho ${skills} kỹ năng, mỗi kỹ năng một trọng số (w) riêng.`
           : `${task} chỉ được tính cho một kỹ năng.`,
     },
     students: ["Học viên A", "Học viên B", "Học viên C"],
-    outcomes: { correct: "Đúng · 100", partial: "Đúng một nửa · 50", wrong: "Sai · 0" },
+    outcomes: { correct: "Đủ điểm · 100", partial: "Nửa số điểm · 50", wrong: "0 điểm" },
     stages: ["Bài làm", "Trung bình theo dạng", "Điểm kỹ năng", "Điểm tổng"],
     explain: [
-      "Trong bài thi thật, mỗi câu được chấm 0–100 theo quy tắc ở bảng phía trên (ví dụ điền đúng 3/4 chỗ trống = 75). Để dễ theo dõi, giả lập dùng 3 mức: đúng hoàn toàn = 100, đúng một nửa = 50, sai hoặc bỏ trống = 0. Bấm vào câu trả lời để đổi.",
+      "Trong bài thi thật, mỗi câu được chấm 0–100 theo quy tắc ở bảng phía trên (ví dụ điền đúng 3/4 chỗ trống = 75). Để dễ theo dõi, tab này chỉ dùng 3 mức điểm câu: 100 (đủ điểm), 50 (được nửa số điểm) và 0. Muốn chỉnh theo đúng quy tắc từng dạng, hãy dùng tab Phòng thí nghiệm điểm. Bấm vào câu trả lời để đổi.",
       "Các câu cùng một dạng được lấy trung bình. Ví dụ: hai câu Repeat Sentence được 100 và 50 thì trung bình là (100 + 50) ÷ 2 = 75. Từ bước này hệ thống chỉ làm việc với 22 điểm trung bình này, không xét từng câu nữa.",
       "Mỗi dạng câu có một trọng số cho từng kỹ năng (số nhỏ màu xám). Mỗi ô cho biết dạng đó góp bao nhiêu điểm vào kỹ năng: trung bình × trọng số ÷ 100. Dòng có hai ô màu là dạng tích hợp: cùng một điểm trung bình được tính cho cả hai kỹ năng, mỗi kỹ năng theo trọng số riêng. Các dòng cuối cộng cả cột lại và quy đổi ra thang 10–90.",
       "Overall tính y hệt một kỹ năng, nhưng dùng trọng số tổng của từng dạng (trung bình 4 trọng số kỹ năng của dạng đó). Overall không phải trung bình cộng của 4 điểm kỹ năng.",

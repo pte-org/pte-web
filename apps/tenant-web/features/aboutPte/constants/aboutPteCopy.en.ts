@@ -138,24 +138,38 @@ export const ABOUT_PTE_EN = {
     modes: { lab: "Score lab", steps: "Step-by-step calculation" },
     lab: {
       intro:
-        "Set each question type to Correct, Half or Wrong and the scores on the right update instantly. Hover a question type to see which skills it feeds — an integrated type lights up two skills at once.",
-      short: { correct: "Correct", partial: "Half", wrong: "Wrong" },
-      allCorrect: "All correct",
-      allPartial: "All half",
-      allWrong: "All wrong",
+        "Each question type has one sample item scored with its real rule: trait levels for speaking and writing, counts of correct blanks, pairs or words, +1/−1 picks, or simply correct/incorrect. Click a question type to change the answer; the item score and the skill scores on the right update instantly. Hover a question type to see which skills it feeds.",
+      allBest: "Best possible answers",
+      allWorst: "Worst possible answers",
       reset: "Reset",
+      counters: {
+        blanks: "Blanks filled correctly",
+        pairs: "Adjacent pairs in the right order",
+        words: "Words written correctly",
+        correctPicks: "Correct options chosen (+1)",
+        wrongPicks: "Wrong options chosen (−1)",
+        correct: "Correct",
+        incorrect: "Incorrect",
+      },
+      ruleHint: {
+        traits: "Set each trait level. The item score is points achieved ÷ maximum × 100; a gated trait at 0 makes the whole item 0. Read Aloud uses a 10-word sample passage.",
+        ratio: "One point per correct blank, pair or word; the item score is the share of points achieved.",
+        plusMinus: "+1 for each correct option, −1 for each wrong one, never below 0.",
+        single: "One correct answer: 1 point or nothing.",
+      },
+      gateHit: "a gated trait is 0 → 0",
       overallHint: "Overall is calculated from all 22 question types with their overall weights — not by averaging the four skills.",
-      hoverHint: "Hover or focus a question type to see which skills it counts towards.",
+      hoverHint: "Hover or open a question type to see which skills it counts towards.",
       focusText: (task: string, skills: number) =>
         skills > 1
           ? `${task} is integrated: its average counts towards ${skills} skills, each with its own weight (w).`
           : `${task} counts towards one skill only.`,
     },
     students: ["Student A", "Student B", "Student C"],
-    outcomes: { correct: "Correct · 100", partial: "Half · 50", wrong: "Wrong · 0" },
+    outcomes: { correct: "Full · 100", partial: "Half the points · 50", wrong: "No points · 0" },
     stages: ["Answers", "Question-type averages", "Skill scores", "Overall"],
     explain: [
-      "In the real exam every answer gets a score from 0 to 100 using the rules in the table above (e.g. 3 of 4 blanks right = 75). To keep it easy to follow, this simulation uses three cases: fully correct = 100, half correct = 50, wrong or skipped = 0. Click an answer to change it.",
+      "In the real exam every answer gets a score from 0 to 100 using the rules in the table above (e.g. 3 of 4 blanks right = 75). To keep it easy to follow, this tab only uses three item scores: 100 (full points), 50 (half the points) and 0. To set answers by each question type's real rule, use the Score lab tab. Click an answer to change it.",
       "Answers of the same question type are averaged. Example: two Repeat Sentence items scored 100 and 50 give an average of (100 + 50) ÷ 2 = 75. From now on the system works with these 22 averages, not individual answers.",
       "Each question type has a weight for each skill (the small grey number). A cell shows how much that question type adds to the skill: average × weight ÷ 100. A row with two coloured cells is an integrated question type: the same average is counted in both skills, each with its own weight. The bottom rows add the column up and convert it to 10–90.",
       "Overall works exactly like a skill, using the overall weight of each question type (the average of its four skill weights). It is not the average of the four skill scores.",
