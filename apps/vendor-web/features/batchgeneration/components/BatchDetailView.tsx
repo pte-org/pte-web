@@ -52,7 +52,7 @@ export const BatchDetailView = ({ batchId }: BatchDetailViewProps): ReactElement
       ) : null}
       <BatchSummaryCard batch={batch} messages={messages} filter={jobFilter}
         onFilter={(clicked) => setJobFilter((current) => nextJobFilter(current, clicked))} />
-      <BatchJobList jobs={batch.children} currentJobId={batch.currentJobPublicId} messages={messages} filter={jobFilter} />
+      <BatchJobList jobs={batch.children} rows={batch.rows} currentJobId={batch.currentJobPublicId} messages={messages} filter={jobFilter} />
       <ConfirmDialog
         open={confirmingCancel}
         title={messages.cancelTitle}

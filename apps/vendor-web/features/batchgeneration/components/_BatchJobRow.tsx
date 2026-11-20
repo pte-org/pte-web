@@ -4,14 +4,16 @@ import type { ReactElement } from "react";
 import type { QuestionGenerationBatchChildResponse } from "@pte/api-client";
 import { Chip, DisclosureChevron, MotionReveal } from "@pte/ui";
 import { LiveJobPanel } from "../../questiongeneration/components/LiveJobPanel";
-import { taskTypeLabel } from "../../questiongeneration/utils/taskTypeLabel";
 import type { BatchMessages } from "../messages/en";
+import { jobLabel } from "../utils/jobLabel";
 import { jobHasStarted } from "../utils/jobExpansion";
 import { jobCancelledCount } from "../utils/jobFilter";
 import { JobStatusBadge } from "./_BatchStatusBadge";
 
 interface BatchJobRowProps {
   job: QuestionGenerationBatchChildResponse;
+  /** CEFR level of the batch row this job came from, when known. */
+  cefrLevel?: string;
   expanded: boolean;
   messages: BatchMessages;
   onToggle: () => void;
@@ -35,7 +37,7 @@ const JobOutcomeChips = ({ job, messages }: Pick<BatchJobRowProps, "job" | "mess
 };
 
 /** One job of a batch: a summary line that opens onto the job's generation, followed live only while open. */
-export const BatchJobRow = ({ job, expanded, messages, onToggle }: BatchJobRowProps): ReactElement => {
+export const BatchJobRow = ({ job, cefrLevel, expanded, messages, onToggle }: BatchJobRowProps): ReactElement => {
   const seq = job.batchSeq + 1;
   const panelId = `batch-job-${job.jobPublicId}`;
   return (
@@ -45,7 +47,7 @@ export const BatchJobRow = ({ job, expanded, messages, onToggle }: BatchJobRowPr
         className="flex w-full flex-wrap items-center gap-x-3 gap-y-1 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-[var(--surface-subtle)]">
         <DisclosureChevron expanded={expanded} />
         <span className="w-6 tabular-nums text-[var(--ink-muted)]">{seq}</span>
-        <span className="font-medium">{taskTypeLabel(job.taskType)}</span>
+        <span className="font-medium">{jobLabel(job.taskType, cefrLevel)}</span>
         <span className="min-w-0 flex-1 truncate text-[var(--ink-muted)]">{job.topicHint ?? messages.noTopic}</span>
         <JobOutcomeChips job={job} messages={messages} />
         <JobStatusBadge status={job.status} messages={messages} />
