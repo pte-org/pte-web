@@ -1,108 +1,49 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { Alert, DataTable, GlobeIcon, type DataTableColumn } from "@pte/ui";
 import { THEMED_CARD } from "../constants/aboutPteLayout";
 import { useAboutPteCopy, useAboutPteLanding } from "../hooks/useAboutPteCopy";
 import { AboutSection } from "./_AboutSection";
+import { ComparisonMatrix } from "./_ComparisonMatrix";
 import { SourceRefs } from "./_SourceRefs";
 
-type ComparisonRow = readonly string[];
-
-/** Column of PTE Academic, highlighted as the test this project is about. */
-const FEATURED_COLUMN = 1;
-const FEATURED_CELL = "bg-[var(--action-tint)] font-semibold text-[var(--home-navy)]";
-
-const VietnamCard = (): ReactElement => {
-  const copy = useAboutPteCopy();
-  const { vietnam } = useAboutPteLanding();
-  return (
-    <div id="vietnam" className={`${THEMED_CARD} scroll-mt-24 bg-[var(--action-tint)] p-6`}>
-      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-action shadow-sm">
-        <GlobeIcon className="h-5 w-5" />
-      </span>
-      <h3 className="mt-4 text-lg font-bold text-[var(--home-navy)]">{copy.vietnam.title}</h3>
-      <ul className="mt-3 flex flex-wrap gap-2">
-        {vietnam.cities.map((city) => (
-          <li key={city} className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[var(--home-navy)] shadow-sm">
-            {city}
-          </li>
-        ))}
-      </ul>
-      <ul className="mt-4 space-y-2 text-sm leading-6 text-[var(--ink-secondary)]">
-        {copy.vietnam.points.map((point) => (
-          <li key={point}>{point}</li>
-        ))}
-      </ul>
-      <SourceRefs ids={copy.vietnam.src} label={copy.sourceLabel} />
-      <div className="mt-4">
-        <Alert tone="warning">{copy.vietnam.caveat}</Alert>
-      </div>
-    </div>
-  );
-};
-
-/** Which test fits which goal: the practical difference behind the numbers. */
-const ChooseGuide = (): ReactElement => {
-  const { comparison } = useAboutPteCopy();
-  return (
-    <div className={`${THEMED_CARD} p-5 shadow-sm`}>
-      <h3 className="font-bold text-[var(--home-navy)]">{comparison.guideTitle}</h3>
-      <ul className="mt-3 grid gap-3 sm:grid-cols-2">
-        {comparison.guide.map((item) => (
-          <li key={item.test} className="text-sm leading-6 text-[var(--ink-secondary)]">
-            <span className="font-semibold text-action">{item.test}</span>
-            {` — ${item.when}`}
-          </li>
-        ))}
-      </ul>
-      <p className="mt-3 text-xs text-[var(--ink-muted)]">{comparison.guideNote}</p>
-    </div>
-  );
-};
+/** Accent per guide card, matching the test monograms in the matrix header. */
+const GUIDE_TONES = [
+  "border-t-action",
+  "border-t-[var(--blush-action)]",
+  "border-t-[var(--mint-action)]",
+  "border-t-[var(--cream-action)]",
+];
 
 export const ComparisonTable = (): ReactElement => {
   const copy = useAboutPteCopy();
-  const { compare } = useAboutPteLanding();
-  const { headers, rows, caption, src } = copy.comparison;
-  const columns: DataTableColumn<ComparisonRow>[] = headers.map((header, index) => ({
-    key: `col-${index}`,
-    header,
-    sortable: false,
-    filterable: false,
-    cell: (row) => row[index],
-    headerClassName: index === FEATURED_COLUMN ? FEATURED_CELL : undefined,
-    cellClassName: index === 0 ? "font-semibold" : index === FEATURED_COLUMN ? FEATURED_CELL : undefined,
-  }));
+  const landing = useAboutPteLanding();
+  const { caption, src, guideTitle, guide, guideNote } = copy.comparison;
   return (
     <AboutSection
       id="comparison"
-      eyebrow={compare.pill}
-      title={compare.title}
+      eyebrow={landing.compare.pill}
+      title={landing.compare.title}
       tone="tint"
+      centered
       intro={
         <>
-          {`${compare.intro} ${caption}`}
+          {`${landing.compare.intro} ${caption}`}
           <SourceRefs ids={src} label={copy.sourceLabel} />
         </>
       }
     >
-      <div className="grid items-start gap-6 lg:grid-cols-[2fr_1fr]">
-        <div className="space-y-4">
-          <DataTable
-            columns={columns}
-            rows={[...rows]}
-            getRowKey={(row) => row[0]}
-            showSearch={false}
-            clientSideFiltering={false}
-            clientSideSorting={false}
-            clientSidePagination={false}
-            density="compact"
-          />
-          <ChooseGuide />
-        </div>
-        <VietnamCard />
-      </div>
+      <ComparisonMatrix copy={copy} landing={landing} />
+      <h3 className="mt-10 text-center text-lg font-bold text-[var(--home-navy)]">{guideTitle}</h3>
+      <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {guide.map((item, index) => (
+          <li key={item.test} className={`${THEMED_CARD} border-t-4 p-5 shadow-sm ${GUIDE_TONES[index]}`}>
+            <p className="font-bold text-[var(--home-navy)]">{item.test}</p>
+            <p className="mt-2 text-sm leading-6 text-[var(--ink-secondary)]">{item.when}</p>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-4 text-center text-xs text-[var(--ink-muted)]">{guideNote}</p>
     </AboutSection>
   );
 };

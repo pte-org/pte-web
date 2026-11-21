@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 import { PublicShell } from "@/features/public/components/PublicShell";
 import { AboutBackground } from "./AboutIntroSections";
+import { AboutVietnam } from "./AboutVietnam";
 import { ComparisonTable } from "./ComparisonTable";
 import { ScoringFlow } from "./ScoringFlow";
 import { ScoringSimulation } from "./ScoringSimulation";
@@ -15,10 +16,11 @@ export const AboutPteView = (): ReactElement => (
   <PublicShell home>
     <AboutHero />
     <AboutGlance />
+    <ComparisonTable />
+    <AboutVietnam />
     <AboutQuestionTypes />
     <ScoringFlow />
     <ScoringSimulation />
-    <ComparisonTable />
     <AboutBackground />
     <SourcesList />
   </PublicShell>

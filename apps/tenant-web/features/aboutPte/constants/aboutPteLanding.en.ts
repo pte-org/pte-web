@@ -59,10 +59,18 @@ export const ABOUT_PTE_LANDING_EN = {
     pill: "Compare English tests",
     title: "PTE vs IELTS vs TOEFL",
     intro: "How PTE compares with the other widely used English tests.",
+    groups: [
+      { label: "Purpose", rows: [1, 2] },
+      { label: "The test", rows: [3, 4, 6] },
+      { label: "Scores & results", rows: [5, 7, 8] },
+    ],
   },
   vietnam: {
     pill: "PTE in Vietnam",
+    intro: "Cities with authorised PTE test centres, according to the cited sources. Hover a city to see it on the map.",
     cities: ["Ho Chi Minh City", "Hanoi", "Da Nang", "Can Tho"],
+    cityNotes: ["Several centres, tests all year", "Several centres, tests all year", "Fewer centres", "Fewer centres"],
+    map: { title: "Illustrative map, not to survey scale", sea: "East Sea", hoangSa: "Hoang Sa Is.", truongSa: "Truong Sa Is." },
   },
   background: {
     pill: "History & recognition",

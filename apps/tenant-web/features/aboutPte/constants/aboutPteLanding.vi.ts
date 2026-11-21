@@ -60,10 +60,18 @@ export const ABOUT_PTE_LANDING_VI: AboutPteLanding = {
     pill: "So sánh chứng chỉ",
     title: "PTE vs IELTS vs TOEFL",
     intro: "PTE khác các bài thi tiếng Anh phổ biến khác ở điểm nào.",
+    groups: [
+      { label: "Mục đích", rows: [1, 2] },
+      { label: "Bài thi", rows: [3, 4, 6] },
+      { label: "Điểm & kết quả", rows: [5, 7, 8] },
+    ],
   },
   vietnam: {
     pill: "PTE tại Việt Nam",
+    intro: "Các thành phố có điểm thi PTE được ủy quyền, theo các nguồn đã dẫn. Rê chuột vào một thành phố để xem vị trí trên bản đồ.",
     cities: ["TP. Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Cần Thơ"],
+    cityNotes: ["Nhiều điểm thi, thi quanh năm", "Nhiều điểm thi, thi quanh năm", "Ít điểm thi hơn", "Ít điểm thi hơn"],
+    map: { title: "Bản đồ minh họa, không theo tỉ lệ khảo sát", sea: "Biển Đông", hoangSa: "QĐ. Hoàng Sa", truongSa: "QĐ. Trường Sa" },
   },
   background: {
     pill: "Lịch sử & công nhận",
