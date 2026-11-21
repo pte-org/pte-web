@@ -1,54 +1,86 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { ABOUT_PTE_LAYOUT, THEMED_CARD } from "../constants/aboutPteLayout";
-import { useAboutPteCopy } from "../hooks/useAboutPteCopy";
+import { Alert, DataTable, GlobeIcon, type DataTableColumn } from "@pte/ui";
+import { THEMED_CARD } from "../constants/aboutPteLayout";
+import { useAboutPteCopy, useAboutPteLanding } from "../hooks/useAboutPteCopy";
 import { AboutSection } from "./_AboutSection";
 import { SourceRefs } from "./_SourceRefs";
 
-/** Index of PTE Academic in the comparison columns: the test this project is about, so it is highlighted. */
-const FEATURED_COLUMN = 1;
+type ComparisonRow = readonly string[];
 
-/** One card per test, side by side; every card lists the same criteria in the same order. */
+/** Column of PTE Academic, highlighted as the test this project is about. */
+const FEATURED_COLUMN = 1;
+const FEATURED_CELL = "bg-[var(--action-tint)] font-semibold text-[var(--home-navy)]";
+
+const VietnamCard = (): ReactElement => {
+  const copy = useAboutPteCopy();
+  const { vietnam } = useAboutPteLanding();
+  return (
+    <div id="vietnam" className={`${THEMED_CARD} scroll-mt-24 bg-[var(--action-tint)] p-6`}>
+      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-action shadow-sm">
+        <GlobeIcon className="h-5 w-5" />
+      </span>
+      <h3 className="mt-4 text-lg font-bold text-[var(--home-navy)]">{copy.vietnam.title}</h3>
+      <ul className="mt-3 flex flex-wrap gap-2">
+        {vietnam.cities.map((city) => (
+          <li key={city} className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[var(--home-navy)] shadow-sm">
+            {city}
+          </li>
+        ))}
+      </ul>
+      <ul className="mt-4 space-y-2 text-sm leading-6 text-[var(--ink-secondary)]">
+        {copy.vietnam.points.map((point) => (
+          <li key={point}>{point}</li>
+        ))}
+      </ul>
+      <SourceRefs ids={copy.vietnam.src} label={copy.sourceLabel} />
+      <div className="mt-4">
+        <Alert tone="warning">{copy.vietnam.caveat}</Alert>
+      </div>
+    </div>
+  );
+};
+
 export const ComparisonTable = (): ReactElement => {
   const copy = useAboutPteCopy();
-  const { headers, rows, caption, src, title, featured } = copy.comparison;
-  const tests = headers.slice(1).map((name, offset) => ({ name, column: offset + 1 }));
+  const { compare } = useAboutPteLanding();
+  const { headers, rows, caption, src } = copy.comparison;
+  const columns: DataTableColumn<ComparisonRow>[] = headers.map((header, index) => ({
+    key: `col-${index}`,
+    header,
+    sortable: false,
+    filterable: false,
+    cell: (row) => row[index],
+    headerClassName: index === FEATURED_COLUMN ? FEATURED_CELL : undefined,
+    cellClassName: index === 0 ? "font-semibold" : index === FEATURED_COLUMN ? FEATURED_CELL : undefined,
+  }));
   return (
-    <AboutSection id="comparison" title={title}>
-      <p className={`mb-6 ${ABOUT_PTE_LAYOUT.muted}`}>
-        {caption}
-        <SourceRefs ids={src} label={copy.sourceLabel} />
-      </p>
-      <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {tests.map((test) => {
-          const isFeatured = test.column === FEATURED_COLUMN;
-          return (
-            <li
-              key={test.name}
-              className={`${THEMED_CARD} relative flex flex-col p-5 ${
-                isFeatured ? "border-2 border-action shadow-lg lg:-translate-y-2" : "shadow-sm"
-              }`}
-            >
-              {isFeatured && (
-                <span className="absolute -top-3 left-5 rounded-full bg-action px-3 py-0.5 text-xs font-semibold text-white">
-                  {featured}
-                </span>
-              )}
-              <h3 className={`text-lg font-bold ${isFeatured ? "text-action" : ""}`}>{test.name}</h3>
-              <p className="text-sm text-[var(--ink-muted)]">{rows[0][test.column]}</p>
-              <dl className="mt-4 space-y-3 border-t border-[var(--shell-border)] pt-4">
-                {rows.slice(1).map((row) => (
-                  <div key={row[0]}>
-                    <dt className="text-xs font-medium uppercase tracking-wide text-[var(--ink-muted)]">{row[0]}</dt>
-                    <dd className="mt-0.5 text-sm font-medium">{row[test.column]}</dd>
-                  </div>
-                ))}
-              </dl>
-            </li>
-          );
-        })}
-      </ul>
+    <AboutSection
+      id="comparison"
+      eyebrow={compare.pill}
+      title={compare.title}
+      tone="tint"
+      intro={
+        <>
+          {`${compare.intro} ${caption}`}
+          <SourceRefs ids={src} label={copy.sourceLabel} />
+        </>
+      }
+    >
+      <div className="grid items-start gap-6 lg:grid-cols-[2fr_1fr]">
+        <DataTable
+          columns={columns}
+          rows={[...rows]}
+          getRowKey={(row) => row[0]}
+          showSearch={false}
+          clientSideFiltering={false}
+          clientSideSorting={false}
+          clientSidePagination={false}
+          density="compact"
+        />
+        <VietnamCard />
+      </div>
     </AboutSection>
   );
 };
