@@ -79,6 +79,8 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
     headers: ["", "PTE Academic", "IELTS Academic", "TOEFL iBT", "PTE Core"],
     rows: [
       ["Tổ chức", "Pearson", "British Council, IDP, Cambridge", "ETS", "Pearson"],
+      ["Loại tiếng Anh", "Học thuật", "Học thuật (bản General Training riêng cho định cư)", "Học thuật", "Tổng quát, đời thường và công việc"],
+      ["Dùng chủ yếu để", "Du học; visa du học, làm việc, định cư Úc, New Zealand; visa Anh (bản UKVI)", "Du học ở nhiều nước; đăng ký hành nghề", "Du học, phổ biến nhất ở các trường Mỹ", "Định cư diện kinh tế và quốc tịch Canada (IRCC)"],
       ["Hình thức", "Máy tính, tại trung tâm", "Giấy hoặc máy tính, tại trung tâm", "Máy tính, tại trung tâm hoặc tại nhà", "Máy tính, tại trung tâm"],
       ["Thời lượng", "~2 giờ", "~2 giờ 45 phút", "Dưới ~2 giờ (định dạng 2026)", "~2 giờ"],
       ["Thang điểm", "10–90", "Band 0–9", "1–6 (từ 01/2026)", "10–90"],
@@ -86,7 +88,15 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
       ["Trả kết quả", "Thường ~2 ngày", "Vài ngày đến ~2 tuần (tùy hình thức)", "~3 ngày", "Thường ~2 ngày"],
       ["Lệ phí tại VN", "~185 USD (theo ghi nhận)", "Xem đơn vị tổ chức", "Xem ETS", "Chưa tổ chức tại VN (theo ghi nhận)"],
     ],
-    src: [1, 8, 9, 10, 13],
+    src: [1, 4, 5, 6, 7, 8, 9, 10, 13],
+    guideTitle: "Nên chọn bài thi nào?",
+    guide: [
+      { test: "PTE Academic", when: "đi du học hoặc xin visa Úc, New Zealand, Anh — và cần kết quả nhanh." },
+      { test: "IELTS Academic", when: "trường hoặc tổ chức yêu cầu IELTS, hoặc muốn thi Speaking trực tiếp với giám khảo." },
+      { test: "TOEFL iBT", when: "nộp hồ sơ vào các trường đại học Mỹ." },
+      { test: "PTE Core", when: "định cư diện kinh tế hoặc xin quốc tịch Canada." },
+    ],
+    guideNote: "Luôn kiểm tra yêu cầu cụ thể của trường hoặc cơ quan cấp visa trước khi đăng ký thi.",
   },
   flow: {
     title: "Một câu trả lời trở thành điểm như thế nào",

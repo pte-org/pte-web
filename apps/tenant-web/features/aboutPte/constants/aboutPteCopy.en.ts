@@ -77,6 +77,8 @@ export const ABOUT_PTE_EN = {
     headers: ["", "PTE Academic", "IELTS Academic", "TOEFL iBT", "PTE Core"],
     rows: [
       ["Organisation", "Pearson", "British Council, IDP, Cambridge", "ETS", "Pearson"],
+      ["Type of English", "Academic", "Academic (a separate General Training test for migration)", "Academic", "General, everyday and workplace"],
+      ["Mainly used for", "Study abroad; study, work and migration visas for Australia and New Zealand; UK visas (UKVI version)", "Study abroad in many countries; professional registration", "Study abroad, most common at US universities", "Canadian economic immigration and citizenship (IRCC)"],
       ["Format", "Computer, test centre", "Paper or computer, test centre", "Computer, centre or at home", "Computer, test centre"],
       ["Duration", "~2 hours", "~2 h 45 min", "Under ~2 hours (2026 format)", "~2 hours"],
       ["Score scale", "10–90", "Band 0–9", "1–6 (since Jan 2026)", "10–90"],
@@ -84,7 +86,15 @@ export const ABOUT_PTE_EN = {
       ["Results", "Typically ~2 days", "Days to ~2 weeks (by format)", "~3 days", "Typically ~2 days"],
       ["Fee in Vietnam", "~USD 185 (reported)", "Check the provider", "Check ETS", "Not offered in Vietnam (reported)"],
     ],
-    src: [1, 8, 9, 10, 13],
+    src: [1, 4, 5, 6, 7, 8, 9, 10, 13],
+    guideTitle: "Which test should you take?",
+    guide: [
+      { test: "PTE Academic", when: "study abroad or visas for Australia, New Zealand or the UK — and you want results fast." },
+      { test: "IELTS Academic", when: "the institution asks for IELTS, or you prefer a face-to-face speaking test." },
+      { test: "TOEFL iBT", when: "applying to US universities." },
+      { test: "PTE Core", when: "Canadian economic immigration or citizenship." },
+    ],
+    guideNote: "Always check the exact requirement of the institution or visa authority before booking.",
   },
   flow: {
     title: "How a response becomes a score",

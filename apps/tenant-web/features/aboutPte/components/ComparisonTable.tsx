@@ -42,6 +42,25 @@ const VietnamCard = (): ReactElement => {
   );
 };
 
+/** Which test fits which goal: the practical difference behind the numbers. */
+const ChooseGuide = (): ReactElement => {
+  const { comparison } = useAboutPteCopy();
+  return (
+    <div className={`${THEMED_CARD} p-5 shadow-sm`}>
+      <h3 className="font-bold text-[var(--home-navy)]">{comparison.guideTitle}</h3>
+      <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+        {comparison.guide.map((item) => (
+          <li key={item.test} className="text-sm leading-6 text-[var(--ink-secondary)]">
+            <span className="font-semibold text-action">{item.test}</span>
+            {` — ${item.when}`}
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-xs text-[var(--ink-muted)]">{comparison.guideNote}</p>
+    </div>
+  );
+};
+
 export const ComparisonTable = (): ReactElement => {
   const copy = useAboutPteCopy();
   const { compare } = useAboutPteLanding();
@@ -69,16 +88,19 @@ export const ComparisonTable = (): ReactElement => {
       }
     >
       <div className="grid items-start gap-6 lg:grid-cols-[2fr_1fr]">
-        <DataTable
-          columns={columns}
-          rows={[...rows]}
-          getRowKey={(row) => row[0]}
-          showSearch={false}
-          clientSideFiltering={false}
-          clientSideSorting={false}
-          clientSidePagination={false}
-          density="compact"
-        />
+        <div className="space-y-4">
+          <DataTable
+            columns={columns}
+            rows={[...rows]}
+            getRowKey={(row) => row[0]}
+            showSearch={false}
+            clientSideFiltering={false}
+            clientSideSorting={false}
+            clientSidePagination={false}
+            density="compact"
+          />
+          <ChooseGuide />
+        </div>
         <VietnamCard />
       </div>
     </AboutSection>
