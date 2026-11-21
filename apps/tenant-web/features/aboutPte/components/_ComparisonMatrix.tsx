@@ -32,12 +32,16 @@ export const ComparisonMatrix = ({ copy, landing }: ComparisonMatrixProps): Reac
           <tr>
             <th className="w-40 p-4" />
             {tests.map((test) => (
-              <th key={test.name} className={`relative p-4 pt-6 text-left align-top ${cell(test.column)}`}>
-                {test.column === FEATURED && (
-                  <span className="absolute left-4 top-0 -translate-y-1/2 rounded-full bg-action px-2.5 py-0.5 text-xs font-semibold text-white">
-                    {featured}
-                  </span>
-                )}
+              <th key={test.name} className={`p-4 text-left align-top ${cell(test.column)}`}>
+                {/* Same-height placeholder on other columns keeps the four test names on one line. */}
+                <span
+                  aria-hidden={test.column !== FEATURED}
+                  className={`mb-2 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                    test.column === FEATURED ? "bg-action text-white" : "invisible"
+                  }`}
+                >
+                  {featured}
+                </span>
                 <span className="flex items-center gap-3">
                   <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base font-bold ${AVATAR_TONES[test.column]}`}>
                     {test.name.charAt(0)}
