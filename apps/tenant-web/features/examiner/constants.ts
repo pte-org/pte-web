@@ -9,6 +9,8 @@ export const EXAMINER_ATTEMPT_QUERY_KEY = ["examinerAttemptWork"] as const;
 
 /** A band gap to the AI at or above this asks the examiner to note the reason (AI calibration data). */
 export const AI_GAP_THRESHOLD = 2;
+/** A trait with more bands than this (e.g. Read Aloud word count) is entered as a number, not a card per band. */
+export const TRAIT_NUMERIC_INPUT_MIN_MAX_SCORE = 10;
 /** Matches the server limit on one reason (RubricConstants.MAX_AI_GAP_REASON_LENGTH). */
 export const AI_GAP_REASON_MAX_LENGTH = 500;
 
