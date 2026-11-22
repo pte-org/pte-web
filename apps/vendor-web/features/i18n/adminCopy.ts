@@ -22,6 +22,12 @@ const ADMIN_VI: Record<string, string> = {
   "If that username and email belong to the same account, a reset link is on its way. The link works once and expires in 30 minutes.":
     "Nếu tên đăng nhập và email này thuộc cùng một tài khoản, liên kết đặt lại đang được gửi đi. Liên kết chỉ dùng được một lần và hết hạn sau 30 phút.",
   "Choose a new password": "Chọn mật khẩu mới",
+  "Set a new password": "Đặt mật khẩu mới",
+  "The password cannot start or end with a space.": "Mật khẩu không được bắt đầu hoặc kết thúc bằng dấu cách.",
+  "This is your first sign-in. Choose a new password to continue.":
+    "Đây là lần đăng nhập đầu tiên. Hãy đặt mật khẩu mới để tiếp tục.",
+  "Save and continue": "Lưu và tiếp tục",
+  "Password could not be changed. Try again.": "Không đổi được mật khẩu. Vui lòng thử lại.",
   "Pick a password you have not used here before. The link works once.":
     "Hãy chọn mật khẩu bạn chưa dùng ở đây trước đây. Liên kết chỉ dùng được một lần.",
   "Enter both password fields.": "Vui lòng nhập cả hai ô mật khẩu.",

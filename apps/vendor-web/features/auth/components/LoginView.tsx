@@ -14,8 +14,10 @@ import {
   useSessionManager,
   useSignInValidation,
   useToast,
+  withoutSpaces,
 } from "@pte/ui";
 import { decodeAccessTokenClaims, type JwtTokenResponse } from "@pte/api-client";
+import { FirstPasswordChange } from "./FirstPasswordChange";
 import { useLoginAdmin, useLoginHost } from "../api";
 import { AUTH_ROUTES, AUTH_TEXT as RAW_AUTH_TEXT } from "../constants";
 import { useAdminCopy } from "../../i18n/adminCopy";
@@ -33,7 +35,7 @@ export const LoginView = (): ReactElement => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const role = resolveRole(searchParams.get("role"));
-  const { saveSession } = useSessionManager();
+  const { saveSession, clearSession } = useSessionManager();
   const { showToast } = useToast();
   const notifyError = (message: string): void => showToast(message, { tone: "error" });
   const validationMessages = useMemo(
@@ -48,6 +50,9 @@ export const LoginView = (): ReactElement => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  // Set after a sign-in with a temporary password: the new-password form replaces this one, as in practice.
+  const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null);
+  const [nextRoute, setNextRoute] = useState("");
 
   const adminMutation = useLoginAdmin();
   const hostMutation = useLoginHost();
@@ -76,7 +81,13 @@ export const LoginView = (): ReactElement => {
       mustChangePassword: data.mustChangePassword,
     });
     clearSigningOut();
-    router.replace(returnPath(window.location.search, AUTH_ROUTES.login) ?? destination);
+    const target = returnPath(window.location.search, AUTH_ROUTES.login) ?? destination;
+    if (data.mustChangePassword) {
+      setNextRoute(target);
+      setTemporaryPassword(password.trim());
+      return;
+    }
+    router.replace(target);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
@@ -88,12 +99,26 @@ export const LoginView = (): ReactElement => {
     }
     try {
       // One username belongs to one organization: no organization choice, a single request.
-      const data = await mutation.mutateAsync({ username: username.trim(), password });
+      const data = await mutation.mutateAsync({ username: username.trim(), password: password.trim() });
       handleLoginSuccess(data);
     } catch (error) {
       notifyError(getLoginErrorMessage(error, T));
     }
   };
+
+  if (temporaryPassword !== null) {
+    return (
+      <FirstPasswordChange
+        currentPassword={temporaryPassword}
+        onChanged={() => router.replace(nextRoute)}
+        onBack={() => {
+          clearSession();
+          setTemporaryPassword(null);
+          setPassword("");
+        }}
+      />
+    );
+  }
 
   return (
     <>
@@ -119,8 +144,9 @@ export const LoginView = (): ReactElement => {
           error={validation.errors.username}
           value={username}
           onChange={(event) => {
-            setUsername(event.target.value);
-            validation.onChange("username", event.target.value);
+            const typed = withoutSpaces(event.target.value);
+            setUsername(typed);
+            validation.onChange("username", typed);
           }}
           onBlur={(event) => validation.onBlur("username", event.target.value)}
           placeholder={T.USERNAME_PLACEHOLDER}

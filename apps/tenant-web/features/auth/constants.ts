@@ -49,6 +49,7 @@ export const PASSWORD_CHANGE_TEXT = {
   CONFIRM_LABEL: "Confirm new password",
   REQUIRED: "Enter all password fields.",
   MISMATCH: "The new passwords do not match.",
+  EDGE_SPACES: "The password cannot start or end with a space.",
   TOO_SHORT: "Use at least 8 characters for the new password.",
   SUBMIT: "Change password",
   SUBMITTING: "Changing password...",
@@ -161,6 +162,7 @@ export const RESET_PASSWORD_TEXT: ResetPasswordFormText & { failed: string } = {
   required: "Enter both password fields.",
   tooShort: "Use at least 8 characters for the new password.",
   mismatch: "The new passwords do not match.",
+  edgeSpaces: "The password cannot start or end with a space.",
   invalidLinkTitle: "This link cannot be used",
   invalidLinkMessage: "The reset link is missing, invalid or has expired. Request a new one to continue.",
   checkingTitle: "Checking your link",
@@ -175,3 +177,26 @@ export const PASSWORD_RESET_LINKS = {
   REQUEST_NEW_LINK: "Request a new link",
   RESET_DONE: "Password updated. Sign in with your new password.",
 } as const;
+
+/** First sign-in with a temporary password: the same two fields as a reset, shown on the sign-in page. */
+export const FIRST_PASSWORD_TEXT: ResetPasswordFormText & { failed: string; backToLogin: string; success: string } = {
+  title: "Set a new password",
+  subtitle: "This is your first sign-in. Choose a new password to continue.",
+  newLabel: "New password",
+  confirmLabel: "Confirm new password",
+  submit: "Save and continue",
+  submitting: "Saving...",
+  required: "Enter both password fields.",
+  tooShort: "Use at least 8 characters for the new password.",
+  mismatch: "The new passwords do not match.",
+  edgeSpaces: "The password cannot start or end with a space.",
+  invalidLinkTitle: "",
+  invalidLinkMessage: "",
+  checkingTitle: "",
+  checkingMessage: "",
+  showPassword: "Show password",
+  hidePassword: "Hide password",
+  failed: "Password could not be changed. Try again.",
+  backToLogin: "Back to sign in",
+  success: "Password changed. You are now signed in.",
+};
