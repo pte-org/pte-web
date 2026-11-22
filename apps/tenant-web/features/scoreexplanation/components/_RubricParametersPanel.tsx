@@ -55,12 +55,11 @@ const TaskTypeParameters = ({ parameters }: TaskTypeParametersProps): ReactEleme
             </dd>
           </div>
         )}
-        {parameters.azureMappingVersion && (
+        {notice && (
           <div>
-            <dt className="text-xs text-[var(--ink-secondary)]">
-              {format("azureMapping", { version: parameters.azureMappingVersion })}
-            </dt>
-            <dd>{notice && <Badge variant="warning">{notice}</Badge>}</dd>
+            <dd>
+              <Badge variant="warning">{notice}</Badge>
+            </dd>
           </div>
         )}
       </dl>
@@ -70,7 +69,7 @@ const TaskTypeParameters = ({ parameters }: TaskTypeParametersProps): ReactEleme
 
 /** Parameters of the rubric version pinned on the exam template, for the task types of this attempt. */
 export const RubricParametersPanel = ({ parameters }: RubricParametersPanelProps): ReactElement => {
-  const { messages: M, format } = useScoreExplanationText();
+  const { messages: M } = useScoreExplanationText();
 
   if (!parameters) {
     return (
@@ -81,14 +80,7 @@ export const RubricParametersPanel = ({ parameters }: RubricParametersPanelProps
   }
 
   return (
-    <ExplanationSection
-      title={M.parametersTitle}
-      hint={format("parametersHint", {
-        versionNo: parameters.versionNo,
-        status: parameters.status,
-        catalogVersion: parameters.catalogVersion,
-      })}
-    >
+    <ExplanationSection title={M.parametersTitle}>
       <ul className="grid gap-3 lg:grid-cols-2">
         {parameters.taskTypes.map((taskType) => (
           <TaskTypeParameters key={taskType.taskType} parameters={taskType} />
