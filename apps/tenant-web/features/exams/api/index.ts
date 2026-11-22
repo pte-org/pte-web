@@ -66,6 +66,7 @@ import { UserFacingError } from "@/features/examoperations/errorMessage";
 import { HOST_DASHBOARD_QUERY_KEY } from "@/features/hostDashboard/constants";
 import { useHostTemplates } from "@/features/hostTemplates/api";
 import { difficultyTargets } from "../utils/cefrTargets";
+import { discardDraftOnFailure } from "../utils/discardDraftOnFailure";
 import { ExamPreflightBlockedError } from "../utils/examPreflight";
 import {
   CREATE_EXAM_WIZARD_ERRORS,
@@ -312,14 +313,19 @@ export function useCreateExamWorkflow(): UseMutationResult<
         cefrTargets: difficultyTargets(input.difficulty),
         avoidRepeatedQuestions: input.avoidRepeats === true,
       });
-      assertResolvedPolicy(draft, expectedLockdownMode);
-      // One atomic request: the draft never ends up with a partial audience.
-      await addAudienceSources(apiClient, draft.publicId, input.sources);
-      const preflight = await preflightExam(apiClient, draft.publicId);
-      assertExamPreflightReady(preflight);
-      await generateExam(apiClient, draft.publicId, globalThis.crypto.randomUUID());
-      const published = await publishExam(apiClient, draft.publicId);
-      assertResolvedPolicy(published, expectedLockdownMode);
+      // The wizard's draft is only a step of "create exam": if any later step fails it is removed again, so a
+      // refused exam (e.g. a clash on the same bundle) never stays behind in the list.
+      const published = await discardDraftOnFailure(async () => {
+        assertResolvedPolicy(draft, expectedLockdownMode);
+        // One atomic request: the draft never ends up with a partial audience.
+        await addAudienceSources(apiClient, draft.publicId, input.sources);
+        const preflight = await preflightExam(apiClient, draft.publicId);
+        assertExamPreflightReady(preflight);
+        await generateExam(apiClient, draft.publicId, globalThis.crypto.randomUUID());
+        const scheduled = await publishExam(apiClient, draft.publicId);
+        assertResolvedPolicy(scheduled, expectedLockdownMode);
+        return scheduled;
+      }, () => deleteSessionRequest(apiClient, draft.publicId));
       return sessionResponseToExamSession(published);
     },
     onSuccess: (session) => {
