@@ -5,6 +5,7 @@ import type { ExaminerQueueItemResponse } from "@pte/api-client";
 import { Badge, Button, EmptyState, Skeleton } from "@pte/ui";
 import { useExaminerWorkspaceText } from "../hooks/useExaminerWorkspaceText";
 import { formatAttemptTitle } from "../utils/attemptLabels";
+import { getWorkspaceBlockingText } from "../utils/blockingReason";
 
 export interface ExaminerPriorityWorkProps {
   items: ExaminerQueueItemResponse[];
@@ -20,15 +21,6 @@ export function ExaminerPriorityWork({
   const text = useExaminerWorkspaceText();
 
   const priorityItems = items.slice(0, 5);
-
-  const getBlockingText = (reason: string | null | undefined): string => {
-    if (!reason) return "";
-    if (reason === "WAITING_FOR_HOST_FREEZE") {
-      return text.waitingForHostFreeze;
-    }
-    if (reason === "CARRIED_OVER_DRAFTS_UNCONFIRMED") return text.carriedOverDrafts;
-    return `${text.blockedReasonPrefix}${reason}`;
-  };
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -50,7 +42,7 @@ export function ExaminerPriorityWork({
             {priorityItems.map((item) => {
               const isZeroEligible = item.eligibleAnswerCount === 0;
               const isActionable = !isZeroEligible;
-              const blockingLabel = getBlockingText(item.blockingReason);
+              const blockingLabel = getWorkspaceBlockingText(text, item.blockingReason);
 
               return (
                 <div
