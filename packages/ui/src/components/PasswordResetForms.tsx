@@ -4,6 +4,7 @@ import { useState, type FormEvent, type ReactElement, type ReactNode } from "rea
 import {
   submitForgotPassword,
   validateNewPassword,
+  withoutSpaces,
   type NewPasswordProblem,
 } from "../utils/passwordReset";
 import { AuthSubmitButton, AuthTextField } from "./AuthFormControls";
@@ -102,7 +103,7 @@ export const ForgotPasswordForm = ({
           label={text.usernameLabel}
           icon={<UserIcon />}
           value={username}
-          onChange={(event) => setUsername(event.target.value)}
+          onChange={(event) => setUsername(withoutSpaces(event.target.value))}
         />
         <AuthTextField
           id={EMAIL_FIELD_ID}
@@ -111,7 +112,7 @@ export const ForgotPasswordForm = ({
           label={text.emailLabel}
           icon={<MailIcon />}
           value={email}
-          onChange={(event) => setEmail(event.target.value)}
+          onChange={(event) => setEmail(withoutSpaces(event.target.value))}
         />
         <AuthSubmitButton disabled={pending}>{pending ? text.submitting : text.submit}</AuthSubmitButton>
       </form>
@@ -130,6 +131,8 @@ export interface ResetPasswordFormText {
   required: string;
   tooShort: string;
   mismatch: string;
+  /** The new password starts or ends with a space. */
+  edgeSpaces: string;
   invalidLinkTitle: string;
   invalidLinkMessage: string;
   checkingTitle: string;
@@ -152,7 +155,13 @@ export interface ResetPasswordFormProps {
 }
 
 const problemText = (text: ResetPasswordFormText, problem: NewPasswordProblem): string =>
-  problem === "TOO_SHORT" ? text.tooShort : problem === "MISMATCH" ? text.mismatch : text.required;
+  problem === "TOO_SHORT"
+    ? text.tooShort
+    : problem === "EDGE_SPACES"
+      ? text.edgeSpaces
+      : problem === "MISMATCH"
+        ? text.mismatch
+        : text.required;
 
 /** Chooses a new password for a link that arrived by email. */
 export const ResetPasswordForm = ({
