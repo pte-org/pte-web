@@ -9,8 +9,6 @@ export const AI_SCORE_TEXT = {
   CRITERIA_TITLE: "Tiêu chí",
   FEEDBACK_TITLE: "Nhận xét",
   TRANSCRIPT_TITLE: "Bản ghi lời nói",
-  FALLBACK_NOTICE: "AI chấm bằng phương án dự phòng nên độ tin cậy thấp. Hãy xem lại điểm này.",
-  LOW_CONFIDENCE: "Độ tin cậy thấp",
   FAILURE_TITLE: "AI chấm lỗi",
   FAILURE_REASON: (code: string) => `Mã lý do: ${code}`,
   NO_SCORE: "Chưa có điểm AI",
