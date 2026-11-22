@@ -22,7 +22,8 @@ export const ExamParticipantsTab = ({
 }: ExamParticipantsTabProps): ReactElement => {
   const { t } = useLocale();
   // Mirrors the API: the roster only changes before the exam runs or after it ends.
-  const audienceLocked = session.status !== "SCHEDULED" && session.status !== "CLOSED";
+  // Students can only be added or removed before the exam runs; after it closes they could never sit it.
+  const audienceLocked = session.status !== "SCHEDULED";
   const lockedNotice = t("tenant.participants.lockedNotice", T.AUDIENCE_LOCKED_NOTICE);
 
   return (
