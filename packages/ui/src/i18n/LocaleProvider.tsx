@@ -1000,6 +1000,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
       "Không tìm thấy học viên nào từ các nguồn đối tượng đã chọn.",
     "tenant.createExam.preflight.AUDIENCE_NO_ELIGIBLE":
       "Không còn học viên nào đủ điều kiện sau khi áp dụng quy tắc thi lại.",
+    "tenant.createExam.preflight.AUDIENCE_ALL_TIME_CONFLICT":
+      "Tất cả học viên đã chọn đều đang có kỳ thi khác trùng giờ này, nên kỳ thi sẽ không có ai dự thi. Hãy đổi giờ hoặc thêm học viên khác.",
     "tenant.createExam.preflight.AUDIENCE_CONFLICT_BLOCKED":
       "Một số học viên bị trùng lịch với kỳ thi khác.",
     "tenant.createExam.preflight.AUDIENCE_CHANGED_REQUIRES_REGENERATION":
@@ -2193,6 +2195,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
       "No students were found from the selected audience sources.",
     "tenant.createExam.preflight.AUDIENCE_NO_ELIGIBLE":
       "No students remain eligible after applying the reuse rule.",
+    "tenant.createExam.preflight.AUDIENCE_ALL_TIME_CONFLICT":
+      "Every selected student already has another exam at this time, so this exam would have nobody to sit it. Pick another time or add other students.",
     "tenant.createExam.preflight.AUDIENCE_CONFLICT_BLOCKED":
       "Some students have a schedule conflict with another exam.",
     "tenant.createExam.preflight.AUDIENCE_CHANGED_REQUIRES_REGENERATION":

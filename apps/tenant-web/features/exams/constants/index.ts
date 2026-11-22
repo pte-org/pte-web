@@ -220,6 +220,8 @@ export const CREATE_EXAM_WIZARD_TEXT = {
     AUDIENCE_EMPTY: "No students were found from the selected audience sources.",
     AUDIENCE_NO_ELIGIBLE: "No students remain eligible after applying the reuse rule.",
     AUDIENCE_CONFLICT_BLOCKED: "Some students have a schedule conflict with another exam.",
+    AUDIENCE_ALL_TIME_CONFLICT:
+      "Every selected student already has another exam at this time, so this exam would have nobody to sit it. Pick another time or add other students.",
     AUDIENCE_CHANGED_REQUIRES_REGENERATION:
       "The student audience changed while the exam was being prepared. Generate the exam again before publishing.",
     SESSION_CAPACITY_EXCEEDED:
