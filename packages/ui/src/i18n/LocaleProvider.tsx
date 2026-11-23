@@ -293,8 +293,9 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examList.updateStatus": "Cập nhật trạng thái",
     "tenant.examList.cancelUpdateStatus": "Hủy cập nhật trạng thái",
     "tenant.examList.delete": "Xóa kỳ thi",
-    "tenant.examList.deleteTitle": "Xóa bản nháp kỳ thi này?",
-    "tenant.examList.deleteDescription": "Bản nháp “{name}” sẽ bị xóa và không thể khôi phục.",
+    "tenant.examList.deleteTitle": "Xóa kỳ thi chưa phát hành này?",
+    "tenant.examList.deleteDescription":
+      "Kỳ thi “{name}” chưa được phát hành nên chưa có học viên nào. Kỳ thi sẽ bị xóa và không thể khôi phục.",
     "tenant.examList.deleteConfirm": "Xóa kỳ thi",
     "tenant.examList.cancel": "Hủy",
     "tenant.examList.deleteSuccess": "Đã xóa bản nháp kỳ thi.",
@@ -438,7 +439,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.participants.addSubmit": "Thêm vào kỳ thi",
     "tenant.participants.addSubmitting": "Đang thêm...",
     "tenant.participants.lockedNotice":
-      "Không thể thêm hoặc xóa học viên khi kỳ thi đang chuẩn bị hoặc đang diễn ra. Bạn chỉnh sửa được danh sách khi kỳ thi Đã lên lịch hoặc Đã kết thúc.",
+      "Chỉ thêm hoặc xóa học viên được khi kỳ thi Đã lên lịch, trước khi bắt đầu.",
     "tenant.studentRoster.fullName": "Họ và tên",
     "tenant.studentRoster.email": "Email",
     "tenant.studentRoster.studentCode": "Mã học viên",
@@ -1000,6 +1001,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
       "Không tìm thấy học viên nào từ các nguồn đối tượng đã chọn.",
     "tenant.createExam.preflight.AUDIENCE_NO_ELIGIBLE":
       "Không còn học viên nào đủ điều kiện sau khi áp dụng quy tắc thi lại.",
+    "tenant.createExam.preflight.AUDIENCE_ALL_TIME_CONFLICT":
+      "Tất cả học viên đã chọn đều đang có kỳ thi khác trùng giờ này, nên kỳ thi sẽ không có ai dự thi. Hãy đổi giờ hoặc thêm học viên khác.",
     "tenant.createExam.preflight.AUDIENCE_CONFLICT_BLOCKED":
       "Một số học viên bị trùng lịch với kỳ thi khác.",
     "tenant.createExam.preflight.AUDIENCE_CHANGED_REQUIRES_REGENERATION":
@@ -1484,9 +1487,9 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.examList.updateStatus": "Update status",
     "tenant.examList.cancelUpdateStatus": "Cancel status update",
     "tenant.examList.delete": "Delete exam",
-    "tenant.examList.deleteTitle": "Delete this exam draft?",
+    "tenant.examList.deleteTitle": "Delete this unpublished exam?",
     "tenant.examList.deleteDescription":
-      "The draft “{name}” will be deleted and cannot be recovered.",
+      "“{name}” has not been published, so no student is enrolled. It will be deleted and cannot be recovered.",
     "tenant.examList.deleteConfirm": "Delete exam",
     "tenant.examList.cancel": "Cancel",
     "tenant.examList.deleteSuccess": "Exam draft deleted.",
@@ -1634,7 +1637,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.participants.addSubmit": "Add to exam",
     "tenant.participants.addSubmitting": "Adding...",
     "tenant.participants.lockedNotice":
-      "Students can't be added or removed while this exam is being prepared or running. You can edit the list when it is Scheduled or Closed.",
+      "Students can only be added or removed while the exam is Scheduled, before it starts.",
     "tenant.studentRoster.fullName": "Full name",
     "tenant.studentRoster.email": "Email",
     "tenant.studentRoster.studentCode": "Student code",
@@ -2193,6 +2196,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
       "No students were found from the selected audience sources.",
     "tenant.createExam.preflight.AUDIENCE_NO_ELIGIBLE":
       "No students remain eligible after applying the reuse rule.",
+    "tenant.createExam.preflight.AUDIENCE_ALL_TIME_CONFLICT":
+      "Every selected student already has another exam at this time, so this exam would have nobody to sit it. Pick another time or add other students.",
     "tenant.createExam.preflight.AUDIENCE_CONFLICT_BLOCKED":
       "Some students have a schedule conflict with another exam.",
     "tenant.createExam.preflight.AUDIENCE_CHANGED_REQUIRES_REGENERATION":

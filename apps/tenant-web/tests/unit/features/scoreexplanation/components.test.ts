@@ -14,12 +14,18 @@ const render = (element: ReactElement): string =>
   renderToStaticMarkup(createElement(LocaleProvider, null, element));
 
 describe("header and notices", () => {
-  it("shows template, pinned rubric version and the snapshot schema of a published report", () => {
-    const html = render(createElement(ExplanationHeader, { explanation: explanation() }));
+  it("names the template and the pinned rubric version instead of showing their ids", () => {
+    const html = render(
+      createElement(ExplanationHeader, {
+        explanation: explanation({ examDefinitionName: "PTE Academic 50+" }),
+      }),
+    );
     expect(html).toContain("Đã phát hành");
-    expect(html).toContain("template-1 · phiên bản 3");
-    expect(html).toContain("rubric-1");
-    expect(html).toContain("Lược đồ 2");
+    expect(html).toContain("PTE Academic 50+ · phiên bản 3");
+    expect(html).toContain("Phiên bản 1");
+    expect(html).not.toContain("template-1");
+    expect(html).not.toContain("rubric-1");
+    expect(html).not.toContain("Lược đồ");
   });
 
   it("marks an unpublished attempt as a live calculation and warns about unselected AI scores", () => {
@@ -34,7 +40,6 @@ describe("header and notices", () => {
       }),
     );
     expect(html).toContain("Chưa phát hành");
-    expect(html).toContain("Tính trực tiếp");
     expect(html).toContain("Câu chưa chọn nguồn điểm");
   });
 
@@ -48,7 +53,8 @@ describe("pinned rubric parameters", () => {
     const html = render(
       createElement(RubricParametersPanel, { parameters: explanation().rubricParameters }),
     );
-    expect(html).toContain("Phiên bản 1 (ACTIVE)");
+    expect(html).not.toContain("catalog");
+    expect(html).not.toContain("Bảng ánh xạ Azure");
     expect(html).toContain("CONTENT 6 · PRONUNCIATION 5 · ORAL_FLUENCY 5");
     expect(html).toContain("CONTENT bật");
     expect(html).toContain("chưa hiệu chỉnh với dữ liệu người chấm");
@@ -75,7 +81,6 @@ describe("pinned rubric parameters", () => {
       }),
     );
     expect(html).toContain("200–300 từ: 2");
-    expect(html).toContain("RETIRED");
     expect(html).not.toContain("chưa hiệu chỉnh");
   });
 

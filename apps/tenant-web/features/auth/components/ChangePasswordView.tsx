@@ -2,23 +2,27 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Button, PasswordInput, useSessionManager, useToast } from "@pte/ui";
+import { Alert, Button, PasswordInput, hasEdgeSpaces, useSessionManager, useToast } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useChangePassword } from "../api";
-import { AUTH_ROUTES, PASSWORD_CHANGE_TEXT } from "../constants";
+import { AUTH_ROUTES, FIRST_PASSWORD_TEXT, PASSWORD_CHANGE_TEXT } from "../constants";
 import { resolveWorkspace } from "../resolveWorkspace";
 
 export const ChangePasswordView = (): ReactElement => {
   const router = useRouter();
-  const { session, saveSession } = useSessionManager();
+  const { session, saveSession, clearSession } = useSessionManager();
+  // Still on a temporary password (e.g. after a reload): offer a way out instead of trapping the person here.
+  const isSignInChange = Boolean(session?.mustChangePassword);
+  const backToLogin = (): void => {
+    clearSession();
+    router.replace(AUTH_ROUTES.login);
+  };
   const mutation = useChangePassword();
   const { showToast } = useToast();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [formError, setFormError] = useState<string>();
-  // A forced change (temporary password) has nowhere to go back to; a voluntary one can be cancelled.
-  const isForced = Boolean(session?.mustChangePassword);
   const homeRoute = resolveWorkspace(session?.roles ?? []).defaultRoute || AUTH_ROUTES.login;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
@@ -29,6 +33,10 @@ export const ChangePasswordView = (): ReactElement => {
     }
     if (newPassword.length < 8) {
       setFormError(PASSWORD_CHANGE_TEXT.TOO_SHORT);
+      return;
+    }
+    if (hasEdgeSpaces(newPassword)) {
+      setFormError(PASSWORD_CHANGE_TEXT.EDGE_SPACES);
       return;
     }
     if (newPassword !== confirmation) {
@@ -43,7 +51,7 @@ export const ChangePasswordView = (): ReactElement => {
         refreshToken: session?.refreshToken,
       });
       if (session) saveSession({ ...session, mustChangePassword: false });
-      showToast(isForced ? PASSWORD_CHANGE_TEXT.SUCCESS : PASSWORD_CHANGE_TEXT.SUCCESS_VOLUNTARY, { tone: "success" });
+      showToast(isSignInChange ? PASSWORD_CHANGE_TEXT.SUCCESS : PASSWORD_CHANGE_TEXT.SUCCESS_VOLUNTARY, { tone: "success" });
       router.replace(homeRoute);
     } catch (error) {
       setFormError(getUserFacingApiErrorMessage(error, PASSWORD_CHANGE_TEXT.FAILED));
@@ -51,15 +59,12 @@ export const ChangePasswordView = (): ReactElement => {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="flex w-full max-w-md flex-col gap-5 rounded-lg bg-white p-8 shadow-card"
-      >
+    <>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">{PASSWORD_CHANGE_TEXT.TITLE}</h1>
-          <p className="mt-1 text-sm text-gray-600">
-            {isForced ? PASSWORD_CHANGE_TEXT.SUBTITLE : PASSWORD_CHANGE_TEXT.VOLUNTARY_SUBTITLE}
+          <h1 className="text-[2rem] font-extrabold leading-tight tracking-[-0.025em] text-[var(--ink-primary)]">{PASSWORD_CHANGE_TEXT.TITLE}</h1>
+          <p className="mt-2 text-[15px] leading-relaxed text-[var(--ink-secondary)]">
+            {isSignInChange ? PASSWORD_CHANGE_TEXT.SUBTITLE : PASSWORD_CHANGE_TEXT.VOLUNTARY_SUBTITLE}
           </p>
         </div>
         {formError && <Alert tone="error">{formError}</Alert>}
@@ -89,12 +94,21 @@ export const ChangePasswordView = (): ReactElement => {
         <Button type="submit" fullWidth isLoading={mutation.isPending} loadingText={PASSWORD_CHANGE_TEXT.SUBMITTING}>
           {PASSWORD_CHANGE_TEXT.SUBMIT}
         </Button>
-        {!isForced && (
+        {!isSignInChange && (
           <Button type="button" variant="secondary" fullWidth onClick={() => router.replace(homeRoute)}>
             {PASSWORD_CHANGE_TEXT.CANCEL}
           </Button>
         )}
       </form>
-    </main>
+      {isSignInChange && (
+        <button
+          type="button"
+          onClick={backToLogin}
+          className="self-center text-sm font-semibold text-[var(--brand-ink)] hover:underline"
+        >
+          {FIRST_PASSWORD_TEXT.backToLogin}
+        </button>
+      )}
+    </>
   );
 };
