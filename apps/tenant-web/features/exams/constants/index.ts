@@ -51,9 +51,9 @@ export const EXAM_ROW_ACTIONS_TEXT = {
   UPDATE_STATUS: "Update status",
   CANCEL_UPDATE_STATUS: "Cancel status update",
   DELETE: "Delete exam",
-  DELETE_TITLE: "Delete this exam draft?",
+  DELETE_TITLE: "Delete this unpublished exam?",
   DELETE_DESCRIPTION: (name: string) =>
-    `The draft “${name}” will be deleted and cannot be recovered.`,
+    `“${name}” has not been published, so no student is enrolled. It will be deleted and cannot be recovered.`,
   DELETE_CONFIRM: "Delete exam",
   CANCEL: "Cancel",
   DELETE_SUCCESS: "Exam draft deleted.",
@@ -220,6 +220,8 @@ export const CREATE_EXAM_WIZARD_TEXT = {
     AUDIENCE_EMPTY: "No students were found from the selected audience sources.",
     AUDIENCE_NO_ELIGIBLE: "No students remain eligible after applying the reuse rule.",
     AUDIENCE_CONFLICT_BLOCKED: "Some students have a schedule conflict with another exam.",
+    AUDIENCE_ALL_TIME_CONFLICT:
+      "Every selected student already has another exam at this time, so this exam would have nobody to sit it. Pick another time or add other students.",
     AUDIENCE_CHANGED_REQUIRES_REGENERATION:
       "The student audience changed while the exam was being prepared. Generate the exam again before publishing.",
     SESSION_CAPACITY_EXCEEDED:
@@ -322,7 +324,7 @@ export const SESSION_DETAIL_TEXT = {
   ADD_STUDENTS_SUBMIT: "Add to exam",
   ADD_STUDENTS_SUBMITTING: "Adding...",
   AUDIENCE_LOCKED_NOTICE:
-    "Students can't be added or removed while this exam is being prepared or running. You can edit the list when it is Scheduled or Closed.",
+    "Students can only be added or removed while the exam is Scheduled, before it starts.",
   PROCTORS_SECTION: "Proctors",
   ANSWERS_SECTION: "Submitted Answers",
   EXAMINER_ASSIGNMENTS_SECTION: "Examiner assignments",

@@ -4,6 +4,7 @@ import {
   resolveResetLinkState,
   submitForgotPassword,
   validateNewPassword,
+  withoutSpaces,
 } from "../../../src/utils/passwordReset";
 
 describe("validateNewPassword", () => {
@@ -70,5 +71,17 @@ describe("resolveResetLinkState", () => {
 
   it("does not lock someone out because the check itself failed; the final step reports the truth", () => {
     expect(resolveResetLinkState("raw", { isPending: false })).toBe("usable");
+  });
+});
+
+describe("password spaces", () => {
+  it("refuses a new password that starts or ends with a space", () => {
+    expect(validateNewPassword(" NewPassword456", " NewPassword456")).toBe("EDGE_SPACES");
+    expect(validateNewPassword("NewPassword456 ", "NewPassword456 ")).toBe("EDGE_SPACES");
+    expect(validateNewPassword("New Password 456", "New Password 456")).toBeNull();
+  });
+
+  it("drops every space from a username or e-mail", () => {
+    expect(withoutSpaces("  host @ local.com	")).toBe("host@local.com");
   });
 });

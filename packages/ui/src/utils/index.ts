@@ -7,6 +7,8 @@ export {
   resolveResetLinkState,
   submitForgotPassword,
   validateNewPassword,
+  withoutSpaces,
+  hasEdgeSpaces,
 } from "./passwordReset";
 export type { NewPasswordProblem, ResetLinkState } from "./passwordReset";
 export { levelDotClass, traitTone } from "./traitTone";

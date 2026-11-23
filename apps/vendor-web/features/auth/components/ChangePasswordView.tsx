@@ -2,21 +2,29 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Button, PasswordInput, useSessionManager, useToast } from "@pte/ui";
+import { Alert, Button, PasswordInput, hasEdgeSpaces, useSessionManager, useToast } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useChangePassword } from "../api";
 import {
   ADMIN_ROLES,
   AUTH_ROUTES,
+  FIRST_PASSWORD_TEXT,
   HOST_ROLES,
   PASSWORD_CHANGE_TEXT as RAW_PASSWORD_CHANGE_TEXT,
 } from "../constants";
 
 export const ChangePasswordView = (): ReactElement => {
   const T = useAdminCopy(RAW_PASSWORD_CHANGE_TEXT);
+  const backLabel = useAdminCopy(FIRST_PASSWORD_TEXT);
   const router = useRouter();
-  const { session, saveSession } = useSessionManager();
+  const { session, saveSession, clearSession } = useSessionManager();
+  // Still on a temporary password (e.g. after a reload): offer a way out instead of trapping the person here.
+  const isSignInChange = Boolean(session?.mustChangePassword);
+  const backToLogin = (): void => {
+    clearSession();
+    router.replace(AUTH_ROUTES.login);
+  };
   const mutation = useChangePassword();
   const { showToast } = useToast();
   const [currentPassword, setCurrentPassword] = useState("");
@@ -32,6 +40,10 @@ export const ChangePasswordView = (): ReactElement => {
     }
     if (newPassword.length < 8) {
       setFormError(T.TOO_SHORT);
+      return;
+    }
+    if (hasEdgeSpaces(newPassword)) {
+      setFormError(T.EDGE_SPACES);
       return;
     }
     if (newPassword !== confirmation) {
@@ -59,14 +71,11 @@ export const ChangePasswordView = (): ReactElement => {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="flex w-full max-w-md flex-col gap-5 rounded-lg bg-white p-8 shadow-card"
-      >
+    <>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">{T.TITLE}</h1>
-          <p className="mt-1 text-sm text-gray-600">{T.SUBTITLE}</p>
+          <h1 className="text-[2rem] font-extrabold leading-tight tracking-[-0.025em] text-[var(--ink-primary)]">{T.TITLE}</h1>
+          <p className="mt-2 text-[15px] leading-relaxed text-[var(--ink-secondary)]">{T.SUBTITLE}</p>
         </div>
         {formError && <Alert tone="error">{formError}</Alert>}
         <div className="flex flex-col gap-4">
@@ -96,6 +105,15 @@ export const ChangePasswordView = (): ReactElement => {
           {T.SUBMIT}
         </Button>
       </form>
-    </main>
+      {isSignInChange && (
+        <button
+          type="button"
+          onClick={backToLogin}
+          className="self-center text-sm font-semibold text-[var(--brand-ink)] hover:underline"
+        >
+          {backLabel.backToLogin}
+        </button>
+      )}
+    </>
   );
 };

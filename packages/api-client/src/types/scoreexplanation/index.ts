@@ -114,6 +114,8 @@ export interface ScoreExplanationResponse {
   includesUnselectedAiScores: boolean;
   examDefinitionPublicId: string | null;
   examDefinitionVersion: number | null;
+  /** The template's display name; null when it can no longer be found. */
+  examDefinitionName?: string | null;
   rubricVersionPublicId: string | null;
   /** Present only when the pinned version is ACTIVE or RETIRED. */
   rubricParameters: RubricParametersResponse | null;

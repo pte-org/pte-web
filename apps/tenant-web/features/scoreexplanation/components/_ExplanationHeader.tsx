@@ -23,26 +23,20 @@ const formatDate = (value: string, locale: "vi" | "en"): string => {
 export const ExplanationHeader = ({ explanation }: ExplanationHeaderProps): ReactElement => {
   const { locale, messages: M, format } = useScoreExplanationText();
 
+  const versionNo = explanation.rubricParameters?.versionNo;
   const items: DescriptionItem[] = [
     {
       label: M.examTemplate,
-      value: explanation.examDefinitionPublicId
-        ? format("examTemplateValue", {
-            id: explanation.examDefinitionPublicId,
-            version: explanation.examDefinitionVersion ?? NO_VALUE,
-          })
-        : NO_VALUE,
+      value: format("examTemplateValue", {
+        name: explanation.examDefinitionName ?? NO_VALUE,
+        version: explanation.examDefinitionVersion ?? NO_VALUE,
+      }),
     },
-    { label: M.rubricVersion, value: explanation.rubricVersionPublicId ?? NO_VALUE },
     {
-      label: M.snapshotSchema,
-      value:
-        explanation.schemaVersion === null
-          ? M.liveRecompute
-          : format("snapshotSchemaValue", { version: explanation.schemaVersion }),
+      label: M.rubricVersion,
+      value: versionNo == null ? NO_VALUE : format("rubricVersionValue", { versionNo }),
     },
   ];
-
   return (
     <div className="space-y-3">
       <div className="flex flex-wrap items-center gap-3">

@@ -274,7 +274,8 @@ export const SessionTable = ({
               },
             });
           }
-          if (session.status === "DRAFT") {
+          // DRAFT and READY are both unpublished, so nobody is enrolled and the exam can be deleted.
+          if (session.status === "DRAFT" || session.status === "READY") {
             items.push({ separator: true, key: "delete-divider" });
             items.push({
               label: actionText.delete,
