@@ -7,6 +7,8 @@ export {
   resolveResetLinkState,
   submitForgotPassword,
   validateNewPassword,
+  exceedsMaxPasswordBytes,
+  MAX_PASSWORD_BYTES,
   withoutSpaces,
   hasEdgeSpaces,
 } from "./passwordReset";
