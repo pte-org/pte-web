@@ -13,6 +13,11 @@ export interface TabRailCardProps {
   onChange: (value: string) => void;
   /** Shown under the tab rail, in the same side column (e.g. a details panel). */
   sidePanel?: ReactNode;
+  /**
+   * Draws the rail without its own frame and grey tray, with an accent bar on the selected item, and leaves out the
+   * card around rail and content, for content that is already a card.
+   */
+  flatRail?: boolean;
   children: ReactNode;
 }
 
@@ -29,6 +34,18 @@ const WINDOW_BOTTOM_GAP = 24;
 const scrollAreaOf = (element: HTMLElement): HTMLElement | null =>
   element.closest<HTMLElement>("[data-scroll-area]");
 
+/** The card around the rail and content; a flat rail drops it, so the content's own card is the only one. */
+const Frame = ({
+  flat,
+  className,
+  children,
+}: {
+  flat: boolean;
+  className: string;
+  children: ReactNode;
+}): ReactElement =>
+  flat ? <div className={className}>{children}</div> : <DashboardCard className={className}>{children}</DashboardCard>;
+
 /**
  * A card with a vertical tab rail on the left and the selected tab's content on the right.
  * A side panel widens the rail so its fields fit; without one the rail shrinks to its labels.
@@ -44,6 +61,7 @@ export const TabRailCard = ({
   value,
   onChange,
   sidePanel,
+  flatRail = false,
   children,
 }: TabRailCardProps): ReactElement => {
   const frameRef = useRef<HTMLDivElement>(null);
@@ -90,14 +108,15 @@ export const TabRailCard = ({
 
   return (
     <div ref={frameRef} className="lg:h-[var(--rail-card-height)]">
-      <DashboardCard
+      <Frame
+        flat={flatRail}
         className={cn(
           "grid gap-6 lg:h-full lg:grid-rows-[minmax(0,1fr)] lg:overflow-hidden",
           sidePanel ? "lg:grid-cols-[15rem_minmax(0,1fr)]" : "lg:grid-cols-[auto_minmax(0,1fr)]",
         )}
       >
         <div className="-mx-1 flex flex-col gap-4 px-1 py-0.5 lg:min-h-0 lg:overflow-y-auto lg:overscroll-y-contain lg:[scrollbar-width:none] lg:[&::-webkit-scrollbar]:hidden [&>*]:shrink-0">
-          <Tabs id={id} orientation="vertical" items={items} value={value} onChange={onChange} />
+          <Tabs id={id} orientation="vertical" items={items} value={value} onChange={onChange} flat={flatRail} />
           {sidePanel}
         </div>
         <div
@@ -108,7 +127,7 @@ export const TabRailCard = ({
         >
           {children}
         </div>
-      </DashboardCard>
+      </Frame>
     </div>
   );
 };

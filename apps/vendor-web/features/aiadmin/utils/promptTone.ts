@@ -18,6 +18,8 @@ const ENGINE_TONES: Record<string, Tone> = {
   CODE: NEUTRAL_TONE,
   LLM: { chip: "bg-indigo-500/10 text-indigo-700 ring-1 ring-inset ring-indigo-500/30 dark:bg-indigo-500/25 dark:text-indigo-200 dark:ring-indigo-400/50", dot: "bg-indigo-500 dark:bg-indigo-300" },
   TTS: { chip: "bg-teal-500/10 text-teal-700 ring-1 ring-inset ring-teal-500/30 dark:bg-teal-500/25 dark:text-teal-200 dark:ring-teal-400/50", dot: "bg-teal-500 dark:bg-teal-300" },
+  // The practice listening model: its own green, so it does not read as the grey of "Code".
+  AI_AUDIO: { chip: "bg-emerald-500/10 text-emerald-700 ring-1 ring-inset ring-emerald-500/30 dark:bg-emerald-500/25 dark:text-emerald-200 dark:ring-emerald-400/50", dot: "bg-emerald-500 dark:bg-emerald-300" },
   CHART: { chip: "bg-amber-500/10 text-amber-700 ring-1 ring-inset ring-amber-500/30 dark:bg-amber-500/25 dark:text-amber-200 dark:ring-amber-400/50", dot: "bg-amber-500 dark:bg-amber-300" },
 };
 
