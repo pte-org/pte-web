@@ -98,6 +98,9 @@ export const REGISTRATION_TEXT = {
   requestedCodeInvalid: "Use 3–32 lowercase letters, numbers, or hyphens.",
   duplicateCode: "This tenant code is already in use. Choose another code.",
   duplicateName: "This organization name is already in use. Choose another name.",
+  duplicateTaxCode: "This tax code already belongs to an organization. Check it or contact support.",
+  applicationInvalid: "Some details are not valid. Check the form and try again.",
+  networkError: "Could not reach the server. Check your connection and try again.",
   rateLimited: "The system is receiving many applications. Try again in a few minutes.",
   submitFailed: "Application could not be submitted. Try again.",
   organizationNameRequired: "Enter your organization name.",
@@ -129,6 +132,8 @@ export const REGISTRATION_TEXT = {
   submitApplication: "Submit application",
   submitIcon: "→",
 } as const;
+
+export type RegistrationText = { [Key in keyof typeof REGISTRATION_TEXT]: string };
 
 export const REGISTRATION_ORGANIZATION_TYPES = [
   { label: "School", value: "school" },
