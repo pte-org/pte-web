@@ -21,7 +21,7 @@ export function scoreGuideExample(rubric: TaskTypeRubricResponse): SimulatorStat
     VOCABULARY_RANGE: 1, VOCABULARY: 1, SPELLING: 1 };
   for (const trait of rubric.traits) {
     if (trait.key === SIMULATOR_CONFIG.formKey) continue;
-    const value = candidates[trait.key] ?? 0;
+    const value = trait.perWord ? 45 : (candidates[trait.key] ?? 0);
     const maximum = trait.perWord ? state.wordCount : trait.maxScore ?? 0;
     state.traitScores[trait.key] = value <= maximum ? value : maximum;
     state.selectedTraits.push(trait.key);

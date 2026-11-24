@@ -76,9 +76,9 @@ export const TraitScorePicker = ({
         </div>
       )}
       {description ? (
-        <div className="space-y-1 rounded-lg bg-[var(--surface-subtle)] p-3">
-          <p className="text-xs text-[var(--ink-muted)]">{T.description}</p>
-          <p className="text-sm leading-relaxed text-[var(--ink-secondary)]">{description}</p>
+        <div className="space-y-1 rounded-r-lg rounded-l-xs border-l-2 border-blue-500 bg-blue-50/30 p-3 dark:bg-blue-950/20">
+          <p className="text-xs font-medium text-blue-700/80 dark:text-blue-300/80">{T.description}</p>
+          <p className="text-sm leading-relaxed text-[var(--ink-primary)]">{description}</p>
         </div>
       ) : null}
     </fieldset>
