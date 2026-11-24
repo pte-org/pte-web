@@ -1,10 +1,11 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Modal, Select, Textarea } from "@pte/ui";
+import { Alert, Modal, Select, Textarea, useLocale } from "@pte/ui";
 import {
-  CATEGORY_OPTIONS,
-  CREATE_TICKET_TEXT as T,
+  CATEGORY_LABELS,
+  CREATE_TICKET_ERRORS,
+  CREATE_TICKET_TEXT,
   EMPTY_CREATE_TICKET,
 } from "../constants";
 import { validateCreateTicket } from "../utils/validateCreateTicket";
@@ -27,6 +28,38 @@ export const CreateTicketModal = ({
   error,
   isSubmitting = false,
 }: CreateTicketModalProps): ReactElement => {
+  const { t } = useLocale();
+  const T = {
+    title: t("tenant.support.create.title", CREATE_TICKET_TEXT.TITLE),
+    categoryLabel: t("tenant.support.create.categoryLabel", CREATE_TICKET_TEXT.CATEGORY_LABEL),
+    categoryPlaceholder: t("tenant.support.create.categoryPlaceholder", CREATE_TICKET_TEXT.CATEGORY_PLACEHOLDER),
+    descriptionLabel: t("tenant.support.create.descriptionLabel", CREATE_TICKET_TEXT.DESCRIPTION_LABEL),
+    descriptionPlaceholder: t(
+      "tenant.support.create.descriptionPlaceholder",
+      CREATE_TICKET_TEXT.DESCRIPTION_PLACEHOLDER,
+    ),
+    cancel: t("tenant.support.cancel", CREATE_TICKET_TEXT.CANCEL),
+    submit: t("tenant.support.create.submit", CREATE_TICKET_TEXT.SUBMIT),
+    submitting: t("tenant.support.create.submitting", "Submitting…"),
+  };
+  const errorText = {
+    CATEGORY_REQUIRED: t("tenant.support.create.errorCategory", CREATE_TICKET_ERRORS.CATEGORY_REQUIRED),
+    DESCRIPTION_REQUIRED: t(
+      "tenant.support.create.errorDescriptionRequired",
+      CREATE_TICKET_ERRORS.DESCRIPTION_REQUIRED,
+    ),
+    DESCRIPTION_TOO_LONG: t(
+      "tenant.support.create.errorDescriptionTooLong",
+      CREATE_TICKET_ERRORS.DESCRIPTION_TOO_LONG,
+    ),
+  };
+  const categoryOptions = [
+    { value: "BUG", label: t("tenant.support.category.bug", CATEGORY_LABELS.BUG) },
+    {
+      value: "GENERAL_FEEDBACK",
+      label: t("tenant.support.category.generalFeedback", CATEGORY_LABELS.GENERAL_FEEDBACK),
+    },
+  ];
   const [form, setForm] = useState<CreateTicketInput>(EMPTY_CREATE_TICKET);
   const [errors, setErrors] = useState<CreateTicketErrors>({});
 
@@ -35,7 +68,7 @@ export const CreateTicketModal = ({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    const nextErrors = validateCreateTicket(form);
+    const nextErrors = validateCreateTicket(form, errorText);
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length === 0) onSubmit(form);
   };
@@ -50,7 +83,7 @@ export const CreateTicketModal = ({
     <Modal
       open={open}
       onClose={handleClose}
-      title={T.TITLE}
+      title={T.title}
       size="lg"
       footer={
         <>
@@ -59,7 +92,7 @@ export const CreateTicketModal = ({
             onClick={handleClose}
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            {T.CANCEL}
+            {T.cancel}
           </button>
           <button
             type="submit"
@@ -67,7 +100,7 @@ export const CreateTicketModal = ({
             disabled={isSubmitting}
             className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:opacity-50"
           >
-            {isSubmitting ? "Submitting…" : T.SUBMIT}
+            {isSubmitting ? T.submitting : T.submit}
           </button>
         </>
       }
@@ -77,26 +110,26 @@ export const CreateTicketModal = ({
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700" htmlFor="ticket-category">
-            {T.CATEGORY_LABEL}
+            {T.categoryLabel}
           </label>
           <Select
             id="ticket-category"
             value={form.category}
             onChange={(e) => set("category", e.target.value as CreateTicketInput["category"])}
-            options={[{ value: "", label: T.CATEGORY_PLACEHOLDER }, ...CATEGORY_OPTIONS]}
+            options={[{ value: "", label: T.categoryPlaceholder }, ...categoryOptions]}
           />
           {errors.category && <p className="text-xs text-red-600">{errors.category}</p>}
         </div>
 
         <div className="flex flex-col gap-1">
           <label className="text-sm font-medium text-gray-700" htmlFor="ticket-description">
-            {T.DESCRIPTION_LABEL}
+            {T.descriptionLabel}
           </label>
           <Textarea
             id="ticket-description"
             value={form.description}
             onChange={(e) => set("description", e.target.value)}
-            placeholder={T.DESCRIPTION_PLACEHOLDER}
+            placeholder={T.descriptionPlaceholder}
             rows={5}
           />
           <div className="flex justify-between">
