@@ -43,7 +43,8 @@ export const ExaminerAttemptDetailView = (props: { sessionPublicId: string; atte
         </div>}
       />
 
-      {workflow?.blockingReason && (
+      {/* The header already announces a published cohort; repeating it as a blocking reason would show it twice. */}
+      {workflow?.blockingReason && !(workflow.blockingReason === "ALREADY_PUBLISHED" && query.data?.publicationState === "PUBLISHED") && (
         <Alert tone="warning" title={T.SCORING_NOTICE_TITLE}>
           {getExaminerBlockingText(T, workflow.blockingReason)}
         </Alert>
