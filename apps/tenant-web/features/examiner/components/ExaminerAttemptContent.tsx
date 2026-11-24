@@ -17,8 +17,8 @@ import type { ExaminerAttemptController } from "../useExaminerAttemptController"
 interface ExaminerAttemptContentProps { state: ExaminerAttemptController }
 
 /**
- * The marking screen as three side-by-side columns: the item and the Student's answer, the AI's marking, and the
- * examiner's own marking. The question list is set aside for now; the toolbar below moves between questions.
+ * The marking screen in two rows: the item and the Student's answer across the full width, then the AI's marking
+ * and the examiner's own marking side by side. The question list is set aside for now; the toolbar below moves between questions.
  */
 export const ExaminerAttemptContent = ({ state }: ExaminerAttemptContentProps): ReactElement => {
   const { T, query, answers, currentAnswer, setPromptMedia, setResponseMedia, handleApplyAiScore, activeDraft, handleTraitChange,
@@ -37,15 +37,15 @@ export const ExaminerAttemptContent = ({ state }: ExaminerAttemptContentProps): 
   if (!currentAnswer) return <></>;
 
   return <div className="space-y-4">
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-      <ExaminerColumn title={text.colPrompt} tone="prompt" action={<RubricCriteriaButton rubric={currentAnswer.rubric} />}>
-        <PromptMeta prompt={currentAnswer.prompt} />
-        <PromptRenderer key={`prompt-${currentAnswer.answerPublicId}`} prompt={currentAnswer.prompt}
-          onMediaStateChange={setPromptMedia} onRefreshMedia={() => void query.refetch()} />
-        <ResponseRenderer key={`response-${currentAnswer.answerPublicId}`} response={currentAnswer.response}
-          onMediaStateChange={setResponseMedia} onRefreshMedia={() => void query.refetch()} />
-      </ExaminerColumn>
+    <ExaminerColumn title={text.colPrompt} tone="prompt" action={<RubricCriteriaButton rubric={currentAnswer.rubric} />}>
+      <PromptMeta prompt={currentAnswer.prompt} />
+      <PromptRenderer key={`prompt-${currentAnswer.answerPublicId}`} prompt={currentAnswer.prompt}
+        onMediaStateChange={setPromptMedia} onRefreshMedia={() => void query.refetch()} />
+      <ResponseRenderer key={`response-${currentAnswer.answerPublicId}`} response={currentAnswer.response}
+        onMediaStateChange={setResponseMedia} onRefreshMedia={() => void query.refetch()} />
+    </ExaminerColumn>
 
+    <div className="grid grid-cols-1 items-start gap-4 lg:grid-cols-2">
       <ExaminerColumn title={text.colAi} tone="ai">
         {!aiReveal.revealed ? <BlindMarkingNotice onReveal={aiReveal.revealNow} /> : <>
           <AiReferencePanel reference={currentAnswer.aiReference}

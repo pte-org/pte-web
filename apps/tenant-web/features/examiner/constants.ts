@@ -14,12 +14,8 @@ export const TRAIT_NUMERIC_INPUT_MIN_MAX_SCORE = 10;
 /** Matches the server limit on one reason (RubricConstants.MAX_AI_GAP_REASON_LENGTH). */
 export const AI_GAP_REASON_MAX_LENGTH = 500;
 
-/**
- * One marking column on wide screens: as tall as the viewport minus the page header and the marking toolbar, so each
- * column scrolls on its own instead of the whole page.
- */
-export const EXAMINER_COLUMN_CLASS =
-  "min-w-0 space-y-3 rounded-2xl border p-3 lg:max-h-[calc(100dvh-14rem)] lg:overflow-y-auto";
+/** One marking panel; the panels stack in rows and the page itself scrolls. */
+export const EXAMINER_COLUMN_CLASS = "min-w-0 space-y-3 rounded-2xl border p-3";
 
 export type ExaminerColumnTone = "prompt" | "ai" | "examiner";
 
