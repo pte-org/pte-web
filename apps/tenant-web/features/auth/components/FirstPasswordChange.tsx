@@ -2,9 +2,9 @@
 
 import { useState, type ReactElement } from "react";
 import { ResetPasswordForm, useSessionManager, useToast } from "@pte/ui";
-import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useChangePassword } from "../api";
-import { FIRST_PASSWORD_TEXT } from "../constants";
+import { getAuthFailureMessage } from "../authErrors";
+import { useAuthCopy } from "../hooks/useAuthCopy";
 
 interface FirstPasswordChangeProps {
   /** The temporary password just used to sign in, so the person does not type it again. */
@@ -19,6 +19,7 @@ export const FirstPasswordChange = ({ currentPassword, onChanged, onBack }: Firs
   const mutation = useChangePassword();
   const { showToast } = useToast();
   const [error, setError] = useState<string>();
+  const { firstPassword: FIRST_PASSWORD_TEXT, locale, errorText } = useAuthCopy();
 
   const handleSubmit = async (newPassword: string): Promise<void> => {
     setError(undefined);
@@ -28,7 +29,12 @@ export const FirstPasswordChange = ({ currentPassword, onChanged, onBack }: Firs
       showToast(FIRST_PASSWORD_TEXT.success, { tone: "success" });
       onChanged();
     } catch (failure) {
-      setError(getUserFacingApiErrorMessage(failure, FIRST_PASSWORD_TEXT.failed));
+      setError(getAuthFailureMessage(failure, FIRST_PASSWORD_TEXT.failed, locale, errorText, {
+        required: FIRST_PASSWORD_TEXT.required,
+        tooShort: FIRST_PASSWORD_TEXT.tooShort,
+        edgeSpaces: FIRST_PASSWORD_TEXT.edgeSpaces,
+        tooLong: FIRST_PASSWORD_TEXT.tooLong,
+      }));
     }
   };
 
