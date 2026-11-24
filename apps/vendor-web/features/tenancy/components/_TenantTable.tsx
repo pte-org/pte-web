@@ -27,7 +27,6 @@ interface TenantTableProps {
   tenants: Tenant[];
   onSuspend: (tenant: Tenant) => void;
   onReactivate: (tenant: Tenant) => void;
-  onGrantQuota?: (tenant: Tenant) => void;
   onViewQuotaHistory?: (tenant: Tenant) => void;
   /** Actions on the right of the table toolbar, e.g. the add button. */
   toolbarActions?: ReactNode;
@@ -37,7 +36,6 @@ export const TenantTable = ({
   tenants,
   onSuspend,
   onReactivate,
-  onGrantQuota,
   onViewQuotaHistory,
   toolbarActions,
 }: TenantTableProps): ReactElement => {
@@ -128,15 +126,6 @@ export const TenantTable = ({
                 icon: EyeIcon,
                 onSelect: () => router.push(`/admin/tenants/${tenant.id}`),
               },
-              ...(onGrantQuota
-                ? [
-                    {
-                      label: T.ACTION_GRANT_QUOTA,
-                      icon: LicenseIcon,
-                      onSelect: () => onGrantQuota(tenant),
-                    },
-                  ]
-                : []),
               ...(onViewQuotaHistory
                 ? [
                     {

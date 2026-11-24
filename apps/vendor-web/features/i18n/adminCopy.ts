@@ -532,9 +532,15 @@ const ADMIN_VI: Record<string, string> = {
   "Expiring soon": "Sắp hết hạn",
   Expired: "Đã hết hạn",
   Inactive: "Không hoạt động",
+  "Students per session for this exam package.":
+    "Số lượng học viên tối đa cho gói kỳ thi này.",
   "Starter (500 users)": "Starter (500 người dùng)",
   "Professional (1000 users)": "Professional (1.000 người dùng)",
+  "Professional (1,000 users)": "Professional (1.000 người dùng)",
   "Enterprise (Unlimited)": "Enterprise (Không giới hạn)",
+  "Starter (500 người dùng)": "Starter (500 người dùng)",
+  "Professional (1.000 người dùng)": "Professional (1.000 người dùng)",
+  "Enterprise (Không giới hạn)": "Enterprise (Không giới hạn)",
 
   "Question Bank": "Ngân hàng câu hỏi",
   "Add question": "Thêm câu hỏi",
@@ -912,6 +918,7 @@ const ADMIN_VI: Record<string, string> = {
   Licenses: "Bản quyền",
   "No licenses found": "Không tìm thấy bản quyền",
   "Grant Quota": "Cấp hạn mức",
+  "Quota granted successfully.": "Cấp hạn mức thành công.",
   "Added on top of the current student limit.": "Được cộng thêm vào giới hạn học viên hiện tại.",
   "This tenant's quota was just changed by someone else. Please review the current value and try again.":
     "Hạn mức của tổ chức vừa được người khác thay đổi. Hãy kiểm tra giá trị hiện tại và thử lại.",

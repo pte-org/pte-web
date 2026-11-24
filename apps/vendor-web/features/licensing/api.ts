@@ -21,16 +21,11 @@ import type { GrantQuotaInput, License, LicenseStats } from "./types";
 import { TENANT_QUERY_KEY, TENANTS_QUERY_KEY } from "../tenancy/constants";
 import type { TenantPlan } from "../tenancy/types";
 
-function normalizePlan(packageName: string): TenantPlan {
-  if (packageName === "professional" || packageName === "enterprise") return packageName;
-  return "starter";
-}
-
 function tenantResponseToLicense(response: TenantResponse): License {
   return {
     tenantId: response.publicId,
     tenantName: response.name,
-    plan: normalizePlan(response.packageName),
+    plan: response.packageName || "-",
     status: response.status === "SUSPENDED" ? "suspended" : "active",
     seatsTotal: response.studentLimit,
   };
