@@ -14,6 +14,7 @@ import {
   Modal,
   PaginationControls,
   subscribeSessionLifecycle,
+  useLocale,
   useSessionManager,
   useToast,
 } from "@pte/ui";
@@ -78,8 +79,11 @@ export const LicenseCodesView = (): ReactElement => {
   const dateRangeLabel = useAdminCopy("Date range");
   const impactLabel = useAdminCopy("Impact");
   const previewValidUntilLabel = useAdminCopy("Preview valid until");
+  const expiringSoonLabel = useAdminCopy("Expiring soon");
+  const expiredLabel = useAdminCopy("Expired");
   const { session } = useSessionManager();
   const { showToast } = useToast();
+  const { locale } = useLocale();
   const canUseSensitiveActions = isPlatformAdmin(session?.roles);
 
   const [page, setPage] = useState(0);
@@ -375,10 +379,37 @@ export const LicenseCodesView = (): ReactElement => {
             {
               key: "period",
               header: T.PERIOD,
-              cell: (row: AdminLicenseCodeSummary) =>
-                row.subscriptionStartsAt && row.subscriptionExpiresAt
-                  ? `${formatContractDate(row.subscriptionStartsAt)} – ${formatContractDate(row.subscriptionExpiresAt)}`
-                  : T.EMPTY_VALUE,
+              cell: (row: AdminLicenseCodeSummary) => {
+                if (!row.subscriptionStartsAt || !row.subscriptionExpiresAt) {
+                  return T.EMPTY_VALUE;
+                }
+                const expiryTime = new Date(row.subscriptionExpiresAt).getTime();
+                const now = Date.now();
+                const daysUntilExpiry = (expiryTime - now) / (1000 * 60 * 60 * 24);
+                const isExpiringSoon = daysUntilExpiry >= 0 && daysUntilExpiry <= 7;
+                const isExpired = daysUntilExpiry < 0;
+                const days = Math.max(1, Math.ceil(daysUntilExpiry));
+                const daysLabel =
+                  locale === "vi" ? `${days} ngày` : `${days} ${days === 1 ? "day" : "days"}`;
+
+                return (
+                  <div className="flex flex-col gap-1">
+                    <span>
+                      {formatContractDate(row.subscriptionStartsAt)} – {formatContractDate(row.subscriptionExpiresAt)}
+                    </span>
+                    {isExpiringSoon && (
+                      <span className="inline-flex w-fit items-center rounded bg-amber-100 px-1.5 py-0.5 text-[11px] font-semibold text-amber-800">
+                        {expiringSoonLabel} ({daysLabel})
+                      </span>
+                    )}
+                    {isExpired && (
+                      <span className="inline-flex w-fit items-center rounded bg-red-100 px-1.5 py-0.5 text-[11px] font-semibold text-red-800">
+                        {expiredLabel}
+                      </span>
+                    )}
+                  </div>
+                );
+              },
             },
             {
               key: "issued",
