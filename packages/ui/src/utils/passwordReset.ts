@@ -1,6 +1,14 @@
 export const MIN_PASSWORD_LENGTH = 8;
 
-export type NewPasswordProblem = "REQUIRED" | "TOO_SHORT" | "EDGE_SPACES" | "MISMATCH";
+/** The API hashes passwords with BCrypt, which only reads the first 72 bytes, so it refuses anything longer. */
+export const MAX_PASSWORD_BYTES = 72;
+
+export type NewPasswordProblem = "REQUIRED" | "TOO_SHORT" | "EDGE_SPACES" | "TOO_LONG" | "MISMATCH";
+
+/** UTF-8 bytes, not characters: an accented letter takes two or three of the 72. */
+export function exceedsMaxPasswordBytes(password: string): boolean {
+  return new TextEncoder().encode(password).length > MAX_PASSWORD_BYTES;
+}
 
 /** Usernames and e-mail addresses never hold whitespace, so a typed or pasted one is dropped as it arrives. */
 export function withoutSpaces(value: string): string {
@@ -20,6 +28,7 @@ export function validateNewPassword(
   if (!newPassword || !confirmation) return "REQUIRED";
   if (newPassword.length < MIN_PASSWORD_LENGTH) return "TOO_SHORT";
   if (hasEdgeSpaces(newPassword)) return "EDGE_SPACES";
+  if (exceedsMaxPasswordBytes(newPassword)) return "TOO_LONG";
   if (newPassword !== confirmation) return "MISMATCH";
   return null;
 }
