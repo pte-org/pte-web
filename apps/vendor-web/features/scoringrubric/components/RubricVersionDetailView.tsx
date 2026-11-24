@@ -36,9 +36,24 @@ export const RubricVersionDetailView = ({ id, sidePanel }: RubricVersionDetailVi
     <RubricTaskTypeListView
       versionId={id}
       sidePanel={sidePanel}
-      toolbar={<span className="flex items-center gap-3 text-sm font-medium">{`${T.title} ${version.data.versionNo}`}
-        <Badge variant={statusVariant(status)}>{statusLabel(status, T)}</Badge></span>}
-      toolbarActions={works ? <Link href={versionEditHref(id)}><Button>{edits ? T.editVersion : T.review}</Button></Link> : undefined}
+      toolbar={
+        <div className="flex items-center gap-3">
+          <h1 className="text-xl font-bold tracking-tight text-[var(--ink-primary)]">
+            {`${T.title} ${version.data.versionNo}`}
+          </h1>
+          <Badge variant={statusVariant(status)}>{statusLabel(status, T)}</Badge>
+        </div>
+      }
+      toolbarActions={
+        <div className="flex items-center gap-2.5">
+          {sidePanel}
+          {works ? (
+            <Link href={versionEditHref(id)}>
+              <Button variant="secondary">{edits ? T.editVersion : T.review}</Button>
+            </Link>
+          ) : undefined}
+        </div>
+      }
     />
   );
 };
