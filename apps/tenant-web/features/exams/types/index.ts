@@ -2,7 +2,6 @@ import type {
   AudienceSourceRequest,
   ExamPolicyResponse,
   ExamMode,
-  ProctorRole,
   ReusePolicy,
   SessionStatus,
   UserResponse,
@@ -82,5 +81,4 @@ export interface CreateSessionErrors {
 export interface ProctorAssignmentEntry {
   assignmentPublicId: string;
   proctor: UserResponse;
-  role: ProctorRole;
 }

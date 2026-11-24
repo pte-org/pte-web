@@ -1,7 +1,6 @@
 import type {
   ExamMode,
   LockdownMode,
-  ProctorRole,
   ReusePolicy,
   SessionStatus,
 } from "@pte/api-client";
@@ -487,36 +486,14 @@ export const PROCTOR_SECTION_TEXT = {
 export const PROCTOR_TABLE_HEADERS = {
   FULL_NAME: "Full name",
   EMAIL: "Email",
-  ROLE: "Role",
   ACTIONS: "Actions",
 } as const;
-
-export const DEFAULT_PROCTOR_ROLE: ProctorRole = "ASSISTANT_PROCTOR";
-
-export const PROCTOR_ROLE_LABELS: Record<ProctorRole, string> = {
-  LEAD_PROCTOR: "Lead Proctor",
-  ASSISTANT_PROCTOR: "Assistant Proctor",
-};
-
-/** Shown to the Host so they know what each role means before assigning/changing it. */
-export const PROCTOR_ROLE_DESCRIPTIONS: Record<ProctorRole, string> = {
-  LEAD_PROCTOR:
-    "Primary point of contact for this exam session. Coordinates the other proctors and is responsible for resolving incidents.",
-  ASSISTANT_PROCTOR:
-    "Supports session monitoring — watches over students and reports incidents to the Lead Proctor.",
-};
-
-export const PROCTOR_ROLE_OPTIONS: { value: ProctorRole; label: string }[] = [
-  { value: "ASSISTANT_PROCTOR", label: PROCTOR_ROLE_LABELS.ASSISTANT_PROCTOR },
-  { value: "LEAD_PROCTOR", label: PROCTOR_ROLE_LABELS.LEAD_PROCTOR },
-];
 
 export const ASSIGN_PROCTOR_TEXT = {
   TITLE: "Assign Proctor to Exam",
   EXISTING_LABEL: "Proctor",
   EXISTING_PLACEHOLDER: "Select a proctor",
   NO_EXISTING: "No unassigned proctors are available in your organization.",
-  ROLE_LABEL: "Role in this exam",
   CANCEL: "Cancel",
   SUBMIT: "Assign to Exam",
   SUBMITTING: "Assigning...",

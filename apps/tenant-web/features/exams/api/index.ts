@@ -33,7 +33,6 @@ import {
   generateExam,
   publishExam,
   unassignProctor,
-  updateProctorRole,
   type AnswerListResponse,
   type AnswerReviewDetailResponse,
   type HostScoreReviewResponse,
@@ -48,7 +47,6 @@ import {
   type PatchExamDraftRequest,
   type PatchExamPolicyRequest,
   type PatchExamScheduleRequest,
-  type ProctorRole,
   type SessionStatus,
   type SessionResponse,
   type ScoreTemplateResponse,
@@ -514,7 +512,7 @@ export function useProctorAssignments(
       return assignments.flatMap((assignment) => {
         const proctor = byId.get(assignment.proctorPublicId);
         return proctor
-          ? [{ assignmentPublicId: assignment.publicId, proctor, role: assignment.role }]
+          ? [{ assignmentPublicId: assignment.publicId, proctor }]
           : [];
       });
     },
@@ -533,18 +531,17 @@ function invalidateProctorAssignments(
 
 interface AssignProctorInput {
   proctorPublicId: string;
-  role: ProctorRole;
 }
 
-/** Assign an already-existing Proctor (picked by publicId) to this session, with a chosen role. */
+/** Assign an already-existing Proctor (picked by publicId) to this session. */
 export function useAssignProctor(
   sessionPublicId: string,
 ): UseMutationResult<void, unknown, AssignProctorInput> {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ proctorPublicId, role }) => {
-      await assignProctor(apiClient, sessionPublicId, { proctorPublicId, role });
+    mutationFn: async ({ proctorPublicId }) => {
+      await assignProctor(apiClient, sessionPublicId, { proctorPublicId });
     },
     onSuccess: () => invalidateProctorAssignments(queryClient, sessionPublicId),
   });
@@ -558,24 +555,6 @@ export function useUnassignProctor(
   return useMutation({
     mutationFn: (assignmentPublicId) =>
       unassignProctor(apiClient, sessionPublicId, assignmentPublicId),
-    onSuccess: () => invalidateProctorAssignments(queryClient, sessionPublicId),
-  });
-}
-
-interface UpdateProctorRoleInput {
-  assignmentPublicId: string;
-  role: ProctorRole;
-}
-
-export function useUpdateProctorRole(
-  sessionPublicId: string,
-): UseMutationResult<void, unknown, UpdateProctorRoleInput> {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ assignmentPublicId, role }) => {
-      await updateProctorRole(apiClient, sessionPublicId, assignmentPublicId, { role });
-    },
     onSuccess: () => invalidateProctorAssignments(queryClient, sessionPublicId),
   });
 }
