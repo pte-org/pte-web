@@ -4,6 +4,11 @@ export const CURRENT_USER_QUERY_KEY = ["currentUser"] as const;
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 
+/** Where applicants are sent for help; set NEXT_PUBLIC_SUPPORT_EMAIL per environment. */
+export const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "support@pte.com";
+/** Placeholder in registration copy that is replaced with {@link SUPPORT_EMAIL}. */
+export const SUPPORT_EMAIL_PLACEHOLDER = "{supportEmail}";
+
 /**
  * Real backend roles allowed into `/host/*` — mirrors vendor-web's
  * `HOST_ROLES`. HOST_ADMIN is the only tenant-administrator role in the
@@ -98,7 +103,8 @@ export const REGISTRATION_TEXT = {
   requestedCodeInvalid: "Use 3–32 lowercase letters, numbers, or hyphens.",
   duplicateCode: "This tenant code is already in use. Choose another code.",
   duplicateName: "This organization name is already in use. Choose another name.",
-  duplicateTaxCode: "This tax code already belongs to an organization. Check it or contact support.",
+  duplicateTaxCode:
+    "This tax code already belongs to another organization. Contact {supportEmail} for help.",
   duplicateEmail: "An application from this email is already waiting for review.",
   applicationInvalid: "Some details are not valid. Check the form and try again.",
   networkError: "Could not reach the server. Check your connection and try again.",
