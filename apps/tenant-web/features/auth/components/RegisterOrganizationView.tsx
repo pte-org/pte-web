@@ -71,6 +71,8 @@ export const RegisterOrganizationView = (): ReactElement => {
         setErrors((current) => ({ ...current, requestedCode: "duplicateCode" }));
       } else if (error instanceof ApiError && error.code === "TENANT_TAX_CODE_ALREADY_USED") {
         setErrors((current) => ({ ...current, taxCode: "duplicateTaxCode" }));
+      } else if (error instanceof ApiError && error.code === "APPLICATION_EMAIL_ALREADY_PENDING") {
+        setErrors((current) => ({ ...current, contactEmail: "duplicateEmail" }));
       } else if (error instanceof ApiError && error.status === 429) {
         setSubmissionError("rateLimited");
       } else if (error instanceof ApiError && error.kind === "network") {

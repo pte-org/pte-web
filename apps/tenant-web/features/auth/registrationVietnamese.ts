@@ -7,6 +7,7 @@ export const REGISTRATION_TEXT_VI: RegistrationText = {
   duplicateCode: "Mã tenant này đã được sử dụng. Hãy chọn mã khác.",
   duplicateName: "Tên tổ chức này đã được sử dụng. Hãy chọn tên khác.",
   duplicateTaxCode: "Mã số thuế này đã thuộc về một tổ chức. Hãy kiểm tra lại hoặc liên hệ hỗ trợ.",
+  duplicateEmail: "Email này đã có một đơn đăng ký đang chờ duyệt.",
   applicationInvalid: "Một số thông tin chưa hợp lệ. Hãy kiểm tra lại biểu mẫu rồi thử lại.",
   networkError: "Không thể kết nối tới máy chủ. Hãy kiểm tra kết nối và thử lại.",
   rateLimited: "Hệ thống đang nhận nhiều đơn đăng ký. Vui lòng thử lại sau vài phút.",

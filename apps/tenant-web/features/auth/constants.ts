@@ -99,6 +99,7 @@ export const REGISTRATION_TEXT = {
   duplicateCode: "This tenant code is already in use. Choose another code.",
   duplicateName: "This organization name is already in use. Choose another name.",
   duplicateTaxCode: "This tax code already belongs to an organization. Check it or contact support.",
+  duplicateEmail: "An application from this email is already waiting for review.",
   applicationInvalid: "Some details are not valid. Check the form and try again.",
   networkError: "Could not reach the server. Check your connection and try again.",
   rateLimited: "The system is receiving many applications. Try again in a few minutes.",
