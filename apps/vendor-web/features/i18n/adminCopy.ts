@@ -23,7 +23,8 @@ const ADMIN_VI: Record<string, string> = {
     "Nếu tên đăng nhập và email này thuộc cùng một tài khoản, liên kết đặt lại đang được gửi đi. Liên kết chỉ dùng được một lần và hết hạn sau 30 phút.",
   "Choose a new password": "Chọn mật khẩu mới",
   "Set a new password": "Đặt mật khẩu mới",
-  "The password cannot start or end with a space.": "Mật khẩu không được bắt đầu hoặc kết thúc bằng dấu cách.",
+  "The password cannot start or end with a space.":
+    "Mật khẩu không được bắt đầu hoặc kết thúc bằng dấu cách.",
   "This is your first sign-in. Choose a new password to continue.":
     "Đây là lần đăng nhập đầu tiên. Hãy đặt mật khẩu mới để tiếp tục.",
   "Save and continue": "Lưu và tiếp tục",
@@ -191,12 +192,55 @@ const ADMIN_VI: Record<string, string> = {
   "Approve application": "Duyệt đơn đăng ký",
   "Rejecting...": "Đang từ chối...",
   "Reject application": "Từ chối đơn đăng ký",
+  "Reject this application?": "Từ chối đơn đăng ký này?",
+  "The applicant receives this reason by email. Explain what must be corrected.":
+    "Người nộp đơn sẽ nhận lý do này qua email. Hãy nêu rõ nội dung cần chỉnh sửa.",
+  "Submitted at": "Thời điểm nộp đơn",
+  "Organization information": "Thông tin tổ chức",
+  Representative: "Thông tin người đại diện",
+  "Application status": "Trạng thái hồ sơ",
+  "Look up": "Tra cứu",
+  "Time left to respond": "Thời hạn phản hồi còn lại",
+  "Overdue by": "Đã quá hạn",
+  "Language center": "Trung tâm ngoại ngữ",
+  Other: "Khác",
   "Organization type": "Loại tổ chức",
   "Requested tenant code": "Mã tổ chức yêu cầu",
   "Work email": "Email công việc",
   "Phone number": "Số điện thoại",
   "Reviewed by": "Người xét duyệt",
   "Reviewed at": "Thời điểm xét duyệt",
+  "Provisioning upon approval": "Dự kiến kích hoạt khi phê duyệt",
+  "Resources and credentials prepared for this tenant.":
+    "Tài nguyên và thông tin quản trị sẽ được khởi tạo cho tổ chức này.",
+  "Initial plan": "Gói dịch vụ ban đầu",
+  "Starter (Free tier)": "Gói Starter (Miễn phí)",
+  "50 students": "50 học viên",
+  "Host admin account": "Tài khoản Quản trị viên (Host Admin)",
+  "Credentials delivery": "Phương thức bàn giao",
+  "Secure email with temporary password": "Email bảo mật kèm mật khẩu tạm thời",
+  "Tenant access URL": "Địa chỉ truy cập dự kiến",
+  "Approving provisions the tenant workspace, grants the student quota, and dispatches the activation email immediately.":
+    "Khi duyệt, hệ thống sẽ tự động kích hoạt tổ chức, cấp hạn mức học viên và gửi email bàn giao ngay lập tức.",
+  "Verification & review checks": "Kiểm tra thẩm định hồ sơ",
+  "Verify that the tax code matches the legal entity on the national registry.":
+    "Đối chiếu mã số thuế với Cổng thông tin doanh nghiệp quốc gia để xác minh pháp nhân.",
+  "Requested code is formatted properly and available across active tenants.":
+    "Mã tổ chức hợp lệ, dùng làm tiền tố định danh học viên và tên miền riêng.",
+  "Credentials and onboarding communications will be delivered to the work email.":
+    "Thông tin tài khoản và thông báo hệ thống sẽ được gửi đến email công việc của người đại diện.",
+  "Approve dossier": "Duyệt hồ sơ",
+  "Processing progress (SLA)": "Tiến độ xử lý (SLA)",
+  "Remaining:": "Còn lại:",
+  "Application received": "Đã tiếp nhận đơn",
+  "Awaiting admin review": "Chờ Admin phê duyệt",
+  "Application approved": "Đã phê duyệt",
+  "Application rejected": "Đã từ chối",
+  "Verification & review": "Kiểm tra thẩm định",
+  "Valid tenant identifier format": "Mã tổ chức hợp lệ",
+  "Valid tax code format": "MST định dạng hợp lệ",
+  "Cross-check tax code with national business registry":
+    "Đối chiếu mã số thuế với Cổng thông tin doanh nghiệp quốc gia",
 
   "Plan catalog": "Danh mục gói",
   "+ Add plan": "+ Thêm gói",
@@ -1296,7 +1340,8 @@ const ADMIN_VI: Record<string, string> = {
   "Content Hub views": "Các góc nhìn của Trung tâm nội dung",
   "Choose templates": "Chọn mẫu",
   "Search by name, code or version": "Tìm theo tên, mã hoặc phiên bản",
-  "Pick the template to look at: the active one or a draft.": "Chọn mẫu để xem: mẫu đang hoạt động hoặc một bản nháp.",
+  "Pick the template to look at: the active one or a draft.":
+    "Chọn mẫu để xem: mẫu đang hoạt động hoặc một bản nháp.",
   "task types": "dạng bài",
   "No template matches.": "Không có mẫu nào khớp.",
   "Board of": "Bảng của",
@@ -1318,7 +1363,8 @@ const ADMIN_VI: Record<string, string> = {
   "{count} more needed": "cần thêm {count}",
   "Write more": "Soạn thêm",
   "Search questions in this task type": "Tìm câu hỏi của dạng bài này",
-  "Showing the first 200. Narrow the board with the filters.": "Đang hiện 200 câu đầu. Hãy thu hẹp bằng bộ lọc.",
+  "Showing the first 200. Narrow the board with the filters.":
+    "Đang hiện 200 câu đầu. Hãy thu hẹp bằng bộ lọc.",
   "Coverage map": "Bản đồ độ phủ",
   "Exam timeline": "Dòng thời gian đề",
   "Drag a card to the next column to move a question through review.":
@@ -1337,7 +1383,8 @@ const ADMIN_VI: Record<string, string> = {
   "Start typing to see the question.": "Hãy bắt đầu nhập để xem câu hỏi.",
   "Preparation: {seconds}s": "Chuẩn bị: {seconds}s",
   "Response: {seconds}s": "Trả lời: {seconds}s",
-  "The width of a block follows its time. Click one to see its task type.": "Độ rộng khối theo thời gian của nó. Bấm vào một khối để xem dạng bài.",
+  "The width of a block follows its time. Click one to see its task type.":
+    "Độ rộng khối theo thời gian của nó. Bấm vào một khối để xem dạng bài.",
   "About {minutes} minutes in {count} task types": "Khoảng {minutes} phút cho {count} dạng bài",
   "No task types in this template yet.": "Mẫu này chưa có dạng bài nào.",
   "{count} q · {time}": "{count} câu · {time}",
@@ -1370,7 +1417,8 @@ const ADMIN_VI: Record<string, string> = {
   "Task type sections": "Các mục của dạng bài",
   "In the template": "Có trong mẫu",
   "Part of this template version": "Thuộc phiên bản mẫu này",
-  "This task type is not in the template yet. Add it on the template page.": "Dạng bài này chưa có trong mẫu. Hãy thêm nó ở trang mẫu bài thi.",
+  "This task type is not in the template yet. Add it on the template page.":
+    "Dạng bài này chưa có trong mẫu. Hãy thêm nó ở trang mẫu bài thi.",
   "Add to the template": "Thêm vào mẫu",
   "Remove from the template": "Bỏ khỏi mẫu",
   "This task type carries skill weight. Rebalance the weights on the template page before removing it.":
@@ -1488,13 +1536,15 @@ const SCORE_TEMPLATE_FEEDBACK_VI: Record<string, string> = {
   "{count} drafts selected": "Đã chọn {count} bản nháp",
   "Delete selected drafts": "Xóa các bản nháp đã chọn",
   "Delete this draft?": "Xóa bản nháp này?",
-  "The draft is deleted for good. This cannot be undone.": "Bản nháp sẽ bị xóa vĩnh viễn và không thể khôi phục.",
+  "The draft is deleted for good. This cannot be undone.":
+    "Bản nháp sẽ bị xóa vĩnh viễn và không thể khôi phục.",
   "Draft deleted": "Đã xóa bản nháp",
   "Delete the selected drafts?": "Xóa các bản nháp đã chọn?",
   "{count} draft questions, including drafts written by AI, are deleted for good. Only drafts can be deleted; submitted and approved questions are kept.":
     "{count} câu hỏi nháp, kể cả bản nháp do AI viết, sẽ bị xóa vĩnh viễn. Chỉ xóa được bản nháp; câu đã gửi duyệt hoặc đã duyệt được giữ lại.",
   "Delete drafts": "Xóa bản nháp",
-  "{deleted} deleted, {failed} could not be deleted.": "Đã xóa {deleted}, {failed} câu không xóa được.",
+  "{deleted} deleted, {failed} could not be deleted.":
+    "Đã xóa {deleted}, {failed} câu không xóa được.",
 };
 
 type LocalizableFunction = (...args: never[]) => unknown;
