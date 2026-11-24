@@ -1380,6 +1380,7 @@ const ADMIN_VI: Record<string, string> = {
     "Kéo thẻ sang cột kế tiếp để chuyển câu hỏi qua các bước duyệt.",
   "Search questions": "Tìm câu hỏi",
   "All task types": "Tất cả dạng bài",
+  "All CEFR levels": "Tất cả CEFR",
   "Nothing here": "Chưa có gì",
   "A question moves one step at a time: draft, awaiting approval, approved.":
     "Câu hỏi chỉ đi từng bước: bản nháp, chờ duyệt, đã duyệt.",

@@ -228,6 +228,7 @@ export const QUESTION_TABLE_HEADERS = {
   CEFR: "CEFR",
   SOURCE: "Source",
   STATUS: "Status",
+  UPDATED_AT: "Updated",
   ACTIONS: "Actions",
 } as const;
 
