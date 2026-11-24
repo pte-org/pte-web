@@ -21,7 +21,7 @@ import {
 } from "./nextAdminIcons";
 import { FileLinesIcon } from "./dashboardIcons";
 
-interface IconProps {
+export interface IconProps {
   className?: string;
 }
 
@@ -43,6 +43,15 @@ const dashboardHeaderIconBase = {
 
 export const GridIcon = ({ className }: IconProps): ReactElement => (
   <NextAdminWidget4Icon className={className} />
+);
+
+export const AllSectionsIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...base} className={className}>
+    <rect x="3" y="3" width="7" height="7" rx="1.5" />
+    <rect x="14" y="3" width="7" height="7" rx="1.5" />
+    <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    <rect x="3" y="14" width="7" height="7" rx="1.5" />
+  </svg>
 );
 
 export const HomeIcon = ({ className }: IconProps): ReactElement => (
