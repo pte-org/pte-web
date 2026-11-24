@@ -1,7 +1,5 @@
-import type { ProctorAuditAction } from "./types";
 import type {
   AttendanceStatus,
-  IdentityVerificationStatus,
   IncidentCategory,
   IncidentSeverity,
   IncidentStatus,
@@ -16,14 +14,9 @@ import type {
 /** Poll cadence for the session header and other proctor views that must follow status changes. */
 export const POLL_INTERVAL_MS = 3000;
 
-export const AUDIT_ACTION_LABELS: Record<ProctorAuditAction, string> = {
-  FORCE_SUBMIT: "Force submit",
-  FLAG_VIOLATION: "Flag violation",
-  CLOSE_SESSION: "Close session",
-};
-
 /** Attempt status (from the attendance row) for which force submit is offered. */
 export const ATTEMPT_IN_PROGRESS = "IN_PROGRESS";
+export const ATTEMPT_SUBMITTED = "SUBMITTED";
 
 /** Force submit from the attendance roster: only for a Student whose attempt is in progress. */
 export const PROCTOR_FORCE_SUBMIT_TEXT = {
@@ -35,53 +28,6 @@ export const PROCTOR_FORCE_SUBMIT_TEXT = {
   CANCEL: "Hủy",
   PROCESSING: "Đang xử lý...",
   ERROR: "Không thể buộc nộp bài. Vui lòng thử lại.",
-} as const;
-
-export const PROCTOR_AUDIT_TEXT = {
-  TITLE: "Nhật ký ca thi",
-  SUBTITLE: "Tra cứu vi phạm và sự kiện bảo mật của ca thi.",
-  TAB_VIOLATIONS: "Vi phạm do giám thị ghi nhận",
-  TAB_SECURITY: "Nhật ký bảo mật",
-  LOADING_VIOLATIONS: "Đang tải vi phạm…",
-  LOADING_AUDIT: "Đang tải nhật ký bảo mật…",
-  EMPTY_VIOLATIONS_TITLE: "Chưa có vi phạm được ghi nhận",
-  EMPTY_VIOLATIONS_DESCRIPTION: "Các vi phạm do giám thị ghi nhận sẽ xuất hiện tại đây.",
-  EMPTY_AUDIT_TITLE: "Chưa có sự kiện bảo mật",
-  EMPTY_AUDIT_DESCRIPTION: "Các sự kiện bảo mật của ca thi sẽ xuất hiện tại đây.",
-  LOAD_MORE: "Tải thêm",
-  END_OF_AUDIT: "Đã tải hết nhật ký",
-  COL_TIME: "Thời gian",
-  COL_TYPE: "Loại",
-  COL_PROCTOR: "Giám thị",
-  COL_DESCRIPTION: "Nội dung",
-  BACK_TO_PROFILE: "Về hồ sơ",
-  ENTER_MONITORING: "Giám sát trực tiếp",
-  SESSION_LIST: "Ca thi được phân công",
-  ERROR_TITLE: "Không thể tải nhật ký",
-  ERROR_DESC: "Đã xảy ra lỗi khi tải nhật ký. Vui lòng thử lại.",
-  RETRY: "Thử lại",
-  FILTER_DATE_RANGE: "Khoảng ngày",
-  FILTER_LOG_TYPE: "Loại nhật ký",
-  TABS_ARIA_LABEL: "Loại nhật ký",
-} as const;
-
-export const PROCTOR_PROFILE_TEXT = {
-  TITLE: "Proctor profile",
-  SUBTITLE: "Your account details. This view is read-only.",
-  FULL_NAME_LABEL: "Full name",
-  EMAIL_LABEL: "Email",
-  ROLES_LABEL: "Roles",
-  STATUS_LABEL: "Status",
-  TENANT_LABEL: "Tenant",
-  LOADING: "Loading profile…",
-  ERROR_TITLE: "Could not load profile",
-  ERROR_DESCRIPTION: "Try refreshing the page. If the problem persists, contact your host admin.",
-  EMPTY_FULL_NAME: "(no name set)",
-  EMPTY_TENANT: "(no tenant)",
-  EMPTY_ROLES: "—",
-  VIEW_ASSIGNED_SESSIONS: "Xem ca thi được phân công",
-  ROLES_SEPARATOR: ", ",
-  RETRY: "Retry",
 } as const;
 
 export function getAttendanceBadgeVariant(
@@ -111,23 +57,6 @@ export function getAttendanceStatusLabel(status: AttendanceStatus | null | undef
     case "UNMARKED":
     default:
       return "Chưa điểm danh";
-  }
-}
-
-export function getIdentityBadgeProps(
-  status: IdentityVerificationStatus = "UNVERIFIED",
-): {
-  label: string;
-  variant: "success" | "danger" | "neutral";
-} {
-  switch (status) {
-    case "VERIFIED":
-      return { label: "Đã xác minh", variant: "success" };
-    case "FAILED":
-      return { label: "Nghi vấn / Không xác minh được", variant: "danger" };
-    case "UNVERIFIED":
-    default:
-      return { label: "Chưa xác minh", variant: "neutral" };
   }
 }
 
@@ -200,7 +129,6 @@ export const PROCTOR_ROSTER_TEXT = {
   BLOCKED_GENERIC: "Hiện không thể chỉnh sửa điểm danh.",
   COL_STUDENT: "Thí sinh",
   COL_ATTENDANCE: "Điểm danh",
-  COL_IDENTITY: "Xác minh danh tính",
   COL_ACTIVITY: "Hoạt động bài thi",
   COL_LAST_ACTION: "Cập nhật gần nhất",
   NOT_STARTED: "Chưa bắt đầu",
@@ -209,7 +137,6 @@ export const PROCTOR_ROSTER_TEXT = {
   ACTION_LATE: "Đến trễ",
   ACTION_ABSENT: "Vắng mặt",
   ACTION_RESET: "Đặt lại",
-  ACTION_VERIFY_IDENTITY: "Xác minh danh tính",
   ACTION_VIEW_HISTORY: "Lịch sử điểm danh",
   ACTION_MENU_LABEL: "Thao tác điểm danh",
   EMPTY_TITLE: "Không có dữ liệu thí sinh phù hợp.",
@@ -253,28 +180,6 @@ export const PROCTOR_RECORD_MODAL_TEXT = {
   UNKNOWN_NETWORK_ERROR: "Lỗi kết nối hoặc phản hồi máy chủ chưa xác định. Bạn có thể gửi lại chính xác lệnh này hoặc hủy để tải lại.",
 } as const;
 
-export const PROCTOR_IDENTITY_MODAL_TEXT = {
-  TITLE: "Xác minh danh tính thí sinh",
-  CLOSE_BTN: "Đóng",
-  SAVING_BTN: "Đang lưu...",
-  SAVE_BTN: "Lưu xác minh",
-  CURRENT_STATUS_LABEL: "Trạng thái hiện tại:",
-  VALIDATION_ERROR_TITLE: "Thông tin chưa hợp lệ",
-  VALIDATION_ERROR_DESC: "Vui lòng nhập mô tả hoặc lý do không xác minh được danh tính.",
-  SAVE_ERROR_FALLBACK: "Không thể lưu xác minh danh tính. Vui lòng thử lại.",
-  RESULT_LABEL: "Kết quả đối chiếu danh tính *",
-  STATUS_VERIFIED: "Hợp lệ (VERIFIED)",
-  STATUS_FAILED: "Nghi vấn (FAILED)",
-  STATUS_UNVERIFIED: "Chưa xác minh",
-  NOTE_LABEL_PREFIX: "Ghi chú đối chiếu ",
-  NOTE_REQUIRED_SUFFIX: "(Bắt buộc)",
-  NOTE_OPTIONAL_SUFFIX: "(Tùy chọn)",
-  NOTE_PLACEHOLDER: "Ghi nhận kết quả kiểm tra giấy tờ tùy thân, thẻ sinh viên...",
-  ESCALATION_TITLE: "Thủ tục chuyển giao sự cố",
-  ESCALATION_DESC: "Trường hợp không xác minh được danh tính, quy chế yêu cầu lập biên bản sự cố gửi Host để xử lý hoặc chuyển cấp Admin.",
-  OPEN_INCIDENTS_BTN: "Mở quản lý sự cố ca thi",
-} as const;
-
 export const PROCTOR_INCIDENT_CATEGORY_OPTIONS: ReadonlyArray<{
   value: IncidentCategory;
   label: string;
@@ -282,7 +187,7 @@ export const PROCTOR_INCIDENT_CATEGORY_OPTIONS: ReadonlyArray<{
   { value: "IDENTITY_VERIFICATION", label: "Nghi vấn xác minh danh tính" },
   { value: "RULE_VIOLATION", label: "Vi phạm quy chế thi" },
   { value: "TECHNICAL_ISSUE", label: "Sự cố kỹ thuật / Thiết bị" },
-  { value: "DISRUPTION", label: "Mất trật tự / Can thiệp phòng thi" },
+  { value: "DISRUPTION", label: "Mất trật tự phòng thi" },
   { value: "OTHER", label: "Sự cố khác" },
 ];
 
@@ -309,8 +214,9 @@ export const PROCTOR_INCIDENT_REPORT_TEXT = {
   TITLE_PLACEHOLDER: "Ví dụ: Thí sinh không mang giấy tờ tùy thân hợp lệ...",
   FIELD_CATEGORY: "Phân loại sự cố *",
   FIELD_SEVERITY: "Mức độ nghiêm trọng *",
-  FIELD_STUDENT_ID: "Mã định danh thí sinh liên quan (tùy chọn)",
-  STUDENT_ID_PLACEHOLDER: "Nhập mã định danh công khai của thí sinh (nếu có)...",
+  FIELD_STUDENT_ID: "Thí sinh liên quan (tùy chọn)",
+  STUDENT_NONE: "Không chọn (sự cố chung của ca thi)",
+  STUDENT_LOADING: "Đang tải danh sách thí sinh...",
   FIELD_DESCRIPTION: "Mô tả chi tiết sự cố *",
   DESCRIPTION_PLACEHOLDER: "Mô tả cụ thể thời điểm phát hiện, hành vi hoặc hiện tượng quan sát thấy...",
 } as const;
@@ -322,7 +228,6 @@ export const PROCTOR_INCIDENT_STATUS_TABS: ReadonlyArray<{
   { id: "ALL", label: "Tất cả" },
   { id: "NEW", label: "Mới báo cáo" },
   { id: "IN_PROGRESS", label: "Đang xử lý" },
-  { id: "ESCALATED", label: "Chuyển cấp Admin" },
   { id: "RESOLVED", label: "Đã giải quyết" },
   { id: "CLOSED", label: "Đã đóng" },
 ];
@@ -333,7 +238,7 @@ export const PROCTOR_INCIDENT_LIST_TEXT = {
   REPORT_NEW_BTN: "+ Báo cáo sự cố mới",
   FILTER_STATUS_LABEL: "Trạng thái",
   TITLE_PREFIX: "Sự cố phòng thi: #",
-  SUBTITLE: "Theo dõi, điều phối và chuyển cấp các sự cố xảy ra trong ca thi.",
+  SUBTITLE: "Theo dõi và điều phối các sự cố xảy ra trong ca thi.",
   ERROR_TITLE: "Không thể tải danh sách sự cố",
   ERROR_DESC: "Đã có lỗi xảy ra khi truy vấn dữ liệu từ máy chủ. Vui lòng thử lại.",
   RETRY_BTN: "Thử lại",
@@ -356,7 +261,6 @@ export const PROCTOR_INCIDENT_DETAIL_TEXT = {
   ERROR_DESC: "Đã có lỗi xảy ra khi truy vấn dữ liệu từ máy chủ. Vui lòng thử lại.",
   RETRY_BTN: "Thử lại",
   BTN_TAKE_OWNERSHIP: "Tiếp nhận xử lý",
-  BTN_ESCALATE: "Chuyển cấp Admin",
   BTN_RESOLVE: "Giải quyết sự cố",
   BTN_CLOSE: "Đóng hồ sơ sự cố",
   BTN_ADD_NOTE: "Bổ sung ghi chú",
@@ -373,13 +277,11 @@ export const PROCTOR_INCIDENT_DETAIL_TEXT = {
   EMPTY_RESOLUTION: "Chưa có kết luận giải quyết.",
   TIMELINE_TITLE: "Lịch sử xử lý & Bàn giao sự cố",
   TIMELINE_EMPTY: "Chưa có bản ghi lịch sử xử lý nào.",
-  MODAL_TITLE_ESCALATE: "Chuyển cấp sự cố lên Admin",
   MODAL_TITLE_RESOLVE: "Xác nhận giải quyết sự cố",
   MODAL_TITLE_NOTE: "Bổ sung ghi chú vào hồ sơ sự cố",
   MODAL_CANCEL_BTN: "Hủy",
   MODAL_SAVING_BTN: "Đang lưu...",
   MODAL_CONFIRM_BTN: "Xác nhận",
-  LABEL_ESCALATE: "Lý do và nội dung chuyển cấp Admin *",
   LABEL_RESOLVE: "Tóm tắt kết quả và phương án giải quyết *",
   LABEL_NOTE: "Nội dung ghi chú *",
   PLACEHOLDER_ACTION_NOTE: "Nhập nội dung chi tiết...",
@@ -394,7 +296,6 @@ export const PROCTOR_ATTENDANCE_VIEW_TEXT = {
   UPDATED_PREFIX: "Cập nhật lúc: ",
   TITLE_PREFIX: "Điểm danh ca thi: ",
   SUBTITLE: "Quản lý và cập nhật danh sách có mặt / vắng mặt của thí sinh trong ca thi.",
-  PORTAL_LOCKED_TITLE: "Cổng điểm danh bị khóa",
   REASON_PRE_OPEN: "Điểm danh chỉ mở trước giờ thi 30 phút.",
   REASON_CLOSED: "Ca thi đã kết thúc thời gian điểm danh.",
   REASON_CANCELLED: "Ca thi đã bị hủy bỏ.",
@@ -414,11 +315,6 @@ export const PROCTOR_PICKER_TEXT = {
     TITLE: "Sự cố phòng thi",
     SUBTITLE: "Chọn ca thi bạn được phân công giám thị để quản lý, báo cáo và theo dõi sự cố.",
     PAGE_TITLE: "Sự cố phòng thi | Giám thị",
-  },
-  AUDIT_LOG: {
-    TITLE: "Nhật ký ca thi",
-    SUBTITLE: "Chọn một ca thi được phân công để xem nhật ký giám sát và vi phạm",
-    PAGE_TITLE: "Nhật ký ca thi | Giám thị",
   },
 } as const;
 

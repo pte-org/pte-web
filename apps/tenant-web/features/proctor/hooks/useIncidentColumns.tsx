@@ -19,7 +19,6 @@ export const useIncidentColumns = (): DataTableColumn<IncidentResponse>[] => {
           <div>
             <div className="font-medium text-[var(--ink-primary)]">{row.title}</div>
             <div className="text-xs text-[var(--ink-muted)]">
-              #{row.incidentPublicId.slice(0, 8).toUpperCase()} •{" "}
               {PROCTOR_INCIDENT_CATEGORY_OPTIONS.find((option) => option.value === row.category)
                 ?.label ?? row.category}
             </div>

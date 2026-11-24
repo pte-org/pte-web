@@ -3,10 +3,7 @@
 import { useEffect, useState, type ReactElement } from "react";
 import { Alert, Button, PaginationControls } from "@pte/ui";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
-import {
-  useHostAttendanceRoster,
-  useRecordHostIdentityVerificationMutation,
-} from "@/features/proctor/api";
+import { useHostAttendanceRoster } from "@/features/proctor/api";
 import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
 import { PROCTOR_TOOLBAR_TEXT } from "@/features/proctor/constants";
 import { AttendanceSummaryCards } from "@/features/proctor/components/AttendanceSummaryCards";
@@ -14,7 +11,6 @@ import { AttendanceFilterToolbar } from "@/features/proctor/components/Attendanc
 import { AttendanceRosterTable } from "@/features/proctor/components/AttendanceRosterTable";
 import { RecordAttendanceModal } from "@/features/proctor/components/RecordAttendanceModal";
 import { AttendanceHistoryModal } from "@/features/proctor/components/AttendanceHistoryModal";
-import { IdentityVerificationModal } from "@/features/proctor/components/IdentityVerificationModal";
 
 interface ExamAttendanceTabProps {
   sessionPublicId: string;
@@ -35,7 +31,6 @@ export function ExamAttendanceTab({
     targetStatus: AttendanceStatus;
   } | null>(null);
   const [activeHistory, setActiveHistory] = useState<AttendanceRowResponse | null>(null);
-  const [activeVerification, setActiveVerification] = useState<AttendanceRowResponse | null>(null);
 
   const { data, isLoading, isError, refetch } = useHostAttendanceRoster(sessionPublicId, {
     status: currentStatus,
@@ -43,8 +38,6 @@ export function ExamAttendanceTab({
     page,
     size: 20,
   });
-
-  const hostIdentityMutation = useRecordHostIdentityVerificationMutation(sessionPublicId);
 
   useEffect(() => {
     if (data && data.meta.totalPages > 0 && page >= data.meta.totalPages) {
@@ -112,7 +105,6 @@ export function ExamAttendanceTab({
         }
         onRecordAttendance={(row, targetStatus) => setActiveAction({ row, targetStatus })}
         onViewHistory={(row) => setActiveHistory(row)}
-        onVerifyIdentity={(row) => setActiveVerification(row)}
       />
 
       <RecordAttendanceModal
@@ -133,27 +125,6 @@ export function ExamAttendanceTab({
         studentName={activeHistory?.displayName}
         studentEmail={activeHistory?.email}
         isHost={true}
-      />
-
-      <IdentityVerificationModal
-        open={Boolean(activeVerification)}
-        onClose={() => setActiveVerification(null)}
-        row={activeVerification}
-        sessionPublicId={sessionPublicId}
-        onConfirmVerification={async ({ studentPublicId, status, note }) => {
-          const target = rows.find((r) => r.studentPublicId === studentPublicId);
-          await hostIdentityMutation.mutateAsync({
-            studentPublicId,
-            request: {
-              status,
-              enrollmentPublicId: target?.enrollmentPublicId ?? "",
-              expectedVersion: target?.version ?? 0,
-              requestPublicId: crypto.randomUUID(),
-              note: note || undefined,
-            },
-          });
-          refetch();
-        }}
       />
     </div>
   );

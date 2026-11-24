@@ -4,11 +4,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import type { ExaminerAnswerDetailResponse } from "@pte/api-client";
 import { useToast } from "@pte/ui";
 import { useExaminerWorkText } from "./hooks/useExaminerWorkText";
-import { useExaminerAttempt, useExaminerIssues, useReportExaminerIssue, useStartExaminerWork } from "./api";
+import { useExaminerAttempt, useReportExaminerIssue, useStartExaminerWork } from "./api";
 import type { MediaState } from "./components/AnswerContentRenderer";
 import { useExaminerSubmissions } from "./useExaminerSubmissions";
 import { draftInputError } from "./traitDraft";
 import { formatAttemptTitle } from "./utils/attemptLabels";
+import { getFinalizeFailureText } from "./utils/finalizeFailure";
 /** Stable reference: a fresh `[]` per render makes the draft hook's `answers !== prevAnswers` check loop forever. */
 const NO_ANSWERS: ExaminerAnswerDetailResponse[] = [];
 
@@ -31,7 +32,6 @@ export const useExaminerAttemptController = ({
   const query = useExaminerAttempt(sessionPublicId, attemptPublicId);
   const startMutation = useStartExaminerWork(sessionPublicId, attemptPublicId);
   const reportIssueMutation = useReportExaminerIssue(sessionPublicId, attemptPublicId);
-  const issuesQuery = useExaminerIssues(sessionPublicId, attemptPublicId);
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [confirmLeaveOpen, setConfirmLeaveOpen] = useState(false);
@@ -145,11 +145,14 @@ export const useExaminerAttemptController = ({
   const saveThen = (proceed: () => void): void => { void saveAllDirty().then((saved) => { if (saved) proceed(); }); };
 
   const handleConfirmFinalize = async () => {
-    const success = await handleFinalizeAttempt();
+    let reason = T.FINALIZE_FAILED;
+    const success = await handleFinalizeAttempt((error) => {
+      reason = getFinalizeFailureText(error, T, answers.map((answer) => answer.answerPublicId));
+    });
     if (success) {
       setFinalizeOpen(false);
     } else {
-      showToast(T.FINALIZE_FAILED, { tone: "error" });
+      showToast(reason, { tone: "error" });
     }
   };
 
@@ -165,9 +168,8 @@ export const useExaminerAttemptController = ({
     void query.refetch();
   };
 
-  const hasOpenIssue = issuesQuery.data?.some((i) => i.status === "OPEN");
   const workflowStatus = workflow?.status ?? (query.data?.submittedAnswerCount === query.data?.eligibleAnswerCount ? "COMPLETED" : "IN_PROGRESS");
 
-  return { T, query, startMutation, reportIssueMutation, currentIndex, confirmLeaveOpen, finalizeOpen, reportIssueOpen, promptMedia, responseMedia, answers, workflow, carriedOverIds, currentAnswer, attemptTitle, drafts, activeDraft, hasUnsaved, isStale, isSavingDraft, isFinalizing, handleScoreChange, handleTraitChange, handleGapReasonChange, handleCommentChange, handleApplyAiScore, handleAcknowledgeStale, handleBack, handleSelectIndex, handleStartWork, handleSaveClick, handleSaveAndLeave, saveThen, handleConfirmFinalize, handleReportIssue, hasOpenIssue, workflowStatus, executeBack, setConfirmLeaveOpen, setFinalizeOpen, setReportIssueOpen, setPromptMedia, setResponseMedia, sessionPublicId, attemptPublicId };
+  return { T, query, startMutation, reportIssueMutation, currentIndex, confirmLeaveOpen, finalizeOpen, reportIssueOpen, promptMedia, responseMedia, answers, workflow, carriedOverIds, currentAnswer, attemptTitle, drafts, activeDraft, hasUnsaved, isStale, isSavingDraft, isFinalizing, handleScoreChange, handleTraitChange, handleGapReasonChange, handleCommentChange, handleApplyAiScore, handleAcknowledgeStale, handleBack, handleSelectIndex, handleStartWork, handleSaveClick, handleSaveAndLeave, saveThen, handleConfirmFinalize, handleReportIssue, workflowStatus, executeBack, setConfirmLeaveOpen, setFinalizeOpen, setReportIssueOpen, setPromptMedia, setResponseMedia, sessionPublicId, attemptPublicId };
 };
 export type ExaminerAttemptController = ReturnType<typeof useExaminerAttemptController>;

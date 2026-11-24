@@ -23,7 +23,7 @@ function setup(saved: boolean) {
   const state = {
     T: EXAMINER_WORK_TEXT, currentIndex: 0, answers: [{}, {}], handleSelectIndex: onSelect,
     workflow: { canStart: false, canFinalize: false }, hasUnsaved: true, isSavingDraft: false,
-    isFinalizing: false, hasOpenIssue: false, currentAnswer: { myScore: null, decision: null, canFinalize: true },
+    isFinalizing: false, currentAnswer: { myScore: null, decision: null, canFinalize: true },
     activeDraft: { score: "65", isDirty: true }, isStale: false, promptMedia: "ready", responseMedia: "ready",
     handleSaveClick: onSave,
   } as unknown as ExaminerAttemptController;

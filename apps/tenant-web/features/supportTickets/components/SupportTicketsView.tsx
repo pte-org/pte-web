@@ -222,7 +222,7 @@ export const SupportTicketsView = (): ReactElement => {
                 setSize(nextSize);
                 setPage(0);
               }}
-              totalItemsLabel={T.TOTAL_ITEMS(data.meta.totalElements)}
+              totalItemsLabel={t("tenant.support.totalItems", undefined, { n: data.meta.totalElements })}
             />
           ) : undefined
         }

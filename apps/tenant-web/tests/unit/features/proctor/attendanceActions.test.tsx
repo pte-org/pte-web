@@ -17,7 +17,7 @@ const record = vi.fn();
 const row = { studentPublicId: "student-1", status: "UNMARKED", canEdit: true } as AttendanceRowResponse;
 function render(canEditSession = true): string {
   return renderToStaticMarkup(<AttendanceRosterTable rows={[row]} isLoading={false} canEditSession={canEditSession}
-    onRecordAttendance={record} onViewHistory={vi.fn()} onVerifyIdentity={vi.fn()} />);
+    onRecordAttendance={record} onViewHistory={vi.fn()} />);
 }
 beforeEach(() => { record.mockClear(); state.items = []; });
 
@@ -34,5 +34,5 @@ it("keeps attendance controls only in the existing menu and invokes their callba
 it("does not expose attendance mutations when the session is locked", () => {
   render(false);
   expect(state.items.filter((item) => "label" in item).map((item) => "label" in item && item.label))
-    .toEqual(["Xác minh danh tính", "Lịch sử điểm danh"]);
+    .toEqual(["Lịch sử điểm danh"]);
 });

@@ -38,8 +38,6 @@ export const ProctorOverviewView = (): ReactElement => {
       <PageHeader title={text.overviewTitle} />
       <ProctorWorkspaceOverview
         counts={overviewQuery.data?.counts}
-        asOf={overviewQuery.data?.asOf}
-        timezone={overviewQuery.data?.timezone ?? timezone ?? undefined}
         isLoading={overviewQuery.isLoading || !isResolved}
         isError={overviewQuery.isError}
         onRetry={() => void overviewQuery.refetch()}

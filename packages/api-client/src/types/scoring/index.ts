@@ -78,7 +78,13 @@ export interface AnswerListResponse {
 }
 
 /** Matches scoring's real `AnswerPayloadKind` enum exactly. */
-export type AnswerPayloadKind = "AUDIO" | "TEXT" | "SELECTION" | "UNRECOGNIZED";
+export type AnswerPayloadKind =
+  | "AUDIO"
+  | "TEXT"
+  | "SELECTION"
+  | "POSITIONAL_SELECTION"
+  | "WORD_INDICES"
+  | "UNRECOGNIZED";
 
 /** Matches scoring's real `AnswerOptionView` record exactly. */
 export interface AnswerOptionView {
@@ -95,6 +101,14 @@ export interface DecodedAnswerPayload {
   mediaPublicId: string | null;
   options: AnswerOptionView[] | null;
   mediaUrl: string | null;
+  /** Typed value per gap (null = left empty); set for `POSITIONAL_SELECTION`. */
+  gapValues?: (string | null)[] | null;
+  /** Answer key per gap for a type-in item; null when the key is unreadable. */
+  correctGapValues?: string[] | null;
+  /** Transcript token positions the student selected; set for `WORD_INDICES`. */
+  wordIndices?: number[] | null;
+  /** Re-order only: each paragraph's `orderIndex` in the order the student arranged them. */
+  submittedOrder?: number[] | null;
 }
 
 /** Matches scoring's real `AnswerReviewDetailResponse` record exactly. */

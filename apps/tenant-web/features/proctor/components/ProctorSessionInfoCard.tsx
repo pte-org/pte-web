@@ -71,7 +71,7 @@ export const ProctorSessionInfoCard = ({
         </div>
         {!attendance?.canEditSession && attendance?.sessionBlockingReason && (
           <div className="border-t border-[var(--divider)] pt-4">
-            <Alert tone="warning" title={T.PORTAL_LOCKED_TITLE}>
+            <Alert tone="warning">
               {getAttendanceBlockingMessage(attendance.sessionBlockingReason)}
               {attendance.attendanceWindowOpensAt && (
                 <p className="mt-1 text-xs">

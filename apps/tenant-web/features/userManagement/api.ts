@@ -27,7 +27,7 @@ export function useSendUserCredentials(): UseMutationResult<
   });
 }
 
-/** Rotates a Student password for Host verification without sending email. */
+/** Rotates a Student or staff password for hand-over without sending email. */
 export function useGenerateStudentCredentials(): UseMutationResult<
   GeneratedCredentialsResponse,
   unknown,
@@ -38,6 +38,7 @@ export function useGenerateStudentCredentials(): UseMutationResult<
   return useMutation({
     mutationFn: (publicId) => generateStudentCredentials(apiClient, publicId),
     onSuccess: (_result, publicId) => {
+      void queryClient.invalidateQueries({ queryKey: ["examStaff"] });
       void queryClient.invalidateQueries({ queryKey: ["studentRoster"] });
       void queryClient.invalidateQueries({ queryKey: ["tenantUsers"] });
       void queryClient.invalidateQueries({ queryKey: ["studentDetail", publicId] });

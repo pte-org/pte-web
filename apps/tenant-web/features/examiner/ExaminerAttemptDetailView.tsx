@@ -10,7 +10,7 @@ import { QuestionListButton } from "./components/QuestionListButton";
 import { useExaminerAttemptController } from "./useExaminerAttemptController";
 export const ExaminerAttemptDetailView = (props: { sessionPublicId: string; attemptPublicId: string; onBack?: () => void }): ReactElement => {
   const state = useExaminerAttemptController(props);
-  const { T, query, attemptTitle, workflowStatus, setReportIssueOpen, workflow, hasOpenIssue, isFinalizing, hasUnsaved,
+  const { T, query, attemptTitle, workflowStatus, setReportIssueOpen, workflow, isFinalizing, hasUnsaved,
     isSavingDraft } = state;
   const [activeTab, setActiveTab] = useState("marking");
   const [historyVisited, setHistoryVisited] = useState(false);
@@ -37,19 +37,14 @@ export const ExaminerAttemptDetailView = (props: { sessionPublicId: string; atte
           </Button>
           {workflow?.canFinalize && (
             <Button variant="primary" size="sm" className="whitespace-nowrap"
-              disabled={isFinalizing || Boolean(hasOpenIssue) || hasUnsaved || isSavingDraft}
+              disabled={isFinalizing || hasUnsaved || isSavingDraft}
               onClick={() => state.setFinalizeOpen(true)}>{isFinalizing ? T.FINALIZING : T.FINALIZE_WORK}</Button>
           )}
         </div>}
       />
 
-      {hasOpenIssue && (
-        <Alert tone="error" title={T.ACTIVE_ISSUE_TITLE}>
-          {T.ISSUES_BLOCKING}
-        </Alert>
-      )}
-
-      {workflow?.blockingReason && (
+      {/* The header already announces a published cohort; repeating it as a blocking reason would show it twice. */}
+      {workflow?.blockingReason && !(workflow.blockingReason === "ALREADY_PUBLISHED" && query.data?.publicationState === "PUBLISHED") && (
         <Alert tone="warning" title={T.SCORING_NOTICE_TITLE}>
           {getExaminerBlockingText(T, workflow.blockingReason)}
         </Alert>

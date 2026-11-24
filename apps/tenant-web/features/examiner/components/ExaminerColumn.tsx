@@ -10,7 +10,7 @@ interface ExaminerColumnProps {
   action?: ReactNode;
 }
 
-/** One of the three side-by-side marking columns; each scrolls on its own on wide screens. */
+/** One of the three marking panels: the question and answer, the AI's marking, the examiner's marking. */
 export const ExaminerColumn = ({ title, tone, children, action }: ExaminerColumnProps): ReactElement => (
   <section aria-label={title} className={cn(EXAMINER_COLUMN_CLASS, EXAMINER_COLUMN_TONE[tone].column)}>
     <div className="flex items-center justify-between gap-2 px-1">

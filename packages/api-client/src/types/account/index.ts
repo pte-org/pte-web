@@ -9,6 +9,7 @@ export interface CurrentUser {
   status: string;
   roles: string[];
   organizationType: string | null;
+  organizationName: string | null;
 }
 
 export interface UpdateOwnProfileRequest {

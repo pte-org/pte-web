@@ -33,11 +33,6 @@ describe("PROCTOR_QUERY_KEYS", () => {
   });
 
 
-  it("security audit adds the limit only when it is given, including zero", () => {
-    expect(PROCTOR_QUERY_KEYS.securityAudit("s1")).toEqual(["proctor", "security-audit", "s1"]);
-    expect(PROCTOR_QUERY_KEYS.securityAudit("s1", 0)).toEqual(["proctor", "security-audit", "s1", { limit: 0 }]);
-  });
-
   it("attendance roster and incidents list append their params when present", () => {
     expect(PROCTOR_QUERY_KEYS.attendanceRoster("s1")).toEqual(["proctor", "attendance", "s1"]);
     expect(PROCTOR_QUERY_KEYS.attendanceRoster("s1", { status: "PRESENT" })).toEqual([

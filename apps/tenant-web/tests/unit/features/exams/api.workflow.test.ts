@@ -149,6 +149,42 @@ describe("useCreateExamWorkflow", () => {
     expect(hoisted.invalidateQueries).toHaveBeenCalledWith({ queryKey: SESSIONS_QUERY_KEY });
   });
 
+  it("sends the picked proctors with the draft, and nothing when none were picked", async () => {
+    useCreateExamWorkflow();
+    api.createExamDraft.mockResolvedValue(sampleDraft);
+    api.addAudienceSources.mockResolvedValue(undefined);
+    api.preflightExam.mockResolvedValue({
+      ready: true,
+      issues: [],
+      examDefinition: { slots: [] },
+      audience: { members: [] },
+    });
+    api.generateExam.mockResolvedValue(undefined);
+    api.publishExam.mockResolvedValue({ ...sampleDraft, status: "SCHEDULED" });
+    const base = {
+      name: "Workflow Exam",
+      templatePublicId: "tpl-1",
+      subscriptionPublicId: "sub-1",
+      opensAt: "2026-11-01T10:00:00Z",
+      closesAt: "2026-11-01T12:00:00Z",
+      maxRetriesPerStudent: 0,
+      reusePolicy: "NEW",
+      seriesKey: "",
+      capacity: 50,
+      sources: [{ type: "CLASS", sourcePublicId: "cls-1" }],
+    };
+    const proctors = [
+      { proctorPublicId: "p-1" },
+      { proctorPublicId: "p-2" },
+    ];
+
+    await mutation().mutationFn?.({ ...base, proctors } as never);
+    expect(api.createExamDraft.mock.calls[0][1]).toMatchObject({ proctors });
+
+    await mutation().mutationFn?.({ ...base, proctors: [] } as never);
+    expect(api.createExamDraft.mock.calls[1][1].proctors).toBeUndefined();
+  });
+
   it("throws when preflight check is not ready", async () => {
     useCreateExamWorkflow();
 

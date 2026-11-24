@@ -2,9 +2,8 @@
 
 import { useCallback, useMemo, type ReactNode } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import type { AssignedProctorSessionResponse } from "@pte/api-client";
-import { ActionMenu, Button, StatusBadge, type DataTableColumn } from "@pte/ui";
+import { Button, StatusBadge, type DataTableColumn } from "@pte/ui";
 import { useProctorWorkspaceText } from "./useProctorWorkspaceText";
 
 function getStatusBadgeVariant(status: string): "success" | "info" | "neutral" | "danger" {
@@ -27,7 +26,6 @@ interface AssignedSessionTable {
 }
 
 export const useAssignedSessionTable = (): AssignedSessionTable => {
-  const router = useRouter();
   const text = useProctorWorkspaceText();
   const formatDateTime = useCallback(
     (iso: string): string => {
@@ -64,17 +62,7 @@ export const useAssignedSessionTable = (): AssignedSessionTable => {
       {
         key: "name",
         header: text.tableColName,
-        cell: (row) => {
-          const sessionId = row.examSessionPublicId || row.sessionPublicId || "";
-          return (
-            <div>
-              <div className="font-medium text-[var(--ink-primary)]">{row.name}</div>
-              <div className="font-mono text-xs text-[var(--ink-muted)]">
-                #{sessionId ? sessionId.slice(0, 8).toUpperCase() : "â€”"}
-              </div>
-            </div>
-          );
-        },
+        cell: (row) => <div className="font-medium text-[var(--ink-primary)]">{row.name}</div>,
       },
       {
         key: "status",
@@ -102,39 +90,12 @@ export const useAssignedSessionTable = (): AssignedSessionTable => {
           </span>
         ),
       },
-      {
-        key: "role",
-        header: text.tableColRole,
-        cell: (row) => {
-          const isLead = (row.assignmentRole || row.role) === "LEAD_PROCTOR";
-          return (
-            <span className="text-xs font-medium text-[var(--ink-primary)]">
-              {isLead ? text.roleLead : text.roleProctor}
-            </span>
-          );
-        },
-      },
     ],
     [formatDateTime, getStatusLabel, text],
   );
   const renderRowActions = useCallback(
     (row: AssignedProctorSessionResponse) => {
       const sessionId = row.examSessionPublicId || row.sessionPublicId || "";
-
-      const menuItems = [
-        {
-          label: text.actionRecordAttendance,
-          onClick: () => router.push(`/proctor/attendance/${sessionId}`),
-        },
-        {
-          label: text.actionViewIncidents,
-          onClick: () => router.push(`/proctor/incidents/${sessionId}`),
-        },
-        {
-          label: text.actionViewAudit,
-          onClick: () => router.push(`/proctor/audit-log/${sessionId}`),
-        },
-      ];
 
       return (
         <div className="flex items-center justify-end gap-2 whitespace-nowrap">
@@ -143,11 +104,10 @@ export const useAssignedSessionTable = (): AssignedSessionTable => {
               {text.openSession}
             </Button>
           </Link>
-          <ActionMenu items={menuItems} label={text.tableColActions} />
         </div>
       );
     },
-    [router, text],
+    [text],
   );
   return { columns, renderRowActions };
 };

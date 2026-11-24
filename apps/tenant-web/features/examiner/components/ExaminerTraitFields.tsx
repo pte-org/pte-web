@@ -30,8 +30,9 @@ export function ExaminerTraitFields({ answer, values, itemScore, trace, disabled
     {machineMissing && <Alert tone="warning" title={text.machine}>{text.missingAi}</Alert>}
     {rubric.traits.map((trait) => {
       const label = locale === "vi" ? trait.displayNameVi : trait.displayNameEn;
-      // An Azure trait shows the machine band until the examiner picks another one.
-      const value = trait.useAiWhenNull ? values[trait.key] ?? aiScores[trait.key]
+      // An Azure trait shows the machine band until the examiner picks another one, but only once the AI may be
+      // shown; earlier it would give the machine score away during blind marking.
+      const value = trait.useAiWhenNull ? values[trait.key] ?? (aiRevealed || readOnly ? aiScores[trait.key] : undefined)
         : trait.editable ? values[trait.key] : rubric.mechanicalScores[trait.key];
       return <ExaminerTraitRow key={trait.key} trait={trait} label={label} text={text} value={value}
         aiLevel={aiRevealed ? aiScores[trait.key] : undefined} rationale={rationales[trait.key]}

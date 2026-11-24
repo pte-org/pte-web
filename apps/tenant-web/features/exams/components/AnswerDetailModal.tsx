@@ -6,6 +6,7 @@ import type { AnswerOptionView } from "@pte/api-client";
 import { AiScoreDetail } from "@/features/aiScore";
 import { ANSWER_DETAIL_TEXT, ANSWER_STATUS_LABELS, ANSWER_STATUS_VARIANT } from "../constants";
 import { useAnswer } from "../api";
+import { ReorderReview, TypeInReview, WordIndicesReview } from "./AnswerPayloadSections";
 
 interface AnswerDetailModalProps {
   answerPublicId: string | null;
@@ -72,6 +73,17 @@ export const AnswerDetailModal = ({
     options: t("tenant.answerDetail.options", T.OPTIONS_TITLE),
     selected: t("tenant.answerDetail.selected", T.SELECTED_BADGE),
     correct: t("tenant.answerDetail.correct", T.CORRECT_BADGE),
+    incorrect: t("tenant.answerDetail.incorrect", T.INCORRECT_BADGE),
+    linkedToPrevious: t("tenant.answerDetail.linkedToPrevious", T.LINKED_TO_PREVIOUS),
+    notLinkedToPrevious: t("tenant.answerDetail.notLinkedToPrevious", T.NOT_LINKED_TO_PREVIOUS),
+    pairsSummary: t("tenant.answerDetail.pairsSummary", T.PAIRS_SUMMARY),
+    studentOrder: t("tenant.answerDetail.studentOrder", T.STUDENT_ORDER_TITLE),
+    correctOrder: t("tenant.answerDetail.correctOrder", T.CORRECT_ORDER_TITLE),
+    studentAnswer: t("tenant.answerDetail.studentAnswer", T.STUDENT_ANSWER),
+    correctAnswer: t("tenant.answerDetail.correctAnswer", T.CORRECT_ANSWER),
+    blank: t("tenant.answerDetail.blank", T.BLANK_LABEL),
+    leftEmpty: t("tenant.answerDetail.leftEmpty", T.LEFT_EMPTY),
+    wordIndices: t("tenant.answerDetail.wordIndices", T.WORD_INDICES_TITLE),
     audioUnavailable: t("tenant.answerDetail.audioUnavailable", T.AUDIO_UNAVAILABLE),
     unrecognized: t("tenant.answerDetail.unrecognized", T.UNRECOGNIZED_NOTICE),
   };
@@ -113,7 +125,31 @@ export const AnswerDetailModal = ({
                 <Alert tone="warning">{text.audioUnavailable}</Alert>
               ))}
 
-            {answer.payload.kind === "SELECTION" && answer.payload.options && (
+            {answer.payload.kind === "SELECTION" &&
+              answer.payload.options &&
+              answer.payload.submittedOrder && (
+                <ReorderReview
+                  options={answer.payload.options}
+                  submittedOrder={answer.payload.submittedOrder}
+                  labels={text}
+                />
+              )}
+
+            {answer.payload.kind === "POSITIONAL_SELECTION" && answer.payload.gapValues && (
+              <TypeInReview
+                gapValues={answer.payload.gapValues}
+                correctGapValues={answer.payload.correctGapValues ?? null}
+                labels={text}
+              />
+            )}
+
+            {answer.payload.kind === "WORD_INDICES" && answer.payload.wordIndices && (
+              <WordIndicesReview wordIndices={answer.payload.wordIndices} labels={text} />
+            )}
+
+            {answer.payload.kind === "SELECTION" &&
+              answer.payload.options &&
+              !answer.payload.submittedOrder && (
               <div className="flex flex-col gap-2">
                 <p className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">
                   {text.options}
