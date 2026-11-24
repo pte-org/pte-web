@@ -38,7 +38,7 @@ export const RubricVersionDetailView = ({ id, sidePanel }: RubricVersionDetailVi
       sidePanel={sidePanel}
       toolbar={
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-bold tracking-tight text-[var(--ink-primary)]">
+          <h1 className="text-2xl font-bold tracking-tight text-[var(--ink-primary)]">
             {`${T.title} ${version.data.versionNo}`}
           </h1>
           <Badge variant={statusVariant(status)}>{statusLabel(status, T)}</Badge>

@@ -97,9 +97,12 @@ export const useRubricTaskTypeColumns = (
       cellClassName: "text-center",
       className: "text-center",
       cell: (rubric: TaskTypeRubricResponse): ReactElement => (
-        <div className="text-center font-medium">
+        <div className="flex flex-col items-center justify-center gap-0.5">
           {rubric.traits.length > 0 ? (
-            <span className="text-sm text-[var(--ink-primary)]">{rubric.traits.length}</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-semibold text-[var(--ink-primary)]">{rubric.traits.length}</span>
+              <span className="text-xs text-[var(--ink-secondary)]">({locale === "vi" ? "Chấm AI" : "AI Rubric"})</span>
+            </div>
           ) : (
             <span className="text-xs text-[var(--ink-secondary)]">{M.answerKey}</span>
           )}

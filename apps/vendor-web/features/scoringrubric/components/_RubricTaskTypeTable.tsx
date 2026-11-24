@@ -1,11 +1,13 @@
 "use client";
 
-import type { ReactElement, ReactNode } from "react";
-import { DataTable, useRememberedState } from "@pte/ui";
+import { useMemo, useState, type ReactElement, type ReactNode } from "react";
+import { Checkbox, DataTable, TableSearchControl, useLocale, useRememberedState } from "@pte/ui";
 import { RUBRIC_SKILL_FILTER_ALL } from "../constants";
 import { useScoringRubricText } from "../hooks/useScoringRubricText";
+import { hasEnabledGate } from "../rubricView";
 import type { TaskTypeRubricResponse } from "../types";
-import { useRubricTaskTypeColumns } from "./_rubricTaskTypeColumns";
+import { useQuestionTypes } from "@/features/questiontemplate/api";
+import { taskTypeLabel, useRubricTaskTypeColumns } from "./_rubricTaskTypeColumns";
 import { RubricSkillTabs } from "./_RubricSkillTabs";
 
 export interface RubricTaskTypeTableProps {
@@ -33,19 +35,50 @@ export const RubricTaskTypeTable = ({
   toolbarActions,
 }: RubricTaskTypeTableProps): ReactElement => {
   const { messages: M } = useScoringRubricText();
+  const { locale } = useLocale();
   const [activeTab, setActiveTab] = useRememberedState<string>("rubric-skill", RUBRIC_SKILL_FILTER_ALL);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [onlyGated, setOnlyGated] = useState(false);
+  const { data: dbQuestionTypes = [] } = useQuestionTypes(false);
   const columns = useRubricTaskTypeColumns(versionId);
 
-  const filteredRows =
-    activeTab === RUBRIC_SKILL_FILTER_ALL
-      ? [...taskTypes]
-      : taskTypes.filter((r) => (r.skills as readonly string[]).includes(activeTab));
+  const taskTypeMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const item of dbQuestionTypes) {
+      if (item.code && item.displayName) {
+        map.set(item.code.toUpperCase(), item.displayName);
+      }
+    }
+    return map;
+  }, [dbQuestionTypes]);
+
+  const getTaskTypeLabel = (code: string): string =>
+    taskTypeMap.get(code.toUpperCase()) ?? taskTypeLabel(code);
+
+  const filteredRows = useMemo(() => {
+    return taskTypes.filter((r) => {
+      if (activeTab !== RUBRIC_SKILL_FILTER_ALL && !(r.skills as readonly string[]).includes(activeTab)) {
+        return false;
+      }
+      if (onlyGated && !hasEnabledGate(r)) {
+        return false;
+      }
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const codeMatch = r.taskType.toLowerCase().includes(q);
+        const nameMatch = getTaskTypeLabel(r.taskType).toLowerCase().includes(q);
+        if (!codeMatch && !nameMatch) return false;
+      }
+      return true;
+    });
+  }, [taskTypes, activeTab, onlyGated, searchQuery, taskTypeMap]);
 
   const effectiveActions =
     toolbarActions ?? (sidePanel ? <div className="shrink-0">{sidePanel}</div> : undefined);
 
   return (
     <div className="flex flex-col gap-5">
+      {/* Page Header: Title + Status Badge on left, CTA buttons on right */}
       {(toolbar || effectiveActions) && (
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">{toolbar}</div>
@@ -53,14 +86,33 @@ export const RubricTaskTypeTable = ({
         </div>
       )}
 
+      {/* Horizontal Section Filter Pills */}
       <RubricSkillTabs
         activeTab={activeTab}
         onTabChange={setActiveTab}
         taskTypes={taskTypes}
       />
 
+      {/* Main Table with Filters */}
       <DataTable
         showSearch={false}
+        filters={
+          <div className="flex flex-row items-center gap-4">
+            <div className="w-72 sm:w-80 shrink-0">
+              <TableSearchControl
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder={locale === "vi" ? "Tìm theo tên hoặc mã dạng bài..." : "Search task types..."}
+                ariaLabel={locale === "vi" ? "Tìm theo tên hoặc mã dạng bài" : "Search task types"}
+              />
+            </div>
+            <Checkbox
+              checked={onlyGated}
+              label={locale === "vi" ? "Chỉ hiện dạng bài có chặn điểm 0" : "Only task types with gate rule"}
+              onChange={(event) => setOnlyGated(event.target.checked)}
+            />
+          </div>
+        }
         columns={columns}
         rows={filteredRows}
         getRowKey={(rubric) => rubric.taskType}

@@ -27,6 +27,7 @@ export const SIMULATOR_TEXT = {
     score: "Điểm câu", raw: "Trước làm tròn", form: "Band Form", contribution: "Đóng góp (trọng số × đạt / tối đa)",
     trait: "Tiêu chí", achieved: "Đạt / tối đa", weight: "Trọng số hiệu lực", gate: "Điểm câu = 0 vì điều kiện chặn: ",
     close: "Đóng", pending: "Đang cập nhật kết quả…", empty: "Chọn đủ điểm tiêu chí bên phải để xem điểm câu và cách tính.",
+    maxScore: "Điểm tối đa", gatedZero: "Bị chặn điểm 0", reset: "Đặt lại",
   },
   en: {
     intro: "Change trait scores to explore how an item score is calculated.",
@@ -46,6 +47,7 @@ export const SIMULATOR_TEXT = {
     score: "Item score", raw: "Before rounding", form: "Form band", contribution: "Contribution (weight × achieved / max)",
     trait: "Trait", achieved: "Achieved / maximum", weight: "Effective weight", gate: "Item score = 0 because of gate: ",
     close: "Close", pending: "Updating result…", empty: "Select trait scores on the right to view the server trace.",
+    maxScore: "Maximum score", gatedZero: "Trigger gate", reset: "Reset",
   },
 } as const;
 
