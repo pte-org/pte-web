@@ -86,7 +86,7 @@ describe("useLicenses", () => {
     expect(licenses).toEqual([
       { tenantId: "t1", tenantName: "Alpha", plan: "professional", status: "active", seatsTotal: 50 },
       { tenantId: "t2", tenantName: "Beta", plan: "enterprise", status: "suspended", seatsTotal: 500 },
-      { tenantId: "t3", tenantName: "Gamma", plan: "starter", status: "active", seatsTotal: 5 },
+      { tenantId: "t3", tenantName: "Gamma", plan: "pilot-2025", status: "active", seatsTotal: 5 },
     ]);
   });
 

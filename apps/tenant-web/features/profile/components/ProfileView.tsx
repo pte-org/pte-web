@@ -1,24 +1,16 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
+import type { ReactElement } from "react";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
-import {
-  Button,
-  DashboardLoadingState,
-  ErrorState,
-  ProfileLayout,
-  TabPanel,
-  useLocale,
-} from "@pte/ui";
+import { Button, DashboardLoadingState, ErrorState, useLocale } from "@pte/ui";
 import { useCurrentUser } from "@/features/auth/api";
 import { useMyOrganizations } from "@/features/programs/api";
-import { PROFILE_TAB_IDS, PROFILE_TEXT, type ProfileTabId } from "../constants";
+import { PROFILE_TEXT } from "../constants";
 import { OrganizationProfileTab } from "./OrganizationProfileTab";
 import { PersonalProfileTab } from "./PersonalProfileTab";
 
 export const ProfileView = (): ReactElement => {
   const { t } = useLocale();
-  const [activeTab, setActiveTab] = useState<ProfileTabId>(PROFILE_TAB_IDS.organization);
   const currentUser = useCurrentUser();
   const organizations = useMyOrganizations();
   const retry = (): void => {
@@ -44,50 +36,14 @@ export const ProfileView = (): ReactElement => {
     );
   }
 
-  const tabs = [
-    {
-      id: PROFILE_TAB_IDS.organization,
-      label: t("tenant.profile.tabs.organization", PROFILE_TEXT.tabs.organization),
-    },
-    {
-      id: PROFILE_TAB_IDS.personal,
-      label: t("tenant.profile.tabs.personal", PROFILE_TEXT.tabs.personal),
-    },
-  ] as const;
-
+  // The Host's organization and own account on one page: both are short, so a tab only added a click.
   return (
     <div className="flex flex-col gap-6">
-      <ProfileLayout
-        id="tenant-profile-tabs"
-        items={tabs}
-        value={activeTab}
-        ariaLabel={t("tenant.profile.tabs.ariaLabel", PROFILE_TEXT.tabs.ariaLabel)}
-        onChange={(value) => {
-          if (value === PROFILE_TAB_IDS.organization || value === PROFILE_TAB_IDS.personal) {
-            setActiveTab(value);
-          }
-        }}
-      >
-        <TabPanel
-          id="tenant-profile-tabs-panel-organization"
-          labelledBy="tenant-profile-tabs-tab-organization"
-          active={activeTab === PROFILE_TAB_IDS.organization}
-          className="mt-6"
-        >
-          <OrganizationProfileTab
-            organizations={organizations.data ?? []}
-            organizationType={currentUser.data.organizationType}
-          />
-        </TabPanel>
-        <TabPanel
-          id="tenant-profile-tabs-panel-personal"
-          labelledBy="tenant-profile-tabs-tab-personal"
-          active={activeTab === PROFILE_TAB_IDS.personal}
-          className="mt-6"
-        >
-          <PersonalProfileTab user={currentUser.data} />
-        </TabPanel>
-      </ProfileLayout>
+      <OrganizationProfileTab
+        organizations={organizations.data ?? []}
+        organizationType={currentUser.data.organizationType}
+      />
+      <PersonalProfileTab user={currentUser.data} />
     </div>
   );
 };

@@ -39,6 +39,11 @@ export interface TabsProps {
    * badge pushed to the right edge. It always uses the card-like look of `default`.
    */
   orientation?: TabsOrientation;
+  /**
+   * Vertical rails only: drops the rail's own border and grey tray, for a rail that already sits in a card, and marks
+   * the selected item with an accent bar. The default keeps the boxed look every other screen uses.
+   */
+  flat?: boolean;
 }
 
 const tabRootStyles: Record<TabsVariant, string> = {
@@ -62,6 +67,9 @@ const verticalRootStyles =
 const verticalListWrapperStyles = "p-3";
 const verticalListStyles = "flex min-w-0 flex-col gap-1 rounded-lg bg-[var(--surface-subtle)] p-1";
 const verticalTriggerStyles = "w-full justify-start text-left";
+const flatListStyles = "flex min-w-[12rem] flex-col gap-1";
+const flatSelectedStyles =
+  "relative rounded-md bg-[var(--surface-subtle)] px-3 py-2 font-semibold text-[var(--ink-primary)] before:absolute before:bottom-2 before:left-0 before:top-2 before:w-[3px] before:rounded-full before:bg-[var(--brand)]";
 
 const tabTriggerBaseStyles =
   "inline-flex shrink-0 items-center gap-2 whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35 disabled:cursor-not-allowed disabled:opacity-50";
@@ -76,11 +84,13 @@ export const Tabs = ({
   variant = "default",
   activeVariant = "surface",
   orientation = "horizontal",
+  flat = false,
 }: TabsProps): ReactElement => {
   const generatedTabsId = useId().replace(/:/g, "");
   const tabsId = id ?? generatedTabsId;
   const { t } = useLocale();
   const isVertical = orientation === "vertical";
+  const isFlat = isVertical && flat;
   // Vertical rails always use the card-like look; `minimal` underlines only make sense in a row.
   const effectiveVariant: TabsVariant = isVertical ? "default" : variant;
   const nextKey = isVertical ? "ArrowDown" : "ArrowRight";
@@ -109,10 +119,10 @@ export const Tabs = ({
   };
 
   return (
-    <div className={cn(isVertical ? verticalRootStyles : tabRootStyles[variant], className)}>
-      <div className={isVertical ? verticalListWrapperStyles : tabListWrapperStyles[variant]}>
+    <div className={cn(isFlat ? "" : isVertical ? verticalRootStyles : tabRootStyles[variant], className)}>
+      <div className={isFlat ? "" : isVertical ? verticalListWrapperStyles : tabListWrapperStyles[variant]}>
         <div
-          className={isVertical ? verticalListStyles : tabListStyles[variant]}
+          className={isFlat ? flatListStyles : isVertical ? verticalListStyles : tabListStyles[variant]}
           role="tablist"
           aria-orientation={orientation}
           aria-label={ariaLabel ?? t("common.sections", "Sections")}
@@ -123,7 +133,9 @@ export const Tabs = ({
             const triggerStyles =
               effectiveVariant === "default"
                 ? selected
-                  ? activeVariant === "primary"
+                  ? isFlat
+                    ? flatSelectedStyles
+                    : activeVariant === "primary"
                     ? `rounded-md px-3 py-2 ${PRIMARY_ACTION_SURFACE_CLASSES}`
                     : "rounded-md bg-[var(--tab-active-background)] px-3 py-2 text-[var(--ink-primary)] shadow-xs"
                   : "rounded-md px-3 py-2 text-[var(--ink-secondary)] hover:bg-[var(--surface-card)]/70 hover:text-[var(--ink-primary)]"

@@ -31,6 +31,7 @@ const resetText: ResetPasswordFormText = {
   tooShort: "Use at least 8 characters.",
   mismatch: "The passwords do not match.",
   edgeSpaces: "No edge spaces",
+  tooLong: "Too long",
   invalidLinkTitle: "This link cannot be used",
   invalidLinkMessage: "The link is invalid or has expired.",
   showPassword: "Show password",

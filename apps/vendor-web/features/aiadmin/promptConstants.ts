@@ -2,6 +2,9 @@ import type { PromptCategory } from "@pte/api-client";
 
 export const PROMPT_CATEGORIES: readonly PromptCategory[] = ["GENERATION", "REVIEW", "SCORING", "SHARED", "CHATBOT"];
 export const PROMPT_TABS_ID = "ai-prompt-category-tabs";
+/** The tab that lists every category together; the others each list one. */
+export const PROMPT_ALL_TAB = "ALL";
+export const PROMPT_TAB_VALUES: readonly string[] = [PROMPT_ALL_TAB, ...PROMPT_CATEGORIES];
 export const PROMPT_QUERY_KEY = ["ai-admin", "prompt-catalog"] as const;
 
 export const promptDetailHref = (category: PromptCategory, key: string): string =>
@@ -15,11 +18,13 @@ const COPY_EN = {
   CATEGORY_SHARED: "Shared blocks",
   CATEGORY_CHATBOT: "Chatbot",
   COLUMN_PROMPT: "Prompt",
+  COLUMN_CATEGORY: "Category",
   COLUMN_HANDLED_BY: "Handled by",
   COLUMN_ACTIONS: "Actions",
   ACTION_VIEW: "View",
-  ALL_CATEGORIES: "All prompts",
+  ALL_CATEGORIES: "All",
   EMPTY: "No prompts found.",
+  SEARCH_PLACEHOLDER: "Search by name or code",
   LOADING: "Loading prompts…",
   LOAD_ERROR: "The prompts could not be loaded.",
   RETRY: "Try again",
@@ -54,11 +59,13 @@ const COPY_VI: PromptCopy = {
   CATEGORY_SHARED: "Khối dùng chung",
   CATEGORY_CHATBOT: "Chatbot",
   COLUMN_PROMPT: "Prompt",
-  COLUMN_HANDLED_BY: "Ai xử lý",
+  COLUMN_CATEGORY: "Nhóm",
+  COLUMN_HANDLED_BY: "AI xử lý",
   COLUMN_ACTIONS: "Thao tác",
   ACTION_VIEW: "Xem",
-  ALL_CATEGORIES: "Tất cả prompt",
+  ALL_CATEGORIES: "Tất cả",
   EMPTY: "Không tìm thấy prompt nào.",
+  SEARCH_PLACEHOLDER: "Tìm theo tên hoặc mã",
   LOADING: "Đang tải prompt…",
   LOAD_ERROR: "Không tải được prompt.",
   RETRY: "Thử lại",
@@ -79,7 +86,7 @@ const COPY_VI: PromptCopy = {
   ENGINE_LLM: "LLM",
   ENGINE_TTS: "Kokoro TTS",
   ENGINE_CHART: "Vẽ biểu đồ",
-  ENGINE_AI_AUDIO: "AI nghe audio (practice)",
+  ENGINE_AI_AUDIO: "AI nghe audio (luyện tập)",
   BACK: "Về danh sách prompt",
 };
 

@@ -1,20 +1,16 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
+import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { Alert, Button, DashboardLoadingState, MotionReveal, useToast } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { TENANCY_TEXT as RAW_TENANCY_TEXT } from "../constants";
 import { useReactivateTenant, useSuspendTenant, useTenants } from "../api";
 import { useCreateTenantFlow } from "../hooks/useCreateTenantFlow";
 import type { Tenant } from "../types";
-import { useGrantQuota } from "../../licensing/api";
 import { useCurrentUser } from "@/features/auth/api";
 import { isPlatformAdmin } from "@/features/auth/permissions";
-import { GrantQuotaModal } from "../../licensing/components/GrantQuotaModal";
 import { QuotaHistoryModal } from "../../licensing/components/QuotaHistoryModal";
-import { GRANT_QUOTA_TEXT as RAW_GRANT_QUOTA_TEXT } from "../../licensing/constants";
-import type { GrantQuotaInput } from "../../licensing/types";
 import { TenantTable } from "./_TenantTable";
 import { TenantEmptyState } from "./_TenantEmptyState";
 import { SuspendTenantModal } from "./SuspendTenantModal";
@@ -29,7 +25,6 @@ function lifecycleErrorMessage(error: unknown): string | undefined {
 
 export const TenantManagementView = (): ReactElement => {
   const T = useAdminCopy(RAW_TENANCY_TEXT);
-  const grantText = useAdminCopy(RAW_GRANT_QUOTA_TEXT);
   const { data: currentUser } = useCurrentUser();
   const canManageQuota = isPlatformAdmin(currentUser?.roles);
   const { data: tenants, isLoading } = useTenants();
@@ -42,11 +37,9 @@ export const TenantManagementView = (): ReactElement => {
 
   const [suspendTarget, setSuspendTarget] = useState<Tenant | null>(null);
   const [lifecycleError, setLifecycleError] = useState<string | undefined>();
-  const [grantTarget, setGrantTarget] = useState<Tenant | null>(null);
   const [historyTarget, setHistoryTarget] = useState<Tenant | null>(null);
   /** Code of a just-created tenant whose package grant wizard is open. */
   const [packageGrantCode, setPackageGrantCode] = useState<string | null>(null);
-  const grantQuota = useGrantQuota(grantTarget?.id ?? "");
 
   const allTenants = tenants ?? [];
 
@@ -67,24 +60,6 @@ export const TenantManagementView = (): ReactElement => {
     });
   };
 
-  const confirmGrantQuota = (input: GrantQuotaInput): void => {
-    if (!grantTarget) return;
-    grantQuota.mutate(input, {
-      onSuccess: () => {
-        grantQuota.reset();
-        setGrantTarget(null);
-      },
-    });
-  };
-
-  const quotaErrorMessage = (error: unknown): string | undefined => {
-    if (!error) return undefined;
-    if (error instanceof ApiError && error.kind === "conflict") {
-      return getUserFacingApiErrorMessage(error, grantText.CONFLICT);
-    }
-    return getUserFacingApiErrorMessage(error);
-  };
-
   if (isLoading) return <DashboardLoadingState />;
 
   return (
@@ -101,7 +76,6 @@ export const TenantManagementView = (): ReactElement => {
             tenants={allTenants}
             onSuspend={setSuspendTarget}
             onReactivate={confirmReactivate}
-            onGrantQuota={canManageQuota ? setGrantTarget : undefined}
             onViewQuotaHistory={canManageQuota ? setHistoryTarget : undefined}
             toolbarActions={
               <Button type="button" onClick={createFlow.openModal}>
@@ -148,19 +122,6 @@ export const TenantManagementView = (): ReactElement => {
         open={packageGrantCode !== null}
         initialCode={packageGrantCode ?? undefined}
         onClose={() => setPackageGrantCode(null)}
-      />
-
-      <GrantQuotaModal
-        key={grantTarget?.id ?? "grant-quota-closed"}
-        open={grantTarget !== null}
-        tenantName={grantTarget?.name}
-        onClose={() => {
-          grantQuota.reset();
-          setGrantTarget(null);
-        }}
-        onSubmit={confirmGrantQuota}
-        error={quotaErrorMessage(grantQuota.error)}
-        isSubmitting={grantQuota.isPending}
       />
 
       <QuotaHistoryModal

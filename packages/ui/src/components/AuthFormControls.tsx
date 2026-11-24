@@ -16,6 +16,11 @@ export interface AuthTextFieldProps extends Omit<
   trailing?: ReactNode;
   /** Validation message; turns the field red, replaces the hint and hides the tick. */
   error?: string;
+  /**
+   * Whether the content is acceptable, which decides the tick. Defaults to "has content", fine for a username;
+   * pass it when a field has rules (a new password) so a filled but wrong value is not ticked.
+   */
+  valid?: boolean;
 }
 
 /**
@@ -30,6 +35,7 @@ export const AuthTextField = ({
   hint,
   trailing,
   error,
+  valid,
   value,
   ...inputProps
 }: AuthTextFieldProps): ReactElement => {
@@ -73,7 +79,7 @@ export const AuthTextField = ({
           aria-hidden="true"
           className={cn(
             "flex shrink-0 text-[var(--mint-action)] transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.3,1.6,0.5,1)]",
-            filled && !error ? "scale-100 opacity-100" : "scale-50 opacity-0",
+            (valid ?? filled) && !error ? "scale-100 opacity-100" : "scale-50 opacity-0",
           )}
         >
           <CheckIcon className="h-[18px] w-[18px]" />

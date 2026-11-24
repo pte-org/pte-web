@@ -5,23 +5,62 @@ import Link from "next/link";
 import { DataTable, EyeIcon, type DataTableColumn } from "@pte/ui";
 import type { PromptSummary } from "@pte/api-client";
 import { promptDetailHref, type PromptCopy } from "../promptConstants";
-import { tagLabel } from "../utils/promptPresentation";
-import { engineTone } from "../utils/promptTone";
+import { categoryLabel, tagLabel } from "../utils/promptPresentation";
+import { categoryTone, engineTone } from "../utils/promptTone";
+
+/** The largest category has 23 prompts; 20 a page keeps most categories on one page. */
+const PAGE_SIZE = 20;
 
 interface PromptTableProps {
   entries: readonly PromptSummary[];
   copy: PromptCopy;
+  /** Adds a column naming each prompt's category, for a list that mixes categories (one name can exist in two). */
+  showCategory?: boolean;
 }
 
 /** The prompts of one category; each row opens the prompt with the eye button. */
-export const PromptTable = ({ entries, copy }: PromptTableProps): ReactElement => {
+export const PromptTable = ({ entries, copy, showCategory = false }: PromptTableProps): ReactElement => {
   const columns: DataTableColumn<PromptSummary>[] = [
     {
       key: "key",
       header: copy.COLUMN_PROMPT,
       sortable: false,
-      cell: (entry) => <span className="text-sm font-medium">{entry.key}</span>,
+      // Search matches the readable title as well as the code.
+      filterAccessor: (entry) => `${entry.title} ${entry.key}`,
+      cell: (entry) => (
+        <span className="flex flex-col">
+          {/* A title that only repeats the code (scoring entries) adds nothing, so it is shown once. */}
+          {entry.title !== entry.key && <span className="text-sm font-medium">{entry.title}</span>}
+          <span
+            className={
+              entry.title !== entry.key
+                ? "font-mono text-xs text-[var(--ink-muted)]"
+                : "text-sm font-medium"
+            }
+          >
+            {entry.key}
+          </span>
+        </span>
+      ),
     },
+    ...(showCategory
+      ? [
+          {
+            key: "category",
+            header: copy.COLUMN_CATEGORY,
+            sortable: false,
+            filterAccessor: (entry: PromptSummary) => categoryLabel(copy, entry.category),
+            cell: (entry: PromptSummary) => (
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium ${categoryTone(entry.category).chip}`}
+              >
+                <span className={`h-1.5 w-1.5 rounded-full ${categoryTone(entry.category).dot}`} aria-hidden="true" />
+                {categoryLabel(copy, entry.category)}
+              </span>
+            ),
+          },
+        ]
+      : []),
     {
       key: "tags",
       header: copy.COLUMN_HANDLED_BY,
@@ -60,13 +99,15 @@ export const PromptTable = ({ entries, copy }: PromptTableProps): ReactElement =
 
   return (
     <DataTable
-      showSearch={false}
+      searchPlaceholder={copy.SEARCH_PLACEHOLDER}
       columns={columns}
       rows={[...entries]}
       getRowKey={(entry) => `${entry.category}:${entry.key}`}
       emptyTitle={copy.EMPTY}
       density="compact"
       clientSidePagination
+      initialPageSize={PAGE_SIZE}
+      frameless
     />
   );
 };

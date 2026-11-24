@@ -18,6 +18,9 @@ export interface TenantApplicationResponse {
   reviewedBy: string | null;
   reviewedAt: string | null;
   rejectReason: string | null;
+  submittedAt: string;
+  /** Set only while the application is pending: when its review SLA runs out. */
+  responseDueAt: string | null;
 }
 
 export interface SubmitApplicationRequest {

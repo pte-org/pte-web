@@ -1,22 +1,23 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { ErrorState, LoadingState, TabRailCard, useLocale, useRememberedState, type TabItem } from "@pte/ui";
+import { ErrorState, LoadingState, Tabs, useLocale, useRememberedState, type TabItem } from "@pte/ui";
 import type { PromptCategory } from "@pte/api-client";
 import { usePromptCatalog } from "../api";
-import { PROMPT_CATEGORIES, PROMPT_COPY, PROMPT_TABS_ID } from "../promptConstants";
+import { PROMPT_ALL_TAB, PROMPT_CATEGORIES, PROMPT_COPY, PROMPT_TABS_ID, PROMPT_TAB_VALUES } from "../promptConstants";
 import { categoryLabel, hasPrompt } from "../utils/promptPresentation";
+import { categoryTone } from "../utils/promptTone";
 import { PromptTable } from "./_PromptTable";
 
 /**
- * Every AI prompt in one place, grouped by what it is for: question generation, review, scoring and shared blocks.
- * Read only; a row opens the prompt drawn as sections.
+ * Every AI prompt in one place: all of them together, or grouped by what they are for (question generation, review,
+ * scoring, shared blocks, chatbot). Read only; a row opens the prompt drawn as sections.
  */
 export const PromptsView = (): ReactElement => {
   const { locale } = useLocale();
   const copy = PROMPT_COPY[locale];
   const query = usePromptCatalog();
-  const [category, setCategory] = useRememberedState<PromptCategory>("category", PROMPT_CATEGORIES[0], PROMPT_CATEGORIES);
+  const [tab, setTab] = useRememberedState<string>("category", PROMPT_ALL_TAB, PROMPT_TAB_VALUES);
   const catalog = query.data;
 
   if (query.isError) return <ErrorState title={copy.LOAD_ERROR} />;
@@ -27,20 +28,30 @@ export const PromptsView = (): ReactElement => {
   // A scoring entry no AI model scores has no prompt: nothing is ever sent to a model for it.
   const entriesOf = (name: PromptCategory) =>
     (catalog.categories.find((entry) => entry.category === name)?.entries ?? []).filter(hasPrompt);
-  const tabs: TabItem[] = PROMPT_CATEGORIES.map((name) => ({
-    id: name,
-    label: categoryLabel(copy, name),
-    count: entriesOf(name).length,
-  }));
+  const allEntries = PROMPT_CATEGORIES.flatMap(entriesOf);
+  const tabs: TabItem[] = [
+    { id: PROMPT_ALL_TAB, label: copy.ALL_CATEGORIES, count: allEntries.length },
+    ...PROMPT_CATEGORIES.map((name) => ({
+      id: name,
+      label: categoryLabel(copy, name),
+      count: entriesOf(name).length,
+      // The colour the category already has on its detail page, so the tab and the prompt agree.
+      icon: <span className={`h-2 w-2 shrink-0 rounded-full ${categoryTone(name).dot}`} aria-hidden="true" />,
+    })),
+  ];
+  const selected = PROMPT_TAB_VALUES.includes(tab) ? tab : PROMPT_ALL_TAB;
+  const isAll = selected === PROMPT_ALL_TAB;
 
   return (
-    <TabRailCard
-      id={PROMPT_TABS_ID}
-      items={tabs}
-      value={category}
-      onChange={(value) => setCategory(PROMPT_CATEGORIES.find((name) => name === value) ?? PROMPT_CATEGORIES[0])}
-    >
-      <PromptTable entries={entriesOf(category)} copy={copy} />
-    </TabRailCard>
+    <div className="flex flex-col gap-4">
+      <Tabs id={PROMPT_TABS_ID} items={tabs} value={selected} onChange={setTab} variant="minimal" />
+      <div role="tabpanel" id={`${PROMPT_TABS_ID}-panel-${selected}`} aria-labelledby={`${PROMPT_TABS_ID}-tab-${selected}`}>
+        <PromptTable
+          entries={isAll ? allEntries : entriesOf(selected as PromptCategory)}
+          copy={copy}
+          showCategory={isAll}
+        />
+      </div>
+    </div>
   );
 };

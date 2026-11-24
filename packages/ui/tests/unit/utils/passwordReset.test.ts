@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  MAX_PASSWORD_BYTES,
   MIN_PASSWORD_LENGTH,
   resolveResetLinkState,
   submitForgotPassword,
@@ -16,6 +17,14 @@ describe("validateNewPassword", () => {
     expect(validateNewPassword("", "")).toBe("REQUIRED");
     expect(validateNewPassword("abc", "abc")).toBe("TOO_SHORT");
     expect(validateNewPassword("a".repeat(MIN_PASSWORD_LENGTH), "b".repeat(MIN_PASSWORD_LENGTH))).toBe("MISMATCH");
+  });
+
+  it("refuses more than 72 UTF-8 bytes, counting accents by their bytes", () => {
+    const plain = "a".repeat(MAX_PASSWORD_BYTES);
+    expect(validateNewPassword(plain, plain)).toBeNull();
+    expect(validateNewPassword(plain + "a", plain + "a")).toBe("TOO_LONG");
+    const accented = "ạ".repeat(MAX_PASSWORD_BYTES / 3 + 1);
+    expect(validateNewPassword(accented, accented)).toBe("TOO_LONG");
   });
 
   it("needs the confirmation filled in", () => {

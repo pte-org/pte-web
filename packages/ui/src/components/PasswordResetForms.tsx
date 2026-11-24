@@ -67,7 +67,8 @@ export const ForgotPasswordForm = ({
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [pending, setPending] = useState(false);
-  const [error, setError] = useState<string>();
+  const [problem, setProblem] = useState<"USERNAME_REQUIRED" | "EMAIL_REQUIRED">();
+  const error = problem === "USERNAME_REQUIRED" ? text.usernameRequired : problem ? text.required : undefined;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
@@ -75,10 +76,10 @@ export const ForgotPasswordForm = ({
     const outcome = await submitForgotPassword(email, username, onSubmit);
     setPending(false);
     if (outcome === "USERNAME_REQUIRED" || outcome === "EMAIL_REQUIRED") {
-      setError(outcome === "USERNAME_REQUIRED" ? text.usernameRequired : text.required);
+      setProblem(outcome);
       return;
     }
-    setError(undefined);
+    setProblem(undefined);
     setSent(true);
   };
 
@@ -133,6 +134,8 @@ export interface ResetPasswordFormText {
   mismatch: string;
   /** The new password starts or ends with a space. */
   edgeSpaces: string;
+  /** The new password is longer than 72 bytes. */
+  tooLong: string;
   invalidLinkTitle: string;
   invalidLinkMessage: string;
   checkingTitle: string;
@@ -159,9 +162,11 @@ const problemText = (text: ResetPasswordFormText, problem: NewPasswordProblem): 
     ? text.tooShort
     : problem === "EDGE_SPACES"
       ? text.edgeSpaces
-      : problem === "MISMATCH"
-        ? text.mismatch
-        : text.required;
+      : problem === "TOO_LONG"
+        ? text.tooLong
+        : problem === "MISMATCH"
+          ? text.mismatch
+          : text.required;
 
 /** Chooses a new password for a link that arrived by email. */
 export const ResetPasswordForm = ({
@@ -175,7 +180,8 @@ export const ResetPasswordForm = ({
   const [newPassword, setNewPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [localError, setLocalError] = useState<string>();
+  // The problem, not its sentence, so the message follows a language switch made after it appeared.
+  const [localProblem, setLocalProblem] = useState<NewPasswordProblem>();
   const [pending, setPending] = useState(false);
 
   if (checking) {
@@ -195,10 +201,10 @@ export const ResetPasswordForm = ({
     event.preventDefault();
     const problem = validateNewPassword(newPassword, confirmation);
     if (problem) {
-      setLocalError(problemText(text, problem));
+      setLocalProblem(problem);
       return;
     }
-    setLocalError(undefined);
+    setLocalProblem(undefined);
     setPending(true);
     try {
       await onSubmit(newPassword);
@@ -207,7 +213,10 @@ export const ResetPasswordForm = ({
     }
   };
 
-  const shownError = localError ?? error;
+  // A tick means the value passes the rules, not just that something was typed.
+  const newPasswordValid = validateNewPassword(newPassword, newPassword) === null;
+  const confirmationValid = newPasswordValid && confirmation === newPassword;
+  const shownError = localProblem ? problemText(text, localProblem) : error;
   const toggle = (
     <button
       type="button"
@@ -231,6 +240,7 @@ export const ResetPasswordForm = ({
           label={text.newLabel}
           icon={<LockIcon />}
           value={newPassword}
+          valid={newPasswordValid}
           onChange={(event) => setNewPassword(event.target.value)}
           trailing={toggle}
         />
@@ -241,6 +251,7 @@ export const ResetPasswordForm = ({
           label={text.confirmLabel}
           icon={<LockIcon />}
           value={confirmation}
+          valid={confirmationValid}
           onChange={(event) => setConfirmation(event.target.value)}
         />
         <AuthSubmitButton disabled={pending}>{pending ? text.submitting : text.submit}</AuthSubmitButton>

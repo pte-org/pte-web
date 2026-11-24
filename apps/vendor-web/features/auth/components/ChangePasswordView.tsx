@@ -2,7 +2,15 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Button, PasswordInput, hasEdgeSpaces, useSessionManager, useToast } from "@pte/ui";
+import {
+  Alert,
+  Button,
+  PasswordInput,
+  useSessionManager,
+  useToast,
+  validateNewPassword,
+  type NewPasswordProblem,
+} from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { useChangePassword } from "../api";
@@ -30,27 +38,28 @@ export const ChangePasswordView = (): ReactElement => {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
-  const [formError, setFormError] = useState<string>();
+  // The problem, not its sentence, so the message follows a language switch made after it appeared.
+  const [problem, setProblem] = useState<NewPasswordProblem>();
+  const [serverError, setServerError] = useState<string>();
+  const problemText: Record<NewPasswordProblem, string> = {
+    REQUIRED: T.REQUIRED,
+    TOO_SHORT: T.TOO_SHORT,
+    EDGE_SPACES: T.EDGE_SPACES,
+    TOO_LONG: T.TOO_LONG,
+    MISMATCH: T.MISMATCH,
+  };
+  const formError = problem ? problemText[problem] : serverError;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
-    if (!currentPassword || !newPassword || !confirmation) {
-      setFormError(T.REQUIRED);
+    const found = currentPassword ? validateNewPassword(newPassword, confirmation) : "REQUIRED";
+    if (found) {
+      setProblem(found);
+      setServerError(undefined);
       return;
     }
-    if (newPassword.length < 8) {
-      setFormError(T.TOO_SHORT);
-      return;
-    }
-    if (hasEdgeSpaces(newPassword)) {
-      setFormError(T.EDGE_SPACES);
-      return;
-    }
-    if (newPassword !== confirmation) {
-      setFormError(T.MISMATCH);
-      return;
-    }
-    setFormError(undefined);
+    setProblem(undefined);
+    setServerError(undefined);
     try {
       await mutation.mutateAsync({
         currentPassword,
@@ -66,7 +75,7 @@ export const ChangePasswordView = (): ReactElement => {
           : AUTH_ROUTES.login;
       router.replace(destination);
     } catch (error) {
-      setFormError(getUserFacingApiErrorMessage(error, T.FAILED));
+      setServerError(getUserFacingApiErrorMessage(error, T.FAILED));
     }
   };
 

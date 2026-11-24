@@ -1,122 +1,126 @@
 "use client";
 
-import type { ReactElement, ReactNode } from "react";
-import Link from "next/link";
-import { Badge, DataTable, EyeIcon, TabRailCard, type DataTableColumn, type TabItem, useRememberedState } from "@pte/ui";
-import {
-  PER_WORD_MAX_SYMBOL,
-  RUBRIC_SKILLS,
-  RUBRIC_SKILL_FILTER_ALL,
-  scoringRubricDetailHref,
-} from "../constants";
+import { useMemo, useState, type ReactElement, type ReactNode } from "react";
+import { Checkbox, DataTable, TableSearchControl, useLocale, useRememberedState } from "@pte/ui";
+import { RUBRIC_SKILL_FILTER_ALL } from "../constants";
 import { useScoringRubricText } from "../hooks/useScoringRubricText";
-import { formatRubricMaxTotal, hasEnabledGate } from "../rubricView";
+import { hasEnabledGate } from "../rubricView";
 import type { TaskTypeRubricResponse } from "../types";
+import { useQuestionTypes } from "@/features/questiontemplate/api";
+import { taskTypeLabel, useRubricTaskTypeColumns } from "./_rubricTaskTypeColumns";
+import { RubricSkillTabs } from "./_RubricSkillTabs";
 
-const TABS_ID = "scoring-rubric-skill-tabs";
-
-interface RubricTaskTypeTableProps {
+export interface RubricTaskTypeTableProps {
   taskTypes: readonly TaskTypeRubricResponse[];
-  /** Shown under the skill tabs, in the left column. */
+  /** Shown alongside header actions if toolbarActions is not provided. */
   sidePanel?: ReactNode;
   /** The version the rows belong to; a row opens that version's rubric. */
   versionId?: string;
-  /** At the left of the table toolbar, e.g. which version this is. */
+  /** At the left of the page header, e.g. title and status badge. */
   toolbar?: ReactNode;
-  /** Buttons at the right end of the table toolbar. */
+  /** Buttons at the right of the page header, e.g. Simulator CTA and Edit button. */
   toolbarActions?: ReactNode;
 }
 
 /**
- * Task types of the active rubric: a vertical skill tab rail ("All" plus one tab per skill, each with its count) on
- * the left and one table on the right. A task type counts toward every skill it feeds, so it is listed under each of
- * them (e.g. Repeat Sentence under Speaking and Listening); its Skills column says which.
+ * Task types of the scoring rubric:
+ * Modern horizontal skill pills filter at the top and a streamlined DataTable below.
+ * Displays human-friendly names, colored skill badges, and gate tooltips.
  */
-export const RubricTaskTypeTable = ({ taskTypes, sidePanel, versionId, toolbar, toolbarActions }: RubricTaskTypeTableProps): ReactElement => {
-  const { messages: M, codeLabel } = useScoringRubricText();
-  const [activeTab, setActiveTab] = useRememberedState<string>("skill", RUBRIC_SKILL_FILTER_ALL);
-  const inSkill = (tab: string) => (rubric: TaskTypeRubricResponse) =>
-    tab === RUBRIC_SKILL_FILTER_ALL || (rubric.skills as readonly string[]).includes(tab);
+export const RubricTaskTypeTable = ({
+  taskTypes,
+  sidePanel,
+  versionId,
+  toolbar,
+  toolbarActions,
+}: RubricTaskTypeTableProps): ReactElement => {
+  const { messages: M } = useScoringRubricText();
+  const { locale } = useLocale();
+  const [activeTab, setActiveTab] = useRememberedState<string>("rubric-skill", RUBRIC_SKILL_FILTER_ALL);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [onlyGated, setOnlyGated] = useState(false);
+  const { data: dbQuestionTypes = [] } = useQuestionTypes(false);
+  const columns = useRubricTaskTypeColumns(versionId);
 
-  const tabs: TabItem[] = [
-    { id: RUBRIC_SKILL_FILTER_ALL, label: M.skillAll, count: taskTypes.length },
-    ...RUBRIC_SKILLS.map((skill) => ({
-      id: skill,
-      label: codeLabel("skill", skill),
-      count: taskTypes.filter(inSkill(skill)).length,
-    })),
-  ];
+  const taskTypeMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const item of dbQuestionTypes) {
+      if (item.code && item.displayName) {
+        map.set(item.code.toUpperCase(), item.displayName);
+      }
+    }
+    return map;
+  }, [dbQuestionTypes]);
 
-  const columns: DataTableColumn<TaskTypeRubricResponse>[] = [
-    {
-      key: "taskType",
-      header: M.columnTaskType,
-      sortable: false,
-      cell: (rubric) => <span className="font-mono text-xs font-medium">{rubric.taskType}</span>,
-    },
-    {
-      key: "skills",
-      header: M.columnSkills,
-      sortable: false,
-      cell: (rubric) => (
-        <span className="flex flex-wrap gap-1">
-          {rubric.skills.map((skill) => (
-            <Badge key={skill} variant="neutral">
-              {codeLabel("skill", skill)}
-            </Badge>
-          ))}
-        </span>
-      ),
-    },
-    {
-      key: "traits",
-      header: M.columnTraits,
-      sortable: false,
-      cell: (rubric) => (rubric.traits.length > 0 ? rubric.traits.length : M.answerKey),
-    },
-    {
-      key: "gate",
-      header: M.columnGate,
-      sortable: false,
-      cell: (rubric) => (hasEnabledGate(rubric) ? <Badge variant="warning">{M.gateBadge}</Badge> : null),
-    },
-    {
-      key: "maxTotal",
-      header: M.columnMaxTotal,
-      sortable: false,
-      cell: (rubric) => formatRubricMaxTotal(rubric.traits, PER_WORD_MAX_SYMBOL) ?? M.answerKey,
-    },
-    {
-      key: "actions",
-      header: M.columnActions,
-      sortable: false,
-      cell: (rubric) => (
-        <Link
-          href={scoringRubricDetailHref(rubric.taskType, versionId)}
-          className="inline-flex h-8 items-center gap-1.5 rounded-md px-2 text-sm text-[var(--ink-secondary)] hover:bg-[var(--surface-subtle)] hover:text-[var(--action)]"
-          aria-label={`${M.viewDetail}: ${rubric.taskType}`}
-          title={M.viewDetail}
-        >
-          <EyeIcon className="h-4 w-4" />
-          {M.actionView}
-        </Link>
-      ),
-    },
-  ];
+  const getTaskTypeLabel = (code: string): string =>
+    taskTypeMap.get(code.toUpperCase()) ?? taskTypeLabel(code);
+
+  const filteredRows = useMemo(() => {
+    return taskTypes.filter((r) => {
+      if (activeTab !== RUBRIC_SKILL_FILTER_ALL && !(r.skills as readonly string[]).includes(activeTab)) {
+        return false;
+      }
+      if (onlyGated && !hasEnabledGate(r)) {
+        return false;
+      }
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const codeMatch = r.taskType.toLowerCase().includes(q);
+        const nameMatch = getTaskTypeLabel(r.taskType).toLowerCase().includes(q);
+        if (!codeMatch && !nameMatch) return false;
+      }
+      return true;
+    });
+  }, [taskTypes, activeTab, onlyGated, searchQuery, taskTypeMap]);
+
+  const effectiveActions =
+    toolbarActions ?? (sidePanel ? <div className="shrink-0">{sidePanel}</div> : undefined);
 
   return (
-    <TabRailCard id={TABS_ID} items={tabs} value={activeTab} onChange={setActiveTab} sidePanel={sidePanel}>
+    <div className="flex flex-col gap-5">
+      {/* Page Header: Title + Status Badge on left, CTA buttons on right */}
+      {(toolbar || effectiveActions) && (
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-3">{toolbar}</div>
+          {effectiveActions && <div className="flex items-center gap-2.5">{effectiveActions}</div>}
+        </div>
+      )}
+
+      {/* Horizontal Section Filter Pills */}
+      <RubricSkillTabs
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        taskTypes={taskTypes}
+      />
+
+      {/* Main Table with Filters */}
       <DataTable
         showSearch={false}
-        toolbar={toolbar}
-        toolbarActions={toolbarActions}
+        filters={
+          <div className="flex flex-row items-center gap-4">
+            <div className="w-72 sm:w-80 shrink-0">
+              <TableSearchControl
+                value={searchQuery}
+                onChange={setSearchQuery}
+                placeholder={locale === "vi" ? "Tìm theo tên hoặc mã dạng bài..." : "Search task types..."}
+                ariaLabel={locale === "vi" ? "Tìm theo tên hoặc mã dạng bài" : "Search task types"}
+              />
+            </div>
+            <Checkbox
+              checked={onlyGated}
+              label={locale === "vi" ? "Chỉ hiện dạng bài có chặn điểm 0" : "Only task types with gate rule"}
+              onChange={(event) => setOnlyGated(event.target.checked)}
+            />
+          </div>
+        }
         columns={columns}
-        rows={taskTypes.filter(inSkill(activeTab))}
+        rows={filteredRows}
         getRowKey={(rubric) => rubric.taskType}
         emptyTitle={M.empty}
         density="compact"
         clientSidePagination
+        initialPageSize={25}
       />
-    </TabRailCard>
+    </div>
   );
 };

@@ -5,16 +5,21 @@ import type { QuestionTypeResponse } from "@pte/api-client";
 import {
   ActionMenu,
   Alert,
+  AllSectionsIcon,
   Badge,
+  BookOpenIcon,
   Button,
   Chip,
   CheckCircleIcon,
   ConfirmDialog,
   DataTable,
   EyeIcon,
-  TabRailCard,
+  HeadphoneIcon,
+  MicIcon,
+  PencilIcon,
   TrashIcon,
   UploadIcon,
+  cn,
   useToast,
   useRememberedState,
 } from "@pte/ui";
@@ -37,7 +42,6 @@ import { useCurrentUser } from "@/features/auth/api";
 import { canReviewAcademic, isPlatformAdmin } from "@/features/auth/permissions";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { SCORE_TEMPLATE_ALL_TAB } from "@/features/scoretemplate/constants";
-import { useSectionTabItems } from "@/features/scoretemplate/useSectionTabItems";
 
 const errorMessage = (error: unknown, fallback: string): string =>
   getQuestionTypeErrorMessage(error, fallback);
@@ -78,11 +82,75 @@ export const QuestionTypeView = (): ReactElement => {
   const approveMutation = useApproveTaskType();
   const { showToast } = useToast();
   const [section, setSection] = useRememberedState<string>("section", SCORE_TEMPLATE_ALL_TAB);
-  const sectionItems = useSectionTabItems((value) =>
-    value === null
-      ? questionTypes.length
-      : questionTypes.filter((type) => type.section === value).length,
-  );
+  const allSectionsLabel = useAdminCopy("All sections");
+
+  const sectionCounts: Record<string, number> = {
+    [SCORE_TEMPLATE_ALL_TAB]: questionTypes.length,
+    SPEAKING: questionTypes.filter((type) => type.section === "SPEAKING").length,
+    WRITING: questionTypes.filter((type) => type.section === "WRITING").length,
+    READING: questionTypes.filter((type) => type.section === "READING").length,
+    LISTENING: questionTypes.filter((type) => type.section === "LISTENING").length,
+  };
+
+  const tabs = [
+    {
+      id: SCORE_TEMPLATE_ALL_TAB,
+      label: allSectionsLabel,
+      subLabel: undefined,
+      icon: AllSectionsIcon,
+      iconBg: "bg-[var(--surface-subtle)] text-[var(--ink-secondary)]",
+      count: sectionCounts[SCORE_TEMPLATE_ALL_TAB],
+    },
+    {
+      id: "SPEAKING",
+      label: sectionLabels.SPEAKING,
+      subLabel: "Speaking",
+      icon: MicIcon,
+      iconBg: "bg-[var(--sky-tint)] text-[var(--sky-action)]",
+      count: sectionCounts.SPEAKING,
+    },
+    {
+      id: "WRITING",
+      label: sectionLabels.WRITING,
+      subLabel: "Writing",
+      icon: PencilIcon,
+      iconBg: "bg-[var(--mint-tint)] text-[var(--mint-action)]",
+      count: sectionCounts.WRITING,
+    },
+    {
+      id: "READING",
+      label: sectionLabels.READING,
+      subLabel: "Reading",
+      icon: BookOpenIcon,
+      iconBg: "bg-[var(--cream-tint)] text-[var(--cream-action)]",
+      count: sectionCounts.READING,
+    },
+    {
+      id: "LISTENING",
+      label: sectionLabels.LISTENING,
+      subLabel: "Listening",
+      icon: HeadphoneIcon,
+      iconBg: "bg-[var(--blush-tint)] text-[var(--blush-action)]",
+      count: sectionCounts.LISTENING,
+    },
+  ];
+
+  const handleTabKeyDown = (
+    event: React.KeyboardEvent<HTMLButtonElement>,
+    index: number,
+  ): void => {
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      const nextIndex = (index + 1) % tabs.length;
+      setSection(tabs[nextIndex].id);
+      document.getElementById(`section-tab-${tabs[nextIndex].id}`)?.focus();
+    } else if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      const prevIndex = (index - 1 + tabs.length) % tabs.length;
+      setSection(tabs[prevIndex].id);
+      document.getElementById(`section-tab-${tabs[prevIndex].id}`)?.focus();
+    }
+  };
   const visibleTypes =
     section === SCORE_TEMPLATE_ALL_TAB
       ? questionTypes
@@ -176,13 +244,72 @@ export const QuestionTypeView = (): ReactElement => {
           )}
         </Alert>
       )}
-      <TabRailCard
-        id="question-type-section-tabs"
-        items={sectionItems}
-        value={section}
-        onChange={setSection}
+      {/* Horizontal Section Filter Tabs */}
+      <div
+        role="tablist"
+        aria-label={T.TABLE_SECTION ?? "Phần thi"}
+        className="flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-1.5 shadow-2xs"
       >
-        <DataTable
+        {tabs.map((item, index) => {
+          const isSelected = item.id === section;
+          return (
+            <button
+              key={item.id}
+              id={`section-tab-${item.id}`}
+              type="button"
+              role="tab"
+              aria-selected={isSelected}
+              tabIndex={isSelected ? 0 : -1}
+              onClick={() => setSection(item.id)}
+              onKeyDown={(e) => handleTabKeyDown(e, index)}
+              className={cn(
+                "group inline-flex items-center gap-2.5 rounded-xl px-3.5 py-2 text-sm font-medium transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--brand)]/35",
+                isSelected
+                  ? "border border-blue-200 bg-blue-50/90 text-blue-700 shadow-2xs dark:border-blue-800/80 dark:bg-blue-950/40 dark:text-blue-300 font-semibold"
+                  : "border border-transparent text-[var(--ink-secondary)] hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)]",
+              )}
+            >
+              <span
+                className={cn(
+                  "inline-flex h-7 w-7 items-center justify-center rounded-lg transition-colors",
+                  isSelected
+                    ? "bg-blue-100 text-blue-700 dark:bg-blue-900/60 dark:text-blue-300"
+                    : item.iconBg,
+                )}
+              >
+                <item.icon className="h-4 w-4 shrink-0" />
+              </span>
+              <span className="flex items-baseline gap-1">
+                <span>{item.label}</span>
+                {item.subLabel && item.label !== item.subLabel && (
+                  <span
+                    className={cn(
+                      "text-xs font-normal",
+                      isSelected
+                        ? "text-blue-600/75 dark:text-blue-400/80"
+                        : "text-gray-400 dark:text-gray-500",
+                    )}
+                  >
+                    ({item.subLabel})
+                  </span>
+                )}
+              </span>
+              <span
+                className={cn(
+                  "inline-flex min-w-[1.25rem] items-center justify-center rounded-full px-2 py-0.5 text-xs font-semibold tabular-nums transition-colors",
+                  isSelected
+                    ? "bg-blue-200/70 text-blue-800 dark:bg-blue-900/80 dark:text-blue-200"
+                    : "bg-[var(--surface-subtle)] text-[var(--ink-secondary)] group-hover:bg-gray-200/80 dark:group-hover:bg-gray-700",
+                )}
+              >
+                {item.count}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <DataTable
           toolbarActions={
             <Button variant="primary" onClick={beginCreate}>
               + {T.CREATE}
@@ -272,7 +399,6 @@ export const QuestionTypeView = (): ReactElement => {
           rowActions={(type) => <ActionMenu label={T.ROW_ACTIONS} items={buildActions(type)} />}
           emptyTitle={isLoading ? T.LOADING : T.EMPTY_LIST}
         />
-      </TabRailCard>
 
       {mode && (
         <QuestionTypeEditorModal

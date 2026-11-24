@@ -67,6 +67,9 @@ export const PromptWorkspace = ({ category, promptKey, workspace, user }: Prompt
   };
 
   const tested = hasPromptTest(category, promptKey);
+  // The side column only exists while there is a proposal to act on or test; without one the editor takes the full width
+  // instead of leaving an empty column beside it.
+  const hasSidePanel = Boolean(proposal && (actions || tested));
   const notice =
     !proposal ? null
     : proposal.status === "PENDING" ? (actions?.approve ? null : copy.PENDING_NOTICE)
@@ -74,7 +77,7 @@ export const PromptWorkspace = ({ category, promptKey, workspace, user }: Prompt
     : copy.OTHER_AUTHOR_NOTICE;
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+    <div className={hasSidePanel ? "grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]" : "grid gap-6"}>
       <DashboardCard className="space-y-5">
         <div className="flex flex-wrap items-center gap-3">
           <span className="text-sm font-medium">{fill(copy.IN_USE, { n: live.versionNo })}</span>
@@ -130,6 +133,7 @@ export const PromptWorkspace = ({ category, promptKey, workspace, user }: Prompt
           ))}
         {tab === "history" && <PromptHistoryTab history={history} copy={copy} />}
       </DashboardCard>
+      {hasSidePanel && (
       <div className="space-y-6">
         {proposal && actions && (
           <PromptProposalPanel
@@ -156,6 +160,7 @@ export const PromptWorkspace = ({ category, promptKey, workspace, user }: Prompt
           />
         )}
       </div>
+      )}
       <PromptGuideDialog open={guideOpen} sections={draft.sections} lockedIds={lockedIds}
         hasOutput={draft.sections.some((section) => section.fields !== null)}
         hasTokens={live.placeholders.length > 0} onClose={() => setGuideOpen(false)} />

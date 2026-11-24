@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function LicensesPage() {
-  redirect("/admin/tenants");
+  redirect("/admin/license-codes");
 }

@@ -1,26 +1,29 @@
 "use client";
 
 import type { ReactElement, ReactNode } from "react";
-import { Tabs, type TabItem } from "@pte/ui";
 
 export const SIMULATOR_TABS_ID = "scoring-simulator-skill-tabs";
 
 interface SimulatorFrameProps {
-  tabs: readonly TabItem[];
-  activeTab: string;
-  onTabChange: (tab: string) => void;
-  /** The calculated result, shown under the skill tabs. */
+  /** The top toolbar controls (Task Type, Version, and Quick Actions) */
+  controls?: ReactNode;
+  /** The calculated result panel, shown in the right column (~40%) */
   result: ReactNode;
+  /** The input form, shown in the left column (~60%) */
   children: ReactNode;
 }
 
-/** The simulator layout: skill tabs on the left with the result under them, the inputs on the right. */
-export const SimulatorFrame = ({ tabs, activeTab, onTabChange, result, children }: SimulatorFrameProps): ReactElement => (
-  <div className="grid gap-6 lg:grid-cols-[15rem_minmax(0,1fr)]">
-    <div className="space-y-4">
-      <Tabs id={SIMULATOR_TABS_ID} orientation="vertical" items={tabs} value={activeTab} onChange={onTabChange} />
-      {result}
+/** The simulator layout: Left column inputs (~60%), right column sticky live results (~40%). */
+export const SimulatorFrame = ({ controls, result, children }: SimulatorFrameProps): ReactElement => (
+  <div className="flex flex-col gap-5">
+    {controls && (
+      <div className="sticky -top-4 z-10 -mx-5 -mt-4 border-b border-[var(--shell-border)] bg-[var(--surface-card)] px-5 py-3 shadow-2xs">
+        {controls}
+      </div>
+    )}
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)] items-start">
+      <div className="min-w-0 space-y-5">{children}</div>
+      <div className="lg:sticky lg:top-24 space-y-4">{result}</div>
     </div>
-    <div className="min-w-0">{children}</div>
   </div>
 );

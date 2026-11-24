@@ -21,7 +21,7 @@ export interface LicenseStats {
 
 /** Raw form values for granting quota — mirrors admin's real `GrantQuotaRequest`. */
 export interface GrantQuotaInput {
-  packageName: TenantPlan | "";
+  packageName: string;
   amount: string;
   note: string;
 }
