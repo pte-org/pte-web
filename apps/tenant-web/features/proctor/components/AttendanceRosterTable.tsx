@@ -6,6 +6,7 @@ import { useAttendanceColumns } from "../hooks/useAttendanceColumns";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
 import {
   ATTEMPT_IN_PROGRESS,
+  ATTEMPT_SUBMITTED,
   PROCTOR_FORCE_SUBMIT_TEXT,
   PROCTOR_ROSTER_TEXT as T,
   PROCTOR_TOOLBAR_TEXT,
@@ -59,7 +60,11 @@ export function AttendanceRosterTable({
         onSelect: () => onRecordAttendance(row, "LATE"),
       });
     }
-    if (canEditRow && row.status !== "ABSENT") {
+    // A student who has started or submitted the exam attended it; the API rejects ABSENT too.
+    const hasStartedExam =
+      row.latestAttemptActivityStatus === ATTEMPT_IN_PROGRESS ||
+      row.latestAttemptActivityStatus === ATTEMPT_SUBMITTED;
+    if (canEditRow && row.status !== "ABSENT" && !hasStartedExam) {
       actionItems.push({
         label: T.ACTION_ABSENT,
         tone: "danger",

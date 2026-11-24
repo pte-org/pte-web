@@ -16,6 +16,7 @@ export const POLL_INTERVAL_MS = 3000;
 
 /** Attempt status (from the attendance row) for which force submit is offered. */
 export const ATTEMPT_IN_PROGRESS = "IN_PROGRESS";
+export const ATTEMPT_SUBMITTED = "SUBMITTED";
 
 /** Force submit from the attendance roster: only for a Student whose attempt is in progress. */
 export const PROCTOR_FORCE_SUBMIT_TEXT = {
