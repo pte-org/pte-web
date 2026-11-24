@@ -1,3 +1,7 @@
+/* Tailwind's `dark:` follows the app's theme switch (data-theme on <html>), not the operating system. Without this, a
+   computer set to dark mode gave the light theme dark-mode colours: pale text on pale chips. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
   --font-interface: var(--font-inter, "Inter"), ui-sans-serif, system-ui, sans-serif;
   /* Neutral surfaces and type colors are copied from NextAdmin's
