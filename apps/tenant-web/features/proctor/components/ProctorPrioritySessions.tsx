@@ -95,14 +95,6 @@ const ProctorPrioritySessionRow = ({
       </div>
       <div className="flex shrink-0 items-center gap-2">
         <Button
-          variant="secondary"
-          appearance="ghost"
-          size="sm"
-          onClick={() => router.push(`/proctor/audit-log/${sessionId}`)}
-        >
-          {text.auditLog}
-        </Button>
-        <Button
           variant={session.canMonitor ? "primary" : "secondary"}
           size="sm"
           onClick={() => router.push(`/proctor/attendance/${sessionId}`)}
@@ -124,21 +116,17 @@ export const ProctorPrioritySessions = ({
   const priority = sessions.slice(0, PRIORITY_SESSION_LIMIT);
   const isUpcoming = (session: ProctorWorkspaceSessionResponse): boolean =>
     !session.canMonitor && session.monitoringBlockingReason === "WINDOW_NOT_OPENED";
-  const otherSessions = priority.filter((session) => !session.canMonitor && !isUpcoming(session));
   const groups = [
     {
-      title: text.priorityTitle,
-      sessions: priority.filter((session) => session.canMonitor),
-      empty: text.priorityEmpty,
+      title: text.runningTitle,
+      sessions: priority.filter((session) => !isUpcoming(session)),
+      empty: text.runningEmpty,
     },
     {
       title: text.cardUpcomingTitle,
       sessions: priority.filter(isUpcoming),
       empty: text.upcomingEmpty,
     },
-    ...(otherSessions.length
-      ? [{ title: text.otherSessions, sessions: otherSessions, empty: text.priorityEmpty }]
-      : []),
   ];
 
   return (

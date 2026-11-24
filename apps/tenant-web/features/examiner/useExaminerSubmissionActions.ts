@@ -73,7 +73,8 @@ export const useExaminerSubmissionActions = ({
     }
   };
 
-  const handleFinalizeAttempt = async (): Promise<boolean> => {
+  /** `onError` receives what the server rejected the finalize with, so the caller can say why. */
+  const handleFinalizeAttempt = async (onError?: (error: unknown) => void): Promise<boolean> => {
     if (saving.current || draftState.hasUnsaved) return false;
     try {
       setIsFinalizing(true);
@@ -94,7 +95,8 @@ export const useExaminerSubmissionActions = ({
       });
       await refetchAttempt();
       return true;
-    } catch {
+    } catch (error) {
+      onError?.(error);
       return false;
     } finally {
       setIsFinalizing(false);

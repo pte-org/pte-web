@@ -73,8 +73,8 @@ it("switches session tabs without resetting scroll and ignores reselecting the c
   render();
   state.onTabChange?.("attendance");
   expect(state.push).not.toHaveBeenCalled();
-  state.onTabChange?.("audit-log");
-  expect(state.push).toHaveBeenCalledWith("/proctor/audit-log/session-1", { scroll: false });
+  state.onTabChange?.("incidents");
+  expect(state.push).toHaveBeenCalledWith("/proctor/incidents/session-1", { scroll: false });
 });
 
 it("preserves the active tool during a failed metadata refetch", () => {
@@ -86,10 +86,10 @@ it("does not mount tool content when session metadata is unavailable", () => {
   state.assignment.isError = true;
   expect(render()).not.toContain('data-testid="active-tool"');
 });
-it("offers only attendance, incidents and audit log, with the current tab selected", () => {
+it("offers only attendance and incidents, with the current tab selected", () => {
   state.pathname = "/proctor/incidents/session-1";
   const html = render();
   expect(html).toContain('data-testid="active-tool"');
-  expect(html.match(/role="tab"/g)).toHaveLength(3);
+  expect(html.match(/role="tab"/g)).toHaveLength(2);
   expect(html).toMatch(/role="tab" aria-selected="true"[^>]*tabindex="0"/);
 });

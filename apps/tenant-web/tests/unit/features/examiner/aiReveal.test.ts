@@ -21,6 +21,13 @@ describe("useAiReveal", () => {
     expect(useAiReveal(rubricAnswer, { CONTENT: null }).revealed).toBe(false);
     expect(useAiReveal(rubricAnswer, { CONTENT: 0 }).revealed).toBe(true);
   });
+  it("keeps waiting on machine-scored traits the examiner has not chosen yet", () => {
+    const withAzure = { ...rubricAnswer, rubric: { ...rubricAnswer.rubric, traits: [
+      { key: "CONTENT", editable: true, useAiWhenNull: false }, { key: "FLUENCY", editable: true, useAiWhenNull: true },
+    ] } } as unknown as ExaminerAnswerDetailResponse;
+    expect(useAiReveal(withAzure, { CONTENT: 20 }).revealed).toBe(false);
+    expect(useAiReveal(withAzure, { CONTENT: 20, FLUENCY: 3 }).revealed).toBe(true);
+  });
   it("shows the AI at once for a saved answer or an answer without a rubric", () => {
     expect(useAiReveal({ ...rubricAnswer, myScore: 40 }, {}).revealed).toBe(true);
     expect(useAiReveal({ ...rubricAnswer, rubric: null }, {}).revealed).toBe(true);

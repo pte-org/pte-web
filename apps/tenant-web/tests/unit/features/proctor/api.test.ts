@@ -2,12 +2,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 type Options = Record<string, unknown> & {
   queryKey?: readonly unknown[];
-  queryFn?: (ctx?: { pageParam?: string }) => Promise<unknown>;
+  queryFn?: () => Promise<unknown>;
   enabled?: boolean;
   staleTime?: number;
-  select?: (data: never) => unknown;
-  getNextPageParam?: (last: { cursor: string | null }) => unknown;
-  initialPageParam?: unknown;
   refetchInterval?: unknown;
   mutationFn?: (input: never) => Promise<unknown>;
   onSuccess?: () => void;
@@ -42,10 +39,6 @@ vi.mock("@pte/api-client", () => new Proxy({}, {
 vi.mock("@tanstack/react-query", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@tanstack/react-query")>()),
   useQuery: (options: unknown) => {
-    hoisted.options = options;
-    return {};
-  },
-  useInfiniteQuery: (options: unknown) => {
     hoisted.options = options;
     return {};
   },
@@ -169,9 +162,6 @@ describe("session scoped queries", () => {
   it("every session query is disabled for an empty session id", () => {
     const calls: Array<() => unknown> = [
       () => proctorApi.useMyProctorAssignment(""),
-      () => proctorApi.useProctorViolations(""),
-      () => proctorApi.useProctorSecurityAudit(""),
-      () => proctorApi.useProctorAuditLog(""),
       () => proctorApi.useAttendanceRoster(""),
       () => proctorApi.useAttendanceHistory("", "stu"),
       () => proctorApi.useHostAttendanceRoster(""),
@@ -198,11 +188,7 @@ describe("session scoped queries", () => {
     }
   });
 
-  it("violations and incidents call the matching api with their ids", async () => {
-    proctorApi.useProctorViolations("s1");
-    await opts().queryFn?.();
-    expect(api.listViolations).toHaveBeenCalledWith(hoisted.apiClient, "s1");
-
+  it("incident queries call the matching api with their ids", async () => {
     proctorApi.useIncidentsList("s1", { status: "OPEN" });
     await opts().queryFn?.();
     expect(api.listIncidents).toHaveBeenCalledWith(hoisted.apiClient, "s1", { status: "OPEN" });
@@ -228,92 +214,6 @@ describe("session scoped queries", () => {
   });
 });
 
-describe("useProctorSecurityAudit", () => {
-  it("maps provider entries to audit rows and builds the description from source and severity when no detail", async () => {
-    api.getProctorSecurityAudit.mockResolvedValue({
-      entries: [
-        { publicId: "a", detectedAt: "2026-01-01T00:00:00Z", violationType: "TAB_SWITCH", detail: "Left the window", source: "CLIENT", severity: "HIGH" },
-        { publicId: "b", detectedAt: "2026-01-01T00:01:00Z", violationType: "COPY", source: "SERVER", severity: "LOW" },
-      ],
-      nextCursor: "next",
-    });
-    proctorApi.useProctorSecurityAudit("s1", 2);
-
-    const page = (await opts().queryFn?.({ pageParam: "cur" })) as { items: unknown[]; cursor: string; hasNext: boolean };
-
-    expect(api.getProctorSecurityAudit).toHaveBeenCalledWith(hoisted.apiClient, "s1", 2, "cur");
-    expect(page.items).toEqual([
-      { publicId: "a", recordedAt: "2026-01-01T00:00:00Z", eventType: "TAB_SWITCH", description: "Left the window" },
-      { publicId: "b", recordedAt: "2026-01-01T00:01:00Z", eventType: "COPY", description: "SERVER - LOW" },
-    ]);
-    expect(page.cursor).toBe("next");
-    expect(page.hasNext).toBe(true);
-  });
-
-  it("falls back to the items field and reports no next page when the cursor is empty", async () => {
-    api.getProctorSecurityAudit.mockResolvedValue({
-      items: [{ publicId: "a", detectedAt: "d", violationType: "X", source: "S", severity: "L" }],
-      nextCursor: null,
-    });
-    proctorApi.useProctorSecurityAudit("s1");
-
-    const page = (await opts().queryFn?.({})) as { hasNext: boolean; items: unknown[] };
-
-    expect(page.hasNext).toBe(false);
-    expect(page.items).toHaveLength(1);
-  });
-
-  it("returns an empty page when the response carries no entries at all", async () => {
-    api.getProctorSecurityAudit.mockResolvedValue({ nextCursor: null });
-    proctorApi.useProctorSecurityAudit("s1");
-
-    await expect(opts().queryFn?.({})).resolves.toMatchObject({ items: [], hasNext: false });
-  });
-
-  it("asks for the next page with the last cursor and stops when it is null", () => {
-    proctorApi.useProctorSecurityAudit("s1");
-
-    expect(opts().initialPageParam).toBeUndefined();
-    expect(opts().getNextPageParam?.({ cursor: "c2" })).toBe("c2");
-    expect(opts().getNextPageParam?.({ cursor: null })).toBeUndefined();
-  });
-});
-
-describe("useProctorAuditLog", () => {
-  const select = (violations: unknown[]) => {
-    proctorApi.useProctorAuditLog("s1");
-    return opts().select?.(violations as never) as { items: Array<Record<string, unknown>>; totalItems: number; totalPages: number };
-  };
-
-  it("maps violations to audit rows with a shortened proctor label", () => {
-    const result = select([
-      { publicId: "v1", attemptPublicId: "att", proctorPublicId: "abcdef123456", detail: "Phone seen", detectedAt: "2026-02-02T00:00:00Z" },
-    ]);
-
-    expect(result.items[0]).toMatchObject({
-      publicId: "v1", action: "FLAG_VIOLATION", sessionPublicId: "s1", note: "Phone seen",
-      createdAt: "2026-02-02T00:00:00Z",
-      performedBy: { publicId: "abcdef123456", fullName: "Proctor #ABCDEF12", email: "" },
-    });
-    expect(result.totalItems).toBe(1);
-    expect(result.totalPages).toBe(1);
-  });
-
-  it("uses a dash for an unknown proctor, falls back to note and prefers the violation own session", () => {
-    const result = select([{ publicId: "v1", sessionPublicId: "other", note: "n", createdAt: "2026-03-03T00:00:00Z" }]);
-
-    expect(result.items[0]).toMatchObject({ sessionPublicId: "other", note: "n", createdAt: "2026-03-03T00:00:00Z" });
-    expect(result.items[0].performedBy).toMatchObject({ publicId: "", fullName: "—" });
-  });
-
-  it("reports an empty page for no violations", () => {
-    const result = select([]);
-
-    expect(result.items).toEqual([]);
-    expect(result.totalItems).toBe(0);
-  });
-});
-
 describe("attendance and incident mutations", () => {
   it("record attendance sends the student and request, then refreshes that session roster", async () => {
     api.recordAttendance.mockResolvedValue({});
@@ -326,30 +226,12 @@ describe("attendance and incident mutations", () => {
     expect(hoisted.invalidate).toHaveBeenCalledWith({ queryKey: ["proctor", "attendance", "s1"] });
   });
 
-  it("record identity verification refreshes the proctor roster", async () => {
-    api.recordIdentityVerification.mockResolvedValue({});
-    proctorApi.useRecordIdentityVerificationMutation("s1");
-
-    await opts().mutationFn?.({ studentPublicId: "stu", request: { verified: true } } as never);
-    opts().onSuccess?.();
-
-    expect(api.recordIdentityVerification).toHaveBeenCalledWith(hoisted.apiClient, "s1", "stu", { verified: true });
-    expect(hoisted.invalidate).toHaveBeenCalledWith({ queryKey: ["proctor", "attendance", "s1"] });
-  });
-
   it("host attendance mutations refresh the host roster, not the proctor one", async () => {
     api.recordHostAttendance.mockResolvedValue({});
     proctorApi.useRecordHostAttendanceMutation("s1");
     await opts().mutationFn?.({ studentPublicId: "stu", request: {} } as never);
     opts().onSuccess?.();
     expect(api.recordHostAttendance).toHaveBeenCalledWith(hoisted.apiClient, "s1", "stu", {});
-    expect(hoisted.invalidate).toHaveBeenLastCalledWith({ queryKey: ["host", "attendance", "s1"] });
-
-    api.recordHostIdentityVerification.mockResolvedValue({});
-    proctorApi.useRecordHostIdentityVerificationMutation("s1");
-    await opts().mutationFn?.({ studentPublicId: "stu", request: {} } as never);
-    opts().onSuccess?.();
-    expect(api.recordHostIdentityVerification).toHaveBeenCalledWith(hoisted.apiClient, "s1", "stu", {});
     expect(hoisted.invalidate).toHaveBeenLastCalledWith({ queryKey: ["host", "attendance", "s1"] });
   });
 

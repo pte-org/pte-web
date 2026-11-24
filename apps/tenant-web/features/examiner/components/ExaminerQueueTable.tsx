@@ -5,6 +5,7 @@ import type { ExaminerQueueItemResponse } from "@pte/api-client";
 import { Badge, Button, DataTable, Pagination, type DataTableColumn } from "@pte/ui";
 import type { ExaminerWorkspaceText } from "../hooks/useExaminerWorkspaceText";
 import { formatAttemptTitle } from "../utils/attemptLabels";
+import { getWorkspaceBlockingText } from "../utils/blockingReason";
 
 interface ExaminerQueueTableProps {
   items: ExaminerQueueItemResponse[];
@@ -32,13 +33,6 @@ function formatDate(value: string, locale: string): string {
         dateStyle: "medium",
         timeStyle: "short",
       }).format(date);
-}
-
-function getBlockingText(text: ExaminerWorkspaceText, reason: string | null | undefined): string {
-  if (!reason) return "";
-  if (reason === "WAITING_FOR_HOST_FREEZE") return text.waitingForHostFreeze;
-  if (reason === "CARRIED_OVER_DRAFTS_UNCONFIRMED") return text.carriedOverDrafts;
-  return `${text.blockedReasonPrefix}${reason}`;
 }
 
 export const ExaminerQueueTable = ({
@@ -89,7 +83,7 @@ export const ExaminerQueueTable = ({
         key: "status",
         header: text.filterLabel,
         cell: (row) => {
-          const blockingText = getBlockingText(text, row.blockingReason);
+          const blockingText = getWorkspaceBlockingText(text, row.blockingReason);
           return (
             <div>
               <Badge

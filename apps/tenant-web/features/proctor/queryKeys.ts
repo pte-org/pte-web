@@ -30,14 +30,6 @@ export const PROCTOR_QUERY_KEYS = {
   },
   assignment: (sessionPublicId: string) =>
     [...PROCTOR_QUERY_KEYS.all, "assignment", sessionPublicId] as const,
-  violations: (sessionPublicId: string) =>
-    [...PROCTOR_QUERY_KEYS.all, "violations", sessionPublicId] as const,
-  securityAuditPrefix: (sessionPublicId: string) =>
-    [...PROCTOR_QUERY_KEYS.all, "security-audit", sessionPublicId] as const,
-  securityAudit: (sessionPublicId: string, limit?: number) =>
-    limit !== undefined
-      ? ([...PROCTOR_QUERY_KEYS.securityAuditPrefix(sessionPublicId), { limit }] as const)
-      : PROCTOR_QUERY_KEYS.securityAuditPrefix(sessionPublicId),
   attendanceRosterPrefix: (sessionPublicId: string) =>
     [...PROCTOR_QUERY_KEYS.all, "attendance", sessionPublicId] as const,
   attendanceRoster: (

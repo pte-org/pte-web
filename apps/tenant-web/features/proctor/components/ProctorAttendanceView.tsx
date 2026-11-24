@@ -7,14 +7,13 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button, ErrorState, PaginationControls } from "@pte/ui";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
 import { PROCTOR_ATTENDANCE_VIEW_TEXT as T } from "../constants";
-import { useAttendanceRoster, useRecordIdentityVerificationMutation } from "../api";
+import { useAttendanceRoster } from "../api";
 import { useForceSubmitDialog } from "../hooks/useForceSubmitDialog";
 import { useAttendanceSearch } from "../hooks/useAttendanceSearch";
 import { AttendanceFilterToolbar } from "./AttendanceFilterToolbar";
 import { AttendanceRosterTable } from "./AttendanceRosterTable";
 import { RecordAttendanceModal } from "./RecordAttendanceModal";
 import { AttendanceHistoryModal } from "./AttendanceHistoryModal";
-import { IdentityVerificationModal } from "./IdentityVerificationModal";
 
 interface ProctorAttendanceViewProps {
   sessionPublicId: string;
@@ -43,7 +42,6 @@ export function ProctorAttendanceView({
     targetStatus: AttendanceStatus;
   } | null>(null);
   const [activeHistory, setActiveHistory] = useState<AttendanceRowResponse | null>(null);
-  const [activeVerification, setActiveVerification] = useState<AttendanceRowResponse | null>(null);
 
   const { data, isLoading, isError, refetch } = useAttendanceRoster(sessionPublicId, {
     status: currentStatus,
@@ -54,7 +52,6 @@ export function ProctorAttendanceView({
 
   useFeedbackToast(isError && data ? T.ERROR_DESC : null);
 
-  const identityMutation = useRecordIdentityVerificationMutation(sessionPublicId);
   const forceSubmit = useForceSubmitDialog(sessionPublicId);
 
   const updateQueryParams = useCallback(
@@ -112,7 +109,6 @@ export function ProctorAttendanceView({
         canEditSession={canEditSession}
         onRecordAttendance={(row, targetStatus) => setActiveAction({ row, targetStatus })}
         onViewHistory={(row) => setActiveHistory(row)}
-        onVerifyIdentity={(row) => setActiveVerification(row)}
         onForceSubmit={forceSubmit.request}
         searchValue={search.value}
         onSearchChange={search.onChange}
@@ -149,27 +145,6 @@ export function ProctorAttendanceView({
         studentPublicId={activeHistory?.studentPublicId ?? null}
         studentName={activeHistory?.displayName}
         studentEmail={activeHistory?.email}
-      />
-
-      <IdentityVerificationModal
-        open={Boolean(activeVerification)}
-        onClose={() => setActiveVerification(null)}
-        row={activeVerification}
-        sessionPublicId={sessionPublicId}
-        onConfirmVerification={async ({ studentPublicId, status, note }) => {
-          const target = rows.find((r) => r.studentPublicId === studentPublicId);
-          await identityMutation.mutateAsync({
-            studentPublicId,
-            request: {
-              status,
-              enrollmentPublicId: target?.enrollmentPublicId ?? "",
-              expectedVersion: target?.version ?? 0,
-              requestPublicId: crypto.randomUUID(),
-              note: note || undefined,
-            },
-          });
-          refetch();
-        }}
       />
 
       {forceSubmit.dialog}

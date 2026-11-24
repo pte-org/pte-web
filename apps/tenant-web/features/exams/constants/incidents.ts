@@ -6,7 +6,7 @@ export const HOST_INCIDENT_TEXT = {
   INTRO:
     "Các báo cáo của giám thị trong kỳ thi. Mở chi tiết để phản hồi, cập nhật kết quả hoặc bàn giao.",
   WORKFLOW: "Quy trình xử lý sự cố",
-  FLOW: "Mới báo cáo → Đang xử lý → Đã giải quyết → Đã đóng. Chuyển cấp Admin khi cần nền tảng hỗ trợ; có thể tiếp nhận lại để tiếp tục xử lý. Sự cố đã đóng không thể chỉnh sửa.",
+  FLOW: "Mới báo cáo → Đang xử lý → Đã giải quyết → Đã đóng. Sự cố đã giải quyết có thể mở lại để tiếp tục xử lý. Sự cố đã đóng không thể chỉnh sửa.",
   UPDATE: "Cập nhật xử lý",
   STATUS: "Trạng thái tiếp theo",
   NOTE: "Phản hồi / ghi chú xử lý",
@@ -21,10 +21,13 @@ export const HOST_INCIDENT_TEXT = {
   NEW: "Mới báo cáo",
 } as const;
 
-/** Forward handling, explicit escalation/reclaim and reopening before the immutable CLOSED state. */
+/**
+ * Forward handling and reopening before the immutable CLOSED state. Host no longer escalates;
+ * the ESCALATED row only lets legacy escalated incidents be taken back or resolved.
+ */
 export const HOST_INCIDENT_TRANSITIONS: Record<IncidentStatus, readonly IncidentStatus[]> = {
-  NEW: ["IN_PROGRESS", "ESCALATED"],
-  IN_PROGRESS: ["RESOLVED", "ESCALATED"],
+  NEW: ["IN_PROGRESS"],
+  IN_PROGRESS: ["RESOLVED"],
   ESCALATED: ["IN_PROGRESS", "RESOLVED"],
   RESOLVED: ["CLOSED", "IN_PROGRESS"],
   CLOSED: [],
