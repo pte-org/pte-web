@@ -87,6 +87,8 @@ const ADMIN_VI: Record<string, string> = {
   "Enter all password fields.": "Nhập đầy đủ các trường mật khẩu.",
   "The new passwords do not match.": "Mật khẩu mới không khớp.",
   "Use at least 8 characters for the new password.": "Mật khẩu mới phải có ít nhất 8 ký tự.",
+  "The password is too long. Use at most 72 bytes: about 72 plain characters, fewer with accents or emoji.":
+    "Mật khẩu quá dài. Tối đa 72 byte: khoảng 72 ký tự thường, ít hơn nếu có dấu hoặc emoji.",
   "Change password": "Đổi mật khẩu",
   "Changing password...": "Đang đổi mật khẩu...",
   "Password could not be changed. Check the current password and try again.":
