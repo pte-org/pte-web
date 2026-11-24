@@ -39,7 +39,7 @@ export const ScoringSimulatorDialog = ({
       >
         {T.title}
       </Button>
-      <Modal open={open} title={T.title} size="full" closeOnBackdropClick onClose={() => setOpen(false)}>
+      <Modal open={open} title={T.title} size="wide" closeOnBackdropClick onClose={() => setOpen(false)}>
         <ScoringSimulatorView />
       </Modal>
     </>
