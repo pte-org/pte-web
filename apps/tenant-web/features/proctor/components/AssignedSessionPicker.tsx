@@ -17,7 +17,7 @@ import { useClientTimezone } from "../hooks/useClientTimezone";
 import { useProctorWorkspaceText } from "../hooks/useProctorWorkspaceText";
 
 interface AssignedSessionPickerProps {
-  mode: "attendance" | "audit-log" | "incidents";
+  mode: "attendance" | "incidents";
 }
 
 function getStatusBadgeVariant(status: string): "success" | "info" | "neutral" | "danger" {
@@ -91,26 +91,17 @@ export function AssignedSessionPicker({
 
   const getTargetUrl = useCallback(
     (sessionPublicId: string): string => {
-      if (mode === "attendance") {
-        return `/proctor/attendance/${sessionPublicId}`;
-      }
-      if (mode === "incidents") {
-        return `/proctor/incidents/${sessionPublicId}`;
-      }
-      return `/proctor/audit-log/${sessionPublicId}`;
+      return mode === "attendance"
+        ? `/proctor/attendance/${sessionPublicId}`
+        : `/proctor/incidents/${sessionPublicId}`;
     },
     [mode],
   );
 
-  const getActionLabel = useCallback((): string => {
-    if (mode === "attendance") {
-      return text.actionRecordAttendance;
-    }
-    if (mode === "incidents") {
-      return text.actionViewIncidents;
-    }
-    return text.actionViewAudit;
-  }, [mode, text]);
+  const getActionLabel = useCallback(
+    (): string => (mode === "attendance" ? text.actionRecordAttendance : text.actionViewIncidents),
+    [mode, text],
+  );
 
   const formatDateTime = useCallback(
     (iso: string): string => {

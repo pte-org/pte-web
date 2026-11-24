@@ -3,7 +3,7 @@ import { getProctorSessionRoute, proctorSessionTabHref } from "../../../../featu
 
 describe("session workspace navigation", () => {
   it("keeps the selected session across each tool and incident details", () => {
-    for (const tab of ["attendance", "incidents", "audit-log"] as const) {
+    for (const tab of ["attendance", "incidents"] as const) {
       expect(getProctorSessionRoute(proctorSessionTabHref("session-1", tab))).toEqual({
         sessionPublicId: "session-1",
         tab,
@@ -19,12 +19,14 @@ describe("session workspace navigation", () => {
       "/proctor/sessions",
       "/proctor/attendance",
       "/proctor/incidents",
-      "/proctor/audit-log",
       "/proctor/profile",
     ])
       expect(getProctorSessionRoute(path)).toBeNull();
   });
   it("treats the old live-monitoring link as no session tab", () => {
     expect(getProctorSessionRoute("/proctor/sessions/session-1")).toBeNull();
+  });
+  it("no longer recognises the removed audit-log tab", () => {
+    expect(getProctorSessionRoute("/proctor/audit-log/session-1")).toBeNull();
   });
 });

@@ -10,7 +10,7 @@ export function resolveActiveNavItem(
   if (!pathname) return null;
 
   const sessionList = navItems.find((item) => item.href === "/proctor/sessions?scope=ALL");
-  if (sessionList && /^\/proctor\/(sessions|attendance|incidents|audit-log)(\/|$)/.test(pathname)) {
+  if (sessionList && /^\/proctor\/(sessions|attendance|incidents)(\/|$)/.test(pathname)) {
     return pathname === "/proctor/sessions" && !searchParams?.has("scope")
       ? (navItems.find((item) => item.href === "/proctor/sessions")?.href ?? sessionList.href)
       : sessionList.href;
@@ -31,11 +31,6 @@ export function resolveActiveNavItem(
   if (pathname.startsWith("/proctor/incidents")) {
     const incidentsItem = navItems.find((item) => item.href === "/proctor/incidents");
     if (incidentsItem) return incidentsItem.href;
-  }
-
-  if (pathname.startsWith("/proctor/audit-log")) {
-    const auditItem = navItems.find((item) => item.href === "/proctor/audit-log");
-    if (auditItem) return auditItem.href;
   }
 
   // 3. Examiner detail routes
