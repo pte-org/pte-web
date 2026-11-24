@@ -312,6 +312,8 @@ export function useCreateExamWorkflow(): UseMutationResult<
         // Left out for "follow the template", so the server uses the template's own CEFR mix.
         cefrTargets: difficultyTargets(input.difficulty),
         avoidRepeatedQuestions: input.avoidRepeats === true,
+        // Assigned in the same transaction as the draft; left out when none were picked.
+        proctors: input.proctors?.length ? input.proctors : undefined,
       });
       // The wizard's draft is only a step of "create exam": if any later step fails it is removed again, so a
       // refused exam (e.g. a clash on the same bundle) never stays behind in the list.

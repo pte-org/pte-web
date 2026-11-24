@@ -19,6 +19,7 @@ import {
   type CreateExamStep,
 } from "../utils/createExamWizard";
 import { useCreateExamAudience } from "./useCreateExamAudience";
+import { useCreateExamProctors } from "./useCreateExamProctors";
 import { useCreateExamWizardForm } from "./useCreateExamWizardForm";
 import { useCreateExamWizardText, type CreateExamWizardText } from "./useCreateExamWizardText";
 
@@ -117,6 +118,10 @@ export function useCreateExamWizardViewModel({
     sources,
     onSourcesChange,
   });
+  const proctors = useCreateExamProctors({
+    proctors: effectiveForm.proctors ?? [],
+    onProctorsChange: (next) => update("proctors", next),
+  });
   const templateMessage = templateError
     ? errorMessage(templateError, wizardText.NO_TEMPLATE)
     : undefined;
@@ -195,6 +200,15 @@ export function useCreateExamWizardViewModel({
     toggleAllFiltered: audience.toggleAllFiltered,
     clearSelection: audience.clearSelection,
     localizeError,
+    proctorPickerProps: {
+      search: proctors.search,
+      candidates: proctors.candidates,
+      selection: proctors.selection,
+      loading: proctors.loading,
+      onSearchChange: proctors.onSearchChange,
+      toggleProctor: proctors.toggleProctor,
+      clearProctors: proctors.clearProctors,
+    },
   };
   const reviewStepProps: ReviewStepProps = {
     form: effectiveForm,
@@ -203,6 +217,7 @@ export function useCreateExamWizardViewModel({
     localizedSkillOptions,
     templateSkills,
     audienceCount: sources.length,
+    proctorCount: proctors.selection.length,
   };
 
   return {

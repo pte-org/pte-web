@@ -234,6 +234,8 @@ export interface CreateExamDraftRequest {
   cefrTargets?: { level: string; percent: number }[];
   /** Prefer questions the centre has not used in its earlier exams; leave out for no preference. */
   avoidRepeatedQuestions?: boolean;
+  /** Proctors assigned together with the draft; leave out to assign them later. */
+  proctors?: { proctorPublicId: string; role?: ProctorRole }[];
 }
 
 export interface PatchExamDraftRequest {

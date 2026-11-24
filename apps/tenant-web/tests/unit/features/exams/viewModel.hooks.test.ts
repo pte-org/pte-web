@@ -8,6 +8,10 @@ const hoisted = vi.hoisted(() => ({
   showToast: vi.fn(),
   subscriptions: [{ publicId: "sub-1", status: "ACTIVE", planPublicId: "plan-1" }],
   plans: [{ publicId: "plan-1", name: "Basic" }],
+  proctors: [
+    { publicId: "p-1", fullName: "Anna Lead", email: "anna@x.vn", username: "anna", status: "ACTIVE", archived: false },
+    { publicId: "p-2", fullName: "Ben Gone", email: "ben@x.vn", username: "ben", status: "SUSPENDED", archived: false },
+  ],
 }));
 
 vi.mock("@pte/ui", () => ({
@@ -18,6 +22,9 @@ vi.mock("@pte/ui", () => ({
   useToast: () => ({ showToast: hoisted.showToast }),
 }));
 
+vi.mock("@/features/exams/api", () => ({
+  useTenantProctors: () => ({ data: hoisted.proctors, isLoading: false }),
+}));
 vi.mock("@/features/commercialization/api", () => ({
   useSubscriptionsQuery: () => ({ data: hoisted.subscriptions, isLoading: false }),
   useTenantPlansQuery: () => ({ data: hoisted.plans }),
@@ -71,6 +78,8 @@ describe("useCreateExamWizardViewModel", () => {
     expect(vm.scheduleStepProps).toBeDefined();
     expect(vm.audienceStepProps).toBeDefined();
     expect(vm.reviewStepProps).toBeDefined();
+    expect(vm.reviewStepProps.proctorCount).toBe(0);
+    expect(vm.audienceStepProps.proctorPickerProps.candidates.map((c) => c.publicId)).toEqual(["p-1"]);
     expect(vm.submitMessage).toBeUndefined();
 
     // Verify navigation methods
