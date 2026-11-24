@@ -1,20 +1,14 @@
 "use client";
-import {
-  getAttendanceBlockingMessage,
-  getAttendanceActivityLabel,
-} from "../attendancePresentation";
+import { getAttendanceActivityLabel } from "../attendancePresentation";
 import { useMemo } from "react";
 import { Badge, StatusBadge, type DataTableColumn } from "@pte/ui";
 import type { AttendanceRowResponse } from "@pte/api-client";
 import {
   getAttendanceBadgeVariant,
   getAttendanceStatusLabel as getAttendanceLabel,
-  getIdentityBadgeProps,
   PROCTOR_ROSTER_TEXT as T,
 } from "../constants";
-export const useAttendanceColumns = (
-  canEditSession: boolean,
-): DataTableColumn<AttendanceRowResponse>[] => {
+export const useAttendanceColumns = (): DataTableColumn<AttendanceRowResponse>[] => {
   return useMemo(
     () => [
       {
@@ -32,42 +26,12 @@ export const useAttendanceColumns = (
       {
         key: "attendance",
         header: T.COL_ATTENDANCE,
-        cell: (row) => {
-          const canEditRow = canEditSession && row.canEdit;
-          return (
-            <div>
-              <StatusBadge
-                label={getAttendanceLabel(row.status)}
-                variant={getAttendanceBadgeVariant(row.status)}
-              />
-              {!canEditRow && row.blockingReason && (
-                <div className="mt-1 text-[11px] text-[var(--ink-muted)]">
-                  {getAttendanceBlockingMessage(row.blockingReason)}
-                </div>
-              )}
-            </div>
-          );
-        },
-      },
-      {
-        key: "identity",
-        header: T.COL_IDENTITY,
-        cell: (row) => {
-          const { label, variant } = getIdentityBadgeProps(row.identityStatus);
-          return (
-            <div>
-              <StatusBadge label={label} variant={variant} />
-              {row.identityNote && (
-                <div
-                  className="mt-0.5 max-w-[160px] truncate text-[11px] text-[var(--ink-muted)]"
-                  title={row.identityNote}
-                >
-                  {row.identityNote}
-                </div>
-              )}
-            </div>
-          );
-        },
+        cell: (row) => (
+          <StatusBadge
+            label={getAttendanceLabel(row.status)}
+            variant={getAttendanceBadgeVariant(row.status)}
+          />
+        ),
       },
       {
         key: "activity",
@@ -107,6 +71,6 @@ export const useAttendanceColumns = (
           ),
       },
     ],
-    [canEditSession],
+    [],
   );
 };

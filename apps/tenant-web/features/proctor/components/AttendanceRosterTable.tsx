@@ -17,7 +17,6 @@ interface AttendanceRosterTableProps {
   canEditSession: boolean;
   onRecordAttendance: (row: AttendanceRowResponse, targetStatus: AttendanceStatus) => void;
   onViewHistory: (row: AttendanceRowResponse) => void;
-  onVerifyIdentity?: (row: AttendanceRowResponse) => void;
   /** Offered only for a Student whose latest attempt is in progress. */
   onForceSubmit?: (row: AttendanceRowResponse) => void;
   filters?: ReactNode;
@@ -33,7 +32,6 @@ export function AttendanceRosterTable({
   canEditSession,
   onRecordAttendance,
   onViewHistory,
-  onVerifyIdentity,
   onForceSubmit,
   filters,
   pagination,
@@ -41,7 +39,7 @@ export function AttendanceRosterTable({
   searchValue,
   onSearchChange,
 }: AttendanceRosterTableProps): ReactElement {
-  const columns = useAttendanceColumns(canEditSession);
+  const columns = useAttendanceColumns();
 
   const renderRowActions = (row: AttendanceRowResponse) => {
     const canEditRow = canEditSession && row.canEdit;
@@ -73,12 +71,6 @@ export function AttendanceRosterTable({
         label: T.ACTION_RESET,
         tone: "neutral",
         onSelect: () => onRecordAttendance(row, "UNMARKED"),
-      });
-    }
-    if (onVerifyIdentity) {
-      actionItems.push({
-        label: T.ACTION_VERIFY_IDENTITY,
-        onSelect: () => onVerifyIdentity(row),
       });
     }
     if (
