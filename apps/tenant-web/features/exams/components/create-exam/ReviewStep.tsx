@@ -14,6 +14,7 @@ export interface ReviewStepProps {
   localizedSkillOptions: readonly SkillOption[];
   templateSkills: readonly ExamSkill[];
   audienceCount: number;
+  proctorCount: number;
 }
 
 /** The chosen difficulty in words, e.g. "B1 50%, B2 50%"; "Follow the template" when none was set. */
@@ -34,6 +35,7 @@ export function ReviewStep({
   localizedSkillOptions,
   templateSkills,
   audienceCount,
+  proctorCount,
 }: ReviewStepProps): ReactElement {
   return (
     <>
@@ -71,6 +73,10 @@ export function ReviewStep({
           <div>
             <dt className="font-medium">{wizardText.REVIEW_AUDIENCE}</dt>
             <dd>{audienceCount}</dd>
+          </div>
+          <div>
+            <dt className="font-medium">{wizardText.REVIEW_PROCTORS}</dt>
+            <dd>{proctorCount}</dd>
           </div>
           <div>
             <dt className="font-medium">{wizardText.REVIEW_CAPACITY}</dt>

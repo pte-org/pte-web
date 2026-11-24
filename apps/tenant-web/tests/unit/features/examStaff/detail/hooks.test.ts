@@ -16,6 +16,9 @@ const hoisted = vi.hoisted(() => ({
   routerPush: vi.fn(),
   sendMutate: vi.fn(),
   sendReset: vi.fn(),
+  generateMutate: vi.fn(),
+  generateReset: vi.fn(),
+  generateError: null as unknown,
   suspendMutate: vi.fn(),
   suspendReset: vi.fn(),
   reactivateMutate: vi.fn(),
@@ -40,6 +43,12 @@ vi.mock("@pte/ui", () => ({
 }));
 
 vi.mock("@/features/userManagement", () => ({
+  useGenerateStudentCredentials: () => ({
+    mutate: hoisted.generateMutate,
+    reset: hoisted.generateReset,
+    isPending: hoisted.isPending,
+    error: hoisted.generateError,
+  }),
   useSendUserCredentials: () => ({
     mutate: hoisted.sendMutate,
     reset: hoisted.sendReset,
@@ -98,6 +107,7 @@ describe("features/examStaff/detail/hooks", () => {
     hoisted.locale = "en";
     hoisted.isPending = false;
     hoisted.sendError = null;
+    hoisted.generateError = null;
     hoisted.suspendError = null;
     hoisted.updateError = null;
   });
@@ -184,21 +194,45 @@ describe("features/examStaff/detail/hooks", () => {
         return null;
       }));
 
-      expect(actions.items).toHaveLength(3);
+      expect(actions.items).toHaveLength(4);
       expect(actions.command).toBeNull();
       expect(actions.pending).toBe(false);
       expect(actions.error).toBeNull();
 
-      const sendItem = actions.items[0];
+      const generateItem = actions.items[0];
+      expect("label" in generateItem && generateItem.label).toBe(text.generatePassword);
+      if ("onSelect" in generateItem && generateItem.onSelect) generateItem.onSelect();
+      expect(hoisted.generateMutate).toHaveBeenCalledWith("staff-1", expect.any(Object));
+      expect(hoisted.sendMutate).not.toHaveBeenCalled();
+
+      const sendItem = actions.items[1];
+      expect("label" in sendItem && sendItem.label).toBe(text.sendCredentials);
       if ("onSelect" in sendItem && sendItem.onSelect) sendItem.onSelect();
       expect(hoisted.sendReset).toHaveBeenCalled();
+      expect(hoisted.sendMutate).not.toHaveBeenCalled();
 
-      const suspendItem = actions.items[2];
+      const suspendItem = actions.items[3];
       if ("onSelect" in suspendItem && suspendItem.onSelect) suspendItem.onSelect();
       expect(hoisted.suspendReset).toHaveBeenCalled();
 
       actions.close();
       actions.closeCredentials();
+    });
+
+    it("disables the email action, with a hint, when the account cannot receive credentials", () => {
+      let actions!: ReturnType<typeof useStaffAccountActions>;
+      let text!: ReturnType<typeof useStaffDetailText>;
+
+      renderToStaticMarkup(createElement(() => {
+        text = useStaffDetailText();
+        actions = useStaffAccountActions({ ...dummyAccount, canSendCredentials: false }, text);
+        return null;
+      }));
+
+      const [generateItem, sendItem] = actions.items;
+      expect("disabled" in generateItem && generateItem.disabled).toBe(false);
+      expect("disabled" in sendItem && sendItem.disabled).toBe(true);
+      expect("title" in sendItem && sendItem.title).toBe(text.sendNoEmail);
     });
 
     it("renders reactivate option when account is SUSPENDED", () => {
@@ -215,7 +249,7 @@ describe("features/examStaff/detail/hooks", () => {
         return null;
       }));
 
-      const reactivateItem = actions.items[2];
+      const reactivateItem = actions.items[3];
       if ("onSelect" in reactivateItem && reactivateItem.onSelect) {
         reactivateItem.onSelect();
       }
@@ -235,6 +269,14 @@ describe("features/examStaff/detail/hooks", () => {
       expect(actions.error).toBe(text.credentialsFailed);
 
       hoisted.sendError = null;
+      hoisted.generateError = new Error("Failed");
+      renderToStaticMarkup(createElement(() => {
+        actions = useStaffAccountActions(dummyAccount, text);
+        return null;
+      }));
+      expect(actions.error).toBe(text.generateFailed);
+
+      hoisted.generateError = null;
       hoisted.suspendError = new Error("Failed");
       renderToStaticMarkup(createElement(() => {
         actions = useStaffAccountActions(dummyAccount, text);

@@ -171,26 +171,16 @@ export interface SlotConflict {
   conflictingSessionName: string;
 }
 
-/** Matches scheduling's real `ProctorRole` enum exactly. */
-export type ProctorRole = "LEAD_PROCTOR" | "ASSISTANT_PROCTOR";
-
 /** Matches scheduling's real `ProctorAssignmentResponse` record exactly. */
 export interface ProctorAssignmentResponse {
   publicId: string;
   sessionPublicId: string;
   proctorPublicId: string;
-  role: ProctorRole;
 }
 
 /** Matches scheduling's real `AssignProctorRequest` record exactly. */
 export interface AssignProctorRequest {
   proctorPublicId: string;
-  role?: ProctorRole | null;
-}
-
-/** Matches scheduling's real `UpdateProctorRoleRequest` record exactly. */
-export interface UpdateProctorRoleRequest {
-  role: ProctorRole;
 }
 
 /** Matches the real `AssignClassRequest`/`SessionClassAssignmentResponse` records of `SessionClassController`. */
@@ -234,6 +224,8 @@ export interface CreateExamDraftRequest {
   cefrTargets?: { level: string; percent: number }[];
   /** Prefer questions the centre has not used in its earlier exams; leave out for no preference. */
   avoidRepeatedQuestions?: boolean;
+  /** Proctors assigned together with the draft; leave out to assign them later. */
+  proctors?: { proctorPublicId: string }[];
 }
 
 export interface PatchExamDraftRequest {

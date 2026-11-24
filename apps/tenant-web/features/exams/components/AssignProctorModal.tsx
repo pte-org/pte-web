@@ -2,9 +2,8 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, Modal, Select, useLocale } from "@pte/ui";
-import type { ProctorRole } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
-import { ASSIGN_PROCTOR_TEXT, DEFAULT_PROCTOR_ROLE, PROCTOR_ROLE_DESCRIPTIONS } from "../constants";
+import { ASSIGN_PROCTOR_TEXT } from "../constants";
 import { useAssignProctor, useTenantProctors } from "../api";
 
 interface AssignProctorModalProps {
@@ -25,7 +24,6 @@ export const AssignProctorModal = ({
 }: AssignProctorModalProps): ReactElement => {
   const { t } = useLocale();
   const [selectedProctorId, setSelectedProctorId] = useState("");
-  const [role, setRole] = useState<ProctorRole>(DEFAULT_PROCTOR_ROLE);
 
   const { data: proctors, isLoading: proctorsLoading } = useTenantProctors();
   const assignProctor = useAssignProctor(sessionPublicId);
@@ -43,24 +41,12 @@ export const AssignProctorModal = ({
     noExisting: t("tenant.proctor.noExisting", T.NO_EXISTING),
     existing: t("tenant.proctor.existing", T.EXISTING_LABEL),
     select: t("tenant.proctor.select", T.EXISTING_PLACEHOLDER),
-    role: t("tenant.proctor.roleInExam", T.ROLE_LABEL),
-    lead: t("tenant.proctor.lead", "Lead Proctor"),
-    assistant: t("tenant.proctor.assistant", "Assistant Proctor"),
-    leadDescription: t("tenant.proctor.leadDescription", PROCTOR_ROLE_DESCRIPTIONS.LEAD_PROCTOR),
-    assistantDescription: t(
-      "tenant.proctor.assistantDescription",
-      PROCTOR_ROLE_DESCRIPTIONS.ASSISTANT_PROCTOR,
-    ),
   };
-  const roleOptions = [
-    { value: "ASSISTANT_PROCTOR", label: text.assistant },
-    { value: "LEAD_PROCTOR", label: text.lead },
-  ];
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
     if (!selectedProctorId) return;
-    assignProctor.mutate({ proctorPublicId: selectedProctorId, role }, { onSuccess: onClose });
+    assignProctor.mutate({ proctorPublicId: selectedProctorId }, { onSuccess: onClose });
   };
 
   return (
@@ -115,14 +101,6 @@ export const AssignProctorModal = ({
             }))}
           />
         )}
-
-        <Select
-          label={text.role}
-          value={role}
-          helperText={role === "LEAD_PROCTOR" ? text.leadDescription : text.assistantDescription}
-          onChange={(event) => setRole(event.target.value as ProctorRole)}
-          options={roleOptions}
-        />
       </form>
     </Modal>
   );

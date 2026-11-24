@@ -2,7 +2,6 @@ import type {
   AudienceSourceRequest,
   ExamPolicyResponse,
   ExamMode,
-  ProctorRole,
   ReusePolicy,
   SessionStatus,
   UserResponse,
@@ -45,6 +44,11 @@ export interface CreateSessionInput {
   capacity: string;
 }
 
+/** A proctor picked in the create wizard. */
+export interface ProctorSelection {
+  proctorPublicId: string;
+}
+
 export interface CreateExamWorkflowInput {
   name: string;
   templatePublicId: string;
@@ -61,6 +65,8 @@ export interface CreateExamWorkflowInput {
   difficulty?: DifficultySelection;
   /** Prefer questions the centre has not used in its earlier exams; off by default. */
   avoidRepeats?: boolean;
+  /** Proctors assigned together with the exam; optional, they can also be added later. */
+  proctors?: ProctorSelection[];
 }
 
 export interface CreateSessionErrors {
@@ -75,5 +81,4 @@ export interface CreateSessionErrors {
 export interface ProctorAssignmentEntry {
   assignmentPublicId: string;
   proctor: UserResponse;
-  role: ProctorRole;
 }

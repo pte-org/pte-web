@@ -90,18 +90,6 @@ export const useAssignedSessionTable = (): AssignedSessionTable => {
           </span>
         ),
       },
-      {
-        key: "role",
-        header: text.tableColRole,
-        cell: (row) => {
-          const isLead = (row.assignmentRole || row.role) === "LEAD_PROCTOR";
-          return (
-            <span className="text-xs font-medium text-[var(--ink-primary)]">
-              {isLead ? text.roleLead : text.roleProctor}
-            </span>
-          );
-        },
-      },
     ],
     [formatDateTime, getStatusLabel, text],
   );

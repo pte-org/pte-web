@@ -72,6 +72,7 @@ describe("userManagement Mutations", () => {
     expect(api.generateStudentCredentials).toHaveBeenCalledWith(hoisted.apiClient, "stu-1");
 
     lastMutation().onSuccess?.(undefined, "stu-1");
+    expect(hoisted.invalidateQueries).toHaveBeenCalledWith({ queryKey: ["examStaff"] });
     expect(hoisted.invalidateQueries).toHaveBeenCalledWith({ queryKey: ["studentRoster"] });
     expect(hoisted.invalidateQueries).toHaveBeenCalledWith({ queryKey: ["tenantUsers"] });
     expect(hoisted.invalidateQueries).toHaveBeenCalledWith({ queryKey: ["studentDetail", "stu-1"] });

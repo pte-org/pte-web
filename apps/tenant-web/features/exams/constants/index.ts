@@ -1,7 +1,6 @@
 import type {
   ExamMode,
   LockdownMode,
-  ProctorRole,
   ReusePolicy,
   SessionStatus,
 } from "@pte/api-client";
@@ -132,7 +131,7 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   TITLE: "Create exam",
   STEP_DETAILS: "Exam details",
   STEP_SCHEDULE_POLICY: "Schedule & policy",
-  STEP_AUDIENCE: "Audience",
+  STEP_AUDIENCE: "Participants",
   STEP_REVIEW: "Review & create",
   NAME_LABEL: "Exam name",
   NAME_PLACEHOLDER: "e.g. Semester 1 mock exam",
@@ -190,6 +189,19 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   SOURCE_EMPTY: "No students match your filters.",
   MANAGE_CLASSES: "Manage classes",
   NO_SOURCES: "Select at least one student.",
+  PARTICIPANTS_TABS: "Exam participants",
+  TAB_STUDENTS: "Students",
+  TAB_PROCTORS: "Proctors",
+  PROCTORS_TITLE: "Proctors watching the exam",
+  PROCTORS_HINT: "Optional. You can also assign proctors after the exam is created.",
+  PROCTOR_SEARCH_LABEL: "Search proctors",
+  PROCTOR_SEARCH_PLACEHOLDER: "Search by name, email, or account",
+  PROCTOR_LOADING: "Loading proctors...",
+  PROCTOR_EMPTY: "No active proctors match.",
+  SELECT_PROCTOR: "Select proctor",
+  PROCTORS_SELECTED_TOTAL: "{count} proctors selected",
+  NO_PROCTORS: "No proctors selected yet.",
+  REVIEW_PROCTORS: "Proctors",
   NO_TEMPLATE:
     "No active exam template is available yet. Ask the platform administrator to activate one.",
   NO_ACTIVE_SUBSCRIPTIONS: "No active subscription is available for this exam.",
@@ -474,36 +486,14 @@ export const PROCTOR_SECTION_TEXT = {
 export const PROCTOR_TABLE_HEADERS = {
   FULL_NAME: "Full name",
   EMAIL: "Email",
-  ROLE: "Role",
   ACTIONS: "Actions",
 } as const;
-
-export const DEFAULT_PROCTOR_ROLE: ProctorRole = "ASSISTANT_PROCTOR";
-
-export const PROCTOR_ROLE_LABELS: Record<ProctorRole, string> = {
-  LEAD_PROCTOR: "Lead Proctor",
-  ASSISTANT_PROCTOR: "Assistant Proctor",
-};
-
-/** Shown to the Host so they know what each role means before assigning/changing it. */
-export const PROCTOR_ROLE_DESCRIPTIONS: Record<ProctorRole, string> = {
-  LEAD_PROCTOR:
-    "Primary point of contact for this exam session. Coordinates the other proctors and is responsible for resolving incidents.",
-  ASSISTANT_PROCTOR:
-    "Supports session monitoring — watches over students and reports incidents to the Lead Proctor.",
-};
-
-export const PROCTOR_ROLE_OPTIONS: { value: ProctorRole; label: string }[] = [
-  { value: "ASSISTANT_PROCTOR", label: PROCTOR_ROLE_LABELS.ASSISTANT_PROCTOR },
-  { value: "LEAD_PROCTOR", label: PROCTOR_ROLE_LABELS.LEAD_PROCTOR },
-];
 
 export const ASSIGN_PROCTOR_TEXT = {
   TITLE: "Assign Proctor to Exam",
   EXISTING_LABEL: "Proctor",
   EXISTING_PLACEHOLDER: "Select a proctor",
   NO_EXISTING: "No unassigned proctors are available in your organization.",
-  ROLE_LABEL: "Role in this exam",
   CANCEL: "Cancel",
   SUBMIT: "Assign to Exam",
   SUBMITTING: "Assigning...",

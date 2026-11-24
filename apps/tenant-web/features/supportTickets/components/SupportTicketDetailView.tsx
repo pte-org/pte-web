@@ -19,13 +19,13 @@ export const SupportTicketDetailView = ({
 }: SupportTicketDetailViewProps): ReactElement => {
   const { data: ticket, isLoading, isError } = useSupportTicket(ticketPublicId);
   const pathname = usePathname();
-  const { t } = useLocale();
+  const { locale, t } = useLocale();
   useDashboardBreadcrumbLabel(pathname, ticket ? t("common.supportTicketBreadcrumb", undefined,
     { id: ticket.publicId.slice(0, SUPPORT_TICKET_BREADCRUMB_ID_LENGTH).toUpperCase() }) : undefined);
 
   if (isLoading) return <LoadingState rows={6} />;
   if (isError || !ticket) {
-    return <Alert tone="error">Failed to load ticket.</Alert>;
+    return <Alert tone="error">{t("tenant.support.detail.loadFailed", "Failed to load ticket.")}</Alert>;
   }
 
   return (
@@ -33,36 +33,40 @@ export const SupportTicketDetailView = ({
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-card">
         <dl className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">Category</dt>
+            <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">
+              {t("tenant.support.category", "Category")}
+            </dt>
             <dd className="mt-1">
               <TicketCategoryBadge category={ticket.category} />
             </dd>
           </div>
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">Status</dt>
+            <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">
+              {t("tenant.support.status", "Status")}
+            </dt>
             <dd className="mt-1">
               <TicketStatusBadge status={ticket.status} />
             </dd>
           </div>
           <div className="sm:col-span-2">
             <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">
-              Description
+              {t("tenant.support.description", "Description")}
             </dt>
             <dd className="mt-1 text-sm text-gray-800">{ticket.description}</dd>
           </div>
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">
-              {T.CREATED_AT}
+              {t("tenant.support.submitted", T.CREATED_AT)}
             </dt>
             <dd className="mt-1 text-sm text-gray-700">
-              {new Date(ticket.createdAt).toLocaleString()}
+              {new Date(ticket.createdAt).toLocaleString(locale === "vi" ? "vi-VN" : "en-GB")}
             </dd>
           </div>
         </dl>
       </div>
 
       <div>
-        <h2 className="mb-3 text-sm font-semibold text-gray-900">{T.NOTES_SECTION}</h2>
+        <h2 className="mb-3 text-sm font-semibold text-gray-900">{t("tenant.support.detail.notes", T.NOTES_SECTION)}</h2>
         <NoteThread notes={ticket.notes} />
       </div>
     </div>
