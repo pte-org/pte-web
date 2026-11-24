@@ -85,9 +85,6 @@ const ProctorPrioritySessionRow = ({
           <span>
             {text.tableColClosesAt}: {dateTime.format(new Date(session.closesAt))}
           </span>
-          <span>
-            {session.assignmentRole === "LEAD_PROCTOR" ? text.roleLead : text.roleProctor}
-          </span>
         </div>
         {!session.canMonitor && (
           <p className="text-xs text-[var(--ink-secondary)]">{blockingLabel(session)}</p>
