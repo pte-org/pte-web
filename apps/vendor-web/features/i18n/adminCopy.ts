@@ -180,7 +180,6 @@ const ADMIN_VI: Record<string, string> = {
   "No applications found": "Không tìm thấy đơn đăng ký",
   "Try another status filter.": "Hãy thử bộ lọc trạng thái khác.",
   "Loading application...": "Đang tải đơn đăng ký...",
-  "Back to applications": "Quay lại danh sách đơn đăng ký",
   "This application was not found or is no longer available.":
     "Không tìm thấy đơn đăng ký hoặc đơn không còn khả dụng.",
   "The application could not be updated. Please try again.":
