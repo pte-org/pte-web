@@ -25,28 +25,9 @@ import {
 } from "../constants";
 import { useCreateProgram, useMyOrganizations, usePrograms } from "../api";
 import type { CreateProgramInput } from "../types";
+import { formatProgramDateRange } from "../utils/formatProgramDates";
 import { programErrorMessage } from "../utils/programErrorMessage";
 import { CreateProgramModal } from "./CreateProgramModal";
-
-function formatDate(value: string | null): string {
-  if (!value) return "…";
-  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
-  if (match) {
-    const [, year, month, day] = match;
-    return `${day}/${month}/${year}`;
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
-}
-
-function formatDateRange(startDate: string | null, endDate: string | null): string {
-  if (!startDate && !endDate) return "—";
-  return `${formatDate(startDate)} – ${formatDate(endDate)}`;
-}
 
 export const ProgramsListView = (): ReactElement => {
   const labels = useOrgLabels();
@@ -83,6 +64,12 @@ export const ProgramsListView = (): ReactElement => {
     active: t("tenant.programs.active", PROGRAM_STATUS_LABELS.ACTIVE),
     inactive: t("tenant.programs.inactive", PROGRAM_STATUS_LABELS.INACTIVE),
     suspended: t("tenant.programs.suspended", PROGRAM_STATUS_LABELS.SUSPENDED),
+    ongoing: t("tenant.programs.ongoing", locale === "vi" ? "Không giới hạn" : "Ongoing"),
+  };
+  const dateRangeText = {
+    ongoing: text.ongoing,
+    untilDate: (date: string) =>
+      t("tenant.programs.untilDate", locale === "vi" ? "Đến {date}" : "Until {date}", { date }),
   };
   const statusLabels = {
     ACTIVE: text.active,
@@ -176,7 +163,7 @@ export const ProgramsListView = (): ReactElement => {
       filterType: "date-range",
       filterAccessor: (program) => program.startDate,
       filterPlaceholder: text.dateRange,
-      cell: (program) => formatDateRange(program.startDate, program.endDate),
+      cell: (program) => formatProgramDateRange(program.startDate, program.endDate, dateRangeText),
     },
   ];
 

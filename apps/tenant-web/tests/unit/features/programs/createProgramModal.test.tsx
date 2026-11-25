@@ -36,6 +36,7 @@ describe("CreateProgramModal", () => {
     expect(html).toContain("Mô tả");
     expect(html).toContain("Ngày bắt đầu");
     expect(html).toContain("Ngày kết thúc");
+    expect(html).toContain("Không bắt buộc — bỏ trống nếu không giới hạn thời gian");
     // Placeholders
     expect(html).toContain("Ví dụ: Chương trình 12");
     // Buttons

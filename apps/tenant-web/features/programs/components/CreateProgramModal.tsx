@@ -113,12 +113,14 @@ export const CreateProgramModal = ({
         />
         <DateInput
           label={text.startDateLabel}
+          helperText={text.dateOptionalHint}
           value={form.startDate}
           error={shownErrors.startDate}
           onChange={(event) => handleChange("startDate", event.target.value)}
         />
         <DateInput
           label={text.endDateLabel}
+          helperText={text.dateOptionalHint}
           value={form.endDate}
           error={shownErrors.endDate}
           min={form.startDate || undefined}

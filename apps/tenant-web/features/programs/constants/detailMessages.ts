@@ -36,6 +36,8 @@ export const PROGRAM_DETAIL_EN = {
   missingOrganization: "Missing organization context. Open this program from the program list.",
   nameRequired: "Enter a program name.",
   dateOrder: "End date must be on or after the start date.",
+  dateOptionalHint: "Optional — leave blank if there is no time limit",
+  noDateLimit: "No time limit",
   empty: "—",
 };
 
@@ -79,5 +81,7 @@ export const PROGRAM_DETAIL_VI: ProgramDetailMessages = {
   missingOrganization: "Thiếu thông tin tổ chức. Hãy mở chương trình từ danh sách chương trình.",
   nameRequired: "Vui lòng nhập tên chương trình.",
   dateOrder: "Ngày kết thúc phải bằng hoặc sau ngày bắt đầu.",
+  dateOptionalHint: "Không bắt buộc — bỏ trống nếu không giới hạn thời gian",
+  noDateLimit: "Không giới hạn",
   empty: "—",
 };

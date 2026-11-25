@@ -26,6 +26,7 @@ export const useCreateProgramText = (programLabel = "Program") => {
     descriptionLabel: getText("descriptionLabel"),
     startDateLabel: getText("startDateLabel"),
     endDateLabel: getText("endDateLabel"),
+    dateOptionalHint: getText("dateOptionalHint"),
     cancel: getText("cancel"),
     submit: getText("submit"),
     submitting: getText("submitting"),

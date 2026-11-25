@@ -89,6 +89,7 @@ describe("useCreateProgramText", () => {
     expect(text.descriptionLabel).toBe("Description");
     expect(text.startDateLabel).toBe("Start date");
     expect(text.endDateLabel).toBe("End date");
+    expect(text.dateOptionalHint).toBe("Optional — leave blank if there is no time limit");
     expect(text.cancel).toBe("Cancel");
     expect(text.submit).toBe("Create Program");
     expect(text.submitting).toBe("Creating...");
@@ -113,6 +114,7 @@ describe("useCreateProgramText", () => {
     expect(text.descriptionLabel).toBe("Mô tả");
     expect(text.startDateLabel).toBe("Ngày bắt đầu");
     expect(text.endDateLabel).toBe("Ngày kết thúc");
+    expect(text.dateOptionalHint).toBe("Không bắt buộc — bỏ trống nếu không giới hạn thời gian");
     expect(text.cancel).toBe("Hủy");
     expect(text.submit).toBe("Tạo chương trình");
     expect(text.submitting).toBe("Đang tạo...");
