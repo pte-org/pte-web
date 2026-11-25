@@ -13,7 +13,12 @@ import {
   TrashIcon,
 } from "@pte/ui";
 import type { UserResponse } from "@pte/api-client";
-import { ACTOR_ID_SEARCH_PARAM, AUDIT_LOG_PATH } from "@/features/auditLog/constants";
+import {
+  ACTOR_ID_SEARCH_PARAM,
+  AUDIT_LOG_FROM_PARAM,
+  AUDIT_LOG_FROM_PLATFORM_USERS,
+  AUDIT_LOG_PATH,
+} from "@/features/auditLog/constants";
 import type { PlatformUserAction } from "../types";
 import type { PlatformUserText } from "../constants";
 
@@ -40,7 +45,7 @@ export const PlatformUserRowActions = ({
     icon: HistoryIcon,
     onSelect: () =>
       router.push(
-        `${AUDIT_LOG_PATH}?${new URLSearchParams({ [ACTOR_ID_SEARCH_PARAM]: user.publicId })}`,
+        `${AUDIT_LOG_PATH}?${new URLSearchParams({ [ACTOR_ID_SEARCH_PARAM]: user.publicId, [AUDIT_LOG_FROM_PARAM]: AUDIT_LOG_FROM_PLATFORM_USERS })}`,
       ),
   };
 

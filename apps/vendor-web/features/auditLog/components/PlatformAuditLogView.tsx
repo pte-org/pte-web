@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { DEFAULT_PAGE_SIZE, getUserFacingApiErrorMessage } from "@pte/api-client";
 import {
+  useDashboardBreadcrumbLabel,
   Alert,
   DataTable,
   DateRangePicker,
@@ -28,6 +29,8 @@ export function PlatformAuditLogView(): ReactElement {
   const { locale, t } = useLocale();
   const T = PLATFORM_AUDIT_LOG_COPY[locale];
   const searchParams = useSearchParams();
+  // Shown only when the shell has a parent for this page (opened from the platform users list).
+  useDashboardBreadcrumbLabel(usePathname(), T.TITLE);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
   const [search, setSearch] = useState("");

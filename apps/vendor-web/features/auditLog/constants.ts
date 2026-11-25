@@ -4,6 +4,9 @@ export const PLATFORM_AUDIT_ENTRY_QUERY_KEY = ["platformAuditEntry"] as const;
 /** URL parameter that opens the log filtered to one person (linked from the platform user menu). */
 export const ACTOR_ID_SEARCH_PARAM = "actorId";
 export const AUDIT_LOG_PATH = "/admin/audit-log";
+/** Marks where the log was opened from, so the shell shows a breadcrumb back to that page. */
+export const AUDIT_LOG_FROM_PARAM = "from";
+export const AUDIT_LOG_FROM_PLATFORM_USERS = "platform-users";
 export const ACTORS_STALE_TIME_MS = 60_000;
 export const AUDIT_HISTORY_PAGE_SIZE = 50;
 
