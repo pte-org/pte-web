@@ -6,7 +6,7 @@ import { useLocale } from "../i18n";
 import { cn } from "../utils/cn";
 import { XIcon } from "./icons";
 
-type ModalSize = "sm" | "md" | "lg" | "xl" | "full" | "wide";
+type ModalSize = "sm" | "md" | "lg" | "xl" | "full" | "wide" | "extraWide";
 
 interface ModalProps {
   open: boolean;
@@ -36,6 +36,7 @@ const SIZE_CLASS: Record<ModalSize, string> = {
   xl: "max-w-2xl",
   full: "max-w-5xl",
   wide: "max-w-7xl",
+  extraWide: "max-w-[96rem]",
 };
 
 export const Modal = ({
