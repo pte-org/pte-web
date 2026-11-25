@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import type { ReactElement } from "react";
 import { Alert, LoadingState, useDashboardBreadcrumbLabel, useLocale } from "@pte/ui";
 import { SUPPORT_TICKETS_TEXT as T, SUPPORT_TICKET_BREADCRUMB_ID_LENGTH } from "../constants";
+import { taskTypeLabel } from "@/features/hostTemplates/utils/taskTypeLabel";
 import { useSupportTicket } from "../api";
 import { TicketCategoryBadge } from "./_TicketCategoryBadge";
 import { TicketStatusBadge } from "./_TicketStatusBadge";
@@ -54,6 +55,33 @@ export const SupportTicketDetailView = ({
             </dt>
             <dd className="mt-1 text-sm text-gray-800">{ticket.description}</dd>
           </div>
+          {ticket.entityType === "QUESTION" && ticket.entityId && (
+            <div className="sm:col-span-2">
+              <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                {t("tenant.support.reportedQuestion", "Reported question")}
+              </dt>
+              <dd className="mt-1 rounded-lg border border-gray-200 p-3 text-sm">
+                {ticket.entityContext ? (
+                  <>
+                    {ticket.entityContext.taskTypeKey && (
+                      <span className="font-medium text-gray-900">
+                        {taskTypeLabel(ticket.entityContext.taskTypeKey)}
+                      </span>
+                    )}
+                    {ticket.entityContext.promptSnippet && (
+                      <span className="mt-1 block whitespace-pre-wrap text-gray-700">
+                        {ticket.entityContext.promptSnippet}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <span className="text-gray-500">
+                    {t("tenant.support.questionUnavailable", "This question no longer exists.")}
+                  </span>
+                )}
+              </dd>
+            </div>
+          )}
           <div>
             <dt className="text-xs font-medium uppercase tracking-wide text-gray-500">
               {t("tenant.support.submitted", T.CREATED_AT)}

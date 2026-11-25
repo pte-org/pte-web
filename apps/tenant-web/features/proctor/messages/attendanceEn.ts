@@ -1,8 +1,8 @@
 /** Text of the attendance screens (Host exam tab and the shared roster, history and record dialogs), English. */
 export const ATTENDANCE_EN = {
-  closedBannerTitle: "Host can correct attendance after the exam has closed",
+  closedBannerTitle: "The exam has ended",
   closedBannerBody:
-    "This exam has closed. As Host you can update or correct attendance for administrative purposes. This does not reopen the exam or change any exam result. A reason is required for every change.",
+    "This session is closed, so attendance can no longer be taken or edited. You can only review the list.",
   loadErrorTitle: "Could not load the attendance list",
   loadErrorBody: "Something went wrong while fetching the data from the server.",
   retry: "Retry",

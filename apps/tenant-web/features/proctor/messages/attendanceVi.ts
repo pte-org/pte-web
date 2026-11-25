@@ -2,9 +2,9 @@ import type { AttendanceMessages } from "./attendanceEn";
 
 /** Text of the attendance screens (Host exam tab and the shared roster, history and record dialogs), Vietnamese. */
 export const ATTENDANCE_VI: AttendanceMessages = {
-  closedBannerTitle: "Lưu ý quyền Host điều chỉnh ca thi đã đóng",
+  closedBannerTitle: "Kỳ thi đã kết thúc",
   closedBannerBody:
-    "Ca thi này đã đóng. Quyền Host cho phép bạn cập nhật hoặc đính chính điểm danh vì mục đích hành chính. Thao tác này không mở lại ca thi hay thay đổi kết quả bài thi. Lý do điều chỉnh là bắt buộc cho mọi thay đổi.",
+    "Ca thi này đã đóng nên không thể điểm danh hay chỉnh sửa điểm danh nữa. Bạn chỉ có thể xem lại danh sách.",
   loadErrorTitle: "Không thể tải danh sách điểm danh",
   loadErrorBody: "Đã có lỗi xảy ra khi truy vấn dữ liệu từ máy chủ.",
   retry: "Thử lại",

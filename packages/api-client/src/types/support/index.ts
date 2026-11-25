@@ -11,6 +11,14 @@ export interface SupportTicketNoteResponse {
   createdAt: string;
 }
 
+/** What the linked entity is, so readers can tell which one was reported. Questions only today. */
+export interface TicketEntityContext {
+  taskTypeKey: string | null;
+  section: string | null;
+  /** First words of the question text; absent for questions without a text prompt. */
+  promptSnippet?: string | null;
+}
+
 export interface SupportTicketResponse {
   publicId: string;
   tenantId: string;
@@ -20,6 +28,8 @@ export interface SupportTicketResponse {
   status: TicketStatus;
   entityType: TicketEntityType | null;
   entityId: string | null;
+  /** Null when the ticket links nothing, or the linked question no longer exists. */
+  entityContext?: TicketEntityContext | null;
   notes: SupportTicketNoteResponse[];
   createdAt: string;
   updatedAt: string;

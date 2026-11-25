@@ -55,7 +55,7 @@ export function ExamAttendanceTab({
   return (
     <div className="space-y-5 motion-safe:animate-pte-fade-up">
       {isSessionClosed && (
-        <Alert tone="info" title={text.closedBannerTitle}>
+        <Alert tone="warning" title={text.closedBannerTitle}>
           {text.closedBannerBody}
         </Alert>
       )}

@@ -12,6 +12,7 @@ import { useAdminSupportTicket, useAddTicketNote, useUpdateTicketStatus } from "
 import type { TicketStatus } from "../types";
 import { AddNoteForm } from "./_AddNoteForm";
 import { NoteThread } from "./_NoteThread";
+import { ReportedQuestion } from "./_ReportedQuestion";
 import { StatusPanel } from "./_StatusPanel";
 import { TicketCategoryBadge } from "./_TicketCategoryBadge";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
@@ -84,6 +85,7 @@ export const AdminSupportTicketDetailView = ({
           <dt className="text-sm font-medium text-gray-600">{T.DESCRIPTION_LABEL}</dt>
           <dd className="mt-1 text-sm text-gray-700 whitespace-pre-wrap">{ticket.description}</dd>
         </div>
+        <ReportedQuestion ticket={ticket} />
       </section>
 
       <section className="rounded-lg border border-gray-100 bg-white p-6">
