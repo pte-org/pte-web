@@ -1,13 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import {
-  Badge,
-  Button,
-  Checkbox,
-  DataTable,
-  Select,
-} from "@pte/ui";
+import { Badge, Button, Checkbox, DataTable, Select } from "@pte/ui";
 import type { PlatformAssignableRole, UserResponse } from "@pte/api-client";
 import type { PlatformUserAction } from "../types";
 import { PlatformUserRowActions } from "./_PlatformUserRowActions";
@@ -36,7 +30,6 @@ type PlatformUsersTableProps = {
   onIncludeArchivedChange: (value: boolean) => void;
   onCreate: () => void;
   onEditProfile: (user: UserResponse) => void;
-  onEditRoles: (user: UserResponse) => void;
   onAction: (user: UserResponse, action: PlatformUserAction) => void;
 };
 
@@ -60,7 +53,6 @@ export const PlatformUsersTable = ({
   onIncludeArchivedChange,
   onCreate,
   onEditProfile,
-  onEditRoles,
   onAction,
 }: PlatformUsersTableProps) => (
   <DataTable
@@ -95,13 +87,11 @@ export const PlatformUsersTable = ({
         header: copy.STATUS,
         cell: (user: UserResponse) => (
           <Badge
-            variant={
-              user.archived ? "warning" : user.status === "ACTIVE" ? "success" : "neutral"
-            }
+            variant={user.archived ? "warning" : user.status === "ACTIVE" ? "success" : "neutral"}
           >
             {user.archived
               ? copy.ARCHIVED
-              : statusLabels[user.status as "ACTIVE" | "SUSPENDED"] ?? user.status}
+              : (statusLabels[user.status as "ACTIVE" | "SUSPENDED"] ?? user.status)}
           </Badge>
         ),
       },
@@ -123,7 +113,9 @@ export const PlatformUsersTable = ({
             options={[{ value: "", label: copy.ALL_ROLES }, ...roleOptions]}
             value={roleFilter}
             variant="table"
-            onChange={(event) => onRoleFilterChange(event.target.value as PlatformAssignableRole | "")}
+            onChange={(event) =>
+              onRoleFilterChange(event.target.value as PlatformAssignableRole | "")
+            }
           />
         </div>
         <div className="w-full sm:w-auto sm:min-w-[150px]">
@@ -133,7 +125,9 @@ export const PlatformUsersTable = ({
             options={statusOptions}
             value={statusFilter}
             variant="table"
-            onChange={(event) => onStatusFilterChange(event.target.value as UserResponse["status"] | "")}
+            onChange={(event) =>
+              onStatusFilterChange(event.target.value as UserResponse["status"] | "")
+            }
           />
         </div>
         <Checkbox
@@ -152,7 +146,6 @@ export const PlatformUsersTable = ({
         currentUserId={currentUserId}
         copy={copy}
         onEditProfile={onEditProfile}
-        onEditRoles={onEditRoles}
         onAction={onAction}
       />
     )}

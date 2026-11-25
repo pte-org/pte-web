@@ -19,7 +19,6 @@ type PlatformUserRowActionsProps = {
   currentUserId?: string;
   copy: PlatformUserText;
   onEditProfile: (user: UserResponse) => void;
-  onEditRoles: (user: UserResponse) => void;
   onAction: (user: UserResponse, action: PlatformUserAction) => void;
 };
 
@@ -28,7 +27,6 @@ export const PlatformUserRowActions = ({
   currentUserId,
   copy,
   onEditProfile,
-  onEditRoles,
   onAction,
 }: PlatformUserRowActionsProps) => {
   const isProtected = user.publicId === currentUserId || user.roles.includes("PLATFORM_ADMIN");
@@ -50,12 +48,6 @@ export const PlatformUserRowActions = ({
           icon: PencilIcon,
           disabled: isProtected || user.archived,
           onSelect: () => onEditProfile(user),
-        },
-        {
-          label: copy.EDIT_ROLES,
-          icon: PencilIcon,
-          disabled: isProtected || user.archived,
-          onSelect: () => onEditRoles(user),
         },
         {
           label: copy.RESET_PASSWORD,

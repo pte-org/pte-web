@@ -21,7 +21,8 @@ import {
   PLATFORM_USER_TEXT as RAW_PLATFORM_USER_TEXT,
 } from "../constants";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
-import type { CreateDraft, PlatformUserAction, PlatformUserProfileDraft } from "../types";
+import type { CreateDraft, PlatformUserAction, PlatformUserEditDraft } from "../types";
+import { assignableRoleOf } from "../utils/assignableRole";
 
 const PAGE_SIZE = 100;
 const INITIAL_CREATE: CreateDraft = {
@@ -60,8 +61,6 @@ export const usePlatformUsersController = () => {
   const [includeArchived, setIncludeArchived] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [createDraft, setCreateDraft] = useState<CreateDraft>({ ...INITIAL_CREATE });
-  const [editing, setEditing] = useState<UserResponse | null>(null);
-  const [editRole, setEditRole] = useState<PlatformAssignableRole>("PLATFORM_MANAGER");
   const [profileTarget, setProfileTarget] = useState<UserResponse | null>(null);
   const [action, setAction] = useState<PlatformUserAction | null>(null);
   const [actionTarget, setActionTarget] = useState<UserResponse | null>(null);
@@ -139,24 +138,17 @@ export const usePlatformUsersController = () => {
     }
   };
 
-  const saveRoles = async (): Promise<void> => {
-    if (!editing) return;
-    try {
-      await updateRoles.mutateAsync({
-        publicId: editing.publicId,
-        payload: { roles: [editRole] },
-      });
-      showToast(T.UPDATED, { tone: "success" });
-      setEditing(null);
-    } catch {
-      // The mutation error is rendered in the modal.
-    }
-  };
-
-  const saveProfile = async (draft: PlatformUserProfileDraft): Promise<void> => {
+  // Profile and role live behind two endpoints; the role call only runs when it changed, after the profile saved.
+  const saveProfile = async ({ role, ...profile }: PlatformUserEditDraft): Promise<void> => {
     if (!profileTarget) return;
     try {
-      await updateProfile.mutateAsync({ publicId: profileTarget.publicId, payload: draft });
+      await updateProfile.mutateAsync({ publicId: profileTarget.publicId, payload: profile });
+      if (role !== assignableRoleOf(profileTarget)) {
+        await updateRoles.mutateAsync({
+          publicId: profileTarget.publicId,
+          payload: { roles: [role] },
+        });
+      }
       showToast(T.PROFILE_UPDATED, { tone: "success" });
       setProfileTarget(null);
     } catch {
@@ -194,18 +186,16 @@ export const usePlatformUsersController = () => {
     if (!create.isPending) setCreateOpen(false);
   };
 
-  const openRoleEditor = (user: UserResponse): void => {
+  const isSavingProfile = updateProfile.isPending || updateRoles.isPending;
+
+  const openProfileEditor = (user: UserResponse): void => {
+    updateProfile.reset();
     updateRoles.reset();
-    setEditing(user);
-    setEditRole(
-      user.roles.filter((role): role is PlatformAssignableRole =>
-        PLATFORM_ASSIGNABLE_ROLE_OPTIONS.some((option) => option.value === role),
-      )[0] ?? "PLATFORM_MANAGER",
-    );
+    setProfileTarget(user);
   };
 
-  const closeRoleEditor = (): void => {
-    if (!updateRoles.isPending) setEditing(null);
+  const closeProfileEditor = (): void => {
+    if (!isSavingProfile) setProfileTarget(null);
   };
 
   return {
@@ -217,13 +207,9 @@ export const usePlatformUsersController = () => {
     currentUser,
     users,
     create,
-    updateRoles,
-    updateProfile,
     actionMutation,
     createOpen,
     createDraft,
-    editing,
-    editRole,
     profileTarget,
     action,
     actionTarget,
@@ -232,8 +218,6 @@ export const usePlatformUsersController = () => {
     statusFilter,
     includeArchived,
     setCreateDraft,
-    setEditRole,
-    setProfileTarget,
     setSearch,
     setRoleFilter,
     setStatusFilter,
@@ -241,13 +225,14 @@ export const usePlatformUsersController = () => {
     setPage,
     page,
     createUser,
-    saveRoles,
     saveProfile,
+    profileError: updateProfile.error ?? updateRoles.error,
+    isSavingProfile,
+    openProfileEditor,
+    closeProfileEditor,
     confirmAction,
     openCreate,
     closeCreate,
-    openRoleEditor,
-    closeRoleEditor,
     openAction,
     closeAction,
   };

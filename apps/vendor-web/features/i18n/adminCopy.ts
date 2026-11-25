@@ -475,7 +475,6 @@ const ADMIN_VI: Record<string, string> = {
   "Manage platform managers and academic staff accounts.":
     "Quản lý tài khoản quản lý nền tảng và nhân sự học thuật.",
   "Create platform user": "Tạo người dùng nền tảng",
-  "Update platform roles": "Cập nhật vai trò nền tảng",
   "Update platform user": "Cập nhật người dùng nền tảng",
   Email: "Email",
   "Email and username cannot be changed in this flow.":
@@ -493,7 +492,6 @@ const ADMIN_VI: Record<string, string> = {
   "Show archived": "Hiển thị đã lưu trữ",
   "Protected account": "Tài khoản được bảo vệ",
   "Platform user created.": "Đã tạo người dùng nền tảng.",
-  "Platform roles updated.": "Đã cập nhật vai trò nền tảng.",
   "Platform user suspended.": "Đã tạm ngưng người dùng nền tảng.",
   "Platform user reactivated.": "Đã kích hoạt lại người dùng nền tảng.",
   "Platform user profile updated.": "Đã cập nhật hồ sơ người dùng nền tảng.",
@@ -506,7 +504,6 @@ const ADMIN_VI: Record<string, string> = {
   "Unable to load platform users.": "Không thể tải người dùng nền tảng.",
   Suspend: "Tạm ngưng",
   Reactivate: "Kích hoạt lại",
-  "Update roles": "Cập nhật vai trò",
   "Update profile": "Cập nhật hồ sơ",
   "Reset password": "Đặt lại mật khẩu",
   Restore: "Khôi phục",
