@@ -2,6 +2,7 @@
 
 export interface AiStatusLimits {
   maxItemsPerJob: number;
+  maxItemsPerBatch: number;
   maxItemsPerUserPerDay: number;
   maxItemsPerDayGlobal: number;
   maxConcurrentJobs: number;

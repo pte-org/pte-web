@@ -5,9 +5,12 @@ import { getUserFacingApiErrorMessage, type AiStatusLimits } from "@pte/api-clie
 import { Button, DashboardPanel, DescriptionList, UnsavedChangesDialog, UnsavedChangesGuard, useLeaveAfterSave, useToast } from "@pte/ui";
 import { useRouter } from "next/navigation";
 import { useUpdateGenerationLimits } from "../api";
-import { GENERATION_LIMITS, type AiAdminCopy } from "../constants";
+import { GENERATION_LIMIT_HINTS, GENERATION_LIMITS, type AiAdminCopy } from "../constants";
 import { useLimitsEditing } from "../hooks/useLimitsEditing";
 import { LimitEditor } from "./_LimitEditor";
+
+const hintOf = (key: (typeof GENERATION_LIMIT_HINTS)[keyof typeof GENERATION_LIMIT_HINTS], copy: AiAdminCopy): string | undefined =>
+  key ? copy[key] : undefined;
 
 interface AiLimitsPanelProps {
   limits: AiStatusLimits;
@@ -66,7 +69,7 @@ export const AiLimitsPanel = ({ limits, copy }: AiLimitsPanelProps): ReactElemen
           value: edit.editing ? (
             <LimitEditor limit={limit} copy={copy} value={edit.drafts[limit.field] ?? String(limits[limit.field])}
               invalid={edit.invalid(limit)} onChange={(value) => edit.setDraft(limit.field, value)}
-              hint={limit.field === "maxCallsPerItem" ? copy.MAX_CALLS_HINT : undefined} />
+              hint={hintOf(GENERATION_LIMIT_HINTS[limit.field], copy)} />
           ) : limits[limit.field],
         }))}
       />

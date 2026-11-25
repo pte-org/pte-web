@@ -81,10 +81,9 @@ export const AI_ADMIN_COPY = {
     PROMPT_VERSION: "Prompt version",
     TASK_TYPES: "Task types offered",
     LIMITS_PANEL: "Limits",
-    MAX_PER_JOB: "Questions per job",
-    MAX_PER_USER_DAY: "Per admin per day",
-    MAX_PER_DAY: "All admins per day",
-    MAX_JOBS: "Jobs running at once",
+    MAX_PER_USER_DAY: "Per person per day",
+    MAX_PER_DAY: "Whole platform per day",
+    MAX_JOBS: "Parallel runs",
     MAX_CALLS: "AI calls per question",
     LIMIT_EDIT: "Edit",
     LIMIT_EXIT: "Exit",
@@ -93,6 +92,7 @@ export const AI_ADMIN_COPY = {
     LIMIT_INVALID: "Enter a whole number from {min} to {max}.",
     LIMIT_ERROR: "The limits could not be saved. Please try again.",
     MAX_CALLS_HINT: "Writing, review and media all count. When a question runs out, it stops rewriting.",
+    MAX_JOBS_HINT: "How many parts of a batch the AI writes at the same time, for everyone together. More is faster but may hit the AI provider's rate limit.",
     SECRETS_NOTE: "Keys are set in the server environment and are never shown here.",
     LOAD_ERROR_TITLE: "Could not load the AI settings",
     LOAD_ERROR_RETRY: "Try again",
@@ -163,10 +163,9 @@ export const AI_ADMIN_COPY = {
     PROMPT_VERSION: "Phiên bản prompt",
     TASK_TYPES: "Số dạng bài đang hỗ trợ",
     LIMITS_PANEL: "Giới hạn",
-    MAX_PER_JOB: "Số câu mỗi lần tạo",
-    MAX_PER_USER_DAY: "Mỗi admin mỗi ngày",
-    MAX_PER_DAY: "Tất cả admin mỗi ngày",
-    MAX_JOBS: "Số job chạy cùng lúc",
+    MAX_PER_USER_DAY: "Mỗi người mỗi ngày",
+    MAX_PER_DAY: "Toàn hệ thống mỗi ngày",
+    MAX_JOBS: "Số luồng chạy song song",
     MAX_CALLS: "Số lần gọi AI mỗi câu",
     LIMIT_EDIT: "Sửa",
     LIMIT_EXIT: "Thoát",
@@ -175,6 +174,7 @@ export const AI_ADMIN_COPY = {
     LIMIT_INVALID: "Nhập số nguyên từ {min} đến {max}.",
     LIMIT_ERROR: "Không lưu được giới hạn. Vui lòng thử lại.",
     MAX_CALLS_HINT: "Tính cả lần viết, duyệt và tạo media. Hết lượt thì câu đó dừng viết lại.",
+    MAX_JOBS_HINT: "Số phần của lô AI viết cùng lúc, tính chung cho mọi người. Càng nhiều càng nhanh nhưng dễ chạm giới hạn tốc độ của nhà cung cấp AI.",
     SECRETS_NOTE: "Key được đặt trong môi trường của server và không bao giờ hiển thị ở đây.",
     LOAD_ERROR_TITLE: "Không tải được cấu hình AI",
     LOAD_ERROR_RETRY: "Thử lại",
@@ -234,7 +234,6 @@ export const AI_ADMIN_COPY = {
  * accepts (an AI call allowance below 5 would allow no write-review round at all). A daily limit of 0 is unlimited.
  */
 export const GENERATION_LIMITS = [
-  { field: "maxItemsPerJob", settingKey: "question_generation_max_items_per_job", label: "MAX_PER_JOB", min: 1, max: 50 },
   { field: "maxItemsPerUserPerDay", settingKey: "question_generation_max_items_per_user_per_day", label: "MAX_PER_USER_DAY", min: 0, max: 10_000 },
   { field: "maxItemsPerDayGlobal", settingKey: "question_generation_max_items_per_day", label: "MAX_PER_DAY", min: 0, max: 100_000 },
   { field: "maxConcurrentJobs", settingKey: "question_generation_max_concurrent_jobs", label: "MAX_JOBS", min: 1, max: 20 },
@@ -242,5 +241,11 @@ export const GENERATION_LIMITS = [
 ] as const;
 
 export type GenerationLimit = (typeof GENERATION_LIMITS)[number];
+
+/** The limits whose meaning is not obvious from the label get a line of help under the field. */
+export const GENERATION_LIMIT_HINTS: Partial<Record<GenerationLimit["field"], "MAX_JOBS_HINT" | "MAX_CALLS_HINT">> = {
+  maxConcurrentJobs: "MAX_JOBS_HINT",
+  maxCallsPerItem: "MAX_CALLS_HINT",
+};
 
 export type AiAdminCopy = { readonly [K in keyof (typeof AI_ADMIN_COPY)["en"]]: string };
