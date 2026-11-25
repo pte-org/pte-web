@@ -7,7 +7,7 @@ import type { QuestionPreviewDraft } from "../../../../features/questionbank/typ
 
 const APP = fileURLToPath(new URL("../../../../", import.meta.url));
 const GENERATION = join(APP, "features/questiongeneration");
-const BATCHES_ROUTE = join(APP, "app/(dashboard)/admin/questions/ai-batches");
+const BATCHES_ROUTE = join(APP, "app/(focus)/admin/questions/ai-batches");
 
 function sources(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>

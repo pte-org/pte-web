@@ -6,10 +6,11 @@ import type {
 import { pickGenerationActivity } from "../../../../features/questiongeneration/utils/generationActivity";
 
 const hrefs = { job: (id: string) => `/job/${id}`, batch: (id: string) => `/batch/${id}` };
-// Only the fields the indicator reads are filled in.
+// Only the fields the sidebar item reads are filled in.
 const job = (status: string) =>
   ({
     publicId: "j1",
+    taskType: "READ_ALOUD",
     status,
     succeededCount: 1,
     failedCount: 0,
@@ -24,9 +25,11 @@ const batch = (status: string) =>
     totalRequested: 7,
   }) as unknown as QuestionGenerationBatchResponse;
 
-describe("header generation activity", () => {
+describe("sidebar generation activity", () => {
   it("shows an open batch with its overall progress", () => {
     expect(pickGenerationActivity([job("RUNNING")], batch("RUNNING"), hrefs)).toEqual({
+      kind: "batch",
+      taskType: null,
       href: "/batch/b1",
       done: 5,
       total: 7,
@@ -36,7 +39,13 @@ describe("header generation activity", () => {
   it("falls back to a running single job when no batch is open", () => {
     expect(
       pickGenerationActivity([job("COMPLETED"), job("RUNNING")], batch("COMPLETED"), hrefs),
-    ).toEqual({ href: "/job/j1", done: 1, total: 3 });
+    ).toEqual({
+      kind: "job",
+      taskType: "READ_ALOUD",
+      href: "/job/j1",
+      done: 1,
+      total: 3,
+    });
   });
 
   it("is hidden when nothing runs", () => {
