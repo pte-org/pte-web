@@ -1,5 +1,6 @@
 "use client";
 
+import { useUiLabel } from "../i18n/useUiLabel";
 import { type ReactNode } from "react";
 import { cn } from "../utils/cn";
 
@@ -43,6 +44,7 @@ export const StepTimeline = ({
   showFailureReasons = true,
   reduceMotion = false,
 }: StepTimelineProps) => {
+  const tr = useUiLabel();
   const isHorizontal = orientation === "horizontal";
   const shouldReduceMotion = reduceMotion || typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -88,7 +90,7 @@ export const StepTimeline = ({
     <div
       className="flex flex-col gap-4"
       role="region"
-      aria-label="Step timeline"
+      aria-label={tr("common.stepTimeline", "Step timeline")}
       aria-live="polite"
     >
       {steps.map((step) => (

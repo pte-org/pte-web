@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Tabs, Button, ConfirmDialog, useToast, Skeleton } from "@pte/ui";
+import { Tabs, Button, ConfirmDialog, useLocale, useToast, Skeleton } from "@pte/ui";
+import { translateAdminText } from "@/features/i18n/adminCopy";
 import { generationMessages } from "../messages/en";
 import { useSubmitQuestionApproval, useDeleteQuestion, useQuestion } from "@/features/questionbank/api";
 import { ReviewPanel } from "./ReviewPanel";
@@ -21,6 +22,7 @@ interface ReviewPanelTabsProps {
 export const ReviewPanelTabs = ({
   item,
 }: ReviewPanelTabsProps) => {
+  const { locale } = useLocale();
   const [activeTab, setActiveTab] = useState("preview");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { showToast } = useToast();
@@ -104,7 +106,7 @@ export const ReviewPanelTabs = ({
               />
             ) : (
               <div className="text-center text-gray-500 py-8">
-                No preview available
+                {translateAdminText("No preview available", locale)}
               </div>
             )}
           </>
@@ -120,7 +122,7 @@ export const ReviewPanelTabs = ({
               <ReviewPanel meta={fullQuestion.generationMeta as GenerationMetaResponse} isLoading={false} />
             ) : (
               <div className="text-center text-gray-500 py-8">
-                No AI review data available
+                {translateAdminText("No AI review data available", locale)}
               </div>
             )}
           </>

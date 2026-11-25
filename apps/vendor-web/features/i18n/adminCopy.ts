@@ -11,6 +11,10 @@ import { useLocale, type Locale } from "@pte/ui";
  * are deliberately not passed through this helper.
  */
 const ADMIN_VI: Record<string, string> = {
+  "No preview available": "Chưa có bản xem trước",
+  "No AI review data available": "Chưa có dữ liệu rà soát AI",
+  "Question list": "Danh sách câu hỏi",
+  "Loading...": "Đang tải...",
   "Forgot your password?": "Quên mật khẩu?",
   "Enter your username and the email on that account and we will send you a link to choose a new password. Platform accounts use their email as the username.":
     "Nhập tên đăng nhập và email của tài khoản đó, chúng tôi sẽ gửi liên kết để bạn chọn mật khẩu mới. Tài khoản nền tảng dùng email làm tên đăng nhập.",

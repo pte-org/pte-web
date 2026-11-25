@@ -1,3 +1,6 @@
+"use client";
+
+import { useUiLabel } from "../i18n/useUiLabel";
 import type { ReactElement } from "react";
 import { cn } from "../utils/cn";
 import { Skeleton } from "./Skeleton";
@@ -18,18 +21,20 @@ const TABLE_COLUMN_COUNT = 5;
 export const LoadingState = ({
   rows = 3,
   variant = "rows",
-  label = "Đang tải",
+  label,
   announce = true,
   className,
 }: LoadingStateProps): ReactElement => {
+  const tr = useUiLabel();
+  const announcedLabel = label ?? tr("common.loading", "Loading");
   const rowCount = Math.max(1, rows);
   const statusProps = announce
-    ? { role: "status" as const, "aria-live": "polite" as const, "aria-label": label }
+    ? { role: "status" as const, "aria-live": "polite" as const, "aria-label": announcedLabel }
     : {};
 
   return (
     <div {...statusProps} className={cn("w-full", className)}>
-      {announce && <span className="sr-only">{label}</span>}
+      {announce && <span className="sr-only">{announcedLabel}</span>}
 
       {variant === "table" ? (
         <div className="overflow-hidden rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] shadow-none">

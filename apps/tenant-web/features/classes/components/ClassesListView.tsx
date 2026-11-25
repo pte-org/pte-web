@@ -106,7 +106,7 @@ export const ClassesListView = ({
   onRequestAssignStudents,
 }: ClassesListViewProps): ReactElement => {
   const labels = useOrgLabels();
-  const { t } = useLocale();
+  const { t, locale } = useLocale();
   const searchText = useTenantSearchText("classes");
   const classLabel = t("nav.class", labels.class);
   const programLabel = t("nav.program", labels.program);
@@ -177,7 +177,10 @@ export const ClassesListView = ({
   if (isError) {
     return (
       <Alert tone="error">
-        {errorMessage(error) ?? `Không thể tải ${pluralize(classLabel.toLowerCase())}.`}
+        {errorMessage(error) ??
+          (locale === "vi"
+            ? `Không thể tải ${pluralize(classLabel.toLowerCase())}.`
+            : `Could not load ${pluralize(classLabel.toLowerCase())}.`)}
       </Alert>
     );
   }

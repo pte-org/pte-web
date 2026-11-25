@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Badge, Checkbox } from "@pte/ui";
+import { Badge, Checkbox, useLocale } from "@pte/ui";
+import { translateAdminText } from "@/features/i18n/adminCopy";
 import { generationMessages } from "../messages/en";
 import type { QuestionGenerationItemResponse } from "@pte/api-client";
 
@@ -29,6 +30,7 @@ export const ReviewItemList = ({
   onNavigateUp,
   onNavigateDown,
 }: ReviewItemListProps) => {
+  const { locale } = useLocale();
   const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
@@ -74,7 +76,7 @@ export const ReviewItemList = ({
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
       role="region"
-      aria-label="Question list"
+      aria-label={translateAdminText("Question list", locale)}
       aria-live="polite"
     >
       {/* Header */}

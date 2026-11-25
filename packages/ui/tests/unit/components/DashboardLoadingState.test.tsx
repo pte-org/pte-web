@@ -38,8 +38,8 @@ describe("DashboardLoadingState default variant is untouched", () => {
     expect(html).not.toContain("xl:grid-cols-3");
   });
 
-  it("uses the Vietnamese default label", () => {
-    expect(textOf(render())).toBe("Đang tải trang");
+  it("uses the English default label without a locale provider", () => {
+    expect(textOf(render())).toBe("Loading page");
   });
 
   it("keeps the table and detail variants structurally unchanged", () => {

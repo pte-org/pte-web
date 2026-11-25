@@ -1,3 +1,6 @@
+"use client";
+
+import { useUiLabel } from "../i18n/useUiLabel";
 import type { ReactElement, ReactNode } from "react";
 import { ChevronRightIcon } from "./icons";
 import { cn } from "../utils/cn";
@@ -20,8 +23,10 @@ export const Breadcrumbs = ({
   renderLink,
   dividerType = "chevron",
   className,
-}: BreadcrumbsProps): ReactElement => (
-  <nav aria-label="Breadcrumb" className="text-sm">
+}: BreadcrumbsProps): ReactElement => {
+  const tr = useUiLabel();
+  return (
+  <nav aria-label={tr("common.breadcrumb", "Breadcrumb")} className="text-sm">
     <ol className={cn("flex flex-wrap items-center gap-2", className)}>
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
@@ -59,7 +64,8 @@ export const Breadcrumbs = ({
       })}
     </ol>
   </nav>
-);
+  );
+};
 
 function BreadcrumbDivider({ type }: { type: BreadcrumbsProps["dividerType"] }): ReactElement {
   if (type === "dot") {
