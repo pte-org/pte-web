@@ -180,8 +180,9 @@ export function getUserFacingApiErrorMessage(error: unknown, fallback?: string):
   }
 
   if (error.kind === "network") return NETWORK_ERROR_MESSAGE;
+  // A server failure never shows server text; the caller's own (localized) copy wins over the generic English line.
   if (error.kind === "server" || error.status >= 500) {
-    return KIND_FALLBACKS.server;
+    return isSafeUserMessage(fallback) ? fallback : KIND_FALLBACKS.server;
   }
 
   if (isSafeUserMessage(error.userMessage)) return error.userMessage;
