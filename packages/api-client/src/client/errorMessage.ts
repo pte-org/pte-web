@@ -128,7 +128,7 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   GENERATION_BATCH_NOT_CANCELLABLE: "This batch has already finished and can no longer be cancelled.",
   GENERATION_BATCH_SIZE_OUT_OF_RANGE:
     "Each row needs at least one question and the batch total must stay within the per-batch limit.",
-  GENERATION_BATCH_ROWS_OUT_OF_RANGE: "A batch must have between 1 and 20 rows.",
+  GENERATION_BATCH_ROWS_OUT_OF_RANGE: "A batch must have between 1 and 150 rows.",
   GENERATION_BATCH_TOPIC_HINTS_OUT_OF_RANGE: "A row can have at most 10 topics.",
   GENERATION_PICTURE_DISABLED: "AI pictures are turned off. Choose Auto or Chart for Describe Image.",
   GENERATION_JOB_PART_OF_BATCH: "This job belongs to a batch. Cancel the batch instead.",

@@ -49,7 +49,7 @@ export const batchMessages = {
   errTopicLength: "Each topic must be 500 characters or fewer.",
   errTopicChars: "Topics may only use letters, digits, spaces and , . ; : ' ? ! & ( ) / -",
   errPicture: "AI pictures are turned off. Choose Auto or Chart.",
-  errRows: "Add between 1 and 20 rows.",
+  errRows: "Add between 1 and 150 rows.",
   errTotal: "The batch total is above the limit.",
 
   createError: "The batch could not be started. Please try again.",

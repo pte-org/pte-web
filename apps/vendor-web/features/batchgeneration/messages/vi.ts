@@ -51,7 +51,7 @@ export const batchMessages: BatchMessages = {
   errTopicLength: "Mỗi chủ đề tối đa 500 ký tự.",
   errTopicChars: "Chủ đề chỉ gồm chữ, số, khoảng trắng và , . ; : ' ? ! & ( ) / -",
   errPicture: "Ảnh minh họa AI đang tắt. Chọn Tự động hoặc Biểu đồ.",
-  errRows: "Cần từ 1 đến 20 dòng.",
+  errRows: "Cần từ 1 đến 150 dòng.",
   errTotal: "Tổng số câu vượt giới hạn mỗi lô.",
 
   createError: "Không thể bắt đầu lô. Vui lòng thử lại.",
