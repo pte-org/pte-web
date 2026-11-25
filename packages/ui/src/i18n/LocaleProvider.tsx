@@ -641,6 +641,51 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.programs.ongoing": "Không giới hạn",
     "tenant.programs.untilDate": "Đến {date}",
     "tenant.programs.createSuccess": "Tạo {programLower} thành công.",
+    "tenant.roster.issuesTitle": "Cần sửa {count} lỗi trước khi tạo tài khoản",
+    "tenant.roster.issuesHint":
+      "Hãy sửa các ô này trong tệp Excel rồi tải lên lại. Chưa có tài khoản nào được tạo.",
+    "tenant.roster.row": "Dòng {row}",
+    "tenant.roster.moreIssues": "…và {count} lỗi khác.",
+    "tenant.roster.field.email": "Email",
+    "tenant.roster.field.username": "Tên đăng nhập",
+    "tenant.roster.field.fullName": "Họ và tên",
+    "tenant.roster.field.studentCode": "Mã học viên",
+    "tenant.roster.field.programName": "Chương trình",
+    "tenant.roster.field.className": "Lớp học",
+    "tenant.roster.field.phone": "Số điện thoại",
+    "tenant.roster.field.dateOfBirth": "Ngày sinh",
+    "tenant.roster.issue.EMAIL_REQUIRED": "Vui lòng nhập email.",
+    "tenant.roster.issue.EMAIL_INVALID": "Email không đúng định dạng.",
+    "tenant.roster.issue.EMAIL_TOO_LONG": "Email vượt quá 254 ký tự.",
+    "tenant.roster.issue.DUPLICATE_EMAIL_IN_BATCH":
+      "Email này xuất hiện nhiều hơn một lần trong tệp.",
+    "tenant.roster.issue.FULL_NAME_REQUIRED": "Vui lòng nhập họ và tên.",
+    "tenant.roster.issue.FULL_NAME_TOO_LONG": "Họ và tên vượt quá 100 ký tự.",
+    "tenant.roster.issue.STUDENT_CODE_TOO_LONG": "Mã học viên vượt quá 50 ký tự.",
+    "tenant.roster.issue.PROGRAM_NAME_TOO_LONG": "Tên chương trình vượt quá 100 ký tự.",
+    "tenant.roster.issue.CLASS_NAME_TOO_LONG": "Tên lớp học vượt quá 100 ký tự.",
+    "tenant.roster.issue.PHONE_INVALID":
+      "Số điện thoại phải có 9 đến 15 chữ số (có thể bắt đầu bằng +).",
+    "tenant.roster.issue.DATE_OF_BIRTH_INVALID":
+      "Ngày sinh phải là ngày trong quá khứ theo định dạng yyyy-mm-dd.",
+    "tenant.roster.issue.UNKNOWN": "Giá trị này không hợp lệ.",
+    "tenant.roster.sendCredentialsLabel":
+      "Gửi email tên đăng nhập và mật khẩu tạm thời cho từng học viên",
+    "tenant.roster.sendCredentialsHelper":
+      "Được gửi sau khi tạo tài khoản. Bạn cũng luôn có thể tải tệp thông tin đăng nhập.",
+    "tenant.roster.columnWarningTitle": "Một số cột cần bạn kiểm tra lại",
+    "tenant.roster.columnWarningMissing": "Không tìm thấy cột bắt buộc trong tệp: {columns}.",
+    "tenant.roster.columnWarningIgnored":
+      "Các cột sau không nằm trong mẫu hệ thống nên đã được bỏ qua: {columns}.",
+    "tenant.roster.skippedHeading": "Đã bỏ qua {count} dòng",
+    "tenant.roster.skippedRow": "Dòng",
+    "tenant.roster.skippedEmail": "Email",
+    "tenant.roster.skippedReason": "Lý do",
+    "tenant.roster.skippedReason.EMAIL_ALREADY_USED": "Email này đã có tài khoản trong hệ thống.",
+    "tenant.roster.skippedReason.ROSTER_IMPORT_FAILED":
+      "Không thể tạo tài khoản cho dòng này. Vui lòng kiểm tra lại và thử lại.",
+    "tenant.roster.skippedReason.UNKNOWN":
+      "Không thể nhập dòng này. Vui lòng kiểm tra lại và thử lại.",
     "tenant.programs.errorNameAlreadyUsed": "Tên {programLower} đã tồn tại trong tổ chức này.",
     "tenant.programs.errorProgramNotFound": "Không tìm thấy {programLower} đã chọn hoặc {programLower} không còn hoạt động.",
     "tenant.programs.errorOrganizationNotFound": "Không tìm thấy tổ chức đã chọn.",
@@ -1887,6 +1932,51 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.programs.ongoing": "Ongoing",
     "tenant.programs.untilDate": "Until {date}",
     "tenant.programs.createSuccess": "{program} created successfully.",
+    "tenant.roster.issuesTitle": "{count} problem(s) must be fixed before any account is created",
+    "tenant.roster.issuesHint":
+      "Fix these cells in your Excel file and upload it again. Nothing has been created.",
+    "tenant.roster.row": "Row {row}",
+    "tenant.roster.moreIssues": "…and {count} more.",
+    "tenant.roster.field.email": "Email",
+    "tenant.roster.field.username": "Username",
+    "tenant.roster.field.fullName": "Full Name",
+    "tenant.roster.field.studentCode": "Student Code",
+    "tenant.roster.field.programName": "Program Name",
+    "tenant.roster.field.className": "Class Name",
+    "tenant.roster.field.phone": "Phone",
+    "tenant.roster.field.dateOfBirth": "Date of Birth",
+    "tenant.roster.issue.EMAIL_REQUIRED": "Email is required.",
+    "tenant.roster.issue.EMAIL_INVALID": "Email is not a valid address.",
+    "tenant.roster.issue.EMAIL_TOO_LONG": "Email is longer than 254 characters.",
+    "tenant.roster.issue.DUPLICATE_EMAIL_IN_BATCH":
+      "This email appears more than once in the file.",
+    "tenant.roster.issue.FULL_NAME_REQUIRED": "Full Name is required.",
+    "tenant.roster.issue.FULL_NAME_TOO_LONG": "Full Name is longer than 100 characters.",
+    "tenant.roster.issue.STUDENT_CODE_TOO_LONG": "Student Code is longer than 50 characters.",
+    "tenant.roster.issue.PROGRAM_NAME_TOO_LONG": "Program Name is longer than 100 characters.",
+    "tenant.roster.issue.CLASS_NAME_TOO_LONG": "Class Name is longer than 100 characters.",
+    "tenant.roster.issue.PHONE_INVALID":
+      "Phone must have 9 to 15 digits (a leading + is allowed).",
+    "tenant.roster.issue.DATE_OF_BIRTH_INVALID":
+      "Date of Birth must be a past date written as yyyy-mm-dd.",
+    "tenant.roster.issue.UNKNOWN": "This value is not valid.",
+    "tenant.roster.sendCredentialsLabel":
+      "E-mail each student their username and temporary password",
+    "tenant.roster.sendCredentialsHelper":
+      "Sent after the accounts are created. You can always download the credentials file as well.",
+    "tenant.roster.columnWarningTitle": "Some columns need your attention",
+    "tenant.roster.columnWarningMissing": "Required column not found in your file: {columns}.",
+    "tenant.roster.columnWarningIgnored":
+      "Not part of the system template, so these columns are ignored: {columns}.",
+    "tenant.roster.skippedHeading": "{count} row(s) skipped",
+    "tenant.roster.skippedRow": "Row",
+    "tenant.roster.skippedEmail": "Email",
+    "tenant.roster.skippedReason": "Reason",
+    "tenant.roster.skippedReason.EMAIL_ALREADY_USED": "An account with this email already exists.",
+    "tenant.roster.skippedReason.ROSTER_IMPORT_FAILED":
+      "We could not create an account for this row. Please review it and try again.",
+    "tenant.roster.skippedReason.UNKNOWN":
+      "This row could not be imported. Please review it and try again.",
     "tenant.programs.errorNameAlreadyUsed": "A {programLower} with this name already exists in your organization.",
     "tenant.programs.errorProgramNotFound": "The selected {programLower} could not be found or is no longer active.",
     "tenant.programs.errorOrganizationNotFound": "The selected organization could not be found.",
