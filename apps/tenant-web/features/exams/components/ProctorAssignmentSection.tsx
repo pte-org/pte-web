@@ -24,12 +24,15 @@ import { AssignProctorModal } from "./AssignProctorModal";
 
 interface ProctorAssignmentSectionProps {
   sessionPublicId: string;
+  /** Set once the exam has started or ended: explains why proctors can no longer be added. */
+  assignLockedNotice?: string;
 }
 
 const T = PROCTOR_SECTION_TEXT;
 
 export const ProctorAssignmentSection = ({
   sessionPublicId,
+  assignLockedNotice,
 }: ProctorAssignmentSectionProps): ReactElement => {
   const { t } = useLocale();
   const searchText = useTenantSearchText("proctors");
@@ -66,11 +69,17 @@ export const ProctorAssignmentSection = ({
         className="rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] p-5"
         contentClassName="flex flex-col gap-3"
         actions={
-          <Button size="sm" onClick={() => setAddOpen(true)}>
+          <Button
+            size="sm"
+            onClick={() => setAddOpen(true)}
+            disabled={Boolean(assignLockedNotice)}
+            title={assignLockedNotice}
+          >
             {text.assign}
           </Button>
         }
       >
+        {assignLockedNotice && <Alert tone="warning">{assignLockedNotice}</Alert>}
         {unassignError && <Alert tone="error">{unassignError}</Alert>}
 
         <DataTable
