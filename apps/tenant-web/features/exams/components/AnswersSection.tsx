@@ -17,7 +17,6 @@ import {
   ANSWER_TABLE_HEADERS,
   ANSWERS_SECTION_TEXT,
 } from "../constants";
-import { AI_SCORE_TEXT } from "@/features/aiScore";
 import { useAnswers, useHostScoreReview } from "../api";
 import { AnswerDetailModal } from "./AnswerDetailModal";
 import { useTenantSearchText } from "@/features/search/useTenantSearchText";
@@ -133,7 +132,7 @@ export const AnswersSection = ({
     },
     {
       key: "rawScore",
-      header: t("tenant.answers.aiScore", AI_SCORE_TEXT.LABEL),
+      header: t("tenant.answers.aiScore", "AI estimate"),
       cell: (row) => formatScore(row.aiScored ? row.rawScore : null),
     },
     {

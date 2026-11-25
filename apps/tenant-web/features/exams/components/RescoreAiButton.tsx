@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import { Alert, Button } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useRescoreSession } from "../api/rescore";
-import { RESCORE_TEXT as T } from "../constants";
+import { useScoringActionText } from "../hooks/useScoringActionText";
 
 interface RescoreAiButtonProps {
   sessionPublicId: string;
@@ -19,6 +19,7 @@ export const RescoreAiButton = ({
   rescorableCount,
   publicationLocked,
 }: RescoreAiButtonProps): ReactElement | null => {
+  const text = useScoringActionText();
   const rescore = useRescoreSession(sessionPublicId);
 
   const hasWork = rescorableCount > 0;
@@ -26,13 +27,13 @@ export const RescoreAiButton = ({
 
   return (
     <div className="flex flex-col gap-2 rounded-md bg-[var(--surface-subtle)] p-4 text-sm">
-      {hasWork && <p>{T.DESCRIPTION(rescorableCount)}</p>}
-      {rescore.isSuccess && <Alert tone="success">{T.QUEUED}</Alert>}
+      {hasWork && <p>{text.withCount("rescoreDescription", rescorableCount)}</p>}
+      {rescore.isSuccess && <Alert tone="success">{text.rescoreQueued}</Alert>}
       {rescore.isError && <Alert tone="error">{errorMessage(rescore.error)}</Alert>}
       {hasWork && (
         <div>
           <Button type="button" onClick={() => rescore.mutate()} disabled={rescore.isPending}>
-            {rescore.isPending ? T.SUBMITTING : T.BUTTON(rescorableCount)}
+            {rescore.isPending ? text.rescoreSubmitting : text.withCount("rescoreButton", rescorableCount)}
           </Button>
         </div>
       )}

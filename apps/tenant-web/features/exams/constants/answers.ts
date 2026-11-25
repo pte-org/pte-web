@@ -64,23 +64,3 @@ export const ANSWER_DETAIL_TEXT = {
   CLOSE: "Close",
 } as const;
 
-export const RESCORE_TEXT = {
-  DESCRIPTION: (count: number) =>
-    `${count} câu AI chấm lỗi hoặc bị kẹt. Chấm lại sẽ đưa các câu này vào hàng đợi.`,
-  BUTTON: (count: number) => `Chấm lại ${count} câu`,
-  SUBMITTING: "Đang gửi…",
-  QUEUED: "Đã đưa vào hàng đợi chấm lại. Kết quả sẽ cập nhật sau ít phút.",
-} as const;
-
-export const START_AI_SCORING_TEXT = {
-  DESCRIPTION:
-    "Bài nộp hiển thị ngay khi thí sinh nộp bài và ở trạng thái chờ chấm. Bấm “Chấm điểm AI” để chạy chấm bằng AI.",
-  BUTTON: "Chấm điểm AI",
-  SUBMITTING: "Đang gửi…",
-  CONFIRM_TITLE: "Chấm điểm AI cho kỳ thi này?",
-  CONFIRM_DESCRIPTION:
-    "Hệ thống sẽ gọi dịch vụ AI bên ngoài (Azure Speech, Gemini) để chấm các bài nộp và có phát sinh chi phí. Bài đã chấm xong sẽ không bị chấm lại.",
-  CONFIRM_LABEL: "Chấm điểm",
-  CANCEL_LABEL: "Hủy",
-  QUEUED: "Đã nhận bài và đưa vào hàng đợi chấm. Kết quả sẽ cập nhật sau ít phút.",
-} as const;
