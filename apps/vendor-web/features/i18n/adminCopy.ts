@@ -505,6 +505,7 @@ const ADMIN_VI: Record<string, string> = {
   Suspend: "Tạm ngưng",
   Reactivate: "Kích hoạt lại",
   "Update profile": "Cập nhật hồ sơ",
+  "View activity history": "Xem lịch sử thao tác",
   "Reset password": "Đặt lại mật khẩu",
   Restore: "Khôi phục",
   "Reset platform user password": "Đặt lại mật khẩu người dùng nền tảng",

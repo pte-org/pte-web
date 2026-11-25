@@ -45,6 +45,7 @@ export const PLATFORM_USER_TEXT = {
   REACTIVATE: "Reactivate",
   EDIT_PROFILE: "Update profile",
   RESET_PASSWORD: "Reset password",
+  VIEW_ACTIVITY: "View activity history",
   ARCHIVE: "Archive",
   RESTORE: "Restore",
   RESET_PASSWORD_TITLE: "Reset platform user password",

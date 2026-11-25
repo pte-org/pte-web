@@ -33,10 +33,14 @@ vi.mock("@tanstack/react-query", async (importOriginal) => ({
 }));
 
 import { usePlatformAuditLogs } from "../../../../features/auditLog/api";
-import { PLATFORM_AUDIT_ACTORS_QUERY_KEY, PLATFORM_AUDIT_LOG_QUERY_KEY } from "../../../../features/auditLog/constants";
+import {
+  PLATFORM_AUDIT_ACTORS_QUERY_KEY,
+  PLATFORM_AUDIT_LOG_QUERY_KEY,
+} from "../../../../features/auditLog/constants";
 
 const logsQuery = (): Options => hoisted.calls.find((call) => call.staleTime !== 60_000) as Options;
-const actorsQuery = (): Options => hoisted.calls.find((call) => call.staleTime === 60_000) as Options;
+const actorsQuery = (): Options =>
+  hoisted.calls.find((call) => call.staleTime === 60_000) as Options;
 
 beforeEach(() => {
   hoisted.calls.length = 0;
@@ -59,7 +63,17 @@ describe("usePlatformAuditLogs", () => {
   it("keys the log page by type, search, dates and paging with ALL as the default type", () => {
     usePlatformAuditLogs(undefined, 1, 20, "login", "2026-01-01", "2026-01-31");
 
-    expect(logsQuery().queryKey).toEqual([...PLATFORM_AUDIT_LOG_QUERY_KEY, "ALL", "login", "2026-01-01", "2026-01-31", 1, 20]);
+    expect(logsQuery().queryKey).toEqual([
+      ...PLATFORM_AUDIT_LOG_QUERY_KEY,
+      "ALL",
+      "login",
+      "2026-01-01",
+      "2026-01-31",
+      "",
+      "",
+      1,
+      20,
+    ]);
   });
 
   it("passes empty dates to the api as undefined", async () => {
@@ -68,23 +82,65 @@ describe("usePlatformAuditLogs", () => {
 
     await logsQuery().queryFn?.();
 
-    expect(hoisted.listPlatformAuditLogs).toHaveBeenCalledWith(hoisted.apiClient, "USER", 0, 10, "", undefined, undefined);
+    expect(hoisted.listPlatformAuditLogs).toHaveBeenCalledWith(
+      hoisted.apiClient,
+      "USER",
+      0,
+      10,
+      "",
+      undefined,
+      undefined,
+      {},
+    );
   });
 
   it("passes set dates through unchanged", async () => {
     hoisted.listPlatformAuditLogs.mockResolvedValue({ data: [] });
-    usePlatformAuditLogs("USER", 0, 10, "q", "2026-02-01", "2026-02-28");
+    usePlatformAuditLogs("USER", 0, 10, "q", "2026-02-01", "2026-02-28", {});
 
     await logsQuery().queryFn?.();
 
-    expect(hoisted.listPlatformAuditLogs).toHaveBeenCalledWith(hoisted.apiClient, "USER", 0, 10, "q", "2026-02-01", "2026-02-28");
+    expect(hoisted.listPlatformAuditLogs).toHaveBeenCalledWith(
+      hoisted.apiClient,
+      "USER",
+      0,
+      10,
+      "q",
+      "2026-02-01",
+      "2026-02-28",
+      {},
+    );
+  });
+
+  it("forwards the actor and item scope and keys the page by them", async () => {
+    hoisted.listPlatformAuditLogs.mockResolvedValue({ data: [] });
+    const scope = { actorId: "u1", aggregateId: "q-1" };
+    usePlatformAuditLogs("Question", 0, 50, "", "", "", scope);
+
+    await logsQuery().queryFn?.();
+
+    expect(logsQuery().queryKey).toContain("u1");
+    expect(logsQuery().queryKey).toContain("q-1");
+    expect(hoisted.listPlatformAuditLogs).toHaveBeenCalledWith(
+      hoisted.apiClient,
+      "Question",
+      0,
+      50,
+      "",
+      undefined,
+      undefined,
+      scope,
+    );
   });
 
   it("adds the actor name to each row and null when the actor is unknown", () => {
     hoisted.actors = [{ publicId: "u1", fullName: "An Nguyen" }];
     usePlatformAuditLogs();
 
-    const result = logsQuery().select?.({ data: [{ actorUserId: "u1" }, { actorUserId: "ghost" }], total: 2 }) as {
+    const result = logsQuery().select?.({
+      data: [{ actorUserId: "u1" }, { actorUserId: "ghost" }],
+      total: 2,
+    }) as {
       data: Array<{ log: { actorUserId: string }; actorName: string | null }>;
       total: number;
     };
@@ -98,7 +154,9 @@ describe("usePlatformAuditLogs", () => {
     hoisted.actors = undefined;
     usePlatformAuditLogs();
 
-    const result = logsQuery().select?.({ data: [{ actorUserId: "u1" }] }) as { data: Array<{ actorName: string | null }> };
+    const result = logsQuery().select?.({ data: [{ actorUserId: "u1" }] }) as {
+      data: Array<{ actorName: string | null }>;
+    };
 
     expect(result.data[0].actorName).toBeNull();
   });
