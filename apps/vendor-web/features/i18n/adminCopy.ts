@@ -1047,6 +1047,9 @@ const ADMIN_VI: Record<string, string> = {
   "Ticket information": "Thông tin yêu cầu",
   "Admin notes": "Ghi chú quản trị",
   "Related entity type": "Loại đối tượng liên quan",
+  "Reported question": "Câu hỏi bị báo lỗi",
+  "Open in question bank": "Mở trong ngân hàng câu hỏi",
+  "This question no longer exists.": "Câu hỏi này không còn tồn tại.",
   "Last updated": "Cập nhật lần cuối",
   "No notes yet": "Chưa có ghi chú",
   "Add the first note to document your findings.":

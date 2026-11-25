@@ -440,6 +440,14 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.participants.addSubmitting": "Đang thêm...",
     "tenant.participants.lockedNotice":
       "Chỉ thêm hoặc xóa học viên được khi kỳ thi Đã lên lịch, trước khi bắt đầu.",
+    "tenant.participants.studentsLockedStarted":
+      "Kỳ thi đã bắt đầu nên không thể thêm hoặc xóa học viên.",
+    "tenant.participants.studentsLockedEnded":
+      "Kỳ thi đã kết thúc nên không thể thêm hoặc xóa học viên.",
+    "tenant.participants.proctorsLockedStarted":
+      "Kỳ thi đã bắt đầu nên không thể thêm giám thị.",
+    "tenant.participants.proctorsLockedEnded":
+      "Kỳ thi đã kết thúc nên không thể thêm giám thị.",
     "tenant.studentRoster.fullName": "Họ và tên",
     "tenant.studentRoster.email": "Email",
     "tenant.studentRoster.studentCode": "Mã học viên",
@@ -679,6 +687,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.support.category": "Danh mục",
     "tenant.support.status": "Trạng thái",
     "tenant.support.description": "Mô tả",
+    "tenant.support.reportedQuestion": "Câu hỏi bị báo lỗi",
+    "tenant.support.questionUnavailable": "Câu hỏi này không còn tồn tại.",
     "tenant.support.submitted": "Đã gửi",
     "tenant.support.actions": "Thao tác",
     "tenant.support.allCategories": "Tất cả danh mục",
@@ -1668,6 +1678,14 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.participants.addSubmitting": "Adding...",
     "tenant.participants.lockedNotice":
       "Students can only be added or removed while the exam is Scheduled, before it starts.",
+    "tenant.participants.studentsLockedStarted":
+      "The exam has started, so students can't be added or removed.",
+    "tenant.participants.studentsLockedEnded":
+      "The exam has ended, so students can't be added or removed.",
+    "tenant.participants.proctorsLockedStarted":
+      "The exam has started, so proctors can't be added.",
+    "tenant.participants.proctorsLockedEnded":
+      "The exam has ended, so proctors can't be added.",
     "tenant.studentRoster.fullName": "Full name",
     "tenant.studentRoster.email": "Email",
     "tenant.studentRoster.studentCode": "Student code",
@@ -1905,6 +1923,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.support.category": "Category",
     "tenant.support.status": "Status",
     "tenant.support.description": "Description",
+    "tenant.support.reportedQuestion": "Reported question",
+    "tenant.support.questionUnavailable": "This question no longer exists.",
     "tenant.support.submitted": "Submitted",
     "tenant.support.actions": "Actions",
     "tenant.support.allCategories": "All categories",
