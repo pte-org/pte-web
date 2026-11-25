@@ -32,12 +32,20 @@ export const LiveJobPanel = ({ jobId }: LiveJobPanelProps): ReactElement => {
   return (
     <div className="space-y-3">
       {!finished && connection !== "open" && (
-        <p className="text-xs text-[var(--ink-muted)]">{connection === "reconnecting" ? text.reconnecting : text.connecting}</p>
+        <p className="text-xs text-[var(--ink-muted)]">
+          {connection === "reconnecting" ? text.reconnecting : text.connecting}
+        </p>
       )}
       {finished && job.items.length > 0 && <JobOutcomeList job={job} lang={lang} text={text} />}
       {!finished && (
-        <LiveJobItemList job={job} items={items} lang={lang} text={text}
-          needsAudio={taskType?.needsAudio ?? false} needsImage={taskType?.needsImage ?? false} />
+        <LiveJobItemList
+          job={job}
+          items={items}
+          lang={lang}
+          text={text}
+          needsAudio={taskType?.needsAudio ?? false}
+          needsImage={taskType?.needsImage ?? false}
+        />
       )}
     </div>
   );

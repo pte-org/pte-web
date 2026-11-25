@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { Tabs, Button, ConfirmDialog, useToast, Skeleton } from "@pte/ui";
 import { generationMessages } from "../messages/en";
-import { useSubmitQuestionApproval, useDeleteQuestion, useQuestion } from "@/features/questionbank/api";
+import {
+  useSubmitQuestionApproval,
+  useDeleteQuestion,
+  useQuestion,
+} from "@/features/questionbank/api";
 import { ReviewPanel } from "./ReviewPanel";
 import { ExamScreenPreview } from "@/features/questionbank/components/ExamScreenPreview";
 import { buildQuestionPreviewDraft } from "@/features/questionbank/questionPreviewDraft";
@@ -18,9 +22,7 @@ interface ReviewPanelTabsProps {
 /**
  * Right panel: Tabs showing generation item details (Preview | Review AI | Edit)
  */
-export const ReviewPanelTabs = ({
-  item,
-}: ReviewPanelTabsProps) => {
+export const ReviewPanelTabs = ({ item }: ReviewPanelTabsProps) => {
   const [activeTab, setActiveTab] = useState("preview");
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { showToast } = useToast();
@@ -28,7 +30,9 @@ export const ReviewPanelTabs = ({
 
   const submitMutation = useSubmitQuestionApproval();
   const deleteMutation = useDeleteQuestion();
-  const { data: fullQuestion, isLoading: isQuestionLoading } = useQuestion(item.questionPublicId || "");
+  const { data: fullQuestion, isLoading: isQuestionLoading } = useQuestion(
+    item.questionPublicId || "",
+  );
 
   const tabItems = [
     {
@@ -98,14 +102,16 @@ export const ReviewPanelTabs = ({
             ) : fullQuestion ? (
               <ExamScreenPreview
                 draft={buildQuestionPreviewDraft(fullQuestion, undefined, {
-                  imageUrl: fullQuestion.imagePromptRef ? `/api/v1/media/${fullQuestion.imagePromptRef}` : null,
-                  audioUrl: fullQuestion.audioPromptRef ? `/api/v1/media/${fullQuestion.audioPromptRef}` : null,
+                  imageUrl: fullQuestion.imagePromptRef
+                    ? `/api/v1/media/${fullQuestion.imagePromptRef}`
+                    : null,
+                  audioUrl: fullQuestion.audioPromptRef
+                    ? `/api/v1/media/${fullQuestion.audioPromptRef}`
+                    : null,
                 })}
               />
             ) : (
-              <div className="text-center text-gray-500 py-8">
-                No preview available
-              </div>
+              <div className="text-center text-gray-500 py-8">No preview available</div>
             )}
           </>
         )}
@@ -117,11 +123,12 @@ export const ReviewPanelTabs = ({
                 <Skeleton className="h-64 w-full" />
               </div>
             ) : fullQuestion?.generationMeta ? (
-              <ReviewPanel meta={fullQuestion.generationMeta as GenerationMetaResponse} isLoading={false} />
+              <ReviewPanel
+                meta={fullQuestion.generationMeta as GenerationMetaResponse}
+                isLoading={false}
+              />
             ) : (
-              <div className="text-center text-gray-500 py-8">
-                No AI review data available
-              </div>
+              <div className="text-center text-gray-500 py-8">No AI review data available</div>
             )}
           </>
         )}
@@ -131,16 +138,15 @@ export const ReviewPanelTabs = ({
             {item.questionPublicId ? (
               <>
                 <p className="text-sm text-gray-600">
-                  Click the button below to edit this question. Editing marks the question as human-edited.
+                  Click the button below to edit this question. Editing marks the question as
+                  human-edited.
                 </p>
                 <Button onClick={handleEditClick} className="w-full">
                   Edit Question
                 </Button>
               </>
             ) : (
-              <div className="text-center text-gray-500 py-8">
-                Question not yet saved
-              </div>
+              <div className="text-center text-gray-500 py-8">Question not yet saved</div>
             )}
           </div>
         )}

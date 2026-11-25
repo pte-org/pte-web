@@ -10,7 +10,13 @@ import { TERMINAL_ITEM_STAGES, type LaneStatus, type LiveLane } from "../liveCon
 export type LiveItems = Readonly<Record<number, QuestionGenerationLiveItem>>;
 
 const emptyItem = (index: number): QuestionGenerationLiveItem => ({
-  index, stage: null, activeAgent: null, generator: null, reviewer: null, audioRef: null, imageRef: null,
+  index,
+  stage: null,
+  activeAgent: null,
+  generator: null,
+  reviewer: null,
+  audioRef: null,
+  imageRef: null,
 });
 
 const agentKey = (agent: QuestionGenerationLiveAgent): "generator" | "reviewer" =>
@@ -24,8 +30,13 @@ function update(
   return { ...items, [index]: change(items[index] ?? emptyItem(index)) };
 }
 
-const appended = (text: QuestionGenerationLiveText | null, delta: string): QuestionGenerationLiveText =>
-  ({ attempt: text?.attempt ?? 1, text: (text?.text ?? "") + delta });
+const appended = (
+  text: QuestionGenerationLiveText | null,
+  delta: string,
+): QuestionGenerationLiveText => ({
+  attempt: text?.attempt ?? 1,
+  text: (text?.text ?? "") + delta,
+});
 
 /** The live state after one event of the stream. A snapshot replaces everything known before. */
 export function applyLiveEvent(items: LiveItems, event: QuestionGenerationLiveEvent): LiveItems {
@@ -33,38 +44,60 @@ export function applyLiveEvent(items: LiveItems, event: QuestionGenerationLiveEv
     case "snapshot":
       return Object.fromEntries(event.items.map((item) => [item.index, item]));
     case "begin":
-      return update(items, event.index, (item) =>
-        ({ ...item, activeAgent: event.agent, [agentKey(event.agent)]: { attempt: event.attempt, text: "" } }));
+      return update(items, event.index, (item) => ({
+        ...item,
+        activeAgent: event.agent,
+        [agentKey(event.agent)]: { attempt: event.attempt, text: "" },
+      }));
     case "token":
-      return update(items, event.index, (item) =>
-        ({ ...item, [agentKey(event.agent)]: appended(item[agentKey(event.agent)], event.delta) }));
+      return update(items, event.index, (item) => ({
+        ...item,
+        [agentKey(event.agent)]: appended(item[agentKey(event.agent)], event.delta),
+      }));
     case "stage":
       return update(items, event.index, (item) => ({ ...item, stage: event.stage }));
     case "draft":
-      return update(items, event.index, (item) =>
-        ({ ...item, draft: { index: event.index, attempt: event.attempt, fields: event.fields } }));
+      return update(items, event.index, (item) => ({
+        ...item,
+        draft: { index: event.index, attempt: event.attempt, fields: event.fields },
+      }));
     case "review":
       return update(items, event.index, (item) => ({
         ...item,
-        review: { index: event.index, kind: event.kind, passed: event.passed, fixSuggestion: event.fixSuggestion,
-          notes: event.notes },
+        review: {
+          index: event.index,
+          kind: event.kind,
+          passed: event.passed,
+          fixSuggestion: event.fixSuggestion,
+          notes: event.notes,
+        },
       }));
     case "check": {
-      const check = { index: event.index, step: event.step, status: event.status, facts: event.facts,
-        details: event.details };
+      const check = {
+        index: event.index,
+        step: event.step,
+        status: event.status,
+        facts: event.facts,
+        details: event.details,
+      };
       return update(items, event.index, (item) => {
         // A new prompt starts a new round of writing: the checks of the round before are dropped.
-        const kept = check.step === "PROMPT" ? [] : item.checks ?? [];
+        const kept = check.step === "PROMPT" ? [] : (item.checks ?? []);
         const checks = kept.some((earlier) => earlier.step === check.step)
           ? kept.map((earlier) => (earlier.step === check.step ? check : earlier))
           : [...kept, check];
         // A new round: the media of the last one was refused and removed, so it is no longer loaded.
-        return check.step === "PROMPT" ? { ...item, checks, audioRef: null, imageRef: null } : { ...item, checks };
+        return check.step === "PROMPT"
+          ? { ...item, checks, audioRef: null, imageRef: null }
+          : { ...item, checks };
       });
     }
     case "media":
-      return update(items, event.index, (item) =>
-        ({ ...item, audioRef: event.audioRef, imageRef: event.imageRef }));
+      return update(items, event.index, (item) => ({
+        ...item,
+        audioRef: event.audioRef,
+        imageRef: event.imageRef,
+      }));
     default:
       return items;
   }
@@ -73,7 +106,8 @@ export function applyLiveEvent(items: LiveItems, event: QuestionGenerationLiveEv
 const LANE_ORDER: readonly LiveLane[] = ["GENERATOR", "REVIEWER", "AUDIO", "SAVE"];
 
 /** The place of a step in the run; an image is drawn where audio is spoken. */
-const lanePosition = (lane: LiveLane): number => LANE_ORDER.indexOf(lane === "IMAGE" ? "AUDIO" : lane);
+const lanePosition = (lane: LiveLane): number =>
+  LANE_ORDER.indexOf(lane === "IMAGE" ? "AUDIO" : lane);
 
 /** The step running now, from the stage and the agent that started last. */
 function runningLane(item: QuestionGenerationLiveItem): LiveLane | null {
@@ -94,8 +128,12 @@ function runningLane(item: QuestionGenerationLiveItem): LiveLane | null {
  * Where one step of an item stands. `outcome` is the item's final stage from the job (SAVED, FAILED, CANCELLED) or
  * null while it runs; `reached` is the step it stopped at, so a failure marks that step and the later ones wait.
  */
-export function laneStatus(lane: LiveLane, item: QuestionGenerationLiveItem | undefined,
-  outcome: string | null, reached: LiveLane | null): LaneStatus {
+export function laneStatus(
+  lane: LiveLane,
+  item: QuestionGenerationLiveItem | undefined,
+  outcome: string | null,
+  reached: LiveLane | null,
+): LaneStatus {
   const position = lanePosition(lane);
   if (outcome === "SAVED") return "done";
   if (outcome === "FAILED" || outcome === "CANCELLED") {
@@ -114,7 +152,10 @@ export function laneStatus(lane: LiveLane, item: QuestionGenerationLiveItem | un
  * The step an item was at when it stopped. The stream only reports the stages a worker started (saving and failing
  * come from the job), so an approved draft or a finished media means the item went on to be saved.
  */
-export function reachedLane(item: QuestionGenerationLiveItem | undefined, reviewPassed: boolean): LiveLane | null {
+export function reachedLane(
+  item: QuestionGenerationLiveItem | undefined,
+  reviewPassed: boolean,
+): LiveLane | null {
   switch (item?.stage) {
     case "GENERATING":
     case "VALIDATING":
@@ -130,7 +171,9 @@ export function reachedLane(item: QuestionGenerationLiveItem | undefined, review
 
 /** The item to show when the user has not picked one: the one being made, else the last one that started. */
 export function followedIndex(stages: ReadonlyArray<{ index: number; stage: string }>): number {
-  const running = stages.find((item) => item.stage !== "QUEUED" && !TERMINAL_ITEM_STAGES.includes(item.stage));
+  const running = stages.find(
+    (item) => item.stage !== "QUEUED" && !TERMINAL_ITEM_STAGES.includes(item.stage),
+  );
   if (running) return running.index;
   const started = stages.filter((item) => item.stage !== "QUEUED");
   return started.at(-1)?.index ?? stages[0]?.index ?? 0;

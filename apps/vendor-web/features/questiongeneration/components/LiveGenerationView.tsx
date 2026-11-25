@@ -3,7 +3,16 @@
 import { useEffect, useState, type ReactElement } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { Alert, Button, ConfirmDialog, DashboardCard, Skeleton, useDashboardBreadcrumbLabel, useLocale, useToast } from "@pte/ui";
+import {
+  Alert,
+  Button,
+  ConfirmDialog,
+  DashboardCard,
+  Skeleton,
+  useDashboardBreadcrumbLabel,
+  useLocale,
+  useToast,
+} from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { QUESTIONS_QUERY_KEY } from "@/features/questionbank/constants";
 import { useCancelQuestionGenerationJob, useQuestionGenerationTaskTypes } from "../api";
@@ -57,44 +66,69 @@ export const LiveGenerationView = ({ jobId }: LiveGenerationViewProps): ReactEle
   const taskType = taskTypes.find((type) => type.taskType === job.taskType);
   const done = job.succeededCount + job.failedCount;
 
-  const stop = (): void => cancel.mutate(jobId, {
-    onSuccess: () => {
-      setConfirmingCancel(false);
-      showToast(text.stopRequested);
-      void queryClient.invalidateQueries({ queryKey: QUESTIONS_QUERY_KEY });
-    },
-    onError: (error) => {
-      setConfirmingCancel(false);
-      showToast(getUserFacingApiErrorMessage(error, text.cancelError), { tone: "error" });
-    },
-  });
+  const stop = (): void =>
+    cancel.mutate(jobId, {
+      onSuccess: () => {
+        setConfirmingCancel(false);
+        showToast(text.stopRequested);
+        void queryClient.invalidateQueries({ queryKey: QUESTIONS_QUERY_KEY });
+      },
+      onError: (error) => {
+        setConfirmingCancel(false);
+        showToast(getUserFacingApiErrorMessage(error, text.cancelError), { tone: "error" });
+      },
+    });
 
   return (
     <DashboardCard className="space-y-4">
       <div className="flex flex-wrap items-center gap-3">
-        <h1 className="text-lg font-semibold">{text.title}: <span className="font-mono">{job.taskType}</span></h1>
+        <h1 className="text-lg font-semibold">
+          {text.title}: <span className="font-mono">{job.taskType}</span>
+        </h1>
         <span className="text-sm text-[var(--ink-muted)]">
-          {text.progress.replace("{done}", String(done)).replace("{total}", String(job.requestedCount))}
-          {job.failedCount > 0 && ` · ${text.failedCount.replace("{count}", String(job.failedCount))}`}
+          {text.progress
+            .replace("{done}", String(done))
+            .replace("{total}", String(job.requestedCount))}
+          {job.failedCount > 0 &&
+            ` · ${text.failedCount.replace("{count}", String(job.failedCount))}`}
         </span>
         {!finished && connection !== "open" && (
-          <span className="text-xs text-[var(--ink-muted)]">{connection === "reconnecting" ? text.reconnecting : text.connecting}</span>
+          <span className="text-xs text-[var(--ink-muted)]">
+            {connection === "reconnecting" ? text.reconnecting : text.connecting}
+          </span>
         )}
         <div className="ml-auto flex gap-2">
           {!finished && (
-            <Button variant="secondary" onClick={() => setConfirmingCancel(true)}
-              disabled={cancel.isPending || job.status === "CANCELLING"}>
+            <Button
+              variant="secondary"
+              onClick={() => setConfirmingCancel(true)}
+              disabled={cancel.isPending || job.status === "CANCELLING"}
+            >
               {job.status === "CANCELLING" ? text.stopping : text.cancel}
             </Button>
           )}
         </div>
       </div>
-      <LiveJobItemList job={job} items={items} lang={lang} text={text}
-        needsAudio={taskType?.needsAudio ?? false} needsImage={taskType?.needsImage ?? false} />
+      <LiveJobItemList
+        job={job}
+        items={items}
+        lang={lang}
+        text={text}
+        needsAudio={taskType?.needsAudio ?? false}
+        needsImage={taskType?.needsImage ?? false}
+      />
       <ImageFallbackDialog job={job} finished={finished} text={text} />
-      <ConfirmDialog open={confirmingCancel} title={text.cancelTitle} description={text.cancelBody}
-        confirmLabel={text.cancelConfirm} cancelLabel={text.cancelBack} tone="warning" isConfirming={cancel.isPending}
-        onConfirm={stop} onClose={() => setConfirmingCancel(false)} />
+      <ConfirmDialog
+        open={confirmingCancel}
+        title={text.cancelTitle}
+        description={text.cancelBody}
+        confirmLabel={text.cancelConfirm}
+        cancelLabel={text.cancelBack}
+        tone="warning"
+        isConfirming={cancel.isPending}
+        onConfirm={stop}
+        onClose={() => setConfirmingCancel(false)}
+      />
     </DashboardCard>
   );
 };

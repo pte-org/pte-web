@@ -22,7 +22,12 @@ export function useTypedText(target: string): string {
     if (shown >= target.length) return;
     const frame = requestAnimationFrame(() => {
       const backlog = target.length - shown;
-      setShown(Math.min(target.length, shown + Math.max(TYPING_MIN_CHARS_PER_FRAME, Math.ceil(backlog / TYPING_CATCH_UP_FRAMES))));
+      setShown(
+        Math.min(
+          target.length,
+          shown + Math.max(TYPING_MIN_CHARS_PER_FRAME, Math.ceil(backlog / TYPING_CATCH_UP_FRAMES)),
+        ),
+      );
     });
     return () => cancelAnimationFrame(frame);
   }, [shown, target]);

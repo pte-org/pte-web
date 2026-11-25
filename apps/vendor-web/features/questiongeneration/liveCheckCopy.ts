@@ -1,5 +1,7 @@
 import type {
-  QuestionGenerationCheckDetail, QuestionGenerationCheckStep, QuestionGenerationLiveCheck,
+  QuestionGenerationCheckDetail,
+  QuestionGenerationCheckStep,
+  QuestionGenerationLiveCheck,
 } from "@pte/api-client";
 import type { LaneStatus } from "./liveConstants";
 
@@ -42,9 +44,14 @@ interface CheckCopy {
 export const CHECK_COPY: { vi: CheckCopy; en: CheckCopy } = {
   vi: {
     steps: {
-      PROMPT: "Ghép prompt", WRITE: "LLM viết đề", JSON: "Kiểm tra cấu trúc JSON",
-      RULES: "Kiểm tra luật của dạng bài", DUPLICATE: "Kiểm tra trùng câu đã có",
-      REVIEW_PROMPT: "Ghép prompt review", REVIEW_WRITE: "LLM chấm đề", REVIEW_VERDICT: "Đọc kết luận",
+      PROMPT: "Ghép prompt",
+      WRITE: "LLM viết đề",
+      JSON: "Kiểm tra cấu trúc JSON",
+      RULES: "Kiểm tra luật của dạng bài",
+      DUPLICATE: "Kiểm tra trùng câu đã có",
+      REVIEW_PROMPT: "Ghép prompt review",
+      REVIEW_WRITE: "LLM chấm đề",
+      REVIEW_VERDICT: "Đọc kết luận",
     },
     preparing: "Đang chuẩn bị prompt…",
     prompt: "CEFR {cefr} · chủ đề: {topic}",
@@ -62,11 +69,21 @@ export const CHECK_COPY: { vi: CheckCopy; en: CheckCopy } = {
     unique: "Không trùng câu nào trong ngân hàng",
     duplicate: "Trùng câu đã có, viết lại câu khác",
     details: {
-      systemPrompt: "Prompt chung của hệ thống", taskPrompt: "Prompt của dạng bài", promptKey: "Mã prompt",
-      cefr: "Trình độ CEFR", topicHint: "Chủ đề yêu cầu", avoidedTopics: "Chủ đề đã có cần tránh",
-      feedback: "Góp ý của vòng trước", output: "Kết quả model trả về", answerHintVi: "Gợi ý (tiếng Việt)",
-      answerHintEn: "Gợi ý (tiếng Anh)", contentHash: "Mã nội dung (hash)", taskType: "Dạng bài",
-      withHints: "Kèm gợi ý trả lời", withFix: "Kèm góp ý vòng trước", criteria: "Số tiêu chí đã chấm",
+      systemPrompt: "Prompt chung của hệ thống",
+      taskPrompt: "Prompt của dạng bài",
+      promptKey: "Mã prompt",
+      cefr: "Trình độ CEFR",
+      topicHint: "Chủ đề yêu cầu",
+      avoidedTopics: "Chủ đề đã có cần tránh",
+      feedback: "Góp ý của vòng trước",
+      output: "Kết quả model trả về",
+      answerHintVi: "Gợi ý (tiếng Việt)",
+      answerHintEn: "Gợi ý (tiếng Anh)",
+      contentHash: "Mã nội dung (hash)",
+      taskType: "Dạng bài",
+      withHints: "Kèm gợi ý trả lời",
+      withFix: "Kèm góp ý vòng trước",
+      criteria: "Số tiêu chí đã chấm",
       criteriaFailed: "Số tiêu chí không đạt",
     },
     chars: "{n} ký tự",
@@ -86,9 +103,14 @@ export const CHECK_COPY: { vi: CheckCopy; en: CheckCopy } = {
   },
   en: {
     steps: {
-      PROMPT: "Build the prompt", WRITE: "LLM writes the draft", JSON: "Check the JSON structure",
-      RULES: "Check the task type's rules", DUPLICATE: "Check for duplicates",
-      REVIEW_PROMPT: "Build the review prompt", REVIEW_WRITE: "LLM reviews the draft", REVIEW_VERDICT: "Read the verdict",
+      PROMPT: "Build the prompt",
+      WRITE: "LLM writes the draft",
+      JSON: "Check the JSON structure",
+      RULES: "Check the task type's rules",
+      DUPLICATE: "Check for duplicates",
+      REVIEW_PROMPT: "Build the review prompt",
+      REVIEW_WRITE: "LLM reviews the draft",
+      REVIEW_VERDICT: "Read the verdict",
     },
     preparing: "Preparing the prompt…",
     prompt: "CEFR {cefr} · topic: {topic}",
@@ -106,11 +128,21 @@ export const CHECK_COPY: { vi: CheckCopy; en: CheckCopy } = {
     unique: "No such question in the bank yet",
     duplicate: "Already in the bank, writing another",
     details: {
-      systemPrompt: "Shared system prompt", taskPrompt: "Task type prompt", promptKey: "Prompt key",
-      cefr: "CEFR level", topicHint: "Topic asked for", avoidedTopics: "Existing topics to avoid",
-      feedback: "Feedback of the last round", output: "Model output", answerHintVi: "Hint (Vietnamese)",
-      answerHintEn: "Hint (English)", contentHash: "Content hash", taskType: "Task type",
-      withHints: "With the answer hints", withFix: "With the last round's fix", criteria: "Criteria checked",
+      systemPrompt: "Shared system prompt",
+      taskPrompt: "Task type prompt",
+      promptKey: "Prompt key",
+      cefr: "CEFR level",
+      topicHint: "Topic asked for",
+      avoidedTopics: "Existing topics to avoid",
+      feedback: "Feedback of the last round",
+      output: "Model output",
+      answerHintVi: "Hint (Vietnamese)",
+      answerHintEn: "Hint (English)",
+      contentHash: "Content hash",
+      taskType: "Task type",
+      withHints: "With the answer hints",
+      withFix: "With the last round's fix",
+      criteria: "Criteria checked",
       criteriaFailed: "Criteria failed",
     },
     chars: "{n} characters",
@@ -141,8 +173,13 @@ export function checkSummary(check: QuestionGenerationLiveCheck, copy: CheckCopy
   const { facts } = check;
   switch (check.step) {
     case "PROMPT": {
-      const parts = [copy.prompt.replace("{cefr}", facts.cefr ?? "").replace("{topic}", facts.topic || copy.anyTopic)];
-      if (Number(facts.avoidedTopics) > 0) parts.push(copy.avoided.replace("{count}", facts.avoidedTopics ?? ""));
+      const parts = [
+        copy.prompt
+          .replace("{cefr}", facts.cefr ?? "")
+          .replace("{topic}", facts.topic || copy.anyTopic),
+      ];
+      if (Number(facts.avoidedTopics) > 0)
+        parts.push(copy.avoided.replace("{count}", facts.avoidedTopics ?? ""));
       if (facts.feedback === "true") parts.push(copy.withFeedback);
       return parts.join(" · ");
     }
@@ -180,11 +217,17 @@ export function detailValue(detail: QuestionGenerationCheckDetail, copy: CheckCo
       return copy.present;
     default:
       if (detail.key === "topicHint" && !detail.text) return copy.anyTopic;
-      if (detail.text === "true" || detail.text === "false") return detail.text === "true" ? copy.yes : copy.no;
+      if (detail.text === "true" || detail.text === "false")
+        return detail.text === "true" ? copy.yes : copy.no;
       return detail.count === null ? (detail.text ?? "") : `${detail.count}: ${detail.text ?? ""}`;
   }
 }
 
 /** The checks of the writer and of the reviewer, each shown under its own step. */
-export const REVIEW_STEPS: readonly QuestionGenerationCheckStep[] = ["REVIEW_PROMPT", "REVIEW_WRITE", "REVIEW_VERDICT"];
-export const isReviewCheck = (check: QuestionGenerationLiveCheck): boolean => REVIEW_STEPS.includes(check.step);
+export const REVIEW_STEPS: readonly QuestionGenerationCheckStep[] = [
+  "REVIEW_PROMPT",
+  "REVIEW_WRITE",
+  "REVIEW_VERDICT",
+];
+export const isReviewCheck = (check: QuestionGenerationLiveCheck): boolean =>
+  REVIEW_STEPS.includes(check.step);

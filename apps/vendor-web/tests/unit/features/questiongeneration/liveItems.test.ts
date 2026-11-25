@@ -1,11 +1,23 @@
 import { describe, expect, it } from "vitest";
 import type { QuestionGenerationLiveItem } from "@pte/api-client";
-import { applyLiveEvent, followedIndex, laneStatus, reachedLane } from "../../../../features/questiongeneration/utils/liveItems";
+import {
+  applyLiveEvent,
+  followedIndex,
+  laneStatus,
+  reachedLane,
+} from "../../../../features/questiongeneration/utils/liveItems";
 import { draftFields } from "../../../../features/questiongeneration/utils/draftFields";
 import { reviewSummary } from "../../../../features/questiongeneration/utils/reviewSummary";
 
 const item = (over: Partial<QuestionGenerationLiveItem>): QuestionGenerationLiveItem => ({
-  index: 0, stage: null, activeAgent: null, generator: null, reviewer: null, audioRef: null, imageRef: null, ...over,
+  index: 0,
+  stage: null,
+  activeAgent: null,
+  generator: null,
+  reviewer: null,
+  audioRef: null,
+  imageRef: null,
+  ...over,
 });
 
 describe("applyLiveEvent", () => {
@@ -21,9 +33,15 @@ describe("applyLiveEvent", () => {
 
   it("lets a snapshot replace what was known and keeps the items apart", () => {
     const before = applyLiveEvent({}, { type: "token", index: 3, agent: "REVIEWER", delta: "x" });
-    const after = applyLiveEvent(before, { type: "snapshot", finished: false, items: [item({ index: 1, stage: "REVIEWING" })] });
+    const after = applyLiveEvent(before, {
+      type: "snapshot",
+      finished: false,
+      items: [item({ index: 1, stage: "REVIEWING" })],
+    });
     expect(Object.keys(after)).toEqual(["1"]);
-    expect(applyLiveEvent(after, { type: "stage", index: 2, stage: "GENERATING" })[1]).toBe(after[1]);
+    expect(applyLiveEvent(after, { type: "stage", index: 2, stage: "GENERATING" })[1]).toBe(
+      after[1],
+    );
   });
 
   it("records media and ignores events that carry no state", () => {
@@ -68,8 +86,19 @@ describe("reachedLane", () => {
 
 describe("followedIndex", () => {
   it("follows the item being made, else the last one started", () => {
-    expect(followedIndex([{ index: 0, stage: "SAVED" }, { index: 1, stage: "REVIEWING" }, { index: 2, stage: "QUEUED" }])).toBe(1);
-    expect(followedIndex([{ index: 0, stage: "SAVED" }, { index: 1, stage: "FAILED" }])).toBe(1);
+    expect(
+      followedIndex([
+        { index: 0, stage: "SAVED" },
+        { index: 1, stage: "REVIEWING" },
+        { index: 2, stage: "QUEUED" },
+      ]),
+    ).toBe(1);
+    expect(
+      followedIndex([
+        { index: 0, stage: "SAVED" },
+        { index: 1, stage: "FAILED" },
+      ]),
+    ).toBe(1);
     expect(followedIndex([{ index: 0, stage: "QUEUED" }])).toBe(0);
   });
 });
@@ -82,15 +111,21 @@ describe("draftFields", () => {
   });
 
   it("shows lists of objects as records and nothing for a draft not started", () => {
-    expect(draftFields({ slots: [{ answer: "cat" }] })[0].value)
-      .toEqual({ kind: "records", records: [[{ key: "answer", text: "cat" }]] });
+    expect(draftFields({ slots: [{ answer: "cat" }] })[0].value).toEqual({
+      kind: "records",
+      records: [[{ key: "answer", text: "cat" }]],
+    });
     expect(draftFields(undefined)).toEqual([]);
   });
 });
 
 describe("reviewSummary", () => {
   it("lists the checks written so far and the verdict", () => {
-    const summary = reviewSummary({ verdict: "FAIL", checks: { clarity: { ok: false, note: "vague" }, safety: {} }, fixSuggestion: "Reword" });
+    const summary = reviewSummary({
+      verdict: "FAIL",
+      checks: { clarity: { ok: false, note: "vague" }, safety: {} },
+      fixSuggestion: "Reword",
+    });
     expect(summary.verdict).toBe("FAIL");
     expect(summary.checks).toEqual([
       { key: "clarity", ok: false, note: "vague", estimated: null },

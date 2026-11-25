@@ -10,15 +10,20 @@ export const STEP_MIN_VISIBLE_MS = 800;
 export const formFillHref = (jobId: string): string => `/admin/questions/new?fromJob=${jobId}`;
 /** A Describe Image picture the image model could not paint; the person may make it as a chart instead. */
 export const IMAGE_FAILED_CODE = "GENERATION_IMAGE_FAILED";
-export const generationLiveHref = (jobId: string): string => `/admin/questions/ai-generation/${jobId}`;
+export const generationLiveHref = (jobId: string): string =>
+  `/admin/questions/ai-generation/${jobId}`;
 /** The page where the drafts of a finished job are reviewed. */
-export const generationReviewHref = (jobId: string): string => `/admin/questions/ai-review?job=${jobId}`;
+export const generationReviewHref = (jobId: string): string =>
+  `/admin/questions/ai-review?job=${jobId}`;
 /** The detail page of an AI batch, where the header pill leads while a batch runs. */
-export const batchDetailHref = (batchId: string): string => `/admin/questions/ai-batches/${batchId}`;
+export const batchDetailHref = (batchId: string): string =>
+  `/admin/questions/ai-batches/${batchId}`;
 
 /** A question opened from an AI batch carries the batch, so its breadcrumb leads back to that batch. */
 export const questionDetailHref = (questionId: string, batchId?: string | null): string =>
-  batchId ? `/admin/questions/${questionId}?batch=${encodeURIComponent(batchId)}` : `/admin/questions/${questionId}`;
+  batchId
+    ? `/admin/questions/${questionId}?batch=${encodeURIComponent(batchId)}`
+    : `/admin/questions/${questionId}`;
 
 /** A stream that closed while the job still runs is opened again after this pause. */
 export const LIVE_RECONNECT_DELAY_MS = 2000;
@@ -33,8 +38,17 @@ export const ACTIVITY_JOB_PAGE_SIZE = 5;
 export const TYPING_MIN_CHARS_PER_FRAME = 2;
 export const TYPING_CATCH_UP_FRAMES = 40;
 
-export const TERMINAL_JOB_STATUSES: readonly QuestionGenerationJobStatus[] = ["COMPLETED", "FAILED", "CANCELLED"];
-export const ACTIVE_JOB_STATUSES: readonly QuestionGenerationJobStatus[] = ["PENDING", "QUEUED", "RUNNING", "CANCELLING"];
+export const TERMINAL_JOB_STATUSES: readonly QuestionGenerationJobStatus[] = [
+  "COMPLETED",
+  "FAILED",
+  "CANCELLED",
+];
+export const ACTIVE_JOB_STATUSES: readonly QuestionGenerationJobStatus[] = [
+  "PENDING",
+  "QUEUED",
+  "RUNNING",
+  "CANCELLING",
+];
 export const TERMINAL_ITEM_STAGES: readonly string[] = ["READY", "SAVED", "FAILED", "CANCELLED"];
 
 /** The steps of one item, each done by its own agent, in the order they run. */
@@ -49,7 +63,8 @@ const LIVE_TEXT_EN = {
   failedCount: "{count} failed",
   cancel: "Stop generating",
   cancelTitle: "Stop this generation?",
-  cancelBody: "The question being written is dropped; the questions already saved stay in the bank.",
+  cancelBody:
+    "The question being written is dropped; the questions already saved stay in the bank.",
   cancelConfirm: "Stop",
   stopping: "Stopping…",
   stopRequested: "Stopping: the question being written is finished off first, then the run stops.",
@@ -61,7 +76,8 @@ const LIVE_TEXT_EN = {
   noText: "Nothing written yet.",
   noLiveText: "This question was made before this page was opened; open it in the bank to read it.",
   imageFallbackTitle: "The AI could not make the picture",
-  imageFallbackBody: "The image model could not paint the picture for {count} Describe Image question(s). Make them as charts instead, with the same topic and level?",
+  imageFallbackBody:
+    "The image model could not paint the picture for {count} Describe Image question(s). Make them as charts instead, with the same topic and level?",
   imageFallbackConfirm: "Make charts",
   imageFallbackCancel: "Not now",
   imageFallbackError: "The chart questions could not be started.",
@@ -112,7 +128,8 @@ export const LIVE_TEXT: { vi: LiveText; en: LiveText } = {
     noText: "Chưa viết gì.",
     noLiveText: "Câu này được tạo trước khi mở trang; mở trong ngân hàng để xem nội dung.",
     imageFallbackTitle: "AI không tạo được ảnh",
-    imageFallbackBody: "Model tạo ảnh không vẽ được ảnh cho {count} câu Describe Image. Bạn có muốn tạo các câu này dưới dạng biểu đồ, cùng chủ đề và trình độ không?",
+    imageFallbackBody:
+      "Model tạo ảnh không vẽ được ảnh cho {count} câu Describe Image. Bạn có muốn tạo các câu này dưới dạng biểu đồ, cùng chủ đề và trình độ không?",
     imageFallbackConfirm: "Tạo biểu đồ",
     imageFallbackCancel: "Để sau",
     imageFallbackError: "Không bắt đầu tạo câu biểu đồ được.",
@@ -141,8 +158,20 @@ export const LIVE_TEXT: { vi: LiveText; en: LiveText } = {
 };
 
 export const LANE_LABELS: { vi: Record<LiveLane, string>; en: Record<LiveLane, string> } = {
-  vi: { GENERATOR: "Sinh đề · LLM", REVIEWER: "Review · LLM", AUDIO: "Kokoro TTS", IMAGE: "Vẽ biểu đồ", SAVE: "Lưu vào ngân hàng" },
-  en: { GENERATOR: "Writer · LLM", REVIEWER: "Reviewer · LLM", AUDIO: "Kokoro TTS", IMAGE: "Chart renderer", SAVE: "Save to the bank" },
+  vi: {
+    GENERATOR: "Sinh đề · LLM",
+    REVIEWER: "Review · LLM",
+    AUDIO: "Kokoro TTS",
+    IMAGE: "Vẽ biểu đồ",
+    SAVE: "Lưu vào ngân hàng",
+  },
+  en: {
+    GENERATOR: "Writer · LLM",
+    REVIEWER: "Reviewer · LLM",
+    AUDIO: "Kokoro TTS",
+    IMAGE: "Chart renderer",
+    SAVE: "Save to the bank",
+  },
 };
 
 export const STAGE_LABELS: {
@@ -150,48 +179,115 @@ export const STAGE_LABELS: {
   en: Record<QuestionGenerationItemStage, string>;
 } = {
   vi: {
-    QUEUED: "Đang chờ", GENERATING: "Đang viết đề", VALIDATING: "Đang kiểm tra", REVIEWING: "Đang review",
-    RENDERING_MEDIA: "Đang tạo media", READY: "Đã soạn xong", SAVED: "Đã lưu", FAILED: "Lỗi", CANCELLED: "Đã dừng",
+    QUEUED: "Đang chờ",
+    GENERATING: "Đang viết đề",
+    VALIDATING: "Đang kiểm tra",
+    REVIEWING: "Đang review",
+    RENDERING_MEDIA: "Đang tạo media",
+    READY: "Đã soạn xong",
+    SAVED: "Đã lưu",
+    FAILED: "Lỗi",
+    CANCELLED: "Đã dừng",
   },
   en: {
-    QUEUED: "Waiting", GENERATING: "Writing", VALIDATING: "Checking", REVIEWING: "Reviewing",
-    RENDERING_MEDIA: "Making media", READY: "Written", SAVED: "Saved", FAILED: "Failed", CANCELLED: "Stopped",
+    QUEUED: "Waiting",
+    GENERATING: "Writing",
+    VALIDATING: "Checking",
+    REVIEWING: "Reviewing",
+    RENDERING_MEDIA: "Making media",
+    READY: "Written",
+    SAVED: "Saved",
+    FAILED: "Failed",
+    CANCELLED: "Stopped",
   },
 };
 
 /** Labels of the fields the generator writes (the keys of its JSON); an unknown key is shown as it is. */
 export const DRAFT_FIELD_LABELS: { vi: Record<string, string>; en: Record<string, string> } = {
   vi: {
-    topic: "Chủ đề", passage: "Đoạn văn", question: "Câu hỏi", options: "Phương án", correctIndexes: "Đáp án đúng",
-    passageWithSlots: "Đoạn văn có chỗ trống", slots: "Chỗ trống", paragraphs: "Các đoạn", keyPoints: "Ý chính",
-    essayPrompt: "Đề bài", transcript: "Lời đọc", blanks: "Chỗ trống", answer: "Đáp án", displayedText: "Văn bản hiển thị",
-    changedIndexes: "Vị trí từ bị đổi", situation: "Tình huống", turns: "Lượt thoại", chartType: "Loại biểu đồ",
-    title: "Tiêu đề", xLabel: "Trục X", yLabel: "Trục Y", unit: "Đơn vị", categories: "Nhóm", series: "Số liệu",
-    distractors: "Phương án nhiễu", speaker: "Người nói", text: "Nội dung", name: "Tên", values: "Giá trị",
-    kind: "Loại", reference: "Tham chiếu",
+    topic: "Chủ đề",
+    passage: "Đoạn văn",
+    question: "Câu hỏi",
+    options: "Phương án",
+    correctIndexes: "Đáp án đúng",
+    passageWithSlots: "Đoạn văn có chỗ trống",
+    slots: "Chỗ trống",
+    paragraphs: "Các đoạn",
+    keyPoints: "Ý chính",
+    essayPrompt: "Đề bài",
+    transcript: "Lời đọc",
+    blanks: "Chỗ trống",
+    answer: "Đáp án",
+    displayedText: "Văn bản hiển thị",
+    changedIndexes: "Vị trí từ bị đổi",
+    situation: "Tình huống",
+    turns: "Lượt thoại",
+    chartType: "Loại biểu đồ",
+    title: "Tiêu đề",
+    xLabel: "Trục X",
+    yLabel: "Trục Y",
+    unit: "Đơn vị",
+    categories: "Nhóm",
+    series: "Số liệu",
+    distractors: "Phương án nhiễu",
+    speaker: "Người nói",
+    text: "Nội dung",
+    name: "Tên",
+    values: "Giá trị",
+    kind: "Loại",
+    reference: "Tham chiếu",
   },
   en: {
-    topic: "Topic", passage: "Passage", question: "Question", options: "Options", correctIndexes: "Correct answers",
-    passageWithSlots: "Passage with blanks", slots: "Blanks", paragraphs: "Paragraphs", keyPoints: "Key points",
-    essayPrompt: "Prompt", transcript: "Transcript", blanks: "Blanks", answer: "Answer", displayedText: "Displayed text",
-    changedIndexes: "Changed word positions", situation: "Situation", turns: "Turns", chartType: "Chart type",
-    title: "Title", xLabel: "X axis", yLabel: "Y axis", unit: "Unit", categories: "Categories", series: "Series",
-    distractors: "Distractors", speaker: "Speaker", text: "Text", name: "Name", values: "Values",
-    kind: "Kind", reference: "Reference",
+    topic: "Topic",
+    passage: "Passage",
+    question: "Question",
+    options: "Options",
+    correctIndexes: "Correct answers",
+    passageWithSlots: "Passage with blanks",
+    slots: "Blanks",
+    paragraphs: "Paragraphs",
+    keyPoints: "Key points",
+    essayPrompt: "Prompt",
+    transcript: "Transcript",
+    blanks: "Blanks",
+    answer: "Answer",
+    displayedText: "Displayed text",
+    changedIndexes: "Changed word positions",
+    situation: "Situation",
+    turns: "Turns",
+    chartType: "Chart type",
+    title: "Title",
+    xLabel: "X axis",
+    yLabel: "Y axis",
+    unit: "Unit",
+    categories: "Categories",
+    series: "Series",
+    distractors: "Distractors",
+    speaker: "Speaker",
+    text: "Text",
+    name: "Name",
+    values: "Values",
+    kind: "Kind",
+    reference: "Reference",
   },
 };
 
 /** Labels of the reviewer's checks (the keys of its `checks` object). */
 export const REVIEW_CHECK_LABELS: { vi: Record<string, string>; en: Record<string, string> } = {
   vi: {
-    taskFidelity: "Đúng dạng bài", cefrFit: "Đúng trình độ CEFR", answerKey: "Đáp án rõ ràng",
-    scorability: "Chấm được", clarity: "Dễ hiểu", safety: "An toàn",
+    taskFidelity: "Đúng dạng bài",
+    cefrFit: "Đúng trình độ CEFR",
+    answerKey: "Đáp án rõ ràng",
+    scorability: "Chấm được",
+    clarity: "Dễ hiểu",
+    safety: "An toàn",
   },
   en: {
-    taskFidelity: "Fits the task type", cefrFit: "Fits the CEFR level", answerKey: "Clear answer key",
-    scorability: "Can be scored", clarity: "Clear wording", safety: "Safe content",
+    taskFidelity: "Fits the task type",
+    cefrFit: "Fits the CEFR level",
+    answerKey: "Clear answer key",
+    scorability: "Can be scored",
+    clarity: "Clear wording",
+    safety: "Safe content",
   },
 };
-
-
-

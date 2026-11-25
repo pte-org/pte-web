@@ -17,7 +17,8 @@ export interface ReviewSummary {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
-const text = (value: unknown): string | null => (typeof value === "string" && value.trim() ? value : null);
+const text = (value: unknown): string | null =>
+  typeof value === "string" && value.trim() ? value : null;
 
 /** The reviewer's (possibly half-written) answer: its verdict, every check it wrote so far and what to fix. */
 export function reviewSummary(answer: unknown): ReviewSummary {

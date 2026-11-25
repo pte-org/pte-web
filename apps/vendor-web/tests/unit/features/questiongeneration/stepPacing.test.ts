@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { itemStatus, pacedStatuses, settledCount } from "../../../../features/questiongeneration/utils/stepPacing";
+import {
+  itemStatus,
+  pacedStatuses,
+  settledCount,
+} from "../../../../features/questiongeneration/utils/stepPacing";
 
 describe("step pacing", () => {
   it("counts the finished steps from the first", () => {
@@ -9,7 +13,12 @@ describe("step pacing", () => {
   });
 
   it("shows a step finished too fast as running and the later steps waiting", () => {
-    expect(pacedStatuses(["done", "done", "active", "waiting"], 1)).toEqual(["done", "active", "waiting", "waiting"]);
+    expect(pacedStatuses(["done", "done", "active", "waiting"], 1)).toEqual([
+      "done",
+      "active",
+      "waiting",
+      "waiting",
+    ]);
     expect(pacedStatuses(["done", "done", "done"], 0)).toEqual(["active", "waiting", "waiting"]);
   });
 
