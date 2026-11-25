@@ -11,6 +11,7 @@ import {
   EyeIcon,
   Select,
   useLocale,
+  useToast,
   type DataTableColumn,
 } from "@pte/ui";
 import type { ProgramResponse } from "@pte/api-client";
@@ -50,11 +51,17 @@ function formatDateRange(startDate: string | null, endDate: string | null): stri
 export const ProgramsListView = (): ReactElement => {
   const labels = useOrgLabels();
   const { t } = useLocale();
+  const { showToast } = useToast();
   const searchText = useTenantSearchText("programs");
   const router = useRouter();
   const programLabel = t("nav.program", labels.program);
   const text = {
     create: t("tenant.programs.create", PROGRAMS_TEXT.addButton),
+    createSuccess: t(
+      "tenant.programs.createSuccess",
+      PROGRAMS_TEXT.createSuccess(programLabel),
+      { program: programLabel, programLower: programLabel.toLowerCase() },
+    ),
     name: t("tenant.programs.name", PROGRAM_TABLE_HEADERS.NAME),
     status: t("tenant.programs.status", PROGRAM_TABLE_HEADERS.STATUS),
     dates: t("tenant.programs.dates", PROGRAM_TABLE_HEADERS.DATES),
@@ -106,7 +113,12 @@ export const ProgramsListView = (): ReactElement => {
         startDate: input.startDate || null,
         endDate: input.endDate || null,
       },
-      { onSuccess: () => setCreateOpen(false) },
+      {
+        onSuccess: () => {
+          setCreateOpen(false);
+          showToast(text.createSuccess, { tone: "success" });
+        },
+      },
     );
   };
 
