@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from "react-dom/server";
 import { expect, it } from "vitest";
 import type { AttendanceHistoryItemResponse } from "@pte/api-client";
+import { LocaleProvider } from "@pte/ui";
 import { AttendanceHistoryEntry } from "../../../../features/proctor/components/AttendanceHistoryEntry";
 
 const entry: AttendanceHistoryItemResponse = {
@@ -11,14 +12,14 @@ const entry: AttendanceHistoryItemResponse = {
 };
 
 it("shows the full attendance transition, actor and reason without a wide table", () => {
-  const html = renderToStaticMarkup(<AttendanceHistoryEntry entry={entry} />);
+  const html = renderToStaticMarkup(<LocaleProvider><AttendanceHistoryEntry entry={entry} /></LocaleProvider>);
   for (const text of ["Test proctor", "Giám thị", "Chưa điểm danh", "Có mặt", "Checked student identity"]) expect(html).toContain(text);
   expect(html).toMatch(/datetime="2026-11-10T03:00:00Z"/i);
   expect(html).not.toMatch(/<table|PROCTOR/);
 });
 
 it("uses understandable fallback labels instead of technical ids", () => {
-  const html = renderToStaticMarkup(<AttendanceHistoryEntry entry={{ ...entry, actorDisplayName: null, reasonOrNote: null }} />);
+  const html = renderToStaticMarkup(<LocaleProvider><AttendanceHistoryEntry entry={{ ...entry, actorDisplayName: null, reasonOrNote: null }} /></LocaleProvider>);
   expect(html).toContain("Giám thị");
   expect(html).toContain("Không có ghi chú bổ sung.");
   expect(html).not.toContain("actor-1");

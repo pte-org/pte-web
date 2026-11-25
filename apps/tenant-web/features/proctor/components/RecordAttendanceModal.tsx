@@ -7,9 +7,8 @@ import { Alert, Button, Modal, StatusBadge, Textarea } from "@pte/ui";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
 import {
   getAttendanceBadgeVariant,
-  getAttendanceStatusLabel,
-  PROCTOR_RECORD_MODAL_TEXT as T,
 } from "../constants";
+import { useAttendanceText } from "../hooks/useAttendanceText";
 import { useRecordAttendanceMutation, useRecordHostAttendanceMutation } from "../api";
 
 interface RecordAttendanceModalProps {
@@ -42,6 +41,7 @@ export function RecordAttendanceModal({
   isHost = false,
   onSuccess,
 }: RecordAttendanceModalProps): ReactElement {
+  const text = useAttendanceText();
   const [reason, setReason] = useState("");
   const [requestUuid, setRequestUuid] = useState(generateUuid);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -73,7 +73,7 @@ export function RecordAttendanceModal({
 
   const handleSubmit = async () => {
     if (isReasonRequired && !reason.trim()) {
-      setErrorMessage(T.REASON_VALIDATION_ERROR);
+      setErrorMessage(text.reasonValidationError);
       return;
     }
     setErrorMessage(null);
@@ -100,11 +100,11 @@ export function RecordAttendanceModal({
         msg.includes("version")
       ) {
         setIsStaleConflict(true);
-        setErrorMessage(T.STALE_CONFLICT_ERROR);
+        setErrorMessage(text.staleConflictError);
       } else {
         // Freeze current intent so user retries exact same payload and UUID, preventing idempotency conflicts
         setIsIntentFrozen(true);
-        setErrorMessage(T.UNKNOWN_NETWORK_ERROR);
+        setErrorMessage(text.unknownNetworkError);
       }
     }
   };
@@ -114,11 +114,11 @@ export function RecordAttendanceModal({
       open={open}
       onClose={onClose}
       isDismissDisabled={mutation.isPending}
-      title={T.TITLE}
+      title={text.recordTitle}
       footer={
         <div className="flex justify-end gap-2">
           <Button variant="secondary" size="sm" disabled={mutation.isPending} onClick={onClose}>
-            {isStaleConflict ? T.CLOSE_BTN : T.CANCEL_BTN}
+            {isStaleConflict ? text.close : text.cancel}
           </Button>
           {!isStaleConflict && (
             <Button
@@ -128,10 +128,10 @@ export function RecordAttendanceModal({
               onClick={() => void handleSubmit()}
             >
               {mutation.isPending
-                ? T.PROCESSING_BTN
+                ? text.recordProcessing
                 : isIntentFrozen
-                  ? T.RETRY_EXACT_BTN
-                  : T.CONFIRM_BTN}
+                  ? text.recordRetryExact
+                  : text.recordConfirm}
             </Button>
           )}
         </div>
@@ -147,20 +147,20 @@ export function RecordAttendanceModal({
 
         <div className="flex items-center justify-between rounded-lg border border-[var(--border-subtle)] p-3 text-sm">
           <div>
-            <span className="text-xs text-[var(--ink-muted)]">{T.CURRENT_LABEL}</span>
+            <span className="text-xs text-[var(--ink-muted)]">{text.recordCurrent}</span>
             <div className="mt-1">
               <StatusBadge
-                label={getAttendanceStatusLabel(row.status)}
+                label={text.statusLabel(row.status)}
                 variant={getAttendanceBadgeVariant(row.status)}
               />
             </div>
           </div>
           <span className="text-lg text-[var(--ink-muted)]">→</span>
           <div>
-            <span className="text-xs text-[var(--ink-muted)]">{T.TARGET_LABEL}</span>
+            <span className="text-xs text-[var(--ink-muted)]">{text.recordTarget}</span>
             <div className="mt-1">
               <StatusBadge
-                label={getAttendanceStatusLabel(targetStatus)}
+                label={text.statusLabel(targetStatus)}
                 variant={getAttendanceBadgeVariant(targetStatus)}
               />
             </div>
@@ -168,22 +168,22 @@ export function RecordAttendanceModal({
         </div>
 
         {hasDiscrepancy && (
-          <Alert tone="warning" title={T.DISCREPANCY_TITLE}>
-            {T.DISCREPANCY_PREFIX}
+          <Alert tone="warning" title={text.discrepancyTitle}>
+            {text.discrepancyPrefix}
             <span className="font-medium">{row.latestAttemptActivityStatus}</span>
-            {T.DISCREPANCY_SUFFIX}
+            {text.discrepancySuffix}
           </Alert>
         )}
 
         <Textarea
           id="attendance-reason-input"
-          label={isReasonRequired ? T.REASON_REQUIRED_LABEL : T.REASON_OPTIONAL_LABEL}
+          label={isReasonRequired ? text.reasonRequiredLabel : text.reasonOptionalLabel}
           required={isReasonRequired}
           disabled={isIntentFrozen || isStaleConflict}
           value={reason}
           onChange={(e) => setReason(e.target.value)}
           placeholder={
-            isReasonRequired ? T.REASON_REQUIRED_PLACEHOLDER : T.REASON_OPTIONAL_PLACEHOLDER
+            isReasonRequired ? text.reasonRequiredPlaceholder : text.reasonOptionalPlaceholder
           }
           className="w-full"
         />

@@ -4,7 +4,7 @@ import type { ReactElement } from "react";
 import type { AssignedProctorSessionResponse, AttendancePageResponse } from "@pte/api-client";
 import { Alert, DashboardCard, PageHeader, StatusBadge } from "@pte/ui";
 import { getAttendanceBlockingMessage } from "../attendancePresentation";
-import { PROCTOR_ATTENDANCE_VIEW_TEXT as T } from "../constants";
+import { useAttendanceText } from "../hooks/useAttendanceText";
 import { useProctorWorkspaceText } from "../hooks/useProctorWorkspaceText";
 
 interface ProctorSessionInfoCardProps {
@@ -20,6 +20,7 @@ export const ProctorSessionInfoCard = ({
   attendance,
 }: ProctorSessionInfoCardProps): ReactElement => {
   const text = useProctorWorkspaceText();
+  const attendanceText = useAttendanceText();
   const formatter = new Intl.DateTimeFormat(text.locale === "vi" ? "vi-VN" : "en-US", {
     dateStyle: "short",
     timeStyle: "short",
@@ -41,7 +42,7 @@ export const ProctorSessionInfoCard = ({
           actions={
             attendance?.asOf ? (
               <span className="text-xs text-[var(--ink-muted)]">
-                {T.UPDATED_PREFIX}
+                {attendanceText.viewUpdatedPrefix}
                 {new Date(attendance.asOf).toLocaleTimeString(
                   text.locale === "vi" ? "vi-VN" : "en-US",
                 )}
@@ -72,10 +73,10 @@ export const ProctorSessionInfoCard = ({
         {!attendance?.canEditSession && attendance?.sessionBlockingReason && (
           <div className="border-t border-[var(--divider)] pt-4">
             <Alert tone="warning">
-              {getAttendanceBlockingMessage(attendance.sessionBlockingReason)}
+              {getAttendanceBlockingMessage(attendance.sessionBlockingReason, attendanceText)}
               {attendance.attendanceWindowOpensAt && (
                 <p className="mt-1 text-xs">
-                  {T.WINDOW_OPENS_AT_PREFIX}
+                  {attendanceText.viewWindowOpensPrefix}
                   {formatter.format(new Date(attendance.attendanceWindowOpensAt))}
                 </p>
               )}

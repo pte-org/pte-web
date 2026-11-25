@@ -11,7 +11,6 @@ import { ExamParticipantsTab } from "./ExamParticipantsTab";
 import { ExamAttendanceTab } from "./ExamAttendanceTab";
 import { ExamQuestionsTab } from "./ExamQuestionsTab";
 import { ExamIncidentsTab } from "./ExamIncidentsTab";
-import { HOST_INCIDENT_TEXT } from "../constants/incidents";
 import { ExamSubmissionsTab } from "./ExamSubmissionsTab";
 
 type ExamDetailTab =
@@ -115,7 +114,7 @@ export const ExamDetailTabs = ({
     { id: "questions", label: t("tenant.examTabs.questions", "Questions") },
     { id: "participants", label: t("tenant.examTabs.participants", "Participants & proctors") },
     { id: "attendance", label: t("tenant.examTabs.attendance", "Attendance") },
-    { id: "incidents", label: HOST_INCIDENT_TEXT.TAB },
+    { id: "incidents", label: t("tenant.examTabs.incidents", "Incidents") },
     { id: "submissions", label: t("tenant.examTabs.submissions", "Submissions") },
     { id: "examiner", label: t("tenant.examTabs.examiner", "Examiner") },
   ];

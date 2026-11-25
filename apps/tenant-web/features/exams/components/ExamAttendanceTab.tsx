@@ -5,7 +5,7 @@ import { Alert, Button, PaginationControls } from "@pte/ui";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
 import { useHostAttendanceRoster } from "@/features/proctor/api";
 import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
-import { PROCTOR_TOOLBAR_TEXT } from "@/features/proctor/constants";
+import { useAttendanceText } from "@/features/proctor/hooks/useAttendanceText";
 import { AttendanceSummaryCards } from "@/features/proctor/components/AttendanceSummaryCards";
 import { AttendanceFilterToolbar } from "@/features/proctor/components/AttendanceFilterToolbar";
 import { AttendanceRosterTable } from "@/features/proctor/components/AttendanceRosterTable";
@@ -21,6 +21,7 @@ export function ExamAttendanceTab({
   sessionPublicId,
   sessionStatus,
 }: ExamAttendanceTabProps): ReactElement {
+  const text = useAttendanceText();
   const [currentStatus, setCurrentStatus] = useState<AttendanceStatus | "ALL">("ALL");
   const [currentSearch, setCurrentSearch] = useState("");
   const debouncedSearch = useDebouncedSearch(currentSearch);
@@ -54,19 +55,17 @@ export function ExamAttendanceTab({
   return (
     <div className="space-y-5 motion-safe:animate-pte-fade-up">
       {isSessionClosed && (
-        <Alert tone="info" title="Lưu ý quyền Host điều chỉnh ca thi đã đóng">
-          Ca thi này đã đóng. Quyền Host cho phép bạn cập nhật hoặc đính chính điểm danh vì mục đích
-          hành chính. Thao tác này không mở lại ca thi hay thay đổi kết quả bài thi. Lý do điều
-          chỉnh là bắt buộc cho mọi thay đổi.
+        <Alert tone="info" title={text.closedBannerTitle}>
+          {text.closedBannerBody}
         </Alert>
       )}
 
       {isError && (
-        <Alert tone="error" title="Không thể tải danh sách điểm danh">
+        <Alert tone="error" title={text.loadErrorTitle}>
           <div className="flex items-center gap-3">
-            <span>Đã có lỗi xảy ra khi truy vấn dữ liệu từ máy chủ.</span>
+            <span>{text.loadErrorBody}</span>
             <Button variant="secondary" size="sm" onClick={() => void refetch()}>
-              Thử lại
+              {text.retry}
             </Button>
           </div>
         </Alert>
@@ -95,7 +94,7 @@ export function ExamAttendanceTab({
         }
         toolbarActions={
           <Button variant="secondary" size="sm" onClick={() => void refetch()}>
-            {PROCTOR_TOOLBAR_TEXT.REFRESH_BTN}
+            {text.refreshButton}
           </Button>
         }
         pagination={

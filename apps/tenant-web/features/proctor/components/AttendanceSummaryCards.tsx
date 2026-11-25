@@ -3,7 +3,7 @@
 import type { ReactElement } from "react";
 import type { AttendanceSummaryResponse } from "@pte/api-client";
 import { StatCard } from "@pte/ui";
-import { PROCTOR_ATTENDANCE_SUMMARY_TEXT as T } from "../constants";
+import { useAttendanceText } from "../hooks/useAttendanceText";
 
 interface AttendanceSummaryCardsProps {
   summary?: AttendanceSummaryResponse;
@@ -14,6 +14,7 @@ export function AttendanceSummaryCards({
   summary,
   isLoading = false,
 }: AttendanceSummaryCardsProps): ReactElement {
+  const text = useAttendanceText();
   const total = summary?.totalEnrollments ?? 0;
   const unmarked = summary?.unmarkedCount ?? 0;
   const present = summary?.presentCount ?? 0;
@@ -23,33 +24,33 @@ export function AttendanceSummaryCards({
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
       <StatCard
-        label={T.TOTAL_STUDENTS_LABEL}
+        label={text.summaryTotalLabel}
         value={isLoading ? "—" : String(total)}
-        footnote={T.TOTAL_STUDENTS_FOOTNOTE}
+        footnote={text.summaryTotalFootnote}
         accent="blue"
       />
       <StatCard
-        label={T.UNMARKED_LABEL}
+        label={text.statusUnmarked}
         value={isLoading ? "—" : String(unmarked)}
-        footnote={T.UNMARKED_FOOTNOTE}
+        footnote={text.summaryUnmarkedFootnote}
         accent="cream"
       />
       <StatCard
-        label={T.PRESENT_LABEL}
+        label={text.statusPresent}
         value={isLoading ? "—" : String(present)}
-        footnote={T.PRESENT_FOOTNOTE}
+        footnote={text.summaryPresentFootnote}
         accent="mint"
       />
       <StatCard
-        label={T.ABSENT_LABEL}
+        label={text.statusAbsent}
         value={isLoading ? "—" : String(absent)}
-        footnote={T.ABSENT_FOOTNOTE}
+        footnote={text.summaryAbsentFootnote}
         accent="blush"
       />
       <StatCard
-        label={T.LATE_LABEL}
+        label={text.statusLate}
         value={isLoading ? "—" : String(late)}
-        footnote={T.LATE_FOOTNOTE}
+        footnote={text.summaryLateFootnote}
         accent="cream"
       />
     </div>

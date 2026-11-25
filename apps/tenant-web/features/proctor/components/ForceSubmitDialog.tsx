@@ -4,7 +4,7 @@ import { useFeedbackToast } from "../hooks/useFeedbackToast";
 
 import type { ReactElement } from "react";
 import { Button, Modal } from "@pte/ui";
-import { PROCTOR_FORCE_SUBMIT_TEXT } from "../constants";
+import { useAttendanceText } from "../hooks/useAttendanceText";
 
 interface ForceSubmitDialogProps {
   studentName: string | null;
@@ -22,30 +22,31 @@ export const ForceSubmitDialog = ({
   onClose,
   onConfirm,
 }: ForceSubmitDialogProps): ReactElement => {
+  const text = useAttendanceText();
   useFeedbackToast(studentName ? errorMessage : null);
   return (
     <Modal
       open={studentName !== null}
       onClose={onClose}
-      title={PROCTOR_FORCE_SUBMIT_TEXT.TITLE}
+      title={text.forceSubmitTitle}
       size="md"
       isDismissDisabled={isLoading}
       footer={
         <div className="flex justify-end gap-2">
           <Button type="button" variant="secondary" onClick={onClose} disabled={isLoading}>
-            {PROCTOR_FORCE_SUBMIT_TEXT.CANCEL}
+            {text.cancel}
           </Button>
           <Button type="button" variant="danger" disabled={isLoading} onClick={onConfirm}>
-            {isLoading ? PROCTOR_FORCE_SUBMIT_TEXT.PROCESSING : PROCTOR_FORCE_SUBMIT_TEXT.CONFIRM}
+            {isLoading ? text.forceSubmitProcessing : text.forceSubmitConfirm}
           </Button>
         </div>
       }
     >
       <div className="space-y-4">
         <p className="text-sm text-[var(--ink-secondary)]">
-          {PROCTOR_FORCE_SUBMIT_TEXT.MESSAGE_PREFIX}
+          {text.forceSubmitMessagePrefix}
           <strong className="text-[var(--ink-primary)]">{studentName}</strong>
-          {PROCTOR_FORCE_SUBMIT_TEXT.MESSAGE_SUFFIX}
+          {text.forceSubmitMessageSuffix}
         </p>
       </div>
     </Modal>

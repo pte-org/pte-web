@@ -7,10 +7,8 @@ import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
 import {
   ATTEMPT_IN_PROGRESS,
   ATTEMPT_SUBMITTED,
-  PROCTOR_FORCE_SUBMIT_TEXT,
-  PROCTOR_ROSTER_TEXT as T,
-  PROCTOR_TOOLBAR_TEXT,
 } from "../constants";
+import { useAttendanceText } from "../hooks/useAttendanceText";
 
 interface AttendanceRosterTableProps {
   rows: AttendanceRowResponse[];
@@ -41,6 +39,7 @@ export function AttendanceRosterTable({
   onSearchChange,
 }: AttendanceRosterTableProps): ReactElement {
   const columns = useAttendanceColumns();
+  const text = useAttendanceText();
 
   const renderRowActions = (row: AttendanceRowResponse) => {
     const canEditRow = canEditSession && row.canEdit;
@@ -48,14 +47,14 @@ export function AttendanceRosterTable({
     const actionItems: DropdownItem[] = [];
     if (canEditRow && row.status !== "PRESENT") {
       actionItems.push({
-        label: T.ACTION_PRESENT,
+        label: text.actionPresent,
         tone: "success",
         onSelect: () => onRecordAttendance(row, "PRESENT"),
       });
     }
     if (canEditRow && row.status !== "LATE") {
       actionItems.push({
-        label: T.ACTION_LATE,
+        label: text.actionLate,
         tone: "warning",
         onSelect: () => onRecordAttendance(row, "LATE"),
       });
@@ -66,14 +65,14 @@ export function AttendanceRosterTable({
       row.latestAttemptActivityStatus === ATTEMPT_SUBMITTED;
     if (canEditRow && row.status !== "ABSENT" && !hasStartedExam) {
       actionItems.push({
-        label: T.ACTION_ABSENT,
+        label: text.actionAbsent,
         tone: "danger",
         onSelect: () => onRecordAttendance(row, "ABSENT"),
       });
     }
     if (canEditRow && row.status !== "UNMARKED") {
       actionItems.push({
-        label: T.ACTION_RESET,
+        label: text.actionReset,
         tone: "neutral",
         onSelect: () => onRecordAttendance(row, "UNMARKED"),
       });
@@ -84,19 +83,19 @@ export function AttendanceRosterTable({
       row.latestAttemptActivityStatus === ATTEMPT_IN_PROGRESS
     ) {
       actionItems.push({
-        label: PROCTOR_FORCE_SUBMIT_TEXT.ACTION,
+        label: text.forceSubmitAction,
         tone: "danger",
         onSelect: () => onForceSubmit(row),
       });
     }
     actionItems.push({
-      label: T.ACTION_VIEW_HISTORY,
+      label: text.actionViewHistory,
       onSelect: () => onViewHistory(row),
     });
 
     return (
       <div className="flex items-center justify-end gap-1.5">
-        <ActionMenu items={actionItems} label={T.ACTION_MENU_LABEL} />
+        <ActionMenu items={actionItems} label={text.actionMenuLabel} />
       </div>
     );
   };
@@ -107,7 +106,7 @@ export function AttendanceRosterTable({
       rows={rows}
       getRowKey={(row) => row.studentPublicId}
       isLoading={isLoading}
-      emptyTitle={T.EMPTY_TITLE}
+      emptyTitle={text.rosterEmpty}
       rowActions={renderRowActions}
       clientSideFiltering={false}
       clientSideSorting={false}
@@ -115,8 +114,8 @@ export function AttendanceRosterTable({
       showSearch={Boolean(onSearchChange)}
       searchValue={searchValue}
       onSearchChange={onSearchChange}
-      searchPlaceholder={PROCTOR_TOOLBAR_TEXT.SEARCH_PLACEHOLDER}
-      searchAriaLabel={PROCTOR_TOOLBAR_TEXT.SEARCH_PLACEHOLDER}
+      searchPlaceholder={text.searchPlaceholder}
+      searchAriaLabel={text.searchPlaceholder}
       filters={filters}
       pagination={pagination}
       toolbarActions={toolbarActions}
