@@ -9,27 +9,40 @@ export const PreviewStimulus = ({ draft }: { draft: QuestionPreviewDraft }): Rea
   const hasText = draft.promptText.trim().length > 0;
   return (
     <div className="space-y-6">
-      {expectsAudio && <PreviewAudioPanel variant="player" src={draft.audioUrl} />}
+      {expectsAudio && (
+        <div data-exam-slot="audio">
+          <PreviewAudioPanel variant="player" src={draft.audioUrl} />
+        </div>
+      )}
       {expectsImage &&
         (draft.imageUrl ? (
           <img
+            data-exam-slot="image"
             className="mx-auto max-h-80 w-full object-contain"
             src={draft.imageUrl}
             alt={EXAM_SCREEN_TEXT.IMAGE_ALT}
           />
         ) : (
-          <p className="rounded-sm border border-dashed border-[var(--exam-border)] p-8 text-center text-sm text-[var(--exam-text-muted)]">
+          <p
+            data-exam-slot="image"
+            className="rounded-sm border border-dashed border-[var(--exam-border)] p-8 text-center text-sm text-[var(--exam-text-muted)]"
+          >
             {EXAM_SCREEN_TEXT.EMPTY_IMAGE}
           </p>
         ))}
       {hasText ? (
-        <p className="whitespace-pre-line text-xl leading-relaxed text-[var(--exam-text)]">
+        <p
+          data-exam-slot="prompt"
+          className="whitespace-pre-line text-xl leading-relaxed text-[var(--exam-text)]"
+        >
           {draft.promptText}
         </p>
       ) : (
         !expectsImage &&
         !expectsAudio && (
-          <p className="text-sm text-[var(--exam-text-muted)]">{EXAM_SCREEN_TEXT.EMPTY_PROMPT}</p>
+          <p data-exam-slot="prompt" className="text-sm text-[var(--exam-text-muted)]">
+            {EXAM_SCREEN_TEXT.EMPTY_PROMPT}
+          </p>
         )
       )}
     </div>

@@ -8,6 +8,7 @@ import {
   DRAFT_FIELD_LABELS,
   LANE_LABELS,
   REVIEW_CHECK_LABELS,
+  STAGE_LABELS,
   questionDetailHref,
   type LiveLane,
   type LiveText,
@@ -20,6 +21,7 @@ import { reviewSummary } from "../utils/reviewSummary";
 import { isReviewCheck } from "../liveCheckCopy";
 import { LiveChecks } from "./_LiveChecks";
 import { LiveDraftFields } from "./_LiveDraftFields";
+import { LiveAssembly } from "./_LiveAssembly";
 import { LiveLaneCard } from "./_LiveLaneCard";
 import { LiveReviewBody } from "./_LiveReviewBody";
 
@@ -33,6 +35,8 @@ interface LiveItemPanelProps {
   needsImage: boolean;
   /** Describe Image: what the job asked for; AUTO is told apart once the draft shows a chart or a picture. */
   imageKind?: string | null;
+  /** The job's task type, which names the exam screen drawn next to the steps. */
+  taskType: string;
 }
 
 const hasKey = (value: unknown, key: string): boolean =>
@@ -76,6 +80,7 @@ export const LiveItemPanel = ({
   needsAudio,
   needsImage,
   imageKind,
+  taskType,
 }: LiveItemPanelProps): ReactElement => {
   const outcome = record && OUTCOME_STAGES.includes(record.stage) ? record.stage : null;
   const generatorText = useTypedText(live?.generator?.text ?? "");
@@ -137,7 +142,9 @@ export const LiveItemPanel = ({
   const reviewerChecks = (live?.checks ?? []).filter(isReviewCheck);
   const nothingYet = !live?.generator && !outcome;
 
-  return (
+  // A recorded outcome wins over the live stage, which may lag behind the end of the job.
+  const stage = outcome ?? live?.stage ?? record?.stage ?? "QUEUED";
+  const steps = (
     <ul className="ml-2.5 space-y-3 border-l border-dashed border-[var(--border-subtle)] pl-5">
       <LiveLaneCard
         lane="GENERATOR"
@@ -238,5 +245,18 @@ export const LiveItemPanel = ({
         </LiveLaneCard>
       )}
     </ul>
+  );
+  return (
+    <LiveAssembly
+      key={live?.index ?? record?.index ?? 0}
+      live={live}
+      typed={draft}
+      taskType={taskType}
+      needsAudio={needsAudio}
+      needsImage={needsImage}
+      locale={locale}
+      stageLabel={STAGE_LABELS[locale][stage as keyof typeof STAGE_LABELS.en] ?? stage}
+      steps={steps}
+    />
   );
 };

@@ -46,6 +46,7 @@ export const LiveJobItemList = ({
       needsAudio={needsAudio}
       needsImage={needsImage}
       imageKind={job.imageKind}
+      taskType={job.taskType}
     />
   );
 
