@@ -7,9 +7,8 @@ import type { IncidentStatus } from "@pte/api-client";
 import { useIncidentColumns } from "../hooks/useIncidentColumns";
 import { useIncidentsList } from "../api";
 import { IncidentDetailModal } from "./IncidentDetailModal";
-import { INCIDENT_POPUP_TEXT } from "../incidentPresentation";
 import { IncidentReportModal } from "./IncidentReportModal";
-import { PROCTOR_INCIDENT_LIST_TEXT as T, PROCTOR_INCIDENT_STATUS_TABS } from "../constants";
+import { useIncidentText } from "../hooks/useIncidentText";
 
 interface IncidentListViewProps {
   sessionPublicId: string;
@@ -24,6 +23,7 @@ export const IncidentListView = ({
   audience = "proctor",
   renderDetail,
 }: IncidentListViewProps): ReactElement => {
+  const text = useIncidentText();
   const [selectedIncident, setSelectedIncident] = useState<string | null>(
     initialIncidentPublicId ?? null,
   );
@@ -54,11 +54,11 @@ export const IncidentListView = ({
     >
       {isError ? (
         <ErrorState
-          title={T.ERROR_TITLE}
-          description={T.ERROR_DESC}
+          title={text.listErrorTitle}
+          description={text.listErrorBody}
           action={
             <Button variant="secondary" size="sm" onClick={() => void refetch()}>
-              {T.RETRY_BTN}
+              {text.retry}
             </Button>
           }
         />
@@ -68,7 +68,7 @@ export const IncidentListView = ({
           rows={incidents}
           getRowKey={(row) => row.incidentPublicId}
           isLoading={isLoading}
-          emptyTitle={T.EMPTY_TITLE}
+          emptyTitle={text.listEmpty}
           rowActions={(row) => (
             <Button
               variant="secondary"
@@ -77,7 +77,7 @@ export const IncidentListView = ({
               className="whitespace-nowrap hover:bg-[var(--sky-tint)] hover:text-[var(--sky-action)]"
               onClick={() => setSelectedIncident(row.incidentPublicId)}
             >
-              {INCIDENT_POPUP_TEXT.VIEW}
+              {text.viewButton}
             </Button>
           )}
           clientSideFiltering={false}
@@ -89,18 +89,18 @@ export const IncidentListView = ({
             setSearch(value);
             setPage(0);
           }}
-          searchPlaceholder={T.SEARCH_PLACEHOLDER}
-          searchAriaLabel={T.SEARCH_PLACEHOLDER}
+          searchPlaceholder={text.listSearchPlaceholder}
+          searchAriaLabel={text.listSearchPlaceholder}
           filters={
             <Select
-              aria-label={T.FILTER_STATUS_LABEL}
+              aria-label={text.listFilterStatus}
               value={selectedStatus}
-              options={PROCTOR_INCIDENT_STATUS_TABS.map((tab) => ({
+              options={text.statusTabs.map((tab) => ({
                 value: tab.id,
                 label: tab.label,
               }))}
               onChange={(event) => {
-                const selected = PROCTOR_INCIDENT_STATUS_TABS.find(
+                const selected = text.statusTabs.find(
                   (tab) => tab.id === event.target.value,
                 );
                 if (selected) {
@@ -113,7 +113,7 @@ export const IncidentListView = ({
           toolbarActions={
             audience === "proctor" ? (
               <Button variant="primary" size="sm" onClick={() => setIsReportModalOpen(true)}>
-                {T.REPORT_NEW_BTN}
+                {text.listReportNew}
               </Button>
             ) : undefined
           }

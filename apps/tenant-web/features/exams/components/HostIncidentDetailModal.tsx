@@ -6,11 +6,8 @@ import type { IncidentStatus } from "@pte/api-client";
 import { useIncidentDetail, useUpdateIncidentStatusMutation } from "@/features/proctor/api";
 import { IncidentDetailContent } from "@/features/proctor/components/IncidentDetailContent";
 import { IncidentHistorySection } from "@/features/proctor/components/IncidentHistorySection";
-import {
-  getIncidentStatusBadge,
-  PROCTOR_INCIDENT_DETAIL_TEXT as D,
-} from "@/features/proctor/constants";
-import { HOST_INCIDENT_TEXT as T, HOST_INCIDENT_TRANSITIONS } from "../constants/incidents";
+import { useIncidentText } from "@/features/proctor/hooks/useIncidentText";
+import { HOST_INCIDENT_TRANSITIONS } from "../constants/incidents";
 
 interface HostIncidentDetailModalProps {
   sessionPublicId: string;
@@ -23,6 +20,7 @@ export function HostIncidentDetailModal({
   incidentPublicId,
   onClose,
 }: HostIncidentDetailModalProps): ReactElement {
+  const text = useIncidentText();
   const query = useIncidentDetail(sessionPublicId, incidentPublicId);
   const mutation = useUpdateIncidentStatusMutation(sessionPublicId, incidentPublicId);
   const { showToast } = useToast();
@@ -44,16 +42,16 @@ export function HostIncidentDetailModal({
       });
       setTarget(null);
       setNote("");
-      showToast(T.SAVED, { tone: "success" });
+      showToast(text.hostSaved, { tone: "success" });
     } catch (error) {
-      showToast(error instanceof Error ? error.message : T.FAILED, { tone: "error" });
+      showToast(error instanceof Error ? error.message : text.hostFailed, { tone: "error" });
     }
   };
   return (
     <Modal
       open
       size="full"
-      title={T.TITLE}
+      title={text.hostTitle}
       onClose={onClose}
       isDismissDisabled={mutation.isPending}
       footer={
@@ -64,7 +62,7 @@ export function HostIncidentDetailModal({
               mutation.isPending || !note.trim() || !nextStatus || !allowed.includes(nextStatus)
             }
           >
-            {mutation.isPending ? T.SAVING : T.SAVE}
+            {mutation.isPending ? text.hostSaving : text.hostSave}
           </Button>
         ) : undefined
       }
@@ -73,8 +71,8 @@ export function HostIncidentDetailModal({
         <LoadingState variant="rows" />
       ) : !incident ? (
         <ErrorState
-          title={D.ERROR_TITLE}
-          action={<Button onClick={() => void query.refetch()}>{D.RETRY_BTN}</Button>}
+          title={text.detailErrorTitle}
+          action={<Button onClick={() => void query.refetch()}>{text.retry}</Button>}
         />
       ) : (
         <div className="space-y-6">
@@ -85,14 +83,14 @@ export function HostIncidentDetailModal({
           />
           {editable ? (
             <section className="space-y-3 rounded-xl border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4">
-              <h3 className="text-sm font-semibold">{T.UPDATE}</h3>
+              <h3 className="text-sm font-semibold">{text.hostUpdate}</h3>
               <Select
-                label={T.STATUS}
+                label={text.hostStatus}
                 value={nextStatus}
                 disabled={mutation.isPending}
                 options={allowed.map((status) => ({
                   value: status,
-                  label: status === "NEW" ? T.NEW : getIncidentStatusBadge(status).label,
+                  label: text.statusBadge(status).label,
                 }))}
                 onChange={(event) => {
                   const selected = allowed.find((status) => status === event.target.value);
@@ -100,18 +98,18 @@ export function HostIncidentDetailModal({
                 }}
               />
               <Textarea
-                label={nextStatus === "RESOLVED" ? T.RESULT : T.NOTE}
+                label={nextStatus === "RESOLVED" ? text.hostResult : text.hostNote}
                 required
                 rows={4}
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 disabled={mutation.isPending}
               />
-              <p className="text-xs text-[var(--ink-secondary)]">{T.NOTE_HINT}</p>
+              <p className="text-xs text-[var(--ink-secondary)]">{text.hostNoteHint}</p>
             </section>
           ) : (
             <p className="rounded-lg bg-[var(--surface-subtle)] p-3 text-sm text-[var(--ink-secondary)]">
-              {T.CLOSED}
+              {text.hostClosed}
             </p>
           )}
         </div>

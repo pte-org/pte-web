@@ -1,67 +1,60 @@
 "use client";
 import { useMemo } from "react";
 import { Badge, StatusBadge, type DataTableColumn } from "@pte/ui";
-import { INCIDENT_POPUP_TEXT, incidentRoleLabel } from "../incidentPresentation";
 import type { IncidentResponse } from "@pte/api-client";
-import {
-  getIncidentSeverityBadge as getSeverityBadge,
-  getIncidentStatusBadge as getStatusBadge,
-  PROCTOR_INCIDENT_LIST_TEXT as T,
-  PROCTOR_INCIDENT_CATEGORY_OPTIONS,
-} from "../constants";
+import { useIncidentText } from "./useIncidentText";
+
 export const useIncidentColumns = (): DataTableColumn<IncidentResponse>[] => {
+  const text = useIncidentText();
   return useMemo(
     () => [
       {
         key: "title",
-        header: T.COL_TITLE_CATEGORY,
+        header: text.colTitleCategory,
         cell: (row) => (
           <div>
             <div className="font-medium text-[var(--ink-primary)]">{row.title}</div>
-            <div className="text-xs text-[var(--ink-muted)]">
-              {PROCTOR_INCIDENT_CATEGORY_OPTIONS.find((option) => option.value === row.category)
-                ?.label ?? row.category}
-            </div>
+            <div className="text-xs text-[var(--ink-muted)]">{text.categoryLabel(row.category)}</div>
           </div>
         ),
       },
       {
         key: "student",
-        header: T.COL_STUDENT,
+        header: text.colStudent,
         cell: (row) =>
           row.studentName || row.studentPublicId ? (
             <div>
               <div className="font-medium text-xs text-[var(--ink-primary)]">
-                {row.studentName || T.STUDENT_FALLBACK}
+                {row.studentName || text.studentFallback}
               </div>
             </div>
           ) : (
-            <span className="text-xs text-[var(--ink-muted)]">{T.ALL_SESSION_SCOPE}</span>
+            <span className="text-xs text-[var(--ink-muted)]">{text.allSessionScope}</span>
           ),
       },
       {
         key: "severity",
-        header: T.COL_SEVERITY,
+        header: text.colSeverity,
         cell: (row) => {
-          const { variant } = getSeverityBadge(row.severity);
-          return <Badge variant={variant}>{INCIDENT_POPUP_TEXT.SEVERITY[row.severity]}</Badge>;
+          const { label, variant } = text.severityBadge(row.severity);
+          return <Badge variant={variant}>{label}</Badge>;
         },
       },
       {
         key: "status",
-        header: T.COL_STATUS,
+        header: text.colStatus,
         cell: (row) => {
-          const { label, variant } = getStatusBadge(row.status);
+          const { label, variant } = text.statusBadge(row.status);
           return <StatusBadge label={label} variant={variant} />;
         },
       },
       {
         key: "owner",
-        header: T.COL_OWNER,
+        header: text.colOwner,
         cell: (row) => (
           <div>
             <span className="text-xs font-medium text-[var(--ink-primary)]">
-              {incidentRoleLabel(row.currentOwnerRole)}
+              {text.roleLabel(row.currentOwnerRole)}
             </span>
             {row.currentOwnerName && (
               <div className="text-[11px] text-[var(--ink-muted)]">{row.currentOwnerName}</div>
@@ -71,14 +64,12 @@ export const useIncidentColumns = (): DataTableColumn<IncidentResponse>[] => {
       },
       {
         key: "updatedAt",
-        header: T.COL_UPDATED,
+        header: text.colUpdated,
         cell: (row) => (
-          <span className="text-xs text-[var(--ink-secondary)]">
-            {new Date(row.updatedAt).toLocaleString("vi-VN")}
-          </span>
+          <span className="text-xs text-[var(--ink-secondary)]">{text.formatDateTime(row.updatedAt)}</span>
         ),
       },
     ],
-    [],
+    [text],
   );
 };

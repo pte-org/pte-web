@@ -3,8 +3,7 @@
 import type { ReactElement } from "react";
 import { Button, CollapsibleSection, ErrorState, LoadingState } from "@pte/ui";
 import { useIncidentHistory } from "../api";
-import { getIncidentStatusBadge, PROCTOR_INCIDENT_DETAIL_TEXT } from "../constants";
-import { INCIDENT_POPUP_TEXT as T, incidentRoleLabel } from "../incidentPresentation";
+import { useIncidentText } from "../hooks/useIncidentText";
 
 interface IncidentHistorySectionProps {
   sessionPublicId: string;
@@ -15,17 +14,18 @@ export function IncidentHistorySection({
   sessionPublicId,
   incidentPublicId,
 }: IncidentHistorySectionProps): ReactElement {
+  const text = useIncidentText();
   const query = useIncidentHistory(sessionPublicId, incidentPublicId);
   return (
-    <CollapsibleSection title={T.HISTORY} defaultExpanded>
+    <CollapsibleSection title={text.historyTitle} defaultExpanded>
       {query.isLoading ? (
         <LoadingState variant="rows" />
       ) : query.isError ? (
         <ErrorState
-          title={T.HISTORY_ERROR}
+          title={text.historyError}
           action={
             <Button variant="secondary" onClick={() => void query.refetch()}>
-              {PROCTOR_INCIDENT_DETAIL_TEXT.RETRY_BTN}
+              {text.retry}
             </Button>
           }
         />
@@ -37,15 +37,15 @@ export function IncidentHistorySection({
                 <span className="font-medium">
                   {item.actorName && !/^[0-9a-f-]{36}$/i.test(item.actorName)
                     ? item.actorName
-                    : incidentRoleLabel(item.actorRole)}
+                    : text.roleLabel(item.actorRole)}
                 </span>
                 <time className="text-xs text-[var(--ink-muted)]">
-                  {new Date(item.createdAt).toLocaleString("vi-VN")}
+                  {text.formatDateTime(item.createdAt)}
                 </time>
               </div>
               <p className="text-xs text-[var(--ink-secondary)]">
-                {item.fromStatus ? `${getIncidentStatusBadge(item.fromStatus).label} → ` : ""}
-                {getIncidentStatusBadge(item.toStatus).label}
+                {item.fromStatus ? `${text.statusBadge(item.fromStatus).label} → ` : ""}
+                {text.statusBadge(item.toStatus).label}
               </p>
               {item.notes && (
                 <p className="whitespace-pre-wrap break-words text-[var(--ink-secondary)]">
@@ -57,7 +57,7 @@ export function IncidentHistorySection({
         </ol>
       ) : (
         <p className="text-sm text-[var(--ink-muted)]">
-          {PROCTOR_INCIDENT_DETAIL_TEXT.TIMELINE_EMPTY}
+          {text.historyEmpty}
         </p>
       )}
     </CollapsibleSection>
