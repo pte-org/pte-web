@@ -67,3 +67,6 @@ export const PLATFORM_ASSIGNABLE_ROLE_OPTIONS = [
   { value: "ACADEMIC_MANAGER", label: "Academic manager" },
   { value: "ACADEMIC_STAFF", label: "Academic staff" },
 ] as const;
+
+/** Shown in a table cell whose value was never filled in. */
+export const PLATFORM_USER_EMPTY_CELL = "—";

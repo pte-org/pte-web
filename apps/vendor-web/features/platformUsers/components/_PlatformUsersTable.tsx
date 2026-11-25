@@ -5,10 +5,16 @@ import { Badge, Button, Checkbox, DataTable, Select } from "@pte/ui";
 import type { PlatformAssignableRole, UserResponse } from "@pte/api-client";
 import type { PlatformUserAction } from "../types";
 import { PlatformUserRowActions } from "./_PlatformUserRowActions";
-import type { PlatformUserText } from "../constants";
+import { PLATFORM_USER_EMPTY_CELL, type PlatformUserText } from "../constants";
 import { ShieldIcon } from "@pte/ui";
 
 type Option = { value: string; label: string };
+
+/** A birth date is a calendar day ("YYYY-MM-DD"): shown as DD/MM/YYYY without any time-zone shift. */
+const formatBirthDate = (value: string | null): string => {
+  const [year, month, day] = value?.split("-") ?? [];
+  return year && month && day ? `${day}/${month}/${year}` : PLATFORM_USER_EMPTY_CELL;
+};
 
 type PlatformUsersTableProps = {
   copy: PlatformUserText;
@@ -81,6 +87,16 @@ export const PlatformUsersTable = ({
         key: "roles",
         header: copy.ROLE,
         cell: (user: UserResponse) => user.roles.map(getRoleLabel).join(", "),
+      },
+      {
+        key: "phone",
+        header: copy.PHONE,
+        cell: (user: UserResponse) => user.phone || PLATFORM_USER_EMPTY_CELL,
+      },
+      {
+        key: "dateOfBirth",
+        header: copy.DATE_OF_BIRTH,
+        cell: (user: UserResponse) => formatBirthDate(user.dateOfBirth),
       },
       {
         key: "status",
