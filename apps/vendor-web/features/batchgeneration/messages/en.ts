@@ -53,7 +53,8 @@ export const batchMessages = {
   errTotal: "The batch total is above the limit.",
 
   createError: "The batch could not be started. Please try again.",
-  createAlreadyOpen: "You already have an open batch or a running generation. Finish or cancel it first.",
+  createAlreadyOpen:
+    "You already have an open batch or a running generation. Finish or cancel it first.",
   batchDisabled: "Batch generation is turned off right now.",
   generationDisabled: "Question generation is turned off right now.",
   dailyLimit: "This batch would go over your daily generation limit.",
@@ -71,6 +72,16 @@ export const batchMessages = {
   progressLabel: "Overall progress",
   noJobsMatch: "No job matches this filter.",
   filterHint: "Click a counter to show only those jobs; click it again to show all.",
+  sidebarProgress: "Batch progress",
+  savedOfTotal: "/ {total} questions saved",
+  countRunning: "Running {count}",
+  countFailedShort: "Failed {count}",
+  countCancelledShort: "Cancelled {count}",
+  lanesTitle: "{count} lanes running in parallel",
+  laneLabel: "Lane {n}",
+  noLanes: "No lane is running right now.",
+  jobsTitle: "Jobs in this batch ({count})",
+  focusEmpty: "Pick a job on the left to follow it.",
   childrenTitle: "Jobs",
   currentJob: "Running now",
   jobWaiting: "This job has not started yet.",
@@ -84,7 +95,6 @@ export const batchMessages = {
   cancelKeep: "Keep running",
   cancelled: "Cancel requested.",
   cancelError: "The batch could not be cancelled.",
-
 } as const;
 
 export type BatchMessages = Readonly<Record<keyof typeof batchMessages, string>>;

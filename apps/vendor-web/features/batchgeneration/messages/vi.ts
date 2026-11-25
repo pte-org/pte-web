@@ -73,6 +73,16 @@ export const batchMessages: BatchMessages = {
   progressLabel: "Tiến độ chung",
   noJobsMatch: "Không có lượt nào khớp bộ lọc.",
   filterHint: "Bấm vào một ô để chỉ xem các lượt đó; bấm lại để xem tất cả.",
+  sidebarProgress: "Tiến độ lô",
+  savedOfTotal: "/ {total} câu đã lưu",
+  countRunning: "Đang chạy {count}",
+  countFailedShort: "Lỗi {count}",
+  countCancelledShort: "Hủy {count}",
+  lanesTitle: "{count} luồng chạy song song",
+  laneLabel: "Luồng {n}",
+  noLanes: "Hiện không có luồng nào đang chạy.",
+  jobsTitle: "Các lượt trong lô ({count})",
+  focusEmpty: "Chọn một lượt bên trái để theo dõi.",
   childrenTitle: "Các lượt",
   currentJob: "Đang chạy",
   jobWaiting: "Lượt này chưa bắt đầu.",
@@ -86,5 +96,4 @@ export const batchMessages: BatchMessages = {
   cancelKeep: "Tiếp tục chạy",
   cancelled: "Đã gửi yêu cầu hủy.",
   cancelError: "Không thể hủy lô.",
-
 };

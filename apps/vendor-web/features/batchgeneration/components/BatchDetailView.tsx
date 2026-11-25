@@ -2,21 +2,32 @@
 
 import { useState, type ReactElement } from "react";
 import { usePathname } from "next/navigation";
-import { Alert, Button, ConfirmDialog, DashboardLoadingState, PageHeader, useDashboardBreadcrumbLabel, useLocale, useToast } from "@pte/ui";
+import {
+  Alert,
+  Button,
+  ConfirmDialog,
+  DashboardCard,
+  DashboardLoadingState,
+  PageHeader,
+  useDashboardBreadcrumbLabel,
+  useLocale,
+  useToast,
+} from "@pte/ui";
 import { useCancelQuestionGenerationBatch, useQuestionGenerationBatch } from "../api";
 import { CANCELLABLE_BATCH_STATUSES } from "../constants";
 import { useBatchMessages } from "../messages/useBatchMessages";
 import { batchErrorMessage } from "../utils/batchError";
 import { failureLabel } from "../../questiongeneration/utils/failureLabel";
-import { BatchJobList } from "./_BatchJobList";
-import { BatchSummaryCard } from "./_BatchSummaryCard";
+import { LiveJobPanel } from "../../questiongeneration/components/LiveJobPanel";
+import { focusedJobId, jobHasStarted } from "../utils/jobExpansion";
+import { BatchSidebar } from "./_BatchSidebar";
 import { nextJobFilter, type JobFilter } from "../utils/jobFilter";
 
 interface BatchDetailViewProps {
   batchId: string;
 }
 
-/** One batch: progress polled while it is open, its jobs (each opening onto its generation) and cancel. */
+/** One batch: progress, lanes and jobs on the left; the picked (or first running) job followed live on the right. */
 export const BatchDetailView = ({ batchId }: BatchDetailViewProps): ReactElement => {
   const messages = useBatchMessages();
   const { locale } = useLocale();
@@ -26,6 +37,7 @@ export const BatchDetailView = ({ batchId }: BatchDetailViewProps): ReactElement
   const cancel = useCancelQuestionGenerationBatch();
   const [confirmingCancel, setConfirmingCancel] = useState(false);
   const [jobFilter, setJobFilter] = useState<JobFilter>("all");
+  const [pickedJob, setPickedJob] = useState<string | null>(null);
   useDashboardBreadcrumbLabel(pathname, batch ? messages.detailTitle : undefined);
 
   if (isLoading) return <DashboardLoadingState variant="table" />;
@@ -36,12 +48,17 @@ export const BatchDetailView = ({ batchId }: BatchDetailViewProps): ReactElement
   const handleCancel = (): void =>
     cancel.mutate(batch.publicId, {
       onSuccess: () => showToast(messages.cancelled, { tone: "success" }),
-      onError: (cancelError) => showToast(batchErrorMessage(cancelError, messages, "cancelError"), { tone: "error" }),
+      onError: (cancelError) =>
+        showToast(batchErrorMessage(cancelError, messages, "cancelError"), { tone: "error" }),
       onSettled: () => setConfirmingCancel(false),
     });
+  const focusedId = focusedJobId(batch.children, pickedJob, batch.currentJobPublicId);
+  const focused = batch.children.find((job) => job.jobPublicId === focusedId);
   const canCancel = CANCELLABLE_BATCH_STATUSES.includes(batch.status);
   const actions = canCancel ? (
-    <Button type="button" variant="danger" onClick={() => setConfirmingCancel(true)}>{messages.cancelBatch}</Button>
+    <Button type="button" variant="danger" onClick={() => setConfirmingCancel(true)}>
+      {messages.cancelBatch}
+    </Button>
   ) : undefined;
 
   return (
@@ -50,9 +67,27 @@ export const BatchDetailView = ({ batchId }: BatchDetailViewProps): ReactElement
       {batch.failureCode ? (
         <Alert tone="warning">{`${messages.summaryFailure}: ${failureLabel(batch.failureCode, locale === "vi" ? "vi" : "en")}`}</Alert>
       ) : null}
-      <BatchSummaryCard batch={batch} messages={messages} filter={jobFilter}
-        onFilter={(clicked) => setJobFilter((current) => nextJobFilter(current, clicked))} />
-      <BatchJobList jobs={batch.children} rows={batch.rows} currentJobId={batch.currentJobPublicId} messages={messages} filter={jobFilter} />
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[20rem_minmax(0,1fr)] xl:items-start">
+        <aside className="xl:sticky xl:top-4">
+          <BatchSidebar
+            batch={batch}
+            messages={messages}
+            focusedId={focusedId}
+            onFocus={setPickedJob}
+            filter={jobFilter}
+            onFilter={(clicked) => setJobFilter((current) => nextJobFilter(current, clicked))}
+          />
+        </aside>
+        <DashboardCard>
+          {focused && jobHasStarted(focused.status) ? (
+            <LiveJobPanel key={focused.jobPublicId} jobId={focused.jobPublicId} />
+          ) : (
+            <p className="text-sm text-[var(--ink-muted)]">
+              {focused ? messages.jobWaiting : messages.focusEmpty}
+            </p>
+          )}
+        </DashboardCard>
+      </div>
       <ConfirmDialog
         open={confirmingCancel}
         title={messages.cancelTitle}

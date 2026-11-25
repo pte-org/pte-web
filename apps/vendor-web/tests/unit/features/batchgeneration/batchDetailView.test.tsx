@@ -63,7 +63,7 @@ describe("BatchDetailView", () => {
     const html = render();
     expect(html).toContain(vi_.statusRUNNING);
     expect(html).toContain(vi_.cancelBatch);
-    expect(html).toContain("4/12");
+    expect(html).toContain(vi_.savedOfTotal.replace("{total}", "12"));
     expect(html).toContain("Mc Reading Single");
     expect(html).toContain("#2 · Mc Reading Single");
     expect(html).not.toContain("MC_READING_SINGLE");
@@ -72,11 +72,11 @@ describe("BatchDetailView", () => {
     expect(html).not.toContain("/admin/questions/ai-generation/");
   });
 
-  it("opens only the running job, so only it follows the live generation", () => {
+  it("follows only the running job in the main panel and lists it as a lane", () => {
     const html = render();
     expect(html).toContain('data-live-job="job-2"');
     expect(html).not.toContain('data-live-job="job-1"');
-    expect(html.match(/aria-expanded="true"/g)).toHaveLength(1);
-    expect(html.match(/aria-expanded="false"/g)).toHaveLength(1);
+    expect(html).toContain(vi_.lanesTitle.replace("{count}", "1"));
+    expect(html.match(/aria-current="true"/g)).toHaveLength(1);
   });
 });
