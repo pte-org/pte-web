@@ -15,7 +15,6 @@ import {
   type DataTableColumn,
 } from "@pte/ui";
 import type { ProgramResponse } from "@pte/api-client";
-import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import {
@@ -26,6 +25,7 @@ import {
 } from "../constants";
 import { useCreateProgram, useMyOrganizations, usePrograms } from "../api";
 import type { CreateProgramInput } from "../types";
+import { programErrorMessage } from "../utils/programErrorMessage";
 import { CreateProgramModal } from "./CreateProgramModal";
 
 function formatDate(value: string | null): string {
@@ -50,11 +50,12 @@ function formatDateRange(startDate: string | null, endDate: string | null): stri
 
 export const ProgramsListView = (): ReactElement => {
   const labels = useOrgLabels();
-  const { t } = useLocale();
+  const { locale, t } = useLocale();
   const { showToast } = useToast();
   const searchText = useTenantSearchText("programs");
   const router = useRouter();
   const programLabel = t("nav.program", labels.program);
+  const labelValues = { program: programLabel, programLower: programLabel.toLowerCase() };
   const text = {
     create: t("tenant.programs.create", PROGRAMS_TEXT.addButton),
     createSuccess: t(
@@ -122,7 +123,35 @@ export const ProgramsListView = (): ReactElement => {
     );
   };
 
-  const createErrorMessage = errorMessage(create.error);
+  const createErrorMessage = programErrorMessage(create.error, locale, {
+    nameAlreadyUsed: t(
+      "tenant.programs.errorNameAlreadyUsed",
+      "A {programLower} with this name already exists in your organization.",
+      labelValues,
+    ),
+    programNotFound: t(
+      "tenant.programs.errorProgramNotFound",
+      "The selected {programLower} could not be found or is no longer active.",
+      labelValues,
+    ),
+    organizationNotFound: t(
+      "tenant.programs.errorOrganizationNotFound",
+      "The selected organization could not be found.",
+    ),
+    network: t(
+      "tenant.programs.errorNetwork",
+      "Unable to connect to the server. Please check your connection and try again.",
+    ),
+    generic: t(
+      "tenant.programs.errorGeneric",
+      "We couldn't complete this action. Please try again.",
+    ),
+    nameRequired: t("tenant.programs.nameRequired", "{program} name is required.", labelValues),
+    endDateBeforeStartDate: t(
+      "tenant.programs.endDateBeforeStartDate",
+      "End date must be on or after the start date.",
+    ),
+  });
 
   const columns: DataTableColumn<ProgramResponse>[] = [
     {
