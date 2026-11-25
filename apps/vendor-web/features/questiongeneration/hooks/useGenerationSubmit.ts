@@ -9,7 +9,10 @@ import { batchDetailHref } from "../../batchgeneration/constants";
 import { batchErrorMessage } from "../../batchgeneration/utils/batchError";
 import { useBatchMessages } from "../../batchgeneration/messages/useBatchMessages";
 import { useCreateQuestionGenerationJob } from "../api";
-import { GENERATION_ALREADY_RUNNING_CODE, GENERATION_BATCH_DISABLED_CODE } from "../dialogConstants";
+import {
+  GENERATION_ALREADY_RUNNING_CODE,
+  GENERATION_BATCH_DISABLED_CODE,
+} from "../dialogConstants";
 import { useGenerationMessages } from "../messages/useGenerationMessages";
 import type { DialogMessages } from "../messages/dialog.en";
 import { generationStartError } from "../utils/generationStartError";
@@ -30,6 +33,8 @@ export interface GenerationSubmitOptions {
   isEditorDirty?: boolean;
   messages: DialogMessages;
   onSingleJobCreated: (jobId: string) => void;
+  /** A batch was accepted: the caller may remember its selection for "Same as last time". */
+  onBatchStarted?: (selection: GenerationSelection) => void;
   onClose: () => void;
 }
 
@@ -52,7 +57,15 @@ export function generationNoticeFor(error: unknown): GenerationNotice | null {
 
 /** U1: one item of the editor's own type → the in-form preview job; anything else → a batch and its page. */
 export function useGenerationSubmit(options: GenerationSubmitOptions): GenerationSubmitState {
-  const { selection, currentTaskType, isEditorDirty = false, messages, onSingleJobCreated, onClose } = options;
+  const {
+    selection,
+    currentTaskType,
+    isEditorDirty = false,
+    messages,
+    onSingleJobCreated,
+    onBatchStarted,
+    onClose,
+  } = options;
   const router = useRouter();
   const { showToast } = useToast();
   const startMessages = useGenerationMessages();
@@ -70,19 +83,17 @@ export function useGenerationSubmit(options: GenerationSubmitOptions): Generatio
   };
 
   const startSingle = (): void => {
-    createJob.mutate(
-      toSingleJobRequest(selection),
-      {
-        onSuccess: (job) => onSingleJobCreated(job.publicId),
-        onError: (error) => onFailure(error, generationStartError(error, startMessages)),
-      },
-    );
+    createJob.mutate(toSingleJobRequest(selection), {
+      onSuccess: (job) => onSingleJobCreated(job.publicId),
+      onError: (error) => onFailure(error, generationStartError(error, startMessages)),
+    });
   };
 
   const startBatch = (): void => {
     setConfirmLeaveOpen(false);
     createBatch.mutate(toBatchRequest(selection), {
       onSuccess: (batch) => {
+        onBatchStarted?.(selection);
         showToast(messages.batchStarted);
         onClose();
         router.push(batchDetailHref(batch.publicId));
