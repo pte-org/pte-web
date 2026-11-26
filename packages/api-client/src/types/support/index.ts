@@ -23,6 +23,8 @@ export interface SupportTicketResponse {
   publicId: string;
   tenantId: string;
   submitterUserPublicId: string;
+  /** Null when the submitter account no longer exists. */
+  submitterName: string | null;
   category: TicketCategory;
   description: string;
   status: TicketStatus;

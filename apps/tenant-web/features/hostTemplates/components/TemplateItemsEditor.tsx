@@ -1,32 +1,26 @@
 "use client";
 
-import type { ReactElement, ReactNode } from "react";
+import type { ReactElement } from "react";
 import type { ScoreTemplateItemRequest } from "@pte/api-client";
-import { DataTable, DropZone, RowDragPreview, SectionedTableCard } from "@pte/ui";
-import { PALETTE_DROP_ATTRIBUTE, SKILLS, TASK_TYPE_DRAG_TYPE } from "../constants";
+import { DataTable, Tabs, useRememberedState, type TabItem } from "@pte/ui";
+import { sectionTone } from "@/lib/chipTones";
+import { SKILLS } from "../constants";
 import { useEditorText, useSkillLabels } from "../hooks/useTemplateText";
 import type { CountField } from "../utils/counts";
 import type { PoolSlot } from "../utils/pool";
-import {
-  buildTemplateColumns,
-  removeRowButton,
-  type TemplateTableView,
-} from "./templateItemColumns";
+import { formatQuestionRange, questionRange } from "../utils/templateDisplay";
+import { AddTaskTypeMenu, type AddableTaskType } from "./AddTaskTypeMenu";
+import { buildTemplateColumns, removeRowButton, type TemplateTableView } from "./templateItemColumns";
 
 interface TemplateItemsEditorProps {
-  /** Shown under the skill rail, such as the template's details. */
-  sidePanel?: ReactNode;
-  /** What can be added back, drawn above the side panel for the selected tab. */
-  renderPalette?: (activeTab: string) => ReactNode;
-  /** Called with the key of a task type dragged from the palette into the table. */
-  onDropTaskType?: (key: string) => void;
   items: readonly ScoreTemplateItemRequest[];
   editable: boolean;
   onRemove: (taskTypeKey: string) => void;
   /** Called with the keys of every row in their new order, after a row is dragged to a new place. */
   onReorder?: (orderedKeys: string[]) => void;
-  /** Buttons at the right end of the table's toolbar, such as Save. */
-  toolbarActions?: ReactNode;
+  /** What can be added back from the default template; omitted when this template cannot take more. */
+  addable?: readonly AddableTaskType[];
+  onAdd?: (taskTypeKey: string) => void;
   onWeightChange: (taskTypeKey: string, skill: (typeof SKILLS)[number], value: number) => void;
   /** Called when the host changes the minimum or maximum number of questions of a task type. */
   onCountChange: (taskTypeKey: string, field: CountField, value: number) => void;
@@ -36,115 +30,130 @@ interface TemplateItemsEditorProps {
   pool?: ReadonlyMap<string, PoolSlot>;
 }
 
+const TABLE_ID = "host-template-sections";
 const ALL_TAB = "ALL";
 const SECTION_ORDER = ["SPEAKING", "WRITING", "READING", "LISTENING"] as const;
+const VIEWS: readonly TemplateTableView[] = ["STRUCTURE", "WEIGHTS"];
 
 /**
- * Task types of a template in the common sectioned table (the same frame the admin's template screen uses):
- * a skill rail on the left and the selected skill's rows on the right, with a switch between the exam
- * structure (counts, stock) and the weights of every skill.
+ * The task types of a template: a row of skill tabs ("All" plus one per skill, each with its count) over the
+ * selected skill's table, which switches between the exam structure (counts, stock) and the weights of every skill.
  */
 export const TemplateItemsEditor = ({
-  sidePanel,
-  renderPalette,
-  onDropTaskType,
   items,
   editable,
   onRemove,
   onReorder,
-  toolbarActions,
+  addable = [],
+  onAdd,
   onWeightChange,
   onCountChange,
   isWeightEditable,
   pool,
-}:TemplateItemsEditorProps): ReactElement => {
+}: TemplateItemsEditorProps): ReactElement => {
   const text = useEditorText();
   const labels = useSkillLabels();
+  const [activeTab, setActiveTab] = useRememberedState<string>(`${TABLE_ID}:tab`, ALL_TAB);
+  const [view, setView] = useRememberedState<TemplateTableView>(`${TABLE_ID}:view`, "STRUCTURE");
   const rowsOf = (tab: string): ScoreTemplateItemRequest[] =>
     items.filter((item) => tab === ALL_TAB || item.section === tab);
+  const rows = rowsOf(activeTab);
+  const sectionLabel = (section: string): string => labels[section as keyof typeof labels] ?? section;
+
+  const skillTabs: TabItem[] = [
+    { id: ALL_TAB, label: text.ALL_SECTIONS, count: items.length },
+    ...SECTION_ORDER.map((section) => ({
+      id: section,
+      label: labels[section],
+      count: rowsOf(section).length,
+      tone: sectionTone(section),
+    })),
+  ];
+  const viewTabs = (
+    <Tabs
+      id={`${TABLE_ID}-views`}
+      items={VIEWS.map((id) => ({
+        id,
+        label: id === "STRUCTURE" ? text.VIEW_STRUCTURE : text.VIEW_WEIGHTS,
+      }))}
+      value={view}
+      onChange={(value) => setView(VIEWS.find((id) => id === value) ?? "STRUCTURE")}
+      variant="segmented"
+      ariaLabel={text.VIEW_LABEL}
+    />
+  );
+  const addableHere = addable.filter((entry) => activeTab === ALL_TAB || entry.section === activeTab);
 
   return (
-    <SectionedTableCard<TemplateTableView>
-      id="host-template-sections"
-      sections={SECTION_ORDER.map((section) => ({ id: section, label: labels[section] }))}
-      allTabId={ALL_TAB}
-      allLabel={text.ALL_SECTIONS}
-      countOf={(section) => rowsOf(section ?? ALL_TAB).length}
-      views={[
-        { id: "STRUCTURE", label: text.VIEW_STRUCTURE },
-        { id: "WEIGHTS", label: text.VIEW_WEIGHTS },
-      ]}
-      defaultView="STRUCTURE"
-      viewAriaLabel={text.VIEW_LABEL}
-      sidePanel={({ activeTab }) => (
-        <>
-          {editable && renderPalette?.(activeTab)}
-          {sidePanel}
-        </>
-      )}
-    >
-      {({ activeTab, showSection, view, viewTabs }) => {
-        const table = (
-          <DataTable
-            showSearch={false}
-            density="compact"
-            toolbar={viewTabs}
-            toolbarActions={toolbarActions}
-            columns={buildTemplateColumns({
-              view,
-              showSection,
-              editable,
-              headers: {
-                task: text.COL_TASK,
-                count: text.COL_COUNT,
-                pool: text.COL_POOL,
-                prep: text.COL_PREP,
-                response: text.COL_RESPONSE,
-              },
-              skillLabels: labels,
-              sectionLabel: (section) => labels[section as keyof typeof labels] ?? section,
-              pool,
-              poolCopy: { ok: text.POOL_OK, short: text.POOL_SHORT },
-              weightLockedText: text.WEIGHT_LOCKED,
-              isWeightLocked: (key, skill) => editable && isWeightEditable?.(key, skill) === false,
-              onWeightChange,
-              countLabels: { minCount: text.COUNT_MIN, maxCount: text.COUNT_MAX },
-              countInvalidText: text.COUNT_INVALID,
-              onCountChange,
-              removeLabel: text.REMOVE,
-              onRemove,
-            })}
-            rows={rowsOf(activeTab)}
-            getRowKey={(item) => item.taskTypeKey}
-            emptyTitle={text.NO_TASKS}
-            clientSidePagination={!editable}
-            rowActions={
-              editable
-                ? (item) => removeRowButton({ removeLabel: text.REMOVE, onRemove }, item)
-                : undefined
-            }
-            rowActionsHeader={<span className="sr-only">{text.REMOVE}</span>}
-            onReorderRows={editable ? onReorder : undefined}
-            rowDropOut={
-              editable && onReorder
-                ? {
-                    targetSelector: `[${PALETTE_DROP_ATTRIBUTE}]`,
-                    onDrop: onRemove,
-                    renderPreview: (key) => <RowDragPreview label={key} />,
-                  }
-                : undefined
-            }
-            reorderHandleLabel={text.DRAG_HANDLE}
-          />
-        );
-        return editable && onDropTaskType ? (
-          <DropZone accept={TASK_TYPE_DRAG_TYPE} onDropPayload={onDropTaskType}>
-            {table}
-          </DropZone>
-        ) : (
-          table
-        );
-      }}
-    </SectionedTableCard>
+    <div className="flex flex-col gap-3">
+      <Tabs
+        id={`${TABLE_ID}-skills`}
+        items={skillTabs}
+        value={activeTab}
+        onChange={setActiveTab}
+        variant="minimal"
+        ariaLabel={text.ALL_SECTIONS}
+      />
+      <DataTable
+        showSearch={false}
+        density="compact"
+        toolbar={viewTabs}
+        toolbarActions={
+          <>
+            <span className="text-sm text-[var(--ink-secondary)]">
+              {(activeTab === ALL_TAB ? text.TOTAL_QUESTIONS : text.SECTION_QUESTIONS)
+                .replace("{label}", sectionLabel(activeTab))
+                .replace("{range}", formatQuestionRange(questionRange(rows)))}
+            </span>
+            {editable && onAdd && (
+              <AddTaskTypeMenu
+                entries={addableHere}
+                label={text.ADD_TYPE}
+                menuLabel={text.ADD_TYPE_MENU}
+                emptyHint={text.ADD_TYPE_NONE}
+                sectionLabel={sectionLabel}
+                sectionTone={sectionTone}
+                onAdd={onAdd}
+              />
+            )}
+          </>
+        }
+        columns={buildTemplateColumns({
+          view,
+          showSection: activeTab === ALL_TAB,
+          editable,
+          headers: {
+            task: text.COL_TASK,
+            count: text.COL_COUNT,
+            pool: text.COL_POOL,
+            prep: text.COL_PREP,
+            response: text.COL_RESPONSE,
+          },
+          skillLabels: labels,
+          sectionLabel,
+          pool,
+          poolCopy: { ok: text.POOL_OK, short: text.POOL_SHORT },
+          timeUnits: { second: text.SECONDS_SHORT, minute: text.MINUTES_SHORT },
+          weightLockedText: text.WEIGHT_LOCKED,
+          isWeightLocked: (key, skill) => editable && isWeightEditable?.(key, skill) === false,
+          onWeightChange,
+          countLabels: { minCount: text.COUNT_MIN, maxCount: text.COUNT_MAX },
+          countInvalidText: text.COUNT_INVALID,
+          onCountChange,
+          removeLabel: text.REMOVE,
+          onRemove,
+        })}
+        rows={rows}
+        getRowKey={(item) => item.taskTypeKey}
+        emptyTitle={text.NO_TASKS}
+        clientSidePagination={!editable}
+        rowActions={
+          editable ? (item) => removeRowButton({ removeLabel: text.REMOVE, onRemove }, item) : undefined
+        }
+        rowActionsHeader={<span className="sr-only">{text.REMOVE}</span>}
+        onReorderRows={editable ? onReorder : undefined}
+        reorderHandleLabel={text.DRAG_HANDLE}
+      />
+    </div>
   );
 };

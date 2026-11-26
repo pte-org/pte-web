@@ -19,6 +19,12 @@ describe("resolveActiveNavItem", () => {
     expect(resolveActiveNavItem(items, "/proctor/sessions", null)).toBe("/proctor/sessions");
     expect(resolveActiveNavItem(items, "/proctor/profile", null)).toBe("/proctor/profile");
   });
+  it("keeps Plans & billing highlighted on its checkout, payment and order pages", () => {
+    const items = nav("/host/dashboard", "/host/billing", "/host/exams");
+    for (const path of ["/host/billing", "/host/checkout", "/host/payment-status", "/host/orders"])
+      expect(resolveActiveNavItem(items, path, query("planId=p1"))).toBe("/host/billing");
+  });
+
   it("returns null when there is no pathname", () => {
     expect(resolveActiveNavItem(nav("/host/dashboard"), null, null)).toBeNull();
   });

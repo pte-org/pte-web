@@ -53,6 +53,7 @@ export const EXAM_STAFF_TEXT = {
   addDescription:
     "Create a Proctor or Examiner account for your organization. A username and a temporary password are generated and emailed to the address below.",
   createFailed: "Unable to create account.",
+  createSuccess: "Account created for {name}. The sign-in details are being sent to {email}.",
   roleRequired: "Select a role.",
   emailRequired: "Email is required.",
   emailInvalid: "Enter a valid email address.",

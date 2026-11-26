@@ -3,20 +3,12 @@
 import { usePathname, useRouter } from "next/navigation";
 
 import { useState } from "react";
-import {
-  Alert,
-  LoadingState,
-  Tabs,
-  TabPanel,
-  useLocale,
-  useDashboardBreadcrumbLabel,
-  useRememberedState,
-} from "@pte/ui";
+import { Alert, LoadingState, useLocale, useDashboardBreadcrumbLabel } from "@pte/ui";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import { useProgram } from "@/features/programs/api";
 import { useClasses, useClassRoster } from "../api";
 import { useClassActionText } from "../hooks/useClassActionText";
-import { ClassInformation } from "./ClassInformation";
+import { ClassHeader } from "./ClassHeader";
 import { ClassRosterTable } from "./ClassRosterTable";
 import { ImportOrAssignModal } from "./ImportOrAssignModal";
 
@@ -44,7 +36,6 @@ const ClassDetailContent = ({
   const { t } = useLocale();
   const labels = useOrgLabels();
   const classLabel = t("nav.class", labels.class);
-  const [activeTab, setActiveTab] = useRememberedState<string>("tab", "overview");
   const [importOpen, setImportOpen] = useState(false);
   const query = useClasses(organizationPublicId, programPublicId);
   const program = useProgram(organizationPublicId, programPublicId);
@@ -59,50 +50,24 @@ const ClassDetailContent = ({
 
   return (
     <div className="flex flex-col gap-5">
-      <Tabs
-        id="class-detail-tabs"
-        value={activeTab}
-        onChange={setActiveTab}
-        ariaLabel={text.sections}
-        items={[
-          { id: "overview", label: text.overview },
-          { id: "students", label: text.roster },
-        ]}
+      <ClassHeader
+        organizationPublicId={organizationPublicId}
+        studentClass={studentClass}
+        programName={program.data?.name}
+        classLabel={classLabel}
+        studentCount={roster.data?.length ?? 0}
+        onAddStudents={() => setImportOpen(true)}
+        onArchived={() =>
+          router.push(`/host/programs/${programPublicId}?organizationPublicId=${organizationPublicId}`)
+        }
       />
-      <TabPanel
-        id="class-detail-tabs-panel-overview"
-        active={activeTab === "overview"}
-        labelledBy="class-detail-tabs-tab-overview"
-      >
-        <ClassInformation
-          organizationPublicId={organizationPublicId}
-          studentClass={studentClass}
-          programName={program.data?.name}
-          classLabel={classLabel}
-          studentCount={roster.data?.length ?? 0}
-          onArchived={() =>
-            router.push(
-              `/host/programs/${programPublicId}?organizationPublicId=${organizationPublicId}`,
-            )
-          }
-        />
-      </TabPanel>
-      <TabPanel
-        id="class-detail-tabs-panel-students"
-        active={activeTab === "students"}
-        labelledBy="class-detail-tabs-tab-students"
-      >
-        <div className="flex flex-col gap-4">
-          <ClassRosterTable
-            organizationPublicId={organizationPublicId}
-            programPublicId={programPublicId}
-            classPublicId={classPublicId}
-            classLabel={classLabel}
-            className={studentClass.name}
-            onAddStudents={() => setImportOpen(true)}
-          />
-        </div>
-      </TabPanel>
+      <ClassRosterTable
+        organizationPublicId={organizationPublicId}
+        programPublicId={programPublicId}
+        classPublicId={classPublicId}
+        classLabel={classLabel}
+        className={studentClass.name}
+      />
       <ImportOrAssignModal
         open={importOpen}
         onClose={() => setImportOpen(false)}

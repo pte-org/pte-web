@@ -14,7 +14,8 @@ export const STATUS_LABELS: Record<TicketStatus, string> = {
 };
 
 export const STATUS_VARIANTS: Record<TicketStatus, BadgeVariant> = {
-  OPEN: "neutral",
+  // Blue, as in the organization portal, so an open request stands out from a closed one.
+  OPEN: "info",
   IN_PROGRESS: "warning",
   RESOLVED: "success",
   CLOSED: "neutral",
@@ -40,7 +41,7 @@ export const STATUS_TRANSITIONS: Record<TicketStatus, TicketStatus[]> = {
 };
 
 export const TRANSITION_LABELS: Record<TicketStatus, string> = {
-  OPEN: "Start",
+  OPEN: "Start handling",
   IN_PROGRESS: "Resolve",
   RESOLVED: "",
   CLOSED: "",
@@ -72,7 +73,8 @@ export const ADMIN_TICKET_DETAIL_TEXT = {
   LOADING: "Loading ticket…",
   NOT_FOUND: "Ticket not found.",
   SECTION_INFO: "Ticket information",
-  SECTION_NOTES: "Admin notes",
+  SECTION_CONTENT: "Request details",
+  SECTION_NOTES: "Reply to the organization",
   STATUS_LABEL: "Status",
   TENANT_LABEL: "Tenant",
   CATEGORY_LABEL: "Category",
@@ -83,13 +85,19 @@ export const ADMIN_TICKET_DETAIL_TEXT = {
   DESCRIPTION_LABEL: "Description",
   SUBMITTED_LABEL: "Submitted",
   UPDATED_LABEL: "Last updated",
-  EMPTY_NOTES_TITLE: "No notes yet",
-  EMPTY_NOTES_TEXT: "Add the first note to document your findings.",
-  ADD_NOTE_LABEL: "Add a note",
-  ADD_NOTE_PLACEHOLDER: "Write a note visible to the tenant…",
-  ADD_NOTE_SUBMIT: "Add note",
-  ADD_NOTE_SUCCESS: "Note added.",
+  EMPTY_NOTES_TITLE: "No replies yet",
+  EMPTY_NOTES_TEXT: "Send the first reply to update the organization on the result.",
+  ADD_NOTE_PLACEHOLDER: "Write a reply to the organization…",
+  ADD_NOTE_SUBMIT: "Send reply",
+  ADD_NOTE_SUCCESS: "Reply sent.",
+  VISIBLE_HINT: "Visible to the organization",
+  SENT_AT: "Sent at",
+  ADMIN_ROLE: "Admin",
+  REQUEST_ID_LABEL: "Request ID",
+  SUBMITTER_LABEL: "Submitted by",
   UPDATE_STATUS_SUCCESS: "Status updated.",
+  UPDATE_STATUS_ERROR: "We couldn't update the status. Please try again.",
+  ADD_NOTE_ERROR: "We couldn't send the reply. Please try again.",
   EMPTY_VALUE: "—",
   TICKET_TITLE: "Ticket Details",
 } as const;

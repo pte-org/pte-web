@@ -14,7 +14,8 @@ export const STATUS_LABELS: Record<TicketStatus, string> = {
 };
 
 export const STATUS_VARIANTS: Record<TicketStatus, BadgeVariant> = {
-  OPEN: "neutral",
+  // Blue, so an open request stands out from a closed (grey) one.
+  OPEN: "info",
   IN_PROGRESS: "warning",
   RESOLVED: "success",
   CLOSED: "neutral",
@@ -46,8 +47,15 @@ export const SUPPORT_TICKETS_TEXT = {
   FILTER_ALL_STATUS: "All statuses",
   FILTER_ALL_CATEGORY: "All categories",
   TOTAL_ITEMS: (n: number) => `${n} ticket${n === 1 ? "" : "s"}`,
-  NOTES_SECTION: "Admin Notes",
-  NO_NOTES: "No admin notes yet.",
+  NOTES_SECTION: "Response from admin",
+  NO_NOTES: "No response from an admin yet",
+  NO_NOTES_HINT: "The support team will review this request and reply as soon as possible.",
+  ADMIN_ROLE: "Admin",
+  CONTENT_SECTION: "Request details",
+  INFO_SECTION: "Request information",
+  REQUEST_ID: "Request ID",
+  SUBMITTER: "Submitted by",
+  UPDATED_AT: "Last updated",
   ENTITY_SECTION: "Linked Entity",
   TICKET_DETAILS: "Ticket Details",
   CREATED_AT: "Submitted",

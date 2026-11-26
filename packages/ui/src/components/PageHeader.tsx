@@ -4,11 +4,13 @@ import { cn } from "../utils/cn";
 interface PageHeaderProps {
   title: string;
   subtitle?: string;
+  /** A status badge shown right after the title, on the same line. */
+  titleBadge?: ReactNode;
   actions?: ReactNode;
   className?: string;
 }
 
-export const PageHeader = ({ title, actions, className }: PageHeaderProps): ReactElement => (
+export const PageHeader = ({ title, titleBadge, actions, className }: PageHeaderProps): ReactElement => (
   <div
     className={cn(
       "flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
@@ -16,9 +18,18 @@ export const PageHeader = ({ title, actions, className }: PageHeaderProps): Reac
     )}
   >
     <div>
-      <h1 className="text-[28px] font-medium leading-8 tracking-[-0.025em] text-[var(--ink-primary)]">
-        {title}
-      </h1>
+      {titleBadge ? (
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-[28px] font-medium leading-8 tracking-[-0.025em] text-[var(--ink-primary)]">
+            {title}
+          </h1>
+          {titleBadge}
+        </div>
+      ) : (
+        <h1 className="text-[28px] font-medium leading-8 tracking-[-0.025em] text-[var(--ink-primary)]">
+          {title}
+        </h1>
+      )}
       {/* Page-level explanatory subtitles are intentionally omitted. Keep the
           prop for compatibility with existing screens; descriptions belong
           inside the relevant panel or form where they are actionable. */}

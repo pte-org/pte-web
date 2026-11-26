@@ -16,6 +16,20 @@ type UpdateExamField = <K extends keyof CreateExamWorkflowInput>(
   value: CreateExamWorkflowInput[K],
 ) => void;
 
+const COUNT_PLACEHOLDER = "{count}";
+
+/** The package limit sentence with the number set in bold so it stands out. */
+const CapacityHint = ({ template, count }: { template: string; count: number }): ReactElement => {
+  const [before, after = ""] = template.split(COUNT_PLACEHOLDER);
+  return (
+    <>
+      {before}
+      <strong className="font-semibold">{count}</strong>
+      {after}
+    </>
+  );
+};
+
 export interface ExamDetailsStepProps {
   form: CreateExamWorkflowInput;
   errors: CreateExamWorkflowErrors;
@@ -112,12 +126,14 @@ export function ExamDetailsStep({
         onBlur={() => onValidateField("capacity")}
       />
       {selectedSubscription && (
-        <p aria-live="polite" className="text-sm text-[var(--ink-secondary)]">
-          {wizardText.SUBSCRIPTION_CAPACITY_HINT.replace(
-            "{count}",
-            String(selectedSubscription.maxStudentsPerSession),
-          )}
-        </p>
+        <div aria-live="polite">
+          <Alert tone={Number(form.capacity) > selectedSubscription.maxStudentsPerSession ? "warning" : "info"}>
+            <CapacityHint
+              template={wizardText.SUBSCRIPTION_CAPACITY_HINT}
+              count={selectedSubscription.maxStudentsPerSession}
+            />
+          </Alert>
+        </div>
       )}
       <DifficultyPicker
         wizardText={wizardText}

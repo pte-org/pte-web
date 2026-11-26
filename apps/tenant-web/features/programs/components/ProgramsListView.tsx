@@ -11,10 +11,10 @@ import {
   EyeIcon,
   Select,
   useLocale,
+  useToast,
   type DataTableColumn,
 } from "@pte/ui";
 import type { ProgramResponse } from "@pte/api-client";
-import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import {
@@ -25,36 +25,25 @@ import {
 } from "../constants";
 import { useCreateProgram, useMyOrganizations, usePrograms } from "../api";
 import type { CreateProgramInput } from "../types";
+import { formatProgramDateRange } from "../utils/formatProgramDates";
+import { programErrorMessage } from "../utils/programErrorMessage";
 import { CreateProgramModal } from "./CreateProgramModal";
-
-function formatDate(value: string | null): string {
-  if (!value) return "…";
-  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
-  if (match) {
-    const [, year, month, day] = match;
-    return `${day}/${month}/${year}`;
-  }
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  const day = String(date.getDate()).padStart(2, "0");
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = date.getFullYear();
-  return `${day}/${month}/${year}`;
-}
-
-function formatDateRange(startDate: string | null, endDate: string | null): string {
-  if (!startDate && !endDate) return "—";
-  return `${formatDate(startDate)} – ${formatDate(endDate)}`;
-}
 
 export const ProgramsListView = (): ReactElement => {
   const labels = useOrgLabels();
-  const { t } = useLocale();
+  const { locale, t } = useLocale();
+  const { showToast } = useToast();
   const searchText = useTenantSearchText("programs");
   const router = useRouter();
   const programLabel = t("nav.program", labels.program);
+  const labelValues = { program: programLabel, programLower: programLabel.toLowerCase() };
   const text = {
     create: t("tenant.programs.create", PROGRAMS_TEXT.addButton),
+    createSuccess: t(
+      "tenant.programs.createSuccess",
+      PROGRAMS_TEXT.createSuccess(programLabel),
+      { program: programLabel, programLower: programLabel.toLowerCase() },
+    ),
     name: t("tenant.programs.name", PROGRAM_TABLE_HEADERS.NAME),
     status: t("tenant.programs.status", PROGRAM_TABLE_HEADERS.STATUS),
     dates: t("tenant.programs.dates", PROGRAM_TABLE_HEADERS.DATES),
@@ -75,6 +64,12 @@ export const ProgramsListView = (): ReactElement => {
     active: t("tenant.programs.active", PROGRAM_STATUS_LABELS.ACTIVE),
     inactive: t("tenant.programs.inactive", PROGRAM_STATUS_LABELS.INACTIVE),
     suspended: t("tenant.programs.suspended", PROGRAM_STATUS_LABELS.SUSPENDED),
+    ongoing: t("tenant.programs.ongoing", locale === "vi" ? "Không giới hạn" : "Ongoing"),
+  };
+  const dateRangeText = {
+    ongoing: text.ongoing,
+    untilDate: (date: string) =>
+      t("tenant.programs.untilDate", locale === "vi" ? "Đến {date}" : "Until {date}", { date }),
   };
   const statusLabels = {
     ACTIVE: text.active,
@@ -106,11 +101,44 @@ export const ProgramsListView = (): ReactElement => {
         startDate: input.startDate || null,
         endDate: input.endDate || null,
       },
-      { onSuccess: () => setCreateOpen(false) },
+      {
+        onSuccess: () => {
+          setCreateOpen(false);
+          showToast(text.createSuccess, { tone: "success" });
+        },
+      },
     );
   };
 
-  const createErrorMessage = errorMessage(create.error);
+  const createErrorMessage = programErrorMessage(create.error, locale, {
+    nameAlreadyUsed: t(
+      "tenant.programs.errorNameAlreadyUsed",
+      "A {programLower} with this name already exists in your organization.",
+      labelValues,
+    ),
+    programNotFound: t(
+      "tenant.programs.errorProgramNotFound",
+      "The selected {programLower} could not be found or is no longer active.",
+      labelValues,
+    ),
+    organizationNotFound: t(
+      "tenant.programs.errorOrganizationNotFound",
+      "The selected organization could not be found.",
+    ),
+    network: t(
+      "tenant.programs.errorNetwork",
+      "Unable to connect to the server. Please check your connection and try again.",
+    ),
+    generic: t(
+      "tenant.programs.errorGeneric",
+      "We couldn't complete this action. Please try again.",
+    ),
+    nameRequired: t("tenant.programs.nameRequired", "{program} name is required.", labelValues),
+    endDateBeforeStartDate: t(
+      "tenant.programs.endDateBeforeStartDate",
+      "End date must be on or after the start date.",
+    ),
+  });
 
   const columns: DataTableColumn<ProgramResponse>[] = [
     {
@@ -135,7 +163,7 @@ export const ProgramsListView = (): ReactElement => {
       filterType: "date-range",
       filterAccessor: (program) => program.startDate,
       filterPlaceholder: text.dateRange,
-      cell: (program) => formatDateRange(program.startDate, program.endDate),
+      cell: (program) => formatProgramDateRange(program.startDate, program.endDate, dateRangeText),
     },
   ];
 

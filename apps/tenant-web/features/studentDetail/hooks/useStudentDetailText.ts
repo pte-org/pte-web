@@ -60,6 +60,7 @@ export interface StudentDetailText {
     username: string;
     studentCode: string;
     roles: string;
+    studentRole: string;
     status: string;
     className: string;
     programName: string;
@@ -209,6 +210,11 @@ const buildText = (t: Translate, locale: Locale): StudentDetailText => {
       username: translate(t, "tenant.studentDetail.account.username", text.account.username),
       studentCode: translate(t, "tenant.students.studentCode", text.account.studentCode),
       roles: translate(t, "tenant.studentDetail.account.roles", text.account.roles),
+      studentRole: translate(
+        t,
+        "tenant.studentDetail.account.studentRole",
+        locale === "vi" ? "Học viên" : "Student",
+      ),
       status: translate(t, "tenant.students.status", text.account.status),
       className: translate(t, "tenant.students.class", text.account.className),
       programName: translate(t, "tenant.students.program", text.account.programName),

@@ -5,9 +5,11 @@ import { useRouter } from "next/navigation";
 import {
   Alert,
   Button,
-  ConfirmDialog,
   DashboardPanel,
   FormActions,
+  InfoIcon,
+  PageHeader,
+  SlidersHorizontalIcon,
   useToast,
   UnsavedChangesGuard,
   useLeaveAfterSave,
@@ -37,7 +39,6 @@ export const PlatformSettingsView = (): ReactElement => {
   } = usePlatformSettingsQuery();
   const update = useUpdatePlatformSettings();
   const [values, setValues] = useState<DraftValues>({});
-  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const leaveAfterSave = useLeaveAfterSave();
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
@@ -56,6 +57,8 @@ export const PlatformSettingsView = (): ReactElement => {
   const hasChanges = editableSettings.some(
     (setting) => values[setting.key] !== undefined && values[setting.key] !== setting.value,
   );
+  // Every field already holds its default: nothing to restore.
+  const atDefaults = editableSettings.every((setting) => (values[setting.key] ?? setting.value) === setting.defaultValue);
   const updateError = update.error
     ? getUserFacingApiErrorMessage(update.error, T.ERROR)
     : undefined;
@@ -79,12 +82,12 @@ export const PlatformSettingsView = (): ReactElement => {
     }
   };
 
+  // Only fills the fields, so the defaults can be checked before Save writes anything.
   const resetToDefaults = (): void => {
     setValues(
       Object.fromEntries(editableSettings.map((setting) => [setting.key, setting.defaultValue])),
     );
     update.reset();
-    setIsResetDialogOpen(false);
   };
 
   const panelStatus = isLoading
@@ -97,9 +100,15 @@ export const PlatformSettingsView = (): ReactElement => {
 
   return (
     <div className="flex flex-col gap-5">
+      <div className="space-y-2">
+        <PageHeader title={T.TITLE} />
+        <p className="text-sm text-[var(--ink-secondary)]">{T.DESCRIPTION}</p>
+      </div>
       <DashboardPanel
         title={T.PANEL_TITLE}
         subtitle={T.PANEL_SUBTITLE}
+        icon={<SlidersHorizontalIcon className="h-4 w-4" />}
+        divided
         status={panelStatus}
         loadingLabel={T.LOADING}
         error={{
@@ -122,6 +131,7 @@ export const PlatformSettingsView = (): ReactElement => {
                   key={setting.key}
                   setting={setting}
                   presentation={presentation}
+                  text={T}
                   value={values[setting.key] ?? setting.value}
                   onChange={(value) =>
                     setValues((current) => ({ ...current, [setting.key]: value }))
@@ -130,24 +140,29 @@ export const PlatformSettingsView = (): ReactElement => {
               );
             })}
           </div>
+          <p className="flex items-start gap-2 rounded-lg border border-[var(--sky-action)]/25 bg-[var(--sky-tint)]/60 px-3.5 py-3 text-sm text-[var(--ink-secondary)]">
+            <InfoIcon className="mt-0.5 h-4 w-4 shrink-0 text-[var(--sky-action)]" />
+            {T.IMPACT_NOTE}
+          </p>
           <FormActions align="between">
-            <div className="flex items-center gap-3">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                disabled={update.isPending}
-                onClick={() => setIsResetDialogOpen(true)}
-              >
+            <span className={`inline-flex items-center gap-2 text-sm ${hasChanges ? "text-[var(--ink-secondary)]" : "text-[var(--mint-action)]"}`}>
+              {hasChanges ? (
+                <>
+                  <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[var(--cream-action)]" />
+                  {T.UNSAVED}
+                </>
+              ) : (
+                <>✓ {T.UP_TO_DATE}</>
+              )}
+            </span>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:items-center">
+              <Button type="button" variant="secondary" disabled={update.isPending || atDefaults} onClick={resetToDefaults}>
                 {T.RESET}
               </Button>
-              <span className="text-xs text-[var(--ink-muted)]">
-                {hasChanges ? T.UNSAVED : T.UP_TO_DATE}
-              </span>
+              <Button type="submit" isLoading={update.isPending} disabled={!hasChanges}>
+                {update.isPending ? T.SAVING : T.SAVE}
+              </Button>
             </div>
-            <Button type="submit" isLoading={update.isPending} disabled={!hasChanges}>
-              {update.isPending ? T.SAVING : T.SAVE}
-            </Button>
           </FormActions>
         </form>
         <UnsavedChangesGuard
@@ -157,16 +172,6 @@ export const PlatformSettingsView = (): ReactElement => {
           onNavigate={(href) => router.push(href)}
         />
       </DashboardPanel>
-      <ConfirmDialog
-        open={isResetDialogOpen}
-        title={T.RESET_TITLE}
-        description={T.RESET_DESCRIPTION}
-        confirmLabel={T.RESET_CONFIRM}
-        cancelLabel={T.RESET_CANCEL}
-        tone="warning"
-        onConfirm={resetToDefaults}
-        onClose={() => setIsResetDialogOpen(false)}
-      />
     </div>
   );
 };

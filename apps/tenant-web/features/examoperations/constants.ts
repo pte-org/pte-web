@@ -78,7 +78,7 @@ export const ROSTER_TEMPLATE_COLUMNS: readonly RosterTemplateColumn[] = [
     header: "Date of Birth",
     required: false,
     forceText: false,
-    format: "yyyy-mm-dd, or an Excel date cell; must be in the past",
+    format: "yyyy-mm-dd, or an Excel date cell; student must be at least 6 years old",
     example: "2008-01-15",
     sample: "2008-01-15",
   },
@@ -121,7 +121,7 @@ export const ROSTER_ROW_MESSAGES: Record<string, string> = {
   PROGRAM_NAME_TOO_LONG: "Program Name is longer than 100 characters.",
   CLASS_NAME_TOO_LONG: "Class Name is longer than 100 characters.",
   PHONE_INVALID: "Phone must have 9 to 15 digits (a leading + is allowed).",
-  DATE_OF_BIRTH_INVALID: "Date of Birth must be a past date written as yyyy-mm-dd.",
+  DATE_OF_BIRTH_INVALID: "Date of Birth is invalid. The student must be at least 6 years old.",
 };
 
 export const ROSTER_ROW_UNKNOWN_MESSAGE = "This value is not valid.";
