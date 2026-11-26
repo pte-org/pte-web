@@ -31,8 +31,50 @@ export function focusedJobId(
   return (finished[finished.length - 1] ?? jobs[0])?.jobPublicId ?? null;
 }
 
-const NOT_STARTED: readonly QuestionGenerationJobStatus[] = ["PENDING", "QUEUED"];
+const bySeq = (
+  jobs: readonly QuestionGenerationBatchChildResponse[],
+): QuestionGenerationBatchChildResponse[] =>
+  [...jobs].sort((left, right) => left.batchSeq - right.batchSeq);
 
-/** A job still waiting has nothing to follow yet, so it shows a note instead of the live view. */
-export const jobHasStarted = (status: QuestionGenerationJobStatus): boolean =>
-  !NOT_STARTED.includes(status);
+/**
+ * The job "Next" moves to: a finished job not viewed yet (after the current one first, then from the start), else a
+ * running one, else the job after the current one in run order; null when there is nowhere to go.
+ */
+export function nextJobId(
+  jobs: readonly QuestionGenerationBatchChildResponse[],
+  currentId: string | null,
+  seen: ReadonlySet<string>,
+): string | null {
+  const ordered = bySeq(jobs);
+  const at = ordered.findIndex((job) => job.jobPublicId === currentId);
+  const rotated = [...ordered.slice(at + 1), ...ordered.slice(0, Math.max(at, 0))].filter(
+    (job) => job.jobPublicId !== currentId,
+  );
+  const unseenDone = rotated.find(
+    (job) => FINISHED.includes(job.status) && !seen.has(job.jobPublicId),
+  );
+  const running = rotated.find((job) => RUNNING.includes(job.status));
+  const after = at >= 0 ? ordered[at + 1] : undefined;
+  return (unseenDone ?? running ?? after)?.jobPublicId ?? null;
+}
+
+/** The job before the current one in run order, or null at the start. */
+export function previousJobId(
+  jobs: readonly QuestionGenerationBatchChildResponse[],
+  currentId: string | null,
+): string | null {
+  const ordered = bySeq(jobs);
+  const at = ordered.findIndex((job) => job.jobPublicId === currentId);
+  return at > 0 ? (ordered[at - 1]?.jobPublicId ?? null) : null;
+}
+
+/** Finished jobs the person has not opened yet. */
+export const unseenJobIds = (
+  jobs: readonly QuestionGenerationBatchChildResponse[],
+  seen: ReadonlySet<string>,
+): ReadonlySet<string> =>
+  new Set(
+    jobs
+      .filter((job) => FINISHED.includes(job.status) && !seen.has(job.jobPublicId))
+      .map((job) => job.jobPublicId),
+  );

@@ -11,6 +11,7 @@ interface BatchJobPickerProps {
   messages: BatchMessages;
   focusedId: string | null;
   onFocus: (jobId: string) => void;
+  unseen: ReadonlySet<string>;
   filter: JobFilter;
   titleClassName: string;
 }
@@ -21,6 +22,7 @@ export const BatchJobPicker = ({
   messages,
   focusedId,
   onFocus,
+  unseen,
   filter,
   titleClassName,
 }: BatchJobPickerProps): ReactElement => {
@@ -48,7 +50,17 @@ export const BatchJobPicker = ({
               <span className="w-5 tabular-nums text-[var(--ink-muted)]">{job.batchSeq + 1}</span>
               <span className="min-w-0 flex-1 truncate">
                 {jobLabel(job.taskType, batch.rows[job.rowIndex]?.cefrLevel)}
+                <span className="ml-1 text-xs tabular-nums text-[var(--ink-muted)]">
+                  {`· ${job.succeededCount}/${job.requestedCount}`}
+                </span>
               </span>
+              {unseen.has(job.jobPublicId) && (
+                <span
+                  className="size-2 shrink-0 rounded-full bg-[var(--action)]"
+                  title={messages.unseen}
+                  aria-label={messages.unseen}
+                />
+              )}
               <JobStatusBadge status={job.status} messages={messages} />
             </button>
           </li>

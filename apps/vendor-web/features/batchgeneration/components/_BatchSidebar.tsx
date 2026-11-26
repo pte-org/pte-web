@@ -13,6 +13,8 @@ interface BatchSidebarProps {
   messages: BatchMessages;
   focusedId: string | null;
   onFocus: (jobId: string) => void;
+  /** Finished jobs not opened yet, marked in the job list. */
+  unseen: ReadonlySet<string>;
   filter: JobFilter;
   onFilter: (filter: JobFilter) => void;
 }
@@ -25,6 +27,7 @@ export const BatchSidebar = ({
   messages,
   focusedId,
   onFocus,
+  unseen,
   filter,
   onFilter,
 }: BatchSidebarProps): ReactElement => {
@@ -76,7 +79,7 @@ export const BatchSidebar = ({
           </div>
         </div>
       </DashboardCard>
-      <section>
+      <DashboardCard>
         <h2 className={SECTION_TITLE}>
           {messages.lanesTitle.replace("{count}", String(lanes.length))}
         </h2>
@@ -103,19 +106,34 @@ export const BatchSidebar = ({
                 <span className="mt-1 block text-sm font-semibold">
                   {`#${job.batchSeq + 1} · ${jobLabel(job.taskType, batch.rows[job.rowIndex]?.cefrLevel)}`}
                 </span>
+                <span className="mt-1 block text-xs text-[var(--ink-muted)]">
+                  {messages.laneProgress
+                    .replace("{done}", String(job.succeededCount + job.failedCount))
+                    .replace("{total}", String(job.requestedCount))}
+                </span>
+                <span className="mt-1.5 block">
+                  <ProgressBar
+                    value={job.succeededCount + job.failedCount}
+                    max={Math.max(job.requestedCount, 1)}
+                    label={messages.progressLabel}
+                  />
+                </span>
               </button>
             </li>
           ))}
         </ul>
-      </section>
-      <BatchJobPicker
-        batch={batch}
-        messages={messages}
-        focusedId={focusedId}
-        onFocus={onFocus}
-        filter={filter}
-        titleClassName={SECTION_TITLE}
-      />
+      </DashboardCard>
+      <DashboardCard>
+        <BatchJobPicker
+          batch={batch}
+          messages={messages}
+          focusedId={focusedId}
+          onFocus={onFocus}
+          unseen={unseen}
+          filter={filter}
+          titleClassName={SECTION_TITLE}
+        />
+      </DashboardCard>
     </div>
   );
 };
