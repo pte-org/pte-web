@@ -5,10 +5,8 @@ import type { ReactElement } from "react";
 import { useLocale } from "../i18n";
 import { cn } from "../utils/cn";
 import { Badge } from "./Badge";
+import { inboxBadgeVariant } from "./inboxCategoryVariant";
 import { useInboxItemText } from "./useInboxItemText";
-
-const importanceVariant = (importance: InboxItemResponse["importance"]): "info" | "warning" =>
-  importance === "IMPORTANT" ? "warning" : "info";
 
 interface NotificationRowsProps {
   items: InboxItemResponse[];
@@ -26,6 +24,7 @@ const NotificationRow = ({
 }): ReactElement => {
   const { t } = useLocale();
   const text = useInboxItemText(item);
+  const unread = item.readAt === null;
 
   return (
     <button
@@ -33,19 +32,21 @@ const NotificationRow = ({
       onClick={() => onSelectItem(item)}
       className={cn(
         "block w-full px-4 py-3 text-left transition-colors hover:bg-[var(--surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--brand)]",
-        item.readAt === null && "bg-[var(--brand-tint)]/50",
+        unread && "bg-[var(--brand-tint)]/50",
       )}
-      aria-label={`${item.readAt === null ? `${t("common.unread", "Unread")}: ` : ""}${text.title}`}
+      aria-label={`${unread ? `${t("common.unread", "Unread")}: ` : ""}${text.title}`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <span className="min-w-0 flex-1 text-sm font-semibold text-[var(--ink-primary)]">{text.title}</span>
-        {item.readAt === null && <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-action" />}
+      <div className="flex items-center justify-between gap-3">
+        <Badge variant={inboxBadgeVariant(item)}>{text.categoryLabel}</Badge>
+        <span className="flex shrink-0 items-center gap-2 text-xs text-[var(--ink-muted)]">
+          <time dateTime={item.deliveredAt}>{text.time}</time>
+          {unread && <span className="h-2 w-2 rounded-full bg-action" />}
+        </span>
       </div>
+      <p className={cn("mt-2 text-sm text-[var(--ink-primary)]", unread ? "font-semibold" : "font-medium")}>
+        {text.title}
+      </p>
       <p className="mt-1 line-clamp-2 text-sm text-[var(--ink-secondary)]">{text.body}</p>
-      <div className="mt-2 flex items-center justify-between gap-2 text-xs text-[var(--ink-muted)]">
-        <Badge variant={importanceVariant(item.importance)}>{text.categoryLabel}</Badge>
-        <time dateTime={item.deliveredAt}>{text.time}</time>
-      </div>
     </button>
   );
 };
