@@ -13,8 +13,9 @@ export const PLATFORM_AUDIT_LOG_COPY = {
     EMPTY: "No platform activity yet",
     EMPTY_DESCRIPTION: "Administrative changes will appear here as the platform is managed.",
     UNKNOWN_ACTOR: "Unknown",
+    SYSTEM: "System",
     LOAD_FAILED: "Unable to load the system log.",
-    SEARCH_PLACEHOLDER: "Search by resource name, code, action, or summary",
+    SEARCH_PLACEHOLDER: "Search by action, resource, code…",
     SEARCH_ARIA_LABEL: "Search system log by resource name, code, action, or summary",
   },
   vi: {
@@ -28,8 +29,9 @@ export const PLATFORM_AUDIT_LOG_COPY = {
     EMPTY: "Chưa có hoạt động nền tảng",
     EMPTY_DESCRIPTION: "Các thay đổi quản trị sẽ xuất hiện ở đây khi nền tảng được vận hành.",
     UNKNOWN_ACTOR: "Không xác định",
+    SYSTEM: "Hệ thống",
     LOAD_FAILED: "Không thể tải nhật ký hệ thống.",
-    SEARCH_PLACEHOLDER: "Tìm theo tên, mã tài nguyên, thao tác hoặc nội dung",
+    SEARCH_PLACEHOLDER: "Tìm theo thao tác, tài nguyên, mã…",
     SEARCH_ARIA_LABEL: "Tìm nhật ký hệ thống theo tên, mã tài nguyên, thao tác hoặc nội dung",
   },
 } as const;
@@ -50,46 +52,3 @@ export const PLATFORM_AUDIT_RESOURCE_TYPES = [
   { value: "TASK_TYPE", label: { en: "Task type", vi: "Dạng bài" } },
   { value: "SupportTicket", label: { en: "Support ticket", vi: "Yêu cầu hỗ trợ" } },
 ] as const;
-
-export const PLATFORM_AUDIT_ACTION_LABELS: Record<string, { en: string; vi: string }> = {
-  TenantOnboarded: { en: "Tenant onboarded", vi: "Đã khởi tạo tổ chức" },
-  TenantSuspended: { en: "Tenant suspended", vi: "Đã tạm ngưng tổ chức" },
-  TenantReactivated: { en: "Tenant reactivated", vi: "Đã kích hoạt lại tổ chức" },
-  TenantBrandingUpdated: {
-    en: "Tenant branding updated",
-    vi: "Đã cập nhật nhận diện tổ chức",
-  },
-  PlatformUserCreated: { en: "Platform user created", vi: "Đã tạo người dùng platform" },
-  PlatformUserRolesUpdated: {
-    en: "Platform user roles updated",
-    vi: "Đã cập nhật vai trò người dùng platform",
-  },
-  PlatformUserSuspended: { en: "Platform user suspended", vi: "Đã tạm ngưng người dùng platform" },
-  PlatformUserReactivated: {
-    en: "Platform user reactivated",
-    vi: "Đã kích hoạt lại người dùng platform",
-  },
-  ExamDraftUpdated: { en: "Exam draft updated", vi: "Đã cập nhật bản nháp kỳ thi" },
-  ExamPublished: { en: "Exam published", vi: "Đã phát hành kỳ thi" },
-  TicketSubmitted: { en: "Support ticket submitted", vi: "Đã gửi yêu cầu hỗ trợ" },
-  TicketStatusUpdated: {
-    en: "Support ticket status updated",
-    vi: "Đã cập nhật trạng thái yêu cầu hỗ trợ",
-  },
-  TicketNoteAdded: { en: "Support ticket note added", vi: "Đã thêm ghi chú yêu cầu hỗ trợ" },
-  TicketClosed: { en: "Support ticket closed", vi: "Đã đóng yêu cầu hỗ trợ" },
-  CREATED: { en: "Created", vi: "Đã tạo" },
-  UPDATED: { en: "Updated", vi: "Đã cập nhật" },
-  ACTIVATED: { en: "Activated", vi: "Đã kích hoạt" },
-  ARCHIVED: { en: "Archived", vi: "Đã lưu trữ" },
-  AUTHORIZATION_DENIED: { en: "Authorization denied", vi: "Từ chối cấp quyền" },
-};
-
-export function humanizePlatformAuditCode(value: string): string {
-  const spaced = value
-    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
-    .replaceAll("_", " ")
-    .replaceAll("-", " ")
-    .toLocaleLowerCase();
-  return spaced.charAt(0).toLocaleUpperCase() + spaced.slice(1);
-}
