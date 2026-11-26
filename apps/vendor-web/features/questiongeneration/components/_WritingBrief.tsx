@@ -8,8 +8,6 @@ import { useTicker } from "../hooks/useTicker";
 import { CHECK_COPY } from "../liveCheckCopy";
 import { writingBrief } from "../utils/writingBrief";
 
-const MS_PER_SECOND = 1000;
-
 interface WritingBriefProps {
   checks: readonly QuestionGenerationLiveCheck[];
   locale: "vi" | "en";
@@ -29,10 +27,6 @@ export const WritingBriefCard = ({ checks, locale, text }: WritingBriefProps): R
   const at = stops > 0 ? Math.floor(elapsedMs / BRIEF_STEP_MS) % stops : -1;
   return (
     <div className="rounded-md border border-dashed border-[var(--border-subtle)] bg-[var(--surface-subtle)] px-3 py-2">
-      <p className="mb-2 flex items-center gap-2 text-xs font-medium text-[var(--action)]">
-        <span className="size-2 animate-pulse rounded-full bg-[var(--action)]" />
-        {text.awaitingModel.replace("{s}", String(Math.floor(elapsedMs / MS_PER_SECOND)))}
-      </p>
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-xs">
         {brief.lines.map((line, index) => (
           <div key={line.key} className="contents">

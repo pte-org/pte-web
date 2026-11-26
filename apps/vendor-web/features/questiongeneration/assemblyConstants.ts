@@ -90,7 +90,6 @@ const ASSEMBLY_TEXT_EN = {
   thinkingStats: "· {s} s · {n} characters",
   thoughtDone: "Thought it through · {n} characters",
   avoidTopics: "Topics to avoid",
-  awaitingModel: "Brief sent · waiting for the model's answer · {s} s",
 } as const;
 
 export type AssemblyText = { [K in keyof typeof ASSEMBLY_TEXT_EN]: string };
@@ -148,6 +147,5 @@ export const ASSEMBLY_TEXT: { vi: AssemblyText; en: AssemblyText } = {
     thinkingStats: "· {s} giây · {n} ký tự",
     thoughtDone: "Đã suy nghĩ · {n} ký tự",
     avoidTopics: "Chủ đề cần tránh",
-    awaitingModel: "Đã gửi yêu cầu · đang chờ AI trả lời · {s} giây",
   },
 };
