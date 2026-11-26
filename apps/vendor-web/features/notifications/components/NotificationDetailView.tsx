@@ -3,9 +3,9 @@
 import { usePathname } from "next/navigation";
 
 import { useEffect, useRef, type ReactElement } from "react";
-import { getUserFacingApiErrorMessage, getInboxItem } from "@pte/api-client";
+import { getUserFacingApiErrorMessage, getInboxItem, localizeInboxItem } from "@pte/api-client";
 import { useQuery } from "@tanstack/react-query";
-import { Alert, Badge, LoadingState, useToast, useDashboardBreadcrumbLabel } from "@pte/ui";
+import { Alert, InboxItemDetail, LoadingState, useLocale, useToast, useDashboardBreadcrumbLabel } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { apiClient } from "@/lib/apiClient";
 import { useCurrentUser } from "@/features/auth/api";
@@ -13,15 +13,8 @@ import { useMarkNotificationRead } from "../api";
 
 export function NotificationDetailView({ publicId }: { publicId: string }): ReactElement {
   const T = useAdminCopy({ NOT_AVAILABLE: "This notification is no longer available." });
-  const categoryLabels = useAdminCopy({
-    SYSTEM_NOTICE: "System notice",
-    MAINTENANCE: "Maintenance",
-    SESSION: "Session",
-    APPLICATION: "Application",
-    BILLING: "Billing",
-    SUPPORT: "Support",
-  });
   const { showToast } = useToast();
+  const { locale } = useLocale();
   const { data: user } = useCurrentUser();
   const readRequested = useRef(false);
   const detail = useQuery({
@@ -38,7 +31,10 @@ export function NotificationDetailView({ publicId }: { publicId: string }): Reac
   });
   const markRead = useMarkNotificationRead();
   const pathname = usePathname();
-  useDashboardBreadcrumbLabel(pathname, detail.data?.title);
+  useDashboardBreadcrumbLabel(
+    pathname,
+    detail.data ? localizeInboxItem(detail.data, locale === "vi" ? "vi" : "en").title : undefined,
+  );
 
   useEffect(() => {
     if (detail.data?.readAt === null && !readRequested.current) {
@@ -56,17 +52,7 @@ export function NotificationDetailView({ publicId }: { publicId: string }): Reac
   const item = detail.data;
   return (
     <div className="flex flex-col gap-5">
-      <article className="rounded-lg bg-white p-6 shadow-card">
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant={item.importance === "IMPORTANT" ? "warning" : "info"}>
-            {categoryLabels[item.category as keyof typeof categoryLabels] ?? item.category}
-          </Badge>
-          <span className="text-xs text-slate-500">
-            {item.notificationType.replaceAll("_", " ")}
-          </span>
-        </div>
-        <p className="mt-5 whitespace-pre-wrap text-sm leading-6 text-slate-700">{item.body}</p>
-      </article>
+      <InboxItemDetail item={item} />
     </div>
   );
 }
