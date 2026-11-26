@@ -65,6 +65,7 @@ export {
   QUESTION_GENERATION_BATCH_ENDPOINTS,
   createQuestionGenerationBatch,
   getQuestionGenerationBatch,
+  getQuestionGenerationBatchQuestions,
   listQuestionGenerationBatches,
   cancelQuestionGenerationBatch,
   deleteQuestionGenerationBatchDrafts,

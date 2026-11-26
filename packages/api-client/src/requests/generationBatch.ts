@@ -4,6 +4,7 @@ import type {
   QuestionGenerationBatchDraftDeleteRequest,
   QuestionGenerationBatchDraftDeleteResponse,
   QuestionGenerationBatchListParams,
+  QuestionGenerationBatchQuestion,
   QuestionGenerationBatchResponse,
 } from "../types/generation";
 
@@ -13,6 +14,7 @@ export const QUESTION_GENERATION_BATCH_ENDPOINTS = {
   batches: BATCHES,
   batchById: (id: string) => `${BATCHES}/${encodeURIComponent(id)}`,
   batchCancel: (id: string) => `${BATCHES}/${encodeURIComponent(id)}/cancel`,
+  batchQuestions: (id: string) => `${BATCHES}/${encodeURIComponent(id)}/questions`,
   batchDraftDelete: (id: string) => `${BATCHES}/${encodeURIComponent(id)}/drafts/delete`,
 } as const;
 
@@ -31,6 +33,14 @@ export function getQuestionGenerationBatch(
   id: string,
 ): Promise<QuestionGenerationBatchResponse> {
   return client.request<QuestionGenerationBatchResponse>(QUESTION_GENERATION_BATCH_ENDPOINTS.batchById(id));
+}
+
+/** Every question slot of the batch in run order, each saved one with a light preview for its result card. */
+export function getQuestionGenerationBatchQuestions(
+  client: ApiClient,
+  id: string,
+): Promise<QuestionGenerationBatchQuestion[]> {
+  return client.request<QuestionGenerationBatchQuestion[]>(QUESTION_GENERATION_BATCH_ENDPOINTS.batchQuestions(id));
 }
 
 export function listQuestionGenerationBatches(

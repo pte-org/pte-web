@@ -55,6 +55,7 @@ export type {
   QuestionGenerationBatchCreateRequest,
   QuestionGenerationBatchChildResponse,
   QuestionGenerationBatchResponse,
+  QuestionGenerationBatchQuestion,
   QuestionGenerationBatchDraftDeleteRequest,
   QuestionGenerationBatchDraftDeleteResult,
   QuestionGenerationBatchDraftDeleteItem,

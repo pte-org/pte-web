@@ -68,6 +68,35 @@ export interface QuestionGenerationBatchResponse {
   children: QuestionGenerationBatchChildResponse[];
 }
 
+/**
+ * One question slot of a batch for its result cards (`GET /batches/{id}/questions`). The preview fields are null
+ * (options empty) until the question is saved, and for a slot that failed or was cancelled.
+ */
+export interface QuestionGenerationBatchQuestion {
+  jobPublicId: string;
+  batchSeq: number;
+  itemIndex: number;
+  taskType: string;
+  cefrLevel: string | null;
+  stage: string;
+  failureCode: string | null;
+  questionPublicId: string | null;
+  section: string | null;
+  topic: string | null;
+  promptExcerpt: string | null;
+  options: string[];
+  correctOptionIndex: number | null;
+  audioRef: string | null;
+  imageRef: string | null;
+  audioSeconds: number | null;
+  voice: string | null;
+  chartType: string | null;
+  words: number | null;
+  /** Criteria the reviewer passed, out of `reviewTotal`; null when the question has no review. */
+  reviewPassed: number | null;
+  reviewTotal: number | null;
+}
+
 export interface QuestionGenerationBatchDraftDeleteRequest {
   /** At most 200; empty or absent means the live drafts of the batch. */
   questionPublicIds?: string[];
