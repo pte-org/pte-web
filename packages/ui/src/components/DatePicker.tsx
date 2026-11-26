@@ -310,8 +310,13 @@ export const DatePicker = ({
     }
 
     const typedDate = parseTypedDate(normalized);
-    if (!typedDate || dateIsDisabled(typedDate)) {
+    if (!typedDate) {
       setInputError(t("common.invalidDate", "Enter a valid date as dd/mm/yyyy."));
+      return;
+    }
+    // A real date the field does not allow (before `min`, after `max`) is not a typo: say so.
+    if (dateIsDisabled(typedDate)) {
+      setInputError(t("common.dateOutOfRange", "This date is outside the allowed range."));
       return;
     }
 
@@ -421,6 +426,8 @@ export const DatePicker = ({
             }}
             className={cn(
               "min-w-0 flex-1 border-0 bg-transparent outline-none placeholder:text-[var(--ink-muted)] disabled:cursor-not-allowed",
+              // With a time beside it the date must keep room for "dd/mm/yyyy" instead of being squeezed to nothing.
+              includeTime && "min-w-[7.5rem]",
               variant === "table"
                 ? "rounded-md px-2 py-1.5 text-xs text-[var(--table-body-text)] disabled:text-[var(--table-muted-text)]"
                 : "rounded-lg px-3 py-2.5 text-sm text-[var(--ink-primary)] disabled:text-[var(--ink-muted)]",

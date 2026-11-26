@@ -4,6 +4,12 @@
  * in by the server (dates, numbers) is left out on purpose: the server's text keeps those values.
  */
 export const USER_FACING_ERROR_MESSAGES_VI: Record<string, string> = {
+  ANNOUNCEMENT_INVALID: "Thông báo chưa hợp lệ. Hãy kiểm tra tiêu đề, nội dung và thời gian: ngày kết thúc phải sau ngày bắt đầu.",
+  ANNOUNCEMENT_NOT_FOUND: "Không tìm thấy thông báo này. Có thể nó đã bị xóa.",
+  ANNOUNCEMENT_VERSION_CONFLICT: "Thông báo này vừa được người khác thay đổi. Hãy tải lại rồi thử lại.",
+  ANNOUNCEMENT_PUBLISHED: "Thông báo đã phát hành thì không thể chỉnh sửa.",
+  ANNOUNCEMENT_NOT_PUBLISHED: "Chỉ thông báo đã phát hành mới gửi lại được.",
+  ANNOUNCEMENT_CORRECTION_INVALID: "Bản đính chính phải tham chiếu tới một thông báo đã phát hành.",
   PLAN_ARCHIVED_NOT_EDITABLE:
     "Gói này đã được lưu trữ và không thể chỉnh sửa. Hãy tạo gói mới nếu cần giá hoặc sức chứa khác.",
   PLAN_MUST_BE_DRAFT_TO_ACTIVATE: "Chỉ gói đang ở trạng thái nháp mới có thể phát hành.",

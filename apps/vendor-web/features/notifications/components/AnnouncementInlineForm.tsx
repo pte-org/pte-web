@@ -5,6 +5,12 @@ import { useRouter } from "next/navigation";
 import type { AnnouncementCreateRequest, AnnouncementResponse } from "@pte/api-client";
 import { Button, DateTimeInput, FormActions, Input, Select, Textarea, UnsavedChangesGuard, useLeaveAfterSave } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import {
+  announcementDateGap,
+  announcementWindowInvalid,
+  toIsoValue,
+  toLocalValue,
+} from "../announcementWindow";
 
 interface AnnouncementInlineFormProps {
   announcement: AnnouncementResponse;
@@ -14,9 +20,6 @@ interface AnnouncementInlineFormProps {
   onSubmit: (payload: AnnouncementCreateRequest, expectedDraftVersion: number) => Promise<boolean>;
 }
 
-const toLocalValue = (value: string | null): string =>
-  value ? new Date(value).toISOString().slice(0, 16) : "";
-const toIsoValue = (value: string): string | null => (value ? new Date(value).toISOString() : null);
 
 export function AnnouncementInlineForm({
   announcement,
@@ -33,6 +36,9 @@ export function AnnouncementInlineForm({
     IMPORTANCE: "Importance",
     AFFECTED_FROM: "Affected from",
     AFFECTED_UNTIL: "Affected until",
+    WINDOW_ERROR: "The end must be after the start.",
+    TIME_REQUIRED: "Choose a time.",
+    DATE_REQUIRED: "Choose a date.",
   });
   const categoryOptions = useAdminCopy([
     { label: "System notice", value: "SYSTEM_NOTICE" },
@@ -67,8 +73,19 @@ export function AnnouncementInlineForm({
     affectedFrom !== toLocalValue(announcement.affectedFrom) ||
     affectedUntil !== toLocalValue(announcement.affectedUntil);
 
+  const gapMessage = (value: string): string | undefined => {
+    const gap = announcementDateGap(value);
+    return gap === "TIME_REQUIRED" ? T.TIME_REQUIRED : gap === "DATE_REQUIRED" ? T.DATE_REQUIRED : undefined;
+  };
+  const fromError = gapMessage(affectedFrom);
+  const untilError =
+    gapMessage(affectedUntil) ??
+    (!fromError && announcementWindowInvalid(affectedFrom, affectedUntil) ? T.WINDOW_ERROR : undefined);
+  const formInvalid = Boolean(fromError || untilError);
+
   const submit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
+    if (formInvalid) return;
     void onSubmit(
       {
         title: title.trim(),
@@ -126,20 +143,26 @@ export function AnnouncementInlineForm({
           }
           disabled={isSaving}
         />
-        <DateTimeInput
-          id="announcement-affected-from-inline"
-          label={T.AFFECTED_FROM}
-          value={affectedFrom}
-          onChange={(event) => setAffectedFrom(event.target.value)}
-          disabled={isSaving}
-        />
-        <DateTimeInput
-          id="announcement-affected-until-inline"
-          label={T.AFFECTED_UNTIL}
-          value={affectedUntil}
-          onChange={(event) => setAffectedUntil(event.target.value)}
-          disabled={isSaving}
-        />
+        <div className="sm:col-span-2">
+          <DateTimeInput
+            id="announcement-affected-from-inline"
+            label={T.AFFECTED_FROM}
+            value={affectedFrom}
+            error={fromError}
+            onChange={(event) => setAffectedFrom(event.target.value)}
+            disabled={isSaving}
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <DateTimeInput
+            id="announcement-affected-until-inline"
+            label={T.AFFECTED_UNTIL}
+            value={affectedUntil}
+            error={untilError}
+            onChange={(event) => setAffectedUntil(event.target.value)}
+            disabled={isSaving}
+          />
+        </div>
       </div>
       <FormActions>
         <Button variant="secondary" onClick={onCancel} disabled={isSaving}>

@@ -17,14 +17,21 @@ const GENERAL_MESSAGES: Record<UserMessageLanguage, Record<"generic" | "network"
   },
 };
 
-let language: UserMessageLanguage = "en";
+/**
+ * The chosen language lives on `globalThis`, not in a module variable: a hot reload of this file in development
+ * would otherwise reset it to English until the next language change, and errors would turn English on a Vietnamese screen.
+ */
+const LANGUAGE_KEY = "__pteUserMessageLanguage";
+const languageStore = globalThis as typeof globalThis & { [LANGUAGE_KEY]?: UserMessageLanguage };
+
+const currentLanguage = (): UserMessageLanguage => languageStore[LANGUAGE_KEY] ?? "en";
 
 /**
  * Chooses the language of the shared messages (the general ones and the per-kind fallbacks). The apps call it
  * whenever the person changes language; messages that belong to one specific error code stay in English.
  */
 export function setUserMessageLanguage(next: UserMessageLanguage): void {
-  language = next;
+  languageStore[LANGUAGE_KEY] = next;
 }
 
 const RATE_LIMITED_STATUS = 429;
@@ -34,6 +41,12 @@ export const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   PLAN_ARCHIVED_NOT_EDITABLE:
     "This plan is archived and can no longer be edited. Create a new plan if you need different pricing or capacity.",
   PLAN_MUST_BE_DRAFT_TO_ACTIVATE: "Only draft plans can be published.",
+  ANNOUNCEMENT_INVALID: "The announcement is not valid. Check the title, the message and the dates: the end must be after the start.",
+  ANNOUNCEMENT_NOT_FOUND: "We couldn't find this announcement. It may have been deleted.",
+  ANNOUNCEMENT_VERSION_CONFLICT: "This announcement was changed by someone else. Reload it and try again.",
+  ANNOUNCEMENT_PUBLISHED: "A published announcement can no longer be changed.",
+  ANNOUNCEMENT_NOT_PUBLISHED: "Only a published announcement can be sent again.",
+  ANNOUNCEMENT_CORRECTION_INVALID: "A correction must refer to a published announcement.",
   ORDER_PLAN_NOT_ACTIVE:
     "This plan is no longer available for purchase. Please choose another active plan.",
   SUBSCRIPTION_PLAN_NOT_ACTIVE:
@@ -202,7 +215,7 @@ function isSafeUserMessage(value: unknown): value is string {
 
 function fallbackFor(error: ApiError, fallback?: string): string {
   if (isSafeUserMessage(fallback)) return fallback;
-  return KIND_FALLBACKS[language][error.kind] ?? GENERAL_MESSAGES[language].generic;
+  return KIND_FALLBACKS[currentLanguage()][error.kind] ?? GENERAL_MESSAGES[currentLanguage()].generic;
 }
 
 /**
@@ -211,17 +224,17 @@ function fallbackFor(error: ApiError, fallback?: string): string {
  */
 export function getUserFacingApiErrorMessage(error: unknown, fallback?: string): string {
   if (!(error instanceof ApiError)) {
-    return isSafeUserMessage(fallback) ? fallback : GENERAL_MESSAGES[language].generic;
+    return isSafeUserMessage(fallback) ? fallback : GENERAL_MESSAGES[currentLanguage()].generic;
   }
 
-  if (error.kind === "network") return GENERAL_MESSAGES[language].network;
-  if (error.status === RATE_LIMITED_STATUS) return GENERAL_MESSAGES[language].rateLimited;
+  if (error.kind === "network") return GENERAL_MESSAGES[currentLanguage()].network;
+  if (error.status === RATE_LIMITED_STATUS) return GENERAL_MESSAGES[currentLanguage()].rateLimited;
   if (error.kind === "server" || error.status >= 500) {
-    return KIND_FALLBACKS[language].server;
+    return KIND_FALLBACKS[currentLanguage()].server;
   }
 
   // In Vietnamese the app's own wording of a coded error wins over the English text the server sends with it.
-  const translated = language === "vi" && error.code ? USER_FACING_ERROR_MESSAGES_VI[error.code] : undefined;
+  const translated = currentLanguage() === "vi" && error.code ? USER_FACING_ERROR_MESSAGES_VI[error.code] : undefined;
   if (translated) return translated;
 
   if (isSafeUserMessage(error.userMessage)) return error.userMessage;
