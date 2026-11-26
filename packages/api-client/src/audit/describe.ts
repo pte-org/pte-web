@@ -11,8 +11,10 @@ import { describeAuditSummary, resourceNameFromSummary, type AuditSummaryWording
 /** The actor id the scheduler writes for jobs that run on their own (see the session lifecycle service). */
 const SYSTEM_ACTOR_USER_ID = "00000000-0000-0000-0000-000000000000";
 
-const CREATE_ACTIONS = /(Created|Published|Opened|Added|Assigned|Submitted|Generated|Granted|Activated|Onboarded|Reactivated|GRANT|CREATED|PUBLISHED|TRANSITION)/;
-const CLOSE_ACTIONS = /(Closed|Closing|Deleted|Suspended|Removed|Archived|ARCHIVED|DENIED)/;
+const CREATE_ACTIONS =
+  /(Created|Published|Opened|Added|Assigned|Submitted|Generated|Granted|Activated|Onboarded|Reactivated|Restored|Issued|GRANT|ISSUE|CREATED|CREATE_DRAFT|PUBLISH|PUBLISHED|TRANSITION|ACTIVATED|APPROVED|SUBMITTED_FOR_APPROVAL|REVISION_CREATED|CLONED)/;
+const CLOSE_ACTIONS =
+  /(Closed|Closing|Deleted|Suspended|Removed|Archived|Cancelled|Unassigned|Denied|ARCHIVED|DENIED|DELETE|DELETED|CANCELLED|REJECTED|FAILED|FAILURE|RETIRED)/;
 const SHORT_ID_LENGTH = 8;
 
 export type AuditActionTone = "create" | "update" | "close";

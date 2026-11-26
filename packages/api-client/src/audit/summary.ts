@@ -1,3 +1,4 @@
+import { EXTRA_RULES } from "./summaryRules";
 import {
   AUDIT_EXAM_STATUS_LABELS,
   AUDIT_TICKET_CATEGORY_LABELS,
@@ -17,16 +18,16 @@ export interface AuditSummaryWording {
   class: string;
 }
 
-interface Pair {
+export interface Pair {
   vi: string;
   en: string;
 }
 
-interface RuleContext extends AuditSummaryWording {
+export interface RuleContext extends AuditSummaryWording {
   locale: AuditLocale;
 }
 
-interface Rule {
+export interface Rule {
   actions: readonly string[];
   pattern: RegExp;
   render: (match: RegExpMatchArray, context: RuleContext) => Pair;
@@ -199,7 +200,7 @@ export function describeAuditSummary(
 ): string | null {
   const text = summary.trim();
   if (resourceName && text === resourceName.trim()) return null;
-  for (const rule of RULES) {
+  for (const rule of [...RULES, ...EXTRA_RULES]) {
     if (!rule.actions.includes(action)) continue;
     const match = text.match(rule.pattern);
     if (match) return rule.render(match, { ...wording, locale })[locale];
