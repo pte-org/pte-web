@@ -15,7 +15,11 @@ import {
   batchDetailHref,
   generationLiveHref,
 } from "../liveConstants";
-import { OPEN_BATCH_STATUSES, pickGenerationActivity, type GenerationActivity } from "../utils/generationActivity";
+import {
+  OPEN_BATCH_STATUSES,
+  pickGenerationActivity,
+  type GenerationActivity,
+} from "../utils/generationActivity";
 
 const ACTIVITY_QUERY_KEY = "generationActivity";
 
@@ -27,7 +31,10 @@ async function loadActivity(): Promise<GenerationActivity | null> {
   ]);
   const openBatch = batches.data.find((batch) => OPEN_BATCH_STATUSES.includes(batch.status));
   const batch = openBatch ? await getQuestionGenerationBatch(apiClient, openBatch.publicId) : null;
-  return pickGenerationActivity(jobs.data, batch, { job: generationLiveHref, batch: batchDetailHref });
+  return pickGenerationActivity(jobs.data, batch, {
+    job: generationLiveHref,
+    batch: batchDetailHref,
+  });
 }
 
 /**

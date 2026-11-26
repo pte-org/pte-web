@@ -6,7 +6,7 @@ import { useLocale } from "../i18n";
 import { cn } from "../utils/cn";
 import { XIcon } from "./icons";
 
-type ModalSize = "sm" | "md" | "lg" | "xl" | "full" | "wide";
+type ModalSize = "sm" | "md" | "lg" | "xl" | "full" | "wide" | "extraWide";
 
 interface ModalProps {
   open: boolean;
@@ -36,6 +36,7 @@ const SIZE_CLASS: Record<ModalSize, string> = {
   xl: "max-w-2xl",
   full: "max-w-5xl",
   wide: "max-w-7xl",
+  extraWide: "max-w-[96rem]",
 };
 
 export const Modal = ({
@@ -87,13 +88,13 @@ export const Modal = ({
         role="dialog"
         aria-modal="true"
         className={cn(
-          "max-h-[90vh] w-full overflow-hidden rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] text-[var(--ink-primary)] shadow-[var(--card-shadow)] motion-safe:animate-pte-scale-in",
+          "flex max-h-[90vh] w-full flex-col overflow-hidden rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)] text-[var(--ink-primary)] shadow-[var(--card-shadow)] motion-safe:animate-pte-scale-in",
           SIZE_CLASS[size],
         )}
         onClick={(event) => event.stopPropagation()}
       >
         {title && (
-          <div className="flex items-start justify-between gap-4 border-b border-[var(--shell-border)] px-5 py-4">
+          <div className="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--shell-border)] px-5 py-4">
             <div className="flex min-w-0 items-center gap-3">
               {titleIcon}
               <h2 className="text-base font-semibold text-[var(--ink-primary)]">{title}</h2>
@@ -109,11 +110,13 @@ export const Modal = ({
             </button>
           </div>
         )}
-        <div className={cn("overflow-y-auto px-5 py-4", size === "wide" ? "max-h-[78vh]" : "max-h-[70vh]")}>{children}</div>
+        {/* The body takes what the header and footer leave inside the 90vh frame; a fixed body height could push
+            the end of long content under the frame's clipped edge, out of reach of the scrollbar. */}
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">{children}</div>
         {footer && (
           <div
             className={cn(
-              "flex justify-end gap-2 border-t border-[var(--shell-border)] bg-[var(--surface-card)] px-5 py-4",
+              "flex shrink-0 justify-end gap-2 border-t border-[var(--shell-border)] bg-[var(--surface-card)] px-5 py-4",
               stickyFooter && "sticky bottom-0",
             )}
           >

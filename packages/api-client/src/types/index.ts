@@ -29,6 +29,13 @@ export * from "./dashboard";
 export * from "./location";
 // Question generation (com.pte.itembank.internal.generation)
 export type {
+  QuestionVoiceAccent,
+  QuestionVoiceGender,
+  QuestionVoiceOption,
+  QuestionVoiceCatalogResponse,
+  ChangeQuestionVoiceRequest,
+} from "./generationVoice";
+export type {
   QuestionGenerationJobStatus,
   QuestionGenerationItemStage,
   QuestionGenerationJobAction,
@@ -55,6 +62,7 @@ export type {
   QuestionGenerationBatchCreateRequest,
   QuestionGenerationBatchChildResponse,
   QuestionGenerationBatchResponse,
+  QuestionGenerationBatchQuestion,
   QuestionGenerationBatchDraftDeleteRequest,
   QuestionGenerationBatchDraftDeleteResult,
   QuestionGenerationBatchDraftDeleteItem,

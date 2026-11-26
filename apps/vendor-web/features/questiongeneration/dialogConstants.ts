@@ -14,7 +14,7 @@ export const PRESET_MULTIPLIER_MIN = 1;
 export const PRESET_MULTIPLIER_MAX = 10;
 
 /** Fallback batch cap for an older server that does not report `maxItemsPerBatch`. */
-export const GENERATION_FALLBACK_MAX_ITEMS_PER_BATCH = 50;
+export const GENERATION_FALLBACK_MAX_ITEMS_PER_BATCH = 500;
 /** Fallback ETA per question when a task type reports none. */
 export const GENERATION_FALLBACK_SECONDS_PER_ITEM = 60;
 
@@ -27,8 +27,19 @@ export const GENERATION_OPEN_BATCH_QUERY_KEY = "generationOpenBatch";
 export const GENERATION_BATCH_DISABLED_CODE = "GENERATION_BATCH_DISABLED";
 export const GENERATION_ALREADY_RUNNING_CODE = "GENERATION_JOB_ALREADY_RUNNING";
 
+/** Matrix columns: task type, one cell per CEFR level, the row total, the row menu. */
+export const MATRIX_ROW_GRID =
+  "grid grid-cols-[minmax(10rem,1fr)_repeat(6,3.5rem)_3rem_2rem] items-center gap-1.5";
 
+/** Marks of an empty cell and an empty row total: lighter than a 0, so the filled cells stand out. */
+export const MATRIX_EMPTY_CELL = "·";
+export const MATRIX_EMPTY_TOTAL = "–";
 
-
-/** Columns of a task-type line in the popup: name, count, CEFR, picture kind, own-topics toggle. */
-export const TASK_ROW_GRID = "grid grid-cols-[minmax(0,1fr)_6rem_12rem_9rem_8rem] gap-3";
+/** Steps the popup can undo; older ones are dropped. */
+export const GENERATION_UNDO_LIMIT = 20;
+/** "N per task type" shortcut. */
+export const GENERATION_FILL_EACH_COUNT = 2;
+/** Largest value one matrix cell accepts; the batch cap still applies to the total. */
+export const GENERATION_CELL_MAX = 99;
+/** The selection of the last started batch, kept per browser for "Same as last time". */
+export const GENERATION_LAST_SELECTION_STORAGE_KEY = "pte.questionGeneration.lastSelection";

@@ -17,6 +17,8 @@ const vi = (action: string, summary: string, name?: string): string | null =>
 const log = (overrides: Partial<AuditLogResponse>): AuditLogResponse => ({
   publicId: "1",
   actorUserId: "6843c327-83cf-494f-b733-9f5bc682d56c",
+  actorRole: null,
+  hasStateChange: false,
   aggregateType: "ExamSession",
   aggregateId: "3350e0ee-d75f-4b67",
   resourceName: null,

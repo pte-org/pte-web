@@ -114,12 +114,10 @@ export const AI_ADMIN_COPY = {
     FAILED: "Failed",
     ITEMS: "Questions made",
     ITEMS_DETAIL: "{saved} saved as drafts",
-    ESTIMATED_COST: "Estimated cost",
-    COST_DETAIL: "For {calls} AI calls",
     FAILED_RATE: "Failed",
     FAILED_DETAIL: "{count}/{total} questions",
     TOKENS: "Tokens (in / out)",
-    TOKENS_DETAIL: "{total} tokens in total",
+    TOKENS_DETAIL: "{total} tokens in total · {calls} AI calls",
     BY_TASK_TYPE: "By task type",
     TASK_TYPE: "Task type",
     FAILURES_PANEL: "Why items failed",
@@ -203,12 +201,10 @@ export const AI_ADMIN_COPY = {
     FAILED: "Thất bại",
     ITEMS: "Số câu đã tạo",
     ITEMS_DETAIL: "{saved} đã lưu thành bản nháp",
-    ESTIMATED_COST: "Chi phí ước tính",
-    COST_DETAIL: "Cho {calls} lần gọi AI",
     FAILED_RATE: "Lỗi",
     FAILED_DETAIL: "{count}/{total} câu",
     TOKENS: "Token (vào / ra)",
-    TOKENS_DETAIL: "Tổng {total} token",
+    TOKENS_DETAIL: "Tổng {total} token · {calls} lần gọi AI",
     BY_TASK_TYPE: "Theo dạng bài",
     TASK_TYPE: "Dạng bài",
     FAILURES_PANEL: "Vì sao câu hỏi thất bại",
@@ -256,5 +252,11 @@ export const GENERATION_LIMITS = [
 ] as const;
 
 export type GenerationLimit = (typeof GENERATION_LIMITS)[number];
+
+/** The limits whose meaning is not obvious from the label get a line of help under the field. */
+export const GENERATION_LIMIT_HINTS: Partial<Record<GenerationLimit["field"], "MAX_JOBS_HINT" | "MAX_CALLS_HINT">> = {
+  maxConcurrentJobs: "MAX_JOBS_HINT",
+  maxCallsPerItem: "MAX_CALLS_HINT",
+};
 
 export type AiAdminCopy = { readonly [K in keyof (typeof AI_ADMIN_COPY)["en"]]: string };

@@ -16,12 +16,25 @@ interface FooterProps {
   onSubmit: () => void;
 }
 
-export const GenerationDialogFooter = ({ mode, total, canSubmit, isSubmitting, messages, onCancel, onSubmit }: FooterProps): ReactElement => (
+export const GenerationDialogFooter = ({
+  mode,
+  total,
+  canSubmit,
+  isSubmitting,
+  messages,
+  onCancel,
+  onSubmit,
+}: FooterProps): ReactElement => (
   <FormActions>
     <Button type="button" variant="secondary" onClick={onCancel} disabled={isSubmitting}>
       {messages.cancel}
     </Button>
-    <Button type="button" onClick={onSubmit} disabled={!canSubmit || isSubmitting} isLoading={isSubmitting}>
+    <Button
+      type="button"
+      onClick={onSubmit}
+      disabled={!canSubmit || isSubmitting}
+      isLoading={isSubmitting}
+    >
       {mode === "single" ? messages.submitSingle : formatMessage(messages.submitBatch, { total })}
     </Button>
   </FormActions>

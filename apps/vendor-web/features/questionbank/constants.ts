@@ -127,7 +127,6 @@ export const QUESTION_EDITOR_TEXT = {
   EDIT_TITLE: "Edit question",
   FORM_EDIT_TITLE: "Edit question",
   FORM_CREATE_TITLE: "Create PTE Question",
-  PREVIEW_TITLE: "Preview · Student view",
   TASK_TYPE: "Task type",
   LOADING_TASK_TYPES: "Loading task types...",
   POOL: "Question pool",

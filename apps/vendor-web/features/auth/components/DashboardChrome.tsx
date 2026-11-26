@@ -1,6 +1,6 @@
 "use client";
 
-import { BREADCRUMB_PARENT_ROUTES } from "@/lib/breadcrumbRoutes";
+import { BREADCRUMB_PARENT_ROUTES, BREADCRUMB_QUERY_PARENT_ROUTES } from "@/lib/breadcrumbRoutes";
 
 import type { ReactElement, ReactNode } from "react";
 import Image from "next/image";
@@ -26,7 +26,7 @@ import {
   type SessionRole,
 } from "@pte/ui";
 import { NotificationBellContainer } from "@/features/notifications";
-import { GenerationActivityIndicator } from "@/features/questiongeneration/components";
+import { GenerationActivityNavItem } from "@/features/questiongeneration/components";
 import { canAuthorAcademic, hasAnyRole, roleLabel } from "../permissions";
 import { RequireAuth } from "./RequireAuth";
 import { useCurrentUser } from "../api";
@@ -57,6 +57,8 @@ interface DashboardChromeProps {
 }
 
 const BRAND_NAME = "PTE Prep";
+/** The nav item that running AI generation hangs under, as a pulsing sub-item. */
+const GENERATION_PARENT_HREF = "/admin/questions";
 const BRAND_SUBTITLE = "Admin System";
 
 const HEADER_TEXT = {
@@ -144,26 +146,35 @@ const SidebarNav = ({
       items={sidebarItems}
       isOpen={isSidebarOpen}
       renderLink={(item, className) => (
-        <Link
-          href={item.href}
-          onClick={onItemClick}
-          aria-label={item.label}
-          aria-current={item.isActive ? "page" : undefined}
-          title={isSidebarOpen ? undefined : item.label}
-          className={className}
-        >
-          {item.icon && (
-            <span
-              className={cn(
-                "flex shrink-0 items-center justify-center [&>svg]:h-[18px] [&>svg]:w-[18px]",
-                item.isActive ? "text-[var(--action-foreground)]" : "text-[var(--ink-muted)]",
-              )}
-            >
-              {item.icon}
-            </span>
+        <>
+          <Link
+            href={item.href}
+            onClick={onItemClick}
+            aria-label={item.label}
+            aria-current={item.isActive ? "page" : undefined}
+            title={isSidebarOpen ? undefined : item.label}
+            className={className}
+          >
+            {item.icon && (
+              <span
+                className={cn(
+                  "flex shrink-0 items-center justify-center [&>svg]:h-[18px] [&>svg]:w-[18px]",
+                  item.isActive ? "text-[var(--action-foreground)]" : "text-[var(--ink-muted)]",
+                )}
+              >
+                {item.icon}
+              </span>
+            )}
+            {isSidebarOpen && <span className="truncate">{item.label}</span>}
+          </Link>
+          {item.href === GENERATION_PARENT_HREF && (
+            <GenerationActivityNavItem
+              enabled={canAuthorAcademic(roles)}
+              collapsed={!isSidebarOpen}
+              onNavigate={onItemClick}
+            />
           )}
-          {isSidebarOpen && <span className="truncate">{item.label}</span>}
-        </Link>
+        </>
       )}
     />
   );
@@ -200,7 +211,6 @@ const HeaderActions = (): ReactElement => {
 
   return (
     <>
-      <GenerationActivityIndicator enabled={canAuthorAcademic(user?.roles)} />
       <LocaleSwitcher />
       <ThemeToggle />
       <NotificationBellContainer />
@@ -239,15 +249,25 @@ const ChromeContent = ({ navItems, children }: DashboardChromeProps): ReactEleme
   const activeItem = navItems
     .filter((item) => isActive(pathname, item.href))
     .sort((a, b) => b.href.length - a.href.length)[0];
-  const explicitParent = BREADCRUMB_PARENT_ROUTES.find(route => pathname === route.prefix || pathname?.startsWith(`${route.prefix}/`));
+  const explicitParent =
+    BREADCRUMB_QUERY_PARENT_ROUTES.find(
+      (route) => pathname === route.path && searchParams.get(route.param) === route.value,
+    ) ??
+    BREADCRUMB_PARENT_ROUTES.find(
+      (route) => pathname === route.prefix || pathname?.startsWith(`${route.prefix}/`),
+    );
   const breadcrumbItems = useDashboardBreadcrumbItems(
     pathname,
-    explicitParent ? { href: explicitParent.href, label: t(explicitParent.labelKey) } : activeItem
-      ? {
-          href: activeItem.href,
-          label: activeItem.labelKey ? t(activeItem.labelKey, activeItem.label) : activeItem.label,
-        }
-      : undefined,
+    explicitParent
+      ? { href: explicitParent.href, label: t(explicitParent.labelKey) }
+      : activeItem
+        ? {
+            href: activeItem.href,
+            label: activeItem.labelKey
+              ? t(activeItem.labelKey, activeItem.label)
+              : activeItem.label,
+          }
+        : undefined,
     t("common.breadcrumbDetails", "Details"),
   );
   const breadcrumbs =

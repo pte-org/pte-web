@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { DEFAULT_PAGE_SIZE, getUserFacingApiErrorMessage } from "@pte/api-client";
 import {
+  useDashboardBreadcrumbLabel,
   Alert,
+  Button,
   DataTable,
   DateRangePicker,
   PaginationControls,
@@ -13,25 +16,31 @@ import {
 } from "@pte/ui";
 import { useDebouncedSearch } from "@/features/i18n/useDebouncedSearch";
 import {
+  ACTOR_ID_SEARCH_PARAM,
   PLATFORM_AUDIT_LOG_COPY,
-  PLATFORM_AUDIT_RESOURCE_TYPES as RAW_RESOURCE_TYPES,
+  PLATFORM_AUDIT_RESOURCE_TYPES,
 } from "../constants";
-import { usePlatformAuditLogs } from "../api";
+import { usePlatformAuditActors, usePlatformAuditLogs, type PlatformAuditLogEntry } from "../api";
+import { AuditEntryDrawer } from "./AuditEntryDrawer";
 import { usePlatformAuditColumns } from "../hooks/usePlatformAuditColumns";
+
+const FILTER_CLASS = "w-full sm:w-auto sm:min-w-[170px]";
 
 export function PlatformAuditLogView(): ReactElement {
   const { locale, t } = useLocale();
   const T = PLATFORM_AUDIT_LOG_COPY[locale];
-  const resourceTypes = RAW_RESOURCE_TYPES.map((item) => ({
-    value: item.value,
-    label: item.label[locale],
-  }));
+  const searchParams = useSearchParams();
+  // Shown only when the shell has a parent for this page (opened from the platform users list).
+  useDashboardBreadcrumbLabel(usePathname(), T.TITLE);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(DEFAULT_PAGE_SIZE);
   const [search, setSearch] = useState("");
   const [aggregateType, setAggregateType] = useState("");
+  const [actorId, setActorId] = useState(() => searchParams.get(ACTOR_ID_SEARCH_PARAM) ?? "");
   const [dateRange, setDateRange] = useState<DateRangeValue>({ from: "", to: "" });
+  const [openEntryId, setOpenEntryId] = useState<string | null>(null);
   const debouncedSearch = useDebouncedSearch(search);
+  const actors = usePlatformAuditActors();
   const auditLogs = usePlatformAuditLogs(
     aggregateType || undefined,
     page,
@@ -39,12 +48,40 @@ export function PlatformAuditLogView(): ReactElement {
     debouncedSearch,
     dateRange.from || undefined,
     dateRange.to || undefined,
+    { actorId: actorId || undefined },
   );
-  const columns = usePlatformAuditColumns();
+  const baseColumns = usePlatformAuditColumns();
+  const columns = [
+    ...baseColumns,
+    {
+      key: "changes",
+      header: "",
+      sortable: false,
+      cell: (entry: PlatformAuditLogEntry) =>
+        entry.log.hasStateChange ? (
+          <Button variant="ghost" size="sm" onClick={() => setOpenEntryId(entry.log.publicId)}>
+            {T.VIEW_CHANGES}
+          </Button>
+        ) : null,
+    },
+  ];
   const resourceFilterOptions = [
     { value: "", label: T.ALL_ACTIVITY },
-    ...resourceTypes.map((item) => ({ value: item.value, label: item.label })),
+    ...PLATFORM_AUDIT_RESOURCE_TYPES.map((item) => ({
+      value: item.value,
+      label: item.label[locale],
+    })),
   ];
+  const actorFilterOptions = [
+    { value: "", label: T.ALL_ACTORS },
+    ...(actors.data ?? []).map((actor) => ({ value: actor.publicId, label: actor.fullName })),
+  ];
+  const resetToFirstPage =
+    <Value,>(apply: (value: Value) => void) =>
+    (value: Value) => {
+      apply(value);
+      setPage(0);
+    };
 
   return (
     <div className="flex flex-col gap-5">
@@ -61,37 +98,38 @@ export function PlatformAuditLogView(): ReactElement {
         searchPlaceholder={T.SEARCH_PLACEHOLDER}
         searchAriaLabel={T.SEARCH_ARIA_LABEL}
         searchValue={search}
-        onSearchChange={(value) => {
-          setSearch(value);
-          setPage(0);
-        }}
+        onSearchChange={resetToFirstPage(setSearch)}
         filters={
           <>
-            <div className="w-full sm:w-auto sm:min-w-[170px]">
+            <div className={FILTER_CLASS}>
               <DateRangePicker
                 id="platform-audit-date-filter"
                 ariaLabel={t("common.filterDateRange", "Filter by a date range")}
                 value={dateRange}
-                onChange={(value) => {
-                  setDateRange(value);
-                  setPage(0);
-                }}
+                onChange={resetToFirstPage(setDateRange)}
                 placeholder={t("common.dateRange", "Date range")}
                 variant="table"
                 className="h-8"
               />
             </div>
-            <div className="w-full sm:w-auto sm:min-w-[170px]">
+            <div className={FILTER_CLASS}>
               <Select
                 id="platform-audit-resource-filter"
                 aria-label={T.RESOURCE}
                 options={resourceFilterOptions}
                 value={aggregateType}
                 variant="table"
-                onChange={(event) => {
-                  setAggregateType(event.target.value);
-                  setPage(0);
-                }}
+                onChange={(event) => resetToFirstPage(setAggregateType)(event.target.value)}
+              />
+            </div>
+            <div className={FILTER_CLASS}>
+              <Select
+                id="platform-audit-actor-filter"
+                aria-label={T.ACTOR}
+                options={actorFilterOptions}
+                value={actorId}
+                variant="table"
+                onChange={(event) => resetToFirstPage(setActorId)(event.target.value)}
               />
             </div>
           </>
@@ -105,14 +143,12 @@ export function PlatformAuditLogView(): ReactElement {
               onPageChange={setPage}
               disabled={auditLogs.isFetching}
               showPageSizeInput
-              onPageSizeChange={(nextSize) => {
-                setSize(nextSize);
-                setPage(0);
-              }}
+              onPageSizeChange={resetToFirstPage(setSize)}
             />
           ) : undefined
         }
       />
+      <AuditEntryDrawer publicId={openEntryId} onClose={() => setOpenEntryId(null)} />
     </div>
   );
 }

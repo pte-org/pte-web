@@ -2,26 +2,34 @@
 
 import {
   DEFAULT_PAGE_SIZE,
+  getPlatformAuditLog,
   listPlatformAuditActors,
   listPlatformAuditLogs,
+  type AuditLogDetailResponse,
   type AuditLogResponse,
   type PagedResult,
+  type PlatformAuditScope,
   type UserDirectoryEntryResponse,
 } from "@pte/api-client";
 import { keepPreviousData, useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
-import { PLATFORM_AUDIT_ACTORS_QUERY_KEY, PLATFORM_AUDIT_LOG_QUERY_KEY } from "./constants";
+import {
+  ACTORS_STALE_TIME_MS,
+  PLATFORM_AUDIT_ACTORS_QUERY_KEY,
+  PLATFORM_AUDIT_ENTRY_QUERY_KEY,
+  PLATFORM_AUDIT_LOG_QUERY_KEY,
+} from "./constants";
 
 export interface PlatformAuditLogEntry {
   log: AuditLogResponse;
   actorName: string | null;
 }
 
-function usePlatformAuditActors(): UseQueryResult<UserDirectoryEntryResponse[]> {
+export function usePlatformAuditActors(): UseQueryResult<UserDirectoryEntryResponse[]> {
   return useQuery({
     queryKey: PLATFORM_AUDIT_ACTORS_QUERY_KEY,
     queryFn: () => listPlatformAuditActors(apiClient),
-    staleTime: 60_000,
+    staleTime: ACTORS_STALE_TIME_MS,
   });
 }
 
@@ -32,6 +40,7 @@ export function usePlatformAuditLogs(
   search = "",
   createdFrom = "",
   createdTo = "",
+  scope: PlatformAuditScope = {},
 ): UseQueryResult<PagedResult<PlatformAuditLogEntry>> {
   const actors = usePlatformAuditActors();
 
@@ -42,6 +51,8 @@ export function usePlatformAuditLogs(
       search,
       createdFrom,
       createdTo,
+      scope.actorId ?? "",
+      scope.aggregateId ?? "",
       page,
       size,
     ],
@@ -54,6 +65,7 @@ export function usePlatformAuditLogs(
         search,
         createdFrom || undefined,
         createdTo || undefined,
+        scope,
       ),
     select: (logs) => {
       const byId = new Map((actors.data ?? []).map((actor) => [actor.publicId, actor.fullName]));
@@ -66,5 +78,16 @@ export function usePlatformAuditLogs(
       };
     },
     placeholderData: keepPreviousData,
+  });
+}
+
+/** One entry with its before/after snapshots; idle until an entry is chosen. */
+export function usePlatformAuditEntry(
+  publicId: string | null,
+): UseQueryResult<AuditLogDetailResponse> {
+  return useQuery({
+    queryKey: [...PLATFORM_AUDIT_ENTRY_QUERY_KEY, publicId],
+    queryFn: () => getPlatformAuditLog(apiClient, publicId ?? ""),
+    enabled: publicId !== null,
   });
 }

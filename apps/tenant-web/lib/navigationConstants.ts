@@ -8,7 +8,6 @@ export const HOST_NAV_TEXT = {
   PLANS_AND_BILLING: "Plans & billing",
   AUDIT_LOG: "System log",
   SUPPORT_TICKETS: "Support Tickets",
-  NOTIFICATIONS: "Notifications",
   HOME_SECTION: "Home",
   USERS_SECTION: "Users",
   DELIVERY_SECTION: "Delivery",

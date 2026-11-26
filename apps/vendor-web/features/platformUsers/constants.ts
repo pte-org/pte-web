@@ -3,7 +3,6 @@ export const PLATFORM_USER_TEXT = {
   SUBTITLE: "Manage platform managers and academic staff accounts.",
   CREATE: "Create platform user",
   CREATE_TITLE: "Create platform user",
-  EDIT_TITLE: "Update platform roles",
   PROFILE_TITLE: "Update platform user",
   EMAIL: "Email",
   EMAIL_IMMUTABLE: "Email and username cannot be changed in this flow.",
@@ -32,7 +31,6 @@ export const PLATFORM_USER_TEXT = {
   LOCKED_ADMIN: "Can't act on a platform administrator",
   ACTIONS: "Actions",
   CREATED: "Platform user created.",
-  UPDATED: "Platform roles updated.",
   SUSPENDED: "Platform user suspended.",
   REACTIVATED: "Platform user reactivated.",
   PROFILE_UPDATED: "Platform user profile updated.",
@@ -48,9 +46,9 @@ export const PLATFORM_USER_TEXT = {
   FORM_ERROR: "Please complete all required fields.",
   SUSPEND: "Suspend",
   REACTIVATE: "Reactivate",
-  EDIT_ROLES: "Update roles",
   EDIT_PROFILE: "Update profile",
   RESET_PASSWORD: "Reset password",
+  VIEW_ACTIVITY: "View activity history",
   ARCHIVE: "Archive",
   RESTORE: "Restore",
   RESET_PASSWORD_TITLE: "Reset platform user password",
@@ -72,3 +70,6 @@ export const PLATFORM_ASSIGNABLE_ROLE_OPTIONS = [
   { value: "ACADEMIC_MANAGER", label: "Academic manager" },
   { value: "ACADEMIC_STAFF", label: "Academic staff" },
 ] as const;
+
+/** Shown in a table cell whose value was never filled in. */
+export const PLATFORM_USER_EMPTY_CELL = "—";

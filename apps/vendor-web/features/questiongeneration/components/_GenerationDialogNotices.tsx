@@ -22,7 +22,13 @@ interface NoticesProps {
 }
 
 /** Server refusals (with a link to the blocking batch when it can be named) and why the selection cannot start. */
-export const GenerationDialogNotices = ({ notice, problem, cap, remaining, messages }: NoticesProps): ReactElement => {
+export const GenerationDialogNotices = ({
+  notice,
+  problem,
+  cap,
+  remaining,
+  messages,
+}: NoticesProps): ReactElement => {
   const { data: openBatch } = useOpenGenerationBatch(notice === "alreadyRunning");
   return (
     <div className="space-y-2">
@@ -31,14 +37,20 @@ export const GenerationDialogNotices = ({ notice, problem, cap, remaining, messa
         <Alert tone="warning">
           {messages.alreadyRunning}{" "}
           {openBatch ? (
-            <Link className={LINK_CLASS} href={batchDetailHref(openBatch.publicId)}>{messages.openRunningBatch}</Link>
+            <Link className={LINK_CLASS} href={batchDetailHref(openBatch.publicId)}>
+              {messages.openRunningBatch}
+            </Link>
           ) : (
-            <Link className={LINK_CLASS} href={QUESTION_BANK_PATH}>{messages.openQuestionBank}</Link>
+            <Link className={LINK_CLASS} href={QUESTION_BANK_PATH}>
+              {messages.openQuestionBank}
+            </Link>
           )}
         </Alert>
       ) : null}
       {problem && problem !== "EMPTY" ? (
-        <Alert tone="error">{formatMessage(messages[`problem${problem}`], { cap, remaining: remaining ?? 0 })}</Alert>
+        <Alert tone="error">
+          {formatMessage(messages[`problem${problem}`], { cap, remaining: remaining ?? 0 })}
+        </Alert>
       ) : null}
     </div>
   );

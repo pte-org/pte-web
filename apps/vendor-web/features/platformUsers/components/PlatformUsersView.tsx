@@ -4,11 +4,7 @@ import type { ReactElement } from "react";
 import { Alert, PaginationControls } from "@pte/ui";
 import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { usePlatformUsersController } from "../hooks/usePlatformUsersController";
-import {
-  PlatformUserCreateModal,
-  PlatformUserProfileModal,
-  PlatformUserRoleModal,
-} from "./_PlatformUserModals";
+import { PlatformUserCreateModal, PlatformUserProfileModal } from "./_PlatformUserModals";
 import { PlatformUserActionDialog } from "./_PlatformUserActionDialog";
 import { PlatformUsersTable } from "./_PlatformUsersTable";
 
@@ -18,13 +14,9 @@ export const PlatformUsersView = (): ReactElement => {
     T,
     users,
     create,
-    updateRoles,
-    updateProfile,
     actionMutation,
     createOpen,
     createDraft,
-    editing,
-    editRole,
     profileTarget,
     action,
     actionTarget,
@@ -69,11 +61,7 @@ export const PlatformUsersView = (): ReactElement => {
           controller.setPage(0);
         }}
         onCreate={controller.openCreate}
-        onEditProfile={(user) => {
-          controller.updateProfile.reset();
-          controller.setProfileTarget(user);
-        }}
-        onEditRoles={controller.openRoleEditor}
+        onEditProfile={controller.openProfileEditor}
         onAction={controller.openAction}
         pagination={
           users.data ? (
@@ -94,24 +82,13 @@ export const PlatformUsersView = (): ReactElement => {
         onSubmit={(event) => void controller.createUser(event)}
         onClose={controller.closeCreate}
       />
-      <PlatformUserRoleModal
-        target={editing}
-        role={editRole}
-        error={updateRoles.error}
-        isPending={updateRoles.isPending}
-        onRoleChange={controller.setEditRole}
-        onSave={() => void controller.saveRoles()}
-        onClose={controller.closeRoleEditor}
-      />
       <PlatformUserProfileModal
         key={profileTarget?.publicId ?? "closed"}
         target={profileTarget}
-        error={updateProfile.error}
-        isPending={updateProfile.isPending}
+        error={controller.profileError}
+        isPending={controller.isSavingProfile}
         onSave={(draft) => void controller.saveProfile(draft)}
-        onClose={() => {
-          if (!updateProfile.isPending) controller.setProfileTarget(null);
-        }}
+        onClose={controller.closeProfileEditor}
       />
       <PlatformUserActionDialog
         action={action}

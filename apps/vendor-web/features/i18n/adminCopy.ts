@@ -179,7 +179,6 @@ const ADMIN_VI: Record<string, string> = {
   "No applications found": "Không tìm thấy đơn đăng ký",
   "Try another status filter.": "Hãy thử bộ lọc trạng thái khác.",
   "Loading application...": "Đang tải đơn đăng ký...",
-  "Back to applications": "Quay lại danh sách đơn đăng ký",
   "This application was not found or is no longer available.":
     "Không tìm thấy đơn đăng ký hoặc đơn không còn khả dụng.",
   "The application could not be updated. Please try again.":
@@ -475,7 +474,6 @@ const ADMIN_VI: Record<string, string> = {
   "Manage platform managers and academic staff accounts.":
     "Quản lý tài khoản quản lý nền tảng và nhân sự học thuật.",
   "Create platform user": "Tạo người dùng nền tảng",
-  "Update platform roles": "Cập nhật vai trò nền tảng",
   "Update platform user": "Cập nhật người dùng nền tảng",
   Email: "Email",
   "Email and username cannot be changed in this flow.":
@@ -496,7 +494,6 @@ const ADMIN_VI: Record<string, string> = {
   "Can't act on your own account": "Không thể thao tác với chính bạn",
   "Can't act on a platform administrator": "Không thể thao tác với quản trị viên nền tảng",
   "Platform user created.": "Đã tạo người dùng nền tảng.",
-  "Platform roles updated.": "Đã cập nhật vai trò nền tảng.",
   "Platform user suspended.": "Đã tạm ngưng người dùng nền tảng.",
   "Platform user reactivated.": "Đã kích hoạt lại người dùng nền tảng.",
   "Platform user profile updated.": "Đã cập nhật hồ sơ người dùng nền tảng.",
@@ -509,8 +506,8 @@ const ADMIN_VI: Record<string, string> = {
   "Unable to load platform users.": "Không thể tải người dùng nền tảng.",
   Suspend: "Tạm ngưng",
   Reactivate: "Kích hoạt lại",
-  "Update roles": "Cập nhật vai trò",
   "Update profile": "Cập nhật hồ sơ",
+  "View activity history": "Xem lịch sử thao tác",
   "Reset password": "Đặt lại mật khẩu",
   Restore: "Khôi phục",
   "Reset platform user password": "Đặt lại mật khẩu người dùng nền tảng",
@@ -569,7 +566,6 @@ const ADMIN_VI: Record<string, string> = {
   "Answer key": "Đáp án chuẩn",
   "New question": "Câu hỏi mới",
   "Create PTE Question": "Tạo câu hỏi PTE",
-  "Preview · Student view": "Xem trước · Góc nhìn học viên",
   "Minimum word count": "Số từ tối thiểu",
   "Maximum word count": "Số từ tối đa",
   "Add option": "Thêm lựa chọn",

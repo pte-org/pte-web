@@ -115,7 +115,11 @@ export async function loadPresets(): Promise<QuestionGenerationPreset[]> {
   try {
     return await getQuestionGenerationPresets(apiClient);
   } catch (error) {
-    if (error instanceof ApiError && (error.status === HTTP_FORBIDDEN || error.status === HTTP_NOT_FOUND)) return [];
+    if (
+      error instanceof ApiError &&
+      (error.status === HTTP_FORBIDDEN || error.status === HTTP_NOT_FOUND)
+    )
+      return [];
     throw error;
   }
 }
@@ -130,11 +134,17 @@ export function useQuestionGenerationPresets(): UseQueryResult<QuestionGeneratio
 }
 
 /** The caller's open batch, read only after the server said one blocks a new run (to link to it). */
-export function useOpenGenerationBatch(enabled: boolean): UseQueryResult<QuestionGenerationBatchResponse | null, Error> {
+export function useOpenGenerationBatch(
+  enabled: boolean,
+): UseQueryResult<QuestionGenerationBatchResponse | null, Error> {
   return useQuery({
     queryKey: [GENERATION_OPEN_BATCH_QUERY_KEY],
     queryFn: async () => {
-      const page = await listQuestionGenerationBatches(apiClient, { page: 0, size: OPEN_BATCH_LOOKUP_SIZE, mine: true });
+      const page = await listQuestionGenerationBatches(apiClient, {
+        page: 0,
+        size: OPEN_BATCH_LOOKUP_SIZE,
+        mine: true,
+      });
       return page.data.find((batch) => OPEN_BATCH_STATUSES.includes(batch.status)) ?? null;
     },
     enabled,

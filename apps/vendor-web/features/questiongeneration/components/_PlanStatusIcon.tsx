@@ -15,7 +15,14 @@ export const PlanStatusIcon = ({ status, size = "lg" }: PlanStatusIconProps): Re
   const box = cn("shrink-0", SIZE[size]);
   if (status === "done") {
     return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={cn(box, "text-emerald-500")} aria-hidden>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        className={cn(box, "text-emerald-500")}
+        aria-hidden
+      >
         <circle cx="12" cy="12" r="10" />
         <path d="m8 12 3 3 5-6" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
@@ -23,7 +30,14 @@ export const PlanStatusIcon = ({ status, size = "lg" }: PlanStatusIconProps): Re
   }
   if (status === "failed") {
     return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={cn(box, "text-red-500")} aria-hidden>
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        className={cn(box, "text-red-500")}
+        aria-hidden
+      >
         <circle cx="12" cy="12" r="10" />
         <path d="m9 9 6 6m0-6-6 6" strokeLinecap="round" />
       </svg>
@@ -31,14 +45,41 @@ export const PlanStatusIcon = ({ status, size = "lg" }: PlanStatusIconProps): Re
   }
   if (status === "active") {
     return (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={cn(box, "text-blue-500")} aria-hidden>
-        <circle cx="12" cy="12" r="10" strokeDasharray="4 3" className="origin-center motion-safe:animate-spin" />
-        <circle cx="12" cy="12" r="2.5" fill="currentColor" stroke="none" className="motion-safe:animate-pulse" />
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={2}
+        className={cn(box, "text-blue-500")}
+        aria-hidden
+      >
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+          strokeDasharray="4 3"
+          className="origin-center motion-safe:animate-spin"
+        />
+        <circle
+          cx="12"
+          cy="12"
+          r="2.5"
+          fill="currentColor"
+          stroke="none"
+          className="motion-safe:animate-pulse"
+        />
       </svg>
     );
   }
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={cn(box, "text-slate-400")} aria-hidden>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      className={cn(box, "text-slate-400")}
+      aria-hidden
+    >
       <circle cx="12" cy="12" r="10" />
     </svg>
   );

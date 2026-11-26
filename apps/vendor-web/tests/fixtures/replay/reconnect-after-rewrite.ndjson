@@ -1,0 +1,13 @@
+{"atMs":0,"event":{"type":"snapshot","items":[{"index":0,"stage":"GENERATING","activeAgent":"GENERATOR","generator":{"attempt":2,"text":"{\"passage\":\"Libraries lend books, but they also offer quiet "},"reviewer":{"attempt":1,"text":"Too hard."},"audioRef":null,"imageRef":null,"checks":[{"index":0,"step":"PROMPT","status":"PASSED","facts":{}}],"draft":{"index":0,"attempt":1,"fields":{"promptText":"passage","answerHintVi":"Doc ky.","answerHintEn":"Read carefully."}},"review":{"index":0,"kind":"CONTENT","passed":false,"fixSuggestion":"Simplify.","notes":{}}}],"finished":false}}
+{"atMs":200,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"rooms, free internet and classes for peo"}}
+{"atMs":280,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"ple of all ages.\",\"answerHintVi\":\"Doc ch"}}
+{"atMs":360,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"am.\",\"answerHintEn\":\"Read slowly.\"}"}}
+{"atMs":1500,"event":{"type":"check","index":0,"step":"WRITE","status":"PASSED","facts":{}}}
+{"atMs":1510,"event":{"type":"draft","index":0,"attempt":2,"fields":{"promptText":"passage","answerHintVi":"Doc ky.","answerHintEn":"Read carefully."}}}
+{"atMs":1560,"event":{"type":"check","index":0,"step":"JSON","status":"PASSED","facts":{}}}
+{"atMs":1600,"event":{"type":"check","index":0,"step":"RULES","status":"PASSED","facts":{}}}
+{"atMs":1640,"event":{"type":"check","index":0,"step":"DUPLICATE","status":"PASSED","facts":{}}}
+{"atMs":1700,"event":{"type":"begin","index":0,"agent":"REVIEWER","attempt":2}}
+{"atMs":1760,"event":{"type":"token","index":0,"agent":"REVIEWER","delta":"Fine."}}
+{"atMs":1900,"event":{"type":"review","index":0,"kind":"CONTENT","passed":true,"fixSuggestion":null,"notes":{}}}
+{"atMs":2000,"event":{"type":"end","finished":true}}

@@ -126,4 +126,12 @@ export const USER_FACING_ERROR_MESSAGES_VI: Record<string, string> = {
   GENERATION_JOB_ALREADY_RUNNING: "Bạn đang có một lượt tạo câu hỏi chạy. Hãy đợi lượt đó xong.",
   GENERATION_DAILY_LIMIT_REACHED: "Bạn đã đạt giới hạn tạo câu hỏi trong ngày.",
   GENERATION_GLOBAL_LIMIT_REACHED: "Nền tảng đã đạt giới hạn tạo câu hỏi của hôm nay.",
+  GENERATION_VOICE_UNKNOWN: "Giọng đọc này không khả dụng. Hãy chọn giọng khác.",
+  GENERATION_VOICE_NOT_SUPPORTED_FOR_TASK:
+    "Không đổi được giọng của câu này. Chỉ đổi được với câu do AI tạo và chỉ có một người đọc.",
+  GENERATION_VOICE_UNCHANGED: "Câu hỏi đang dùng giọng này rồi. Hãy chọn giọng khác.",
+  GENERATION_VOICE_BUSY: "Đang có một giọng khác được tạo. Vui lòng thử lại sau giây lát.",
+  GENERATION_MEDIA_FAILED: "Không tạo được âm thanh. Vui lòng thử lại sau giây lát.",
+  GENERATION_AUDIO_DURATION_OUT_OF_RANGE:
+    "Giọng này đọc văn bản quá nhanh hoặc quá chậm so với dạng bài. Hãy chọn giọng khác.",
 };

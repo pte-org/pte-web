@@ -21,7 +21,7 @@ export const PreviewResponse = ({ draft, timing }: PreviewResponseProps): ReactE
   if (draft.options.length > 0) {
     const inputType = draft.multipleChoice ? "checkbox" : "radio";
     return (
-      <ul className="space-y-2">
+      <ul data-exam-slot="options" className="space-y-2">
         {draft.options.map((option, index) => (
           // Options are positional and only appended or edited in place while typing.
           <li key={index}>

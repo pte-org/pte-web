@@ -2,41 +2,51 @@
 
 import { useCallback, useState } from "react";
 import type { QuestionGenerationPreset } from "@pte/api-client";
-import type { GenerationCefrLevel } from "../dialogConstants";
-import { applySkillCefr, collapseRow, setLevelCount, splitRow } from "../utils/generationCefr";
-import { GENERATION_DEFAULT_CEFR, GENERATION_DEFAULT_POOL, PRESET_MULTIPLIER_MIN } from "../dialogConstants";
+import {
+  GENERATION_DEFAULT_CEFR,
+  GENERATION_DEFAULT_POOL,
+  GENERATION_UNDO_LIMIT,
+  PRESET_MULTIPLIER_MIN,
+  type GenerationCefrLevel,
+} from "../dialogConstants";
+import { fillEachTaskType, setCell, type MatrixTaskType } from "../utils/generationMatrix";
 import {
   applyPreset,
-  rescalePresetRows,
   newRow,
-  toggleRow,
+  rescalePresetRows,
   updateRow,
   type GenerationSelection,
   type PresetKind,
+  type PresetResult,
   type SelectionRow,
 } from "../utils/generationSelection";
 
-export interface InitialTaskType {
-  taskType: string;
-  section: string;
-}
+export type InitialTaskType = MatrixTaskType;
 
 export interface GenerationSelectionState {
   selection: GenerationSelection;
   multiplier: number;
   /** Total of the last refused preset (above the batch cap), shown until the next change. */
   overCapTotal: number | null;
+  canUndo: boolean;
+  fillEach: (types: readonly MatrixTaskType[], perType: number, cap: number) => void;
   setMultiplier: (value: number, presets: readonly QuestionGenerationPreset[], cap: number) => void;
-  setShared: (patch: Partial<Pick<GenerationSelection, "pool" | "defaultCefr" | "sharedTopicText">>) => void;
-  toggle: (taskType: string, section: string) => void;
-  update: (taskType: string, patch: Partial<Omit<SelectionRow, "taskType" | "section">>) => void;
-  /** CEFR for every single-level row of a skill, and for rows ticked there later. */
-  setSkillCefr: (section: string, cefrLevel: string) => void;
-  /** "Mixed levels" (true) or back to one level (false). */
-  setSplit: (taskType: string, split: boolean) => void;
-  setLevel: (taskType: string, level: GenerationCefrLevel, value: number) => void;
-  preset: (kind: PresetKind, presets: readonly QuestionGenerationPreset[], cap: number, supported: ReadonlySet<string>) => void;
-  reset: (initial?: InitialTaskType) => void;
+  setShared: (
+    patch: Partial<Pick<GenerationSelection, "pool" | "defaultCefr" | "sharedTopicText">>,
+  ) => void;
+  /** Own topics or picture kind of a row. */
+  update: (taskType: string, patch: Partial<Pick<SelectionRow, "topicText" | "imageKind">>) => void;
+  setCell: (type: MatrixTaskType, level: GenerationCefrLevel, value: number) => void;
+  preset: (
+    kind: PresetKind,
+    presets: readonly QuestionGenerationPreset[],
+    cap: number,
+    supported: ReadonlySet<string>,
+  ) => void;
+  /** Replaces the whole selection, e.g. with the one of the last started batch. */
+  restore: (selection: GenerationSelection) => void;
+  clear: () => void;
+  undo: () => void;
 }
 
 function initialSelection(initial?: InitialTaskType): GenerationSelection {
@@ -48,63 +58,61 @@ function initialSelection(initial?: InitialTaskType): GenerationSelection {
   };
 }
 
-function mapRow(
-  selection: GenerationSelection,
-  taskType: string,
-  transform: (row: SelectionRow) => SelectionRow,
-): GenerationSelection {
-  return { ...selection, rows: selection.rows.map((row) => (row.taskType === taskType ? transform(row) : row)) };
-}
-
-/** The popup's choices; every update makes a new selection (no mutation). */
+/** The popup's choices; every update makes a new selection (no mutation) and can be undone. */
 export function useGenerationSelection(initial?: InitialTaskType): GenerationSelectionState {
   const [selection, setSelection] = useState<GenerationSelection>(() => initialSelection(initial));
+  const [history, setHistory] = useState<GenerationSelection[]>([]);
   const [multiplier, setMultiplier] = useState(PRESET_MULTIPLIER_MIN);
   const [overCapTotal, setOverCapTotal] = useState<number | null>(null);
 
-  const change = useCallback((next: (current: GenerationSelection) => GenerationSelection) => {
-    setOverCapTotal(null);
-    setSelection(next);
-  }, []);
-
-  const preset = useCallback<GenerationSelectionState["preset"]>((kind, presets, cap, supported) => {
-    const result = applyPreset(selection, presets, kind, multiplier, cap, supported);
-    if (result.ok) {
+  const commit = useCallback(
+    (next: GenerationSelection) => {
       setOverCapTotal(null);
-      setSelection(result.selection);
-    } else {
-      setOverCapTotal(result.total);
-    }
-  }, [selection, multiplier]);
+      setHistory((past) => [...past, selection].slice(-GENERATION_UNDO_LIMIT));
+      setSelection(next);
+    },
+    [selection],
+  );
 
-  const changeMultiplier = useCallback<GenerationSelectionState["setMultiplier"]>((value, presets, cap) => {
-    const result = rescalePresetRows(selection, presets, multiplier, value, cap);
-    if (!result.ok) {
-      setOverCapTotal(result.total);
-      return;
-    }
-    setOverCapTotal(null);
-    setMultiplier(value);
-    setSelection(result.selection);
-  }, [selection, multiplier]);
+  const commitResult = useCallback(
+    (result: PresetResult): boolean => {
+      if (!result.ok) {
+        setOverCapTotal(result.total);
+        return false;
+      }
+      commit(result.selection);
+      return true;
+    },
+    [commit],
+  );
 
   return {
     selection,
     multiplier,
     overCapTotal,
-    setMultiplier: changeMultiplier,
-    setShared: (patch) => change((current) => ({ ...current, ...patch })),
-    toggle: (taskType, section) => change((current) => toggleRow(current, taskType, section)),
-    update: (taskType, patch) => change((current) => updateRow(current, taskType, patch)),
-    setSkillCefr: (section, cefrLevel) => change((current) => applySkillCefr(current, section, cefrLevel)),
-    setSplit: (taskType, split) => change((current) => mapRow(current, taskType, split ? splitRow : collapseRow)),
-    setLevel: (taskType, level, value) =>
-      change((current) => mapRow(current, taskType, (row) => setLevelCount(row, level, value))),
-    preset,
-    reset: (next) => {
+    canUndo: history.length > 0,
+    fillEach: (types, count, cap) => {
+      commitResult(fillEachTaskType(selection, types, count, cap));
+    },
+    setMultiplier: (value, presets, cap) => {
+      if (commitResult(rescalePresetRows(selection, presets, multiplier, value, cap)))
+        setMultiplier(value);
+    },
+    // Settings and topics are typed key by key: they are not undo steps, the undo button is for the matrix.
+    setShared: (patch) => setSelection((current) => ({ ...current, ...patch })),
+    update: (taskType, patch) => setSelection((current) => updateRow(current, taskType, patch)),
+    setCell: (type, level, value) => commit(setCell(selection, type, level, value)),
+    preset: (kind, presets, cap, supported) => {
+      commitResult(applyPreset(selection, presets, kind, multiplier, cap, supported));
+    },
+    restore: (next) => commit(next),
+    clear: () => commit({ ...selection, rows: [] }),
+    undo: () => {
+      const previous = history[history.length - 1];
+      if (!previous) return;
       setOverCapTotal(null);
-      setMultiplier(PRESET_MULTIPLIER_MIN);
-      setSelection(initialSelection(next));
+      setHistory(history.slice(0, -1));
+      setSelection(previous);
     },
   };
 }

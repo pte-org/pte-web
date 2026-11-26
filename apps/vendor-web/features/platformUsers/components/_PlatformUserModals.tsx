@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactElement } from "react";
-import {
-  Alert,
-  Button,
-  DateInput,
-  Input,
-  Modal,
-  Select,
-} from "@pte/ui";
+import { Alert, Button, DateInput, Input, Modal, Select } from "@pte/ui";
 import {
   getUserFacingApiErrorMessage,
   type PlatformAssignableRole,
@@ -19,9 +12,10 @@ import {
   PLATFORM_ASSIGNABLE_ROLE_OPTIONS,
   PLATFORM_USER_TEXT as RAW_PLATFORM_USER_TEXT,
 } from "../constants";
-import type { CreateDraft, PlatformUserProfileDraft } from "../types";
+import type { CreateDraft, PlatformUserEditDraft } from "../types";
+import { assignableRoleOf } from "../utils/assignableRole";
 
-export type { CreateDraft, PlatformUserProfileDraft } from "../types";
+export type { CreateDraft, PlatformUserEditDraft } from "../types";
 
 type CreateModalProps = {
   open: boolean;
@@ -95,71 +89,19 @@ export const PlatformUserCreateModal = ({
   );
 };
 
-type RoleModalProps = {
-  target: UserResponse | null;
-  role: PlatformAssignableRole;
-  error: unknown;
-  isPending: boolean;
-  onRoleChange: (role: PlatformAssignableRole) => void;
-  onSave: () => void;
-  onClose: () => void;
-};
-
-export const PlatformUserRoleModal = ({
-  target,
-  role,
-  error,
-  isPending,
-  onRoleChange,
-  onSave,
-  onClose,
-}: RoleModalProps): ReactElement => {
-  const T = useAdminCopy(RAW_PLATFORM_USER_TEXT);
-  const roleOptions = useAdminCopy(PLATFORM_ASSIGNABLE_ROLE_OPTIONS);
-
-  return (
-    <Modal
-      open={target !== null}
-      title={T.EDIT_TITLE}
-      onClose={onClose}
-      footer={
-        <>
-          <Button variant="ghost" onClick={onClose} disabled={isPending}>
-            {T.CANCEL}
-          </Button>
-          <Button onClick={onSave} isLoading={isPending}>
-            {T.SAVE}
-          </Button>
-        </>
-      }
-    >
-      {Boolean(error) && (
-        <Alert tone="error">{getUserFacingApiErrorMessage(error, T.FORM_ERROR)}</Alert>
-      )}
-      <p className="mb-4 text-sm text-[var(--ink-secondary)]">{target?.email}</p>
-      <Select
-        id="platform-user-edit-role"
-        label={T.ROLE}
-        options={roleOptions}
-        value={role}
-        onChange={(event) => onRoleChange(event.target.value as PlatformAssignableRole)}
-      />
-    </Modal>
-  );
-};
-
 type ProfileModalProps = {
   target: UserResponse | null;
   error: unknown;
   isPending: boolean;
-  onSave: (draft: PlatformUserProfileDraft) => void;
+  onSave: (draft: PlatformUserEditDraft) => void;
   onClose: () => void;
 };
 
-const profileDraftFor = (target: UserResponse | null): PlatformUserProfileDraft => ({
+const editDraftFor = (target: UserResponse | null): PlatformUserEditDraft => ({
   fullName: target?.fullName ?? "",
   phone: target?.phone ?? "",
   dateOfBirth: target?.dateOfBirth ?? null,
+  role: assignableRoleOf(target),
 });
 
 export const PlatformUserProfileModal = ({
@@ -170,7 +112,8 @@ export const PlatformUserProfileModal = ({
   onClose,
 }: ProfileModalProps): ReactElement => {
   const T = useAdminCopy(RAW_PLATFORM_USER_TEXT);
-  const [draft, setDraft] = useState<PlatformUserProfileDraft>(() => profileDraftFor(target));
+  const roleOptions = useAdminCopy(PLATFORM_ASSIGNABLE_ROLE_OPTIONS);
+  const [draft, setDraft] = useState<PlatformUserEditDraft>(() => editDraftFor(target));
 
   const submit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -211,6 +154,15 @@ export const PlatformUserProfileModal = ({
           readOnly
           helperText={T.EMAIL_IMMUTABLE}
         />
+        <Select
+          id="platform-user-profile-role"
+          label={T.ROLE}
+          options={roleOptions}
+          value={draft.role}
+          onChange={(event) =>
+            setDraft({ ...draft, role: event.target.value as PlatformAssignableRole })
+          }
+        />
         <Input
           id="platform-user-profile-phone"
           label={T.PHONE}
@@ -228,4 +180,3 @@ export const PlatformUserProfileModal = ({
     </Modal>
   );
 };
-

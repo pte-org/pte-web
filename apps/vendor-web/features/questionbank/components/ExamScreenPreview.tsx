@@ -22,7 +22,10 @@ export const ExamScreenPreview = ({
   <div className="overflow-hidden rounded-lg border border-[var(--exam-border)] bg-[var(--exam-canvas)] text-[var(--exam-text)]">
     <div className="space-y-4 p-6">
       <h2 className="text-3xl font-bold">{draft?.taskName ?? EXAM_SCREEN_TEXT.NO_TASK}</h2>
-      <div className="min-h-72 rounded-lg border border-[var(--exam-border-subtle)] bg-[var(--exam-surface)] p-8">
+      <div
+        data-exam-card
+        className="min-h-72 rounded-lg border border-[var(--exam-border-subtle)] bg-[var(--exam-surface)] p-8"
+      >
         {draft?.instruction && <p className="mb-6 text-lg font-bold italic">{draft.instruction}</p>}
         {draft && (
           <div className="space-y-6">
