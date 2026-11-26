@@ -59,6 +59,8 @@ export const CheckoutView = (): ReactElement => {
       window.location.assign(order.paymentLinkUrl);
       return;
     }
+    // No payment link means the plan was free and is already active: say so before going back to Plans & billing.
+    showToast(copy.format("ACTIVATED_TOAST", { name: plan.name }));
     router.push("/host/billing");
   };
 

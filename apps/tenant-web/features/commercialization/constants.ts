@@ -218,6 +218,7 @@ export const CHECKOUT_TEXT = {
   PAYOS_NOTE: "Your plan is activated as soon as the payment is confirmed.",
   ACTIVATE: "Activate plan",
   ACTIVATING: "Activating plan…",
+  ACTIVATED_TOAST: "Plan {name} has been activated.",
   CONTINUE_PAYOS: "Continue to PayOS",
   CREATING_ORDER: "Creating order…",
   CHOOSE_OTHER: "Choose another plan",

@@ -92,7 +92,8 @@ describe("checkout notifications and navigation", () => {
     render();
     state.onClick?.();
     await vi.waitFor(() => expect(state.push).toHaveBeenCalledWith("/host/billing"));
-    expect(state.showToast).not.toHaveBeenCalled();
+    expect(state.showToast).toHaveBeenCalledTimes(1);
+    expect(state.showToast).toHaveBeenCalledWith("Plan Test plan has been activated.");
   });
 
   it("preserves missing-plan validation and pending-payment information and status links", () => {
