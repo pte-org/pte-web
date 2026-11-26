@@ -236,6 +236,7 @@ export const PROCTOR_INCIDENT_LIST_TEXT = {
   SEARCH_PLACEHOLDER: "Tìm tiêu đề hoặc nội dung sự cố...",
   BACK_BTN: "Danh sách ca thi",
   REPORT_NEW_BTN: "+ Báo cáo sự cố mới",
+  REPORT_CLOSED_HINT: "Ca thi đã kết thúc nên không thể báo cáo sự cố mới.",
   FILTER_STATUS_LABEL: "Trạng thái",
   TITLE_PREFIX: "Sự cố phòng thi: #",
   SUBTITLE: "Theo dõi và điều phối các sự cố xảy ra trong ca thi.",
