@@ -570,6 +570,7 @@ const ADMIN_VI: Record<string, string> = {
   "Answer key": "Đáp án chuẩn",
   "New question": "Câu hỏi mới",
   "Create PTE Question": "Tạo câu hỏi PTE",
+  "Preview · Student view": "Xem trước · Góc nhìn học viên",
   "Minimum word count": "Số từ tối thiểu",
   "Maximum word count": "Số từ tối đa",
   "Add option": "Thêm lựa chọn",
@@ -584,6 +585,9 @@ const ADMIN_VI: Record<string, string> = {
   "Question prompt preview": "Xem trước đề bài",
   "Reference answer": "Đáp án tham khảo",
   "Audio transcript": "Lời thoại audio",
+  "Enter the question prompt…": "Nhập nội dung đề bài…",
+  "Enter a hint or a sample answer…": "Nhập gợi ý hoặc đáp án mẫu…",
+  "Enter what the audio says…": "Nhập lời thoại của audio…",
   "Answer hints": "Gợi ý trả lời",
   "Shown to students in practice on request. Explain how to approach the item; never give the answer.":
     "Học viên luyện tập xem khi bấm gợi ý. Hướng dẫn cách làm, không đưa đáp án.",
@@ -1336,7 +1340,7 @@ const ADMIN_VI: Record<string, string> = {
   "Search questions by content": "Tìm câu hỏi theo nội dung",
   "Question bank": "Ngân hàng câu hỏi",
   "Approval workflow": "Quy trình duyệt",
-  "Compose with preview": "Soạn câu có xem trước",
+  "Compose question": "Soạn câu hỏi",
   "Could not load the question board.": "Không thể tải bảng câu hỏi.",
   "Question saved as a draft": "Đã lưu câu hỏi thành bản nháp",
   "Add this task type to the template to see its timing.":
@@ -1398,7 +1402,7 @@ const ADMIN_VI: Record<string, string> = {
     "Chỉ quản lý học thuật mới duyệt được câu hỏi.",
   "Question updated": "Đã cập nhật câu hỏi",
   "Fill in the form; the preview shows what the student will see.":
-    "Điền vào biểu mẫu, phần xem trước cho thấy học sinh sẽ thấy gì.",
+    "Điền thông tin câu hỏi bên trái; khung xem trước bên phải cập nhật trực tiếp theo giao diện học viên.",
   "Student view": "Màn hình học sinh",
   "Start typing to see the question.": "Hãy bắt đầu nhập để xem câu hỏi.",
   "Preparation: {seconds}s": "Chuẩn bị: {seconds}s",

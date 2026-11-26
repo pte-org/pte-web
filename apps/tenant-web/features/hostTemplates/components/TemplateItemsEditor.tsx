@@ -35,14 +35,6 @@ const ALL_TAB = "ALL";
 const SECTION_ORDER = ["SPEAKING", "WRITING", "READING", "LISTENING"] as const;
 const VIEWS: readonly TemplateTableView[] = ["STRUCTURE", "WEIGHTS"];
 
-/** The dot in front of a skill's tab, in the colour that skill has on every other screen. */
-const DOT_CLASS: Record<string, string> = {
-  sky: "bg-[var(--sky-action)]",
-  mint: "bg-[var(--mint-action)]",
-  cream: "bg-[var(--cream-action)]",
-  blush: "bg-[var(--blush-action)]",
-};
-
 /**
  * The task types of a template: a row of skill tabs ("All" plus one per skill, each with its count) over the
  * selected skill's table, which switches between the exam structure (counts, stock) and the weights of every skill.
@@ -74,12 +66,7 @@ export const TemplateItemsEditor = ({
       id: section,
       label: labels[section],
       count: rowsOf(section).length,
-      icon: (
-        <span
-          aria-hidden="true"
-          className={`h-2 w-2 shrink-0 rounded-full ${DOT_CLASS[sectionTone(section)] ?? "bg-[var(--ink-muted)]"}`}
-        />
-      ),
+      tone: sectionTone(section),
     })),
   ];
   const viewTabs = (
