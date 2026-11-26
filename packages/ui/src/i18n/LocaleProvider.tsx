@@ -10,6 +10,7 @@ import {
   type ReactElement,
   type ReactNode,
 } from "react";
+import { setUserMessageLanguage } from "@pte/api-client";
 
 export type Locale = "vi" | "en";
 
@@ -41,6 +42,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "errorPage.server.description": "Máy chủ đang gặp sự cố. Vui lòng thử lại sau ít phút.",
     "errorPage.unavailable.title": "Dịch vụ tạm ngưng",
     "errorPage.unavailable.description": "Dịch vụ đang quá tải hoặc bảo trì. Vui lòng thử lại sau.",
+    "errorPage.rateLimited.title": "Hệ thống đang bận",
+    "errorPage.rateLimited.description": "Có quá nhiều yêu cầu cùng lúc. Hãy đợi vài giây rồi thử lại.",
     "errorPage.network.title": "Mất kết nối",
     "errorPage.network.description": "Không kết nối được tới máy chủ. Hãy kiểm tra mạng và thử lại.",
     "errorPage.generic.title": "Đã xảy ra lỗi",
@@ -1349,6 +1352,8 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "errorPage.server.description": "The server ran into a problem. Please try again in a moment.",
     "errorPage.unavailable.title": "Service unavailable",
     "errorPage.unavailable.description": "The service is busy or under maintenance. Please try again later.",
+    "errorPage.rateLimited.title": "The system is busy",
+    "errorPage.rateLimited.description": "Too many requests at once. Wait a few seconds and try again.",
     "errorPage.network.title": "Connection lost",
     "errorPage.network.description": "Unable to connect to the server. Check your connection and try again.",
     "errorPage.generic.title": "Something went wrong",
@@ -2567,6 +2572,11 @@ export const LocaleProvider = ({ children }: { children: ReactNode }): ReactElem
   const setLocale = useCallback((nextLocale: Locale): void => {
     setLocaleState(nextLocale);
   }, []);
+
+  // The shared API error wording follows the language too, so a failed request reads in the language of the screen.
+  useEffect(() => {
+    setUserMessageLanguage(locale);
+  }, [locale]);
 
   const t = useCallback(
     (key: string, fallback?: string, values?: MessageValues): string =>

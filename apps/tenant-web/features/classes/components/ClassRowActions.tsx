@@ -17,6 +17,8 @@ interface ClassRowActionsProps {
   studentClass: ClassResponse;
   onEdit?: () => void;
   showViewDetails?: boolean;
+  /** Off where the page already has its own add-students button. */
+  showAssignStudents?: boolean;
   onArchived?: () => void;
 }
 
@@ -38,6 +40,7 @@ export const ClassRowActions = ({
   studentClass,
   onEdit,
   showViewDetails = true,
+  showAssignStudents = true,
   onArchived,
 }: ClassRowActionsProps): ReactElement => {
   const router = useRouter();
@@ -63,7 +66,8 @@ export const ClassRowActions = ({
   const items: DropdownItem[] = [];
   if (onEdit) {
     items.push({ label: text.edit, onSelect: onEdit, disabled: pending });
-    items.push({ separator: true, key: "edit-divider" });
+    // Without the view/assign items the status divider below already separates Edit from the rest.
+    if (showViewDetails || showAssignStudents) items.push({ separator: true, key: "edit-divider" });
   }
   if (showViewDetails) {
     items.push({
@@ -75,7 +79,7 @@ export const ClassRowActions = ({
         ),
     });
   }
-  items.push({
+  if (showAssignStudents) items.push({
     label: text.assignStudents,
     icon: UserPlusIcon,
     onSelect: () => setAssignOpen(true),

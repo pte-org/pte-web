@@ -5,6 +5,8 @@ import { CheckCircleIcon, CopyIcon } from "./icons";
 
 interface CopyableIdProps {
   value: string;
+  /** Shows only the first characters followed by an ellipsis; the copy button still copies the whole value. */
+  truncateTo?: number;
 }
 
 const COPIED_RESET_MS = 1500;
@@ -21,7 +23,8 @@ async function copyToClipboard(value: string): Promise<void> {
 }
 
 /** De-emphasized technical ID (small, gray, monospace) with a copy button — keeps raw UUIDs from outweighing business fields like Plan or Status. */
-export const CopyableId = ({ value }: CopyableIdProps): ReactElement => {
+export const CopyableId = ({ value, truncateTo }: CopyableIdProps): ReactElement => {
+  const shown = truncateTo !== undefined && value.length > truncateTo ? `${value.slice(0, truncateTo)}…` : value;
   const [copied, setCopied] = useState(false);
 
   const handleCopy = (): void => {
@@ -32,7 +35,9 @@ export const CopyableId = ({ value }: CopyableIdProps): ReactElement => {
 
   return (
     <span className="inline-flex max-w-full items-center gap-1.5">
-      <code className="truncate font-mono text-xs text-[var(--ink-muted)]">{value}</code>
+      <code title={shown === value ? undefined : value} className="truncate font-mono text-xs text-[var(--ink-muted)]">
+        {shown}
+      </code>
       <span className="relative shrink-0">
         <button
           type="button"

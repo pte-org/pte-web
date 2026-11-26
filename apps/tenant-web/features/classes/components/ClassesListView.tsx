@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ActionMenu,
-  Alert,
   Badge,
   Button,
   DataTable,
@@ -17,7 +16,7 @@ import {
   type DataTableColumn,
   type DropdownItem,
 } from "@pte/ui";
-import { errorMessage } from "@/features/examoperations/errorMessage";
+import { AppErrorPage } from "@/lib/AppErrorPage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { pluralize } from "@/features/orgLabels/constants";
@@ -154,7 +153,7 @@ export const ClassesListView = ({
     { value: "INACTIVE", label: text.inactive },
     { value: "SUSPENDED", label: text.suspended },
   ];
-  const { data: classes, isLoading, isError, error } = useAllTenantClasses();
+  const { data: classes, isLoading, isError, error, refetch } = useAllTenantClasses();
   const [programFilter, setProgramFilter] = useState<string>(initialProgramPublicId || ALL_FILTER);
 
   // Include empty programs so a program-detail link can retain its selected scope.
@@ -179,10 +178,13 @@ export const ClassesListView = ({
   }, [classes, programFilter, selectedOrganizationPublicId]);
 
   if (isError) {
+    // A failed list is the whole page failing, so it gets the app's error page (with a way to try again).
     return (
-      <Alert tone="error">
-        {errorMessage(error) ?? `Không thể tải ${pluralize(classLabel.toLowerCase())}.`}
-      </Alert>
+      <AppErrorPage
+        error={error}
+        onRetry={() => void refetch()}
+        description={`Không thể tải ${pluralize(classLabel.toLowerCase())}.`}
+      />
     );
   }
 
