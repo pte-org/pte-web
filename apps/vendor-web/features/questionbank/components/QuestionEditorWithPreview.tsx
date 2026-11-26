@@ -11,7 +11,6 @@ import { sectionTone } from "@/lib/chipTones";
 import type { PreviewTiming, QuestionPreviewDraft } from "../types";
 import { ExamScreenPreview } from "./ExamScreenPreview";
 import { QuestionEditorForm } from "./QuestionEditorForm";
-import { PreviewHeader } from "./_PreviewHeader";
 
 interface QuestionEditorWithPreviewProps {
   question?: QuestionResponse;
@@ -79,7 +78,6 @@ export const QuestionEditorWithPreview = ({
         />
       </section>
       <div className="flex flex-col gap-2 xl:sticky xl:top-4">
-        <PreviewHeader section={draft?.section} />
         <ExamScreenPreview
           draft={draft}
           timing={draft ? (timingFor?.(draft.taskType) ?? null) : null}

@@ -566,7 +566,6 @@ const ADMIN_VI: Record<string, string> = {
   "Answer key": "Đáp án chuẩn",
   "New question": "Câu hỏi mới",
   "Create PTE Question": "Tạo câu hỏi PTE",
-  "Preview · Student view": "Xem trước · Góc nhìn học viên",
   "Minimum word count": "Số từ tối thiểu",
   "Maximum word count": "Số từ tối đa",
   "Add option": "Thêm lựa chọn",
