@@ -6,6 +6,7 @@ import { DEFAULT_PAGE_SIZE, getUserFacingApiErrorMessage } from "@pte/api-client
 import {
   useDashboardBreadcrumbLabel,
   Alert,
+  Button,
   DataTable,
   DateRangePicker,
   PaginationControls,
@@ -19,9 +20,9 @@ import {
   PLATFORM_AUDIT_LOG_COPY,
   PLATFORM_AUDIT_RESOURCE_TYPES,
 } from "../constants";
-import { usePlatformAuditActors, usePlatformAuditLogs } from "../api";
+import { usePlatformAuditActors, usePlatformAuditLogs, type PlatformAuditLogEntry } from "../api";
 import { AuditEntryDrawer } from "./AuditEntryDrawer";
-import { platformAuditColumns } from "./_platformAuditColumns";
+import { usePlatformAuditColumns } from "../hooks/usePlatformAuditColumns";
 
 const FILTER_CLASS = "w-full sm:w-auto sm:min-w-[170px]";
 
@@ -49,7 +50,21 @@ export function PlatformAuditLogView(): ReactElement {
     dateRange.to || undefined,
     { actorId: actorId || undefined },
   );
-  const columns = platformAuditColumns({ locale, onViewChanges: setOpenEntryId });
+  const baseColumns = usePlatformAuditColumns();
+  const columns = [
+    ...baseColumns,
+    {
+      key: "changes",
+      header: "",
+      sortable: false,
+      cell: (entry: PlatformAuditLogEntry) =>
+        entry.log.hasStateChange ? (
+          <Button variant="ghost" size="sm" onClick={() => setOpenEntryId(entry.log.publicId)}>
+            {T.VIEW_CHANGES}
+          </Button>
+        ) : null,
+    },
+  ];
   const resourceFilterOptions = [
     { value: "", label: T.ALL_ACTIVITY },
     ...PLATFORM_AUDIT_RESOURCE_TYPES.map((item) => ({

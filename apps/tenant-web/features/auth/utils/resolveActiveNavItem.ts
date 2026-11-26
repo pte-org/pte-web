@@ -22,6 +22,12 @@ export function resolveActiveNavItem(
     if (classItem) return classItem.href;
   }
 
+  // Plans, checkout and payment pages are all part of Plans & billing, which is the one sidebar entry for them.
+  if (/^\/host\/(checkout|payment-status|orders)(\/|$)/.test(pathname)) {
+    const billingItem = navItems.find((item) => item.href === "/host/billing");
+    if (billingItem) return billingItem.href;
+  }
+
   // 2. Proctor detail routes
   if (pathname.startsWith("/proctor/attendance")) {
     const attendanceItem = navItems.find((item) => item.href === "/proctor/attendance");

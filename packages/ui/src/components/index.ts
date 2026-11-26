@@ -76,6 +76,7 @@ export { DashboardLoadingState } from "./DashboardLoadingState";
 export type { DashboardLoadingStateProps, DashboardLoadingVariant } from "./DashboardLoadingState";
 export { ErrorState } from "./ErrorState";
 export { NotificationBell, NotificationHistory } from "./NotificationCenter";
+export { NotificationHistoryToolbar } from "./NotificationHistoryToolbar";
 export type { NotificationBellProps, NotificationHistoryProps } from "./NotificationCenter";
 export { Alert } from "./Alert";
 export type { AlertTone } from "./Alert";
@@ -150,6 +151,7 @@ export { TabRailCard } from "./TabRailCard";
 export type { TabRailCardProps } from "./TabRailCard";
 export type {
   TabItem,
+  TabTone,
   TabPanelProps,
   TabsActiveVariant,
   TabsOrientation,
@@ -168,6 +170,9 @@ export { DEFAULT_TOAST_DURATION_MS, ToastProvider, useToast } from "./Toast";
 export type { ShowToastOptions, ToastTone } from "./Toast";
 export * from "./icons";
 export * from "./dashboardIcons";
+export { useInboxItemText } from "./useInboxItemText";
+export { InboxItemModal } from "./InboxItemModal";
+export type { InboxItemText } from "./useInboxItemText";
 export { Mascot } from "./Mascot";
 export { Board, BoardColumn } from "./Board";
 export type { BoardProps, BoardColumnProps } from "./Board";

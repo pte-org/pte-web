@@ -64,6 +64,8 @@ export interface DataTableProps<TRow> {
   isLoading?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
+  /** An icon shown above the empty-state title. */
+  emptyIcon?: ReactNode;
   /** Rendered under the empty-state text, e.g. a button that adds the first row. */
   emptyAction?: ReactNode;
   rowActions?: (row: TRow) => ReactNode;
@@ -132,6 +134,7 @@ export function DataTable<TRow>({
   isLoading = false,
   emptyTitle,
   emptyDescription,
+  emptyIcon,
   emptyAction,
   rowActions,
   rowActionsHeader,
@@ -436,6 +439,7 @@ export function DataTable<TRow>({
                           <EmptyState
                             title={resolvedEmptyTitle}
                             description={emptyDescription}
+                            icon={emptyIcon}
                             action={emptyAction}
                             className="rounded-none border-0 px-6 py-10 shadow-none"
                           />
@@ -509,6 +513,7 @@ export function DataTable<TRow>({
                 <EmptyState
                   title={resolvedEmptyTitle}
                   description={emptyDescription}
+                  icon={emptyIcon}
                   action={emptyAction}
                   className="rounded-none border-0 px-6 py-10 shadow-none"
                 />

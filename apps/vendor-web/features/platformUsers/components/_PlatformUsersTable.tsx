@@ -6,7 +6,6 @@ import type { PlatformAssignableRole, UserResponse } from "@pte/api-client";
 import type { PlatformUserAction } from "../types";
 import { PlatformUserRowActions } from "./_PlatformUserRowActions";
 import { PLATFORM_USER_EMPTY_CELL, type PlatformUserText } from "../constants";
-import { ShieldIcon } from "@pte/ui";
 
 type Option = { value: string; label: string };
 
@@ -66,18 +65,15 @@ export const PlatformUsersTable = ({
       {
         key: "identity",
         header: copy.FULL_NAME,
+        // A protected account says so in the Actions column, where its menu would be; saying it twice is noise.
         cell: (user: UserResponse) => {
-          const isProtected =
-            user.publicId === currentUserId || user.roles.includes("PLATFORM_ADMIN");
+          // Seed and bootstrap accounts can lack a full name or an email; show what the account does have.
+          const name = user.fullName?.trim() || user.email || user.username;
           return (
             <div>
-              <p className="font-medium text-[var(--ink-primary)]">{user.fullName}</p>
-              <p className="mt-1 text-xs text-[var(--ink-muted)]">{user.email}</p>
-              {isProtected && (
-                <Badge variant="info" className="mt-2">
-                  <ShieldIcon className="h-3 w-3" />
-                  {copy.PROTECTED}
-                </Badge>
+              <p className="font-medium text-[var(--ink-primary)]">{name}</p>
+              {user.email && name !== user.email && (
+                <p className="mt-1 text-xs text-[var(--ink-muted)]">{user.email}</p>
               )}
             </div>
           );

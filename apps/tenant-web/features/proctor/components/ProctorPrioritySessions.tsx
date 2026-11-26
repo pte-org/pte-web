@@ -35,10 +35,6 @@ const ProctorPrioritySessionRow = ({
   });
   const blockingLabel = (session: ProctorWorkspaceSessionResponse): string => {
     switch (session.monitoringBlockingReason) {
-      case "WINDOW_NOT_OPENED":
-        return text.format("monitoringOpensAt", {
-          time: dateTime.format(new Date(session.opensAt)),
-        });
       case "WINDOW_CLOSED":
         return text.monitoringWindowClosed;
       default:
@@ -86,7 +82,8 @@ const ProctorPrioritySessionRow = ({
             {text.tableColClosesAt}: {dateTime.format(new Date(session.closesAt))}
           </span>
         </div>
-        {!session.canMonitor && (
+        {/* Attendance opens before the exam does, so "not opened yet" is not a blocker worth showing. */}
+        {!session.canMonitor && session.monitoringBlockingReason !== "WINDOW_NOT_OPENED" && (
           <p className="text-xs text-[var(--ink-secondary)]">{blockingLabel(session)}</p>
         )}
       </div>

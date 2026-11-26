@@ -53,7 +53,6 @@ export const PROCTOR_WORKSPACE_VI: ProctorWorkspaceMessages = {
   actionRecordAttendance: "Điểm danh",
   actionViewIncidents: "Xem sự cố",
   upcomingEmpty: "Không có ca sắp tới",
-  monitoringOpensAt: "Có thể giám sát từ {time}",
   monitoringWindowClosed: "Đã hết thời gian giám sát của ca thi.",
   monitoringUnavailable: "Ca thi hiện chưa sẵn sàng để giám sát.",
   openSession: "Xem chi tiết",

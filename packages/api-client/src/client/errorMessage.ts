@@ -1,15 +1,52 @@
 import { ApiError, type ApiErrorKind } from "./apiError";
+import { USER_FACING_ERROR_MESSAGES_VI } from "./userMessagesVi";
 
-const GENERIC_ERROR_MESSAGE =
-  "We couldn't complete this action. Please try again or contact support.";
-const NETWORK_ERROR_MESSAGE =
-  "Unable to connect to the server. Please check your connection and try again.";
+export type UserMessageLanguage = "en" | "vi";
+
+/** The wording of the messages every screen can show, in each language the apps offer. */
+const GENERAL_MESSAGES: Record<UserMessageLanguage, Record<"generic" | "network" | "rateLimited", string>> = {
+  en: {
+    generic: "We couldn't complete this action. Please try again or contact support.",
+    network: "Unable to connect to the server. Please check your connection and try again.",
+    rateLimited: "The system is busy right now. Please wait a few seconds and try again.",
+  },
+  vi: {
+    generic: "Không thể thực hiện thao tác. Vui lòng thử lại hoặc liên hệ hỗ trợ.",
+    network: "Không thể kết nối tới máy chủ. Vui lòng kiểm tra kết nối mạng và thử lại.",
+    rateLimited: "Hệ thống đang bận. Vui lòng đợi vài giây rồi thử lại.",
+  },
+};
+
+/**
+ * The chosen language lives on `globalThis`, not in a module variable: a hot reload of this file in development
+ * would otherwise reset it to English until the next language change, and errors would turn English on a Vietnamese screen.
+ */
+const LANGUAGE_KEY = "__pteUserMessageLanguage";
+const languageStore = globalThis as typeof globalThis & { [LANGUAGE_KEY]?: UserMessageLanguage };
+
+const currentLanguage = (): UserMessageLanguage => languageStore[LANGUAGE_KEY] ?? "en";
+
+/**
+ * Chooses the language of the shared messages (the general ones and the per-kind fallbacks). The apps call it
+ * whenever the person changes language; messages that belong to one specific error code stay in English.
+ */
+export function setUserMessageLanguage(next: UserMessageLanguage): void {
+  languageStore[LANGUAGE_KEY] = next;
+}
+
+const RATE_LIMITED_STATUS = 429;
 const MAX_USER_MESSAGE_LENGTH = 240;
 
-const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
+export const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   PLAN_ARCHIVED_NOT_EDITABLE:
     "This plan is archived and can no longer be edited. Create a new plan if you need different pricing or capacity.",
   PLAN_MUST_BE_DRAFT_TO_ACTIVATE: "Only draft plans can be published.",
+  ANNOUNCEMENT_INVALID: "The announcement is not valid. Check the title, the message and the dates: the end must be after the start.",
+  ANNOUNCEMENT_NOT_FOUND: "We couldn't find this announcement. It may have been deleted.",
+  ANNOUNCEMENT_VERSION_CONFLICT: "This announcement was changed by someone else. Reload it and try again.",
+  ANNOUNCEMENT_PUBLISHED: "A published announcement can no longer be changed.",
+  ANNOUNCEMENT_NOT_PUBLISHED: "Only a published announcement can be sent again.",
+  ANNOUNCEMENT_CORRECTION_INVALID: "A correction must refer to a published announcement.",
   ORDER_PLAN_NOT_ACTIVE:
     "This plan is no longer available for purchase. Please choose another active plan.",
   SUBSCRIPTION_PLAN_NOT_ACTIVE:
@@ -145,14 +182,25 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
     "This voice reads the text too fast or too slow for the task. Pick another voice.",
 };
 
-const KIND_FALLBACKS: Record<ApiErrorKind, string> = {
-  validation: "Please check the submitted information and try again.",
-  unauthorized: "Your session has expired. Please sign in again.",
-  forbidden: "You do not have permission to complete this action.",
-  conflict: "This action conflicts with the current data. Please review it and try again.",
-  network: NETWORK_ERROR_MESSAGE,
-  server: "The server encountered a problem. Please try again later.",
-  unknown: GENERIC_ERROR_MESSAGE,
+const KIND_FALLBACKS: Record<UserMessageLanguage, Record<ApiErrorKind, string>> = {
+  en: {
+    validation: "Please check the submitted information and try again.",
+    unauthorized: "Your session has expired. Please sign in again.",
+    forbidden: "You do not have permission to complete this action.",
+    conflict: "This action conflicts with the current data. Please review it and try again.",
+    network: GENERAL_MESSAGES.en.network,
+    server: "The server encountered a problem. Please try again later.",
+    unknown: GENERAL_MESSAGES.en.generic,
+  },
+  vi: {
+    validation: "Vui lòng kiểm tra lại thông tin đã nhập và thử lại.",
+    unauthorized: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+    forbidden: "Bạn không có quyền thực hiện thao tác này.",
+    conflict: "Thao tác này xung đột với dữ liệu hiện tại. Vui lòng kiểm tra lại và thử lại.",
+    network: GENERAL_MESSAGES.vi.network,
+    server: "Máy chủ đang gặp sự cố. Vui lòng thử lại sau.",
+    unknown: GENERAL_MESSAGES.vi.generic,
+  },
 };
 
 /** Machine codes are for control flow and diagnostics, never direct UI output. */
@@ -175,7 +223,7 @@ function isSafeUserMessage(value: unknown): value is string {
 
 function fallbackFor(error: ApiError, fallback?: string): string {
   if (isSafeUserMessage(fallback)) return fallback;
-  return KIND_FALLBACKS[error.kind] ?? GENERIC_ERROR_MESSAGE;
+  return KIND_FALLBACKS[currentLanguage()][error.kind] ?? GENERAL_MESSAGES[currentLanguage()].generic;
 }
 
 /**
@@ -184,14 +232,18 @@ function fallbackFor(error: ApiError, fallback?: string): string {
  */
 export function getUserFacingApiErrorMessage(error: unknown, fallback?: string): string {
   if (!(error instanceof ApiError)) {
-    return isSafeUserMessage(fallback) ? fallback : GENERIC_ERROR_MESSAGE;
+    return isSafeUserMessage(fallback) ? fallback : GENERAL_MESSAGES[currentLanguage()].generic;
   }
 
-  if (error.kind === "network") return NETWORK_ERROR_MESSAGE;
-  // A server failure never shows server text; the caller's own (localized) copy wins over the generic English line.
+  if (error.kind === "network") return GENERAL_MESSAGES[currentLanguage()].network;
+  if (error.status === RATE_LIMITED_STATUS) return GENERAL_MESSAGES[currentLanguage()].rateLimited;
   if (error.kind === "server" || error.status >= 500) {
-    return isSafeUserMessage(fallback) ? fallback : KIND_FALLBACKS.server;
+    return KIND_FALLBACKS[currentLanguage()].server;
   }
+
+  // In Vietnamese the app's own wording of a coded error wins over the English text the server sends with it.
+  const translated = currentLanguage() === "vi" && error.code ? USER_FACING_ERROR_MESSAGES_VI[error.code] : undefined;
+  if (translated) return translated;
 
   if (isSafeUserMessage(error.userMessage)) return error.userMessage;
 

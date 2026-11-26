@@ -51,7 +51,6 @@ export const PROCTOR_WORKSPACE_EN = {
   actionRecordAttendance: "Take Attendance",
   actionViewIncidents: "View Incidents",
   upcomingEmpty: "No upcoming sessions",
-  monitoringOpensAt: "Monitoring opens at {time}",
   monitoringWindowClosed: "The monitoring window has ended.",
   monitoringUnavailable: "Monitoring is not available for this session yet.",
   openSession: "View details",

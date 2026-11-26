@@ -142,13 +142,14 @@ export const ExamStudioView = (): ReactElement => {
       )}
       <Tabs
         id={TABS_ID}
-        variant="default"
+        variant="minimal"
         ariaLabel={text.TABS_LABEL}
         items={tabItems}
         value={tab}
         onChange={(value) => setTab(value as StudioTab)}
       />
-      {tab === STUDIO_TABS.COVERAGE ? content : <DashboardCard>{content}</DashboardCard>}
+      {/* The coverage map and the composer sit on the page itself; the other tabs keep their card. */}
+      {tab === STUDIO_TABS.COVERAGE || tab === STUDIO_TABS.COMPOSE ? content : <DashboardCard>{content}</DashboardCard>}
       {template && (
         <StudioDrawer
           tile={selected}

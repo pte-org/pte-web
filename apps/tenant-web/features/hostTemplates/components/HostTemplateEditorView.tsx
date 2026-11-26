@@ -7,7 +7,6 @@ import {
   Alert,
   Button,
   ConfirmDialog,
-  ItemPalette,
   LoadingState,
   UnsavedChangesGuard,
   useDashboardBreadcrumbLabel,
@@ -15,7 +14,6 @@ import {
 } from "@pte/ui";
 import type { ScoreTemplateItemRequest, ScoreTemplateResponse } from "@pte/api-client";
 import { errorMessage } from "@/features/examoperations/errorMessage";
-import { sectionTone } from "@/lib/chipTones";
 import { useActiveScoreTemplate } from "@/features/exams/api";
 import {
   useActivateHostTemplate,
@@ -38,12 +36,10 @@ import {
   toEditableItems,
 } from "../utils/weights";
 import { applyVisibleOrder } from "@pte/api-client";
-import { PALETTE_DROP_ATTRIBUTE, TASK_TYPE_DRAG_TYPE } from "../constants";
 import { BalanceWeightsDialog } from "./BalanceWeightsDialog";
 import { HostTemplateDurationSummary } from "./HostTemplateDurationSummary";
-import { HostTemplateInfoPanel } from "./HostTemplateInfoPanel";
+import { HostTemplateHeader } from "./HostTemplateHeader";
 import { TemplateItemsEditor } from "./TemplateItemsEditor";
-import { taskTypeLabel } from "../utils/taskTypeLabel";
 
 interface HostTemplateEditorViewProps {
   publicId: string;
@@ -104,7 +100,11 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
   const feasibility = useHostTemplateFeasibility(template.publicId, !isDefault);
   // Keep every bank count the server has reported (React's "adjust state when a prop changes" pattern),
   // then judge the rows as they are being edited.
-  const [available, setAvailable] = useState<ReadonlyMap<string, number>>(() => new Map());
+  // Start from what is already known: a coverage answer cached from an earlier visit is not a change, so it
+  // would never be picked up below and the stock column would stay empty.
+  const [available, setAvailable] = useState<ReadonlyMap<string, number>>(() =>
+    rememberAvailable(new Map(), feasibility.data),
+  );
   const [seenFeasibility, setSeenFeasibility] = useState(feasibility.data);
   if (feasibility.data !== seenFeasibility) {
     setSeenFeasibility(feasibility.data);
@@ -175,101 +175,67 @@ const EditorBody = ({ template, isDefault, baseItems }: EditorBodyProps): ReactE
         onSaveAndLeave={handleSave}
         onNavigate={(href) => router.push(href)}
       />
+      <HostTemplateHeader
+        template={template}
+        editable={editable}
+        name={name}
+        onNameChange={setName}
+        actions={
+          editable && (
+            <>
+              <Button onClick={() => handleSave()} isLoading={save.isPending} disabled={!canSave}>
+                {text.SAVE}
+              </Button>
+              <ActionMenu
+                label={text.ACTIONS_LABEL}
+                items={[
+                  { label: text.BALANCE, onSelect: () => setBalanceOpen(true) },
+                  {
+                    label: listText.ACTIVATE,
+                    onSelect: () => setActivateOpen(true),
+                    disabled: dirty || activate.isPending,
+                  },
+                ]}
+              />
+            </>
+          )
+        }
+      />
       {!editable && !isDefault && <Alert tone="info">{text.READ_ONLY}</Alert>}
       {submitError && <Alert tone="error">{submitError}</Alert>}
       {items.length === 0 && <Alert tone="warning">{text.NO_TASKS}</Alert>}
+      {editable && shortTypes > 0 && (
+        <p className="text-xs text-[var(--blush-action)]">
+          {text.POOL_SUMMARY.replace("{count}", String(shortTypes))}
+        </p>
+      )}
 
-      <section className="flex flex-col gap-2">
-        <div>
-          {editable && shortTypes > 0 && (
-            <p className="mt-1 text-xs text-[var(--blush-action)]">
-              {text.POOL_SUMMARY.replace("{count}", String(shortTypes))}
-            </p>
-          )}
-        </div>
-        <TemplateItemsEditor
-          toolbarActions={
-            <>
-              {editable && (
-                <Button onClick={() => handleSave()} isLoading={save.isPending} disabled={!canSave}>
-                  {text.SAVE}
-                </Button>
-              )}
-              {editable && (
-                <ActionMenu
-                  label={text.ACTIONS_LABEL}
-                  items={[
-                    { label: text.BALANCE, onSelect: () => setBalanceOpen(true) },
-                    {
-                      label: listText.ACTIVATE,
-                      onSelect: () => setActivateOpen(true),
-                      disabled: dirty || activate.isPending,
-                    },
-                  ]}
-                />
-              )}
-            </>
-          }
-          onReorder={(keys) => setItems((current) => applyVisibleOrder(current, keys))}
-          renderPalette={
-            isDefault || !baseItems
-              ? undefined
-              : (activeTab) => (
-                  <ItemPalette
-                    title={text.PALETTE_TITLE}
-                    hint={text.PALETTE_HINT}
-                    addLabel={text.ADD_TYPE}
-                    emptyText={text.PALETTE_EMPTY}
-                    entries={findAddableItems(baseItems, items)
-                      .filter((item) => activeTab === "ALL" || item.section === activeTab)
-                      .map((item) => ({
-                        id: item.taskTypeKey,
-                        label: taskTypeLabel(item.taskTypeKey),
-                        section: item.section,
-                      }))}
-                    grouped={activeTab === "ALL"}
-                    sectionLabel={(section) =>
-                      skillLabels[section as keyof typeof skillLabels] ?? section
-                    }
-                    sectionTone={sectionTone}
-                    dragType={TASK_TYPE_DRAG_TYPE}
-                    dropAttribute={PALETTE_DROP_ATTRIBUTE}
-                    onAdd={(key) => setItems((current) => addBackItem(current, baseItems, key))}
-                  />
-                )
-          }
-          onDropTaskType={(key) =>
-            baseItems && setItems((current) => addBackItem(current, baseItems, key))
-          }
-          sidePanel={
-            <>
-              <HostTemplateInfoPanel
-                template={template}
-                editable={editable}
-                name={name}
-                onNameChange={setName}
-              />
-              {!isDefault && (
-                <HostTemplateDurationSummary
-                  parts={feasibility.data?.parts}
-                  totalMaxSeconds={feasibility.data?.totalMaxSeconds}
-                />
-              )}
-            </>
-          }
-          items={items}
-          editable={editable}
-          isWeightEditable={isWeightEditable}
-          pool={isDefault || !feasibility.data ? undefined : pool}
-          onRemove={(key) => setItems((current) => removeItem(current, key))}
-          onWeightChange={(key, skill, value) =>
-            setItems((current) => setWeight(current, key, skill, value))
-          }
-          onCountChange={(key, field, value) =>
-            setItems((current) => setCount(current, key, field, value))
-          }
+      <TemplateItemsEditor
+        addable={isDefault || !baseItems ? undefined : findAddableItems(baseItems, items)}
+        onAdd={
+          isDefault || !baseItems
+            ? undefined
+            : (key) => setItems((current) => addBackItem(current, baseItems, key))
+        }
+        onReorder={(keys) => setItems((current) => applyVisibleOrder(current, keys))}
+        items={items}
+        editable={editable}
+        isWeightEditable={isWeightEditable}
+        pool={isDefault || !feasibility.data ? undefined : pool}
+        onRemove={(key) => setItems((current) => removeItem(current, key))}
+        onWeightChange={(key, skill, value) =>
+          setItems((current) => setWeight(current, key, skill, value))
+        }
+        onCountChange={(key, field, value) =>
+          setItems((current) => setCount(current, key, field, value))
+        }
+      />
+      {!isDefault && (
+        <HostTemplateDurationSummary
+          parts={feasibility.data?.parts}
+          totalMaxSeconds={feasibility.data?.totalMaxSeconds}
         />
-      </section>
+      )}
 
       <BalanceWeightsDialog
         open={balanceOpen}

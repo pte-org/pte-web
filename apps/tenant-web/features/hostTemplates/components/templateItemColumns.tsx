@@ -5,6 +5,7 @@ import { sectionTone } from "@/lib/chipTones";
 import { SKILLS } from "../constants";
 import { MIN_QUESTION_COUNT, parseCount, type CountField } from "../utils/counts";
 import type { PoolSlot } from "../utils/pool";
+import { formatSeconds, type TimeUnits } from "../utils/templateDisplay";
 import { WEIGHT_FIELD } from "../utils/weights";
 import { taskTypeLabel } from "../utils/taskTypeLabel";
 
@@ -35,6 +36,7 @@ interface ColumnOptions {
   sectionLabel: (section: string) => string;
   pool?: ReadonlyMap<string, PoolSlot>;
   poolCopy: { ok: string; short: string };
+  timeUnits: TimeUnits;
   weightLockedText: string;
   isWeightLocked: (taskTypeKey: string, skill: Skill) => boolean;
   onWeightChange: (taskTypeKey: string, skill: Skill, value: number) => void;
@@ -46,7 +48,7 @@ interface ColumnOptions {
 }
 
 const poolChip = (slot: PoolSlot | undefined, copy: { ok: string; short: string }): ReactNode => {
-  if (!slot) return null;
+  if (!slot) return <span className="text-[var(--ink-muted)]">—</span>;
   const title = slot.ready
     ? copy.ok
     : copy.short
@@ -165,13 +167,13 @@ export const buildTemplateColumns = (
       key: "prepSeconds",
       label: options.headers.prep,
       header: options.headers.prep,
-      cell: (item) => item.prepSeconds,
+      cell: (item) => formatSeconds(item.prepSeconds, options.timeUnits),
     },
     {
       key: "responseSeconds",
       label: options.headers.response,
       header: options.headers.response,
-      cell: (item) => item.responseSeconds,
+      cell: (item) => formatSeconds(item.responseSeconds, options.timeUnits),
     },
   ];
   return compactColumns(structure, STRUCTURE_COLUMN_CLASS);
@@ -182,11 +184,13 @@ export const removeRowButton = (
   options: Pick<ColumnOptions, "removeLabel" | "onRemove">,
   item: ScoreTemplateItemRequest,
 ): ReactNode => (
+  // Quiet until it is pointed at, so a column of red bins does not draw the eye or invite a stray click.
   <Button
-    variant="danger"
+    variant="secondary"
     appearance="ghost"
     size="sm"
     iconOnly
+    className="text-[var(--ink-muted)] hover:bg-[var(--blush-tint)]! hover:text-[var(--blush-action)]!"
     aria-label={options.removeLabel}
     onClick={() => options.onRemove(item.taskTypeKey)}
   >

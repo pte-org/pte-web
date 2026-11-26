@@ -3,13 +3,11 @@
 import { useRouter } from "next/navigation";
 import {
   ActionMenu,
-  Badge,
   BanIcon,
   CheckCircleIcon,
   HistoryIcon,
   LockIcon,
   PencilIcon,
-  ShieldIcon,
   TrashIcon,
 } from "@pte/ui";
 import type { UserResponse } from "@pte/api-client";
@@ -50,12 +48,17 @@ export const PlatformUserRowActions = ({
   };
 
   if (isProtected) {
+    // No action is available, so say that and why, instead of a status-looking badge that reads like a label.
+    const reason = user.publicId === currentUserId ? copy.LOCKED_SELF : copy.LOCKED_ADMIN;
     return (
       <div className="flex items-center justify-end gap-2">
-        <Badge variant="info">
-          <ShieldIcon className="h-3 w-3" />
-          {copy.PROTECTED}
-        </Badge>
+        <span
+          title={reason}
+          className="inline-flex items-center gap-1.5 whitespace-nowrap text-xs text-[var(--ink-muted)]"
+        >
+          <LockIcon className="h-3.5 w-3.5" />
+          {copy.LOCKED}
+        </span>
         <ActionMenu items={[activityItem]} />
       </div>
     );

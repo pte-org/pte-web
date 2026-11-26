@@ -11,6 +11,8 @@ interface NotificationFooterProps {
   isLoadingMore: boolean;
   onLoadMore?: () => void;
   onCollapse?: () => void;
+  /** Opens the full notification list; shown as a link at the foot of the panel. */
+  onViewAll?: () => void;
 }
 
 export const NotificationFooter = ({
@@ -19,15 +21,16 @@ export const NotificationFooter = ({
   isLoadingMore,
   onLoadMore,
   onCollapse,
+  onViewAll,
 }: NotificationFooterProps): ReactElement | null => {
   const { t } = useLocale();
   const canLoadMore = hasMore && Boolean(onLoadMore);
   const canCollapse = isExpanded && Boolean(onCollapse);
 
-  if (!canLoadMore && !canCollapse) return null;
+  if (!canLoadMore && !canCollapse && !onViewAll) return null;
 
   return (
-    <div className="flex gap-2 border-t border-[var(--shell-border)] p-2">
+    <div className="flex flex-wrap gap-2 border-t border-[var(--shell-border)] p-2">
       {canCollapse && (
         <Button
           variant="ghost"
@@ -51,6 +54,11 @@ export const NotificationFooter = ({
           onClick={onLoadMore}
         >
           {t("common.loadMoreNotifications", "Load more notifications")}
+        </Button>
+      )}
+      {onViewAll && (
+        <Button variant="ghost" size="sm" fullWidth onClick={onViewAll}>
+          {t("common.notificationsViewAll", "View all notifications")} →
         </Button>
       )}
     </div>

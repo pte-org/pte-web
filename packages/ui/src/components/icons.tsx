@@ -92,6 +92,14 @@ export const UsersIcon = ({ className }: IconProps): ReactElement => (
   <NextAdminUserGroupIcon className={className} />
 );
 
+export const UserPlusIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...base} className={className}>
+    <circle cx="9" cy="8" r="3.5" />
+    <path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5" />
+    <path d="M19 8v6M16 11h6" />
+  </svg>
+);
+
 export const AlertTriangleIcon = ({ className }: IconProps): ReactElement => (
   <svg {...base} className={className}>
     <path d="M12 4 2.5 20h19L12 4z" />
