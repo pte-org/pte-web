@@ -9,15 +9,31 @@ import {
 import { useLocale } from "../i18n";
 import { PRIMARY_ACTION_SURFACE_CLASSES } from "../styles/interactiveClasses";
 import { cn } from "../utils/cn";
+import type { ChipTone } from "./Chip";
 
 export type TabsVariant = "default" | "minimal" | "segmented";
 export type TabsActiveVariant = "surface" | "primary";
 export type TabsOrientation = "horizontal" | "vertical";
 
+export type TabTone = ChipTone;
+
+/** The dot in front of a tab's label, in the colour a fact has on every other screen. */
+const TONE_DOT_CLASS: Record<TabTone, string> = {
+  sky: "bg-[var(--sky-action)]",
+  mint: "bg-[var(--mint-action)]",
+  cream: "bg-[var(--cream-action)]",
+  blush: "bg-[var(--blush-action)]",
+  brand: "bg-[var(--brand)]",
+  action: "bg-[var(--brand)]",
+  neutral: "bg-[var(--ink-muted)]",
+};
+
 export interface TabItem {
   id: string;
   label: ReactNode;
   icon?: ReactNode;
+  /** A coloured dot before the label, to tell tabs apart at a glance (e.g. one colour per exam section). */
+  tone?: TabTone;
   disabled?: boolean;
   count?: string | number;
   badge?: string | number;
@@ -163,6 +179,9 @@ export const Tabs = ({
                 onKeyDown={(event) => handleKeyDown(event, item.id)}
                 className={cn(tabTriggerBaseStyles, triggerStyles, isVertical && verticalTriggerStyles)}
               >
+                {item.tone && (
+                  <span aria-hidden="true" className={cn("h-2 w-2 shrink-0 rounded-full", TONE_DOT_CLASS[item.tone])} />
+                )}
                 {item.icon}
                 {item.label}
                 {badge !== undefined && (

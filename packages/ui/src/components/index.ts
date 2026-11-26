@@ -150,6 +150,7 @@ export { TabRailCard } from "./TabRailCard";
 export type { TabRailCardProps } from "./TabRailCard";
 export type {
   TabItem,
+  TabTone,
   TabPanelProps,
   TabsActiveVariant,
   TabsOrientation,
