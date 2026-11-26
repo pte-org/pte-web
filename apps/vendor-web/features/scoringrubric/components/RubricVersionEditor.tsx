@@ -1,7 +1,7 @@
 "use client";
 import { useState, type ReactElement } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { Alert, DashboardCard, ErrorState, Select, UnsavedChangesGuard, useDashboardBreadcrumbLabel, useLeaveAfterSave, useLocale } from "@pte/ui";
+import { Alert, ErrorState, Select, UnsavedChangesGuard, useDashboardBreadcrumbLabel, useLeaveAfterSave, useLocale } from "@pte/ui";
 import type { RubricStatusRequest, RubricVersionResponse, TaskTypeRubricResponse } from "@pte/api-client";
 import { useCurrentUser } from "@/features/auth/api";
 import { useCreateRubricVersion, useUpdateRubricVersion, useRubricVersionStatus } from "../versionApi";
@@ -15,12 +15,17 @@ import { VersionStatusBar } from "./_VersionStatusBar";
 import { ActivateConfirmDialog } from "./_ActivateConfirmDialog";
 import { RejectDialog } from "./_RejectDialog";
 import { ActivationHistory } from "./_ActivationHistory";
+import { VersionInfoPanel } from "./_VersionInfoPanel";
+import { useTaskTypeName } from "../hooks/useTaskTypeName";
+import { useScoringRubricText } from "../hooks/useScoringRubricText";
 
 interface RubricVersionEditorProps { version: RubricVersionResponse; rubrics: TaskTypeRubricResponse[] }
 export const RubricVersionEditor = ({ version, rubrics }: RubricVersionEditorProps): ReactElement => {
   const { locale } = useLocale();
   const T = RUBRIC_EDIT_TEXT[locale === "vi" ? "vi" : "en"];
   const router = useRouter();
+  const taskName = useTaskTypeName();
+  const { codeLabel } = useScoringRubricText();
   const current = useCurrentUser();
   const leaveAfterSave = useLeaveAfterSave();
   const [parameters, setParameters] = useState(() => parametersFromRubrics(rubrics));
@@ -58,26 +63,36 @@ export const RubricVersionEditor = ({ version, rubrics }: RubricVersionEditorPro
     if (action === "ACTIVATE" || action === "REJECT") setDialog(action);
     else change({ action });
   };
-  return <DashboardCard className="space-y-6">    <VersionStatusBar version={version} actions={actions} dirty={dirty} valid={valid} busy={busy} text={T} onSave={save} onAction={action}
+  return <div className="space-y-5">
+    <VersionStatusBar version={version} actions={actions} dirty={dirty} valid={valid} busy={busy} text={T} onSave={save} onAction={action}
       onClone={author ? () => create.mutate({ parameters }, { onSuccess: (created) => router.push(versionEditHref(created.publicId)) }) : undefined} />
     {!valid && <Alert tone="error">{T.invalid}</Alert>}
     {message && <ErrorState title={message} />}
     {version.status === "PENDING" && <Alert>{T.pending}</Alert>}
     {["ACTIVE", "RETIRED"].includes(version.status) && <Alert>{T.readonly}</Alert>}
     {version.rejectionReason && <Alert tone="warning">{version.rejectionReason}</Alert>}
-    <div className="w-72 max-w-full"><Select size="sm" label={T.task} value={selected} options={rubrics.filter((entry) => entry.traits.length > 0).map((entry) => ({ value: entry.taskType, label: entry.taskType }))}
-      onChange={(event) => setSelected(event.target.value)} /></div>
-    {rubric && value && <div className="grid items-start gap-6 lg:grid-cols-2">
-      <TraitWeightEditor rubric={rubric} value={value} disabled={!actions.edit || busy} text={T}
-        onChange={(changed) => setParameters({ ...parameters, taskTypes: { ...parameters.taskTypes, [selected]: changed } })} />
-      {value.formBands && <FormBandEditor bands={value.formBands} maxBand={rubric.traits.find((trait) => trait.key === "FORM")?.maxScore ?? 0}
-        disabled={!actions.edit || busy} text={T} onChange={(bands) => setParameters({ ...parameters,
-          taskTypes: { ...parameters.taskTypes, [selected]: { ...value, formBands: bands } } })} />}
-    </div>}
-    <ActivationHistory id={version.publicId} text={T} />
+    <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <div className="space-y-5">
+        {rubric && value && <>
+          <TraitWeightEditor rubric={rubric} value={value} disabled={!actions.edit || busy} text={T}
+            taskSelector={<Select size="sm" className="w-64 max-w-full" aria-label={T.task} value={selected}
+              options={rubrics.filter((entry) => entry.traits.length > 0).map((entry) => ({ value: entry.taskType,
+                label: `${entry.skills[0] ? `${codeLabel("skill", entry.skills[0])} · ` : ""}${taskName(entry.taskType)}` }))}
+              onChange={(event) => setSelected(event.target.value)} />}
+            onChange={(changed) => setParameters({ ...parameters, taskTypes: { ...parameters.taskTypes, [selected]: changed } })} />
+          {value.formBands && <FormBandEditor bands={value.formBands} maxBand={rubric.traits.find((trait) => trait.key === "FORM")?.maxScore ?? 0}
+            disabled={!actions.edit || busy} text={T} onChange={(bands) => setParameters({ ...parameters,
+              taskTypes: { ...parameters.taskTypes, [selected]: { ...value, formBands: bands } } })} />}
+        </>}
+      </div>
+      <div className="space-y-5">
+        <VersionInfoPanel version={version} text={T} />
+        <ActivationHistory id={version.publicId} text={T} />
+      </div>
+    </div>
     <UnsavedChangesGuard isDirty={dirty} isSaving={update.isPending} onSaveAndLeave={(proceed) => leaveAfterSave.request(proceed, save)}
       onNavigate={(href) => router.push(href)} />
     {dialog === "ACTIVATE" && <ActivateConfirmDialog id={version.publicId} pending={status.isPending} text={T} error={message} onClose={() => setDialog(null)} onConfirm={change} />}
     {dialog === "REJECT" && <RejectDialog pending={status.isPending} text={T} error={message} onClose={() => setDialog(null)} onReject={(reason) => change({ action: "REJECT", reason })} />}
-  </DashboardCard>;
+  </div>;
 };
