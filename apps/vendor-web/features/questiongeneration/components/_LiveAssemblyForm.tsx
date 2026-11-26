@@ -29,10 +29,12 @@ interface LiveAssemblyFormProps {
 
 const CARD =
   "flex flex-col gap-4 rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-card)] p-5 shadow-card";
+// The audio's script sits right above the audio: the writer writes it first and the audio is read from it, so under
+// the answers it looked as if the answer were written before the question.
 const GROUPS: { title: keyof AssemblyText; keys: PieceKey[] }[] = [
-  { title: "contentTitle", keys: ["prompt", "visual", "audio", "image"] },
+  { title: "contentTitle", keys: ["prompt", "visual", "transcript", "audio", "image"] },
   { title: "optionsTitle", keys: ["options"] },
-  { title: "answerTitle", keys: ["reference", "transcript"] },
+  { title: "answerTitle", keys: ["reference"] },
   { title: "hintTitle", keys: ["hintVi", "hintEn"] },
 ];
 const LABEL_OF: Record<PieceKey, keyof AssemblyText> = {
