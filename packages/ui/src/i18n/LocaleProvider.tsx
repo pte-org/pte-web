@@ -749,6 +749,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.audit.emptyDescription": "Các thay đổi sẽ xuất hiện khi đội ngũ của bạn thao tác.",
     "tenant.audit.loadFailed": "Không thể tải nhật ký hệ thống.",
     "tenant.audit.unknownActor": "Không xác định",
+    "tenant.audit.system": "Hệ thống",
     "tenant.audit.program": "Chương trình",
     "tenant.audit.class": "Lớp học",
     "tenant.audit.supportTicket": "Yêu cầu hỗ trợ",
@@ -1356,8 +1357,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.program": "Chương trình",
     "nav.class": "Lớp học",
     "nav.markingQueue": "Hàng đợi chấm",
-    "tenant.search.auditLog.placeholder":
-      "Tìm nhật ký hệ thống theo tên, mã tài nguyên, thao tác hoặc nội dung",
+    "tenant.search.auditLog.placeholder": "Tìm theo thao tác, tài nguyên, mã…",
     "tenant.search.auditLog.ariaLabel":
       "Tìm nhật ký hệ thống theo tên, mã tài nguyên, thao tác hoặc nội dung",
     "tenant.search.supportTickets.placeholder":
@@ -2134,6 +2134,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.audit.emptyDescription": "Changes here will appear as your team works.",
     "tenant.audit.loadFailed": "Couldn't load the system log.",
     "tenant.audit.unknownActor": "Unknown",
+    "tenant.audit.system": "System",
     "tenant.audit.program": "Program",
     "tenant.audit.class": "Class",
     "tenant.audit.supportTicket": "Support ticket",
@@ -2619,8 +2620,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "nav.program": "Program",
     "nav.class": "Class",
     "nav.markingQueue": "Marking queue",
-    "tenant.search.auditLog.placeholder":
-      "Search system log by resource name, code, action, or summary",
+    "tenant.search.auditLog.placeholder": "Search by action, resource, code…",
     "tenant.search.auditLog.ariaLabel":
       "Search system log by resource name, code, action, or summary",
     "tenant.search.supportTickets.placeholder":

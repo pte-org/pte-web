@@ -1,10 +1,10 @@
 export const AUDIT_LOGS_QUERY_KEY = ["auditLogs"] as const;
 export const AUDIT_LOG_ACTORS_QUERY_KEY = ["auditLogActors"] as const;
 
-/** Mirrors admin's real `AdminConstants.AGGREGATE_PROGRAM`/`AGGREGATE_CLASS` string values exactly. */
+/** Mirrors the backend `EnrollmentConstants.AGGREGATE_PROGRAM`/`AGGREGATE_CLASS` string values exactly. */
 export const AUDIT_LOG_AGGREGATE_TYPES = {
   PROGRAM: "Program",
-  CLASS: "StudentClass",
+  CLASS: "TrainingClass",
 } as const;
 
 export const AUDIT_LOG_TEXT = {
@@ -31,13 +31,27 @@ export const AUDIT_LOG_RESOURCE_TYPES = [
   { value: "Tenant", label: "Tenant" },
   { value: "Organization", label: "Organization" },
   { value: "Program", label: "Program" },
-  { value: "StudentClass", label: "Class" },
+  { value: "TrainingClass", label: "Class" },
   { value: "User", label: "User" },
   { value: "ExamSession", label: "Exam session" },
   { value: "SupportTicket", label: "Support ticket" },
 ] as const;
 
 export const AUDIT_LOG_ACTION_LABELS: Record<string, { en: string; vi: string }> = {
+  ExamAudienceSourceAdded: { en: "Exam audience source added", vi: "Đã thêm nguồn thí sinh vào kỳ thi" },
+  ExamAutoOpened: { en: "Exam opened automatically", vi: "Đã tự động mở kỳ thi" },
+  ExamDraftCreated: { en: "Exam draft created", vi: "Đã tạo bản nháp kỳ thi" },
+  ExamGenerated: { en: "Exam generated", vi: "Đã sinh đề thi" },
+  OrganizationUpdated: { en: "Organization updated", vi: "Đã cập nhật hồ sơ tổ chức" },
+  ProgramCreated: { en: "Program created", vi: "Đã tạo chương trình" },
+  ClassCreated: { en: "Class created", vi: "Đã tạo lớp học" },
+  ClassSplit: { en: "Class split", vi: "Đã tách lớp học" },
+  StudentAssignedToClass: { en: "Students added to class", vi: "Đã thêm học viên vào lớp" },
+  UserPasswordChangedSelf: { en: "Password changed", vi: "Đã đổi mật khẩu" },
+  UserPasswordReset: { en: "Password reset", vi: "Đã đặt lại mật khẩu" },
+  UserProfileUpdated: { en: "Profile updated", vi: "Đã cập nhật hồ sơ" },
+  PLAN_TRANSITION: { en: "Plan activated", vi: "Đã kích hoạt gói" },
+  LICENSE_GRANT: { en: "Plan granted", vi: "Đã cấp gói" },
   ExamDraftUpdated: { en: "Exam draft updated", vi: "Đã cập nhật bản nháp kỳ thi" },
   ExamAutoClosed: { en: "Exam closed automatically", vi: "Đã tự động đóng kỳ thi" },
   ExamScheduleUpdated: { en: "Exam schedule updated", vi: "Đã cập nhật lịch kỳ thi" },
@@ -73,3 +87,21 @@ export function humanizeAuditCode(value: string): string {
     .toLocaleLowerCase();
   return spaced.charAt(0).toLocaleUpperCase() + spaced.slice(1);
 }
+
+/** Exam session states as the scheduler logs them. */
+export const AUDIT_EXAM_STATUS_LABELS: Record<string, { en: string; vi: string }> = {
+  DRAFT: { en: "Draft", vi: "Bản nháp" },
+  SCHEDULED: { en: "Scheduled", vi: "Đã lên lịch" },
+  PUBLISHED: { en: "Published", vi: "Đã phát hành" },
+  OPEN: { en: "Open", vi: "Đang mở" },
+  CLOSED: { en: "Closed", vi: "Đã đóng" },
+  CANCELLED: { en: "Cancelled", vi: "Đã hủy" },
+};
+
+/** Resource kinds the log names by code, beyond those the organization labels itself. */
+export const AUDIT_RESOURCE_LABELS: Record<string, { en: string; vi: string }> = {
+  Organization: { en: "Organization", vi: "Tổ chức" },
+  User: { en: "User", vi: "Người dùng" },
+  Plan: { en: "Plan", vi: "Gói" },
+  LicenseCode: { en: "License", vi: "Giấy phép" },
+};
