@@ -35,12 +35,15 @@ export const HostTemplateDurationSummary = ({
         fits: part.canFitFrame,
       }))}
       ceilingSeconds={totalMaxSeconds}
+      layout="row"
+      roundMinutes
       copy={{
         minutesShort: text.MINUTES_SHORT,
         window: text.DURATION_WINDOW,
         fits: text.DURATION_FITS,
         noFit: text.DURATION_NO_FIT,
         ceiling: text.DURATION_CEILING,
+        total: text.DURATION_TOTAL,
       }}
     />
   );
