@@ -1,4 +1,5 @@
 import { ApiError, type ApiErrorKind } from "./apiError";
+import { USER_FACING_ERROR_MESSAGES_VI } from "./userMessagesVi";
 
 export type UserMessageLanguage = "en" | "vi";
 
@@ -29,7 +30,7 @@ export function setUserMessageLanguage(next: UserMessageLanguage): void {
 const RATE_LIMITED_STATUS = 429;
 const MAX_USER_MESSAGE_LENGTH = 240;
 
-const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
+export const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   PLAN_ARCHIVED_NOT_EDITABLE:
     "This plan is archived and can no longer be edited. Create a new plan if you need different pricing or capacity.",
   PLAN_MUST_BE_DRAFT_TO_ACTIVATE: "Only draft plans can be published.",
@@ -218,6 +219,10 @@ export function getUserFacingApiErrorMessage(error: unknown, fallback?: string):
   if (error.kind === "server" || error.status >= 500) {
     return KIND_FALLBACKS[language].server;
   }
+
+  // In Vietnamese the app's own wording of a coded error wins over the English text the server sends with it.
+  const translated = language === "vi" && error.code ? USER_FACING_ERROR_MESSAGES_VI[error.code] : undefined;
+  if (translated) return translated;
 
   if (isSafeUserMessage(error.userMessage)) return error.userMessage;
 
