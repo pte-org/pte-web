@@ -14,6 +14,7 @@ import {
   NotificationHistory,
   PaginationControls,
   Select,
+  useLocale,
   useToast,
 } from "@pte/ui";
 import {
@@ -23,14 +24,14 @@ import {
   useNotificationHistory,
 } from "../api";
 
-const CATEGORY_OPTIONS = [
-  { label: "All categories", value: "" },
-  { label: "System notice", value: "SYSTEM_NOTICE" },
-  { label: "Maintenance", value: "MAINTENANCE" },
-  { label: "Session", value: "SESSION" },
-  { label: "Application", value: "APPLICATION" },
-  { label: "Billing", value: "BILLING" },
-  { label: "Support", value: "SUPPORT" },
+/** The category filter's values with the shared category wording (the same words the notification rows use). */
+const CATEGORY_KEYS: readonly { value: InboxCategory; key: string; fallback: string }[] = [
+  { value: "SYSTEM_NOTICE", key: "common.notificationCategorySystem", fallback: "System notice" },
+  { value: "MAINTENANCE", key: "common.notificationCategoryMaintenance", fallback: "Maintenance" },
+  { value: "SESSION", key: "common.notificationCategorySession", fallback: "Session" },
+  { value: "APPLICATION", key: "common.notificationCategoryApplication", fallback: "Application" },
+  { value: "BILLING", key: "common.notificationCategoryBilling", fallback: "Billing" },
+  { value: "SUPPORT", key: "common.notificationCategorySupport", fallback: "Support" },
 ];
 
 function targetHref(item: InboxItemResponse): string {
@@ -53,6 +54,7 @@ function targetHref(item: InboxItemResponse): string {
 function NotificationHistoryContent(): ReactElement {
   const router = useRouter();
   const { showToast } = useToast();
+  const { t } = useLocale();
   const [filter, setFilter] = useState<InboxReadFilter>("ALL");
   const [category, setCategory] = useState<InboxCategory | undefined>();
   const [page, setPage] = useState(0);
@@ -80,10 +82,10 @@ function NotificationHistoryContent(): ReactElement {
       <div className="flex flex-wrap items-center gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
             <Select
               id="notification-filter"
-              aria-label="Notification filter"
+              aria-label={t("tenant.notifications.filterLabel", "Notification filter")}
               options={[
-                { label: "All notifications", value: "ALL" },
-                { label: "Unread only", value: "UNREAD" },
+                { label: t("tenant.notifications.all", "All notifications"), value: "ALL" },
+                { label: t("tenant.notifications.unreadOnly", "Unread only"), value: "UNREAD" },
               ]}
               value={filter}
               onChange={(event) => {
@@ -94,8 +96,11 @@ function NotificationHistoryContent(): ReactElement {
             />
             <Select
               id="notification-category"
-              aria-label="Notification category"
-              options={CATEGORY_OPTIONS}
+              aria-label={t("tenant.notifications.categoryLabel", "Notification category")}
+              options={[
+                { label: t("tenant.notifications.allCategories", "All categories"), value: "" },
+                ...CATEGORY_KEYS.map((entry) => ({ label: t(entry.key, entry.fallback), value: entry.value })),
+              ]}
               value={category ?? ""}
               onChange={(event) => {
                 setCategory((event.target.value || undefined) as InboxCategory | undefined);
@@ -104,7 +109,7 @@ function NotificationHistoryContent(): ReactElement {
               }}
             />
             <Button variant="secondary" onClick={markAll} isLoading={markAllRead.isPending}>
-              Mark all read
+              {t("tenant.notifications.markAll", "Mark all read")}
             </Button>
       </div>
       {history.error && <Alert tone="error">{getUserFacingApiErrorMessage(history.error)}</Alert>}
