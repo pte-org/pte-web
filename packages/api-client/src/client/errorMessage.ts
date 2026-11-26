@@ -1,9 +1,32 @@
 import { ApiError, type ApiErrorKind } from "./apiError";
 
-const GENERIC_ERROR_MESSAGE =
-  "We couldn't complete this action. Please try again or contact support.";
-const NETWORK_ERROR_MESSAGE =
-  "Unable to connect to the server. Please check your connection and try again.";
+export type UserMessageLanguage = "en" | "vi";
+
+/** The wording of the messages every screen can show, in each language the apps offer. */
+const GENERAL_MESSAGES: Record<UserMessageLanguage, Record<"generic" | "network" | "rateLimited", string>> = {
+  en: {
+    generic: "We couldn't complete this action. Please try again or contact support.",
+    network: "Unable to connect to the server. Please check your connection and try again.",
+    rateLimited: "The system is busy right now. Please wait a few seconds and try again.",
+  },
+  vi: {
+    generic: "Không thể thực hiện thao tác. Vui lòng thử lại hoặc liên hệ hỗ trợ.",
+    network: "Không thể kết nối tới máy chủ. Vui lòng kiểm tra kết nối mạng và thử lại.",
+    rateLimited: "Hệ thống đang bận. Vui lòng đợi vài giây rồi thử lại.",
+  },
+};
+
+let language: UserMessageLanguage = "en";
+
+/**
+ * Chooses the language of the shared messages (the general ones and the per-kind fallbacks). The apps call it
+ * whenever the person changes language; messages that belong to one specific error code stay in English.
+ */
+export function setUserMessageLanguage(next: UserMessageLanguage): void {
+  language = next;
+}
+
+const RATE_LIMITED_STATUS = 429;
 const MAX_USER_MESSAGE_LENGTH = 240;
 
 const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
@@ -137,14 +160,25 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   GENERATION_GLOBAL_LIMIT_REACHED: "The platform has reached today's question generation limit.",
 };
 
-const KIND_FALLBACKS: Record<ApiErrorKind, string> = {
-  validation: "Please check the submitted information and try again.",
-  unauthorized: "Your session has expired. Please sign in again.",
-  forbidden: "You do not have permission to complete this action.",
-  conflict: "This action conflicts with the current data. Please review it and try again.",
-  network: NETWORK_ERROR_MESSAGE,
-  server: "The server encountered a problem. Please try again later.",
-  unknown: GENERIC_ERROR_MESSAGE,
+const KIND_FALLBACKS: Record<UserMessageLanguage, Record<ApiErrorKind, string>> = {
+  en: {
+    validation: "Please check the submitted information and try again.",
+    unauthorized: "Your session has expired. Please sign in again.",
+    forbidden: "You do not have permission to complete this action.",
+    conflict: "This action conflicts with the current data. Please review it and try again.",
+    network: GENERAL_MESSAGES.en.network,
+    server: "The server encountered a problem. Please try again later.",
+    unknown: GENERAL_MESSAGES.en.generic,
+  },
+  vi: {
+    validation: "Vui lòng kiểm tra lại thông tin đã nhập và thử lại.",
+    unauthorized: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+    forbidden: "Bạn không có quyền thực hiện thao tác này.",
+    conflict: "Thao tác này xung đột với dữ liệu hiện tại. Vui lòng kiểm tra lại và thử lại.",
+    network: GENERAL_MESSAGES.vi.network,
+    server: "Máy chủ đang gặp sự cố. Vui lòng thử lại sau.",
+    unknown: GENERAL_MESSAGES.vi.generic,
+  },
 };
 
 /** Machine codes are for control flow and diagnostics, never direct UI output. */
@@ -167,7 +201,7 @@ function isSafeUserMessage(value: unknown): value is string {
 
 function fallbackFor(error: ApiError, fallback?: string): string {
   if (isSafeUserMessage(fallback)) return fallback;
-  return KIND_FALLBACKS[error.kind] ?? GENERIC_ERROR_MESSAGE;
+  return KIND_FALLBACKS[language][error.kind] ?? GENERAL_MESSAGES[language].generic;
 }
 
 /**
@@ -176,12 +210,13 @@ function fallbackFor(error: ApiError, fallback?: string): string {
  */
 export function getUserFacingApiErrorMessage(error: unknown, fallback?: string): string {
   if (!(error instanceof ApiError)) {
-    return isSafeUserMessage(fallback) ? fallback : GENERIC_ERROR_MESSAGE;
+    return isSafeUserMessage(fallback) ? fallback : GENERAL_MESSAGES[language].generic;
   }
 
-  if (error.kind === "network") return NETWORK_ERROR_MESSAGE;
+  if (error.kind === "network") return GENERAL_MESSAGES[language].network;
+  if (error.status === RATE_LIMITED_STATUS) return GENERAL_MESSAGES[language].rateLimited;
   if (error.kind === "server" || error.status >= 500) {
-    return KIND_FALLBACKS.server;
+    return KIND_FALLBACKS[language].server;
   }
 
   if (isSafeUserMessage(error.userMessage)) return error.userMessage;
