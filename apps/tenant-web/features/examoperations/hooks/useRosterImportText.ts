@@ -42,7 +42,7 @@ const VI_ROW_MESSAGES: Record<string, string> = {
   PROGRAM_NAME_TOO_LONG: "Tên chương trình vượt quá 100 ký tự.",
   CLASS_NAME_TOO_LONG: "Tên lớp học vượt quá 100 ký tự.",
   PHONE_INVALID: "Số điện thoại phải có 9 đến 15 chữ số (có thể bắt đầu bằng +).",
-  DATE_OF_BIRTH_INVALID: "Ngày sinh phải là ngày trong quá khứ theo định dạng yyyy-mm-dd.",
+  DATE_OF_BIRTH_INVALID: "Ngày sinh không hợp lệ. Học viên cần từ 6 tuổi trở lên.",
 };
 
 const VI_SKIPPED_REASONS: Record<string, string> = {

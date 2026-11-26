@@ -668,7 +668,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.roster.issue.PHONE_INVALID":
       "Số điện thoại phải có 9 đến 15 chữ số (có thể bắt đầu bằng +).",
     "tenant.roster.issue.DATE_OF_BIRTH_INVALID":
-      "Ngày sinh phải là ngày trong quá khứ theo định dạng yyyy-mm-dd.",
+      "Ngày sinh không hợp lệ. Học viên cần từ 6 tuổi trở lên.",
     "tenant.roster.issue.UNKNOWN": "Giá trị này không hợp lệ.",
     "tenant.roster.sendCredentialsLabel":
       "Gửi email tên đăng nhập và mật khẩu tạm thời cho từng học viên",
@@ -1960,7 +1960,7 @@ const COMMON_MESSAGES: Record<Locale, Messages> = {
     "tenant.roster.issue.PHONE_INVALID":
       "Phone must have 9 to 15 digits (a leading + is allowed).",
     "tenant.roster.issue.DATE_OF_BIRTH_INVALID":
-      "Date of Birth must be a past date written as yyyy-mm-dd.",
+      "Date of Birth is invalid. The student must be at least 6 years old.",
     "tenant.roster.issue.UNKNOWN": "This value is not valid.",
     "tenant.roster.sendCredentialsLabel":
       "E-mail each student their username and temporary password",
