@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
+import { Button, EyeIcon, Textarea } from "@pte/ui";
 import { ADMIN_TICKET_DETAIL_TEXT as RAW_ADMIN_TICKET_DETAIL_TEXT } from "../constants";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 
@@ -8,6 +9,8 @@ interface AddNoteFormProps {
   onSubmit: (content: string) => void;
   isSubmitting: boolean;
 }
+
+const NOTE_ROWS = 3;
 
 export const AddNoteForm = ({ onSubmit, isSubmitting }: AddNoteFormProps): ReactElement => {
   const T = useAdminCopy(RAW_ADMIN_TICKET_DETAIL_TEXT);
@@ -21,27 +24,24 @@ export const AddNoteForm = ({ onSubmit, isSubmitting }: AddNoteFormProps): React
   };
 
   return (
-    <div className="flex flex-col gap-2">
-      <label htmlFor="add-note-input" className="text-sm font-medium text-gray-700">
-        {T.ADD_NOTE_LABEL}
-      </label>
-      <textarea
+    <div className="flex flex-col gap-3 border-t border-[var(--shell-border)] pt-4">
+      <Textarea
         id="add-note-input"
-        rows={3}
+        aria-label={T.SECTION_NOTES}
+        rows={NOTE_ROWS}
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder={T.ADD_NOTE_PLACEHOLDER}
-        className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 placeholder:text-gray-400 focus:border-action focus:outline-none focus:ring-1 focus:ring-action"
       />
-      <div className="flex justify-end">
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={isSubmitting || !content.trim()}
-          className="rounded-md bg-action px-4 py-2 text-sm font-semibold text-white shadow-sm shadow-action/25 hover:bg-action-hover disabled:opacity-50"
-        >
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* Replies go to the organization, never stay internal: say so where the admin is typing. */}
+        <span className="inline-flex items-center gap-1.5 text-xs text-[var(--ink-secondary)]">
+          <EyeIcon className="h-4 w-4" />
+          {T.VISIBLE_HINT}
+        </span>
+        <Button type="button" onClick={handleSubmit} isLoading={isSubmitting} disabled={!content.trim()}>
           {T.ADD_NOTE_SUBMIT}
-        </button>
+        </Button>
       </div>
     </div>
   );
