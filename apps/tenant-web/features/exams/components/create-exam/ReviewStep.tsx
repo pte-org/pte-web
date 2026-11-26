@@ -80,6 +80,9 @@ export function ReviewStep({
         <ReviewField label={wizardText.REVIEW_DIFFICULTY}>
           {difficultySummary(form.difficulty, wizardText)}
         </ReviewField>
+        <ReviewField label={wizardText.REVIEW_REPEAT}>
+          {form.avoidRepeats ? wizardText.REPEAT_AVOID : wizardText.REPEAT_ALLOW}
+        </ReviewField>
       </ReviewGroup>
 
       <ReviewGroup
@@ -88,9 +91,6 @@ export function ReviewStep({
         onEdit={() => onEditStep(2)}
       >
         <ReviewField label={wizardText.REVIEW_WINDOW}>{openWindow || wizardText.EMPTY_VALUE}</ReviewField>
-        <ReviewField label={wizardText.REVIEW_REPEAT}>
-          {form.avoidRepeats ? wizardText.REPEAT_AVOID : wizardText.REPEAT_ALLOW}
-        </ReviewField>
       </ReviewGroup>
 
       <ReviewGroup title={wizardText.STEP_AUDIENCE} editLabel={wizardText.REVIEW_EDIT} onEdit={() => onEditStep(3)}>

@@ -236,6 +236,7 @@ export const PROCTOR_INCIDENT_LIST_TEXT = {
   SEARCH_PLACEHOLDER: "Tìm tiêu đề hoặc nội dung sự cố...",
   BACK_BTN: "Danh sách ca thi",
   REPORT_NEW_BTN: "+ Báo cáo sự cố mới",
+  REPORT_CLOSED_HINT: "Ca thi đã kết thúc nên không thể báo cáo sự cố mới.",
   FILTER_STATUS_LABEL: "Trạng thái",
   TITLE_PREFIX: "Sự cố phòng thi: #",
   SUBTITLE: "Theo dõi và điều phối các sự cố xảy ra trong ca thi.",
@@ -293,7 +294,6 @@ export const PROCTOR_INCIDENT_DETAIL_TEXT = {
 
 export const PROCTOR_ATTENDANCE_VIEW_TEXT = {
   BACK_BTN: "Danh sách ca thi",
-  UPDATED_PREFIX: "Cập nhật lúc: ",
   TITLE_PREFIX: "Điểm danh ca thi: ",
   SUBTITLE: "Quản lý và cập nhật danh sách có mặt / vắng mặt của thí sinh trong ca thi.",
   REASON_PRE_OPEN: "Điểm danh chỉ mở trước giờ thi 30 phút.",
