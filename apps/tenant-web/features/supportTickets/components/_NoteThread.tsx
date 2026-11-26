@@ -1,10 +1,9 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { Avatar, EmptyState, MessageSquareTextIcon, useLocale } from "@pte/ui";
+import { Avatar, EmptyState, MessageSquareTextIcon, formatShortDateTime, useLocale } from "@pte/ui";
 import { SUPPORT_TICKETS_TEXT } from "../constants";
 import type { SupportTicketNote } from "../types";
-import { formatTicketTime } from "../utils/formatTicketTime";
 
 interface NoteThreadProps {
   notes: SupportTicketNote[];
@@ -33,7 +32,7 @@ export const NoteThread = ({ notes }: NoteThreadProps): ReactElement => {
           <div className="min-w-0 flex-1 rounded-lg border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4">
             <div className="mb-1 flex flex-wrap items-baseline gap-x-2">
               <span className="text-sm font-semibold text-[var(--ink-primary)]">{adminRole}</span>
-              <span className="text-xs text-[var(--ink-muted)]">{formatTicketTime(note.createdAt, locale)}</span>
+              <span className="text-xs text-[var(--ink-muted)]">{formatShortDateTime(note.createdAt, locale)}</span>
             </div>
             <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[var(--ink-primary)]">
               {note.content}

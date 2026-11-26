@@ -1,10 +1,9 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { CopyableId, useLocale } from "@pte/ui";
+import { CopyableId, formatShortDateTime, useLocale } from "@pte/ui";
 import { SUPPORT_TICKETS_TEXT as T } from "../constants";
 import type { SupportTicketDetail } from "../types";
-import { formatTicketTime } from "../utils/formatTicketTime";
 import { TicketCategoryBadge } from "./_TicketCategoryBadge";
 import { TicketStatusBadge } from "./_TicketStatusBadge";
 
@@ -23,8 +22,8 @@ export const TicketInfoPanel = ({ ticket }: { ticket: SupportTicketDetail }): Re
     ...(ticket.submitterName
       ? [{ label: t("tenant.support.detail.submitter", T.SUBMITTER), value: ticket.submitterName }]
       : []),
-    { label: t("tenant.support.submitted", T.CREATED_AT), value: formatTicketTime(ticket.createdAt, locale) },
-    { label: t("tenant.support.detail.updatedAt", T.UPDATED_AT), value: formatTicketTime(ticket.updatedAt, locale) },
+    { label: t("tenant.support.submitted", T.CREATED_AT), value: formatShortDateTime(ticket.createdAt, locale) },
+    { label: t("tenant.support.detail.updatedAt", T.UPDATED_AT), value: formatShortDateTime(ticket.updatedAt, locale) },
   ];
 
   return (

@@ -7,6 +7,7 @@ import {
   Button,
   ConfirmDialog,
   LoadingState,
+  formatShortDateTime,
   PageHeader,
   useDashboardBreadcrumbLabel,
   useLocale,
@@ -19,7 +20,6 @@ import {
   TICKET_ACTIONS_TEXT as A,
 } from "../constants";
 import { useCloseTicket, useSupportTicket } from "../api";
-import { formatTicketTime } from "../utils/formatTicketTime";
 import { NoteThread } from "./_NoteThread";
 import { TicketInfoPanel } from "./_TicketInfoPanel";
 import { TicketStatusBadge } from "./_TicketStatusBadge";
@@ -78,7 +78,7 @@ export const SupportTicketDetailView = ({
         />
         <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--ink-secondary)]">
           <span>
-            {t("tenant.support.detail.sentAt", undefined, { time: formatTicketTime(ticket.createdAt, locale) })}
+            {t("tenant.support.detail.sentAt", undefined, { time: formatShortDateTime(ticket.createdAt, locale) })}
           </span>
         </div>
       </div>
@@ -92,7 +92,10 @@ export const SupportTicketDetailView = ({
             </p>
           </section>
           <section className={PANEL}>
-            <h2 className={PANEL_TITLE}>{t("tenant.support.detail.notes", T.NOTES_SECTION)}</h2>
+            <h2 className={PANEL_TITLE}>
+              {t("tenant.support.detail.notes", T.NOTES_SECTION)}
+              {ticket.notes.length > 0 && ` (${ticket.notes.length})`}
+            </h2>
             <NoteThread notes={ticket.notes} />
           </section>
         </div>
