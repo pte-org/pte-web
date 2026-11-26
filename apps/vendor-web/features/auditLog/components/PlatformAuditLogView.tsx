@@ -10,21 +10,18 @@ import {
   Select,
   useLocale,
   type DateRangeValue,
-  type DataTableColumn,
 } from "@pte/ui";
 import { useDebouncedSearch } from "@/features/i18n/useDebouncedSearch";
 import {
-  PLATFORM_AUDIT_ACTION_LABELS as RAW_ACTION_LABELS,
   PLATFORM_AUDIT_LOG_COPY,
   PLATFORM_AUDIT_RESOURCE_TYPES as RAW_RESOURCE_TYPES,
-  humanizePlatformAuditCode,
 } from "../constants";
-import { usePlatformAuditLogs, type PlatformAuditLogEntry } from "../api";
+import { usePlatformAuditLogs } from "../api";
+import { usePlatformAuditColumns } from "../hooks/usePlatformAuditColumns";
 
 export function PlatformAuditLogView(): ReactElement {
   const { locale, t } = useLocale();
   const T = PLATFORM_AUDIT_LOG_COPY[locale];
-  const actionLabels = RAW_ACTION_LABELS;
   const resourceTypes = RAW_RESOURCE_TYPES.map((item) => ({
     value: item.value,
     label: item.label[locale],
@@ -43,42 +40,7 @@ export function PlatformAuditLogView(): ReactElement {
     dateRange.from || undefined,
     dateRange.to || undefined,
   );
-  const actionLabel = (value: string): string =>
-    actionLabels[value]?.[locale] ?? humanizePlatformAuditCode(value);
-  const resourceLabel = (value: string): string =>
-    resourceTypes.find((item) => item.value === value)?.label ?? humanizePlatformAuditCode(value);
-  const columns: DataTableColumn<PlatformAuditLogEntry>[] = [
-    {
-      key: "when",
-      header: T.WHEN,
-      cell: (entry) =>
-        new Intl.DateTimeFormat(locale === "vi" ? "vi-VN" : "en-US", {
-          dateStyle: "short",
-          timeStyle: "medium",
-        }).format(new Date(entry.log.createdAt)),
-    },
-    { key: "action", header: T.ACTION, cell: (entry) => actionLabel(entry.log.action) },
-    {
-      key: "resource",
-      header: T.RESOURCE,
-      cell: (entry) => {
-        const typeLabel = resourceLabel(entry.log.aggregateType);
-        const resourceName = entry.log.resourceName?.trim() || typeLabel;
-        return (
-          <div className="min-w-36">
-            <p className="font-medium">{resourceName}</p>
-            {entry.log.resourceCode && (
-              <p className="mt-1 text-xs text-[var(--table-muted-text)]">
-                {typeLabel} · {entry.log.resourceCode}
-              </p>
-            )}
-          </div>
-        );
-      },
-    },
-    { key: "actor", header: T.ACTOR, cell: (entry) => entry.actorName ?? T.UNKNOWN_ACTOR },
-    { key: "summary", header: T.SUMMARY, cell: (entry) => entry.log.summary },
-  ];
+  const columns = usePlatformAuditColumns();
   const resourceFilterOptions = [
     { value: "", label: T.ALL_ACTIVITY },
     ...resourceTypes.map((item) => ({ value: item.value, label: item.label })),

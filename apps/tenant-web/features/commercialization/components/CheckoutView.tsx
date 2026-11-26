@@ -2,26 +2,46 @@
 
 import { useMemo, type ReactElement } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Alert, Button, CheckCircleIcon, useToast } from "@pte/ui";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import {
+  Alert,
+  Button,
+  CheckCircleIcon,
+  LoadingState,
+  PageHeader,
+  useDashboardBreadcrumbLabel,
+  useToast,
+} from "@pte/ui";
 import { getUserFacingApiErrorMessage, type OrderResponse } from "@pte/api-client";
-import { useCreateOrder, useOrdersQuery, useTenantPlansQuery } from "../api";
-import { BILLING_TEXT as T } from "../constants";
+import { useMyOrganizations } from "@/features/programs/api";
+import { useCreateOrder, useOrdersQuery, useStudentQuotaQuery, useTenantPlansQuery } from "../api";
+import { PLANS_HOME_HREF } from "../constants";
+import { useCheckoutText } from "../hooks/useCheckoutText";
 import { BillingPanel } from "./BillingPanel";
+import { CheckoutNextSteps } from "./CheckoutNextSteps";
+import { CheckoutSummary } from "./CheckoutSummary";
 
 export const CheckoutView = (): ReactElement => {
   const router = useRouter();
+  const pathname = usePathname();
   const { showToast } = useToast();
+  const copy = useCheckoutText();
+  const { text } = copy;
   const searchParams = useSearchParams();
   const selectedPlanId = searchParams.get("planId") ?? "";
   const { data: plans = [], isLoading } = useTenantPlansQuery();
   const { data: orders = [] } = useOrdersQuery();
+  const { data: organizations } = useMyOrganizations();
+  const { data: quota } = useStudentQuotaQuery();
   const createOrder = useCreateOrder();
   const plan = useMemo(
     () => plans.find((item) => item.publicId === selectedPlanId && item.status === "ACTIVE"),
     [plans, selectedPlanId],
   );
   const isFreePlan = plan ? Number(plan.price) === 0 : false;
+  const title = isFreePlan ? text.TITLE_FREE : text.TITLE_PAID;
+  // The breadcrumb's last segment names the page, so the plan list stays one click away in its parent.
+  useDashboardBreadcrumbLabel(pathname, title);
   const pendingOrder = plan
     ? orders.find((item) => item.planId === plan.publicId && item.status === "PENDING")
     : undefined;
@@ -32,69 +52,65 @@ export const CheckoutView = (): ReactElement => {
     try {
       order = await createOrder.mutateAsync({ planId: plan.publicId });
     } catch (error) {
-      showToast(getUserFacingApiErrorMessage(error, T.ORDER_ERROR), { tone: "error" });
+      showToast(getUserFacingApiErrorMessage(error, text.ORDER_ERROR), { tone: "error" });
       return;
     }
     if (order.paymentLinkUrl) {
       window.location.assign(order.paymentLinkUrl);
       return;
     }
+    // No payment link means the plan was free and is already active: say so before going back to Plans & billing.
+    showToast(copy.format("ACTIVATED_TOAST", { name: plan.name }));
     router.push("/host/billing");
   };
 
+  const freeNote = plan?.type === "EXAM_PACKAGE" ? text.FREE_NOTE_EXAM : text.FREE_NOTE_CAPACITY;
+
   return (
-    <div className="flex flex-col gap-5">
-      {!isLoading && !plan && <Alert tone="warning">{T.SELECT_ACTIVE_PLAN}</Alert>}
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
+      <PageHeader title={title} />
+      {isLoading && <LoadingState rows={3} />}
+      {!isLoading && !plan && <Alert tone="warning">{text.SELECT_ACTIVE_PLAN}</Alert>}
       {pendingOrder && (
-        <Alert tone="info" title={T.PENDING_PAYMENT_TITLE}>
-          {T.PENDING_PAYMENT_TEXT}
+        <Alert tone="info" title={text.PENDING_TITLE}>
+          {text.PENDING_TEXT}
           {pendingOrder.paymentLinkUrl && (
             <a className="ml-1 font-semibold underline" href={pendingOrder.paymentLinkUrl}>
-              {T.CONTINUE_PAYMENT}
+              {text.CONTINUE_PAYMENT}
             </a>
           )}
         </Alert>
       )}
       {plan && (
-        <div className="grid gap-5 lg:grid-cols-[1.2fr_0.8fr]">
-          <BillingPanel title={T.ORDER_SUMMARY} subtitle={T.SELECTED_PACKAGE}>
-            <div className="flex items-center justify-between gap-4 border-b border-slate-100 pb-5">
-              <div>
-                <p className="text-base font-semibold text-slate-900">{plan.name}</p>
-                <p className="mt-1 text-sm text-slate-500">
-                  {plan.durationDays ? T.PLAN_DURATION(plan.durationDays) : T.PERMANENT_ADD_ON} ·{" "}
-                  {plan.type === "EXAM_PACKAGE"
-                    ? T.UP_TO_STUDENTS(plan.maxStudentsPerSession ?? T.EMPTY_VALUE)
-                    : T.EXTRA_STUDENTS(plan.extraStudentSlots ?? T.EMPTY_VALUE)}
-                </p>
-              </div>
-              <p className="text-xl font-bold text-slate-950">
-                {Number(plan.price).toLocaleString()} {plan.currency}
-              </p>
-            </div>
-            <div className="mt-5 flex justify-between text-sm font-semibold text-slate-900">
-              <span>{T.TOTAL}</span>
-              <span>
-                {Number(plan.price).toLocaleString()} {plan.currency}
-              </span>
-            </div>
-          </BillingPanel>
+        <div className="grid items-start gap-5 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="flex flex-col gap-5">
+            <CheckoutSummary
+              plan={plan}
+              isFree={isFreePlan}
+              organizationName={organizations?.[0]?.name}
+              currentStudentLimit={quota?.limit}
+              copy={copy}
+            />
+            <CheckoutNextSteps
+              plan={plan}
+              isFree={isFreePlan}
+              currentStudentLimit={quota?.limit}
+              copy={copy}
+            />
+          </div>
           <BillingPanel
-            title={isFreePlan ? T.FREE_ACCESS_TITLE : T.SECURE_PAYMENT}
-            subtitle={isFreePlan ? T.FREE_ACCESS_SUBTITLE : T.POWERED_BY_PAYOS}
+            title={isFreePlan ? text.CONFIRM_TITLE : text.SECURE_PAYMENT}
+            subtitle={isFreePlan ? undefined : text.POWERED_BY_PAYOS}
           >
-            <div className="rounded-lg border border-blue-100 bg-blue-50 p-4">
-              <div className="flex items-center gap-3">
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-white text-blue-700">
-                  <CheckCircleIcon className="h-5 w-5" />
-                </span>
+            {/* Theme colours, so the note is a soft tint in both themes instead of a solid navy block in the dark one. */}
+            <div className="rounded-lg border border-[var(--sky-action)]/25 bg-[var(--sky-tint)]/60 p-4">
+              <div className="flex items-start gap-3">
+                <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-[var(--sky-action)]" />
                 <div>
-                  <p className="text-sm font-semibold text-slate-900">
-                    {isFreePlan ? T.FREE_ACCESS_TITLE : T.PAYOS_CHECKOUT}
+                  <p className="text-sm font-semibold text-[var(--ink-primary)]">
+                    {isFreePlan ? text.NO_PAYMENT_TITLE : text.PAYOS_TITLE}
                   </p>
-                  <p className="mt-1 text-xs text-slate-600">
-                    {isFreePlan ? T.FREE_ACCESS_MESSAGE : T.WEBHOOK_CONFIRMATION}
-                  </p>
+                  <p className="mt-1 text-xs text-[var(--ink-secondary)]">{isFreePlan ? freeNote : text.PAYOS_NOTE}</p>
                 </div>
               </div>
             </div>
@@ -103,23 +119,32 @@ export const CheckoutView = (): ReactElement => {
               fullWidth
               onClick={() => void startPayment()}
               isLoading={createOrder.isPending}
-              loadingText={isFreePlan ? T.ACTIVATING_PLAN : T.CREATING_ORDER}
+              loadingText={isFreePlan ? text.ACTIVATING : text.CREATING_ORDER}
               disabled={pendingOrder !== undefined}
             >
-              {isFreePlan ? T.ACTIVATE_FREE_PLAN : T.CONTINUE_TO_PAYOS}
+              {isFreePlan ? text.ACTIVATE : text.CONTINUE_PAYOS}
             </Button>
+            {/* Payment status only means something once there is a pending payment; otherwise the way out is another plan. */}
             <Link
               href={
                 pendingOrder
                   ? `/host/payment-status?orderId=${encodeURIComponent(pendingOrder.publicId)}`
-                  : "/host/orders"
+                  : PLANS_HOME_HREF
               }
               className="mt-4 block text-center text-sm font-semibold text-action hover:underline"
             >
-              {T.VIEW_PAYMENT_STATUS}
+              {pendingOrder ? text.VIEW_STATUS : text.CHOOSE_OTHER}
             </Link>
           </BillingPanel>
         </div>
+      )}
+      {plan && (
+        <p className="text-sm text-slate-500">
+          {text.SUPPORT_LEAD}{" "}
+          <Link href="/host/support-tickets" className="font-semibold text-action hover:underline">
+            {text.SUPPORT_LINK}
+          </Link>
+        </p>
       )}
     </div>
   );

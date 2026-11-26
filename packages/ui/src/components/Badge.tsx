@@ -14,7 +14,8 @@ const VARIANT_CLASS: Record<BadgeVariant, string> = {
   warning: "bg-[var(--cream-tint)] text-[var(--cream-action)]",
   danger: "bg-[var(--blush-tint)] text-[var(--blush-action)]",
   info: "bg-[var(--sky-tint)] text-[var(--sky-action)]",
-  neutral: "bg-[var(--surface-subtle)] text-[var(--ink-secondary)]",
+  neutral:
+    "bg-[var(--surface-subtle)] text-[var(--ink-secondary)] ring-1 ring-inset ring-[var(--control-border)]",
 };
 
 export const Badge = ({ variant = "neutral", children, className }: BadgeProps): ReactElement => (

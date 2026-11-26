@@ -63,7 +63,8 @@ export function useUpdateTicketStatus(
 
   return useMutation({
     mutationFn: (payload) => adminUpdateTicketStatus(apiClient, publicId, payload),
-    onSuccess: () => {
+    // Refetch on failure too: a rejected transition means the ticket was already moved on.
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ADMIN_SUPPORT_TICKET_QUERY_KEY(publicId) });
       void queryClient.invalidateQueries({ queryKey: [...ADMIN_SUPPORT_TICKETS_QUERY_KEY] });
     },

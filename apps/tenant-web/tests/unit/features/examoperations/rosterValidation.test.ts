@@ -78,6 +78,24 @@ describe("rosterServerIssues", () => {
     ]);
   });
 
+  it("reads the row errors from the whole response body, as the API client keeps it", () => {
+    const error = new ApiError(
+      "validation",
+      400,
+      ROSTER_VALIDATION_FAILED,
+      {
+        success: false,
+        data: [{ rowIndex: 0, field: "dateOfBirth", code: "DATE_OF_BIRTH_INVALID" }],
+        code: ROSTER_VALIDATION_FAILED,
+      },
+      { code: ROSTER_VALIDATION_FAILED },
+    );
+
+    expect(rosterServerIssues(error, sentRows)).toEqual([
+      { row: 3, field: "dateOfBirth", message: ROSTER_ROW_MESSAGES.DATE_OF_BIRTH_INVALID },
+    ]);
+  });
+
   it("returns nothing for any other error", () => {
     expect(rosterServerIssues(new Error("boom"), sentRows)).toEqual([]);
     expect(

@@ -89,7 +89,7 @@ export const EXAM_STUDIO_TEXT = {
   TABS_LABEL: "Content Hub views",
   TAB_COVERAGE: "Coverage map",
   TAB_KANBAN: "Approval workflow",
-  TAB_COMPOSE: "Compose with preview",
+  TAB_COMPOSE: "Compose question",
   TAB_TIMELINE: "Exam timeline",
   KANBAN_ALL_TYPES: "All task types",
   KIND_LABEL: "Board of",

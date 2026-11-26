@@ -25,14 +25,15 @@ const VARIANT_CLASSES: Record<ButtonVariant, Record<ButtonAppearance, string>> =
   primary: {
     fill: `border border-transparent ${PRIMARY_ACTION_SURFACE_CLASSES} disabled:bg-none disabled:brightness-100 disabled:shadow-none`,
     outline:
-      "border border-[var(--control-border)] bg-[var(--surface-card)] text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)]",
+      "border border-[var(--control-border)] bg-[var(--surface-card)] text-[var(--ink-primary)] hover:bg-[var(--surface-subtle)] dark:hover:bg-white/[0.08]",
     ghost: "border border-transparent bg-transparent text-[var(--action)] hover:bg-[var(--action-tint)]",
   },
   secondary: {
     fill: "border border-transparent bg-action-tint text-action hover:bg-action-tint-hover",
     outline:
-      "border border-[var(--control-border)] bg-[var(--surface-card)] text-[var(--ink-secondary)] hover:bg-[var(--surface-subtle)]",
-    ghost: "border border-transparent bg-transparent text-[var(--ink-secondary)] hover:bg-[var(--surface-subtle)]",
+      "border border-[var(--control-border)] bg-[var(--surface-card)] text-[var(--ink-secondary)] hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)] dark:hover:bg-white/[0.08]",
+    ghost:
+      "border border-transparent bg-transparent text-[var(--ink-secondary)] hover:bg-[var(--surface-subtle)] hover:text-[var(--ink-primary)] dark:hover:bg-white/[0.08]",
   },
   danger: {
     fill: "border border-transparent bg-[var(--blush-tint)] text-[var(--blush-action)] hover:brightness-95",

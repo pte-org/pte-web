@@ -8,7 +8,15 @@ import { ErrorIllustration } from "./ErrorIllustration";
 import { ChevronLeftIcon } from "./icons";
 
 /** What went wrong, which picks the title, the text and the status code shown. */
-export type ErrorPageKind = "notFound" | "unauthorized" | "forbidden" | "server" | "unavailable" | "network" | "generic";
+export type ErrorPageKind =
+  | "notFound"
+  | "unauthorized"
+  | "forbidden"
+  | "server"
+  | "unavailable"
+  | "rateLimited"
+  | "network"
+  | "generic";
 
 export interface ErrorPageLinkProps {
   href: string;
@@ -37,6 +45,7 @@ const STATUS_CODES: Partial<Record<ErrorPageKind, string>> = {
   forbidden: "403",
   server: "500",
   unavailable: "503",
+  rateLimited: "429",
 };
 
 const FALLBACK_TEXT: Record<ErrorPageKind, { title: string; description: string }> = {
@@ -45,6 +54,7 @@ const FALLBACK_TEXT: Record<ErrorPageKind, { title: string; description: string 
   forbidden: { title: "Access denied", description: "You do not have permission to view this page." },
   server: { title: "Something went wrong", description: "The server ran into a problem. Please try again in a moment." },
   unavailable: { title: "Service unavailable", description: "The service is busy or under maintenance. Please try again later." },
+  rateLimited: { title: "The system is busy", description: "Too many requests at once. Wait a few seconds and try again." },
   network: { title: "Connection lost", description: "Unable to connect to the server. Check your connection and try again." },
   generic: { title: "Something went wrong", description: "We could not load this page. Please try again." },
 };
@@ -64,6 +74,7 @@ export const errorPageKindOf = (error: unknown): ErrorPageKind => {
   if (status === 401) return "unauthorized";
   if (status === 403) return "forbidden";
   if (status === 404) return "notFound";
+  if (status === 429) return "rateLimited";
   if (status === 503) return "unavailable";
   return status >= 500 ? "server" : "generic";
 };

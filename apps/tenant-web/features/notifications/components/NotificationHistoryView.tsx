@@ -11,9 +11,12 @@ import {
 import {
   Alert,
   Button,
+  InboxItemModal,
   NotificationHistory,
+  NotificationHistoryToolbar,
+  PageHeader,
   PaginationControls,
-  Select,
+  useLocale,
   useToast,
 } from "@pte/ui";
 import {
@@ -21,50 +24,30 @@ import {
   useMarkNotificationRead,
   useNotificationCenter,
   useNotificationHistory,
+  DEFAULT_HISTORY_PAGE_SIZE,
 } from "../api";
+import { notificationTargetHref } from "../targetHref";
 
-const CATEGORY_OPTIONS = [
-  { label: "All categories", value: "" },
-  { label: "System notice", value: "SYSTEM_NOTICE" },
-  { label: "Maintenance", value: "MAINTENANCE" },
-  { label: "Session", value: "SESSION" },
-  { label: "Application", value: "APPLICATION" },
-  { label: "Billing", value: "BILLING" },
-  { label: "Support", value: "SUPPORT" },
-];
-
-function targetHref(item: InboxItemResponse): string {
-  switch (item.targetType) {
-    case "SESSION":
-      return `/host/exams/${item.targetPublicId}`;
-    case "ORDER":
-      return `/host/orders?publicId=${encodeURIComponent(item.targetPublicId)}`;
-    case "SUBSCRIPTION":
-      return "/host/billing";
-    case "QUOTA":
-      return "/host/quota";
-    case "SUPPORT_TICKET":
-      return `/host/support-tickets/${item.targetPublicId}`;
-    default:
-      return `/host/notifications/${item.publicId}`;
-  }
-}
-
-function NotificationHistoryContent(): ReactElement {
+/** `onRead` lives with the caller: the list remounts when the read count changes, which would drop an open dialog. */
+function NotificationHistoryContent({ onRead }: { onRead: (item: InboxItemResponse) => void }): ReactElement {
   const router = useRouter();
   const { showToast } = useToast();
+  const { t } = useLocale();
   const [filter, setFilter] = useState<InboxReadFilter>("ALL");
   const [category, setCategory] = useState<InboxCategory | undefined>();
   const [page, setPage] = useState(0);
   const [snapshot, setSnapshot] = useState<string | null>(null);
-  const history = useNotificationHistory(page, filter, category, snapshot);
+  const [pageSize, setPageSize] = useState(DEFAULT_HISTORY_PAGE_SIZE);
+  const history = useNotificationHistory(page, filter, category, snapshot, pageSize);
   const markRead = useMarkNotificationRead();
   const markAllRead = useMarkAllNotificationsRead();
 
   const selectItem = async (item: InboxItemResponse): Promise<void> => {
     try {
       if (item.readAt === null) await markRead.mutateAsync(item.publicId);
-      router.push(targetHref(item));
+      const href = notificationTargetHref(item);
+      if (href) router.push(href);
+      else onRead(item);
     } catch (error) {
       showToast(getUserFacingApiErrorMessage(error), { tone: "error" });
     }
@@ -77,38 +60,32 @@ function NotificationHistoryContent(): ReactElement {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-wrap items-center gap-2 rounded-lg bg-[var(--surface-card)] p-3 shadow-card">
-            <Select
-              id="notification-filter"
-              aria-label="Notification filter"
-              options={[
-                { label: "All notifications", value: "ALL" },
-                { label: "Unread only", value: "UNREAD" },
-              ]}
-              value={filter}
-              onChange={(event) => {
-                setFilter(event.target.value as InboxReadFilter);
-                setPage(0);
-                setSnapshot(null);
-              }}
-            />
-            <Select
-              id="notification-category"
-              aria-label="Notification category"
-              options={CATEGORY_OPTIONS}
-              value={category ?? ""}
-              onChange={(event) => {
-                setCategory((event.target.value || undefined) as InboxCategory | undefined);
-                setPage(0);
-                setSnapshot(null);
-              }}
-            />
-            <Button variant="secondary" onClick={markAll} isLoading={markAllRead.isPending}>
-              Mark all read
-            </Button>
-      </div>
+      <PageHeader
+        title={t("common.notifications", "Notifications")}
+        actions={
+          <Button variant="secondary" onClick={markAll} isLoading={markAllRead.isPending}>
+            {t("common.markAllReadFull", "Mark all read")}
+          </Button>
+        }
+      />
       {history.error && <Alert tone="error">{getUserFacingApiErrorMessage(history.error)}</Alert>}
       <NotificationHistory
+        toolbar={
+          <NotificationHistoryToolbar
+            filter={filter}
+            category={category}
+            onFilterChange={(next) => {
+              setFilter(next);
+              setPage(0);
+              setSnapshot(null);
+            }}
+            onCategoryChange={(next) => {
+              setCategory(next);
+              setPage(0);
+              setSnapshot(null);
+            }}
+          />
+        }
         items={history.data?.page.data ?? []}
         isLoading={history.isLoading}
         errorMessage={history.error ? getUserFacingApiErrorMessage(history.error) : undefined}
@@ -123,6 +100,12 @@ function NotificationHistoryContent(): ReactElement {
             setPage(nextPage);
           }}
           disabled={history.isFetching}
+          showPageSizeInput
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(0);
+            setSnapshot(null);
+          }}
         />
       )}
     </div>
@@ -131,5 +114,11 @@ function NotificationHistoryContent(): ReactElement {
 
 export function NotificationHistoryView(): ReactElement {
   const { unread } = useNotificationCenter();
-  return <NotificationHistoryContent key={unread.data?.readRevision ?? "initial"} />;
+  const [reading, setReading] = useState<InboxItemResponse | null>(null);
+  return (
+    <>
+      <NotificationHistoryContent key={unread.data?.readRevision ?? "initial"} onRead={setReading} />
+      <InboxItemModal item={reading} onClose={() => setReading(null)} />
+    </>
+  );
 }

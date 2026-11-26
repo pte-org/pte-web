@@ -29,6 +29,7 @@ export const REPORT_PUBLICATION_SUMMARY_QUERY_KEY = ["reportPublicationSummary"]
 export const EXAMS_TEXT = {
   TITLE: "Exams",
   ADD_EXAM: "Create Exam",
+  CREATE_SUCCESS: 'Exam "{name}" was created and published.',
   EMPTY_TITLE: "No exams yet",
   EMPTY_TEXT: "Create your first exam session to start adding students.",
   LOAD_ERROR: "Không thể tải danh sách kỳ thi",
@@ -147,6 +148,10 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   CLOSES_AT_LABEL: "Closes at",
   CAPACITY_LABEL: "Maximum students",
   SUBSCRIPTION_CAPACITY_HINT: "This subscription allows up to {count} students per exam.",
+  WINDOW_SUMMARY: "Open for {duration} · Local time ({zone})",
+  WINDOW_UNIT_DAY: "d",
+  WINDOW_UNIT_HOUR: "h",
+  WINDOW_UNIT_MINUTE: "min",
   FULL_TEMPLATE_SCOPE: "Full template scope",
   REPEAT_LABEL: "Questions across exams",
   REPEAT_ALLOW: "Allow questions used in earlier exams",
@@ -184,6 +189,8 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   NO_CLASS_BADGE: "No class",
   CLEAR_SELECTION: "Clear selection",
   SELECTED_TOTAL: "{count} students selected",
+  AUDIENCE_OVER_DETAIL:
+    "You selected {selected} students but this exam takes at most {capacity}. Deselect {over} or raise the maximum number of students in step 1.",
   SELECTED_IN_LIST: "{selected} of {total} in this list",
   SOURCE_LOADING: "Loading students...",
   SOURCE_EMPTY: "No students match your filters.",
@@ -212,6 +219,10 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   REVIEW_AUDIENCE: "Students",
   REVIEW_CAPACITY: "Maximum students",
   EMPTY_VALUE: "—",
+  REVIEW_EDIT: "Edit",
+  REVIEW_WINDOW: "Open window",
+  REVIEW_AUDIENCE_OF_CAPACITY: "{count} of {capacity} max",
+  REVIEW_NO_PROCTORS: "No proctor assigned",
   TEMPLATE_READY: "The template has enough published questions.",
   PREFLIGHT_SHORTAGE_DETAILS:
     "{taskType}: requires {required} published question(s); available: {available}.",
