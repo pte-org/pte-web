@@ -135,6 +135,14 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   GENERATION_JOB_ALREADY_RUNNING: "You already have a generation running. Wait for it to finish first.",
   GENERATION_DAILY_LIMIT_REACHED: "You have reached your daily question generation limit.",
   GENERATION_GLOBAL_LIMIT_REACHED: "The platform has reached today's question generation limit.",
+  GENERATION_VOICE_UNKNOWN: "This voice is not available. Pick another one.",
+  GENERATION_VOICE_NOT_SUPPORTED_FOR_TASK:
+    "The voice of this question cannot be changed. Only generated questions with a single speaker can be.",
+  GENERATION_VOICE_UNCHANGED: "The question already uses this voice. Pick a different one.",
+  GENERATION_VOICE_BUSY: "Another voice is being generated right now. Try again in a moment.",
+  GENERATION_MEDIA_FAILED: "The audio could not be generated. Try again in a moment.",
+  GENERATION_AUDIO_DURATION_OUT_OF_RANGE:
+    "This voice reads the text too fast or too slow for the task. Pick another voice.",
 };
 
 const KIND_FALLBACKS: Record<ApiErrorKind, string> = {

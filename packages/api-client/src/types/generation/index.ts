@@ -77,6 +77,8 @@ export interface QuestionGenerationLiveText {
    */
   thinking?: string;
   thinkingChars?: number;
+  /** The model that answered this call (absent from an older server). */
+  model?: string;
 }
 
 export interface QuestionGenerationLiveItem {
@@ -144,7 +146,7 @@ export interface QuestionGenerationLiveReview {
 /** The events of `GET /question-generation/jobs/{id}/live`, by name. */
 export type QuestionGenerationLiveEvent =
   | { type: "snapshot"; items: QuestionGenerationLiveItem[]; finished: boolean }
-  | { type: "begin"; index: number; agent: QuestionGenerationLiveAgent; attempt: number }
+  | { type: "begin"; index: number; agent: QuestionGenerationLiveAgent; attempt: number; model?: string }
   | { type: "token"; index: number; agent: QuestionGenerationLiveAgent; delta: string }
   | { type: "thinking"; index: number; agent: QuestionGenerationLiveAgent; delta: string }
   | { type: "stage"; index: number; stage: QuestionGenerationItemStage }

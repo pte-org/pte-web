@@ -62,6 +62,12 @@ export {
   followQuestionGenerationJob,
 } from "./generation";
 export {
+  QUESTION_VOICE_ENDPOINTS,
+  getQuestionVoiceCatalog,
+  getQuestionVoiceSample,
+  changeQuestionVoice,
+} from "./generationVoice";
+export {
   QUESTION_GENERATION_BATCH_ENDPOINTS,
   createQuestionGenerationBatch,
   getQuestionGenerationBatch,
