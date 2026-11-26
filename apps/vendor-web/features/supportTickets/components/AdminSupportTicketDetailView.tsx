@@ -26,6 +26,7 @@ import { useAdminSupportTicket, useAddTicketNote, useUpdateTicketStatus } from "
 import type { TicketStatus } from "../types";
 import { AddNoteForm } from "./_AddNoteForm";
 import { NoteThread } from "./_NoteThread";
+import { ReportedQuestion } from "./_ReportedQuestion";
 import { TicketInfoPanel } from "./_TicketInfoPanel";
 import { TicketStatusBadge } from "./_TicketStatusBadge";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
@@ -117,6 +118,9 @@ export const AdminSupportTicketDetailView = ({
             <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[var(--ink-primary)]">
               {ticket.description}
             </p>
+            <dl>
+              <ReportedQuestion ticket={ticket} />
+            </dl>
           </section>
           <section className={PANEL}>
             <h2 className={PANEL_TITLE}>

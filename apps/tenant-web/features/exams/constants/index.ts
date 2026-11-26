@@ -348,6 +348,10 @@ export const SESSION_DETAIL_TEXT = {
   ADD_STUDENTS_SUBMITTING: "Adding...",
   AUDIENCE_LOCKED_NOTICE:
     "Students can only be added or removed while the exam is Scheduled, before it starts.",
+  STUDENTS_LOCKED_STARTED: "The exam has started, so students can't be added or removed.",
+  STUDENTS_LOCKED_ENDED: "The exam has ended, so students can't be added or removed.",
+  PROCTORS_LOCKED_STARTED: "The exam has started, so proctors can't be added.",
+  PROCTORS_LOCKED_ENDED: "The exam has ended, so proctors can't be added.",
   PROCTORS_SECTION: "Proctors",
   ANSWERS_SECTION: "Submitted Answers",
   EXAMINER_ASSIGNMENTS_SECTION: "Examiner assignments",

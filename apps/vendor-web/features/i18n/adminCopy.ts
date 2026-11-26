@@ -1070,6 +1070,9 @@ const ADMIN_VI: Record<string, string> = {
   "Request details": "Nội dung yêu cầu",
   "Reply to the organization": "Phản hồi tới tổ chức",
   "Related entity type": "Loại đối tượng liên quan",
+  "Reported question": "Câu hỏi bị báo lỗi",
+  "Open in question bank": "Mở trong ngân hàng câu hỏi",
+  "This question no longer exists.": "Câu hỏi này không còn tồn tại.",
   "Last updated": "Cập nhật lần cuối",
   "No replies yet": "Chưa có phản hồi nào",
   "Send the first reply to update the organization on the result.":

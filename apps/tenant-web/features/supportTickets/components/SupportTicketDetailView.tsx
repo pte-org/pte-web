@@ -21,6 +21,7 @@ import {
 } from "../constants";
 import { useCloseTicket, useSupportTicket } from "../api";
 import { NoteThread } from "./_NoteThread";
+import { ReportedQuestion } from "./_ReportedQuestion";
 import { TicketInfoPanel } from "./_TicketInfoPanel";
 import { TicketStatusBadge } from "./_TicketStatusBadge";
 
@@ -90,6 +91,7 @@ export const SupportTicketDetailView = ({
             <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[var(--ink-primary)]">
               {ticket.description}
             </p>
+            <ReportedQuestion ticket={ticket} />
           </section>
           <section className={PANEL}>
             <h2 className={PANEL_TITLE}>
