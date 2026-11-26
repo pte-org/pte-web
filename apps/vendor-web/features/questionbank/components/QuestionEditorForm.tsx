@@ -57,17 +57,17 @@ interface QuestionEditorFormProps {
   saveAsRevision?: boolean;
   /** Limits the task type dropdown to one exam section; omit to list every task type. */
   sectionFilter?: string;
+  /** Empties the form for the next question; the button shows only on a new question and only when given. */
+  onReset?: () => void;
   /** AI agents writing this question: their values fill the form, marked fields show who works where. */
   agent?: AgentFill | null;
 }
-
-const fieldClass =
-  "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100";
 
 export const QuestionEditorForm = ({
   question,
   onSaved,
   onCancel,
+  onReset,
   onPreviewChange,
   saveAsRevision = false,
   sectionFilter,
@@ -336,11 +336,8 @@ export const QuestionEditorForm = ({
       : T.POOL_HELPER_LOCKED;
 
   return (
-    <form ref={formRef} className="flex max-w-4xl flex-col gap-4" onSubmit={submit} aria-busy={agent?.locked || undefined}>
+    <form ref={formRef} className="flex flex-col gap-4" onSubmit={submit} aria-busy={agent?.locked || undefined}>
       <fieldset disabled={agent?.locked} className="contents">
-      <h2 className="text-xl font-semibold text-gray-900">
-        {question ? T.FORM_EDIT_TITLE : T.FORM_CREATE_TITLE}
-      </h2>
       {error && <Alert tone="error">{error}</Alert>}
       {questionTypesError && <Alert tone="error">{E.LOAD_TYPES}</Alert>}
       {revisionMutation.isError && <Alert tone="error">{E.CREATE_REVISION}</Alert>}
@@ -362,6 +359,8 @@ export const QuestionEditorForm = ({
             : []),
         ]}
       />
+      {/* Two short dropdowns share a row once the form is wide enough, so the long fields come sooner. */}
+      <div className="grid items-start gap-4 sm:grid-cols-2">
       <Select
         id="question-pool"
         label={T.POOL}
@@ -383,15 +382,14 @@ export const QuestionEditorForm = ({
         ]}
         helperText={T.CEFR_HELPER}
       />
+      </div>
       <AgentMark lane={marks.promptText}>
-        <label className="text-sm font-medium text-gray-700">
-          {T.PROMPT_TEXT}
-          <textarea
-            className={`${fieldClass} mt-1 min-h-28`}
-            value={promptText}
-            onChange={(event) => setPromptText(event.target.value)}
-          />
-        </label>
+        <Textarea
+          label={T.PROMPT_TEXT}
+          placeholder={T.PROMPT_TEXT_PLACEHOLDER}
+          value={promptText}
+          onChange={(event) => setPromptText(event.target.value)}
+        />
       </AgentMark>
       {questionType?.requiresAudioPrompt && (
         <MediaFileField
@@ -442,6 +440,9 @@ export const QuestionEditorForm = ({
       <AgentMark lane={marks.referenceAnswerText}>
         <Textarea
           label={questionType?.requiresAudioPrompt ? T.AUDIO_TRANSCRIPT : T.REFERENCE_ANSWER}
+          placeholder={
+            questionType?.requiresAudioPrompt ? T.AUDIO_TRANSCRIPT_PLACEHOLDER : T.REFERENCE_ANSWER_PLACEHOLDER
+          }
           value={referenceAnswerText}
           onChange={(event) => setReferenceAnswerText(event.target.value)}
         />
@@ -505,7 +506,13 @@ export const QuestionEditorForm = ({
         <AnswerHintFields hintVi={answerHintVi} hintEn={answerHintEn} lane={marks.answerHint}
           onHintViChange={setAnswerHintVi} onHintEnChange={setAnswerHintEn} />
       )}
-      <div className="flex flex-wrap gap-2">
+      {/* The actions end the form: a rule above them and right-aligned, so they read as its footer. */}
+      <div className="flex flex-wrap justify-end gap-2 border-t border-[var(--shell-border)] pt-4">
+        {onReset && !question && (
+          <Button type="button" variant="ghost" onClick={onReset} disabled={isPending}>
+            {T.RESET}
+          </Button>
+        )}
         {onCancel && (
           <Button type="button" variant="secondary" onClick={onCancel} disabled={isPending}>
             {T.CANCEL}
