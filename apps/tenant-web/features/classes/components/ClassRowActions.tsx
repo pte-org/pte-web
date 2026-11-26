@@ -2,7 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { ActionMenu, EyeIcon, useToast, type DropdownItem } from "@pte/ui";
+import { ActionMenu, EyeIcon, UserPlusIcon, useToast, type DropdownItem } from "@pte/ui";
 import type { ClassResponse } from "@pte/api-client";
 import { useClassActionText } from "../hooks/useClassActionText";
 import { useClassStatusMutations } from "../api";
@@ -77,6 +77,7 @@ export const ClassRowActions = ({
   }
   items.push({
     label: text.assignStudents,
+    icon: UserPlusIcon,
     onSelect: () => setAssignOpen(true),
     disabled: assignDisabled,
     ...(assignDisabled && {

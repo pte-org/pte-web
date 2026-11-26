@@ -9,8 +9,10 @@ import {
   Badge,
   Button,
   DataTable,
+  EyeIcon,
   FolderPlusIcon,
   Select,
+  UserPlusIcon,
   useLocale,
   type DataTableColumn,
   type DropdownItem,
@@ -73,6 +75,7 @@ const ClassRowActions = ({ option, onAssignStudents }: ClassRowActionsProps): Re
   const items: DropdownItem[] = [
     {
       label: viewDetail,
+      icon: EyeIcon,
       onSelect: () =>
         router.push(
           `/host/programs/${option.programPublicId}/classes/${option.classPublicId}?organizationPublicId=${option.organizationPublicId}`,
@@ -80,6 +83,7 @@ const ClassRowActions = ({ option, onAssignStudents }: ClassRowActionsProps): Re
     },
     {
       label: assignStudents,
+      icon: UserPlusIcon,
       onSelect: () =>
         onAssignStudents({
           organizationPublicId: option.organizationPublicId,
