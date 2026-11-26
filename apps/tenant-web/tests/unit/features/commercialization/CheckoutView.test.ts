@@ -15,6 +15,7 @@ const state = vi.hoisted(() => ({
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: state.push }),
+  usePathname: () => "/host/checkout",
   useSearchParams: () => new URLSearchParams({ planId: state.selectedPlanId }),
 }));
 vi.mock("next/link", () => ({
@@ -29,7 +30,18 @@ vi.mock("@pte/ui", () => ({
     return createElement("button", { disabled }, children);
   },
   CheckCircleIcon: () => null,
-  PageHeader: () => null,
+  PageHeader: ({ title }: { title: string }) => createElement("h1", null, title),
+  LoadingState: () => null,
+  Badge: ({ children }: { children: ReactNode }) => createElement("span", null, children),
+  useDashboardBreadcrumbLabel: () => undefined,
+  useLocale: () => ({
+    locale: "en",
+    t: (_key: string, fallback: string, values?: Record<string, string | number>) =>
+      values ? fallback.replace(/\{(\w+)\}/g, (_, name: string) => String(values[name] ?? "")) : fallback,
+  }),
+}));
+vi.mock("@/features/programs/api", () => ({
+  useMyOrganizations: () => ({ data: [{ name: "Ninh Organization" }] }),
 }));
 vi.mock("../../../../features/commercialization/components/BillingPanel", () => ({
   BillingPanel: ({ children }: { children: ReactNode }) => createElement("section", null, children),
@@ -40,11 +52,12 @@ vi.mock("../../../../features/commercialization/api", () => ({
     isLoading: false,
   }),
   useOrdersQuery: () => ({ data: state.orders }),
+  useStudentQuotaQuery: () => ({ data: { limit: 100 } }),
   useCreateOrder: () => ({ mutateAsync: state.mutateAsync, isPending: false }),
 }));
 
 import { CheckoutView } from "../../../../features/commercialization/components/CheckoutView";
-import { BILLING_TEXT as T } from "../../../../features/commercialization/constants";
+import { CHECKOUT_TEXT as T } from "../../../../features/commercialization/constants";
 
 const render = (): string => renderToStaticMarkup(createElement(CheckoutView));
 
@@ -89,7 +102,7 @@ describe("checkout notifications and navigation", () => {
     state.selectedPlanId = "plan-1";
     state.orders = [{ publicId: "order-1", planId: "plan-1", status: "PENDING", paymentLinkUrl: "https://payment.example/existing" }];
     const html = render();
-    expect(html).toContain(T.PENDING_PAYMENT_TEXT);
+    expect(html).toContain(T.PENDING_TEXT);
     expect(html).toContain("https://payment.example/existing");
     expect(html).toContain("/host/payment-status?orderId=order-1");
     expect(state.disabled).toBe(true);
