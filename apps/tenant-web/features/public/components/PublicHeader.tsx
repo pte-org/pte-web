@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRightIcon, useLocale, useSessionManager } from "@pte/ui";
 import { AUTH_ROUTES } from "@/features/auth/constants";
+import { resolveWorkspace } from "@/features/auth/resolveWorkspace";
 import { HomePublicHeader } from "./HomePublicHeader";
 
 const LINK_BUTTON_CLASS =
@@ -18,6 +19,8 @@ export const PublicHeader = ({ home = false }: PublicHeaderProps): ReactElement 
   const { t } = useLocale();
   const { isReady, session } = useSessionManager();
   const showDashboard = isReady && Boolean(session?.accessToken);
+  // Each role opens its own workspace; a fixed Host link gave Proctors and Examiners a 403.
+  const dashboardHref = resolveWorkspace(session?.roles ?? []).defaultRoute;
   if (home) return <HomePublicHeader />;
 
   return (
@@ -56,7 +59,7 @@ export const PublicHeader = ({ home = false }: PublicHeaderProps): ReactElement 
           </Link>
           {showDashboard ? (
             <Link
-              href={AUTH_ROUTES.hostDashboard}
+              href={dashboardHref}
               className={`${LINK_BUTTON_CLASS} ml-2 gap-1.5 bg-action px-4 text-white hover:bg-action-hover`}
             >
               Open dashboard
