@@ -4,23 +4,7 @@ import { useRouter } from "next/navigation";
 import { getUserFacingApiErrorMessage, type InboxItemResponse } from "@pte/api-client";
 import { NotificationBell, useToast } from "@pte/ui";
 import { useNotificationCenter } from "../api";
-
-function targetHref(item: InboxItemResponse): string {
-  switch (item.targetType) {
-    case "SESSION":
-      return `/host/exams/${item.targetPublicId}`;
-    case "ORDER":
-      return `/host/orders?publicId=${encodeURIComponent(item.targetPublicId)}`;
-    case "SUBSCRIPTION":
-      return "/host/billing";
-    case "QUOTA":
-      return "/host/quota";
-    case "SUPPORT_TICKET":
-      return `/host/support-tickets/${item.targetPublicId}`;
-    default:
-      return `/host/notifications/${item.publicId}`;
-  }
-}
+import { notificationTargetHref } from "../utils/notificationTarget";
 
 export function NotificationBellContainer() {
   const router = useRouter();
@@ -42,8 +26,10 @@ export function NotificationBellContainer() {
   const selectItem = async (item: InboxItemResponse): Promise<void> => {
     try {
       if (item.readAt === null) await markRead.mutateAsync(item.publicId);
+      const href = notificationTargetHref(item);
+      if (href === null) return;
       setIsOpen(false);
-      router.push(targetHref(item));
+      router.push(href);
     } catch (error) {
       showToast(getUserFacingApiErrorMessage(error), { tone: "error" });
     }

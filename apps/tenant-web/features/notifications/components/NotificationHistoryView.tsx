@@ -2,6 +2,7 @@
 
 import { useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
+import { notificationTargetHref } from "../utils/notificationTarget";
 import {
   getUserFacingApiErrorMessage,
   type InboxCategory,
@@ -33,23 +34,6 @@ const CATEGORY_OPTIONS = [
   { label: "Support", value: "SUPPORT" },
 ];
 
-function targetHref(item: InboxItemResponse): string {
-  switch (item.targetType) {
-    case "SESSION":
-      return `/host/exams/${item.targetPublicId}`;
-    case "ORDER":
-      return `/host/orders?publicId=${encodeURIComponent(item.targetPublicId)}`;
-    case "SUBSCRIPTION":
-      return "/host/billing";
-    case "QUOTA":
-      return "/host/quota";
-    case "SUPPORT_TICKET":
-      return `/host/support-tickets/${item.targetPublicId}`;
-    default:
-      return `/host/notifications/${item.publicId}`;
-  }
-}
-
 function NotificationHistoryContent(): ReactElement {
   const router = useRouter();
   const { showToast } = useToast();
@@ -64,7 +48,8 @@ function NotificationHistoryContent(): ReactElement {
   const selectItem = async (item: InboxItemResponse): Promise<void> => {
     try {
       if (item.readAt === null) await markRead.mutateAsync(item.publicId);
-      router.push(targetHref(item));
+      const href = notificationTargetHref(item);
+      if (href !== null) router.push(href);
     } catch (error) {
       showToast(getUserFacingApiErrorMessage(error), { tone: "error" });
     }
