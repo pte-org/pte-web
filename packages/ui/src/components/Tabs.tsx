@@ -10,7 +10,7 @@ import { useLocale } from "../i18n";
 import { PRIMARY_ACTION_SURFACE_CLASSES } from "../styles/interactiveClasses";
 import { cn } from "../utils/cn";
 
-export type TabsVariant = "default" | "minimal";
+export type TabsVariant = "default" | "minimal" | "segmented";
 export type TabsActiveVariant = "surface" | "primary";
 export type TabsOrientation = "horizontal" | "vertical";
 
@@ -30,7 +30,10 @@ export interface TabsProps {
   className?: string;
   id?: string;
   ariaLabel?: string;
-  /** Mirrors the NextAdmin tabs primitive: card-like tabs or underline tabs. */
+  /**
+   * Mirrors the NextAdmin tabs primitive: card-like tabs or underline tabs. `segmented` is a compact switch: a grey
+   * tray with the selected option raised, for choosing between views in a toolbar.
+   */
   variant?: TabsVariant;
   /** Controls the selected trigger appearance for default card-like tabs. */
   activeVariant?: TabsActiveVariant;
@@ -50,16 +53,19 @@ const tabRootStyles: Record<TabsVariant, string> = {
   default:
     "overflow-hidden rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)]",
   minimal: "",
+  segmented: "inline-block",
 };
 
 const tabListWrapperStyles: Record<TabsVariant, string> = {
   default: "border-b border-[var(--shell-border)] p-3",
   minimal: "border-b border-[var(--shell-border)]",
+  segmented: "",
 };
 
 const tabListStyles: Record<TabsVariant, string> = {
   default: "flex min-w-0 gap-1 overflow-x-auto rounded-lg bg-[var(--surface-subtle)] p-1",
   minimal: "flex min-w-0 gap-2 overflow-x-auto",
+  segmented: "inline-flex min-w-0 gap-1 rounded-lg bg-[var(--surface-subtle)] p-1",
 };
 
 const verticalRootStyles =
@@ -131,7 +137,7 @@ export const Tabs = ({
             const selected = item.id === value;
             const badge = item.badge ?? item.count;
             const triggerStyles =
-              effectiveVariant === "default"
+              effectiveVariant !== "minimal"
                 ? selected
                   ? isFlat
                     ? flatSelectedStyles

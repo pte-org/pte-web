@@ -23,3 +23,5 @@ export type {
 export { useRememberedState } from "./useRememberedState";
 export { useLeaveAfterSave } from "./useLeaveAfterSave";
 export type { LeaveAfterSave } from "./useLeaveAfterSave";
+export { useAnchoredPanel } from "./useAnchoredPanel";
+export type { AnchoredPanelPosition } from "./useAnchoredPanel";
