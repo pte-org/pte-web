@@ -1029,7 +1029,6 @@ const ADMIN_VI: Record<string, string> = {
   "No announcement drafts": "Không có bản nháp thông báo",
   "Create a draft when the platform needs to communicate a global notice.":
     "Tạo bản nháp khi nền tảng cần gửi thông báo chung.",
-  "Retry failed delivery": "Thử lại phân phối thất bại",
   "Delivery retry queued.": "Đã xếp hàng yêu cầu thử lại phân phối.",
   "Publish announcement?": "Phát hành thông báo?",
   "This publishes immutable content to the eligible host audience immediately.":

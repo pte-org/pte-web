@@ -56,7 +56,7 @@ export function AnnouncementsView(): ReactElement {
     EDIT: "Edit draft",
     PUBLISH_NOW: "Publish now",
     DELETE_DRAFT: "Delete draft",
-    RETRY_DELIVERY: "Retry failed delivery",
+    RETRY_DELIVERY: "Retry failed deliveries",
     RETRY_QUEUED: "Delivery retry queued.",
     PUBLISH_CONFIRM: "Publish announcement?",
     DELETE_CONFIRM: "Delete draft?",
@@ -203,13 +203,16 @@ export function AnnouncementsView(): ReactElement {
                       onSelect: () => setConfirmation({ kind: "delete", announcement: row }),
                     },
                   ]
-                : [
-                    {
-                      label: T.RETRY_DELIVERY,
-                      icon: CheckCircleIcon,
-                      onSelect: () => retryDelivery(row),
-                    },
-                  ]),
+                : // Only worth offering when something failed to reach an organization.
+                  (row.delivery?.failedCount ?? 0) > 0
+                  ? [
+                      {
+                        label: T.RETRY_DELIVERY,
+                        icon: CheckCircleIcon,
+                        onSelect: () => retryDelivery(row),
+                      },
+                    ]
+                  : []),
             ]}
           />
         )}
