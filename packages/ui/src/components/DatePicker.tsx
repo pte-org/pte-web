@@ -14,6 +14,7 @@ import { cn } from "../utils/cn";
 import { FormField } from "./FormField";
 import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
 import { NextAdminCalendarIcon } from "./nextAdminIcons";
+import { TimePicker } from "./TimePicker";
 
 const GAP_PX = 4;
 const VIEWPORT_PADDING_PX = 8;
@@ -22,6 +23,7 @@ const DATE_PICKER_PANEL_Z_INDEX = 60;
 const CALENDAR_CELL_COUNT = 42;
 const MONTH_COUNT = 12;
 const YEAR_PAGE_SIZE = 12;
+const MIN_WITH_TIME_LENGTH = 16;
 
 type DatePickerView = "days" | "months" | "years";
 
@@ -354,6 +356,11 @@ export const DatePicker = ({
   };
 
   const displayTime = includeTime ? timeValue : "";
+  // A `min` that carries a time only limits the clock on that same day.
+  const minTime =
+    includeTime && typeof min === "string" && min.length >= MIN_WITH_TIME_LENGTH && dateValue === min.slice(0, 10)
+      ? min.slice(11, 16)
+      : undefined;
 
   return (
     <FormField
@@ -437,18 +444,13 @@ export const DatePicker = ({
             <NextAdminCalendarIcon className="h-4 w-4 text-[var(--ink-muted)]" />
           </button>
           {includeTime && (
-            <input
-              type="time"
-              aria-label={t("common.selectTime", "Select time")}
+            <TimePicker
               value={displayTime}
               disabled={disabled || readOnly || !dateValue}
-              onChange={(event) => emitTime(event.target.value)}
-              className={cn(
-                "w-[7.5rem] shrink-0 border-0 bg-transparent tabular-nums outline-none disabled:cursor-not-allowed",
-                variant === "table"
-                  ? "py-1.5 text-xs text-[var(--table-body-text)] disabled:text-[var(--table-muted-text)]"
-                  : "py-2.5 text-sm text-[var(--ink-primary)] disabled:text-[var(--ink-muted)]",
-              )}
+              invalid={Boolean(resolvedError)}
+              variant={variant}
+              minTime={minTime}
+              onChange={emitTime}
             />
           )}
         </div>
