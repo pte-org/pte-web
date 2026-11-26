@@ -1,12 +1,18 @@
 "use client";
 
 import type { ReactElement } from "react";
+import type { QuestionGenerationLiveCheck } from "@pte/api-client";
 import { Chip, cn } from "@pte/ui";
 import { usePromptMedia } from "@/features/questionbank/hooks/usePromptMediaUrl";
 import type { AssemblyText } from "../assemblyConstants";
 import { LANE_TONES } from "../liveTones";
 import type { ActivePiece, LivePiece as Piece } from "../utils/livePieces";
 import { optionLetter } from "../utils/draftFields";
+import type { ReviewSummary } from "../utils/reviewSummary";
+import { PieceActivity } from "./_PieceActivity";
+import type { LiveThinking } from "../utils/liveThinking";
+import { ThinkingPad } from "./_ThinkingPad";
+import { WritingBriefCard } from "./_WritingBrief";
 
 interface LivePieceProps {
   piece: Piece;
@@ -16,6 +22,13 @@ interface LivePieceProps {
   flying: boolean;
   waitingLabel: string;
   text: AssemblyText;
+  checks: readonly QuestionGenerationLiveCheck[];
+  review: ReviewSummary;
+  locale: "vi" | "en";
+  /** The writer's draft, for the chart drawn while it is made. */
+  typed: unknown;
+  /** What the agent working here thinks in its current call, when its model streams its reasoning. */
+  thinking: LiveThinking | null;
 }
 
 const MediaValue = ({ piece }: { piece: Piece }): ReactElement | null => {
@@ -73,8 +86,16 @@ export const LivePiece = ({
   flying,
   waitingLabel,
   text,
+  checks,
+  review,
+  locale,
+  typed,
+  thinking,
 }: LivePieceProps): ReactElement => {
   const working = active?.key === piece.key ? active : null;
+  const thought = working ? thinking : null;
+  // The writer sent its brief and the model has neither thought aloud nor answered yet.
+  const awaitingModel = working?.phase === "write" && !thought && !piece.filled;
   const status = placed
     ? text.placed
     : flying
@@ -101,10 +122,27 @@ export const LivePiece = ({
           </Chip>
         )}
       </div>
-      {piece.filled ? (
-        <Value piece={piece} writing={working?.lane === "GENERATOR"} />
+      {piece.filled ||
+      awaitingModel ||
+      working?.phase === "media" ||
+      (thought && !thought.answering) ? (
+        piece.filled && <Value piece={piece} writing={working?.lane === "GENERATOR"} />
       ) : (
         <p className="text-sm italic text-[var(--ink-muted)]">{waitingLabel}</p>
+      )}
+      {working && (
+        <div className="mt-2 space-y-2">
+          {awaitingModel && <WritingBriefCard checks={checks} locale={locale} text={text} />}
+          {thought && <ThinkingPad thinking={thought} locale={locale} text={text} />}
+          <PieceActivity
+            active={working}
+            checks={checks}
+            review={review}
+            locale={locale}
+            text={text}
+            typed={typed}
+          />
+        </div>
       )}
     </div>
   );

@@ -2,7 +2,14 @@
 
 import { useEffect, useRef, type ReactElement, type RefObject } from "react";
 import { cn } from "@pte/ui";
-import { CURSOR_EASE } from "../assemblyConstants";
+import {
+  CLICK_RIPPLE_MS,
+  CURSOR_EASE,
+  EDGE,
+  EDGE_PX,
+  READ_SPEED,
+  SWEEP_SPEED,
+} from "../assemblyConstants";
 import type { LiveLane } from "../liveConstants";
 import { LANE_TONES } from "../liveTones";
 
@@ -15,24 +22,54 @@ interface AgentCursorProps {
 }
 
 /**
- * An agent's pointer that glides to whatever it works on, like a collaborator's cursor. Its position changes every
+ * An agent's pointer that glides to whatever it works on, like a collaborator's cursor; while an agent reads or makes
+ * media it keeps moving over the field instead of standing still. Its position changes every
  * frame, so it is moved through the DOM rather than through React state.
  */
 export const AgentCursor = ({ rootRef, target, lane, label }: AgentCursorProps): ReactElement => {
   const cursorRef = useRef<HTMLDivElement>(null);
+  const ringRef = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     let frame = 0;
     let x = Number.NaN;
     let y = Number.NaN;
+    let aimed: string | null = null;
     const follow = (): void => {
       const cursor = cursorRef.current;
       const element = target ? rootRef.current?.querySelector(target) : null;
       if (cursor) {
-        if (element) {
+        // A check being ticked or the edge of media being drawn: the cursor goes there and clicks when it moves on.
+        const aim = element?.querySelector<HTMLElement>("[data-cursor-target]") ?? null;
+        const aimKey = aim?.dataset.cursorTarget ?? null;
+        if (aimKey !== aimed) {
+          if (aimed !== null)
+            ringRef.current?.animate(
+              [
+                { transform: "scale(.3)", opacity: 0.9 },
+                { transform: "scale(2.2)", opacity: 0 },
+              ],
+              { duration: CLICK_RIPPLE_MS, easing: "ease-out" },
+            );
+          aimed = aimKey;
+        }
+        if (aim) {
+          const box = aim.getBoundingClientRect();
+          const goalX = box.left + Math.min(box.width, 24) * 0.6;
+          const goalY = box.top + box.height * 0.55;
+          x = Number.isNaN(x) ? goalX : x + (goalX - x) * CURSOR_EASE;
+          y = Number.isNaN(y) ? goalY : y + (goalY - y) * CURSOR_EASE;
+          cursor.style.transform = `translate(${x}px, ${y}px)`;
+        } else if (element) {
           const caret = element.querySelector("[data-caret]");
           const box = (caret ?? element).getBoundingClientRect();
-          const goalX = caret ? box.right : box.left + Math.min(box.width * 0.5, 260);
-          const goalY = caret ? box.bottom - 4 : box.top + Math.min(box.height * 0.6, 48);
+          // Without a caret the agent reads: it sweeps across the field and works its way down.
+          const seconds = performance.now() / 1000;
+          const across = 0.5 + 0.5 * Math.sin(seconds * SWEEP_SPEED);
+          const down = (seconds * READ_SPEED) % 1;
+          const goalX = caret ? box.right : box.left + box.width * (EDGE + (1 - 2 * EDGE) * across);
+          const goalY = caret
+            ? box.bottom - 4
+            : box.top + EDGE_PX + Math.max(0, box.height - 2 * EDGE_PX) * down;
           x = Number.isNaN(x) ? goalX : x + (goalX - x) * CURSOR_EASE;
           y = Number.isNaN(y) ? goalY : y + (goalY - y) * CURSOR_EASE;
           cursor.style.transform = `translate(${x}px, ${y}px)`;
@@ -52,6 +89,13 @@ export const AgentCursor = ({ rootRef, target, lane, label }: AgentCursorProps):
       data-visible="false"
       className="pointer-events-none fixed left-0 top-0 z-50 opacity-0 transition-opacity duration-300 data-[visible=true]:opacity-100"
     >
+      <span
+        ref={ringRef}
+        className={cn(
+          "absolute -left-2.5 -top-2.5 h-6 w-6 rounded-full border-2 opacity-0",
+          LANE_TONES[lane].ring,
+        )}
+      />
       <svg width="18" height="20" viewBox="0 0 18 20" className="drop-shadow">
         <path
           d="M1 1l15 8-6.5 1.8L6.8 18z"

@@ -1,11 +1,6 @@
 import type { QuestionGenerationItemStage, QuestionGenerationJobStatus } from "@pte/api-client";
 
 /** The page where a job is followed while the agents write. */
-/** How long the finished run stays on screen before its question goes back to the form; long enough for every step
- * of the plan to be shown done (see STEP_MIN_VISIBLE_MS). */
-export const FORM_RETURN_PAUSE_MS = 4000;
-/** Each step of a question stays on screen at least this long, so a fast run can still be followed step by step. */
-export const STEP_MIN_VISIBLE_MS = 800;
 /** The new-question form, filled with what a form-started job wrote. */
 export const formFillHref = (jobId: string): string => `/admin/questions/new?fromJob=${jobId}`;
 /** A Describe Image picture the image model could not paint; the person may make it as a chart instead. */
@@ -33,10 +28,6 @@ export const LIVE_JOB_REFRESH_MS = 3000;
 export const ACTIVITY_IDLE_POLL_MS = 15000;
 export const ACTIVITY_BUSY_POLL_MS = 4000;
 export const ACTIVITY_JOB_PAGE_SIZE = 5;
-
-/** Typing: at least this many characters a frame, and the backlog is cleared in about this many frames. */
-export const TYPING_MIN_CHARS_PER_FRAME = 2;
-export const TYPING_CATCH_UP_FRAMES = 40;
 
 export const TERMINAL_JOB_STATUSES: readonly QuestionGenerationJobStatus[] = [
   "COMPLETED",
@@ -70,6 +61,11 @@ const LIVE_TEXT_EN = {
   stopRequested: "Stopping: the question being written is finished off first, then the run stops.",
   cancelBack: "Keep going",
   openQuestion: "Open the question",
+  readyToSave: "The question is ready. Check it, then continue to the form to save it.",
+  continueToForm: "Continue to save",
+  pauseEachStep: "Pause after each step",
+  stepDone: "Step finished: {step}. Look it over, then continue.",
+  continueStep: "Continue",
   attempt: "Attempt {n}",
   connecting: "Connecting to the agents…",
   reconnecting: "Connection lost, reconnecting…",
@@ -123,6 +119,11 @@ export const LIVE_TEXT: { vi: LiveText; en: LiveText } = {
     stopRequested: "Đang dừng: câu đang viết sẽ được kết thúc rồi lần sinh đề dừng lại.",
     cancelBack: "Tiếp tục",
     openQuestion: "Mở câu hỏi",
+    readyToSave: "Câu hỏi đã sinh xong. Xem lại rồi bấm Tiếp tục để mở form và lưu.",
+    continueToForm: "Tiếp tục để lưu",
+    pauseEachStep: "Dừng sau mỗi bước",
+    stepDone: "Đã xong bước: {step}. Xem lại rồi bấm Tiếp tục.",
+    continueStep: "Tiếp tục",
     attempt: "Lần {n}",
     connecting: "Đang kết nối tới các agent…",
     reconnecting: "Mất kết nối, đang nối lại…",

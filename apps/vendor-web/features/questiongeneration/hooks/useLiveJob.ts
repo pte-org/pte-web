@@ -36,6 +36,8 @@ const isActive = (job: QuestionGenerationJobResponse | undefined): boolean =>
 /**
  * Follows a generation job: the job itself is reloaded while it runs (counts and the outcome of each question), and
  * the text the agents write arrives on a stream that is opened again when it drops. Both stop when the job ends.
+ * A job already finished is read once from the stream, which still holds its last snapshot for a while, so reopening
+ * it shows what its agents made; that read is never retried.
  * The stream is closed with the page, so leaving it never keeps a connection open.
  */
 export function useLiveJob(jobId: string | null): LiveJob {
@@ -49,9 +51,11 @@ export function useLiveJob(jobId: string | null): LiveJob {
     refetchInterval: (query) => (isActive(query.state.data) ? LIVE_JOB_REFRESH_MS : false),
   });
   const running = jobId !== null && isActive(job.data);
+  // Known only once the job is loaded, so a finished job is not first followed as a running one.
+  const mode = jobId === null || job.data === undefined ? null : running ? "follow" : "once";
 
   useEffect(() => {
-    if (!running || jobId === null) return;
+    if (mode === null || jobId === null) return;
     const abort = new AbortController();
     let timer: ReturnType<typeof setTimeout> | undefined;
     let ended = false;
@@ -71,7 +75,7 @@ export function useLiveJob(jobId: string | null): LiveJob {
         .catch(() => undefined)
         .finally(() => {
           if (abort.signal.aborted) return;
-          if (ended) {
+          if (ended || mode === "once") {
             setConnection("closed");
             return;
           }
@@ -86,7 +90,7 @@ export function useLiveJob(jobId: string | null): LiveJob {
       abort.abort();
       if (timer) clearTimeout(timer);
     };
-  }, [jobId, running]);
+  }, [jobId, mode]);
 
   return { job, items, connection };
 }

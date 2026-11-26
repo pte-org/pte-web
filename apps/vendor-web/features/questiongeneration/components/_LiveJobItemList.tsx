@@ -17,6 +17,10 @@ interface LiveJobItemListProps {
   text: LiveText;
   needsAudio: boolean;
   needsImage: boolean;
+  /** Told whether the replay of the question shown open is over. */
+  onReplayDone?: (done: boolean) => void;
+  /** Show each question as it ended, without replaying how it was made. */
+  instant?: boolean;
 }
 
 /** The questions of a job, each opening onto the steps its agents take; the one being made is open by default. */
@@ -27,6 +31,8 @@ export const LiveJobItemList = ({
   text,
   needsAudio,
   needsImage,
+  onReplayDone,
+  instant = false,
 }: LiveJobItemListProps): ReactElement => {
   const [picked, setPicked] = useState<number | null>(null);
   const records = job.items;
@@ -45,8 +51,9 @@ export const LiveJobItemList = ({
       text={text}
       needsAudio={needsAudio}
       needsImage={needsImage}
-      imageKind={job.imageKind}
       taskType={job.taskType}
+      onReplayDone={record.index === current ? onReplayDone : undefined}
+      instant={instant}
     />
   );
 

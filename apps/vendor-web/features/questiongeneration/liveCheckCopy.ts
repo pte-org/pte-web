@@ -3,10 +3,9 @@ import type {
   QuestionGenerationCheckStep,
   QuestionGenerationLiveCheck,
 } from "@pte/api-client";
-import type { LaneStatus } from "./liveConstants";
 
 /** The words of the checks made while a draft is written (see the "check" event of the live view). */
-interface CheckCopy {
+export interface CheckCopy {
   steps: Record<QuestionGenerationCheckStep, string>;
   preparing: string;
   prompt: string;
@@ -161,47 +160,6 @@ export const CHECK_COPY: { vi: CheckCopy; en: CheckCopy } = {
     verdictUnreadable: "The verdict could not be read",
   },
 };
-
-export const CHECK_STATUS: Record<QuestionGenerationLiveCheck["status"], LaneStatus> = {
-  RUNNING: "active",
-  PASSED: "done",
-  FAILED: "failed",
-};
-
-/** One line saying what a check found, from its facts. */
-export function checkSummary(check: QuestionGenerationLiveCheck, copy: CheckCopy): string {
-  const { facts } = check;
-  switch (check.step) {
-    case "PROMPT": {
-      const parts = [
-        copy.prompt
-          .replace("{cefr}", facts.cefr ?? "")
-          .replace("{topic}", facts.topic || copy.anyTopic),
-      ];
-      if (Number(facts.avoidedTopics) > 0)
-        parts.push(copy.avoided.replace("{count}", facts.avoidedTopics ?? ""));
-      if (facts.feedback === "true") parts.push(copy.withFeedback);
-      return parts.join(" · ");
-    }
-    case "WRITE":
-      return check.status === "RUNNING" ? copy.writing : copy.written;
-    case "JSON":
-      if (check.status === "PASSED") return copy.jsonValid;
-      return facts.retry === "true" ? copy.jsonRetry : copy.jsonBroken;
-    case "RULES":
-      if (check.status === "FAILED") return copy.rulesBroken;
-      return facts.fixed === "true" ? copy.rulesFixed : copy.rulesPassed;
-    case "REVIEW_PROMPT":
-      return copy.reviewPrompt;
-    case "REVIEW_WRITE":
-      return check.status === "RUNNING" ? copy.reviewing : copy.reviewed;
-    case "REVIEW_VERDICT":
-      if (check.status === "PASSED") return copy.verdictPass;
-      return check.details?.length ? copy.verdictFail : copy.verdictUnreadable;
-    default:
-      return check.status === "PASSED" ? copy.unique : copy.duplicate;
-  }
-}
 
 /** The value of one detail line: a size, a text, or "written" for a field the model filled in. */
 export function detailValue(detail: QuestionGenerationCheckDetail, copy: CheckCopy): string {

@@ -1,10 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { QuestionGenerationLiveCheck } from "@pte/api-client";
-import {
-  CHECK_COPY,
-  checkSummary,
-  detailValue,
-} from "../../../../features/questiongeneration/liveCheckCopy";
+import { CHECK_COPY, detailValue } from "../../../../features/questiongeneration/liveCheckCopy";
 import { applyLiveEvent } from "../../../../features/questiongeneration/utils/liveItems";
 
 const check = (
@@ -39,21 +35,6 @@ describe("live checks", () => {
     });
 
     expect(items[0]?.checks?.map((kept) => kept.step)).toEqual(["PROMPT"]);
-  });
-
-  it("words what each check found", () => {
-    const copy = CHECK_COPY.en;
-    expect(
-      checkSummary(
-        check("PROMPT", "PASSED", { cefr: "B2", topic: "", avoidedTopics: "3", feedback: "true" }),
-        copy,
-      ),
-    ).toBe(
-      "CEFR B2 · topic: chosen by the AI · avoids 3 earlier topics · with the feedback of the last round",
-    );
-    expect(checkSummary(check("JSON", "FAILED", { retry: "true" }), copy)).toBe(copy.jsonRetry);
-    expect(checkSummary(check("RULES", "PASSED", { fixed: "true" }), copy)).toBe(copy.rulesFixed);
-    expect(checkSummary(check("DUPLICATE", "FAILED"), copy)).toBe(copy.duplicate);
   });
 });
 
