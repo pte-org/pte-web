@@ -32,6 +32,7 @@ export const PROGRAMS_TEXT = {
   organizationLabel: "Organization",
   organizationPlaceholder: "Select an organization",
   viewDetails: "View Details",
+  createSuccess: (label: string) => `${label} created successfully.`,
 } as const;
 
 export const PROGRAM_TABLE_HEADERS = {

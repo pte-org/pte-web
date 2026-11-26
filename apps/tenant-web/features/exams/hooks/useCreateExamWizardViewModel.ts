@@ -18,6 +18,7 @@ import {
   getTemplateSkills,
   type CreateExamStep,
 } from "../utils/createExamWizard";
+import { suggestExamWindow } from "../utils/suggestedExamWindow";
 import { useCreateExamAudience } from "./useCreateExamAudience";
 import { useCreateExamProctors } from "./useCreateExamProctors";
 import { useCreateExamWizardForm } from "./useCreateExamWizardForm";
@@ -44,6 +45,7 @@ export interface UseCreateExamWizardViewModelResult {
   validate: () => boolean;
   goToNextStep: () => void;
   goToPreviousStep: () => void;
+  goToStep: (step: CreateExamStep) => void;
 }
 
 export function useCreateExamWizardViewModel({
@@ -59,7 +61,7 @@ export function useCreateExamWizardViewModel({
   // With no platform default the host can still pick one of its own templates.
   const fallbackTemplatePublicId = activeTemplate?.publicId ?? templates[0]?.publicId;
   const initialForm = useMemo(
-    () => createEmptyExamWorkflow(fallbackTemplatePublicId),
+    () => ({ ...createEmptyExamWorkflow(fallbackTemplatePublicId), ...suggestExamWindow() }),
     [fallbackTemplatePublicId],
   );
   const wizardText = useCreateExamWizardText();
@@ -105,6 +107,7 @@ export function useCreateExamWizardViewModel({
     validate,
     goToNextStep,
     goToPreviousStep,
+    setStep,
   } = wizardForm;
   const selectedTemplate =
     templates.find((template) => template.publicId === effectiveForm.templatePublicId) ??
@@ -183,6 +186,7 @@ export function useCreateExamWizardViewModel({
   };
   const audienceStepProps: AudienceStepProps = {
     errors,
+    capacity: Number(effectiveForm.capacity) || 0,
     wizardText,
     search: audience.search,
     programFilter: audience.programFilter,
@@ -218,6 +222,7 @@ export function useCreateExamWizardViewModel({
     templateSkills,
     audienceCount: sources.length,
     proctorCount: proctors.selection.length,
+    onEditStep: setStep,
   };
 
   return {
@@ -238,5 +243,6 @@ export function useCreateExamWizardViewModel({
     validate,
     goToNextStep,
     goToPreviousStep,
+    goToStep: setStep,
   };
 }

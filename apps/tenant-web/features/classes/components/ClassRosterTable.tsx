@@ -3,7 +3,15 @@
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ActionMenu, Alert, Button, ConfirmDialog, DataTable, type DataTableColumn } from "@pte/ui";
+import {
+  ActionMenu,
+  Alert,
+  Button,
+  ConfirmDialog,
+  DataTable,
+  UsersIcon,
+  type DataTableColumn,
+} from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { useClassActionText } from "../hooks/useClassActionText";
@@ -22,7 +30,6 @@ interface ClassRosterTableProps {
   classLabel: string;
   /** Concrete class name, named in the unassign confirmation (AC3). */
   className: string;
-  onAddStudents: () => void;
 }
 
 interface RowActionsProps {
@@ -112,7 +119,6 @@ export const ClassRosterTable = ({
   classPublicId,
   classLabel,
   className,
-  onAddStudents,
 }: ClassRosterTableProps): ReactElement => {
   const text = useClassActionText();
   const tf = useClassFlowText(classLabel);
@@ -144,13 +150,20 @@ export const ClassRosterTable = ({
     {
       key: "name",
       header: text.fullName,
+      // Searching by student code must find the row, so the code is part of what the search reads.
+      filterAccessor: (entry) => `${entry.student.fullName} ${entry.student.studentCode ?? ""}`.trim(),
       cell: (entry) => (
-        <Link
-          href={classStudentHref(organizationPublicId, programPublicId, classPublicId, entry.student.publicId)}
-          className="font-medium text-[var(--action)] hover:underline"
-        >
-          {entry.student.fullName}
-        </Link>
+        <div className="min-w-0">
+          <Link
+            href={classStudentHref(organizationPublicId, programPublicId, classPublicId, entry.student.publicId)}
+            className="block font-medium text-[var(--action)] hover:underline"
+          >
+            {entry.student.fullName}
+          </Link>
+          {entry.student.studentCode && (
+            <span className="block text-xs text-[var(--ink-muted)]">{entry.student.studentCode}</span>
+          )}
+        </div>
       ),
     },
     {
@@ -199,6 +212,7 @@ export const ClassRosterTable = ({
         isLoading={isLoading}
         emptyTitle={text.rosterEmpty}
         emptyDescription={text.rosterDescription}
+        emptyIcon={<UsersIcon className="mx-auto h-10 w-10" />}
         searchPlaceholder={searchText.placeholder}
         searchAriaLabel={searchText.ariaLabel}
         toolbarActions={
@@ -217,9 +231,6 @@ export const ClassRosterTable = ({
                 {tf("splitStart")}
               </Button>
             )}
-            <Button type="button" onClick={onAddStudents}>
-              {text.addStudents}
-            </Button>
           </>
         }
         rowActionsHeader={text.actions}

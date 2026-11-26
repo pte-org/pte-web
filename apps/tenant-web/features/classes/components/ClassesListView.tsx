@@ -5,17 +5,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   ActionMenu,
-  Alert,
   Badge,
   Button,
   DataTable,
+  EyeIcon,
   FolderPlusIcon,
   Select,
+  UserPlusIcon,
   useLocale,
   type DataTableColumn,
   type DropdownItem,
 } from "@pte/ui";
-import { errorMessage } from "@/features/examoperations/errorMessage";
+import { AppErrorPage } from "@/lib/AppErrorPage";
 import { useOrgLabels } from "@/features/orgLabels/useOrgLabels";
 import { useTenantSearchText } from "@/features/search/useTenantSearchText";
 import { pluralize } from "@/features/orgLabels/constants";
@@ -73,6 +74,7 @@ const ClassRowActions = ({ option, onAssignStudents }: ClassRowActionsProps): Re
   const items: DropdownItem[] = [
     {
       label: viewDetail,
+      icon: EyeIcon,
       onSelect: () =>
         router.push(
           `/host/programs/${option.programPublicId}/classes/${option.classPublicId}?organizationPublicId=${option.organizationPublicId}`,
@@ -80,6 +82,7 @@ const ClassRowActions = ({ option, onAssignStudents }: ClassRowActionsProps): Re
     },
     {
       label: assignStudents,
+      icon: UserPlusIcon,
       onSelect: () =>
         onAssignStudents({
           organizationPublicId: option.organizationPublicId,
@@ -106,7 +109,7 @@ export const ClassesListView = ({
   onRequestAssignStudents,
 }: ClassesListViewProps): ReactElement => {
   const labels = useOrgLabels();
-  const { t, locale } = useLocale();
+  const { t } = useLocale();
   const searchText = useTenantSearchText("classes");
   const classLabel = t("nav.class", labels.class);
   const programLabel = t("nav.program", labels.program);
@@ -150,7 +153,7 @@ export const ClassesListView = ({
     { value: "INACTIVE", label: text.inactive },
     { value: "SUSPENDED", label: text.suspended },
   ];
-  const { data: classes, isLoading, isError, error } = useAllTenantClasses();
+  const { data: classes, isLoading, isError, error, refetch } = useAllTenantClasses();
   const [programFilter, setProgramFilter] = useState<string>(initialProgramPublicId || ALL_FILTER);
 
   // Include empty programs so a program-detail link can retain its selected scope.
@@ -175,13 +178,13 @@ export const ClassesListView = ({
   }, [classes, programFilter, selectedOrganizationPublicId]);
 
   if (isError) {
+    // A failed list is the whole page failing, so it gets the app's error page (with a way to try again).
     return (
-      <Alert tone="error">
-        {errorMessage(error) ??
-          (locale === "vi"
-            ? `Không thể tải ${pluralize(classLabel.toLowerCase())}.`
-            : `Could not load ${pluralize(classLabel.toLowerCase())}.`)}
-      </Alert>
+      <AppErrorPage
+        error={error}
+        onRetry={() => void refetch()}
+        description={`Không thể tải ${pluralize(classLabel.toLowerCase())}.`}
+      />
     );
   }
 

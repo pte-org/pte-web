@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactElement } from "react";
+import { useEffect, useRef, useState, type ReactElement, type ReactNode } from "react";
 import type { InboxItemResponse } from "@pte/api-client";
 import { useLocale } from "../i18n";
 import { Button } from "./Button";
@@ -27,6 +27,8 @@ export interface NotificationBellProps {
   isLoadingMore?: boolean;
   onLoadMore?: () => void;
   onCollapse?: () => void;
+  /** Opens the full notification list; adds a "view all" link at the foot of the panel. */
+  onViewAll?: () => void;
 }
 
 export interface NotificationHistoryProps {
@@ -35,6 +37,8 @@ export interface NotificationHistoryProps {
   errorMessage?: string;
   onRetry?: () => void;
   onSelectItem: (item: InboxItemResponse) => void;
+  /** Filters shown in the header of the list's card, above the rows. */
+  toolbar?: ReactNode;
 }
 
 const displayCount = (count: number): string => (count > 99 ? "99+" : String(count));
@@ -55,6 +59,7 @@ export const NotificationBell = ({
   isLoadingMore = false,
   onLoadMore,
   onCollapse,
+  onViewAll,
 }: NotificationBellProps): ReactElement => {
   const { t } = useLocale();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -194,6 +199,7 @@ export const NotificationBell = ({
                   }
                 : undefined
             }
+            onViewAll={onViewAll}
           />
         </div>
       )}
@@ -207,38 +213,48 @@ export const NotificationHistory = ({
   errorMessage,
   onRetry,
   onSelectItem,
+  toolbar,
 }: NotificationHistoryProps): ReactElement => {
   const { t } = useLocale();
+  let body: ReactElement;
   if (errorMessage) {
-    return (
-      <ErrorState
-        title={t("common.notificationsUnavailable", "Notifications unavailable")}
-        description={errorMessage}
-        action={
-          onRetry && (
-            <Button size="sm" variant="secondary" onClick={onRetry}>
-              {t("common.retry", "Retry")}
-            </Button>
-          )
-        }
-      />
+    body = (
+      <div className="p-4">
+        <ErrorState
+          title={t("common.notificationsUnavailable", "Notifications unavailable")}
+          description={errorMessage}
+          action={
+            onRetry && (
+              <Button size="sm" variant="secondary" onClick={onRetry}>
+                {t("common.retry", "Retry")}
+              </Button>
+            )
+          }
+        />
+      </div>
     );
-  }
-  if (isLoading) return <LoadingState rows={5} />;
-  if (items.length === 0) {
-    return (
-      <EmptyState
-        title={t("common.noNotifications", "No notifications")}
-        description={t(
-          "common.noNotificationsDescription",
-          "There are no notifications in this view.",
-        )}
-      />
+  } else if (isLoading) {
+    body = (
+      <div className="p-4">
+        <LoadingState rows={5} />
+      </div>
     );
+  } else if (items.length === 0) {
+    body = (
+      <div className="p-4">
+        <EmptyState
+          title={t("common.noNotifications", "No notifications")}
+          description={t("common.noNotificationsDescription", "There are no notifications in this view.")}
+        />
+      </div>
+    );
+  } else {
+    body = <NotificationRows items={items} onSelectItem={onSelectItem} />;
   }
   return (
     <div className="overflow-hidden rounded-lg bg-[var(--surface-card)] shadow-card">
-      <NotificationRows items={items} onSelectItem={onSelectItem} />
+      {toolbar && <div className="border-b border-[var(--shell-border)] px-4 py-3">{toolbar}</div>}
+      {body}
     </div>
   );
 };

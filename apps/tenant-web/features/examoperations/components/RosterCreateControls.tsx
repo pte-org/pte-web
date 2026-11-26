@@ -2,8 +2,8 @@
 
 import type { ReactElement } from "react";
 import { Alert, Button, Checkbox } from "@pte/ui";
-import { ROSTER_SEND_CREDENTIALS_TEXT } from "../constants";
 import { errorMessage } from "../errorMessage";
+import { useRosterImportText } from "../hooks/useRosterImportText";
 import { rosterServerIssues } from "../rosterServerIssues";
 import type { RosterRow, RosterRowIssue } from "../types";
 import { RosterRowIssues } from "./RosterRowIssues";
@@ -38,6 +38,7 @@ export const RosterCreateControls = ({
   creatingLabel,
   checkboxId,
 }: RosterCreateControlsProps): ReactElement => {
+  const text = useRosterImportText();
   const serverIssues = rosterServerIssues(error, rows);
   const issues = rowIssues.length > 0 ? rowIssues : serverIssues;
   const hasIssues = issues.length > 0;
@@ -47,13 +48,15 @@ export const RosterCreateControls = ({
       <RosterRowIssues issues={issues} />
       <Checkbox
         id={checkboxId}
-        label={ROSTER_SEND_CREDENTIALS_TEXT.LABEL}
-        helperText={ROSTER_SEND_CREDENTIALS_TEXT.HELPER}
+        label={text.sendCredentialsLabel}
+        helperText={text.sendCredentialsHelper}
         checked={sendCredentialsEmail}
         onChange={(event) => onSendCredentialsEmailChange(event.target.checked)}
         disabled={hasIssues}
       />
-      {!!error && serverIssues.length === 0 && <Alert tone="error">{errorMessage(error)}</Alert>}
+      {!!error && serverIssues.length === 0 && (
+        <Alert tone="error">{errorMessage(error, text.genericError)}</Alert>
+      )}
       <Button
         type="button"
         onClick={onCreate}

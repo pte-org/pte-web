@@ -38,6 +38,9 @@ function fullNameCode(fullName: string | undefined): RosterIssueCode | undefined
   return fullName.length > ROSTER_FIELD_LIMITS.FULL_NAME_MAX_LENGTH ? "FULL_NAME_TOO_LONG" : undefined;
 }
 
+const MIN_STUDENT_AGE_YEARS = 6;
+const MAX_STUDENT_AGE_YEARS = 120;
+
 function isPastIsoDate(value: string, today: Date): boolean {
   if (!ROSTER_ISO_DATE_PATTERN.test(value)) return false;
   const date = new Date(`${value}T00:00:00`);
@@ -45,7 +48,17 @@ function isPastIsoDate(value: string, today: Date): boolean {
   const roundTrip = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
     date.getDate(),
   ).padStart(2, "0")}`;
-  return roundTrip === value && date < today;
+  const maxAllowedDob = new Date(
+    today.getFullYear() - MIN_STUDENT_AGE_YEARS,
+    today.getMonth(),
+    today.getDate(),
+  );
+  const minAllowedDob = new Date(
+    today.getFullYear() - MAX_STUDENT_AGE_YEARS,
+    today.getMonth(),
+    today.getDate(),
+  );
+  return roundTrip === value && date <= maxAllowedDob && date >= minAllowedDob;
 }
 
 /**

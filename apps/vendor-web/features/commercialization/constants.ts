@@ -24,8 +24,9 @@ export type PlatformSettingKey = (typeof PLATFORM_SETTING_KEYS)[keyof typeof PLA
 export interface PlatformSettingPresentation {
   label: string;
   description: string;
-  impact: string;
   unit: string;
+  /** A number of hours that reads better as days beside the field ("72 hours" is 3 days). */
+  hoursAsDays?: boolean;
 }
 
 export const PLATFORM_SETTING_PRESENTATION: Record<
@@ -35,14 +36,13 @@ export const PLATFORM_SETTING_PRESENTATION: Record<
   [PLATFORM_SETTING_KEYS.FREE_STUDENT_LIMIT]: {
     label: "Free student limit",
     description: "The number of learner seats granted when a tenant application is approved.",
-    impact: "Applies to tenant applications approved after this value is saved.",
     unit: "students",
   },
   [PLATFORM_SETTING_KEYS.APPLICATION_RESPONSE_SLA_HOURS]: {
     label: "Tenant application response time",
     description: "The response time promised to applicants in the application email.",
-    impact: "Applies to application notifications sent after this value is saved.",
     unit: "hours",
+    hoursAsDays: true,
   },
 };
 
@@ -50,15 +50,14 @@ export const PLATFORM_SETTINGS_TEXT = {
   TITLE: "Platform settings",
   PANEL_TITLE: "Commercial and approvals",
   PANEL_SUBTITLE: "Manage business policies used by new tenant applications.",
+  DESCRIPTION: "Configure the default policies and operating parameters across the platform.",
+  IMPACT_NOTE: "New values apply only to applications approved and notifications sent after you save.",
+  DEFAULT_LABEL: "Default: {value} {unit}",
+  DAYS_APPROX: "≈ {days} days",
   LOADING: "Loading settings...",
   SAVE: "Save changes",
   SAVING: "Saving changes...",
   RESET: "Reset to defaults",
-  RESET_TITLE: "Reset platform settings?",
-  RESET_DESCRIPTION:
-    "Restore this group to its recommended defaults. Review the values and save to apply them.",
-  RESET_CONFIRM: "Reset to defaults",
-  RESET_CANCEL: "Cancel",
   NO_SETTINGS: "No editable platform settings are available.",
   RETRY: "Try again",
   UNSAVED: "Unsaved changes",
@@ -66,6 +65,8 @@ export const PLATFORM_SETTINGS_TEXT = {
   ERROR: "Settings could not be loaded or saved.",
   SAVED: "Platform settings saved.",
 } as const;
+
+export type PlatformSettingsText = { readonly [K in keyof typeof PLATFORM_SETTINGS_TEXT]: string };
 
 export const ADMIN_APPLICATIONS_TEXT = {
   TITLE: "Tenant applications",

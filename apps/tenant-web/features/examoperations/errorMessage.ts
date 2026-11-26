@@ -12,11 +12,9 @@ export class UserFacingError extends Error {
 }
 
 /** Undefined only when `error` itself is falsy (no error) — so `errorMessage(x) && <Alert>`
- * and `{!!x && <Alert>{errorMessage(x, fallback)}</Alert>}` both work correctly. */
-export function errorMessage(
-  error: unknown,
-  fallback = "We couldn't complete this action. Please try again.",
-): string | undefined {
+ * and `{!!x && <Alert>{errorMessage(x, fallback)}</Alert>}` both work correctly. Without a `fallback` the shared
+ * wording is used, which follows the language the person has chosen. */
+export function errorMessage(error: unknown, fallback?: string): string | undefined {
   if (!error) return undefined;
   if (error instanceof UserFacingError) return error.userMessage;
   return getUserFacingApiErrorMessage(error, fallback);

@@ -12,10 +12,13 @@ import {
   Tabs,
   type TabItem,
 } from "@pte/ui";
+import { ApiError } from "@pte/api-client";
 import type { TenantClassOption } from "@/features/classes/api";
 import { SkippedRowsReport } from "@/features/examoperations/components/SkippedRowsReport";
 import { downloadCredentials } from "@/features/examoperations/downloadCredentials";
 import { errorMessage } from "@/features/examoperations/errorMessage";
+import { useRosterImportText } from "@/features/examoperations/hooks/useRosterImportText";
+import { rosterServerIssues } from "@/features/examoperations/rosterServerIssues";
 import type { CreatedAccount, RosterRow, SkippedRow } from "@/features/examoperations/types";
 import { useManageStudentsText } from "../hooks/useManageStudentsText";
 import { useCreateTenantStudents } from "../api";
@@ -60,6 +63,7 @@ export const ManageStudentsModal = ({
   const [result, setResult] = useState<CreationResultData>();
   const createStudents = useCreateTenantStudents();
   const MANAGE_STUDENTS_TEXT = useManageStudentsText();
+  const rosterText = useRosterImportText();
   const modeTabs: readonly TabItem[] = [
     { id: "add", label: MANAGE_STUDENTS_TEXT.tabAdd },
     { id: "import", label: MANAGE_STUDENTS_TEXT.tabImport },
@@ -127,9 +131,34 @@ export const ManageStudentsModal = ({
           ariaLabel={MANAGE_STUDENTS_TEXT.title}
           activeVariant="primary"
         />
-        {!!createStudents.error && mode === "add" && (
-          <Alert tone="error">{errorMessage(createStudents.error)}</Alert>
-        )}
+        {!!createStudents.error && mode === "add" && (() => {
+          const serverIssues = rosterServerIssues(createStudents.error, [form]);
+          if (serverIssues.length > 0) {
+            return (
+              <Alert tone="error">
+                <ul className="list-disc pl-4">
+                  {serverIssues.map((issue) => (
+                    <li key={`${issue.row}-${issue.field}`}>
+                      <span className="font-medium">{rosterText.fieldLabel(issue.field)}:</span>{" "}
+                      {rosterText.issueMessage(issue.message)}
+                    </li>
+                  ))}
+                </ul>
+              </Alert>
+            );
+          }
+          let message = errorMessage(createStudents.error, rosterText.genericError);
+          if (rosterText.locale === "vi" && createStudents.error instanceof ApiError) {
+            if (createStudents.error.code === "EMAIL_ALREADY_USED") {
+              message = rosterText.skippedReasonMessage("EMAIL_ALREADY_USED");
+            } else if (createStudents.error.kind === "network" || createStudents.error.status === 0) {
+              message = "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng và thử lại.";
+            } else {
+              message = rosterText.genericError;
+            }
+          }
+          return <Alert tone="error">{message}</Alert>;
+        })()}
 
         {mode === "add" ? (
           <form onSubmit={handleAdd} noValidate className="flex flex-col gap-4">
@@ -212,6 +241,7 @@ interface CreationResultProps {
 
 const CreationResult = ({ result }: CreationResultProps): ReactElement => {
   const MANAGE_STUDENTS_TEXT = useManageStudentsText();
+  const rosterText = useRosterImportText();
   return (
     <div className="flex flex-col gap-3">
       <Alert tone={result.created.length > 0 ? "success" : "warning"}>

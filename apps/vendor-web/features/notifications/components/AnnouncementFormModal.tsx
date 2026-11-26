@@ -4,6 +4,12 @@ import { useState, type FormEvent, type ReactElement } from "react";
 import type { AnnouncementCreateRequest, AnnouncementResponse } from "@pte/api-client";
 import { Button, DateTimeInput, FormActions, Input, Modal, Select, Textarea } from "@pte/ui";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
+import {
+  announcementDateGap,
+  announcementWindowInvalid,
+  toIsoValue,
+  toLocalValue,
+} from "../announcementWindow";
 
 interface AnnouncementFormModalProps {
   open: boolean;
@@ -13,9 +19,6 @@ interface AnnouncementFormModalProps {
   onSubmit: (payload: AnnouncementCreateRequest, expectedDraftVersion?: number) => Promise<void>;
 }
 
-const toLocalValue = (value: string | null): string =>
-  value ? new Date(value).toISOString().slice(0, 16) : "";
-const toIsoValue = (value: string): string | null => (value ? new Date(value).toISOString() : null);
 
 export function AnnouncementFormModal({
   open,
@@ -36,6 +39,9 @@ export function AnnouncementFormModal({
     IMPORTANCE: "Importance",
     AFFECTED_FROM: "Affected from",
     AFFECTED_UNTIL: "Affected until",
+    WINDOW_ERROR: "The end must be after the start.",
+    TIME_REQUIRED: "Choose a time.",
+    DATE_REQUIRED: "Choose a date.",
   });
   const categoryOptions = useAdminCopy([
     { label: "System notice", value: "SYSTEM_NOTICE" },
@@ -63,8 +69,19 @@ export function AnnouncementFormModal({
     toLocalValue(announcement?.affectedUntil ?? null),
   );
 
+  const gapMessage = (value: string): string | undefined => {
+    const gap = announcementDateGap(value);
+    return gap === "TIME_REQUIRED" ? T.TIME_REQUIRED : gap === "DATE_REQUIRED" ? T.DATE_REQUIRED : undefined;
+  };
+  const fromError = gapMessage(affectedFrom);
+  const untilError =
+    gapMessage(affectedUntil) ??
+    (!fromError && announcementWindowInvalid(affectedFrom, affectedUntil) ? T.WINDOW_ERROR : undefined);
+  const formInvalid = Boolean(fromError || untilError);
+
   const submit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
+    if (formInvalid) return;
     await onSubmit(
       {
         title: title.trim(),
@@ -132,18 +149,24 @@ export function AnnouncementFormModal({
               setImportance(event.target.value as AnnouncementCreateRequest["importance"])
             }
           />
-          <DateTimeInput
-            id="announcement-affected-from"
-            label={T.AFFECTED_FROM}
-            value={affectedFrom}
-            onChange={(event) => setAffectedFrom(event.target.value)}
-          />
-          <DateTimeInput
-            id="announcement-affected-until"
-            label={T.AFFECTED_UNTIL}
-            value={affectedUntil}
-            onChange={(event) => setAffectedUntil(event.target.value)}
-          />
+          <div className="sm:col-span-2">
+            <DateTimeInput
+              id="announcement-affected-from"
+              label={T.AFFECTED_FROM}
+              value={affectedFrom}
+              error={fromError}
+              onChange={(event) => setAffectedFrom(event.target.value)}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <DateTimeInput
+              id="announcement-affected-until"
+              label={T.AFFECTED_UNTIL}
+              value={affectedUntil}
+              error={untilError}
+              onChange={(event) => setAffectedUntil(event.target.value)}
+            />
+          </div>
         </div>
       </form>
     </Modal>

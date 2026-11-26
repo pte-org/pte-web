@@ -82,17 +82,17 @@ export const EDITOR_TEXT = {
   VIEW_LABEL: "Table view",
   VIEW_STRUCTURE: "Questions",
   VIEW_WEIGHTS: "Weights",
-  INFO_TITLE: "Template information",
-  INFO_STATUS: "Status",
-  INFO_VERSION: "Version",
   INFO_CREATED: "Created",
   INFO_UPDATED: "Last updated",
   ACTIONS_LABEL: "Template actions",
   TASKS_TITLE: "Task types",
-  PALETTE_TITLE: "Task types to add",
-  PALETTE_HINT: "Drag one into the table, or press +. Drag a row back here to remove it.",
-  PALETTE_EMPTY: "Every task type of the default template is already here.",
   ADD_TYPE: "Add task type",
+  ADD_TYPE_NONE: "Every task type of the default template is already here. Remove one to add it back.",
+  ADD_TYPE_MENU: "Task types to add",
+  TOTAL_QUESTIONS: "Total: {range} questions",
+  SECTION_QUESTIONS: "{label}: {range} questions",
+  EDIT_NAME: "Rename template",
+  SECONDS_SHORT: "sec",
   DRAG_HANDLE: "Drag to reorder",
   DURATION_TITLE: "Planned duration",
   PART_SPEAKING_WRITING: "Speaking & Writing",
@@ -103,6 +103,7 @@ export const EDITOR_TEXT = {
   DURATION_FITS: "Can fit",
   DURATION_NO_FIT: "Cannot fit",
   DURATION_CEILING: "Test ceiling",
+  DURATION_TOTAL: "Estimated total",
   COL_TASK: "Task type",
   COL_COUNT: "Questions",
   COUNT_MIN: "minimum questions",
@@ -111,8 +112,8 @@ export const EDITOR_TEXT = {
   COUNTS_INVALID:
     "Each task type needs at least 1 question and a minimum no greater than its maximum. Check:",
   COL_POOL: "Available / needed",
-  COL_PREP: "Prep (s)",
-  COL_RESPONSE: "Response (s)",
+  COL_PREP: "Prep",
+  COL_RESPONSE: "Response",
   POOL_OK: "Enough published questions for this task type.",
   POOL_SHORT:
     "Not enough published questions for this task type: {available} available, {required} needed.",
@@ -155,9 +156,3 @@ export const MODE_TEXT: Record<RedistributionMode, { label: string; hint: string
     hint: "Nothing is changed for you. Edit the weights in the table until each skill totals 100.",
   },
 };
-
-/** What a task type dragged out of the palette carries: its key. */
-export const TASK_TYPE_DRAG_TYPE = "application/x-pte-task-type";
-
-/** Marks the palette as the place a table row is dragged back to, to take it out of the template. */
-export const PALETTE_DROP_ATTRIBUTE = "data-task-type-palette";

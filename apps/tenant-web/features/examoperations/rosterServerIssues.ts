@@ -26,14 +26,23 @@ function isRosterField(field: string): field is RosterField {
   return ROSTER_FIELDS.has(field);
 }
 
+/** The row errors sit in the body's `data`; accept the bare list too. */
+function rowErrorsOf(details: unknown): unknown[] {
+  if (Array.isArray(details)) return details;
+  if (typeof details === "object" && details !== null) {
+    const { data } = details as { data?: unknown };
+    if (Array.isArray(data)) return data;
+  }
+  return [];
+}
+
 /**
  * Turns a backend roster rejection (`ROSTER_VALIDATION_FAILED`, `details` = row errors) into the same issues the
  * browser check produces, pointing at the spreadsheet row of each sent row. Any other error gives an empty list.
  */
 export function rosterServerIssues(error: unknown, sentRows: readonly RosterRow[]): RosterRowIssue[] {
   if (!(error instanceof ApiError) || error.code !== ROSTER_VALIDATION_FAILED) return [];
-  if (!Array.isArray(error.details)) return [];
-  return error.details.filter(isRosterRowError).flatMap((rowError) => {
+  return rowErrorsOf(error.details).filter(isRosterRowError).flatMap((rowError) => {
     if (!isRosterField(rowError.field)) return [];
     return [
       {

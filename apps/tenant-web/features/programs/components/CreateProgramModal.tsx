@@ -2,7 +2,8 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Alert, DateInput, Input, Modal } from "@pte/ui";
-import { CREATE_PROGRAM_ERRORS, CREATE_PROGRAM_TEXT, EMPTY_CREATE_PROGRAM } from "../constants";
+import { EMPTY_CREATE_PROGRAM } from "../constants";
+import { useCreateProgramText } from "../hooks/useCreateProgramText";
 import { validateCreateProgram } from "../utils/validateCreateProgram";
 import type { CreateProgramErrors, CreateProgramInput } from "../types";
 
@@ -28,7 +29,7 @@ export const CreateProgramModal = ({
   const [form, setForm] = useState<CreateProgramInput>(EMPTY_CREATE_PROGRAM);
   const [errors, setErrors] = useState<CreateProgramErrors>({});
   const [submitted, setSubmitted] = useState(false);
-  const T = CREATE_PROGRAM_TEXT;
+  const text = useCreateProgramText(programLabel);
 
   const handleChange = (field: keyof CreateProgramInput, value: string): void => {
     setForm((previous) => ({ ...previous, [field]: value }));
@@ -49,7 +50,7 @@ export const CreateProgramModal = ({
   // greet them with an error before they have touched anything.
   const dateError: string | undefined =
     form.startDate && form.endDate && new Date(form.endDate) < new Date(form.startDate)
-      ? CREATE_PROGRAM_ERRORS.endDateBeforeStartDate
+      ? text.endDateBeforeStartDate
       : undefined;
   const shownErrors: CreateProgramErrors = {
     ...(submitted ? errors : {}),
@@ -58,7 +59,10 @@ export const CreateProgramModal = ({
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    const nextErrors = validateCreateProgram(form, programLabel);
+    const nextErrors = validateCreateProgram(form, programLabel, {
+      nameRequired: text.nameRequired,
+      endDateBeforeStartDate: text.endDateBeforeStartDate,
+    });
     setErrors(nextErrors);
     setSubmitted(true);
     if (Object.keys(nextErrors).length === 0) onSubmit(form);
@@ -68,7 +72,7 @@ export const CreateProgramModal = ({
     <Modal
       open={open}
       onClose={onClose}
-      title={T.title}
+      title={text.title}
       footer={
         <>
           <button
@@ -76,7 +80,7 @@ export const CreateProgramModal = ({
             onClick={onClose}
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
-            {T.cancel}
+            {text.cancel}
           </button>
           <button
             type="submit"
@@ -84,7 +88,7 @@ export const CreateProgramModal = ({
             disabled={isSubmitting}
             className="rounded-lg bg-action px-4 py-2 text-sm font-semibold text-white hover:bg-action-hover disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isSubmitting ? T.submitting : T.submit}
+            {isSubmitting ? text.submitting : text.submit}
           </button>
         </>
       }
@@ -96,25 +100,27 @@ export const CreateProgramModal = ({
       )}
       <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <Input
-          label={T.nameLabel(programLabel)}
-          placeholder={T.namePlaceholder(programLabel)}
+          label={text.nameLabel}
+          placeholder={text.namePlaceholder}
           value={form.name}
           error={shownErrors.name}
           onChange={(event) => handleChange("name", event.target.value)}
         />
         <Input
-          label={T.descriptionLabel}
+          label={text.descriptionLabel}
           value={form.description}
           onChange={(event) => handleChange("description", event.target.value)}
         />
         <DateInput
-          label={T.startDateLabel}
+          label={text.startDateLabel}
+          helperText={text.dateOptionalHint}
           value={form.startDate}
           error={shownErrors.startDate}
           onChange={(event) => handleChange("startDate", event.target.value)}
         />
         <DateInput
-          label={T.endDateLabel}
+          label={text.endDateLabel}
+          helperText={text.dateOptionalHint}
           value={form.endDate}
           error={shownErrors.endDate}
           min={form.startDate || undefined}

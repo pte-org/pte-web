@@ -53,6 +53,8 @@ it("shows the API default weight and the RA dynamic-scale notice", () => {
   const html = renderToStaticMarkup(<LocaleProvider><TraitWeightEditor rubric={ra} value={{ traitWeights: { CONTENT: 2 },
     traitScales: { CONTENT: "PER_WORD" }, formBands: null, gateEnabled: {} }} disabled text={RUBRIC_EDIT_TEXT.vi} onChange={() => undefined} /></LocaleProvider>);
   expect(html).toContain(RUBRIC_EDIT_TEXT.vi.perWord);
-  expect(html).toContain(RUBRIC_EDIT_TEXT.vi.defaultWeight);
+  expect(html).toContain(`${RUBRIC_EDIT_TEXT.vi.pearsonShort}: 1`);
+  expect(html).toContain("100%");
+  expect(html).toContain(RUBRIC_EDIT_TEXT.vi.resetPearson);
   expect(html).toMatch(/disabled=""/);
 });

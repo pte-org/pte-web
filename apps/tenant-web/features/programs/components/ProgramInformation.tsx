@@ -100,12 +100,14 @@ const ProgramEditForm = ({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <DateInput
           label={text.startDate}
+          helperText={text.dateOptionalHint}
           value={form.startDate}
           onChange={(event) => onChange("startDate", event.target.value)}
           disabled={pending}
         />
         <DateInput
           label={text.endDate}
+          helperText={text.dateOptionalHint}
           value={form.endDate}
           min={form.startDate || undefined}
           error={dateError}
@@ -250,9 +252,12 @@ export const ProgramInformation = ({
             { label: text.name, value: program.name },
             {
               label: text.startDate,
-              value: formatDate(program.startDate, text.locale, text.empty),
+              value: formatDate(program.startDate, text.locale, text.noDateLimit),
             },
-            { label: text.endDate, value: formatDate(program.endDate, text.locale, text.empty) },
+            {
+              label: text.endDate,
+              value: formatDate(program.endDate, text.locale, text.noDateLimit),
+            },
             {
               label: text.description,
               value: program.description?.trim() || text.empty,
