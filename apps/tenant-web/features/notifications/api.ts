@@ -144,11 +144,15 @@ export function useNotificationCenter() {
   };
 }
 
+/** How many notifications a page of the list holds until the reader picks another size. */
+export const DEFAULT_HISTORY_PAGE_SIZE = 20;
+
 export function useNotificationHistory(
   page: number,
   filter: InboxReadFilter,
   category: InboxCategory | undefined,
   snapshot: string | null,
+  size: number = DEFAULT_HISTORY_PAGE_SIZE,
 ) {
   const queryClient = useQueryClient();
   const { data: user } = useCurrentUser();
@@ -164,13 +168,14 @@ export function useNotificationHistory(
       filter,
       category ?? "ALL",
       snapshot,
+      size,
     ],
     queryFn: () =>
       requestWithProtectedCache(
         () =>
           listInbox(apiClient, {
             page,
-            size: 20,
+            size,
             filter,
             category,
             snapshot: snapshot ?? undefined,
