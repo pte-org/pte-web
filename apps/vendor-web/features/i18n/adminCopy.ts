@@ -130,10 +130,13 @@ const ADMIN_VI: Record<string, string> = {
     "Quản lý chính sách nghiệp vụ áp dụng cho các đơn đăng ký tổ chức mới.",
   "Loading settings...": "Đang tải cài đặt...",
   "Saving changes...": "Đang lưu thay đổi...",
-  "Reset to defaults": "Khôi phục giá trị mặc định",
-  "Reset platform settings?": "Khôi phục cài đặt nền tảng?",
-  "Restore this group to its recommended defaults. Review the values and save to apply them.":
-    "Khôi phục nhóm cài đặt về giá trị mặc định đề xuất. Hãy kiểm tra lại và lưu để áp dụng.",
+  "Reset to defaults": "Khôi phục mặc định",
+  "Configure the default policies and operating parameters across the platform.":
+    "Cấu hình các chính sách và tham số vận hành mặc định áp dụng trên toàn hệ thống.",
+  "New values apply only to applications approved and notifications sent after you save.":
+    "Giá trị mới chỉ áp dụng cho đơn đăng ký được duyệt và thông báo hồ sơ được gửi sau khi bạn lưu.",
+  "Default: {value} {unit}": "Mặc định: {value} {unit}",
+  "≈ {days} days": "≈ {days} ngày",
   "No editable platform settings are available.":
     "Hiện chưa có cài đặt nền tảng nào có thể chỉnh sửa.",
   "Unsaved changes": "Có thay đổi chưa lưu",
@@ -143,13 +146,9 @@ const ADMIN_VI: Record<string, string> = {
   "Free student limit": "Hạn mức học viên miễn phí",
   "The number of learner seats granted when a tenant application is approved.":
     "Số chỗ học viên được cấp khi đơn đăng ký tổ chức được duyệt.",
-  "Applies to tenant applications approved after this value is saved.":
-    "Áp dụng cho các đơn đăng ký tổ chức được duyệt sau khi lưu giá trị này.",
   "Tenant application response time": "Thời gian phản hồi hồ sơ tổ chức",
   "The response time promised to applicants in the application email.":
     "Thời gian phản hồi được cam kết với người đăng ký trong email hồ sơ.",
-  "Applies to application notifications sent after this value is saved.":
-    "Áp dụng cho các thông báo hồ sơ được gửi sau khi lưu giá trị này.",
   students: "học viên",
   hours: "giờ",
   "Tenant applications": "Đơn đăng ký tổ chức",
