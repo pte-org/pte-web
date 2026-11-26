@@ -5,7 +5,6 @@ import {
   ApiError,
   createAnnouncement,
   deleteAnnouncement,
-  getAnnouncement,
   listAnnouncements,
   previewAnnouncementAudience,
   publishAnnouncement,
@@ -36,8 +35,6 @@ const announcementKeys = {
   root: ["announcements"] as const,
   list: (userId: string, page: number, search: string) =>
     ["announcements", "list", userId, page, search] as const,
-  detail: (userId: string, publicId: string) =>
-    ["announcements", "detail", userId, publicId] as const,
 };
 
 export function useAnnouncementsQuery(page: number, search = "") {
@@ -52,19 +49,6 @@ export function useAnnouncementsQuery(page: number, search = "") {
         queryClient,
       ),
     enabled: canManagePlatformOperations(user?.roles),
-    retry: false,
-  });
-}
-
-export function useAnnouncementQuery(publicId: string) {
-  const queryClient = useQueryClient();
-  const { data: user } = useCurrentUser();
-  const userId = user?.publicId ?? "anonymous";
-  return useQuery({
-    queryKey: announcementKeys.detail(userId, publicId),
-    queryFn: () =>
-      requestWithProtectedCache(() => getAnnouncement(apiClient, publicId), queryClient),
-    enabled: Boolean(publicId) && canManagePlatformOperations(user?.roles),
     retry: false,
   });
 }

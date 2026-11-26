@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { useRouter } from "next/navigation";
 import {
   ApiError,
   getUserFacingApiErrorMessage,
@@ -13,6 +12,7 @@ import {
   Alert,
   Button,
   CheckCircleIcon,
+  ConfirmDialog,
   DataTable,
   EyeIcon,
   PaginationControls,
@@ -31,7 +31,9 @@ import {
   useRetryAnnouncementDelivery,
   useUpdateAnnouncement,
 } from "../announcementsApi";
+import { AnnouncementDrawer } from "./AnnouncementDrawer";
 import { AnnouncementFormModal } from "./AnnouncementFormModal";
+import { useAnnouncementColumns } from "./useAnnouncementColumns";
 
 type Confirmation = { kind: "publish" | "delete"; announcement: AnnouncementResponse } | null;
 
@@ -47,14 +49,6 @@ export function AnnouncementsView(): ReactElement {
     CONFLICT_TITLE: "Draft changed elsewhere",
     CONFLICT_TEXT: "Reload the latest draft before editing or publishing it.",
     RELOAD_LIST: "Reload list",
-    TITLE: "Title",
-    IMPORTANCE: "Importance",
-    STATUS: "Status",
-    RECIPIENTS: "Recipients",
-    DELIVERED: "delivered",
-    NOT_PUBLISHED: "Not published",
-    UPDATED: "Updated",
-    DATE_RANGE: "Date range",
     EMPTY_TITLE: "No announcement drafts",
     EMPTY_DESCRIPTION: "Create a draft when the platform needs to communicate a global notice.",
     NEW: "New announcement",
@@ -73,20 +67,6 @@ export function AnnouncementsView(): ReactElement {
     PUBLISH: "Publish",
     DELETE: "Delete",
   });
-  const categoryLabels = useAdminCopy({
-    SYSTEM_NOTICE: "System notice",
-    MAINTENANCE: "Maintenance",
-    SESSION: "Session",
-    APPLICATION: "Application",
-    BILLING: "Billing",
-  });
-  const importanceLabels = useAdminCopy({ INFO: "Informational", IMPORTANT: "Important" });
-  const announcementStatusFilterOptions = useAdminCopy([
-    { value: "", label: T.ALL_STATUSES },
-    { value: "PUBLISHED", label: T.PUBLISHED },
-    { value: "DRAFT", label: T.DRAFT },
-  ]);
-  const router = useRouter();
   const { showToast } = useToast();
   const [page, setPage] = useState(0);
   const [search, setSearch] = useState("");
@@ -94,6 +74,8 @@ export function AnnouncementsView(): ReactElement {
   const [composer, setComposer] = useState<AnnouncementResponse | null | undefined>(undefined);
   const [confirmation, setConfirmation] = useState<Confirmation>(null);
   const [conflict, setConflict] = useState<string | null>(null);
+  // The announcement shown in the drawer, by id so it follows the list when the list refreshes.
+  const [openedId, setOpenedId] = useState<string | null>(null);
   const announcements = useAnnouncementsQuery(page, debouncedSearch);
   const create = useCreateAnnouncement();
   const update = useUpdateAnnouncement();
@@ -146,6 +128,7 @@ export function AnnouncementsView(): ReactElement {
           payload: { expectedDraftVersion: announcement.version },
         });
       setConfirmation(null);
+      if (kind === "delete") setOpenedId(null);
       showToast(kind === "publish" ? T.ANNOUNCEMENT_PUBLISHED : T.DRAFT_DELETED);
     } catch (error) {
       if (error instanceof ApiError && error.kind === "conflict")
@@ -155,6 +138,13 @@ export function AnnouncementsView(): ReactElement {
   };
 
   const rows = announcements.data?.data ?? [];
+  const opened = rows.find((row) => row.publicId === openedId) ?? null;
+  const columns = useAnnouncementColumns((row) => setOpenedId(row.publicId));
+  const retryDelivery = (row: AnnouncementResponse): void =>
+    void retry
+      .mutateAsync(row.publicId)
+      .then(() => showToast(T.RETRY_QUEUED))
+      .catch((error: unknown) => showToast(getUserFacingApiErrorMessage(error), { tone: "error" }));
   return (
     <div className="flex flex-col gap-5">
       {announcements.error && (
@@ -184,54 +174,7 @@ export function AnnouncementsView(): ReactElement {
           setPage(0);
         }}
         clientSideFiltering={false}
-        columns={[
-          {
-            key: "title",
-            header: T.TITLE,
-            cell: (row: AnnouncementResponse) => (
-              <div>
-                <p className="font-medium text-slate-900">{row.title}</p>
-                <p className="mt-1 text-xs text-slate-500">
-                  {categoryLabels[row.category as keyof typeof categoryLabels] ?? row.category}
-                </p>
-              </div>
-            ),
-          },
-          {
-            key: "importance",
-            header: T.IMPORTANCE,
-            cell: (row: AnnouncementResponse) =>
-              importanceLabels[row.importance as keyof typeof importanceLabels] ?? row.importance,
-          },
-          {
-            key: "status",
-            header: T.STATUS,
-            filterOptions: announcementStatusFilterOptions,
-            filterAccessor: (row: AnnouncementResponse) => (row.published ? "PUBLISHED" : "DRAFT"),
-            cell: (row: AnnouncementResponse) =>
-              row.published ? (
-                <span className="text-green-700">{T.PUBLISHED}</span>
-              ) : (
-                <span className="text-amber-700">{T.DRAFT}</span>
-              ),
-          },
-          {
-            key: "audience",
-            header: T.RECIPIENTS,
-            cell: (row: AnnouncementResponse) =>
-              row.delivery
-                ? `${row.delivery.deliveredCount}/${row.delivery.audienceCount} ${T.DELIVERED}`
-                : T.NOT_PUBLISHED,
-          },
-          {
-            key: "updated",
-            header: T.UPDATED,
-            filterType: "date-range",
-            filterAccessor: (row: AnnouncementResponse) => row.updatedAt,
-            filterPlaceholder: T.DATE_RANGE,
-            cell: (row: AnnouncementResponse) => new Date(row.updatedAt).toLocaleString(),
-          },
-        ]}
+        columns={columns}
         rows={rows}
         getRowKey={(row) => row.publicId}
         isLoading={announcements.isLoading}
@@ -244,7 +187,7 @@ export function AnnouncementsView(): ReactElement {
               {
                 label: T.VIEW,
                 icon: EyeIcon,
-                onSelect: () => router.push(`/admin/announcements/${row.publicId}`),
+                onSelect: () => setOpenedId(row.publicId),
               },
               ...(!row.published
                 ? [
@@ -264,13 +207,7 @@ export function AnnouncementsView(): ReactElement {
                     {
                       label: T.RETRY_DELIVERY,
                       icon: CheckCircleIcon,
-                      onSelect: () =>
-                        void retry
-                          .mutateAsync(row.publicId)
-                          .then(() => showToast(T.RETRY_QUEUED))
-                          .catch((error: unknown) =>
-                            showToast(getUserFacingApiErrorMessage(error), { tone: "error" }),
-                          ),
+                      onSelect: () => retryDelivery(row),
                     },
                   ]),
             ]}
@@ -296,34 +233,30 @@ export function AnnouncementsView(): ReactElement {
         onClose={() => setComposer(undefined)}
         onSubmit={save}
       />
-      {confirmation && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 grid place-items-center bg-slate-900/40 p-4"
-        >
-          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-            <h2 className="text-base font-semibold text-slate-900">
-              {confirmation.kind === "publish" ? T.PUBLISH_CONFIRM : T.DELETE_CONFIRM}
-            </h2>
-            <p className="mt-2 text-sm text-slate-600">
-              {confirmation.kind === "publish" ? T.PUBLISH_DESCRIPTION : T.DELETE_DESCRIPTION}
-            </p>
-            <div className="mt-5 flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setConfirmation(null)}>
-                {T.CANCEL}
-              </Button>
-              <Button
-                variant={confirmation.kind === "delete" ? "danger" : "primary"}
-                isLoading={publish.isPending || remove.isPending}
-                onClick={() => void confirmAction()}
-              >
-                {confirmation.kind === "publish" ? T.PUBLISH : T.DELETE}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <AnnouncementDrawer
+        // The drawer sits above dialogs, so it steps aside while one is open and returns if the person cancels.
+        announcement={confirmation ? null : opened}
+        onClose={() => setOpenedId(null)}
+        onEdit={(row) => {
+          setOpenedId(null);
+          setComposer(row);
+        }}
+        onPublish={(row) => setConfirmation({ kind: "publish", announcement: row })}
+        onDelete={(row) => setConfirmation({ kind: "delete", announcement: row })}
+        onRetry={retryDelivery}
+        isRetrying={retry.isPending}
+      />
+      <ConfirmDialog
+        open={confirmation !== null}
+        title={confirmation?.kind === "publish" ? T.PUBLISH_CONFIRM : T.DELETE_CONFIRM}
+        description={confirmation?.kind === "publish" ? T.PUBLISH_DESCRIPTION : T.DELETE_DESCRIPTION}
+        confirmLabel={confirmation?.kind === "publish" ? T.PUBLISH : T.DELETE}
+        cancelLabel={T.CANCEL}
+        tone={confirmation?.kind === "delete" ? "danger" : "primary"}
+        isConfirming={publish.isPending || remove.isPending}
+        onConfirm={() => void confirmAction()}
+        onClose={() => setConfirmation(null)}
+      />
     </div>
   );
 }
