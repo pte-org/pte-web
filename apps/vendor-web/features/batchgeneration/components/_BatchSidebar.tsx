@@ -17,6 +17,8 @@ interface BatchSidebarProps {
   unseen: ReadonlySet<string>;
   filter: JobFilter;
   onFilter: (filter: JobFilter) => void;
+  /** The replay of the open question is over (until then the open job is listed as running). */
+  replayDone: boolean;
 }
 
 const SECTION_TITLE = "mb-2 text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]";
@@ -30,6 +32,7 @@ export const BatchSidebar = ({
   unseen,
   filter,
   onFilter,
+  replayDone,
 }: BatchSidebarProps): ReactElement => {
   const done = batch.succeededCount + batch.failedCount + batch.cancelledCount;
   const lanes = runningJobs(batch.children);
@@ -132,6 +135,7 @@ export const BatchSidebar = ({
           unseen={unseen}
           filter={filter}
           titleClassName={SECTION_TITLE}
+          replayDone={replayDone}
         />
       </DashboardCard>
     </div>

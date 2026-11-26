@@ -4,7 +4,6 @@ import { useState, type ReactElement } from "react";
 import { cn } from "@pte/ui";
 import {
   ACTIVITY_TICK_MS,
-  THINKING_REVEAL_AFTER_MS,
   THINKING_VISIBLE_CHARS,
   type AssemblyText,
 } from "../assemblyConstants";
@@ -85,10 +84,8 @@ export const ThinkingPad = ({ thinking, locale, text }: ThinkingPadProps): React
           {text.thinkingStats.replace("{s}", String(seconds)).replace("{n}", chars)}
         </span>
       </p>
-      {/* Counted from when the pad appeared: a burst is answered before this, so only real streaming scrolls. */}
-      {tick * ACTIVITY_TICK_MS >= THINKING_REVEAL_AFTER_MS && (
-        <Thoughts value={thinking.text} live />
-      )}
+      {/* The replay holds thoughts back until they have kept coming for a while (see viewOf), so only real streaming scrolls. */}
+      <Thoughts value={thinking.text} live />
     </div>
   );
 };

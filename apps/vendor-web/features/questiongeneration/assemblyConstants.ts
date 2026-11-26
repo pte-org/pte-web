@@ -22,6 +22,8 @@ export const ACTIVITY_TICK_MS = 260;
  */
 export const MEDIA_FILL_SECONDS = 15;
 export const MEDIA_FILL_CAP = 0.95;
+/** A step with nothing to type (the prompt, a check, a verdict, media without a chart) is shown this long before the next. */
+export const STEP_DWELL_MS = 500;
 /** The real image, once it arrives, is revealed left to right over this long before it is placed. */
 export const CHART_REPLAY_MS = 3000;
 /** How much of an agent's train of thought is kept (as the server does) and how much of its end is shown. */

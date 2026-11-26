@@ -7,9 +7,11 @@ export type TypingSpeed = keyof typeof TYPING_SPEEDS;
 export const TYPING_SPEED_ORDER: readonly TypingSpeed[] = ["slow", "normal", "fast"];
 export const DEFAULT_TYPING_SPEED: TypingSpeed = "normal";
 export const TYPING_SPEED_STORAGE_KEY = "pte.questionGeneration.typingSpeed";
+export const SKIP_FINISHED_STORAGE_KEY = "pte.questionGeneration.skipFinishedReplay";
 export const MS_PER_SECOND = 1000;
 
 const TYPING_TEXT_EN = {
+  skipFinished: "Skip the replay of finished questions",
   typingSpeed: "Typing speed",
   slow: "Slow",
   normal: "Normal",
@@ -22,6 +24,7 @@ export type TypingText = { [K in keyof typeof TYPING_TEXT_EN]: string };
 export const TYPING_TEXT: { vi: TypingText; en: TypingText } = {
   en: TYPING_TEXT_EN,
   vi: {
+    skipFinished: "Bỏ qua phát lại câu đã xong",
     typingSpeed: "Tốc độ gõ",
     slow: "Chậm",
     normal: "Vừa",

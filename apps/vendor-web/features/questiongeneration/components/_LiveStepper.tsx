@@ -3,11 +3,11 @@
 import { useState, type ReactElement } from "react";
 import { cn } from "@pte/ui";
 import type { AssemblyText } from "../assemblyConstants";
-import type { LiveStep, StepId } from "../utils/liveSteps";
+import type { StepId, StepView } from "../replay";
 import { LiveStepDetail, type StepDetailProps } from "./_LiveStepDetail";
 
 interface LiveStepperProps extends Omit<StepDetailProps, "step"> {
-  steps: LiveStep[];
+  steps: StepView[];
   text: AssemblyText;
 }
 

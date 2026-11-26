@@ -4,7 +4,7 @@ import type { QuestionGenerationLiveCheck } from "@pte/api-client";
 import { Chip } from "@pte/ui";
 import type { AssemblyText } from "../assemblyConstants";
 import type { LiveLane } from "../liveConstants";
-import type { DropQueue } from "../hooks/useDropQueue";
+import type { DropState } from "../replay";
 import type { ActivePiece, LivePiece as Piece, PieceKey } from "../utils/livePieces";
 import type { ReviewSummary } from "../utils/reviewSummary";
 import { LivePiece } from "./_LivePiece";
@@ -13,7 +13,7 @@ import type { LiveThinking } from "../utils/liveThinking";
 interface LiveAssemblyFormProps {
   pieces: Piece[];
   active: ActivePiece | null;
-  drops: DropQueue;
+  drops: DropState;
   taskType: string;
   section: string;
   stageLabel: string;

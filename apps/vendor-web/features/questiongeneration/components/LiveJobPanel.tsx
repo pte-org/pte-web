@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
-import { Alert, Skeleton, useLocale } from "@pte/ui";
+import type { ReactElement } from "react";
+import { Alert, Checkbox, Skeleton, useLocale } from "@pte/ui";
 import { useQuestionGenerationTaskTypes } from "../api";
 import { useLiveJob } from "../hooks/useLiveJob";
+import { useSkipFinishedReplay } from "../hooks/useSkipFinishedReplay";
+import { TYPING_TEXT } from "../typingConstants";
 import { LIVE_TEXT, TERMINAL_JOB_STATUSES } from "../liveConstants";
 import { JobOutcomeList } from "./_JobOutcomeList";
 import { LiveJobItemList } from "./_LiveJobItemList";
@@ -23,15 +25,10 @@ export const LiveJobPanel = ({ jobId, onReplayDone }: LiveJobPanelProps): ReactE
   const { locale } = useLocale();
   const lang = locale === "vi" ? "vi" : "en";
   const text = LIVE_TEXT[lang];
-  const { job: jobQuery, items, connection } = useLiveJob(jobId);
+  const { job: jobQuery, items, script, connection } = useLiveJob(jobId);
   const { data: taskTypes = [] } = useQuestionGenerationTaskTypes();
+  const skipFinished = useSkipFinishedReplay();
   const job = jobQuery.data;
-  // Whether the job had already ended when it was first loaded here: then there is nothing to watch, and its question
-  // is shown as it ended instead of being replayed. A job followed while it ran keeps its replay.
-  const [endedWhenOpened, setEndedWhenOpened] = useState<boolean | null>(null);
-  if (job && endedWhenOpened === null) {
-    setEndedWhenOpened(TERMINAL_JOB_STATUSES.includes(job.status));
-  }
 
   if (jobQuery.isError) return <Alert tone="error">{text.jobLoadError}</Alert>;
   if (!job) return <Skeleton className="h-24 w-full" />;
@@ -49,6 +46,12 @@ export const LiveJobPanel = ({ jobId, onReplayDone }: LiveJobPanelProps): ReactE
           {connection === "reconnecting" ? text.reconnecting : text.connecting}
         </p>
       )}
+      <Checkbox
+        id="generation-skip-finished-replay"
+        label={TYPING_TEXT[lang].skipFinished}
+        checked={skipFinished.skip}
+        onChange={(event) => skipFinished.setSkip(event.target.checked)}
+      />
       {!showLive && job.items.length > 0 && <JobOutcomeList job={job} lang={lang} text={text} />}
       {showLive && (
         <LiveJobItemList
@@ -59,7 +62,9 @@ export const LiveJobPanel = ({ jobId, onReplayDone }: LiveJobPanelProps): ReactE
           needsAudio={taskType?.needsAudio ?? false}
           needsImage={taskType?.needsImage ?? false}
           onReplayDone={onReplayDone}
-          instant={endedWhenOpened === true}
+          jobId={jobId}
+          script={script}
+          skipFinished={skipFinished.skip}
         />
       )}
     </div>

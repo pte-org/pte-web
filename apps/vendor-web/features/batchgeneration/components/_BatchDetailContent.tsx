@@ -78,6 +78,7 @@ export const BatchDetailContent = ({
             unseen={focus.unseen}
             filter={jobFilter}
             onFilter={(clicked) => setJobFilter((current) => nextJobFilter(current, clicked))}
+            replayDone={focus.replayDone}
           />
         </aside>
         <DashboardCard>

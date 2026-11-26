@@ -5,11 +5,11 @@ import type { AssemblyText } from "../assemblyConstants";
 import { CHECK_COPY, detailValue } from "../liveCheckCopy";
 import { DRAFT_FIELD_LABELS, LANE_LABELS, REVIEW_CHECK_LABELS } from "../liveConstants";
 import { humanizeKey } from "../utils/draftFields";
-import type { LiveStep, StepId } from "../utils/liveSteps";
+import type { StepId, StepView } from "../replay";
 import type { ReviewSummary } from "../utils/reviewSummary";
 
 export interface StepDetailProps {
-  step: LiveStep;
+  step: StepView;
   live: QuestionGenerationLiveItem | undefined;
   review: ReviewSummary;
   locale: "vi" | "en";

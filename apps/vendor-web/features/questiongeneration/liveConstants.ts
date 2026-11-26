@@ -162,17 +162,17 @@ export const LIVE_TEXT: { vi: LiveText; en: LiveText } = {
 
 export const LANE_LABELS: { vi: Record<LiveLane, string>; en: Record<LiveLane, string> } = {
   vi: {
-    GENERATOR: "Sinh đề · LLM",
-    REVIEWER: "Review · LLM",
-    AUDIO: "Kokoro TTS",
-    IMAGE: "Vẽ biểu đồ",
+    GENERATOR: "P",
+    REVIEWER: "T",
+    AUDIO: "E",
+    IMAGE: "E",
     SAVE: "Lưu vào ngân hàng",
   },
   en: {
-    GENERATOR: "Writer · LLM",
-    REVIEWER: "Reviewer · LLM",
-    AUDIO: "Kokoro TTS",
-    IMAGE: "Chart renderer",
+    GENERATOR: "P",
+    REVIEWER: "T",
+    AUDIO: "E",
+    IMAGE: "E",
     SAVE: "Save to the bank",
   },
 };
@@ -294,3 +294,4 @@ export const REVIEW_CHECK_LABELS: { vi: Record<string, string>; en: Record<strin
     safety: "Safe content",
   },
 };
+

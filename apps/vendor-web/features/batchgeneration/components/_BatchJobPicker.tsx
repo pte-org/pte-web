@@ -4,6 +4,7 @@ import { cn } from "@pte/ui";
 import type { BatchMessages } from "../messages/en";
 import { jobLabel } from "../utils/jobLabel";
 import { filterJobs, type JobFilter } from "../utils/jobFilter";
+import { jobChipStatus } from "../utils/jobChip";
 import { JobStatusBadge } from "./_BatchStatusBadge";
 
 interface BatchJobPickerProps {
@@ -14,6 +15,8 @@ interface BatchJobPickerProps {
   unseen: ReadonlySet<string>;
   filter: JobFilter;
   titleClassName: string;
+  /** The replay of the question open in the panel is over; until then that job is listed as running. */
+  replayDone: boolean;
 }
 
 /** Every job of the batch in run order; picking one shows it in the main panel. */
@@ -25,6 +28,7 @@ export const BatchJobPicker = ({
   unseen,
   filter,
   titleClassName,
+  replayDone,
 }: BatchJobPickerProps): ReactElement => {
   const shown = filterJobs(batch.children, filter);
   return (
@@ -61,7 +65,10 @@ export const BatchJobPicker = ({
                   aria-label={messages.unseen}
                 />
               )}
-              <JobStatusBadge status={job.status} messages={messages} />
+              <JobStatusBadge
+                status={jobChipStatus(job.status, job.jobPublicId === focusedId, replayDone)}
+                messages={messages}
+              />
             </button>
           </li>
         ))}

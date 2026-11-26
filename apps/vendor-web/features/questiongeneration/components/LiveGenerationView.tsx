@@ -17,6 +17,7 @@ import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { QUESTIONS_QUERY_KEY } from "@/features/questionbank/constants";
 import { useCancelQuestionGenerationJob, useQuestionGenerationTaskTypes } from "../api";
 import { useLiveJob } from "../hooks/useLiveJob";
+import { useSkipFinishedReplay } from "../hooks/useSkipFinishedReplay";
 import { LIVE_TEXT, formFillHref, TERMINAL_JOB_STATUSES } from "../liveConstants";
 import { generatedValues, storeGeneratedFill } from "../utils/generatedFill";
 import { ImageFallbackDialog } from "./_ImageFallbackDialog";
@@ -35,7 +36,8 @@ export const LiveGenerationView = ({ jobId }: LiveGenerationViewProps): ReactEle
   const pathname = usePathname();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
-  const { job: jobQuery, items, connection } = useLiveJob(jobId);
+  const { job: jobQuery, items, script, connection } = useLiveJob(jobId);
+  const skipFinished = useSkipFinishedReplay();
   const { data: taskTypes = [] } = useQuestionGenerationTaskTypes();
   const cancel = useCancelQuestionGenerationJob();
   const [confirmingCancel, setConfirmingCancel] = useState(false);
@@ -118,6 +120,9 @@ export const LiveGenerationView = ({ jobId }: LiveGenerationViewProps): ReactEle
         text={text}
         needsAudio={taskType?.needsAudio ?? false}
         needsImage={taskType?.needsImage ?? false}
+        jobId={jobId}
+        script={script}
+        skipFinished={skipFinished.skip}
       />
       <ImageFallbackDialog job={job} finished={finished} text={text} />
       <ConfirmDialog

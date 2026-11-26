@@ -1,8 +1,7 @@
 import type { ReactElement, ReactNode } from "react";
 import { Button, Checkbox } from "@pte/ui";
-import { GATE_STEP_NAMES } from "../gateConstants";
+import { GATE_STEP_NAMES, GATE_STEPS } from "../gateConstants";
 import type { LiveText } from "../liveConstants";
-import { GATE_STEPS } from "../utils/stepGate";
 
 interface StepGateBarProps {
   enabled: boolean;

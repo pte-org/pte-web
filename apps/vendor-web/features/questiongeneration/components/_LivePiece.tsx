@@ -94,8 +94,9 @@ export const LivePiece = ({
 }: LivePieceProps): ReactElement => {
   const working = active?.key === piece.key ? active : null;
   const thought = working ? thinking : null;
-  // The writer sent its brief and the model has neither thought aloud nor answered yet.
-  const awaitingModel = working?.phase === "write" && !thought && !piece.filled;
+  // The writer sent its brief and the model has neither thought aloud nor answered yet. Once any of its answer is
+  // shown (even a field that is not on the form), the model is writing, not being waited for.
+  const awaitingModel = working?.phase === "write" && !thought && !piece.filled && typed === undefined;
   const status = placed
     ? text.placed
     : flying
