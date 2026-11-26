@@ -294,7 +294,6 @@ export const PROCTOR_INCIDENT_DETAIL_TEXT = {
 
 export const PROCTOR_ATTENDANCE_VIEW_TEXT = {
   BACK_BTN: "Danh sách ca thi",
-  UPDATED_PREFIX: "Cập nhật lúc: ",
   TITLE_PREFIX: "Điểm danh ca thi: ",
   SUBTITLE: "Quản lý và cập nhật danh sách có mặt / vắng mặt của thí sinh trong ca thi.",
   REASON_PRE_OPEN: "Điểm danh chỉ mở trước giờ thi 30 phút.",
