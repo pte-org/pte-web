@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactElement } from "react";
-import { DashboardPanel, Tabs, useLocale, useRememberedState, type TabItem } from "@pte/ui";
+import { DashboardPanel, PageHeader, Tabs, useLocale, useRememberedState, type TabItem } from "@pte/ui";
 import { ChatUsageView } from "@/features/chatUsage/components";
 import { useAiStatus } from "../api";
 import { AI_ADMIN_COPY, type AiAdminCopy } from "../constants";
@@ -50,13 +50,17 @@ export const AiOverviewView = (): ReactElement => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      <div className="space-y-2">
+        <PageHeader title={copy.OVERVIEW_TITLE} />
+        <p className="text-sm text-[var(--ink-secondary)]">{copy.OVERVIEW_DESCRIPTION}</p>
+      </div>
       <Tabs
         id={TABS_ID}
         items={items}
         value={tab}
         onChange={(value) => setTab(TAB_IDS.find((id) => id === value) ?? "overview")}
-        variant="default"
+        variant="minimal"
         ariaLabel={copy.TABS_ARIA_LABEL}
       />
       {tab === "overview" && <ConfigurationTab copy={copy} />}
