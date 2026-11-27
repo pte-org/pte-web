@@ -88,11 +88,7 @@ export const BulkActionsBar = ({
     <>
       <div className="flex gap-2 items-center">
         {submitableIndices.length > 0 && (
-          <Button
-            onClick={() => setShowSubmitConfirm(true)}
-            disabled={isSubmitting}
-            size="sm"
-          >
+          <Button onClick={() => setShowSubmitConfirm(true)} disabled={isSubmitting} size="sm">
             {generationMessages.bulkSubmitAllLabel} ({submitableIndices.length})
           </Button>
         )}

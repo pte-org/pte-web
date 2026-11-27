@@ -1,7 +1,5 @@
 import type { InboxItemResponse } from "@pte/api-client";
 
-export const NOTIFICATIONS_PATH = "/host/notifications";
-
 /**
  * The page a notification is about, or null when it only carries a message (a system notice) and is read in a dialog
  * instead.

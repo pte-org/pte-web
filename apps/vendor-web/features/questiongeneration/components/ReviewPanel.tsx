@@ -76,9 +76,7 @@ export const ReviewPanel = ({ meta, isLoading }: ReviewPanelProps) => {
 
       {/* Checks */}
       <div>
-        <h3 className="text-sm font-semibold mb-3">
-          {generationMessages.reviewCheckTitle}
-        </h3>
+        <h3 className="text-sm font-semibold mb-3">{generationMessages.reviewCheckTitle}</h3>
         <div className="grid grid-cols-2 gap-3">
           {checkList.map((check) => (
             <div
@@ -100,9 +98,7 @@ export const ReviewPanel = ({ meta, isLoading }: ReviewPanelProps) => {
       {/* Review Notes & Fix Suggestion */}
       {review?.fixSuggestion && (
         <div>
-          <h3 className="text-sm font-semibold mb-2">
-            {generationMessages.fixSuggestionLabel}
-          </h3>
+          <h3 className="text-sm font-semibold mb-2">{generationMessages.fixSuggestionLabel}</h3>
           <p className="text-sm text-gray-700">{review.fixSuggestion}</p>
         </div>
       )}
@@ -110,9 +106,7 @@ export const ReviewPanel = ({ meta, isLoading }: ReviewPanelProps) => {
       {/* Metrics */}
       {metrics && (
         <div>
-          <h3 className="text-sm font-semibold mb-2">
-            {generationMessages.metricsLabel}
-          </h3>
+          <h3 className="text-sm font-semibold mb-2">{generationMessages.metricsLabel}</h3>
           <div className="grid grid-cols-3 gap-4 text-sm">
             <div>
               <span className="text-gray-600">Words:</span>{" "}
@@ -133,9 +127,7 @@ export const ReviewPanel = ({ meta, isLoading }: ReviewPanelProps) => {
       {/* Key Points */}
       {keyPoints && keyPoints.length > 0 && (
         <div>
-          <h3 className="text-sm font-semibold mb-2">
-            {generationMessages.keyPointsLabel}
-          </h3>
+          <h3 className="text-sm font-semibold mb-2">{generationMessages.keyPointsLabel}</h3>
           <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
             {keyPoints.map((point: string, idx: number) => (
               <li key={idx}>{point}</li>

@@ -2,10 +2,13 @@
 
 export interface AiStatusLimits {
   maxItemsPerJob: number;
+  maxItemsPerBatch: number;
   maxItemsPerUserPerDay: number;
   maxItemsPerDayGlobal: number;
   maxConcurrentJobs: number;
   maxCallsPerItem: number;
+  /** Hours a paused generation batch is kept before it is cancelled; 0 keeps it. */
+  pausedBatchExpiryHours: number;
 }
 
 /** Configuration without any secret: a key is reported as present or not, a provider by its host. */

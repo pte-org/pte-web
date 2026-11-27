@@ -24,6 +24,7 @@ export const INCIDENT_EN = {
 
   listSearchPlaceholder: "Search incident title or content...",
   listReportNew: "+ Report a new incident",
+  listReportClosedHint: "This exam session has ended, so a new incident cannot be reported.",
   listFilterStatus: "Status",
   listErrorTitle: "Could not load the incident list",
   listErrorBody: "Something went wrong while fetching the data from the server. Please try again.",

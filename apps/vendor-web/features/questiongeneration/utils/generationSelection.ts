@@ -14,6 +14,7 @@ import {
   type GenerationSection,
 } from "../dialogConstants";
 import { expandLevels, isSplitRow, rowTotal, type CefrLevelCounts } from "./generationCefr";
+import { spreadRows, type CefrShare } from "./generationMix";
 
 /** One ticked task type of the popup; it becomes one batch row, or one per CEFR level when split. */
 export interface SelectionRow {
@@ -33,31 +34,27 @@ export interface SelectionRow {
 export interface GenerationSelection {
   pool: string;
   defaultCefr: string;
-  /** "CEFR for the whole skill": the level of rows ticked later in that skill (falls back to defaultCefr). */
-  skillCefr?: Readonly<Record<string, string>>;
   /** Topics for every row without its own, one per line. */
   sharedTopicText: string;
   rows: readonly SelectionRow[];
+  /** The rows were spread over the active template's CEFR mix by the "full exam" preset. */
+  spreadByMix?: boolean;
 }
 
 export type PresetKind = "FULL" | GenerationSection;
-export type PresetResult = { ok: true; selection: GenerationSelection } | { ok: false; reason: "OVER_CAP"; total: number };
+export type PresetResult =
+  { ok: true; selection: GenerationSelection } | { ok: false; reason: "OVER_CAP"; total: number };
 export type SubmitMode = "single" | "batch";
-export type SelectionProblem = "EMPTY" | "COUNT" | "SPLIT_EMPTY" | "TOPICS" | "OVER_CAP" | "OVER_QUOTA";
+export type SelectionProblem =
+  "EMPTY" | "COUNT" | "SPLIT_EMPTY" | "TOPICS" | "OVER_CAP" | "OVER_QUOTA";
 
-export function newRow(taskType: string, section: string, cefrLevel: string, count = 1): SelectionRow {
+export function newRow(
+  taskType: string,
+  section: string,
+  cefrLevel: string,
+  count = 1,
+): SelectionRow {
   return { taskType, section, count, cefrLevel, topicText: "", imageKind: "AUTO" };
-}
-
-export function isTicked(selection: GenerationSelection, taskType: string): boolean {
-  return selection.rows.some((row) => row.taskType === taskType);
-}
-
-export function toggleRow(selection: GenerationSelection, taskType: string, section: string): GenerationSelection {
-  const rows = isTicked(selection, taskType)
-    ? selection.rows.filter((row) => row.taskType !== taskType)
-    : [...selection.rows, newRow(taskType, section, selection.skillCefr?.[section] ?? selection.defaultCefr)];
-  return { ...selection, rows };
 }
 
 export function updateRow(
@@ -65,7 +62,10 @@ export function updateRow(
   taskType: string,
   patch: Partial<Omit<SelectionRow, "taskType" | "section">>,
 ): GenerationSelection {
-  return { ...selection, rows: selection.rows.map((row) => (row.taskType === taskType ? { ...row, ...patch } : row)) };
+  return {
+    ...selection,
+    rows: selection.rows.map((row) => (row.taskType === taskType ? { ...row, ...patch } : row)),
+  };
 }
 
 export function selectionTotal(selection: GenerationSelection): number {
@@ -93,7 +93,9 @@ function presetTaskTypes(
   kind: PresetKind,
   supported: ReadonlySet<string>,
 ): QuestionGenerationPreset[] {
-  return presets.filter((preset) => supported.has(preset.taskType) && (kind === "FULL" || preset.section === kind));
+  return presets.filter(
+    (preset) => supported.has(preset.taskType) && (kind === "FULL" || preset.section === kind),
+  );
 }
 
 /** True when every task type the preset covers is already ticked. */
@@ -104,7 +106,10 @@ export function isPresetActive(
   supported: ReadonlySet<string>,
 ): boolean {
   const chosen = presetTaskTypes(presets, kind, supported);
-  return chosen.length > 0 && chosen.every((preset) => selection.rows.some((row) => row.taskType === preset.taskType));
+  return (
+    chosen.length > 0 &&
+    chosen.every((preset) => selection.rows.some((row) => row.taskType === preset.taskType))
+  );
 }
 
 export function applyPreset(
@@ -114,14 +119,25 @@ export function applyPreset(
   multiplier: number,
   cap: number,
   supported: ReadonlySet<string>,
+  shares: readonly CefrShare[] = [],
 ): PresetResult {
   const scale = multiplier;
   const chosen = presetTaskTypes(presets, kind, supported);
-  const kept = kind === "FULL" ? [] : selection.rows.filter((row) => row.section !== kind);
+  const full = kind === "FULL";
+  const kept = full ? [] : selection.rows.filter((row) => row.section !== kind);
   // A second click on an already applied preset clears what it ticked, so the buttons work as toggles.
-  if (isPresetActive(selection, presets, kind, supported)) return { ok: true, selection: { ...selection, rows: kept } };
-  const presetRows = chosen.map((preset) => newRow(preset.taskType, preset.section, selection.defaultCefr, preset.maxCount * scale));
-  const next = { ...selection, rows: [...kept, ...presetRows] };
+  if (isPresetActive(selection, presets, kind, supported))
+    return { ok: true, selection: { ...selection, rows: kept, spreadByMix: full ? false : selection.spreadByMix } };
+  const presetRows = chosen.map((preset) =>
+    newRow(preset.taskType, preset.section, selection.defaultCefr, preset.maxCount * scale),
+  );
+  // A whole exam follows the template's CEFR mix; a single skill keeps the default level.
+  const spread = full && shares.length > 0;
+  const next = {
+    ...selection,
+    rows: [...kept, ...(spread ? spreadRows(presetRows, shares) : presetRows)],
+    spreadByMix: full ? spread : selection.spreadByMix,
+  };
   const total = selectionTotal(next);
   return total > cap ? { ok: false, reason: "OVER_CAP", total } : { ok: true, selection: next };
 }
@@ -136,22 +152,61 @@ export function rescalePresetRows(
   from: number,
   to: number,
   cap: number,
+  shares: readonly CefrShare[] = [],
 ): PresetResult {
-  const rows = selection.rows.map((row) => {
-    const preset = presets.find((candidate) => candidate.taskType === row.taskType);
-    // A split row was spread over levels by hand, so it keeps its counts.
-    return preset && !isSplitRow(row) && row.count === preset.maxCount * from ? { ...row, count: preset.maxCount * to } : row;
-  });
-  const next = { ...selection, rows };
+  const next = selection.spreadByMix && shares.length > 0
+    ? { ...selection, rows: rescaleSpreadRows(selection.rows, presets, from, to, shares) }
+    : {
+        ...selection,
+        rows: selection.rows.map((row) => {
+          const preset = presets.find((candidate) => candidate.taskType === row.taskType);
+          // A split row was spread over levels by hand, so it keeps its counts.
+          return preset && !isSplitRow(row) && row.count === preset.maxCount * from
+            ? { ...row, count: preset.maxCount * to }
+            : row;
+        }),
+      };
   const total = selectionTotal(next);
   return total > cap ? { ok: false, reason: "OVER_CAP", total } : { ok: true, selection: next };
 }
 
+/**
+ * The rows the mix spread still hold their preset total: they get the new total and are spread again as one exam, so
+ * the exam stays on the mix; a row the author changed by hand keeps its counts.
+ */
+function rescaleSpreadRows(
+  rows: readonly SelectionRow[],
+  presets: readonly QuestionGenerationPreset[],
+  from: number,
+  to: number,
+  shares: readonly CefrShare[],
+): SelectionRow[] {
+  const presetOf = (row: SelectionRow): QuestionGenerationPreset | undefined =>
+    presets.find((candidate) => candidate.taskType === row.taskType);
+  const untouched = rows.filter((row) => {
+    const preset = presetOf(row);
+    return preset !== undefined && rowTotal(row) === preset.maxCount * from;
+  });
+  const respread = spreadRows(
+    untouched.map((row) => ({ ...row, levels: undefined, count: (presetOf(row)?.maxCount ?? 0) * to })),
+    shares,
+  );
+  const byTaskType = new Map(respread.map((row) => [row.taskType, row]));
+  return rows.map((row) => (untouched.includes(row) ? (byTaskType.get(row.taskType) ?? row) : row));
+}
+
 /** U1: one item of the editor's own task type keeps the in-form preview; anything else is a batch. */
-export function resolveSubmitMode(selection: GenerationSelection, currentTaskType: string | undefined): SubmitMode {
+export function resolveSubmitMode(
+  selection: GenerationSelection,
+  currentTaskType: string | undefined,
+): SubmitMode {
   const [only] = selection.rows;
-  const singleItem = selection.rows.length === 1 && !isSplitRow(only) && only.count === 1;
-  return singleItem && (currentTaskType === undefined || only.taskType === currentTaskType) ? "single" : "batch";
+  // A matrix edit keeps rows in their per-level form, so "one question" is read from the expanded levels.
+  const levels = only ? expandLevels(only) : [];
+  const singleItem = selection.rows.length === 1 && levels.length === 1 && levels[0].count === 1;
+  return singleItem && (currentTaskType === undefined || only.taskType === currentTaskType)
+    ? "single"
+    : "batch";
 }
 
 function rowTopics(selection: GenerationSelection, row: SelectionRow): string[] {
@@ -179,25 +234,31 @@ export function validateSelection(
 }
 
 /** One batch row per ticked task type, or per level holding questions of a split one (the server splits large rows). */
-export function toBatchRequest(selection: GenerationSelection): QuestionGenerationBatchCreateRequest {
+export function toBatchRequest(
+  selection: GenerationSelection,
+): QuestionGenerationBatchCreateRequest {
   return {
     pool: selection.pool,
-    rows: selection.rows.flatMap((row) => expandLevels(row).map(({ cefrLevel, count }) => ({
-      taskType: row.taskType,
-      cefrLevel,
-      count,
-      topicHints: rowTopics(selection, row),
-      imageKind: row.taskType === DESCRIBE_IMAGE_TASK ? row.imageKind : null,
-    }))),
+    rows: selection.rows.flatMap((row) =>
+      expandLevels(row).map(({ cefrLevel, count }) => ({
+        taskType: row.taskType,
+        cefrLevel,
+        count,
+        topicHints: rowTopics(selection, row),
+        imageKind: row.taskType === DESCRIBE_IMAGE_TASK ? row.imageKind : null,
+      })),
+    ),
   };
 }
 
 /** The single preview job (one question into the form, nothing saved): its first topic, one per job. */
-export function toSingleJobRequest(selection: GenerationSelection): QuestionGenerationJobCreateRequest {
+export function toSingleJobRequest(
+  selection: GenerationSelection,
+): QuestionGenerationJobCreateRequest {
   const [row] = selection.rows;
   return {
     taskType: row.taskType,
-    cefrLevel: row.cefrLevel,
+    cefrLevel: expandLevels(row)[0]?.cefrLevel ?? row.cefrLevel,
     pool: selection.pool,
     topicHint: rowTopics(selection, row)[0] ?? null,
     count: 1,
@@ -213,7 +274,8 @@ export function estimateSeconds(
 ): number {
   const perItem = new Map(taskTypes.map((type) => [type.taskType, type.estimatedSecondsPerItem]));
   return selection.rows.reduce(
-    (sum, row) => sum + rowTotal(row) * (perItem.get(row.taskType) ?? GENERATION_FALLBACK_SECONDS_PER_ITEM),
+    (sum, row) =>
+      sum + rowTotal(row) * (perItem.get(row.taskType) ?? GENERATION_FALLBACK_SECONDS_PER_ITEM),
     0,
   );
 }

@@ -1,0 +1,19 @@
+{"atMs":0,"event":{"type":"check","index":0,"step":"PROMPT","status":"PASSED","facts":{"cefr":"B1","topic":"Community"}}}
+{"atMs":100,"event":{"type":"begin","index":0,"agent":"GENERATOR","attempt":1}}
+{"atMs":200,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"{\"title\":\"Energy use\",\"chartType\":\"bar\","}}
+{"atMs":260,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"\"categories\":[\"2020\",\"2021\",\"2022\"],\"ser"}}
+{"atMs":320,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"ies\":[{\"name\":\"TWh\",\"values\":[4,5,6]}],\""}}
+{"atMs":380,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"answerHintVi\":\"Mo ta.\",\"answerHintEn\":\"D"}}
+{"atMs":440,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"escribe.\"}"}}
+{"atMs":600,"event":{"type":"check","index":0,"step":"WRITE","status":"PASSED","facts":{}}}
+{"atMs":610,"event":{"type":"draft","index":0,"attempt":1,"fields":{"promptText":"passage","answerHintVi":"Doc ky.","answerHintEn":"Read carefully."}}}
+{"atMs":660,"event":{"type":"check","index":0,"step":"JSON","status":"PASSED","facts":{}}}
+{"atMs":700,"event":{"type":"check","index":0,"step":"RULES","status":"PASSED","facts":{}}}
+{"atMs":740,"event":{"type":"check","index":0,"step":"DUPLICATE","status":"PASSED","facts":{}}}
+{"atMs":800,"event":{"type":"begin","index":0,"agent":"REVIEWER","attempt":1}}
+{"atMs":860,"event":{"type":"token","index":0,"agent":"REVIEWER","delta":"Clear and level-appropriate."}}
+{"atMs":1000,"event":{"type":"review","index":0,"kind":"CONTENT","passed":true,"fixSuggestion":null,"notes":{}}}
+{"atMs":1100,"event":{"type":"stage","index":0,"stage":"RENDERING_MEDIA"}}
+{"atMs":1200,"event":{"type":"media","index":0,"audioRef":null,"imageRef":"media-1"}}
+{"atMs":1500,"event":{"type":"review","index":0,"kind":"IMAGE","passed":true,"fixSuggestion":null,"notes":{}}}
+{"atMs":1700,"event":{"type":"end","finished":true}}

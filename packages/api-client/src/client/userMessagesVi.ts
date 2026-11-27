@@ -117,6 +117,9 @@ export const USER_FACING_ERROR_MESSAGES_VI: Record<string, string> = {
   INVALID_PASSWORD_RESET_TOKEN: "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Hãy yêu cầu liên kết mới rồi thử lại.",
   GENERATION_BATCH_NOT_FOUND: "Không tìm thấy đợt tạo câu hỏi này.",
   GENERATION_BATCH_NOT_CANCELLABLE: "Đợt tạo câu hỏi này đã xong nên không thể hủy.",
+  GENERATION_BATCH_NOT_PAUSABLE: "Chỉ tạm dừng được đợt tạo câu hỏi đang chạy.",
+  GENERATION_BATCH_NOT_RESUMABLE: "Đợt tạo câu hỏi vẫn đang dừng. Vui lòng thử lại sau giây lát.",
+  GENERATION_BATCH_PAUSE_EXPIRED: "Đợt tạo câu hỏi tạm dừng quá lâu nên đã bị hủy. Các câu đã lưu vẫn được giữ.",
   GENERATION_BATCH_SIZE_OUT_OF_RANGE:
     "Mỗi dòng cần ít nhất một câu hỏi và tổng số câu của đợt không được vượt giới hạn mỗi đợt.",
   GENERATION_BATCH_ROWS_OUT_OF_RANGE: "Một đợt phải có từ 1 đến 20 dòng.",
@@ -126,4 +129,12 @@ export const USER_FACING_ERROR_MESSAGES_VI: Record<string, string> = {
   GENERATION_JOB_ALREADY_RUNNING: "Bạn đang có một lượt tạo câu hỏi chạy. Hãy đợi lượt đó xong.",
   GENERATION_DAILY_LIMIT_REACHED: "Bạn đã đạt giới hạn tạo câu hỏi trong ngày.",
   GENERATION_GLOBAL_LIMIT_REACHED: "Nền tảng đã đạt giới hạn tạo câu hỏi của hôm nay.",
+  GENERATION_VOICE_UNKNOWN: "Giọng đọc này không khả dụng. Hãy chọn giọng khác.",
+  GENERATION_VOICE_NOT_SUPPORTED_FOR_TASK:
+    "Không đổi được giọng của câu này. Chỉ đổi được với câu do AI tạo và chỉ có một người đọc.",
+  GENERATION_VOICE_UNCHANGED: "Câu hỏi đang dùng giọng này rồi. Hãy chọn giọng khác.",
+  GENERATION_VOICE_BUSY: "Đang có một giọng khác được tạo. Vui lòng thử lại sau giây lát.",
+  GENERATION_MEDIA_FAILED: "Không tạo được âm thanh. Vui lòng thử lại sau giây lát.",
+  GENERATION_AUDIO_DURATION_OUT_OF_RANGE:
+    "Giọng này đọc văn bản quá nhanh hoặc quá chậm so với dạng bài. Hãy chọn giọng khác.",
 };

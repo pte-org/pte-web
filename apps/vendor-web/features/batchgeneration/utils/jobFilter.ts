@@ -3,7 +3,7 @@ import type { QuestionGenerationBatchChildResponse } from "@pte/api-client";
 /** Which jobs the list shows; picked by clicking a counter in the batch summary. */
 export type JobFilter = "all" | "saved" | "failed" | "cancelled" | "open";
 
-const OPEN_JOB_STATUSES: readonly string[] = ["PENDING", "QUEUED", "RUNNING", "CANCELLING"];
+const OPEN_JOB_STATUSES: readonly string[] = ["PENDING", "QUEUED", "RUNNING", "CANCELLING", "PAUSING"];
 
 /** Questions of a cancelled job that were neither saved nor failed: they were stopped before being written. */
 export const jobCancelledCount = (job: QuestionGenerationBatchChildResponse): number =>

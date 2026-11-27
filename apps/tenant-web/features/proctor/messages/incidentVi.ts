@@ -26,6 +26,7 @@ export const INCIDENT_VI: IncidentMessages = {
 
   listSearchPlaceholder: "Tìm tiêu đề hoặc nội dung sự cố...",
   listReportNew: "+ Báo cáo sự cố mới",
+  listReportClosedHint: "Ca thi đã kết thúc nên không thể báo cáo sự cố mới.",
   listFilterStatus: "Trạng thái",
   listErrorTitle: "Không thể tải danh sách sự cố",
   listErrorBody: "Đã có lỗi xảy ra khi truy vấn dữ liệu từ máy chủ. Vui lòng thử lại.",

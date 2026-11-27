@@ -87,12 +87,15 @@ export const AI_ADMIN_COPY = {
     UNIT_QUESTIONS: "{count} questions",
     UNIT_JOBS: "{count} jobs",
     UNIT_CALLS: "{count} calls",
+    UNIT_HOURS: "{count} hours",
+    KEEP_PAUSED: "Never",
     LIMITS_PANEL: "Limits",
     MAX_PER_JOB: "Per run",
     MAX_PER_USER_DAY: "Per admin per day",
     MAX_PER_DAY: "Whole platform per day",
     MAX_JOBS: "Concurrent jobs",
     MAX_CALLS: "AI calls per question",
+    PAUSED_EXPIRY: "Cancel a paused batch after",
     LIMIT_EDIT: "Edit",
     LIMIT_EXIT: "Exit",
     LIMIT_SAVE: "Save",
@@ -100,6 +103,7 @@ export const AI_ADMIN_COPY = {
     LIMIT_INVALID: "Enter a whole number from {min} to {max}.",
     LIMIT_ERROR: "The limits could not be saved. Please try again.",
     MAX_CALLS_HINT: "Writing, review and media all count. When a question runs out, it stops rewriting.",
+    PAUSED_EXPIRY_HINT: "A paused batch is cancelled after this many hours (0 = never); batches already paused follow the new value.",
     SECRETS_NOTE: "API keys are set in the server environment and are never shown here.",
     LOAD_ERROR_TITLE: "Could not load the AI settings",
     LOAD_ERROR_RETRY: "Try again",
@@ -114,12 +118,10 @@ export const AI_ADMIN_COPY = {
     FAILED: "Failed",
     ITEMS: "Questions made",
     ITEMS_DETAIL: "{saved} saved as drafts",
-    ESTIMATED_COST: "Estimated cost",
-    COST_DETAIL: "For {calls} AI calls",
     FAILED_RATE: "Failed",
     FAILED_DETAIL: "{count}/{total} questions",
     TOKENS: "Tokens (in / out)",
-    TOKENS_DETAIL: "{total} tokens in total",
+    TOKENS_DETAIL: "{total} tokens in total · {calls} AI calls",
     BY_TASK_TYPE: "By task type",
     TASK_TYPE: "Task type",
     FAILURES_PANEL: "Why items failed",
@@ -176,12 +178,15 @@ export const AI_ADMIN_COPY = {
     UNIT_QUESTIONS: "{count} câu",
     UNIT_JOBS: "{count} tác vụ",
     UNIT_CALLS: "{count} lượt",
+    UNIT_HOURS: "{count} giờ",
+    KEEP_PAUSED: "Không tự hủy",
     LIMITS_PANEL: "Giới hạn",
     MAX_PER_JOB: "Mỗi lần tạo",
     MAX_PER_USER_DAY: "Mỗi QTV / ngày",
     MAX_PER_DAY: "Toàn hệ thống / ngày",
     MAX_JOBS: "Chạy đồng thời",
     MAX_CALLS: "Gọi AI / câu",
+    PAUSED_EXPIRY: "Tự hủy lô tạm dừng sau",
     LIMIT_EDIT: "Chỉnh sửa",
     LIMIT_EXIT: "Thoát",
     LIMIT_SAVE: "Lưu",
@@ -189,6 +194,7 @@ export const AI_ADMIN_COPY = {
     LIMIT_INVALID: "Nhập số nguyên từ {min} đến {max}.",
     LIMIT_ERROR: "Không lưu được giới hạn. Vui lòng thử lại.",
     MAX_CALLS_HINT: "Tính cả lần viết, duyệt và tạo media. Hết lượt thì câu đó dừng viết lại.",
+    PAUSED_EXPIRY_HINT: "Lô tạm dừng quá số giờ này sẽ tự hủy (0 = không tự hủy); áp dụng cả cho lô đang dừng.",
     SECRETS_NOTE: "API key được cấu hình ở biến môi trường máy chủ và không hiển thị tại giao diện.",
     LOAD_ERROR_TITLE: "Không tải được cấu hình AI",
     LOAD_ERROR_RETRY: "Thử lại",
@@ -203,12 +209,10 @@ export const AI_ADMIN_COPY = {
     FAILED: "Thất bại",
     ITEMS: "Số câu đã tạo",
     ITEMS_DETAIL: "{saved} đã lưu thành bản nháp",
-    ESTIMATED_COST: "Chi phí ước tính",
-    COST_DETAIL: "Cho {calls} lần gọi AI",
     FAILED_RATE: "Lỗi",
     FAILED_DETAIL: "{count}/{total} câu",
     TOKENS: "Token (vào / ra)",
-    TOKENS_DETAIL: "Tổng {total} token",
+    TOKENS_DETAIL: "Tổng {total} token · {calls} lần gọi AI",
     BY_TASK_TYPE: "Theo dạng bài",
     TASK_TYPE: "Dạng bài",
     FAILURES_PANEL: "Vì sao câu hỏi thất bại",
@@ -253,8 +257,20 @@ export const GENERATION_LIMITS = [
   { field: "maxItemsPerDayGlobal", settingKey: "question_generation_max_items_per_day", label: "MAX_PER_DAY", unit: "UNIT_QUESTIONS", min: 0, max: 100_000 },
   { field: "maxConcurrentJobs", settingKey: "question_generation_max_concurrent_jobs", label: "MAX_JOBS", unit: "UNIT_JOBS", min: 1, max: 20 },
   { field: "maxCallsPerItem", settingKey: "question_generation_max_calls_per_item", label: "MAX_CALLS", unit: "UNIT_CALLS", min: 5, max: 200 },
+  { field: "pausedBatchExpiryHours", settingKey: "question_generation_paused_batch_expiry_hours", label: "PAUSED_EXPIRY", unit: "UNIT_HOURS", min: 0, max: 168 },
 ] as const;
 
+/** What a value of 0 means, for the limits where 0 is not "unlimited". */
+export const LIMIT_ZERO_LABEL: Partial<Record<GenerationLimit["field"], "KEEP_PAUSED">> = {
+  pausedBatchExpiryHours: "KEEP_PAUSED",
+};
+
 export type GenerationLimit = (typeof GENERATION_LIMITS)[number];
+
+/** The limits whose meaning is not obvious from the label get a line of help under the field. */
+export const GENERATION_LIMIT_HINTS: Partial<Record<GenerationLimit["field"], "MAX_JOBS_HINT" | "MAX_CALLS_HINT">> = {
+  maxConcurrentJobs: "MAX_JOBS_HINT",
+  maxCallsPerItem: "MAX_CALLS_HINT",
+};
 
 export type AiAdminCopy = { readonly [K in keyof (typeof AI_ADMIN_COPY)["en"]]: string };

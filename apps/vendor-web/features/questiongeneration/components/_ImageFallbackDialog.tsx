@@ -17,7 +17,11 @@ interface ImageFallbackDialogProps {
  * When the image model could not paint a Describe Image picture, the person is asked whether to make those questions
  * as charts instead; nothing is generated again unless they agree.
  */
-export const ImageFallbackDialog = ({ job, finished, text }: ImageFallbackDialogProps): ReactElement | null => {
+export const ImageFallbackDialog = ({
+  job,
+  finished,
+  text,
+}: ImageFallbackDialogProps): ReactElement | null => {
   const router = useRouter();
   const { showToast } = useToast();
   const create = useCreateQuestionGenerationJob();

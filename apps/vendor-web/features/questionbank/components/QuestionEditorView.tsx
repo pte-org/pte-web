@@ -28,11 +28,7 @@ export const NewQuestionView = (): ReactElement => {
 
   return (
     <div className="space-y-5">
-      <PageHeader
-        title={T.FORM_CREATE_TITLE}
-        // A helper beside the page title, quieter than the form's own save button.
-        actions={<GenerateWithAiAction draft={draft} />}
-      />
+      <PageHeader title={T.FORM_CREATE_TITLE} actions={<GenerateWithAiAction draft={draft} />} />
       <QuestionEditorWithPreview
         key={formRound}
         onSaved={() => {

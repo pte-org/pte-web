@@ -7,11 +7,12 @@ import type { QuestionPreviewDraft } from "../../../../features/questionbank/typ
 
 const APP = fileURLToPath(new URL("../../../../", import.meta.url));
 const GENERATION = join(APP, "features/questiongeneration");
-const BATCHES_ROUTE = join(APP, "app/(dashboard)/admin/questions/ai-batches");
+const BATCHES_ROUTE = join(APP, "app/(focus)/admin/questions/ai-batches");
 
 function sources(dir: string): string[] {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
-    entry.isDirectory() ? sources(join(dir, entry.name)) : [join(dir, entry.name)]);
+    entry.isDirectory() ? sources(join(dir, entry.name)) : [join(dir, entry.name)],
+  );
 }
 
 const draft = (patch: Partial<QuestionPreviewDraft>): QuestionPreviewDraft =>
@@ -22,8 +23,13 @@ describe("generation entry points", () => {
   it("no Drawer and no __tests__ remain in question generation", () => {
     const files = sources(GENERATION);
     expect(files.some((file) => file.includes("__tests__"))).toBe(false);
-    expect(files.filter((file) => /from "@pte\/ui"[\s\S]*?\bDrawer\b/.test(readFileSync(file, "utf8")) ||
-      /\bDrawer\b,/.test(readFileSync(file, "utf8")))).toEqual([]);
+    expect(
+      files.filter(
+        (file) =>
+          /from "@pte\/ui"[\s\S]*?\bDrawer\b/.test(readFileSync(file, "utf8")) ||
+          /\bDrawer\b,/.test(readFileSync(file, "utf8")),
+      ),
+    ).toEqual([]);
   });
 
   it("batches keep only their detail page (the popup is the only way to start one)", () => {

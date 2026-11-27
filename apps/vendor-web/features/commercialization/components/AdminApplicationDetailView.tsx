@@ -1,16 +1,20 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useState, type ReactElement } from "react";
-import { Alert, useToast, useDashboardBreadcrumbLabel, useLocale, CheckIcon, XIcon } from "@pte/ui";
+import {
+  Alert,
+  CheckIcon,
+  DashboardCard,
+  useDashboardBreadcrumbLabel,
+  useLocale,
+  useToast,
+  XIcon,
+} from "@pte/ui";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useApplicationQuery, useApproveApplication, useRejectApplication } from "../api";
-import {
-  ADMIN_APPLICATION_DETAIL_TEXT as RAW_ADMIN_APPLICATION_DETAIL_TEXT,
-  APPLICATIONS_LIST_PATH,
-} from "../constants";
+import { ADMIN_APPLICATION_DETAIL_TEXT as RAW_ADMIN_APPLICATION_DETAIL_TEXT } from "../constants";
 import { formatDateTime, formatElapsed } from "../applicationFormat";
 import { ApplicationInfoSections } from "./ApplicationInfoSections";
 import { CommercialStatusBadge } from "./CommercialStatusBadge";
@@ -145,30 +149,10 @@ const AdminApplicationDetailContent = ({
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+    <DashboardCard className="mx-auto flex w-full max-w-6xl flex-col gap-6">
       {/* Page Header */}
       <div className="flex flex-col gap-4 border-b border-slate-200/80 pb-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3.5">
-          <Link
-            href={APPLICATIONS_LIST_PATH}
-            className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-500 shadow-xs transition-colors hover:bg-slate-50 hover:text-slate-900"
-            title={T.BACK}
-            aria-label={T.BACK}
-          >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth="2.5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"
-              />
-            </svg>
-          </Link>
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
               <h1 className="text-2xl font-bold tracking-tight text-slate-900">
@@ -233,7 +217,7 @@ const AdminApplicationDetailContent = ({
         onConfirm={rejectApplication}
         onClose={() => setIsRejectOpen(false)}
       />
-    </div>
+    </DashboardCard>
   );
 };
 

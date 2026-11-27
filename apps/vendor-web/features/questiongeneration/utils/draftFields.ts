@@ -29,13 +29,18 @@ function fieldValue(value: unknown, correct: number[]): DraftFieldValue {
     if (value.every((entry) => isRecord(entry))) {
       return {
         kind: "records",
-        records: value.map((entry) => Object.entries(entry).map(([key, inner]) => ({ key, text: asText(inner) }))),
+        records: value.map((entry) =>
+          Object.entries(entry).map(([key, inner]) => ({ key, text: asText(inner) })),
+        ),
       };
     }
     return { kind: "list", items: value.map(asText), correct };
   }
   if (isRecord(value)) {
-    return { kind: "records", records: [Object.entries(value).map(([key, inner]) => ({ key, text: asText(inner) }))] };
+    return {
+      kind: "records",
+      records: [Object.entries(value).map(([key, inner]) => ({ key, text: asText(inner) }))],
+    };
   }
   return { kind: "text", text: asText(value) };
 }
@@ -63,4 +68,5 @@ export function humanizeKey(key: string): string {
 }
 
 /** Option letters: 0 is A. */
-export const optionLetter = (index: number): string => String.fromCharCode("A".charCodeAt(0) + index);
+export const optionLetter = (index: number): string =>
+  String.fromCharCode("A".charCodeAt(0) + index);

@@ -27,6 +27,8 @@ export const SCORE_TEMPLATE_TEXT = {
   INFO_CREATED_AT: "Created",
   INFO_UPDATED_AT: "Last updated",
   INFO_UNKNOWN: "Unknown",
+  INFO_CEFR_MIX: "CEFR mix",
+  INFO_CEFR_MIX_NONE: "Not set",
   MENU_TIME_FRAME: "Time frame",
   MENU_CEFR_MIX: "CEFR mix",
   TIME_FRAME_HINT:

@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { lastTopLevelKey, parsePartialJson } from "../../../../features/questiongeneration/utils/partialJson";
+import {
+  lastTopLevelKey,
+  parsePartialJson,
+} from "../../../../features/questiongeneration/utils/partialJson";
 
 describe("parsePartialJson", () => {
   it("shows a string value as far as it is written", () => {

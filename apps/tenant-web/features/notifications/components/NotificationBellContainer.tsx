@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { getUserFacingApiErrorMessage, type InboxItemResponse } from "@pte/api-client";
 import { InboxItemModal, NotificationBell, useToast } from "@pte/ui";
 import { useNotificationCenter } from "../api";
-import { notificationTargetHref, NOTIFICATIONS_PATH } from "../targetHref";
+import { notificationTargetHref } from "../targetHref";
 
 export function NotificationBellContainer() {
   const router = useRouter();
@@ -62,10 +62,6 @@ export function NotificationBellContainer() {
         isLoadingMore={isLoadingMore}
         onLoadMore={loadMoreRecent}
         onCollapse={collapseRecent}
-        onViewAll={() => {
-          setIsOpen(false);
-          router.push(NOTIFICATIONS_PATH);
-        }}
       />
       <InboxItemModal item={reading} onClose={() => setReading(null)} />
     </>

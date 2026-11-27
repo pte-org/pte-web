@@ -110,10 +110,7 @@ export const QuestionReviewPage = () => {
         {/* Right: Preview/Review/Edit Tabs */}
         <div className="border rounded-lg overflow-hidden flex flex-col">
           {selectedItem ? (
-            <ReviewPanelTabs
-              item={selectedItem}
-              jobId={job.publicId}
-            />
+            <ReviewPanelTabs item={selectedItem} jobId={job.publicId} />
           ) : (
             <div className="p-6 text-center text-gray-500">
               {generationMessages.emptyStateTitle}

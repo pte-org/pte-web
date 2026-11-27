@@ -15,7 +15,11 @@ import {
   batchDetailHref,
   generationLiveHref,
 } from "../liveConstants";
-import { OPEN_BATCH_STATUSES, pickGenerationActivity, type GenerationActivity } from "../utils/generationActivity";
+import {
+  OPEN_BATCH_STATUSES,
+  pickGenerationActivity,
+  type GenerationActivity,
+} from "../utils/generationActivity";
 
 const ACTIVITY_QUERY_KEY = "generationActivity";
 
@@ -27,7 +31,10 @@ async function loadActivity(): Promise<GenerationActivity | null> {
   ]);
   const openBatch = batches.data.find((batch) => OPEN_BATCH_STATUSES.includes(batch.status));
   const batch = openBatch ? await getQuestionGenerationBatch(apiClient, openBatch.publicId) : null;
-  return pickGenerationActivity(jobs.data, batch, { job: generationLiveHref, batch: batchDetailHref });
+  return pickGenerationActivity(jobs.data, batch, {
+    job: generationLiveHref,
+    batch: batchDetailHref,
+  });
 }
 
 /**
@@ -39,7 +46,8 @@ export function useGenerationActivity(enabled: boolean): GenerationActivity | nu
     queryKey: [GENERATION_JOBS_QUERY_KEY, ACTIVITY_QUERY_KEY],
     queryFn: loadActivity,
     enabled,
-    refetchInterval: (query) => (query.state.data ? ACTIVITY_BUSY_POLL_MS : ACTIVITY_IDLE_POLL_MS),
+    refetchInterval: (query) =>
+      query.state.data && !query.state.data.paused ? ACTIVITY_BUSY_POLL_MS : ACTIVITY_IDLE_POLL_MS,
   });
   return data ?? null;
 }

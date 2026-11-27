@@ -12,7 +12,13 @@ const job = {
   succeededCount: 1,
   items: [
     { index: 0, stage: "SAVED", questionPublicId: "q-1", failureCode: null, failureNote: null },
-    { index: 1, stage: "FAILED", questionPublicId: null, failureCode: "GENERATION_DUPLICATE_CONTENT", failureNote: null },
+    {
+      index: 1,
+      stage: "FAILED",
+      questionPublicId: null,
+      failureCode: "GENERATION_DUPLICATE_CONTENT",
+      failureNote: null,
+    },
     { index: 2, stage: "CANCELLED", questionPublicId: null, failureCode: null, failureNote: null },
   ],
 } as unknown as QuestionGenerationJobResponse;
@@ -20,7 +26,9 @@ const job = {
 describe("failureLabel", () => {
   it("reads a failure code in the UI language and never shows the raw code", () => {
     expect(failureLabel("GENERATION_DUPLICATE_CONTENT", "vi")).toBe("Trùng với câu hỏi đã có");
-    expect(failureLabel("GENERATION_DUPLICATE_CONTENT", "en")).toBe("Duplicate of an existing question");
+    expect(failureLabel("GENERATION_DUPLICATE_CONTENT", "en")).toBe(
+      "Duplicate of an existing question",
+    );
     expect(failureLabel("SOMETHING_NEW", "en")).not.toContain("SOMETHING_NEW");
   });
 });

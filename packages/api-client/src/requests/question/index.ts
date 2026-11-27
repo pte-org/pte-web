@@ -18,6 +18,7 @@ export const QUESTION_ENDPOINTS = {
   stats: "/api/v1/questions/stats",
   byId: (id: string) => `/api/v1/questions/${id}`,
   edit: (id: string) => `/api/v1/questions/${id}/edit`,
+  revisions: (id: string) => `/api/v1/questions/${id}/revisions`,
   status: (id: string) => `/api/v1/questions/${id}/status`,
 } as const;
 
@@ -81,19 +82,34 @@ export function deleteQuestion(client: ApiClient, id: string): Promise<void> {
   });
 }
 
+/** Every revision in the question's group, newest first; a published revision is never edited in place. */
+export function listQuestionRevisions(client: ApiClient, id: string): Promise<QuestionResponse[]> {
+  return client.request<QuestionResponse[]>(QUESTION_ENDPOINTS.revisions(id));
+}
+
 export function createQuestionRevision(client: ApiClient, id: string): Promise<QuestionResponse> {
   return client.request<QuestionResponse>(QUESTION_ENDPOINTS.edit(id), { method: "POST" });
 }
 
 export function submitQuestionApproval(client: ApiClient, id: string): Promise<QuestionResponse> {
-  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.status(id), { method: "PATCH", body: { action: "SUBMIT_APPROVAL" }, });
+  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.status(id), {
+    method: "PATCH",
+    body: { action: "SUBMIT_APPROVAL" },
+  });
 }
 
 export function approveQuestion(client: ApiClient, id: string): Promise<QuestionResponse> {
-  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.status(id), { method: "PATCH", body: { action: "APPROVE" }, });
+  return client.request<QuestionResponse>(QUESTION_ENDPOINTS.status(id), {
+    method: "PATCH",
+    body: { action: "APPROVE" },
+  });
 }
 
-export function rejectQuestion(client: ApiClient, id: string, reason: string): Promise<QuestionResponse> {
+export function rejectQuestion(
+  client: ApiClient,
+  id: string,
+  reason: string,
+): Promise<QuestionResponse> {
   return client.request<QuestionResponse>(QUESTION_ENDPOINTS.status(id), {
     method: "PATCH",
     body: { action: "REJECT", reason },
@@ -102,18 +118,21 @@ export function rejectQuestion(client: ApiClient, id: string, reason: string): P
 
 export function publishQuestion(client: ApiClient, id: string): Promise<QuestionResponse> {
   return client.request<QuestionResponse>(QUESTION_ENDPOINTS.status(id), {
-    method: "PATCH", body: { action: "PUBLISH" },
+    method: "PATCH",
+    body: { action: "PUBLISH" },
   });
 }
 
 export function archiveQuestion(client: ApiClient, id: string): Promise<QuestionResponse> {
   return client.request<QuestionResponse>(QUESTION_ENDPOINTS.status(id), {
-    method: "PATCH", body: { action: "ARCHIVE" },
+    method: "PATCH",
+    body: { action: "ARCHIVE" },
   });
 }
 
 export function unarchiveQuestion(client: ApiClient, id: string): Promise<QuestionResponse> {
   return client.request<QuestionResponse>(QUESTION_ENDPOINTS.status(id), {
-    method: "PATCH", body: { action: "UNARCHIVE" },
+    method: "PATCH",
+    body: { action: "UNARCHIVE" },
   });
 }

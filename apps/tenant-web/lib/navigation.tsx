@@ -13,7 +13,6 @@ import {
   CreditCardIcon,
   HeadsetIcon,
   HistoryIcon,
-  BellIcon,
 } from "@pte/ui";
 import { EXAMINER_NAV_TEXT, HOST_NAV_TEXT as T, PROCTOR_NAV_TEXT } from "./navigationConstants";
 
@@ -93,15 +92,6 @@ export function buildHostNav(labels: OrgLabels): NavItem[] {
       section: T.ACCOUNT_SECTION,
       sectionKey: "nav.account",
       requiredRoles: ["HOST_ADMIN"],
-    },
-    {
-      // Every host role has a notification inbox, so the entry carries no role requirement.
-      label: T.NOTIFICATIONS,
-      labelKey: "nav.notifications",
-      href: "/host/notifications",
-      icon: <BellIcon />,
-      section: T.ACCOUNT_SECTION,
-      sectionKey: "nav.account",
     },
     {
       label: T.SUPPORT_TICKETS,

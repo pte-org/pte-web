@@ -9,6 +9,9 @@ export type QuestionGenerationBatchStatus =
   | "QUEUED"
   | "RUNNING"
   | "CANCELLING"
+  /** Its running children are being stopped; it becomes PAUSED within a moment. */
+  | "PAUSING"
+  | "PAUSED"
   | "COMPLETED"
   | "PARTIALLY_COMPLETED"
   | "FAILED"
@@ -66,6 +69,39 @@ export interface QuestionGenerationBatchResponse {
   rows: QuestionGenerationBatchRow[];
   /** Empty in the list. */
   children: QuestionGenerationBatchChildResponse[];
+  /** When the batch was last paused; null while it runs. Absent from an older server. */
+  pausedAt?: string | null;
+  /** When a paused batch is cancelled unless resumed; null when paused batches are kept. */
+  pauseExpiresAt?: string | null;
+}
+
+/**
+ * One question slot of a batch for its result cards (`GET /batches/{id}/questions`). The preview fields are null
+ * (options empty) until the question is saved, and for a slot that failed or was cancelled.
+ */
+export interface QuestionGenerationBatchQuestion {
+  jobPublicId: string;
+  batchSeq: number;
+  itemIndex: number;
+  taskType: string;
+  cefrLevel: string | null;
+  stage: string;
+  failureCode: string | null;
+  questionPublicId: string | null;
+  section: string | null;
+  topic: string | null;
+  promptExcerpt: string | null;
+  options: string[];
+  correctOptionIndex: number | null;
+  audioRef: string | null;
+  imageRef: string | null;
+  audioSeconds: number | null;
+  voice: string | null;
+  chartType: string | null;
+  words: number | null;
+  /** Criteria the reviewer passed, out of `reviewTotal`; null when the question has no review. */
+  reviewPassed: number | null;
+  reviewTotal: number | null;
 }
 
 export interface QuestionGenerationBatchDraftDeleteRequest {
