@@ -16,7 +16,6 @@ const TYPING_TEXT_EN = {
   slow: "Slow",
   normal: "Normal",
   fast: "Fast",
-  revealAll: "Show all",
 };
 
 export type TypingText = { [K in keyof typeof TYPING_TEXT_EN]: string };
@@ -29,6 +28,5 @@ export const TYPING_TEXT: { vi: TypingText; en: TypingText } = {
     slow: "Chậm",
     normal: "Vừa",
     fast: "Nhanh",
-    revealAll: "Hiện hết",
   },
 };

@@ -110,8 +110,6 @@ export const ReplayItemPanel = ({
           <ReplayControls
             speed={pace.speed}
             onSpeed={pace.setSpeed}
-            typing={frame.typing}
-            onRevealAll={controls.revealAll}
             locale={locale}
           />
         }

@@ -37,8 +37,6 @@ export interface ReplayInput {
 export interface ReplayControls {
   pauseEachStep: boolean;
   setPauseEachStep: (on: boolean) => void;
-  /** Show the text being typed in full at once. */
-  revealAll: () => void;
   /** Let the playhead leave the step it waits at (when the replay pauses after each step). */
   release: () => void;
 }
@@ -70,11 +68,9 @@ export function useReplay({
     () => loadPlayhead(key) ?? (item?.ended ? endPlayhead(item, context) : START_PLAYHEAD),
   );
   const [pauseEachStep, setPauseEachStep] = useState(false);
-  // "Show all" belongs to the step it was pressed on; the playhead moving on lets it go.
-  const [revealedStep, setRevealedStep] = useState<number | null>(null);
   const settings = useMemo<ReplaySettings>(
-    () => ({ charsPerSecond, pauseEachStep, revealAll: revealedStep === playhead.step }),
-    [charsPerSecond, pauseEachStep, revealedStep, playhead.step],
+    () => ({ charsPerSecond, pauseEachStep, revealAll: false }),
+    [charsPerSecond, pauseEachStep],
   );
 
   const latest = useRef({ item, context, settings, clock, skipFinished });
@@ -120,10 +116,9 @@ export function useReplay({
     const current = latest.current.item;
     if (current) setPlayhead((before) => ({ ...before, released: nextReleased(before, current) }));
   }, []);
-  const reveal = useCallback((): void => setRevealedStep(playhead.step), [playhead.step]);
   const controls = useMemo<ReplayControls>(
-    () => ({ pauseEachStep, setPauseEachStep, revealAll: reveal, release }),
-    [pauseEachStep, reveal, release],
+    () => ({ pauseEachStep, setPauseEachStep, release }),
+    [pauseEachStep, release],
   );
   return { frame, controls };
 }
