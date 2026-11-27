@@ -5,7 +5,7 @@ import { getUserFacingApiErrorMessage, type AiStatusLimits } from "@pte/api-clie
 import { Button, DashboardPanel, PencilIcon, UnsavedChangesDialog, UnsavedChangesGuard, useLeaveAfterSave, useToast } from "@pte/ui";
 import { useRouter } from "next/navigation";
 import { useUpdateGenerationLimits } from "../api";
-import { GENERATION_LIMITS, type AiAdminCopy, type GenerationLimit } from "../constants";
+import { GENERATION_LIMITS, LIMIT_ZERO_LABEL, type AiAdminCopy, type GenerationLimit } from "../constants";
 import { useLimitsEditing } from "../hooks/useLimitsEditing";
 import { LimitEditor } from "./_LimitEditor";
 
@@ -17,7 +17,7 @@ interface AiLimitsPanelProps {
 /** A limit as a big number with its unit beside it; a daily limit of 0 means no limit and says so in words. */
 const LimitValue = ({ limit, value, copy }: { limit: GenerationLimit; value: number; copy: AiAdminCopy }): ReactElement =>
   value === 0 && limit.min === 0 ? (
-    <span className="text-lg font-semibold text-[var(--ink-primary)]">{copy.UNLIMITED}</span>
+    <span className="text-lg font-semibold text-[var(--ink-primary)]">{copy[LIMIT_ZERO_LABEL[limit.field] ?? "UNLIMITED"]}</span>
   ) : (
     <span>
       <span className="text-2xl font-semibold tabular-nums text-[var(--ink-primary)]">{value}</span>{" "}
@@ -72,7 +72,7 @@ export const AiLimitsPanel = ({ limits, copy }: AiLimitsPanelProps): ReactElemen
 
   return (
     <DashboardPanel title={copy.LIMITS_PANEL} actions={actions}>
-      <dl className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 lg:grid-cols-5 lg:gap-x-0 lg:divide-x lg:divide-[var(--shell-border)]">
+      <dl className="grid grid-cols-2 gap-x-6 gap-y-5 sm:grid-cols-3 lg:grid-cols-6 lg:gap-x-0 lg:divide-x lg:divide-[var(--shell-border)]">
         {GENERATION_LIMITS.map((limit) => (
           <div key={limit.field} className="min-w-0 lg:px-6 lg:first:pl-0 lg:last:pr-0">
             <dt className="text-xs font-semibold uppercase tracking-wide text-[var(--ink-muted)]">{copy[limit.label]}</dt>
@@ -88,7 +88,12 @@ export const AiLimitsPanel = ({ limits, copy }: AiLimitsPanelProps): ReactElemen
         ))}
       </dl>
       {/* The allowance's explanation is one sentence for the whole strip, not for the one narrow cell it belongs to. */}
-      {edit.editing && <p className="mt-4 text-xs text-[var(--ink-muted)]">{copy.MAX_CALLS_HINT}</p>}
+      {edit.editing && (
+        <div className="mt-4 space-y-1 text-xs text-[var(--ink-muted)]">
+          <p>{copy.MAX_CALLS_HINT}</p>
+          <p>{copy.PAUSED_EXPIRY_HINT}</p>
+        </div>
+      )}
       <UnsavedChangesDialog open={leaving} isSaving={update.isPending} onSaveAndLeave={save} onLeave={discard}
         onStay={() => setLeaving(false)} />
       <UnsavedChangesGuard isDirty={edit.editing && edit.changes.length > 0} isSaving={update.isPending}

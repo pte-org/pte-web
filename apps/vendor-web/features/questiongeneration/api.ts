@@ -41,7 +41,8 @@ import {
 const HTTP_FORBIDDEN = 403;
 const HTTP_NOT_FOUND = 404;
 const OPEN_BATCH_LOOKUP_SIZE = 5;
-const OPEN_BATCH_STATUSES: readonly string[] = ["QUEUED", "RUNNING", "CANCELLING"];
+// A paused batch is still open: it holds the writer's one open batch until it is resumed or cancelled.
+const OPEN_BATCH_STATUSES: readonly string[] = ["QUEUED", "RUNNING", "CANCELLING", "PAUSING", "PAUSED"];
 
 export function useCreateQuestionGenerationJob(): UseMutationResult<
   QuestionGenerationJobResponse,

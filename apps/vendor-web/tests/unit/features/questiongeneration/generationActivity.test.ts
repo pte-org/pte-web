@@ -33,7 +33,13 @@ describe("sidebar generation activity", () => {
       href: "/batch/b1",
       done: 5,
       total: 7,
+      paused: false,
     });
+  });
+
+  it("keeps a paused batch in place, marked paused", () => {
+    expect(pickGenerationActivity([], batch("PAUSED"), hrefs)?.paused).toBe(true);
+    expect(pickGenerationActivity([], batch("PAUSING"), hrefs)?.paused).toBe(true);
   });
 
   it("falls back to a running single job when no batch is open", () => {
@@ -45,6 +51,7 @@ describe("sidebar generation activity", () => {
       href: "/job/j1",
       done: 1,
       total: 3,
+      paused: false,
     });
   });
 

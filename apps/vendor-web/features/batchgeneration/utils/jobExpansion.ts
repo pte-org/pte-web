@@ -3,7 +3,7 @@ import type {
   QuestionGenerationJobStatus,
 } from "@pte/api-client";
 
-const RUNNING: readonly QuestionGenerationJobStatus[] = ["RUNNING", "CANCELLING"];
+const RUNNING: readonly QuestionGenerationJobStatus[] = ["RUNNING", "CANCELLING", "PAUSING"];
 const FINISHED: readonly QuestionGenerationJobStatus[] = ["COMPLETED", "FAILED", "CANCELLED"];
 
 /** The jobs running now, in run order: one per parallel lane. */

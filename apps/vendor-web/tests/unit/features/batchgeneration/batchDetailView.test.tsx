@@ -65,6 +65,8 @@ vi.mock("next/navigation", () => ({ usePathname: () => "/admin/questions/ai-batc
 vi.mock("../../../../features/batchgeneration/api", () => ({
   useQuestionGenerationBatch: () => ({ data: BATCH, isLoading: false, error: null }),
   useCancelQuestionGenerationBatch: () => mutation,
+  usePauseQuestionGenerationBatch: () => mutation,
+  useResumeQuestionGenerationBatch: () => mutation,
   useBatchQuestions: () => ({ data: [] }),
 }));
 // The results grid has its own tests; here only whether it replaces the live view matters.
