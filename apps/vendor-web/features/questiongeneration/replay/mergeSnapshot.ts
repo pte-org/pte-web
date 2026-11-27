@@ -3,6 +3,7 @@ import type {
   QuestionGenerationLiveItem,
 } from "@pte/api-client";
 import { settleOutcome } from "./outcome";
+import { writesOf } from "./resumedRun";
 import { lastOf, newCheck, newItem, newMedia, newPrompt, newReview, newWrite, rankOf, replaceAt, stepKey } from "./steps";
 import type {
   ItemScript,
@@ -35,19 +36,22 @@ import type {
 const TEXT_CHECKS: readonly string[] = ["PROMPT", "WRITE"];
 const REVIEW_CHECKS: readonly string[] = ["REVIEW_PROMPT", "REVIEW_WRITE", "REVIEW_VERDICT"];
 
-function snapshotSteps(live: QuestionGenerationLiveItem, knownRound: number | null): ScriptStep[] {
+function snapshotSteps(live: QuestionGenerationLiveItem, knownRound: number | null, roundBase = 0): ScriptStep[] {
   const checks = live.checks ?? [];
   const writer = live.generator;
   if (!writer && checks.length === 0 && !live.draft && !live.review) return [];
   // G counts every call of the writer, retries and the fallback model included, so it can run ahead of the round.
   // A script that has already seen as many writes as G says knows the round better than G does.
-  const round = knownRound ?? Math.max(writer?.attempt ?? 1, live.draft?.attempt ?? 1, 1);
+  // A resumed run counts its rounds from 1 again: they follow the rounds of the earlier runs (roundBase).
+  const runRound = knownRound === null ? Math.max(writer?.attempt ?? 1, live.draft?.attempt ?? 1, 1) : null;
+  const round = knownRound ?? roundBase + (runRound ?? 1);
   const afterWrite = checks.some((check) => !TEXT_CHECKS.includes(check.step));
-  const older = round > 1 && !afterWrite && live.draft != null && live.draft.attempt < round;
-  const draftRound = older ? live.draft?.attempt ?? round - 1 : round;
+  const draftAttempt = live.draft ? roundBase + live.draft.attempt : null;
+  const older = round > 1 && !afterWrite && draftAttempt !== null && draftAttempt < round;
+  const draftRound = older ? draftAttempt ?? round - 1 : round;
   const steps: ScriptStep[] = [];
 
-  if (draftRound > 1) {
+  if (draftRound - roundBase > 1) {
     steps.push({ key: stepKey("previousRounds", 0), kind: "previousRounds", round: 0, rounds: draftRound - 1 });
   }
   if (older) {
@@ -182,12 +186,14 @@ export function mergeSnapshot(
   for (const live of items) {
     const base = result.items[live.index] ?? newItem(live.index);
     if (base.ended) continue;
-    const writes = base.steps.filter((step) => step.kind === "write").length;
+    // A resumed run counts from 1 again: only what this run has written is compared with the snapshot.
+    const runBase = base.runBase ?? { round: 0, writes: 0 };
+    const writes = writesOf(base) - runBase.writes;
     const calls = live.generator?.attempt ?? 0;
     // A snapshot that counts fewer writer calls than the script has seen is older than the script: nothing in it is new.
     if (calls > 0 && calls < writes) continue;
-    const knownRound = base.round > 0 && calls <= writes ? base.round : null;
-    const merged = snapshotSteps(live, knownRound).reduce(mergeStep, base);
+    const knownRound = base.round > runBase.round && calls <= writes ? base.round : null;
+    const merged = snapshotSteps(live, knownRound, runBase.round).reduce(mergeStep, base);
     result = { ...result, items: { ...result.items, [live.index]: merged } };
     if (live.stage === "READY" && !context.saveQuestions) {
       result = settleOutcome(result, live.index, "READY", "feed-ready");

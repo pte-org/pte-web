@@ -10,9 +10,11 @@ import {
 import {
   ApiError,
   createQuestionGenerationJob,
+  getQuestionGenerationCefrMix,
   getQuestionGenerationPresets,
   listQuestionGenerationBatches,
   type QuestionGenerationBatchResponse,
+  type QuestionGenerationCefrMix,
   type QuestionGenerationPreset,
   getQuestionGenerationJob,
   getQuestionGenerationTaskTypes,
@@ -30,6 +32,7 @@ import {
   GENERATION_TASK_TYPES_QUERY_KEY,
 } from "./constants";
 import {
+  GENERATION_CEFR_MIX_QUERY_KEY,
   GENERATION_OPEN_BATCH_QUERY_KEY,
   GENERATION_PRESETS_QUERY_KEY,
   GENERATION_STATIC_STALE_MS,
@@ -38,7 +41,8 @@ import {
 const HTTP_FORBIDDEN = 403;
 const HTTP_NOT_FOUND = 404;
 const OPEN_BATCH_LOOKUP_SIZE = 5;
-const OPEN_BATCH_STATUSES: readonly string[] = ["QUEUED", "RUNNING", "CANCELLING"];
+// A paused batch is still open: it holds the writer's one open batch until it is resumed or cancelled.
+const OPEN_BATCH_STATUSES: readonly string[] = ["QUEUED", "RUNNING", "CANCELLING", "PAUSING", "PAUSED"];
 
 export function useCreateQuestionGenerationJob(): UseMutationResult<
   QuestionGenerationJobResponse,
@@ -122,6 +126,29 @@ export async function loadPresets(): Promise<QuestionGenerationPreset[]> {
       return [];
     throw error;
   }
+}
+
+/** The active template's CEFR mix; like the presets, a server without it or a refused caller means "no mix". */
+export async function loadCefrMix(): Promise<QuestionGenerationCefrMix | null> {
+  try {
+    return await getQuestionGenerationCefrMix(apiClient);
+  } catch (error) {
+    if (
+      error instanceof ApiError &&
+      (error.status === HTTP_FORBIDDEN || error.status === HTTP_NOT_FOUND)
+    )
+      return null;
+    throw error;
+  }
+}
+
+export function useQuestionGenerationCefrMix(): UseQueryResult<QuestionGenerationCefrMix | null, Error> {
+  return useQuery({
+    queryKey: [GENERATION_CEFR_MIX_QUERY_KEY],
+    queryFn: loadCefrMix,
+    staleTime: GENERATION_STATIC_STALE_MS,
+    retry: false,
+  });
 }
 
 export function useQuestionGenerationPresets(): UseQueryResult<QuestionGenerationPreset[], Error> {

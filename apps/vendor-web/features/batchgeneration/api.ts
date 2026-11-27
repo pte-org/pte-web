@@ -11,6 +11,8 @@ import {
 } from "@tanstack/react-query";
 import {
   cancelQuestionGenerationBatch,
+  pauseQuestionGenerationBatch,
+  resumeQuestionGenerationBatch,
   createQuestionGenerationBatch,
   getQuestionGenerationBatch,
   getQuestionGenerationBatchQuestions,
@@ -114,4 +116,35 @@ export function useCancelQuestionGenerationBatch(): UseMutationResult<
       void queryClient.invalidateQueries({ queryKey: [GENERATION_QUOTA_QUERY_KEY] });
     },
   });
+}
+
+/** Pause or resume a batch; the answer is the batch as it is now, so the page shows it without waiting for a poll. */
+function useBatchStateChange(
+  change: (id: string) => Promise<QuestionGenerationBatchResponse>,
+): UseMutationResult<QuestionGenerationBatchResponse, Error, string> {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: change,
+    onSuccess: (batch) => {
+      queryClient.setQueryData(batchDetailKey(batch.publicId), batch);
+      void queryClient.invalidateQueries({ queryKey: [BATCHES_QUERY_KEY] });
+      void queryClient.invalidateQueries({ queryKey: [GENERATION_JOBS_QUERY_KEY] });
+    },
+  });
+}
+
+export function usePauseQuestionGenerationBatch(): UseMutationResult<
+  QuestionGenerationBatchResponse,
+  Error,
+  string
+> {
+  return useBatchStateChange((id) => pauseQuestionGenerationBatch(apiClient, id));
+}
+
+export function useResumeQuestionGenerationBatch(): UseMutationResult<
+  QuestionGenerationBatchResponse,
+  Error,
+  string
+> {
+  return useBatchStateChange((id) => resumeQuestionGenerationBatch(apiClient, id));
 }

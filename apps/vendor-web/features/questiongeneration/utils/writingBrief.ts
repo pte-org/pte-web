@@ -35,9 +35,14 @@ export function writingBrief(
     return [{ key, label: copy.details[key] ?? key, value: detailValue(detail, copy) }];
   });
   const avoidedText = details.find((entry) => entry.key === AVOIDED_KEY)?.text ?? "";
-  const avoided = avoidedText
-    .split(TOPIC_SEPARATOR)
-    .map((topic) => topic.trim())
-    .filter((topic) => topic.length > 0);
+  // Earlier questions of a batch can share a topic; each one is listed once (it is also the list's React key).
+  const avoided = [
+    ...new Set(
+      avoidedText
+        .split(TOPIC_SEPARATOR)
+        .map((topic) => topic.trim())
+        .filter((topic) => topic.length > 0),
+    ),
+  ];
   return { lines, avoided };
 }

@@ -46,7 +46,8 @@ export function useGenerationActivity(enabled: boolean): GenerationActivity | nu
     queryKey: [GENERATION_JOBS_QUERY_KEY, ACTIVITY_QUERY_KEY],
     queryFn: loadActivity,
     enabled,
-    refetchInterval: (query) => (query.state.data ? ACTIVITY_BUSY_POLL_MS : ACTIVITY_IDLE_POLL_MS),
+    refetchInterval: (query) =>
+      query.state.data && !query.state.data.paused ? ACTIVITY_BUSY_POLL_MS : ACTIVITY_IDLE_POLL_MS,
   });
   return data ?? null;
 }

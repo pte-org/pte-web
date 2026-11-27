@@ -33,7 +33,10 @@ export const GenerationActivityNavItem = ({
   const progress = text.activityProgress
     .replace("{done}", String(activity.done))
     .replace("{total}", String(activity.total));
-  const dot = (
+  // A paused batch keeps its place here, but still: nothing is being written.
+  const dot = activity.paused ? (
+    <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-[var(--ink-muted)]" />
+  ) : (
     <span className="relative flex h-2.5 w-2.5 shrink-0">
       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--action)] opacity-60" />
       <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-[var(--action)]" />
@@ -61,7 +64,7 @@ export const GenerationActivityNavItem = ({
             <span className="block truncate text-sm font-semibold text-[var(--ink-primary)]">
               {title}
             </span>
-            <span className="block truncate text-xs text-[var(--ink-muted)]">{`${text.activity} · ${progress}`}</span>
+            <span className="block truncate text-xs text-[var(--ink-muted)]">{`${activity.paused ? text.activityPaused : text.activity} · ${progress}`}</span>
           </span>
         )}
       </Link>

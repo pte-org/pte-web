@@ -19,6 +19,8 @@ interface GenerationMatrixProps {
   taskTypes: readonly MatrixTaskType[];
   state: GenerationSelectionState;
   messages: DialogMessages;
+  /** The server paints AI pictures for Describe Image. */
+  pictureEnabled: boolean;
 }
 
 const HEADER_CLASS = "text-xs font-medium uppercase text-[var(--ink-muted)]";
@@ -29,6 +31,7 @@ const SectionGroup = ({
   types,
   state,
   messages,
+  pictureEnabled,
 }: { section: GenerationSection; types: readonly MatrixTaskType[] } & Omit<
   GenerationMatrixProps,
   "taskTypes"
@@ -63,6 +66,7 @@ const SectionGroup = ({
               messages={messages}
               onCellChange={(level, value) => state.setCell(type, level, value)}
               onChange={(patch) => state.update(type.taskType, patch)}
+              pictureEnabled={pictureEnabled}
             />
           ))
         : null}
@@ -75,6 +79,7 @@ export const GenerationMatrix = ({
   taskTypes,
   state,
   messages,
+  pictureEnabled,
 }: GenerationMatrixProps): ReactElement => {
   if (taskTypes.length === 0) return <Alert tone="warning">{messages.noTaskTypes}</Alert>;
   const sections = GENERATION_SECTIONS.filter((section) =>
@@ -99,6 +104,7 @@ export const GenerationMatrix = ({
           types={taskTypes.filter((type) => type.section === section)}
           state={state}
           messages={messages}
+          pictureEnabled={pictureEnabled}
         />
       ))}
     </div>

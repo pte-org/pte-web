@@ -7,7 +7,16 @@
 import type { CreateQuestionRequest } from "../question";
 
 /** PENDING: a batch child waiting for its turn. */
-export type QuestionGenerationJobStatus = "PENDING" | "QUEUED" | "RUNNING" | "COMPLETED" | "FAILED" | "CANCELLING" | "CANCELLED";
+/** PAUSING: a batch child being stopped for a pause; its worker hands it back to PENDING. */
+export type QuestionGenerationJobStatus =
+  | "PENDING"
+  | "QUEUED"
+  | "RUNNING"
+  | "COMPLETED"
+  | "FAILED"
+  | "CANCELLING"
+  | "PAUSING"
+  | "CANCELLED";
 
 export type QuestionGenerationItemStage =
   | "QUEUED"
@@ -172,6 +181,8 @@ export interface QuestionGenerationQuotaResponse {
   unlimited?: boolean;
   scope?: QuestionGenerationQuotaScope | null;
   maxItemsPerBatch?: number;
+  /** A Describe Image question may ask for an AI-painted picture; when false only charts are drawn. */
+  pictureEnabled?: boolean;
 }
 
 /** One task type of the active exam template and how many items one exam uses. */
@@ -179,6 +190,14 @@ export interface QuestionGenerationPreset {
   taskType: string;
   section: string;
   maxCount: number;
+}
+
+/** The active template's CEFR mix, which the "Full 1 exam" preset spreads its questions over. */
+export interface QuestionGenerationCefrMix {
+  templateName: string;
+  templateVersion: number;
+  /** Whole percent per level, lowest level first; only levels with a share. */
+  targets: { level: string; percent: number }[];
 }
 
 export interface QuestionGenerationJobCreateRequest {

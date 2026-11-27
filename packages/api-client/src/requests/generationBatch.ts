@@ -14,6 +14,8 @@ export const QUESTION_GENERATION_BATCH_ENDPOINTS = {
   batches: BATCHES,
   batchById: (id: string) => `${BATCHES}/${encodeURIComponent(id)}`,
   batchCancel: (id: string) => `${BATCHES}/${encodeURIComponent(id)}/cancel`,
+  batchPause: (id: string) => `${BATCHES}/${encodeURIComponent(id)}/pause`,
+  batchResume: (id: string) => `${BATCHES}/${encodeURIComponent(id)}/resume`,
   batchQuestions: (id: string) => `${BATCHES}/${encodeURIComponent(id)}/questions`,
   batchDraftDelete: (id: string) => `${BATCHES}/${encodeURIComponent(id)}/drafts/delete`,
 } as const;
@@ -73,4 +75,24 @@ export function deleteQuestionGenerationBatchDrafts(
     QUESTION_GENERATION_BATCH_ENDPOINTS.batchDraftDelete(id),
     { method: "POST", body: payload },
   );
+}
+
+/** Stops a running batch at once; the questions being written start over when it is resumed. Idempotent. */
+export function pauseQuestionGenerationBatch(
+  client: ApiClient,
+  id: string,
+): Promise<QuestionGenerationBatchResponse> {
+  return client.request<QuestionGenerationBatchResponse>(QUESTION_GENERATION_BATCH_ENDPOINTS.batchPause(id), {
+    method: "POST",
+  });
+}
+
+/** Runs a paused batch again, in its original order. Refused while it is still stopping. */
+export function resumeQuestionGenerationBatch(
+  client: ApiClient,
+  id: string,
+): Promise<QuestionGenerationBatchResponse> {
+  return client.request<QuestionGenerationBatchResponse>(QUESTION_GENERATION_BATCH_ENDPOINTS.batchResume(id), {
+    method: "POST",
+  });
 }

@@ -20,6 +20,7 @@ export const dialogMessages: DialogMessages = {
   imageKindAUTO: "Tự động",
   imageKindCHART: "Biểu đồ",
   imageKindPICTURE: "Ảnh AI",
+  imageKindPictureOff: "Ảnh AI đang tắt trên máy chủ, nên Tự động sẽ vẽ biểu đồ.",
   noTaskTypes: "Hiện chưa có dạng bài nào tạo được.",
 
   matrixStartFrom: "Bắt đầu từ",
@@ -37,13 +38,15 @@ export const dialogMessages: DialogMessages = {
   sideTotalDetail: "{types} dạng bài · ≈ {minutes} phút",
   sideDistribution: "Phân bố CEFR",
   sideBySkill: "Theo kỹ năng",
+  mixNote: "Chia theo tỉ lệ CEFR của mẫu {name} v{version}: {mix}",
+  mixSingleLevel: "Dùng một mức",
 
-  presetFull: "Full đề",
+  presetFull: "Full",
   presetMultiplierLabel: "Số đề",
-  presetSPEAKING: "Cả Speaking",
-  presetWRITING: "Cả Writing",
-  presetREADING: "Cả Reading",
-  presetLISTENING: "Cả Listening",
+  presetSPEAKING: "Speaking",
+  presetWRITING: "Writing",
+  presetREADING: "Reading",
+  presetLISTENING: "Listening",
   presetOverCap: "Mẫu này tạo {total} câu, vượt giới hạn {cap} câu mỗi lô. Hãy chọn ít đề hơn.",
 
   summaryRemaining: "Còn lại hôm nay",

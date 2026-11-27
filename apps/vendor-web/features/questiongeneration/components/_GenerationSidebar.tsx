@@ -1,7 +1,11 @@
 "use client";
 
 import type { ReactElement } from "react";
-import type { QuestionGenerationPreset, QuestionGenerationQuotaResponse } from "@pte/api-client";
+import type {
+  QuestionGenerationCefrMix,
+  QuestionGenerationPreset,
+  QuestionGenerationQuotaResponse,
+} from "@pte/api-client";
 import { QuantityStepper, Select, Textarea } from "@pte/ui";
 import {
   GENERATION_CEFR_LEVELS,
@@ -12,8 +16,10 @@ import {
 import type { GenerationSelectionState } from "../hooks/useGenerationSelection";
 import type { DialogMessages } from "../messages/dialog.en";
 import { formatMessage } from "../messages/useDialogMessages";
+import type { CefrShare } from "../utils/generationMix";
 import { quotaRemaining } from "../utils/generationSelection";
 import { GenerationDistribution } from "./_GenerationDistribution";
+import { GenerationMixNote } from "./_GenerationMixNote";
 
 const SECONDS_PER_MINUTE = 60;
 
@@ -23,6 +29,8 @@ interface GenerationSidebarProps {
   etaSeconds: number;
   quota: QuestionGenerationQuotaResponse | undefined;
   presets: readonly QuestionGenerationPreset[];
+  mix: QuestionGenerationCefrMix | null;
+  shares: readonly CefrShare[];
   cap: number;
   messages: DialogMessages;
 }
@@ -34,6 +42,8 @@ export const GenerationSidebar = ({
   etaSeconds,
   quota,
   presets,
+  mix,
+  shares,
   cap,
   messages,
 }: GenerationSidebarProps): ReactElement => {
@@ -63,7 +73,7 @@ export const GenerationSidebar = ({
           value={state.multiplier}
           min={PRESET_MULTIPLIER_MIN}
           max={PRESET_MULTIPLIER_MAX}
-          onChange={(value) => state.setMultiplier(value, presets, cap)}
+          onChange={(value) => state.setMultiplier(value, presets, cap, shares)}
         />
       ) : null}
       <div className="grid grid-cols-2 items-end gap-3">
@@ -86,6 +96,9 @@ export const GenerationSidebar = ({
         />
       </div>
       <GenerationDistribution selection={selection} total={total} messages={messages} />
+      {mix && selection.spreadByMix ? (
+        <GenerationMixNote mix={mix} shares={shares} messages={messages} onSingleLevel={state.singleLevel} />
+      ) : null}
       <Textarea
         id="generation-shared-topics"
         label={messages.sharedTopicsLabel}

@@ -59,6 +59,7 @@ export {
   getQuestionGenerationTaskTypes,
   getQuestionGenerationQuota,
   getQuestionGenerationPresets,
+  getQuestionGenerationCefrMix,
   followQuestionGenerationJob,
 } from "./generation";
 export {
@@ -74,6 +75,8 @@ export {
   getQuestionGenerationBatchQuestions,
   listQuestionGenerationBatches,
   cancelQuestionGenerationBatch,
+  pauseQuestionGenerationBatch,
+  resumeQuestionGenerationBatch,
   deleteQuestionGenerationBatchDrafts,
 } from "./generationBatch";
 

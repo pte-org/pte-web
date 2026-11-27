@@ -5,6 +5,8 @@ import type { BatchFocus } from "../hooks/useBatchFocus";
 
 interface BatchFocusNavProps {
   focus: BatchFocus;
+  /** The batch is over as the person sees it: the server finished and the replay on screen too. */
+  finished: boolean;
   messages: BatchMessages;
 }
 
@@ -12,9 +14,9 @@ interface BatchFocusNavProps {
  * Above the job being watched: where the batch stands, whether this replay is over, and the buttons that move on.
  * Nothing here moves by itself; the person decides when to go to another job or to the results.
  */
-export const BatchFocusNav = ({ focus, messages }: BatchFocusNavProps): ReactElement => (
+export const BatchFocusNav = ({ focus, finished, messages }: BatchFocusNavProps): ReactElement => (
   <div className="space-y-2">
-    {focus.finished && (
+    {finished && (
       <Alert tone="info">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <span>{messages.batchDoneWatching}</span>

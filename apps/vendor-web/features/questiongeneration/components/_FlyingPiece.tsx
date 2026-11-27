@@ -1,7 +1,9 @@
 "use client";
 
+import { createPortal } from "react-dom";
 import { useLayoutEffect, useRef, type ReactElement, type RefObject } from "react";
 import { PIECE_FLY_MS } from "../assemblyConstants";
+import { useIsClient } from "../hooks/useIsClient";
 import type { PieceKey } from "../utils/livePieces";
 
 interface FlyingPieceProps {
@@ -17,6 +19,7 @@ const FLY_EASING = "cubic-bezier(.5,0,.2,1)";
 /** A copy of a finished form field carried across to its place on the exam screen. */
 export const FlyingPiece = ({ rootRef, piece, label }: FlyingPieceProps): ReactElement | null => {
   const flyerRef = useRef<HTMLDivElement>(null);
+  const isClient = useIsClient();
   useLayoutEffect(() => {
     const flyer = flyerRef.current;
     const root = rootRef.current;
@@ -46,10 +49,11 @@ export const FlyingPiece = ({ rootRef, piece, label }: FlyingPieceProps): ReactE
       { duration: PIECE_FLY_MS, easing: FLY_EASING, fill: "forwards" },
     );
     return () => animation.cancel();
-  }, [rootRef, piece]);
+  }, [rootRef, piece, isClient]);
 
-  if (!piece) return null;
-  return (
+  if (!piece || !isClient) return null;
+  // On the body: a transformed ancestor (the full-screen layout) would turn `fixed` into its own frame and shift it.
+  return createPortal(
     <div
       ref={flyerRef}
       data-flying
@@ -57,6 +61,7 @@ export const FlyingPiece = ({ rootRef, piece, label }: FlyingPieceProps): ReactE
       className="pointer-events-none fixed z-40 truncate rounded-lg border border-[var(--action)] bg-[var(--surface-card)] px-3 py-2 text-sm font-medium shadow-xl"
     >
       {label}
-    </div>
+    </div>,
+    document.body,
   );
 };

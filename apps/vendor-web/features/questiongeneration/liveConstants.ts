@@ -39,7 +39,12 @@ export const ACTIVE_JOB_STATUSES: readonly QuestionGenerationJobStatus[] = [
   "QUEUED",
   "RUNNING",
   "CANCELLING",
+  "PAUSING",
 ];
+/** A job waiting for its turn: not started yet, or handed back when its batch was paused. */
+export const WAITING_JOB_STATUSES: readonly QuestionGenerationJobStatus[] = ["PENDING", "QUEUED"];
+export const isWaiting = (job: { status: QuestionGenerationJobStatus }): boolean =>
+  WAITING_JOB_STATUSES.includes(job.status);
 export const TERMINAL_ITEM_STAGES: readonly string[] = ["READY", "SAVED", "FAILED", "CANCELLED"];
 
 /** The steps of one item, each done by its own agent, in the order they run. */
@@ -96,6 +101,7 @@ const LIVE_TEXT_EN = {
   activity: "AI is writing questions",
   activityProgress: "{done}/{total}",
   activityBatch: "AI question batch",
+  activityPaused: "Paused",
   results: "Results",
   reviewAll: "Review the saved questions",
   failedBecause: "Not saved: {reason}",
@@ -154,6 +160,7 @@ export const LIVE_TEXT: { vi: LiveText; en: LiveText } = {
     activity: "AI đang sinh đề",
     activityProgress: "{done}/{total}",
     activityBatch: "Lô sinh đề AI",
+    activityPaused: "Tạm dừng",
     results: "Kết quả",
     reviewAll: "Duyệt các câu đã lưu",
     failedBecause: "Không lưu: {reason}",

@@ -1,22 +1,17 @@
 import type { ReactElement } from "react";
-import { Button, Select } from "@pte/ui";
+import { Select } from "@pte/ui";
 import { TYPING_SPEED_ORDER, TYPING_TEXT, type TypingSpeed } from "../typingConstants";
 
 interface ReplayControlsProps {
   speed: TypingSpeed;
   onSpeed: (speed: TypingSpeed) => void;
-  /** Text is still being written out, so it can be shown at once. */
-  typing: boolean;
-  onRevealAll: () => void;
   locale: "vi" | "en";
 }
 
-/** The typing pace of the replay and the way to skip the typing of what has already arrived. */
+/** The typing pace of the replay. */
 export const ReplayControls = ({
   speed,
   onSpeed,
-  typing,
-  onRevealAll,
   locale,
 }: ReplayControlsProps): ReactElement => {
   const text = TYPING_TEXT[locale];
@@ -34,11 +29,6 @@ export const ReplayControls = ({
           if (picked) onSpeed(picked);
         }}
       />
-      {typing && (
-        <Button size="sm" variant="ghost" onClick={onRevealAll}>
-          {text.revealAll}
-        </Button>
-      )}
     </div>
   );
 };

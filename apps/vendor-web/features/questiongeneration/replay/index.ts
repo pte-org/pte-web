@@ -13,6 +13,7 @@ export {
 } from "./outcome";
 export { clearPlayheads, loadPlayhead, playheadKey, samePlayhead, savePlayhead } from "./playheadStore";
 export { gateRankOf } from "./gateRank";
+export { haltRun } from "./resumedRun";
 export { nextReleased } from "./releaseGate";
 export { rankOf, stepKey } from "./steps";
 export * from "./frameTypes";

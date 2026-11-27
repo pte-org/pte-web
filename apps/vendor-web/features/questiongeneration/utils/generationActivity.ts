@@ -9,7 +9,10 @@ export const OPEN_BATCH_STATUSES: readonly QuestionGenerationBatchStatus[] = [
   "QUEUED",
   "RUNNING",
   "CANCELLING",
+  "PAUSING",
+  "PAUSED",
 ];
+const PAUSED_BATCH_STATUSES: readonly QuestionGenerationBatchStatus[] = ["PAUSING", "PAUSED"];
 
 /** What the sidebar shows under the question bank: what runs, where it leads and how far the AI got. */
 export interface GenerationActivity {
@@ -19,6 +22,8 @@ export interface GenerationActivity {
   href: string;
   done: number;
   total: number;
+  /** A paused batch: shown still, not pulsing, and polled slowly. */
+  paused: boolean;
 }
 
 interface ActivityHrefs {
@@ -39,6 +44,7 @@ export function pickGenerationActivity(
       href: hrefs.batch(batch.publicId),
       done: batch.succeededCount + batch.failedCount,
       total: batch.totalRequested,
+      paused: PAUSED_BATCH_STATUSES.includes(batch.status),
     };
   }
   const job = jobs.find((candidate) => ACTIVE_JOB_STATUSES.includes(candidate.status));
@@ -49,6 +55,7 @@ export function pickGenerationActivity(
         href: hrefs.job(job.publicId),
         done: job.succeededCount + job.failedCount,
         total: job.requestedCount,
+        paused: false,
       }
     : null;
 }

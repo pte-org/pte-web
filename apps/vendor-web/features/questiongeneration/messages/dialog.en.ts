@@ -18,6 +18,7 @@ export const dialogMessages = {
   imageKindAUTO: "Auto",
   imageKindCHART: "Chart",
   imageKindPICTURE: "AI picture",
+  imageKindPictureOff: "AI pictures are turned off on the server, so Auto draws a chart.",
   noTaskTypes: "No task type can be generated right now.",
 
   matrixStartFrom: "Start from",
@@ -35,6 +36,8 @@ export const dialogMessages = {
   sideTotalDetail: "{types} task types · ≈ {minutes} min",
   sideDistribution: "CEFR distribution",
   sideBySkill: "By skill",
+  mixNote: "Spread by the CEFR mix of template {name} v{version}: {mix}",
+  mixSingleLevel: "Use one level",
 
   presetFull: "Full exam",
   presetMultiplierLabel: "Exams",

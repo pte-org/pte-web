@@ -112,6 +112,16 @@ export interface ItemScript {
   ended: boolean;
   /** An outcome known to the job but held back until the stream has delivered everything before it. */
   pendingOutcome: ItemOutcome | null;
+  /**
+   * The rounds and writer calls of earlier runs, when the job was paused and resumed: the new run counts from 1
+   * again, so its snapshot is read on top of these. Absent while the question has had one run.
+   */
+  runBase?: { round: number; writes: number };
+  /**
+   * The stream ended while the question was being written or reviewed (a pause or a cancel cut it). The text that
+   * came is shown at once instead of being typed on, since nothing follows it. Absent while the run goes on.
+   */
+  halted?: boolean;
 }
 
 /** The scripts of a job's questions, by item index. */

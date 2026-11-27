@@ -163,6 +163,9 @@ export const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
     "This reset link is invalid or has expired. Request a new link and try again.",
   GENERATION_BATCH_NOT_FOUND: "This generation batch could not be found.",
   GENERATION_BATCH_NOT_CANCELLABLE: "This batch has already finished and can no longer be cancelled.",
+  GENERATION_BATCH_NOT_PAUSABLE: "Only a running batch can be paused.",
+  GENERATION_BATCH_NOT_RESUMABLE: "The batch is still stopping. Try again in a moment.",
+  GENERATION_BATCH_PAUSE_EXPIRED: "The batch stayed paused too long and was cancelled. Saved questions were kept.",
   GENERATION_BATCH_SIZE_OUT_OF_RANGE:
     "Each row needs at least one question and the batch total must stay within the per-batch limit.",
   GENERATION_BATCH_ROWS_OUT_OF_RANGE: "A batch must have between 1 and 150 rows.",

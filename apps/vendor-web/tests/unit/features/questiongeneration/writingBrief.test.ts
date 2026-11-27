@@ -40,4 +40,11 @@ describe("writingBrief", () => {
     ]);
     expect(writingBrief([], CHECK_COPY.en)).toEqual({ lines: [], avoided: [] });
   });
+  it("lists a topic avoided by several earlier questions once", () => {
+    const brief = writingBrief(
+      [prompt([{ key: "avoidedTopics", unit: "TEXT", text: "Daily Life, Coffee, Daily Life", count: 3 }])],
+      CHECK_COPY.en,
+    );
+    expect(brief.avoided).toEqual(["Daily Life", "Coffee"]);
+  });
 });

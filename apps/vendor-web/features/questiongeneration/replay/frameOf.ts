@@ -46,6 +46,7 @@ export function frameOf(
       atLiveEdge: !item?.ended,
       done: false,
       typing: false,
+      halted: false,
     };
   }
   const step = item.steps[playhead.step] ?? null;
@@ -54,6 +55,7 @@ export function frameOf(
   const complete = isStepComplete(item, playhead, settings, context);
   const hasNext = playhead.step + 1 < item.steps.length;
   const text = step && (step.kind === "write" || step.kind === "review") ? step.text : null;
+  const halted = item.halted === true && !item.ended && !hasNext;
   return {
     stepIndex: playhead.step,
     step,
@@ -66,6 +68,7 @@ export function frameOf(
     held: settings.pauseEachStep && complete && hasNext && playhead.released <= playhead.step,
     atLiveEdge: !hasNext && !item.ended,
     done: step?.kind === "outcome",
-    typing: text !== null && typedChars(playhead) < text.length,
+    typing: !halted && text !== null && typedChars(playhead) < text.length,
+    halted,
   };
 }

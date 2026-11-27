@@ -21,6 +21,7 @@ export const GENERATION_FALLBACK_SECONDS_PER_ITEM = 60;
 /** Task types and presets change rarely: fetch them once per session. */
 export const GENERATION_STATIC_STALE_MS = 5 * 60 * 1000;
 export const GENERATION_PRESETS_QUERY_KEY = "generationPresets";
+export const GENERATION_CEFR_MIX_QUERY_KEY = "generationCefrMix";
 export const GENERATION_OPEN_BATCH_QUERY_KEY = "generationOpenBatch";
 
 /** Server refusals the popup explains itself instead of a toast. */

@@ -14,6 +14,7 @@ import {
   type GenerationSection,
 } from "../dialogConstants";
 import { expandLevels, isSplitRow, rowTotal, type CefrLevelCounts } from "./generationCefr";
+import { spreadRows, type CefrShare } from "./generationMix";
 
 /** One ticked task type of the popup; it becomes one batch row, or one per CEFR level when split. */
 export interface SelectionRow {
@@ -36,6 +37,8 @@ export interface GenerationSelection {
   /** Topics for every row without its own, one per line. */
   sharedTopicText: string;
   rows: readonly SelectionRow[];
+  /** The rows were spread over the active template's CEFR mix by the "full exam" preset. */
+  spreadByMix?: boolean;
 }
 
 export type PresetKind = "FULL" | GenerationSection;
@@ -116,17 +119,25 @@ export function applyPreset(
   multiplier: number,
   cap: number,
   supported: ReadonlySet<string>,
+  shares: readonly CefrShare[] = [],
 ): PresetResult {
   const scale = multiplier;
   const chosen = presetTaskTypes(presets, kind, supported);
-  const kept = kind === "FULL" ? [] : selection.rows.filter((row) => row.section !== kind);
+  const full = kind === "FULL";
+  const kept = full ? [] : selection.rows.filter((row) => row.section !== kind);
   // A second click on an already applied preset clears what it ticked, so the buttons work as toggles.
   if (isPresetActive(selection, presets, kind, supported))
-    return { ok: true, selection: { ...selection, rows: kept } };
+    return { ok: true, selection: { ...selection, rows: kept, spreadByMix: full ? false : selection.spreadByMix } };
   const presetRows = chosen.map((preset) =>
     newRow(preset.taskType, preset.section, selection.defaultCefr, preset.maxCount * scale),
   );
-  const next = { ...selection, rows: [...kept, ...presetRows] };
+  // A whole exam follows the template's CEFR mix; a single skill keeps the default level.
+  const spread = full && shares.length > 0;
+  const next = {
+    ...selection,
+    rows: [...kept, ...(spread ? spreadRows(presetRows, shares) : presetRows)],
+    spreadByMix: full ? spread : selection.spreadByMix,
+  };
   const total = selectionTotal(next);
   return total > cap ? { ok: false, reason: "OVER_CAP", total } : { ok: true, selection: next };
 }
@@ -141,17 +152,47 @@ export function rescalePresetRows(
   from: number,
   to: number,
   cap: number,
+  shares: readonly CefrShare[] = [],
 ): PresetResult {
-  const rows = selection.rows.map((row) => {
-    const preset = presets.find((candidate) => candidate.taskType === row.taskType);
-    // A split row was spread over levels by hand, so it keeps its counts.
-    return preset && !isSplitRow(row) && row.count === preset.maxCount * from
-      ? { ...row, count: preset.maxCount * to }
-      : row;
-  });
-  const next = { ...selection, rows };
+  const next = selection.spreadByMix && shares.length > 0
+    ? { ...selection, rows: rescaleSpreadRows(selection.rows, presets, from, to, shares) }
+    : {
+        ...selection,
+        rows: selection.rows.map((row) => {
+          const preset = presets.find((candidate) => candidate.taskType === row.taskType);
+          // A split row was spread over levels by hand, so it keeps its counts.
+          return preset && !isSplitRow(row) && row.count === preset.maxCount * from
+            ? { ...row, count: preset.maxCount * to }
+            : row;
+        }),
+      };
   const total = selectionTotal(next);
   return total > cap ? { ok: false, reason: "OVER_CAP", total } : { ok: true, selection: next };
+}
+
+/**
+ * The rows the mix spread still hold their preset total: they get the new total and are spread again as one exam, so
+ * the exam stays on the mix; a row the author changed by hand keeps its counts.
+ */
+function rescaleSpreadRows(
+  rows: readonly SelectionRow[],
+  presets: readonly QuestionGenerationPreset[],
+  from: number,
+  to: number,
+  shares: readonly CefrShare[],
+): SelectionRow[] {
+  const presetOf = (row: SelectionRow): QuestionGenerationPreset | undefined =>
+    presets.find((candidate) => candidate.taskType === row.taskType);
+  const untouched = rows.filter((row) => {
+    const preset = presetOf(row);
+    return preset !== undefined && rowTotal(row) === preset.maxCount * from;
+  });
+  const respread = spreadRows(
+    untouched.map((row) => ({ ...row, levels: undefined, count: (presetOf(row)?.maxCount ?? 0) * to })),
+    shares,
+  );
+  const byTaskType = new Map(respread.map((row) => [row.taskType, row]));
+  return rows.map((row) => (untouched.includes(row) ? (byTaskType.get(row.taskType) ?? row) : row));
 }
 
 /** U1: one item of the editor's own task type keeps the in-form preview; anything else is a batch. */

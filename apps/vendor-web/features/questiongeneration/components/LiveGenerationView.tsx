@@ -18,7 +18,7 @@ import { QUESTIONS_QUERY_KEY } from "@/features/questionbank/constants";
 import { useCancelQuestionGenerationJob, useQuestionGenerationTaskTypes } from "../api";
 import { useLiveJob } from "../hooks/useLiveJob";
 import { useSkipFinishedReplay } from "../hooks/useSkipFinishedReplay";
-import { LIVE_TEXT, formFillHref, TERMINAL_JOB_STATUSES } from "../liveConstants";
+import { isWaiting, LIVE_TEXT, formFillHref, TERMINAL_JOB_STATUSES } from "../liveConstants";
 import { generatedValues, storeGeneratedFill } from "../utils/generatedFill";
 import { ImageFallbackDialog } from "./_ImageFallbackDialog";
 import { LiveJobItemList } from "./_LiveJobItemList";
@@ -88,7 +88,7 @@ export const LiveGenerationView = ({ jobId }: LiveGenerationViewProps): ReactEle
           {job.failedCount > 0 &&
             ` · ${text.failedCount.replace("{count}", String(job.failedCount))}`}
         </span>
-        {!finished && connection !== "open" && (
+        {!finished && !isWaiting(job) && connection !== "open" && (
           <span className="text-xs text-[var(--ink-muted)]">
             {connection === "reconnecting" ? text.reconnecting : text.connecting}
           </span>

@@ -6,7 +6,7 @@ import { useQuestionGenerationTaskTypes } from "../api";
 import { useLiveJob } from "../hooks/useLiveJob";
 import { useSkipFinishedReplay } from "../hooks/useSkipFinishedReplay";
 import { TYPING_TEXT } from "../typingConstants";
-import { LIVE_TEXT, TERMINAL_JOB_STATUSES } from "../liveConstants";
+import { isWaiting, LIVE_TEXT, TERMINAL_JOB_STATUSES } from "../liveConstants";
 import { JobOutcomeList } from "./_JobOutcomeList";
 import { LiveJobItemList } from "./_LiveJobItemList";
 
@@ -41,7 +41,7 @@ export const LiveJobPanel = ({ jobId, onReplayDone }: LiveJobPanelProps): ReactE
   const taskType = taskTypes.find((type) => type.taskType === job.taskType);
   return (
     <div className="space-y-3">
-      {!finished && connection !== "open" && (
+      {!finished && !isWaiting(job) && connection !== "open" && (
         <p className="text-xs text-[var(--ink-muted)]">
           {connection === "reconnecting" ? text.reconnecting : text.connecting}
         </p>

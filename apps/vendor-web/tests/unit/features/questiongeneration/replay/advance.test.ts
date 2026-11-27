@@ -13,7 +13,7 @@ import {
   nextReleased,
   START_PLAYHEAD,
 } from "../../../../../features/questiongeneration/replay";
-import { begin, check, draft, stage, thinking, token, verdict } from "./helpers";
+import { begin, check, draft, end, stage, thinking, token, verdict } from "./helpers";
 import { CONTEXT, SETTINGS, play, scriptOf } from "./playHelpers";
 
 const TEXT = "x".repeat(300);
@@ -35,6 +35,10 @@ const typed = (item: ReturnType<typeof scriptOf>, ms: number, cps: number): numb
 
 describe("advance: typing", () => {
   const item = scriptOf(writing);
+
+  it("shows the text a stop cut off at once instead of typing on", () => {
+    expect(typed(scriptOf([...writing, end]), 1000, 15)).toBe(TEXT.length);
+  });
 
   it.each([15, 30, 60])("types at %i characters a second", (cps) => {
     const seconds = 4;
