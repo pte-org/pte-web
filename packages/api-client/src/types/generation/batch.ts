@@ -9,6 +9,9 @@ export type QuestionGenerationBatchStatus =
   | "QUEUED"
   | "RUNNING"
   | "CANCELLING"
+  /** Its running children are being stopped; it becomes PAUSED within a moment. */
+  | "PAUSING"
+  | "PAUSED"
   | "COMPLETED"
   | "PARTIALLY_COMPLETED"
   | "FAILED"
@@ -66,6 +69,10 @@ export interface QuestionGenerationBatchResponse {
   rows: QuestionGenerationBatchRow[];
   /** Empty in the list. */
   children: QuestionGenerationBatchChildResponse[];
+  /** When the batch was last paused; null while it runs. Absent from an older server. */
+  pausedAt?: string | null;
+  /** When a paused batch is cancelled unless resumed; null when paused batches are kept. */
+  pauseExpiresAt?: string | null;
 }
 
 /**

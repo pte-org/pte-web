@@ -7,7 +7,16 @@
 import type { CreateQuestionRequest } from "../question";
 
 /** PENDING: a batch child waiting for its turn. */
-export type QuestionGenerationJobStatus = "PENDING" | "QUEUED" | "RUNNING" | "COMPLETED" | "FAILED" | "CANCELLING" | "CANCELLED";
+/** PAUSING: a batch child being stopped for a pause; its worker hands it back to PENDING. */
+export type QuestionGenerationJobStatus =
+  | "PENDING"
+  | "QUEUED"
+  | "RUNNING"
+  | "COMPLETED"
+  | "FAILED"
+  | "CANCELLING"
+  | "PAUSING"
+  | "CANCELLED";
 
 export type QuestionGenerationItemStage =
   | "QUEUED"

@@ -75,6 +75,8 @@ export {
   getQuestionGenerationBatchQuestions,
   listQuestionGenerationBatches,
   cancelQuestionGenerationBatch,
+  pauseQuestionGenerationBatch,
+  resumeQuestionGenerationBatch,
   deleteQuestionGenerationBatchDrafts,
 } from "./generationBatch";
 

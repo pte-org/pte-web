@@ -117,6 +117,9 @@ export const USER_FACING_ERROR_MESSAGES_VI: Record<string, string> = {
   INVALID_PASSWORD_RESET_TOKEN: "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Hãy yêu cầu liên kết mới rồi thử lại.",
   GENERATION_BATCH_NOT_FOUND: "Không tìm thấy đợt tạo câu hỏi này.",
   GENERATION_BATCH_NOT_CANCELLABLE: "Đợt tạo câu hỏi này đã xong nên không thể hủy.",
+  GENERATION_BATCH_NOT_PAUSABLE: "Chỉ tạm dừng được đợt tạo câu hỏi đang chạy.",
+  GENERATION_BATCH_NOT_RESUMABLE: "Đợt tạo câu hỏi vẫn đang dừng. Vui lòng thử lại sau giây lát.",
+  GENERATION_BATCH_PAUSE_EXPIRED: "Đợt tạo câu hỏi tạm dừng quá lâu nên đã bị hủy. Các câu đã lưu vẫn được giữ.",
   GENERATION_BATCH_SIZE_OUT_OF_RANGE:
     "Mỗi dòng cần ít nhất một câu hỏi và tổng số câu của đợt không được vượt giới hạn mỗi đợt.",
   GENERATION_BATCH_ROWS_OUT_OF_RANGE: "Một đợt phải có từ 1 đến 20 dòng.",
