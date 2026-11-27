@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, type ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import { NumberInput } from "@pte/ui";
 
 interface TraitNumberInputProps {
@@ -15,12 +15,19 @@ interface TraitNumberInputProps {
 }
 
 const INTEGER_PATTERN = /^\d+$/;
+const textOf = (value: number | null | undefined): string =>
+  value === null || value === undefined ? "" : String(value);
 
 /** One whole-number field (0..maxScore) for traits with too many bands to list as cards. */
 export const TraitNumberInput = ({ traitKey, label, maxScore, value, aiLevel, aiLabel, disabled, onChange }:
   TraitNumberInputProps): ReactElement => {
-  const [draft, setDraft] = useState(value === null || value === undefined ? "" : String(value));
-  useEffect(() => setDraft(value === null || value === undefined ? "" : String(value)), [value]);
+  const [draft, setDraft] = useState(textOf(value));
+  // A new value from outside (another examiner's save, a reset) replaces what is typed, during render, not in an effect.
+  const [shownValue, setShownValue] = useState(value);
+  if (shownValue !== value) {
+    setShownValue(value);
+    setDraft(textOf(value));
+  }
 
   const handleChange = (raw: string): void => {
     setDraft(raw);
@@ -30,7 +37,7 @@ export const TraitNumberInput = ({ traitKey, label, maxScore, value, aiLevel, ai
   };
   const handleBlur = (): void => {
     if (!INTEGER_PATTERN.test(draft)) {
-      setDraft(value === null || value === undefined ? "" : String(value));
+      setDraft(textOf(value));
       return;
     }
     const clamped = Math.min(Math.max(Number(draft), 0), maxScore);
