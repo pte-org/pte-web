@@ -1,6 +1,16 @@
 import { describe, expect, it, vi } from "vitest";
-import { buildScript, type ItemScript, type ScriptStep } from "../../../../../features/questiongeneration/replay";
-import { INDEX, begin, check, draft, end, media, stage, thinking, token, verdict } from "./helpers";
+import type { QuestionGenerationLiveEvent } from "@pte/api-client";
+import {
+  buildScript,
+  extendScript,
+  frameOf,
+  haltRun,
+  START_PLAYHEAD,
+  type ItemScript,
+  type ScriptStep,
+} from "../../../../../features/questiongeneration/replay";
+import { CONTEXT } from "./playHelpers";
+import { INDEX, begin, check, draft, end, live, liveCheck, media, stage, thinking, token, verdict } from "./helpers";
 
 const kinds = (item: ItemScript | undefined): string[] => (item?.steps ?? []).map((step) => step.kind);
 const item = (events: Parameters<typeof buildScript>[1]): ItemScript | undefined =>
@@ -157,5 +167,88 @@ describe("buildScript", () => {
 
   it("leaves the model empty when the stream does not say (an older server)", () => {
     expect(step(item([check("PROMPT"), begin("GENERATOR")]), "write").model).toBe("");
+  });
+
+  it("goes on after a resumed pause: the stopped write is superseded and the new run is a new round", () => {
+    const resumedSnapshot: QuestionGenerationLiveEvent = {
+      type: "snapshot",
+      items: [live({ generator: { attempt: 1, text: "fresh", thinking: "", thinkingChars: 0 }, checks: [liveCheck("PROMPT")] })],
+      finished: false,
+    };
+    const script = item([
+      check("PROMPT"),
+      begin("GENERATOR"),
+      token("GENERATOR", "stopped half"),
+      { type: "end", finished: true },
+      resumedSnapshot,
+      token("GENERATOR", " and more"),
+    ]);
+    const writes = script?.steps.filter((candidate) => candidate.kind === "write") ?? [];
+
+    expect(writes).toHaveLength(2);
+    expect(step(script, "write", 0).superseded).toBe(true);
+    expect(step(script, "write", 0).text).toBe("stopped half");
+    expect(step(script, "write", 1).round).toBe(2);
+    expect(step(script, "write", 1).text).toBe("fresh and more");
+    expect(script?.round).toBe(2);
+  });
+
+  it("cuts off the text being written when the stream ends mid-write (a pause or a cancel)", () => {
+    const script = item([check("PROMPT"), begin("GENERATOR"), token("GENERATOR", "stopped half"), end]);
+
+    expect(script?.halted).toBe(true);
+    expect(step(script, "write").superseded).toBe(true);
+    expect(step(script, "write").text).toBe("stopped half");
+  });
+
+  it("stops a question its job hands back to waiting, even before the writer began", () => {
+    const stopped = haltRun(buildScript(null, [check("PROMPT")]), true).items[INDEX];
+    const frame = frameOf(
+      stopped,
+      { ...START_PLAYHEAD, step: (stopped?.steps.length ?? 1) - 1 },
+      { charsPerSecond: 30, pauseEachStep: false, revealAll: false },
+      CONTEXT,
+    );
+
+    expect(stopped?.halted).toBe(true);
+    expect(frame.halted).toBe(true);
+    expect(frame.typing).toBe(false);
+  });
+
+  it("lets a stopped question run on when the stream sends more about it", () => {
+    const stopped = haltRun(buildScript(null, [check("PROMPT")]), true);
+    const extended = [begin("GENERATOR"), token("GENERATOR", "go")].reduce(
+      (script, event) => extendScript(script, event, { saveQuestions: true }),
+      stopped,
+    );
+
+    expect(stopped.items[INDEX]?.halted).toBe(true);
+    expect(extended.items[INDEX]?.halted).toBeUndefined();
+  });
+
+  it("gives the same script back when nothing is left to stop", () => {
+    const script = buildScript(null, [...oneRound, end]);
+
+    expect(haltRun(script)).toBe(script);
+  });
+
+  it("leaves a question that finished writing alone when the stream ends", () => {
+    const script = item([...oneRound, end]);
+
+    expect(script?.halted).toBeUndefined();
+    expect(step(script, "write").superseded).toBe(false);
+    expect(step(script, "media").superseded).toBe(false);
+  });
+
+  it("does not take a snapshot of a finished job as a new run", () => {
+    const finishedSnapshot: QuestionGenerationLiveEvent = {
+      type: "snapshot",
+      items: [live({ checks: [liveCheck("PROMPT")] })],
+      finished: true,
+    };
+    const script = buildScript(null, [check("PROMPT"), begin("GENERATOR"), end, finishedSnapshot]);
+
+    expect(script.items[INDEX]?.runBase).toBeUndefined();
+    expect(script.streamEnded).toBe(true);
   });
 });

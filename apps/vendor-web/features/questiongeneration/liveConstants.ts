@@ -39,7 +39,12 @@ export const ACTIVE_JOB_STATUSES: readonly QuestionGenerationJobStatus[] = [
   "QUEUED",
   "RUNNING",
   "CANCELLING",
+  "PAUSING",
 ];
+/** A job waiting for its turn: not started yet, or handed back when its batch was paused. */
+export const WAITING_JOB_STATUSES: readonly QuestionGenerationJobStatus[] = ["PENDING", "QUEUED"];
+export const isWaiting = (job: { status: QuestionGenerationJobStatus }): boolean =>
+  WAITING_JOB_STATUSES.includes(job.status);
 export const TERMINAL_ITEM_STAGES: readonly string[] = ["READY", "SAVED", "FAILED", "CANCELLED"];
 
 /** The steps of one item, each done by its own agent, in the order they run. */

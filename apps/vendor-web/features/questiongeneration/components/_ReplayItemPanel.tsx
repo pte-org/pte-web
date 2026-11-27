@@ -79,7 +79,9 @@ export const ReplayItemPanel = ({
   useEffect(() => onReplayDone?.(frame.done), [frame.done, onReplayDone]);
   const { rank, stage } = frame.chip;
   useEffect(() => onChip?.({ rank, stage }), [rank, stage, onChip]);
-  const stageText = STAGE_LABELS[locale][stage as keyof typeof STAGE_LABELS.en] ?? stage;
+  // A stopped question waits for its turn again, whatever step it was stopped in.
+  const shownStage = frame.halted ? "QUEUED" : stage;
+  const stageText = STAGE_LABELS[locale][shownStage as keyof typeof STAGE_LABELS.en] ?? shownStage;
   const savedHref =
     frame.outcome === "SAVED" && record.questionPublicId ? questionDetailHref(record.questionPublicId) : null;
   const heldRank = frame.held ? gateRankOf(frame.step) : null;
@@ -90,7 +92,7 @@ export const ReplayItemPanel = ({
           <span
             className={cn(
               "rounded-md px-2 py-0.5 text-xs font-medium",
-              ITEM_CHIP_TONES[stage] ?? ITEM_CHIP_TONES.QUEUED,
+              ITEM_CHIP_TONES[shownStage] ?? ITEM_CHIP_TONES.QUEUED,
             )}
           >
             {stageText}

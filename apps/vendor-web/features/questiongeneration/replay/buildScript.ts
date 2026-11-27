@@ -5,6 +5,7 @@ import type {
   QuestionGenerationLiveItem,
 } from "@pte/api-client";
 import { mergeSnapshot } from "./mergeSnapshot";
+import { haltRun, startNewRun } from "./resumedRun";
 import { settleOutcome, settlePending } from "./outcome";
 import {
   lastOf,
@@ -222,8 +223,12 @@ export function extendScript(
   event: QuestionGenerationLiveEvent,
   context: ScriptContext,
 ): Script {
-  if (event.type === "snapshot") return mergeSnapshot(script, event.items, context);
-  if (event.type === "end") return settlePending({ ...script, streamEnded: true });
+  if (event.type === "snapshot") {
+    // The stream had ended, and the job runs again (a resumed pause): its questions start a new run.
+    const resumed = script.streamEnded && !event.finished ? startNewRun(script) : script;
+    return mergeSnapshot(resumed, event.items, context);
+  }
+  if (event.type === "end") return haltRun(settlePending({ ...script, streamEnded: true }));
   if (!ITEM_EVENTS.includes(event.type)) return script;
   const index = (event as { index: number }).index;
   const item = script.items[index] ?? newItem(index);
@@ -237,7 +242,8 @@ export function extendScript(
       : script;
   }
   if (event.type === "item") return script;
-  return withItem(script, applyToItem(item, event));
+  // Anything new about a stopped question means its run goes on.
+  return withItem(script, applyToItem(item.halted ? { ...item, halted: undefined } : item, event));
 }
 
 /**

@@ -12,12 +12,14 @@ import { apiClient } from "@/lib/apiClient";
 import { GENERATION_JOBS_QUERY_KEY } from "../constants";
 import {
   ACTIVE_JOB_STATUSES,
+  isWaiting,
   LIVE_JOB_REFRESH_MS,
   LIVE_RECONNECT_DELAY_MS,
 } from "../liveConstants";
 import {
   EMPTY_SCRIPT,
   extendScript,
+  haltRun,
   outcomeOfStage,
   reasonFor,
   settleOutcome,
@@ -45,12 +47,15 @@ const reduce = (items: LiveItems, action: Action): LiveItems =>
 type ScriptAction =
   | { type: "event"; event: QuestionGenerationLiveEvent; saveQuestions: boolean }
   | { type: "outcome"; index: number; outcome: ItemOutcome; reason: SettleReason }
+  | { type: "halt" }
   | { type: "reset" };
 
 const reduceScript = (script: Script, action: ScriptAction): Script => {
   switch (action.type) {
     case "reset":
       return EMPTY_SCRIPT;
+    case "halt":
+      return haltRun(script, true);
     case "outcome":
       return settleOutcome(script, action.index, action.outcome, action.reason);
     case "event":
@@ -87,6 +92,16 @@ export function useLiveJob(jobId: string | null): LiveJob {
   const running = jobId !== null && isActive(job.data);
   // Known only once the job is loaded, so a finished job is not first followed as a running one.
   const mode = jobId === null || job.data === undefined ? null : running ? "follow" : "once";
+  // A paused batch hands its running jobs back to waiting; when one runs again its stream ended long ago, so the
+  // connection is opened again on each change between waiting and running (the script carries over, see startNewRun).
+  const waiting = job.data !== undefined && isWaiting(job.data);
+
+  // Waiting again after it ran (its batch was paused) and its stream is over: every question it had begun stands
+  // still until it runs again. The ended stream matters: the job record is reloaded only now and then, so it can still
+  // say "queued" while a fresh run already streams.
+  useEffect(() => {
+    if (waiting && script.streamEnded) dispatchScript({ type: "halt" });
+  }, [waiting, script]);
 
   // The script is never reset by a reconnect (the connection effect below), only by opening another job.
   useEffect(() => dispatchScript({ type: "reset" }), [jobId]);
@@ -145,7 +160,7 @@ export function useLiveJob(jobId: string | null): LiveJob {
       abort.abort();
       if (timer) clearTimeout(timer);
     };
-  }, [jobId, mode]);
+  }, [jobId, mode, waiting]);
 
   return { job, items, script, connection };
 }

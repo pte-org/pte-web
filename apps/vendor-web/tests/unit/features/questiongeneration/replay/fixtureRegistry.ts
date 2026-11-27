@@ -57,6 +57,8 @@ export const FIXTURES: readonly FixtureMeta[] = [
   }),
   text("media-chart", "handwritten", { outcome: "SAVED", atMs: 3000 }, { needs: CHART_NEEDS, needsMedia: true }),
   text("reconnect-after-rewrite", "handwritten", { outcome: "SAVED", atMs: 2500 }),
+  // A batch paused while the writer was answering, then resumed: the stream ends, then opens on a fresh run.
+  text("pause-midway-resume", "handwritten", { outcome: "SAVED", atMs: 3000 }),
   text("outcome-before-events", "handwritten", { outcome: "SAVED", atMs: 0 }),
   text("ready-form", "handwritten", null, { saveQuestions: false }),
   text("stream-drop-no-end", "handwritten", { outcome: "SAVED", atMs: 5000 }, { streamClosedAtMs: 3500 }),

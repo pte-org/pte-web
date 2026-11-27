@@ -49,7 +49,7 @@ const named = (name: string, model: string | undefined): string => (model ? `${n
 
 /** The piece an agent works on at this frame: the media being drawn, or the field being written or checked. */
 function activeOf(frame: Frame, typed: unknown, progress: number, needsImage: boolean): ActivePiece | null {
-  if (frame.outcome) return null;
+  if (frame.outcome || frame.halted) return null; // a stopped question: no agent works on it
   const step = frame.step;
   // The chart is revealed over its step before it is placed, so it is seen being drawn.
   if (step?.kind === "media" && needsImage && step.imageRef && !frame.stepComplete) {

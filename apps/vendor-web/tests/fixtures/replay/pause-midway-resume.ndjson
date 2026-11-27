@@ -1,0 +1,18 @@
+{"atMs":0,"event":{"type":"check","index":0,"step":"PROMPT","status":"PASSED","facts":{}}}
+{"atMs":100,"event":{"type":"begin","index":0,"agent":"GENERATOR","attempt":1,"model":"gpt-6-luna"}}
+{"atMs":200,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"{\"passage\":\"Night markets turn quiet stre"}}
+{"atMs":280,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"ets into busy places where families"}}
+{"atMs":400,"event":{"type":"end","finished":true}}
+{"atMs":2000,"event":{"type":"snapshot","items":[{"index":0,"stage":"GENERATING","activeAgent":"GENERATOR","generator":{"attempt":1,"text":"{\"passage\":\"Public librar","model":"gpt-6-luna"},"reviewer":null,"audioRef":null,"imageRef":null,"checks":[{"index":0,"step":"PROMPT","status":"PASSED","facts":{}}]}],"finished":false}}
+{"atMs":2100,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"ies lend books, and they also offer quie"}}
+{"atMs":2180,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"t rooms and classes.\",\"answerHintVi\":\"Doc"}}
+{"atMs":2260,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":" ky.\",\"answerHintEn\":\"Read carefully.\"}"}}
+{"atMs":2400,"event":{"type":"check","index":0,"step":"WRITE","status":"PASSED","facts":{}}}
+{"atMs":2410,"event":{"type":"draft","index":0,"attempt":1,"fields":{"promptText":"passage","answerHintVi":"Doc ky.","answerHintEn":"Read carefully."}}}
+{"atMs":2460,"event":{"type":"check","index":0,"step":"JSON","status":"PASSED","facts":{}}}
+{"atMs":2500,"event":{"type":"check","index":0,"step":"RULES","status":"PASSED","facts":{}}}
+{"atMs":2540,"event":{"type":"check","index":0,"step":"DUPLICATE","status":"PASSED","facts":{}}}
+{"atMs":2600,"event":{"type":"begin","index":0,"agent":"REVIEWER","attempt":1,"model":"gpt-6-luna"}}
+{"atMs":2660,"event":{"type":"token","index":0,"agent":"REVIEWER","delta":"Fine."}}
+{"atMs":2800,"event":{"type":"review","index":0,"kind":"CONTENT","passed":true,"fixSuggestion":null,"notes":{}}}
+{"atMs":2900,"event":{"type":"end","finished":true}}

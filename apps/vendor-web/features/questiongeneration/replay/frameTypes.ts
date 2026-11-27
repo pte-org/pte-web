@@ -93,4 +93,6 @@ export interface Frame {
   done: boolean;
   /** The step is typing text right now (the writer or the reviewer). */
   typing: boolean;
+  /** The question's run was stopped (paused or cancelled) and the playhead caught up: nothing moves until it runs again. */
+  halted: boolean;
 }

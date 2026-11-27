@@ -21,6 +21,9 @@ const textOf = (step: ScriptStep | undefined): string | null =>
 
 const toMilli = (chars: number): number => chars * MS_PER_SECOND;
 
+const isCutText = (step: ScriptStep): boolean =>
+  (step.kind === "write" || step.kind === "review") && step.superseded;
+
 /** What a step of this kind still needs before the playhead may leave it, in milliseconds of playing. */
 function remainingMs(
   step: ScriptStep,
@@ -137,7 +140,8 @@ export function advance(
   for (let guard = 0; guard < item.steps.length * 4 + 8; guard++) {
     const step = item.steps[current.step];
     if (!step) return current;
-    if (settings.revealAll) {
+    // A step a pause or a cancel cut off: what came is shown whole, nothing more will be typed into it.
+    if (settings.revealAll || (item.halted && isCutText(step))) {
       const text = textOf(step);
       if (text !== null) current = { ...current, charMilli: Math.max(current.charMilli, toMilli(text.length)) };
     }
