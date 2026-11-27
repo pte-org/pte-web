@@ -122,7 +122,12 @@ const GenerationDialogContent = ({
           {total === 0 ? (
             <p className="text-sm text-[var(--ink-muted)]">{messages.matrixEmptyHint}</p>
           ) : null}
-          <GenerationMatrix taskTypes={taskTypes} state={state} messages={messages} />
+          <GenerationMatrix
+            taskTypes={taskTypes}
+            state={state}
+            messages={messages}
+            pictureEnabled={quota?.pictureEnabled === true}
+          />
         </div>
         <div className="space-y-4 lg:sticky lg:top-0 lg:self-start lg:border-l lg:border-[var(--shell-border)] lg:pl-6">
           <GenerationSidebar

@@ -181,6 +181,8 @@ export interface QuestionGenerationQuotaResponse {
   unlimited?: boolean;
   scope?: QuestionGenerationQuotaScope | null;
   maxItemsPerBatch?: number;
+  /** A Describe Image question may ask for an AI-painted picture; when false only charts are drawn. */
+  pictureEnabled?: boolean;
 }
 
 /** One task type of the active exam template and how many items one exam uses. */

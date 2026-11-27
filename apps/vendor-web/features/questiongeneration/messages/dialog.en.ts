@@ -18,6 +18,7 @@ export const dialogMessages = {
   imageKindAUTO: "Auto",
   imageKindCHART: "Chart",
   imageKindPICTURE: "AI picture",
+  imageKindPictureOff: "AI pictures are turned off on the server, so Auto draws a chart.",
   noTaskTypes: "No task type can be generated right now.",
 
   matrixStartFrom: "Start from",

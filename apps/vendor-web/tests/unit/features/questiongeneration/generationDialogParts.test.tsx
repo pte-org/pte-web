@@ -63,11 +63,34 @@ describe("generation popup parts", () => {
         taskTypes={taskTypes}
         state={state([newRow("WRITE_ESSAY", "WRITING", "B2", 3)])}
         messages={en}
+        pictureEnabled
       />,
     );
     expect(html).toContain(en.skillWRITING);
     expect(html).toContain(en.skillSPEAKING);
     expect(html).toMatch(/value="3"/);
+  });
+
+  it("keeps the picture kind of a Describe Image row in sight and says when AI pictures are off", () => {
+    const taskTypes = [
+      {
+        taskType: "DESCRIBE_IMAGE",
+        section: "SPEAKING",
+        needsAudio: false,
+        needsImage: true,
+        estimatedSecondsPerItem: 60,
+      },
+    ];
+    const rows = [newRow("DESCRIBE_IMAGE", "SPEAKING", "B1", 2)];
+    const off = render(
+      <GenerationMatrix taskTypes={taskTypes} state={state(rows)} messages={en} pictureEnabled={false} />,
+    );
+    const on = render(<GenerationMatrix taskTypes={taskTypes} state={state(rows)} messages={en} pictureEnabled />);
+
+    expect(off).toContain(en.imageKindLabel);
+    expect(off).toContain(en.imageKindPictureOff);
+    expect(on).toContain(en.imageKindLabel);
+    expect(on).not.toContain(en.imageKindPictureOff);
   });
 
   it("hides what is left today when the quota is unlimited", () => {

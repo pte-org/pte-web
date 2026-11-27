@@ -20,6 +20,7 @@ export const dialogMessages: DialogMessages = {
   imageKindAUTO: "Tự động",
   imageKindCHART: "Biểu đồ",
   imageKindPICTURE: "Ảnh AI",
+  imageKindPictureOff: "Ảnh AI đang tắt trên máy chủ, nên Tự động sẽ vẽ biểu đồ.",
   noTaskTypes: "Hiện chưa có dạng bài nào tạo được.",
 
   matrixStartFrom: "Bắt đầu từ",

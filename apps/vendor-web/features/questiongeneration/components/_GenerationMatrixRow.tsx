@@ -25,6 +25,8 @@ interface MatrixRowProps {
   messages: DialogMessages;
   onCellChange: (level: GenerationCefrLevel, value: number) => void;
   onChange: (patch: Partial<Pick<SelectionRow, "topicText" | "imageKind">>) => void;
+  /** The server paints AI pictures; when not, a Describe Image row can only ask for charts. */
+  pictureEnabled: boolean;
 }
 
 const parseCell = (raw: string): number => {
@@ -32,14 +34,14 @@ const parseCell = (raw: string): number => {
   return Number.isFinite(value) ? Math.min(Math.max(value, 0), GENERATION_CELL_MAX) : 0;
 };
 
-/** Own topics and, for Describe Image, the picture kind: options a row rarely needs, kept out of the grid. */
+/** Own topics: an option a row rarely needs, kept out of the grid. */
 const RowOptions = ({
   type,
   row,
   messages,
   onChange,
-}: Omit<MatrixRowProps, "onCellChange"> & { row: SelectionRow }): ReactElement => (
-  <div className="grid gap-3 px-3 pb-3 md:grid-cols-[minmax(0,1fr)_12rem]">
+}: Pick<MatrixRowProps, "type" | "messages" | "onChange"> & { row: SelectionRow }): ReactElement => (
+  <div className="px-3 pb-3">
     <Textarea
       id={`generation-matrix-${type.taskType}-topics`}
       label={messages.topicsLabel}
@@ -47,21 +49,36 @@ const RowOptions = ({
       value={row.topicText}
       onChange={(event) => onChange({ topicText: event.target.value })}
     />
-    {type.taskType === DESCRIBE_IMAGE_TASK ? (
-      <Select
-        id={`generation-matrix-${type.taskType}-image`}
-        label={messages.imageKindLabel}
-        value={row.imageKind}
-        options={GENERATION_IMAGE_KINDS.map((kind) => ({
-          value: kind,
-          label: messages[`imageKind${kind}`],
-        }))}
-        // The options are exactly the image kinds, so the chosen value is one of them.
-        onChange={(event) =>
-          onChange({ imageKind: event.target.value as QuestionGenerationImageKind })
-        }
-      />
-    ) : null}
+  </div>
+);
+
+/**
+ * The picture kind of a Describe Image row, always in sight once the row has questions: it decides what the
+ * questions look like. An AI picture can only be asked for while the server has them turned on.
+ */
+const ImageKindPicker = ({
+  type,
+  row,
+  messages,
+  pictureEnabled,
+  onChange,
+}: Pick<MatrixRowProps, "type" | "messages" | "pictureEnabled" | "onChange"> & {
+  row: SelectionRow;
+}): ReactElement => (
+  <div className="w-full px-3 pb-3 md:w-72">
+    <Select
+      id={`generation-matrix-${type.taskType}-image`}
+      label={messages.imageKindLabel}
+      value={row.imageKind}
+      helperText={pictureEnabled ? undefined : messages.imageKindPictureOff}
+      options={GENERATION_IMAGE_KINDS.map((kind) => ({
+        value: kind,
+        label: messages[`imageKind${kind}`],
+        disabled: kind === "PICTURE" && !pictureEnabled,
+      }))}
+      // The options are exactly the image kinds, so the chosen value is one of them.
+      onChange={(event) => onChange({ imageKind: event.target.value as QuestionGenerationImageKind })}
+    />
   </div>
 );
 
@@ -72,6 +89,7 @@ export const GenerationMatrixRow = ({
   messages,
   onCellChange,
   onChange,
+  pictureEnabled,
 }: MatrixRowProps): ReactElement => {
   const [isOptionsOpen, setOptionsOpen] = useState(false);
   const name = taskTypeLabel(type.taskType);
@@ -124,6 +142,15 @@ export const GenerationMatrixRow = ({
           <span />
         )}
       </div>
+      {row && type.taskType === DESCRIBE_IMAGE_TASK ? (
+        <ImageKindPicker
+          type={type}
+          row={row}
+          messages={messages}
+          pictureEnabled={pictureEnabled}
+          onChange={onChange}
+        />
+      ) : null}
       {row && isOptionsOpen ? (
         <RowOptions type={type} row={row} messages={messages} onChange={onChange} />
       ) : null}
