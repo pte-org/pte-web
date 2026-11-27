@@ -1,3 +1,6 @@
+"use client";
+
+import { useUiLabel } from "../i18n/useUiLabel";
 import type { ReactElement } from "react";
 import { cn } from "../utils/cn";
 import { LoadingState } from "./LoadingState";
@@ -61,9 +64,12 @@ const OverviewSkeleton = (): ReactElement => (
 
 export const DashboardLoadingState = ({
   variant = "page",
-  label = "Đang tải trang",
+  label: labelProp,
   className,
-}: DashboardLoadingStateProps): ReactElement => (
+}: DashboardLoadingStateProps): ReactElement => {
+  const tr = useUiLabel();
+  const label = labelProp ?? tr("common.loadingPage", "Loading page");
+  return (
   <div
     role="status"
     aria-live="polite"
@@ -114,4 +120,5 @@ export const DashboardLoadingState = ({
       </>
     )}
   </div>
-);
+  );
+};

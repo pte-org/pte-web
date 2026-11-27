@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ChevronRightIcon, LocaleSwitcher, useSessionManager } from "@pte/ui";
 import { AUTH_ROUTES } from "@/features/auth/constants";
+import { resolveWorkspace } from "@/features/auth/resolveWorkspace";
 import { PUBLIC_TEXT } from "../constants";
 import { HOME_LAYOUT } from "../homeConstants";
 import { useHomeCopy } from "../useHomeCopy";
@@ -16,6 +17,8 @@ export const HomePublicHeader = (): ReactElement => {
   const aboutPte = useAboutPteCopy();
   const { isReady, session } = useSessionManager();
   const authenticated = isReady && Boolean(session?.accessToken);
+  // Each role opens its own workspace; a fixed Host link gave Proctors and Examiners a 403.
+  const dashboardHref = resolveWorkspace(session?.roles ?? []).defaultRoute;
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--home-border)] bg-white">
       <div
@@ -64,7 +67,7 @@ export const HomePublicHeader = (): ReactElement => {
             </Link>
           )}
           <Link
-            href={authenticated ? AUTH_ROUTES.hostDashboard : AUTH_ROUTES.register}
+            href={authenticated ? dashboardHref : AUTH_ROUTES.register}
             className={HOME_LAYOUT.primaryLink}
           >
             {authenticated ? HOME_TEXT.dashboard : HOME_TEXT.getStarted}

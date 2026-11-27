@@ -3,7 +3,7 @@
 import type { ReactElement } from "react";
 import { Select } from "@pte/ui";
 import type { AttendanceStatus, AttendanceSummaryResponse } from "@pte/api-client";
-import { getAttendanceStatusLabel, PROCTOR_TOOLBAR_TEXT as T } from "../constants";
+import { useAttendanceText } from "../hooks/useAttendanceText";
 
 interface AttendanceFilterToolbarProps {
   currentStatus: AttendanceStatus | "ALL";
@@ -17,20 +17,21 @@ export const AttendanceFilterToolbar = ({
   summary,
   onFilterChange,
 }: AttendanceFilterToolbarProps): ReactElement => {
+  const text = useAttendanceText();
   const options: { value: AttendanceStatus | "ALL"; label: string; count?: number }[] = [
-    { value: "ALL", label: T.ALL_TAB, count: summary?.totalEnrollments },
+    { value: "ALL", label: text.filterAll, count: summary?.totalEnrollments },
     {
       value: "UNMARKED",
-      label: getAttendanceStatusLabel("UNMARKED"),
+      label: text.statusLabel("UNMARKED"),
       count: summary?.unmarkedCount,
     },
-    { value: "PRESENT", label: getAttendanceStatusLabel("PRESENT"), count: summary?.presentCount },
-    { value: "LATE", label: getAttendanceStatusLabel("LATE"), count: summary?.lateCount },
-    { value: "ABSENT", label: getAttendanceStatusLabel("ABSENT"), count: summary?.absentCount },
+    { value: "PRESENT", label: text.statusLabel("PRESENT"), count: summary?.presentCount },
+    { value: "LATE", label: text.statusLabel("LATE"), count: summary?.lateCount },
+    { value: "ABSENT", label: text.statusLabel("ABSENT"), count: summary?.absentCount },
   ];
   return (
     <Select
-      aria-label={T.FILTER_STATUS_LABEL}
+      aria-label={text.filterStatusLabel}
       value={currentStatus}
       options={options.map((option) => ({
         value: option.value,

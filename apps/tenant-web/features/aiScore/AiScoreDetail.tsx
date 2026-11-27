@@ -1,7 +1,10 @@
+"use client";
+
 import type { ReactElement } from "react";
 import type { AiScoreDetailResponse } from "@pte/api-client";
 import { Alert, Badge } from "@pte/ui";
-import { AI_SCORE_STATUS_LABELS, AI_SCORE_STATUS_VARIANT, AI_SCORE_TEXT as T } from "./constants";
+import { AI_SCORE_STATUS_VARIANT } from "./constants";
+import { useAiScoreText } from "./useAiScoreText";
 import { formatCriterion } from "./utils";
 
 interface AiScoreDetailProps {
@@ -18,35 +21,36 @@ const SectionTitle = ({ children }: { children: string }): ReactElement => (
  * The AI's estimate and why: status, score, criteria, feedback and speaking transcript. Shown to the host and to the assigned examiner only; never to students.
  */
 export const AiScoreDetail = ({ ai }: AiScoreDetailProps): ReactElement => {
+  const text = useAiScoreText();
   const criteria = Object.entries(ai.criteria);
 
   return (
     <section
-      aria-label={T.LABEL}
+      aria-label={text.label}
       className="flex flex-col gap-3 rounded-xl border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-baseline gap-2">
-          <span className="text-sm font-semibold text-[var(--ink-primary)]">{T.LABEL}</span>
+          <span className="text-sm font-semibold text-[var(--ink-primary)]">{text.label}</span>
           <span className="text-lg font-semibold text-[var(--ink-primary)]">
-            {ai.score === null ? T.NO_SCORE : ai.score}
+            {ai.score === null ? text.noScore : ai.score}
           </span>
         </div>
         <Badge variant={AI_SCORE_STATUS_VARIANT[ai.status]}>
-          {AI_SCORE_STATUS_LABELS[ai.status]}
+          {text.statusLabel(ai.status)}
         </Badge>
       </div>
 
       {ai.status === "FAILED" && (
         <Alert tone="error">
-          {T.FAILURE_TITLE}
-          {ai.failureReason ? ` · ${T.FAILURE_REASON(ai.failureReason)}` : ""}
+          {text.failureTitle}
+          {ai.failureReason ? ` · ${text.failureReasonOf(ai.failureReason)}` : ""}
         </Alert>
       )}
 
       {criteria.length > 0 && (
         <div className="flex flex-col gap-1.5">
-          <SectionTitle>{T.CRITERIA_TITLE}</SectionTitle>
+          <SectionTitle>{text.criteriaTitle}</SectionTitle>
           <ul className="grid gap-1 text-sm sm:grid-cols-2">
             {criteria.map(([name, value]) => (
               <li key={name} className="flex justify-between gap-3">
@@ -60,21 +64,21 @@ export const AiScoreDetail = ({ ai }: AiScoreDetailProps): ReactElement => {
 
       {ai.feedback && (
         <div className="flex flex-col gap-1">
-          <SectionTitle>{T.FEEDBACK_TITLE}</SectionTitle>
+          <SectionTitle>{text.feedbackTitle}</SectionTitle>
           <p className="whitespace-pre-wrap text-sm text-[var(--ink-primary)]">{ai.feedback}</p>
         </div>
       )}
 
       {ai.transcript && (
         <div className="flex flex-col gap-1">
-          <SectionTitle>{T.TRANSCRIPT_TITLE}</SectionTitle>
+          <SectionTitle>{text.transcriptTitle}</SectionTitle>
           <p className="whitespace-pre-wrap break-words text-sm text-[var(--ink-primary)]">
             {ai.transcript}
           </p>
         </div>
       )}
 
-      <p className="text-xs text-[var(--ink-muted)]">{T.DISCLAIMER}</p>
+      <p className="text-xs text-[var(--ink-muted)]">{text.disclaimer}</p>
     </section>
   );
 };

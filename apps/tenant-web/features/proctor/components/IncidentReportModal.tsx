@@ -5,11 +5,7 @@ import { useFeedbackToast } from "../hooks/useFeedbackToast";
 import { useState, type FormEvent, type ReactElement } from "react";
 import { Button, Input, Modal, Textarea } from "@pte/ui";
 import type { IncidentCategory, IncidentSeverity } from "@pte/api-client";
-import {
-  PROCTOR_INCIDENT_CATEGORY_OPTIONS,
-  PROCTOR_INCIDENT_REPORT_TEXT as T,
-  PROCTOR_INCIDENT_SEVERITY_OPTIONS,
-} from "../constants";
+import { useIncidentText } from "../hooks/useIncidentText";
 import { useAttendanceRoster, useCreateIncidentMutation } from "../api";
 
 /** The attendance endpoint caps a page at 100 rows. */
@@ -37,6 +33,7 @@ export function IncidentReportModal({
   initialStudentPublicId,
   onSuccess,
 }: IncidentReportModalProps): ReactElement {
+  const text = useIncidentText();
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<IncidentCategory>("IDENTITY_VERIFICATION");
   const [severity, setSeverity] = useState<IncidentSeverity>("MEDIUM");
@@ -67,11 +64,11 @@ export function IncidentReportModal({
   const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
     if (!title.trim()) {
-      setError(T.ERROR_TITLE_REQUIRED);
+      setError(text.reportTitleRequired);
       return;
     }
     if (!description.trim()) {
-      setError(T.ERROR_DESC_REQUIRED);
+      setError(text.reportDescriptionRequired);
       return;
     }
     setError(null);
@@ -89,7 +86,7 @@ export function IncidentReportModal({
       onClose();
       if (onSuccess) onSuccess();
     } catch (err) {
-      setError(err instanceof Error ? err.message : T.ERROR_FALLBACK);
+      setError(err instanceof Error ? err.message : text.reportFallbackError);
     }
   };
 
@@ -97,7 +94,7 @@ export function IncidentReportModal({
     <Modal
       open={open}
       onClose={onClose}
-      title={T.TITLE}
+      title={text.reportTitle}
       size="lg"
       isDismissDisabled={createMutation.isPending}
       footer={
@@ -108,7 +105,7 @@ export function IncidentReportModal({
             onClick={onClose}
             disabled={createMutation.isPending}
           >
-            {T.CANCEL_BTN}
+            {text.reportCancel}
           </Button>
           <Button
             type="button"
@@ -116,7 +113,7 @@ export function IncidentReportModal({
             disabled={createMutation.isPending}
             onClick={(e) => void handleSubmit(e as unknown as FormEvent)}
           >
-            {createMutation.isPending ? T.SUBMITTING_BTN : T.SUBMIT_BTN}
+            {createMutation.isPending ? text.reportSubmitting : text.reportSubmit}
           </Button>
         </div>
       }
@@ -127,13 +124,13 @@ export function IncidentReportModal({
             htmlFor="incident-title"
             className="block text-xs font-medium text-[var(--ink-secondary)] mb-1"
           >
-            {T.FIELD_TITLE}
+            {text.reportFieldTitle}
           </label>
           <Input
             id="incident-title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder={T.TITLE_PLACEHOLDER}
+            placeholder={text.reportTitlePlaceholder}
             disabled={createMutation.isPending}
           />
         </div>
@@ -144,7 +141,7 @@ export function IncidentReportModal({
               htmlFor="incident-category"
               className="block text-xs font-medium text-[var(--ink-secondary)] mb-1"
             >
-              {T.FIELD_CATEGORY}
+              {text.reportFieldCategory}
             </label>
             <select
               id="incident-category"
@@ -153,7 +150,7 @@ export function IncidentReportModal({
               className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-default)] p-2 text-sm text-[var(--ink-primary)]"
               disabled={createMutation.isPending}
             >
-              {PROCTOR_INCIDENT_CATEGORY_OPTIONS.map((opt) => (
+              {text.categoryOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
@@ -166,7 +163,7 @@ export function IncidentReportModal({
               htmlFor="incident-severity"
               className="block text-xs font-medium text-[var(--ink-secondary)] mb-1"
             >
-              {T.FIELD_SEVERITY}
+              {text.reportFieldSeverity}
             </label>
             <select
               id="incident-severity"
@@ -175,7 +172,7 @@ export function IncidentReportModal({
               className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-default)] p-2 text-sm text-[var(--ink-primary)]"
               disabled={createMutation.isPending}
             >
-              {PROCTOR_INCIDENT_SEVERITY_OPTIONS.map((opt) => (
+              {text.severityOptions.map((opt) => (
                 <option key={opt.value} value={opt.value}>
                   {opt.label}
                 </option>
@@ -189,7 +186,7 @@ export function IncidentReportModal({
             htmlFor="incident-student"
             className="block text-xs font-medium text-[var(--ink-secondary)] mb-1"
           >
-            {T.FIELD_STUDENT_ID}
+            {text.reportFieldStudent}
           </label>
           <select
             id="incident-student"
@@ -198,7 +195,7 @@ export function IncidentReportModal({
             className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-default)] p-2 text-sm text-[var(--ink-primary)]"
             disabled={createMutation.isPending || roster.isLoading}
           >
-            <option value="">{roster.isLoading ? T.STUDENT_LOADING : T.STUDENT_NONE}</option>
+            <option value="">{roster.isLoading ? text.reportStudentLoading : text.reportStudentNone}</option>
             {studentOptions.map((option) => (
               <option key={option.id} value={option.id}>
                 {option.label}
@@ -212,14 +209,14 @@ export function IncidentReportModal({
             htmlFor="incident-description"
             className="block text-xs font-medium text-[var(--ink-secondary)] mb-1"
           >
-            {T.FIELD_DESCRIPTION}
+            {text.reportFieldDescription}
           </label>
           <Textarea
             id="incident-description"
             rows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder={T.DESCRIPTION_PLACEHOLDER}
+            placeholder={text.reportDescriptionPlaceholder}
             disabled={createMutation.isPending}
           />
         </div>

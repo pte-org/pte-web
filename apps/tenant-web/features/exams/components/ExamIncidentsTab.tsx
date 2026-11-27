@@ -3,18 +3,19 @@ import type { ReactElement } from "react";
 import { CollapsibleSection } from "@pte/ui";
 import { IncidentListView } from "@/features/proctor/components/IncidentListView";
 import { HostIncidentDetailModal } from "./HostIncidentDetailModal";
-import { HOST_INCIDENT_TEXT as T } from "../constants/incidents";
+import { useIncidentText } from "@/features/proctor/hooks/useIncidentText";
 
 interface ExamIncidentsTabProps {
   sessionPublicId: string;
 }
 
 export function ExamIncidentsTab({ sessionPublicId }: ExamIncidentsTabProps): ReactElement {
+  const text = useIncidentText();
   return (
     <div className="space-y-4">
-      <p className="text-sm text-[var(--ink-secondary)]">{T.INTRO}</p>
-      <CollapsibleSection title={T.WORKFLOW} defaultExpanded={false}>
-        <p className="text-sm text-[var(--ink-secondary)]">{T.FLOW}</p>
+      <p className="text-sm text-[var(--ink-secondary)]">{text.hostIntro}</p>
+      <CollapsibleSection title={text.hostWorkflow} defaultExpanded={false}>
+        <p className="text-sm text-[var(--ink-secondary)]">{text.hostFlow}</p>
       </CollapsibleSection>
       <IncidentListView
         sessionPublicId={sessionPublicId}

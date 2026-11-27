@@ -4,7 +4,7 @@ import { useState, type ReactElement } from "react";
 import type { AttendanceRowResponse } from "@pte/api-client";
 import { useForceSubmitMutation } from "../api";
 import { ForceSubmitDialog } from "../components/ForceSubmitDialog";
-import { PROCTOR_FORCE_SUBMIT_TEXT } from "../constants";
+import { useAttendanceText } from "./useAttendanceText";
 
 interface ForceSubmitDialogControl {
   /** Opens the confirmation for a roster row whose attempt is in progress. */
@@ -13,6 +13,7 @@ interface ForceSubmitDialogControl {
 }
 
 export function useForceSubmitDialog(sessionPublicId: string): ForceSubmitDialogControl {
+  const text = useAttendanceText();
   const [target, setTarget] = useState<AttendanceRowResponse | null>(null);
   const mutation = useForceSubmitMutation(sessionPublicId);
 
@@ -32,7 +33,7 @@ export function useForceSubmitDialog(sessionPublicId: string): ForceSubmitDialog
       <ForceSubmitDialog
         studentName={target ? target.displayName || target.studentPublicId : null}
         isLoading={mutation.isPending}
-        errorMessage={mutation.isError ? PROCTOR_FORCE_SUBMIT_TEXT.ERROR : null}
+        errorMessage={mutation.isError ? text.forceSubmitError : null}
         onClose={close}
         onConfirm={confirm}
       />

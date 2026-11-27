@@ -1,3 +1,6 @@
+"use client";
+
+import { useUiLabel } from "../i18n/useUiLabel";
 import type { ReactElement } from "react";
 
 interface MascotProps {
@@ -11,15 +14,18 @@ interface MascotProps {
  * artwork, not themeable UI — same rationale as the SSO brand marks. Swap this
  * component's body for an <Image> if a rendered asset is provided later.
  */
-export const Mascot = ({ className }: MascotProps): ReactElement => (
+export const Mascot = ({ className }: MascotProps): ReactElement => {
+  const tr = useUiLabel();
+  const label = tr("common.mascot", "PTE mascot");
+  return (
   <svg
     viewBox="0 0 200 200"
     className={className}
     role="img"
-    aria-label="PTE mascot"
+    aria-label={label}
     xmlns="http://www.w3.org/2000/svg"
   >
-    <title>PTE mascot</title>
+    <title>{label}</title>
     <defs>
       <linearGradient id="pteMascotBody" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stopColor="#6BA8FF" />
@@ -101,4 +107,5 @@ export const Mascot = ({ className }: MascotProps): ReactElement => (
       E
     </text>
   </svg>
-);
+  );
+};

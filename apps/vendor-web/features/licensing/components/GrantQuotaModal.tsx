@@ -174,7 +174,7 @@ export const GrantQuotaModal = ({
             }}
             placeholder={
               isPlansLoading
-                ? "Loading..."
+                ? translateAdminText("Loading...", locale)
                 : planOptions.length === 0
                   ? locale === "vi"
                     ? "Không có gói phù hợp"

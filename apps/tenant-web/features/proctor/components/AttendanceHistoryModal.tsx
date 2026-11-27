@@ -10,7 +10,7 @@ import {
   Modal,
   PaginationControls,
 } from "@pte/ui";
-import { PROCTOR_HISTORY_MODAL_TEXT as T } from "../constants";
+import { useAttendanceText } from "../hooks/useAttendanceText";
 import { AttendanceHistoryEntry } from "./AttendanceHistoryEntry";
 import { useAttendanceHistory, useHostAttendanceHistory } from "../api";
 
@@ -33,6 +33,7 @@ export function AttendanceHistoryModal({
   studentEmail,
   isHost = false,
 }: AttendanceHistoryModalProps): ReactElement {
+  const text = useAttendanceText();
   const [page, setPage] = useState(0);
 
   const [prevStudentPublicId, setPrevStudentPublicId] = useState(studentPublicId);
@@ -64,7 +65,7 @@ export function AttendanceHistoryModal({
       open={open}
       onClose={onClose}
       size="full"
-      title={T.TITLE}
+      title={text.historyTitle}
       footer={
         <div className="flex w-full items-center justify-between">
           <div>
@@ -73,7 +74,7 @@ export function AttendanceHistoryModal({
             )}
           </div>
           <Button variant="secondary" size="sm" onClick={onClose}>
-            {T.CLOSE_BTN}
+            {text.close}
           </Button>
         </div>
       }
@@ -82,32 +83,32 @@ export function AttendanceHistoryModal({
         <div className="flex flex-wrap items-start justify-between gap-3 rounded-xl bg-[var(--sky-tint)] p-4">
           <div className="min-w-0 space-y-1">
             <h3 className="break-words text-base font-semibold text-[var(--ink-primary)]">
-              {studentName || studentEmail || T.TITLE}
+              {studentName || studentEmail || text.historyTitle}
             </h3>
             {studentEmail && (
               <p className="break-all text-sm text-[var(--ink-secondary)]">{studentEmail}</p>
             )}
-            <p className="text-xs text-[var(--ink-secondary)]">{T.SUBTITLE}</p>
+            <p className="text-xs text-[var(--ink-secondary)]">{text.historySubtitle}</p>
           </div>
           {meta && (
             <Chip tone="sky">
-              {meta.totalElements} {T.RECORDS}
+              {meta.totalElements} {text.historyRecords}
             </Chip>
           )}
         </div>
         {isError ? (
           <ErrorState
-            title={T.ERROR_TITLE}
+            title={text.historyErrorTitle}
             action={
               <Button variant="secondary" size="sm" onClick={() => void refetch()}>
-                {T.RETRY_BTN}
+                {text.retry}
               </Button>
             }
           />
         ) : isLoading ? (
           <LoadingState variant="rows" />
         ) : historyItems.length === 0 ? (
-          <EmptyState title={T.EMPTY_TITLE} />
+          <EmptyState title={text.historyEmpty} />
         ) : (
           <ol className="space-y-3">
             {historyItems.map((entry) => (

@@ -1,5 +1,6 @@
 "use client";
 
+import { useUiLabel } from "../i18n/useUiLabel";
 import { useState, useEffect, type ReactNode } from "react";
 import { Button } from "./Button";
 import { cn } from "../utils/cn";
@@ -33,6 +34,7 @@ export const QuantityStepper = ({
   decrementIcon = "−",
   incrementIcon = "+",
 }: QuantityStepperProps) => {
+  const tr = useUiLabel();
   const [localValue, setLocalValue] = useState(value);
 
   useEffect(() => {
@@ -80,7 +82,7 @@ export const QuantityStepper = ({
           onClick={handleDecrement}
           disabled={isDecrementDisabled}
           className="rounded-none border-r border-gray-300 px-3 py-2 h-10 min-w-[40px]"
-          aria-label="Decrease quantity"
+          aria-label={tr("common.quantityDecrease", "Decrease quantity")}
           type="button"
         >
           {decrementIcon}
@@ -104,7 +106,7 @@ export const QuantityStepper = ({
               "[&::-webkit-inner-spin-button]:appearance-none",
               disabled && "bg-gray-100 cursor-not-allowed",
             )}
-            aria-label={label || "Quantity"}
+            aria-label={label || tr("common.quantity", "Quantity")}
           />
         ) : (
           <div className="w-16 text-center text-sm font-medium py-2 text-gray-900">
@@ -118,7 +120,7 @@ export const QuantityStepper = ({
           onClick={handleIncrement}
           disabled={isIncrementDisabled}
           className="rounded-none border-l border-gray-300 px-3 py-2 h-10 min-w-[40px]"
-          aria-label="Increase quantity"
+          aria-label={tr("common.quantityIncrease", "Increase quantity")}
           type="button"
         >
           {incrementIcon}

@@ -4,7 +4,7 @@ import { useState, type ReactElement } from "react";
 import { Alert, Button, ConfirmDialog } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { useRescoreSession } from "../api/rescore";
-import { START_AI_SCORING_TEXT as T } from "../constants";
+import { useScoringActionText } from "../hooks/useScoringActionText";
 
 interface StartAiScoringButtonProps {
   sessionPublicId: string;
@@ -14,6 +14,7 @@ interface StartAiScoringButtonProps {
 export const StartAiScoringButton = ({
   sessionPublicId,
 }: StartAiScoringButtonProps): ReactElement => {
+  const text = useScoringActionText();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const scoring = useRescoreSession(sessionPublicId);
 
@@ -24,19 +25,19 @@ export const StartAiScoringButton = ({
 
   return (
     <div className="flex flex-col items-end gap-2">
-      {scoring.isSuccess && <Alert tone="success">{T.QUEUED}</Alert>}
+      {scoring.isSuccess && <Alert tone="success">{text.startQueued}</Alert>}
       {scoring.isError && <Alert tone="error">{errorMessage(scoring.error)}</Alert>}
       <div>
         <Button type="button" onClick={() => setConfirmOpen(true)} disabled={scoring.isPending}>
-          {scoring.isPending ? T.SUBMITTING : T.BUTTON}
+          {scoring.isPending ? text.startSubmitting : text.startButton}
         </Button>
       </div>
       <ConfirmDialog
         open={confirmOpen}
-        title={T.CONFIRM_TITLE}
-        description={T.CONFIRM_DESCRIPTION}
-        confirmLabel={T.CONFIRM_LABEL}
-        cancelLabel={T.CANCEL_LABEL}
+        title={text.startConfirmTitle}
+        description={text.startConfirmDescription}
+        confirmLabel={text.startConfirmLabel}
+        cancelLabel={text.startCancel}
         onConfirm={confirm}
         onClose={() => setConfirmOpen(false)}
       />

@@ -3,6 +3,7 @@
 import type { ReactElement, ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useLocale } from "@pte/ui";
 import { AUTH_ROUTES } from "@/features/auth/constants";
 import { PublicHeader } from "./PublicHeader";
 import { HomeFooter } from "./HomeFooter";
@@ -16,6 +17,7 @@ interface PublicShellProps {
 
 export const PublicShell = ({ children, home = false }: PublicShellProps): ReactElement => {
   const { HOME_TEXT } = useHomeCopy();
+  const { t } = useLocale();
   return (
     <div
       className={home ? `${styles.page} min-h-screen` : "min-h-screen bg-[#f2f6fa] text-slate-900"}
@@ -38,11 +40,11 @@ export const PublicShell = ({ children, home = false }: PublicShellProps): React
                 <Link
                   href="/"
                   className="inline-flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#081f36]"
-                  aria-label="PTE Prep home"
+                  aria-label={t("tenant.public.homeLabel", "PTE Prep home")}
                 >
                   <Image
                     src="/logo-ppte.png"
-                    alt="PTE Prep logo"
+                    alt={t("tenant.public.logoAlt", "PTE Prep logo")}
                     width={36}
                     height={36}
                     className="h-8 w-8 rounded-lg bg-white object-contain p-0.5"
@@ -54,7 +56,7 @@ export const PublicShell = ({ children, home = false }: PublicShellProps): React
                 </p>
               </div>
 
-              <nav aria-label="Explore PTE Prep">
+              <nav aria-label={t("tenant.public.exploreNav", "Explore PTE Prep")}>
                 <p className="text-xs font-semibold text-[#98d6ff]">Explore</p>
                 <div className="mt-4 flex flex-col items-start gap-3 text-sm text-slate-300">
                   <Link href="/#value" className="hover:text-white hover:underline">
@@ -69,7 +71,7 @@ export const PublicShell = ({ children, home = false }: PublicShellProps): React
                 </div>
               </nav>
 
-              <nav aria-label="Account links">
+              <nav aria-label={t("tenant.public.accountNav", "Account links")}>
                 <p className="text-xs font-semibold text-[#98d6ff]">Account</p>
                 <div className="mt-4 flex flex-col items-start gap-3 text-sm text-slate-300">
                   <Link href={AUTH_ROUTES.login} className="hover:text-white hover:underline">

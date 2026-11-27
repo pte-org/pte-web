@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button, ErrorState, PaginationControls } from "@pte/ui";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
-import { PROCTOR_ATTENDANCE_VIEW_TEXT as T } from "../constants";
+import { useAttendanceText } from "../hooks/useAttendanceText";
 import { useAttendanceRoster } from "../api";
 import { useForceSubmitDialog } from "../hooks/useForceSubmitDialog";
 import { useAttendanceSearch } from "../hooks/useAttendanceSearch";
@@ -22,6 +22,7 @@ interface ProctorAttendanceViewProps {
 export function ProctorAttendanceView({
   sessionPublicId,
 }: ProctorAttendanceViewProps): ReactElement {
+  const text = useAttendanceText();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -50,7 +51,7 @@ export function ProctorAttendanceView({
     size: 20,
   });
 
-  useFeedbackToast(isError && data ? T.ERROR_DESC : null);
+  useFeedbackToast(isError && data ? text.viewErrorBody : null);
 
   const forceSubmit = useForceSubmitDialog(sessionPublicId);
 
@@ -89,11 +90,11 @@ export function ProctorAttendanceView({
     return (
       <div className="p-4 sm:p-6 lg:p-8">
         <ErrorState
-          title={T.ERROR_TITLE}
-          description={T.ERROR_DESC}
+          title={text.viewErrorTitle}
+          description={text.viewErrorBody}
           action={
             <Button variant="secondary" onClick={() => void refetch()}>
-              {T.RETRY_BTN}
+              {text.retry}
             </Button>
           }
         />

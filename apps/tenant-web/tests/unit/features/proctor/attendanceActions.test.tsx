@@ -7,6 +7,7 @@ import { AttendanceRosterTable } from "../../../../features/proctor/components/A
 
 const state = vi.hoisted(() => ({ items: [] as DropdownItem[] }));
 vi.mock("@pte/ui", () => ({
+  useLocale: () => ({ locale: "vi", setLocale: () => undefined, t: (key: string, fallback?: string) => fallback ?? key }),
   DataTable: ({ rows, rowActions }: { rows: AttendanceRowResponse[]; rowActions: (row: AttendanceRowResponse) => ReactNode }) => <div>{rows[0] && rowActions(rows[0])}</div>,
   ActionMenu: ({ items }: { items: DropdownItem[] }) => { state.items = items; return <span>Menu</span>; },
 }));

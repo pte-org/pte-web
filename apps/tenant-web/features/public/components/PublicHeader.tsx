@@ -3,8 +3,9 @@
 import type { ReactElement } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronRightIcon, useSessionManager } from "@pte/ui";
+import { ChevronRightIcon, useLocale, useSessionManager } from "@pte/ui";
 import { AUTH_ROUTES } from "@/features/auth/constants";
+import { resolveWorkspace } from "@/features/auth/resolveWorkspace";
 import { HomePublicHeader } from "./HomePublicHeader";
 
 const LINK_BUTTON_CLASS =
@@ -15,17 +16,20 @@ interface PublicHeaderProps {
 }
 
 export const PublicHeader = ({ home = false }: PublicHeaderProps): ReactElement => {
+  const { t } = useLocale();
   const { isReady, session } = useSessionManager();
   const showDashboard = isReady && Boolean(session?.accessToken);
+  // Each role opens its own workspace; a fixed Host link gave Proctors and Examiners a 403.
+  const dashboardHref = resolveWorkspace(session?.roles ?? []).defaultRoute;
   if (home) return <HomePublicHeader />;
 
   return (
     <header className="border-b border-slate-200 bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3.5 lg:px-8">
-        <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="PTE Prep home">
+        <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label={t("tenant.public.homeLabel", "PTE Prep home")}>
           <Image
             src="/logo-ppte.png"
-            alt="PTE Prep logo"
+            alt={t("tenant.public.logoAlt", "PTE Prep logo")}
             width={40}
             height={40}
             priority
@@ -34,7 +38,7 @@ export const PublicHeader = ({ home = false }: PublicHeaderProps): ReactElement 
           <span className="text-base font-bold tracking-[-0.025em] text-[#174a86]">PTE Prep</span>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Main navigation">
+        <nav className="hidden items-center gap-1 md:flex" aria-label={t("tenant.public.mainNav", "Main navigation")}>
           <Link
             href="/#value"
             className={`${LINK_BUTTON_CLASS} text-slate-600 hover:bg-[#f2f6fa] hover:text-action`}
@@ -55,7 +59,7 @@ export const PublicHeader = ({ home = false }: PublicHeaderProps): ReactElement 
           </Link>
           {showDashboard ? (
             <Link
-              href={AUTH_ROUTES.hostDashboard}
+              href={dashboardHref}
               className={`${LINK_BUTTON_CLASS} ml-2 gap-1.5 bg-action px-4 text-white hover:bg-action-hover`}
             >
               Open dashboard

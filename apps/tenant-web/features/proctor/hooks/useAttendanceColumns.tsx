@@ -1,19 +1,18 @@
 "use client";
-import { getAttendanceActivityLabel } from "../attendancePresentation";
 import { useMemo } from "react";
 import { Badge, StatusBadge, type DataTableColumn } from "@pte/ui";
 import type { AttendanceRowResponse } from "@pte/api-client";
 import {
   getAttendanceBadgeVariant,
-  getAttendanceStatusLabel as getAttendanceLabel,
-  PROCTOR_ROSTER_TEXT as T,
 } from "../constants";
+import { useAttendanceText } from "./useAttendanceText";
 export const useAttendanceColumns = (): DataTableColumn<AttendanceRowResponse>[] => {
+  const text = useAttendanceText();
   return useMemo(
     () => [
       {
         key: "student",
-        header: T.COL_STUDENT,
+        header: text.colStudent,
         cell: (row) => (
           <div>
             <div className="font-medium text-[var(--ink-primary)]">
@@ -25,43 +24,43 @@ export const useAttendanceColumns = (): DataTableColumn<AttendanceRowResponse>[]
       },
       {
         key: "attendance",
-        header: T.COL_ATTENDANCE,
+        header: text.colAttendance,
         cell: (row) => (
           <StatusBadge
-            label={getAttendanceLabel(row.status)}
+            label={text.statusLabel(row.status)}
             variant={getAttendanceBadgeVariant(row.status)}
           />
         ),
       },
       {
         key: "activity",
-        header: T.COL_ACTIVITY,
+        header: text.colActivity,
         cell: (row) =>
           row.latestAttemptActivityStatus ? (
             <div>
               <Badge variant="info">
-                {getAttendanceActivityLabel(row.latestAttemptActivityStatus)}
+                {text.activityLabel(row.latestAttemptActivityStatus)}
               </Badge>
               {row.latestAttemptActivityAt && (
                 <div className="mt-1 text-[11px] text-[var(--ink-muted)]">
-                  {new Date(row.latestAttemptActivityAt).toLocaleTimeString("vi-VN")}
+                  {text.formatTime(row.latestAttemptActivityAt)}
                 </div>
               )}
             </div>
           ) : (
-            <span className="text-xs text-[var(--ink-muted)]">{T.NOT_STARTED}</span>
+            <span className="text-xs text-[var(--ink-muted)]">{text.notStarted}</span>
           ),
       },
       {
         key: "lastAction",
-        header: T.COL_LAST_ACTION,
+        header: text.colLastAction,
         cell: (row) =>
           row.lastActionAt ? (
             <div className="text-xs text-[var(--ink-secondary)]">
-              <div>{new Date(row.lastActionAt).toLocaleString("vi-VN")}</div>
+              <div>{text.formatDateTime(row.lastActionAt)}</div>
               {row.lastActorRole && (
                 <div className="text-[11px] text-[var(--ink-muted)]">
-                  {T.BY_PREFIX}
+                  {text.byPrefix}
                   {row.lastActorRole}
                 </div>
               )}
@@ -71,6 +70,6 @@ export const useAttendanceColumns = (): DataTableColumn<AttendanceRowResponse>[]
           ),
       },
     ],
-    [],
+    [text],
   );
 };
