@@ -23,7 +23,7 @@ export const GenerateWithAiAction = ({ draft }: GenerateWithAiActionProps): Reac
 
   return (
     <>
-      <Button type="button" variant="secondary" onClick={() => setOpen(true)}>
+      <Button type="button" variant="primary" onClick={() => setOpen(true)}>
         ✦ {(locale === "vi" ? generationVi : generationEn).generateWithAi}
       </Button>
       <GenerationDialog
