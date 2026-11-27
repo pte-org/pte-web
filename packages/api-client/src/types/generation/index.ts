@@ -181,6 +181,14 @@ export interface QuestionGenerationPreset {
   maxCount: number;
 }
 
+/** The active template's CEFR mix, which the "Full 1 exam" preset spreads its questions over. */
+export interface QuestionGenerationCefrMix {
+  templateName: string;
+  templateVersion: number;
+  /** Whole percent per level, lowest level first; only levels with a share. */
+  targets: { level: string; percent: number }[];
+}
+
 export interface QuestionGenerationJobCreateRequest {
   taskType: string;
   cefrLevel: string; // B1, B2, C1, C2

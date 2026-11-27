@@ -59,6 +59,7 @@ export {
   getQuestionGenerationTaskTypes,
   getQuestionGenerationQuota,
   getQuestionGenerationPresets,
+  getQuestionGenerationCefrMix,
   followQuestionGenerationJob,
 } from "./generation";
 export {

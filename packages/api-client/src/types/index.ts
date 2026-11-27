@@ -45,6 +45,7 @@ export type {
   QuestionGenerationQuotaResponse,
   QuestionGenerationQuotaScope,
   QuestionGenerationPreset,
+  QuestionGenerationCefrMix,
   QuestionGenerationJobCreateRequest,
   QuestionGenerationJobStatusRequest,
   QuestionGenerationLiveAgent,
