@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactElement, type RefObject } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@pte/ui";
 import {
   CLICK_RIPPLE_MS,
@@ -10,6 +11,7 @@ import {
   READ_SPEED,
   SWEEP_SPEED,
 } from "../assemblyConstants";
+import { useIsClient } from "../hooks/useIsClient";
 import type { LiveLane } from "../liveConstants";
 import { LANE_TONES } from "../liveTones";
 
@@ -26,9 +28,10 @@ interface AgentCursorProps {
  * media it keeps moving over the field instead of standing still. Its position changes every
  * frame, so it is moved through the DOM rather than through React state.
  */
-export const AgentCursor = ({ rootRef, target, lane, label }: AgentCursorProps): ReactElement => {
+export const AgentCursor = ({ rootRef, target, lane, label }: AgentCursorProps): ReactElement | null => {
   const cursorRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLSpanElement>(null);
+  const isClient = useIsClient();
   useEffect(() => {
     let frame = 0;
     let x = Number.NaN;
@@ -36,7 +39,8 @@ export const AgentCursor = ({ rootRef, target, lane, label }: AgentCursorProps):
     let aimed: string | null = null;
     const follow = (): void => {
       const cursor = cursorRef.current;
-      const element = target ? rootRef.current?.querySelector(target) : null;
+      // The flying piece is rendered on the body, outside the root.
+      const element = target ? (rootRef.current?.querySelector(target) ?? document.querySelector(target)) : null;
       if (cursor) {
         // A check being ticked or the edge of media being drawn: the cursor goes there and clicks when it moves on.
         const aim = element?.querySelector<HTMLElement>("[data-cursor-target]") ?? null;
@@ -80,9 +84,11 @@ export const AgentCursor = ({ rootRef, target, lane, label }: AgentCursorProps):
     };
     frame = requestAnimationFrame(follow);
     return () => cancelAnimationFrame(frame);
-  }, [rootRef, target]);
+  }, [rootRef, target, isClient]);
 
-  return (
+  if (!isClient) return null;
+  // On the body: a transformed ancestor (the full-screen layout) would turn `fixed` into its own frame and shift it.
+  return createPortal(
     <div
       ref={cursorRef}
       aria-hidden
@@ -111,6 +117,7 @@ export const AgentCursor = ({ rootRef, target, lane, label }: AgentCursorProps):
       >
         {label}
       </span>
-    </div>
+    </div>,
+    document.body,
   );
 };
