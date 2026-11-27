@@ -646,6 +646,7 @@ const ADMIN_VI: Record<string, string> = {
   "Created by": "Người tạo",
   "Time frame": "Khung thời gian",
   "CEFR mix": "Tỉ lệ CEFR",
+  "Not set": "Chưa đặt",
   "The minutes each part of the test may take, and the most the whole test may take. Exams built from this template are planned to fit.":
     "Số phút mỗi phần của bài thi được dùng và tổng tối đa của cả bài. Đề tạo từ mẫu này được lập kế hoạch để nằm trong khung.",
   "Speaking & Writing": "Nói & Viết",

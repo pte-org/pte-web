@@ -10,6 +10,7 @@ import {
   SCORE_TEMPLATE_TEXT as RAW_SCORE_TEMPLATE_TEXT,
 } from "../constants";
 import type { ScoreTemplateStatusFilter } from "../types";
+import { CEFR_MIX_LEVELS } from "../cefrMix";
 import { formatTemplateTimestamp } from "../templateInfo";
 
 interface TemplateInfoPanelProps {
@@ -38,6 +39,16 @@ export const TemplateInfoPanel = ({
   const status = template.status as ScoreTemplateStatusFilter;
   const { locale } = useLocale();
   const author = template.authorName;
+  // Shown on every template, not only in a draft's menu: the "full exam" AI preset spreads its questions over it.
+  const cefrMix = [...(template.cefrTargets ?? [])]
+    .filter((target) => target.percent > 0)
+    .sort(
+      (a, b) =>
+        CEFR_MIX_LEVELS.indexOf(a.level as (typeof CEFR_MIX_LEVELS)[number]) -
+        CEFR_MIX_LEVELS.indexOf(b.level as (typeof CEFR_MIX_LEVELS)[number]),
+    )
+    .map((target) => `${target.level} ${target.percent}%`)
+    .join(" · ");
 
   return (
     <InfoPanel
@@ -63,6 +74,12 @@ export const TemplateInfoPanel = ({
         },
         { label: T.INFO_CREATED_AT, value: formatTemplateTimestamp(template.createdAt, locale) },
         { label: T.INFO_UPDATED_AT, value: formatTemplateTimestamp(template.updatedAt, locale) },
+        {
+          label: T.INFO_CEFR_MIX,
+          value: cefrMix || (
+            <span className="font-normal text-[var(--ink-muted)]">{T.INFO_CEFR_MIX_NONE}</span>
+          ),
+        },
       ]}
     >
       {onNameChange ? (
