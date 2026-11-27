@@ -7,7 +7,6 @@ import type {
 } from "@pte/api-client";
 import {
   Alert,
-  Button,
   ConfirmDialog,
   DashboardCard,
   PageHeader,
@@ -15,13 +14,15 @@ import {
   useToast,
 } from "@pte/ui";
 import { useCancelQuestionGenerationBatch } from "../api";
-import { CANCELLABLE_BATCH_STATUSES } from "../constants";
+import { TERMINAL_BATCH_STATUSES } from "../constants";
 import { useBatchFocus } from "../hooks/useBatchFocus";
 import type { BatchMessages } from "../messages/en";
+import { batchAsWatched } from "../utils/batchAsWatched";
 import { batchErrorMessage } from "../utils/batchError";
 import { nextJobFilter, type JobFilter } from "../utils/jobFilter";
 import { failureLabel } from "../../questiongeneration/utils/failureLabel";
 import { LiveJobPanel } from "../../questiongeneration/components/LiveJobPanel";
+import { BatchActions } from "./_BatchActions";
 import { BatchFocusNav } from "./_BatchFocusNav";
 import { BatchResults } from "./_BatchResults";
 import { BatchSidebar } from "./_BatchSidebar";
@@ -48,6 +49,9 @@ export const BatchDetailContent = ({
   const [jobFilter, setJobFilter] = useState<JobFilter>("all");
   const focus = useBatchFocus(batch);
   const focused = batch.children.find((job) => job.jobPublicId === focus.focusedId);
+  // What the sidebar and the notice say follows the replay on screen, not the server running ahead of it.
+  const shown = batchAsWatched(batch, focus.focusedId, focus.replayDone);
+  const shownFinished = TERMINAL_BATCH_STATUSES.includes(shown.status);
 
   const handleCancel = (): void =>
     cancel.mutate(batch.publicId, {
@@ -56,11 +60,9 @@ export const BatchDetailContent = ({
         showToast(batchErrorMessage(cancelError, messages, "cancelError"), { tone: "error" }),
       onSettled: () => setConfirmingCancel(false),
     });
-  const actions = CANCELLABLE_BATCH_STATUSES.includes(batch.status) ? (
-    <Button type="button" variant="danger" onClick={() => setConfirmingCancel(true)}>
-      {messages.cancelBatch}
-    </Button>
-  ) : undefined;
+  const actions = (
+    <BatchActions batch={batch} messages={messages} onCancel={() => setConfirmingCancel(true)} />
+  );
 
   return (
     <div className="space-y-4">
@@ -71,7 +73,7 @@ export const BatchDetailContent = ({
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-[20rem_minmax(0,1fr)] xl:items-start">
         <aside className="xl:sticky xl:top-4">
           <BatchSidebar
-            batch={batch}
+            batch={shown}
             messages={messages}
             focusedId={focus.focusedId}
             onFocus={focus.focus}
@@ -91,7 +93,7 @@ export const BatchDetailContent = ({
             />
           ) : (
             <div className="space-y-3">
-              <BatchFocusNav focus={focus} messages={messages} />
+              <BatchFocusNav focus={focus} finished={shownFinished} messages={messages} />
               {focused ? (
                 <LiveJobPanel
                   key={focused.jobPublicId}
