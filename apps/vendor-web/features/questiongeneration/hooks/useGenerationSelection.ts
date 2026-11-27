@@ -10,6 +10,7 @@ import {
   type GenerationCefrLevel,
 } from "../dialogConstants";
 import { fillEachTaskType, setCell, type MatrixTaskType } from "../utils/generationMatrix";
+import { singleLevelRows, type CefrShare } from "../utils/generationMix";
 import {
   applyPreset,
   newRow,
@@ -30,7 +31,12 @@ export interface GenerationSelectionState {
   overCapTotal: number | null;
   canUndo: boolean;
   fillEach: (types: readonly MatrixTaskType[], perType: number, cap: number) => void;
-  setMultiplier: (value: number, presets: readonly QuestionGenerationPreset[], cap: number) => void;
+  setMultiplier: (
+    value: number,
+    presets: readonly QuestionGenerationPreset[],
+    cap: number,
+    shares: readonly CefrShare[],
+  ) => void;
   setShared: (
     patch: Partial<Pick<GenerationSelection, "pool" | "defaultCefr" | "sharedTopicText">>,
   ) => void;
@@ -42,7 +48,10 @@ export interface GenerationSelectionState {
     presets: readonly QuestionGenerationPreset[],
     cap: number,
     supported: ReadonlySet<string>,
+    shares: readonly CefrShare[],
   ) => void;
+  /** Undoes the template's CEFR spread: every row goes back to the default level. */
+  singleLevel: () => void;
   /** Replaces the whole selection, e.g. with the one of the last started batch. */
   restore: (selection: GenerationSelection) => void;
   clear: () => void;
@@ -94,17 +103,23 @@ export function useGenerationSelection(initial?: InitialTaskType): GenerationSel
     fillEach: (types, count, cap) => {
       commitResult(fillEachTaskType(selection, types, count, cap));
     },
-    setMultiplier: (value, presets, cap) => {
-      if (commitResult(rescalePresetRows(selection, presets, multiplier, value, cap)))
+    setMultiplier: (value, presets, cap, shares) => {
+      if (commitResult(rescalePresetRows(selection, presets, multiplier, value, cap, shares)))
         setMultiplier(value);
     },
     // Settings and topics are typed key by key: they are not undo steps, the undo button is for the matrix.
     setShared: (patch) => setSelection((current) => ({ ...current, ...patch })),
     update: (taskType, patch) => setSelection((current) => updateRow(current, taskType, patch)),
     setCell: (type, level, value) => commit(setCell(selection, type, level, value)),
-    preset: (kind, presets, cap, supported) => {
-      commitResult(applyPreset(selection, presets, kind, multiplier, cap, supported));
+    preset: (kind, presets, cap, supported, shares) => {
+      commitResult(applyPreset(selection, presets, kind, multiplier, cap, supported, shares));
     },
+    singleLevel: () =>
+      commit({
+        ...selection,
+        rows: singleLevelRows(selection.rows, selection.defaultCefr),
+        spreadByMix: false,
+      }),
     restore: (next) => commit(next),
     clear: () => commit({ ...selection, rows: [] }),
     undo: () => {

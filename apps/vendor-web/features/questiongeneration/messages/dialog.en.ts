@@ -35,6 +35,8 @@ export const dialogMessages = {
   sideTotalDetail: "{types} task types · ≈ {minutes} min",
   sideDistribution: "CEFR distribution",
   sideBySkill: "By skill",
+  mixNote: "Spread by the CEFR mix of template {name} v{version}: {mix}",
+  mixSingleLevel: "Use one level",
 
   presetFull: "Full exam",
   presetMultiplierLabel: "Exams",

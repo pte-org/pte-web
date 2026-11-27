@@ -17,10 +17,13 @@ import {
   type GenerationSelection,
   type PresetKind,
 } from "../utils/generationSelection";
+import type { CefrShare } from "../utils/generationMix";
 
 interface MatrixToolbarProps {
   taskTypes: readonly MatrixTaskType[];
   presets: readonly QuestionGenerationPreset[];
+  /** The active template's CEFR mix, which the "full exam" preset spreads its questions over. */
+  shares: readonly CefrShare[];
   supported: ReadonlySet<string>;
   cap: number;
   last: GenerationSelection | null;
@@ -40,6 +43,7 @@ function parsePerType(text: string): number | null {
 export const GenerationMatrixToolbar = ({
   taskTypes,
   presets,
+  shares,
   supported,
   cap,
   last,
@@ -106,7 +110,7 @@ export const GenerationMatrixToolbar = ({
               size="sm"
               variant={active ? "primary" : "secondary"}
               aria-pressed={active}
-              onClick={() => state.preset(kind, presets, cap, supported)}
+              onClick={() => state.preset(kind, presets, cap, supported, shares)}
             >
               {presetLabel(kind)}
             </Button>

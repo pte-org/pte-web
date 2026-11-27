@@ -4,6 +4,7 @@ import { useMemo, type ReactElement } from "react";
 import type { QuestionGenerationTaskTypeResponse } from "@pte/api-client";
 import { ConfirmDialog, LoadingState, Modal } from "@pte/ui";
 import {
+  useQuestionGenerationCefrMix,
   useQuestionGenerationPresets,
   useQuestionGenerationQuota,
   useQuestionGenerationTaskTypes,
@@ -12,6 +13,7 @@ import { useGenerationSelection } from "../hooks/useGenerationSelection";
 import { useGenerationSubmit } from "../hooks/useGenerationSubmit";
 import { useLastGenerationSelection } from "../hooks/useLastGenerationSelection";
 import { useDialogMessages } from "../messages/useDialogMessages";
+import { mixShares } from "../utils/generationMix";
 import {
   estimateSeconds,
   maxItemsPerBatch,
@@ -63,6 +65,8 @@ const GenerationDialogContent = ({
   const messages = useDialogMessages();
   const { data: quota } = useQuestionGenerationQuota();
   const { data: presets = [] } = useQuestionGenerationPresets();
+  const { data: mix = null } = useQuestionGenerationCefrMix();
+  const shares = useMemo(() => mixShares(mix), [mix]);
   const lastSelection = useLastGenerationSelection();
   const current = taskTypes.find((type) => type.taskType === currentTaskType);
   const state = useGenerationSelection(
@@ -108,6 +112,7 @@ const GenerationDialogContent = ({
           <GenerationMatrixToolbar
             taskTypes={taskTypes}
             presets={presets}
+            shares={shares}
             supported={supported}
             cap={cap}
             last={lastSelection.last}
@@ -126,6 +131,8 @@ const GenerationDialogContent = ({
             etaSeconds={estimateSeconds(state.selection, taskTypes)}
             quota={quota}
             presets={presets}
+            mix={mix}
+            shares={shares}
             cap={cap}
             messages={messages}
           />

@@ -34,6 +34,7 @@ const state = (rows: GenerationSelectionState["selection"]["rows"]): GenerationS
   setCell: vi.fn(),
   fillEach: vi.fn(),
   preset: vi.fn(),
+  singleLevel: vi.fn(),
   restore: vi.fn(),
   clear: vi.fn(),
   undo: vi.fn(),
@@ -85,6 +86,8 @@ describe("generation popup parts", () => {
         etaSeconds={1800}
         quota={quota}
         presets={[]}
+        mix={null}
+        shares={[]}
         cap={500}
         messages={en}
       />,
@@ -109,6 +112,8 @@ describe("generation popup parts", () => {
         etaSeconds={0}
         quota={quota}
         presets={[]}
+        mix={null}
+        shares={[]}
         cap={50}
         messages={en}
       />,
@@ -117,11 +122,34 @@ describe("generation popup parts", () => {
     expect(html).toContain(en.summaryScopeGLOBAL);
   });
 
+  it("names the template whose CEFR mix spread the questions, with the way back to one level", () => {
+    const spread = state([newRow("READ_ALOUD", "SPEAKING", "B2", 4)]);
+    const html = render(
+      <GenerationSidebar
+        state={{ ...spread, selection: { ...spread.selection, spreadByMix: true } }}
+        total={4}
+        etaSeconds={240}
+        quota={undefined}
+        presets={[]}
+        mix={{ templateName: "PTE 22 task type", templateVersion: 5, targets: [] }}
+        shares={[
+          { level: "B1", percent: 50 },
+          { level: "C1", percent: 50 },
+        ]}
+        cap={500}
+        messages={en}
+      />,
+    );
+    expect(html).toContain("PTE 22 task type v5: B1 50% · C1 50%");
+    expect(html).toContain(en.mixSingleLevel);
+  });
+
   it("hides the preset buttons when the server has none (e.g. refused with 403)", () => {
     const html = render(
       <GenerationMatrixToolbar
         taskTypes={[]}
         presets={[]}
+        shares={[]}
         supported={new Set()}
         cap={500}
         last={null}
