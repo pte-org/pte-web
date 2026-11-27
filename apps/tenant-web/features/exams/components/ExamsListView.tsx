@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert, Button, ErrorState, useLocale } from "@pte/ui";
+import { Alert, Button, ErrorState, useLocale, useToast } from "@pte/ui";
 import { errorMessage } from "@/features/examoperations/errorMessage";
 import { EXAMS_TEXT } from "../constants";
 import { useCreateExamWorkflow, useSelectableTemplates, useSessions } from "../api";
@@ -10,6 +10,7 @@ import { CreateExamWizard } from "./CreateExamWizard";
 
 export const ExamsListView = (): ReactElement => {
   const { t } = useLocale();
+  const { showToast } = useToast();
   const { data: sessions, isLoading, isError, error, refetch } = useSessions();
   const create = useCreateExamWorkflow();
   const selectable = useSelectableTemplates();
@@ -18,7 +19,12 @@ export const ExamsListView = (): ReactElement => {
 
   const confirmCreate = (input: Parameters<typeof create.mutate>[0]): void => {
     create.mutate(input, {
-      onSuccess: () => setCreateOpen(false),
+      onSuccess: () => {
+        setCreateOpen(false);
+        showToast(
+          t("tenant.createExam.CREATE_SUCCESS", EXAMS_TEXT.CREATE_SUCCESS).replace("{name}", input.name.trim()),
+        );
+      },
     });
   };
 

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, type FormEvent, type ReactElement } from "react";
-import { Alert, Modal, Select } from "@pte/ui";
-import { useAdminCopy } from "@/features/i18n/adminCopy";
-import { PLAN_SELECT_OPTIONS as RAW_PLAN_SELECT_OPTIONS } from "../../tenancy/constants";
+import { useMemo, useState, type FormEvent, type ReactElement } from "react";
+import { Alert, Modal, Select, useLocale } from "@pte/ui";
+import { translateAdminText, useAdminCopy } from "@/features/i18n/adminCopy";
+import { usePlansQuery } from "@/features/commercialization/api";
 import { TenantFormField, fieldInputClass } from "../../tenancy/components/_TenantFormField";
 import {
   EMPTY_GRANT_QUOTA,
@@ -34,10 +34,40 @@ export const GrantQuotaModal = ({
 }: GrantQuotaModalProps): ReactElement => {
   const T = useAdminCopy(RAW_GRANT_QUOTA_TEXT);
   const E = useAdminCopy(RAW_GRANT_QUOTA_ERRORS);
-  const planOptions = useAdminCopy(RAW_PLAN_SELECT_OPTIONS);
+  const { locale } = useLocale();
+  const { data: plans = [], isLoading: isPlansLoading } = usePlansQuery();
+  const [planType, setPlanType] = useState<"STUDENT_CAPACITY" | "EXAM_PACKAGE">("STUDENT_CAPACITY");
+
+  const planOptions = useMemo(() => {
+    return plans
+      .filter((plan) => plan.status === "ACTIVE" && plan.type === planType)
+      .map((plan) => ({
+        value: plan.name,
+        label: translateAdminText(plan.name, locale),
+      }));
+  }, [plans, locale, planType]);
+
   const grantingLabel = useAdminCopy("Granting...");
   const [form, setForm] = useState<GrantQuotaInput>(EMPTY_GRANT_QUOTA);
   const [errors, setErrors] = useState<GrantQuotaErrors>({});
+
+  const handleClose = (): void => {
+    setPlanType("STUDENT_CAPACITY");
+    setForm(EMPTY_GRANT_QUOTA);
+    setErrors({});
+    onClose();
+  };
+
+  const handlePlanTypeChange = (nextType: "STUDENT_CAPACITY" | "EXAM_PACKAGE"): void => {
+    if (nextType === planType) return;
+    setPlanType(nextType);
+    setForm((previous) => ({
+      ...previous,
+      packageName: "",
+      amount: "",
+    }));
+    setErrors({});
+  };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>): void => {
     event.preventDefault();
@@ -55,13 +85,13 @@ export const GrantQuotaModal = ({
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={handleClose}
       title={tenantName ? `${T.TITLE} — ${tenantName}` : T.TITLE}
       footer={
         <>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
           >
             {T.CANCEL}
@@ -84,6 +114,36 @@ export const GrantQuotaModal = ({
       )}
       <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
         <TenantFormField
+          label={translateAdminText("Plan type", locale)}
+          htmlFor="grant-plan-type"
+        >
+          <div className="grid grid-cols-2 gap-2 rounded-lg bg-gray-100 p-1">
+            <button
+              type="button"
+              onClick={() => handlePlanTypeChange("STUDENT_CAPACITY")}
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                planType === "STUDENT_CAPACITY"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              {translateAdminText("Student capacity", locale)}
+            </button>
+            <button
+              type="button"
+              onClick={() => handlePlanTypeChange("EXAM_PACKAGE")}
+              className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                planType === "EXAM_PACKAGE"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              {translateAdminText("Exam package", locale)}
+            </button>
+          </div>
+        </TenantFormField>
+
+        <TenantFormField
           label={T.PACKAGE_LABEL}
           htmlFor="grant-package"
           required
@@ -92,14 +152,37 @@ export const GrantQuotaModal = ({
           <Select
             id="grant-package"
             value={form.packageName}
-            onChange={(event) =>
+            onChange={(event) => {
+              const selectedValue = event.target.value;
+              const matchedPlan = plans.find(
+                (p) =>
+                  p.name === selectedValue ||
+                  translateAdminText(p.name, locale) === selectedValue,
+              );
+              const slots =
+                matchedPlan?.extraStudentSlots ?? (matchedPlan?.maxStudentsPerSession ?? null);
               setForm((previous) => ({
                 ...previous,
-                packageName: event.target.value as GrantQuotaInput["packageName"],
-              }))
+                packageName: matchedPlan?.name ?? selectedValue,
+                amount: slots ? String(slots) : previous.amount,
+              }));
+              setErrors((previous) => ({
+                ...previous,
+                packageName: undefined,
+                ...(slots ? { amount: undefined } : {}),
+              }));
+            }}
+            placeholder={
+              isPlansLoading
+                ? "Loading..."
+                : planOptions.length === 0
+                  ? locale === "vi"
+                    ? "Không có gói phù hợp"
+                    : "No plans available"
+                  : T.PACKAGE_PLACEHOLDER
             }
-            placeholder={T.PACKAGE_PLACEHOLDER}
             options={planOptions}
+            disabled={isPlansLoading || planOptions.length === 0}
             className={errors.packageName ? "!border-red-300 !bg-red-50/40" : undefined}
           />
         </TenantFormField>
@@ -108,7 +191,11 @@ export const GrantQuotaModal = ({
           label={T.AMOUNT_LABEL}
           htmlFor="grant-amount"
           required
-          helper={T.AMOUNT_HELPER}
+          helper={
+            planType === "EXAM_PACKAGE"
+              ? translateAdminText("Students per session for this exam package.", locale)
+              : T.AMOUNT_HELPER
+          }
           error={errors.amount}
         >
           <input

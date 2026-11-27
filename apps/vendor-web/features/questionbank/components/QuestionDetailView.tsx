@@ -31,6 +31,7 @@ import type { QuestionStatus } from "../types";
 import { ExamScreenPreview } from "./ExamScreenPreview";
 import { QuestionDetailSkeleton } from "./_QuestionDetailSkeleton";
 import { AnswerKeyGroups, hasAnswerHints } from "./_AnswerKeyGroups";
+import { AudioPromptValue } from "./_AudioPromptValue";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { batchReturnTrail } from "../batchReturnTrail";
 
@@ -101,18 +102,6 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
   const mediaId = (ref: string): ReactElement => (
     <span className="break-all font-mono text-xs">{ref}</span>
   );
-  const audioValue = (ref: string): ReactElement =>
-    audioUrl ? (
-      <audio
-        className="w-full max-w-md"
-        controls
-        preload="metadata"
-        src={audioUrl}
-        aria-label={T.AUDIO_LABEL}
-      />
-    ) : (
-      mediaId(ref)
-    );
   const imageValue = (ref: string): ReactElement =>
     imageUrl ? (
       <img
@@ -135,7 +124,13 @@ export const QuestionDetailView = ({ publicId }: QuestionDetailViewProps) => {
         ]
       : []),
     ...(question.audioPromptRef
-      ? [{ label: T.AUDIO_PROMPT, value: audioValue(question.audioPromptRef), fullWidth: true }]
+      ? [
+          {
+            label: T.AUDIO_PROMPT,
+            value: <AudioPromptValue question={question} audioUrl={audioUrl} audioLabel={T.AUDIO_LABEL} />,
+            fullWidth: true,
+          },
+        ]
       : []),
     ...(question.imagePromptRef
       ? [{ label: T.IMAGE_PROMPT, value: imageValue(question.imagePromptRef), fullWidth: true }]

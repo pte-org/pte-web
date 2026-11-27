@@ -61,7 +61,6 @@ import {
   useReassignExaminer,
   useTenantProctors,
   useUnassignProctor,
-  useUpdateProctorRole,
 } from "../../../../features/exams/api";
 import {
   EXAMINER_ASSIGNMENT_ROSTER_QUERY_KEY,
@@ -164,7 +163,7 @@ describe("Proctor Hooks", () => {
 
   it("useProctorAssignments joins assignment list with tenant proctors", async () => {
     api.listProctorAssignments.mockResolvedValue([
-      { publicId: "as-1", proctorPublicId: "p1", role: "MAIN" },
+      { publicId: "as-1", proctorPublicId: "p1" },
     ]);
     hoisted.getQueryData.mockReturnValue([
       { publicId: "p1", roles: ["PROCTOR"], fullName: "Proctor 1" },
@@ -179,13 +178,12 @@ describe("Proctor Hooks", () => {
     expect(api.listProctorAssignments).toHaveBeenCalledWith(hoisted.apiClient, "ses-1");
   });
 
-  it("useAssignProctor, useUnassignProctor, useUpdateProctorRole mutate and invalidate", async () => {
+  it("useAssignProctor and useUnassignProctor mutate and invalidate", async () => {
     api.assignProctor.mockResolvedValue(undefined);
     useAssignProctor("ses-1");
-    await mutation().mutationFn?.({ proctorPublicId: "p1", role: "MAIN" } as never);
+    await mutation().mutationFn?.({ proctorPublicId: "p1" } as never);
     expect(api.assignProctor).toHaveBeenCalledWith(hoisted.apiClient, "ses-1", {
       proctorPublicId: "p1",
-      role: "MAIN",
     });
     mutation().onSuccess?.(undefined);
     expect(hoisted.invalidateQueries).toHaveBeenCalledWith({
@@ -197,18 +195,6 @@ describe("Proctor Hooks", () => {
     useUnassignProctor("ses-1");
     await mutation().mutationFn?.("as-1" as never);
     expect(api.unassignProctor).toHaveBeenCalledWith(hoisted.apiClient, "ses-1", "as-1");
-    mutation().onSuccess?.(undefined);
-    expect(hoisted.invalidateQueries).toHaveBeenCalledWith({
-      queryKey: [...PROCTOR_ASSIGNMENTS_QUERY_KEY, "ses-1"],
-    });
-
-    hoisted.invalidateQueries.mockClear();
-    api.updateProctorRole.mockResolvedValue(undefined);
-    useUpdateProctorRole("ses-1");
-    await mutation().mutationFn?.({ assignmentPublicId: "as-1", role: "BACKUP" } as never);
-    expect(api.updateProctorRole).toHaveBeenCalledWith(hoisted.apiClient, "ses-1", "as-1", {
-      role: "BACKUP",
-    });
     mutation().onSuccess?.(undefined);
     expect(hoisted.invalidateQueries).toHaveBeenCalledWith({
       queryKey: [...PROCTOR_ASSIGNMENTS_QUERY_KEY, "ses-1"],

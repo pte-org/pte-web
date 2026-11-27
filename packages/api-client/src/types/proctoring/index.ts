@@ -1,5 +1,5 @@
 import type { PagedResult } from "../../client/client";
-import type { ProctorRole, SessionStatus } from "../scheduling";
+import type { SessionStatus } from "../scheduling";
 
 export type AttemptStatus = "NOT_STARTED" | "IN_PROGRESS" | "SUBMITTED" | "ABANDONED";
 export type SecurityAuditSource = "PROCTOR" | "STUDENT_LOCKDOWN";
@@ -12,9 +12,7 @@ export interface AssignedProctorSessionResponse {
   status: SessionStatus;
   opensAt: string;
   closesAt: string;
-  assignmentRole: string;
   sessionPublicId?: string;
-  role?: ProctorRole | string;
   canMonitor?: boolean;
   monitoringBlockingReason?: string | null;
 }
@@ -31,7 +29,6 @@ export interface ProctorWorkspaceSessionResponse {
   status: SessionStatus | string;
   opensAt: string;
   closesAt: string;
-  assignmentRole: string;
   canMonitor: boolean;
   monitoringBlockingReason: string | null;
 }

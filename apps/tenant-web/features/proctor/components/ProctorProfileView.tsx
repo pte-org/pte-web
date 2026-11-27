@@ -3,7 +3,40 @@
 import type { ReactElement, ReactNode } from "react";
 import { Button, ErrorState, LoadingState } from "@pte/ui";
 import { useCurrentUser } from "@/features/auth/api";
-import { PROCTOR_PROFILE_TEXT as T } from "../constants";
+import {
+  useProctorWorkspaceText,
+  type ProctorWorkspaceText,
+} from "../hooks/useProctorWorkspaceText";
+
+const roleLabel = (role: string, text: ProctorWorkspaceText): string => {
+  switch (role) {
+    case "HOST_ADMIN":
+      return text.accountRoleHostAdmin;
+    case "ACADEMIC_MANAGER":
+      return text.accountRoleAcademicManager;
+    case "ACADEMIC_STAFF":
+      return text.accountRoleAcademicStaff;
+    case "PROCTOR":
+      return text.accountRoleProctor;
+    case "EXAMINER":
+      return text.accountRoleExaminer;
+    case "STUDENT":
+      return text.accountRoleStudent;
+    default:
+      return role;
+  }
+};
+
+const statusLabel = (status: string, text: ProctorWorkspaceText): string => {
+  switch (status) {
+    case "ACTIVE":
+      return text.accountStatusActive;
+    case "SUSPENDED":
+      return text.accountStatusSuspended;
+    default:
+      return status;
+  }
+};
 
 function Field({ label, children }: { label: string; children: ReactNode }): ReactElement {
   return (
@@ -16,11 +49,12 @@ function Field({ label, children }: { label: string; children: ReactNode }): Rea
 
 export const ProctorProfileView = (): ReactElement => {
   const user = useCurrentUser();
+  const text = useProctorWorkspaceText();
 
   if (user.isLoading) {
     return (
       <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
-        <LoadingState variant="rows" rows={4} label={T.LOADING} />
+        <LoadingState variant="rows" rows={4} label={text.profileLoading} />
       </div>
     );
   }
@@ -29,11 +63,11 @@ export const ProctorProfileView = (): ReactElement => {
     return (
       <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
         <ErrorState
-          title={T.ERROR_TITLE}
-          description={T.ERROR_DESCRIPTION}
+          title={text.profileErrorTitle}
+          description={text.profileErrorDescription}
           action={
             <Button variant="secondary" size="sm" onClick={() => void user.refetch()}>
-              {T.RETRY}
+              {text.profileRetry}
             </Button>
           }
         />
@@ -42,18 +76,21 @@ export const ProctorProfileView = (): ReactElement => {
   }
 
   const data = user.data;
-  const roles = data.roles.length > 0 ? data.roles.join(T.ROLES_SEPARATOR) : T.EMPTY_ROLES;
-  const tenant = data.tenantId ?? T.EMPTY_TENANT;
+  const roles =
+    data.roles.length > 0
+      ? data.roles.map((role) => roleLabel(role, text)).join(", ")
+      : text.profileEmptyRoles;
+  const organization = data.organizationName || text.profileEmptyOrganization;
 
   return (
     <div className="w-full space-y-6 p-4 sm:p-6 lg:p-8">
 
       <dl className="grid grid-cols-1 gap-5 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-default)] p-6 shadow-sm sm:grid-cols-2">
-        <Field label={T.FULL_NAME_LABEL}>{data.fullName || T.EMPTY_FULL_NAME}</Field>
-        <Field label={T.EMAIL_LABEL}>{data.email}</Field>
-        <Field label={T.ROLES_LABEL}>{roles}</Field>
-        <Field label={T.STATUS_LABEL}>{data.status}</Field>
-        <Field label={T.TENANT_LABEL}>{tenant}</Field>
+        <Field label={text.profileFullName}>{data.fullName || text.profileEmptyName}</Field>
+        <Field label={text.profileEmail}>{data.email}</Field>
+        <Field label={text.profileRoles}>{roles}</Field>
+        <Field label={text.profileStatus}>{statusLabel(data.status, text)}</Field>
+        <Field label={text.profileOrganization}>{organization}</Field>
       </dl>
     </div>
   );

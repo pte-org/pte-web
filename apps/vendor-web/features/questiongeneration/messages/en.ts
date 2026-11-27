@@ -5,8 +5,7 @@
 export const generationMessages = {
   // Feature flag & permissions
   featureDisabled: "Question generation is currently disabled",
-  featureDisabledTooltip:
-    "Question generation is temporarily unavailable. Please try again later.",
+  featureDisabledTooltip: "Question generation is temporarily unavailable. Please try again later.",
   permissionDenied: "You don't have permission to generate questions",
 
   // Drawer: Header
@@ -22,11 +21,13 @@ export const generationMessages = {
   imageKindAuto: "Auto",
   imageKindChart: "Chart",
   imageKindPicture: "AI picture",
-  imageKindHint: "Auto makes a chart when the topic asks for data, otherwise an AI picture. If the AI cannot make the picture, you are asked whether to make a chart instead.",
+  imageKindHint:
+    "Auto makes a chart when the topic asks for data, otherwise an AI picture. If the AI cannot make the picture, you are asked whether to make a chart instead.",
   topicLabel: "Topic (Optional)",
   countLabel: "Number of Questions",
   topicPlaceholder: "e.g., Economy: IT workers and jobs today, shown as a chart",
-  topicHint: "Describe the subject, the angle and, for Describe Image, the picture you want. Maximum 500 characters",
+  topicHint:
+    "Describe the subject, the angle and, for Describe Image, the picture you want. Maximum 500 characters",
 
   // Skills
   skillSpeaking: "Speaking",
@@ -65,8 +66,10 @@ export const generationMessages = {
   cancelButton: "Cancel",
   startButton: "Start Generation",
   startingGenerationMessage: "Starting question generation...",
-  startErrorAlreadyRunning: "A generation job of yours is still running. Wait for it to finish, or stop it, then try again.",
-  startErrorTooManyJobs: "Too many generation jobs are running on the platform. Try again in a few minutes.",
+  startErrorAlreadyRunning:
+    "A generation job of yours is still running. Wait for it to finish, or stop it, then try again.",
+  startErrorTooManyJobs:
+    "Too many generation jobs are running on the platform. Try again in a few minutes.",
   startErrorDailyLimit: "You reached today's generation limit.",
   startErrorGlobalLimit: "The platform reached today's generation limit.",
   startError: "The generation could not be started. Please try again.",
@@ -108,7 +111,8 @@ export const generationMessages = {
 
   // Cancel confirmation
   cancelConfirmTitle: "Cancel Generation?",
-  cancelConfirmMessage: "This will stop the generation process. Questions that have not been saved will be lost.",
+  cancelConfirmMessage:
+    "This will stop the generation process. Questions that have not been saved will be lost.",
   cancelConfirmButton: "Cancel Generation",
   cancelCancelButton: "Continue",
 
@@ -174,7 +178,7 @@ export const generationMessages = {
 
   // States
   emptyStateTitle: "No generation runs yet",
-  emptyStateDescription: "Create your first set of questions using the \"Generate with AI\" button",
+  emptyStateDescription: 'Create your first set of questions using the "Generate with AI" button',
   emptyStateButtonLabel: "Create Questions",
 
   // Questions list integration

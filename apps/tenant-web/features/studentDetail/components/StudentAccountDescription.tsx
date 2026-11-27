@@ -29,7 +29,9 @@ export const StudentAccountDescription = ({
   const roleValue = account.roles.length ? (
     <div className="flex flex-wrap gap-1.5">
       {account.roles.map((role) => (
-        <Badge key={role}>{role}</Badge>
+        <Badge key={role} variant="info">
+          {role === "STUDENT" ? text.account.studentRole : role}
+        </Badge>
       ))}
     </div>
   ) : (

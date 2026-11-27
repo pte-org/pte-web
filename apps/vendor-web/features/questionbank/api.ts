@@ -17,6 +17,7 @@ import {
   getQuestionStats,
   getMediaPreview,
   getQuestion,
+  listQuestionRevisions,
   listQuestions,
   publishQuestion,
   rejectQuestion,
@@ -183,6 +184,15 @@ export function useQuestion(publicId: string): UseQueryResult<QuestionResponse> 
   return useQuery({
     queryKey: [...QUESTIONS_QUERY_KEY, publicId],
     queryFn: () => getQuestion(apiClient, publicId),
+    enabled: Boolean(publicId),
+  });
+}
+
+/** Every revision of the question's group, newest first (content history of published questions). */
+export function useQuestionRevisions(publicId: string): UseQueryResult<QuestionResponse[]> {
+  return useQuery({
+    queryKey: [...QUESTIONS_QUERY_KEY, publicId, "revisions"],
+    queryFn: () => listQuestionRevisions(apiClient, publicId),
     enabled: Boolean(publicId),
   });
 }

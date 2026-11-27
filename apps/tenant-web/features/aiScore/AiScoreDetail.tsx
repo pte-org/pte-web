@@ -15,8 +15,7 @@ const SectionTitle = ({ children }: { children: string }): ReactElement => (
 );
 
 /**
- * The AI's estimate and why: status, score, criteria, feedback, speaking transcript and any
- * degraded-scoring notice. Shown to the host and to the assigned examiner only; never to students.
+ * The AI's estimate and why: status, score, criteria, feedback and speaking transcript. Shown to the host and to the assigned examiner only; never to students.
  */
 export const AiScoreDetail = ({ ai }: AiScoreDetailProps): ReactElement => {
   const criteria = Object.entries(ai.criteria);
@@ -44,7 +43,6 @@ export const AiScoreDetail = ({ ai }: AiScoreDetailProps): ReactElement => {
           {ai.failureReason ? ` · ${T.FAILURE_REASON(ai.failureReason)}` : ""}
         </Alert>
       )}
-      {ai.fallback && <Alert tone="warning">{T.FALLBACK_NOTICE}</Alert>}
 
       {criteria.length > 0 && (
         <div className="flex flex-col gap-1.5">

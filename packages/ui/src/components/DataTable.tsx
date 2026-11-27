@@ -64,6 +64,8 @@ export interface DataTableProps<TRow> {
   isLoading?: boolean;
   emptyTitle?: string;
   emptyDescription?: string;
+  /** An icon shown above the empty-state title. */
+  emptyIcon?: ReactNode;
   /** Rendered under the empty-state text, e.g. a button that adds the first row. */
   emptyAction?: ReactNode;
   rowActions?: (row: TRow) => ReactNode;
@@ -92,6 +94,8 @@ export interface DataTableProps<TRow> {
   initialSort?: DataTableSortState | null;
   /** Let the common table own page size, page slicing and footer pagination. */
   clientSidePagination?: boolean;
+  /** Drops the table's own border and rounded corners, for a table placed straight on a surface that already frames it. */
+  frameless?: boolean;
   initialPageSize?: number;
   mobileToolbar?: ReactNode;
   pagination?: ReactNode;
@@ -130,6 +134,7 @@ export function DataTable<TRow>({
   isLoading = false,
   emptyTitle,
   emptyDescription,
+  emptyIcon,
   emptyAction,
   rowActions,
   rowActionsHeader,
@@ -145,6 +150,7 @@ export function DataTable<TRow>({
   clientSideSorting = true,
   initialSort = null,
   clientSidePagination = true,
+  frameless = false,
   initialPageSize = 10,
   mobileToolbar,
   pagination,
@@ -277,8 +283,9 @@ export function DataTable<TRow>({
   const isCompact = density === "compact";
   const cellPadding = isCompact ? "px-2 py-2 sm:px-3" : "px-4 py-2.5 sm:px-6";
   const cellPaddingBody = isCompact ? "px-2 py-2 sm:px-3 sm:py-2.5" : "px-4 py-3 sm:px-6 sm:py-3.5";
-  const shellClassName =
-    "overflow-hidden rounded-xl border-[0.5px] border-[var(--table-border)] bg-[var(--table-surface-background)] shadow-none";
+  const shellClassName = frameless
+    ? "overflow-hidden bg-[var(--table-surface-background)] shadow-none"
+    : "overflow-hidden rounded-xl border-[0.5px] border-[var(--table-border)] bg-[var(--table-surface-background)] shadow-none";
   const hasBuiltInSearch = showSearch && !toolbar;
   const hasPageSizeControl = clientSidePagination && filteredRows.length > 10;
   const hasToolbar = Boolean(
@@ -432,6 +439,7 @@ export function DataTable<TRow>({
                           <EmptyState
                             title={resolvedEmptyTitle}
                             description={emptyDescription}
+                            icon={emptyIcon}
                             action={emptyAction}
                             className="rounded-none border-0 px-6 py-10 shadow-none"
                           />
@@ -505,6 +513,7 @@ export function DataTable<TRow>({
                 <EmptyState
                   title={resolvedEmptyTitle}
                   description={emptyDescription}
+                  icon={emptyIcon}
                   action={emptyAction}
                   className="rounded-none border-0 px-6 py-10 shadow-none"
                 />

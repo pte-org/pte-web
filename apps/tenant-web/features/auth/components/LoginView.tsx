@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent, type ReactElement } from "react";
+import { useMemo, useState, type FormEvent, type ReactElement } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -13,31 +13,37 @@ import {
   useSessionManager,
   useSignInValidation,
   useToast,
+  withoutSpaces,
   type SignInValidationMessages,
 } from "@pte/ui";
 import { decodeAccessTokenClaims, type JwtTokenResponse } from "@pte/api-client";
 import { useLoginHost } from "../api";
-import { AUTH_ROUTES, AUTH_TEXT } from "../constants";
+import { FirstPasswordChange } from "./FirstPasswordChange";
+import { AUTH_ROUTES } from "../constants";
+import { useAuthCopy } from "../hooks/useAuthCopy";
 import { resolveWorkspace } from "../resolveWorkspace";
 import { decidePortalLogin } from "../sessionRoles";
 import { getLoginErrorMessage } from "../loginError";
 import { clearSigningOut } from "../signOutIntent";
 
-const VALIDATION_MESSAGES: SignInValidationMessages = {
-  usernameRequired: AUTH_TEXT.USERNAME_REQUIRED,
-  passwordRequired: AUTH_TEXT.PASSWORD_REQUIRED,
-};
-
 export const LoginView = (): ReactElement => {
   const router = useRouter();
-  const { saveSession } = useSessionManager();
+  const { saveSession, clearSession } = useSessionManager();
   const { showToast } = useToast();
   const notifyError = (message: string): void => showToast(message, { tone: "error" });
-  const validation = useSignInValidation(VALIDATION_MESSAGES);
+  const { auth: AUTH_TEXT } = useAuthCopy();
+  const validationMessages = useMemo<SignInValidationMessages>(
+    () => ({ usernameRequired: AUTH_TEXT.USERNAME_REQUIRED, passwordRequired: AUTH_TEXT.PASSWORD_REQUIRED }),
+    [AUTH_TEXT],
+  );
+  const validation = useSignInValidation(validationMessages);
 
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  // Set after a sign-in with a temporary password: the new-password form replaces this one, as in practice.
+  const [temporaryPassword, setTemporaryPassword] = useState<string | null>(null);
+  const [nextRoute, setNextRoute] = useState("");
 
   const mutation = useLoginHost();
 
@@ -70,7 +76,13 @@ export const LoginView = (): ReactElement => {
     });
     const { defaultRoute } = resolveWorkspace(roles);
     clearSigningOut();
-    router.replace(returnPath(window.location.search, AUTH_ROUTES.login) ?? defaultRoute);
+    const target = returnPath(window.location.search, AUTH_ROUTES.login) ?? defaultRoute;
+    if (data.mustChangePassword) {
+      setNextRoute(target);
+      setTemporaryPassword(password.trim());
+      return;
+    }
+    router.replace(target);
   };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
@@ -82,12 +94,26 @@ export const LoginView = (): ReactElement => {
     }
     try {
       // One username belongs to one organization: no organization choice, a single request.
-      const data = await mutation.mutateAsync({ username: username.trim(), password });
+      const data = await mutation.mutateAsync({ username: username.trim(), password: password.trim() });
       handleLoginSuccess(data);
     } catch (error) {
       notifyError(getLoginErrorMessage(error, AUTH_TEXT));
     }
   };
+
+  if (temporaryPassword !== null) {
+    return (
+      <FirstPasswordChange
+        currentPassword={temporaryPassword}
+        onChanged={() => router.replace(nextRoute)}
+        onBack={() => {
+          clearSession();
+          setTemporaryPassword(null);
+          setPassword("");
+        }}
+      />
+    );
+  }
 
   return (
     <>
@@ -114,8 +140,9 @@ export const LoginView = (): ReactElement => {
           error={validation.errors.username}
           value={username}
           onChange={(event) => {
-            setUsername(event.target.value);
-            validation.onChange("username", event.target.value);
+            const typed = withoutSpaces(event.target.value);
+            setUsername(typed);
+            validation.onChange("username", typed);
           }}
           onBlur={(event) => validation.onBlur("username", event.target.value)}
           placeholder={AUTH_TEXT.USERNAME_PLACEHOLDER}

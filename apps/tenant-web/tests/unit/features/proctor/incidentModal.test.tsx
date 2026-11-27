@@ -35,12 +35,15 @@ beforeEach(() => { state.status = "NEW"; state.isError = false; });
 it("shows useful incident context and only the Proctor supplement action", () => {
   const html = render();
   expect(html).toContain("Audio issue");
-  expect(html).toContain("Headphones disconnected");
+  // Description and resolution live in the history timeline, not in separate blocks.
+  expect(html).not.toContain("Nội dung sự cố");
+  expect(html).not.toContain("Kết quả xử lý");
   expect(html).toContain("Quản trị tổ chức");
   expect(html).toContain("Toàn ca thi");
   expect(html).toContain("Gửi bổ sung");
   expect(html).not.toMatch(/Tiếp nhận xử lý|Giải quyết sự cố|Chuyển cấp Admin|HOST_ADMIN|MEDIUM/);
-  expect(html).toContain('aria-expanded="false"');
+  expect(html).toContain("Lịch sử xử lý");
+  expect(html).toContain('aria-expanded="true"');
 });
 
 it.each(["ESCALATED", "RESOLVED", "CLOSED"])("does not offer mutation on %s incidents", (status) => {

@@ -46,6 +46,7 @@ export const GRANT_QUOTA_TEXT = {
   NOTE_PLACEHOLDER: "Optional reason for this grant...",
   CANCEL: "Cancel",
   SUBMIT: "Grant Quota",
+  SUCCESS: "Quota granted successfully.",
   CONFLICT:
     "This tenant's quota was just changed by someone else. Please review the current value and try again.",
 } as const;

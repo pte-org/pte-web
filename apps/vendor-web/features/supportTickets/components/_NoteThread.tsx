@@ -1,4 +1,7 @@
+"use client";
+
 import type { ReactElement } from "react";
+import { Avatar, EmptyState, MessageSquareTextIcon, formatShortDateTime, useLocale } from "@pte/ui";
 import { ADMIN_TICKET_DETAIL_TEXT as RAW_ADMIN_TICKET_DETAIL_TEXT } from "../constants";
 import type { SupportTicketNote } from "../types";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
@@ -7,29 +10,37 @@ interface NoteThreadProps {
   notes: SupportTicketNote[];
 }
 
+/** The replies sent to the organization, as messages with role and time, or a quiet empty state before the first. */
 export const NoteThread = ({ notes }: NoteThreadProps): ReactElement => {
   const T = useAdminCopy(RAW_ADMIN_TICKET_DETAIL_TEXT);
+  const { locale } = useLocale();
   if (notes.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-gray-200 py-8 text-center">
-        <p className="text-sm font-medium text-gray-700">{T.EMPTY_NOTES_TITLE}</p>
-        <p className="mt-1 text-xs text-gray-500">{T.EMPTY_NOTES_TEXT}</p>
-      </div>
+      <EmptyState
+        className="border-0 shadow-none"
+        icon={<MessageSquareTextIcon className="h-8 w-8" />}
+        title={T.EMPTY_NOTES_TITLE}
+        description={T.EMPTY_NOTES_TEXT}
+      />
     );
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <ul className="flex flex-col gap-4">
       {notes.map((note) => (
-        <div key={note.publicId} className="rounded-lg border border-gray-100 bg-gray-50 p-4">
-          <div className="mb-1">
-            <span className="text-xs text-gray-400">
-              {new Date(note.createdAt).toLocaleString()}
-            </span>
+        <li key={note.publicId} className="flex items-start gap-3">
+          <Avatar name={T.ADMIN_ROLE} className="shrink-0" />
+          <div className="min-w-0 flex-1 rounded-lg border border-[var(--shell-border)] bg-[var(--surface-subtle)] p-4">
+            <div className="mb-1 flex flex-wrap items-baseline gap-x-2">
+              <span className="text-sm font-semibold text-[var(--ink-primary)]">{T.ADMIN_ROLE}</span>
+              <span className="text-xs text-[var(--ink-muted)]">{formatShortDateTime(note.createdAt, locale)}</span>
+            </div>
+            <p className="whitespace-pre-wrap break-words text-sm leading-relaxed text-[var(--ink-primary)]">
+              {note.content}
+            </p>
           </div>
-          <p className="text-sm text-gray-700 whitespace-pre-wrap">{note.content}</p>
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 };

@@ -11,7 +11,6 @@ describe("resolveActiveNavItem", () => {
     for (const path of [
       "/proctor/attendance/s1",
       "/proctor/incidents/s1/i2",
-      "/proctor/audit-log/s1",
     ])
       expect(resolveActiveNavItem(items, path, null)).toBe("/proctor/sessions?scope=ALL");
     expect(resolveActiveNavItem(items, "/proctor/sessions", query("scope=UPCOMING"))).toBe(
@@ -20,6 +19,12 @@ describe("resolveActiveNavItem", () => {
     expect(resolveActiveNavItem(items, "/proctor/sessions", null)).toBe("/proctor/sessions");
     expect(resolveActiveNavItem(items, "/proctor/profile", null)).toBe("/proctor/profile");
   });
+  it("keeps Plans & billing highlighted on its checkout, payment and order pages", () => {
+    const items = nav("/host/dashboard", "/host/billing", "/host/exams");
+    for (const path of ["/host/billing", "/host/checkout", "/host/payment-status", "/host/orders"])
+      expect(resolveActiveNavItem(items, path, query("planId=p1"))).toBe("/host/billing");
+  });
+
   it("returns null when there is no pathname", () => {
     expect(resolveActiveNavItem(nav("/host/dashboard"), null, null)).toBeNull();
   });
@@ -41,17 +46,11 @@ describe("resolveActiveNavItem", () => {
     ).toBeNull();
   });
 
-  it("maps proctor attendance, incidents and audit-log pages to their own items", () => {
-    const items = nav(
-      "/proctor/attendance",
-      "/proctor/incidents",
-      "/proctor/audit-log",
-      "/proctor/sessions",
-    );
+  it("maps proctor attendance and incidents pages to their own items", () => {
+    const items = nav("/proctor/attendance", "/proctor/incidents", "/proctor/sessions");
 
     expect(resolveActiveNavItem(items, "/proctor/attendance/s1", null)).toBe("/proctor/attendance");
     expect(resolveActiveNavItem(items, "/proctor/incidents/s1", null)).toBe("/proctor/incidents");
-    expect(resolveActiveNavItem(items, "/proctor/audit-log", null)).toBe("/proctor/audit-log");
   });
 
   it("selects the accessible-sessions item on the list page only when the scope says so", () => {

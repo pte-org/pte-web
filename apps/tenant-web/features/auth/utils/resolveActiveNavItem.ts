@@ -10,7 +10,7 @@ export function resolveActiveNavItem(
   if (!pathname) return null;
 
   const sessionList = navItems.find((item) => item.href === "/proctor/sessions?scope=ALL");
-  if (sessionList && /^\/proctor\/(sessions|attendance|incidents|audit-log)(\/|$)/.test(pathname)) {
+  if (sessionList && /^\/proctor\/(sessions|attendance|incidents)(\/|$)/.test(pathname)) {
     return pathname === "/proctor/sessions" && !searchParams?.has("scope")
       ? (navItems.find((item) => item.href === "/proctor/sessions")?.href ?? sessionList.href)
       : sessionList.href;
@@ -22,6 +22,12 @@ export function resolveActiveNavItem(
     if (classItem) return classItem.href;
   }
 
+  // Plans, checkout and payment pages are all part of Plans & billing, which is the one sidebar entry for them.
+  if (/^\/host\/(checkout|payment-status|orders)(\/|$)/.test(pathname)) {
+    const billingItem = navItems.find((item) => item.href === "/host/billing");
+    if (billingItem) return billingItem.href;
+  }
+
   // 2. Proctor detail routes
   if (pathname.startsWith("/proctor/attendance")) {
     const attendanceItem = navItems.find((item) => item.href === "/proctor/attendance");
@@ -31,11 +37,6 @@ export function resolveActiveNavItem(
   if (pathname.startsWith("/proctor/incidents")) {
     const incidentsItem = navItems.find((item) => item.href === "/proctor/incidents");
     if (incidentsItem) return incidentsItem.href;
-  }
-
-  if (pathname.startsWith("/proctor/audit-log")) {
-    const auditItem = navItems.find((item) => item.href === "/proctor/audit-log");
-    if (auditItem) return auditItem.href;
   }
 
   // 3. Examiner detail routes

@@ -5,5 +5,5 @@ export { ReviewItemList } from "./_ReviewItemList";
 export { ReviewPanelTabs } from "./_ReviewPanelTabs";
 export { BulkActionsBar } from "./_BulkActionsBar";
 export { LiveGenerationView } from "./LiveGenerationView";
-export { GenerationActivityIndicator } from "./GenerationActivityIndicator";
+export { GenerationActivityNavItem } from "./GenerationActivityNavItem";
 export { LiveJobPanel } from "./LiveJobPanel";

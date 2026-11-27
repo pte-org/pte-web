@@ -5,6 +5,7 @@ import { Alert, Button, CollapsibleSection, useLocale } from "@pte/ui";
 import { StudentRosterTable } from "@/features/examoperations/components";
 import { SESSION_DETAIL_TEXT } from "../constants";
 import type { ExamSession } from "../types";
+import { proctorAssignmentLock, studentRosterLock } from "../utils/participantLock";
 import { ProctorAssignmentSection } from "./ProctorAssignmentSection";
 
 interface ExamParticipantsTabProps {
@@ -22,8 +23,22 @@ export const ExamParticipantsTab = ({
 }: ExamParticipantsTabProps): ReactElement => {
   const { t } = useLocale();
   // Mirrors the API: the roster only changes before the exam runs or after it ends.
-  const audienceLocked = session.status !== "SCHEDULED" && session.status !== "CLOSED";
-  const lockedNotice = t("tenant.participants.lockedNotice", T.AUDIENCE_LOCKED_NOTICE);
+  // Students can only be added or removed before the exam runs; after it closes they could never sit it.
+  const studentLock = studentRosterLock(session.status);
+  const audienceLocked = studentLock !== null;
+  const lockedNotice = {
+    PREPARING: t("tenant.participants.lockedNotice", T.AUDIENCE_LOCKED_NOTICE),
+    STARTED: t("tenant.participants.studentsLockedStarted", T.STUDENTS_LOCKED_STARTED),
+    ENDED: t("tenant.participants.studentsLockedEnded", T.STUDENTS_LOCKED_ENDED),
+  }[studentLock ?? "PREPARING"];
+
+  const proctorLock = proctorAssignmentLock(session.status);
+  const proctorLockedNotice =
+    proctorLock === "STARTED"
+      ? t("tenant.participants.proctorsLockedStarted", T.PROCTORS_LOCKED_STARTED)
+      : proctorLock === "ENDED"
+        ? t("tenant.participants.proctorsLockedEnded", T.PROCTORS_LOCKED_ENDED)
+        : undefined;
 
   return (
     <div className="flex flex-col gap-5">
@@ -46,7 +61,10 @@ export const ExamParticipantsTab = ({
         <StudentRosterTable sessionPublicId={sessionPublicId} canRemove={!audienceLocked} />
       </CollapsibleSection>
 
-      <ProctorAssignmentSection sessionPublicId={sessionPublicId} />
+      <ProctorAssignmentSection
+        sessionPublicId={sessionPublicId}
+        assignLockedNotice={proctorLockedNotice}
+      />
     </div>
   );
 };

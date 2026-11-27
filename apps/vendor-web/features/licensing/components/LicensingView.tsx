@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
+import { useToast } from "@pte/ui";
 import { ApiError, getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import {
@@ -22,6 +23,7 @@ function grantErrorMessage(error: unknown, conflictMessage: string): string | un
 
 export const LicensingView = (): ReactElement => {
   const grantText = useAdminCopy(RAW_GRANT_QUOTA_TEXT);
+  const { showToast } = useToast();
   const { data: licenses } = useLicenses();
   const [grantTarget, setGrantTarget] = useState<License | null>(null);
   const [historyTarget, setHistoryTarget] = useState<License | null>(null);
@@ -30,7 +32,10 @@ export const LicensingView = (): ReactElement => {
 
   const confirmGrant = (input: GrantQuotaInput): void => {
     grantQuota.mutate(input, {
-      onSuccess: () => setGrantTarget(null),
+      onSuccess: () => {
+        showToast(grantText.SUCCESS, { tone: "success" });
+        setGrantTarget(null);
+      },
     });
   };
 

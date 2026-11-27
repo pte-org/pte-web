@@ -61,7 +61,7 @@ export const TENANT_STATUS_VARIANT: Record<TenantStatus, BadgeVariant> = {
   suspended: "neutral",
 };
 
-export const TENANT_PLAN_LABELS: Record<TenantPlan, string> = {
+export const TENANT_PLAN_LABELS: Record<string, string> = {
   starter: "Starter (500 users)",
   professional: "Professional (1000 users)",
   enterprise: "Enterprise (Unlimited)",

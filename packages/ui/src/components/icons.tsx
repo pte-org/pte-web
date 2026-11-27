@@ -21,7 +21,7 @@ import {
 } from "./nextAdminIcons";
 import { FileLinesIcon } from "./dashboardIcons";
 
-interface IconProps {
+export interface IconProps {
   className?: string;
 }
 
@@ -45,12 +45,31 @@ export const GridIcon = ({ className }: IconProps): ReactElement => (
   <NextAdminWidget4Icon className={className} />
 );
 
+export const AllSectionsIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...base} className={className}>
+    <rect x="3" y="3" width="7" height="7" rx="1.5" />
+    <rect x="14" y="3" width="7" height="7" rx="1.5" />
+    <rect x="14" y="14" width="7" height="7" rx="1.5" />
+    <rect x="3" y="14" width="7" height="7" rx="1.5" />
+  </svg>
+);
+
 export const HomeIcon = ({ className }: IconProps): ReactElement => (
   <NextAdminHomeIcon className={className} />
 );
 
 export const BuildingIcon = ({ className }: IconProps): ReactElement => (
   <NextAdminWindowIcon className={className} />
+);
+
+/** An office tower with windows, for organizations; BuildingIcon is the admin "window" glyph and kept as is. */
+export const OfficeBuildingIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...base} className={className}>
+    <path d="M4 21V5a2 2 0 0 1 2-2h7a2 2 0 0 1 2 2v16" />
+    <path d="M15 9h3a2 2 0 0 1 2 2v10" />
+    <path d="M2 21h20" />
+    <path d="M8 7h3M8 11h3M8 15h3" />
+  </svg>
 );
 
 export const ClipboardIcon = ({ className }: IconProps): ReactElement => (
@@ -71,6 +90,14 @@ export const LicenseIcon = ({ className }: IconProps): ReactElement => (
 
 export const UsersIcon = ({ className }: IconProps): ReactElement => (
   <NextAdminUserGroupIcon className={className} />
+);
+
+export const UserPlusIcon = ({ className }: IconProps): ReactElement => (
+  <svg {...base} className={className}>
+    <circle cx="9" cy="8" r="3.5" />
+    <path d="M2.5 20c.6-3.4 3.2-5.5 6.5-5.5s5.9 2.1 6.5 5.5" />
+    <path d="M19 8v6M16 11h6" />
+  </svg>
 );
 
 export const AlertTriangleIcon = ({ className }: IconProps): ReactElement => (

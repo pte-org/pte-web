@@ -2,28 +2,22 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useState, type ReactElement } from "react";
-import { Alert, Button, LoadingState, useDashboardBreadcrumbLabel, useLocale } from "@pte/ui";
-import { GenerationDialog } from "@/features/questiongeneration/components";
+import { Alert, LoadingState, PageHeader, useDashboardBreadcrumbLabel } from "@pte/ui";
 import { useGeneratedFill } from "@/features/questiongeneration/hooks/useGeneratedFill";
-import { generationLiveHref } from "@/features/questiongeneration/liveConstants";
-import { generationMessages as generationEn } from "@/features/questiongeneration/messages/en";
-import { generationMessages as generationVi } from "@/features/questiongeneration/messages/vi";
 import { useQuestion } from "../api";
-import { hasTypedContent } from "../questionPreviewDraft";
 import type { QuestionPreviewDraft } from "../types";
 import {
   QUESTION_EDITOR_ERRORS as RAW_QUESTION_EDITOR_ERRORS,
   QUESTION_EDITOR_TEXT as RAW_QUESTION_EDITOR_TEXT,
 } from "../constants";
+import { GenerateWithAiAction } from "./GenerateWithAiAction";
 import { QuestionEditorWithPreview } from "./QuestionEditorWithPreview";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 
 export const NewQuestionView = (): ReactElement => {
   const T = useAdminCopy(RAW_QUESTION_EDITOR_TEXT);
-  const { locale } = useLocale();
   const router = useRouter();
   const pathname = usePathname();
-  const [dialogOpen, setDialogOpen] = useState(false);
   // What the form holds now: its task type is pre-ticked in the popup, typed text asks before a batch leaves.
   const [draft, setDraft] = useState<QuestionPreviewDraft | null>(null);
   // Bumped after a save: the form opens again empty, ready for the next question.
@@ -34,6 +28,7 @@ export const NewQuestionView = (): ReactElement => {
 
   return (
     <div className="space-y-5">
+      <PageHeader title={T.FORM_CREATE_TITLE} actions={<GenerateWithAiAction draft={draft} />} />
       <QuestionEditorWithPreview
         key={formRound}
         onSaved={() => {
@@ -45,22 +40,6 @@ export const NewQuestionView = (): ReactElement => {
         // Only the first form takes the AI run's question; the forms opened after saving start empty.
         agent={formRound === 0 ? fill : null}
         onDraftChange={setDraft}
-        sidePanel={
-          <Button type="button" className="w-full" onClick={() => setDialogOpen(true)}>
-            ✦ {(locale === "vi" ? generationVi : generationEn).generateWithAi}
-          </Button>
-        }
-      />
-      <GenerationDialog
-        open={dialogOpen}
-        currentTaskType={draft?.taskType || undefined}
-        isEditorDirty={hasTypedContent(draft)}
-        onClose={() => setDialogOpen(false)}
-        onSingleJobCreated={(jobId) => {
-          setDialogOpen(false);
-          // The run is followed on its own page; when it is done that page brings the question back to this form.
-          router.push(generationLiveHref(jobId));
-        }}
       />
     </div>
   );
@@ -81,6 +60,7 @@ export const EditQuestionView = ({ publicId }: { publicId: string }): ReactEleme
   if (question.status === "ARCHIVED") return <Alert tone="warning">{E.ARCHIVED}</Alert>;
   return (
     <div className="space-y-5">
+      <PageHeader title={T.FORM_EDIT_TITLE} />
       <QuestionEditorWithPreview
         question={question}
         saveAsRevision={question.status === "APPROVED"}

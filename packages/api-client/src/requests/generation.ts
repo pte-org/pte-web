@@ -5,6 +5,7 @@ import type {
   QuestionGenerationJobResponse,
   QuestionGenerationJobStatusRequest,
   QuestionGenerationLiveEvent,
+  QuestionGenerationCefrMix,
   QuestionGenerationPreset,
   QuestionGenerationQuotaResponse,
   QuestionGenerationTaskTypeResponse,
@@ -18,6 +19,7 @@ export const QUESTION_GENERATION_ENDPOINTS = {
   taskTypes: "/api/v1/question-generation/task-types",
   quota: "/api/v1/question-generation/quota",
   presets: "/api/v1/question-generation/presets",
+  cefrMix: "/api/v1/question-generation/presets/cefr-mix",
 } as const;
 
 export function createQuestionGenerationJob(
@@ -82,8 +84,13 @@ export function getQuestionGenerationPresets(client: ApiClient): Promise<Questio
   return client.request<QuestionGenerationPreset[]>(QUESTION_GENERATION_ENDPOINTS.presets);
 }
 
+/** The active template's CEFR mix; null when no template is active or it sets none. */
+export function getQuestionGenerationCefrMix(client: ApiClient): Promise<QuestionGenerationCefrMix | null> {
+  return client.request<QuestionGenerationCefrMix | null>(QUESTION_GENERATION_ENDPOINTS.cefrMix);
+}
+
 const LIVE_EVENT_TYPES: ReadonlySet<string> = new Set([
-  "snapshot", "begin", "token", "stage", "media", "draft", "review", "check", "item", "end",
+  "snapshot", "begin", "token", "thinking", "stage", "media", "draft", "review", "check", "item", "end",
 ]);
 // An unknown job or a missing permission answers with the usual JSON error instead of a stream.
 const LIVE_ACCEPT = "text/event-stream, application/json";

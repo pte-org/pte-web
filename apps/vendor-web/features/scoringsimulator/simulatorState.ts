@@ -21,12 +21,33 @@ export function scoreGuideExample(rubric: TaskTypeRubricResponse): SimulatorStat
     VOCABULARY_RANGE: 1, VOCABULARY: 1, SPELLING: 1 };
   for (const trait of rubric.traits) {
     if (trait.key === SIMULATOR_CONFIG.formKey) continue;
-    const value = candidates[trait.key] ?? 0;
+    const value = trait.perWord ? 45 : (candidates[trait.key] ?? 0);
     const maximum = trait.perWord ? state.wordCount : trait.maxScore ?? 0;
     state.traitScores[trait.key] = value <= maximum ? value : maximum;
     state.selectedTraits.push(trait.key);
   }
   if (rubric.taskType === "WRITE_ESSAY") state.textMetrics.wordCount = 150;
+  return state;
+}
+
+/** Sets every trait to its maximum possible score. */
+export function maxScoreExample(rubric: TaskTypeRubricResponse): SimulatorState {
+  const state = initialSimulatorState(rubric);
+  for (const trait of rubric.traits) {
+    if (trait.key === SIMULATOR_CONFIG.formKey) continue;
+    const maximum = trait.perWord ? state.wordCount : trait.maxScore ?? 0;
+    state.traitScores[trait.key] = maximum;
+    state.selectedTraits.push(trait.key);
+  }
+  if (rubric.taskType === "WRITE_ESSAY") state.textMetrics.wordCount = 250;
+  return state;
+}
+
+/** Sets the gated trait to 0 to simulate zero-gate triggering. */
+export function gatedZeroExample(rubric: TaskTypeRubricResponse): SimulatorState {
+  const state = scoreGuideExample(rubric);
+  const gateTrait = rubric.gates?.find((g) => g.enabled)?.traitKey ?? "CONTENT";
+  state.traitScores[gateTrait] = 0;
   return state;
 }
 

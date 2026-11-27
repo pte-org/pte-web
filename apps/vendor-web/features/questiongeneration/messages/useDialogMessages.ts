@@ -11,6 +11,11 @@ export function useDialogMessages(): DialogMessages {
 }
 
 /** Fills `{name}` placeholders of a catalog string. */
-export function formatMessage(template: string, values: Readonly<Record<string, string | number>>): string {
-  return template.replace(/\{(\w+)\}/g, (match, name: string) => (name in values ? String(values[name]) : match));
+export function formatMessage(
+  template: string,
+  values: Readonly<Record<string, string | number>>,
+): string {
+  return template.replace(/\{(\w+)\}/g, (match, name: string) =>
+    name in values ? String(values[name]) : match,
+  );
 }

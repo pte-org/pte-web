@@ -1,12 +1,9 @@
 "use client";
 
 import {
-  useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
-  type InfiniteData,
-  type UseInfiniteQueryResult,
   type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
@@ -14,17 +11,13 @@ import {
   decodeAccessTokenClaims,
   forceSubmitAttempt,
   getMyProctorAssignment,
-  getProctorSecurityAudit,
   getProctorWorkspaceOverview,
   listAssignedProctorSessions,
-  listViolations,
   getAttendanceRoster,
   recordAttendance,
-  recordIdentityVerification,
   getAttendanceHistory,
   getHostAttendanceRoster,
   recordHostAttendance,
-  recordHostIdentityVerification,
   getHostAttendanceHistory,
   createIncident,
   getIncident,
@@ -45,26 +38,14 @@ import {
   type UpdateIncidentStatusRequest,
   type ProctorScope,
   type ProctorWorkspaceOverviewResponse,
-  type AttendanceRowResponse,
   type RecordAttendanceRequest,
-  type RecordIdentityVerificationRequest,
-  type ViolationEventResponse,
 } from "@pte/api-client";
 import { useSessionManager } from "@pte/ui";
 import { apiClient } from "@/lib/apiClient";
 import { usePollingInterval } from "./hooks/usePollingInterval";
 import { POLL_INTERVAL_MS } from "./constants";
 import { PROCTOR_QUERY_KEYS } from "./queryKeys";
-import type {
-  ProctorAuditLogEntry,
-  ProctorSecurityAuditEntry,
-} from "./types";
 
-export interface ProctorSecurityAuditPage {
-  items: ProctorSecurityAuditEntry[];
-  cursor: string | null;
-  hasNext: boolean;
-}
 export interface UseAssignedProctorSessionsOptions {
   page?: number;
   size?: number;
@@ -165,82 +146,6 @@ export function useForceSubmitMutation(
   });
 }
 
-export function useProctorViolations(
-  sessionPublicId: string,
-): UseQueryResult<ViolationEventResponse[]> {
-  return useQuery<ViolationEventResponse[]>({
-    queryKey: PROCTOR_QUERY_KEYS.violations(sessionPublicId),
-    queryFn: () => listViolations(apiClient, sessionPublicId),
-    enabled: Boolean(sessionPublicId),
-  });
-}
-
-export function useProctorSecurityAudit(
-  sessionPublicId: string,
-  limit = 20,
-): UseInfiniteQueryResult<InfiniteData<ProctorSecurityAuditPage, unknown>> {
-  return useInfiniteQuery<ProctorSecurityAuditPage, Error, InfiniteData<ProctorSecurityAuditPage, unknown>, readonly unknown[], string | undefined>({
-    queryKey: PROCTOR_QUERY_KEYS.securityAudit(sessionPublicId, limit),
-    initialPageParam: undefined,
-    queryFn: async ({ pageParam }) => {
-      const resp = await getProctorSecurityAudit(apiClient, sessionPublicId, limit, pageParam);
-      const list = resp.entries ?? resp.items ?? [];
-      return {
-        items: list.map((it) => ({
-          publicId: it.publicId,
-          recordedAt: it.detectedAt,
-          eventType: it.violationType,
-          description: it.detail ?? `${it.source} - ${it.severity}`,
-        })),
-        cursor: resp.nextCursor,
-        hasNext: Boolean(resp.nextCursor),
-      };
-    },
-    getNextPageParam: (lastPage) => lastPage.cursor ?? undefined,
-    enabled: Boolean(sessionPublicId),
-  });
-}
-
-export interface ProctorAuditLogPage {
-  items: ProctorAuditLogEntry[];
-  page: number;
-  size: number;
-  totalPages: number;
-  totalItems: number;
-}
-
-/**
- * Adapter hook for existing AuditLogView component violations tab.
- */
-export function useProctorAuditLog(
-  sessionPublicId: string,
-): UseQueryResult<ProctorAuditLogPage> {
-  return useQuery<ViolationEventResponse[], Error, ProctorAuditLogPage>({
-    queryKey: PROCTOR_QUERY_KEYS.violations(sessionPublicId),
-    queryFn: () => listViolations(apiClient, sessionPublicId),
-    enabled: Boolean(sessionPublicId),
-    select: (violations) => ({
-      items: violations.map((v) => ({
-        publicId: v.publicId,
-        action: "FLAG_VIOLATION" as const,
-        sessionPublicId: v.sessionPublicId ?? sessionPublicId,
-        attemptPublicId: v.attemptPublicId,
-        note: v.detail ?? v.note ?? "",
-        createdAt: v.detectedAt ?? v.createdAt ?? new Date().toISOString(),
-        performedBy: {
-          publicId: v.proctorPublicId ?? "",
-          fullName: v.proctorPublicId ? `Proctor #${v.proctorPublicId.slice(0, 8).toUpperCase()}` : "—",
-          email: "",
-        },
-      })),
-      page: 0,
-      size: 50,
-      totalPages: 1,
-      totalItems: violations.length,
-    }),
-  });
-}
-
 export function useAttendanceRoster(
   sessionPublicId: string,
   params?: AttendanceRosterParams,
@@ -261,23 +166,6 @@ export function useRecordAttendanceMutation(sessionPublicId: string) {
   >({
     mutationFn: ({ studentPublicId, request }) =>
       recordAttendance(apiClient, sessionPublicId, studentPublicId, request),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: PROCTOR_QUERY_KEYS.attendanceRosterPrefix(sessionPublicId),
-      });
-    },
-  });
-}
-
-export function useRecordIdentityVerificationMutation(sessionPublicId: string) {
-  const queryClient = useQueryClient();
-  return useMutation<
-    AttendanceRowResponse,
-    Error,
-    { studentPublicId: string; request: RecordIdentityVerificationRequest }
-  >({
-    mutationFn: ({ studentPublicId, request }) =>
-      recordIdentityVerification(apiClient, sessionPublicId, studentPublicId, request),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: PROCTOR_QUERY_KEYS.attendanceRosterPrefix(sessionPublicId),
@@ -319,23 +207,6 @@ export function useRecordHostAttendanceMutation(sessionPublicId: string) {
   >({
     mutationFn: ({ studentPublicId, request }) =>
       recordHostAttendance(apiClient, sessionPublicId, studentPublicId, request),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["host", "attendance", sessionPublicId],
-      });
-    },
-  });
-}
-
-export function useRecordHostIdentityVerificationMutation(sessionPublicId: string) {
-  const queryClient = useQueryClient();
-  return useMutation<
-    AttendanceRowResponse,
-    Error,
-    { studentPublicId: string; request: RecordIdentityVerificationRequest }
-  >({
-    mutationFn: ({ studentPublicId, request }) =>
-      recordHostIdentityVerification(apiClient, sessionPublicId, studentPublicId, request),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["host", "attendance", sessionPublicId],

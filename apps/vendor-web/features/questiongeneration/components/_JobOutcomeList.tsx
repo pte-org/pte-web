@@ -27,7 +27,9 @@ export const JobOutcomeList = ({ job, lang, text }: JobOutcomeListProps): ReactE
               <Button
                 size="sm"
                 className="ml-auto"
-                onClick={() => router.push(questionDetailHref(item.questionPublicId ?? "", job.batchPublicId))}
+                onClick={() =>
+                  router.push(questionDetailHref(item.questionPublicId ?? "", job.batchPublicId))
+                }
               >
                 {text.openQuestion}
               </Button>
@@ -36,7 +38,9 @@ export const JobOutcomeList = ({ job, lang, text }: JobOutcomeListProps): ReactE
                 {text.failedBecause.replace("{reason}", failureLabel(item.failureCode, lang))}
               </span>
             ) : (
-              <span className="text-[var(--ink-muted)]">{item.stage === "FAILED" ? text.failed : text.cancelledItem}</span>
+              <span className="text-[var(--ink-muted)]">
+                {item.stage === "FAILED" ? text.failed : text.cancelledItem}
+              </span>
             )}
           </li>
         ))}

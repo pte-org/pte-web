@@ -151,6 +151,9 @@ export const QUESTION_EDITOR_TEXT = {
   MAX_WORD_COUNT: "Maximum word count",
   REFERENCE_ANSWER: "Reference answer",
   AUDIO_TRANSCRIPT: "Audio transcript",
+  PROMPT_TEXT_PLACEHOLDER: "Enter the question prompt…",
+  REFERENCE_ANSWER_PLACEHOLDER: "Enter a hint or a sample answer…",
+  AUDIO_TRANSCRIPT_PLACEHOLDER: "Enter what the audio says…",
   CORRECT_ANSWER: "Correct answer",
   ANSWER_HINT: "Answer hints",
   ANSWER_HINT_HELPER: "Shown to students in practice on request. Explain how to approach the item; never give the answer.",
@@ -165,6 +168,7 @@ export const QUESTION_EDITOR_TEXT = {
   SAVE_DRAFT: "Save Draft",
   CREATE_DRAFT: "Create Draft",
   CANCEL: "Cancel",
+  RESET: "Reset",
   CREATE_SUCCESS: "Question created as a draft.",
   UPDATE_SUCCESS: "Question draft saved.",
 } as const;
@@ -228,6 +232,7 @@ export const QUESTION_TABLE_HEADERS = {
   CEFR: "CEFR",
   SOURCE: "Source",
   STATUS: "Status",
+  UPDATED_AT: "Updated",
   ACTIONS: "Actions",
 } as const;
 

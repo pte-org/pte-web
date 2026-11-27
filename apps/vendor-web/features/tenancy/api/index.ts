@@ -62,11 +62,6 @@ function slugifyTenantName(value: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-function normalizePlan(plan: string | null): Tenant["plan"] {
-  if (plan === "professional" || plan === "enterprise") return plan;
-  return "starter";
-}
-
 /**
  * Maps the real `TenantResponse` to the display `Tenant` model. Only
  * `id`/`code`/`name`/`organizationType`/`status`/`plan`/`seatsTotal` are backed by
@@ -86,7 +81,7 @@ function tenantResponseToTenant(response: TenantResponse): Tenant {
     suspendedUntil: response.suspendedUntil,
     seatsUsed: 0,
     seatsTotal: response.studentLimit,
-    plan: normalizePlan(response.packageName),
+    plan: response.packageName || "-",
     location: null,
     activatedAt: "-",
     expiresAt: "-",

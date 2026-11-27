@@ -22,6 +22,13 @@ const ADMIN_VI: Record<string, string> = {
   "If that username and email belong to the same account, a reset link is on its way. The link works once and expires in 30 minutes.":
     "Nếu tên đăng nhập và email này thuộc cùng một tài khoản, liên kết đặt lại đang được gửi đi. Liên kết chỉ dùng được một lần và hết hạn sau 30 phút.",
   "Choose a new password": "Chọn mật khẩu mới",
+  "Set a new password": "Đặt mật khẩu mới",
+  "The password cannot start or end with a space.":
+    "Mật khẩu không được bắt đầu hoặc kết thúc bằng dấu cách.",
+  "This is your first sign-in. Choose a new password to continue.":
+    "Đây là lần đăng nhập đầu tiên. Hãy đặt mật khẩu mới để tiếp tục.",
+  "Save and continue": "Lưu và tiếp tục",
+  "Password could not be changed. Try again.": "Không đổi được mật khẩu. Vui lòng thử lại.",
   "Pick a password you have not used here before. The link works once.":
     "Hãy chọn mật khẩu bạn chưa dùng ở đây trước đây. Liên kết chỉ dùng được một lần.",
   "Enter both password fields.": "Vui lòng nhập cả hai ô mật khẩu.",
@@ -80,6 +87,8 @@ const ADMIN_VI: Record<string, string> = {
   "Enter all password fields.": "Nhập đầy đủ các trường mật khẩu.",
   "The new passwords do not match.": "Mật khẩu mới không khớp.",
   "Use at least 8 characters for the new password.": "Mật khẩu mới phải có ít nhất 8 ký tự.",
+  "The password is too long. Use at most 72 bytes: about 72 plain characters, fewer with accents or emoji.":
+    "Mật khẩu quá dài. Tối đa 72 byte: khoảng 72 ký tự thường, ít hơn nếu có dấu hoặc emoji.",
   "Change password": "Đổi mật khẩu",
   "Changing password...": "Đang đổi mật khẩu...",
   "Password could not be changed. Check the current password and try again.":
@@ -121,10 +130,13 @@ const ADMIN_VI: Record<string, string> = {
     "Quản lý chính sách nghiệp vụ áp dụng cho các đơn đăng ký tổ chức mới.",
   "Loading settings...": "Đang tải cài đặt...",
   "Saving changes...": "Đang lưu thay đổi...",
-  "Reset to defaults": "Khôi phục giá trị mặc định",
-  "Reset platform settings?": "Khôi phục cài đặt nền tảng?",
-  "Restore this group to its recommended defaults. Review the values and save to apply them.":
-    "Khôi phục nhóm cài đặt về giá trị mặc định đề xuất. Hãy kiểm tra lại và lưu để áp dụng.",
+  "Reset to defaults": "Khôi phục mặc định",
+  "Configure the default policies and operating parameters across the platform.":
+    "Cấu hình các chính sách và tham số vận hành mặc định áp dụng trên toàn hệ thống.",
+  "New values apply only to applications approved and notifications sent after you save.":
+    "Giá trị mới chỉ áp dụng cho đơn đăng ký được duyệt và thông báo hồ sơ được gửi sau khi bạn lưu.",
+  "Default: {value} {unit}": "Mặc định: {value} {unit}",
+  "≈ {days} days": "≈ {days} ngày",
   "No editable platform settings are available.":
     "Hiện chưa có cài đặt nền tảng nào có thể chỉnh sửa.",
   "Unsaved changes": "Có thay đổi chưa lưu",
@@ -134,13 +146,9 @@ const ADMIN_VI: Record<string, string> = {
   "Free student limit": "Hạn mức học viên miễn phí",
   "The number of learner seats granted when a tenant application is approved.":
     "Số chỗ học viên được cấp khi đơn đăng ký tổ chức được duyệt.",
-  "Applies to tenant applications approved after this value is saved.":
-    "Áp dụng cho các đơn đăng ký tổ chức được duyệt sau khi lưu giá trị này.",
   "Tenant application response time": "Thời gian phản hồi hồ sơ tổ chức",
   "The response time promised to applicants in the application email.":
     "Thời gian phản hồi được cam kết với người đăng ký trong email hồ sơ.",
-  "Applies to application notifications sent after this value is saved.":
-    "Áp dụng cho các thông báo hồ sơ được gửi sau khi lưu giá trị này.",
   students: "học viên",
   hours: "giờ",
   "Tenant applications": "Đơn đăng ký tổ chức",
@@ -171,7 +179,6 @@ const ADMIN_VI: Record<string, string> = {
   "No applications found": "Không tìm thấy đơn đăng ký",
   "Try another status filter.": "Hãy thử bộ lọc trạng thái khác.",
   "Loading application...": "Đang tải đơn đăng ký...",
-  "Back to applications": "Quay lại danh sách đơn đăng ký",
   "This application was not found or is no longer available.":
     "Không tìm thấy đơn đăng ký hoặc đơn không còn khả dụng.",
   "The application could not be updated. Please try again.":
@@ -185,12 +192,55 @@ const ADMIN_VI: Record<string, string> = {
   "Approve application": "Duyệt đơn đăng ký",
   "Rejecting...": "Đang từ chối...",
   "Reject application": "Từ chối đơn đăng ký",
+  "Reject this application?": "Từ chối đơn đăng ký này?",
+  "The applicant receives this reason by email. Explain what must be corrected.":
+    "Người nộp đơn sẽ nhận lý do này qua email. Hãy nêu rõ nội dung cần chỉnh sửa.",
+  "Submitted at": "Thời điểm nộp đơn",
+  "Organization information": "Thông tin tổ chức",
+  Representative: "Thông tin người đại diện",
+  "Application status": "Trạng thái hồ sơ",
+  "Look up": "Tra cứu",
+  "Time left to respond": "Thời hạn phản hồi còn lại",
+  "Overdue by": "Đã quá hạn",
+  "Language center": "Trung tâm ngoại ngữ",
+  Other: "Khác",
   "Organization type": "Loại tổ chức",
   "Requested tenant code": "Mã tổ chức yêu cầu",
   "Work email": "Email công việc",
   "Phone number": "Số điện thoại",
   "Reviewed by": "Người xét duyệt",
   "Reviewed at": "Thời điểm xét duyệt",
+  "Provisioning upon approval": "Dự kiến kích hoạt khi phê duyệt",
+  "Resources and credentials prepared for this tenant.":
+    "Tài nguyên và thông tin quản trị sẽ được khởi tạo cho tổ chức này.",
+  "Initial plan": "Gói dịch vụ ban đầu",
+  "Starter (Free tier)": "Gói Starter (Miễn phí)",
+  "50 students": "50 học viên",
+  "Host admin account": "Tài khoản Quản trị viên (Host Admin)",
+  "Credentials delivery": "Phương thức bàn giao",
+  "Secure email with temporary password": "Email bảo mật kèm mật khẩu tạm thời",
+  "Tenant access URL": "Địa chỉ truy cập dự kiến",
+  "Approving provisions the tenant workspace, grants the student quota, and dispatches the activation email immediately.":
+    "Khi duyệt, hệ thống sẽ tự động kích hoạt tổ chức, cấp hạn mức học viên và gửi email bàn giao ngay lập tức.",
+  "Verification & review checks": "Kiểm tra thẩm định hồ sơ",
+  "Verify that the tax code matches the legal entity on the national registry.":
+    "Đối chiếu mã số thuế với Cổng thông tin doanh nghiệp quốc gia để xác minh pháp nhân.",
+  "Requested code is formatted properly and available across active tenants.":
+    "Mã tổ chức hợp lệ, dùng làm tiền tố định danh học viên và tên miền riêng.",
+  "Credentials and onboarding communications will be delivered to the work email.":
+    "Thông tin tài khoản và thông báo hệ thống sẽ được gửi đến email công việc của người đại diện.",
+  "Approve dossier": "Duyệt hồ sơ",
+  "Processing progress (SLA)": "Tiến độ xử lý (SLA)",
+  "Remaining:": "Còn lại:",
+  "Application received": "Đã tiếp nhận đơn",
+  "Awaiting admin review": "Chờ Admin phê duyệt",
+  "Application approved": "Đã phê duyệt",
+  "Application rejected": "Đã từ chối",
+  "Verification & review": "Kiểm tra thẩm định",
+  "Valid tenant identifier format": "Mã tổ chức hợp lệ",
+  "Valid tax code format": "MST định dạng hợp lệ",
+  "Cross-check tax code with national business registry":
+    "Đối chiếu mã số thuế với Cổng thông tin doanh nghiệp quốc gia",
 
   "Plan catalog": "Danh mục gói",
   "+ Add plan": "+ Thêm gói",
@@ -424,7 +474,6 @@ const ADMIN_VI: Record<string, string> = {
   "Manage platform managers and academic staff accounts.":
     "Quản lý tài khoản quản lý nền tảng và nhân sự học thuật.",
   "Create platform user": "Tạo người dùng nền tảng",
-  "Update platform roles": "Cập nhật vai trò nền tảng",
   "Update platform user": "Cập nhật người dùng nền tảng",
   Email: "Email",
   "Email and username cannot be changed in this flow.":
@@ -441,8 +490,10 @@ const ADMIN_VI: Record<string, string> = {
   "All roles": "Tất cả vai trò",
   "Show archived": "Hiển thị đã lưu trữ",
   "Protected account": "Tài khoản được bảo vệ",
+  "No actions available": "Không thể thao tác",
+  "Can't act on your own account": "Không thể thao tác với chính bạn",
+  "Can't act on a platform administrator": "Không thể thao tác với quản trị viên nền tảng",
   "Platform user created.": "Đã tạo người dùng nền tảng.",
-  "Platform roles updated.": "Đã cập nhật vai trò nền tảng.",
   "Platform user suspended.": "Đã tạm ngưng người dùng nền tảng.",
   "Platform user reactivated.": "Đã kích hoạt lại người dùng nền tảng.",
   "Platform user profile updated.": "Đã cập nhật hồ sơ người dùng nền tảng.",
@@ -455,8 +506,8 @@ const ADMIN_VI: Record<string, string> = {
   "Unable to load platform users.": "Không thể tải người dùng nền tảng.",
   Suspend: "Tạm ngưng",
   Reactivate: "Kích hoạt lại",
-  "Update roles": "Cập nhật vai trò",
   "Update profile": "Cập nhật hồ sơ",
+  "View activity history": "Xem lịch sử thao tác",
   "Reset password": "Đặt lại mật khẩu",
   Restore: "Khôi phục",
   "Reset platform user password": "Đặt lại mật khẩu người dùng nền tảng",
@@ -480,9 +531,15 @@ const ADMIN_VI: Record<string, string> = {
   "Expiring soon": "Sắp hết hạn",
   Expired: "Đã hết hạn",
   Inactive: "Không hoạt động",
+  "Students per session for this exam package.":
+    "Số lượng học viên tối đa cho gói kỳ thi này.",
   "Starter (500 users)": "Starter (500 người dùng)",
   "Professional (1000 users)": "Professional (1.000 người dùng)",
+  "Professional (1,000 users)": "Professional (1.000 người dùng)",
   "Enterprise (Unlimited)": "Enterprise (Không giới hạn)",
+  "Starter (500 người dùng)": "Starter (500 người dùng)",
+  "Professional (1.000 người dùng)": "Professional (1.000 người dùng)",
+  "Enterprise (Không giới hạn)": "Enterprise (Không giới hạn)",
 
   "Question Bank": "Ngân hàng câu hỏi",
   "Add question": "Thêm câu hỏi",
@@ -523,6 +580,9 @@ const ADMIN_VI: Record<string, string> = {
   "Question prompt preview": "Xem trước đề bài",
   "Reference answer": "Đáp án tham khảo",
   "Audio transcript": "Lời thoại audio",
+  "Enter the question prompt…": "Nhập nội dung đề bài…",
+  "Enter a hint or a sample answer…": "Nhập gợi ý hoặc đáp án mẫu…",
+  "Enter what the audio says…": "Nhập lời thoại của audio…",
   "Answer hints": "Gợi ý trả lời",
   "Shown to students in practice on request. Explain how to approach the item; never give the answer.":
     "Học viên luyện tập xem khi bấm gợi ý. Hướng dẫn cách làm, không đưa đáp án.",
@@ -586,6 +646,7 @@ const ADMIN_VI: Record<string, string> = {
   "Created by": "Người tạo",
   "Time frame": "Khung thời gian",
   "CEFR mix": "Tỉ lệ CEFR",
+  "Not set": "Chưa đặt",
   "The minutes each part of the test may take, and the most the whole test may take. Exams built from this template are planned to fit.":
     "Số phút mỗi phần của bài thi được dùng và tổng tối đa của cả bài. Đề tạo từ mẫu này được lập kế hoạch để nằm trong khung.",
   "Speaking & Writing": "Nói & Viết",
@@ -860,6 +921,7 @@ const ADMIN_VI: Record<string, string> = {
   Licenses: "Bản quyền",
   "No licenses found": "Không tìm thấy bản quyền",
   "Grant Quota": "Cấp hạn mức",
+  "Quota granted successfully.": "Cấp hạn mức thành công.",
   "Added on top of the current student limit.": "Được cộng thêm vào giới hạn học viên hiện tại.",
   "This tenant's quota was just changed by someone else. Please review the current value and try again.":
     "Hạn mức của tổ chức vừa được người khác thay đổi. Hãy kiểm tra giá trị hiện tại và thử lại.",
@@ -934,6 +996,19 @@ const ADMIN_VI: Record<string, string> = {
   Message: "Nội dung",
   "Affected from": "Bắt đầu ảnh hưởng",
   "Affected until": "Kết thúc ảnh hưởng",
+  "Announcement details": "Chi tiết thông báo",
+  "Delivery result": "Kết quả phát hành",
+  Sent: "Đã gửi",
+  Waiting: "Đang chờ",
+  Failed: "Thất bại",
+  Skipped: "Bị bỏ qua",
+  Read: "Đã đọc",
+  "Eligible organizations": "Tổ chức đủ điều kiện",
+  "General information": "Thông tin chung",
+  "Retry failed deliveries": "Gửi lại các lần giao thất bại",
+  "The end must be after the start.": "Thời điểm kết thúc phải sau thời điểm bắt đầu.",
+  "Choose a time.": "Hãy chọn giờ.",
+  "Choose a date.": "Hãy chọn ngày.",
   Informational: "Thông tin",
   Important: "Quan trọng",
   "Announcement draft saved.": "Đã lưu bản nháp thông báo.",
@@ -951,7 +1026,6 @@ const ADMIN_VI: Record<string, string> = {
   "No announcement drafts": "Không có bản nháp thông báo",
   "Create a draft when the platform needs to communicate a global notice.":
     "Tạo bản nháp khi nền tảng cần gửi thông báo chung.",
-  "Retry failed delivery": "Thử lại phân phối thất bại",
   "Delivery retry queued.": "Đã xếp hàng yêu cầu thử lại phân phối.",
   "Publish announcement?": "Phát hành thông báo?",
   "This publishes immutable content to the eligible host audience immediately.":
@@ -978,28 +1052,38 @@ const ADMIN_VI: Record<string, string> = {
   Tenant: "Tổ chức",
   Category: "Danh mục",
   Submitted: "Đã gửi",
-  Open: "Mở",
+  Open: "Đang mở",
   "In Progress": "Đang xử lý",
   Resolved: "Đã xử lý",
   "Closed by host": "Host đã đóng",
   Bug: "Lỗi",
   "Content Complaint": "Khiếu nại nội dung",
   "General Feedback": "Phản hồi chung",
-  Start: "Bắt đầu",
+  "Start handling": "Bắt đầu xử lý",
   Resolve: "Xử lý",
   "Ticket Details": "Chi tiết yêu cầu",
   "Ticket information": "Thông tin yêu cầu",
-  "Admin notes": "Ghi chú quản trị",
+  "Request details": "Nội dung yêu cầu",
+  "Reply to the organization": "Phản hồi tới tổ chức",
   "Related entity type": "Loại đối tượng liên quan",
+  "Reported question": "Câu hỏi bị báo lỗi",
+  "Open in question bank": "Mở trong ngân hàng câu hỏi",
+  "This question no longer exists.": "Câu hỏi này không còn tồn tại.",
   "Last updated": "Cập nhật lần cuối",
-  "No notes yet": "Chưa có ghi chú",
-  "Add the first note to document your findings.":
-    "Thêm ghi chú đầu tiên để lưu lại kết quả xử lý.",
-  "Add a note": "Thêm ghi chú",
-  "Write a note visible to the tenant…": "Viết ghi chú hiển thị cho tổ chức…",
-  "Add note": "Thêm ghi chú",
-  "Note added.": "Đã thêm ghi chú.",
+  "No replies yet": "Chưa có phản hồi nào",
+  "Send the first reply to update the organization on the result.":
+    "Gửi phản hồi đầu tiên để cập nhật kết quả xử lý cho tổ chức.",
+  "Write a reply to the organization…": "Nhập phản hồi gửi tới tổ chức…",
+  "Send reply": "Gửi phản hồi",
+  "Reply sent.": "Đã gửi phản hồi.",
+  "Visible to the organization": "Hiển thị với tổ chức",
+  "Sent at": "Gửi lúc",
+  Admin: "Quản trị viên",
+  "Request ID": "Mã yêu cầu",
+  "Submitted by": "Người gửi",
   "Status updated.": "Đã cập nhật trạng thái.",
+  "We couldn't update the status. Please try again.": "Không thể cập nhật trạng thái. Vui lòng thử lại.",
+  "We couldn't send the reply. Please try again.": "Không thể gửi phản hồi. Vui lòng thử lại.",
 
   // Shared status, identity, and fallback copy used by the remaining admin screens.
   "Loading applications...": "Đang tải danh sách đơn đăng ký...",
@@ -1267,7 +1351,7 @@ const ADMIN_VI: Record<string, string> = {
   "Search questions by content": "Tìm câu hỏi theo nội dung",
   "Question bank": "Ngân hàng câu hỏi",
   "Approval workflow": "Quy trình duyệt",
-  "Compose with preview": "Soạn câu có xem trước",
+  "Compose question": "Soạn câu hỏi",
   "Could not load the question board.": "Không thể tải bảng câu hỏi.",
   "Question saved as a draft": "Đã lưu câu hỏi thành bản nháp",
   "Add this task type to the template to see its timing.":
@@ -1290,7 +1374,8 @@ const ADMIN_VI: Record<string, string> = {
   "Content Hub views": "Các góc nhìn của Trung tâm nội dung",
   "Choose templates": "Chọn mẫu",
   "Search by name, code or version": "Tìm theo tên, mã hoặc phiên bản",
-  "Pick the template to look at: the active one or a draft.": "Chọn mẫu để xem: mẫu đang hoạt động hoặc một bản nháp.",
+  "Pick the template to look at: the active one or a draft.":
+    "Chọn mẫu để xem: mẫu đang hoạt động hoặc một bản nháp.",
   "task types": "dạng bài",
   "No template matches.": "Không có mẫu nào khớp.",
   "Board of": "Bảng của",
@@ -1312,13 +1397,15 @@ const ADMIN_VI: Record<string, string> = {
   "{count} more needed": "cần thêm {count}",
   "Write more": "Soạn thêm",
   "Search questions in this task type": "Tìm câu hỏi của dạng bài này",
-  "Showing the first 200. Narrow the board with the filters.": "Đang hiện 200 câu đầu. Hãy thu hẹp bằng bộ lọc.",
+  "Showing the first 200. Narrow the board with the filters.":
+    "Đang hiện 200 câu đầu. Hãy thu hẹp bằng bộ lọc.",
   "Coverage map": "Bản đồ độ phủ",
   "Exam timeline": "Dòng thời gian đề",
   "Drag a card to the next column to move a question through review.":
     "Kéo thẻ sang cột kế tiếp để chuyển câu hỏi qua các bước duyệt.",
   "Search questions": "Tìm câu hỏi",
   "All task types": "Tất cả dạng bài",
+  "All CEFR levels": "Tất cả CEFR",
   "Nothing here": "Chưa có gì",
   "A question moves one step at a time: draft, awaiting approval, approved.":
     "Câu hỏi chỉ đi từng bước: bản nháp, chờ duyệt, đã duyệt.",
@@ -1326,12 +1413,13 @@ const ADMIN_VI: Record<string, string> = {
     "Chỉ quản lý học thuật mới duyệt được câu hỏi.",
   "Question updated": "Đã cập nhật câu hỏi",
   "Fill in the form; the preview shows what the student will see.":
-    "Điền vào biểu mẫu, phần xem trước cho thấy học sinh sẽ thấy gì.",
+    "Điền thông tin câu hỏi bên trái; khung xem trước bên phải cập nhật trực tiếp theo giao diện học viên.",
   "Student view": "Màn hình học sinh",
   "Start typing to see the question.": "Hãy bắt đầu nhập để xem câu hỏi.",
   "Preparation: {seconds}s": "Chuẩn bị: {seconds}s",
   "Response: {seconds}s": "Trả lời: {seconds}s",
-  "The width of a block follows its time. Click one to see its task type.": "Độ rộng khối theo thời gian của nó. Bấm vào một khối để xem dạng bài.",
+  "The width of a block follows its time. Click one to see its task type.":
+    "Độ rộng khối theo thời gian của nó. Bấm vào một khối để xem dạng bài.",
   "About {minutes} minutes in {count} task types": "Khoảng {minutes} phút cho {count} dạng bài",
   "No task types in this template yet.": "Mẫu này chưa có dạng bài nào.",
   "{count} q · {time}": "{count} câu · {time}",
@@ -1364,7 +1452,8 @@ const ADMIN_VI: Record<string, string> = {
   "Task type sections": "Các mục của dạng bài",
   "In the template": "Có trong mẫu",
   "Part of this template version": "Thuộc phiên bản mẫu này",
-  "This task type is not in the template yet. Add it on the template page.": "Dạng bài này chưa có trong mẫu. Hãy thêm nó ở trang mẫu bài thi.",
+  "This task type is not in the template yet. Add it on the template page.":
+    "Dạng bài này chưa có trong mẫu. Hãy thêm nó ở trang mẫu bài thi.",
   "Add to the template": "Thêm vào mẫu",
   "Remove from the template": "Bỏ khỏi mẫu",
   "This task type carries skill weight. Rebalance the weights on the template page before removing it.":
@@ -1482,13 +1571,15 @@ const SCORE_TEMPLATE_FEEDBACK_VI: Record<string, string> = {
   "{count} drafts selected": "Đã chọn {count} bản nháp",
   "Delete selected drafts": "Xóa các bản nháp đã chọn",
   "Delete this draft?": "Xóa bản nháp này?",
-  "The draft is deleted for good. This cannot be undone.": "Bản nháp sẽ bị xóa vĩnh viễn và không thể khôi phục.",
+  "The draft is deleted for good. This cannot be undone.":
+    "Bản nháp sẽ bị xóa vĩnh viễn và không thể khôi phục.",
   "Draft deleted": "Đã xóa bản nháp",
   "Delete the selected drafts?": "Xóa các bản nháp đã chọn?",
   "{count} draft questions, including drafts written by AI, are deleted for good. Only drafts can be deleted; submitted and approved questions are kept.":
     "{count} câu hỏi nháp, kể cả bản nháp do AI viết, sẽ bị xóa vĩnh viễn. Chỉ xóa được bản nháp; câu đã gửi duyệt hoặc đã duyệt được giữ lại.",
   "Delete drafts": "Xóa bản nháp",
-  "{deleted} deleted, {failed} could not be deleted.": "Đã xóa {deleted}, {failed} câu không xóa được.",
+  "{deleted} deleted, {failed} could not be deleted.":
+    "Đã xóa {deleted}, {failed} câu không xóa được.",
 };
 
 type LocalizableFunction = (...args: never[]) => unknown;

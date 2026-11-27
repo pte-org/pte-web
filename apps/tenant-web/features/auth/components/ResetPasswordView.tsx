@@ -4,15 +4,17 @@ import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ResetPasswordForm, resolveResetLinkState, useToast } from "@pte/ui";
-import { getUserFacingApiErrorMessage } from "@pte/api-client";
 import { useConfirmPasswordReset, useValidatePasswordResetToken } from "../api";
-import { AUTH_ROUTES, PASSWORD_RESET_LINKS, RESET_PASSWORD_TEXT } from "../constants";
+import { getAuthFailureMessage } from "../authErrors";
+import { AUTH_ROUTES } from "../constants";
+import { useAuthCopy } from "../hooks/useAuthCopy";
 
 const TOKEN_PARAM = "token";
 
 /** Page content only: the frame (artwork, backdrop, toolbar) comes from the `(portal)` layout. */
 export const ResetPasswordView = (): ReactElement => {
   const router = useRouter();
+  const { reset: RESET_PASSWORD_TEXT, links: PASSWORD_RESET_LINKS, locale, errorText } = useAuthCopy();
   const token = useSearchParams().get(TOKEN_PARAM)?.trim() ?? "";
   const check = useValidatePasswordResetToken(token);
   const confirm = useConfirmPasswordReset();
@@ -27,7 +29,12 @@ export const ResetPasswordView = (): ReactElement => {
       showToast(PASSWORD_RESET_LINKS.RESET_DONE, { tone: "success" });
       router.replace(AUTH_ROUTES.login);
     } catch (failure) {
-      setError(getUserFacingApiErrorMessage(failure, RESET_PASSWORD_TEXT.failed));
+      setError(getAuthFailureMessage(failure, RESET_PASSWORD_TEXT.failed, locale, errorText, {
+        required: RESET_PASSWORD_TEXT.required,
+        tooShort: RESET_PASSWORD_TEXT.tooShort,
+        edgeSpaces: RESET_PASSWORD_TEXT.edgeSpaces,
+        tooLong: RESET_PASSWORD_TEXT.tooLong,
+      }));
     }
   };
 

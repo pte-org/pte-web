@@ -9,15 +9,13 @@ export const EXAMINER_ATTEMPT_QUERY_KEY = ["examinerAttemptWork"] as const;
 
 /** A band gap to the AI at or above this asks the examiner to note the reason (AI calibration data). */
 export const AI_GAP_THRESHOLD = 2;
+/** A trait with more bands than this (e.g. Read Aloud word count) is entered as a number, not a card per band. */
+export const TRAIT_NUMERIC_INPUT_MIN_MAX_SCORE = 10;
 /** Matches the server limit on one reason (RubricConstants.MAX_AI_GAP_REASON_LENGTH). */
 export const AI_GAP_REASON_MAX_LENGTH = 500;
 
-/**
- * One marking column on wide screens: as tall as the viewport minus the page header and the marking toolbar, so each
- * column scrolls on its own instead of the whole page.
- */
-export const EXAMINER_COLUMN_CLASS =
-  "min-w-0 space-y-3 rounded-2xl border p-3 lg:max-h-[calc(100dvh-14rem)] lg:overflow-y-auto";
+/** One marking panel; the panels stack in rows and the page itself scrolls. */
+export const EXAMINER_COLUMN_CLASS = "min-w-0 space-y-3 rounded-2xl border p-3";
 
 export type ExaminerColumnTone = "prompt" | "ai" | "examiner";
 
@@ -130,6 +128,15 @@ export const EXAMINER_WORK_TEXT = {
   SAVE_FAILED: "Could not save the score. Please check your connection and try again.",
   TRAITS_INVALID: "Every trait score must be a whole number within its allowed range.",
   FINALIZE_FAILED: "Could not finalize the attempt. Please reload the page and try again.",
+  FINALIZE_FAILED_NETWORK: "Could not reach the server to finalize the attempt. Check your connection and try again.",
+  FINALIZE_MISSING_DRAFT: "Question {n} has not been marked yet. Mark and save every question, then finalize again.",
+  FINALIZE_STALE_DRAFT: "The score for question {n} changed elsewhere. Reload the page, review it and save it again.",
+  FINALIZE_STALE_WORK: "This attempt was changed elsewhere (another tab or examiner). Reload the page and finalize again.",
+  FINALIZE_POOL_CHANGED: "The list of answers to mark has changed. Reload the page and finalize again.",
+  FINALIZE_NOT_STARTED: "You have not started marking this attempt yet.",
+  FINALIZE_ALREADY: "This attempt has already been finalized. Reload the page to see it.",
+  FINALIZE_CARRIED_OVER: "Drafts handed over from the previous examiner must be reviewed and saved again before finalizing.",
+  FINALIZE_PUBLISHED: "Scores for this session are already published, so the attempt can no longer be finalized.",
   COMMENT_LABEL: "Examiner feedback / comment",
   COMMENT_PLACEHOLDER: "Optional note or rationale (max 2000 chars)",
   FINALIZE_WORK: "Finalize attempt",
@@ -145,7 +152,6 @@ export const EXAMINER_WORK_TEXT = {
   GUIDELINES_TITLE: "Examiner scoring guidelines",
   HISTORY_AUDIT: "Grading History & Audit",
   MARKING_TAB: "Marking",
-  ISSUES_BLOCKING: "Grading is blocked by an unresolved issue on this attempt.",
   SUBMISSION_BLOCKED: "Submission Blocked",
   PROPOSED_SCORE: "Proposed Score:",
   STALE_REFERENCE: "Stale Reference",
@@ -171,7 +177,6 @@ export const EXAMINER_WORK_TEXT = {
   ISSUE_DESC_PLACEHOLDER: "Describe the issue preventing grading in detail (max 2000 chars)...",
   SUBMITTING_ISSUE: "Submitting…",
   SEARCH_BTN: "Search",
-  ACTIVE_ISSUE_TITLE: "Active Issue Blocking Finalization",
   SCORING_NOTICE_TITLE: "Scoring Status Notice",
   SCORE_PLACEHOLDER: "0–100",
   BLOCK_ALREADY_PUBLISHED: "Results for this cohort have already been published.",

@@ -22,9 +22,6 @@ export function IncidentDetailContent({ incident }: IncidentDetailContentProps):
       <div className="space-y-2">
         <h3 className="text-lg font-semibold text-[var(--ink-primary)]">{incident.title}</h3>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs text-[var(--ink-muted)]">
-            #{incident.incidentPublicId.slice(0, 8).toUpperCase()}
-          </span>
           <Badge variant={severity.variant}>{T.SEVERITY[incident.severity]}</Badge>
           <StatusBadge label={status.label} variant={status.variant} />
         </div>
@@ -75,18 +72,6 @@ export function IncidentDetailContent({ incident }: IncidentDetailContentProps):
           { label: T.UPDATED_AT, value: new Date(incident.updatedAt).toLocaleString("vi-VN") },
         ]}
       />
-      <div className="space-y-2 border-t border-[var(--border-subtle)] pt-4">
-        <h4 className="text-sm font-semibold">{T.DESCRIPTION}</h4>
-        <p className="whitespace-pre-wrap break-words text-sm text-[var(--ink-secondary)]">
-          {incident.description}
-        </p>
-      </div>
-      <div className="space-y-2 rounded-lg bg-[var(--surface-muted)] p-4">
-        <h4 className="text-sm font-semibold">{T.RESOLUTION}</h4>
-        <p className="whitespace-pre-wrap break-words text-sm text-[var(--ink-secondary)]">
-          {incident.resolutionSummary || T.NO_RESOLUTION}
-        </p>
-      </div>
     </div>
   );
 }

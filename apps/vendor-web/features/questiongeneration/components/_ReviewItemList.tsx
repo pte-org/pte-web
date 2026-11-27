@@ -48,22 +48,12 @@ export const ReviewItemList = ({
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isFocused, onNavigateUp, onNavigateDown]);
 
-  const getVerdictBadge = (
-    stage?: string,
-  ): React.ReactNode => {
+  const getVerdictBadge = (stage?: string): React.ReactNode => {
     if (stage === "FAILED") {
-      return (
-        <Badge>
-          {generationMessages.verdictFail}
-        </Badge>
-      );
+      return <Badge>{generationMessages.verdictFail}</Badge>;
     }
     if (stage === "SAVED") {
-      return (
-        <Badge>
-          {generationMessages.verdictPass}
-        </Badge>
-      );
+      return <Badge>{generationMessages.verdictPass}</Badge>;
     }
     return <span className="text-sm text-gray-500">{stage ?? "-"}</span>;
   };
@@ -107,9 +97,7 @@ export const ReviewItemList = ({
                 onClick={(e) => e.stopPropagation()}
               />
               <span className="font-medium">{index + 1}</span>
-              <span className="text-gray-700 truncate text-xs">
-                {item.questionPublicId ?? "-"}
-              </span>
+              <span className="text-gray-700 truncate text-xs">{item.questionPublicId ?? "-"}</span>
               <div>{getVerdictBadge(item.stage)}</div>
             </button>
           ))

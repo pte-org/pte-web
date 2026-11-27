@@ -27,6 +27,10 @@ export interface DashboardPanelProps {
   subtitle?: string;
   /** Header actions such as a link or a select. */
   actions?: ReactNode;
+  /** A small icon in a neutral tile before the title, so it stays quieter than the content below; omitted by default. */
+  icon?: ReactNode;
+  /** A rule under the header, to set it apart from a body that starts with its own rows. */
+  divided?: boolean;
   /** One primary navigation action shown below the panel content. */
   footerAction?: ReactNode;
   /** Defaults to "content". Only the matching state object below is read. */
@@ -77,6 +81,8 @@ export const DashboardPanel = ({
   title,
   subtitle,
   actions,
+  icon,
+  divided = false,
   footerAction,
   status = "content",
   loadingLabel,
@@ -95,8 +101,13 @@ export const DashboardPanel = ({
       aria-busy={status === "loading"}
       className={cn("flex flex-col gap-4", className)}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0">
+      <div className={cn("flex flex-wrap items-start justify-between gap-3", divided && "border-b border-[var(--shell-border)] pb-4")}>
+        {icon && (
+          <span aria-hidden="true" className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[var(--surface-subtle)] text-[var(--ink-secondary)]">
+            {icon}
+          </span>
+        )}
+        <div className="min-w-0 flex-1">
           <h2 id={titleId} className="text-sm font-semibold text-[var(--ink-primary)]">
             {title}
           </h2>

@@ -24,9 +24,10 @@ export const SIMULATOR_TEXT = {
     title: "Thử tính điểm", task: "Dạng bài", version: "Bộ quy tắc", active: "Đang hiệu lực",
     example: "Nạp ví dụ mẫu", words: "Số từ", sentences: "Số câu", passage: "Số từ đoạn đọc (N)",
     caps: "Toàn chữ hoa", punctuation: "Có dấu câu", bullets: "Chỉ gạch đầu dòng", error: "Không thể mô phỏng với đầu vào này.",
-    score: "Điểm câu", raw: "Trước làm tròn", form: "Band Form", contribution: "Đóng góp (trọng số × đạt / tối đa)",
+    score: "Điểm câu", raw: "Trước làm tròn", form: "Band Form", contribution: "Đóng góp",
     trait: "Tiêu chí", achieved: "Đạt / tối đa", weight: "Trọng số hiệu lực", gate: "Điểm câu = 0 vì điều kiện chặn: ",
     close: "Đóng", pending: "Đang cập nhật kết quả…", empty: "Chọn đủ điểm tiêu chí bên phải để xem điểm câu và cách tính.",
+    maxScore: "Điểm tối đa", gatedZero: "Bị chặn điểm 0", reset: "Đặt lại",
   },
   en: {
     intro: "Change trait scores to explore how an item score is calculated.",
@@ -43,9 +44,10 @@ export const SIMULATOR_TEXT = {
     title: "Try scoring", task: "Task type", version: "Rubric version", active: "Active",
     example: "Load sample inputs", words: "Word count", sentences: "Sentence count", passage: "Passage word count (N)",
     caps: "All capitals", punctuation: "Has punctuation", bullets: "Bullet points only", error: "Cannot simulate these inputs.",
-    score: "Item score", raw: "Before rounding", form: "Form band", contribution: "Contribution (weight × achieved / max)",
+    score: "Item score", raw: "Before rounding", form: "Form band", contribution: "Contribution",
     trait: "Trait", achieved: "Achieved / maximum", weight: "Effective weight", gate: "Item score = 0 because of gate: ",
     close: "Close", pending: "Updating result…", empty: "Select trait scores on the right to view the server trace.",
+    maxScore: "Maximum score", gatedZero: "Trigger gate", reset: "Reset",
   },
 } as const;
 

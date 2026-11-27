@@ -18,7 +18,9 @@ import {
   getTemplateSkills,
   type CreateExamStep,
 } from "../utils/createExamWizard";
+import { suggestExamWindow } from "../utils/suggestedExamWindow";
 import { useCreateExamAudience } from "./useCreateExamAudience";
+import { useCreateExamProctors } from "./useCreateExamProctors";
 import { useCreateExamWizardForm } from "./useCreateExamWizardForm";
 import { useCreateExamWizardText, type CreateExamWizardText } from "./useCreateExamWizardText";
 
@@ -43,6 +45,7 @@ export interface UseCreateExamWizardViewModelResult {
   validate: () => boolean;
   goToNextStep: () => void;
   goToPreviousStep: () => void;
+  goToStep: (step: CreateExamStep) => void;
 }
 
 export function useCreateExamWizardViewModel({
@@ -58,7 +61,7 @@ export function useCreateExamWizardViewModel({
   // With no platform default the host can still pick one of its own templates.
   const fallbackTemplatePublicId = activeTemplate?.publicId ?? templates[0]?.publicId;
   const initialForm = useMemo(
-    () => createEmptyExamWorkflow(fallbackTemplatePublicId),
+    () => ({ ...createEmptyExamWorkflow(fallbackTemplatePublicId), ...suggestExamWindow() }),
     [fallbackTemplatePublicId],
   );
   const wizardText = useCreateExamWizardText();
@@ -104,6 +107,7 @@ export function useCreateExamWizardViewModel({
     validate,
     goToNextStep,
     goToPreviousStep,
+    setStep,
   } = wizardForm;
   const selectedTemplate =
     templates.find((template) => template.publicId === effectiveForm.templatePublicId) ??
@@ -116,6 +120,10 @@ export function useCreateExamWizardViewModel({
     open,
     sources,
     onSourcesChange,
+  });
+  const proctors = useCreateExamProctors({
+    proctors: effectiveForm.proctors ?? [],
+    onProctorsChange: (next) => update("proctors", next),
   });
   const templateMessage = templateError
     ? errorMessage(templateError, wizardText.NO_TEMPLATE)
@@ -178,6 +186,7 @@ export function useCreateExamWizardViewModel({
   };
   const audienceStepProps: AudienceStepProps = {
     errors,
+    capacity: Number(effectiveForm.capacity) || 0,
     wizardText,
     search: audience.search,
     programFilter: audience.programFilter,
@@ -195,6 +204,15 @@ export function useCreateExamWizardViewModel({
     toggleAllFiltered: audience.toggleAllFiltered,
     clearSelection: audience.clearSelection,
     localizeError,
+    proctorPickerProps: {
+      search: proctors.search,
+      candidates: proctors.candidates,
+      selection: proctors.selection,
+      loading: proctors.loading,
+      onSearchChange: proctors.onSearchChange,
+      toggleProctor: proctors.toggleProctor,
+      clearProctors: proctors.clearProctors,
+    },
   };
   const reviewStepProps: ReviewStepProps = {
     form: effectiveForm,
@@ -203,6 +221,8 @@ export function useCreateExamWizardViewModel({
     localizedSkillOptions,
     templateSkills,
     audienceCount: sources.length,
+    proctorCount: proctors.selection.length,
+    onEditStep: setStep,
   };
 
   return {
@@ -223,5 +243,6 @@ export function useCreateExamWizardViewModel({
     validate,
     goToNextStep,
     goToPreviousStep,
+    goToStep: setStep,
   };
 }

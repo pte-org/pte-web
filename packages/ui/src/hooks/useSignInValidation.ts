@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 export type SignInField = "username" | "password";
 export type SignInErrors = Partial<Record<SignInField, string>>;
@@ -41,13 +41,25 @@ export interface SignInValidation {
   validateAll: (values: SignInValues) => SignInErrors;
 }
 
+const messageFor = (field: SignInField, messages: SignInValidationMessages): string =>
+  field === "username" ? messages.usernameRequired : messages.passwordRequired;
+
 export const useSignInValidation = (messages: SignInValidationMessages): SignInValidation => {
-  const [errors, setErrors] = useState<SignInErrors>({});
+  // Which fields are wrong, not the sentence, so a message follows a language switch made after it appeared.
+  const [invalid, setInvalid] = useState<Partial<Record<SignInField, boolean>>>({});
+
+  const errors = useMemo<SignInErrors>(() => {
+    const shown: SignInErrors = {};
+    for (const field of ["username", "password"] as const) {
+      if (invalid[field]) shown[field] = messageFor(field, messages);
+    }
+    return shown;
+  }, [invalid, messages]);
 
   const check = useCallback(
     (field: SignInField, value: string): string | undefined => {
       const error = validateSignInField(field, value, messages);
-      setErrors((previous) => ({ ...previous, [field]: error }));
+      setInvalid((previous) => ({ ...previous, [field]: error !== undefined }));
       return error;
     },
     [messages],

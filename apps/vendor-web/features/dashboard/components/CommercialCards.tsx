@@ -78,7 +78,7 @@ export const CommercialCards = ({
         subtitle={messages.subscriptionsSubtitle}
         footerAction={
           <Link
-            href={ADMIN_DASHBOARD_ROUTES.licenses}
+            href={ADMIN_DASHBOARD_ROUTES.subscriptions}
             className="text-xs font-semibold text-action hover:underline"
           >
             {messages.subscriptionsManage}

@@ -1,10 +1,7 @@
 "use client";
 
 import { Alert, ConfirmDialog } from "@pte/ui";
-import {
-  getUserFacingApiErrorMessage,
-  type UserResponse,
-} from "@pte/api-client";
+import { getUserFacingApiErrorMessage, type UserResponse } from "@pte/api-client";
 import { useAdminCopy } from "@/features/i18n/adminCopy";
 import { PLATFORM_USER_TEXT as RAW_PLATFORM_USER_TEXT } from "../constants";
 import type { PlatformUserAction } from "../types";

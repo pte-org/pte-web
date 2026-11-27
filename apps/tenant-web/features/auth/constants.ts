@@ -4,6 +4,11 @@ export const CURRENT_USER_QUERY_KEY = ["currentUser"] as const;
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080";
 
+/** Where applicants are sent for help; set NEXT_PUBLIC_SUPPORT_EMAIL per environment. */
+export const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? "support@pte.com";
+/** Placeholder in registration copy that is replaced with {@link SUPPORT_EMAIL}. */
+export const SUPPORT_EMAIL_PLACEHOLDER = "{supportEmail}";
+
 /**
  * Real backend roles allowed into `/host/*` — mirrors vendor-web's
  * `HOST_ROLES`. HOST_ADMIN is the only tenant-administrator role in the
@@ -49,7 +54,9 @@ export const PASSWORD_CHANGE_TEXT = {
   CONFIRM_LABEL: "Confirm new password",
   REQUIRED: "Enter all password fields.",
   MISMATCH: "The new passwords do not match.",
+  EDGE_SPACES: "The password cannot start or end with a space.",
   TOO_SHORT: "Use at least 8 characters for the new password.",
+  TOO_LONG: "The password is too long. Use at most 72 bytes: about 72 plain characters, fewer with accents or emoji.",
   SUBMIT: "Change password",
   SUBMITTING: "Changing password...",
   FAILED: "Password could not be changed. Check the current password and try again.",
@@ -71,7 +78,7 @@ export const AUTH_TEXT = {
   // address is not the login key for new accounts, so the field is not e-mail-typed or e-mail-validated.
   // Accounts created before generated usernames keep their e-mail as username.
   USERNAME_LABEL: "Username",
-  USERNAME_PLACEHOLDER: "school.k7m2p9qx",
+  USERNAME_PLACEHOLDER: "school.nguyenvana",
   USERNAME_HINT: "Use the username your organization sent to your email.",
   PASSWORD_LABEL: "Password",
   PASSWORD_PLACEHOLDER: "Enter your password",
@@ -91,12 +98,20 @@ export const AUTH_TEXT = {
   RATE_LIMITED: "Too many sign-in attempts. Please wait a moment and try again.",
 } as const;
 
+export type AuthText = { [Key in keyof typeof AUTH_TEXT]: string };
+export type PasswordChangeText = { [Key in keyof typeof PASSWORD_CHANGE_TEXT]: string };
+
 export const REGISTRATION_TEXT = {
   requestedCodeHint:
     "3–32 lowercase letters, numbers, or hyphens. This code cannot change after approval.",
   requestedCodeInvalid: "Use 3–32 lowercase letters, numbers, or hyphens.",
   duplicateCode: "This tenant code is already in use. Choose another code.",
   duplicateName: "This organization name is already in use. Choose another name.",
+  duplicateTaxCode:
+    "This tax code already belongs to another organization. Contact {supportEmail} for help.",
+  duplicateEmail: "An application from this email is already waiting for review.",
+  applicationInvalid: "Some details are not valid. Check the form and try again.",
+  networkError: "Could not reach the server. Check your connection and try again.",
   rateLimited: "The system is receiving many applications. Try again in a few minutes.",
   submitFailed: "Application could not be submitted. Try again.",
   organizationNameRequired: "Enter your organization name.",
@@ -129,6 +144,8 @@ export const REGISTRATION_TEXT = {
   submitIcon: "→",
 } as const;
 
+export type RegistrationText = { [Key in keyof typeof REGISTRATION_TEXT]: string };
+
 export const REGISTRATION_ORGANIZATION_TYPES = [
   { label: "School", value: "school" },
   { label: "Language center", value: "language-center" },
@@ -139,7 +156,7 @@ export const REGISTRATION_ORGANIZATION_TYPES = [
 export const FORGOT_PASSWORD_TEXT: ForgotPasswordFormText = {
   title: "Forgot your password?",
   subtitle:
-    "Enter your username and the email on that account and we will send you a link to choose a new password. Forgot your username? Ask your centre administrator.",
+    "Enter your username and the email on that account and we will send you a link to choose a new password. Forgot your username? Ask your center administrator.",
   usernameLabel: "Username",
   emailLabel: "Email",
   submit: "Send reset link",
@@ -161,6 +178,8 @@ export const RESET_PASSWORD_TEXT: ResetPasswordFormText & { failed: string } = {
   required: "Enter both password fields.",
   tooShort: "Use at least 8 characters for the new password.",
   mismatch: "The new passwords do not match.",
+  edgeSpaces: "The password cannot start or end with a space.",
+  tooLong: "The password is too long. Use at most 72 bytes: about 72 plain characters, fewer with accents or emoji.",
   invalidLinkTitle: "This link cannot be used",
   invalidLinkMessage: "The reset link is missing, invalid or has expired. Request a new one to continue.",
   checkingTitle: "Checking your link",
@@ -175,3 +194,29 @@ export const PASSWORD_RESET_LINKS = {
   REQUEST_NEW_LINK: "Request a new link",
   RESET_DONE: "Password updated. Sign in with your new password.",
 } as const;
+
+/** First sign-in with a temporary password: the same two fields as a reset, shown on the sign-in page. */
+export const FIRST_PASSWORD_TEXT: ResetPasswordFormText & { failed: string; backToLogin: string; success: string } = {
+  title: "Set a new password",
+  subtitle: "This is your first sign-in. Choose a new password to continue.",
+  newLabel: "New password",
+  confirmLabel: "Confirm new password",
+  submit: "Save and continue",
+  submitting: "Saving...",
+  required: "Enter both password fields.",
+  tooShort: "Use at least 8 characters for the new password.",
+  mismatch: "The new passwords do not match.",
+  edgeSpaces: "The password cannot start or end with a space.",
+  tooLong: "The password is too long. Use at most 72 bytes: about 72 plain characters, fewer with accents or emoji.",
+  invalidLinkTitle: "",
+  invalidLinkMessage: "",
+  checkingTitle: "",
+  checkingMessage: "",
+  showPassword: "Show password",
+  hidePassword: "Hide password",
+  failed: "Password could not be changed. Try again.",
+  backToLogin: "Back to sign in",
+  success: "Password changed. You are now signed in.",
+};
+
+export type PasswordResetLinks = { [Key in keyof typeof PASSWORD_RESET_LINKS]: string };

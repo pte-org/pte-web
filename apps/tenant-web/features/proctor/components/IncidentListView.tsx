@@ -5,7 +5,7 @@ import { useDebouncedSearch } from "@/features/search/useDebouncedSearch";
 import { EyeIcon, Button, DataTable, ErrorState, PaginationControls, Select } from "@pte/ui";
 import type { IncidentStatus } from "@pte/api-client";
 import { useIncidentColumns } from "../hooks/useIncidentColumns";
-import { useIncidentsList } from "../api";
+import { useIncidentsList, useMyProctorAssignment } from "../api";
 import { IncidentDetailModal } from "./IncidentDetailModal";
 import { INCIDENT_POPUP_TEXT } from "../incidentPresentation";
 import { IncidentReportModal } from "./IncidentReportModal";
@@ -47,6 +47,9 @@ export const IncidentListView = ({
   }
 
   const columns = useIncidentColumns();
+  // The host view passes an empty id, which keeps this assignment query disabled.
+  const assignment = useMyProctorAssignment(audience === "proctor" ? sessionPublicId : "");
+  const isSessionClosed = assignment.data?.status === "CLOSED";
 
   return (
     <div
@@ -112,7 +115,13 @@ export const IncidentListView = ({
           }
           toolbarActions={
             audience === "proctor" ? (
-              <Button variant="primary" size="sm" onClick={() => setIsReportModalOpen(true)}>
+              <Button
+                variant="primary"
+                size="sm"
+                disabled={isSessionClosed}
+                title={isSessionClosed ? T.REPORT_CLOSED_HINT : undefined}
+                onClick={() => setIsReportModalOpen(true)}
+              >
                 {T.REPORT_NEW_BTN}
               </Button>
             ) : undefined

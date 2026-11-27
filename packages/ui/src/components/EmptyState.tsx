@@ -4,6 +4,8 @@ import { cn } from "../utils/cn";
 interface EmptyStateProps {
   title: string;
   description?: string;
+  /** A quiet picture above the title, such as an icon for what is missing. */
+  icon?: ReactNode;
   action?: ReactNode;
   className?: string;
 }
@@ -11,6 +13,7 @@ interface EmptyStateProps {
 export const EmptyState = ({
   title,
   description,
+  icon,
   action,
   className,
 }: EmptyStateProps): ReactElement => (
@@ -20,6 +23,7 @@ export const EmptyState = ({
       className,
     )}
   >
+    {icon && <div className="text-[var(--ink-muted)]">{icon}</div>}
     <div>
       <h3 className="text-sm font-semibold text-[var(--ink-primary)]">{title}</h3>
       {description && <p className="mt-1 text-sm text-[var(--ink-secondary)]">{description}</p>}

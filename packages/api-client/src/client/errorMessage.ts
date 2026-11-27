@@ -1,15 +1,52 @@
 import { ApiError, type ApiErrorKind } from "./apiError";
+import { USER_FACING_ERROR_MESSAGES_VI } from "./userMessagesVi";
 
-const GENERIC_ERROR_MESSAGE =
-  "We couldn't complete this action. Please try again or contact support.";
-const NETWORK_ERROR_MESSAGE =
-  "Unable to connect to the server. Please check your connection and try again.";
+export type UserMessageLanguage = "en" | "vi";
+
+/** The wording of the messages every screen can show, in each language the apps offer. */
+const GENERAL_MESSAGES: Record<UserMessageLanguage, Record<"generic" | "network" | "rateLimited", string>> = {
+  en: {
+    generic: "We couldn't complete this action. Please try again or contact support.",
+    network: "Unable to connect to the server. Please check your connection and try again.",
+    rateLimited: "The system is busy right now. Please wait a few seconds and try again.",
+  },
+  vi: {
+    generic: "Không thể thực hiện thao tác. Vui lòng thử lại hoặc liên hệ hỗ trợ.",
+    network: "Không thể kết nối tới máy chủ. Vui lòng kiểm tra kết nối mạng và thử lại.",
+    rateLimited: "Hệ thống đang bận. Vui lòng đợi vài giây rồi thử lại.",
+  },
+};
+
+/**
+ * The chosen language lives on `globalThis`, not in a module variable: a hot reload of this file in development
+ * would otherwise reset it to English until the next language change, and errors would turn English on a Vietnamese screen.
+ */
+const LANGUAGE_KEY = "__pteUserMessageLanguage";
+const languageStore = globalThis as typeof globalThis & { [LANGUAGE_KEY]?: UserMessageLanguage };
+
+const currentLanguage = (): UserMessageLanguage => languageStore[LANGUAGE_KEY] ?? "en";
+
+/**
+ * Chooses the language of the shared messages (the general ones and the per-kind fallbacks). The apps call it
+ * whenever the person changes language; messages that belong to one specific error code stay in English.
+ */
+export function setUserMessageLanguage(next: UserMessageLanguage): void {
+  languageStore[LANGUAGE_KEY] = next;
+}
+
+const RATE_LIMITED_STATUS = 429;
 const MAX_USER_MESSAGE_LENGTH = 240;
 
-const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
+export const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   PLAN_ARCHIVED_NOT_EDITABLE:
     "This plan is archived and can no longer be edited. Create a new plan if you need different pricing or capacity.",
   PLAN_MUST_BE_DRAFT_TO_ACTIVATE: "Only draft plans can be published.",
+  ANNOUNCEMENT_INVALID: "The announcement is not valid. Check the title, the message and the dates: the end must be after the start.",
+  ANNOUNCEMENT_NOT_FOUND: "We couldn't find this announcement. It may have been deleted.",
+  ANNOUNCEMENT_VERSION_CONFLICT: "This announcement was changed by someone else. Reload it and try again.",
+  ANNOUNCEMENT_PUBLISHED: "A published announcement can no longer be changed.",
+  ANNOUNCEMENT_NOT_PUBLISHED: "Only a published announcement can be sent again.",
+  ANNOUNCEMENT_CORRECTION_INVALID: "A correction must refer to a published announcement.",
   ORDER_PLAN_NOT_ACTIVE:
     "This plan is no longer available for purchase. Please choose another active plan.",
   SUBSCRIPTION_PLAN_NOT_ACTIVE:
@@ -19,7 +56,10 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
   TENANT_NAME_ALREADY_USED: "An organization with this name already exists.",
   TENANT_CODE_ALREADY_USED: "This organization code is already in use.",
   TENANT_TAX_CODE_ALREADY_USED:
-    "Another approved organization already uses this tax code, so this application cannot be approved.",  REQUESTED_CODE_ALREADY_USED: "This organization code is already in use.",
+    "Another organization already uses this tax code.",
+  APPLICATION_EMAIL_ALREADY_PENDING:
+    "An application from this email is already waiting for review.",
+  REQUESTED_CODE_ALREADY_USED: "This organization code is already in use.",
   STUDENT_ALREADY_IN_CLASS: "This student is already enrolled in the selected class.",
   EMAIL_ALREADY_USED: "An account with this email already exists.",
   DUPLICATE_EMAIL_IN_BATCH: "Some email addresses appear more than once in the uploaded file.",
@@ -123,25 +163,47 @@ const USER_FACING_ERROR_MESSAGES: Record<string, string> = {
     "This reset link is invalid or has expired. Request a new link and try again.",
   GENERATION_BATCH_NOT_FOUND: "This generation batch could not be found.",
   GENERATION_BATCH_NOT_CANCELLABLE: "This batch has already finished and can no longer be cancelled.",
+  GENERATION_BATCH_NOT_PAUSABLE: "Only a running batch can be paused.",
+  GENERATION_BATCH_NOT_RESUMABLE: "The batch is still stopping. Try again in a moment.",
+  GENERATION_BATCH_PAUSE_EXPIRED: "The batch stayed paused too long and was cancelled. Saved questions were kept.",
   GENERATION_BATCH_SIZE_OUT_OF_RANGE:
     "Each row needs at least one question and the batch total must stay within the per-batch limit.",
-  GENERATION_BATCH_ROWS_OUT_OF_RANGE: "A batch must have between 1 and 20 rows.",
+  GENERATION_BATCH_ROWS_OUT_OF_RANGE: "A batch must have between 1 and 150 rows.",
   GENERATION_BATCH_TOPIC_HINTS_OUT_OF_RANGE: "A row can have at most 10 topics.",
   GENERATION_PICTURE_DISABLED: "AI pictures are turned off. Choose Auto or Chart for Describe Image.",
   GENERATION_JOB_PART_OF_BATCH: "This job belongs to a batch. Cancel the batch instead.",
   GENERATION_JOB_ALREADY_RUNNING: "You already have a generation running. Wait for it to finish first.",
   GENERATION_DAILY_LIMIT_REACHED: "You have reached your daily question generation limit.",
   GENERATION_GLOBAL_LIMIT_REACHED: "The platform has reached today's question generation limit.",
+  GENERATION_VOICE_UNKNOWN: "This voice is not available. Pick another one.",
+  GENERATION_VOICE_NOT_SUPPORTED_FOR_TASK:
+    "The voice of this question cannot be changed. Only generated questions with a single speaker can be.",
+  GENERATION_VOICE_UNCHANGED: "The question already uses this voice. Pick a different one.",
+  GENERATION_VOICE_BUSY: "Another voice is being generated right now. Try again in a moment.",
+  GENERATION_MEDIA_FAILED: "The audio could not be generated. Try again in a moment.",
+  GENERATION_AUDIO_DURATION_OUT_OF_RANGE:
+    "This voice reads the text too fast or too slow for the task. Pick another voice.",
 };
 
-const KIND_FALLBACKS: Record<ApiErrorKind, string> = {
-  validation: "Please check the submitted information and try again.",
-  unauthorized: "Your session has expired. Please sign in again.",
-  forbidden: "You do not have permission to complete this action.",
-  conflict: "This action conflicts with the current data. Please review it and try again.",
-  network: NETWORK_ERROR_MESSAGE,
-  server: "The server encountered a problem. Please try again later.",
-  unknown: GENERIC_ERROR_MESSAGE,
+const KIND_FALLBACKS: Record<UserMessageLanguage, Record<ApiErrorKind, string>> = {
+  en: {
+    validation: "Please check the submitted information and try again.",
+    unauthorized: "Your session has expired. Please sign in again.",
+    forbidden: "You do not have permission to complete this action.",
+    conflict: "This action conflicts with the current data. Please review it and try again.",
+    network: GENERAL_MESSAGES.en.network,
+    server: "The server encountered a problem. Please try again later.",
+    unknown: GENERAL_MESSAGES.en.generic,
+  },
+  vi: {
+    validation: "Vui lòng kiểm tra lại thông tin đã nhập và thử lại.",
+    unauthorized: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+    forbidden: "Bạn không có quyền thực hiện thao tác này.",
+    conflict: "Thao tác này xung đột với dữ liệu hiện tại. Vui lòng kiểm tra lại và thử lại.",
+    network: GENERAL_MESSAGES.vi.network,
+    server: "Máy chủ đang gặp sự cố. Vui lòng thử lại sau.",
+    unknown: GENERAL_MESSAGES.vi.generic,
+  },
 };
 
 /** Machine codes are for control flow and diagnostics, never direct UI output. */
@@ -164,7 +226,7 @@ function isSafeUserMessage(value: unknown): value is string {
 
 function fallbackFor(error: ApiError, fallback?: string): string {
   if (isSafeUserMessage(fallback)) return fallback;
-  return KIND_FALLBACKS[error.kind] ?? GENERIC_ERROR_MESSAGE;
+  return KIND_FALLBACKS[currentLanguage()][error.kind] ?? GENERAL_MESSAGES[currentLanguage()].generic;
 }
 
 /**
@@ -173,13 +235,18 @@ function fallbackFor(error: ApiError, fallback?: string): string {
  */
 export function getUserFacingApiErrorMessage(error: unknown, fallback?: string): string {
   if (!(error instanceof ApiError)) {
-    return isSafeUserMessage(fallback) ? fallback : GENERIC_ERROR_MESSAGE;
+    return isSafeUserMessage(fallback) ? fallback : GENERAL_MESSAGES[currentLanguage()].generic;
   }
 
-  if (error.kind === "network") return NETWORK_ERROR_MESSAGE;
+  if (error.kind === "network") return GENERAL_MESSAGES[currentLanguage()].network;
+  if (error.status === RATE_LIMITED_STATUS) return GENERAL_MESSAGES[currentLanguage()].rateLimited;
   if (error.kind === "server" || error.status >= 500) {
-    return KIND_FALLBACKS.server;
+    return KIND_FALLBACKS[currentLanguage()].server;
   }
+
+  // In Vietnamese the app's own wording of a coded error wins over the English text the server sends with it.
+  const translated = currentLanguage() === "vi" && error.code ? USER_FACING_ERROR_MESSAGES_VI[error.code] : undefined;
+  if (translated) return translated;
 
   if (isSafeUserMessage(error.userMessage)) return error.userMessage;
 

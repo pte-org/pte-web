@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  MAX_PASSWORD_BYTES,
   MIN_PASSWORD_LENGTH,
   resolveResetLinkState,
   submitForgotPassword,
   validateNewPassword,
+  withoutSpaces,
 } from "../../../src/utils/passwordReset";
 
 describe("validateNewPassword", () => {
@@ -15,6 +17,14 @@ describe("validateNewPassword", () => {
     expect(validateNewPassword("", "")).toBe("REQUIRED");
     expect(validateNewPassword("abc", "abc")).toBe("TOO_SHORT");
     expect(validateNewPassword("a".repeat(MIN_PASSWORD_LENGTH), "b".repeat(MIN_PASSWORD_LENGTH))).toBe("MISMATCH");
+  });
+
+  it("refuses more than 72 UTF-8 bytes, counting accents by their bytes", () => {
+    const plain = "a".repeat(MAX_PASSWORD_BYTES);
+    expect(validateNewPassword(plain, plain)).toBeNull();
+    expect(validateNewPassword(plain + "a", plain + "a")).toBe("TOO_LONG");
+    const accented = "ạ".repeat(MAX_PASSWORD_BYTES / 3 + 1);
+    expect(validateNewPassword(accented, accented)).toBe("TOO_LONG");
   });
 
   it("needs the confirmation filled in", () => {
@@ -70,5 +80,17 @@ describe("resolveResetLinkState", () => {
 
   it("does not lock someone out because the check itself failed; the final step reports the truth", () => {
     expect(resolveResetLinkState("raw", { isPending: false })).toBe("usable");
+  });
+});
+
+describe("password spaces", () => {
+  it("refuses a new password that starts or ends with a space", () => {
+    expect(validateNewPassword(" NewPassword456", " NewPassword456")).toBe("EDGE_SPACES");
+    expect(validateNewPassword("NewPassword456 ", "NewPassword456 ")).toBe("EDGE_SPACES");
+    expect(validateNewPassword("New Password 456", "New Password 456")).toBeNull();
+  });
+
+  it("drops every space from a username or e-mail", () => {
+    expect(withoutSpaces("  host @ local.com	")).toBe("host@local.com");
   });
 });

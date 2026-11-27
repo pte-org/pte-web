@@ -29,13 +29,23 @@ export const TERMINAL_BATCH_STATUSES: readonly QuestionGenerationBatchStatus[] =
   "FAILED",
   "CANCELLED",
 ];
-export const CANCELLABLE_BATCH_STATUSES: readonly QuestionGenerationBatchStatus[] = ["QUEUED", "RUNNING"];
+export const CANCELLABLE_BATCH_STATUSES: readonly QuestionGenerationBatchStatus[] = [
+  "QUEUED",
+  "RUNNING",
+  "PAUSING",
+  "PAUSED",
+];
+export const PAUSABLE_BATCH_STATUSES: readonly QuestionGenerationBatchStatus[] = ["QUEUED", "RUNNING"];
+/** Stopping or stopped by a pause. */
+export const HALTED_BATCH_STATUSES: readonly QuestionGenerationBatchStatus[] = ["PAUSING", "PAUSED"];
 export const FINISHED_JOB_STATUSES: readonly QuestionGenerationJobStatus[] = ["COMPLETED", "FAILED", "CANCELLED"];
 
 export const BATCH_STATUS_VARIANT: Record<QuestionGenerationBatchStatus, BadgeVariant> = {
   QUEUED: "info",
   RUNNING: "info",
   CANCELLING: "warning",
+  PAUSING: "warning",
+  PAUSED: "neutral",
   COMPLETED: "success",
   PARTIALLY_COMPLETED: "warning",
   FAILED: "danger",
@@ -47,6 +57,7 @@ export const JOB_STATUS_VARIANT: Record<QuestionGenerationJobStatus, BadgeVarian
   QUEUED: "info",
   RUNNING: "info",
   CANCELLING: "warning",
+  PAUSING: "warning",
   COMPLETED: "success",
   FAILED: "danger",
   CANCELLED: "neutral",

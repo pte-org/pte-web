@@ -74,6 +74,9 @@ export function useUpdateMyOrganization(): UseMutationResult<
           current.map((item) => item.publicId === organization.publicId ? organization : item),
         );
       }
+      // Then read it back, so the profile always shows what the server holds (province, ward and address)
+      // even if the list was cached before this save.
+      void queryClient.invalidateQueries({ queryKey: MY_ORGANIZATIONS_QUERY_KEY });
     },
   });
 }

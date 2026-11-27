@@ -90,13 +90,13 @@ describe("tenant list and mapping", () => {
     expect(tenant).toMatchObject({ status: "suspended", suspendedUntil: "2026-12-01T00:00:00Z" });
   });
 
-  it("treats unknown or missing packages as starter and keeps enterprise", async () => {
+  it("keeps real dynamic plan from backend or fallback to dash for missing", async () => {
     api.listTenants.mockResolvedValue([tenantResponse({ packageName: null }), tenantResponse({ packageName: "pilot" }), tenantResponse({ packageName: "enterprise" })]);
     tenancyApi.useTenants();
 
     const tenants = (await opts().queryFn?.()) as Array<{ plan: string }>;
 
-    expect(tenants.map((t) => t.plan)).toEqual(["starter", "starter", "enterprise"]);
+    expect(tenants.map((t) => t.plan)).toEqual(["-", "pilot", "enterprise"]);
   });
 
   it("system health starts as operational with no errors", async () => {

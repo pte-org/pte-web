@@ -10,7 +10,17 @@ import {
   PROCTOR_INCIDENT_REPORT_TEXT as T,
   PROCTOR_INCIDENT_SEVERITY_OPTIONS,
 } from "../constants";
-import { useCreateIncidentMutation } from "../api";
+import { useAttendanceRoster, useCreateIncidentMutation } from "../api";
+
+/** The attendance endpoint caps a page at 100 rows. */
+const ROSTER_PICKER_SIZE = 100;
+
+const studentLabel = (
+  displayName: string | null | undefined,
+  email: string | null | undefined,
+  publicId: string,
+): string =>
+  `${displayName || publicId}${email ? ` — ${email}` : ""}`;
 
 interface IncidentReportModalProps {
   open: boolean;
@@ -42,6 +52,17 @@ export function IncidentReportModal({
   useFeedbackToast(open ? error : null);
 
   const createMutation = useCreateIncidentMutation(sessionPublicId);
+  // Load the roster only while the modal is open; an empty id keeps the query disabled.
+  const roster = useAttendanceRoster(open ? sessionPublicId : "", { size: ROSTER_PICKER_SIZE });
+  const students = roster.data?.data ?? [];
+  const studentOptions = students.map((student) => ({
+    id: student.studentPublicId,
+    label: studentLabel(student.displayName, student.email, student.studentPublicId),
+  }));
+  // A preselected student beyond the first page must stay selectable.
+  if (studentPublicId && !studentOptions.some((option) => option.id === studentPublicId)) {
+    studentOptions.unshift({ id: studentPublicId, label: studentPublicId });
+  }
 
   const handleSubmit = async (e: FormEvent): Promise<void> => {
     e.preventDefault();
@@ -61,7 +82,7 @@ export function IncidentReportModal({
         category,
         severity,
         description: description.trim(),
-        studentPublicId: studentPublicId.trim() || undefined,
+        studentPublicId: studentPublicId || undefined,
       });
       setTitle("");
       setDescription("");
@@ -170,13 +191,20 @@ export function IncidentReportModal({
           >
             {T.FIELD_STUDENT_ID}
           </label>
-          <Input
+          <select
             id="incident-student"
             value={studentPublicId}
             onChange={(e) => setStudentPublicId(e.target.value)}
-            placeholder={T.STUDENT_ID_PLACEHOLDER}
-            disabled={createMutation.isPending}
-          />
+            className="w-full rounded-lg border border-[var(--border-subtle)] bg-[var(--surface-default)] p-2 text-sm text-[var(--ink-primary)]"
+            disabled={createMutation.isPending || roster.isLoading}
+          >
+            <option value="">{roster.isLoading ? T.STUDENT_LOADING : T.STUDENT_NONE}</option>
+            {studentOptions.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>

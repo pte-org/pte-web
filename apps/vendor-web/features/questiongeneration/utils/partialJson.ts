@@ -44,8 +44,12 @@ function trimTail(text: string): string {
   for (;;) {
     const top = scan(current).stack.at(-1);
     let next = current.replace(/\s+$/, "").replace(/,$/, "");
-    if (top === "{") next = next.replace(DANGLING_KEY, (_match, opener: string) => (opener === "{" ? "{" : ""));
-    next = next.replace(PARTIAL_LITERAL, (_match, before: string) => before).replace(/\s+$/, "").replace(/[,:]$/, "");
+    if (top === "{")
+      next = next.replace(DANGLING_KEY, (_match, opener: string) => (opener === "{" ? "{" : ""));
+    next = next
+      .replace(PARTIAL_LITERAL, (_match, before: string) => before)
+      .replace(/\s+$/, "")
+      .replace(/[,:]$/, "");
     if (next === current) return current;
     current = next;
   }
@@ -55,7 +59,10 @@ function close(text: string): string {
   const { inString } = scan(text);
   const withString = inString ? `${text.replace(PARTIAL_ESCAPE, "")}"` : text;
   const trimmed = trimTail(withString);
-  const closers = scan(trimmed).stack.reverse().map((open) => (open === "{" ? "}" : "]")).join("");
+  const closers = scan(trimmed)
+    .stack.reverse()
+    .map((open) => (open === "{" ? "}" : "]"))
+    .join("");
   return trimmed + closers;
 }
 
@@ -76,7 +83,11 @@ export function parsePartialJson(raw: string): unknown {
     const parsed = tryParse(close(candidate));
     if (parsed !== undefined) return parsed;
     // Something the repair did not foresee: give up the last piece and try again.
-    const cut = Math.max(candidate.lastIndexOf(","), candidate.lastIndexOf("{"), candidate.lastIndexOf("["));
+    const cut = Math.max(
+      candidate.lastIndexOf(","),
+      candidate.lastIndexOf("{"),
+      candidate.lastIndexOf("["),
+    );
     if (cut <= 0) return undefined;
     candidate = candidate.slice(0, cut);
   }

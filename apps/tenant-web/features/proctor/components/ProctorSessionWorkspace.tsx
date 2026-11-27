@@ -27,7 +27,7 @@ const ProctorSessionFrame = ({ route, children }: SessionFrameProps): ReactEleme
   const router = useRouter();
   const [isNavigating, startNavigation] = useTransition();
   useEffect(() => {
-    for (const tab of ["attendance", "incidents", "audit-log"] as const) {
+    for (const tab of ["attendance", "incidents"] as const) {
       router.prefetch(proctorSessionTabHref(route.sessionPublicId, tab));
     }
   }, [router, route.sessionPublicId]);
@@ -43,7 +43,6 @@ const ProctorSessionFrame = ({ route, children }: SessionFrameProps): ReactEleme
   const tabs: { id: ProctorSessionTab; label: string }[] = [
     { id: "attendance", label: text.sessionAttendance },
     { id: "incidents", label: text.sessionIncidents },
-    { id: "audit-log", label: text.sessionAuditLog },
   ];
   const tabId = `proctor-session-${route.sessionPublicId}`;
 

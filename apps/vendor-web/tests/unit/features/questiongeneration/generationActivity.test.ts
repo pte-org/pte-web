@@ -1,21 +1,58 @@
 import { describe, expect, it } from "vitest";
-import type { QuestionGenerationBatchResponse, QuestionGenerationJobResponse } from "@pte/api-client";
+import type {
+  QuestionGenerationBatchResponse,
+  QuestionGenerationJobResponse,
+} from "@pte/api-client";
 import { pickGenerationActivity } from "../../../../features/questiongeneration/utils/generationActivity";
 
 const hrefs = { job: (id: string) => `/job/${id}`, batch: (id: string) => `/batch/${id}` };
-// Only the fields the indicator reads are filled in.
+// Only the fields the sidebar item reads are filled in.
 const job = (status: string) =>
-  ({ publicId: "j1", status, succeededCount: 1, failedCount: 0, requestedCount: 3 }) as unknown as QuestionGenerationJobResponse;
+  ({
+    publicId: "j1",
+    taskType: "READ_ALOUD",
+    status,
+    succeededCount: 1,
+    failedCount: 0,
+    requestedCount: 3,
+  }) as unknown as QuestionGenerationJobResponse;
 const batch = (status: string) =>
-  ({ publicId: "b1", status, succeededCount: 4, failedCount: 1, totalRequested: 7 }) as unknown as QuestionGenerationBatchResponse;
+  ({
+    publicId: "b1",
+    status,
+    succeededCount: 4,
+    failedCount: 1,
+    totalRequested: 7,
+  }) as unknown as QuestionGenerationBatchResponse;
 
-describe("header generation activity", () => {
+describe("sidebar generation activity", () => {
   it("shows an open batch with its overall progress", () => {
-    expect(pickGenerationActivity([job("RUNNING")], batch("RUNNING"), hrefs)).toEqual({ href: "/batch/b1", done: 5, total: 7 });
+    expect(pickGenerationActivity([job("RUNNING")], batch("RUNNING"), hrefs)).toEqual({
+      kind: "batch",
+      taskType: null,
+      href: "/batch/b1",
+      done: 5,
+      total: 7,
+      paused: false,
+    });
+  });
+
+  it("keeps a paused batch in place, marked paused", () => {
+    expect(pickGenerationActivity([], batch("PAUSED"), hrefs)?.paused).toBe(true);
+    expect(pickGenerationActivity([], batch("PAUSING"), hrefs)?.paused).toBe(true);
   });
 
   it("falls back to a running single job when no batch is open", () => {
-    expect(pickGenerationActivity([job("COMPLETED"), job("RUNNING")], batch("COMPLETED"), hrefs)).toEqual({ href: "/job/j1", done: 1, total: 3 });
+    expect(
+      pickGenerationActivity([job("COMPLETED"), job("RUNNING")], batch("COMPLETED"), hrefs),
+    ).toEqual({
+      kind: "job",
+      taskType: "READ_ALOUD",
+      href: "/job/j1",
+      done: 1,
+      total: 3,
+      paused: false,
+    });
   });
 
   it("is hidden when nothing runs", () => {

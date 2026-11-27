@@ -7,7 +7,16 @@
 import type { CreateQuestionRequest } from "../question";
 
 /** PENDING: a batch child waiting for its turn. */
-export type QuestionGenerationJobStatus = "PENDING" | "QUEUED" | "RUNNING" | "COMPLETED" | "FAILED" | "CANCELLING" | "CANCELLED";
+/** PAUSING: a batch child being stopped for a pause; its worker hands it back to PENDING. */
+export type QuestionGenerationJobStatus =
+  | "PENDING"
+  | "QUEUED"
+  | "RUNNING"
+  | "COMPLETED"
+  | "FAILED"
+  | "CANCELLING"
+  | "PAUSING"
+  | "CANCELLED";
 
 export type QuestionGenerationItemStage =
   | "QUEUED"
@@ -71,6 +80,14 @@ export type QuestionGenerationLiveAgent = "GENERATOR" | "REVIEWER";
 export interface QuestionGenerationLiveText {
   attempt: number;
   text: string;
+  /**
+   * The end of what a reasoning model thought in this call (never part of `text`), and how many characters it
+   * thought in all. Empty and 0 for a model that does not stream its reasoning; older servers omit both.
+   */
+  thinking?: string;
+  thinkingChars?: number;
+  /** The model that answered this call (absent from an older server). */
+  model?: string;
 }
 
 export interface QuestionGenerationLiveItem {
@@ -138,8 +155,9 @@ export interface QuestionGenerationLiveReview {
 /** The events of `GET /question-generation/jobs/{id}/live`, by name. */
 export type QuestionGenerationLiveEvent =
   | { type: "snapshot"; items: QuestionGenerationLiveItem[]; finished: boolean }
-  | { type: "begin"; index: number; agent: QuestionGenerationLiveAgent; attempt: number }
+  | { type: "begin"; index: number; agent: QuestionGenerationLiveAgent; attempt: number; model?: string }
   | { type: "token"; index: number; agent: QuestionGenerationLiveAgent; delta: string }
+  | { type: "thinking"; index: number; agent: QuestionGenerationLiveAgent; delta: string }
   | { type: "stage"; index: number; stage: QuestionGenerationItemStage }
   | { type: "media"; index: number; audioRef: string | null; imageRef: string | null }
   | ({ type: "draft" } & QuestionGenerationLiveDraft)
@@ -163,6 +181,8 @@ export interface QuestionGenerationQuotaResponse {
   unlimited?: boolean;
   scope?: QuestionGenerationQuotaScope | null;
   maxItemsPerBatch?: number;
+  /** A Describe Image question may ask for an AI-painted picture; when false only charts are drawn. */
+  pictureEnabled?: boolean;
 }
 
 /** One task type of the active exam template and how many items one exam uses. */
@@ -170,6 +190,14 @@ export interface QuestionGenerationPreset {
   taskType: string;
   section: string;
   maxCount: number;
+}
+
+/** The active template's CEFR mix, which the "Full 1 exam" preset spreads its questions over. */
+export interface QuestionGenerationCefrMix {
+  templateName: string;
+  templateVersion: number;
+  /** Whole percent per level, lowest level first; only levels with a share. */
+  targets: { level: string; percent: number }[];
 }
 
 export interface QuestionGenerationJobCreateRequest {

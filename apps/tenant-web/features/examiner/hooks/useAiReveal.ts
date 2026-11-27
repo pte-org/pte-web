@@ -16,8 +16,8 @@ export function useAiReveal(answer: ExaminerAnswerDetailResponse | undefined,
   const [forced, setForced] = useState<ReadonlySet<string>>(new Set());
   if (!answer) return { revealed: false, revealNow: () => undefined };
   const rubric = answer.rubric;
-  // Azure traits already default to the machine band, so only the traits the examiner must judge count.
-  const complete = Boolean(rubric?.traits.filter((trait) => trait.editable && !trait.useAiWhenNull)
+  // Every editable trait counts, machine-scored ones too: their default band is the AI's own score.
+  const complete = Boolean(rubric?.traits.filter((trait) => trait.editable)
     .every((trait) => traitScores?.[trait.key] !== null && traitScores?.[trait.key] !== undefined));
   const saved = answer.myScore !== null || answer.decision !== null;
   return {

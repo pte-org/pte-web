@@ -5,8 +5,7 @@
 export const generationMessages = {
   // Feature flag & permissions
   featureDisabled: "Tính năng tạo câu hỏi bằng AI hiện không khả dụng",
-  featureDisabledTooltip:
-    "Tính năng tạo câu hỏi bằng AI đang bảo trì. Vui lòng thử lại sau.",
+  featureDisabledTooltip: "Tính năng tạo câu hỏi bằng AI đang bảo trì. Vui lòng thử lại sau.",
   permissionDenied: "Bạn không có quyền tạo câu hỏi",
 
   // Drawer: Header
@@ -22,7 +21,8 @@ export const generationMessages = {
   imageKindAuto: "Tự chọn",
   imageKindChart: "Biểu đồ",
   imageKindPicture: "Ảnh minh họa AI",
-  imageKindHint: "Tự chọn sẽ làm biểu đồ khi chủ đề nhắc tới số liệu, còn lại là ảnh minh họa AI. Nếu AI không tạo được ảnh, hệ thống sẽ hỏi bạn có muốn chuyển sang biểu đồ không.",
+  imageKindHint:
+    "Tự chọn sẽ làm biểu đồ khi chủ đề nhắc tới số liệu, còn lại là ảnh minh họa AI. Nếu AI không tạo được ảnh, hệ thống sẽ hỏi bạn có muốn chuyển sang biểu đồ không.",
   topicLabel: "Chủ đề (Tùy chọn)",
   countLabel: "Số lượng câu hỏi",
   topicPlaceholder: "VD: Kinh tế: người lao động và việc làm IT hiện nay, dạng biểu đồ",
@@ -65,7 +65,8 @@ export const generationMessages = {
   cancelButton: "Hủy",
   startButton: "Bắt đầu tạo",
   startingGenerationMessage: "Đang bắt đầu tạo câu hỏi...",
-  startErrorAlreadyRunning: "Bạn đang có một lần sinh đề chưa xong. Hãy chờ nó chạy xong hoặc dừng nó rồi thử lại.",
+  startErrorAlreadyRunning:
+    "Bạn đang có một lần sinh đề chưa xong. Hãy chờ nó chạy xong hoặc dừng nó rồi thử lại.",
   startErrorTooManyJobs: "Hệ thống đang chạy quá nhiều lần sinh đề. Vui lòng thử lại sau vài phút.",
   startErrorDailyLimit: "Bạn đã dùng hết lượt sinh đề hôm nay.",
   startErrorGlobalLimit: "Hệ thống đã dùng hết lượt sinh đề hôm nay.",
@@ -108,7 +109,8 @@ export const generationMessages = {
 
   // Cancel confirmation
   cancelConfirmTitle: "Hủy tạo câu hỏi?",
-  cancelConfirmMessage: "Hành động này sẽ dừng quá trình tạo. Những câu hỏi chưa được lưu sẽ bị xóa.",
+  cancelConfirmMessage:
+    "Hành động này sẽ dừng quá trình tạo. Những câu hỏi chưa được lưu sẽ bị xóa.",
   cancelConfirmButton: "Hủy tạo",
   cancelCancelButton: "Tiếp tục",
 
@@ -174,7 +176,7 @@ export const generationMessages = {
 
   // States
   emptyStateTitle: "Chưa có lượt tạo nào",
-  emptyStateDescription: "Tạo bộ câu hỏi đầu tiên bằng nút \"Tạo bằng AI\"",
+  emptyStateDescription: 'Tạo bộ câu hỏi đầu tiên bằng nút "Tạo bằng AI"',
   emptyStateButtonLabel: "Tạo câu hỏi",
 
   // Questions list integration

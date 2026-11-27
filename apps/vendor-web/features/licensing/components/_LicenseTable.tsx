@@ -46,8 +46,8 @@ export const LicenseTable = ({
           key: "plan",
           label: H.PLAN,
           header: H.PLAN,
-          filterAccessor: (license: License) => planLabels[license.plan],
-          cell: (license: License) => planLabels[license.plan],
+          filterAccessor: (license: License) => planLabels[license.plan] || license.plan,
+          cell: (license: License) => planLabels[license.plan] || license.plan,
         },
         {
           key: "status",

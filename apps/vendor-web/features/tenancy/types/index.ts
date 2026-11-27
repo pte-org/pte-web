@@ -1,6 +1,6 @@
 export type TenantStatus = "active" | "expiring" | "expired" | "suspended";
 
-export type TenantPlan = "starter" | "professional" | "enterprise";
+export type TenantPlan = string;
 
 /**
  * Display model for the dashboard/tenancy screens. Only `id`, `code`, `name`,

@@ -256,6 +256,7 @@ describe("useNotificationHistory", () => {
       "UNREAD",
       "SYSTEM_NOTICE",
       "snap-token",
+      20,
     ]);
     expect(historyQuery.enabled).toBe(true);
 

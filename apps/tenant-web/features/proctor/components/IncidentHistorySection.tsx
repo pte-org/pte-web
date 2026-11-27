@@ -17,7 +17,7 @@ export function IncidentHistorySection({
 }: IncidentHistorySectionProps): ReactElement {
   const query = useIncidentHistory(sessionPublicId, incidentPublicId);
   return (
-    <CollapsibleSection title={T.HISTORY} defaultExpanded={false}>
+    <CollapsibleSection title={T.HISTORY} defaultExpanded>
       {query.isLoading ? (
         <LoadingState variant="rows" />
       ) : query.isError ? (

@@ -2,40 +2,59 @@
 
 import { useState, type FormEvent, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { Alert, Button, PasswordInput, useSessionManager, useToast } from "@pte/ui";
-import { getUserFacingApiErrorMessage } from "@pte/api-client";
+import {
+  Alert,
+  Button,
+  PasswordInput,
+  useSessionManager,
+  useToast,
+  validateNewPassword,
+  type NewPasswordProblem,
+} from "@pte/ui";
 import { useChangePassword } from "../api";
-import { AUTH_ROUTES, PASSWORD_CHANGE_TEXT } from "../constants";
+import { getAuthFailureMessage } from "../authErrors";
+import { AUTH_ROUTES } from "../constants";
+import { useAuthCopy } from "../hooks/useAuthCopy";
 import { resolveWorkspace } from "../resolveWorkspace";
 
 export const ChangePasswordView = (): ReactElement => {
   const router = useRouter();
-  const { session, saveSession } = useSessionManager();
+  const { passwordChange: PASSWORD_CHANGE_TEXT, firstPassword, locale, errorText } = useAuthCopy();
+  const { session, saveSession, clearSession } = useSessionManager();
+  // Still on a temporary password (e.g. after a reload): offer a way out instead of trapping the person here.
+  const isSignInChange = Boolean(session?.mustChangePassword);
+  const backToLogin = (): void => {
+    clearSession();
+    router.replace(AUTH_ROUTES.login);
+  };
   const mutation = useChangePassword();
   const { showToast } = useToast();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmation, setConfirmation] = useState("");
-  const [formError, setFormError] = useState<string>();
-  // A forced change (temporary password) has nowhere to go back to; a voluntary one can be cancelled.
-  const isForced = Boolean(session?.mustChangePassword);
+  // The problem, not its sentence, so the message follows a language switch made after it appeared.
+  const [problem, setProblem] = useState<NewPasswordProblem>();
+  const [serverError, setServerError] = useState<string>();
+  const problemText: Record<NewPasswordProblem, string> = {
+    REQUIRED: PASSWORD_CHANGE_TEXT.REQUIRED,
+    TOO_SHORT: PASSWORD_CHANGE_TEXT.TOO_SHORT,
+    EDGE_SPACES: PASSWORD_CHANGE_TEXT.EDGE_SPACES,
+    TOO_LONG: PASSWORD_CHANGE_TEXT.TOO_LONG,
+    MISMATCH: PASSWORD_CHANGE_TEXT.MISMATCH,
+  };
+  const formError = problem ? problemText[problem] : serverError;
   const homeRoute = resolveWorkspace(session?.roles ?? []).defaultRoute || AUTH_ROUTES.login;
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>): Promise<void> => {
     event.preventDefault();
-    if (!currentPassword || !newPassword || !confirmation) {
-      setFormError(PASSWORD_CHANGE_TEXT.REQUIRED);
+    const found = currentPassword ? validateNewPassword(newPassword, confirmation) : "REQUIRED";
+    if (found) {
+      setProblem(found);
+      setServerError(undefined);
       return;
     }
-    if (newPassword.length < 8) {
-      setFormError(PASSWORD_CHANGE_TEXT.TOO_SHORT);
-      return;
-    }
-    if (newPassword !== confirmation) {
-      setFormError(PASSWORD_CHANGE_TEXT.MISMATCH);
-      return;
-    }
-    setFormError(undefined);
+    setProblem(undefined);
+    setServerError(undefined);
     try {
       await mutation.mutateAsync({
         currentPassword,
@@ -43,23 +62,27 @@ export const ChangePasswordView = (): ReactElement => {
         refreshToken: session?.refreshToken,
       });
       if (session) saveSession({ ...session, mustChangePassword: false });
-      showToast(isForced ? PASSWORD_CHANGE_TEXT.SUCCESS : PASSWORD_CHANGE_TEXT.SUCCESS_VOLUNTARY, { tone: "success" });
+      showToast(isSignInChange ? PASSWORD_CHANGE_TEXT.SUCCESS : PASSWORD_CHANGE_TEXT.SUCCESS_VOLUNTARY, { tone: "success" });
       router.replace(homeRoute);
     } catch (error) {
-      setFormError(getUserFacingApiErrorMessage(error, PASSWORD_CHANGE_TEXT.FAILED));
+      setServerError(
+        getAuthFailureMessage(error, PASSWORD_CHANGE_TEXT.FAILED, locale, errorText, {
+          required: PASSWORD_CHANGE_TEXT.REQUIRED,
+          tooShort: PASSWORD_CHANGE_TEXT.TOO_SHORT,
+          edgeSpaces: PASSWORD_CHANGE_TEXT.EDGE_SPACES,
+          tooLong: PASSWORD_CHANGE_TEXT.TOO_LONG,
+        }),
+      );
     }
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
-      <form
-        onSubmit={handleSubmit}
-        className="flex w-full max-w-md flex-col gap-5 rounded-lg bg-white p-8 shadow-card"
-      >
+    <>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-900">{PASSWORD_CHANGE_TEXT.TITLE}</h1>
-          <p className="mt-1 text-sm text-gray-600">
-            {isForced ? PASSWORD_CHANGE_TEXT.SUBTITLE : PASSWORD_CHANGE_TEXT.VOLUNTARY_SUBTITLE}
+          <h1 className="text-[2rem] font-extrabold leading-tight tracking-[-0.025em] text-[var(--ink-primary)]">{PASSWORD_CHANGE_TEXT.TITLE}</h1>
+          <p className="mt-2 text-[15px] leading-relaxed text-[var(--ink-secondary)]">
+            {isSignInChange ? PASSWORD_CHANGE_TEXT.SUBTITLE : PASSWORD_CHANGE_TEXT.VOLUNTARY_SUBTITLE}
           </p>
         </div>
         {formError && <Alert tone="error">{formError}</Alert>}
@@ -89,12 +112,21 @@ export const ChangePasswordView = (): ReactElement => {
         <Button type="submit" fullWidth isLoading={mutation.isPending} loadingText={PASSWORD_CHANGE_TEXT.SUBMITTING}>
           {PASSWORD_CHANGE_TEXT.SUBMIT}
         </Button>
-        {!isForced && (
+        {!isSignInChange && (
           <Button type="button" variant="secondary" fullWidth onClick={() => router.replace(homeRoute)}>
             {PASSWORD_CHANGE_TEXT.CANCEL}
           </Button>
         )}
       </form>
-    </main>
+      {isSignInChange && (
+        <button
+          type="button"
+          onClick={backToLogin}
+          className="self-center text-sm font-semibold text-[var(--brand-ink)] hover:underline"
+        >
+          {firstPassword.backToLogin}
+        </button>
+      )}
+    </>
   );
 };

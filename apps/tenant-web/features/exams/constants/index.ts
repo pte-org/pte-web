@@ -1,7 +1,6 @@
 import type {
   ExamMode,
   LockdownMode,
-  ProctorRole,
   ReusePolicy,
   SessionStatus,
 } from "@pte/api-client";
@@ -30,6 +29,7 @@ export const REPORT_PUBLICATION_SUMMARY_QUERY_KEY = ["reportPublicationSummary"]
 export const EXAMS_TEXT = {
   TITLE: "Exams",
   ADD_EXAM: "Create Exam",
+  CREATE_SUCCESS: 'Exam "{name}" was created and published.',
   EMPTY_TITLE: "No exams yet",
   EMPTY_TEXT: "Create your first exam session to start adding students.",
   LOAD_ERROR: "Không thể tải danh sách kỳ thi",
@@ -51,9 +51,9 @@ export const EXAM_ROW_ACTIONS_TEXT = {
   UPDATE_STATUS: "Update status",
   CANCEL_UPDATE_STATUS: "Cancel status update",
   DELETE: "Delete exam",
-  DELETE_TITLE: "Delete this exam draft?",
+  DELETE_TITLE: "Delete this unpublished exam?",
   DELETE_DESCRIPTION: (name: string) =>
-    `The draft “${name}” will be deleted and cannot be recovered.`,
+    `“${name}” has not been published, so no student is enrolled. It will be deleted and cannot be recovered.`,
   DELETE_CONFIRM: "Delete exam",
   CANCEL: "Cancel",
   DELETE_SUCCESS: "Exam draft deleted.",
@@ -132,7 +132,7 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   TITLE: "Create exam",
   STEP_DETAILS: "Exam details",
   STEP_SCHEDULE_POLICY: "Schedule & policy",
-  STEP_AUDIENCE: "Audience",
+  STEP_AUDIENCE: "Participants",
   STEP_REVIEW: "Review & create",
   NAME_LABEL: "Exam name",
   NAME_PLACEHOLDER: "e.g. Semester 1 mock exam",
@@ -148,6 +148,10 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   CLOSES_AT_LABEL: "Closes at",
   CAPACITY_LABEL: "Maximum students",
   SUBSCRIPTION_CAPACITY_HINT: "This subscription allows up to {count} students per exam.",
+  WINDOW_SUMMARY: "Open for {duration} · Local time ({zone})",
+  WINDOW_UNIT_DAY: "d",
+  WINDOW_UNIT_HOUR: "h",
+  WINDOW_UNIT_MINUTE: "min",
   FULL_TEMPLATE_SCOPE: "Full template scope",
   REPEAT_LABEL: "Questions across exams",
   REPEAT_ALLOW: "Allow questions used in earlier exams",
@@ -185,11 +189,26 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   NO_CLASS_BADGE: "No class",
   CLEAR_SELECTION: "Clear selection",
   SELECTED_TOTAL: "{count} students selected",
+  AUDIENCE_OVER_DETAIL:
+    "You selected {selected} students but this exam takes at most {capacity}. Deselect {over} or raise the maximum number of students in step 1.",
   SELECTED_IN_LIST: "{selected} of {total} in this list",
   SOURCE_LOADING: "Loading students...",
   SOURCE_EMPTY: "No students match your filters.",
   MANAGE_CLASSES: "Manage classes",
   NO_SOURCES: "Select at least one student.",
+  PARTICIPANTS_TABS: "Exam participants",
+  TAB_STUDENTS: "Students",
+  TAB_PROCTORS: "Proctors",
+  PROCTORS_TITLE: "Proctors watching the exam",
+  PROCTORS_HINT: "Optional. You can also assign proctors after the exam is created.",
+  PROCTOR_SEARCH_LABEL: "Search proctors",
+  PROCTOR_SEARCH_PLACEHOLDER: "Search by name, email, or account",
+  PROCTOR_LOADING: "Loading proctors...",
+  PROCTOR_EMPTY: "No active proctors match.",
+  SELECT_PROCTOR: "Select proctor",
+  PROCTORS_SELECTED_TOTAL: "{count} proctors selected",
+  NO_PROCTORS: "No proctors selected yet.",
+  REVIEW_PROCTORS: "Proctors",
   NO_TEMPLATE:
     "No active exam template is available yet. Ask the platform administrator to activate one.",
   NO_ACTIVE_SUBSCRIPTIONS: "No active subscription is available for this exam.",
@@ -200,6 +219,10 @@ export const CREATE_EXAM_WIZARD_TEXT = {
   REVIEW_AUDIENCE: "Students",
   REVIEW_CAPACITY: "Maximum students",
   EMPTY_VALUE: "—",
+  REVIEW_EDIT: "Edit",
+  REVIEW_WINDOW: "Open window",
+  REVIEW_AUDIENCE_OF_CAPACITY: "{count} of {capacity} max",
+  REVIEW_NO_PROCTORS: "No proctor assigned",
   TEMPLATE_READY: "The template has enough published questions.",
   PREFLIGHT_SHORTAGE_DETAILS:
     "{taskType}: requires {required} published question(s); available: {available}.",
@@ -220,6 +243,8 @@ export const CREATE_EXAM_WIZARD_TEXT = {
     AUDIENCE_EMPTY: "No students were found from the selected audience sources.",
     AUDIENCE_NO_ELIGIBLE: "No students remain eligible after applying the reuse rule.",
     AUDIENCE_CONFLICT_BLOCKED: "Some students have a schedule conflict with another exam.",
+    AUDIENCE_ALL_TIME_CONFLICT:
+      "Every selected student already has another exam at this time, so this exam would have nobody to sit it. Pick another time or add other students.",
     AUDIENCE_CHANGED_REQUIRES_REGENERATION:
       "The student audience changed while the exam was being prepared. Generate the exam again before publishing.",
     SESSION_CAPACITY_EXCEEDED:
@@ -322,7 +347,11 @@ export const SESSION_DETAIL_TEXT = {
   ADD_STUDENTS_SUBMIT: "Add to exam",
   ADD_STUDENTS_SUBMITTING: "Adding...",
   AUDIENCE_LOCKED_NOTICE:
-    "Students can't be added or removed while this exam is being prepared or running. You can edit the list when it is Scheduled or Closed.",
+    "Students can only be added or removed while the exam is Scheduled, before it starts.",
+  STUDENTS_LOCKED_STARTED: "The exam has started, so students can't be added or removed.",
+  STUDENTS_LOCKED_ENDED: "The exam has ended, so students can't be added or removed.",
+  PROCTORS_LOCKED_STARTED: "The exam has started, so proctors can't be added.",
+  PROCTORS_LOCKED_ENDED: "The exam has ended, so proctors can't be added.",
   PROCTORS_SECTION: "Proctors",
   ANSWERS_SECTION: "Submitted Answers",
   EXAMINER_ASSIGNMENTS_SECTION: "Examiner assignments",
@@ -472,36 +501,14 @@ export const PROCTOR_SECTION_TEXT = {
 export const PROCTOR_TABLE_HEADERS = {
   FULL_NAME: "Full name",
   EMAIL: "Email",
-  ROLE: "Role",
   ACTIONS: "Actions",
 } as const;
-
-export const DEFAULT_PROCTOR_ROLE: ProctorRole = "ASSISTANT_PROCTOR";
-
-export const PROCTOR_ROLE_LABELS: Record<ProctorRole, string> = {
-  LEAD_PROCTOR: "Lead Proctor",
-  ASSISTANT_PROCTOR: "Assistant Proctor",
-};
-
-/** Shown to the Host so they know what each role means before assigning/changing it. */
-export const PROCTOR_ROLE_DESCRIPTIONS: Record<ProctorRole, string> = {
-  LEAD_PROCTOR:
-    "Primary point of contact for this exam session. Coordinates the other proctors and is responsible for resolving incidents.",
-  ASSISTANT_PROCTOR:
-    "Supports session monitoring — watches over students and reports incidents to the Lead Proctor.",
-};
-
-export const PROCTOR_ROLE_OPTIONS: { value: ProctorRole; label: string }[] = [
-  { value: "ASSISTANT_PROCTOR", label: PROCTOR_ROLE_LABELS.ASSISTANT_PROCTOR },
-  { value: "LEAD_PROCTOR", label: PROCTOR_ROLE_LABELS.LEAD_PROCTOR },
-];
 
 export const ASSIGN_PROCTOR_TEXT = {
   TITLE: "Assign Proctor to Exam",
   EXISTING_LABEL: "Proctor",
   EXISTING_PLACEHOLDER: "Select a proctor",
   NO_EXISTING: "No unassigned proctors are available in your organization.",
-  ROLE_LABEL: "Role in this exam",
   CANCEL: "Cancel",
   SUBMIT: "Assign to Exam",
   SUBMITTING: "Assigning...",

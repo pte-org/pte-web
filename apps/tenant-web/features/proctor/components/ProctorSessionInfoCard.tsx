@@ -11,7 +11,7 @@ interface ProctorSessionInfoCardProps {
   session: Pick<AssignedProctorSessionResponse, "name" | "status" | "opensAt" | "closesAt">;
   attendance?: Pick<
     AttendancePageResponse,
-    "asOf" | "canEditSession" | "sessionBlockingReason" | "attendanceWindowOpensAt"
+    "canEditSession" | "sessionBlockingReason" | "attendanceWindowOpensAt"
   >;
 }
 
@@ -36,19 +36,7 @@ export const ProctorSessionInfoCard = ({
   return (
     <DashboardCard>
       <div className="space-y-4">
-        <PageHeader
-          title={session.name}
-          actions={
-            attendance?.asOf ? (
-              <span className="text-xs text-[var(--ink-muted)]">
-                {T.UPDATED_PREFIX}
-                {new Date(attendance.asOf).toLocaleTimeString(
-                  text.locale === "vi" ? "vi-VN" : "en-US",
-                )}
-              </span>
-            ) : undefined
-          }
-        />
+        <PageHeader title={session.name} />
         <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-xs text-[var(--ink-secondary)]">
           <StatusBadge
             label={label}
@@ -71,7 +59,7 @@ export const ProctorSessionInfoCard = ({
         </div>
         {!attendance?.canEditSession && attendance?.sessionBlockingReason && (
           <div className="border-t border-[var(--divider)] pt-4">
-            <Alert tone="warning" title={T.PORTAL_LOCKED_TITLE}>
+            <Alert tone="warning">
               {getAttendanceBlockingMessage(attendance.sessionBlockingReason)}
               {attendance.attendanceWindowOpensAt && (
                 <p className="mt-1 text-xs">

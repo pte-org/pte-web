@@ -1,7 +1,13 @@
 import type { QuestionGenerationBatchResponse, QuestionGenerationBatchStatus } from "@pte/api-client";
 
 /** Batches still moving: the history keeps polling while one of these is shown. */
-export const OPEN_BATCH_STATUSES: readonly QuestionGenerationBatchStatus[] = ["QUEUED", "RUNNING", "CANCELLING"];
+export const OPEN_BATCH_STATUSES: readonly QuestionGenerationBatchStatus[] = [
+  "QUEUED",
+  "RUNNING",
+  "CANCELLING",
+  "PAUSING",
+  "PAUSED",
+];
 
 export interface BatchSummary {
   types: number;

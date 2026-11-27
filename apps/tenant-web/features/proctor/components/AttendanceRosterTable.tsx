@@ -6,6 +6,7 @@ import { useAttendanceColumns } from "../hooks/useAttendanceColumns";
 import type { AttendanceRowResponse, AttendanceStatus } from "@pte/api-client";
 import {
   ATTEMPT_IN_PROGRESS,
+  ATTEMPT_SUBMITTED,
   PROCTOR_FORCE_SUBMIT_TEXT,
   PROCTOR_ROSTER_TEXT as T,
   PROCTOR_TOOLBAR_TEXT,
@@ -17,7 +18,6 @@ interface AttendanceRosterTableProps {
   canEditSession: boolean;
   onRecordAttendance: (row: AttendanceRowResponse, targetStatus: AttendanceStatus) => void;
   onViewHistory: (row: AttendanceRowResponse) => void;
-  onVerifyIdentity?: (row: AttendanceRowResponse) => void;
   /** Offered only for a Student whose latest attempt is in progress. */
   onForceSubmit?: (row: AttendanceRowResponse) => void;
   filters?: ReactNode;
@@ -33,7 +33,6 @@ export function AttendanceRosterTable({
   canEditSession,
   onRecordAttendance,
   onViewHistory,
-  onVerifyIdentity,
   onForceSubmit,
   filters,
   pagination,
@@ -41,7 +40,7 @@ export function AttendanceRosterTable({
   searchValue,
   onSearchChange,
 }: AttendanceRosterTableProps): ReactElement {
-  const columns = useAttendanceColumns(canEditSession);
+  const columns = useAttendanceColumns();
 
   const renderRowActions = (row: AttendanceRowResponse) => {
     const canEditRow = canEditSession && row.canEdit;
@@ -61,7 +60,11 @@ export function AttendanceRosterTable({
         onSelect: () => onRecordAttendance(row, "LATE"),
       });
     }
-    if (canEditRow && row.status !== "ABSENT") {
+    // A student who has started or submitted the exam attended it; the API rejects ABSENT too.
+    const hasStartedExam =
+      row.latestAttemptActivityStatus === ATTEMPT_IN_PROGRESS ||
+      row.latestAttemptActivityStatus === ATTEMPT_SUBMITTED;
+    if (canEditRow && row.status !== "ABSENT" && !hasStartedExam) {
       actionItems.push({
         label: T.ACTION_ABSENT,
         tone: "danger",
@@ -73,12 +76,6 @@ export function AttendanceRosterTable({
         label: T.ACTION_RESET,
         tone: "neutral",
         onSelect: () => onRecordAttendance(row, "UNMARKED"),
-      });
-    }
-    if (onVerifyIdentity) {
-      actionItems.push({
-        label: T.ACTION_VERIFY_IDENTITY,
-        onSelect: () => onVerifyIdentity(row),
       });
     }
     if (

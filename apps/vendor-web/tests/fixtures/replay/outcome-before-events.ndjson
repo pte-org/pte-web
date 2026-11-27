@@ -1,0 +1,19 @@
+{"atMs":0,"event":{"type":"check","index":0,"step":"PROMPT","status":"PASSED","facts":{"cefr":"B1","topic":"Community"}}}
+{"atMs":100,"event":{"type":"begin","index":0,"agent":"GENERATOR","attempt":1}}
+{"atMs":200,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"{\"passage\":\"Community gardens bring neig"}}
+{"atMs":260,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"hbours together. People share tools, tra"}}
+{"atMs":320,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"de seeds and learn from one another. Ove"}}
+{"atMs":380,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"r time the plots become a place where fr"}}
+{"atMs":440,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"iendships grow as steadily as the vegeta"}}
+{"atMs":500,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"bles do.\",\"answerHintVi\":\"Doc ky tung ca"}}
+{"atMs":560,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"u.\",\"answerHintEn\":\"Read each sentence c"}}
+{"atMs":620,"event":{"type":"token","index":0,"agent":"GENERATOR","delta":"arefully.\"}"}}
+{"atMs":780,"event":{"type":"check","index":0,"step":"WRITE","status":"PASSED","facts":{}}}
+{"atMs":790,"event":{"type":"draft","index":0,"attempt":1,"fields":{"promptText":"passage","answerHintVi":"Doc ky.","answerHintEn":"Read carefully."}}}
+{"atMs":840,"event":{"type":"check","index":0,"step":"JSON","status":"PASSED","facts":{}}}
+{"atMs":880,"event":{"type":"check","index":0,"step":"RULES","status":"PASSED","facts":{}}}
+{"atMs":920,"event":{"type":"check","index":0,"step":"DUPLICATE","status":"PASSED","facts":{}}}
+{"atMs":980,"event":{"type":"begin","index":0,"agent":"REVIEWER","attempt":1}}
+{"atMs":1040,"event":{"type":"token","index":0,"agent":"REVIEWER","delta":"Clear and level-appropriate."}}
+{"atMs":1180,"event":{"type":"review","index":0,"kind":"CONTENT","passed":true,"fixSuggestion":null,"notes":{}}}
+{"atMs":1480,"event":{"type":"end","finished":true}}

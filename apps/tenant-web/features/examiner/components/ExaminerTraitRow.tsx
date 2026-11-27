@@ -4,8 +4,9 @@ import type { ExaminerRubricResponse } from "@pte/api-client";
 import { Disclosure, Textarea } from "@pte/ui";
 import type { ExaminerTraitText } from "../traitText";
 import type { AiTraitRationale } from "../utils/aiRationale";
-import { AI_GAP_REASON_MAX_LENGTH, AI_GAP_THRESHOLD } from "../constants";
+import { AI_GAP_REASON_MAX_LENGTH, AI_GAP_THRESHOLD, TRAIT_NUMERIC_INPUT_MIN_MAX_SCORE } from "../constants";
 import { TraitLevelPicker } from "./TraitLevelPicker";
+import { TraitNumberInput } from "./TraitNumberInput";
 
 type RubricTrait = ExaminerRubricResponse["traits"][number];
 
@@ -29,18 +30,40 @@ export const ExaminerTraitRow = ({ trait, label, text, value, aiLevel, rationale
   const gap = trait.editable && aiLevel !== undefined && value !== null && value !== undefined
     && Math.abs(value - aiLevel) >= AI_GAP_THRESHOLD;
   const chosen = value === null || value === undefined ? "—" : String(value);
+  // A rule-scored trait (e.g. Form) is not the AI's judgement and has nothing to choose: folded to one line, and
+  // opened it explains the trait by listing its bands with the one the system awarded highlighted.
+  if (!trait.editable) {
+    const bands = Array.from({ length: trait.maxScore + 1 }, (_, index) => trait.maxScore - index);
+    return <Disclosure defaultOpen={false} className="rounded-xl border border-[var(--border-subtle)] p-1" titleClassName="flex-1"
+      title={<span className="flex items-baseline justify-between gap-2">
+        <span>{label}</span>
+        <span className="text-xs font-normal tabular-nums text-[var(--ink-muted)]">{chosen} / {trait.maxScore} · {text.form}</span>
+      </span>}>
+      <ul className="grid gap-1.5 px-2 pb-2">
+        {bands.map((band) => <li key={band}
+          className={`grid grid-cols-[2rem_1fr] items-start gap-2 rounded-lg border px-3 py-2 text-xs ${value === band
+            ? "border-[var(--action)] bg-[var(--action-tint)]" : "border-[var(--border-subtle)]"}`}>
+          <span className="text-center text-base font-bold tabular-nums">{band}</span>
+          <span className="text-[var(--ink-secondary)]">{trait.levels.find((entry) => entry.level === band)?.text ?? ""}</span>
+        </li>)}
+      </ul>
+    </Disclosure>;
+  }
   const title = <span className="flex items-baseline justify-between gap-2">
     <span>{label}</span>
     <span className="text-xs font-normal tabular-nums text-[var(--ink-muted)]">
       {chosen} / {trait.maxScore}{aiLevel !== undefined ? ` · ${text.aiBadge} ${aiLevel}` : ""}
-      {trait.useAiWhenNull ? ` · ${text.machine}` : trait.editable ? "" : ` · ${text.form}`}
+      {trait.useAiWhenNull ? ` · ${text.machine}` : ""}
     </span>
   </span>;
   // Open while there is a band to choose; a submitted score starts folded to its one-line summary.
   return <Disclosure title={title} defaultOpen={!readOnly && trait.editable}
     className="rounded-xl border border-[var(--border-subtle)] p-1" titleClassName="flex-1">
     <div className="px-2 pb-2">
-    {trait.editable ? <TraitLevelPicker traitKey={trait.key} maxScore={trait.maxScore} levels={trait.levels} value={value}
+    {trait.editable && trait.maxScore > TRAIT_NUMERIC_INPUT_MIN_MAX_SCORE
+      ? <TraitNumberInput traitKey={trait.key} label={label} maxScore={trait.maxScore} value={value}
+        aiLevel={aiLevel} aiLabel={text.aiBadge} disabled={disabled} onChange={onChange} />
+      : trait.editable ? <TraitLevelPicker traitKey={trait.key} maxScore={trait.maxScore} levels={trait.levels} value={value}
       aiLevel={aiLevel} aiLabel={text.aiBadge} disabled={disabled} onChange={onChange} />
       : <p className="text-sm">{value ?? "—"} / {trait.maxScore}</p>}
     {trait.useAiWhenNull && <p className="mt-1 text-xs text-[var(--ink-muted)]">{text.azureNote}</p>}

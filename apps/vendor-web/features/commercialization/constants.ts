@@ -19,14 +19,14 @@ export const PLATFORM_SETTING_KEYS = {
 } as const;
 export const PLATFORM_SETTING_CATEGORY = "COMMERCIAL";
 
-export type PlatformSettingKey =
-  (typeof PLATFORM_SETTING_KEYS)[keyof typeof PLATFORM_SETTING_KEYS];
+export type PlatformSettingKey = (typeof PLATFORM_SETTING_KEYS)[keyof typeof PLATFORM_SETTING_KEYS];
 
 export interface PlatformSettingPresentation {
   label: string;
   description: string;
-  impact: string;
   unit: string;
+  /** A number of hours that reads better as days beside the field ("72 hours" is 3 days). */
+  hoursAsDays?: boolean;
 }
 
 export const PLATFORM_SETTING_PRESENTATION: Record<
@@ -36,14 +36,13 @@ export const PLATFORM_SETTING_PRESENTATION: Record<
   [PLATFORM_SETTING_KEYS.FREE_STUDENT_LIMIT]: {
     label: "Free student limit",
     description: "The number of learner seats granted when a tenant application is approved.",
-    impact: "Applies to tenant applications approved after this value is saved.",
     unit: "students",
   },
   [PLATFORM_SETTING_KEYS.APPLICATION_RESPONSE_SLA_HOURS]: {
     label: "Tenant application response time",
     description: "The response time promised to applicants in the application email.",
-    impact: "Applies to application notifications sent after this value is saved.",
     unit: "hours",
+    hoursAsDays: true,
   },
 };
 
@@ -51,15 +50,14 @@ export const PLATFORM_SETTINGS_TEXT = {
   TITLE: "Platform settings",
   PANEL_TITLE: "Commercial and approvals",
   PANEL_SUBTITLE: "Manage business policies used by new tenant applications.",
+  DESCRIPTION: "Configure the default policies and operating parameters across the platform.",
+  IMPACT_NOTE: "New values apply only to applications approved and notifications sent after you save.",
+  DEFAULT_LABEL: "Default: {value} {unit}",
+  DAYS_APPROX: "≈ {days} days",
   LOADING: "Loading settings...",
   SAVE: "Save changes",
   SAVING: "Saving changes...",
   RESET: "Reset to defaults",
-  RESET_TITLE: "Reset platform settings?",
-  RESET_DESCRIPTION:
-    "Restore this group to its recommended defaults. Review the values and save to apply them.",
-  RESET_CONFIRM: "Reset to defaults",
-  RESET_CANCEL: "Cancel",
   NO_SETTINGS: "No editable platform settings are available.",
   RETRY: "Try again",
   UNSAVED: "Unsaved changes",
@@ -67,6 +65,8 @@ export const PLATFORM_SETTINGS_TEXT = {
   ERROR: "Settings could not be loaded or saved.",
   SAVED: "Platform settings saved.",
 } as const;
+
+export type PlatformSettingsText = { readonly [K in keyof typeof PLATFORM_SETTINGS_TEXT]: string };
 
 export const ADMIN_APPLICATIONS_TEXT = {
   TITLE: "Tenant applications",
@@ -92,17 +92,19 @@ export const ADMIN_APPLICATIONS_TEXT = {
   EMPTY_VALUE: "—",
 } as const;
 
+
 export const ADMIN_APPLICATION_DETAIL_TEXT = {
   LOADING: "Loading application...",
-  BACK: "Back to applications",
   NOT_FOUND: "This application was not found or is no longer available.",
   UPDATE_ERROR: "The application could not be updated. Please try again.",
-  APPROVED: "Application approved. Verify the Host account manually; credentials delivery is not confirmed here.",
+  APPROVED:
+    "Application approved. Verify the Host account manually; credentials delivery is not confirmed here.",
   LOAD_ERROR: "Application details could not be loaded.",
   FORBIDDEN: "You do not have permission to view this application.",
   RETRY: "Retry",
   UNCERTAIN: "The result is uncertain. Refresh the application before trying the action again.",
-  REFRESH_ERROR: "The action result is uncertain and the latest application state could not be loaded. Do not retry yet.",
+  REFRESH_ERROR:
+    "The action result is uncertain and the latest application state could not be loaded. Do not retry yet.",
   REQUESTED_CODE: (code: string) => `Requested code ${code}`,
   DETAILS_TITLE: "Application details",
   REVIEW_TITLE: "Review decision",
@@ -113,6 +115,18 @@ export const ADMIN_APPLICATION_DETAIL_TEXT = {
   APPROVE: "Approve application",
   REJECTING: "Rejecting...",
   REJECT: "Reject application",
+  REJECT_DIALOG_TITLE: "Reject this application?",
+  REJECT_DIALOG_DESCRIPTION:
+    "The applicant receives this reason by email. Explain what must be corrected.",
+  CANCEL: "Cancel",
+  ORGANIZATION_NAME: "Organization name",
+  SUBMITTED_AT: "Submitted at",
+  ORGANIZATION_SECTION: "Organization information",
+  REPRESENTATIVE_SECTION: "Representative",
+  STATUS_SECTION: "Application status",
+  LOOKUP: "Look up",
+  RESPONSE_TIME_LEFT: "Time left to respond",
+  RESPONSE_OVERDUE: "Overdue by",
   ORGANIZATION_TYPE: "Organization type",
   REQUESTED_TENANT_CODE: "Requested tenant code",
   WORK_EMAIL: "Work email",
@@ -121,6 +135,38 @@ export const ADMIN_APPLICATION_DETAIL_TEXT = {
   REVIEWED_BY: "Reviewed by",
   REVIEWED_AT: "Reviewed at",
   EMPTY_VALUE: "—",
+  PROVISIONING_SECTION: "Provisioning upon approval",
+  PROVISIONING_SUBTITLE: "Resources and credentials prepared for this tenant.",
+  PROVISIONING_PLAN: "Initial plan",
+  PROVISIONING_PLAN_VALUE: "Starter (Free tier)",
+  PROVISIONING_STUDENTS: "Student limit",
+  PROVISIONING_STUDENTS_VALUE: "50 students",
+  PROVISIONING_HOST_ADMIN: "Host admin account",
+  PROVISIONING_HOST_ADMIN_VALUE: (code: string) => `host.${code}`,
+  PROVISIONING_DELIVERY: "Credentials delivery",
+  PROVISIONING_DELIVERY_VALUE: "Secure email with temporary password",
+  PROVISIONING_URL: "Tenant access URL",
+  PROVISIONING_NOTE:
+    "Approving provisions the tenant workspace, grants the student quota, and dispatches the activation email immediately.",
+  COMPLIANCE_SECTION: "Verification & review checks",
+  COMPLIANCE_TAX_CHECK:
+    "Verify that the tax code matches the legal entity on the national registry.",
+  COMPLIANCE_CODE_CHECK:
+    "Requested code is formatted properly and available across active tenants.",
+  COMPLIANCE_CONTACT_CHECK:
+    "Credentials and onboarding communications will be delivered to the work email.",
+  APPROVE_ACTION: "Approve dossier",
+  REJECT_ACTION: "Reject",
+  SLA_SECTION_TITLE: "Processing progress (SLA)",
+  SLA_REMAINING_PREFIX: "Remaining:",
+  TIMELINE_SUBMITTED: "Application received",
+  TIMELINE_PENDING: "Awaiting admin review",
+  TIMELINE_APPROVED: "Application approved",
+  TIMELINE_REJECTED: "Application rejected",
+  COMPLIANCE_TITLE: "Verification & review",
+  COMPLIANCE_CODE_VALID: "Valid tenant identifier format",
+  COMPLIANCE_TAX_VALID: "Valid tax code format",
+  COMPLIANCE_REVIEW_NOTE: "Cross-check tax code with national business registry",
 } as const;
 
 export const PLAN_CATALOG_TEXT = {
@@ -150,7 +196,8 @@ export const PLAN_CATALOG_TEXT = {
   PRICE_ERROR: "Enter a non-negative price with at most 17 integer digits and 2 decimals.",
   INTEGER_ERROR: (max: number) => `Enter a whole number from 1 to ${max}.`,
   STALE_VERSION_TITLE: "This plan changed while you were editing",
-  STALE_VERSION_DESCRIPTION: "Your form still contains the values you entered. Review the latest server values before deciding what to do.",
+  STALE_VERSION_DESCRIPTION:
+    "Your form still contains the values you entered. Review the latest server values before deciding what to do.",
   SERVER_VALUES: "Latest server values",
   RELOAD_SERVER: "Reload server values",
   KEEP_MY_CHANGES: "Keep my changes",
@@ -177,10 +224,12 @@ export const PLAN_CATALOG_TEXT = {
   ARCHIVE: "Archive",
   DELETE_DRAFT: "Delete draft",
   DELETE_CONFIRM_TITLE: "Delete this draft?",
-  DELETE_CONFIRM_DESCRIPTION: "This draft will be removed from the catalog. Audit history is retained, but it cannot be restored from this UI.",
+  DELETE_CONFIRM_DESCRIPTION:
+    "This draft will be removed from the catalog. Audit history is retained, but it cannot be restored from this UI.",
   DELETED_SUCCESS: "Plan draft deleted.",
   DELETE_BLOCKED: "This draft has usage history and cannot be deleted.",
-  ARCHIVE_BLOCKED: "Archive is blocked while issued codes remain redeemable. Revoke them or wait for expiry.",
+  ARCHIVE_BLOCKED:
+    "Archive is blocked while issued codes remain redeemable. Revoke them or wait for expiry.",
   CAPABILITIES_UNAVAILABLE: "Reload to check which cleanup actions are available.",
   ARCHIVE_CONFIRM_TITLE: "Archive this plan?",
   ARCHIVE_CONFIRM_DESCRIPTION:
@@ -208,12 +257,15 @@ export const LICENSE_CODES_TEXT = {
   PLAN_PLACEHOLDER: "Select active exam package",
   REFRESH_PLANS: "Refresh plans",
   EXPIRY_LABEL: "Code expiry",
-  EXPIRY_HELP: (zone: string, utc: string) => `Time zone: ${zone}. UTC: ${utc}. Leave empty for no code expiry.`,
+  EXPIRY_HELP: (zone: string, utc: string) =>
+    `Time zone: ${zone}. UTC: ${utc}. Leave empty for no code expiry.`,
   RETRY_ISSUE: "Recover issuance result",
   NEW_ISSUE: "Start a new issuance",
   NEW_ISSUE_CONFIRM: "Start another issuance?",
-  NEW_ISSUE_WARNING: "The previous request may already have created a license. Recover its result first. Starting another request can create a second license.",
-  UNCERTAIN: "The issuance result has not been confirmed. Recover this request before starting another issuance.",
+  NEW_ISSUE_WARNING:
+    "The previous request may already have created a license. Recover its result first. Starting another request can create a second license.",
+  UNCERTAIN:
+    "The issuance result has not been confirmed. Recover this request before starting another issuance.",
   ISSUE_REJECTED: "This request was rejected. Start a new issuance to correct the input.",
   ISSUE_PENDING: "Confirming the issuance result…",
   REJECTED_NEW_ISSUE: "Clear this rejected request so you can correct the plan or expiry.",
@@ -254,14 +306,16 @@ export const LICENSE_CODES_TEXT = {
   LOOKUP_NOT_FOUND: "No matching code was found.",
   REVEAL: "Reveal",
   REVEAL_TITLE: "Reveal license code",
-  REVEAL_DESCRIPTION: "The bearer is shown locally for up to 60 seconds. Copy is available only after an explicit click.",
+  REVEAL_DESCRIPTION:
+    "The bearer is shown locally for up to 60 seconds. Copy is available only after an explicit click.",
   REVEAL_ERROR: "The code could not be revealed. Refresh and try again.",
   CLOSE: "Close",
   COPY: "Copy code",
   COPIED: "Code copied.",
   REVEALED: "Code revealed locally. It is not retained in the page cache.",
   REVOKE_TITLE: "Revoke license code?",
-  REVOKE_DESCRIPTION: "Review the live subscription impact before confirming. The action cannot be undone.",
+  REVOKE_DESCRIPTION:
+    "Review the live subscription impact before confirming. The action cannot be undone.",
   REVOKE_CONFIRM: "Revoke code",
   REVOKE_PREVIEW_LOADING: "Loading the current impact...",
   REVOKE_PREVIEW_ERROR: "The revoke preview could not be loaded. Refresh and try again.",
@@ -274,9 +328,11 @@ export const LICENSE_CODES_TEXT = {
   REVOKE_CLOSED: "Closed sessions preserved",
   REVOKE_REASON_HELP: "Give a short audit reason. This reason is retained with the code.",
   REVOKE_ACK_SUBSCRIPTION: "I understand the linked exam subscription will be cancelled.",
-  REVOKE_ACK_SCHEDULED: "I understand all currently scheduled sessions in this scope will be cancelled.",
+  REVOKE_ACK_SCHEDULED:
+    "I understand all currently scheduled sessions in this scope will be cancelled.",
   REVOKE_ACK_OPEN_CLOSED: "I understand open and closed sessions will be preserved.",
-  REVOKE_SCOPE_CHANGED: "The scope changed while you were confirming. Review the refreshed preview and acknowledge it again.",
+  REVOKE_SCOPE_CHANGED:
+    "The scope changed while you were confirming. Review the refreshed preview and acknowledge it again.",
   REVOKE_PREVIEW_RETRY: "Refresh preview",
   REVOKE_NO_SCHEDULED: "No scheduled sessions",
   REVOKE_EXPIRED_CODE: "Expired codes cannot be revoked.",

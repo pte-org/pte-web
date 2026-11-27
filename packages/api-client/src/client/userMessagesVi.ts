@@ -1,0 +1,140 @@
+/**
+ * Vietnamese wording of the messages the API reports by error code. Used in place of the English catalog (and of
+ * the English `userMessage` some errors carry) when the app is in Vietnamese. A code whose message has values filled
+ * in by the server (dates, numbers) is left out on purpose: the server's text keeps those values.
+ */
+export const USER_FACING_ERROR_MESSAGES_VI: Record<string, string> = {
+  ANNOUNCEMENT_INVALID: "Thông báo chưa hợp lệ. Hãy kiểm tra tiêu đề, nội dung và thời gian: ngày kết thúc phải sau ngày bắt đầu.",
+  ANNOUNCEMENT_NOT_FOUND: "Không tìm thấy thông báo này. Có thể nó đã bị xóa.",
+  ANNOUNCEMENT_VERSION_CONFLICT: "Thông báo này vừa được người khác thay đổi. Hãy tải lại rồi thử lại.",
+  ANNOUNCEMENT_PUBLISHED: "Thông báo đã phát hành thì không thể chỉnh sửa.",
+  ANNOUNCEMENT_NOT_PUBLISHED: "Chỉ thông báo đã phát hành mới gửi lại được.",
+  ANNOUNCEMENT_CORRECTION_INVALID: "Bản đính chính phải tham chiếu tới một thông báo đã phát hành.",
+  PLAN_ARCHIVED_NOT_EDITABLE:
+    "Gói này đã được lưu trữ và không thể chỉnh sửa. Hãy tạo gói mới nếu cần giá hoặc sức chứa khác.",
+  PLAN_MUST_BE_DRAFT_TO_ACTIVATE: "Chỉ gói đang ở trạng thái nháp mới có thể phát hành.",
+  ORDER_PLAN_NOT_ACTIVE: "Gói này không còn được bán. Vui lòng chọn một gói đang hoạt động khác.",
+  SUBSCRIPTION_PLAN_NOT_ACTIVE: "Gói này không còn hoạt động. Vui lòng liên hệ quản trị viên nền tảng.",
+  LICENSE_CODE_PLAN_NOT_ACTIVE:
+    "Mã giấy phép này gắn với một gói không còn hoạt động. Vui lòng liên hệ quản trị viên nền tảng.",
+  TENANT_NAME_ALREADY_USED: "Đã có một tổ chức dùng tên này.",
+  TENANT_CODE_ALREADY_USED: "Mã tổ chức này đã được sử dụng.",
+  TENANT_TAX_CODE_ALREADY_USED: "Đã có một tổ chức khác dùng mã số thuế này.",
+  APPLICATION_EMAIL_ALREADY_PENDING: "Đã có một đơn đăng ký từ email này đang chờ duyệt.",
+  REQUESTED_CODE_ALREADY_USED: "Mã tổ chức này đã được sử dụng.",
+  STUDENT_ALREADY_IN_CLASS: "Học viên này đã có trong lớp đã chọn.",
+  EMAIL_ALREADY_USED: "Đã có tài khoản dùng email này.",
+  DUPLICATE_EMAIL_IN_BATCH: "Một số email xuất hiện nhiều hơn một lần trong tệp đã tải lên.",
+  ROSTER_VALIDATION_FAILED:
+    "Một số thông tin học viên bị thiếu hoặc không hợp lệ. Mỗi học viên cần có email hợp lệ và họ tên.",
+  INVALID_LOGIN: "Tên đăng nhập hoặc mật khẩu không đúng.",
+  ACCESS_DENIED: "Bạn không có quyền thực hiện thao tác này.",
+  TENANT_SUSPENDED:
+    "Tổ chức này đang bị tạm ngưng. Hoạt động mới bị chặn, nhưng các bài thi đang làm và báo cáo đã công bố vẫn xem được.",
+  TENANT_SUSPENSION_IMPACT_STALE:
+    "Tác động của việc tạm ngưng đã thay đổi. Hãy làm mới bản xem trước và xem lại trước khi xác nhận.",
+  LICENSE_CODE_IDEMPOTENCY_KEY_REQUIRED: "Hãy tải lại trang trước khi cấp mã giấy phép.",
+  LICENSE_CODE_IDEMPOTENCY_KEY_INVALID: "Hãy tải lại trang để tạo khóa cấp mã hợp lệ.",
+  LICENSE_CODE_IDEMPOTENCY_KEY_REUSED:
+    "Yêu cầu này thuộc về một lần cấp mã khác. Hãy khôi phục kết quả ban đầu hoặc chủ động bắt đầu lần cấp mới.",
+  LICENSE_CODE_ISSUE_RETRYABLE: "Chưa xác nhận được kết quả. Hãy khôi phục yêu cầu này bằng cùng khóa cấp mã.",
+  LICENSE_CODE_ISSUE_FAILED: "Chưa xác nhận được lần cấp mã. Hãy khôi phục yêu cầu này trước khi bắt đầu lần khác.",
+  LICENSE_CODE_ISSUE_RESULT_MISSING:
+    "Lần cấp mã ban đầu vẫn được lưu trong lịch sử nhưng mã không còn xem được. Vui lòng liên hệ hỗ trợ.",
+  LICENSE_CODE_EXAM_PLAN_REQUIRED: "Hãy chọn một gói thi đang hoạt động rồi thử lại.",
+  LICENSE_CODE_EXPIRY_INVALID: "Hạn dùng của mã phải ở tương lai. Hãy sửa lại và bắt đầu lần cấp mới.",
+  LICENSE_CODE_EXPIRY_PRECISION_INVALID: "Hạn dùng chỉ hỗ trợ độ chính xác tối đa đến micro giây.",
+  LICENSE_CODE_NOT_FOUND: "Không tìm thấy mã giấy phép này. Vui lòng kiểm tra lại.",
+  LICENSE_CODE_ALREADY_REDEEMED: "Mã giấy phép này đã được sử dụng.",
+  LICENSE_CODE_REVOKED: "Mã giấy phép này đã bị thu hồi.",
+  LICENSE_CODE_EXPIRED: "Mã giấy phép này đã hết hạn.",
+  LICENSE_CODE_NOT_REDEEMABLE: "Không thể dùng mã giấy phép này.",
+  LICENSE_CODE_REVOKE_SCOPE_CHANGED: "Phạm vi thu hồi mã đã thay đổi. Hãy làm mới bản xem trước và xem lại.",
+  LICENSE_CODE_REVOKE_PREVIEW_EXPIRED: "Bản xem trước thu hồi mã đã hết hạn. Hãy làm mới và xem lại.",
+  LICENSE_CODE_REVOKE_CONFIRMATION_REQUIRED:
+    "Hãy xác nhận phạm vi thu hồi và mọi mục cần đồng ý trước khi tiếp tục.",
+  LICENSE_CODE_REVOKE_CAPACITY_UNSUPPORTED: "Không thể hoàn tác mã sức chứa đã dùng này từ màn hình quản trị.",
+  LICENSE_CODE_REVOKE_TENANT_MISMATCH: "Gói thuê bao liên kết không khớp với mã giấy phép này.",
+  LICENSE_CODE_REVOKE_IMPACT_UNAVAILABLE: "Chưa kiểm tra được ảnh hưởng đến các kỳ thi hiện tại. Hãy thử lại sau.",
+  LICENSE_CODE_REVOKE_LEGACY_ENDPOINT:
+    "Liên kết thu hồi này đã cũ. Hãy mở mã giấy phép từ màn hình quản trị và xem trước lại.",
+  EXAM_PREFLIGHT_FAILED:
+    "Kỳ thi này chưa sẵn sàng. Hãy kiểm tra lại mẫu bài thi, gói, lịch thi hoặc xung đột học viên.",
+  EXAM_DRAFT_NOT_EDITABLE:
+    "Không thể sửa kỳ thi này nữa vì việc chuẩn bị hoặc phát hành đã bắt đầu.",
+  EXAM_GENERATION_NOT_READY: "Câu hỏi của kỳ thi vẫn đang được chuẩn bị. Vui lòng đợi rồi thử lại.",
+  EXAM_DRAFT_VERSION_CONFLICT:
+    "Bản nháp kỳ thi này đã được thay đổi ở nơi khác. Hãy tải lại trang và xem lại thay đổi của bạn.",
+  EXAM_DRAFT_CONFIGURATION_INVALID: "Một số cài đặt của kỳ thi không tương thích. Hãy kiểm tra lại chế độ và quy tắc dùng lại câu hỏi.",
+  TEMPLATE_NOT_ACTIVE: "Mẫu bài thi đã chọn chưa được kích hoạt. Hãy chọn một mẫu đang hoạt động rồi thử lại.",
+  LOCKDOWN_MODE_INVALID_FOR_EXAM_MODE: "Chế độ khóa thiết bị đã chọn không phù hợp với chế độ thi này.",
+  LOCKDOWN_MODE_REQUIRED: "Cần xác định chế độ khóa thiết bị trước khi mở kỳ thi.",
+  AUDIENCE_SOURCE_NOT_FOUND: "Học viên, lớp hoặc chương trình đã chọn không có trong tổ chức này.",
+  AUDIENCE_CHANGED_REQUIRES_REGENERATION:
+    "Danh sách học viên đã thay đổi trong lúc kỳ thi đang được chuẩn bị. Hãy tạo lại kỳ thi trước khi phát hành.",
+  EXAM_AUDIENCE_LOCKED:
+    "Không thể thêm hoặc bớt học viên khi kỳ thi đang được chuẩn bị hoặc đang diễn ra. Hãy thử trước khi kỳ thi bắt đầu hoặc sau khi kết thúc.",
+  ENROLLED_STUDENT_ALREADY_STARTED: "Học viên này đã bắt đầu làm bài nên không thể gỡ khỏi kỳ thi.",
+  AUDIENCE_SOURCE_ALREADY_COVERED: "Học viên hoặc lớp này đã nằm trong một lớp hoặc chương trình đã thêm vào kỳ thi.",
+  LEGACY_SESSION_CREATE_REQUIRES_NEW_WORKFLOW:
+    "Biểu mẫu tạo kỳ thi này đã cũ. Hãy tạo kỳ thi bằng quy trình mới để mẫu bài thi, danh sách học viên và quy tắc được kiểm tra trước khi phát hành.",
+  SESSION_SUBSCRIPTION_NOT_FOUND: "Không tìm thấy gói thuê bao đã chọn hoặc gói không còn hoạt động.",
+  SESSION_SUBSCRIPTION_CHANGED: "Gói thuê bao của kỳ thi đã thay đổi trong lúc thao tác. Hãy tải lại và thử lại.",
+  SUBSCRIPTION_REVOCATION_SCOPE_CONFLICT: "Gói thuê bao không còn sở hữu cùng phạm vi kỳ thi.",
+  SESSION_CAPACITY_EXCEEDED: "Số học viên đã chọn vượt sức chứa của kỳ thi.",
+  SESSION_ENROLLMENTS_EXCEED_SUBSCRIPTION: "Kỳ thi này đã có nhiều học viên hơn mức gói thuê bao đã chọn cho phép.",
+  SESSION_TIME_CONFLICT: "Một số học viên đã có kỳ thi khác trong khung giờ này.",
+  EXAM_AUDIENCE_CONFLICT:
+    "Mọi học viên đủ điều kiện đều trùng lịch với kỳ thi khác. Hãy xử lý các xung đột rồi phát hành lại.",
+  EXAM_AUDIENCE_RECONCILIATION_FAILED: "Không đối chiếu được danh sách học viên của kỳ thi với ghi danh. Hãy tải lại và thử lại.",
+  SESSION_NOT_STARTED: "Kỳ thi này chưa mở. Vui lòng quay lại vào giờ bắt đầu theo lịch.",
+  ATTENDANCE_REQUIRED: "Giám thị chưa điểm danh cho bạn. Vui lòng đợi điểm danh rồi thử lại.",
+  SESSION_CLOSED: "Kỳ thi này đã đóng.",
+  SESSION_NOT_READY_TO_OPEN: "Hãy phát hành kỳ thi trước khi mở cho học viên.",
+  SESSION_NOT_OPEN_TO_CLOSE: "Chỉ kỳ thi đang mở mới có thể đóng.",
+  SESSION_NOT_CANCELLABLE: "Không thể hủy kỳ thi này ở trạng thái hiện tại.",
+  EXAM_SCHEDULE_NOT_EDITABLE:
+    "Chỉ kỳ thi đã lên lịch hoặc đang mở mới đổi được lịch. Hãy tải lại kỳ thi và thử lại.",
+  EXAM_SCHEDULE_VERSION_CONFLICT: "Kỳ thi này đã được thay đổi ở nơi khác. Hãy tải lại trước khi lưu lịch.",
+  EXAM_CLOSE_TIME_NOT_EXTENDED: "Khi kỳ thi đang mở, chỉ lưu được giờ đóng muộn hơn.",
+  EXAM_DRAFT_NOT_DELETABLE: "Chỉ xóa được kỳ thi chưa phát hành.",
+  INVALID_SESSION_WINDOW: "Hãy chọn khung giờ thi hợp lệ: giờ đóng phải sau giờ mở.",
+  HOST_CONTEXT_REQUIRED: "Không xác định được tổ chức của bạn. Vui lòng đăng nhập lại.",
+  PROGRAM_NOT_FOUND: "Không tìm thấy chương trình đã chọn hoặc chương trình không còn hoạt động.",
+  PROGRAM_NAME_ALREADY_USED: "Tổ chức của bạn đã có chương trình trùng tên.",
+  PROGRAM_HAS_ACTIVE_CLASSES: "Chương trình này vẫn còn lớp đang hoạt động. Hãy lưu trữ hết các lớp trước khi lưu trữ chương trình.",
+  CLASS_NOT_FOUND: "Không tìm thấy lớp đã chọn hoặc lớp không còn hoạt động.",
+  CLASS_NAME_ALREADY_USED: "Chương trình này đã có lớp trùng tên.",
+  CLASS_HAS_ACTIVE_MEMBERS: "Lớp này vẫn còn thành viên đang hoạt động. Hãy gỡ hết thành viên trước khi lưu trữ lớp.",
+  CLASS_MEMBERSHIP_NOT_FOUND: "Không tìm thấy thành viên lớp.",
+  STUDENT_NOT_FOUND: "Không tìm thấy học viên đã chọn.",
+  FORBIDDEN_USER_MANAGEMENT: "Bạn không có quyền quản lý người dùng nền tảng.",
+  FORBIDDEN_PASSWORD_RESET: "Bạn không có quyền đặt lại mật khẩu của người dùng này.",
+  FORBIDDEN_ROLE_ASSIGNMENT: "Vai trò nền tảng đã chọn không được phép.",
+  USER_EMAIL_REQUIRED: "Tài khoản này chưa có email để gửi thông tin đăng nhập.",
+  USER_NOT_FOUND: "Không tìm thấy người dùng nền tảng đã chọn hoặc người dùng không còn khả dụng.",
+  STUDENT_ATTEMPT_IN_PROGRESS: "Học viên này đang làm bài thi. Hãy thử lại sau khi họ nộp bài.",
+  INVALID_PASSWORD_RESET_TOKEN: "Liên kết đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Hãy yêu cầu liên kết mới rồi thử lại.",
+  GENERATION_BATCH_NOT_FOUND: "Không tìm thấy đợt tạo câu hỏi này.",
+  GENERATION_BATCH_NOT_CANCELLABLE: "Đợt tạo câu hỏi này đã xong nên không thể hủy.",
+  GENERATION_BATCH_NOT_PAUSABLE: "Chỉ tạm dừng được đợt tạo câu hỏi đang chạy.",
+  GENERATION_BATCH_NOT_RESUMABLE: "Đợt tạo câu hỏi vẫn đang dừng. Vui lòng thử lại sau giây lát.",
+  GENERATION_BATCH_PAUSE_EXPIRED: "Đợt tạo câu hỏi tạm dừng quá lâu nên đã bị hủy. Các câu đã lưu vẫn được giữ.",
+  GENERATION_BATCH_SIZE_OUT_OF_RANGE:
+    "Mỗi dòng cần ít nhất một câu hỏi và tổng số câu của đợt không được vượt giới hạn mỗi đợt.",
+  GENERATION_BATCH_ROWS_OUT_OF_RANGE: "Một đợt phải có từ 1 đến 20 dòng.",
+  GENERATION_BATCH_TOPIC_HINTS_OUT_OF_RANGE: "Mỗi dòng có tối đa 10 chủ đề.",
+  GENERATION_PICTURE_DISABLED: "Ảnh do AI tạo đang tắt. Hãy chọn Tự động hoặc Biểu đồ cho dạng Describe Image.",
+  GENERATION_JOB_PART_OF_BATCH: "Tác vụ này thuộc một đợt. Hãy hủy cả đợt.",
+  GENERATION_JOB_ALREADY_RUNNING: "Bạn đang có một lượt tạo câu hỏi chạy. Hãy đợi lượt đó xong.",
+  GENERATION_DAILY_LIMIT_REACHED: "Bạn đã đạt giới hạn tạo câu hỏi trong ngày.",
+  GENERATION_GLOBAL_LIMIT_REACHED: "Nền tảng đã đạt giới hạn tạo câu hỏi của hôm nay.",
+  GENERATION_VOICE_UNKNOWN: "Giọng đọc này không khả dụng. Hãy chọn giọng khác.",
+  GENERATION_VOICE_NOT_SUPPORTED_FOR_TASK:
+    "Không đổi được giọng của câu này. Chỉ đổi được với câu do AI tạo và chỉ có một người đọc.",
+  GENERATION_VOICE_UNCHANGED: "Câu hỏi đang dùng giọng này rồi. Hãy chọn giọng khác.",
+  GENERATION_VOICE_BUSY: "Đang có một giọng khác được tạo. Vui lòng thử lại sau giây lát.",
+  GENERATION_MEDIA_FAILED: "Không tạo được âm thanh. Vui lòng thử lại sau giây lát.",
+  GENERATION_AUDIO_DURATION_OUT_OF_RANGE:
+    "Giọng này đọc văn bản quá nhanh hoặc quá chậm so với dạng bài. Hãy chọn giọng khác.",
+};

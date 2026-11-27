@@ -5,7 +5,11 @@ import type { ScoreTemplateResponse } from "@pte/api-client";
 import { Modal, Stepper } from "@pte/ui";
 import { useCreateExamWizardViewModel } from "../hooks/useCreateExamWizardViewModel";
 import type { CreateExamWorkflowInput } from "../types";
-import { CREATE_EXAM_STEP_IDS, type CreateExamStep } from "../utils/createExamWizard";
+import {
+  CREATE_EXAM_STEP_IDS,
+  type CreateExamStep,
+  type CreateExamStepId,
+} from "../utils/createExamWizard";
 import { AudienceStep } from "./create-exam/AudienceStep";
 import { ExamDetailsStep } from "./create-exam/ExamDetailsStep";
 import { ReviewStep } from "./create-exam/ReviewStep";
@@ -47,6 +51,7 @@ export const CreateExamWizard = ({
     validate,
     goToNextStep,
     goToPreviousStep,
+    goToStep,
   } = useCreateExamWizardViewModel({ open, activeTemplate, templates, templateError, error });
   const stepContent: Record<CreateExamStep, ReactElement> = {
     1: <ExamDetailsStep {...detailsStepProps} />,
@@ -105,7 +110,14 @@ export const CreateExamWizard = ({
       }
     >
       <form id={FORM_ID} onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-        <Stepper steps={stepLabels} currentStep={CREATE_EXAM_STEP_IDS[step - 1]} />
+        <Stepper
+          steps={stepLabels}
+          currentStep={CREATE_EXAM_STEP_IDS[step - 1]}
+          checkCompleted
+          onStepSelect={(stepId) =>
+            goToStep((CREATE_EXAM_STEP_IDS.indexOf(stepId as CreateExamStepId) + 1) as CreateExamStep)
+          }
+        />
         {stepContent[step]}
       </form>
     </Modal>
