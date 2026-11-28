@@ -8,12 +8,8 @@ export const ABOUT_PTE_LANDING_EN = {
       "Explore the exam structure, the 22 question types and the scoring rules, then try the scoring yourself with the interactive lab.",
     explore: "Explore PTE",
     tryLab: "Try the score lab",
-    stats: [
-      { value: "10–90", label: "Score scale", note: "Overall + 4 skills" },
-      { value: "22", label: "Question types", note: "PTE Academic" },
-    ],
     resultTitle: "Sample score report",
-    resultNote: "Student B from the simulation below",
+    resultNote: "PTE Academic",
   },
   glance: {
     pill: "PTE overview",
@@ -22,7 +18,7 @@ export const ABOUT_PTE_LANDING_EN = {
       { value: "22", label: "Question types" },
       { value: "10–90", label: "Score range" },
       { value: "~2 hours", label: "Test duration" },
-      { value: "4", label: "Skills reported" },
+      { value: "4", label: "Skills scored" },
     ],
     conceptsTitle: "4 things to know first",
   },
@@ -52,8 +48,6 @@ export const ABOUT_PTE_LANDING_EN = {
     pill: "Interactive demo",
     title: "Score simulator",
     text: "Adjust each question type's answer and watch the skill and Overall scores change in real time.",
-    start: "Start practising",
-    sample: "Sample · Student B",
   },
   compare: {
     pill: "Compare English tests",

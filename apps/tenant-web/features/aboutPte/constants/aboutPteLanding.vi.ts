@@ -9,12 +9,8 @@ export const ABOUT_PTE_LANDING_VI: AboutPteLanding = {
       "Tìm hiểu cấu trúc bài thi, 22 dạng câu hỏi và quy tắc chấm điểm, rồi tự thử chấm điểm với phòng thí nghiệm tương tác.",
     explore: "Khám phá PTE",
     tryLab: "Thử chấm điểm",
-    stats: [
-      { value: "10–90", label: "Thang điểm", note: "Overall + 4 kỹ năng" },
-      { value: "22", label: "Dạng câu hỏi", note: "PTE Academic" },
-    ],
     resultTitle: "Bảng điểm mẫu",
-    resultNote: "Học viên B trong phần giả lập bên dưới",
+    resultNote: "PTE Academic",
   },
   glance: {
     pill: "Tổng quan PTE",
@@ -23,7 +19,7 @@ export const ABOUT_PTE_LANDING_VI: AboutPteLanding = {
       { value: "22", label: "Dạng câu hỏi" },
       { value: "10–90", label: "Thang điểm" },
       { value: "~2 giờ", label: "Thời gian thi" },
-      { value: "4", label: "Kỹ năng được báo điểm" },
+      { value: "4", label: "Kỹ năng chấm điểm" },
     ],
     conceptsTitle: "4 điều cần biết trước",
   },
@@ -53,8 +49,6 @@ export const ABOUT_PTE_LANDING_VI: AboutPteLanding = {
     pill: "Demo tương tác",
     title: "Mô phỏng chấm điểm",
     text: "Chỉnh câu trả lời của từng dạng câu và xem điểm kỹ năng, điểm Overall thay đổi ngay lập tức.",
-    start: "Bắt đầu thử",
-    sample: "Mẫu · Học viên B",
   },
   compare: {
     pill: "So sánh chứng chỉ",
