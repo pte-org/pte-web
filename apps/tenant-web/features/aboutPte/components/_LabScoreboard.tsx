@@ -3,7 +3,9 @@ import { CircularProgressChart } from "@pte/ui";
 import type { AboutPteCopy } from "../constants/aboutPteCopy.en";
 import { TASK_NAMES } from "../constants/miniExam";
 import { SCORE_FLOOR, SCORE_SPAN, SKILLS, STANDARD_TASK_WEIGHTS } from "../constants/scoringWeights";
+import { useAboutPteExtras } from "../hooks/useAboutPteCopy";
 import type { ScoreLab } from "../hooks/useScoreLab";
+import { cefrLevelFor, formatIeltsBand, ieltsBandFor } from "../utils/scoreConversion";
 import { formatNumber } from "../utils/scoringEngine";
 
 interface LabScoreboardProps {
@@ -17,9 +19,11 @@ const toRing = (score: number | null): number | null => (score === null ? null :
 /** Live skill and Overall rings; the skills fed by the hovered question type light up, the rest fade. */
 export const LabScoreboard = ({ lab, copy }: LabScoreboardProps): ReactElement => {
   const text = copy.simulation.lab;
+  const { conversion } = useAboutPteExtras();
   const focusedTask = STANDARD_TASK_WEIGHTS.find((task) => task.key === lab.focused);
   const hasFocus = lab.highlighted.size > 0;
   const overall = lab.result.overall.score;
+  const band = overall === null ? null : ieltsBandFor(overall);
   return (
     <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-center gap-5 border-b border-slate-100 pb-5">
@@ -30,7 +34,19 @@ export const LabScoreboard = ({ lab, copy }: LabScoreboardProps): ReactElement =
           ariaLabel={copy.skills.overall}
           caption={copy.skills.overall}
         />
-        <p className="text-sm text-slate-600">{text.overallHint}</p>
+        <div className="space-y-2">
+          {overall !== null && (
+            <p className="flex flex-wrap gap-2 text-xs font-semibold">
+              <span className="rounded-full bg-[var(--action-tint)] px-2.5 py-1 text-action">
+                {`${conversion.ielts} ${band === null ? conversion.belowIelts : formatIeltsBand(band)}`}
+              </span>
+              <span className="rounded-full bg-[var(--action-tint)] px-2.5 py-1 text-action">
+                {`${conversion.cefr} ${cefrLevelFor(overall)}`}
+              </span>
+            </p>
+          )}
+          <p className="text-sm text-slate-600">{text.overallHint}</p>
+        </div>
       </div>
       <div className="mt-5 grid grid-cols-2 gap-4">
         {SKILLS.map((skill) => {
