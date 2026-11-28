@@ -40,10 +40,10 @@ export const ABOUT_PTE_LANDING_VI: AboutPteLanding = {
       { title: "Kỹ năng & Overall 10–90", text: "Nhân trọng số theo dạng câu rồi quy đổi ra 10–90." },
     ],
     exampleTitle: "Ví dụ · Describe Image",
-    exampleNote: "Score Guide tr. 8",
+    exampleNote: "Ví dụ trong Score Guide tr. 8",
     exampleResult: "Điểm câu",
     rules: "Quy tắc chấm của từng dạng câu",
-    technical: "Trọng số, các tầng tính điểm và khác biệt của nền tảng",
+    technical: "Chi tiết 4 tầng tính điểm và trọng số kỹ năng",
   },
   simulator: {
     pill: "Demo tương tác",

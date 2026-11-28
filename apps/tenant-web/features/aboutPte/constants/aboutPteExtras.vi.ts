@@ -45,6 +45,15 @@ export const ABOUT_PTE_EXTRAS_VI: AboutPteExtras = {
     all: (count) => `Tất cả (${count})`,
     integratedOnly: "Chỉ dạng tích hợp",
   },
+  scoringRules: {
+    filterLabel: "Xem quy tắc chấm của",
+    all: (count) => `Tất cả (${count})`,
+    collapse: "Thu gọn quy tắc",
+    traitTabs: "Tiêu chí cần xem",
+    wholeItemZero: "Cả câu = 0",
+    columns: { task: "Dạng câu hỏi", kind: "Cách chấm", skills: "Kỹ năng", rule: "Quy tắc tính điểm", page: "Trang" },
+    flowHint: "Rê chuột vào một dạng câu hoặc một kỹ năng để làm nổi bật các đường và trọng số liên quan.",
+  },
   compareFilter: {
     label: "So sánh PTE với",
     all: "Tất cả bài thi",

@@ -44,6 +44,15 @@ export const ABOUT_PTE_EXTRAS_EN = {
     all: (count: number): string => `All (${count})`,
     integratedOnly: "Integrated only",
   },
+  scoringRules: {
+    filterLabel: "Show scoring rules of",
+    all: (count: number): string => `All (${count})`,
+    collapse: "Collapse the rules",
+    traitTabs: "Trait to show",
+    wholeItemZero: "Whole item = 0",
+    columns: { task: "Question type", kind: "Scoring", skills: "Skill", rule: "Scoring rule", page: "Page" },
+    flowHint: "Hover a question type or a skill to highlight its flows and weights.",
+  },
   compareFilter: {
     label: "Compare PTE with",
     all: "All tests",

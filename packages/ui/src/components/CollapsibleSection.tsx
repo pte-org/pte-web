@@ -13,6 +13,9 @@ interface CollapsibleSectionProps {
   /** Put the disclosure arrow at the far end of the row instead of right after the title. */
   chevronAtEnd?: boolean;
   defaultExpanded?: boolean;
+  /** Controlled state; leave unset to let the section manage itself. */
+  expanded?: boolean;
+  onExpandedChange?: (expanded: boolean) => void;
   className?: string;
   contentClassName?: string;
 }
@@ -25,10 +28,18 @@ export const CollapsibleSection = ({
   collapsible = true,
   chevronAtEnd = false,
   defaultExpanded = true,
+  expanded,
+  onExpandedChange,
   className,
   contentClassName,
 }: CollapsibleSectionProps): ReactElement => {
-  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  const [innerExpanded, setInnerExpanded] = useState(defaultExpanded);
+  const isExpanded = expanded ?? innerExpanded;
+  const setIsExpanded = (update: (current: boolean) => boolean): void => {
+    const next = update(isExpanded);
+    setInnerExpanded(next);
+    onExpandedChange?.(next);
+  };
   const sectionId = useId().replace(/:/g, "");
   const titleId = `collapsible-section-title-${sectionId}`;
   const contentId = `collapsible-section-content-${sectionId}`;

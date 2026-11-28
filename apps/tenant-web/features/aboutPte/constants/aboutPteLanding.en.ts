@@ -39,10 +39,10 @@ export const ABOUT_PTE_LANDING_EN = {
       { title: "Skill & Overall 10–90", text: "Weighted by question type, then mapped to 10–90." },
     ],
     exampleTitle: "Example · Describe Image",
-    exampleNote: "Score Guide p. 8",
+    exampleNote: "Example in Score Guide p. 8",
     exampleResult: "Item score",
     rules: "Scoring rule of every question type",
-    technical: "Weights, step-by-step layers and how this platform differs",
+    technical: "The 4 scoring layers and skill weights in detail",
   },
   simulator: {
     pill: "Interactive demo",
