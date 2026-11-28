@@ -98,7 +98,8 @@ export const ABOUT_PTE_EXTRAS_VI: AboutPteExtras = {
   },
   cta: {
     title: "Sẵn sàng triển khai luyện thi PTE cho trung tâm của bạn?",
-    text: "Đăng ký tổ chức, chờ duyệt, rồi chọn gói phù hợp với kỳ thi sắp tới của bạn.",
+    badge: "Dành cho trung tâm đào tạo",
+    text: "Đăng ký tổ chức, được duyệt rồi chọn gói phù hợp cho trung tâm của bạn.",
     register: "Đăng ký trung tâm",
     login: "Đăng nhập",
   },

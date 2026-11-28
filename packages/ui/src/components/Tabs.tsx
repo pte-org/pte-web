@@ -69,7 +69,7 @@ const tabRootStyles: Record<TabsVariant, string> = {
   default:
     "overflow-hidden rounded-xl border border-[var(--shell-border)] bg-[var(--surface-card)]",
   minimal: "",
-  segmented: "inline-block",
+  segmented: "inline-block max-w-full",
 };
 
 const tabListWrapperStyles: Record<TabsVariant, string> = {
@@ -81,7 +81,7 @@ const tabListWrapperStyles: Record<TabsVariant, string> = {
 const tabListStyles: Record<TabsVariant, string> = {
   default: "flex min-w-0 gap-1 overflow-x-auto rounded-lg bg-[var(--surface-subtle)] p-1",
   minimal: "flex min-w-0 gap-2 overflow-x-auto",
-  segmented: "inline-flex min-w-0 gap-1 rounded-lg bg-[var(--surface-subtle)] p-1",
+  segmented: "inline-flex max-w-full min-w-0 gap-1 overflow-x-auto rounded-lg bg-[var(--surface-subtle)] p-1",
 };
 
 const verticalRootStyles =

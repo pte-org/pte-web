@@ -8,13 +8,14 @@ export const ABOUT_PTE_LANDING_VI: AboutPteLanding = {
     description:
       "Tìm hiểu cấu trúc bài thi, 22 dạng câu hỏi và quy tắc chấm điểm, rồi tự thử chấm điểm với phòng thí nghiệm tương tác.",
     explore: "Khám phá PTE",
-    tryLab: "Thử chấm điểm",
+    tryLab: "Thử giả lập điểm",
     resultTitle: "Bảng điểm mẫu",
     resultNote: "PTE Academic",
   },
   glance: {
     pill: "Tổng quan PTE",
     title: "PTE trong một cái nhìn",
+    intro: "Những thông tin cốt lõi về cấu trúc, thang điểm và cách vận hành của kỳ thi PTE Academic.",
     stats: [
       { value: "22", label: "Dạng câu hỏi" },
       { value: "10–90", label: "Thang điểm" },

@@ -14,6 +14,7 @@ export const ABOUT_PTE_LANDING_EN = {
   glance: {
     pill: "PTE overview",
     title: "Get to know PTE at a glance",
+    intro: "The core facts about the structure, scoring scale and delivery of the PTE Academic exam.",
     stats: [
       { value: "22", label: "Question types" },
       { value: "10–90", label: "Score range" },

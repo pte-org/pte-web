@@ -25,7 +25,8 @@ export function useActiveSection(ids: readonly string[]): string | null {
           else visible.delete(entry.target.id);
         });
         const current = pickActiveSection(order, visible);
-        if (current) setActive(current);
+        // null too: back above the first section (the hero) nothing should stay lit from the last one read.
+        setActive(current);
       },
       { rootMargin: READING_BAND, threshold: 0 },
     );

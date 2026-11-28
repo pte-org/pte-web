@@ -97,7 +97,8 @@ export const ABOUT_PTE_EXTRAS_EN = {
   },
   cta: {
     title: "Ready to run PTE practice for your centre?",
-    text: "Register your organisation, get approved, then choose the plan that fits your next exam cycle.",
+    badge: "For training centres",
+    text: "Register your organisation, get approved, then choose the plan that fits your centre.",
     register: "Register your centre",
     login: "Sign in",
   },
