@@ -132,10 +132,20 @@ export const Drawer = ({
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
+
   if (!open) return null;
 
+  // m-0: a parent's space-y margin applies to a fixed child too and shrinks its inset-0 box (space-y-10 cut 40px off the bottom).
   return (
-    <div className="fixed inset-0 z-[80]" role="dialog" aria-modal="true" aria-label={title}>
+    <div className="fixed inset-0 z-[80] m-0" role="dialog" aria-modal="true" aria-label={title}>
       <button
         type="button"
         aria-label={closeLabel}
