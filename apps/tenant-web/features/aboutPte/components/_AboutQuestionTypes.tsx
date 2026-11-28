@@ -3,6 +3,7 @@
 import { useState, type ReactElement } from "react";
 import { Badge, BookOpenIcon, Button, ChevronDownIcon, HeadphoneIcon, MicIcon, useLocale } from "@pte/ui";
 import { THEMED_CARD } from "../constants/aboutPteLayout";
+import { PART_ACCENT } from "../constants/partTones";
 import { TASK_NAMES } from "../constants/miniExam";
 import { contributingSkills, STANDARD_TASK_WEIGHTS, type SectionKey } from "../constants/scoringWeights";
 import { TASK_GUIDE } from "../constants/taskGuide";
@@ -13,10 +14,10 @@ import { TaskGuide } from "./_TaskGuide";
 
 const SCORE_GUIDE_SOURCE = [14] as const;
 
-const PARTS: readonly { key: SectionKey; Icon: typeof MicIcon; tone: string; accent: string }[] = [
-  { key: "speakingWriting", Icon: MicIcon, tone: "bg-[var(--sky-tint)] text-[var(--sky-action)]", accent: "text-[var(--sky-action)]" },
-  { key: "reading", Icon: BookOpenIcon, tone: "bg-[var(--brand-tint)] text-[var(--brand-ink)]", accent: "text-[var(--brand-ink)]" },
-  { key: "listening", Icon: HeadphoneIcon, tone: "bg-[var(--cream-tint)] text-[var(--cream-action)]", accent: "text-[var(--cream-action)]" },
+const PARTS: readonly { key: SectionKey; Icon: typeof MicIcon; tone: string }[] = [
+  { key: "speakingWriting", Icon: MicIcon, tone: "bg-[var(--sky-tint)] text-[var(--sky-action)]" },
+  { key: "reading", Icon: BookOpenIcon, tone: "bg-[var(--brand-tint)] text-[var(--brand-ink)]" },
+  { key: "listening", Icon: HeadphoneIcon, tone: "bg-[var(--cream-tint)] text-[var(--cream-action)]" },
 ];
 
 /** The position of a type within its part, written 01, 02, … */
@@ -33,7 +34,7 @@ export const AboutQuestionTypes = (): ReactElement => {
   return (
     <AboutSection id="basics" eyebrow={types.pill} title={types.title} intro={types.intro} tone="tint" centered>
       <ul className="grid gap-4 lg:grid-cols-3">
-        {PARTS.map(({ key, Icon, tone, accent }) => {
+        {PARTS.map(({ key, Icon, tone }) => {
           const tasks = STANDARD_TASK_WEIGHTS.filter((task) => task.section === key);
           return (
             <li key={key} className={`${THEMED_CARD} flex flex-col overflow-hidden p-5 pb-0 shadow-sm`}>
@@ -55,7 +56,7 @@ export const AboutQuestionTypes = (): ReactElement => {
                     title={TASK_GUIDE[task.key][lang]}
                     className="-mx-2 flex items-start gap-3 rounded-lg px-2 py-2 text-sm transition-colors hover:bg-[var(--surface-subtle)]"
                   >
-                    <span className={`w-5 shrink-0 pt-0.5 text-xs font-semibold tabular-nums ${accent}`}>{rowNumber(index)}</span>
+                    <span className={`w-5 shrink-0 pt-0.5 text-xs font-semibold tabular-nums ${PART_ACCENT[key]}`}>{rowNumber(index)}</span>
                     <span className="flex flex-1 items-start justify-between gap-2 text-[var(--ink-primary)]">
                       <span>{TASK_NAMES[task.key]}</span>
                       {contributingSkills(task).length > 1 && (
@@ -76,7 +77,7 @@ export const AboutQuestionTypes = (): ReactElement => {
       </ul>
       <p className="mt-4 text-center text-xs text-[var(--ink-muted)]">
         {parts.note}
-        <SourceRefs ids={SCORE_GUIDE_SOURCE} label={copy.sourceLabel} />
+        <SourceRefs ids={SCORE_GUIDE_SOURCE} label={copy.sourceLabel} collapsedLabel={parts.sourceLink} />
       </p>
       <div className="mt-6 flex justify-center">
         <Button
@@ -91,7 +92,7 @@ export const AboutQuestionTypes = (): ReactElement => {
       </div>
       {isOpen && (
         <div className="mt-6">
-          <TaskGuide copy={copy} locale={lang} />
+          <TaskGuide copy={copy} locale={lang} closeLabel={types.hideDetails} onClose={() => setIsOpen(false)} />
         </div>
       )}
     </AboutSection>

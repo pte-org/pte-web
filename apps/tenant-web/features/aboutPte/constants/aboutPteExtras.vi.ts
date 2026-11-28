@@ -37,7 +37,13 @@ export const ABOUT_PTE_EXTRAS_VI: AboutPteExtras = {
     speakingWriting: "Phần 1 · khoảng 76–84 phút",
     reading: "Phần 2 · khoảng 23–30 phút",
     listening: "Phần 3 · khoảng 31–39 phút",
-    note: "Thời lượng theo Score Guide của Pearson; thời gian thực tế thay đổi theo từng đề thi.",
+    note: "Thời gian thực tế thay đổi theo từng đề thi.",
+    sourceLink: "Score Guide của Pearson",
+  },
+  taskGuide: {
+    filterLabel: "Xem các dạng câu hỏi của",
+    all: (count) => `Tất cả (${count})`,
+    integratedOnly: "Chỉ dạng tích hợp",
   },
   compareFilter: {
     label: "So sánh PTE với",
