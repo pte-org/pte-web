@@ -94,6 +94,7 @@ export const ABOUT_PTE_EXTRAS_VI: AboutPteExtras = {
   },
   sources: {
     link: (count) => `Nguồn đối chiếu (${count})`,
+    kinds: { thirdParty: "Bên thứ ba", pdf: "PDF" },
   },
   cta: {
     title: "Sẵn sàng triển khai luyện thi PTE cho trung tâm của bạn?",

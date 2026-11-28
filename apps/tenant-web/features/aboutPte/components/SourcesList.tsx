@@ -2,9 +2,10 @@
 
 import { useEffect, useState, type ReactElement } from "react";
 import Link from "next/link";
+import { Badge } from "@pte/ui";
 import { ABOUT_PTE_SOURCES } from "../constants/aboutPteSources";
-import { OPEN_SOURCES_EVENT } from "../constants/aboutPteLayout";
-import { useAboutPteCopy, useAboutPteLanding } from "../hooks/useAboutPteCopy";
+import { OPEN_SOURCES_EVENT, THEMED_CARD } from "../constants/aboutPteLayout";
+import { useAboutPteCopy, useAboutPteExtras, useAboutPteLanding } from "../hooks/useAboutPteCopy";
 import { AboutSection } from "./_AboutSection";
 
 /** How long the entries a citation pointed at stay highlighted. */
@@ -20,6 +21,7 @@ interface Reveal {
 export const SourcesList = (): ReactElement => {
   const { sources } = useAboutPteCopy();
   const landing = useAboutPteLanding();
+  const { sources: sourceText } = useAboutPteExtras();
   const [reveal, setReveal] = useState<Reveal | null>(null);
 
   useEffect(() => {
@@ -45,22 +47,41 @@ export const SourcesList = (): ReactElement => {
 
   return (
     <AboutSection id="sources" eyebrow={landing.sources.pill} title={sources.title} intro={sources.note} tone="tint" centered>
-      <ol id="sources-list" className="grid gap-x-6 gap-y-1 text-sm md:grid-cols-2">
-        {ABOUT_PTE_SOURCES.map((source) => (
-          <li
-            key={source.id}
-            id={`source-${source.id}`}
-            className={`flex scroll-mt-28 gap-2 rounded-lg px-3 py-1.5 transition-colors duration-500 ${
-              highlighted.has(source.id) ? "bg-[var(--action-tint)] ring-2 ring-action/40" : ""
-            }`}
-          >
-            <span className="w-8 shrink-0 font-semibold text-[var(--ink-muted)]">{`[${source.id}]`}</span>
-            <Link href={source.url} target="_blank" rel="noopener noreferrer" className="text-action hover:underline">
-              {source.label}
-            </Link>
-          </li>
-        ))}
-      </ol>
+      <div className={`${THEMED_CARD} overflow-hidden shadow-sm`}>
+        {/* -mb-px: the last row's divider would otherwise double up with the card's own border. */}
+        <ol id="sources-list" className="-mb-px grid text-sm md:grid-cols-2">
+          {ABOUT_PTE_SOURCES.map((source) => (
+            <li
+              key={source.id}
+              id={`source-${source.id}`}
+              className={`scroll-mt-28 border-b border-[var(--shell-border)] transition-colors duration-500 md:odd:border-r ${
+                highlighted.has(source.id) ? "bg-[var(--action-tint)] ring-2 ring-inset ring-action/40" : ""
+              }`}
+            >
+              <Link
+                href={source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex items-start gap-3 px-4 py-3 transition-colors hover:bg-[var(--surface-subtle)]"
+              >
+                <span className="w-7 shrink-0 text-right font-semibold tabular-nums text-[var(--ink-muted)]">{source.id}</span>
+                <span className="min-w-0 flex-1 text-[var(--ink-primary)] group-hover:text-action">{source.label}</span>
+                {/* Badge and arrow share one fixed cluster so a long title wraps on the left without pushing the badge down. */}
+                <span className="flex shrink-0 items-center gap-2">
+                  {source.kind && (
+                    <Badge variant={source.kind === "thirdParty" ? "warning" : "neutral"} className="px-2 py-0.5 before:hidden">
+                      {sourceText.kinds[source.kind]}
+                    </Badge>
+                  )}
+                  <span className="text-[var(--ink-muted)] group-hover:text-action" aria-hidden="true">
+                    ↗
+                  </span>
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ol>
+      </div>
     </AboutSection>
   );
 };

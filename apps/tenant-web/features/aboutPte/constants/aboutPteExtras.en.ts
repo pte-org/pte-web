@@ -93,6 +93,7 @@ export const ABOUT_PTE_EXTRAS_EN = {
   },
   sources: {
     link: (count: number): string => `Sources (${count})`,
+    kinds: { thirdParty: "Third party", pdf: "PDF" },
   },
   cta: {
     title: "Ready to run PTE practice for your centre?",
