@@ -3,6 +3,7 @@ import type { AboutPteCopy } from "../constants/aboutPteCopy.en";
 import type { AboutPteLanding } from "../constants/aboutPteLanding.en";
 import { THEMED_CARD } from "../constants/aboutPteLayout";
 import { COMPARE_VIEWS, type CompareView } from "../constants/compareViews";
+import { TEST_AVATAR_TONES } from "../constants/testAvatars";
 
 interface ComparisonMatrixProps {
   copy: AboutPteCopy;
@@ -13,13 +14,6 @@ interface ComparisonMatrixProps {
 /** Column of PTE Academic, highlighted as the test this project is about. */
 const FEATURED = 1;
 const ORGANISATION_ROW = 0;
-const AVATAR_TONES = [
-  "",
-  "bg-action text-white",
-  "bg-[var(--blush-tint)] text-[var(--blush-action)]",
-  "bg-[var(--mint-tint)] text-[var(--mint-action)]",
-  "bg-[var(--cream-tint)] text-[var(--cream-action)]",
-];
 
 /** Feature matrix: tests as columns with a monogram header, criteria grouped into purpose / test / results. */
 export const ComparisonMatrix = ({ copy, landing, view = "all" }: ComparisonMatrixProps): ReactElement => {
@@ -55,8 +49,8 @@ export const ComparisonMatrix = ({ copy, landing, view = "all" }: ComparisonMatr
                 >
                   {featured}
                 </span>
-                <span className="flex items-center gap-3">
-                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base font-bold ${AVATAR_TONES[test.column]}`}>
+                <span className="flex items-start gap-3">
+                  <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base font-bold ${TEST_AVATAR_TONES[test.column]}`}>
                     {test.name.charAt(0)}
                   </span>
                   <span>

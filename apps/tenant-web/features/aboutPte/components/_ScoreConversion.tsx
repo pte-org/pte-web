@@ -14,10 +14,10 @@ import { SourceRefs } from "./_SourceRefs";
 
 const CONVERSION_SOURCES = [15, 16] as const;
 
-const Result = ({ label, value }: { label: string; value: string }): ReactElement => (
-  <div className="rounded-xl bg-[var(--surface-subtle)] px-4 py-3 text-center">
+const Result = ({ label, value, featured = false }: { label: string; value: string; featured?: boolean }): ReactElement => (
+  <div className={`rounded-xl px-4 py-3 text-center ${featured ? "bg-[var(--action-tint)]" : "bg-[var(--surface-subtle)]"}`}>
     <dt className="text-xs text-[var(--ink-muted)]">{label}</dt>
-    <dd className="mt-1 text-2xl font-bold tabular-nums text-[var(--home-navy)]">{value}</dd>
+    <dd className={`mt-1 text-2xl font-bold tabular-nums ${featured ? "text-action" : "text-[var(--home-navy)]"}`}>{value}</dd>
   </div>
 );
 
@@ -33,7 +33,7 @@ export const ScoreConversion = (): ReactElement => {
       <h3 className="text-lg font-bold text-[var(--home-navy)]">{conversion.title}</h3>
       <p className="mt-1 text-sm leading-6 text-[var(--ink-secondary)]">
         {conversion.intro}
-        <SourceRefs ids={CONVERSION_SOURCES} label={sourceLabel} />
+        <SourceRefs ids={CONVERSION_SOURCES} label={sourceLabel} collapsedLabel={conversion.sourceLink} />
       </p>
       <div className="mt-5 flex flex-wrap items-center gap-2">
         <label htmlFor={sliderId} className="text-sm font-semibold text-[var(--ink-primary)]">
@@ -65,8 +65,12 @@ export const ScoreConversion = (): ReactElement => {
         onChange={(event) => setScore(clampPteScore(Number(event.target.value)))}
         className="mt-4 w-full accent-[var(--action)]"
       />
+      <div className="flex justify-between text-xs tabular-nums text-[var(--ink-muted)]" aria-hidden="true">
+        <span>{PTE_SCORE_MIN}</span>
+        <span>{PTE_SCORE_MAX}</span>
+      </div>
       <dl className="mt-4 grid grid-cols-3 gap-3" aria-live="polite">
-        <Result label={conversion.pte} value={String(score)} />
+        <Result label={conversion.pte} value={String(score)} featured />
         <Result label={conversion.ielts} value={band === null ? conversion.belowIelts : formatIeltsBand(band)} />
         <Result label={conversion.cefr} value={cefrLevelFor(score)} />
       </dl>

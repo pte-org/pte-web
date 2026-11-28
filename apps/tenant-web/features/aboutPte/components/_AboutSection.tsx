@@ -55,7 +55,7 @@ export const AboutSection = ({
           {title}
         </h2>
         {intro && (
-          <div className={`mt-3 text-sm leading-7 ${tone === "navy" ? "text-white/80" : "text-[var(--ink-secondary)]"}`}>{intro}</div>
+          <div className={`mt-3 text-pretty text-sm leading-7 ${tone === "navy" ? "text-white/80" : "text-[var(--ink-secondary)]"}`}>{intro}</div>
         )}
       </header>
       <div className="mt-8">{children}</div>
