@@ -2,7 +2,7 @@
 
 import type { ReactElement } from "react";
 import Link from "next/link";
-import { ChevronRightIcon, CircularProgressChart, ProgressBar } from "@pte/ui";
+import { ChevronDownIcon, CircularProgressChart, ProgressBar } from "@pte/ui";
 import { ABOUT_PTE_HERO_ID, ABOUT_PTE_LAYOUT, SKILL_TONES, THEMED_CARD } from "../constants/aboutPteLayout";
 import { HOME_LAYOUT } from "@/features/public/homeConstants";
 import { SCORE_FLOOR, SCORE_SPAN, SKILLS } from "../constants/scoringWeights";
@@ -68,7 +68,7 @@ export const AboutHero = (): ReactElement => {
   const { hero } = useAboutPteLanding();
   return (
     <section id={ABOUT_PTE_HERO_ID} className="overflow-hidden bg-gradient-to-br from-[var(--action-tint)] via-white to-white">
-      <div className={`${ABOUT_PTE_LAYOUT.container} grid items-center gap-12 py-14 lg:grid-cols-2 lg:py-20`}>
+      <div className={`${ABOUT_PTE_LAYOUT.container} grid items-center gap-12 py-14 lg:grid-cols-[6fr_5fr] lg:py-20`}>
         <div>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--action-tint)] px-3 py-1 text-xs font-semibold text-action">
             <span className="h-1.5 w-1.5 rounded-full bg-current" />
@@ -76,13 +76,13 @@ export const AboutHero = (): ReactElement => {
           </span>
           <h1 className="mt-5 text-4xl font-bold leading-tight tracking-tight text-[var(--home-navy)] sm:text-5xl">
             {hero.title}
-            <span className="block text-action">{hero.titleAccent}</span>
+            <span className="block text-balance text-action">{hero.titleAccent}</span>
           </h1>
           <p className="mt-5 max-w-xl text-base leading-8 text-[var(--ink-secondary)]">{hero.description}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href="#overview" className={HOME_LAYOUT.primaryLink}>
               {hero.explore}
-              <ChevronRightIcon className="h-4 w-4" />
+              <ChevronDownIcon className="h-4 w-4" />
             </Link>
             <Link
               href="#simulation"

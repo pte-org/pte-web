@@ -12,7 +12,7 @@ const ICONS = [SparklesIcon, ClockIcon, ShapesIcon, ChartBarIcon] as const;
 export const CoreDifferences = (): ReactElement => {
   const { differences } = useAboutPteExtras();
   return (
-    <AboutSection id="difference" eyebrow={differences.pill} title={differences.title} intro={differences.intro} tone="navy" centered>
+    <AboutSection id="difference" eyebrow={differences.pill} title={differences.title} intro={differences.intro} centered>
       <ul className="grid gap-4 md:grid-cols-2">
         {differences.cards.map((card, index) => {
           const Icon = ICONS[index];
