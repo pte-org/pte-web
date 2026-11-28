@@ -36,9 +36,9 @@ describe("About PTE extra copy", () => {
     expect(ABOUT_PTE_EXTRAS_EN.nav.items.map((item) => item.id)).toContain("difference");
   });
 
-  it("fills the reference count into the toggle", () => {
-    expect(ABOUT_PTE_EXTRAS_VI.sources.show(16)).toContain("16");
-    expect(ABOUT_PTE_EXTRAS_EN.sources.show(16)).toContain("16");
+  it("fills the reference count into the citation link", () => {
+    expect(ABOUT_PTE_EXTRAS_VI.sources.link(16)).toContain("16");
+    expect(ABOUT_PTE_EXTRAS_EN.sources.link(16)).toContain("16");
   });
 
   it("lists the sources in numbered order", () => {

@@ -3,7 +3,7 @@ export const ABOUT_PTE_ROUTE = "/about-pte";
 /** Id of the hero section, watched so the section bar can show its score-lab button once the hero is behind. */
 export const ABOUT_PTE_HERO_ID = "about-hero";
 
-/** Fired by a citation link so the collapsed sources list opens before the browser scrolls to the entry. */
+/** Fired by a citation link so the sources list scrolls to, and highlights, the entries it points at. */
 export const OPEN_SOURCES_EVENT = "about-pte:open-sources";
 
 export const ABOUT_PTE_LAYOUT = {

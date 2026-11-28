@@ -47,7 +47,7 @@ export const ABOUT_PTE_LANDING_EN = {
   simulator: {
     pill: "Interactive demo",
     title: "Score simulator",
-    text: "Adjust each question type's answer and watch the skill and Overall scores change in real time.",
+    text: "Adjust the answers of all 22 question types and watch the skill and Overall scores change right in your browser.",
   },
   compare: {
     pill: "Compare English tests",

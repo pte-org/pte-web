@@ -93,8 +93,6 @@ export const ABOUT_PTE_EXTRAS_VI: AboutPteExtras = {
     target: (score, level) => `Mục tiêu ${score} · ${level}`,
   },
   sources: {
-    show: (count) => `Xem ${count} nguồn tham khảo`,
-    hide: "Ẩn nguồn tham khảo",
     link: (count) => `Nguồn đối chiếu (${count})`,
   },
   cta: {

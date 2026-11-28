@@ -48,7 +48,7 @@ export const ABOUT_PTE_LANDING_VI: AboutPteLanding = {
   simulator: {
     pill: "Demo tương tác",
     title: "Mô phỏng chấm điểm",
-    text: "Chỉnh câu trả lời của từng dạng câu và xem điểm kỹ năng, điểm Overall thay đổi ngay lập tức.",
+    text: "Chỉnh câu trả lời ở 22 dạng câu và xem điểm kỹ năng, điểm Overall thay đổi ngay trên trình duyệt.",
   },
   compare: {
     pill: "So sánh chứng chỉ",

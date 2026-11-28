@@ -28,6 +28,8 @@ export interface ScoreLab {
   highlighted: ReadonlySet<SkillKey>;
   /** The target score of the preset in use; null once any control has been changed by hand. */
   activePreset: number | null;
+  /** Which extreme the "best / worst answers" buttons last set; null once any control has been changed by hand. */
+  activeExtreme: "best" | "worst" | null;
   setValue: (taskKey: string, index: number, value: number) => void;
   setAll: (best: boolean) => void;
   applyPreset: (targetScore: number) => void;
@@ -40,6 +42,7 @@ export const useScoreLab = (): ScoreLab => {
   const [values, setValues] = useState<LabValues>(initialLabValues);
   const [focused, setFocused] = useState<string | null>(null);
   const [activePreset, setActivePreset] = useState<number | null>(null);
+  const [activeExtreme, setActiveExtreme] = useState<"best" | "worst" | null>(null);
   const [open, setOpen] = useState<string | null>("DESCRIBE_IMAGE");
   const focusedTask = STANDARD_TASK_WEIGHTS.find((task) => task.key === (focused ?? open));
   return {
@@ -50,8 +53,10 @@ export const useScoreLab = (): ScoreLab => {
     open,
     highlighted: new Set(focusedTask ? contributingSkills(focusedTask) : []),
     activePreset,
+    activeExtreme,
     setValue: (taskKey, index, value) => {
       setActivePreset(null);
+      setActiveExtreme(null);
       setValues((current) => ({
         ...current,
         [taskKey]: current[taskKey].map((old, position) => (position === index ? value : old)),
@@ -59,14 +64,17 @@ export const useScoreLab = (): ScoreLab => {
     },
     setAll: (best) => {
       setActivePreset(null);
+      setActiveExtreme(best ? "best" : "worst");
       setValues(extremeValues(best));
     },
     applyPreset: (targetScore) => {
       setActivePreset(targetScore);
+      setActiveExtreme(null);
       setValues(valuesForTarget(targetScore));
     },
     reset: () => {
       setActivePreset(null);
+      setActiveExtreme(null);
       setValues(initialLabValues());
     },
     focus: setFocused,
