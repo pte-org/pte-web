@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { BookOpenIcon, Button, CheckIcon, HeadphoneIcon, MicIcon, useLocale } from "@pte/ui";
+import { Badge, BookOpenIcon, Button, CheckIcon, ChevronDownIcon, HeadphoneIcon, MicIcon, useLocale } from "@pte/ui";
 import { THEMED_CARD } from "../constants/aboutPteLayout";
 import { TASK_NAMES } from "../constants/miniExam";
 import { contributingSkills, STANDARD_TASK_WEIGHTS, type SectionKey } from "../constants/scoringWeights";
@@ -24,7 +24,7 @@ export const AboutQuestionTypes = (): ReactElement => {
   const lang = locale === "vi" ? "vi" : "en";
   const [isOpen, setIsOpen] = useState(false);
   return (
-    <AboutSection id="basics" eyebrow={types.pill} title={types.title} intro={types.intro} tone="tint">
+    <AboutSection id="basics" eyebrow={types.pill} title={types.title} intro={types.intro} tone="tint" centered>
       <ul className="grid gap-4 lg:grid-cols-3">
         {PARTS.map(({ key, Icon, tone }) => {
           const tasks = STANDARD_TASK_WEIGHTS.filter((task) => task.section === key);
@@ -45,10 +45,12 @@ export const AboutQuestionTypes = (): ReactElement => {
                 {tasks.map((task) => (
                   <li key={task.key} title={TASK_GUIDE[task.key][lang]} className="flex items-start gap-2 text-sm">
                     <CheckIcon className="mt-0.5 h-4 w-4 shrink-0 text-action" />
-                    <span className="text-[var(--ink-primary)]">
-                      {TASK_NAMES[task.key]}
+                    <span className="flex flex-1 items-start justify-between gap-2 text-[var(--ink-primary)]">
+                      <span>{TASK_NAMES[task.key]}</span>
                       {contributingSkills(task).length > 1 && (
-                        <span className="ml-1.5 text-xs font-semibold text-action">{copy.basics.integrated}</span>
+                        <Badge variant="info" className="shrink-0 px-2 py-0.5">
+                          {copy.basics.integrated}
+                        </Badge>
                       )}
                     </span>
                   </li>
@@ -59,7 +61,13 @@ export const AboutQuestionTypes = (): ReactElement => {
         })}
       </ul>
       <div className="mt-6">
-        <Button variant="secondary" size="sm" onClick={() => setIsOpen((open) => !open)} aria-expanded={isOpen}>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={() => setIsOpen((open) => !open)}
+          aria-expanded={isOpen}
+          rightIcon={<ChevronDownIcon className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />}
+        >
           {isOpen ? types.hideDetails : types.showDetails}
         </Button>
       </div>

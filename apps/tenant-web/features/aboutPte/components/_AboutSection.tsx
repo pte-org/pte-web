@@ -13,10 +13,16 @@ interface AboutSectionProps {
   children: ReactNode;
 }
 
+const SPACING_CLASS: Record<SectionTone, string> = {
+  plain: "py-14 lg:py-20",
+  tint: "py-14 lg:py-20",
+  navy: "py-12 lg:py-16",
+};
+
 const TONE_CLASS: Record<SectionTone, string> = {
   plain: "",
   tint: "bg-[var(--home-paper)]",
-  navy: "bg-[var(--home-navy)] text-white",
+  navy: "bg-[var(--home-navy)] bg-[radial-gradient(ellipse_at_top,color-mix(in_srgb,var(--action)_30%,transparent),transparent_65%)] text-white",
 };
 
 /** Full-width band with a pill eyebrow and heading, like the public home page sections. */
@@ -29,7 +35,7 @@ export const AboutSection = ({
   centered = false,
   children,
 }: AboutSectionProps): ReactElement => (
-  <section id={id} aria-labelledby={`${id}-title`} className={`scroll-mt-24 py-14 lg:py-20 ${TONE_CLASS[tone]}`}>
+  <section id={id} aria-labelledby={`${id}-title`} className={`scroll-mt-24 ${SPACING_CLASS[tone]} ${TONE_CLASS[tone]}`}>
     <div className={ABOUT_PTE_LAYOUT.container}>
       <header className={centered ? "mx-auto max-w-3xl text-center" : "max-w-3xl"}>
         {eyebrow && (
