@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import {
   Alert,
   CalculatorIcon,
@@ -13,7 +13,7 @@ import {
   useLocale,
 } from "@pte/ui";
 import { THEMED_CARD } from "../constants/aboutPteLayout";
-import { useAboutPteCopy, useAboutPteLanding } from "../hooks/useAboutPteCopy";
+import { useAboutPteCopy, useAboutPteExtras, useAboutPteLanding } from "../hooks/useAboutPteCopy";
 import { AboutSection } from "./_AboutSection";
 import { ScoringRules } from "./_ScoringRules";
 import { ScoringStory } from "./_ScoringStory";
@@ -34,7 +34,9 @@ export const ScoringFlow = (): ReactElement => {
   const copy = useAboutPteCopy();
   const { scoring } = useAboutPteLanding();
   const { locale } = useLocale();
+  const { parts, scoringRules } = useAboutPteExtras();
   const { flow } = copy;
+  const [isRulesOpen, setIsRulesOpen] = useState(false);
   return (
     <AboutSection
       id="scoring"
@@ -44,7 +46,7 @@ export const ScoringFlow = (): ReactElement => {
       intro={
         <>
           {flow.intro}
-          <SourceRefs ids={SCORE_GUIDE_SOURCE} label={copy.sourceLabel} />
+          <SourceRefs ids={SCORE_GUIDE_SOURCE} label={copy.sourceLabel} collapsedLabel={parts.sourceLink} />
         </>
       }
     >
@@ -67,7 +69,7 @@ export const ScoringFlow = (): ReactElement => {
           })}
         </ol>
         <div className={`${THEMED_CARD} bg-[var(--action-tint)] p-5`}>
-          <div className="flex items-baseline justify-between">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-3">
             <h3 className="text-sm font-bold text-[var(--home-navy)]">{scoring.exampleTitle}</h3>
             <span className="text-xs text-[var(--ink-muted)]">{scoring.exampleNote}</span>
           </div>
@@ -95,16 +97,23 @@ export const ScoringFlow = (): ReactElement => {
         </div>
       </div>
       <div className="mt-10 space-y-4">
-        <CollapsibleSection title={scoring.rules} subtitle={flow.rulesIntro} chevronAtEnd defaultExpanded={false} className={`${THEMED_CARD} p-5`}>
+        <CollapsibleSection
+          title={scoring.rules}
+          subtitle={flow.rulesIntro}
+          chevronAtEnd
+          expanded={isRulesOpen}
+          onExpandedChange={setIsRulesOpen}
+          className={`${THEMED_CARD} p-5`}
+        >
           <p className="mb-4 text-xs text-[var(--ink-muted)]">{flow.levelsNote}</p>
-          <ScoringRules copy={copy} locale={locale === "vi" ? "vi" : "en"} />
+          <ScoringRules copy={copy} locale={locale === "vi" ? "vi" : "en"} onCollapse={() => setIsRulesOpen(false)} />
         </CollapsibleSection>
         <CollapsibleSection title={scoring.technical} chevronAtEnd defaultExpanded={false} className={`${THEMED_CARD} p-5`}>
           <ScoringStory copy={copy} />
           <div className="mt-8">
             <h3 className="font-semibold text-[var(--ink-primary)]">{flow.integratedTitle}</h3>
             <p className="mb-4 mt-1 text-sm text-[var(--ink-muted)]">{flow.integratedNote}</p>
-            <SkillFlowDiagram skillLabels={copy.skills} title={flow.integratedTitle} />
+            <SkillFlowDiagram skillLabels={copy.skills} title={flow.integratedTitle} hint={scoringRules.flowHint} />
           </div>
         </CollapsibleSection>
         <Alert tone="warning" title={flow.simplificationsTitle}>

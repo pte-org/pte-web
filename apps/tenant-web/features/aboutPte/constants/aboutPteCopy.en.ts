@@ -101,7 +101,7 @@ export const ABOUT_PTE_EN = {
     intro:
       "Scoring happens in four layers. Layers 1–2 follow Pearson's official Score Guide question by question; layers 3–4 are how this platform combines the results.",
     steps: [
-      { title: "1 · Score each trait", text: "Speaking and writing answers are judged on several traits, e.g. Content 0–6, Pronunciation 0–5, Oral Fluency 0–5. In this app the traits come from Azure Speech, an LLM, word counting by code, or an examiner." },
+      { title: "1 · Score each trait", text: "Speaking and writing answers are judged on several traits, e.g. Content 0–6, Pronunciation 0–5, Oral Fluency 0–5. On this platform the traits come from Azure Speech, an LLM, automatic word counting, or an examiner." },
       { title: "2 · Item score 0–100", text: "Points achieved ÷ maximum points × 100. If a gated trait (Content, or Form for writing) is 0, the whole item scores 0. Objective items use the points in the table below." },
       { title: "3 · Average per question type", text: "All items of the same question type are averaged. A skipped item counts as 0." },
       { title: "4 · Skill and Overall, 10–90", text: "Each question type adds average × weight ÷ 100 to every skill it tests. The total is divided by the sum of weights and mapped to 10–90: 10 + 80 × percentage." },
@@ -122,13 +122,9 @@ export const ABOUT_PTE_EN = {
     rulesIntro: "Summarised from the official Score Guide. “Gate” means the item scores 0 if that trait is 0.",
     kinds: { correct: "Correct / incorrect", partial: "Partial credit", trait: "By traits" },
     itemFormula: "Item score",
-    gateLine: (traits: string) => `If ${traits} is 0, the whole item scores 0.`,
-    or: " or ",
     pageRef: (page: number) => `Score Guide p. ${page}`,
     showLevels: "Show every score level",
-    hideLevels: "Hide details",
     measures: "Measures",
-    objectiveLevels: "No traits — scored by counting:",
     levelsNote: "Level descriptions are short summaries in our own words; see the Score Guide for Pearson's full wording.",
     gate: "Gate",
     integratedTitle: "Integrated tasks feed more than one skill",
@@ -136,7 +132,7 @@ export const ABOUT_PTE_EN = {
     simplificationsTitle: "Where this platform differs from official PTE scoring",
     simplifications: [
       "Traits and their maximum points follow the Score Guide, but the trait scores come from Azure Speech and an AI model instead of Pearson's own engines (Versant, Intelligent Essay Assessor). The Azure-to-band table (thresholds 30/45/60/75/90) is currently an estimate, not yet checked against human raters' scores.",
-      "Pearson does not publish how item scores add up to 10–90 or the exact weights. This app uses weights from a community-published table and a linear 10 + 80 × percentage mapping.",
+      "Pearson does not publish how item scores add up to 10–90 or the exact weights. This platform uses weights from a community-published table and a linear 10 + 80 × percentage mapping.",
       "Pearson has human experts double-check Content on several tasks; here an examiner review is optional.",
       "Scores are practice estimates, not an official PTE score report.",
     ],

@@ -100,12 +100,13 @@ export const TaskGuide = ({ copy, locale, closeLabel, onClose }: TaskGuideProps)
           </div>
         );
       })}
-      <div className="flex justify-center">
+      <div className="flex justify-center border-t border-[var(--shell-border)] pt-8">
         <Button
           variant="secondary"
-          size="sm"
+          appearance="fill"
+          size="lg"
           onClick={onClose}
-          rightIcon={<ChevronDownIcon className="h-4 w-4 rotate-180" />}
+          rightIcon={<ChevronDownIcon className="h-5 w-5 rotate-180" />}
         >
           {closeLabel}
         </Button>
