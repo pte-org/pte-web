@@ -11,6 +11,11 @@ interface SourceRefsProps {
   collapsedLabel?: string;
 }
 
+/** Opens the sources list and asks it to highlight these entries. */
+const revealSources = (ids: readonly number[]): void => {
+  window.dispatchEvent(new CustomEvent<readonly number[]>(OPEN_SOURCES_EVENT, { detail: ids }));
+};
+
 /** Superscript citation links that jump to the sources list at the bottom of the page. */
 export const SourceRefs = ({ ids, label, collapsedLabel }: SourceRefsProps): ReactElement | null => {
   if (ids.length === 0) return null;
@@ -19,7 +24,7 @@ export const SourceRefs = ({ ids, label, collapsedLabel }: SourceRefsProps): Rea
       <Link
         href="#sources"
         className="ml-2 whitespace-nowrap text-xs font-semibold text-action hover:underline"
-        onClick={() => window.dispatchEvent(new CustomEvent(OPEN_SOURCES_EVENT))}
+        onClick={() => revealSources(ids)}
       >
         {`${collapsedLabel} ↗`}
       </Link>
@@ -32,7 +37,7 @@ export const SourceRefs = ({ ids, label, collapsedLabel }: SourceRefsProps): Rea
           key={id}
           href={`#source-${id}`}
           className="mr-0.5 text-action hover:underline"
-          onClick={() => window.dispatchEvent(new CustomEvent(OPEN_SOURCES_EVENT, { detail: id }))}
+          onClick={() => revealSources([id])}
         >
           [{id}]
         </Link>

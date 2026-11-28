@@ -24,6 +24,7 @@ export const ComparisonFilter = ({ value, onChange }: ComparisonFilterProps): Re
           { id: "all", label: compareFilter.all },
           { id: "ielts", label: compareFilter.ielts },
           { id: "toefl", label: compareFilter.toefl },
+          { id: "core", label: compareFilter.core },
         ]}
       />
     </div>

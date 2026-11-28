@@ -9,10 +9,11 @@ import {
   PTE_SCORE_MIN,
 } from "../constants/scoreConversion";
 import { useAboutPteCopy, useAboutPteExtras } from "../hooks/useAboutPteCopy";
-import { cefrLevelFor, clampPteScore, formatIeltsBand, ieltsBandFor } from "../utils/scoreConversion";
+import { cefrLevelFor, clampPteScore, formatIeltsBand, ieltsBandFor, toeflBandFor } from "../utils/scoreConversion";
 import { SourceRefs } from "./_SourceRefs";
 
-const CONVERSION_SOURCES = [15, 16] as const;
+/** Pearson's IELTS table, Pearson's CEFR table and ETS's TOEFL 1–6 scale: every table the figures come from. */
+const CONVERSION_SOURCES = [15, 16, 8] as const;
 
 const Result = ({ label, value, featured = false }: { label: string; value: string; featured?: boolean }): ReactElement => (
   <div className={`rounded-xl px-4 py-3 text-center ${featured ? "bg-[var(--action-tint)]" : "bg-[var(--surface-subtle)]"}`}>
@@ -21,7 +22,7 @@ const Result = ({ label, value, featured = false }: { label: string; value: stri
   </div>
 );
 
-/** A PTE score slider that shows the matching IELTS band and CEFR level, using Pearson's published tables. */
+/** A PTE score slider that shows the matching IELTS band, TOEFL band and CEFR level, from Pearson's and ETS's published tables. */
 export const ScoreConversion = (): ReactElement => {
   const { conversion } = useAboutPteExtras();
   const { sourceLabel } = useAboutPteCopy();
@@ -69,9 +70,10 @@ export const ScoreConversion = (): ReactElement => {
         <span>{PTE_SCORE_MIN}</span>
         <span>{PTE_SCORE_MAX}</span>
       </div>
-      <dl className="mt-4 grid grid-cols-3 gap-3" aria-live="polite">
+      <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-live="polite">
         <Result label={conversion.pte} value={String(score)} featured />
         <Result label={conversion.ielts} value={band === null ? conversion.belowIelts : formatIeltsBand(band)} />
+        <Result label={conversion.toefl} value={toeflBandFor(score)} />
         <Result label={conversion.cefr} value={cefrLevelFor(score)} />
       </dl>
       <p className="mt-4 text-xs leading-5 text-[var(--ink-muted)]">{conversion.note}</p>
