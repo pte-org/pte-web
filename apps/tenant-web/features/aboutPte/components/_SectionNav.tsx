@@ -38,7 +38,7 @@ export const SectionNav = (): ReactElement => {
             </li>
           ))}
         </ul>
-        {pastHero && (
+        {pastHero && active !== "simulation" && (
           <Link
             href="#simulation"
             className="hidden min-h-9 shrink-0 items-center rounded-lg bg-action px-4 text-sm font-semibold text-white transition-colors hover:bg-action-hover sm:inline-flex"

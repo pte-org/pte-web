@@ -68,9 +68,10 @@ export const LabScoreboard = ({ lab, copy }: LabScoreboardProps): ReactElement =
                 caption={copy.skills[skill]}
                 tone={SKILL_TONE[skill]}
               />
-              {isLit && focusedTask && (
-                <span className="mt-1 text-xs font-semibold text-action">{`w ${formatNumber(focusedTask[skill])}`}</span>
-              )}
+              {/* Always rendered so the ring does not grow when the weight appears. */}
+              <span className={`mt-1 min-h-4 text-xs font-semibold text-action ${isLit && focusedTask ? "" : "invisible"}`}>
+                {isLit && focusedTask ? text.weight(formatNumber(focusedTask[skill])) : " "}
+              </span>
             </div>
           );
         })}

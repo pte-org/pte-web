@@ -11,7 +11,7 @@ interface SourceRefsProps {
   collapsedLabel?: string;
 }
 
-/** Opens the sources list and asks it to highlight these entries. */
+/** Asks the sources list to scroll to and highlight these entries. */
 const revealSources = (ids: readonly number[]): void => {
   window.dispatchEvent(new CustomEvent<readonly number[]>(OPEN_SOURCES_EVENT, { detail: ids }));
 };

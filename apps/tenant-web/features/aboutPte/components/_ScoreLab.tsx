@@ -36,10 +36,20 @@ export const ScoreLab = ({ copy }: ScoreLabProps): ReactElement => {
           </Button>
         ))}
         <span className="mx-1 hidden h-5 w-px bg-[var(--shell-border)] sm:block" aria-hidden="true" />
-        <Button size="sm" variant="secondary" onClick={() => lab.setAll(true)}>
+        <Button
+          size="sm"
+          variant={lab.activeExtreme === "best" ? "primary" : "secondary"}
+          aria-pressed={lab.activeExtreme === "best"}
+          onClick={() => lab.setAll(true)}
+        >
           {text.allBest}
         </Button>
-        <Button size="sm" variant="secondary" onClick={() => lab.setAll(false)}>
+        <Button
+          size="sm"
+          variant={lab.activeExtreme === "worst" ? "primary" : "secondary"}
+          aria-pressed={lab.activeExtreme === "worst"}
+          onClick={() => lab.setAll(false)}
+        >
           {text.allWorst}
         </Button>
         <Button size="sm" variant="ghost" onClick={lab.reset}>
