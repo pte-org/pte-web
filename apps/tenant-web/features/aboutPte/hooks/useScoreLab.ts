@@ -1,12 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { LAB_SPECS, labItemScore, startingValues } from "../constants/labItems";
+import { LAB_SPECS, startingValues } from "../constants/labItems";
 import { contributingSkills, STANDARD_TASK_WEIGHTS, type SkillKey } from "../constants/scoringWeights";
-import { scoreAttempt, type ScoredResult } from "../utils/scoringEngine";
+import { labItemScores, scoreLab, valuesForTarget, type LabValues } from "../utils/labScoring";
+import type { ScoredResult } from "../utils/scoringEngine";
 
-/** Control values per question type (trait levels, counts, picks). */
-export type LabValues = Record<string, number[]>;
+export { labItemScores, scoreLab, type LabValues };
 
 export const initialLabValues = (): LabValues =>
   Object.fromEntries(STANDARD_TASK_WEIGHTS.map((task) => [task.key, startingValues(LAB_SPECS[task.key])]));
@@ -19,18 +19,6 @@ const extremeValues = (best: boolean): LabValues =>
     ]),
   );
 
-export const labItemScores = (values: LabValues): Record<string, number> =>
-  Object.fromEntries(STANDARD_TASK_WEIGHTS.map((task) => [task.key, labItemScore(LAB_SPECS[task.key], values[task.key])]));
-
-/** One sample item per question type, so the type's average equals that item's score. */
-export const scoreLab = (values: LabValues): ScoredResult => {
-  const items = labItemScores(values);
-  return scoreAttempt(
-    STANDARD_TASK_WEIGHTS,
-    Object.fromEntries(Object.entries(items).map(([key, score]) => [key, [score]])),
-  );
-};
-
 export interface ScoreLab {
   values: LabValues;
   itemScores: Record<string, number>;
@@ -38,8 +26,13 @@ export interface ScoreLab {
   focused: string | null;
   open: string | null;
   highlighted: ReadonlySet<SkillKey>;
+  /** The target score of the preset in use; null once any control has been changed by hand. */
+  activePreset: number | null;
+  /** Which extreme the "best / worst answers" buttons last set; null once any control has been changed by hand. */
+  activeExtreme: "best" | "worst" | null;
   setValue: (taskKey: string, index: number, value: number) => void;
   setAll: (best: boolean) => void;
+  applyPreset: (targetScore: number) => void;
   reset: () => void;
   focus: (taskKey: string | null) => void;
   toggle: (taskKey: string) => void;
@@ -48,6 +41,8 @@ export interface ScoreLab {
 export const useScoreLab = (): ScoreLab => {
   const [values, setValues] = useState<LabValues>(initialLabValues);
   const [focused, setFocused] = useState<string | null>(null);
+  const [activePreset, setActivePreset] = useState<number | null>(null);
+  const [activeExtreme, setActiveExtreme] = useState<"best" | "worst" | null>(null);
   const [open, setOpen] = useState<string | null>("DESCRIBE_IMAGE");
   const focusedTask = STANDARD_TASK_WEIGHTS.find((task) => task.key === (focused ?? open));
   return {
@@ -57,13 +52,31 @@ export const useScoreLab = (): ScoreLab => {
     focused,
     open,
     highlighted: new Set(focusedTask ? contributingSkills(focusedTask) : []),
-    setValue: (taskKey, index, value) =>
+    activePreset,
+    activeExtreme,
+    setValue: (taskKey, index, value) => {
+      setActivePreset(null);
+      setActiveExtreme(null);
       setValues((current) => ({
         ...current,
         [taskKey]: current[taskKey].map((old, position) => (position === index ? value : old)),
-      })),
-    setAll: (best) => setValues(extremeValues(best)),
-    reset: () => setValues(initialLabValues()),
+      }));
+    },
+    setAll: (best) => {
+      setActivePreset(null);
+      setActiveExtreme(best ? "best" : "worst");
+      setValues(extremeValues(best));
+    },
+    applyPreset: (targetScore) => {
+      setActivePreset(targetScore);
+      setActiveExtreme(null);
+      setValues(valuesForTarget(targetScore));
+    },
+    reset: () => {
+      setActivePreset(null);
+      setActiveExtreme(null);
+      setValues(initialLabValues());
+    },
     focus: setFocused,
     toggle: (taskKey) => setOpen((current) => (current === taskKey ? null : taskKey)),
   };

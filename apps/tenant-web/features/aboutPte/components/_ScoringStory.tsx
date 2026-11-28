@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Button } from "@pte/ui";
+import { Button, ChevronDownIcon } from "@pte/ui";
 import type { AboutPteCopy } from "../constants/aboutPteCopy.en";
 import { THEMED_CARD } from "../constants/aboutPteLayout";
+import { useAboutPteExtras } from "../hooks/useAboutPteCopy";
 import { StoryVisual } from "./_StoryVisual";
 
 interface ScoringStoryProps {
@@ -14,10 +15,11 @@ interface ScoringStoryProps {
 export const ScoringStory = ({ copy }: ScoringStoryProps): ReactElement => {
   const steps = copy.flow.steps;
   const nav = copy.flow.story;
+  const { nav: pageNav } = useAboutPteExtras();
   const [active, setActive] = useState(0);
   const last = steps.length - 1;
   return (
-    <div className={`${THEMED_CARD} mt-8 grid overflow-hidden lg:grid-cols-[2fr_3fr]`}>
+    <div className={`${THEMED_CARD} mt-8 grid overflow-hidden lg:min-h-114 lg:grid-cols-[2fr_3fr]`}>
       <ol className="p-4 sm:p-6">
         {steps.map((step, index) => {
           const isActive = index === active;
@@ -50,15 +52,27 @@ export const ScoringStory = ({ copy }: ScoringStoryProps): ReactElement => {
         })}
       </ol>
       <div className="flex flex-col justify-between gap-6 border-t border-[var(--shell-border)] bg-[var(--action-tint)] p-6 lg:border-l lg:border-t-0">
-        <StoryVisual step={active} copy={copy} />
+        <div className="flex flex-1 flex-col justify-center">
+          <StoryVisual step={active} copy={copy} />
+        </div>
         <div className="flex items-center justify-between">
           <Button variant="secondary" size="sm" onClick={() => setActive(active - 1)} disabled={active === 0}>
             {nav.previous}
           </Button>
           <span className="text-xs font-semibold tabular-nums text-[var(--ink-muted)]">{`${active + 1} / ${steps.length}`}</span>
-          <Button size="sm" onClick={() => setActive(active + 1)} disabled={active === last}>
-            {nav.next}
-          </Button>
+          {active === last ? (
+            <Button
+              size="sm"
+              onClick={() => document.getElementById("simulation")?.scrollIntoView({ behavior: "smooth" })}
+              rightIcon={<ChevronDownIcon className="h-4 w-4" />}
+            >
+              {pageNav.tryLab}
+            </Button>
+          ) : (
+            <Button size="sm" onClick={() => setActive(active + 1)}>
+              {nav.next}
+            </Button>
+          )}
         </div>
       </div>
     </div>

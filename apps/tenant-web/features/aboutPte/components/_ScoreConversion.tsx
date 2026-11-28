@@ -1,0 +1,82 @@
+"use client";
+
+import { useId, useState, type ReactElement } from "react";
+import { THEMED_CARD } from "../constants/aboutPteLayout";
+import {
+  PTE_SCORE_DEFAULT,
+  PTE_SCORE_EXAMPLES,
+  PTE_SCORE_MAX,
+  PTE_SCORE_MIN,
+} from "../constants/scoreConversion";
+import { useAboutPteCopy, useAboutPteExtras } from "../hooks/useAboutPteCopy";
+import { cefrLevelFor, clampPteScore, formatIeltsBand, ieltsBandFor, toeflBandFor } from "../utils/scoreConversion";
+import { SourceRefs } from "./_SourceRefs";
+
+/** Pearson's IELTS table, Pearson's CEFR table and ETS's TOEFL 1–6 scale: every table the figures come from. */
+const CONVERSION_SOURCES = [15, 16, 8] as const;
+
+const Result = ({ label, value, featured = false }: { label: string; value: string; featured?: boolean }): ReactElement => (
+  <div className={`rounded-xl px-4 py-3 text-center ${featured ? "bg-[var(--action-tint)]" : "bg-[var(--surface-subtle)]"}`}>
+    <dt className="text-xs text-[var(--ink-muted)]">{label}</dt>
+    <dd className={`mt-1 text-2xl font-bold tabular-nums ${featured ? "text-action" : "text-[var(--home-navy)]"}`}>{value}</dd>
+  </div>
+);
+
+/** A PTE score slider that shows the matching IELTS band, TOEFL band and CEFR level, from Pearson's and ETS's published tables. */
+export const ScoreConversion = (): ReactElement => {
+  const { conversion } = useAboutPteExtras();
+  const { sourceLabel } = useAboutPteCopy();
+  const sliderId = useId();
+  const [score, setScore] = useState(PTE_SCORE_DEFAULT);
+  const band = ieltsBandFor(score);
+  return (
+    <div className={`${THEMED_CARD} mt-8 p-6 shadow-sm`}>
+      <h3 className="text-lg font-bold text-[var(--home-navy)]">{conversion.title}</h3>
+      <p className="mt-1 text-sm leading-6 text-[var(--ink-secondary)]">
+        {conversion.intro}
+        <SourceRefs ids={CONVERSION_SOURCES} label={sourceLabel} collapsedLabel={conversion.sourceLink} />
+      </p>
+      <div className="mt-5 flex flex-wrap items-center gap-2">
+        <label htmlFor={sliderId} className="text-sm font-semibold text-[var(--ink-primary)]">
+          {conversion.sliderLabel}
+        </label>
+        {PTE_SCORE_EXAMPLES.map((example) => (
+          <button
+            key={example}
+            type="button"
+            onClick={() => setScore(example)}
+            aria-pressed={score === example}
+            className={`min-h-8 rounded-full px-3 text-xs font-semibold transition-colors ${
+              score === example
+                ? "bg-action text-white"
+                : "bg-[var(--action-tint)] text-action hover:bg-[var(--action-tint-hover)]"
+            }`}
+          >
+            {example}
+          </button>
+        ))}
+      </div>
+      <input
+        id={sliderId}
+        type="range"
+        min={PTE_SCORE_MIN}
+        max={PTE_SCORE_MAX}
+        step={1}
+        value={score}
+        onChange={(event) => setScore(clampPteScore(Number(event.target.value)))}
+        className="mt-4 w-full accent-[var(--action)]"
+      />
+      <div className="flex justify-between text-xs tabular-nums text-[var(--ink-muted)]" aria-hidden="true">
+        <span>{PTE_SCORE_MIN}</span>
+        <span>{PTE_SCORE_MAX}</span>
+      </div>
+      <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4" aria-live="polite">
+        <Result label={conversion.pte} value={String(score)} featured />
+        <Result label={conversion.ielts} value={band === null ? conversion.belowIelts : formatIeltsBand(band)} />
+        <Result label={conversion.toefl} value={toeflBandFor(score)} />
+        <Result label={conversion.cefr} value={cefrLevelFor(score)} />
+      </dl>
+      <p className="mt-4 text-xs leading-5 text-[var(--ink-muted)]">{conversion.note}</p>
+    </div>
+  );
+};

@@ -1,0 +1,106 @@
+import type { AboutPteExtras } from "./aboutPteExtras.en";
+
+export const ABOUT_PTE_EXTRAS_VI: AboutPteExtras = {
+  differences: {
+    pill: "Vì sao PTE khác biệt",
+    title: "4 điểm làm PTE khác với các bài thi còn lại",
+    intro: "Những điều thí sinh nhận ra đầu tiên khi chuyển từ IELTS hoặc TOEFL sang PTE.",
+    pteLabel: "PTE",
+    cards: [
+      {
+        metric: "AI",
+        title: "Chấm bằng AI",
+        pte: "Speaking thu âm qua micro và do AI chấm, theo cùng một bộ tiêu chí cho mọi thí sinh.",
+        other: [{ test: "IELTS", text: "giám khảo chấm trực tiếp." }, { test: "TOEFL", text: "AI kết hợp người chấm." }],
+      },
+      {
+        metric: "~2 ngày",
+        title: "Kết quả nhanh",
+        pte: "Thường trong khoảng 2 ngày, kịp tiến độ nộp hồ sơ du học hoặc visa.",
+        other: [{ test: "IELTS", text: "vài ngày đến khoảng 2 tuần." }, { test: "TOEFL", text: "khoảng 3 ngày." }],
+      },
+      {
+        metric: "2 kỹ năng",
+        title: "Một câu, hai kỹ năng",
+        pte: "Một số dạng cộng điểm cho 2 kỹ năng cùng lúc, như Repeat Sentence (Speaking + Listening) hay Write from Dictation (Writing + Listening).",
+        other: [{ test: "IELTS", text: "mỗi phần thi chỉ tính cho một kỹ năng." }],
+      },
+      {
+        metric: "10–90",
+        title: "Thang điểm chi tiết",
+        pte: "Nhích từng 1 điểm nên dễ thấy tiến bộ nhỏ, cả điểm Overall lẫn 4 kỹ năng.",
+        other: [{ test: "IELTS", text: "band 0–9, mỗi nấc 0,5." }, { test: "TOEFL", text: "thang 1–6." }],
+      },
+    ],
+  },
+  parts: {
+    speakingWriting: "Phần 1 · khoảng 76–84 phút",
+    reading: "Phần 2 · khoảng 23–30 phút",
+    listening: "Phần 3 · khoảng 31–39 phút",
+    note: "Thời gian thực tế thay đổi theo từng đề thi.",
+    sourceLink: "Score Guide của Pearson",
+  },
+  taskGuide: {
+    filterLabel: "Xem các dạng câu hỏi của",
+    all: (count) => `Tất cả (${count})`,
+    integratedOnly: "Chỉ dạng tích hợp",
+  },
+  scoringRules: {
+    filterLabel: "Xem quy tắc chấm của",
+    all: (count) => `Tất cả (${count})`,
+    collapse: "Thu gọn quy tắc",
+    gateMeaning: "= tiêu chí này bằng 0 thì cả câu được 0",
+    traitTabs: "Tiêu chí cần xem",
+    wholeItemZero: "Cả câu = 0",
+    columns: { task: "Dạng câu hỏi", kind: "Cách chấm", skills: "Kỹ năng", rule: "Quy tắc tính điểm", page: "Trang" },
+    flowHint: "Rê chuột vào một dạng câu hoặc một kỹ năng để làm nổi bật các đường. Con số cạnh mỗi đường là trọng số của dạng câu đó cho kỹ năng.",
+  },
+  compareFilter: {
+    label: "So sánh PTE với",
+    all: "Tất cả bài thi",
+    ielts: "PTE và IELTS",
+    toefl: "PTE và TOEFL",
+    core: "PTE và PTE Core",
+  },
+  nav: {
+    label: "Trong trang này",
+    items: [
+      { id: "overview", label: "Tổng quan" },
+      { id: "difference", label: "Điểm khác biệt" },
+      { id: "comparison", label: "So sánh" },
+      { id: "vietnam", label: "Tại Việt Nam" },
+      { id: "basics", label: "Dạng câu hỏi" },
+      { id: "scoring", label: "Cách chấm điểm" },
+      { id: "simulation", label: "Giả lập điểm" },
+      { id: "sources", label: "Nguồn" },
+    ],
+    tryLab: "Thử giả lập điểm",
+  },
+  conversion: {
+    title: "Điểm PTE của tôi tương đương bao nhiêu?",
+    intro: "Kéo thanh trượt để đối chiếu điểm PTE Academic với IELTS, TOEFL iBT và CEFR, theo bảng Pearson và ETS công bố.",
+    sliderLabel: "Điểm PTE",
+    pte: "PTE Academic",
+    ielts: "IELTS Academic",
+    toefl: "TOEFL iBT (1–6)",
+    cefr: "CEFR",
+    belowIelts: "Dưới 4.5",
+    sourceLink: "Bảng quy đổi của Pearson và ETS",
+    note: "Chỉ mang tính tham khảo. IELTS lấy theo bảng của Pearson; TOEFL là mức ETS xếp cho cùng bậc CEFR, vì cả hai bên đều chưa công bố bảng PTE–TOEFL trực tiếp. Mỗi trường hoặc chương trình visa tự quy định bài thi được chấp nhận và điểm tối thiểu, hãy luôn kiểm tra yêu cầu của họ.",
+  },
+  labPresets: {
+    label: "Bắt đầu nhanh",
+    target: (score, level) => `Mục tiêu ${score} · ${level}`,
+  },
+  sources: {
+    link: (count) => `Nguồn đối chiếu (${count})`,
+    kinds: { thirdParty: "Bên thứ ba", pdf: "PDF" },
+  },
+  cta: {
+    title: "Đã hiểu cách PTE chấm điểm? Đưa luyện thi đủ 22 dạng câu vào trung tâm của bạn.",
+    badge: "Dành cho trung tâm đào tạo",
+    text: "Đăng ký tổ chức, được duyệt rồi chọn gói phù hợp cho trung tâm của bạn.",
+    register: "Đăng ký trung tâm",
+    lab: "Thử giả lập điểm",
+  },
+};

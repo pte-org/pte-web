@@ -1,4 +1,5 @@
 import type { ReactElement } from "react";
+import { ChevronDownIcon } from "@pte/ui";
 import type { AboutPteCopy } from "../constants/aboutPteCopy.en";
 import { SKILL_TONES } from "../constants/aboutPteLayout";
 import { TASK_NAMES } from "../constants/miniExam";
@@ -51,8 +52,12 @@ export const LabTaskList = ({ lab, copy }: LabTaskListProps): ReactElement => (
                       ))}
                     </span>
                   </span>
-                  <span className={`shrink-0 rounded-md px-2 py-0.5 text-xs font-bold tabular-nums ${scoreTone(score)}`}>
-                    {score}
+                  <span className="flex shrink-0 items-center gap-2">
+                    <span className={`rounded-md px-2 py-0.5 text-xs font-bold tabular-nums ${scoreTone(score)}`}>{score}</span>
+                    <ChevronDownIcon
+                      className={`h-4 w-4 text-[var(--ink-muted)] transition-transform ${isOpen ? "rotate-180" : ""}`}
+                      aria-hidden="true"
+                    />
                   </span>
                 </button>
                 {isOpen && (

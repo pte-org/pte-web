@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
+import { useLocale } from "../i18n";
 import { Button } from "./Button";
 import { EyeIcon } from "./AuthIcons";
 import { CopyIcon } from "./icons";
@@ -30,10 +31,11 @@ async function copyToClipboard(value: string): Promise<void> {
 
 export const CredentialDisplay = ({
   credential,
-  label = TEXT.DEFAULT_LABEL,
+  label,
   isSecret = true,
   onCopy,
 }: CredentialDisplayProps): ReactElement => {
+  const { t } = useLocale();
   const [copied, setCopied] = useState(false);
   const [revealed, setRevealed] = useState(!isSecret);
 
@@ -48,7 +50,7 @@ export const CredentialDisplay = ({
 
   return (
     <div className="flex flex-col gap-2 rounded-md border border-amber-200 bg-amber-50 p-4">
-      <span className="text-sm font-medium text-gray-700">{label}</span>
+      <span className="text-sm font-medium text-gray-700">{label ?? t("common.credentialDefaultLabel", TEXT.DEFAULT_LABEL)}</span>
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <code className="min-w-0 flex-1 break-all rounded bg-white px-3 py-2 font-mono text-sm text-gray-900">
           {revealed ? credential : "••••••••••••"}
@@ -62,7 +64,7 @@ export const CredentialDisplay = ({
               leftIcon={<EyeIcon closed={revealed} className="h-4 w-4" />}
               onClick={() => setRevealed((value) => !value)}
             >
-              {revealed ? TEXT.HIDE : TEXT.SHOW}
+              {revealed ? t("common.hide", TEXT.HIDE) : t("common.show", TEXT.SHOW)}
             </Button>
           )}
           <Button
@@ -72,11 +74,11 @@ export const CredentialDisplay = ({
             leftIcon={<CopyIcon className="h-4 w-4" />}
             onClick={handleCopy}
           >
-            {copied ? TEXT.COPIED : TEXT.COPY}
+            {copied ? t("common.copied", TEXT.COPIED) : t("common.copy", TEXT.COPY)}
           </Button>
         </div>
       </div>
-      <p className="text-xs text-amber-700">{TEXT.WARNING}</p>
+      <p className="text-xs text-amber-700">{t("common.credentialOnceWarning", TEXT.WARNING)}</p>
     </div>
   );
 };

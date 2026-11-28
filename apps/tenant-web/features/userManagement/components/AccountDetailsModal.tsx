@@ -3,7 +3,7 @@
 import type { ReactElement } from "react";
 import { Alert, Badge, DescriptionList, Modal, StatusBadge } from "@pte/ui";
 import type { AccountDetails } from "../types";
-import { USER_MANAGEMENT_TEXT as T } from "../constants";
+import { useUserManagementText } from "../hooks/useUserManagementText";
 
 interface AccountDetailsModalProps {
   account: AccountDetails | null;
@@ -11,53 +11,54 @@ interface AccountDetailsModalProps {
   onClose: () => void;
 }
 
-const valueOrDash = (value: string | null | undefined): string => value || T.EMPTY_VALUE;
-
 export const AccountDetailsModal = ({
   account,
   open,
   onClose,
 }: AccountDetailsModalProps): ReactElement | null => {
+  const T = useUserManagementText();
   if (!account) return null;
+
+  const valueOrDash = (value: string | null | undefined): string => value || T.emptyValue;
 
   const isSuspended = account.status === "SUSPENDED";
 
   return (
-    <Modal open={open} onClose={onClose} title={T.ACCOUNT_DETAILS_TITLE} size="lg">
+    <Modal open={open} onClose={onClose} title={T.accountDetailsTitle} size="lg">
       <div className="flex flex-col gap-5">
         <Alert tone="info">
-          {T.PASSWORDS_NOT_SHOWN}
+          {T.passwordsNotShown}
         </Alert>
         <DescriptionList
           items={[
-            { label: T.USERNAME, value: <code>{account.username}</code> },
-            { label: T.EMAIL, value: valueOrDash(account.email) },
-            { label: T.FULL_NAME, value: valueOrDash(account.fullName) },
+            { label: T.username, value: <code>{account.username}</code> },
+            { label: T.email, value: valueOrDash(account.email) },
+            { label: T.fullName, value: valueOrDash(account.fullName) },
             {
-              label: T.ROLES,
-              value: account.roles.length > 0 ? account.roles.join(", ") : T.EMPTY_VALUE,
+              label: T.roles,
+              value: account.roles.length > 0 ? account.roles.join(", ") : T.emptyValue,
             },
             {
-              label: T.STATUS,
+              label: T.status,
               value: (
                 <StatusBadge
-                  label={isSuspended ? T.SUSPENDED : T.ACTIVE}
+                  label={isSuspended ? T.suspended : T.active}
                   variant={isSuspended ? "warning" : "success"}
                 />
               ),
             },
             {
-              label: T.PASSWORD_CHANGE,
+              label: T.passwordChange,
               value: account.mustChangePassword ? (
-                <Badge variant="warning">{T.REQUIRED}</Badge>
+                <Badge variant="warning">{T.required}</Badge>
               ) : (
-                <Badge variant="neutral">{T.NOT_REQUIRED}</Badge>
+                <Badge variant="neutral">{T.notRequired}</Badge>
               ),
             },
-            { label: T.STUDENT_CODE, value: valueOrDash(account.studentCode) },
-            { label: T.CLASS, value: valueOrDash(account.className) },
-            { label: T.PHONE, value: valueOrDash(account.phone) },
-            { label: T.DATE_OF_BIRTH, value: valueOrDash(account.dateOfBirth) },
+            { label: T.studentCode, value: valueOrDash(account.studentCode) },
+            { label: T.className, value: valueOrDash(account.className) },
+            { label: T.phone, value: valueOrDash(account.phone) },
+            { label: T.dateOfBirth, value: valueOrDash(account.dateOfBirth) },
           ]}
         />
       </div>

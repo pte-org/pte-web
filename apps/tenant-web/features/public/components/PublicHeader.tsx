@@ -12,12 +12,13 @@ const LINK_BUTTON_CLASS =
 
 interface PublicHeaderProps {
   home?: boolean;
+  stickyHeader?: boolean;
 }
 
-export const PublicHeader = ({ home = false }: PublicHeaderProps): ReactElement => {
+export const PublicHeader = ({ home = false, stickyHeader = true }: PublicHeaderProps): ReactElement => {
   const { isReady, session } = useSessionManager();
   const showDashboard = isReady && Boolean(session?.accessToken);
-  if (home) return <HomePublicHeader />;
+  if (home) return <HomePublicHeader sticky={stickyHeader} />;
 
   return (
     <header className="border-b border-slate-200 bg-white">

@@ -17,7 +17,7 @@ export const CONTENT_SUMMARY: TraitInfo = {
     level("3", "Good; main ideas present with small omissions, paraphrasing uneven.", "Tốt; có ý chính nhưng thiếu chút ít, diễn đạt lại chưa đều."),
     level("2", "Partial; mixes main and minor points, copies chunks of the source.", "Một phần; lẫn ý chính với ý phụ, chép nguyên đoạn từ bài gốc."),
     level("1", "Relevant but not really a summary; disconnected ideas.", "Có liên quan nhưng chưa thành bản tóm tắt; ý rời rạc."),
-    level("0", "Shows no understanding, or memorised material — the whole item scores 0.", "Không thể hiện hiểu bài, hoặc dùng bài học thuộc — cả câu được 0."),
+    level("0", "Shows no understanding, or memorised material.", "Không thể hiện hiểu bài, hoặc dùng bài học thuộc."),
   ],
 };
 
@@ -25,7 +25,7 @@ export const FORM_SUMMARY_WRITTEN: TraitInfo = {
   meaning: { en: "Length and shape of the answer, checked by counting.", vi: "Độ dài và hình thức câu trả lời, kiểm tra bằng cách đếm." },
   levels: [
     level("1", "One single complete sentence of 5–75 words.", "Đúng một câu hoàn chỉnh, 5–75 từ."),
-    level("0", "More than one sentence, over 75 words, or all capitals — the whole item scores 0.", "Nhiều hơn một câu, quá 75 từ hoặc viết toàn chữ in hoa — cả câu được 0."),
+    level("0", "More than one sentence, over 75 words, or all capitals.", "Nhiều hơn một câu, quá 75 từ hoặc viết toàn chữ in hoa."),
   ],
 };
 
@@ -34,7 +34,7 @@ export const FORM_SUMMARY_SPOKEN: TraitInfo = {
   levels: [
     level("2", "50–70 words.", "50–70 từ."),
     level("1", "40–49 or 71–100 words.", "40–49 hoặc 71–100 từ."),
-    level("0", "Under 40 or over 100 words, all capitals, no punctuation or only bullet points — item scores 0.", "Dưới 40 hoặc trên 100 từ, toàn chữ in hoa, không dấu câu hoặc chỉ gạch đầu dòng — cả câu được 0."),
+    level("0", "Under 40 or over 100 words, all capitals, no punctuation or only bullet points.", "Dưới 40 hoặc trên 100 từ, toàn chữ in hoa, không dấu câu hoặc chỉ gạch đầu dòng."),
   ],
 };
 
@@ -43,7 +43,7 @@ export const FORM_ESSAY: TraitInfo = {
   levels: [
     level("2", "200–300 words.", "200–300 từ."),
     level("1", "120–199 or 301–380 words.", "120–199 hoặc 301–380 từ."),
-    level("0", "Under 120 or over 380 words, all capitals, no punctuation or only bullet points — item scores 0.", "Dưới 120 hoặc trên 380 từ, toàn chữ in hoa, không dấu câu hoặc chỉ gạch đầu dòng — cả câu được 0."),
+    level("0", "Under 120 or over 380 words, all capitals, no punctuation or only bullet points.", "Dưới 120 hoặc trên 380 từ, toàn chữ in hoa, không dấu câu hoặc chỉ gạch đầu dòng."),
   ],
 };
 
@@ -59,7 +59,7 @@ export const CONTENT_ESSAY: TraitInfo = {
     level("3", "Relevant but misses main points or gives little support.", "Liên quan đến đề nhưng bỏ sót ý chính hoặc ít dẫn chứng."),
     level("2", "Only loosely related to the prompt; ideas thin.", "Chỉ liên quan lỏng lẻo đến đề; ý mỏng."),
     level("1", "Barely addresses the prompt.", "Hầu như không trả lời đề."),
-    level("0", "Off-topic or memorised material — the whole item scores 0.", "Lạc đề hoặc dùng bài học thuộc — cả câu được 0."),
+    level("0", "Off-topic or memorised material.", "Lạc đề hoặc dùng bài học thuộc."),
   ],
 };
 

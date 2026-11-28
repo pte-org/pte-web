@@ -91,7 +91,7 @@ export const CONTENT_SPEAKING: TraitInfo = {
     level("3", "Mostly surface-level with small mistakes; narrow, repetitive language.", "Chủ yếu nói hời hợt, có sai sót nhỏ; vốn từ hẹp, lặp lại."),
     level("2", "Very few, shallow points with some mistakes; simple language dominates.", "Rất ít ý, hời hợt, có sai sót; chủ yếu câu đơn giản."),
     level("1", "Only disconnected words or a list of points, no real explanation.", "Chỉ là các từ rời rạc hoặc liệt kê, không giải thích gì."),
-    level("0", "Too little to score, off-topic, or a memorised template — the whole item scores 0.", "Quá ít để chấm, lạc đề hoặc dùng bài học thuộc — cả câu được 0."),
+    level("0", "Too little to score, off-topic, or a memorised template.", "Quá ít để chấm, lạc đề hoặc dùng bài học thuộc."),
   ],
 };
 

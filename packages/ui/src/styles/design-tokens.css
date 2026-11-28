@@ -379,7 +379,9 @@ body {
 
   to {
     opacity: 1;
-    transform: translateY(0);
+    /* "none", not translateY(0): the fill keeps the final frame, and any transform makes the element the
+       containing block of fixed descendants, so a Drawer or Modal inside would be sized to it, not the viewport. */
+    transform: none;
   }
 }
 

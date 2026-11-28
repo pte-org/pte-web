@@ -30,9 +30,11 @@ const StepExplainer = ({ stage, title, text }: StepExplainerProps): ReactElement
 
 interface StepSimulationProps {
   copy: AboutPteCopy;
+  /** Switches to the score lab, offered in place of "next" once the last step is reached. */
+  onOpenLab: () => void;
 }
 
-export const StepSimulation = ({ copy }: StepSimulationProps): ReactElement => {
+export const StepSimulation = ({ copy, onOpenLab }: StepSimulationProps): ReactElement => {
   const text = copy.simulation;
   const sim = useScoringSimulation();
   const steps = text.stages.map((label, index) => ({ id: String(index), label }));
@@ -42,13 +44,16 @@ export const StepSimulation = ({ copy }: StepSimulationProps): ReactElement => {
     <div className="space-y-5">
         <Stepper steps={steps} currentStep={String(sim.stage)} />
         <StepExplainer stage={sim.stage} title={text.stages[sim.stage]} text={text.explain[sim.stage]} />
-        <div className="flex flex-wrap items-center gap-3">
+        {/* Pinned under the section bar: the tables are long, and the buttons would otherwise scroll out of reach. */}
+        <div className="sticky top-13 z-20 flex flex-wrap items-center gap-3 bg-[var(--surface-card)]/95 py-2 backdrop-blur">
           <Button variant="secondary" onClick={() => sim.setStage(sim.stage - 1)} disabled={sim.stage === 0}>
             {text.previous}
           </Button>
-          <Button onClick={() => sim.setStage(sim.stage + 1)} disabled={sim.stage === LAST_STAGE}>
-            {text.next}
-          </Button>
+          {sim.stage === LAST_STAGE ? (
+            <Button onClick={onOpenLab}>{text.toLab}</Button>
+          ) : (
+            <Button onClick={() => sim.setStage(sim.stage + 1)}>{text.next}</Button>
+          )}
           <Button variant="ghost" onClick={sim.reset}>
             {text.reset}
           </Button>
@@ -70,6 +75,11 @@ export const StepSimulation = ({ copy }: StepSimulationProps): ReactElement => {
                 </Button>
               ))}
             </div>
+            {sim.stage === LAST_STAGE && (
+              <p className="rounded-xl bg-[var(--action-tint)] px-4 py-3 font-semibold text-action">
+                {text.finalSummary(text.students[sim.selected], String(result.overall.score ?? "—"))}
+              </p>
+            )}
             {sim.stage === 2 && <IntegratedExample result={result} copy={copy} />}
             <SkillMatrix result={result} showOverall={sim.stage === LAST_STAGE} copy={copy} />
           </>
