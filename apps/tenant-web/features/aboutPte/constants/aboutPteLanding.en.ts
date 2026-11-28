@@ -69,6 +69,7 @@ export const ABOUT_PTE_LANDING_EN = {
   background: {
     pill: "History & recognition",
     title: "Where PTE comes from and where it is accepted",
+    intro: "The main milestones of PTE and where it is accepted in the major markets.",
   },
   sources: { pill: "References" },
   showMore: "Show",

@@ -41,6 +41,7 @@ export const ABOUT_PTE_EN = {
   },
   history: {
     title: "History",
+    latest: "Most recent",
     items: [
       { year: "2009", text: "Pearson launches PTE Academic in late 2009, built on feedback from universities.", src: [3] },
       { year: "2014", text: "Accepted by the Australian government for visa purposes (later also New Zealand and the UK).", src: [4, 7] },
@@ -52,12 +53,15 @@ export const ABOUT_PTE_EN = {
   recognition: {
     title: "Where it is accepted",
     rows: [
-      { region: "Australia & New Zealand", text: "Accepted for study, work and migration visas; all Australian and New Zealand universities accept PTE Academic.", src: [4, 7] },
-      { region: "United Kingdom", text: "Accepted by almost all UK universities; PTE Academic UKVI is the Home Office Secure English Language Test (SELT) variant for visas.", src: [3, 4] },
-      { region: "Canada", text: "IRCC accepts PTE Core (not PTE Academic) for economic immigration and citizenship. Universities set their own policy.", src: [5, 6] },
-      { region: "United States", text: "Accepted by many US universities for admission; acceptance is set by each institution, so verify with the school.", src: [1] },
-      { region: "Vietnam", text: "Used mainly by students and workers heading to Australia, NZ and the UK. We could not find a verified national market-share figure, so none is shown.", src: [] },
+      { region: "Australia & New Zealand", text: "Accepted for study, work and migration visas; all Australian and New Zealand universities accept PTE Academic.", src: [4, 7], tags: [{ text: "Study" }, { text: "Work" }, { text: "Migration" }] },
+      { region: "United Kingdom", text: "Accepted by almost all UK universities; PTE Academic UKVI is the Home Office Secure English Language Test (SELT) variant for visas.", src: [3, 4], tags: [{ text: "University admission" }, { text: "UKVI · visa" }] },
+      { region: "Canada", text: "IRCC accepts PTE Core (not PTE Academic) for economic immigration and citizenship. Universities set their own policy.", src: [5, 6], tags: [{ text: "PTE Core · IRCC", tone: "warning" as const }] },
+      { region: "United States", text: "Accepted by many US universities for admission; acceptance is set by each institution, so verify with the school.", src: [1], tags: [{ text: "University admission" }] },
     ],
+    vietnam: {
+      region: "In Vietnam",
+      text: "Used mainly by students and workers heading to Australia, New Zealand and the UK. No verified market-share figure is available.",
+    },
   },
   vietnam: {
     title: "Taking PTE in Vietnam",

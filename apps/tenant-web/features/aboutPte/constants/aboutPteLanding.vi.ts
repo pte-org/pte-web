@@ -69,7 +69,8 @@ export const ABOUT_PTE_LANDING_VI: AboutPteLanding = {
   },
   background: {
     pill: "Lịch sử & công nhận",
-    title: "PTE ra đời thế nào và được công nhận ở đâu",
+    title: "PTE ra đời thế nào và được công nhận ở đâu?",
+    intro: "Các mốc phát triển chính của PTE và phạm vi chấp nhận tại các thị trường lớn.",
   },
   sources: { pill: "Tài liệu tham khảo" },
   showMore: "Xem",

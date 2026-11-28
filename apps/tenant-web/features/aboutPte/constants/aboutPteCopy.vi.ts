@@ -43,6 +43,7 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
   },
   history: {
     title: "Lịch sử",
+    latest: "Gần đây nhất",
     items: [
       { year: "2009", text: "Pearson ra mắt PTE Academic vào cuối năm 2009, dựa trên góp ý từ các trường đại học.", src: [3] },
       { year: "2014", text: "Được chính phủ Úc chấp nhận cho mục đích thị thực (sau đó là New Zealand và Anh).", src: [4, 7] },
@@ -54,12 +55,15 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
   recognition: {
     title: "Mức độ công nhận",
     rows: [
-      { region: "Úc & New Zealand", text: "Chấp nhận cho thị thực du học, lao động và định cư; mọi trường đại học tại Úc và New Zealand đều chấp nhận PTE Academic.", src: [4, 7] },
-      { region: "Vương quốc Anh", text: "Gần như mọi trường đại học tại Anh chấp nhận; PTE Academic UKVI là phiên bản SELT của Bộ Nội vụ Anh dùng cho thị thực.", src: [3, 4] },
-      { region: "Canada", text: "IRCC chấp nhận PTE Core (không phải PTE Academic) cho định cư diện kinh tế và quốc tịch. Các trường tự quy định riêng.", src: [5, 6] },
-      { region: "Hoa Kỳ", text: "Nhiều trường đại học Mỹ chấp nhận cho tuyển sinh; mỗi trường tự quyết định nên cần kiểm tra với trường.", src: [1] },
-      { region: "Việt Nam", text: "Chủ yếu được dùng bởi người đi du học, làm việc tại Úc, NZ và Anh. Chúng tôi không tìm được số liệu thị phần đã kiểm chứng nên không đưa ra con số.", src: [] },
+      { region: "Úc & New Zealand", text: "Chấp nhận cho thị thực du học, lao động và định cư; mọi trường đại học tại Úc và New Zealand đều chấp nhận PTE Academic.", src: [4, 7], tags: [{ text: "Du học" }, { text: "Lao động" }, { text: "Định cư" }] },
+      { region: "Vương quốc Anh", text: "Gần như mọi trường đại học tại Anh chấp nhận; PTE Academic UKVI là phiên bản SELT của Bộ Nội vụ Anh dùng cho thị thực.", src: [3, 4], tags: [{ text: "Tuyển sinh ĐH" }, { text: "UKVI · thị thực" }] },
+      { region: "Canada", text: "IRCC chấp nhận PTE Core (không phải PTE Academic) cho định cư diện kinh tế và quốc tịch. Các trường tự quy định riêng.", src: [5, 6], tags: [{ text: "PTE Core · IRCC", tone: "warning" }] },
+      { region: "Hoa Kỳ", text: "Nhiều trường đại học Mỹ chấp nhận cho tuyển sinh; mỗi trường tự quyết định nên cần kiểm tra với trường.", src: [1], tags: [{ text: "Tuyển sinh ĐH" }] },
     ],
+    vietnam: {
+      region: "Tại Việt Nam",
+      text: "Chủ yếu được dùng bởi người đi du học, làm việc tại Úc, New Zealand và Anh. Chưa có số liệu thị phần được kiểm chứng.",
+    },
   },
   vietnam: {
     title: "Thi PTE tại Việt Nam",
