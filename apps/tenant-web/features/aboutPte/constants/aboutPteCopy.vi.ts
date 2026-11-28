@@ -11,10 +11,10 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
     toc: ["Tổng quan", "Cho người mới", "Lịch sử", "Công nhận", "Tại Việt Nam", "So sánh", "Luồng chấm điểm", "Giả lập", "Nguồn"],
   },
   what: {
-    title: "PTE là gì",
+    title: "PTE là gì?",
     body: [
       "PTE (Pearson Test of English) là nhóm bài thi tiếng Anh trên máy tính do Pearson — tập đoàn giáo dục của Anh — sở hữu và tổ chức. PTE Academic là bài thi 4 kỹ năng chủ lực, dùng cho du học và định cư.",
-      "PTE Academic là một bài thi duy nhất khoảng 2 giờ, gồm 3 phần — Speaking & Writing, Reading và Listening — với 22 dạng câu hỏi. Bài làm được chấm bằng hệ thống chấm tự động của Pearson, kết quả thường có trong khoảng 2 ngày.",
+      "PTE Academic là một bài thi duy nhất khoảng 2 giờ, gồm 3 phần — Speaking & Writing, Reading và Listening — với 22 dạng câu hỏi. Bài làm được chấm bằng hệ thống chấm tự động của Pearson, kết quả thường có trong khoảng 2 ngày.",
       "Điểm được báo trên thang 10–90: một điểm tổng (Overall) và bốn điểm kỹ năng giao tiếp (Speaking, Writing, Reading, Listening).",
     ],
     src: [1, 14],

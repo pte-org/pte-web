@@ -35,7 +35,31 @@ export const ShortRulesTable = ({ tasks, copy, locale }: ShortRulesTableProps): 
   );
   return (
     <div className={`${THEMED_CARD} overflow-hidden`}>
-      <div className="overflow-x-auto">
+      {/* Phones get stacked entries: the rule is the last column of the table and would sit off-screen. */}
+      <ul className="divide-y divide-[var(--shell-border)] md:hidden">
+        {sharedPage !== null && <li className="flex justify-end bg-[var(--surface-subtle)] px-4 py-2">{pageLink(sharedPage)}</li>}
+        {tasks.map((task) => {
+          const rule = OFFICIAL_RULES[task.key];
+          return (
+            <li key={task.key} className="space-y-2 px-4 py-3 text-sm">
+              <div className="flex items-start justify-between gap-3">
+                <span className="font-semibold">{TASK_NAMES[task.key]}</span>
+                {sharedPage === null && pageLink(rule.page)}
+              </div>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <Badge variant={KIND_VARIANT[rule.kind]}>{copy.flow.kinds[rule.kind]}</Badge>
+                {contributingSkills(task).map((skill) => (
+                  <span key={skill} className={`rounded-md px-2 py-0.5 text-xs font-semibold ${SKILL_CHIPS[skill]}`}>
+                    {copy.skills[skill]}
+                  </span>
+                ))}
+              </div>
+              <p className="text-[var(--ink-primary)]">{rule[locale]}</p>
+            </li>
+          );
+        })}
+      </ul>
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full min-w-[40rem] text-sm">
           <thead className="border-b border-[var(--shell-border)] bg-[var(--surface-subtle)]">
             <tr>

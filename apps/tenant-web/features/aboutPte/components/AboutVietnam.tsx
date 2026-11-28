@@ -59,7 +59,7 @@ export const AboutVietnam = (): ReactElement => {
               </li>
             ))}
           </ul>
-          <SourceRefs ids={copy.vietnam.src} label={copy.sourceLabel} collapsedLabel={extras.sources.link(copy.vietnam.src.length)} />
+          <SourceRefs ids={copy.vietnam.src} label={copy.sourceLabel} collapsedLabel={extras.sources.link(copy.vietnam.src.length)} standalone />
           <div className="mt-4">
             <Alert tone="warning" icon={<InfoIcon className="h-4 w-4" />}>
               {copy.vietnam.caveat.before}

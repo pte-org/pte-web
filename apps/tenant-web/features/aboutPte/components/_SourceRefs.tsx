@@ -9,6 +9,8 @@ interface SourceRefsProps {
   label: string;
   /** When set, the numbered links are replaced by one link with this text to the whole sources list. */
   collapsedLabel?: string;
+  /** The link stands on its own line, so it drops the left margin that separates it from text it follows. */
+  standalone?: boolean;
 }
 
 /** Asks the sources list to scroll to and highlight these entries. */
@@ -17,13 +19,13 @@ const revealSources = (ids: readonly number[]): void => {
 };
 
 /** Superscript citation links that jump to the sources list at the bottom of the page. */
-export const SourceRefs = ({ ids, label, collapsedLabel }: SourceRefsProps): ReactElement | null => {
+export const SourceRefs = ({ ids, label, collapsedLabel, standalone = false }: SourceRefsProps): ReactElement | null => {
   if (ids.length === 0) return null;
   if (collapsedLabel) {
     return (
       <Link
         href="#sources"
-        className="ml-2 whitespace-nowrap text-xs font-semibold text-action hover:underline"
+        className={`${standalone ? "" : "ml-2 "}whitespace-nowrap text-xs font-semibold text-action hover:underline`}
         onClick={() => revealSources(ids)}
       >
         {`${collapsedLabel} ↗`}

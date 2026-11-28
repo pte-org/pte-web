@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactElement } from "react";
+import { useEffect, useRef, type ReactElement } from "react";
 import Link from "next/link";
 import { ABOUT_PTE_LAYOUT, ABOUT_PTE_HERO_ID } from "../constants/aboutPteLayout";
 import { usePastElement } from "../hooks/usePastElement";
@@ -15,13 +15,22 @@ export const SectionNav = (): ReactElement => {
   const { nav } = useAboutPteExtras();
   const active = useActiveSection(nav.items.map((item) => item.id));
   const pastHero = usePastElement(ABOUT_PTE_HERO_ID);
+  const listRef = useRef<HTMLUListElement>(null);
+
+  // On a phone the list scrolls sideways: bring the lit entry into view so the reader can see where they are.
+  useEffect(() => {
+    const list = listRef.current;
+    const link = list?.querySelector<HTMLElement>("[aria-current]");
+    if (!list || !link) return;
+    list.scrollTo({ left: link.offsetLeft - (list.clientWidth - link.offsetWidth) / 2, behavior: "smooth" });
+  }, [active]);
   return (
     <nav
       aria-label={nav.label}
       className="sticky top-0 z-40 border-b border-[var(--home-border)] bg-white/95 backdrop-blur"
     >
       <div className={`${ABOUT_PTE_LAYOUT.container} flex items-center gap-3 py-2`}>
-        <ul className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <ul ref={listRef} className="relative flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {nav.items.map((item) => (
             <li key={item.id} className="shrink-0">
               <Link
