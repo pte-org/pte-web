@@ -31,5 +31,7 @@ export const ABOUT_PTE_SOURCES: readonly AboutPteSource[] = [
   { id: 11, label: "EnglishTestPortal — PTE Academic in Vietnam (third-party)", url: "https://englishtestportal.com/pte/vietnam" },
   { id: 12, label: "EMG Education — PTE Academic test centre (third-party)", url: "https://emg.vn/en/pte-academic-test" },
   { id: 13, label: "BandLadder — PTE fee in Vietnam (third-party)", url: "https://bandladder.com/guides/pte-exam-fee-in-vietnam" },
+  { id: 15, label: "Pearson — PTE Academic scoring and IELTS comparison (updated July 2025)", url: "https://www.pearsonpte.com/pte-academic/scoring/" },
+  { id: 16, label: "Pearson — PTE Academic: understand your score (CEFR levels)", url: "https://www.pearsonpte.com/pte-academic/scoring/understand-your-score/" },
   { id: 14, label: "Pearson — PTE Academic Test Taker Score Guide, 2026 edition (PDF)", url: "https://www.pearsonpte.com/content/dam/ELL/pte/pearsonpte/pdfs/pte-academic-pdfs/PTE-Academic-Test-Taker-Score-Guide.pdf" },
 ];
