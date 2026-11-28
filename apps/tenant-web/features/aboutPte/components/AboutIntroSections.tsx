@@ -11,7 +11,7 @@ export const AboutBackground = (): ReactElement => {
   const copy = useAboutPteCopy();
   const { background } = useAboutPteLanding();
   return (
-    <AboutSection id="history" eyebrow={background.pill} title={background.title}>
+    <AboutSection id="history" eyebrow={background.pill} title={background.title} centered>
       <div className="grid gap-10 lg:grid-cols-[2fr_3fr]">
         <div>
           <h3 className="text-lg font-bold text-[var(--home-navy)]">{copy.history.title}</h3>
