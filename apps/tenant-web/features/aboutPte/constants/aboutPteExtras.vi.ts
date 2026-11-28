@@ -97,10 +97,10 @@ export const ABOUT_PTE_EXTRAS_VI: AboutPteExtras = {
     kinds: { thirdParty: "Bên thứ ba", pdf: "PDF" },
   },
   cta: {
-    title: "Sẵn sàng triển khai luyện thi PTE cho trung tâm của bạn?",
+    title: "Đã hiểu cách PTE chấm điểm? Đưa luyện thi đủ 22 dạng câu vào trung tâm của bạn.",
     badge: "Dành cho trung tâm đào tạo",
     text: "Đăng ký tổ chức, được duyệt rồi chọn gói phù hợp cho trung tâm của bạn.",
     register: "Đăng ký trung tâm",
-    login: "Đăng nhập",
+    lab: "Thử giả lập điểm",
   },
 };

@@ -96,11 +96,11 @@ export const ABOUT_PTE_EXTRAS_EN = {
     kinds: { thirdParty: "Third party", pdf: "PDF" },
   },
   cta: {
-    title: "Ready to run PTE practice for your centre?",
+    title: "Understood how PTE is scored? Bring practice on all 22 question types to your centre.",
     badge: "For training centres",
     text: "Register your organisation, get approved, then choose the plan that fits your centre.",
     register: "Register your centre",
-    login: "Sign in",
+    lab: "Try the score lab",
   },
 };
 
