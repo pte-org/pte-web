@@ -8,6 +8,8 @@ export const HOME_TEXT_VI = {
   studentCapacity: "Dung lượng học viên",
   currentlyUsing: "Đang sử dụng",
   skipContent: "Đến nội dung chính",
+  backToTop: "Lên đầu trang",
+  pearsonNotice: "PTE Academic là thương hiệu của Pearson. PTE Prep là nền tảng luyện thi độc lập, không trực thuộc Pearson.",
   navigation: "Điều hướng chính",
   duration: (days: number) => `${days} ngày`,
   platform: "Nền tảng",

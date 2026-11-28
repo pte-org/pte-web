@@ -6,6 +6,8 @@ export const HOME_TEXT = {
   studentCapacity: "Student capacity",
   currentlyUsing: "Currently using",
   skipContent: "Skip to content",
+  backToTop: "Back to top",
+  pearsonNotice: "PTE Academic is a trademark of Pearson. PTE Prep is an independent practice platform and is not affiliated with Pearson.",
   navigation: "Main navigation",
   duration: (days: number) => `${days} days`,
   platform: "The platform",

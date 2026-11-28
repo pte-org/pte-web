@@ -47,4 +47,6 @@ export const ABOUT_PTE_SOURCES: readonly AboutPteSource[] = [
   },
   { id: 15, label: "Pearson — PTE Academic scoring and IELTS comparison (updated July 2025)", url: "https://www.pearsonpte.com/pte-academic/scoring/" },
   { id: 16, label: "Pearson — PTE Academic: understand your score (CEFR levels)", url: "https://www.pearsonpte.com/pte-academic/scoring/understand-your-score/" },
+  { id: 17, label: "Pearson — PTE Academic test format: Speaking & Writing", url: "https://www.pearsonpte.com/pte-academic/test-format/speaking-writing/" },
+  { id: 18, label: "Pearson — PTE Academic test format: Listening", url: "https://www.pearsonpte.com/pte-academic/test-format/listening/" },
 ];

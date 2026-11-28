@@ -11,8 +11,11 @@ import { SourcesList } from "./SourcesList";
 import { AboutCta } from "./_AboutCta";
 import { AboutGlance } from "./_AboutGlance";
 import { AboutHero } from "./_AboutHero";
+import { AboutGlossary } from "./_AboutGlossary";
 import { AboutQuestionTypes } from "./_AboutQuestionTypes";
+import { AboutTestDay } from "./_AboutTestDay";
 import { CoreDifferences } from "./_CoreDifferences";
+import { SampleQuestions } from "./_SampleQuestions";
 import { SectionNav } from "./_SectionNav";
 
 export const AboutPteView = (): ReactElement => (
@@ -24,9 +27,12 @@ export const AboutPteView = (): ReactElement => (
     <ComparisonTable />
     <AboutVietnam />
     <AboutQuestionTypes />
+    <SampleQuestions />
     <ScoringFlow />
     <ScoringSimulation />
     <AboutBackground />
+    <AboutTestDay />
+    <AboutGlossary />
     <SourcesList />
     <AboutCta />
   </PublicShell>
