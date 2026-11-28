@@ -10,6 +10,8 @@ interface CollapsibleSectionProps {
   actions?: ReactNode;
   children: ReactNode;
   collapsible?: boolean;
+  /** Put the disclosure arrow at the far end of the row instead of right after the title. */
+  chevronAtEnd?: boolean;
   defaultExpanded?: boolean;
   className?: string;
   contentClassName?: string;
@@ -21,6 +23,7 @@ export const CollapsibleSection = ({
   actions,
   children,
   collapsible = true,
+  chevronAtEnd = false,
   defaultExpanded = true,
   className,
   contentClassName,
@@ -44,7 +47,10 @@ export const CollapsibleSection = ({
                 aria-expanded={isExpanded}
                 aria-controls={contentId}
                 onClick={() => setIsExpanded((current) => !current)}
-                className="flex min-h-10 w-full items-center gap-1 rounded-lg px-2 text-left transition-colors hover:bg-[var(--surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--action)]"
+                className={cn(
+                  "flex min-h-10 w-full items-center gap-1 rounded-lg px-2 text-left transition-colors hover:bg-[var(--surface-subtle)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--action)]",
+                  chevronAtEnd && "justify-between",
+                )}
               >
                 <span className="min-w-0">
                   <span className="block text-sm font-semibold text-[var(--ink-primary)]">
