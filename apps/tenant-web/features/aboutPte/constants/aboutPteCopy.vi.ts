@@ -164,7 +164,8 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
         incorrect: "Sai",
       },
       ruleHint: {
-        traits: "Chỉnh mức của từng tiêu chí. Điểm câu = điểm đạt ÷ điểm tối đa × 100; tiêu chí cổng bằng 0 thì cả câu được 0. Read Aloud dùng đoạn văn mẫu 10 từ.",
+        traits: "Chỉnh mức của từng tiêu chí. Điểm câu = điểm đạt ÷ điểm tối đa × 100; tiêu chí cổng bằng 0 thì cả câu được 0.",
+        readAloudNote: " Read Aloud dùng đoạn văn mẫu 10 từ.",
         ratio: "Mỗi ô, cặp hoặc từ đúng được 1 điểm; điểm câu là tỉ lệ điểm đạt được.",
         plusMinus: "Chọn đúng +1, chọn sai −1, thấp nhất là 0.",
         single: "Chỉ có một đáp án đúng: được 1 điểm hoặc 0.",
@@ -193,6 +194,8 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
     to: "vào",
     previous: "Bước trước",
     next: "Bước tiếp theo",
+    toLab: "Thử ở phòng thí nghiệm",
+    finalSummary: (name, score) => `${name}: điểm Overall ${score}`,
     reset: "Khôi phục bài làm",
     item: "Câu",
     task: "Dạng câu hỏi",

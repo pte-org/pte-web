@@ -34,7 +34,13 @@ export const ScoringSimulation = (): ReactElement => {
           <ScoreLab copy={copy} />
         </TabPanel>
         <TabPanel id="simulation-steps" active={mode === "steps"} keepMounted className="mt-6">
-          <StepSimulation copy={copy} />
+          <StepSimulation
+            copy={copy}
+            onOpenLab={() => {
+              setMode("lab");
+              document.getElementById("simulation-lab")?.scrollIntoView({ behavior: "smooth" });
+            }}
+          />
         </TabPanel>
       </div>
     </section>

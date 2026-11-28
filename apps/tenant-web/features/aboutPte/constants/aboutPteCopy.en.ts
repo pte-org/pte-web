@@ -162,7 +162,8 @@ export const ABOUT_PTE_EN = {
         incorrect: "Incorrect",
       },
       ruleHint: {
-        traits: "Set each trait level. The item score is points achieved ÷ maximum × 100; a gated trait at 0 makes the whole item 0. Read Aloud uses a 10-word sample passage.",
+        traits: "Set each trait level. The item score is points achieved ÷ maximum × 100; a gated trait at 0 makes the whole item 0.",
+        readAloudNote: " Read Aloud uses a 10-word sample passage.",
         ratio: "One point per correct blank, pair or word; the item score is the share of points achieved.",
         plusMinus: "+1 for each correct option, −1 for each wrong one, never below 0.",
         single: "One correct answer: 1 point or nothing.",
@@ -191,6 +192,8 @@ export const ABOUT_PTE_EN = {
     to: "to",
     previous: "Previous step",
     next: "Next step",
+    toLab: "Try it in the score lab",
+    finalSummary: (name: string, score: string): string => `${name}: Overall ${score}`,
     reset: "Reset answers",
     item: "Item",
     task: "Question type",
