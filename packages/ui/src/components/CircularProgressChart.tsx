@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { cn } from "../utils/cn";
 
-export type CircularProgressTone = "brand" | "success" | "warning";
+export type CircularProgressTone = "brand" | "success" | "warning" | "violet";
 
 export interface CircularProgressChartProps {
   value: number | null;
@@ -17,6 +17,7 @@ const TONE_STROKES: Record<CircularProgressTone, string> = {
   brand: "var(--action)",
   success: "var(--mint-action)",
   warning: "var(--cream-action)",
+  violet: "var(--color-violet-500, #8b5cf6)",
 };
 
 const RADIUS = 47;
