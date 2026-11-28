@@ -38,6 +38,7 @@ export const ABOUT_PTE_EXTRAS_VI: AboutPteExtras = {
     all: "Tất cả bài thi",
     ielts: "PTE và IELTS",
     toefl: "PTE và TOEFL",
+    core: "PTE và PTE Core",
   },
   nav: {
     label: "Trong trang này",
@@ -55,13 +56,15 @@ export const ABOUT_PTE_EXTRAS_VI: AboutPteExtras = {
   },
   conversion: {
     title: "Điểm PTE của tôi tương đương bao nhiêu?",
-    intro: "Kéo thanh trượt để đối chiếu điểm PTE Academic với IELTS và CEFR, theo bảng Pearson công bố.",
+    intro: "Kéo thanh trượt để đối chiếu điểm PTE Academic với IELTS, TOEFL iBT và CEFR, theo bảng Pearson và ETS công bố.",
     sliderLabel: "Điểm PTE",
     pte: "PTE Academic",
     ielts: "IELTS Academic",
+    toefl: "TOEFL iBT (1–6)",
     cefr: "CEFR",
     belowIelts: "Dưới 4.5",
-    note: "Chỉ mang tính tham khảo. Mỗi trường hoặc chương trình visa tự quy định bài thi được chấp nhận và điểm tối thiểu, hãy luôn kiểm tra yêu cầu của họ.",
+    sourceLink: "Bảng quy đổi của Pearson và ETS",
+    note: "Chỉ mang tính tham khảo. IELTS lấy theo bảng của Pearson; TOEFL là mức ETS xếp cho cùng bậc CEFR, vì cả hai bên đều chưa công bố bảng PTE–TOEFL trực tiếp. Mỗi trường hoặc chương trình visa tự quy định bài thi được chấp nhận và điểm tối thiểu, hãy luôn kiểm tra yêu cầu của họ.",
   },
   labPresets: {
     label: "Bắt đầu nhanh",

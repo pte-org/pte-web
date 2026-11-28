@@ -37,6 +37,7 @@ export const ABOUT_PTE_EXTRAS_EN = {
     all: "All tests",
     ielts: "PTE vs IELTS",
     toefl: "PTE vs TOEFL",
+    core: "PTE vs PTE Core",
   },
   nav: {
     label: "On this page",
@@ -54,13 +55,15 @@ export const ABOUT_PTE_EXTRAS_EN = {
   },
   conversion: {
     title: "What does my PTE score mean?",
-    intro: "Move the slider to compare a PTE Academic score with IELTS and CEFR, using Pearson's published tables.",
+    intro: "Move the slider to compare a PTE Academic score with IELTS, TOEFL iBT and CEFR, using the tables Pearson and ETS publish.",
     sliderLabel: "PTE score",
     pte: "PTE Academic",
     ielts: "IELTS Academic",
+    toefl: "TOEFL iBT (1–6)",
     cefr: "CEFR",
     belowIelts: "Below 4.5",
-    note: "A guide only. Each university or visa programme sets its own accepted tests and minimum scores, so always check theirs.",
+    sourceLink: "Pearson and ETS score tables",
+    note: "A guide only. IELTS comes from Pearson's table; TOEFL is the band ETS gives the same CEFR level, because neither company publishes a direct PTE–TOEFL table. Each university or visa programme sets its own accepted tests and minimum scores, so always check theirs.",
   },
   labPresets: {
     label: "Quick start",
