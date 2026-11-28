@@ -8,14 +8,19 @@ import { ComparisonTable } from "./ComparisonTable";
 import { ScoringFlow } from "./ScoringFlow";
 import { ScoringSimulation } from "./ScoringSimulation";
 import { SourcesList } from "./SourcesList";
+import { AboutCta } from "./_AboutCta";
 import { AboutGlance } from "./_AboutGlance";
 import { AboutHero } from "./_AboutHero";
 import { AboutQuestionTypes } from "./_AboutQuestionTypes";
+import { CoreDifferences } from "./_CoreDifferences";
+import { SectionNav } from "./_SectionNav";
 
 export const AboutPteView = (): ReactElement => (
-  <PublicShell home>
+  <PublicShell home stickyHeader={false}>
     <AboutHero />
+    <SectionNav />
     <AboutGlance />
+    <CoreDifferences />
     <ComparisonTable />
     <AboutVietnam />
     <AboutQuestionTypes />
@@ -23,5 +28,6 @@ export const AboutPteView = (): ReactElement => (
     <ScoringSimulation />
     <AboutBackground />
     <SourcesList />
+    <AboutCta />
   </PublicShell>
 );

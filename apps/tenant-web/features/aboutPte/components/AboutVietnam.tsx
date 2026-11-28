@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { Alert } from "@pte/ui";
+import { Alert, MapPinIcon } from "@pte/ui";
 import { THEMED_CARD } from "../constants/aboutPteLayout";
 import { useAboutPteCopy, useAboutPteLanding } from "../hooks/useAboutPteCopy";
 import { AboutSection } from "./_AboutSection";
@@ -14,7 +14,7 @@ export const AboutVietnam = (): ReactElement => {
   const { vietnam } = useAboutPteLanding();
   const [active, setActive] = useState<number | null>(null);
   return (
-    <AboutSection id="vietnam" eyebrow={vietnam.pill} title={copy.vietnam.title} intro={vietnam.intro}>
+    <AboutSection id="vietnam" eyebrow={vietnam.pill} title={copy.vietnam.title} intro={vietnam.intro} centered>
       <div className="grid items-center gap-10 lg:grid-cols-[2fr_3fr]">
         <figure className="mx-auto w-full max-w-md">
           <VietnamMap cities={vietnam.cities} active={active} labels={vietnam.map} />
@@ -32,7 +32,7 @@ export const AboutVietnam = (): ReactElement => {
                 }`}
               >
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-action text-sm font-bold text-white">
-                  {index + 1}
+                  <MapPinIcon className="h-4 w-4" />
                 </span>
                 <span>
                   <span className="block font-semibold text-[var(--home-navy)]">{city}</span>

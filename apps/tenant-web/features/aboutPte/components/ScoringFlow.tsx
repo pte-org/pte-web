@@ -38,6 +38,7 @@ export const ScoringFlow = (): ReactElement => {
   return (
     <AboutSection
       id="scoring"
+      centered
       eyebrow={scoring.pill}
       title={scoring.title}
       intro={
@@ -88,15 +89,17 @@ export const ScoringFlow = (): ReactElement => {
               <span className="text-2xl font-bold text-action">{EXAMPLE_SCORE}</span>
             </span>
           </p>
-          <p className="mt-2 text-xs font-medium text-rose-600">{flow.story.gateNote}</p>
+          <p className="mt-3 rounded-lg bg-[var(--blush-tint)] px-3 py-2 text-xs font-medium text-[var(--blush-action)]">
+            {flow.story.gateNote}
+          </p>
         </div>
       </div>
       <div className="mt-10 space-y-4">
-        <CollapsibleSection title={scoring.rules} subtitle={flow.rulesIntro} defaultExpanded={false} className={`${THEMED_CARD} p-5`}>
+        <CollapsibleSection title={scoring.rules} subtitle={flow.rulesIntro} chevronAtEnd defaultExpanded={false} className={`${THEMED_CARD} p-5`}>
           <p className="mb-4 text-xs text-[var(--ink-muted)]">{flow.levelsNote}</p>
           <ScoringRules copy={copy} locale={locale === "vi" ? "vi" : "en"} />
         </CollapsibleSection>
-        <CollapsibleSection title={scoring.technical} defaultExpanded={false} className={`${THEMED_CARD} p-5`}>
+        <CollapsibleSection title={scoring.technical} chevronAtEnd defaultExpanded={false} className={`${THEMED_CARD} p-5`}>
           <ScoringStory copy={copy} />
           <div className="mt-8">
             <h3 className="font-semibold text-[var(--ink-primary)]">{flow.integratedTitle}</h3>
