@@ -5,6 +5,9 @@ export interface AboutPteSource {
   url: string;
 }
 
+/** Pearson's own booking page, where live test-centre availability and the price are shown. */
+export const PEARSON_BOOKING_URL = "https://www.pearsonpte.com/book-now/";
+
 export const ABOUT_PTE_SOURCES: readonly AboutPteSource[] = [
   { id: 1, label: "Pearson — PTE Academic (official)", url: "https://www.pearsonpte.com/pte-academic/" },
   { id: 2, label: "Pearson — PTE Academic updates 2025", url: "https://www.pearsonpte.com/pte-updates-2025/" },

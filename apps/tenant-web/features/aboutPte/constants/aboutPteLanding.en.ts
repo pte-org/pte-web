@@ -61,7 +61,7 @@ export const ABOUT_PTE_LANDING_EN = {
   },
   vietnam: {
     pill: "PTE in Vietnam",
-    intro: "Cities with authorised PTE test centres, according to the cited sources. Hover a city to see it on the map.",
+    intro: "Cities with authorised PTE test centres — hover a city to see it on the map.",
     cities: ["Ho Chi Minh City", "Hanoi", "Da Nang", "Can Tho"],
     cityNotes: ["Several centres, tests all year", "Several centres, tests all year", "Fewer centres", "Fewer centres"],
     map: { title: "Illustrative map, not to survey scale", sea: "East Sea", hoangSa: "Hoang Sa Is.", truongSa: "Truong Sa Is." },

@@ -64,13 +64,21 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
   vietnam: {
     title: "Thi PTE tại Việt Nam",
     points: [
-      "Thi quanh năm tại TP.HCM và Hà Nội, có ít điểm thi hơn ở Đà Nẵng và Cần Thơ; mỗi điểm thi có nhiều ca thi mỗi tháng.",
-      "Một điểm thi được ủy quyền cho biết có ca thi từ thứ Hai đến sáng thứ Bảy (trừ ngày lễ và Tết), 2–3 ca mỗi ngày.",
-      "Các trang theo dõi lệ phí (bên thứ ba) ghi nhận 185 USD cho PTE Academic tại Việt Nam (10/2026). Luôn xác nhận giá trên trang đặt lịch của Pearson.",
+      {
+        label: "Lịch thi",
+        text: "Một điểm thi được ủy quyền cho biết có ca thi từ thứ Hai đến sáng thứ Bảy (trừ ngày lễ và Tết), 2–3 ca mỗi ngày; mỗi điểm thi có nhiều ca mỗi tháng.",
+      },
+      {
+        label: "Lệ phí",
+        text: "Các trang theo dõi lệ phí (bên thứ ba) ghi nhận 185 USD cho PTE Academic tại Việt Nam (10/2026). Luôn xác nhận giá trên trang đặt lịch của Pearson.",
+      },
     ],
     src: [11, 12, 13],
-    caveat:
-      "Số lượng điểm thi và ca thi có thể thay đổi theo từng thời điểm. Hãy kiểm tra lịch trống trực tiếp trên cổng đặt lịch của Pearson.",
+    caveat: {
+      before: "Số lượng điểm thi và ca thi có thể thay đổi theo từng thời điểm. Hãy kiểm tra lịch trống trực tiếp trên ",
+      link: "cổng đặt lịch của Pearson",
+      after: ".",
+    },
   },
   comparison: {
     title: "So sánh PTE với các chứng chỉ khác",

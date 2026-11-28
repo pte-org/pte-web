@@ -62,13 +62,21 @@ export const ABOUT_PTE_EN = {
   vietnam: {
     title: "Taking PTE in Vietnam",
     points: [
-      "Tests run year-round in Ho Chi Minh City and Hanoi, with fewer centres in Da Nang and Can Tho; each centre offers several sessions per month.",
-      "One authorised centre reports sessions Monday to Saturday mornings (excluding public holidays and Tết), with 2–3 sessions per day.",
-      "Third-party fee trackers report USD 185 for PTE Academic in Vietnam (October 2026). Always confirm the price on Pearson's booking site.",
+      {
+        label: "Schedule",
+        text: "One authorised centre reports sessions Monday to Saturday mornings (excluding public holidays and Tết), with 2–3 sessions per day; each centre offers several sessions per month.",
+      },
+      {
+        label: "Fee",
+        text: "Third-party fee trackers report USD 185 for PTE Academic in Vietnam (October 2026). Always confirm the price on Pearson's booking site.",
+      },
     ],
     src: [11, 12, 13],
-    caveat:
-      "The number of test centres and sessions can change over time. Check live availability on Pearson's booking portal.",
+    caveat: {
+      before: "The number of test centres and sessions can change over time. Check live availability on ",
+      link: "Pearson's booking portal",
+      after: ".",
+    },
   },
   comparison: {
     title: "PTE vs other English tests",

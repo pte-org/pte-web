@@ -18,12 +18,16 @@ interface VietnamMapProps {
   labels: { title: string; sea: string; hoangSa: string; truongSa: string };
 }
 
-/** Label side per city so Ho Chi Minh City and Can Tho do not overlap. */
-const LABEL_LEFT = new Set([3]);
+/** Can Tho sits right next to Phu Quoc, so its label goes under the pin; a label on the left would cover the island. */
+const LABEL_BELOW = new Set([3]);
 const PIN_RADIUS = 7;
+/** Gap between a pin and its label, wide enough that the text clears the coastline. */
+const LABEL_OFFSET = 20;
+/** How far under its pin a label sits when it is placed below. */
+const LABEL_DROP = 30;
 /** Keeps archipelago labels inside the map frame. */
 const LABEL_MARGIN = 48;
-const HALO = "fill-current [paint-order:stroke] stroke-white stroke-[3px]";
+const HALO = "fill-current [paint-order:stroke] stroke-white stroke-[5px]";
 
 const centre = (points: readonly LonLat[]): [number, number] => {
   const projected = points.map(project);
@@ -64,15 +68,15 @@ export const VietnamMap = ({ cities, active, labels }: VietnamMapProps): ReactEl
       {CITY_COORDS.map((coord, index) => {
         const [x, y] = project(coord);
         const isActive = active === index;
-        const onLeft = LABEL_LEFT.has(index);
+        const below = LABEL_BELOW.has(index);
         return (
           <g key={cities[index]} className="text-[var(--home-navy)]">
             <circle cx={x} cy={y} r={isActive ? PIN_RADIUS * 2.4 : PIN_RADIUS * 1.8} className="fill-action opacity-20 transition-all duration-300" />
             <circle cx={x} cy={y} r={PIN_RADIUS} className={`stroke-white ${isActive ? "fill-[var(--home-navy)]" : "fill-action"}`} strokeWidth={2.5} />
             <text
-              x={onLeft ? x - 14 : x + 14}
-              y={y + 4}
-              textAnchor={onLeft ? "end" : "start"}
+              x={below ? x : x + LABEL_OFFSET}
+              y={below ? y + LABEL_DROP : y + 4}
+              textAnchor={below ? "middle" : "start"}
               className={`text-xs font-bold ${HALO}`}
             >
               {cities[index]}

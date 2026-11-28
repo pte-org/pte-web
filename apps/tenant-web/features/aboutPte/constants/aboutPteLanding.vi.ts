@@ -62,7 +62,7 @@ export const ABOUT_PTE_LANDING_VI: AboutPteLanding = {
   },
   vietnam: {
     pill: "PTE tại Việt Nam",
-    intro: "Các thành phố có điểm thi PTE được ủy quyền, theo các nguồn đã dẫn. Rê chuột vào một thành phố để xem vị trí trên bản đồ.",
+    intro: "Các thành phố có điểm thi PTE được ủy quyền — rê chuột vào thành phố để xem vị trí trên bản đồ.",
     cities: ["TP. Hồ Chí Minh", "Hà Nội", "Đà Nẵng", "Cần Thơ"],
     cityNotes: ["Nhiều điểm thi, thi quanh năm", "Nhiều điểm thi, thi quanh năm", "Ít điểm thi hơn", "Ít điểm thi hơn"],
     map: { title: "Bản đồ minh họa, không theo tỉ lệ khảo sát", sea: "Biển Đông", hoangSa: "QĐ. Hoàng Sa", truongSa: "QĐ. Trường Sa" },
