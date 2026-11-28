@@ -81,11 +81,12 @@ export const AboutQuestionTypes = (): ReactElement => {
       </p>
       <div className="mt-6 flex justify-center">
         <Button
-          variant="secondary"
-          size="sm"
+          variant={isOpen ? "secondary" : "primary"}
+          appearance={isOpen ? "fill" : undefined}
+          size="lg"
           onClick={() => setIsOpen((open) => !open)}
           aria-expanded={isOpen}
-          rightIcon={<ChevronDownIcon className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />}
+          rightIcon={<ChevronDownIcon className={`h-5 w-5 transition-transform ${isOpen ? "rotate-180" : ""}`} />}
         >
           {isOpen ? types.hideDetails : types.showDetails}
         </Button>

@@ -6,9 +6,11 @@ interface RuleDetailProps {
   taskKey: string;
   copy: AboutPteCopy;
   locale: "en" | "vi";
+  /** Makes each trait chip a shortcut to that trait's score levels. */
+  onSelectTrait?: (trait: string) => void;
 }
 
-const GATED_TRAITS = new Set(["Content", "Form"]);
+export const GATED_TRAITS = new Set(["Content", "Form"]);
 /** "(6 + 5 + 5 = 16)", or "(N + 5 + 5)" when a maximum depends on the item (Read Aloud's passage length N). */
 const maxBreakdown = (maxima: readonly string[]): string => {
   const sum = maxima.join(" + ");
@@ -17,32 +19,55 @@ const maxBreakdown = (maxima: readonly string[]): string => {
     : `(${sum})`;
 };
 
+/** "Item score = (Content + …) ÷ (6 + 5 + 5 = 16) × 100" for a question type scored by several traits, else null. */
+export const ruleFormula = (taskKey: string, itemFormula: string): string | null => {
+  const rule = OFFICIAL_RULES[taskKey];
+  if (rule.kind !== "trait" || rule.traits.length < 2) return null;
+  return `${itemFormula} = (${rule.traits.map((trait) => trait.name).join(" + ")}) ÷ ${maxBreakdown(rule.traits.map((trait) => trait.max))} × 100`;
+};
+
 /** How one question type is scored: the item formula, the zero gate, and what each trait measures. */
-export const RuleDetail = ({ taskKey, copy, locale }: RuleDetailProps): ReactElement => {
+export const RuleDetail = ({ taskKey, copy, locale, onSelectTrait }: RuleDetailProps): ReactElement => {
   const rule = OFFICIAL_RULES[taskKey];
   const { flow } = copy;
   const gated = rule.traits.filter((trait) => rule.gate && GATED_TRAITS.has(trait.name)).map((trait) => trait.name);
-  const isTraitBased = rule.kind === "trait" && rule.traits.length > 1;
+  const formula = ruleFormula(taskKey, flow.itemFormula);
   return (
     <div className="space-y-2">
       <p className="text-[var(--ink-primary)]">{rule[locale]}</p>
-      {isTraitBased && (
-        <p className="rounded-md bg-[var(--surface-subtle)] px-2 py-1 font-mono text-xs text-[var(--ink-primary)]">
-          {`${flow.itemFormula} = (${rule.traits.map((trait) => trait.name).join(" + ")}) ÷ ${maxBreakdown(rule.traits.map((trait) => trait.max))} × 100`}
-        </p>
+      {formula && (
+        <p className="rounded-md bg-[var(--surface-subtle)] px-2 py-1 font-mono text-xs text-[var(--ink-primary)]">{formula}</p>
       )}
-      {gated.length > 0 && <p className="text-xs font-medium text-rose-600">{flow.gateLine(gated.join(flow.or))}</p>}
       {rule.traits.length > 0 && (
         <ul className="flex flex-wrap gap-1.5">
-          {rule.traits.map((trait) => (
-            <li
-              key={trait.name}
-              className="rounded-full border border-[var(--shell-border)] px-2.5 py-0.5 text-xs text-[var(--ink-secondary)]"
-            >
-              {`${trait.name} 0–${trait.max}`}
-              {gated.includes(trait.name) && <span className="ml-1 font-semibold text-rose-600">{`· ${flow.gate}`}</span>}
-            </li>
-          ))}
+          {rule.traits.map((trait) => {
+            const chipClass = `rounded-full border px-2.5 py-0.5 text-xs ${
+              gated.includes(trait.name)
+                ? "border-rose-200 bg-rose-50 font-medium text-rose-700"
+                : "border-[var(--shell-border)] text-[var(--ink-secondary)]"
+            }`;
+            const label = (
+              <>
+                {`${trait.name} 0–${trait.max}`}
+                {gated.includes(trait.name) && <span className="ml-1 font-semibold">{`· ${flow.gate}`}</span>}
+              </>
+            );
+            return (
+              <li key={trait.name}>
+                {onSelectTrait ? (
+                  <button
+                    type="button"
+                    onClick={() => onSelectTrait(trait.name)}
+                    className={`${chipClass} cursor-pointer transition-colors hover:border-action hover:text-action`}
+                  >
+                    {label}
+                  </button>
+                ) : (
+                  <span className={chipClass}>{label}</span>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
