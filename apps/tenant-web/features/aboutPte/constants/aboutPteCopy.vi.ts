@@ -70,12 +70,12 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
     ],
     src: [11, 12, 13],
     caveat:
-      "Số điểm thi khác nhau giữa các nguồn (từ 2 đến 9) và Pearson không công bố tổng số ca thi toàn quốc, nên tần suất chính xác chưa được kiểm chứng.",
+      "Số lượng điểm thi và ca thi có thể thay đổi theo từng thời điểm. Hãy kiểm tra lịch trống trực tiếp trên cổng đặt lịch của Pearson.",
   },
   comparison: {
     title: "So sánh PTE với các chứng chỉ khác",
     caption: "Số liệu chính thức khi có; lệ phí khác nhau theo quốc gia.",
-    featured: "Đề tài này",
+    featured: "Bài thi này",
     headers: ["", "PTE Academic", "IELTS Academic", "TOEFL iBT", "PTE Core"],
     rows: [
       ["Tổ chức", "Pearson", "British Council, IDP, Cambridge", "ETS", "Pearson"],
@@ -101,7 +101,7 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
   flow: {
     title: "Một câu trả lời trở thành điểm như thế nào",
     intro:
-      "Việc chấm điểm đi qua 4 tầng. Tầng 1–2 làm theo Score Guide chính thức của Pearson cho từng dạng câu; tầng 3–4 là cách nền tảng này gộp kết quả lại (mã nguồn: RubricScorer và AggregationCore trong pte-api).",
+      "Việc chấm điểm đi qua 4 tầng. Tầng 1–2 làm theo Score Guide chính thức của Pearson cho từng dạng câu; tầng 3–4 là cách nền tảng này gộp kết quả lại.",
     steps: [
       { title: "1 · Chấm từng tiêu chí", text: "Câu nói và câu viết được chấm theo nhiều tiêu chí, ví dụ Content 0–6, Pronunciation 0–5, Oral Fluency 0–5. Trong app, điểm tiêu chí do Azure Speech, mô hình AI (LLM), code đếm từ hoặc giám khảo cho." },
       { title: "2 · Điểm câu 0–100", text: "Điểm đạt ÷ điểm tối đa × 100. Nếu tiêu chí “cổng” (Content, hoặc Form với bài viết) bằng 0 thì cả câu được 0. Câu khách quan tính điểm theo bảng bên dưới." },
@@ -137,8 +137,8 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
     integratedNote: "Mỗi đường thể hiện điểm trung bình của dạng câu chảy về kỹ năng nào. Đường càng dày = trọng số càng lớn.",
     simplificationsTitle: "Nền tảng này khác cách chấm PTE chính thức ở đâu",
     simplifications: [
-      "Tiêu chí và điểm tối đa làm theo Score Guide, nhưng điểm tiêu chí do Azure Speech và LLM chấm thay cho bộ máy chấm riêng của Pearson (Versant, Intelligent Essay Assessor). Bảng đổi điểm Azure sang band (ngưỡng 30/45/60/75/90) chưa được hiệu chỉnh với dữ liệu người chấm.",
-      "Pearson không công bố cách cộng điểm câu thành 10–90 và trọng số chính xác. App dùng trọng số từ bảng do cộng đồng công bố (V5) và quy đổi tuyến tính 10 + 80 × tỉ lệ.",
+      "Tiêu chí và điểm tối đa làm theo Score Guide, nhưng điểm tiêu chí do Azure Speech và mô hình AI chấm thay cho bộ máy chấm riêng của Pearson (Versant, Intelligent Essay Assessor). Bảng đổi điểm Azure sang band (ngưỡng 30/45/60/75/90) hiện là ước lượng, chưa được đối chiếu với điểm của giám khảo.",
+      "Pearson không công bố cách cộng điểm câu thành 10–90 và trọng số chính xác. App dùng trọng số từ bảng do cộng đồng công bố và quy đổi tuyến tính 10 + 80 × tỉ lệ.",
       "Pearson có chuyên gia chấm lại Content ở một số dạng; ở đây việc giám khảo duyệt lại là tuỳ chọn.",
       "Điểm ở đây là ước tính luyện tập, không phải bảng điểm PTE chính thức.",
     ],
