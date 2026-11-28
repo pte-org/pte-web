@@ -48,10 +48,11 @@ export const ABOUT_PTE_EXTRAS_EN = {
     filterLabel: "Show scoring rules of",
     all: (count: number): string => `All (${count})`,
     collapse: "Collapse the rules",
+    gateMeaning: "= if this trait is 0, the whole item scores 0",
     traitTabs: "Trait to show",
     wholeItemZero: "Whole item = 0",
     columns: { task: "Question type", kind: "Scoring", skills: "Skill", rule: "Scoring rule", page: "Page" },
-    flowHint: "Hover a question type or a skill to highlight its flows and weights.",
+    flowHint: "Hover a question type or a skill to highlight its flows. The number beside a line is that question type's weight for the skill.",
   },
   compareFilter: {
     label: "Compare PTE with",

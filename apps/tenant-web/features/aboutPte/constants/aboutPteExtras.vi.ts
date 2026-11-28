@@ -49,10 +49,11 @@ export const ABOUT_PTE_EXTRAS_VI: AboutPteExtras = {
     filterLabel: "Xem quy tắc chấm của",
     all: (count) => `Tất cả (${count})`,
     collapse: "Thu gọn quy tắc",
+    gateMeaning: "= tiêu chí này bằng 0 thì cả câu được 0",
     traitTabs: "Tiêu chí cần xem",
     wholeItemZero: "Cả câu = 0",
     columns: { task: "Dạng câu hỏi", kind: "Cách chấm", skills: "Kỹ năng", rule: "Quy tắc tính điểm", page: "Trang" },
-    flowHint: "Rê chuột vào một dạng câu hoặc một kỹ năng để làm nổi bật các đường và trọng số liên quan.",
+    flowHint: "Rê chuột vào một dạng câu hoặc một kỹ năng để làm nổi bật các đường. Con số cạnh mỗi đường là trọng số của dạng câu đó cho kỹ năng.",
   },
   compareFilter: {
     label: "So sánh PTE với",

@@ -33,6 +33,9 @@ export const SKILL_CHIPS = {
   listening: "bg-[var(--cream-tint)] text-[var(--cream-action)]",
 } as const;
 
+/** Rose chip marking a gate trait: scoring it zero zeroes the whole item. Shared by the cards and the legend. */
+export const GATE_CHIP_TONE = "border-rose-200 bg-rose-50 font-medium text-rose-700";
+
 /** Theme-aware card surface used by the guide cards. */
 export const THEMED_CARD =
   "rounded-2xl border border-[var(--shell-border)] bg-[var(--surface-card)] text-[var(--ink-primary)]";
