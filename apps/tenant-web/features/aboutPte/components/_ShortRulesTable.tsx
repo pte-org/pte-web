@@ -35,9 +35,6 @@ export const ShortRulesTable = ({ tasks, copy, locale }: ShortRulesTableProps): 
   );
   return (
     <div className={`${THEMED_CARD} overflow-hidden`}>
-      {sharedPage !== null && (
-        <div className="flex justify-end border-b border-[var(--shell-border)] bg-[var(--surface-subtle)] px-4 py-2">{pageLink(sharedPage)}</div>
-      )}
       <div className="overflow-x-auto">
         <table className="w-full min-w-[40rem] text-sm">
           <thead className="border-b border-[var(--shell-border)] bg-[var(--surface-subtle)]">
@@ -45,7 +42,16 @@ export const ShortRulesTable = ({ tasks, copy, locale }: ShortRulesTableProps): 
               <th scope="col" className={HEAD_CELL}>{columns.task}</th>
               <th scope="col" className={HEAD_CELL}>{columns.kind}</th>
               <th scope="col" className={HEAD_CELL}>{columns.skills}</th>
-              <th scope="col" className={HEAD_CELL}>{columns.rule}</th>
+              <th scope="col" className={HEAD_CELL}>
+                {sharedPage === null ? (
+                  columns.rule
+                ) : (
+                  <span className="flex items-center justify-between gap-3">
+                    {columns.rule}
+                    <span className="font-normal">{pageLink(sharedPage)}</span>
+                  </span>
+                )}
+              </th>
               {sharedPage === null && <th scope="col" className={HEAD_CELL}>{columns.page}</th>}
             </tr>
           </thead>

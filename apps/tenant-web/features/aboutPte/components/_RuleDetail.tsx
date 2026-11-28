@@ -1,5 +1,6 @@
 import type { ReactElement } from "react";
 import type { AboutPteCopy } from "../constants/aboutPteCopy.en";
+import { GATE_CHIP_TONE } from "../constants/aboutPteLayout";
 import { OFFICIAL_RULES } from "../constants/officialScoring";
 
 interface RuleDetailProps {
@@ -43,7 +44,7 @@ export const RuleDetail = ({ taskKey, copy, locale, onSelectTrait }: RuleDetailP
           {rule.traits.map((trait) => {
             const chipClass = `rounded-full border px-2.5 py-0.5 text-xs ${
               gated.includes(trait.name)
-                ? "border-rose-200 bg-rose-50 font-medium text-rose-700"
+                ? GATE_CHIP_TONE
                 : "border-[var(--shell-border)] text-[var(--ink-secondary)]"
             }`;
             const label = (

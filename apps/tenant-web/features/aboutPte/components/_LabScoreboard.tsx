@@ -13,7 +13,7 @@ interface LabScoreboardProps {
   copy: AboutPteCopy;
 }
 
-const SKILL_TONE = { speaking: "brand", writing: "brand", reading: "success", listening: "warning" } as const;
+const SKILL_TONE = { speaking: "brand", writing: "violet", reading: "success", listening: "warning" } as const;
 const toRing = (score: number | null): number | null => (score === null ? null : score - SCORE_FLOOR);
 
 /** Live skill and Overall rings; the skills fed by the hovered question type light up, the rest fade. */

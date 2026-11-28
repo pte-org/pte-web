@@ -3,6 +3,7 @@
 import { useState, type ReactElement } from "react";
 import { Button, ChevronDownIcon, Tabs } from "@pte/ui";
 import type { AboutPteCopy } from "../constants/aboutPteCopy.en";
+import { GATE_CHIP_TONE } from "../constants/aboutPteLayout";
 import { OFFICIAL_RULES } from "../constants/officialScoring";
 import { PART_ACCENT } from "../constants/partTones";
 import { STANDARD_TASK_WEIGHTS, type SectionKey } from "../constants/scoringWeights";
@@ -30,7 +31,7 @@ export const ScoringRules = ({ copy, locale, onCollapse }: ScoringRulesProps): R
   return (
     <>
       <div className="space-y-10">
-        <div className="flex justify-center">
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
           <Tabs
             variant="segmented"
             ariaLabel={scoringRules.filterLabel}
@@ -38,9 +39,16 @@ export const ScoringRules = ({ copy, locale, onCollapse }: ScoringRulesProps): R
             onChange={(next) => setFilter(next as PartFilter)}
             items={[
               { id: "all", label: scoringRules.all(STANDARD_TASK_WEIGHTS.length) },
-              ...SECTIONS.map((section) => ({ id: section, label: copy.sections[section] })),
+              ...SECTIONS.map((section) => ({
+                id: section,
+                label: `${copy.sections[section]} (${STANDARD_TASK_WEIGHTS.filter((task) => task.section === section).length})`,
+              })),
             ]}
           />
+          <p className="flex items-center gap-2 text-xs text-[var(--ink-secondary)]">
+            <span className={`rounded-full border px-2.5 py-0.5 ${GATE_CHIP_TONE}`}>{copy.flow.gate}</span>
+            {scoringRules.gateMeaning}
+          </p>
         </div>
         {SECTIONS.map((section, index) => {
           if (filter !== "all" && filter !== section) return null;
