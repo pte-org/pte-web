@@ -26,6 +26,12 @@ describe("About PTE extra copy", () => {
     }
   });
 
+  it("gives every exam part a length, in both languages", () => {
+    for (const extras of [ABOUT_PTE_EXTRAS_EN, ABOUT_PTE_EXTRAS_VI]) {
+      for (const key of ["speakingWriting", "reading", "listening"] as const) expect(extras.parts[key]).toMatch(/\d+–\d+/);
+    }
+  });
+
   it("has a nav entry for every section it links to", () => {
     expect(ABOUT_PTE_EXTRAS_EN.nav.items.map((item) => item.id)).toContain("difference");
   });

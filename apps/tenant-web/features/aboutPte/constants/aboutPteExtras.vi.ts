@@ -33,6 +33,12 @@ export const ABOUT_PTE_EXTRAS_VI: AboutPteExtras = {
       },
     ],
   },
+  parts: {
+    speakingWriting: "Phần 1 · khoảng 76–84 phút",
+    reading: "Phần 2 · khoảng 23–30 phút",
+    listening: "Phần 3 · khoảng 31–39 phút",
+    note: "Thời lượng theo Score Guide của Pearson; thời gian thực tế thay đổi theo từng đề thi.",
+  },
   compareFilter: {
     label: "So sánh PTE với",
     all: "Tất cả bài thi",

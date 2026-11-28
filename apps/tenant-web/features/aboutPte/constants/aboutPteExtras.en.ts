@@ -32,6 +32,12 @@ export const ABOUT_PTE_EXTRAS_EN = {
       },
     ],
   },
+  parts: {
+    speakingWriting: "Part 1 · about 76–84 minutes",
+    reading: "Part 2 · about 23–30 minutes",
+    listening: "Part 3 · about 31–39 minutes",
+    note: "Lengths from the Pearson Score Guide; the real time varies with each version of the test.",
+  },
   compareFilter: {
     label: "Compare PTE with",
     all: "All tests",
