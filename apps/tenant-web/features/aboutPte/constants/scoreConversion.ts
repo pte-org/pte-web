@@ -27,6 +27,19 @@ export const CEFR_MINIMUMS: readonly { level: CefrLevel; pte: number }[] = [
   { level: "C2", pte: 85 },
 ];
 
+/**
+ * ETS's TOEFL iBT score scale 1–6 against CEFR (scores from 21 January 2026, source [8]): the band, in half points,
+ * each CEFR level covers. There is no direct PTE–TOEFL table from either company, so TOEFL is reached through CEFR.
+ */
+export const TOEFL_BY_CEFR: Record<CefrLevel, { min: number; max: number }> = {
+  A1: { min: 1, max: 1.5 },
+  A2: { min: 2, max: 2.5 },
+  B1: { min: 3, max: 3.5 },
+  B2: { min: 4, max: 4.5 },
+  C1: { min: 5, max: 5.5 },
+  C2: { min: 6, max: 6 },
+};
+
 export const PTE_SCORE_MIN = 10;
 export const PTE_SCORE_MAX = 90;
 /** Where the converter starts, and the scores offered as one-click examples. */

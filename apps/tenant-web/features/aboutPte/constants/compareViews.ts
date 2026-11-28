@@ -3,6 +3,7 @@ export const COMPARE_VIEWS = {
   all: [1, 2, 3, 4],
   ielts: [1, 2],
   toefl: [1, 3],
+  core: [1, 4],
 } as const;
 
 export type CompareView = keyof typeof COMPARE_VIEWS;
