@@ -20,7 +20,8 @@ const toRing = (score: number | null): number | null => (score === null ? null :
 export const LabScoreboard = ({ lab, copy }: LabScoreboardProps): ReactElement => {
   const text = copy.simulation.lab;
   const { conversion } = useAboutPteExtras();
-  const focusedTask = STANDARD_TASK_WEIGHTS.find((task) => task.key === lab.focused);
+  // Same fallback as the lit skills (hovered row, else the open one), so the caption never disagrees with them.
+  const focusedTask = STANDARD_TASK_WEIGHTS.find((task) => task.key === (lab.focused ?? lab.open));
   const hasFocus = lab.highlighted.size > 0;
   const overall = lab.result.overall.score;
   const band = overall === null ? null : ieltsBandFor(overall);

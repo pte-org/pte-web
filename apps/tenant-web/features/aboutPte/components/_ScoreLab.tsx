@@ -7,6 +7,7 @@ import { PTE_SCORE_EXAMPLES } from "../constants/scoreConversion";
 import { useAboutPteExtras } from "../hooks/useAboutPteCopy";
 import { useScoreLab } from "../hooks/useScoreLab";
 import { cefrLevelFor } from "../utils/scoreConversion";
+import { LabMiniBar } from "./_LabMiniBar";
 import { LabScoreboard } from "./_LabScoreboard";
 import { LabTaskList } from "./_LabTaskList";
 
@@ -56,6 +57,7 @@ export const ScoreLab = ({ copy }: ScoreLabProps): ReactElement => {
           {text.reset}
         </Button>
       </div>
+      <LabMiniBar lab={lab} copy={copy} />
       <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
         <LabTaskList lab={lab} copy={copy} />
         <div className="lg:sticky lg:top-28 lg:self-start">

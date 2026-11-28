@@ -2,6 +2,10 @@ import type { ReactElement } from "react";
 import { QuantityStepper } from "@pte/ui";
 import type { AboutPteCopy } from "../constants/aboutPteCopy.en";
 import { isGateTriggered, LAB_SPECS, labItemScore } from "../constants/labItems";
+import { LevelPicker } from "./_LevelPicker";
+
+/** Controls with up to this many levels get one button per level; larger ranges (Read Aloud's word count) keep +/−. */
+const MAX_PICKER_LEVEL = 6;
 
 interface LabItemEditorProps {
   taskKey: string;
@@ -28,22 +32,29 @@ export const LabItemEditor = ({ taskKey, values, onChange, copy }: LabItemEditor
   }[spec.rule];
   return (
     <div className="space-y-3 border-t border-[var(--shell-border)] bg-[var(--surface-subtle)] px-3 py-3">
-      <p className="text-xs text-[var(--ink-secondary)]">{text.ruleHint[spec.rule]}</p>
+      <p className="text-xs text-[var(--ink-secondary)]">
+        {text.ruleHint[spec.rule]}
+        {taskKey === "READ_ALOUD" && spec.rule === "traits" && text.ruleHint.readAloudNote}
+      </p>
       <div className="space-y-2">
         {spec.controls.map((control, index) => (
-          <div key={control.key} className="flex items-center justify-between gap-3">
+          <div key={control.key} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
             <span className="text-sm text-[var(--ink-primary)]">
               {label(control.key)}
               <span className="ml-1 text-xs text-[var(--ink-muted)]">{`/ ${control.max}`}</span>
               {control.gate && <span className="ml-1 text-xs text-rose-600">{`(${copy.flow.gate})`}</span>}
             </span>
-            <QuantityStepper
-              value={values[index]}
-              min={0}
-              max={control.max}
-              onChange={(value) => onChange(index, value)}
-              displayMode="value"
-            />
+            {control.max <= MAX_PICKER_LEVEL ? (
+              <LevelPicker label={label(control.key)} value={values[index]} max={control.max} onChange={(value) => onChange(index, value)} />
+            ) : (
+              <QuantityStepper
+                value={values[index]}
+                min={0}
+                max={control.max}
+                onChange={(value) => onChange(index, value)}
+                displayMode="value"
+              />
+            )}
           </div>
         ))}
       </div>
