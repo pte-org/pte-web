@@ -92,8 +92,6 @@ export const ABOUT_PTE_EXTRAS_EN = {
     target: (score: number, level: string): string => `Target ${score} · ${level}`,
   },
   sources: {
-    show: (count: number): string => `Show ${count} references`,
-    hide: "Hide references",
     link: (count: number): string => `Sources (${count})`,
   },
   cta: {

@@ -20,7 +20,6 @@ export const ScoringSimulation = (): ReactElement => {
     <section id="simulation" aria-labelledby="simulation-title" className="scroll-mt-24">
       <SimulatorBand />
       <div id="simulation-lab" className={`${ABOUT_PTE_LAYOUT.container} scroll-mt-24 pb-14 pt-8`}>
-        <p className="mx-auto mb-6 max-w-3xl text-center text-sm leading-7 text-[var(--ink-secondary)]">{text.intro}</p>
         <div className="flex justify-center">
           <Tabs
             variant="segmented"

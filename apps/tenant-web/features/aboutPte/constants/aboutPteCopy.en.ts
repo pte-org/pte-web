@@ -145,12 +145,10 @@ export const ABOUT_PTE_EN = {
   },
   simulation: {
     title: "Scoring simulation",
-    intro:
-      "Two ways to explore the same scoring formula with all 22 question types: the score lab shows the effect of each answer instantly; the step-by-step view shows every number of the calculation for three students. Everything runs in your browser.",
     modes: { lab: "Score lab", steps: "Step-by-step calculation" },
     lab: {
-      intro:
-        "Each question type has one sample item scored with its real rule: trait levels for speaking and writing, counts of correct blanks, pairs or words, +1/−1 picks, or simply correct/incorrect. Click a question type to change the answer; the item score and the skill scores on the right update instantly. Hover a question type to see which skills it feeds.",
+      intro: "Click a question type to change its answer; hover to see which skills it feeds.",
+      weight: (value: string): string => `Weight ${value}`,
       allBest: "Best possible answers",
       allWorst: "Worst possible answers",
       reset: "Reset",

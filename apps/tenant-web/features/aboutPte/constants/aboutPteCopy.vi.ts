@@ -147,12 +147,10 @@ export const ABOUT_PTE_VI: AboutPteCopy = {
   },
   simulation: {
     title: "Giả lập chấm điểm",
-    intro:
-      "Hai cách khám phá cùng một công thức chấm với đủ 22 dạng câu: phòng thí nghiệm cho thấy ngay mỗi câu trả lời ảnh hưởng điểm thế nào; phép tính từng bước hiện mọi con số cho 3 học viên. Mọi thứ chạy trên trình duyệt.",
     modes: { lab: "Phòng thí nghiệm điểm", steps: "Phép tính từng bước" },
     lab: {
-      intro:
-        "Mỗi dạng câu có một câu mẫu được chấm đúng theo quy tắc của dạng đó: chấm theo tiêu chí với bài nói và bài viết, đếm số ô / cặp / từ đúng, chọn đúng +1 chọn sai −1, hoặc đơn giản là đúng/sai. Bấm vào một dạng câu để chỉnh câu trả lời; điểm câu và điểm kỹ năng bên phải cập nhật ngay. Rê chuột vào một dạng để xem nó góp điểm cho kỹ năng nào.",
+      intro: "Bấm vào từng dạng câu để chỉnh điểm; rê chuột để xem dạng đó đóng góp cho kỹ năng nào.",
+      weight: (value) => `Trọng số ${value}`,
       allBest: "Làm tốt nhất",
       allWorst: "Làm kém nhất",
       reset: "Đặt lại",
