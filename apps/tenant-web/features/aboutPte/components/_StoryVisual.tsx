@@ -20,7 +20,7 @@ const ITEM_SCORE = 56;
 const SECOND_ITEM = 94;
 const AVERAGE = (ITEM_SCORE + SECOND_ITEM) / 2;
 const SAMPLE = scoreAttempt(SIM_TASKS, toItemScores(INITIAL_ANSWERS[1]));
-const SKILL_TONE = { speaking: "brand", writing: "brand", reading: "success", listening: "warning" } as const;
+const SKILL_TONE = { speaking: "brand", writing: "violet", reading: "success", listening: "warning" } as const;
 
 const TraitBars = (): ReactElement => (
   <ul className="space-y-4">
@@ -34,6 +34,20 @@ const TraitBars = (): ReactElement => (
       </li>
     ))}
   </ul>
+);
+
+const AverageTerm = ({ label, value, highlighted = false }: { label: string; value: number; highlighted?: boolean }): ReactElement => (
+  <span className="flex flex-col items-center gap-1">
+    <span className={`rounded-lg px-3 py-2 ${highlighted ? "bg-action text-white" : "bg-[var(--surface-card)] shadow-sm"}`}>{value}</span>
+    <span className="text-xs font-medium text-[var(--ink-muted)]">{label}</span>
+  </span>
+);
+
+const Aside = ({ title, text, mono = false }: { title: string; text: string; mono?: boolean }): ReactElement => (
+  <div className="rounded-lg bg-[var(--surface-card)] px-3 py-2 shadow-sm">
+    <p className="text-xs font-semibold text-[var(--ink-muted)]">{title}</p>
+    <p className={`mt-1 text-sm text-[var(--ink-primary)] ${mono ? "font-mono" : ""}`}>{text}</p>
+  </div>
 );
 
 const scoreRing = (score: number | null): number | null => (score === null ? null : score - SCORE_FLOOR);
@@ -50,13 +64,26 @@ export const StoryVisual = ({ step, copy }: StoryVisualProps): ReactElement => {
           <p className="text-sm text-slate-600">{story.gateNote}</p>
         </div>
       )}
+      {step === 1 && (
+        <div className="mt-5 space-y-3">
+          <p className="rounded-lg bg-[var(--surface-card)] px-3 py-2 font-mono text-sm shadow-sm">{story.itemFormulaLine}</p>
+          <Aside title={story.gateExampleTitle} text={story.gateExample} />
+        </div>
+      )}
       {step === 2 && (
-        <div className="flex flex-wrap items-center gap-3 text-lg font-semibold tabular-nums">
-          <span className="rounded-lg bg-[var(--surface-card)] px-3 py-2 shadow-sm">{ITEM_SCORE}</span>
-          <span className="text-slate-400">+</span>
-          <span className="rounded-lg bg-[var(--surface-card)] px-3 py-2 shadow-sm">{SECOND_ITEM}</span>
-          <span className="text-slate-400">÷ 2 =</span>
-          <span className="rounded-lg bg-action px-3 py-2 text-white">{AVERAGE}</span>
+        <div className="flex flex-wrap items-start gap-3 text-lg font-semibold tabular-nums">
+          <span className="pt-2 text-2xl text-slate-400" aria-hidden="true">(</span>
+          <AverageTerm label={story.itemLabel(1)} value={ITEM_SCORE} />
+          <span className="pt-2 text-slate-400">+</span>
+          <AverageTerm label={story.itemLabel(2)} value={SECOND_ITEM} />
+          <span className="pt-2 text-2xl text-slate-400" aria-hidden="true">)</span>
+          <span className="pt-2 text-slate-400">÷ 2 =</span>
+          <AverageTerm label={story.average} value={AVERAGE} highlighted />
+        </div>
+      )}
+      {step === 2 && (
+        <div className="mt-5">
+          <Aside title={story.blankExampleTitle} text={story.blankExample} mono />
         </div>
       )}
       {step === 3 && (

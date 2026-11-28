@@ -69,7 +69,11 @@ export const TraitDrawer = ({ target, onChange, onClose, copy, locale }: TraitDr
                     : "bg-[var(--surface-subtle)] text-[var(--ink-secondary)] hover:bg-[var(--action-tint)] hover:text-action"
                 }`}
               >
+                {rule.gate && GATED_TRAITS.has(trait.name) && (
+                  <span className="mr-1.5 inline-block h-2 w-2 rounded-full bg-rose-500 align-middle" aria-hidden="true" />
+                )}
                 {`${trait.name} (0–${trait.max})`}
+                {rule.gate && GATED_TRAITS.has(trait.name) && <span className="sr-only">{`, ${flow.gate}`}</span>}
               </button>
             ))}
           </div>

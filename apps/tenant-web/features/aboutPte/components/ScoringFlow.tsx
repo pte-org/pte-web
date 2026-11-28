@@ -104,8 +104,8 @@ export const ScoringFlow = (): ReactElement => {
           expanded={isRulesOpen}
           onExpandedChange={setIsRulesOpen}
           className={`${THEMED_CARD} p-5`}
+          contentClassName="border-t border-[var(--shell-border)] pt-5"
         >
-          <p className="mb-4 text-xs text-[var(--ink-muted)]">{flow.levelsNote}</p>
           <ScoringRules copy={copy} locale={locale === "vi" ? "vi" : "en"} onCollapse={() => setIsRulesOpen(false)} />
         </CollapsibleSection>
         <CollapsibleSection title={scoring.technical} chevronAtEnd defaultExpanded={false} className={`${THEMED_CARD} p-5`}>
