@@ -35,6 +35,11 @@ describe("About PTE extra copy", () => {
     expect(ABOUT_PTE_EXTRAS_EN.sources.show(16)).toContain("16");
   });
 
+  it("lists the sources in numbered order", () => {
+    const ids = ABOUT_PTE_SOURCES.map((source) => source.id);
+    expect(ids).toEqual([...ids].sort((a, b) => a - b));
+  });
+
   it("cites Pearson's score pages as sources 15 and 16", () => {
     const urls = Object.fromEntries(ABOUT_PTE_SOURCES.map((source) => [source.id, source.url]));
     expect(urls[15]).toContain("pearsonpte.com/pte-academic/scoring");
@@ -50,6 +55,11 @@ describe("public copy", () => {
 });
 
 describe("comparison views", () => {
+  it("has a view for each other test in the matrix", () => {
+    expect(Object.keys(COMPARE_VIEWS)).toEqual(["all", "ielts", "toefl", "core"]);
+    expect(COMPARE_VIEWS.core).toEqual([1, 4]);
+  });
+
   it("always keep PTE Academic and never show more than the matrix has", () => {
     for (const columns of Object.values(COMPARE_VIEWS)) {
       expect(columns).toContain(1);

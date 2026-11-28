@@ -11,6 +11,7 @@ import {
   clampPteScore,
   formatIeltsBand,
   ieltsBandFor,
+  toeflBandFor,
 } from "../../../../features/aboutPte/utils/scoreConversion";
 
 describe("PTE to IELTS (Pearson, July 2025)", () => {
@@ -80,5 +81,24 @@ describe("score helpers", () => {
   it("writes IELTS bands with one decimal", () => {
     expect(formatIeltsBand(6)).toBe("6.0");
     expect(formatIeltsBand(6.5)).toBe("6.5");
+  });
+});
+
+describe("PTE to TOEFL iBT (through CEFR, ETS 1–6 scale)", () => {
+  it("gives the band ETS assigns to the same CEFR level", () => {
+    expect(toeflBandFor(50)).toBe("3–3.5");
+    expect(toeflBandFor(65)).toBe("4–4.5");
+    expect(toeflBandFor(79)).toBe("5–5.5");
+    expect(toeflBandFor(85)).toBe("6");
+    expect(toeflBandFor(PTE_SCORE_MIN)).toBe("1–1.5");
+  });
+
+  it("never goes down as the score goes up", () => {
+    let previous = 0;
+    for (let score = PTE_SCORE_MIN; score <= PTE_SCORE_MAX; score += 1) {
+      const lowest = Number.parseFloat(toeflBandFor(score));
+      expect(lowest).toBeGreaterThanOrEqual(previous);
+      previous = lowest;
+    }
   });
 });
