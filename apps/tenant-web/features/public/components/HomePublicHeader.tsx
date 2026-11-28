@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ChevronRightIcon, LocaleSwitcher, useSessionManager } from "@pte/ui";
 import { AUTH_ROUTES } from "@/features/auth/constants";
 import { PUBLIC_TEXT } from "../constants";
@@ -11,13 +12,19 @@ import { useHomeCopy } from "../useHomeCopy";
 import { ABOUT_PTE_ROUTE } from "@/features/aboutPte/constants/aboutPteLayout";
 import { useAboutPteCopy } from "@/features/aboutPte/hooks/useAboutPteCopy";
 
-export const HomePublicHeader = (): ReactElement => {
+interface HomePublicHeaderProps {
+  /** Keep the header pinned while scrolling; a page with its own sticky bar turns it off so only one bar stays. */
+  sticky?: boolean;
+}
+
+export const HomePublicHeader = ({ sticky = true }: HomePublicHeaderProps): ReactElement => {
   const { HOME_TEXT } = useHomeCopy();
   const aboutPte = useAboutPteCopy();
+  const onAboutPage = usePathname() === ABOUT_PTE_ROUTE;
   const { isReady, session } = useSessionManager();
   const authenticated = isReady && Boolean(session?.accessToken);
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--home-border)] bg-white">
+    <header className={`${sticky ? "sticky top-0 z-40 " : ""}border-b border-[var(--home-border)] bg-white`}>
       <div
         className={`${HOME_LAYOUT.container} flex min-h-20 items-center justify-between gap-3 py-3 lg:min-h-[90px]`}
       >
@@ -49,7 +56,11 @@ export const HomePublicHeader = (): ReactElement => {
           <Link href="/#plans" className="hover:text-action">
             {HOME_TEXT.plans}
           </Link>
-          <Link href={ABOUT_PTE_ROUTE} className="hover:text-action">
+          <Link
+            href={ABOUT_PTE_ROUTE}
+            aria-current={onAboutPage ? "page" : undefined}
+            className={onAboutPage ? "font-semibold text-action" : "hover:text-action"}
+          >
             {aboutPte.nav}
           </Link>
         </nav>

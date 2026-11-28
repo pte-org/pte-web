@@ -12,9 +12,11 @@ import { useHomeCopy } from "../useHomeCopy";
 interface PublicShellProps {
   children: ReactNode;
   home?: boolean;
+  /** Pin the site header while scrolling (default); a page with its own sticky bar sets this to false. */
+  stickyHeader?: boolean;
 }
 
-export const PublicShell = ({ children, home = false }: PublicShellProps): ReactElement => {
+export const PublicShell = ({ children, home = false, stickyHeader = true }: PublicShellProps): ReactElement => {
   const { HOME_TEXT } = useHomeCopy();
   return (
     <div
@@ -26,7 +28,7 @@ export const PublicShell = ({ children, home = false }: PublicShellProps): React
       >
         {HOME_TEXT.skipContent}
       </a>
-      <PublicHeader home={home} />
+      <PublicHeader home={home} stickyHeader={stickyHeader} />
       <main id="main-content">{children}</main>
       {home ? (
         <HomeFooter />
